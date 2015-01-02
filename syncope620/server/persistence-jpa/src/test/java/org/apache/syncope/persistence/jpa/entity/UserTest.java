@@ -50,20 +50,20 @@ public class UserTest extends AbstractTest {
 
     @Test
     public void findAll() {
-        List<User> list = userDAO.findAll(RoleEntitlementUtil.getRoleIds(entitlementDAO.findAll()), 1, 100);
+        List<User> list = userDAO.findAll(RoleEntitlementUtil.getRoleKeys(entitlementDAO.findAll()), 1, 100);
         assertEquals("did not get expected number of users ", 5, list.size());
     }
 
     @Test
     public void count() {
-        Integer count = userDAO.count(RoleEntitlementUtil.getRoleIds(entitlementDAO.findAll()));
+        Integer count = userDAO.count(RoleEntitlementUtil.getRoleKeys(entitlementDAO.findAll()));
         assertNotNull(count);
         assertEquals(5, count.intValue());
     }
 
     @Test
     public void findAllByPageAndSize() {
-        Set<Long> allRoleIds = RoleEntitlementUtil.getRoleIds(entitlementDAO.findAll());
+        Set<Long> allRoleIds = RoleEntitlementUtil.getRoleKeys(entitlementDAO.findAll());
 
         // get first page
         List<User> list = userDAO.findAll(allRoleIds, 1, 2);

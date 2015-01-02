@@ -515,7 +515,7 @@ public class JPARoleDAO extends AbstractSubjectDAO<RPlainAttr, RDerAttr, RVirAtt
             roleToBeDeleted.setRoleOwner(null);
             entityManager.remove(roleToBeDeleted);
 
-            entitlementDAO.delete(RoleEntitlementUtil.getEntitlementNameFromRoleId(roleToBeDeleted.getKey()));
+            entitlementDAO.delete(RoleEntitlementUtil.getEntitlementNameFromRoleKey(roleToBeDeleted.getKey()));
         }
     }
 

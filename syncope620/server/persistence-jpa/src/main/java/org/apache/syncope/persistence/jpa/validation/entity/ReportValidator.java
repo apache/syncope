@@ -48,7 +48,7 @@ public class ReportValidator extends AbstractValidator<ReportCheck, Report> {
             }
         }
 
-        Set<String> reportletNames = new HashSet<String>();
+        Set<String> reportletNames = new HashSet<>();
         for (ReportletConf conf : object.getReportletConfs()) {
             reportletNames.add(conf.getName());
         }

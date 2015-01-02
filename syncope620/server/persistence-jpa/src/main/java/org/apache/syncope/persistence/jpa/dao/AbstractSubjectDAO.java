@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.persistence.jpa.dao;
 
-import static org.apache.syncope.common.lib.types.AttrSchemaType.Double;
-
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collections;

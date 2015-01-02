@@ -35,15 +35,15 @@ public final class RoleEntitlementUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(RoleEntitlementUtil.class);
 
-    public static String getEntitlementNameFromRoleId(final Long roleId) {
-        return "ROLE_" + roleId;
+    public static String getEntitlementNameFromRoleKey(final Long roleKey) {
+        return "ROLE_" + roleKey;
     }
 
     public static boolean isRoleEntitlement(final String entitlementName) {
         return ROLE_ENTITLEMENT_NAME_PATTERN.matcher(entitlementName).matches();
     }
 
-    public static Long getRoleId(final String entitlementName) {
+    public static Long getRoleKey(final String entitlementName) {
         Long result = null;
 
         if (isRoleEntitlement(entitlementName)) {
@@ -57,12 +57,12 @@ public final class RoleEntitlementUtil {
         return result;
     }
 
-    public static Set<Long> getRoleIds(final Set<String> entitlements) {
+    public static Set<Long> getRoleKeys(final Set<String> entitlements) {
         Set<Long> result = new HashSet<>();
 
         for (String entitlement : entitlements) {
             if (isRoleEntitlement(entitlement)) {
-                Long roleId = getRoleId(entitlement);
+                Long roleId = getRoleKey(entitlement);
                 if (roleId != null) {
                     result.add(roleId);
                 }
@@ -72,12 +72,12 @@ public final class RoleEntitlementUtil {
         return result;
     }
 
-    public static Set<Long> getRoleIds(final List<Entitlement> entitlements) {
+    public static Set<Long> getRoleKeys(final List<Entitlement> entitlements) {
         Set<String> names = new HashSet<>(entitlements.size());
         for (Entitlement entitlement : entitlements) {
             names.add(entitlement.getKey());
         }
-        return getRoleIds(names);
+        return getRoleKeys(names);
     }
 
     /**

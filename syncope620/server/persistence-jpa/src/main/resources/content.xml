@@ -22,80 +22,80 @@ under the License.
                creator="admin" lastModifier="admin"
                creationDate="2014-06-20 11:00:00" lastChangeDate="2014-06-20 11:00:00"/>
 
-  <CSchema name="password.cipher.algorithm" type="String"
-           mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
-  <CAttr id="1" owner_id="1" schema_name="password.cipher.algorithm"/>
-  <CAttrValue id="1" attribute_id="1" stringValue="SHA1"/>
+  <CPlainSchema name="password.cipher.algorithm" type="String"
+                mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <CPlainAttr id="1" owner_id="1" schema_name="password.cipher.algorithm"/>
+  <CPlainAttrValue id="1" attribute_id="1" stringValue="SHA1"/>
 
   <!-- notificationjob.cronExpression:
   + not existing: NotificationJob runs according to Notification.DEFAULT_CRON_EXP
   + provided as empty string: NotificationJob disabled
   + provided as non-empty string: NotificationJob runs according to the given value -->
-  <CSchema name="notificationjob.cronExpression" type="String"
-           mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
-  <CAttr id="2" owner_id="1" schema_name="notificationjob.cronExpression"/>
-  <CAttrValue id="2" attribute_id="2" stringValue=""/>
+  <CPlainSchema name="notificationjob.cronExpression" type="String"
+                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <CPlainAttr id="2" owner_id="1" schema_name="notificationjob.cronExpression"/>
+  <CPlainAttrValue id="2" attribute_id="2" stringValue=""/>
 
-  <CSchema name="notification.maxRetries" type="Long"
-           mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
-  <CAttr id="3" owner_id="1" schema_name="notification.maxRetries"/>
-  <CAttrValue id="3" attribute_id="3" longValue="0"/>
+  <CPlainSchema name="notification.maxRetries" type="Long"
+                mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <CPlainAttr id="3" owner_id="1" schema_name="notification.maxRetries"/>
+  <CPlainAttrValue id="3" attribute_id="3" longValue="3"/>
 
-  <CSchema name="token.length" type="Long"
-           mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
-  <CAttr id="4" owner_id="1" schema_name="token.length"/>
-  <CAttrValue id="4" attribute_id="4" longValue="256"/>
+  <CPlainSchema name="token.length" type="Long"
+                mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <CPlainAttr id="4" owner_id="1" schema_name="token.length"/>
+  <CPlainAttrValue id="4" attribute_id="4" longValue="256"/>
 
-  <CSchema name="token.expireTime" type="Long"
-           mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
-  <CAttr id="5" owner_id="1" schema_name="token.expireTime"/>
-  <CAttrValue id="5" attribute_id="5" longValue="60"/>
+  <CPlainSchema name="token.expireTime" type="Long"
+                mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <CPlainAttr id="5" owner_id="1" schema_name="token.expireTime"/>
+  <CPlainAttrValue id="5" attribute_id="5" longValue="60"/>
 
-  <CSchema name="selfRegistration.allowed" type="Boolean"
-           mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
-  <CAttr id="6" owner_id="1" schema_name="selfRegistration.allowed"/>
-  <CAttrValue id="6" attribute_id="6" booleanValue="1"/>
+  <CPlainSchema name="selfRegistration.allowed" type="Boolean"
+                mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <CPlainAttr id="6" owner_id="1" schema_name="selfRegistration.allowed"/>
+  <CPlainAttrValue id="6" attribute_id="6" booleanValue="1"/>
 
-  <CSchema name="passwordReset.allowed" type="Boolean"
-           mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
-  <CAttr id="7" owner_id="1" schema_name="passwordReset.allowed"/>
-  <CAttrValue id="7" attribute_id="7" booleanValue="1"/>
+  <CPlainSchema name="passwordReset.allowed" type="Boolean"
+                mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <CPlainAttr id="7" owner_id="1" schema_name="passwordReset.allowed"/>
+  <CPlainAttrValue id="7" attribute_id="7" booleanValue="1"/>
 
-  <CSchema name="passwordReset.securityQuestion" type="Boolean"
-           mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
-  <CAttr id="8" owner_id="1" schema_name="passwordReset.securityQuestion"/>
-  <CAttrValue id="8" attribute_id="8" booleanValue="1"/>
+  <CPlainSchema name="passwordReset.securityQuestion" type="Boolean"
+                mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <CPlainAttr id="8" owner_id="1" schema_name="passwordReset.securityQuestion"/>
+  <CPlainAttrValue id="8" attribute_id="8" booleanValue="1"/>
 
-  <CSchema name="authentication.statuses" type="String"
-           mandatoryCondition="true" multivalue="1" uniqueConstraint="0" readonly="0"/>
-  <CAttr id="9" owner_id="1" schema_name="authentication.statuses"/>
-  <CAttrValue id="9" attribute_id="9" stringValue="created"/>
-  <CAttrValue id="10" attribute_id="9" stringValue="active"/>
+  <CPlainSchema name="authentication.statuses" type="String"
+                mandatoryCondition="true" multivalue="1" uniqueConstraint="0" readonly="0"/>
+  <CPlainAttr id="9" owner_id="1" schema_name="authentication.statuses"/>
+  <CPlainAttrValue id="9" attribute_id="9" stringValue="created"/>
+  <CPlainAttrValue id="10" attribute_id="9" stringValue="active"/>
 
   <!-- Save user login date upon successful authentication -->
-  <CSchema name="log.lastlogindate" type="Boolean"
-           mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
-  <CAttr id="11" owner_id="1" schema_name="log.lastlogindate"/>
-  <CAttrValue id="11" attribute_id="11" booleanValue="1"/>
+  <CPlainSchema name="log.lastlogindate" type="Boolean"
+                mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <CPlainAttr id="11" owner_id="1" schema_name="log.lastlogindate"/>
+  <CPlainAttrValue id="11" attribute_id="11" booleanValue="1"/>
 
   <!-- For usage with admin console -->
-  <CSchema name="admin.user.layout" type="String"
-           mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
-  <CSchema name="self.user.layout" type="String"
-           mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
-  <CSchema name="admin.role.layout" type="String"
-           mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
-  <CSchema name="self.role.layout" type="String"
-           mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
-  <CSchema name="admin.membership.layout" type="String"
-           mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
-  <CSchema name="self.membership.layout" type="String"
-           mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
+  <CPlainSchema name="admin.user.layout" type="String"
+                mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
+  <CPlainSchema name="self.user.layout" type="String"
+                mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
+  <CPlainSchema name="admin.role.layout" type="String"
+                mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
+  <CPlainSchema name="self.role.layout" type="String"
+                mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
+  <CPlainSchema name="admin.membership.layout" type="String"
+                mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
+  <CPlainSchema name="self.membership.layout" type="String"
+                mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
         
   <!-- User pre-defined schemas -->
-  <USchema name="email" type="String"
-           mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
-           validatorClass="org.apache.syncope.core.persistence.validation.attrvalue.EmailAddressValidator"/>  
+  <UPlainSchema name="email" type="String"
+                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
+                validatorClass="org.apache.syncope.persistence.jpa.attrvalue.validation.EmailAddressValidator"/>
   
   <!-- Password reset notifications -->
   <Notification id="1" active="1" recipientAttrName="email" recipientAttrType="UserSchema" selfAsRecipient="1" 

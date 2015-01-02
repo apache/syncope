@@ -56,7 +56,7 @@ public class JPAEntitlementDAO extends AbstractDAO<Entitlement, String> implemen
     @Override
     public Entitlement saveRoleEntitlement(final Role role) {
         Entitlement roleEnt = new JPAEntitlement();
-        roleEnt.setKey(RoleEntitlementUtil.getEntitlementNameFromRoleId(role.getKey()));
+        roleEnt.setKey(RoleEntitlementUtil.getEntitlementNameFromRoleKey(role.getKey()));
         roleEnt.setDescription("Entitlement for managing role " + role.getKey());
 
         return save(roleEnt);
