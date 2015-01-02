@@ -37,7 +37,6 @@ import org.apache.syncope.persistence.api.entity.ExternalResource;
 import org.apache.syncope.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.persistence.api.entity.user.User;
 import org.apache.syncope.persistence.jpa.AbstractTest;
-import org.apache.syncope.persistence.jpa.entity.task.JPAPropagationTask;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.junit.Test;
@@ -80,7 +79,7 @@ public class TaskTest extends AbstractTest {
         User user = userDAO.find(2L);
         assertNotNull(user);
 
-        PropagationTask task = new JPAPropagationTask();
+        PropagationTask task = entityFactory.newEntity(PropagationTask.class);
         task.setResource(resource);
         task.setSubjectType(AttributableType.USER);
         task.setPropagationMode(PropagationMode.TWO_PHASES);

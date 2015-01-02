@@ -40,7 +40,6 @@ import org.apache.syncope.persistence.api.entity.role.RPlainSchema;
 import org.apache.syncope.persistence.api.entity.role.Role;
 import org.apache.syncope.persistence.api.entity.user.User;
 import org.apache.syncope.persistence.jpa.AbstractTest;
-import org.apache.syncope.persistence.jpa.entity.role.JPARole;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -77,7 +76,7 @@ public class RoleTest extends AbstractTest {
         User user = userDAO.find(1L);
         assertNotNull("did not find expected user", user);
 
-        Role role = new JPARole();
+        Role role = entityFactory.newEntity(Role.class);
         role.setName("error");
         role.setUserOwner(user);
         role.setRoleOwner(root);
@@ -113,7 +112,7 @@ public class RoleTest extends AbstractTest {
 
     public void createWithPasswordPolicy() {
         PasswordPolicy policy = (PasswordPolicy) policyDAO.find(4L);
-        Role role = new JPARole();
+        Role role = entityFactory.newEntity(Role.class);
         role.setName("roleWithPasswordPolicy");
         role.setPasswordPolicy(policy);
 

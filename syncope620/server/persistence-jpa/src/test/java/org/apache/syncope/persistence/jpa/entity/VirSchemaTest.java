@@ -33,7 +33,6 @@ import org.apache.syncope.persistence.api.entity.VirSchema;
 import org.apache.syncope.persistence.api.entity.role.RVirSchema;
 import org.apache.syncope.persistence.api.entity.user.UVirSchema;
 import org.apache.syncope.persistence.jpa.AbstractTest;
-import org.apache.syncope.persistence.jpa.entity.user.JPAUVirSchema;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,7 +57,7 @@ public class VirSchemaTest extends AbstractTest {
 
     @Test
     public void save() {
-        UVirSchema virtualAttributeSchema = new JPAUVirSchema();
+        UVirSchema virtualAttributeSchema = entityFactory.newEntity(UVirSchema.class);
         virtualAttributeSchema.setKey("virtual");
         virtualAttributeSchema.setReadonly(true);
 
@@ -90,7 +89,7 @@ public class VirSchemaTest extends AbstractTest {
 
     @Test
     public void issueSYNCOPE418() {
-        UVirSchema schema = new JPAUVirSchema();
+        UVirSchema schema = entityFactory.newEntity(UVirSchema.class);
         schema.setKey("http://schemas.examples.org/security/authorization/organizationUnit");
 
         try {

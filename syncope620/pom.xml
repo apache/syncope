@@ -309,7 +309,7 @@ under the License.
     <connid.ldap.version>1.4.0</connid.ldap.version>
     <connid.ad.version>1.2.1</connid.ad.version>
 
-    <jackson.version>2.4.4</jackson.version>
+    <jackson.version>2.5.0</jackson.version>
 
     <spring.version>4.1.4.RELEASE</spring.version>
     <spring-security.version>3.2.5.RELEASE</spring-security.version>

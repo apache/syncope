@@ -79,7 +79,7 @@ public class PolicyTest extends AbstractTest {
         passwordPolicy.setMaxLength(8);
         passwordPolicy.setMinLength(6);
 
-        SyncPolicy policy = new JPASyncPolicy();
+        SyncPolicy policy = entityFactory.newPolicy(SyncPolicy.class, false);
         policy.setSpecification(passwordPolicy);
         policy.setDescription("sync policy");
 
@@ -92,7 +92,7 @@ public class PolicyTest extends AbstractTest {
         passwordPolicy.setMaxLength(8);
         passwordPolicy.setMinLength(6);
 
-        PasswordPolicy policy = new JPAPasswordPolicy(true);
+        PasswordPolicy policy = entityFactory.newPolicy(PasswordPolicy.class, true);
         policy.setSpecification(passwordPolicy);
         policy.setDescription("global password policy");
 
@@ -101,7 +101,7 @@ public class PolicyTest extends AbstractTest {
 
     @Test
     public void create() {
-        SyncPolicy policy = new JPASyncPolicy();
+        SyncPolicy policy = entityFactory.newPolicy(SyncPolicy.class, false);
 
         final String syncURuleName = "net.tirasa.sync.correlation.TirasaURule";
         final String syncRRuleName = "net.tirasa.sync.correlation.TirasaRRule";

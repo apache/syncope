@@ -19,7 +19,6 @@
 package org.apache.syncope.persistence.jpa.entity;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -32,7 +31,6 @@ import org.apache.syncope.persistence.api.dao.TaskExecDAO;
 import org.apache.syncope.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.persistence.jpa.AbstractTest;
-import org.apache.syncope.persistence.jpa.entity.task.JPATaskExec;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -79,7 +77,7 @@ public class TaskExecTest extends AbstractTest {
         String faultyMessage = "A faulty message";
         faultyMessage = faultyMessage.replace('a', '\0');
 
-        TaskExec exec = new JPATaskExec();
+        TaskExec exec = entityFactory.newEntity(TaskExec.class);
         exec.setStartDate(new Date());
         exec.setEndDate(new Date());
         exec.setStatus(PropagationTaskExecStatus.SUCCESS.name());

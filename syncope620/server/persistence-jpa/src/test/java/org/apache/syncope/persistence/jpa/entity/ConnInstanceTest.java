@@ -64,7 +64,7 @@ public class ConnInstanceTest extends AbstractTest {
 
     @Test
     public void save() throws ClassNotFoundException {
-        ConnInstance connInstance = new JPAConnInstance();
+        ConnInstance connInstance = entityFactory.newEntity(ConnInstance.class);
 
         connInstance.setLocation(new File(System.getProperty("java.io.tmpdir")).toURI().toString());
 

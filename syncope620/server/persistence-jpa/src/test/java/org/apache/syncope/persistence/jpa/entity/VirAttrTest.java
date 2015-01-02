@@ -38,9 +38,6 @@ import org.apache.syncope.persistence.api.entity.user.UVirAttr;
 import org.apache.syncope.persistence.api.entity.user.UVirSchema;
 import org.apache.syncope.persistence.api.entity.user.User;
 import org.apache.syncope.persistence.jpa.AbstractTest;
-import org.apache.syncope.persistence.jpa.entity.membership.JPAMVirAttr;
-import org.apache.syncope.persistence.jpa.entity.role.JPARVirAttr;
-import org.apache.syncope.persistence.jpa.entity.user.JPAUVirAttr;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -83,7 +80,7 @@ public class VirAttrTest extends AbstractTest {
         User owner = userDAO.find(3L);
         assertNotNull("did not get expected user", owner);
 
-        UVirAttr virAttr = new JPAUVirAttr();
+        UVirAttr virAttr = entityFactory.newEntity(UVirAttr.class);
         virAttr.setOwner(owner);
         virAttr.setSchema(virSchema);
 
@@ -99,7 +96,7 @@ public class VirAttrTest extends AbstractTest {
         Membership owner = membershipDAO.find(3L);
         assertNotNull("did not get expected membership", owner);
 
-        MVirAttr virAttr = new JPAMVirAttr();
+        MVirAttr virAttr = entityFactory.newEntity(MVirAttr.class);
         virAttr.setOwner(owner);
         virAttr.setTemplate(owner.getRole().getAttrTemplate(MVirAttrTemplate.class, "mvirtualdata"));
 
@@ -116,7 +113,7 @@ public class VirAttrTest extends AbstractTest {
         Role owner = roleDAO.find(3L);
         assertNotNull("did not get expected membership", owner);
 
-        RVirAttr virAttr = new JPARVirAttr();
+        RVirAttr virAttr = entityFactory.newEntity(RVirAttr.class);
         virAttr.setOwner(owner);
         virAttr.setTemplate(owner.getAttrTemplate(RVirAttrTemplate.class, "rvirtualdata"));
 

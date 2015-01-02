@@ -36,8 +36,6 @@ import org.apache.syncope.persistence.api.entity.role.RPlainAttr;
 import org.apache.syncope.persistence.api.entity.role.RPlainSchema;
 import org.apache.syncope.persistence.api.entity.user.UPlainSchema;
 import org.apache.syncope.persistence.jpa.AbstractTest;
-import org.apache.syncope.persistence.jpa.entity.role.JPARPlainSchema;
-import org.apache.syncope.persistence.jpa.entity.user.JPAUPlainSchema;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -78,7 +76,7 @@ public class PlainSchemaTest extends AbstractTest {
 
     @Test
     public void save() {
-        UPlainSchema schema = new JPAUPlainSchema();
+        UPlainSchema schema = entityFactory.newEntity(UPlainSchema.class);
         schema.setKey("secondaryEmail");
         schema.setType(AttrSchemaType.String);
         schema.setValidatorClass("org.apache.syncope.core.validation.EmailAddressValidator");
@@ -94,7 +92,7 @@ public class PlainSchemaTest extends AbstractTest {
 
     @Test(expected = InvalidEntityException.class)
     public void saveNonValid() {
-        UPlainSchema schema = new JPAUPlainSchema();
+        UPlainSchema schema = entityFactory.newEntity(UPlainSchema.class);
         schema.setKey("secondaryEmail");
         schema.setType(AttrSchemaType.String);
         schema.setValidatorClass("org.apache.syncope.core.validation.EmailAddressValidator");
@@ -107,7 +105,7 @@ public class PlainSchemaTest extends AbstractTest {
 
     @Test
     public void checkForEnumType() {
-        RPlainSchema schema = new JPARPlainSchema();
+        RPlainSchema schema = entityFactory.newEntity(RPlainSchema.class);
         schema.setType(AttrSchemaType.Enum);
         schema.setKey("color");
 
@@ -132,7 +130,7 @@ public class PlainSchemaTest extends AbstractTest {
 
     @Test(expected = InvalidEntityException.class)
     public void saveInvalidSchema() {
-        UPlainSchema schema = new JPAUPlainSchema();
+        UPlainSchema schema = entityFactory.newEntity(UPlainSchema.class);
         schema.setKey("username");
         plainSchemaDAO.save(schema);
     }
@@ -149,7 +147,7 @@ public class PlainSchemaTest extends AbstractTest {
 
     @Test
     public void issueSYNCOPE418() {
-        UPlainSchema schema = new JPAUPlainSchema();
+        UPlainSchema schema = entityFactory.newEntity(UPlainSchema.class);
         schema.setKey("http://schemas.examples.org/security/authorization/organizationUnit");
 
         try {

@@ -33,8 +33,6 @@ import org.apache.syncope.persistence.api.dao.UserDAO;
 import org.apache.syncope.persistence.api.entity.user.UPlainAttrValue;
 import org.apache.syncope.persistence.api.entity.user.User;
 import org.apache.syncope.persistence.jpa.AbstractTest;
-import org.apache.syncope.persistence.jpa.entity.user.JPAUPlainAttrValue;
-import org.apache.syncope.persistence.jpa.entity.user.JPAUser;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -100,7 +98,7 @@ public class UserTest extends AbstractTest {
 
     @Test
     public void findByAttributeValue() {
-        final UPlainAttrValue fullnameValue = new JPAUPlainAttrValue();
+        final UPlainAttrValue fullnameValue = entityFactory.newEntity(UPlainAttrValue.class);
         fullnameValue.setStringValue("Gioacchino Rossini");
 
         final List<User> list = userDAO.findByAttrValue("fullname", fullnameValue);
@@ -109,7 +107,7 @@ public class UserTest extends AbstractTest {
 
     @Test
     public void findByAttributeBooleanValue() {
-        final UPlainAttrValue coolValue = new JPAUPlainAttrValue();
+        final UPlainAttrValue coolValue = entityFactory.newEntity(UPlainAttrValue.class);
         coolValue.setBooleanValue(true);
 
         final List<User> list = userDAO.findByAttrValue("cool", coolValue);
@@ -138,7 +136,7 @@ public class UserTest extends AbstractTest {
 
     @Test
     public void save() {
-        User user = new JPAUser();
+        User user = entityFactory.newEntity(User.class);
         user.setUsername("username");
         user.setCreationDate(new Date());
 
@@ -183,7 +181,7 @@ public class UserTest extends AbstractTest {
 
     @Test
     public void issue237() {
-        User user = new JPAUser();
+        User user = entityFactory.newEntity(User.class);
         user.setUsername("username");
         user.setCreationDate(new Date());
 
@@ -195,7 +193,7 @@ public class UserTest extends AbstractTest {
 
     @Test
     public void issueSYNCOPE391() {
-        User user = new JPAUser();
+        User user = entityFactory.newEntity(User.class);
         user.setUsername("username");
         user.setPassword(null, CipherAlgorithm.AES);
 

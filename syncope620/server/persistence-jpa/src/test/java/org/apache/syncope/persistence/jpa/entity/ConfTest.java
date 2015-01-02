@@ -33,8 +33,6 @@ import org.apache.syncope.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.persistence.api.entity.conf.CPlainAttr;
 import org.apache.syncope.persistence.api.entity.conf.CPlainSchema;
 import org.apache.syncope.persistence.jpa.AbstractTest;
-import org.apache.syncope.persistence.jpa.entity.conf.JPACPlainAttr;
-import org.apache.syncope.persistence.jpa.entity.conf.JPACPlainSchema;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -65,14 +63,14 @@ public class ConfTest extends AbstractTest {
     @Test
     public void setAndDelete() {
         // 1. create CSChema
-        CPlainSchema useless = new JPACPlainSchema();
+        CPlainSchema useless = entityFactory.newEntity(CPlainSchema.class);
         useless.setKey("useless");
         useless.setType(AttrSchemaType.Date);
         useless.setConversionPattern("yyyy-MM-dd");
         useless = plainSchemaDAO.save(useless);
 
         // 2. create conf
-        CPlainAttr newConf = new JPACPlainAttr();
+        CPlainAttr newConf = entityFactory.newEntity(CPlainAttr.class);
         newConf.setSchema(useless);
         newConf.addValue("2014-06-20", JPAAttributableUtil.getInstance(AttributableType.CONFIGURATION));
         confDAO.save(newConf);
@@ -96,7 +94,7 @@ public class ConfTest extends AbstractTest {
     @Test
     public void issueSYNCOPE418() {
         try {
-            CPlainSchema failing = new JPACPlainSchema();
+            CPlainSchema failing = entityFactory.newEntity(CPlainSchema.class);
             failing.setKey("http://schemas.examples.org/security/authorization/organizationUnit");
             failing.setType(AttrSchemaType.String);
             plainSchemaDAO.save(failing);

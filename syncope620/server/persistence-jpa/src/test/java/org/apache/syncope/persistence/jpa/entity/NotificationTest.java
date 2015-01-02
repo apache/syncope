@@ -57,7 +57,7 @@ public class NotificationTest extends AbstractTest {
 
     @Test
     public void save() {
-        Notification notification = new JPANotification();
+        Notification notification = entityFactory.newEntity(Notification.class);
         notification.addEvent("save");
 
         notification.setUserAbout("fake search condition");
@@ -84,7 +84,7 @@ public class NotificationTest extends AbstractTest {
 
     @Test
     public void issueSYNCOPE445() {
-        Notification notification = new JPANotification();
+        Notification notification = entityFactory.newEntity(Notification.class);
         notification.addEvent("save");
 
         notification.setUserAbout("fake search condition");
@@ -109,7 +109,7 @@ public class NotificationTest extends AbstractTest {
 
     @Test
     public void issueSYNCOPE446() {
-        Notification notification = new JPANotification();
+        Notification notification = entityFactory.newEntity(Notification.class);
         notification.addEvent("[REST]:[RoleController]:[]:[create]:[SUCCESS]");
 
         notification.setRoleAbout("fake search condition");

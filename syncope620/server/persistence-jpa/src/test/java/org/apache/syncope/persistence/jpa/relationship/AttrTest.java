@@ -48,11 +48,6 @@ import org.apache.syncope.persistence.api.entity.user.UPlainAttrValue;
 import org.apache.syncope.persistence.api.entity.user.User;
 import org.apache.syncope.persistence.jpa.AbstractTest;
 import org.apache.syncope.persistence.jpa.entity.JPAAttributableUtil;
-import org.apache.syncope.persistence.jpa.entity.membership.JPAMPlainAttr;
-import org.apache.syncope.persistence.jpa.entity.membership.JPAMPlainAttrTemplate;
-import org.apache.syncope.persistence.jpa.entity.membership.JPAMPlainSchema;
-import org.apache.syncope.persistence.jpa.entity.user.JPAUDerAttr;
-import org.apache.syncope.persistence.jpa.entity.user.JPAUDerSchema;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -115,7 +110,7 @@ public class AttrTest extends AbstractTest {
         Membership membership = user.getMembership(1L);
         assertNotNull(membership);
 
-        MPlainSchema schema = new JPAMPlainSchema();
+        MPlainSchema schema = entityFactory.newEntity(MPlainSchema.class);
         schema.setType(AttrSchemaType.Enum);
         schema.setKey("color");
         schema.setEnumerationValues("red" + SyncopeConstants.ENUM_VALUES_SEPARATOR + "yellow");
@@ -123,11 +118,11 @@ public class AttrTest extends AbstractTest {
         MPlainSchema actualSchema = plainSchemaDAO.save(schema);
         assertNotNull(actualSchema);
 
-        MPlainAttrTemplate template = new JPAMPlainAttrTemplate();
+        MPlainAttrTemplate template = entityFactory.newEntity(MPlainAttrTemplate.class);
         template.setSchema(actualSchema);
         membership.getRole().getAttrTemplates(MPlainAttrTemplate.class).add(template);
 
-        MPlainAttr attr = new JPAMPlainAttr();
+        MPlainAttr attr = entityFactory.newEntity(MPlainAttr.class);
         attr.setTemplate(template);
         attr.setOwner(membership);
         attr.addValue("yellow", JPAAttributableUtil.getInstance(AttributableType.MEMBERSHIP));
@@ -146,7 +141,7 @@ public class AttrTest extends AbstractTest {
 
     @Test
     public void derAttrFromSpecialAttrs() {
-        UDerSchema sderived = new JPAUDerSchema();
+        UDerSchema sderived = entityFactory.newEntity(UDerSchema.class);
         sderived.setKey("sderived");
         sderived.setExpression("username + ' - ' + creationDate + '[' + failedLogins + ']'");
 
@@ -160,7 +155,7 @@ public class AttrTest extends AbstractTest {
         User owner = userDAO.find(3L);
         assertNotNull("did not get expected user", owner);
 
-        UDerAttr derAttr = new JPAUDerAttr();
+        UDerAttr derAttr = entityFactory.newEntity(UDerAttr.class);
         derAttr.setOwner(owner);
         derAttr.setSchema(sderived);
 

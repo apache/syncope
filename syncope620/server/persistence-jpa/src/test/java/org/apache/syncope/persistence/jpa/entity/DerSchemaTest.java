@@ -33,7 +33,6 @@ import org.apache.syncope.persistence.api.entity.DerSchema;
 import org.apache.syncope.persistence.api.entity.role.RDerSchema;
 import org.apache.syncope.persistence.api.entity.user.UDerSchema;
 import org.apache.syncope.persistence.jpa.AbstractTest;
-import org.apache.syncope.persistence.jpa.entity.user.JPAUDerSchema;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,7 +57,7 @@ public class DerSchemaTest extends AbstractTest {
 
     @Test
     public void save() {
-        UDerSchema derivedAttributeSchema = new JPAUDerSchema();
+        UDerSchema derivedAttributeSchema = entityFactory.newEntity(UDerSchema.class);
         derivedAttributeSchema.setKey("cn2");
         derivedAttributeSchema.setExpression("firstname surname");
 
@@ -91,7 +90,7 @@ public class DerSchemaTest extends AbstractTest {
 
     @Test
     public void issueSYNCOPE418() {
-        UDerSchema schema = new JPAUDerSchema();
+        UDerSchema schema = entityFactory.newEntity(UDerSchema.class);
         schema.setKey("http://schemas.examples.org/security/authorization/organizationUnit");
 
         try {

@@ -46,10 +46,7 @@ import org.apache.syncope.persistence.api.entity.user.UMapping;
 import org.apache.syncope.persistence.api.entity.user.UMappingItem;
 import org.apache.syncope.persistence.api.entity.user.User;
 import org.apache.syncope.persistence.jpa.AbstractTest;
-import org.apache.syncope.persistence.jpa.entity.JPAExternalResource;
 import org.apache.syncope.persistence.jpa.entity.role.JPARMappingItem;
-import org.apache.syncope.persistence.jpa.entity.user.JPAUMapping;
-import org.apache.syncope.persistence.jpa.entity.user.JPAUMappingItem;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -80,7 +77,7 @@ public class ResourceTest extends AbstractTest {
         final String resourceName = "resourceWithPasswordPolicy";
 
         PasswordPolicy policy = (PasswordPolicy) policyDAO.find(4L);
-        ExternalResource resource = new JPAExternalResource();
+        ExternalResource resource = entityFactory.newEntity(ExternalResource.class);
         resource.setKey(resourceName);
         resource.setPasswordPolicy(policy);
 
@@ -103,7 +100,7 @@ public class ResourceTest extends AbstractTest {
 
     @Test
     public void save() {
-        ExternalResource resource = new JPAExternalResource();
+        ExternalResource resource = entityFactory.newEntity(ExternalResource.class);
         resource.setKey("ws-target-resource-save");
 
         // specify the connector
@@ -112,13 +109,13 @@ public class ResourceTest extends AbstractTest {
 
         resource.setConnector(connector);
 
-        UMapping mapping = new JPAUMapping();
+        UMapping mapping = entityFactory.newEntity(UMapping.class);
         mapping.setResource(resource);
         resource.setUmapping(mapping);
 
         // specify mappings
         for (int i = 0; i < 3; i++) {
-            UMappingItem item = new JPAUMappingItem();
+            UMappingItem item = entityFactory.newEntity(UMappingItem.class);
             item.setExtAttrName("test" + i);
             item.setIntAttrName("nonexistent" + i);
             item.setIntMappingType(IntMappingType.UserSchema);
@@ -127,7 +124,7 @@ public class ResourceTest extends AbstractTest {
             mapping.addItem(item);
             item.setMapping(mapping);
         }
-        UMappingItem accountId = new JPAUMappingItem();
+        UMappingItem accountId = entityFactory.newEntity(UMappingItem.class);
         accountId.setExtAttrName("username");
         accountId.setIntAttrName("username");
         accountId.setIntMappingType(IntMappingType.UserId);
@@ -136,7 +133,7 @@ public class ResourceTest extends AbstractTest {
         accountId.setMapping(mapping);
 
         // map a derived attribute
-        UMappingItem derived = new JPAUMappingItem();
+        UMappingItem derived = entityFactory.newEntity(UMappingItem.class);
         derived.setAccountid(false);
         derived.setExtAttrName("fullname");
         derived.setIntAttrName("cn");
@@ -282,7 +279,7 @@ public class ResourceTest extends AbstractTest {
 
         int origMapItems = csv.getUmapping().getItems().size();
 
-        UMappingItem newMapItem = new JPAUMappingItem();
+        UMappingItem newMapItem = entityFactory.newEntity(UMappingItem.class);
         newMapItem.setIntMappingType(IntMappingType.Username);
         newMapItem.setExtAttrName("TEST");
         newMapItem.setPurpose(MappingPurpose.PROPAGATION);

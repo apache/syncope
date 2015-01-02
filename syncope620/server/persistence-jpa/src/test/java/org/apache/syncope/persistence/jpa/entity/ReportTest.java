@@ -57,7 +57,7 @@ public class ReportTest extends AbstractTest {
     public void save() {
         int beforeCount = reportDAO.count();
 
-        Report report = new JPAReport();
+        Report report = entityFactory.newEntity(Report.class);
         report.setName("new report");
         report.addReportletConf(new UserReportletConf("first"));
         report.addReportletConf(new UserReportletConf("second"));

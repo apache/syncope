@@ -50,7 +50,7 @@ public class EntitlementTest extends AbstractTest {
 
     @Test
     public void save() {
-        Entitlement entitlement = new JPAEntitlement();
+        Entitlement entitlement = entityFactory.newEntity(Entitlement.class);
         entitlement.setKey("another");
 
         entitlementDAO.save(entitlement);

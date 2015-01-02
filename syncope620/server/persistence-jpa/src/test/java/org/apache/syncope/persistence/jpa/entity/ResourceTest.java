@@ -38,8 +38,6 @@ import org.apache.syncope.persistence.api.entity.ExternalResource;
 import org.apache.syncope.persistence.api.entity.user.UMapping;
 import org.apache.syncope.persistence.api.entity.user.UMappingItem;
 import org.apache.syncope.persistence.jpa.AbstractTest;
-import org.apache.syncope.persistence.jpa.entity.user.JPAUMapping;
-import org.apache.syncope.persistence.jpa.entity.user.JPAUMappingItem;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -93,15 +91,15 @@ public class ResourceTest extends AbstractTest {
 
     @Test
     public void save() {
-        ExternalResource resource = new JPAExternalResource();
+        ExternalResource resource = entityFactory.newEntity(ExternalResource.class);
         resource.setKey("ws-target-resource-basic-save");
         resource.setPropagationPriority(2);
         resource.setPropagationPrimary(true);
 
-        UMapping mapping = new JPAUMapping();
+        UMapping mapping = entityFactory.newEntity(UMapping.class);
         resource.setUmapping(mapping);
 
-        UMappingItem accountId = new JPAUMappingItem();
+        UMappingItem accountId = entityFactory.newEntity(UMappingItem.class);
         accountId.setExtAttrName("username");
         accountId.setIntAttrName("fullname");
         accountId.setIntMappingType(IntMappingType.UserId);
@@ -124,16 +122,16 @@ public class ResourceTest extends AbstractTest {
 
     @Test(expected = InvalidEntityException.class)
     public void saveInvalidMappingIntAttr() {
-        ExternalResource resource = new JPAExternalResource();
+        ExternalResource resource = entityFactory.newEntity(ExternalResource.class);
         resource.setKey("ws-target-resource-basic-save-invalid");
 
         ConnInstance connector = resourceDAO.find("ws-target-resource-1").getConnector();
         resource.setConnector(connector);
 
-        UMapping mapping = new JPAUMapping();
+        UMapping mapping = entityFactory.newEntity(UMapping.class);
         resource.setUmapping(mapping);
 
-        UMappingItem accountId = new JPAUMappingItem();
+        UMappingItem accountId = entityFactory.newEntity(UMappingItem.class);
         accountId.setAccountid(true);
         accountId.setIntMappingType(IntMappingType.UserSchema);
         mapping.addItem(accountId);
@@ -145,16 +143,16 @@ public class ResourceTest extends AbstractTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void saveInvalidAccountIdMapping() {
-        ExternalResource resource = new JPAExternalResource();
+        ExternalResource resource = entityFactory.newEntity(ExternalResource.class);
         resource.setKey("ws-target-resource-basic-save-invalid");
 
         ConnInstance connector = resourceDAO.find("ws-target-resource-1").getConnector();
         resource.setConnector(connector);
 
-        UMapping mapping = new JPAUMapping();
+        UMapping mapping = entityFactory.newEntity(UMapping.class);
         resource.setUmapping(mapping);
 
-        UMappingItem accountId = new JPAUMappingItem();
+        UMappingItem accountId = entityFactory.newEntity(UMappingItem.class);
         accountId.setAccountid(true);
         accountId.setIntMappingType(IntMappingType.UserVirtualSchema);
         mapping.setAccountIdItem(accountId);
@@ -166,22 +164,22 @@ public class ResourceTest extends AbstractTest {
 
     @Test(expected = InvalidEntityException.class)
     public void saveInvalidMappingExtAttr() {
-        ExternalResource resource = new JPAExternalResource();
+        ExternalResource resource = entityFactory.newEntity(ExternalResource.class);
         resource.setKey("ws-target-resource-basic-save-invalid");
 
         ConnInstance connector = resourceDAO.find("ws-target-resource-1").getConnector();
         resource.setConnector(connector);
 
-        UMapping mapping = new JPAUMapping();
+        UMapping mapping = entityFactory.newEntity(UMapping.class);
         resource.setUmapping(mapping);
 
-        UMappingItem item = new JPAUMappingItem();
+        UMappingItem item = entityFactory.newEntity(UMappingItem.class);
         item.setAccountid(true);
         item.setIntAttrName("fullname");
         item.setIntMappingType(IntMappingType.UserSchema);
         mapping.addItem(item);
 
-        item = new JPAUMappingItem();
+        item = entityFactory.newEntity(UMappingItem.class);
         item.setIntAttrName("userId");
         item.setIntMappingType(IntMappingType.UserSchema);
         mapping.addItem(item);
@@ -192,30 +190,30 @@ public class ResourceTest extends AbstractTest {
 
     @Test
     public void saveWithRoleMappingType() {
-        ExternalResource resource = new JPAExternalResource();
+        ExternalResource resource = entityFactory.newEntity(ExternalResource.class);
         resource.setKey("ws-target-resource-basic-save-invalid");
 
         ConnInstance connector = resourceDAO.find("ws-target-resource-1").getConnector();
         resource.setConnector(connector);
 
-        UMapping mapping = new JPAUMapping();
+        UMapping mapping = entityFactory.newEntity(UMapping.class);
         resource.setUmapping(mapping);
 
-        UMappingItem item = new JPAUMappingItem();
+        UMappingItem item = entityFactory.newEntity(UMappingItem.class);
         item.setIntAttrName("fullname");
         item.setExtAttrName("fullname");
         item.setIntMappingType(IntMappingType.UserSchema);
         item.setPurpose(MappingPurpose.BOTH);
         mapping.setAccountIdItem(item);
 
-        item = new JPAUMappingItem();
+        item = entityFactory.newEntity(UMappingItem.class);
         item.setIntAttrName("icon");
         item.setExtAttrName("icon");
         item.setIntMappingType(IntMappingType.RoleSchema);
         item.setPurpose(MappingPurpose.BOTH);
         mapping.addItem(item);
 
-        item = new JPAUMappingItem();
+        item = entityFactory.newEntity(UMappingItem.class);
         item.setIntAttrName("mderiveddata");
         item.setExtAttrName("mderiveddata");
         item.setIntMappingType(IntMappingType.MembershipDerivedSchema);
@@ -255,7 +253,7 @@ public class ResourceTest extends AbstractTest {
 
     @Test
     public void issueSYNCOPE418() {
-        ExternalResource resource = new JPAExternalResource();
+        ExternalResource resource = entityFactory.newEntity(ExternalResource.class);
         resource.setKey("http://schemas.examples.org/security/authorization/organizationUnit");
 
         try {

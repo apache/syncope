@@ -33,7 +33,7 @@ public class JPAPasswordPolicy extends JPAPolicy implements PasswordPolicy {
         this(false);
     }
 
-    public JPAPasswordPolicy(boolean global) {
+    public JPAPasswordPolicy(final boolean global) {
         super();
 
         this.type = global

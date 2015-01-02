@@ -29,7 +29,6 @@ import org.apache.syncope.persistence.api.entity.AccountPolicy;
 import org.apache.syncope.persistence.api.entity.PasswordPolicy;
 import org.apache.syncope.persistence.api.entity.role.Role;
 import org.apache.syncope.persistence.jpa.AbstractTest;
-import org.apache.syncope.persistence.jpa.entity.role.JPARole;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -104,7 +103,7 @@ public class RoleTest extends AbstractTest {
 
     @Test
     public void save() {
-        Role role = new JPARole();
+        Role role = entityFactory.newEntity(Role.class);
         role.setName("secondChild");
 
         // verify inheritance password and account policies

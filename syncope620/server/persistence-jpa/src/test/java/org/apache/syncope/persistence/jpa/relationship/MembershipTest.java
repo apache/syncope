@@ -26,12 +26,9 @@ import org.apache.syncope.persistence.api.entity.membership.Membership;
 import org.apache.syncope.persistence.api.entity.role.Role;
 import org.apache.syncope.persistence.api.entity.user.User;
 import org.apache.syncope.persistence.jpa.AbstractTest;
-import org.apache.syncope.persistence.jpa.entity.membership.JPAMembership;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-
-
 
 @Transactional
 public class MembershipTest extends AbstractTest {
@@ -75,7 +72,7 @@ public class MembershipTest extends AbstractTest {
 
         // 2. (in the same transaction) create new membership with same user
         // and role (in order to check the UNIQE constraint on Membership)
-        membership = new JPAMembership();
+        membership = entityFactory.newEntity(Membership.class);
         membership.setUser(user);
         membership.setRole(role);
 

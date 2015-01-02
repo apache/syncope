@@ -31,8 +31,6 @@ import org.apache.syncope.persistence.api.dao.ReportExecDAO;
 import org.apache.syncope.persistence.api.entity.Report;
 import org.apache.syncope.persistence.api.entity.ReportExec;
 import org.apache.syncope.persistence.jpa.AbstractTest;
-import org.apache.syncope.persistence.jpa.entity.JPAReport;
-import org.apache.syncope.persistence.jpa.entity.JPAReportExec;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -63,7 +61,7 @@ public class ReportTest extends AbstractTest {
 
         String name = report.getName();
 
-        report = new JPAReport();
+        report = entityFactory.newEntity(Report.class);
         report.setName(name);
 
         reportDAO.save(report);
@@ -76,7 +74,7 @@ public class ReportTest extends AbstractTest {
         assertNotNull(report);
         assertEquals(1, report.getExecs().size());
 
-        ReportExec reportExec = new JPAReportExec();
+        ReportExec reportExec = entityFactory.newEntity(ReportExec.class);
         reportExec.setReport(report);
         reportExec.setStartDate(new Date());
         reportExec.setEndDate(new Date());

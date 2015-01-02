@@ -40,8 +40,6 @@ import org.apache.syncope.persistence.api.entity.user.UPlainAttrUniqueValue;
 import org.apache.syncope.persistence.api.entity.user.UPlainSchema;
 import org.apache.syncope.persistence.api.entity.user.User;
 import org.apache.syncope.persistence.jpa.AbstractTest;
-import org.apache.syncope.persistence.jpa.entity.user.JPAUPlainAttr;
-import org.apache.syncope.persistence.jpa.entity.user.JPAUPlainAttrUniqueValue;
 import org.apache.syncope.server.security.Encryptor;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,7 +81,7 @@ public class AttrTest extends AbstractTest {
         UPlainSchema emailSchema = userSchemaDAO.find("email", UPlainSchema.class);
         assertNotNull(emailSchema);
 
-        UPlainAttr attribute = new JPAUPlainAttr();
+        UPlainAttr attribute = entityFactory.newEntity(UPlainAttr.class);
         attribute.setSchema(emailSchema);
         attribute.setOwner(user);
 
@@ -113,7 +111,7 @@ public class AttrTest extends AbstractTest {
         assertNotNull(gender.getType());
         assertNotNull(gender.getEnumerationValues());
 
-        UPlainAttr attribute = new JPAUPlainAttr();
+        UPlainAttr attribute = entityFactory.newEntity(UPlainAttr.class);
         attribute.setSchema(gender);
         attribute.setOwner(user);
         user.addPlainAttr(attribute);
@@ -148,10 +146,10 @@ public class AttrTest extends AbstractTest {
         final UPlainSchema fullnameSchema = userSchemaDAO.find("fullname", UPlainSchema.class);
         assertNotNull(fullnameSchema);
 
-        UPlainAttr attribute = new JPAUPlainAttr();
+        UPlainAttr attribute = entityFactory.newEntity(UPlainAttr.class);
         attribute.setSchema(emailSchema);
 
-        UPlainAttrUniqueValue uauv = new JPAUPlainAttrUniqueValue();
+        UPlainAttrUniqueValue uauv = entityFactory.newEntity(UPlainAttrUniqueValue.class);
         uauv.setAttr(attribute);
         uauv.setSchema(fullnameSchema);
         uauv.setStringValue("a value");
@@ -183,7 +181,7 @@ public class AttrTest extends AbstractTest {
         assertNotNull(obscureSchema.getSecretKey());
         assertNotNull(obscureSchema.getCipherAlgorithm());
 
-        UPlainAttr attribute = new JPAUPlainAttr();
+        UPlainAttr attribute = entityFactory.newEntity(UPlainAttr.class);
         attribute.setSchema(obscureSchema);
         attribute.addValue("testvalue", JPAAttributableUtil.getInstance(AttributableType.USER));
         attribute.setOwner(user);
@@ -210,7 +208,7 @@ public class AttrTest extends AbstractTest {
         new Random().nextBytes(bytes);
         final String photoB64Value = new String(Base64.encode(bytes), SyncopeConstants.DEFAULT_ENCODING);
 
-        UPlainAttr attribute = new JPAUPlainAttr();
+        UPlainAttr attribute = entityFactory.newEntity(UPlainAttr.class);
         attribute.setSchema(photoSchema);
         attribute.addValue(photoB64Value, JPAAttributableUtil.getInstance(AttributableType.USER));
         attribute.setOwner(user);

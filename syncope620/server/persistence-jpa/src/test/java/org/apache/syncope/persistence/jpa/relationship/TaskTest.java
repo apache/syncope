@@ -43,8 +43,6 @@ import org.apache.syncope.persistence.api.entity.task.SyncTask;
 import org.apache.syncope.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.persistence.api.entity.user.User;
 import org.apache.syncope.persistence.jpa.AbstractTest;
-import org.apache.syncope.persistence.jpa.entity.task.JPAPropagationTask;
-import org.apache.syncope.persistence.jpa.entity.task.JPATaskExec;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.junit.Test;
@@ -84,7 +82,7 @@ public class TaskTest extends AbstractTest {
         User user = userDAO.find(2L);
         assertNotNull(user);
 
-        PropagationTask task = new JPAPropagationTask();
+        PropagationTask task = entityFactory.newEntity(PropagationTask.class);
         task.setResource(resource);
         task.setSubjectType(AttributableType.USER);
         task.setPropagationMode(PropagationMode.TWO_PHASES);
@@ -115,7 +113,7 @@ public class TaskTest extends AbstractTest {
 
         int executionNumber = task.getExecs().size();
 
-        TaskExec execution = new JPATaskExec();
+        TaskExec execution = entityFactory.newEntity(TaskExec.class);
         execution.setTask(task);
         execution.setStatus(PropagationTaskExecStatus.CREATED.name());
         task.addExec(execution);
@@ -137,7 +135,7 @@ public class TaskTest extends AbstractTest {
 
         int executionNumber = task.getExecs().size();
 
-        TaskExec execution = new JPATaskExec();
+        TaskExec execution = entityFactory.newEntity(TaskExec.class);
         execution.setStatus("Text-free status");
         execution.setTask(task);
         task.addExec(execution);
@@ -159,7 +157,7 @@ public class TaskTest extends AbstractTest {
 
         int executionNumber = task.getExecs().size();
 
-        TaskExec execution = new JPATaskExec();
+        TaskExec execution = entityFactory.newEntity(TaskExec.class);
         execution.setStatus("Text-free status");
         execution.setTask(task);
         task.addExec(execution);

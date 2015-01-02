@@ -52,7 +52,7 @@ public class SecurityQuestionTest extends AbstractTest {
 
     @Test
     public void save() {
-        SecurityQuestion securityQuestion = new JPASecurityQuestion();
+        SecurityQuestion securityQuestion = entityFactory.newEntity(SecurityQuestion.class);
         securityQuestion.setContent("What is your favorite pet's name?");
 
         SecurityQuestion actual = securityQuestionDAO.save(securityQuestion);

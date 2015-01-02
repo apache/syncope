@@ -30,7 +30,6 @@ import org.apache.syncope.persistence.api.entity.membership.Membership;
 import org.apache.syncope.persistence.api.entity.role.Role;
 import org.apache.syncope.persistence.api.entity.user.User;
 import org.apache.syncope.persistence.jpa.AbstractTest;
-import org.apache.syncope.persistence.jpa.entity.membership.JPAMembership;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -64,7 +63,7 @@ public class MembershipTest extends AbstractTest {
         User user = userDAO.find(4L);
         Role role = roleDAO.find(1L);
 
-        Membership membership = new JPAMembership();
+        Membership membership = entityFactory.newEntity(Membership.class);
         membership.setUser(user);
         membership.setRole(role);
 
