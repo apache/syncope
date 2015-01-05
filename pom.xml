@@ -21,7 +21,8 @@ under the License.
 
   <modelVersion>4.0.0</modelVersion>
 
-  <name>PoC for integrating Apache Camel in Apache Syncope</name>
+  <name>Apache Syncope</name>
+  <description>Apache Syncope parent POM</description>
 
   <groupId>org.apache.syncope</groupId>
   <artifactId>syncope</artifactId>
