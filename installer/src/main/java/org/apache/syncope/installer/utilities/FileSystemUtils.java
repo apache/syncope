@@ -30,10 +30,6 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.URL;
-import java.nio.file.CopyOption;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
@@ -61,11 +57,7 @@ public class FileSystemUtils {
 
     public void copyFile(final String sourceFilePath, final String targetFilePath) {
         try {
-            final CopyOption[] options = new CopyOption[] {
-                StandardCopyOption.REPLACE_EXISTING,
-                StandardCopyOption.COPY_ATTRIBUTES
-            };
-            Files.copy(Paths.get(sourceFilePath), Paths.get(targetFilePath), options);
+            FileUtils.copyFile(new File(sourceFilePath), new File(targetFilePath));
         } catch (final IOException ex) {
             final String errorMessage =
                     "Error copy file " + sourceFilePath + " to " + targetFilePath;
