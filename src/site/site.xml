@@ -49,9 +49,6 @@ under the License.
       </ohloh>
       <facebookLike/>
       <googlePlusOne/>
-      <gitHub>
-        <projectId>apache/syncope</projectId>
-      </gitHub>
     </fluidoSkin>
   </custom>
   

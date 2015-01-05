@@ -269,6 +269,17 @@ under the License.
       <url>http://people.apache.org/~andreapatricelli/</url>
       <email>andreapatricelli@apache.org</email>
     </developer>
+    <developer>
+      <id>giacomolm</id>
+      <name>Giacomo Lamonaco</name>
+      <organization>Tirasa</organization>
+      <organizationUrl>http://www.tirasa.net/</organizationUrl>
+      <roles>
+        <role>committer</role>
+      </roles>
+      <url>http://people.apache.org/~giacomolm/</url>
+      <email>giacomolm@apache.org</email>
+    </developer>
   </developers>
 
   <contributors>
@@ -323,10 +334,10 @@ under the License.
     <activiti.version>5.16.4</activiti.version>
 
     <aspectj.version>1.8.4</aspectj.version>
-
+    
     <cxf.version>3.0.3</cxf.version>
     <camel.version>2.14.1</camel.version>	
-    <spring.version>4.0.8.RELEASE</spring.version>
+    <spring.version>4.0.9.RELEASE</spring.version>
     <spring-security.version>3.2.5.RELEASE</spring-security.version>
     <jackson.version>2.4.4</jackson.version>
     <velocity.version>1.7</velocity.version>
