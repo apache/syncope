@@ -270,6 +270,17 @@ under the License.
       <url>http://people.apache.org/~andreapatricelli/</url>
       <email>andreapatricelli@apache.org</email>
     </developer>
+    <developer>
+      <id>giacomolm</id>
+      <name>Giacomo Lamonaco</name>
+      <organization>Tirasa</organization>
+      <organizationUrl>http://www.tirasa.net/</organizationUrl>
+      <roles>
+        <role>committer</role>
+      </roles>
+      <url>http://people.apache.org/~giacomolm/</url>
+      <email>giacomolm@apache.org</email>
+    </developer>
   </developers>
 
   <contributors>
