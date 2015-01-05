@@ -54,6 +54,7 @@ public class DefaultUserStatusPropagation implements Processor {
     @Override
     public void process(Exchange exchange) {
 
+        @SuppressWarnings("unchecked")
         WorkflowResult<Long> updated = (WorkflowResult) exchange.getIn().getBody();
 
         SyncopeUser user = exchange.getProperty("user", SyncopeUser.class);

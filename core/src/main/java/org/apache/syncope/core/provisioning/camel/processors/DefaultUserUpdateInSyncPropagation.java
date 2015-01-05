@@ -60,8 +60,10 @@ public class DefaultUserUpdateInSyncPropagation implements Processor {
     @Override
     public void process(Exchange exchange) {
 
+        @SuppressWarnings("unchecked")
         WorkflowResult<Map.Entry<UserMod, Boolean>> updated = (WorkflowResult) exchange.getIn().getBody();
 
+        @SuppressWarnings("unchecked")
         Set<String> excludedResource = exchange.getProperty("excludedResources", Set.class);
 
         PropagationReporter propagationReporter = ApplicationContextProvider.getApplicationContext().

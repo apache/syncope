@@ -18,10 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.camel;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.InputStream;
-import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -30,39 +27,23 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import org.apache.camel.CamelContext;
 import org.apache.camel.Endpoint;
 import org.apache.camel.Exchange;
 import org.apache.camel.PollingConsumer;
 import org.apache.camel.ProducerTemplate;
-import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.impl.DefaultExchange;
 import org.apache.camel.impl.DefaultMessage;
-import org.apache.camel.model.Constants;
-import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.model.RoutesDefinition;
 import org.apache.camel.spring.SpringCamelContext;
 import org.apache.syncope.common.mod.RoleMod;
 import org.apache.syncope.common.to.PropagationStatus;
 import org.apache.syncope.common.to.RoleTO;
-import org.apache.syncope.core.persistence.beans.CamelRoute;
 import org.apache.syncope.core.persistence.dao.RouteDAO;
 import org.apache.syncope.core.propagation.PropagationException;
 import org.apache.syncope.core.provisioning.RoleProvisioningManager;
-import org.apache.syncope.core.util.ApplicationContextProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 public class CamelRoleProvisioningManager implements RoleProvisioningManager {
 
@@ -84,7 +65,7 @@ public class CamelRoleProvisioningManager implements RoleProvisioningManager {
 
     public CamelRoleProvisioningManager() throws Exception {
         knownUri = new ArrayList<String>();
-        consumerMap = new HashMap();
+        consumerMap = new HashMap<String, PollingConsumer>();
     }
 
     public void startContext() throws Exception {
@@ -165,6 +146,7 @@ public class CamelRoleProvisioningManager implements RoleProvisioningManager {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Map.Entry<Long, List<PropagationStatus>> create(RoleTO roleTO, Set<String> excludedResources) {
 
         String uri = "direct:createRolePort";
@@ -185,6 +167,7 @@ public class CamelRoleProvisioningManager implements RoleProvisioningManager {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Map.Entry<Long, List<PropagationStatus>> createInSync(RoleTO roleTO, Map<Long, String> roleOwnerMap,
             Set<String> excludedResources) throws PropagationException {
 
@@ -213,6 +196,7 @@ public class CamelRoleProvisioningManager implements RoleProvisioningManager {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Map.Entry<Long, List<PropagationStatus>> update(RoleMod subjectMod, Set<String> excludedResources) {
 
         String uri = "direct:updateRolePort";
@@ -233,6 +217,7 @@ public class CamelRoleProvisioningManager implements RoleProvisioningManager {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public List<PropagationStatus> delete(Long subjectId) {
 
         String uri = "direct:deleteRolePort";
@@ -284,13 +269,14 @@ public class CamelRoleProvisioningManager implements RoleProvisioningManager {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public List<PropagationStatus> deprovision(final Long roleId, Collection<String> resources) {
 
         String uri = "direct:deprovisionRolePort";
 
         PollingConsumer pollingConsumer = getConsumer(uri);
 
-        Map props = new HashMap<String, Object>();
+        Map<String, Object> props = new HashMap<String, Object>();
         props.put("resources", resources);
 
         sendMessage("direct:deprovisionRole", roleId, props);

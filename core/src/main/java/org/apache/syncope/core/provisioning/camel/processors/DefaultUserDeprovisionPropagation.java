@@ -54,6 +54,7 @@ public class DefaultUserDeprovisionPropagation implements Processor {
     public void process(Exchange exchange) {
 
         Long userId = exchange.getIn().getBody(Long.class);
+        @SuppressWarnings("unchecked")
         List<String> resources = exchange.getProperty("resources", List.class);
 
         final SyncopeUser user = binder.getUserFromId(userId);

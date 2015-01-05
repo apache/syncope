@@ -56,6 +56,7 @@ public class DefaultUserUpdatePropagation implements Processor {
     protected UserDataBinder binder;
 
     @Override
+    @SuppressWarnings("unchecked")
     public void process(Exchange exchange) {
 
         WorkflowResult<Map.Entry<UserMod, Boolean>> updated = (WorkflowResult) exchange.getIn().getBody();

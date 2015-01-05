@@ -33,6 +33,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.apache.camel.CamelContext;
 import org.apache.camel.model.Constants;
 import org.apache.camel.model.RouteDefinition;
+import org.apache.camel.model.RoutesDefinition;
 import org.apache.camel.spring.SpringCamelContext;
 import org.apache.syncope.core.persistence.beans.CamelRoute;
 import org.apache.syncope.core.persistence.dao.RouteDAO;
@@ -80,16 +81,14 @@ public class SyncopeCamelContext {
             DocumentBuilder dBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             JAXBContext jaxbContext = JAXBContext.newInstance(Constants.JAXB_CONTEXT_PACKAGES);
             Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-            List rds = new ArrayList();
-
-            for (int s = 0; s < crl.size(); s++) {
-
+            List<RouteDefinition> rds = new ArrayList<RouteDefinition>();
+            for(int s = 0; s < crl.size(); s++){
                 InputStream is = new ByteArrayInputStream(URLDecoder.decode(crl.get(s).getRouteContent(), "UTF-8").
                         getBytes());
                 Document doc = dBuilder.parse(is);
                 doc.getDocumentElement().normalize();
                 Node routeEl = doc.getElementsByTagName("route").item(0);
-                JAXBElement obj = unmarshaller.unmarshal(routeEl, RouteDefinition.class);
+                JAXBElement<RouteDefinition> obj = unmarshaller.unmarshal(routeEl, RouteDefinition.class);
                 //adding route definition to list                        
                 rds.add(obj.getValue());
             }

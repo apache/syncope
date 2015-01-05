@@ -47,6 +47,7 @@ public class DefaultUserWFSuspendPropagation implements Processor {
     @Override
     public void process(Exchange exchange) {
 
+        @SuppressWarnings("unchecked")
         WorkflowResult<Long> updated = (WorkflowResult) exchange.getIn().getBody();
         Boolean suspend = exchange.getProperty("suspend", Boolean.class);
 

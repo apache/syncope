@@ -50,6 +50,7 @@ public class DefaultUserDeletePropagation implements Processor {
         Long userId = (Long) exchange.getIn().getBody();
         LOG.info("UserId {} ", userId);
 
+        @SuppressWarnings("unchecked")
         Set<String> excludedResource = exchange.getProperty("excludedResources", Set.class);
 
         // Note here that we can only notify about "delete", not any other

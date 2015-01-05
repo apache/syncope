@@ -45,6 +45,7 @@ public class UserStatusOnSync implements Processor {
     @Override
     public void process(Exchange exchange) {
 
+        @SuppressWarnings("unchecked")
         WorkflowResult<Map.Entry<UserMod, Boolean>> updated = (WorkflowResult) exchange.getIn().getBody();
 
         Boolean enabled = exchange.getProperty("enabled", Boolean.class);

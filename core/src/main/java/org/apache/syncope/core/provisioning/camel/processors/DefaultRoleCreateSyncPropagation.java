@@ -51,6 +51,7 @@ public class DefaultRoleCreateSyncPropagation implements Processor {
     private static final Logger LOG = LoggerFactory.getLogger(DefaultRoleCreateSyncPropagation.class);
 
     @Override
+    @SuppressWarnings("unchecked")
     public void process(Exchange exchange) {
 
         WorkflowResult<Long> created = (WorkflowResult) exchange.getIn().getBody();

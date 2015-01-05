@@ -31,12 +31,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.camel.CamelContext;
 import org.apache.camel.Endpoint;
 import org.apache.camel.Exchange;
 import org.apache.camel.PollingConsumer;
 import org.apache.camel.ProducerTemplate;
-import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.impl.DefaultExchange;
 import org.apache.camel.impl.DefaultMessage;
 import org.apache.camel.model.RoutesDefinition;
@@ -76,7 +74,7 @@ public class CamelUserProvisioningManager implements UserProvisioningManager {
 
     public CamelUserProvisioningManager() throws Exception {
         knownUri = new ArrayList<String>();
-        consumerMap = new HashMap();
+        consumerMap = new HashMap<String, PollingConsumer>();
     }
 
     public String readerToString(Reader reader, int size) throws IOException {
@@ -177,6 +175,7 @@ public class CamelUserProvisioningManager implements UserProvisioningManager {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Map.Entry<Long, List<PropagationStatus>> create(final UserTO userTO, final boolean storePassword,
             boolean disablePwdPolicyCheck, Boolean enabled, Set<String> excludedResources) {
         String uri = "direct:createPort";
@@ -211,6 +210,7 @@ public class CamelUserProvisioningManager implements UserProvisioningManager {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Map.Entry<Long, List<PropagationStatus>> update(UserMod userMod, boolean removeMemberships) {
         String uri = "direct:updatePort";
         PollingConsumer pollingConsumer = getConsumer(uri);
@@ -236,6 +236,7 @@ public class CamelUserProvisioningManager implements UserProvisioningManager {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public List<PropagationStatus> delete(final Long userId, Set<String> excludedResources) {
         String uri = "direct:deletePort";
         PollingConsumer pollingConsumer = getConsumer(uri);
@@ -272,11 +273,12 @@ public class CamelUserProvisioningManager implements UserProvisioningManager {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Map.Entry<Long, List<PropagationStatus>> activate(SyncopeUser user, StatusMod statusMod) {
         String uri = "direct:statusPort";
         PollingConsumer pollingConsumer = getConsumer(uri);
 
-        Map props = new HashMap<String, Object>();
+        Map<String, Object> props = new HashMap<String, Object>();
         props.put("token", statusMod.getToken());
         props.put("user", user);
         props.put("statusMod", statusMod);
@@ -299,11 +301,12 @@ public class CamelUserProvisioningManager implements UserProvisioningManager {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Map.Entry<Long, List<PropagationStatus>> reactivate(SyncopeUser user, StatusMod statusMod) {
         String uri = "direct:statusPort";
         PollingConsumer pollingConsumer = getConsumer(uri);
 
-        Map props = new HashMap<String, Object>();
+        Map<String, Object> props = new HashMap<String, Object>();
         props.put("user", user);
         props.put("statusMod", statusMod);
 
@@ -325,12 +328,13 @@ public class CamelUserProvisioningManager implements UserProvisioningManager {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Map.Entry<Long, List<PropagationStatus>> suspend(SyncopeUser user, StatusMod statusMod) {
 
         String uri = "direct:statusPort";
         PollingConsumer pollingConsumer = getConsumer(uri);
 
-        Map props = new HashMap<String, Object>();
+        Map<String, Object> props = new HashMap<String, Object>();
         props.put("user", user);
         props.put("statusMod", statusMod);
 
@@ -370,12 +374,13 @@ public class CamelUserProvisioningManager implements UserProvisioningManager {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public List<PropagationStatus> deprovision(Long user, Collection<String> resources) {
         String uri = "direct:deprovisionPort";
 
         PollingConsumer pollingConsumer = getConsumer(uri);
 
-        Map props = new HashMap<String, Object>();
+        Map<String, Object> props = new HashMap<String, Object>();
         props.put("resources", resources);
 
         sendMessage("direct:deprovisionUser", user, props);
@@ -390,6 +395,7 @@ public class CamelUserProvisioningManager implements UserProvisioningManager {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Map.Entry<Long, List<PropagationStatus>> updateInSync(UserMod userMod, Long id, SyncResult result,
             Boolean enabled, Set<String> excludedResources) {
 

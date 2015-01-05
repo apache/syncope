@@ -54,8 +54,10 @@ public class DefaultUserCreatePropagation implements Processor {
 
         if ((exchange.getIn().getBody() instanceof WorkflowResult)) {
 
+            @SuppressWarnings("unchecked")
             WorkflowResult<Map.Entry<Long, Boolean>> created = (WorkflowResult) exchange.getIn().getBody();
             UserTO actual = exchange.getProperty("actual", UserTO.class);
+            @SuppressWarnings("unchecked")
             Set<String> excludedResource = exchange.getProperty("excludedResources", Set.class);
 
             List<PropagationTask> tasks = propagationManager.getUserCreateTaskIds(

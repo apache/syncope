@@ -54,6 +54,7 @@ public class DefaultRoleDeprovisionPropagation implements Processor {
     public void process(Exchange exchange) {
 
         Long roleId = exchange.getIn().getBody(Long.class);
+        @SuppressWarnings("unchecked")
         List<String> resources = exchange.getProperty("resources", List.class);
 
         final SyncopeRole role = binder.getRoleFromId(roleId);

@@ -55,8 +55,10 @@ public class DefaultRoleUpdatePropagation implements Processor {
 
     @Override
     public void process(Exchange exchange) {
+        @SuppressWarnings("unchecked")
         WorkflowResult<Long> updated = (WorkflowResult) exchange.getIn().getBody();
         RoleMod subjectMod = exchange.getProperty("subjectMod", RoleMod.class);
+        @SuppressWarnings("unchecked")
         Set<String> excludedResource = exchange.getProperty("excludedResources", Set.class);
 
         List<PropagationTask> tasks = propagationManager.getRoleUpdateTaskIds(updated,

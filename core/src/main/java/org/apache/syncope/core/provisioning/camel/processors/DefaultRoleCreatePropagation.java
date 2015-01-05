@@ -53,8 +53,10 @@ public class DefaultRoleCreatePropagation implements Processor {
     @Override
     public void process(Exchange exchange) {
 
+        @SuppressWarnings("unchecked")
         WorkflowResult<Long> created = (WorkflowResult) exchange.getIn().getBody();
         RoleTO subject = exchange.getProperty("subject", RoleTO.class);
+        @SuppressWarnings("unchecked")
         Set<String> excludedResource = exchange.getProperty("excludedResources", Set.class);
 
         EntitlementUtil.extendAuthContext(created.getResult());
