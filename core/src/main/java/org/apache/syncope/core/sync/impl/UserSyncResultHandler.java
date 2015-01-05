@@ -29,6 +29,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.mod.AbstractSubjectMod;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.to.AbstractSubjectTO;
+import org.apache.syncope.common.to.PropagationStatus;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
@@ -80,19 +81,13 @@ public class UserSyncResultHandler extends AbstractSubjectSyncResultHandler {
         UserTO userTO = UserTO.class.cast(subjectTO);
 
         Boolean enabled = syncUtilities.readEnabled(delta.getObject(), profile.getSyncTask());
-        WorkflowResult<Map.Entry<Long, Boolean>> created =
-                uwfAdapter.create(userTO, true, enabled, true);
+        //Delegate User Workflow Creation and its Propagation to provisioning manager
+        Map.Entry<Long, List<PropagationStatus>> created = userProvisioningManager.create(userTO, true, true, enabled,
+                Collections.singleton(profile.getSyncTask().getResource().getName()));
 
-        List<PropagationTask> tasks = propagationManager.getUserCreateTaskIds(created,
-                userTO.getPassword(), userTO.getVirAttrs(),
-                Collections.singleton(profile.getSyncTask().getResource().getName()),
-                userTO.getMemberships());
+        userTO = userDataBinder.getUserTO(created.getKey());
 
-        taskExecutor.execute(tasks);
-
-        userTO = userDataBinder.getUserTO(created.getResult().getKey());
-
-        result.setId(created.getResult().getKey());
+        result.setId(created.getKey());
 
         return userTO;
     }
@@ -126,51 +121,53 @@ public class UserSyncResultHandler extends AbstractSubjectSyncResultHandler {
 
         final UserMod userMod = UserMod.class.cast(subjectMod);
 
-        WorkflowResult<Map.Entry<UserMod, Boolean>> updated;
-        try {
-            updated = uwfAdapter.update(userMod);
-        } catch (Exception e) {
-            LOG.error("Update of user {} failed, trying to sync its status anyway (if configured)", before.getId(), e);
-
-            result.setStatus(SyncResult.Status.FAILURE);
-            result.setMessage("Update failed, trying to sync status anyway (if configured)\n"
-                    + ExceptionUtils.getRootCauseMessage(e));
-
-            updated = new WorkflowResult<Map.Entry<UserMod, Boolean>>(
-                    new AbstractMap.SimpleEntry<UserMod, Boolean>(userMod, false),
-                    new PropagationByResource(),
-                    new HashSet<String>());
-        }
-
+        /* WorkflowResult<Map.Entry<UserMod, Boolean>> updated;
+         * try {
+         * updated = uwfAdapter.update(userMod);
+         * } catch (Exception e) {
+         * LOG.error("Update of user {} failed, trying to sync its status anyway (if configured)", before.getId(), e);
+         *
+         * result.setStatus(SyncResult.Status.FAILURE);
+         * result.setMessage("Update failed, trying to sync status anyway (if configured)\n"
+         * + ExceptionUtils.getRootCauseMessage(e));
+         *
+         * updated = new WorkflowResult<Map.Entry<UserMod, Boolean>>(
+         * new AbstractMap.SimpleEntry<UserMod, Boolean>(userMod, false),
+         * new PropagationByResource(),
+         * new HashSet<String>());
+         * } */
         final Boolean enabled = syncUtilities.readEnabled(delta.getObject(), profile.getSyncTask());
-        if (enabled != null) {
-            SyncopeUser user = userDAO.find(before.getId());
+        /* if (enabled != null) {
+         * SyncopeUser user = userDAO.find(before.getId());
+         *
+         * WorkflowResult<Long> enableUpdate = null;
+         * if (user.isSuspended() == null) {
+         * enableUpdate = uwfAdapter.activate(before.getId(), null);
+         * } else if (enabled && user.isSuspended()) {
+         * enableUpdate = uwfAdapter.reactivate(before.getId());
+         * } else if (!enabled && !user.isSuspended()) {
+         * enableUpdate = uwfAdapter.suspend(before.getId());
+         * }
+         *
+         * if (enableUpdate != null) {
+         * if (enableUpdate.getPropByRes() != null) {
+         * updated.getPropByRes().merge(enableUpdate.getPropByRes());
+         * updated.getPropByRes().purge();
+         * }
+         * updated.getPerformedTasks().addAll(enableUpdate.getPerformedTasks());
+         * }
+         * }
+         *
+         * final List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(
+         * updated, updated.getResult().getKey().getPassword() != null,
+         * Collections.singleton(profile.getSyncTask().getResource().getName()));
+         *
+         * taskExecutor.execute(tasks); */
 
-            WorkflowResult<Long> enableUpdate = null;
-            if (user.isSuspended() == null) {
-                enableUpdate = uwfAdapter.activate(before.getId(), null);
-            } else if (enabled && user.isSuspended()) {
-                enableUpdate = uwfAdapter.reactivate(before.getId());
-            } else if (!enabled && !user.isSuspended()) {
-                enableUpdate = uwfAdapter.suspend(before.getId());
-            }
+        Map.Entry<Long, List<PropagationStatus>> updated = userProvisioningManager.updateInSync(userMod, before.getId(),
+                result, enabled, Collections.singleton(profile.getSyncTask().getResource().getName()));
 
-            if (enableUpdate != null) {
-                if (enableUpdate.getPropByRes() != null) {
-                    updated.getPropByRes().merge(enableUpdate.getPropByRes());
-                    updated.getPropByRes().purge();
-                }
-                updated.getPerformedTasks().addAll(enableUpdate.getPerformedTasks());
-            }
-        }
-
-        final List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(
-                updated, updated.getResult().getKey().getPassword() != null,
-                Collections.singleton(profile.getSyncTask().getResource().getName()));
-
-        taskExecutor.execute(tasks);
-
-        return userDataBinder.getUserTO(updated.getResult().getKey().getId());
+        return userDataBinder.getUserTO(updated.getKey());
     }
 
     @Override
@@ -191,8 +188,8 @@ public class UserSyncResultHandler extends AbstractSubjectSyncResultHandler {
     @Override
     protected void delete(final Long id) {
         try {
-            taskExecutor.execute(
-                    propagationManager.getUserDeleteTaskIds(id, profile.getSyncTask().getResource().getName()));
+            userProvisioningManager.
+                    delete(id, Collections.<String>singleton(profile.getSyncTask().getResource().getName()));
         } catch (Exception e) {
             // A propagation failure doesn't imply a synchronization failure.
             // The propagation exception status will be reported into the propagation task execution.

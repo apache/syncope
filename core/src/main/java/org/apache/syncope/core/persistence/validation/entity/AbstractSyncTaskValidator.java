@@ -60,8 +60,8 @@ public class AbstractSyncTaskValidator extends AbstractValidator<AbstractSyncTas
                         isAssignable = object instanceof SyncTask
                                 ? SyncActions.class.isAssignableFrom(actionsClass)
                                 : object instanceof PushTask
-                                ? PushActions.class.isAssignableFrom(actionsClass)
-                                : false;
+                                        ? PushActions.class.isAssignableFrom(actionsClass)
+                                        : false;
                     } catch (Exception e) {
                         LOG.error("Invalid SyncActions specified", e);
                         isValid = false;

@@ -55,8 +55,8 @@ public class QueryResourceInfoComparator extends OperationResourceInfoComparator
         return op1Counter == op2Counter
                 ? 0
                 : op1Counter < op2Counter
-                ? 1
-                : -1;
+                        ? 1
+                        : -1;
     }
 
     /**

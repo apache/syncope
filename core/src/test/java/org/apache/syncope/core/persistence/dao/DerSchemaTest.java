@@ -79,7 +79,6 @@ public class DerSchemaTest extends AbstractDAOTest {
         assertNull("delete did not work", actual);
 
         // ------------- //
-
         RDerSchema rderiveddata = derSchemaDAO.find("rderiveddata", RDerSchema.class);
         assertNotNull(rderiveddata);
 

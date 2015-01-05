@@ -317,4 +317,17 @@ under the License.
       <entitlement>POLICY_UPDATE</entitlement>
     </action>
   </page>
+  <page id="Routes">
+    <action id="list">
+      <entitlement>ROUTE_LIST</entitlement>
+    </action>
+
+    <action id="read">
+      <entitlement>ROUTE_READ</entitlement>
+    </action>
+
+    <action id="update">
+      <entitlement>ROUTE_UPDATE</entitlement>
+    </action>
+  </page>
 </auth>

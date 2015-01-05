@@ -30,7 +30,7 @@ import org.apache.syncope.core.workflow.WorkflowResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional(rollbackFor = {Throwable.class})
+@Transactional(rollbackFor = { Throwable.class })
 public abstract class AbstractRoleWorkflowAdapter implements RoleWorkflowAdapter {
 
     @Autowired

@@ -1118,6 +1118,9 @@ under the License.
   <Entitlement name="ROLE_12"/>
   <Entitlement name="ROLE_13"/>
   <Entitlement name="ROLE_14"/>
+  <Entitlement name="ROUTE_UPDATE"/>
+  <Entitlement name="ROUTE_LIST"/>
+  <Entitlement name="ROUTE_READ"/>
 
   <SyncopeRole_Entitlement entitlement_name="base" role_id="1"/>
   <SyncopeRole_Entitlement entitlement_name="advanced" role_id="1"/>

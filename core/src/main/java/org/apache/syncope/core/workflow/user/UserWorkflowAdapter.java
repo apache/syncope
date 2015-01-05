@@ -152,7 +152,7 @@ public interface UserWorkflowAdapter extends WorkflowAdapter {
      * @throws UnauthorizedRoleException authorization exception
      * @throws WorkflowException workflow exception
      */
-    void confirmPasswordReset(Long userId, String token, String password) 
+    void confirmPasswordReset(Long userId, String token, String password)
             throws UnauthorizedRoleException, WorkflowException;
 
     /**

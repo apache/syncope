@@ -709,13 +709,13 @@ public class ConnectorTestITCase extends AbstractTest {
 
     @Test
     public void issueSYNCOPE605() {
-        
+
         ConnInstanceTO connectorInstanceTO = connectorService.read(103L);
         assertTrue(connectorInstanceTO.getCapabilities().isEmpty());
-        
+
         connectorInstanceTO.getCapabilities().add(ConnectorCapability.SEARCH);
         connectorService.update(connectorInstanceTO.getId(), connectorInstanceTO);
-        
+
         ConnInstanceTO updatedCapabilities = connectorService.read(connectorInstanceTO.getId());
         assertNotNull(updatedCapabilities.getCapabilities());
         assertTrue(updatedCapabilities.getCapabilities().size() == 1);

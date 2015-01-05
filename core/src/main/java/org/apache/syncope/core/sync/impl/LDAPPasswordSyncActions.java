@@ -66,7 +66,7 @@ public class LDAPPasswordSyncActions extends DefaultSyncActions {
 
         return delta;
     }
-    
+
     @Transactional(readOnly = true)
     @Override
     public <T extends AbstractAttributableTO, K extends AbstractAttributableMod> SyncDelta beforeUpdate(
@@ -74,15 +74,15 @@ public class LDAPPasswordSyncActions extends DefaultSyncActions {
             final SyncDelta delta,
             final T subject,
             final K subjectMod) throws JobExecutionException {
-        
+
         if (subjectMod instanceof UserMod) {
-            String modPassword = ((UserMod)subjectMod).getPassword();
+            String modPassword = ((UserMod) subjectMod).getPassword();
             parseEncodedPassword(modPassword);
         }
-        
+
         return delta;
     }
-    
+
     private void parseEncodedPassword(String password) {
         if (password != null && password.startsWith("{")) {
             int closingBracketIndex = password.indexOf('}');

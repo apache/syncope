@@ -228,4 +228,10 @@ public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
         throw new WorkflowException(new UnsupportedOperationException("Not supported."));
     }
+
+    @Override
+    public WorkflowResult<Map.Entry<Long, Boolean>> create(UserTO userTO, boolean storePassword) throws
+            UnauthorizedRoleException, WorkflowException {
+        return create(userTO, false, true);
+    }
 }

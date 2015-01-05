@@ -162,7 +162,8 @@ public interface SyncActions extends AbstractSyncActions<AbstractSyncopeResultHa
      * Action to be executed after each local user / role synchronization.
      *
      * @param profile profile of the synchronization being executed.
-     * @param delta retrieved synchronization information (may be modified by 'beforeProvision/beforeUpdate/beforeDelete')
+     * @param delta retrieved synchronization information (may be modified by
+     * 'beforeProvision/beforeUpdate/beforeDelete')
      * @param subject synchronized local user / role
      * @param result global synchronization results at the current synchronization step
      * @throws JobExecutionException in case of generic failure

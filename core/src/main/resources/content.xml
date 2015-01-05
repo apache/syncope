@@ -179,5 +179,8 @@ under the License.
   <Entitlement name="SECURITY_QUESTION_CREATE"/>
   <Entitlement name="SECURITY_QUESTION_UPDATE"/>
   <Entitlement name="SECURITY_QUESTION_DELETE"/>
+  <Entitlement name="ROUTE_UPDATE"/>
+  <Entitlement name="ROUTE_LIST"/>
+  <Entitlement name="ROUTE_READ"/>
 
 </dataset>

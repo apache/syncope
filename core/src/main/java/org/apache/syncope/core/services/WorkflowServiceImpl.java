@@ -61,8 +61,8 @@ public class WorkflowServiceImpl extends AbstractServiceImpl implements Workflow
     public Response exportDefinition(final SubjectType kind) {
         final MediaType accept =
                 messageContext.getHttpHeaders().getAcceptableMediaTypes().contains(MediaType.APPLICATION_JSON_TYPE)
-                ? MediaType.APPLICATION_JSON_TYPE
-                : MediaType.APPLICATION_XML_TYPE;
+                        ? MediaType.APPLICATION_JSON_TYPE
+                        : MediaType.APPLICATION_XML_TYPE;
 
         StreamingOutput sout = new StreamingOutput() {
 
@@ -104,13 +104,23 @@ public class WorkflowServiceImpl extends AbstractServiceImpl implements Workflow
     public void importDefinition(final SubjectType kind, final String definition) {
         final MediaType contentType =
                 messageContext.getHttpHeaders().getMediaType().equals(MediaType.APPLICATION_JSON_TYPE)
-                ? MediaType.APPLICATION_JSON_TYPE
-                : MediaType.APPLICATION_XML_TYPE;
+                        ? MediaType.APPLICATION_JSON_TYPE
+                        : MediaType.APPLICATION_XML_TYPE;
 
         if (kind == SubjectType.USER) {
             controller.importUserDefinition(contentType, definition);
         } else {
             controller.importRoleDefinition(contentType, definition);
         }
+    }
+
+    @Override
+    public Response getRoute(Long id) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Response getRoutes() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

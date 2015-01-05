@@ -335,8 +335,9 @@ under the License.
     <activiti.version>5.16.4</activiti.version>
 
     <aspectj.version>1.8.4</aspectj.version>
-
-    <cxf.version>3.0.3</cxf.version>	
+    
+    <cxf.version>3.0.3</cxf.version>
+    <camel.version>2.14.1</camel.version>	
     <spring.version>4.0.9.RELEASE</spring.version>
     <spring-security.version>3.2.5.RELEASE</spring-security.version>
     <jackson.version>2.4.4</jackson.version>
@@ -716,6 +717,19 @@ under the License.
         <version>${cxf.version}</version>
       </dependency>      
       <!-- /CXF -->
+      
+      <!-- Camel -->
+      <dependency>
+        <groupId>org.apache.camel</groupId>
+        <artifactId>camel-core</artifactId>
+        <version>${camel.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.camel</groupId>
+       <artifactId>camel-spring</artifactId>
+       <version>${camel.version}</version>
+      </dependency>
+      <!-- /Camel -->
 
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>

@@ -57,16 +57,16 @@ public class ContentLoaderHandler extends DefaultHandler {
         Map<String, Integer> colTypes = jdbcTemplate.query("SELECT * FROM " + tableName,
                 new ResultSetExtractor<Map<String, Integer>>() {
 
-            @Override
-            public Map<String, Integer> extractData(final ResultSet rs) throws SQLException, DataAccessException {
-                Map<String, Integer> colTypes = new HashMap<String, Integer>();
-                for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
-                    colTypes.put(rs.getMetaData().getColumnName(i).toUpperCase(),
-                            rs.getMetaData().getColumnType(i));
-                }
-                return colTypes;
-            }
-        });
+                    @Override
+                    public Map<String, Integer> extractData(final ResultSet rs) throws SQLException, DataAccessException {
+                        Map<String, Integer> colTypes = new HashMap<String, Integer>();
+                        for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
+                            colTypes.put(rs.getMetaData().getColumnName(i).toUpperCase(),
+                                    rs.getMetaData().getColumnType(i));
+                        }
+                        return colTypes;
+                    }
+                });
 
         Object[] parameters = new Object[attrs.getLength()];
         for (int i = 0; i < attrs.getLength(); i++) {

@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javax.annotation.Resource;
 import org.apache.commons.lang3.ArrayUtils;
@@ -34,6 +35,9 @@ import org.apache.syncope.core.persistence.dao.search.SearchCond;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.SyncopeClientException;
+import org.apache.syncope.common.to.PropagationStatus;
+import org.apache.syncope.core.provisioning.ProvisioningManager;
+import org.apache.syncope.core.provisioning.RoleProvisioningManager;
 import org.apache.syncope.common.reqres.BulkAction;
 import org.apache.syncope.common.reqres.BulkActionResult;
 import org.apache.syncope.common.types.SubjectType;
@@ -53,8 +57,6 @@ import org.apache.syncope.core.rest.data.AttributableTransformer;
 import org.apache.syncope.core.rest.data.RoleDataBinder;
 import org.apache.syncope.core.util.ApplicationContextProvider;
 import org.apache.syncope.core.util.EntitlementUtil;
-import org.apache.syncope.core.workflow.WorkflowResult;
-import org.apache.syncope.core.workflow.role.RoleWorkflowAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
@@ -83,9 +85,6 @@ public class RoleController extends AbstractSubjectController<RoleTO, RoleMod> {
     protected RoleDataBinder binder;
 
     @Autowired
-    protected RoleWorkflowAdapter rwfAdapter;
-
-    @Autowired
     protected PropagationManager propagationManager;
 
     @Autowired
@@ -96,6 +95,9 @@ public class RoleController extends AbstractSubjectController<RoleTO, RoleMod> {
 
     @Resource(name = "anonymousUser")
     private String anonymousUser;
+
+    @Resource(name = "roleProvisioningManager")
+    protected RoleProvisioningManager provisioningManager;
 
     @PreAuthorize("hasAnyRole('ROLE_READ', T(org.apache.syncope.common.SyncopeConstants).ANONYMOUS_ENTITLEMENT)")
     @Transactional(readOnly = true)
@@ -240,22 +242,9 @@ public class RoleController extends AbstractSubjectController<RoleTO, RoleMod> {
         /*
          * Actual operations: workflow, propagation
          */
-        WorkflowResult<Long> created = rwfAdapter.create(actual);
-
-        EntitlementUtil.extendAuthContext(created.getResult());
-
-        List<PropagationTask> tasks = propagationManager.getRoleCreateTaskIds(created, actual.getVirAttrs());
-        PropagationReporter propagationReporter = ApplicationContextProvider.getApplicationContext().getBean(
-                PropagationReporter.class);
-        try {
-            taskExecutor.execute(tasks, propagationReporter);
-        } catch (PropagationException e) {
-            LOG.error("Error propagation primary resource", e);
-            propagationReporter.onPrimaryResourceFailure(tasks);
-        }
-
-        final RoleTO savedTO = binder.getRoleTO(created.getResult());
-        savedTO.getPropagationStatusTOs().addAll(propagationReporter.getStatuses());
+        Map.Entry<Long, List<PropagationStatus>> created = provisioningManager.create(roleTO);
+        final RoleTO savedTO = binder.getRoleTO(created.getKey());
+        savedTO.getPropagationStatusTOs().addAll(created.getValue());
         return savedTO;
     }
 
@@ -269,23 +258,10 @@ public class RoleController extends AbstractSubjectController<RoleTO, RoleMod> {
         RoleMod actual = attrTransformer.transform(roleMod);
         LOG.debug("Transformed: {}", actual);
 
-        /*
-         * Actual operations: workflow, propagation
-         */
-        WorkflowResult<Long> updated = rwfAdapter.update(actual);
+        Map.Entry<Long, List<PropagationStatus>> updated = provisioningManager.update(roleMod);
 
-        List<PropagationTask> tasks = propagationManager.getRoleUpdateTaskIds(updated,
-                actual.getVirAttrsToRemove(), actual.getVirAttrsToUpdate());
-        PropagationReporter propagationReporter = ApplicationContextProvider.getApplicationContext().getBean(
-                PropagationReporter.class);
-        try {
-            taskExecutor.execute(tasks, propagationReporter);
-        } catch (PropagationException e) {
-            LOG.error("Error propagation primary resource", e);
-            propagationReporter.onPrimaryResourceFailure(tasks);
-        }
-        final RoleTO updatedTO = binder.getRoleTO(updated.getResult());
-        updatedTO.getPropagationStatusTOs().addAll(propagationReporter.getStatuses());
+        final RoleTO updatedTO = binder.getRoleTO(updated.getKey());
+        updatedTO.getPropagationStatusTOs().addAll(updated.getValue());
         return updatedTO;
     }
 
@@ -304,45 +280,12 @@ public class RoleController extends AbstractSubjectController<RoleTO, RoleMod> {
             throw sce;
         }
 
-        final List<SyncopeRole> toBeDeprovisioned = new ArrayList<SyncopeRole>();
-
-        final SyncopeRole syncopeRole = roleDAO.find(roleId);
-
-        if (syncopeRole != null) {
-            final List<SyncopeRole> descendants = roleDAO.findDescendants(syncopeRole);
-            if (descendants != null) {
-                // among descendants there is also parent role syncopeRole (to delete)
-                toBeDeprovisioned.addAll(descendants);
-            }
-        }
-
-        final List<PropagationTask> tasks = new ArrayList<PropagationTask>();
-
-        for (SyncopeRole role : toBeDeprovisioned) {
-            // Generate propagation tasks for deleting users from role resources, if they are on those resources only
-            // because of the reason being deleted (see SYNCOPE-357)
-            for (WorkflowResult<Long> wfResult : binder.getUsersOnResourcesOnlyBecauseOfRole(role.getId())) {
-                tasks.addAll(propagationManager.getUserDeleteTaskIds(wfResult));
-            }
-
-            // Generate propagation tasks for deleting this role from resources
-            tasks.addAll(propagationManager.getRoleDeleteTaskIds(role.getId()));
-        }
+        List<PropagationStatus> statuses = provisioningManager.delete(roleId);
 
         RoleTO roleTO = new RoleTO();
         roleTO.setId(roleId);
 
-        PropagationReporter propagationReporter = ApplicationContextProvider.getApplicationContext().getBean(
-                PropagationReporter.class);
-        try {
-            taskExecutor.execute(tasks, propagationReporter);
-        } catch (PropagationException e) {
-            LOG.error("Error propagation primary resource", e);
-            propagationReporter.onPrimaryResourceFailure(tasks);
-        }
-        roleTO.getPropagationStatusTOs().addAll(propagationReporter.getStatuses());
-
-        rwfAdapter.delete(roleId);
+        roleTO.getPropagationStatusTOs().addAll(statuses);
 
         return roleTO;
     }
@@ -374,7 +317,9 @@ public class RoleController extends AbstractSubjectController<RoleTO, RoleMod> {
         final RoleMod roleMod = new RoleMod();
         roleMod.setId(roleId);
         roleMod.getResourcesToRemove().addAll(resources);
-        return binder.getRoleTO(rwfAdapter.update(roleMod).getResult());
+        final Long updatedResult = provisioningManager.unlink(roleMod);
+
+        return binder.getRoleTO(updatedResult);
     }
 
     @PreAuthorize("hasRole('ROLE_UPDATE')")
@@ -384,7 +329,7 @@ public class RoleController extends AbstractSubjectController<RoleTO, RoleMod> {
         final RoleMod roleMod = new RoleMod();
         roleMod.setId(roleId);
         roleMod.getResourcesToAdd().addAll(resources);
-        return binder.getRoleTO(rwfAdapter.update(roleMod).getResult());
+        return binder.getRoleTO(provisioningManager.link(roleMod));
     }
 
     @PreAuthorize("hasRole('ROLE_UPDATE')")
@@ -414,22 +359,10 @@ public class RoleController extends AbstractSubjectController<RoleTO, RoleMod> {
     public RoleTO deprovision(final Long roleId, final Collection<String> resources) {
         final SyncopeRole role = binder.getRoleFromId(roleId);
 
-        final Set<String> noPropResourceName = role.getResourceNames();
-        noPropResourceName.removeAll(resources);
-
-        final List<PropagationTask> tasks =
-                propagationManager.getRoleDeleteTaskIds(roleId, new HashSet<String>(resources), noPropResourceName);
-        PropagationReporter propagationReporter = ApplicationContextProvider.getApplicationContext().getBean(
-                PropagationReporter.class);
-        try {
-            taskExecutor.execute(tasks, propagationReporter);
-        } catch (PropagationException e) {
-            LOG.error("Error propagation primary resource", e);
-            propagationReporter.onPrimaryResourceFailure(tasks);
-        }
+        List<PropagationStatus> statuses = provisioningManager.deprovision(roleId, resources);
 
         final RoleTO updatedTO = binder.getRoleTO(role);
-        updatedTO.getPropagationStatusTOs().addAll(propagationReporter.getStatuses());
+        updatedTO.getPropagationStatusTOs().addAll(statuses);
         return updatedTO;
     }
 

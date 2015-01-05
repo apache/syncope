@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.sync.impl;
 
+import javax.annotation.Resource;
 import org.apache.syncope.core.sync.SyncProfile;
 import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.connid.ConnObjectUtil;
@@ -25,6 +26,8 @@ import org.apache.syncope.core.notification.NotificationManager;
 import org.apache.syncope.core.persistence.beans.AbstractSyncTask;
 import org.apache.syncope.core.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.propagation.impl.PropagationManager;
+import org.apache.syncope.core.provisioning.RoleProvisioningManager;
+import org.apache.syncope.core.provisioning.UserProvisioningManager;
 import org.apache.syncope.core.rest.data.RoleDataBinder;
 import org.apache.syncope.core.rest.data.UserDataBinder;
 import org.apache.syncope.core.sync.AbstractSyncActions;
@@ -40,7 +43,7 @@ public abstract class AbstractSyncopeResultHandler<T extends AbstractSyncTask, A
      * Logger.
      */
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractSyncopeResultHandler.class);
-    
+
     /**
      * User data binder.
      */
@@ -99,6 +102,12 @@ public abstract class AbstractSyncopeResultHandler<T extends AbstractSyncTask, A
      * Sync profile.
      */
     protected SyncProfile<T, A> profile;
+
+    @Resource(name = "userProvisioningManager")
+    protected UserProvisioningManager userProvisioningManager;
+
+    @Resource(name = "roleProvisioningManager")
+    protected RoleProvisioningManager roleProvisioningManager;
 
     public void setProfile(final SyncProfile<T, A> profile) {
         this.profile = profile;

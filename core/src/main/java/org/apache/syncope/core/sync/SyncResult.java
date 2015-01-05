@@ -28,9 +28,12 @@ import org.apache.syncope.common.types.ResourceOperation;
 import org.apache.syncope.common.types.TraceLevel;
 
 public class SyncResult {
+
     public enum Status {
+
         SUCCESS,
         FAILURE
+
     }
 
     private String message;
@@ -115,8 +118,8 @@ public class SyncResult {
             // All
             return String.format("%s %s (id/name): %d/%s %s", operation, status, id, name,
                     StringUtils.isBlank(message)
-                    ? ""
-                    : "with message: " + message);
+                            ? ""
+                            : "with message: " + message);
         }
     }
 

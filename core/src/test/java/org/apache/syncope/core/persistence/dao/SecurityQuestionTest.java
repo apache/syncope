@@ -52,7 +52,7 @@ public class SecurityQuestionTest extends AbstractDAOTest {
     public void save() {
         SecurityQuestion securityQuestion = new SecurityQuestion();
         securityQuestion.setContent("What is your favorite pet's name?");
-        
+
         SecurityQuestion actual = securityQuestionDAO.save(securityQuestion);
         assertNotNull(actual);
         assertNotNull(actual.getId());

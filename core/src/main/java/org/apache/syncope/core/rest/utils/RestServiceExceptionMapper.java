@@ -202,8 +202,8 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
         if (iee != null) {
             ClientExceptionType exType =
                     iee.getEntityClassSimpleName().endsWith("Policy")
-                    ? ClientExceptionType.InvalidPolicy
-                    : ClientExceptionType.valueOf("Invalid" + iee.getEntityClassSimpleName());
+                            ? ClientExceptionType.InvalidPolicy
+                            : ClientExceptionType.valueOf("Invalid" + iee.getEntityClassSimpleName());
 
             ResponseBuilder builder = Response.status(Response.Status.BAD_REQUEST);
             builder.header(RESTHeaders.ERROR_CODE, exType.getHeaderValue());

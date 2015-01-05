@@ -507,7 +507,7 @@ public class ResourceTestITCase extends AbstractTest {
         item.setExtAttrName("cn");
         item.setPurpose(MappingPurpose.BOTH);
         mapping.setAccountIdItem(item);
-            
+
         item = new MappingItemTO();
         item.setIntMappingType(IntMappingType.RoleOwnerSchema);
         item.setExtAttrName("owner");

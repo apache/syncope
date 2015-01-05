@@ -77,7 +77,6 @@ public class VirSchemaTest extends AbstractDAOTest {
         assertNull("delete did not work", actual);
 
         // ------------- //
-
         RVirSchema rvirtualdata = virSchemaDAO.find("rvirtualdata", RVirSchema.class);
         assertNotNull(rvirtualdata);
 

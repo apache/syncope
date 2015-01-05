@@ -60,7 +60,7 @@ public final class SQLSchemaGenerator {
         }
 
         @SuppressWarnings("unchecked")
-        Iterator<File> itor = FileUtils.iterateFiles(baseDir, new String[] {"class"}, true);
+        Iterator<File> itor = FileUtils.iterateFiles(baseDir, new String[] { "class" }, true);
         List<File> entityClasses = new ArrayList<File>();
         while (itor.hasNext()) {
             entityClasses.add(itor.next());
@@ -127,7 +127,7 @@ public final class SQLSchemaGenerator {
         for (int i = 0; i < files.size(); i++) {
             File file = files.get(i);
 
-            args[ i] = file.getAbsolutePath();
+            args[i] = file.getAbsolutePath();
         }
         return args;
     }
@@ -140,7 +140,6 @@ public final class SQLSchemaGenerator {
             final String connectionProperties) {
 
         //extendRealmClasspath();
-
         Options opts = new Options();
         opts.put(OPTION_PROPERTIES_FILE, persistenceXmlFile);
         opts.put(OPTION_CONNECTION_DRIVER_NAME, connectionDriverName);
@@ -156,16 +155,16 @@ public final class SQLSchemaGenerator {
         boolean ok = Configurations.runAgainstAllAnchors(opts,
                 new Configurations.Runnable() {
 
-            @Override
-            public boolean run(final Options opts) throws IOException, SQLException {
-                JDBCConfiguration conf = new JDBCConfigurationImpl();
-                try {
-                    return MappingTool.run(conf, args, opts);
-                } finally {
-                    conf.close();
-                }
-            }
-        });
+                    @Override
+                    public boolean run(final Options opts) throws IOException, SQLException {
+                        JDBCConfiguration conf = new JDBCConfigurationImpl();
+                        try {
+                            return MappingTool.run(conf, args, opts);
+                        } finally {
+                            conf.close();
+                        }
+                    }
+                });
 
         if (!ok) {
             throw new IllegalStateException("The OpenJPA MappingTool detected an error!");

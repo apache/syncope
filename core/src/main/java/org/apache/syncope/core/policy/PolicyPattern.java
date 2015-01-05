@@ -43,4 +43,5 @@ public class PolicyPattern {
     public static final Pattern FIRST_NON_ALPHANUMERIC = Pattern.compile("\\W.*");
 
     public static final Pattern LAST_NON_ALPHANUMERIC = Pattern.compile(".*\\W");
+
 }

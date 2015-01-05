@@ -25,7 +25,7 @@ import java.lang.annotation.Target;
 
 import org.apache.syncope.common.report.ReportletConf;
 
-@Target( { ElementType.TYPE })
+@Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ReportletConfClass {
 

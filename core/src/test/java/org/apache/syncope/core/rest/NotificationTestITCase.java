@@ -44,7 +44,7 @@ public class NotificationTestITCase extends AbstractTest {
         NotificationTO notificationTO = new NotificationTO();
         notificationTO.setTraceLevel(TraceLevel.SUMMARY);
         notificationTO.getEvents().add("create");
-        
+
         notificationTO.setUserAbout(SyncopeClient.getUserSearchConditionBuilder().
                 is("fullname").equalTo("*o*").and("fullname").equalTo("*i*").query());
 
