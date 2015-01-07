@@ -44,7 +44,7 @@ public class RouteModalPage extends BaseModalPage{
      public RouteModalPage(final PageReference pageRef, final ModalWindow window,
             final RouteTO routeTO, final boolean createFlag){
          
-        Form routeForm = new Form("routeDefForm");            
+        Form<RouteTO> routeForm = new Form<RouteTO>("routeDefForm");            
         
         final TextArea<String> routeDefArea = new TextArea<String>("routeContent", new PropertyModel<String>(routeTO, "routeContent"));       
         //routeDefArea.setOutputMarkupId(true);      

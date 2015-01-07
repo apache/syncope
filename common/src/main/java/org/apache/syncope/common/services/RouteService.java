@@ -29,9 +29,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.apache.cxf.jaxrs.model.wadl.Description;
-import org.apache.cxf.jaxrs.model.wadl.Descriptions;
-import org.apache.cxf.jaxrs.model.wadl.DocTarget;
 import org.apache.syncope.common.to.RouteTO;
 import org.apache.syncope.common.types.SubjectType;
 
@@ -47,10 +44,7 @@ public interface RouteService extends JAXRSService {
      * @see org.apache.syncope.common.types.RESTHeaders#CAMEL_USER_PROVISIONING_MANAGER
      * @see org.apache.syncope.common.types.RESTHeaders#CAMEL_ROLE_PROVISIONING_MANAGER
      *
-     * @Descriptions({
-     * @Description(target = DocTarget.RESPONSE,
-     * value = "Contains special syncope HTTP header indicating if Camel is the default provisioning manager")
-     * }) */
+     */
     @OPTIONS
     Response getOptions(@NotNull @PathParam("kind") SubjectType kind);
 
