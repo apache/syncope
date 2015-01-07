@@ -359,7 +359,7 @@ under the License.
     <h2.version>1.4.184</h2.version>
 
     <log4j.version>2.1</log4j.version>
-    <slf4j.version>1.7.9</slf4j.version>
+    <slf4j.version>1.7.10</slf4j.version>
     <disruptor.version>3.3.0</disruptor.version>
 
     <junit.version>4.11</junit.version>
