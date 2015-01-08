@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.server.utils;
+package org.apache.syncope.provisioning.api;
 
 import java.io.File;
 import java.net.MalformedURLException;

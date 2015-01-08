@@ -46,10 +46,10 @@ import org.apache.syncope.persistence.api.dao.search.ResourceCond;
 import org.apache.syncope.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.persistence.api.dao.search.SubjectCond;
 import org.apache.syncope.persistence.api.entity.AttributableUtil;
+import org.apache.syncope.persistence.api.entity.AttributableUtilFactory;
 import org.apache.syncope.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.persistence.api.entity.PlainSchema;
 import org.apache.syncope.persistence.api.entity.Subject;
-import org.apache.syncope.persistence.jpa.entity.JPAAttributableUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -68,6 +68,9 @@ public class JPASubjectSearchDAO extends AbstractDAO<Subject<?, ?, ?>, Long> imp
 
     @Autowired
     private PlainSchemaDAO schemaDAO;
+
+    @Autowired
+    private AttributableUtilFactory attrUtilFactory;
 
     private String getAdminRolesFilter(final Set<Long> adminRoles, final SubjectType type) {
         final StringBuilder adminRolesFilter = new StringBuilder();
@@ -272,7 +275,7 @@ public class JPASubjectSearchDAO extends AbstractDAO<Subject<?, ?, ?>, Long> imp
     private OrderBySupport parseOrderBy(final SubjectType type, final SearchSupport svs,
             final List<OrderByClause> orderByClauses) {
 
-        final AttributableUtil attrUtil = JPAAttributableUtil.getInstance(type.asAttributableType());
+        final AttributableUtil attrUtil = attrUtilFactory.getInstance(type.asAttributableType());
 
         OrderBySupport orderBySupport = new OrderBySupport();
 
@@ -598,7 +601,7 @@ public class JPASubjectSearchDAO extends AbstractDAO<Subject<?, ?, ?>, Long> imp
     private String getQuery(final AttributeCond cond, final boolean not, final List<Object> parameters,
             final SubjectType type, final SearchSupport svs) {
 
-        final AttributableUtil attrUtil = JPAAttributableUtil.getInstance(type.asAttributableType());
+        final AttributableUtil attrUtil = attrUtilFactory.getInstance(type.asAttributableType());
 
         PlainSchema schema = schemaDAO.find(cond.getSchema(), attrUtil.plainSchemaClass());
         if (schema == null) {
@@ -647,7 +650,7 @@ public class JPASubjectSearchDAO extends AbstractDAO<Subject<?, ?, ?>, Long> imp
     private String getQuery(final SubjectCond cond, final boolean not, final List<Object> parameters,
             final SubjectType type, final SearchSupport svs) {
 
-        final AttributableUtil attrUtil = JPAAttributableUtil.getInstance(type.asAttributableType());
+        final AttributableUtil attrUtil = attrUtilFactory.getInstance(type.asAttributableType());
 
         Field subjectField = ReflectionUtils.findField(attrUtil.attributableClass(), cond.getSchema());
         if (subjectField == null) {
@@ -664,7 +667,7 @@ public class JPASubjectSearchDAO extends AbstractDAO<Subject<?, ?, ?>, Long> imp
         }
 
         // Deal with subject Integer fields logically mapping to boolean values
-        // (SyncopeRole.inheritAttrs, for example)
+        // (SyncopeRole.inheritPlainAttrs, for example)
         boolean foundBooleanMin = false;
         boolean foundBooleanMax = false;
         if (Integer.class.equals(subjectField.getType())) {

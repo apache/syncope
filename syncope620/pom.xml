@@ -320,6 +320,8 @@ under the License.
     <connid.ldap.version>1.4.0</connid.ldap.version>
     <connid.ad.version>1.2.1</connid.ad.version>
 
+    <cxf.version>3.0.3</cxf.version>
+
     <jackson.version>2.5.0</jackson.version>
 
     <spring.version>4.1.4.RELEASE</spring.version>
@@ -333,7 +335,9 @@ under the License.
 
     <quartz.version>2.2.1</quartz.version>
 
-    <slf4j.version>1.7.9</slf4j.version>
+    <cocoon.version>3.0.0-alpha-3</cocoon.version>
+
+    <slf4j.version>1.7.10</slf4j.version>
     <log4j.version>2.1</log4j.version>
 
     <commons-io.version>2.4</commons-io.version>
@@ -379,6 +383,49 @@ under the License.
         <version>3.0.0</version>
         <scope>provided</scope>
       </dependency>
+      <dependency>
+        <groupId>javax.ws.rs</groupId>
+        <artifactId>javax.ws.rs-api</artifactId>
+        <version>2.0.1</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.geronimo.javamail</groupId>
+        <artifactId>geronimo-javamail_1.4_mail</artifactId>
+        <version>1.8.4</version>
+      </dependency>
+
+      <!-- CXF -->
+      <dependency>
+        <groupId>org.apache.cxf</groupId>
+        <artifactId>cxf-rt-frontend-jaxrs</artifactId>
+        <version>${cxf.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.cxf</groupId>
+        <artifactId>cxf-rt-rs-extension-providers</artifactId>
+        <version>${cxf.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.cxf</groupId>
+        <artifactId>cxf-rt-rs-extension-search</artifactId>
+        <version>${cxf.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.cxf</groupId>
+        <artifactId>cxf-rt-frontend-jaxws</artifactId>
+        <version>${cxf.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.cxf</groupId>
+        <artifactId>cxf-rt-rs-service-description</artifactId>
+        <version>${cxf.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.cxf</groupId>
+        <artifactId>cxf-rt-rs-client</artifactId>
+        <version>${cxf.version}</version>
+      </dependency>      
+      <!-- /CXF -->
       
       <dependency>
         <groupId>org.apache.openjpa</groupId>
@@ -436,6 +483,11 @@ under the License.
       </dependency>
       <dependency>
         <groupId>org.springframework</groupId>
+        <artifactId>spring-context-support</artifactId>
+        <version>${spring.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework</groupId>
         <artifactId>spring-tx</artifactId>
         <version>${spring.version}</version>
       </dependency>
@@ -453,6 +505,12 @@ under the License.
         <groupId>org.springframework.security</groupId>
         <artifactId>spring-security-core</artifactId>
         <version>${spring-security.version}</version>
+      </dependency>
+
+     <dependency>
+        <groupId>org.aspectj</groupId>
+        <artifactId>aspectjweaver</artifactId>
+        <version>1.8.4</version>
       </dependency>
       
       <dependency>
@@ -517,6 +575,87 @@ under the License.
       </dependency>
       
       <dependency>
+        <groupId>org.apache.velocity</groupId>
+        <artifactId>velocity</artifactId>
+        <version>1.7</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.velocity</groupId>
+        <artifactId>velocity-tools</artifactId>
+        <version>2.0</version>
+        <exclusions>
+          <exclusion>
+            <artifactId>struts-core</artifactId>
+            <groupId>org.apache.struts</groupId>
+          </exclusion>
+          <exclusion>
+            <artifactId>struts-taglib</artifactId>
+            <groupId>org.apache.struts</groupId>
+          </exclusion>
+          <exclusion>
+            <artifactId>struts-tiles</artifactId>
+            <groupId>org.apache.struts</groupId>
+          </exclusion>
+          <exclusion>
+            <artifactId>sslext</artifactId>
+            <groupId>sslext</groupId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      
+      <dependency>
+        <groupId>org.apache.cocoon.sax</groupId>
+        <artifactId>cocoon-sax</artifactId>
+        <version>${cocoon.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.cocoon.optional</groupId>
+        <artifactId>cocoon-optional</artifactId>
+        <version>${cocoon.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.xmlgraphics</groupId>
+        <artifactId>fop</artifactId>
+        <version>1.1</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.apache.avalon.framework</groupId>
+            <artifactId>avalon-framework-api</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.apache.avalon.framework</groupId>
+            <artifactId>avalon-framework-impl</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>xalan</groupId>
+            <artifactId>xalan</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.avalon.framework</groupId>
+        <artifactId>avalon-framework-api</artifactId>
+        <version>4.3.1</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.avalon.framework</groupId>
+        <artifactId>avalon-framework-impl</artifactId>
+        <version>4.3.1</version>
+      </dependency>
+
+      <dependency>
+        <groupId>xalan</groupId>
+        <artifactId>xalan</artifactId>
+        <version>2.7.1</version>
+      </dependency>
+      <dependency>
+        <groupId>xerces</groupId>
+        <artifactId>xercesImpl</artifactId>
+        <version>2.11.0</version>
+      </dependency>
+
+      <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
         <version>${slf4j.version}</version>
@@ -524,6 +663,11 @@ under the License.
       <dependency>
         <groupId>org.apache.logging.log4j</groupId>
         <artifactId>log4j-api</artifactId>
+        <version>${log4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-core</artifactId>
         <version>${log4j.version}</version>
       </dependency>
       

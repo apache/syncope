@@ -19,7 +19,6 @@
 package org.apache.syncope.persistence.jpa.entity;
 
 import java.beans.PropertyDescriptor;
-import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.HashSet;
@@ -31,7 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 
-public abstract class AbstractEntity<KEY> implements Entity<KEY>, Serializable {
+public abstract class AbstractEntity<KEY> implements Entity<KEY> {
 
     private static final long serialVersionUID = -9017214159540857901L;
 
@@ -41,7 +40,7 @@ public abstract class AbstractEntity<KEY> implements Entity<KEY>, Serializable {
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractEntity.class);
 
     protected void checkType(final Object object, final Class<?> clazz) {
-        if (object !=null && !clazz.isInstance(object)) {
+        if (object != null && !clazz.isInstance(object)) {
             throw new ClassCastException("Expected " + clazz.getName() + ", got " + object.getClass().getName());
         }
     }

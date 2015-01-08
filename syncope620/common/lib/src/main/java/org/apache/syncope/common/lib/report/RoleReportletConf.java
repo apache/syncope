@@ -39,7 +39,7 @@ public class RoleReportletConf extends AbstractReportletConf {
     @XmlType(name = "roleReportletConfFeature")
     public enum Feature {
 
-        id,
+        key,
         name,
         roleOwner,
         userOwner,

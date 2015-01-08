@@ -36,7 +36,6 @@ import org.apache.syncope.persistence.api.entity.MappingItem;
 import org.apache.syncope.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.persistence.api.entity.user.UPlainSchema;
 import org.apache.syncope.persistence.jpa.AbstractTest;
-import org.apache.syncope.persistence.jpa.entity.JPAAttributableUtil;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -86,7 +85,7 @@ public class PlainSchemaTest extends AbstractTest {
         assertFalse(mapItems.isEmpty());
 
         // delete user schema fullname
-        plainSchemaDAO.delete("fullname", JPAAttributableUtil.getInstance(AttributableType.USER));
+        plainSchemaDAO.delete("fullname", attrUtilFactory.getInstance(AttributableType.USER));
 
         plainSchemaDAO.flush();
 
@@ -135,7 +134,7 @@ public class PlainSchemaTest extends AbstractTest {
         assertFalse(mappings.isEmpty());
 
         // delete user schema fullname
-        plainSchemaDAO.delete("surname", JPAAttributableUtil.getInstance(AttributableType.USER));
+        plainSchemaDAO.delete("surname", attrUtilFactory.getInstance(AttributableType.USER));
 
         plainSchemaDAO.flush();
 
@@ -148,7 +147,7 @@ public class PlainSchemaTest extends AbstractTest {
     public void deleteALong() {
         assertEquals(6, resourceDAO.find("resource-db-sync").getUmapping().getItems().size());
 
-        plainSchemaDAO.delete("aLong", JPAAttributableUtil.getInstance(AttributableType.USER));
+        plainSchemaDAO.delete("aLong", attrUtilFactory.getInstance(AttributableType.USER));
         assertNull(plainSchemaDAO.find("aLong", UPlainSchema.class));
 
         plainSchemaDAO.flush();

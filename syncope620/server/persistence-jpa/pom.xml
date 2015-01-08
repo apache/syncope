@@ -91,7 +91,7 @@ under the License.
       
     <dependency>
       <groupId>org.apache.syncope.server</groupId>
-      <artifactId>syncope-provisioning-api</artifactId>
+      <artifactId>syncope-provisioning-common</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

@@ -45,5 +45,10 @@ under the License.
   
   <context:component-scan base-package="org.apache.syncope.server.utils"/>
 
+  <bean id="virAttrCache" class="org.apache.syncope.provisioning.common.cache.MemoryVirAttrCache" scope="singleton">
+    <constructor-arg value="60"/>
+    <constructor-arg value="5000"/>
+  </bean>
+
   <import resource="persistenceContext.xml"/>
 </beans>

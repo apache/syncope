@@ -18,7 +18,9 @@
  */
 package org.apache.syncope.persistence.api.entity;
 
-public interface Entity<KEY> {
+import java.io.Serializable;
+
+public interface Entity<KEY> extends Serializable {
 
     KEY getKey();
 }

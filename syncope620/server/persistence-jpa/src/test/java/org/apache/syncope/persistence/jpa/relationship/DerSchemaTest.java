@@ -27,7 +27,6 @@ import org.apache.syncope.persistence.api.dao.UserDAO;
 import org.apache.syncope.persistence.api.entity.user.UDerAttr;
 import org.apache.syncope.persistence.api.entity.user.UDerSchema;
 import org.apache.syncope.persistence.jpa.AbstractTest;
-import org.apache.syncope.persistence.jpa.entity.JPAAttributableUtil;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,7 +47,7 @@ public class DerSchemaTest extends AbstractTest {
     public void test() {
         UDerSchema schema = derSchemaDAO.find("cn", UDerSchema.class);
 
-        derSchemaDAO.delete(schema.getKey(), JPAAttributableUtil.getInstance(AttributableType.USER));
+        derSchemaDAO.delete(schema.getKey(), attrUtilFactory.getInstance(AttributableType.USER));
 
         derSchemaDAO.flush();
 

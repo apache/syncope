@@ -34,18 +34,18 @@ public abstract class AbstractAttributableTO extends ConnObjectTO {
 
     private static final long serialVersionUID = 4083884098736820255L;
 
-    private long id;
+    private long key;
 
     private final List<AttrTO> derAttrs = new ArrayList<>();
 
     private final List<AttrTO> virAttrs = new ArrayList<>();
 
-    public long getId() {
-        return id;
+    public long getKey() {
+        return key;
     }
 
-    public void setId(final long id) {
-        this.id = id;
+    public void setKey(final long id) {
+        this.key = id;
     }
 
     @JsonIgnore

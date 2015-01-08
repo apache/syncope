@@ -40,6 +40,8 @@ public class SecurityQuestionTest extends AbstractTest {
     @Test
     public void test() {
         User user = userDAO.find(4L);
+        assertNull(user.getSecurityQuestion());
+        assertNull(user.getSecurityAnswer());
 
         user.setSecurityQuestion(securityQuestionDAO.find(1L));
         user.setSecurityAnswer("Rossi");
@@ -54,5 +56,6 @@ public class SecurityQuestionTest extends AbstractTest {
         user = userDAO.find(4L);
 
         assertNull(user.getSecurityQuestion());
+        assertNull(user.getSecurityAnswer());
     }
 }

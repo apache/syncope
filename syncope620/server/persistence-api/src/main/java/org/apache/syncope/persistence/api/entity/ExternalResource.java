@@ -27,7 +27,7 @@ import org.apache.syncope.common.lib.types.PropagationMode;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.identityconnectors.framework.common.objects.SyncToken;
 
-public interface ExternalResource extends Entity<String> {
+public interface ExternalResource extends AnnotatedEntity<String> {
 
     AccountPolicy getAccountPolicy();
 

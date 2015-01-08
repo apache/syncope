@@ -38,7 +38,7 @@ public class UserReportletConf extends AbstractReportletConf {
     @XmlType(name = "userReportletConfFeature")
     public enum Feature {
 
-        id,
+        key,
         username,
         workflowId,
         status,

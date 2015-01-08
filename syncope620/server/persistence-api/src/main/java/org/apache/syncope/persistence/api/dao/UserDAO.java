@@ -62,4 +62,7 @@ public interface UserDAO extends SubjectDAO<UPlainAttr, UDerAttr, UVirAttr> {
 
     void delete(User user);
 
+    User authFecthUser(Long key);
+
+    User authFecthUser(String username);
 }

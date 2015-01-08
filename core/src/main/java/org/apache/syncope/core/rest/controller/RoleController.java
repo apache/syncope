@@ -18,13 +18,10 @@
  */
 package org.apache.syncope.core.rest.controller;
 
-import static org.apache.syncope.core.rest.controller.AbstractController.LOG;
-
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -36,12 +33,10 @@ import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.common.to.PropagationStatus;
-import org.apache.syncope.core.provisioning.ProvisioningManager;
 import org.apache.syncope.core.provisioning.RoleProvisioningManager;
 import org.apache.syncope.common.reqres.BulkAction;
 import org.apache.syncope.common.reqres.BulkActionResult;
 import org.apache.syncope.common.types.SubjectType;
-import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.SubjectSearchDAO;
@@ -49,13 +44,10 @@ import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.persistence.dao.search.OrderByClause;
-import org.apache.syncope.core.propagation.PropagationException;
-import org.apache.syncope.core.propagation.PropagationReporter;
 import org.apache.syncope.core.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.propagation.impl.PropagationManager;
 import org.apache.syncope.core.rest.data.AttributableTransformer;
 import org.apache.syncope.core.rest.data.RoleDataBinder;
-import org.apache.syncope.core.util.ApplicationContextProvider;
 import org.apache.syncope.core.util.EntitlementUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -94,9 +86,9 @@ public class RoleController extends AbstractSubjectController<RoleTO, RoleMod> {
     protected AttributableTransformer attrTransformer;
 
     @Resource(name = "anonymousUser")
-    private String anonymousUser;
+    protected String anonymousUser;
 
-    @Resource(name = "roleProvisioningManager")
+    @Autowired
     protected RoleProvisioningManager provisioningManager;
 
     @PreAuthorize("hasAnyRole('ROLE_READ', T(org.apache.syncope.common.SyncopeConstants).ANONYMOUS_ENTITLEMENT)")

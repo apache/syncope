@@ -72,7 +72,7 @@ public class ConfTest extends AbstractTest {
         // 2. create conf
         CPlainAttr newConf = entityFactory.newEntity(CPlainAttr.class);
         newConf.setSchema(useless);
-        newConf.addValue("2014-06-20", JPAAttributableUtil.getInstance(AttributableType.CONFIGURATION));
+        newConf.addValue("2014-06-20", attrUtilFactory.getInstance(AttributableType.CONFIGURATION));
         confDAO.save(newConf);
 
         CPlainAttr actual = confDAO.find("useless");
@@ -80,7 +80,7 @@ public class ConfTest extends AbstractTest {
 
         // 3. update conf
         newConf.getValues().clear();
-        newConf.addValue("2014-06-20", JPAAttributableUtil.getInstance(AttributableType.CONFIGURATION));
+        newConf.addValue("2014-06-20", attrUtilFactory.getInstance(AttributableType.CONFIGURATION));
         confDAO.save(newConf);
 
         actual = confDAO.find("useless");

@@ -25,7 +25,7 @@ import org.apache.syncope.persistence.api.entity.PushPolicy;
 @Entity
 public class JPAPushPolicy extends JPAPolicy implements PushPolicy {
 
-    private static final long serialVersionUID = -6090413855809521279L;
+    private static final long serialVersionUID = -5875589156893921113L;
 
     public JPAPushPolicy() {
         this(false);

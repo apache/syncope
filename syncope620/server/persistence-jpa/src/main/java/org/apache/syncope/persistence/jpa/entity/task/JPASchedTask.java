@@ -30,7 +30,7 @@ import org.apache.syncope.persistence.jpa.validation.entity.SchedTaskCheck;
 @SchedTaskCheck
 public class JPASchedTask extends JPATask implements SchedTask {
 
-    private static final long serialVersionUID = -4141057723006682562L;
+    private static final long serialVersionUID = 7596236684832602180L;
 
     protected String cronExpression;
 

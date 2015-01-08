@@ -32,7 +32,7 @@ import org.apache.syncope.persistence.jpa.entity.role.JPARole;
 @Table(name = JPAMDerAttrTemplate.TABLE)
 public class JPAMDerAttrTemplate extends AbstractAttrTemplate<MDerSchema> implements MDerAttrTemplate {
 
-    private static final long serialVersionUID = -3424574558427502145L;
+    private static final long serialVersionUID = -4465930976210263434L;
 
     public static final String TABLE = "MDerAttrTemplate";
 

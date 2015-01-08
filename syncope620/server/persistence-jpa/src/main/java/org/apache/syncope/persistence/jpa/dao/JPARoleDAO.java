@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
@@ -31,12 +32,14 @@ import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.persistence.api.RoleEntitlementUtil;
 import org.apache.syncope.persistence.api.dao.DerAttrDAO;
 import org.apache.syncope.persistence.api.dao.EntitlementDAO;
+import org.apache.syncope.persistence.api.dao.NotFoundException;
 import org.apache.syncope.persistence.api.dao.PlainAttrDAO;
 import org.apache.syncope.persistence.api.dao.RoleDAO;
 import org.apache.syncope.persistence.api.dao.UserDAO;
 import org.apache.syncope.persistence.api.dao.VirAttrDAO;
 import org.apache.syncope.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.persistence.api.entity.AttrTemplate;
+import org.apache.syncope.persistence.api.entity.AttributableUtilFactory;
 import org.apache.syncope.persistence.api.entity.DerAttr;
 import org.apache.syncope.persistence.api.entity.Entitlement;
 import org.apache.syncope.persistence.api.entity.ExternalResource;
@@ -60,9 +63,10 @@ import org.apache.syncope.persistence.api.entity.role.RVirAttr;
 import org.apache.syncope.persistence.api.entity.role.RVirAttrTemplate;
 import org.apache.syncope.persistence.api.entity.role.Role;
 import org.apache.syncope.persistence.api.entity.user.User;
-import org.apache.syncope.persistence.jpa.entity.JPAAttributableUtil;
 import org.apache.syncope.persistence.jpa.entity.membership.JPAMembership;
 import org.apache.syncope.persistence.jpa.entity.role.JPARole;
+import org.apache.syncope.server.security.AuthContextUtil;
+import org.apache.syncope.server.security.UnauthorizedRoleException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -84,6 +88,9 @@ public class JPARoleDAO extends AbstractSubjectDAO<RPlainAttr, RDerAttr, RVirAtt
 
     @Autowired
     private EntitlementDAO entitlementDAO;
+
+    @Autowired
+    private AttributableUtilFactory attrUtilFactory;
 
     @Override
     protected Subject<RPlainAttr, RDerAttr, RVirAttr> findInternal(final Long key) {
@@ -321,27 +328,27 @@ public class JPARoleDAO extends AbstractSubjectDAO<RPlainAttr, RDerAttr, RVirAtt
     @Override
     public List<Role> findByAttrValue(final String schemaName, final RPlainAttrValue attrValue) {
         return (List<Role>) findByAttrValue(
-                schemaName, attrValue, JPAAttributableUtil.getInstance(AttributableType.ROLE));
+                schemaName, attrValue, attrUtilFactory.getInstance(AttributableType.ROLE));
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public Role findByAttrUniqueValue(final String schemaName, final RPlainAttrValue attrUniqueValue) {
         return (Role) findByAttrUniqueValue(schemaName, attrUniqueValue,
-                JPAAttributableUtil.getInstance(AttributableType.ROLE));
+                attrUtilFactory.getInstance(AttributableType.ROLE));
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public List<Role> findByDerAttrValue(final String schemaName, final String value) {
         return (List<Role>) findByDerAttrValue(
-                schemaName, value, JPAAttributableUtil.getInstance(AttributableType.ROLE));
+                schemaName, value, attrUtilFactory.getInstance(AttributableType.ROLE));
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public List<Role> findByResource(final ExternalResource resource) {
-        return (List<Role>) findByResource(resource, JPAAttributableUtil.getInstance(AttributableType.ROLE));
+        return (List<Role>) findByResource(resource, attrUtilFactory.getInstance(AttributableType.ROLE));
     }
 
     @Override
@@ -528,4 +535,23 @@ public class JPARoleDAO extends AbstractSubjectDAO<RPlainAttr, RDerAttr, RVirAtt
 
         delete(role);
     }
+
+    @Override
+    public Role authFetchRole(Long key) {
+        if (key == null) {
+            throw new NotFoundException("Null role id");
+        }
+
+        Role role = find(key);
+        if (role == null) {
+            throw new NotFoundException("Role " + key);
+        }
+
+        Set<Long> allowedRoleIds = RoleEntitlementUtil.getRoleKeys(AuthContextUtil.getOwnedEntitlementNames());
+        if (!allowedRoleIds.contains(role.getKey())) {
+            throw new UnauthorizedRoleException(role.getKey());
+        }
+        return role;
+    }
+
 }

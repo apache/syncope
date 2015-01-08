@@ -21,6 +21,12 @@ package org.apache.syncope.persistence.jpa.entity;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.apache.syncope.common.lib.to.AbstractAttributableTO;
+import org.apache.syncope.common.lib.to.AbstractSubjectTO;
+import org.apache.syncope.common.lib.to.ConfTO;
+import org.apache.syncope.common.lib.to.MembershipTO;
+import org.apache.syncope.common.lib.to.RoleTO;
+import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
@@ -36,10 +42,6 @@ import org.apache.syncope.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.persistence.api.entity.PlainSchema;
 import org.apache.syncope.persistence.api.entity.VirAttr;
 import org.apache.syncope.persistence.api.entity.VirSchema;
-import org.apache.syncope.persistence.api.entity.conf.Conf;
-import org.apache.syncope.persistence.api.entity.membership.Membership;
-import org.apache.syncope.persistence.api.entity.role.Role;
-import org.apache.syncope.persistence.api.entity.user.User;
 import org.apache.syncope.persistence.jpa.entity.conf.JPACPlainAttr;
 import org.apache.syncope.persistence.jpa.entity.conf.JPACPlainAttrUniqueValue;
 import org.apache.syncope.persistence.jpa.entity.conf.JPACPlainAttrValue;
@@ -81,7 +83,6 @@ import org.apache.syncope.persistence.jpa.entity.user.JPAUVirAttr;
 import org.apache.syncope.persistence.jpa.entity.user.JPAUVirSchema;
 import org.apache.syncope.persistence.jpa.entity.user.JPAUser;
 import org.apache.syncope.server.spring.BeanUtils;
-import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.slf4j.LoggerFactory;
 
@@ -93,55 +94,9 @@ public class JPAAttributableUtil implements AttributableUtil {
      */
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(AttributableUtil.class);
 
-    public static AttributableUtil getInstance(final AttributableType type) {
-        return new JPAAttributableUtil(type);
-    }
-
-    public static AttributableUtil valueOf(final String name) {
-        return new JPAAttributableUtil(AttributableType.valueOf(name));
-    }
-
-    public static AttributableUtil getInstance(final ObjectClass objectClass) {
-        AttributableType type = null;
-        if (ObjectClass.ACCOUNT.equals(objectClass)) {
-            type = AttributableType.USER;
-        }
-        if (ObjectClass.GROUP.equals(objectClass)) {
-            type = AttributableType.ROLE;
-        }
-
-        if (type == null) {
-            throw new IllegalArgumentException("ObjectClass not supported: " + objectClass);
-        }
-
-        return new JPAAttributableUtil(type);
-    }
-
-    public static AttributableUtil getInstance(final Attributable attributable) {
-        AttributableType type = null;
-        if (attributable instanceof User) {
-            type = AttributableType.USER;
-        }
-        if (attributable instanceof Role) {
-            type = AttributableType.ROLE;
-        }
-        if (attributable instanceof Membership) {
-            type = AttributableType.MEMBERSHIP;
-        }
-        if (attributable instanceof Conf) {
-            type = AttributableType.CONFIGURATION;
-        }
-
-        if (type == null) {
-            throw new IllegalArgumentException("Attributable type not supported: " + attributable.getClass().getName());
-        }
-
-        return new JPAAttributableUtil(type);
-    }
-
     private final AttributableType type;
 
-    private JPAAttributableUtil(final AttributableType type) {
+    protected JPAAttributableUtil(final AttributableType type) {
         this.type = type;
     }
 
@@ -723,7 +678,7 @@ public class JPAAttributableUtil implements AttributableUtil {
             }
         }
 
-        final List<T> result = new ArrayList<T>();
+        final List<T> result = new ArrayList<>();
 
         switch (purpose) {
             case SYNCHRONIZATION:
@@ -879,4 +834,46 @@ public class JPAAttributableUtil implements AttributableUtil {
         return result;
     }
 
+    @Override
+    public <T extends AbstractAttributableTO> T newAttributableTO() {
+        T result = null;
+
+        switch (type) {
+            case USER:
+                result = (T) new UserTO();
+                break;
+            case ROLE:
+                result = (T) new RoleTO();
+                break;
+            case MEMBERSHIP:
+                result = (T) new MembershipTO();
+                break;
+            case CONFIGURATION:
+                result = (T) new ConfTO();
+                break;
+            default:
+        }
+
+        return result;
+    }
+
+    @Override
+    public <T extends AbstractSubjectTO> T newSubjectTO() {
+        T result = null;
+
+        switch (type) {
+            case USER:
+                result = (T) new UserTO();
+                break;
+            case ROLE:
+                result = (T) new RoleTO();
+                break;
+            case MEMBERSHIP:
+            case CONFIGURATION:
+            default:
+                break;
+        }
+
+        return result;
+    }
 }

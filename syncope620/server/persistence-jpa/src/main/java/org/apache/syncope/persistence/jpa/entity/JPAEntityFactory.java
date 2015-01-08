@@ -20,6 +20,7 @@ package org.apache.syncope.persistence.jpa.entity;
 
 import org.apache.syncope.persistence.api.entity.AccountPolicy;
 import org.apache.syncope.persistence.api.entity.ConnInstance;
+import org.apache.syncope.persistence.api.entity.ConnPoolConf;
 import org.apache.syncope.persistence.api.entity.Entitlement;
 import org.apache.syncope.persistence.api.entity.Entity;
 import org.apache.syncope.persistence.api.entity.EntityFactory;
@@ -134,8 +135,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class JPAEntityFactory implements EntityFactory {
 
-    @Override
     @SuppressWarnings("unchecked")
+    @Override
     public <KEY, T extends Entity<KEY>> T newEntity(final Class<T> reference) {
         T result;
 
@@ -258,6 +259,7 @@ public class JPAEntityFactory implements EntityFactory {
         return result;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T extends Policy> T newPolicy(final Class<T> reference, final boolean global) {
         T result;
@@ -275,6 +277,11 @@ public class JPAEntityFactory implements EntityFactory {
         }
 
         return result;
+    }
+
+    @Override
+    public ConnPoolConf newConnPoolConf() {
+        return new JPAConnPoolConf();
     }
 
 }

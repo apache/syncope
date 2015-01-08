@@ -77,4 +77,6 @@ public interface RoleDAO extends SubjectDAO<RPlainAttr, RDerAttr, RVirAttr> {
     void delete(Role role);
 
     void delete(Long key);
+    
+    Role authFetchRole(Long key);
 }

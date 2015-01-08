@@ -35,7 +35,7 @@ import org.apache.syncope.persistence.jpa.entity.AbstractPlainAttrValue;
 @Table(name = JPACPlainAttrUniqueValue.TABLE)
 public class JPACPlainAttrUniqueValue extends AbstractPlainAttrValue implements CPlainAttrUniqueValue {
 
-    private static final long serialVersionUID = -64080804563305387L;
+    private static final long serialVersionUID = -2072445894710677162L;
 
     public static final String TABLE = "CPlainAttrUniqueValue";
 

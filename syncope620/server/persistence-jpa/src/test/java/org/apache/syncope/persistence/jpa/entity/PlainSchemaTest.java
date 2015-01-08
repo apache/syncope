@@ -139,7 +139,7 @@ public class PlainSchemaTest extends AbstractTest {
     public void delete() {
         UPlainSchema fullnam = plainSchemaDAO.find("fullname", UPlainSchema.class);
 
-        plainSchemaDAO.delete(fullnam.getKey(), JPAAttributableUtil.getInstance(AttributableType.USER));
+        plainSchemaDAO.delete(fullnam.getKey(), attrUtilFactory.getInstance(AttributableType.USER));
 
         UPlainSchema actual = plainSchemaDAO.find("fullname", UPlainSchema.class);
         assertNull("delete did not work", actual);

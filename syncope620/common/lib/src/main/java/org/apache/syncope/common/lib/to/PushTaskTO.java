@@ -16,29 +16,34 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.server.security;
+package org.apache.syncope.common.lib.to;
 
-import java.security.SecureRandom;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 
-import org.apache.commons.lang3.RandomStringUtils;
+@XmlRootElement(name = "pushTask")
+@XmlType
+public class PushTaskTO extends AbstractProvisioningTaskTO {
 
-public class SecureRandomUtil {
-    
-    private static final SecureRandom RANDOM = new SecureRandom();
+    private static final long serialVersionUID = -2143537546915809018L;
 
-    public static String generateRandomPassword(final int tokenLength) {
-        return RandomStringUtils.random(tokenLength, 0, 0, true, false, null, RANDOM);
+    private String userFilter;
+
+    private String roleFilter;
+
+    public String getUserFilter() {
+        return userFilter;
     }
-    
-    public static String generateRandomLetter() {
-        return RandomStringUtils.random(1, 0, 0, true, false, null, RANDOM);
+
+    public void setUserFilter(final String filter) {
+        this.userFilter = filter;
     }
-    
-    public static String generateRandomNumber() {
-        return RandomStringUtils.random(1, 0, 0, false, true, null, RANDOM);
+
+    public String getRoleFilter() {
+        return roleFilter;
     }
-    
-    public static String generateRandomSpecialCharacter(char[] characters) {
-        return RandomStringUtils.random(1, 0, 0, false, false, characters, RANDOM);
+
+    public void setRoleFilter(final String roleFilter) {
+        this.roleFilter = roleFilter;
     }
 }

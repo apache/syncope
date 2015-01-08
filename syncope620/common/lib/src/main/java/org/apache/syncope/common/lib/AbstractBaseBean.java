@@ -19,15 +19,20 @@
 package org.apache.syncope.common.lib;
 
 import java.io.Serializable;
+import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.apache.syncope.common.lib.to.AbstractTaskTO;
+import org.apache.syncope.common.lib.to.ReportTO;
+import org.apache.syncope.common.lib.to.RoleTO;
+import org.apache.syncope.common.lib.to.UserTO;
 
 @XmlType
 // Reporting here only classes used via PagedResult
-//@XmlSeeAlso({ AbstractTaskTO.class, ReportTO.class, RoleTO.class, UserTO.class })
+@XmlSeeAlso({ AbstractTaskTO.class, ReportTO.class, RoleTO.class, UserTO.class })
 public abstract class AbstractBaseBean implements Serializable {
 
     private static final long serialVersionUID = 3119542005279892164L;

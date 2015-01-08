@@ -31,7 +31,7 @@ import org.apache.syncope.persistence.jpa.entity.AbstractAttrTemplate;
 @Table(name = JPARVirAttrTemplate.TABLE)
 public class JPARVirAttrTemplate extends AbstractAttrTemplate<RVirSchema> implements RVirAttrTemplate {
 
-    private static final long serialVersionUID = -3424574558427502145L;
+    private static final long serialVersionUID = 4896495904794493479L;
 
     public static final String TABLE = "RVirAttrTemplate";
 

@@ -31,7 +31,7 @@ import org.apache.syncope.persistence.jpa.entity.AbstractAttrTemplate;
 @Table(name = JPARDerAttrTemplate.TABLE)
 public class JPARDerAttrTemplate extends AbstractAttrTemplate<RDerSchema> implements RDerAttrTemplate {
 
-    private static final long serialVersionUID = -3424574558427502145L;
+    private static final long serialVersionUID = 624868884107016649L;
 
     public static final String TABLE = "RDerAttrTemplate";
 

@@ -156,7 +156,7 @@ public class JPARole extends AbstractSubject<RPlainAttr, RDerAttr, RVirAttr> imp
     @Basic(optional = true)
     @Min(0)
     @Max(1)
-    private Integer inheritAttrs;
+    private Integer inheritPlainAttrs;
 
     @Basic(optional = true)
     @Min(0)
@@ -213,7 +213,7 @@ public class JPARole extends AbstractSubject<RPlainAttr, RDerAttr, RVirAttr> imp
 
         inheritOwner = getBooleanAsInteger(false);
         inheritTemplates = getBooleanAsInteger(false);
-        inheritAttrs = getBooleanAsInteger(false);
+        inheritPlainAttrs = getBooleanAsInteger(false);
         inheritDerAttrs = getBooleanAsInteger(false);
         inheritVirAttrs = getBooleanAsInteger(false);
         inheritPasswordPolicy = getBooleanAsInteger(false);
@@ -423,13 +423,13 @@ public class JPARole extends AbstractSubject<RPlainAttr, RDerAttr, RVirAttr> imp
     }
 
     @Override
-    public boolean isInheritAttrs() {
-        return isBooleanAsInteger(inheritAttrs);
+    public boolean isInheritPlainAttrs() {
+        return isBooleanAsInteger(inheritPlainAttrs);
     }
 
     @Override
-    public void setInheritAttrs(final boolean inheritAttrs) {
-        this.inheritAttrs = getBooleanAsInteger(inheritAttrs);
+    public void setInheritPlainAttrs(final boolean inheritPlainAttrs) {
+        this.inheritPlainAttrs = getBooleanAsInteger(inheritPlainAttrs);
     }
 
     /**
@@ -441,10 +441,10 @@ public class JPARole extends AbstractSubject<RPlainAttr, RDerAttr, RVirAttr> imp
     public List<? extends RPlainAttr> findLastInheritedAncestorPlainAttrs() {
         final Map<JPARPlainSchema, RPlainAttr> result = new HashMap<>();
 
-        if (!isInheritAttrs()) {
+        if (!isInheritPlainAttrs()) {
             return plainAttrs;
         }
-        if (isInheritAttrs() && getParent() != null) {
+        if (isInheritPlainAttrs() && getParent() != null) {
             final Map<PlainSchema, RPlainAttr> attrMap = getPlainAttrMap();
 
             // Add inherit attributes

@@ -55,6 +55,10 @@ public enum PolicyType {
         return description;
     }
 
+    public boolean isGlobal() {
+        return name().startsWith("GLOBAL");
+    }
+
     public static PolicyType fromString(final String value) {
         return PolicyType.valueOf(value.toUpperCase());
     }

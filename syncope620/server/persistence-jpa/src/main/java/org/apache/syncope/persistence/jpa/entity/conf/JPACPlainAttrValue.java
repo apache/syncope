@@ -35,7 +35,7 @@ import org.apache.syncope.persistence.jpa.entity.AbstractPlainAttrValue;
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public class JPACPlainAttrValue extends AbstractPlainAttrValue implements CPlainAttrValue {
 
-    private static final long serialVersionUID = -6259576015647897446L;
+    private static final long serialVersionUID = -4029895248193486171L;
 
     public static final String TABLE = "CPlainAttrValue";
 

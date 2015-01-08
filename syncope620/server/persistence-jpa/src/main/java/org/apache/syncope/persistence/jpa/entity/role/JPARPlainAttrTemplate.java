@@ -31,7 +31,7 @@ import org.apache.syncope.persistence.jpa.entity.AbstractAttrTemplate;
 @Table(name = JPARPlainAttrTemplate.TABLE)
 public class JPARPlainAttrTemplate extends AbstractAttrTemplate<RPlainSchema> implements RPlainAttrTemplate {
 
-    private static final long serialVersionUID = -3424574558427502145L;
+    private static final long serialVersionUID = 6943917051517266268L;
 
     public static final String TABLE = "RPlainAttrTemplate";
 

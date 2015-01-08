@@ -21,10 +21,13 @@ package org.apache.syncope.persistence.jpa.dao;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import javax.annotation.Resource;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.common.lib.types.SubjectType;
+import org.apache.syncope.persistence.api.RoleEntitlementUtil;
+import org.apache.syncope.persistence.api.dao.NotFoundException;
 import org.apache.syncope.persistence.api.dao.RoleDAO;
 import org.apache.syncope.persistence.api.dao.SubjectSearchDAO;
 import org.apache.syncope.persistence.api.dao.UserDAO;
@@ -32,6 +35,7 @@ import org.apache.syncope.persistence.api.dao.search.AttributeCond;
 import org.apache.syncope.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.persistence.api.dao.search.SubjectCond;
+import org.apache.syncope.persistence.api.entity.AttributableUtilFactory;
 import org.apache.syncope.persistence.api.entity.ExternalResource;
 import org.apache.syncope.persistence.api.entity.Subject;
 import org.apache.syncope.persistence.api.entity.VirAttr;
@@ -42,8 +46,9 @@ import org.apache.syncope.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.persistence.api.entity.user.UPlainAttrValue;
 import org.apache.syncope.persistence.api.entity.user.UVirAttr;
 import org.apache.syncope.persistence.api.entity.user.User;
-import org.apache.syncope.persistence.jpa.entity.JPAAttributableUtil;
 import org.apache.syncope.persistence.jpa.entity.user.JPAUser;
+import org.apache.syncope.server.security.AuthContextUtil;
+import org.apache.syncope.server.security.UnauthorizedRoleException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -55,6 +60,12 @@ public class JPAUserDAO extends AbstractSubjectDAO<UPlainAttr, UDerAttr, UVirAtt
 
     @Autowired
     private RoleDAO roleDAO;
+
+    @Resource(name = "anonymousUser")
+    private String anonymousUser;
+
+    @Autowired
+    private AttributableUtilFactory attrUtilFactory;
 
     @Override
     protected Subject<UPlainAttr, UDerAttr, UVirAttr> findInternal(Long key) {
@@ -138,27 +149,27 @@ public class JPAUserDAO extends AbstractSubjectDAO<UPlainAttr, UDerAttr, UVirAtt
     @Override
     public List<User> findByAttrValue(final String schemaName, final UPlainAttrValue attrValue) {
         return (List<User>) findByAttrValue(
-                schemaName, attrValue, JPAAttributableUtil.getInstance(AttributableType.USER));
+                schemaName, attrValue, attrUtilFactory.getInstance(AttributableType.USER));
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public User findByAttrUniqueValue(final String schemaName, final UPlainAttrValue attrUniqueValue) {
         return (User) findByAttrUniqueValue(schemaName, attrUniqueValue,
-                JPAAttributableUtil.getInstance(AttributableType.USER));
+                attrUtilFactory.getInstance(AttributableType.USER));
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public List<User> findByDerAttrValue(final String schemaName, final String value) {
         return (List<User>) findByDerAttrValue(
-                schemaName, value, JPAAttributableUtil.getInstance(AttributableType.USER));
+                schemaName, value, attrUtilFactory.getInstance(AttributableType.USER));
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public List<User> findByResource(final ExternalResource resource) {
-        return (List<User>) findByResource(resource, JPAAttributableUtil.getInstance(AttributableType.USER));
+        return (List<User>) findByResource(resource, attrUtilFactory.getInstance(AttributableType.USER));
     }
 
     @Override
@@ -222,4 +233,52 @@ public class JPAUserDAO extends AbstractSubjectDAO<UPlainAttr, UDerAttr, UVirAtt
 
         entityManager.remove(user);
     }
+
+    private void securityChecks(final User user) {
+        // Allows anonymous (during self-registration) and self (during self-update) to read own SyncopeUser,
+        // otherwise goes thorugh security checks to see if needed role entitlements are owned
+        if (!AuthContextUtil.getAuthenticatedUsername().equals(anonymousUser)
+                && !AuthContextUtil.getAuthenticatedUsername().equals(user.getUsername())) {
+
+            Set<Long> roleIds = user.getRoleIds();
+            Set<Long> adminRoleIds = RoleEntitlementUtil.getRoleKeys(AuthContextUtil.getOwnedEntitlementNames());
+            roleIds.removeAll(adminRoleIds);
+            if (!roleIds.isEmpty()) {
+                throw new UnauthorizedRoleException(roleIds);
+            }
+        }
+    }
+
+    @Override
+    public User authFecthUser(final Long key) {
+        if (key == null) {
+            throw new NotFoundException("Null user id");
+        }
+
+        User user = find(key);
+        if (user == null) {
+            throw new NotFoundException("User " + key);
+        }
+
+        securityChecks(user);
+
+        return user;
+    }
+
+    @Override
+    public User authFecthUser(final String username) {
+        if (username == null) {
+            throw new NotFoundException("Null username");
+        }
+
+        User user = find(username);
+        if (user == null) {
+            throw new NotFoundException("User " + username);
+        }
+
+        securityChecks(user);
+
+        return user;
+    }
+
 }

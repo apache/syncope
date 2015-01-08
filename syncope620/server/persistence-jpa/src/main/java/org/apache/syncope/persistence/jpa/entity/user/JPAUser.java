@@ -62,9 +62,10 @@ import org.apache.syncope.persistence.api.entity.user.User;
 import org.apache.syncope.persistence.jpa.validation.entity.UserCheck;
 import org.apache.syncope.persistence.jpa.entity.AbstractSubject;
 import org.apache.syncope.persistence.jpa.entity.JPAExternalResource;
+import org.apache.syncope.persistence.jpa.entity.JPASecurityQuestion;
 import org.apache.syncope.persistence.jpa.entity.membership.JPAMembership;
 import org.apache.syncope.server.security.Encryptor;
-import org.apache.syncope.server.security.SecureRandomUtil;
+import org.apache.syncope.server.utils.SecureRandomUtil;
 
 /**
  * Syncope user bean.
@@ -170,7 +171,7 @@ public class JPAUser extends AbstractSubject<UPlainAttr, UDerAttr, UVirAttr> imp
     private Set<JPAExternalResource> resources;
 
     @ManyToOne(fetch = FetchType.EAGER, optional = true)
-    private SecurityQuestion securityQuestion;
+    private JPASecurityQuestion securityQuestion;
 
     @Column(nullable = true)
     private String securityAnswer;
@@ -520,7 +521,8 @@ public class JPAUser extends AbstractSubject<UPlainAttr, UDerAttr, UVirAttr> imp
 
     @Override
     public void setSecurityQuestion(final SecurityQuestion securityQuestion) {
-        this.securityQuestion = securityQuestion;
+        checkType(securityQuestion, JPASecurityQuestion.class);
+        this.securityQuestion = (JPASecurityQuestion) securityQuestion;
     }
 
     @Override

@@ -48,7 +48,7 @@ import org.apache.syncope.persistence.jpa.entity.AbstractPlainAttr;
 @Table(name = JPACPlainAttr.TABLE)
 public class JPACPlainAttr extends AbstractPlainAttr implements CPlainAttr {
 
-    private static final long serialVersionUID = 6333601983691157406L;
+    private static final long serialVersionUID = 8022331942314540648L;
 
     public static final String TABLE = "CPlainAttr";
 

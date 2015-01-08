@@ -39,7 +39,7 @@ import org.apache.syncope.persistence.jpa.entity.AbstractAttributable;
 @Cacheable
 public class JPAConf extends AbstractAttributable<CPlainAttr, DerAttr, VirAttr> implements Conf {
 
-    private static final long serialVersionUID = -5281258853142421875L;
+    private static final long serialVersionUID = 7671699609879382195L;
 
     public static final String TABLE = "SyncopeConf";
 

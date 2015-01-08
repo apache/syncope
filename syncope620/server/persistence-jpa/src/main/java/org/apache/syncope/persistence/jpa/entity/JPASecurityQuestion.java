@@ -28,7 +28,7 @@ import org.apache.syncope.persistence.api.entity.user.SecurityQuestion;
 @Table(name = JPASecurityQuestion.TABLE)
 public class JPASecurityQuestion extends AbstractEntity<Long> implements SecurityQuestion {
 
-    private static final long serialVersionUID = -7646140284033489392L;
+    private static final long serialVersionUID = 7675321820453579744L;
 
     public static final String TABLE = "SecurityQuestion";
 

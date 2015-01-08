@@ -89,10 +89,10 @@ abstract class AbstractSubjectDAO<P extends PlainAttr, D extends DerAttr, V exte
         final Parser parser = new Parser(new StringReader(expression));
 
         // Schema names
-        final List<String> identifiers = new ArrayList<String>();
+        final List<String> identifiers = new ArrayList<>();
 
         // Literals
-        final List<String> literals = new ArrayList<String>();
+        final List<String> literals = new ArrayList<>();
 
         // Get schema names and literals
         Token token;
@@ -131,18 +131,18 @@ abstract class AbstractSubjectDAO<P extends PlainAttr, D extends DerAttr, V exte
         final List<String> attrValues = split(value, literals);
 
         if (attrValues.size() != identifiers.size()) {
-            LOG.error("Ambiguous jexl expression resolution.");
+            LOG.error("Ambiguous JEXL expression resolution.");
             throw new IllegalArgumentException("literals and values have different size");
         }
 
         // clauses to be used with INTERSECTed queries
-        final Set<String> clauses = new HashSet<String>();
+        final Set<String> clauses = new HashSet<>();
 
         // builder to build the clauses
         final StringBuilder bld = new StringBuilder();
 
         // Contains used identifiers in order to avoid replications
-        final Set<String> used = new HashSet<String>();
+        final Set<String> used = new HashSet<>();
 
         // Create several clauses: one for eanch identifiers
         for (int i = 0; i < identifiers.size(); i++) {

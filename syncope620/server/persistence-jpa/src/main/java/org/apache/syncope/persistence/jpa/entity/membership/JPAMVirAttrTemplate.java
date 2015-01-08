@@ -32,7 +32,7 @@ import org.apache.syncope.persistence.jpa.entity.role.JPARole;
 @Table(name = JPAMVirAttrTemplate.TABLE)
 public class JPAMVirAttrTemplate extends AbstractAttrTemplate<MVirSchema> implements MVirAttrTemplate {
 
-    private static final long serialVersionUID = -3424574558427502145L;
+    private static final long serialVersionUID = 6618560912535667392L;
 
     public static final String TABLE = "MVirAttrTemplate";
 

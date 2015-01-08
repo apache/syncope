@@ -92,7 +92,7 @@ public interface Role extends Subject<RPlainAttr, RDerAttr, RVirAttr> {
 
     boolean isInheritAccountPolicy();
 
-    boolean isInheritAttrs();
+    boolean isInheritPlainAttrs();
 
     boolean isInheritDerAttrs();
 
@@ -108,7 +108,7 @@ public interface Role extends Subject<RPlainAttr, RDerAttr, RVirAttr> {
 
     void setInheritAccountPolicy(boolean condition);
 
-    void setInheritAttrs(boolean inheritAttrs);
+    void setInheritPlainAttrs(boolean inheritAttrs);
 
     void setInheritDerAttrs(boolean inheritDerAttrs);
 

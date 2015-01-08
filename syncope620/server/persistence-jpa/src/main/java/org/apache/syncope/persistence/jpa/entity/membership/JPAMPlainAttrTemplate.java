@@ -32,7 +32,7 @@ import org.apache.syncope.persistence.jpa.entity.role.JPARole;
 @Table(name = JPAMPlainAttrTemplate.TABLE)
 public class JPAMPlainAttrTemplate extends AbstractAttrTemplate<MPlainSchema> implements MPlainAttrTemplate {
 
-    private static final long serialVersionUID = -3424574558427502145L;
+    private static final long serialVersionUID = -8768086609963244514L;
 
     public static final String TABLE = "MPlainAttrTemplate";
 

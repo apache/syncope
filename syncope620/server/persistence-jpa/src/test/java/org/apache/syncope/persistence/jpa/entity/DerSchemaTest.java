@@ -73,7 +73,7 @@ public class DerSchemaTest extends AbstractTest {
         UDerSchema cn = derSchemaDAO.find("cn", UDerSchema.class);
         assertNotNull(cn);
 
-        derSchemaDAO.delete(cn.getKey(), JPAAttributableUtil.getInstance(AttributableType.USER));
+        derSchemaDAO.delete(cn.getKey(), attrUtilFactory.getInstance(AttributableType.USER));
 
         DerSchema actual = derSchemaDAO.find("cn", UDerSchema.class);
         assertNull("delete did not work", actual);
@@ -82,7 +82,7 @@ public class DerSchemaTest extends AbstractTest {
         RDerSchema rderiveddata = derSchemaDAO.find("rderiveddata", RDerSchema.class);
         assertNotNull(rderiveddata);
 
-        derSchemaDAO.delete(rderiveddata.getKey(), JPAAttributableUtil.getInstance(AttributableType.ROLE));
+        derSchemaDAO.delete(rderiveddata.getKey(), attrUtilFactory.getInstance(AttributableType.ROLE));
 
         actual = derSchemaDAO.find("rderiveddata", RDerSchema.class);
         assertNull("delete did not work", actual);

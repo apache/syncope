@@ -22,10 +22,10 @@ import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.persistence.api.dao.ConfDAO;
 import org.apache.syncope.persistence.api.dao.PlainAttrDAO;
 import org.apache.syncope.persistence.api.dao.PlainSchemaDAO;
+import org.apache.syncope.persistence.api.entity.AttributableUtilFactory;
 import org.apache.syncope.persistence.api.entity.conf.CPlainAttr;
 import org.apache.syncope.persistence.api.entity.conf.CPlainSchema;
 import org.apache.syncope.persistence.api.entity.conf.Conf;
-import org.apache.syncope.persistence.jpa.entity.JPAAttributableUtil;
 import org.apache.syncope.persistence.jpa.entity.conf.JPACPlainAttr;
 import org.apache.syncope.persistence.jpa.entity.conf.JPAConf;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +40,9 @@ public class JPAConfDAO extends AbstractDAO<Conf, Long> implements ConfDAO {
 
     @Autowired
     private PlainAttrDAO attrDAO;
+
+    @Autowired
+    private AttributableUtilFactory attrUtilFactory;
 
     @Override
     public Conf get() {
@@ -68,7 +71,7 @@ public class JPAConfDAO extends AbstractDAO<Conf, Long> implements ConfDAO {
             result = new JPACPlainAttr();
             result.setSchema(schemaDAO.find(key, CPlainSchema.class));
 
-            result.addValue(defaultValue, JPAAttributableUtil.getInstance(AttributableType.CONFIGURATION));
+            result.addValue(defaultValue, attrUtilFactory.getInstance(AttributableType.CONFIGURATION));
         }
 
         return result;

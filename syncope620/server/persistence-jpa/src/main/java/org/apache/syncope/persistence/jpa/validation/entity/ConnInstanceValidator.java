@@ -22,7 +22,7 @@ import javax.validation.ConstraintValidatorContext;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.persistence.api.entity.ConnInstance;
 import org.apache.syncope.persistence.jpa.entity.JPAConnPoolConf;
-import org.apache.syncope.server.utils.URIUtil;
+import org.apache.syncope.provisioning.api.URIUtil;
 import org.apache.syncope.provisioning.api.ConnPoolConfUtil;
 
 public class ConnInstanceValidator extends AbstractValidator<ConnInstanceCheck, ConnInstance> {

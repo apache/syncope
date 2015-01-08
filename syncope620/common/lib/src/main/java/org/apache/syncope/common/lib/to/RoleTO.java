@@ -239,7 +239,7 @@ public class RoleTO extends AbstractSubjectTO {
     }
 
     public String getDisplayName() {
-        return getId() + " " + getName();
+        return getKey() + " " + getName();
     }
 
     public static long fromDisplayName(final String displayName) {

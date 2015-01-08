@@ -19,6 +19,8 @@
 package org.apache.syncope.persistence.api.entity;
 
 import java.util.List;
+import org.apache.syncope.common.lib.to.AbstractAttributableTO;
+import org.apache.syncope.common.lib.to.AbstractSubjectTO;
 import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
@@ -83,4 +85,7 @@ public interface AttributableUtil {
 
     <T extends MappingItem> Class<T> mappingItemClass();
 
+    <T extends AbstractAttributableTO> T newAttributableTO();
+
+    <T extends AbstractSubjectTO> T newSubjectTO();
 }

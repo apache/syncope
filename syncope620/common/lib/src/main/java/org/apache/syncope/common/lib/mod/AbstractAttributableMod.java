@@ -38,9 +38,9 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
 
     protected long key;
 
-    protected final Set<AttrMod> attrsToUpdate = new HashSet<>();
+    protected final Set<AttrMod> plainAttrsToUpdate = new HashSet<>();
 
-    protected final Set<String> attrsToRemove = new HashSet<>();
+    protected final Set<String> plainAttrsToRemove = new HashSet<>();
 
     protected final Set<String> derAttrsToAdd = new HashSet<>();
 
@@ -58,18 +58,18 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
         this.key = key;
     }
 
-    @XmlElementWrapper(name = "attributesToRemove")
+    @XmlElementWrapper(name = "plainAttrsToRemove")
     @XmlElement(name = "attribute")
-    @JsonProperty("attributesToRemove")
+    @JsonProperty("plainAttrsToRemove")
     public Set<String> getAttrsToRemove() {
-        return attrsToRemove;
+        return plainAttrsToRemove;
     }
 
-    @XmlElementWrapper(name = "attributesToUpdate")
+    @XmlElementWrapper(name = "plainAttrsToUpdate")
     @XmlElement(name = "attributeMod")
-    @JsonProperty("attributesToUpdate")
+    @JsonProperty("plainAttrsToUpdate")
     public Set<AttrMod> getAttrsToUpdate() {
-        return attrsToUpdate;
+        return plainAttrsToUpdate;
     }
 
     @XmlElementWrapper(name = "derAttrsToAdd")
@@ -104,7 +104,7 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
      * @return true is all backing Sets are empty.
      */
     public boolean isEmpty() {
-        return attrsToUpdate.isEmpty() && attrsToRemove.isEmpty()
+        return plainAttrsToUpdate.isEmpty() && plainAttrsToRemove.isEmpty()
                 && derAttrsToAdd.isEmpty() && derAttrsToRemove.isEmpty()
                 && virAttrsToUpdate.isEmpty() && virAttrsToRemove.isEmpty();
     }
