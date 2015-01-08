@@ -36,10 +36,10 @@ import org.springframework.stereotype.Service;
 public class RouteServiceImpl extends AbstractServiceImpl implements RouteService {
     
     @Override
-    public Response getOptions(final SubjectType kind) {
+    public Response getOptions(final SubjectType subject) {
         String key;
         String value;
-        if (kind == SubjectType.USER) {
+        if (subject == SubjectType.USER) {
             key = RESTHeaders.CAMEL_USER_PROVISIONING_MANAGER;
             value = Boolean.toString(CamelDetector.isCamelEnabledForUsers());
         } else {
@@ -57,19 +57,29 @@ public class RouteServiceImpl extends AbstractServiceImpl implements RouteServic
     private RouteController controller;
 
     @Override
-    public List<RouteTO> getRoutes(SubjectType kind) {
+    public List<RouteTO> getRoutes(SubjectType subject) {
 
-        return controller.listRoutes();
+        return controller.listRoutes(subject);
     }
 
     @Override
-    public RouteTO getRoute(SubjectType kind, Long id) {
+    public RouteTO getRoute(Long id) {
 
         return controller.readRoute(id);
     }
+    
+    @Override
+    public RouteTO getRoute(SubjectType subject, Long Id) {
+        return controller.readRoute(Id, subject);
+    }
 
     @Override
-    public void importRoute(SubjectType kind,Long id, RouteTO route) {
+    public void importRoute(Long id, RouteTO route) {
+        controller.updateRoute(route);
+    }
+
+    @Override
+    public void importRoute(SubjectType kind, Long id, RouteTO route) {
         controller.updateRoute(route);
     }
 

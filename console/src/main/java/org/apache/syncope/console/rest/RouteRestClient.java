@@ -33,18 +33,18 @@ public class RouteRestClient extends BaseRestClient{
     
     protected static final Logger LOG = LoggerFactory.getLogger(RouteRestClient.class);
     
-    public List<RouteTO> readRoutes(){
-        return getService(RouteService.class).getRoutes(SubjectType.USER);
+    public List<RouteTO> readRoutes(final SubjectType subject){
+        return getService(RouteService.class).getRoutes(subject);
     }
     
     public RouteTO readRoute(Long id){
-        return getService(RouteService.class).getRoute(SubjectType.USER, id);
+        return getService(RouteService.class).getRoute(id);
     }
     
     public void updateRoute(Long id, String definition){
         RouteTO routeTO = readRoute(id);        
         routeTO.setRouteContent(definition);     
-        getService(RouteService.class).importRoute(SubjectType.USER, routeTO.getId(), routeTO);
+        getService(RouteService.class).importRoute(routeTO.getId(), routeTO);
     }
     
     public boolean isCamelEnabledForUsers() {

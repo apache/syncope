@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.dao.impl;
 
 import java.util.List;
 import javax.persistence.TypedQuery;
+import org.apache.syncope.common.types.SubjectType;
 import org.apache.syncope.core.persistence.beans.CamelRoute;
 import org.apache.syncope.core.persistence.dao.RouteDAO;
 import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
@@ -33,12 +34,26 @@ public class RouteDAOImpl extends AbstractDAOImpl implements RouteDAO {
     public CamelRoute find(final Long id) {
         return entityManager.find(CamelRoute.class, id);
     }
+    
+    @Override
+    public CamelRoute find(final Long id, final SubjectType subject) {
+        return find(id);
+    }
 
     @Transactional(readOnly = true)
     @Override
     public List<CamelRoute> findAll() {
         TypedQuery<CamelRoute> query = entityManager.createQuery("SELECT e FROM " + CamelRoute.class.getSimpleName()
-                + " e", CamelRoute.class);
+                + " e ", CamelRoute.class);
+        return query.getResultList();
+    }
+    
+    @Transactional(readOnly = true)
+    @Override
+    public List<CamelRoute> findAll(final SubjectType subject) {
+        TypedQuery<CamelRoute> query = entityManager.createQuery("SELECT e FROM " + CamelRoute.class.getSimpleName()
+                + " e WHERE e.subject = :subject", CamelRoute.class);
+        query.setParameter("subject",subject);
         return query.getResultList();
     }
 
@@ -48,8 +63,8 @@ public class RouteDAOImpl extends AbstractDAOImpl implements RouteDAO {
     }
 
     @Override
-    public void delete(Long id) {
-        CamelRoute route = find(id);
+    public void delete(Long id, final SubjectType subject) {
+        CamelRoute route = find(id, subject);
         if (route != null) {
             entityManager.remove(route);
         }

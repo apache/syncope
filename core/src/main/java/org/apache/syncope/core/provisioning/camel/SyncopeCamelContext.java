@@ -24,17 +24,15 @@ import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Level;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import org.apache.camel.CamelContext;
 import org.apache.camel.model.Constants;
 import org.apache.camel.model.RouteDefinition;
-import org.apache.camel.model.RoutesDefinition;
 import org.apache.camel.spring.SpringCamelContext;
+import org.apache.syncope.common.types.SubjectType;
 import org.apache.syncope.core.persistence.beans.CamelRoute;
 import org.apache.syncope.core.persistence.dao.RouteDAO;
 import org.apache.syncope.core.util.ApplicationContextProvider;
@@ -61,7 +59,9 @@ public class SyncopeCamelContext {
         }
         if (camelContext.getRouteDefinitions().isEmpty()) {
 
-            List<CamelRoute> crl = routeDAO.findAll();
+            List<CamelRoute> crl = new ArrayList<CamelRoute>();
+            crl.addAll(routeDAO.findAll(SubjectType.USER));
+            crl.addAll(routeDAO.findAll(SubjectType.ROLE));
             LOG.info("{} route(s) are going to be loaded ", crl.size());
             loadContext(routeDAO, crl);
 
@@ -101,7 +101,9 @@ public class SyncopeCamelContext {
 
     public void reloadContext(RouteDAO routeDAO) {
 
-        List<CamelRoute> crl = routeDAO.findAll();
+        List<CamelRoute> crl = new ArrayList<CamelRoute>();
+        crl.addAll(routeDAO.findAll(SubjectType.USER));
+        crl.addAll(routeDAO.findAll(SubjectType.ROLE));
         if (camelContext == null) {
             getContext(routeDAO);
         } else {

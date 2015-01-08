@@ -32,13 +32,13 @@ import javax.ws.rs.core.Response;
 import org.apache.syncope.common.to.RouteTO;
 import org.apache.syncope.common.types.SubjectType;
 
-@Path("routes/{kind}")
+@Path("routes/{subject}")
 public interface RouteService extends JAXRSService {
 
     /**
      * Checks whether Camel is choosed as default provisioning engine.
      *
-     * @param kind user or role
+     * @param subject user or role
      * @return <tt>Response</tt> contains special syncope HTTP header indicating if Camel is enabled for
      * users / roles provisioning
      * @see org.apache.syncope.common.types.RESTHeaders#CAMEL_USER_PROVISIONING_MANAGER
@@ -46,20 +46,31 @@ public interface RouteService extends JAXRSService {
      *
      */
     @OPTIONS
-    Response getOptions(@NotNull @PathParam("kind") SubjectType kind);
+    Response getOptions(@NotNull @PathParam("subject") SubjectType subject);
 
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    List<RouteTO> getRoutes(@NotNull @PathParam("kind") SubjectType kind);
+    List<RouteTO> getRoutes(@NotNull @PathParam("subject") SubjectType subject);
 
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Path("{id}")
-    public RouteTO getRoute(@NotNull @PathParam("kind") SubjectType kind, @PathParam("id") Long Id);
+    public RouteTO getRoute(@NotNull @PathParam("subject") SubjectType subject, @PathParam("id") Long Id);
+    
+    @GET
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Path("{id}")
+    public RouteTO getRoute(@PathParam("id") Long Id);
 
     @PUT
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Path("{id}")
-    void importRoute(@NotNull @PathParam("kind") SubjectType kind,@PathParam("id") Long id, RouteTO route);
+    void importRoute(@NotNull @PathParam("subject") SubjectType subject,@PathParam("id") Long id, RouteTO route);
+    
+    @PUT
+    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Path("{id}")
+    void importRoute(@PathParam("id") Long id, RouteTO route);
+
 
 }
