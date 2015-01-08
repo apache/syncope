@@ -168,7 +168,7 @@ public class CamelRoleProvisioningManager implements RoleProvisioningManager {
 
     @Override
     @SuppressWarnings("unchecked")
-    public Map.Entry<Long, List<PropagationStatus>> createInSync(RoleTO roleTO, Map<Long, String> roleOwnerMap,
+    public Map.Entry<Long, List<PropagationStatus>> create(RoleTO roleTO, Map<Long, String> roleOwnerMap,
             Set<String> excludedResources) throws PropagationException {
 
         String uri = "direct:createRoleSyncPort";

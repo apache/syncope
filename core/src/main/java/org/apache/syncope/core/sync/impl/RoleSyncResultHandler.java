@@ -86,7 +86,7 @@ public class RoleSyncResultHandler extends AbstractSubjectSyncResultHandler {
 
         RoleTO roleTO = RoleTO.class.cast(subjectTO);
 
-        Map.Entry<Long, List<PropagationStatus>> created = roleProvisioningManager.createInSync(roleTO, roleOwnerMap,
+        Map.Entry<Long, List<PropagationStatus>> created = roleProvisioningManager.create(roleTO, roleOwnerMap,
                 Collections.singleton(profile.getSyncTask().getResource().getName()));
 
         roleTO = roleDataBinder.getRoleTO(created.getKey());

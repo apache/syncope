@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.apache.syncope.common.to;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -25,15 +24,15 @@ import org.apache.syncope.common.AbstractBaseBean;
 
 @XmlRootElement(name = "route")
 @XmlType
-public class RouteTO extends AbstractBaseBean{
-    
+public class RouteTO extends AbstractBaseBean {
+
     private Long id;
 
     private String name;
 
     private String routeContent;
-    
-    public void setId(Long id){
+
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -41,7 +40,7 @@ public class RouteTO extends AbstractBaseBean{
         return id;
     }
 
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
     }
 
@@ -53,8 +52,8 @@ public class RouteTO extends AbstractBaseBean{
         return routeContent;
     }
 
-    public void setRouteContent(String routeContent) {
+    public void setRouteContent(final String routeContent) {
         this.routeContent = routeContent;
     }
-    
+
 }
