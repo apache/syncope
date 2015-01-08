@@ -396,7 +396,7 @@ public class CamelUserProvisioningManager implements UserProvisioningManager {
 
     @Override
     @SuppressWarnings("unchecked")
-    public Map.Entry<Long, List<PropagationStatus>> updateInSync(UserMod userMod, Long id, SyncResult result,
+    public Map.Entry<Long, List<PropagationStatus>> update(UserMod userMod, Long id, SyncResult result,
             Boolean enabled, Set<String> excludedResources) {
 
         String uri = "direct:updateSyncPort";
