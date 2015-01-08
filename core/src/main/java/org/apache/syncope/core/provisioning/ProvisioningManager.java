@@ -27,16 +27,16 @@ import org.apache.syncope.common.to.PropagationStatus;
 
 public interface ProvisioningManager<T extends AbstractAttributableTO, M extends AbstractAttributableMod> {
 
-    public Map.Entry<Long, List<PropagationStatus>> create(T subject);
+    Map.Entry<Long, List<PropagationStatus>> create(T subject);
 
-    public Map.Entry<Long, List<PropagationStatus>> update(M subjectMod);
+    Map.Entry<Long, List<PropagationStatus>> update(M subjectMod);
 
-    public List<PropagationStatus> delete(Long subjectId);
+    List<PropagationStatus> delete(Long subjectId);
 
-    public Long unlink(M subjectMod);
+    Long unlink(M subjectMod);
 
-    public Long link(M subjectMod);
+    Long link(M subjectMod);
 
-    public List<PropagationStatus> deprovision(Long user, Collection<String> resources);
+    List<PropagationStatus> deprovision(Long user, Collection<String> resources);
 
 }

@@ -164,7 +164,7 @@ public class UserSyncResultHandler extends AbstractSubjectSyncResultHandler {
          *
          * taskExecutor.execute(tasks); */
 
-        Map.Entry<Long, List<PropagationStatus>> updated = userProvisioningManager.updateInSync(userMod, before.getId(),
+        Map.Entry<Long, List<PropagationStatus>> updated = userProvisioningManager.update(userMod, before.getId(),
                 result, enabled, Collections.singleton(profile.getSyncTask().getResource().getName()));
 
         return userDataBinder.getUserTO(updated.getKey());

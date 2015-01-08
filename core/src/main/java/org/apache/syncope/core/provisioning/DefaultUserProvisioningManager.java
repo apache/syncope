@@ -72,38 +72,17 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
     }
 
     public Map.Entry<Long, List<PropagationStatus>> create(final UserTO userTO, boolean storePassword) {
-        /* WorkflowResult<Map.Entry<Long, Boolean>> created;
-         * try {
-         * created = uwfAdapter.create(userTO,storePassword);
-         * } catch (RuntimeException e) {
-         * throw e;
-         * }
-         *
-         * List<PropagationTask> tasks = propagationManager.getUserCreateTaskIds(
-         * created, userTO.getPassword(), userTO.getVirAttrs(), userTO.getMemberships());
-         *
-         * PropagationReporter propagationReporter = ApplicationContextProvider.getApplicationContext().
-         * getBean(PropagationReporter.class);
-         * try {
-         * taskExecutor.execute(tasks, propagationReporter);
-         * } catch (PropagationException e) {
-         * LOG.error("Error propagation primary resource", e);
-         * propagationReporter.onPrimaryResourceFailure(tasks);
-         * }
-         *
-         * Map.Entry<Long, List<PropagationStatus>> result = new AbstractMap.SimpleEntry<Long, List<PropagationStatus>>(
-         * created.getResult().getKey(), propagationReporter.getStatuses());
-         * return result; */
         return create(userTO, storePassword, false, null, Collections.<String>emptySet());
     }
 
     @Override
-    public Map.Entry<Long, List<PropagationStatus>> create(UserTO userTO, boolean storePassword,
-            boolean disablePwdPolicyCheck, Boolean enabled, Set<String> excludedResources) {
+    public Map.Entry<Long, List<PropagationStatus>> create(final UserTO userTO, final boolean storePassword,
+            final boolean disablePwdPolicyCheck, final Boolean enabled, final Set<String> excludedResources) {
+
         WorkflowResult<Map.Entry<Long, Boolean>> created;
         try {
             created = uwfAdapter.create(userTO, disablePwdPolicyCheck, enabled, storePassword);
-        } catch (RuntimeException e) {
+        } catch (PropagationException e) {
             throw e;
         }
 
@@ -129,11 +108,11 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
     }
 
     @Override
-    public Map.Entry<Long, List<PropagationStatus>> update(UserMod userMod, boolean removeMemberships) {
+    public Map.Entry<Long, List<PropagationStatus>> update(final UserMod userMod, final boolean removeMemberships) {
         WorkflowResult<Map.Entry<UserMod, Boolean>> updated;
         try {
             updated = uwfAdapter.update(userMod);
-        } catch (RuntimeException e) {
+        } catch (PropagationException e) {
             throw e;
         }
 
@@ -180,12 +159,11 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
 
     @Override
     public List<PropagationStatus> delete(final Long userId) {
-
         return delete(userId, Collections.<String>emptySet());
     }
 
     @Override
-    public List<PropagationStatus> delete(Long subjectId, Set<String> excludedResources) {
+    public List<PropagationStatus> delete(final Long subjectId, final Set<String> excludedResources) {
         List<PropagationTask> tasks = propagationManager.getUserDeleteTaskIds(subjectId, excludedResources);
 
         PropagationReporter propagationReporter = ApplicationContextProvider.getApplicationContext().
@@ -199,7 +177,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
 
         try {
             uwfAdapter.delete(subjectId);
-        } catch (RuntimeException e) {
+        } catch (PropagationException e) {
             throw e;
         }
 
@@ -207,18 +185,18 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
     }
 
     @Override
-    public Long unlink(UserMod userMod) {
+    public Long unlink(final UserMod userMod) {
         WorkflowResult<Map.Entry<UserMod, Boolean>> updated = uwfAdapter.update(userMod);
         return updated.getResult().getKey().getId();
     }
 
     @Override
-    public Long link(UserMod subjectMod) {
+    public Long link(final UserMod subjectMod) {
         return uwfAdapter.update(subjectMod).getResult().getKey().getId();
     }
 
     @Override
-    public Map.Entry<Long, List<PropagationStatus>> activate(SyncopeUser user, StatusMod statusMod) {
+    public Map.Entry<Long, List<PropagationStatus>> activate(final SyncopeUser user, final StatusMod statusMod) {
         WorkflowResult<Long> updated;
         if (statusMod.isOnSyncope()) {
             updated = uwfAdapter.activate(user.getId(), statusMod.getToken());
@@ -231,7 +209,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
     }
 
     @Override
-    public Map.Entry<Long, List<PropagationStatus>> reactivate(SyncopeUser user, StatusMod statusMod) {
+    public Map.Entry<Long, List<PropagationStatus>> reactivate(final SyncopeUser user, final StatusMod statusMod) {
         WorkflowResult<Long> updated;
         if (statusMod.isOnSyncope()) {
             updated = uwfAdapter.reactivate(user.getId());
@@ -244,7 +222,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
     }
 
     @Override
-    public Map.Entry<Long, List<PropagationStatus>> suspend(SyncopeUser user, StatusMod statusMod) {
+    public Map.Entry<Long, List<PropagationStatus>> suspend(final SyncopeUser user, final StatusMod statusMod) {
         WorkflowResult<Long> updated;
         if (statusMod.isOnSyncope()) {
             updated = uwfAdapter.suspend(user.getId());
@@ -256,8 +234,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
         return new AbstractMap.SimpleEntry<Long, List<PropagationStatus>>(updated.getResult(), statuses);
     }
 
-    public List<PropagationStatus> propagateStatus(SyncopeUser user, StatusMod statusMod) {
-
+    protected List<PropagationStatus> propagateStatus(final SyncopeUser user, final StatusMod statusMod) {
         Set<String> resourcesToBeExcluded = new HashSet<String>(user.getResourceNames());
         resourcesToBeExcluded.removeAll(statusMod.getResourceNames());
 
@@ -277,8 +254,25 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
     }
 
     @Override
-    public List<PropagationStatus> deprovision(Long userId, Collection<String> resources) {
+    public void innerSuspend(final SyncopeUser user, final boolean propagate) {
+        final WorkflowResult<Long> updated = uwfAdapter.suspend(user);
 
+        // propagate suspension if and only if it is required by policy
+        if (propagate) {
+            UserMod userMod = new UserMod();
+            userMod.setId(updated.getResult());
+
+            final List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(
+                    new WorkflowResult<Map.Entry<UserMod, Boolean>>(
+                            new AbstractMap.SimpleEntry<UserMod, Boolean>(userMod, Boolean.FALSE),
+                            updated.getPropByRes(), updated.getPerformedTasks()));
+
+            taskExecutor.execute(tasks);
+        }
+    }
+
+    @Override
+    public List<PropagationStatus> deprovision(final Long userId, final Collection<String> resources) {
         final SyncopeUser user = binder.getUserFromId(userId);
 
         final Set<String> noPropResourceName = user.getResourceNames();
@@ -299,8 +293,8 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
     }
 
     @Override
-    public Map.Entry<Long, List<PropagationStatus>> updateInSync(final UserMod userMod, final Long id,
-            final SyncResult result, Boolean enabled, Set<String> excludedResources) {
+    public Map.Entry<Long, List<PropagationStatus>> update(final UserMod userMod, final Long id,
+            final SyncResult result, final Boolean enabled, final Set<String> excludedResources) {
 
         WorkflowResult<Map.Entry<UserMod, Boolean>> updated;
         try {
@@ -340,8 +334,8 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
         PropagationReporter propagationReporter = ApplicationContextProvider.getApplicationContext().
                 getBean(PropagationReporter.class);
 
-        List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(updated, updated.getResult().getKey().
-                getPassword() != null, excludedResources);
+        List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(
+                updated, updated.getResult().getKey().getPassword() != null, excludedResources);
 
         try {
             taskExecutor.execute(tasks, propagationReporter);
@@ -356,32 +350,12 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
     }
 
     @Override
-    public void innerSuspend(SyncopeUser user, boolean suspend) {
-
-        final WorkflowResult<Long> updated = uwfAdapter.suspend(user);
-
-        // propagate suspension if and only if it is required by policy
-        if (suspend) {
-            UserMod userMod = new UserMod();
-            userMod.setId(updated.getResult());
-
-            final List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(
-                    new WorkflowResult<Map.Entry<UserMod, Boolean>>(
-                            new AbstractMap.SimpleEntry<UserMod, Boolean>(userMod, Boolean.FALSE),
-                            updated.getPropByRes(), updated.getPerformedTasks()));
-
-            taskExecutor.execute(tasks);
-        }
-    }
-
-    @Override
-    public void requestPasswordReset(Long id) {
+    public void requestPasswordReset(final Long id) {
         uwfAdapter.requestPasswordReset(id);
     }
 
     @Override
-    public void confirmPasswordReset(SyncopeUser user, String token, String password) {
-
+    public void confirmPasswordReset(final SyncopeUser user, final String token, final String password) {
         uwfAdapter.confirmPasswordReset(user.getId(), token, password);
 
         List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(user, null, null);

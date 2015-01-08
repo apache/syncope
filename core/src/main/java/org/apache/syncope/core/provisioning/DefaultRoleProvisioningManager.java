@@ -67,13 +67,12 @@ public class DefaultRoleProvisioningManager implements RoleProvisioningManager {
     protected RoleDataBinder binder;
 
     @Override
-    public Map.Entry<Long, List<PropagationStatus>> create(RoleTO subject) {
+    public Map.Entry<Long, List<PropagationStatus>> create(final RoleTO subject) {
         return create(subject, Collections.<String>emptySet());
     }
 
     @Override
-    public Map.Entry<Long, List<PropagationStatus>> create(RoleTO subject, Set<String> excludedResources) {
-
+    public Map.Entry<Long, List<PropagationStatus>> create(final RoleTO subject, final Set<String> excludedResources) {
         WorkflowResult<Long> created = rwfAdapter.create(subject);
 
         EntitlementUtil.extendAuthContext(created.getResult());
@@ -97,8 +96,8 @@ public class DefaultRoleProvisioningManager implements RoleProvisioningManager {
     }
 
     @Override
-    public Map.Entry<Long, List<PropagationStatus>> createInSync(RoleTO roleTO, Map<Long, String> roleOwnerMap,
-            Set<String> excludedResources) throws PropagationException {
+    public Map.Entry<Long, List<PropagationStatus>> create(
+            final RoleTO roleTO, final Map<Long, String> roleOwnerMap, final Set<String> excludedResources) {
 
         WorkflowResult<Long> created = rwfAdapter.create((RoleTO) roleTO);
         AttributeTO roleOwner = roleTO.getAttrMap().get(StringUtils.EMPTY);
@@ -108,24 +107,22 @@ public class DefaultRoleProvisioningManager implements RoleProvisioningManager {
 
         EntitlementUtil.extendAuthContext(created.getResult());
 
-        List<PropagationTask> tasks = propagationManager.getRoleCreateTaskIds(created,
-                roleTO.getVirAttrs(), excludedResources);
+        List<PropagationTask> tasks = propagationManager.getRoleCreateTaskIds(
+                created, roleTO.getVirAttrs(), excludedResources);
 
         taskExecutor.execute(tasks);
 
-        Map.Entry<Long, List<PropagationStatus>> result = new AbstractMap.SimpleEntry<Long, List<PropagationStatus>>(
-                created.getResult(), null);
-        return result;
+        return new AbstractMap.SimpleEntry<Long, List<PropagationStatus>>(created.getResult(), null);
     }
 
     @Override
-    public Map.Entry<Long, List<PropagationStatus>> update(RoleMod subjectMod) {
-
+    public Map.Entry<Long, List<PropagationStatus>> update(final RoleMod subjectMod) {
         return update(subjectMod, Collections.<String>emptySet());
     }
 
     @Override
-    public Map.Entry<Long, List<PropagationStatus>> update(RoleMod subjectMod, Set<String> excludedResources) {
+    public Map.Entry<Long, List<PropagationStatus>> update(
+            final RoleMod subjectMod, final Set<String> excludedResources) {
 
         WorkflowResult<Long> updated = rwfAdapter.update(subjectMod);
 
@@ -146,8 +143,7 @@ public class DefaultRoleProvisioningManager implements RoleProvisioningManager {
     }
 
     @Override
-    public List<PropagationStatus> delete(Long subjectId) {
-
+    public List<PropagationStatus> delete(final Long subjectId) {
         final List<SyncopeRole> toBeDeprovisioned = new ArrayList<SyncopeRole>();
 
         final SyncopeRole syncopeRole = roleDAO.find(subjectId);
@@ -193,7 +189,7 @@ public class DefaultRoleProvisioningManager implements RoleProvisioningManager {
     }
 
     @Override
-    public Long unlink(RoleMod subjectMod) {
+    public Long unlink(final RoleMod subjectMod) {
         WorkflowResult<Long> updated = rwfAdapter.update(subjectMod);
         return updated.getResult();
     }
@@ -219,7 +215,7 @@ public class DefaultRoleProvisioningManager implements RoleProvisioningManager {
     }
 
     @Override
-    public Long link(RoleMod subjectMod) {
+    public Long link(final RoleMod subjectMod) {
         return rwfAdapter.update(subjectMod).getResult();
     }
 
