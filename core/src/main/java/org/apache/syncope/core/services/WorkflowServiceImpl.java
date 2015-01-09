@@ -114,13 +114,4 @@ public class WorkflowServiceImpl extends AbstractServiceImpl implements Workflow
         }
     }
 
-    @Override
-    public Response getRoute(Long id) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public Response getRoutes() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
 }
