@@ -69,7 +69,7 @@ public class CamelRoleProvisioningManager implements RoleProvisioningManager {
     }
 
     public void startContext() throws Exception {
-        camelContext.start();
+        getContext().start();
     }
 
     public void stopContext() throws Exception {
