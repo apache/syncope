@@ -19,16 +19,21 @@
 package org.apache.syncope.core.persistence.dao;
 
 import java.util.List;
+import org.apache.syncope.common.types.SubjectType;
 import org.apache.syncope.core.persistence.validation.entity.InvalidEntityException;
 import org.apache.syncope.core.persistence.beans.CamelRoute;
 
 public interface RouteDAO {
 
     CamelRoute find(Long id);
-
+    
+    CamelRoute find(Long id, SubjectType subject);
+    
     List<CamelRoute> findAll();
+
+    List<CamelRoute> findAll(SubjectType subject);
 
     CamelRoute save(CamelRoute route) throws InvalidEntityException;
 
-    void delete(Long id);
+    void delete(Long id, SubjectType subject);
 }

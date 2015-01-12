@@ -37,6 +37,7 @@ import org.apache.syncope.common.to.SecurityQuestionTO;
 import org.apache.syncope.console.commons.AttrLayoutType;
 import org.apache.syncope.common.types.LoggerLevel;
 import org.apache.syncope.common.types.PolicyType;
+import org.apache.syncope.common.types.SubjectType;
 import org.apache.syncope.console.commons.Constants;
 import org.apache.syncope.console.commons.HttpResourceStream;
 import org.apache.syncope.console.commons.PreferenceManager;
@@ -52,7 +53,6 @@ import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.ta
 import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.console.wicket.markup.html.link.VeilPopupSettings;
-import org.apache.wicket.Component;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
@@ -860,7 +860,8 @@ public class Configuration extends BasePage {
 
         @Override
         public Iterator<? extends RouteTO> iterator(long first, long count) {
-            List<RouteTO> list =  routeRestClient.readRoutes();
+            List<RouteTO> list =  routeRestClient.readRoutes(SubjectType.USER);
+            list.addAll(routeRestClient.readRoutes(SubjectType.ROLE));
 
             Collections.sort(list, comparator);
 
@@ -869,7 +870,8 @@ public class Configuration extends BasePage {
 
         @Override
         public long size() {
-            return routeRestClient.readRoutes().size();
+            return (routeRestClient.readRoutes(SubjectType.USER).size() + 
+                    routeRestClient.readRoutes(SubjectType.ROLE).size());
         }
 
         @Override

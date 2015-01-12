@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.syncope.common.to.RouteTO;
+import org.apache.syncope.common.types.SubjectType;
 import org.apache.syncope.core.persistence.beans.CamelRoute;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.persistence.dao.RouteDAO;
@@ -50,9 +51,9 @@ public class RouteController extends AbstractTransactionalController<RouteTO> {
 
     @PreAuthorize("hasRole('ROUTE_LIST')")
     @Transactional(readOnly = true)
-    public List<RouteTO> listRoutes() {
+    public List<RouteTO> listRoutes(final SubjectType subject) {
         List<RouteTO> routes = new ArrayList<RouteTO>();
-        Iterator it = routeDao.findAll().iterator();
+        Iterator it = routeDao.findAll(subject).iterator();
         while (it.hasNext()) {
             routes.add(binder.getRouteTO((CamelRoute) it.next()));
         }
@@ -63,6 +64,17 @@ public class RouteController extends AbstractTransactionalController<RouteTO> {
     @Transactional(readOnly = true)
     public RouteTO readRoute(Long id) {
         CamelRoute route = routeDao.find(id);
+        if (route == null) {
+            throw new NotFoundException("Route with id=" + id);
+        }
+
+        return binder.getRouteTO(route);
+    }
+    
+    @PreAuthorize("hasRole('ROUTE_READ')")
+    @Transactional(readOnly = true)
+    public RouteTO readRoute(Long id, SubjectType subject) {
+        CamelRoute route = routeDao.find(id, subject);
         if (route == null) {
             throw new NotFoundException("Route with id=" + id);
         }

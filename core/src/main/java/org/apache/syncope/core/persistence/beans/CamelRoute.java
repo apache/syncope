@@ -24,6 +24,10 @@ import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.GenerationType;
 import javax.persistence.Column;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.validation.constraints.NotNull;
+import org.apache.syncope.common.types.SubjectType;
 
 @Entity
 public class CamelRoute {
@@ -34,6 +38,10 @@ public class CamelRoute {
     private Long id;
 
     private String name;
+    
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private SubjectType subject;
 
     @Lob
     private String routeContent;
@@ -41,13 +49,21 @@ public class CamelRoute {
     public Long getId() {
         return id;
     }
-
+    
     public void setName(String name) {
         this.name = name;
     }
 
     public String getName() {
         return name;
+    }
+        
+    public SubjectType getSubject() {
+        return subject;
+    }
+
+    public void setSubject(SubjectType subject) {
+        this.subject = subject;
     }
 
     public String getRouteContent() {
