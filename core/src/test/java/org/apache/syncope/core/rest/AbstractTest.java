@@ -47,6 +47,7 @@ import org.apache.syncope.common.services.PolicyService;
 import org.apache.syncope.common.services.ReportService;
 import org.apache.syncope.common.services.ResourceService;
 import org.apache.syncope.common.services.RoleService;
+import org.apache.syncope.common.services.RouteService;
 import org.apache.syncope.common.services.SchemaService;
 import org.apache.syncope.common.services.SecurityQuestionService;
 import org.apache.syncope.common.services.TaskService;
@@ -173,6 +174,8 @@ public abstract class AbstractTest {
     protected static PolicyService policyService;
 
     protected static SecurityQuestionService securityQuestionService;
+    
+    protected static RouteService routeService;
 
     @Autowired
     protected DataSource testDataSource;
@@ -223,6 +226,7 @@ public abstract class AbstractTest {
         notificationService = adminClient.getService(NotificationService.class);
         schemaService = adminClient.getService(SchemaService.class);
         securityQuestionService = adminClient.getService(SecurityQuestionService.class);
+        routeService = adminClient.getService(RouteService.class);
     }
 
     protected static String getUUIDString() {
