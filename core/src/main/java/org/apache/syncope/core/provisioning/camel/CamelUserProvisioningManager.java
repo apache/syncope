@@ -43,6 +43,7 @@ import org.apache.syncope.common.mod.StatusMod;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.to.PropagationStatus;
 import org.apache.syncope.common.to.UserTO;
+import org.apache.syncope.common.types.SubjectType;
 import org.apache.syncope.core.persistence.beans.CamelRoute;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.RouteDAO;
@@ -103,8 +104,8 @@ public class CamelUserProvisioningManager implements UserProvisioningManager {
         return contextFactory.getContext(routeDAO);
     }
 
-    protected List<CamelRoute> getRoutes() {
-        return routeDAO.findAll();
+    protected List<CamelRoute> getRoutes(SubjectType subject) {
+        return routeDAO.findAll(subject);
     }
 
     public void changeRoute(String routePath) {

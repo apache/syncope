@@ -21,6 +21,7 @@ package org.apache.syncope.common.to;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.AbstractBaseBean;
+import org.apache.syncope.common.types.SubjectType;
 
 @XmlRootElement(name = "route")
 @XmlType
@@ -31,6 +32,8 @@ public class RouteTO extends AbstractBaseBean {
     private String name;
 
     private String routeContent;
+
+    private SubjectType subject;
 
     public void setId(Long id) {
         this.id = id;
@@ -46,6 +49,14 @@ public class RouteTO extends AbstractBaseBean {
 
     public String getName() {
         return name;
+    }
+    
+    public SubjectType getSubject() {
+        return subject;
+    }
+
+    public void setSubject(SubjectType subject) {
+        this.subject = subject;
     }
 
     public String getRouteContent() {

@@ -27,16 +27,24 @@ under the License.
   <!--
       The default routes define each task involved in user creation:
       main operations consist in user workflow creation and its propagation.         
-  -->
-  <routeContext id="defaultUserRoutes" xmlns="http://camel.apache.org/schema/spring">  	
+  -->  	
+    <!--
+        CREATE USER
+        This is the entry point of the route and is involved in accepting
+        the UserTO. When it arrives, the user workflow is created. If the
+        creation is successfull, the result is sent to propagation, otherwise
+        if an exception was raised, the exception has to be returned to the
+        caller. The property actual allows to store the received UserTO in
+        order to use it later.
+    -->
+        
     <route id="createUser">
       <from uri="direct:createUser"/>
       <setProperty propertyName="actual">
         <simple>${body}</simple>
       </setProperty>
       <doTry>
-        <bean ref="uwfAdapter" 
-              method="create(${body},${property.disablePwdPolicyCheck},
+        <bean ref="uwfAdapter" method="create(${body},${property.disablePwdPolicyCheck},
                                  ${property.enabled},${property.storePassword})"/>
         <process ref="defaultUserCreatePropagation" />
         <to uri="direct:createPort"/>
@@ -101,7 +109,7 @@ under the License.
     <route id="syncUserStatus">
       <from uri="direct:syncUserStatus"/>
       <process ref="userStatusOnSync" />
-      <process ref="defaultUserUpdateSyncPropagation" />
+      <process ref="defaultUserUpdateInSyncPropagation" />
       <to uri="direct:updateSyncPort"/>
     </route>
     <!--
@@ -240,9 +248,11 @@ under the License.
       <process ref="defaultUserDeprovisionPropagation" />
       <to uri="direct:deprovisionPort"/>              
     </route>
-
-
-
+    
+    <!--
+        SUSPEND USER AFTER POLICY VIOLATION
+    -->
+        
     <route id="suspendUserWF">
       <from uri="direct:suspendUserWF"/>
       <doTry>
@@ -258,6 +268,42 @@ under the License.
         </doCatch>
       </doTry>  
     </route>
+        
+    <!--
+        REQUEST PASSWORD RESET ROUTE
+    -->
+        
+    <route id="requestPwdReset">
+      <from uri="direct:requestPwdReset"/>
+      <doTry>
+        <bean ref="uwfAdapter" method="requestPasswordReset(${body})"/>
+        <to uri="direct:requestPwdResetPort"/>
+        <doCatch>        
+          <exception>java.lang.RuntimeException</exception>
+          <handled>
+            <constant>false</constant>
+          </handled>
+          <to uri="direct:requestPwdResetPort"/>
+        </doCatch>
+      </doTry>  
+    </route>
+    <!--
+        CONFIRM PASSWORD RESET
+    -->
+    <route id="confirmPwdReset">
+      <from uri="direct:confirmPwdReset"/>
+      <doTry>
+        <bean ref="uwfAdapter" method="confirmPasswordReset(${property.userId},${property.token},${property.password})"/>
+        <process ref="defaultUserConfirmPwdResetPropagation" />
+        <to uri="direct:confirmPwdResetPort"/>
+        <doCatch>        
+          <exception>java.lang.RuntimeException</exception>
+          <handled>
+            <constant>false</constant>
+          </handled>
+          <to uri="direct:confirmPwdResetPort"/>
+        </doCatch>
+      </doTry>
+    </route>
 
-  </routeContext>
 </beans>

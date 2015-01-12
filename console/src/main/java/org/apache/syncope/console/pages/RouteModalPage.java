@@ -44,7 +44,7 @@ public class RouteModalPage extends BaseModalPage{
      public RouteModalPage(final PageReference pageRef, final ModalWindow window,
             final RouteTO routeTO, final boolean createFlag){
          
-        Form routeForm = new Form("routeDefForm");            
+        Form<RouteTO> routeForm = new Form<RouteTO>("routeDefForm");            
         
         final TextArea<String> routeDefArea = new TextArea<String>("routeContent", new PropertyModel<String>(routeTO, "routeContent"));       
         //routeDefArea.setOutputMarkupId(true);      
@@ -62,7 +62,7 @@ public class RouteModalPage extends BaseModalPage{
                     @Override
                     protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                         try {
-                            restClient.updateRoute(routeTO.getId(), ((RouteTO)form.getModelObject()).getRouteContent());
+                            restClient.updateRoute(routeTO.getId(), ((RouteTO)form.getModelObject()).getRouteContent(), routeTO.getSubject());
                             info(getString(Constants.OPERATION_SUCCEEDED));
                             
                             Configuration callerPage = (Configuration) pageRef.getPage();
