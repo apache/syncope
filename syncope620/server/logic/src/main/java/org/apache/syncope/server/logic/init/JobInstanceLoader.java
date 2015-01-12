@@ -23,26 +23,25 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.TaskType;
-import org.apache.syncope.persistence.api.dao.ConfDAO;
-import org.apache.syncope.persistence.api.dao.NotFoundException;
-import org.apache.syncope.persistence.api.dao.ReportDAO;
-import org.apache.syncope.persistence.api.dao.TaskDAO;
-import org.apache.syncope.persistence.api.entity.Report;
-import org.apache.syncope.persistence.api.entity.conf.CPlainAttr;
-import org.apache.syncope.persistence.api.entity.task.PushTask;
-import org.apache.syncope.persistence.api.entity.task.SchedTask;
-import org.apache.syncope.persistence.api.entity.task.SyncTask;
-import org.apache.syncope.persistence.api.entity.task.Task;
-import org.apache.syncope.provisioning.api.job.SyncJob;
-import org.apache.syncope.provisioning.api.job.TaskJob;
-import org.apache.syncope.provisioning.api.sync.SyncActions;
+import org.apache.syncope.server.persistence.api.dao.ConfDAO;
+import org.apache.syncope.server.persistence.api.dao.NotFoundException;
+import org.apache.syncope.server.persistence.api.dao.ReportDAO;
+import org.apache.syncope.server.persistence.api.dao.TaskDAO;
+import org.apache.syncope.server.persistence.api.entity.Report;
+import org.apache.syncope.server.persistence.api.entity.conf.CPlainAttr;
+import org.apache.syncope.server.persistence.api.entity.task.PushTask;
+import org.apache.syncope.server.persistence.api.entity.task.SchedTask;
+import org.apache.syncope.server.persistence.api.entity.task.SyncTask;
+import org.apache.syncope.server.persistence.api.entity.task.Task;
+import org.apache.syncope.server.provisioning.api.job.JobNamer;
+import org.apache.syncope.server.provisioning.api.job.SyncJob;
+import org.apache.syncope.server.provisioning.api.job.TaskJob;
+import org.apache.syncope.server.provisioning.api.sync.SyncActions;
 import org.apache.syncope.server.logic.notification.NotificationJob;
 import org.apache.syncope.server.logic.report.ReportJob;
-import org.apache.syncope.server.spring.ApplicationContextProvider;
+import org.apache.syncope.server.misc.spring.ApplicationContextProvider;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobKey;
@@ -75,43 +74,6 @@ public class JobInstanceLoader {
 
     @Autowired
     private ConfDAO confDAO;
-
-    private static Long getIdFromJobName(final String name, final String pattern, final int prefixLength) {
-        Long result = null;
-
-        Matcher jobMatcher = Pattern.compile(pattern).matcher(name);
-        if (jobMatcher.matches()) {
-            try {
-                result = Long.valueOf(name.substring(prefixLength));
-            } catch (NumberFormatException e) {
-                LOG.error("Unparsable id: {}", name.substring(prefixLength), e);
-            }
-        }
-
-        return result;
-    }
-
-    public static Long getTaskIdFromJobName(final String name) {
-        return getIdFromJobName("taskJob[0-9]+", name, 7);
-    }
-
-    public static Long getReportIdFromJobName(final String name) {
-        return getIdFromJobName("reportJob[0-9]+", name, 9);
-    }
-
-    public static String getJobName(final Task task) {
-        return task == null
-                ? "taskNotificationJob"
-                : "taskJob" + task.getKey();
-    }
-
-    public static String getJobName(final Report report) {
-        return "reportJob" + report.getKey();
-    }
-
-    public static String getTriggerName(final String jobName) {
-        return "Trigger_" + jobName;
-    }
 
     private void registerJob(final String jobName, final Job jobInstance, final String cronExpression)
             throws SchedulerException, ParseException {
@@ -152,7 +114,7 @@ public class JobInstanceLoader {
             scheduler.getScheduler().addJob(jobDetail, true);
         } else {
             CronTriggerImpl cronTrigger = new CronTriggerImpl();
-            cronTrigger.setName(getTriggerName(jobName));
+            cronTrigger.setName(JobNamer.getTriggerName(jobName));
             cronTrigger.setCronExpression(cronExpression);
 
             scheduler.getScheduler().scheduleJob(jobDetail, cronTrigger);
@@ -191,7 +153,7 @@ public class JobInstanceLoader {
             ((SyncJob) jobInstance).setActions(actions);
         }
 
-        registerJob(getJobName(task), jobInstance, cronExpression);
+        registerJob(JobNamer.getJobName(task), jobInstance, cronExpression);
     }
 
     @Transactional(readOnly = true)
@@ -211,7 +173,7 @@ public class JobInstanceLoader {
                 createBean(ReportJob.class, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
         ((ReportJob) jobInstance).setReportKey(report.getKey());
 
-        registerJob(getJobName(report), jobInstance, report.getCronExpression());
+        registerJob(JobNamer.getJobName(report), jobInstance, report.getCronExpression());
     }
 
     @Transactional(readOnly = true)
@@ -238,11 +200,11 @@ public class JobInstanceLoader {
     }
 
     public void unregisterJob(final Task task) {
-        unregisterJob(getJobName(task));
+        unregisterJob(JobNamer.getJobName(task));
     }
 
     public void unregisterJob(final Report report) {
-        unregisterJob(getJobName(report));
+        unregisterJob(JobNamer.getJobName(report));
     }
 
     @Transactional

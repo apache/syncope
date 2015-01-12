@@ -35,20 +35,21 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PropagationMode;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.lib.types.TaskType;
-import org.apache.syncope.persistence.api.dao.NotFoundException;
-import org.apache.syncope.persistence.api.dao.TaskDAO;
-import org.apache.syncope.persistence.api.dao.TaskExecDAO;
-import org.apache.syncope.persistence.api.dao.search.OrderByClause;
-import org.apache.syncope.persistence.api.entity.task.NotificationTask;
-import org.apache.syncope.persistence.api.entity.task.PropagationTask;
-import org.apache.syncope.persistence.api.entity.task.SchedTask;
-import org.apache.syncope.persistence.api.entity.task.Task;
-import org.apache.syncope.persistence.api.entity.task.TaskExec;
-import org.apache.syncope.persistence.api.entity.task.TaskUtil;
-import org.apache.syncope.persistence.api.entity.task.TaskUtilFactory;
-import org.apache.syncope.provisioning.api.job.TaskJob;
-import org.apache.syncope.provisioning.api.propagation.PropagationTaskExecutor;
-import org.apache.syncope.server.logic.data.TaskDataBinder;
+import org.apache.syncope.server.persistence.api.dao.NotFoundException;
+import org.apache.syncope.server.persistence.api.dao.TaskDAO;
+import org.apache.syncope.server.persistence.api.dao.TaskExecDAO;
+import org.apache.syncope.server.persistence.api.dao.search.OrderByClause;
+import org.apache.syncope.server.persistence.api.entity.task.NotificationTask;
+import org.apache.syncope.server.persistence.api.entity.task.PropagationTask;
+import org.apache.syncope.server.persistence.api.entity.task.SchedTask;
+import org.apache.syncope.server.persistence.api.entity.task.Task;
+import org.apache.syncope.server.persistence.api.entity.task.TaskExec;
+import org.apache.syncope.server.persistence.api.entity.task.TaskUtil;
+import org.apache.syncope.server.persistence.api.entity.task.TaskUtilFactory;
+import org.apache.syncope.server.provisioning.api.data.TaskDataBinder;
+import org.apache.syncope.server.provisioning.api.job.JobNamer;
+import org.apache.syncope.server.provisioning.api.job.TaskJob;
+import org.apache.syncope.server.provisioning.api.propagation.PropagationTaskExecutor;
 import org.apache.syncope.server.logic.init.ImplementationClassNamesLoader;
 import org.apache.syncope.server.logic.init.JobInstanceLoader;
 import org.apache.syncope.server.logic.notification.NotificationJob;
@@ -117,9 +118,9 @@ public class TaskLogic extends AbstractTransactionalLogic<AbstractTaskTO> {
 
     @PreAuthorize("hasRole('TASK_UPDATE')")
     public <T extends SchedTaskTO> T updateSched(final SchedTaskTO taskTO) {
-        SchedTask task = taskDAO.find(taskTO.getId());
+        SchedTask task = taskDAO.find(taskTO.getKey());
         if (task == null) {
-            throw new NotFoundException("Task " + taskTO.getId());
+            throw new NotFoundException("Task " + taskTO.getKey());
         }
 
         TaskUtil taskUtil = taskUtilFactory.getInstance(task);
@@ -226,7 +227,7 @@ public class TaskLogic extends AbstractTransactionalLogic<AbstractTaskTO> {
                     map.put(TaskJob.DRY_RUN_JOBDETAIL_KEY, dryRun);
 
                     scheduler.getScheduler().triggerJob(
-                            new JobKey(JobInstanceLoader.getJobName(task), Scheduler.DEFAULT_GROUP), map);
+                            new JobKey(JobNamer.getJobName(task), Scheduler.DEFAULT_GROUP), map);
                 } catch (Exception e) {
                     LOG.error("While executing task {}", task, e);
 
@@ -334,7 +335,7 @@ public class TaskLogic extends AbstractTransactionalLogic<AbstractTaskTO> {
             case DELETE:
                 for (String taskId : bulkAction.getTargets()) {
                     try {
-                        res.add(delete(Long.valueOf(taskId)).getId(), BulkActionResult.Status.SUCCESS);
+                        res.add(delete(Long.valueOf(taskId)).getKey(), BulkActionResult.Status.SUCCESS);
                     } catch (Exception e) {
                         LOG.error("Error performing delete for task {}", taskId, e);
                         res.add(taskId, BulkActionResult.Status.FAILURE);
@@ -388,7 +389,7 @@ public class TaskLogic extends AbstractTransactionalLogic<AbstractTaskTO> {
                 if (args[i] instanceof Long) {
                     id = (Long) args[i];
                 } else if (args[i] instanceof AbstractTaskTO) {
-                    id = ((AbstractTaskTO) args[i]).getId();
+                    id = ((AbstractTaskTO) args[i]).getKey();
                 }
             }
         }

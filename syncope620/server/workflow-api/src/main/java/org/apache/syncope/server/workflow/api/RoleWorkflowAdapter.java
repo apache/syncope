@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.server.workflow.api;
 
-import org.apache.syncope.provisioning.api.WorkflowResult;
+import org.apache.syncope.server.provisioning.api.WorkflowResult;
 import org.apache.syncope.common.lib.mod.RoleMod;
 import org.apache.syncope.common.lib.to.RoleTO;
-import org.apache.syncope.persistence.api.dao.NotFoundException;
+import org.apache.syncope.server.persistence.api.dao.NotFoundException;
 
 /**
  * Interface for calling underlying workflow implementations.

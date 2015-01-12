@@ -91,30 +91,15 @@ under the License.
       
     <dependency>
       <groupId>org.apache.syncope.server</groupId>
-      <artifactId>syncope-provisioning-common</artifactId>
+      <artifactId>syncope-workflow-api</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.syncope.server</groupId>
-      <artifactId>syncope-persistence-api</artifactId>
+      <artifactId>syncope-server-misc</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <dependency>
-      <groupId>org.apache.syncope.server</groupId>
-      <artifactId>syncope-server-utils</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.syncope.server</groupId>
-      <artifactId>syncope-server-spring</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.syncope.server</groupId>
-      <artifactId>syncope-server-security</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    
+        
     <!-- TEST -->
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -154,7 +139,7 @@ under the License.
         </dependencies>
         <configuration>
           <persistenceXmlFile>${project.basedir}/src/main/resources/META-INF/spring-persistence.xml</persistenceXmlFile> 
-          <includes>org/apache/syncope/persistence/jpa/entity/**/*.class</includes>
+          <includes>org/apache/syncope/server/persistence/jpa/entity/**/*.class</includes>
           <connectionDriverName>org.springframework.jdbc.datasource.DriverManagerDataSource</connectionDriverName>
           <connectionProperties>
             driverClassName=org.h2.Driver,

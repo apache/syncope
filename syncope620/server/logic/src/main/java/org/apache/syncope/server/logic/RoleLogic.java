@@ -35,22 +35,22 @@ import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.SubjectType;
-import org.apache.syncope.persistence.api.RoleEntitlementUtil;
-import org.apache.syncope.persistence.api.dao.NotFoundException;
-import org.apache.syncope.persistence.api.dao.RoleDAO;
-import org.apache.syncope.persistence.api.dao.SubjectSearchDAO;
-import org.apache.syncope.persistence.api.dao.UserDAO;
-import org.apache.syncope.persistence.api.dao.search.OrderByClause;
-import org.apache.syncope.persistence.api.dao.search.SearchCond;
-import org.apache.syncope.persistence.api.entity.role.Role;
-import org.apache.syncope.persistence.api.entity.user.User;
-import org.apache.syncope.provisioning.api.AttributableTransformer;
-import org.apache.syncope.provisioning.api.RoleProvisioningManager;
-import org.apache.syncope.provisioning.api.propagation.PropagationManager;
-import org.apache.syncope.provisioning.api.propagation.PropagationTaskExecutor;
-import org.apache.syncope.server.logic.data.RoleDataBinder;
-import org.apache.syncope.server.security.AuthContextUtil;
-import org.apache.syncope.server.security.UnauthorizedRoleException;
+import org.apache.syncope.server.persistence.api.RoleEntitlementUtil;
+import org.apache.syncope.server.persistence.api.dao.NotFoundException;
+import org.apache.syncope.server.persistence.api.dao.RoleDAO;
+import org.apache.syncope.server.persistence.api.dao.SubjectSearchDAO;
+import org.apache.syncope.server.persistence.api.dao.UserDAO;
+import org.apache.syncope.server.persistence.api.dao.search.OrderByClause;
+import org.apache.syncope.server.persistence.api.dao.search.SearchCond;
+import org.apache.syncope.server.persistence.api.entity.role.Role;
+import org.apache.syncope.server.persistence.api.entity.user.User;
+import org.apache.syncope.server.provisioning.api.AttributableTransformer;
+import org.apache.syncope.server.provisioning.api.RoleProvisioningManager;
+import org.apache.syncope.server.provisioning.api.data.RoleDataBinder;
+import org.apache.syncope.server.provisioning.api.propagation.PropagationManager;
+import org.apache.syncope.server.provisioning.api.propagation.PropagationTaskExecutor;
+import org.apache.syncope.server.misc.security.AuthContextUtil;
+import org.apache.syncope.server.misc.security.UnauthorizedRoleException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
@@ -100,7 +100,7 @@ public class RoleLogic extends AbstractSubjectLogic<RoleTO, RoleMod> {
         if (anonymousUser.equals(AuthContextUtil.getAuthenticatedUsername())) {
             role = roleDAO.find(roleKey);
         } else {
-            role = roleDAO.authFetchRole(roleKey);
+            role = roleDAO.authFetch(roleKey);
         }
 
         if (role == null) {
@@ -140,7 +140,7 @@ public class RoleLogic extends AbstractSubjectLogic<RoleTO, RoleMod> {
     @PreAuthorize("hasRole('ROLE_READ')")
     @Transactional(readOnly = true)
     public RoleTO parent(final Long roleKey) {
-        Role role = roleDAO.authFetchRole(roleKey);
+        Role role = roleDAO.authFetch(roleKey);
 
         Set<Long> allowedRoleIds = RoleEntitlementUtil.getRoleKeys(AuthContextUtil.getOwnedEntitlementNames());
         if (role.getParent() != null && !allowedRoleIds.contains(role.getParent().getKey())) {
@@ -157,12 +157,12 @@ public class RoleLogic extends AbstractSubjectLogic<RoleTO, RoleMod> {
     @PreAuthorize("hasRole('ROLE_READ')")
     @Transactional(readOnly = true)
     public List<RoleTO> children(final Long roleKey) {
-        Role role = roleDAO.authFetchRole(roleKey);
+        Role role = roleDAO.authFetch(roleKey);
 
         Set<Long> allowedRoleIds = RoleEntitlementUtil.getRoleKeys(AuthContextUtil.getOwnedEntitlementNames());
 
         List<Role> children = roleDAO.findChildren(role);
-        List<RoleTO> childrenTOs = new ArrayList<RoleTO>(children.size());
+        List<RoleTO> childrenTOs = new ArrayList<>(children.size());
         for (Role child : children) {
             if (allowedRoleIds.contains(child.getKey())) {
                 childrenTOs.add(binder.getRoleTO(child));
@@ -244,7 +244,7 @@ public class RoleLogic extends AbstractSubjectLogic<RoleTO, RoleMod> {
     @Override
     public RoleTO update(final RoleMod roleMod) {
         // Check that this operation is allowed to be performed by caller
-        roleDAO.authFetchRole(roleMod.getKey());
+        roleDAO.authFetch(roleMod.getKey());
 
         // Attribute value transformation (if configured)
         RoleMod actual = attrTransformer.transform(roleMod);
@@ -350,7 +350,7 @@ public class RoleLogic extends AbstractSubjectLogic<RoleTO, RoleMod> {
     @Transactional(rollbackFor = { Throwable.class })
     @Override
     public RoleTO deprovision(final Long roleKey, final Collection<String> resources) {
-        final Role role = roleDAO.authFetchRole(roleKey);
+        final Role role = roleDAO.authFetch(roleKey);
 
         List<PropagationStatus> statuses = provisioningManager.deprovision(roleKey, resources);
 

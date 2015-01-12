@@ -26,14 +26,14 @@ import org.apache.syncope.common.lib.mod.AbstractAttributableMod;
 import org.apache.syncope.common.lib.mod.UserMod;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
-import org.apache.syncope.persistence.api.dao.UserDAO;
-import org.apache.syncope.persistence.api.entity.task.PropagationTask;
-import org.apache.syncope.persistence.api.entity.user.User;
-import org.apache.syncope.provisioning.api.propagation.PropagationManager;
-import org.apache.syncope.provisioning.api.propagation.PropagationTaskExecutor;
-import org.apache.syncope.server.logic.data.UserDataBinder;
+import org.apache.syncope.server.persistence.api.dao.UserDAO;
+import org.apache.syncope.server.persistence.api.entity.task.PropagationTask;
+import org.apache.syncope.server.persistence.api.entity.user.User;
+import org.apache.syncope.server.provisioning.api.propagation.PropagationManager;
+import org.apache.syncope.server.provisioning.api.propagation.PropagationTaskExecutor;
 import org.apache.syncope.server.workflow.api.UserWorkflowAdapter;
-import org.apache.syncope.provisioning.api.WorkflowResult;
+import org.apache.syncope.server.provisioning.api.WorkflowResult;
+import org.apache.syncope.server.provisioning.api.data.UserDataBinder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
@@ -83,7 +83,7 @@ public class UserWorkflowLogic extends AbstractTransactionalLogic<WorkflowFormTO
     @PreAuthorize("hasRole('WORKFLOW_FORM_READ') and hasRole('USER_READ')")
     @Transactional(rollbackFor = { Throwable.class })
     public WorkflowFormTO getFormForUser(final Long key) {
-        User user = userDAO.authFecthUser(key);
+        User user = userDAO.authFetch(key);
         return uwfAdapter.getForm(user.getWorkflowId());
     }
 
@@ -96,7 +96,7 @@ public class UserWorkflowLogic extends AbstractTransactionalLogic<WorkflowFormTO
     @PreAuthorize("hasRole('WORKFLOW_FORM_READ') and hasRole('USER_READ')")
     @Transactional(rollbackFor = { Throwable.class })
     public List<WorkflowFormTO> getForms(final Long key, final String formName) {
-        User user = userDAO.authFecthUser(key);
+        User user = userDAO.authFetch(key);
         return uwfAdapter.getForms(user.getWorkflowId(), formName);
     }
 

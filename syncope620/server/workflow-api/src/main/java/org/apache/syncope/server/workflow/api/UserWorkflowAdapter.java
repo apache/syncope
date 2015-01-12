@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.server.workflow.api;
 
-import org.apache.syncope.provisioning.api.WorkflowResult;
+import org.apache.syncope.server.provisioning.api.WorkflowResult;
 import java.util.Map;
 import org.apache.syncope.common.lib.mod.UserMod;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.persistence.api.entity.user.User;
+import org.apache.syncope.server.persistence.api.entity.user.User;
 
 /**
  * Interface for calling underlying workflow implementations.

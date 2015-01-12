@@ -26,7 +26,7 @@ under the License.
   <persistence-unit-metadata>
     <persistence-unit-defaults>
       <entity-listeners>
-        <entity-listener class="org.apache.syncope.persistence.jpa.validation.entity.EntityValidationListener">
+        <entity-listener class="org.apache.syncope.server.persistence.jpa.validation.entity.EntityValidationListener">
           <pre-persist method-name="validate"/>
           <pre-update method-name="validate"/>
         </entity-listener>
@@ -39,7 +39,7 @@ under the License.
   <table-generator name="SEQ_MAttrPlainValue" pk-column-value="SEQ_MAttrPlainValue" initial-value="100"/>
   <table-generator name="SEQ_CAttrPlainValue" pk-column-value="SEQ_CAttrPlainValue" initial-value="100"/>
 
-  <entity class="org.apache.syncope.persistence.jpa.entity.user.JPAUser">
+  <entity class="org.apache.syncope.server.persistence.jpa.entity.user.JPAUser">
     <attributes>
       <id name="id">
         <generated-value generator="SEQ_User" strategy="TABLE"/>
@@ -48,7 +48,7 @@ under the License.
     </attributes>
   </entity>
 
-  <entity class="org.apache.syncope.persistence.jpa.entity.role.JPARole">
+  <entity class="org.apache.syncope.server.persistence.jpa.entity.role.JPARole">
     <attributes>
       <id name="id">
         <generated-value generator="SEQ_Role" strategy="TABLE"/>
@@ -57,7 +57,7 @@ under the License.
     </attributes>
   </entity>
 
-  <entity class="org.apache.syncope.persistence.jpa.entity.membership.JPAMembership">
+  <entity class="org.apache.syncope.server.persistence.jpa.entity.membership.JPAMembership">
     <attributes>
       <id name="id">
         <generated-value generator="SEQ_Membership" strategy="TABLE"/>
@@ -66,7 +66,7 @@ under the License.
     </attributes>
   </entity>
 
-  <entity class="org.apache.syncope.persistence.jpa.entity.user.JPAUMapping">
+  <entity class="org.apache.syncope.server.persistence.jpa.entity.user.JPAUMapping">
     <attributes>
       <id name="id">
         <generated-value generator="SEQ_UMapping" strategy="TABLE"/>
@@ -74,7 +74,7 @@ under the License.
       </id>
     </attributes>
   </entity>
-  <entity class="org.apache.syncope.persistence.jpa.entity.role.JPARMapping">
+  <entity class="org.apache.syncope.server.persistence.jpa.entity.role.JPARMapping">
     <attributes>
       <id name="id">
         <generated-value generator="SEQ_RMapping" strategy="TABLE"/>
@@ -82,7 +82,7 @@ under the License.
       </id>
     </attributes>
   </entity>
-  <entity class="org.apache.syncope.persistence.jpa.entity.user.JPAUMappingItem">
+  <entity class="org.apache.syncope.server.persistence.jpa.entity.user.JPAUMappingItem">
     <attributes>
       <id name="id">
         <generated-value generator="SEQ_UMappingItem" strategy="TABLE"/>
@@ -90,7 +90,7 @@ under the License.
       </id>
     </attributes>
   </entity>
-  <entity class="org.apache.syncope.persistence.jpa.entity.role.JPARMappingItem">
+  <entity class="org.apache.syncope.server.persistence.jpa.entity.role.JPARMappingItem">
     <attributes>
       <id name="id">
         <generated-value generator="SEQ_RMappingItem" strategy="TABLE"/>
@@ -99,7 +99,7 @@ under the License.
     </attributes>
   </entity>
 
-  <entity class="org.apache.syncope.persistence.jpa.entity.JPAConnInstance">
+  <entity class="org.apache.syncope.server.persistence.jpa.entity.JPAConnInstance">
     <attributes>
       <id name="id">
         <generated-value generator="SEQ_ConnInstance" strategy="TABLE"/>
@@ -108,7 +108,7 @@ under the License.
     </attributes>
   </entity>
 
-  <entity class="org.apache.syncope.persistence.jpa.entity.user.JPAUPlainAttr">
+  <entity class="org.apache.syncope.server.persistence.jpa.entity.user.JPAUPlainAttr">
     <attributes>
       <id name="id">
         <generated-value generator="SEQ_UPlainAttr" strategy="TABLE"/>
@@ -116,7 +116,7 @@ under the License.
       </id>
     </attributes>
   </entity>
-  <entity class="org.apache.syncope.persistence.jpa.entity.role.JPARPlainAttr">
+  <entity class="org.apache.syncope.server.persistence.jpa.entity.role.JPARPlainAttr">
     <attributes>
       <id name="id">
         <generated-value generator="SEQ_RPlainAttr" strategy="TABLE"/>
@@ -124,7 +124,7 @@ under the License.
       </id>
     </attributes>
   </entity>
-  <entity class="org.apache.syncope.persistence.jpa.entity.membership.JPAMPlainAttr">
+  <entity class="org.apache.syncope.server.persistence.jpa.entity.membership.JPAMPlainAttr">
     <attributes>
       <id name="id">
         <generated-value generator="SEQ_MAttrPlain" strategy="TABLE"/>
@@ -132,7 +132,7 @@ under the License.
       </id>
     </attributes>
   </entity>
-  <entity class="org.apache.syncope.persistence.jpa.entity.conf.JPACPlainAttr">
+  <entity class="org.apache.syncope.server.persistence.jpa.entity.conf.JPACPlainAttr">
     <attributes>
       <id name="id">
         <generated-value generator="SEQ_CAttrPlain" strategy="TABLE"/>
@@ -141,14 +141,14 @@ under the License.
     </attributes>
   </entity>
     
-  <entity class="org.apache.syncope.persistence.jpa.entity.user.JPAUPlainAttrValue">
+  <entity class="org.apache.syncope.server.persistence.jpa.entity.user.JPAUPlainAttrValue">
     <attributes>
       <id name="id">
         <generated-value generator="SEQ_UPlainAttrValue" strategy="TABLE"/>
       </id>
     </attributes>
   </entity>
-  <entity class="org.apache.syncope.persistence.jpa.entity.user.JPAUPlainAttrUniqueValue">
+  <entity class="org.apache.syncope.server.persistence.jpa.entity.user.JPAUPlainAttrUniqueValue">
     <table>
       <unique-constraint>
         <column-name>booleanValue</column-name>
@@ -177,14 +177,14 @@ under the License.
       </id>
     </attributes>
   </entity>
-  <entity class="org.apache.syncope.persistence.jpa.entity.role.JPARPlainAttrValue">
+  <entity class="org.apache.syncope.server.persistence.jpa.entity.role.JPARPlainAttrValue">
     <attributes>
       <id name="id">
         <generated-value generator="SEQ_RPlainAttrValue" strategy="TABLE"/>
       </id>
     </attributes>
   </entity>
-  <entity class="org.apache.syncope.persistence.jpa.entity.role.JPARPlainAttrUniqueValue">
+  <entity class="org.apache.syncope.server.persistence.jpa.entity.role.JPARPlainAttrUniqueValue">
     <table>
       <unique-constraint>
         <column-name>booleanValue</column-name>
@@ -213,14 +213,14 @@ under the License.
       </id>
     </attributes>
   </entity>
-  <entity class="org.apache.syncope.persistence.jpa.entity.membership.JPAMPlainAttrValue">
+  <entity class="org.apache.syncope.server.persistence.jpa.entity.membership.JPAMPlainAttrValue">
     <attributes>
       <id name="id">
         <generated-value generator="SEQ_MAttrPlainValue" strategy="TABLE"/>
       </id>
     </attributes>
   </entity>
-  <entity class="org.apache.syncope.persistence.jpa.entity.membership.JPAMPlainAttrUniqueValue">
+  <entity class="org.apache.syncope.server.persistence.jpa.entity.membership.JPAMPlainAttrUniqueValue">
     <table>
       <unique-constraint>
         <column-name>booleanValue</column-name>
@@ -249,14 +249,14 @@ under the License.
       </id>
     </attributes>
   </entity>
-  <entity class="org.apache.syncope.persistence.jpa.entity.conf.JPACPlainAttrValue">
+  <entity class="org.apache.syncope.server.persistence.jpa.entity.conf.JPACPlainAttrValue">
     <attributes>
       <id name="id">
         <generated-value generator="SEQ_CAttrPlainValue" strategy="TABLE"/>
       </id>
     </attributes>
   </entity>
-  <entity class="org.apache.syncope.persistence.jpa.entity.conf.JPACPlainAttrUniqueValue">
+  <entity class="org.apache.syncope.server.persistence.jpa.entity.conf.JPACPlainAttrUniqueValue">
     <table>
       <unique-constraint>
         <column-name>booleanValue</column-name>
@@ -286,7 +286,7 @@ under the License.
     </attributes>
   </entity>
 
-  <entity class="org.apache.syncope.persistence.jpa.entity.task.JPATask">
+  <entity class="org.apache.syncope.server.persistence.jpa.entity.task.JPATask">
     <attributes>
       <id name="id">
         <generated-value generator="SEQ_Task" strategy="TABLE"/>
@@ -294,7 +294,7 @@ under the License.
       </id>
     </attributes>
   </entity>
-  <entity class="org.apache.syncope.persistence.jpa.entity.task.JPATaskExec">
+  <entity class="org.apache.syncope.server.persistence.jpa.entity.task.JPATaskExec">
     <attributes>
       <id name="id">
         <generated-value generator="SEQ_TaskExec" strategy="TABLE"/>
@@ -303,7 +303,7 @@ under the License.
     </attributes>
   </entity>
     
-  <entity class="org.apache.syncope.persistence.jpa.entity.JPAPolicy">
+  <entity class="org.apache.syncope.server.persistence.jpa.entity.JPAPolicy">
     <attributes>
       <id name="id">
         <generated-value generator="SEQ_Policy" strategy="TABLE"/>
@@ -312,7 +312,7 @@ under the License.
     </attributes>
   </entity>
 
-  <entity class="org.apache.syncope.persistence.jpa.entity.JPAReport">
+  <entity class="org.apache.syncope.server.persistence.jpa.entity.JPAReport">
     <attributes>
       <id name="id">
         <generated-value generator="SEQ_Report" strategy="TABLE"/>
@@ -320,7 +320,7 @@ under the License.
       </id>
     </attributes>
   </entity>
-  <entity class="org.apache.syncope.persistence.jpa.entity.JPAReportExec">
+  <entity class="org.apache.syncope.server.persistence.jpa.entity.JPAReportExec">
     <attributes>
       <id name="id">
         <generated-value generator="SEQ_ReportExec" strategy="TABLE"/>
@@ -328,7 +328,7 @@ under the License.
       </id>
     </attributes>
   </entity>
-  <entity class="org.apache.syncope.persistence.jpa.entity.JPAReportletConfInstance">
+  <entity class="org.apache.syncope.server.persistence.jpa.entity.JPAReportletConfInstance">
     <attributes>
       <id name="id">
         <generated-value generator="SEQ_ReportletConfInstance" strategy="TABLE"/>
@@ -336,7 +336,7 @@ under the License.
       </id>
     </attributes>
   </entity>
-  <entity class="org.apache.syncope.persistence.jpa.entity.JPANotification">
+  <entity class="org.apache.syncope.server.persistence.jpa.entity.JPANotification">
     <attributes>
       <id name="id">
         <generated-value generator="SEQ_Notification" strategy="TABLE"/>
@@ -344,7 +344,7 @@ under the License.
       </id>
     </attributes>
   </entity>
-  <entity class="org.apache.syncope.persistence.jpa.entity.JPASecurityQuestion">
+  <entity class="org.apache.syncope.server.persistence.jpa.entity.JPASecurityQuestion">
     <attributes>
       <id name="id">
         <generated-value generator="SEQ_SecurityQuestion" strategy="TABLE"/>

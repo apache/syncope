@@ -95,7 +95,7 @@ under the License.
   <!-- User pre-defined schemas -->
   <UPlainSchema name="email" type="String"
                 mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
-                validatorClass="org.apache.syncope.persistence.jpa.attrvalue.validation.EmailAddressValidator"/>
+                validatorClass="org.apache.syncope.server.persistence.jpa.attrvalue.validation.EmailAddressValidator"/>
   
   <!-- Password reset notifications -->
   <Notification id="1" active="1" recipientAttrName="email" recipientAttrType="UserSchema" selfAsRecipient="1" 

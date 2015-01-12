@@ -45,16 +45,19 @@ import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ReportExecExportFormat;
 import org.apache.syncope.common.lib.types.ReportExecStatus;
-import org.apache.syncope.persistence.api.dao.NotFoundException;
-import org.apache.syncope.persistence.api.dao.ReportDAO;
-import org.apache.syncope.persistence.api.dao.ReportExecDAO;
-import org.apache.syncope.persistence.api.dao.search.OrderByClause;
-import org.apache.syncope.persistence.api.entity.EntityFactory;
-import org.apache.syncope.persistence.api.entity.Report;
-import org.apache.syncope.persistence.api.entity.ReportExec;
-import org.apache.syncope.server.logic.data.ReportDataBinder;
+import org.apache.syncope.server.persistence.api.dao.NotFoundException;
+import org.apache.syncope.server.persistence.api.dao.ReportDAO;
+import org.apache.syncope.server.persistence.api.dao.ReportExecDAO;
+import org.apache.syncope.server.persistence.api.dao.search.OrderByClause;
+import org.apache.syncope.server.persistence.api.entity.EntityFactory;
+import org.apache.syncope.server.persistence.api.entity.Report;
+import org.apache.syncope.server.persistence.api.entity.ReportExec;
+import org.apache.syncope.server.provisioning.api.data.ReportDataBinder;
+import org.apache.syncope.server.provisioning.api.job.JobNamer;
+import org.apache.syncope.server.logic.init.ImplementationClassNamesLoader;
 import org.apache.syncope.server.logic.init.JobInstanceLoader;
 import org.apache.syncope.server.logic.report.Reportlet;
+import org.apache.syncope.server.logic.report.ReportletConfClass;
 import org.apache.syncope.server.logic.report.TextSerializer;
 import org.apache.xmlgraphics.util.MimeConstants;
 import org.quartz.JobKey;
@@ -64,6 +67,7 @@ import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ClassUtils;
 
 @Component
 public class ReportLogic extends AbstractTransactionalLogic<ReportTO> {
@@ -86,6 +90,9 @@ public class ReportLogic extends AbstractTransactionalLogic<ReportTO> {
     @Autowired
     private EntityFactory entityFactory;
 
+    @Autowired
+    private ImplementationClassNamesLoader classNamesLoader;
+
     @PreAuthorize("hasRole('REPORT_CREATE')")
     public ReportTO create(final ReportTO reportTO) {
         Report report = entityFactory.newEntity(Report.class);
@@ -107,9 +114,9 @@ public class ReportLogic extends AbstractTransactionalLogic<ReportTO> {
 
     @PreAuthorize("hasRole('REPORT_UPDATE')")
     public ReportTO update(final ReportTO reportTO) {
-        Report report = reportDAO.find(reportTO.getId());
+        Report report = reportDAO.find(reportTO.getKey());
         if (report == null) {
-            throw new NotFoundException("Report " + reportTO.getId());
+            throw new NotFoundException("Report " + reportTO.getKey());
         }
 
         binder.getReport(report, reportTO);
@@ -136,20 +143,60 @@ public class ReportLogic extends AbstractTransactionalLogic<ReportTO> {
     @PreAuthorize("hasRole('REPORT_LIST')")
     public List<ReportTO> list(final int page, final int size, final List<OrderByClause> orderByClauses) {
         List<Report> reports = reportDAO.findAll(page, size, orderByClauses);
-        List<ReportTO> result = new ArrayList<ReportTO>(reports.size());
+        List<ReportTO> result = new ArrayList<>(reports.size());
         for (Report report : reports) {
             result.add(binder.getReportTO(report));
         }
         return result;
     }
 
+    private Class<? extends ReportletConf> getReportletConfClass(final Class<Reportlet> reportletClass) {
+        Class<? extends ReportletConf> result = null;
+
+        ReportletConfClass annotation = reportletClass.getAnnotation(ReportletConfClass.class);
+        if (annotation != null) {
+            result = annotation.value();
+        }
+
+        return result;
+    }
+
+    public Class<Reportlet> findReportletClassHavingConfClass(final Class<? extends ReportletConf> reportletConfClass) {
+        Class<Reportlet> result = null;
+        for (Class<Reportlet> reportletClass : getAllReportletClasses()) {
+            Class<? extends ReportletConf> found = getReportletConfClass(reportletClass);
+            if (found != null && found.equals(reportletConfClass)) {
+                result = reportletClass;
+            }
+        }
+
+        return result;
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    private Set<Class<Reportlet>> getAllReportletClasses() {
+        Set<Class<Reportlet>> reportletClasses = new HashSet<>();
+
+        for (String className : classNamesLoader.getClassNames(ImplementationClassNamesLoader.Type.REPORTLET)) {
+            try {
+                Class reportletClass = ClassUtils.forName(className, ClassUtils.getDefaultClassLoader());
+                reportletClasses.add(reportletClass);
+            } catch (ClassNotFoundException e) {
+                LOG.warn("Could not load class {}", className);
+            } catch (LinkageError e) {
+                LOG.warn("Could not link class {}", className);
+            }
+        }
+        return reportletClasses;
+    }
+
     @PreAuthorize("hasRole('REPORT_LIST')")
     @SuppressWarnings("rawtypes")
     public Set<String> getReportletConfClasses() {
-        Set<String> reportletConfClasses = new HashSet<String>();
+        Set<String> reportletConfClasses = new HashSet<>();
 
-        for (Class<Reportlet> reportletClass : binder.getAllReportletClasses()) {
-            Class<? extends ReportletConf> reportletConfClass = binder.getReportletConfClass(reportletClass);
+        for (Class<Reportlet> reportletClass : getAllReportletClasses()) {
+            Class<? extends ReportletConf> reportletConfClass = getReportletConfClass(reportletClass);
             if (reportletConfClass != null) {
                 reportletConfClasses.add(reportletConfClass.getName());
             }
@@ -270,7 +317,7 @@ public class ReportLogic extends AbstractTransactionalLogic<ReportTO> {
             jobInstanceLoader.registerJob(report);
 
             scheduler.getScheduler().triggerJob(
-                    new JobKey(JobInstanceLoader.getJobName(report), Scheduler.DEFAULT_GROUP));
+                    new JobKey(JobNamer.getJobName(report), Scheduler.DEFAULT_GROUP));
         } catch (Exception e) {
             LOG.error("While executing report {}", report, e);
 
@@ -329,7 +376,7 @@ public class ReportLogic extends AbstractTransactionalLogic<ReportTO> {
                 if (args[i] instanceof Long) {
                     id = (Long) args[i];
                 } else if (args[i] instanceof ReportTO) {
-                    id = ((ReportTO) args[i]).getId();
+                    id = ((ReportTO) args[i]).getKey();
                 }
             }
         }

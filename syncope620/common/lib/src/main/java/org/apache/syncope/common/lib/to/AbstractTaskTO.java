@@ -39,22 +39,22 @@ public abstract class AbstractTaskTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = 386450127003321197L;
 
-    private long id;
+    private long key;
 
     private String latestExecStatus;
 
-    private List<TaskExecTO> executions = new ArrayList<>();
+    private final List<TaskExecTO> executions = new ArrayList<>();
 
     private Date startDate;
 
     private Date endDate;
 
-    public long getId() {
-        return id;
+    public long getKey() {
+        return key;
     }
 
-    public void setId(final long id) {
-        this.id = id;
+    public void setKey(final long key) {
+        this.key = key;
     }
 
     public String getLatestExecStatus() {

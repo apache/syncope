@@ -23,9 +23,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import org.apache.syncope.common.lib.wrap.EntitlementTO;
-import org.apache.syncope.persistence.api.dao.EntitlementDAO;
-import org.apache.syncope.persistence.api.entity.Entitlement;
-import org.apache.syncope.server.security.AuthContextUtil;
+import org.apache.syncope.server.persistence.api.dao.EntitlementDAO;
+import org.apache.syncope.server.persistence.api.entity.Entitlement;
+import org.apache.syncope.server.misc.security.AuthContextUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

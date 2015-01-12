@@ -36,12 +36,11 @@ under the License.
   <modules>
     <module>persistence-api</module>
     <module>persistence-jpa</module>
-    <module>spring</module>
-    <module>security</module>
-    <module>utils</module>
+    <module>misc</module>
     <module>provisioning-api</module>
-    <module>provisioning-common</module>
+    <module>provisioning-java</module>
     <module>workflow-api</module>
+    <module>workflow-java</module>
     <module>logic</module>
   </modules>
 

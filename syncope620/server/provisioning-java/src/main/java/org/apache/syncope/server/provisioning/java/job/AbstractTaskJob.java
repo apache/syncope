@@ -1,0 +1,183 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+package org.apache.syncope.server.provisioning.java.job;
+
+import java.util.Date;
+import org.apache.syncope.common.lib.types.AuditElements;
+import org.apache.syncope.common.lib.types.AuditElements.Result;
+import org.apache.syncope.server.persistence.api.dao.TaskDAO;
+import org.apache.syncope.server.persistence.api.dao.TaskExecDAO;
+import org.apache.syncope.server.persistence.api.entity.EntityFactory;
+import org.apache.syncope.server.persistence.api.entity.task.Task;
+import org.apache.syncope.server.persistence.api.entity.task.TaskExec;
+import org.apache.syncope.server.provisioning.api.job.TaskJob;
+import org.apache.syncope.server.misc.AuditManager;
+import org.apache.syncope.server.provisioning.java.notification.NotificationManager;
+import org.apache.syncope.server.misc.ExceptionUtil;
+import org.quartz.DisallowConcurrentExecution;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
+/**
+ * Abstract job implementation that delegates to concrete implementation the actual job execution and provides some
+ * base features.
+ * <strong>Extending this class will not provide support transaction management.</strong><br/>
+ * Extend <tt>AbstractTransactionalTaskJob</tt> for this purpose.
+ *
+ * @see AbstractTransactionalTaskJob
+ */
+@DisallowConcurrentExecution
+public abstract class AbstractTaskJob implements TaskJob {
+
+    public static final String DRY_RUN_JOBDETAIL_KEY = "dryRun";
+
+    /**
+     * Task execution status.
+     */
+    public enum Status {
+
+        SUCCESS,
+        FAILURE
+
+    }
+
+    /**
+     * Logger.
+     */
+    protected static final Logger LOG = LoggerFactory.getLogger(AbstractTaskJob.class);
+
+    /**
+     * Task DAO.
+     */
+    @Autowired
+    protected TaskDAO taskDAO;
+
+    /**
+     * Task execution DAO.
+     */
+    @Autowired
+    private TaskExecDAO taskExecDAO;
+
+    /**
+     * Notification manager.
+     */
+    @Autowired
+    private NotificationManager notificationManager;
+
+    /**
+     * Audit manager.
+     */
+    @Autowired
+    private AuditManager auditManager;
+
+    @Autowired
+    private EntityFactory entityFactory;
+
+    /**
+     * Id, set by the caller, for identifying the task to be executed.
+     */
+    protected Long taskId;
+
+    /**
+     * The actual task to be executed.
+     */
+    protected Task task;
+
+    /**
+     * Task id setter.
+     *
+     * @param taskId to be set
+     */
+    @Override
+    public void setTaskId(final Long taskId) {
+        this.taskId = taskId;
+    }
+
+    @Override
+    public void execute(final JobExecutionContext context) throws JobExecutionException {
+        task = taskDAO.find(taskId);
+        if (task == null) {
+            throw new JobExecutionException("Task " + taskId + " not found");
+        }
+
+        TaskExec execution = entityFactory.newEntity(TaskExec.class);
+        execution.setStartDate(new Date());
+        execution.setTask(task);
+
+        Result result;
+
+        try {
+            execution.setMessage(doExecute(context.getMergedJobDataMap().getBoolean(DRY_RUN_JOBDETAIL_KEY)));
+            execution.setStatus(Status.SUCCESS.name());
+            result = Result.SUCCESS;
+        } catch (JobExecutionException e) {
+            LOG.error("While executing task " + taskId, e);
+            result = Result.FAILURE;
+
+            execution.setMessage(ExceptionUtil.getFullStackTrace(e));
+            execution.setStatus(Status.FAILURE.name());
+        }
+        execution.setEndDate(new Date());
+
+        if (hasToBeRegistered(execution)) {
+            taskExecDAO.saveAndAdd(taskId, execution);
+        }
+        task = taskDAO.save(task);
+
+        notificationManager.createTasks(
+                AuditElements.EventCategoryType.TASK,
+                this.getClass().getSimpleName(),
+                null,
+                this.getClass().getSimpleName(), // searching for before object is too much expensive ...
+                result,
+                task,
+                execution);
+
+        auditManager.audit(
+                AuditElements.EventCategoryType.TASK,
+                task.getClass().getSimpleName(),
+                null,
+                null, // searching for before object is too much expensive ...
+                result,
+                task,
+                (Object[]) null);
+    }
+
+    /**
+     * The actual execution, delegated to child classes.
+     *
+     * @param dryRun whether to actually touch the data
+     * @return the task execution status to be set
+     * @throws JobExecutionException if anything goes wrong
+     */
+    protected abstract String doExecute(boolean dryRun) throws JobExecutionException;
+
+    /**
+     * Template method to determine whether this job's task execution has to be persisted or not.
+     *
+     * @param execution task execution
+     * @return wether to persist or not
+     */
+    protected boolean hasToBeRegistered(final TaskExec execution) {
+        return false;
+    }
+}

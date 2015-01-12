@@ -26,12 +26,13 @@ import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.types.TraceLevel;
-import org.apache.syncope.persistence.api.dao.TaskDAO;
-import org.apache.syncope.persistence.api.entity.EntityFactory;
-import org.apache.syncope.persistence.api.entity.task.NotificationTask;
-import org.apache.syncope.persistence.api.entity.task.TaskExec;
-import org.apache.syncope.server.logic.audit.AuditManager;
-import org.apache.syncope.server.utils.ExceptionUtil;
+import org.apache.syncope.server.persistence.api.dao.TaskDAO;
+import org.apache.syncope.server.persistence.api.entity.EntityFactory;
+import org.apache.syncope.server.persistence.api.entity.task.NotificationTask;
+import org.apache.syncope.server.persistence.api.entity.task.TaskExec;
+import org.apache.syncope.server.misc.AuditManager;
+import org.apache.syncope.server.provisioning.java.notification.NotificationManager;
+import org.apache.syncope.server.misc.ExceptionUtil;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
@@ -42,16 +43,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.stereotype.Component;
 
 /**
  * Periodically checks for notification to send.
  *
  * @see NotificationTask
  */
+@Component
 @DisallowConcurrentExecution
 public class NotificationJob implements Job {
 
-    enum Status {
+    public enum Status {
 
         SENT,
         NOT_SENT

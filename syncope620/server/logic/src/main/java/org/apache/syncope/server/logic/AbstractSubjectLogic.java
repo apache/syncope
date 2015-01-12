@@ -21,8 +21,8 @@ package org.apache.syncope.server.logic;
 import java.util.List;
 import org.apache.syncope.common.lib.mod.AbstractSubjectMod;
 import org.apache.syncope.common.lib.to.AbstractSubjectTO;
-import org.apache.syncope.persistence.api.dao.search.OrderByClause;
-import org.apache.syncope.persistence.api.dao.search.SearchCond;
+import org.apache.syncope.server.persistence.api.dao.search.OrderByClause;
+import org.apache.syncope.server.persistence.api.dao.search.SearchCond;
 
 public abstract class AbstractSubjectLogic<T extends AbstractSubjectTO, V extends AbstractSubjectMod>
         extends AbstractResourceAssociator<T> {

@@ -35,15 +35,15 @@ public class ReportTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = 5274568072084814410L;
 
-    private long id;
+    private long key;
 
     private String name;
 
-    private List<AbstractReportletConf> reportletConfs = new ArrayList<>();
+    private final List<AbstractReportletConf> reportletConfs = new ArrayList<>();
 
     private String cronExpression;
 
-    private List<ReportExecTO> executions = new ArrayList<>();
+    private final List<ReportExecTO> executions = new ArrayList<>();
 
     private String latestExecStatus;
 
@@ -55,12 +55,12 @@ public class ReportTO extends AbstractBaseBean {
 
     private Date endDate;
 
-    public long getId() {
-        return id;
+    public long getKey() {
+        return key;
     }
 
-    public void setId(long id) {
-        this.id = id;
+    public void setKey(long key) {
+        this.key = key;
     }
 
     public String getName() {

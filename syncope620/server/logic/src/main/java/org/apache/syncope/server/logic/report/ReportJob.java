@@ -33,14 +33,14 @@ import org.apache.commons.io.IOUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.report.ReportletConf;
 import org.apache.syncope.common.lib.types.ReportExecStatus;
-import org.apache.syncope.persistence.api.dao.ReportDAO;
-import org.apache.syncope.persistence.api.dao.ReportExecDAO;
-import org.apache.syncope.persistence.api.entity.EntityFactory;
-import org.apache.syncope.persistence.api.entity.Report;
-import org.apache.syncope.persistence.api.entity.ReportExec;
-import org.apache.syncope.server.logic.data.ReportDataBinder;
-import org.apache.syncope.server.spring.ApplicationContextProvider;
-import org.apache.syncope.server.utils.ExceptionUtil;
+import org.apache.syncope.server.persistence.api.dao.ReportDAO;
+import org.apache.syncope.server.persistence.api.dao.ReportExecDAO;
+import org.apache.syncope.server.persistence.api.entity.EntityFactory;
+import org.apache.syncope.server.persistence.api.entity.Report;
+import org.apache.syncope.server.persistence.api.entity.ReportExec;
+import org.apache.syncope.server.logic.ReportLogic;
+import org.apache.syncope.server.misc.spring.ApplicationContextProvider;
+import org.apache.syncope.server.misc.ExceptionUtil;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
@@ -75,11 +75,8 @@ public class ReportJob implements Job {
     @Autowired
     private ReportExecDAO reportExecDAO;
 
-    /**
-     * Report data binder.
-     */
     @Autowired
-    private ReportDataBinder dataBinder;
+    private ReportLogic dataBinder;
 
     @Autowired
     private EntityFactory entityFactory;

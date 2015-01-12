@@ -23,12 +23,12 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.to.SecurityQuestionTO;
-import org.apache.syncope.persistence.api.dao.NotFoundException;
-import org.apache.syncope.persistence.api.dao.SecurityQuestionDAO;
-import org.apache.syncope.persistence.api.dao.UserDAO;
-import org.apache.syncope.persistence.api.entity.user.SecurityQuestion;
-import org.apache.syncope.persistence.api.entity.user.User;
-import org.apache.syncope.server.logic.data.SecurityQuestionDataBinder;
+import org.apache.syncope.server.persistence.api.dao.NotFoundException;
+import org.apache.syncope.server.persistence.api.dao.SecurityQuestionDAO;
+import org.apache.syncope.server.persistence.api.dao.UserDAO;
+import org.apache.syncope.server.persistence.api.entity.user.SecurityQuestion;
+import org.apache.syncope.server.persistence.api.entity.user.User;
+import org.apache.syncope.server.provisioning.api.data.SecurityQuestionDataBinder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
@@ -47,7 +47,7 @@ public class SecurityQuestionLogic extends AbstractTransactionalLogic<SecurityQu
 
     @PreAuthorize("isAuthenticated()")
     public List<SecurityQuestionTO> list() {
-        List<SecurityQuestionTO> result = new ArrayList<SecurityQuestionTO>();
+        List<SecurityQuestionTO> result = new ArrayList<>();
         for (SecurityQuestion securityQuestion : securityQuestionDAO.findAll()) {
             result.add(binder.getSecurityQuestionTO(securityQuestion));
         }

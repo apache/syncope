@@ -18,12 +18,12 @@
  */
 package org.apache.syncope.server.workflow.api;
 
-import org.apache.syncope.provisioning.api.WorkflowResult;
+import org.apache.syncope.server.provisioning.api.WorkflowResult;
 import java.io.OutputStream;
 import java.util.List;
 import org.apache.syncope.common.lib.mod.AbstractAttributableMod;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
-import org.apache.syncope.persistence.api.dao.NotFoundException;
+import org.apache.syncope.server.persistence.api.dao.NotFoundException;
 
 public interface WorkflowAdapter {
 

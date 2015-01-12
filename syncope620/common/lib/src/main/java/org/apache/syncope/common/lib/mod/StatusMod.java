@@ -45,9 +45,9 @@ public class StatusMod extends AbstractBaseBean {
     }
 
     /**
-     * Id of user to for which status update is requested.
+     * Key of user to for which status update is requested.
      */
-    private long id;
+    private long key;
 
     private ModType type;
 
@@ -66,12 +66,12 @@ public class StatusMod extends AbstractBaseBean {
      */
     private final List<String> resourceNames = new ArrayList<>();
 
-    public long getId() {
-        return id;
+    public long getKey() {
+        return key;
     }
 
-    public void setId(long id) {
-        this.id = id;
+    public void setKey(long key) {
+        this.key = key;
     }
 
     public ModType getType() {

@@ -38,7 +38,7 @@ public abstract class AbstractPolicyTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = -2903888572649721035L;
 
-    private long id;
+    private long key;
 
     private String description;
 
@@ -48,12 +48,12 @@ public abstract class AbstractPolicyTO extends AbstractBaseBean {
 
     private final List<Long> usedByRoles = new ArrayList<>();
 
-    public long getId() {
-        return id;
+    public long getKey() {
+        return key;
     }
 
-    public void setId(long id) {
-        this.id = id;
+    public void setKey(long key) {
+        this.key = key;
     }
 
     public String getDescription() {

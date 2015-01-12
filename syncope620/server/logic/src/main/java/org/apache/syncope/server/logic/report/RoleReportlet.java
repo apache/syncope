@@ -31,15 +31,15 @@ import org.apache.syncope.common.lib.to.AbstractSubjectTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.types.SubjectType;
-import org.apache.syncope.persistence.api.RoleEntitlementUtil;
-import org.apache.syncope.persistence.api.dao.EntitlementDAO;
-import org.apache.syncope.persistence.api.dao.RoleDAO;
-import org.apache.syncope.persistence.api.dao.SubjectSearchDAO;
-import org.apache.syncope.persistence.api.dao.search.OrderByClause;
-import org.apache.syncope.persistence.api.entity.membership.Membership;
-import org.apache.syncope.persistence.api.entity.role.Role;
-import org.apache.syncope.server.logic.data.RoleDataBinder;
-import org.apache.syncope.server.logic.search.SearchCondConverter;
+import org.apache.syncope.server.persistence.api.RoleEntitlementUtil;
+import org.apache.syncope.server.persistence.api.dao.EntitlementDAO;
+import org.apache.syncope.server.persistence.api.dao.RoleDAO;
+import org.apache.syncope.server.persistence.api.dao.SubjectSearchDAO;
+import org.apache.syncope.server.persistence.api.dao.search.OrderByClause;
+import org.apache.syncope.server.persistence.api.entity.membership.Membership;
+import org.apache.syncope.server.persistence.api.entity.role.Role;
+import org.apache.syncope.server.provisioning.java.data.RoleDataBinderImpl;
+import org.apache.syncope.server.misc.search.SearchCondConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
@@ -60,7 +60,7 @@ public class RoleReportlet extends AbstractReportlet<RoleReportletConf> {
     private SubjectSearchDAO searchDAO;
 
     @Autowired
-    private RoleDataBinder roleDataBinder;
+    private RoleDataBinderImpl roleDataBinder;
 
     private List<Role> getPagedRoles(final int page) {
         final Set<Long> adminRoleIds = RoleEntitlementUtil.getRoleKeys(entitlementDAO.findAll());

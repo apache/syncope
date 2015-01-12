@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.server.logic;
 
-import org.apache.syncope.server.security.UnauthorizedRoleException;
+import org.apache.syncope.server.misc.security.UnauthorizedRoleException;
 import java.lang.reflect.Method;
 import java.security.AccessControlException;
 import java.util.ArrayList;
@@ -41,22 +41,23 @@ import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.SubjectType;
-import org.apache.syncope.persistence.api.RoleEntitlementUtil;
-import org.apache.syncope.persistence.api.dao.ConfDAO;
-import org.apache.syncope.persistence.api.dao.NotFoundException;
-import org.apache.syncope.persistence.api.dao.RoleDAO;
-import org.apache.syncope.persistence.api.dao.SubjectSearchDAO;
-import org.apache.syncope.persistence.api.dao.UserDAO;
-import org.apache.syncope.persistence.api.dao.search.OrderByClause;
-import org.apache.syncope.persistence.api.dao.search.SearchCond;
-import org.apache.syncope.persistence.api.entity.role.Role;
-import org.apache.syncope.persistence.api.entity.user.User;
-import org.apache.syncope.provisioning.api.AttributableTransformer;
-import org.apache.syncope.provisioning.api.UserProvisioningManager;
-import org.apache.syncope.provisioning.api.propagation.PropagationManager;
-import org.apache.syncope.provisioning.api.propagation.PropagationTaskExecutor;
-import org.apache.syncope.server.logic.data.UserDataBinder;
-import org.apache.syncope.server.security.AuthContextUtil;
+import org.apache.syncope.server.persistence.api.RoleEntitlementUtil;
+import org.apache.syncope.server.persistence.api.dao.ConfDAO;
+import org.apache.syncope.server.persistence.api.dao.NotFoundException;
+import org.apache.syncope.server.persistence.api.dao.RoleDAO;
+import org.apache.syncope.server.persistence.api.dao.SubjectSearchDAO;
+import org.apache.syncope.server.persistence.api.dao.UserDAO;
+import org.apache.syncope.server.persistence.api.dao.search.OrderByClause;
+import org.apache.syncope.server.persistence.api.dao.search.SearchCond;
+import org.apache.syncope.server.persistence.api.entity.role.Role;
+import org.apache.syncope.server.persistence.api.entity.user.User;
+import org.apache.syncope.server.provisioning.api.AttributableTransformer;
+import org.apache.syncope.server.provisioning.api.UserProvisioningManager;
+import org.apache.syncope.server.provisioning.api.data.UserDataBinder;
+import org.apache.syncope.server.provisioning.api.propagation.PropagationManager;
+import org.apache.syncope.server.provisioning.api.propagation.PropagationTaskExecutor;
+import org.apache.syncope.server.provisioning.java.VirAttrHandler;
+import org.apache.syncope.server.misc.security.AuthContextUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
@@ -84,6 +85,9 @@ public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
 
     @Autowired
     protected UserDataBinder binder;
+
+    @Autowired
+    protected VirAttrHandler virtAttrHandler;
 
     @Autowired
     protected PropagationManager propagationManager;
@@ -191,7 +195,7 @@ public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
 
     @PreAuthorize("hasRole('USER_CREATE')")
     public UserTO create(final UserTO userTO, final boolean storePassword) {
-        Set<Long> requestRoleIds = new HashSet<Long>(userTO.getMemberships().size());
+        Set<Long> requestRoleIds = new HashSet<>(userTO.getMemberships().size());
         for (MembershipTO membership : userTO.getMemberships()) {
             requestRoleIds.add(membership.getRoleId());
         }
@@ -238,7 +242,7 @@ public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
         // SYNCOPE-501: check if there are memberships to be removed with virtual attributes assigned
         boolean removeMemberships = false;
         for (Long membershipId : actual.getMembershipsToRemove()) {
-            if (!binder.fillMembershipVirtual(
+            if (!virtAttrHandler.fillMembershipVirtual(
                     null,
                     null,
                     membershipId,
@@ -283,7 +287,7 @@ public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
     @PreAuthorize("hasRole('USER_UPDATE')")
     @Transactional(rollbackFor = { Throwable.class })
     public UserTO status(final StatusMod statusMod) {
-        User user = userDAO.authFecthUser(statusMod.getId());
+        User user = userDAO.authFetch(statusMod.getKey());
 
         Map.Entry<Long, List<PropagationStatus>> updated = setStatusOnWfAdapter(user, statusMod);
         final UserTO savedTO = binder.getUserTO(updated.getKey());
@@ -382,7 +386,7 @@ public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
             case SUSPEND:
                 for (String key : bulkAction.getTargets()) {
                     StatusMod statusMod = new StatusMod();
-                    statusMod.setId(Long.valueOf(key));
+                    statusMod.setKey(Long.valueOf(key));
                     statusMod.setType(StatusMod.ModType.SUSPEND);
                     try {
                         res.add(status(statusMod).getKey(), Status.SUCCESS);
@@ -396,7 +400,7 @@ public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
             case REACTIVATE:
                 for (String key : bulkAction.getTargets()) {
                     StatusMod statusMod = new StatusMod();
-                    statusMod.setId(Long.valueOf(key));
+                    statusMod.setKey(Long.valueOf(key));
                     statusMod.setType(StatusMod.ModType.REACTIVATE);
                     try {
                         res.add(status(statusMod).getKey(), Status.SUCCESS);
@@ -473,7 +477,7 @@ public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
     @Transactional(rollbackFor = { Throwable.class })
     @Override
     public UserTO deprovision(final Long key, final Collection<String> resources) {
-        final User user = userDAO.authFecthUser(key);
+        final User user = userDAO.authFetch(key);
 
         List<PropagationStatus> statuses = provisioningManager.deprovision(key, resources);
 

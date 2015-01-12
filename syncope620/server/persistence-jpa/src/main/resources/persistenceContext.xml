@@ -34,16 +34,6 @@ under the License.
   
   <import resource="persistenceContextEMFactory.xml"/>
 
-  <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-    <property name="locations">
-      <list>
-        <value>classpath:persistence.properties</value>
-      </list>
-    </property>
-    <property name="ignoreResourceNotFound" value="true"/>
-    <property name="ignoreUnresolvablePlaceholders" value="true"/>
-  </bean>
-
   <bean id="nonJPAdbInitializer" class="org.springframework.jdbc.datasource.init.DataSourceInitializer">
     <property name="dataSource" ref="dataSource"/>
     <property name="enabled" value="true"/>
@@ -64,24 +54,24 @@ under the License.
   </bean>
   
   <context:annotation-config/>
-  <context:component-scan base-package="org.apache.syncope.persistence.jpa"/>
+  <context:component-scan base-package="org.apache.syncope.server.persistence.jpa"/>
 
   <bean id="database.schema" class="java.lang.String">
     <constructor-arg value="${database.schema}"/>
   </bean>
-  <bean id="persistenceProperties" class="org.apache.syncope.server.spring.ResourceWithFallbackLoader">
+  <bean id="persistenceProperties" class="org.apache.syncope.server.misc.spring.ResourceWithFallbackLoader">
     <property name="primary" value="file:${conf.directory}/persistence.properties"/>
     <property name="fallback" value="classpath:persistence.properties"/>
   </bean>
-  <bean id="contentXML" class="org.apache.syncope.server.spring.ResourceWithFallbackLoader">
+  <bean id="contentXML" class="org.apache.syncope.server.misc.spring.ResourceWithFallbackLoader">
     <property name="primary" value="file:${conf.directory}/content.xml"/>
     <property name="fallback" value="classpath:content.xml"/>
   </bean>
-  <bean id="viewsXML" class="org.apache.syncope.server.spring.ResourceWithFallbackLoader">
+  <bean id="viewsXML" class="org.apache.syncope.server.misc.spring.ResourceWithFallbackLoader">
     <property name="primary" value="file:${conf.directory}/views.xml"/>
     <property name="fallback" value="classpath:views.xml"/>
   </bean>
-  <bean id="indexesXML" class="org.apache.syncope.server.spring.ResourceWithFallbackLoader">
+  <bean id="indexesXML" class="org.apache.syncope.server.misc.spring.ResourceWithFallbackLoader">
     <property name="primary" value="file:${conf.directory}/indexes.xml"/>
     <property name="fallback" value="classpath:indexes.xml"/>
   </bean>
