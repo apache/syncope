@@ -23,19 +23,43 @@ under the License.
 
   <parent>
     <groupId>org.apache.syncope</groupId>
-    <artifactId>syncope</artifactId>
+    <artifactId>syncope-common</artifactId>
     <version>2.0.0-SNAPSHOT</version>
   </parent>
 
-  <name>Apache Syncope Common</name>
-  <description>Apache Syncope Common</description>
-  <groupId>org.apache.syncope</groupId>
-  <artifactId>syncope-common</artifactId>
-  <packaging>pom</packaging>
+  <name>Apache Syncope Common REST API</name>
+  <description>Apache Syncope Common REST API</description>
+  <groupId>org.apache.syncope.common</groupId>
+  <artifactId>syncope-common-rest-api</artifactId>
+  <packaging>jar</packaging>
 
-  <modules>
-    <module>lib</module>
-    <module>rest-api</module>
-  </modules>
+  <dependencies>
+    <dependency>
+      <groupId>javax.validation</groupId>
+      <artifactId>validation-api</artifactId>
+    </dependency>
 
+    <dependency>
+      <groupId>javax.ws.rs</groupId>
+      <artifactId>javax.ws.rs-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.cxf</groupId>
+      <artifactId>cxf-rt-frontend-jaxrs</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.cxf</groupId>
+      <artifactId>cxf-rt-rs-extension-search</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.cxf</groupId>
+      <artifactId>cxf-rt-rs-service-description</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.syncope.common</groupId>
+      <artifactId>syncope-common-lib</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+  </dependencies>
 </project>
