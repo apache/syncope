@@ -820,5 +820,6 @@ under the License.
   <modules>
     <module>common</module>
     <module>server</module>
+    <module>client</module>
   </modules>
 </project>
