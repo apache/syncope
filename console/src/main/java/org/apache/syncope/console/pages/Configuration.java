@@ -809,8 +809,8 @@ public class Configuration extends BasePage {
 
                             @Override
                             public Page createPage() {
-                                return new RouteModalPage(Configuration.this.getPageReference(), editRouteWin, routeRestClient.readRoute(model.getObject().getId()), false);
-                                //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                                return new RouteModalPage(Configuration.this.getPageReference(), editRouteWin, 
+                                        routeRestClient.readRoute(model.getObject().getId(),model.getObject().getSubject()), false);                                
                             }
 
                         });

@@ -33,12 +33,15 @@ import org.apache.camel.model.Constants;
 import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.spring.SpringCamelContext;
 import org.apache.syncope.common.types.SubjectType;
+import org.apache.syncope.core.init.CamelRouteLoader;
 import org.apache.syncope.core.persistence.beans.CamelRoute;
 import org.apache.syncope.core.persistence.dao.RouteDAO;
 import org.apache.syncope.core.util.ApplicationContextProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -59,12 +62,9 @@ public class SyncopeCamelContext {
         }
         if (camelContext.getRouteDefinitions().isEmpty()) {
 
-            List<CamelRoute> crl = new ArrayList<CamelRoute>();
-            crl.addAll(routeDAO.findAll(SubjectType.USER));
-            crl.addAll(routeDAO.findAll(SubjectType.ROLE));
-            LOG.info("{} route(s) are going to be loaded ", crl.size());
+            List<CamelRoute> crl = routeDAO.findAll();
+            LOG.debug("{} route(s) are going to be loaded ", crl.size());
             loadContext(routeDAO, crl);
-
             try {
                 camelContext.start();
             } catch (Exception ex) {

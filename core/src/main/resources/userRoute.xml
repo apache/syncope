@@ -27,8 +27,7 @@ under the License.
   <!--
       The default routes define each task involved in user creation:
       main operations consist in user workflow creation and its propagation.         
-  -->
-  <routeContext id="defaultUserRoutes" xmlns="http://camel.apache.org/schema/spring">  	
+  -->  	
     <!--
         CREATE USER
         This is the entry point of the route and is involved in accepting
@@ -307,5 +306,4 @@ under the License.
       </doTry>
     </route>
 
-  </routeContext>
 </beans>

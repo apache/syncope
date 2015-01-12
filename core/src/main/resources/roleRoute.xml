@@ -28,7 +28,6 @@ under the License.
       The default routes define each task involved in user creation:
       main operations consist in user workflow creation and its propagation.         
   -->
-  <routeContext id="defaultRoleRoutes" xmlns="http://camel.apache.org/schema/spring"> 
     <!--
         CREATE ROLE
     -->
@@ -170,5 +169,4 @@ under the License.
       <process ref="defaultRoleDeprovisionPropagation" />
       <to uri="direct:deprovisionRolePort"/>              
     </route>
-  </routeContext>
 </beans>

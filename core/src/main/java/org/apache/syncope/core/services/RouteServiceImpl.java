@@ -69,8 +69,8 @@ public class RouteServiceImpl extends AbstractServiceImpl implements RouteServic
     }
     
     @Override
-    public RouteTO getRoute(SubjectType subject, Long Id) {
-        return controller.readRoute(Id, subject);
+    public RouteTO getRoute(SubjectType subject, Long id) {
+        return controller.readRoute(id);
     }
 
     @Override

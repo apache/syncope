@@ -62,7 +62,7 @@ public class RouteModalPage extends BaseModalPage{
                     @Override
                     protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                         try {
-                            restClient.updateRoute(routeTO.getId(), ((RouteTO)form.getModelObject()).getRouteContent());
+                            restClient.updateRoute(routeTO.getId(), ((RouteTO)form.getModelObject()).getRouteContent(), routeTO.getSubject());
                             info(getString(Constants.OPERATION_SUCCEEDED));
                             
                             Configuration callerPage = (Configuration) pageRef.getPage();

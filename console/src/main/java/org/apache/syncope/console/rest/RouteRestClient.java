@@ -37,14 +37,14 @@ public class RouteRestClient extends BaseRestClient{
         return getService(RouteService.class).getRoutes(subject);
     }
     
-    public RouteTO readRoute(Long id){
-        return getService(RouteService.class).getRoute(id);
+    public RouteTO readRoute(final Long id, final SubjectType subject){
+        return getService(RouteService.class).getRoute(subject,id);
     }
     
-    public void updateRoute(Long id, String definition){
-        RouteTO routeTO = readRoute(id);        
+    public void updateRoute(Long id, String definition, final SubjectType subject){
+        RouteTO routeTO = readRoute(id,subject);        
         routeTO.setRouteContent(definition);     
-        getService(RouteService.class).importRoute(routeTO.getId(), routeTO);
+        getService(RouteService.class).importRoute(subject, routeTO.getId(), routeTO);
     }
     
     public boolean isCamelEnabledForUsers() {
