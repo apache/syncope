@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.rest.api;
+package org.apache.syncope.common.rest.api.service;
 
 import java.util.List;
 import javax.validation.constraints.NotNull;
@@ -55,16 +55,16 @@ public interface PolicyService extends JAXRSService {
     List<CorrelationRuleClass> getSyncCorrelationRuleClasses();
 
     /**
-     * Returns the policy matching the given id.
+     * Returns the policy matching the given key.
      *
-     * @param policyId id of requested policy
+     * @param policyKey key of requested policy
      * @param <T> response type (extending PolicyTO)
      * @return policy with matching id
      */
     @GET
-    @Path("{policyId}")
+    @Path("{policyKey}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    <T extends AbstractPolicyTO> T read(@NotNull @PathParam("policyId") Long policyId);
+    <T extends AbstractPolicyTO> T read(@NotNull @PathParam("policyKey") Long policyKey);
 
     /**
      * Returns the global policy for the given type.
@@ -104,25 +104,25 @@ public interface PolicyService extends JAXRSService {
     <T extends AbstractPolicyTO> Response create(@NotNull T policyTO);
 
     /**
-     * Updates policy matching the given id.
+     * Updates policy matching the given key.
      *
-     * @param policyId id of policy to be updated
+     * @param policyKey key of policy to be updated
      * @param policyTO Policy to replace existing policy
      * @param <T> response type (extending PolicyTO)
      */
     @PUT
-    @Path("{policyId}")
+    @Path("{policyKey}")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    <T extends AbstractPolicyTO> void update(@NotNull @PathParam("policyId") Long policyId, @NotNull T policyTO);
+    <T extends AbstractPolicyTO> void update(@NotNull @PathParam("policyKey") Long policyKey, @NotNull T policyTO);
 
     /**
-     * Delete policy matching the given id.
+     * Delete policy matching the given key.
      *
-     * @param policyId id of policy to be deleted
+     * @param policyKey key of policy to be deleted
      * @param <T> response type (extending PolicyTO)
      */
     @DELETE
-    @Path("{policyId}")
-    <T extends AbstractPolicyTO> void delete(@NotNull @PathParam("policyId") Long policyId);
+    @Path("{policyKey}")
+    <T extends AbstractPolicyTO> void delete(@NotNull @PathParam("policyKey") Long policyKey);
 
 }

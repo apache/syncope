@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.rest.api;
+package org.apache.syncope.common.rest.api.service;
 
 import java.util.List;
 import javax.validation.constraints.NotNull;
@@ -50,18 +50,18 @@ import org.apache.syncope.common.lib.wrap.SubjectId;
 public interface ResourceService extends JAXRSService {
 
     /**
-     * Returns connector object from the external resource, for the given type and id.
+     * Returns connector object from the external resource, for the given type and key.
      *
-     * @param resourceName Name of resource to read connector object from
+     * @param resourceKey Name of resource to read connector object from
      * @param type user / role
-     * @param id user id / role id
-     * @return connector object from the external resource, for the given type and id
+     * @param key user key / role key
+     * @return connector object from the external resource, for the given type and key
      */
     @GET
-    @Path("{resourceName}/{type}/{id}")
+    @Path("{resourceKey}/{type}/{id}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    ConnObjectTO getConnectorObject(@NotNull @PathParam("resourceName") String resourceName,
-            @NotNull @PathParam("type") SubjectType type, @NotNull @PathParam("id") Long id);
+    ConnObjectTO getConnectorObject(@NotNull @PathParam("resourceKey") String resourceKey,
+            @NotNull @PathParam("type") SubjectType type, @NotNull @PathParam("key") Long key);
 
     /**
      * Returns a list of classes that can be used to customize the propagation process.
@@ -76,13 +76,13 @@ public interface ResourceService extends JAXRSService {
     /**
      * Returns the resource with matching name.
      *
-     * @param resourceName Name of resource to be read
+     * @param resourceKey Name of resource to be read
      * @return resource with matching name
      */
     @GET
-    @Path("{resourceName}")
+    @Path("{resourceKey}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    ResourceTO read(@NotNull @PathParam("resourceName") String resourceName);
+    ResourceTO read(@NotNull @PathParam("resourceKey") String resourceKey);
 
     /**
      * Returns a list of all resources.
@@ -120,23 +120,23 @@ public interface ResourceService extends JAXRSService {
     /**
      * Updates the resource matching the given name.
      *
-     * @param resourceName name of resource to be updated
+     * @param resourceKey name of resource to be updated
      * @param resourceTO resource to be stored
      */
     @PUT
-    @Path("{resourceName}")
+    @Path("{resourceKey}")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    void update(@NotNull @PathParam("resourceName") String resourceName, @NotNull ResourceTO resourceTO);
+    void update(@NotNull @PathParam("resourceKey") String resourceKey, @NotNull ResourceTO resourceTO);
 
     /**
      * Deletes the resource matching the given name.
      *
-     * @param resourceName name of resource to be deleted
+     * @param resourceKey name of resource to be deleted
      */
     @DELETE
-    @Path("{resourceName}")
+    @Path("{resourceKey}")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    void delete(@NotNull @PathParam("resourceName") String resourceName);
+    void delete(@NotNull @PathParam("resourceKey") String resourceKey);
 
     /**
      * Checks wether the connection to resource could be established.
@@ -152,7 +152,7 @@ public interface ResourceService extends JAXRSService {
     /**
      * De-associate users or roles (depending on the provided subject type) from the given resource.
      *
-     * @param resourceName name of resource
+     * @param resourceKey name of resource
      * @param subjectType subject type (user or role)
      * @param type resource de-association action type
      * @param subjectIds users or roles against which the bulk action will be performed
@@ -163,10 +163,10 @@ public interface ResourceService extends JAXRSService {
                 value = "Featuring <tt>BulkActionResult</tt> as <tt>Entity</tt>")
     })
     @POST
-    @Path("{resourceName}/bulkDeassociation/{subjType}/{type}")
+    @Path("{resourceKey}/bulkDeassociation/{subjType}/{type}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    BulkActionResult bulkDeassociation(@NotNull @PathParam("resourceName") String resourceName,
+    BulkActionResult bulkDeassociation(@NotNull @PathParam("resourceKey") String resourceKey,
             @NotNull @PathParam("subjType") SubjectType subjectType,
             @NotNull @PathParam("type") ResourceDeassociationActionType type, @NotNull List<SubjectId> subjectIds);
 

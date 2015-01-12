@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.rest.api;
+package org.apache.syncope.common.rest.api.service;
 
 import java.util.List;
 import javax.validation.constraints.NotNull;
@@ -47,28 +47,28 @@ public interface UserWorkflowService extends JAXRSService {
     List<WorkflowFormTO> getForms();
 
     /**
-     * Returns a list of all available workflow forms with matching name, for the given user id.
+     * Returns a list of all available workflow forms with matching name, for the given user key.
      *
-     * @param userId user id
+     * @param userKey user key
      * @param name form name
-     * @return list of all available workflow forms with matching name, fir the given user id.
+     * @return list of all available workflow forms with matching name, fir the given user key.
      */
     @GET
-    @Path("forms/{userId}/{name}")
+    @Path("forms/{userKey}/{name}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     List<WorkflowFormTO> getFormsByName(
-            @NotNull @PathParam("userId") final Long userId, @NotNull @PathParam("name") final String name);
+            @NotNull @PathParam("userKey") final Long userKey, @NotNull @PathParam("name") final String name);
 
     /**
-     * Returns a list of available forms for the given user id.
+     * Returns a list of available forms for the given user key.
      *
-     * @param userId user id
-     * @return list of available forms for the given user id
+     * @param userKey user key
+     * @return list of available forms for the given user key
      */
     @GET
-    @Path("forms/{userId}")
+    @Path("forms/{userKey}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    WorkflowFormTO getFormForUser(@NotNull @PathParam("userId") Long userId);
+    WorkflowFormTO getFormForUser(@NotNull @PathParam("userKey") Long userKey);
 
     /**
      * Claims the form for the given task id.

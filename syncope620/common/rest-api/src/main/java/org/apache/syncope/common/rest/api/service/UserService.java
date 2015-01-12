@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.rest.api;
+package org.apache.syncope.common.rest.api.service;
 
 import java.util.List;
 import javax.validation.constraints.Min;
@@ -54,43 +54,43 @@ import org.apache.syncope.common.lib.wrap.ResourceName;
 public interface UserService extends JAXRSService {
 
     /**
-     * Gives the username for the provided user id.
+     * Gives the username for the provided user key.
      *
-     * @param userId user id
-     * @return <tt>Response</tt> object featuring HTTP header with username matching the given userId
+     * @param userKey user key
+     * @return <tt>Response</tt> object featuring HTTP header with username matching the given userKey
      */
     @Descriptions({
         @Description(target = DocTarget.RESPONSE,
-                value = "Featuring HTTP header with username matching the given userId")
+                value = "Featuring HTTP header with username matching the given userKey")
     })
     @OPTIONS
-    @Path("{userId}/username")
-    Response getUsername(@NotNull @PathParam("userId") Long userId);
+    @Path("{userKey}/username")
+    Response getUsername(@NotNull @PathParam("userKey") Long userKey);
 
     /**
-     * Gives the user id for the provided username.
+     * Gives the user key for the provided username.
      *
      * @param username username
-     * @return <tt>Response</tt> object featuring HTTP header with userId matching the given username
+     * @return <tt>Response</tt> object featuring HTTP header with userKey matching the given username
      */
     @Descriptions({
         @Description(target = DocTarget.RESPONSE,
-                value = "Featuring HTTP header with userId matching the given username")
+                value = "Featuring HTTP header with userKey matching the given username")
     })
     @OPTIONS
-    @Path("{username}/userId")
+    @Path("{username}/userKey")
     Response getUserId(@NotNull @PathParam("username") String username);
 
     /**
-     * Reads the user matching the provided userId.
+     * Reads the user matching the provided userKey.
      *
-     * @param userId id of user to be read
-     * @return User matching the provided userId
+     * @param userKey id of user to be read
+     * @return User matching the provided userKey
      */
     @GET
-    @Path("{userId}")
+    @Path("{userKey}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    UserTO read(@NotNull @PathParam("userId") Long userId);
+    UserTO read(@NotNull @PathParam("userKey") Long userKey);
 
     /**
      * Returns a paged list of existing users.
@@ -214,10 +214,10 @@ public interface UserService extends JAXRSService {
             @DefaultValue("true") @QueryParam("storePassword") boolean storePassword);
 
     /**
-     * Updates user matching the provided userId.
+     * Updates user matching the provided userKey.
      *
-     * @param userId id of user to be updated
-     * @param userMod modification to be applied to user matching the provided userId
+     * @param userKey id of user to be updated
+     * @param userMod modification to be applied to user matching the provided userKey
      * @return <tt>Response</tt> object featuring the updated user enriched with propagation status information
      * - {@link UserTO} as <tt>Entity</tt>
      */
@@ -227,15 +227,15 @@ public interface UserService extends JAXRSService {
                 + "<tt>UserTO</tt> as <tt>Entity</tt>")
     })
     @POST
-    @Path("{userId}")
+    @Path("{userKey}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    Response update(@NotNull @PathParam("userId") Long userId, @NotNull UserMod userMod);
+    Response update(@NotNull @PathParam("userKey") Long userKey, @NotNull UserMod userMod);
 
     /**
-     * Performs a status update on user matching provided userId.
+     * Performs a status update on user matching provided userKey.
      *
-     * @param userId id of user to be subjected to status update
+     * @param userKey id of user to be subjected to status update
      * @param statusMod status update details
      * @return <tt>Response</tt> object featuring the updated user enriched with propagation status information
      * - {@link UserTO} as <tt>Entity</tt>
@@ -246,15 +246,15 @@ public interface UserService extends JAXRSService {
                 + "<tt>UserTO</tt> as <tt>Entity</tt>")
     })
     @POST
-    @Path("{userId}/status")
+    @Path("{userKey}/status")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    Response status(@NotNull @PathParam("userId") Long userId, @NotNull StatusMod statusMod);
+    Response status(@NotNull @PathParam("userKey") Long userKey, @NotNull StatusMod statusMod);
 
     /**
-     * Deletes user matching provided userId.
+     * Deletes user matching provided userKey.
      *
-     * @param userId id of user to be deleted
+     * @param userKey id of user to be deleted
      * @return <tt>Response</tt> object featuring the deleted user enriched with propagation status information
      * - {@link UserTO} as <tt>Entity</tt>
      */
@@ -264,14 +264,14 @@ public interface UserService extends JAXRSService {
                 + "<tt>UserTO</tt> as <tt>Entity</tt>")
     })
     @DELETE
-    @Path("{userId}")
+    @Path("{userKey}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    Response delete(@NotNull @PathParam("userId") Long userId);
+    Response delete(@NotNull @PathParam("userKey") Long userKey);
 
     /**
      * Executes resource-related operations on given user.
      *
-     * @param userId user id
+     * @param userKey user key
      * @param type resource de-association action type
      * @param resourceNames external resources to be used for propagation-related operations
      * @return <tt>Response</tt> object featuring {@link BulkActionResult} as <tt>Entity</tt>
@@ -281,17 +281,17 @@ public interface UserService extends JAXRSService {
                 value = "Featuring <tt>BulkActionResult</tt> as <tt>Entity</tt>")
     })
     @POST
-    @Path("{userId}/bulkDeassociation/{type}")
+    @Path("{userKey}/bulkDeassociation/{type}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    Response bulkDeassociation(@NotNull @PathParam("userId") Long userId,
+    Response bulkDeassociation(@NotNull @PathParam("userKey") Long userKey,
             @NotNull @PathParam("type") ResourceDeassociationActionType type,
             @NotNull List<ResourceName> resourceNames);
 
     /**
      * Executes resource-related operations on given user.
      *
-     * @param userId user id.
+     * @param userKey user key.
      * @param type resource association action type
      * @param associationMod external resources to be used for propagation-related operations
      * @return <tt>Response</tt> object featuring {@link BulkActionResult} as <tt>Entity</tt>
@@ -300,17 +300,17 @@ public interface UserService extends JAXRSService {
         @Description(target = DocTarget.RESPONSE, value = "Featuring <tt>BulkActionResult</tt> as <tt>Entity</tt>")
     })
     @POST
-    @Path("{userId}/bulkAssociation/{type}")
+    @Path("{userKey}/bulkAssociation/{type}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    Response bulkAssociation(@NotNull @PathParam("userId") Long userId,
+    Response bulkAssociation(@NotNull @PathParam("userKey") Long userKey,
             @NotNull @PathParam("type") ResourceAssociationActionType type,
             @NotNull ResourceAssociationMod associationMod);
 
     /**
      * Executes the provided bulk action.
      *
-     * @param bulkAction list of user ids against which the bulk action will be performed.
+     * @param bulkAction list of user keys against which the bulk action will be performed.
      * @return Bulk action result
      */
     @POST

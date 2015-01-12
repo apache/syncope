@@ -42,6 +42,7 @@ under the License.
     <module>workflow-api</module>
     <module>workflow-java</module>
     <module>logic</module>
+    <module>rest-cxf</module>
   </modules>
 
 </project>

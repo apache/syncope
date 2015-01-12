@@ -93,6 +93,7 @@ public class WorkflowLogic extends AbstractTransactionalLogic<AbstractBaseBean> 
 
     private void importDefinition(
             final WorkflowAdapter adapter, final WorkflowDefinitionFormat format, final String definition) {
+
         adapter.importDefinition(format, definition);
     }
 

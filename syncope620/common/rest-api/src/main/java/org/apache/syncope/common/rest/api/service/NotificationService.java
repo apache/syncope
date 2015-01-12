@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.rest.api;
+package org.apache.syncope.common.rest.api.service;
 
 import java.util.List;
 import javax.validation.constraints.NotNull;
@@ -44,13 +44,13 @@ public interface NotificationService extends JAXRSService {
     /**
      * Returns notification with matching id.
      *
-     * @param notificationId id of notification to be read
-     * @return notification with matching id
+     * @param notificationKey key of notification to be read
+     * @return notification with matching key
      */
     @GET
-    @Path("{notificationId}")
+    @Path("{notificationKey}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    NotificationTO read(@NotNull @PathParam("notificationId") Long notificationId);
+    NotificationTO read(@NotNull @PathParam("notificationKey") Long notificationKey);
 
     /**
      * Returns a list of all notifications.
@@ -76,22 +76,22 @@ public interface NotificationService extends JAXRSService {
     Response create(@NotNull NotificationTO notificationTO);
 
     /**
-     * Updates the notification matching the given id.
+     * Updates the notification matching the given key.
      *
-     * @param notificationId id of notification to be updated
+     * @param notificationKey key of notification to be updated
      * @param notificationTO notification to be stored
      */
     @PUT
-    @Path("{notificationId}")
+    @Path("{notificationKey}")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    void update(@NotNull @PathParam("notificationId") Long notificationId, @NotNull NotificationTO notificationTO);
+    void update(@NotNull @PathParam("notificationKey") Long notificationKey, @NotNull NotificationTO notificationTO);
 
     /**
-     * Deletes the notification matching the given id.
+     * Deletes the notification matching the given key.
      *
-     * @param notificationId id for notification to be deleted
+     * @param notificationKey key for notification to be deleted
      */
     @DELETE
-    @Path("{notificationId}")
-    void delete(@NotNull @PathParam("notificationId") Long notificationId);
+    @Path("{notificationKey}")
+    void delete(@NotNull @PathParam("notificationKey") Long notificationKey);
 }

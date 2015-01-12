@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.rest.api;
+package org.apache.syncope.common.rest.api.service;
 
 import java.util.List;
 import javax.validation.constraints.Min;
@@ -59,21 +59,21 @@ public interface ReportService extends JAXRSService {
     List<ReportletConfClass> getReportletConfClasses();
 
     /**
-     * Returns report with matching id.
+     * Returns report with matching key.
      *
-     * @param reportId id of report to be read
-     * @return report with matching id
+     * @param reportKey key of report to be read
+     * @return report with matching key
      */
     @GET
-    @Path("{reportId}")
+    @Path("{reportKey}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    ReportTO read(@NotNull @PathParam("reportId") Long reportId);
+    ReportTO read(@NotNull @PathParam("reportKey") Long reportKey);
 
     /**
-     * Returns report execution with matching id.
+     * Returns report execution with matching key.
      *
      * @param executionId report execution id to be selected
-     * @return report execution with matching id
+     * @return report execution with matching key
      */
     @GET
     @Path("executions/{executionId}")
@@ -141,49 +141,49 @@ public interface ReportService extends JAXRSService {
     Response create(@NotNull ReportTO reportTO);
 
     /**
-     * Updates report with matching id.
+     * Updates report with matching key.
      *
-     * @param reportId id for report to be updated
+     * @param reportKey id for report to be updated
      * @param reportTO report to be stored
      */
     @PUT
-    @Path("{reportId}")
+    @Path("{reportKey}")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    void update(@NotNull @PathParam("reportId") Long reportId, ReportTO reportTO);
+    void update(@NotNull @PathParam("reportKey") Long reportKey, ReportTO reportTO);
 
     /**
-     * Deletes report with matching id.
+     * Deletes report with matching key.
      *
-     * @param reportId Deletes report with matching id
+     * @param reportKey Deletes report with matching key
      */
     @DELETE
-    @Path("{reportId}")
-    void delete(@NotNull @PathParam("reportId") Long reportId);
+    @Path("{reportKey}")
+    void delete(@NotNull @PathParam("reportKey") Long reportKey);
 
     /**
-     * Deletes report execution with matching id.
+     * Deletes report execution with matching key.
      *
-     * @param executionId id of execution report to be deleted
+     * @param executionId key of execution report to be deleted
      */
     @DELETE
     @Path("executions/{executionId}")
     void deleteExecution(@NotNull @PathParam("executionId") Long executionId);
 
     /**
-     * Executes the report with matching id.
+     * Executes the report with matching key.
      *
-     * @param reportId id of report to be executed
+     * @param reportKey key of report to be executed
      * @return report execution result
      */
     @POST
-    @Path("{reportId}/execute")
+    @Path("{reportKey}/execute")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    ReportExecTO execute(@NotNull @PathParam("reportId") Long reportId);
+    ReportExecTO execute(@NotNull @PathParam("reportKey") Long reportKey);
 
     /**
-     * Exports the report execution with matching id in the requested format.
+     * Exports the report execution with matching key in the requested format.
      *
-     * @param executionId id of execution report to be selected
+     * @param executionId key of execution report to be selected
      * @param fmt file-format selection
      * @return a stream for content download
      */

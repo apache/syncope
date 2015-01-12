@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.rest.api;
+package org.apache.syncope.common.rest.api.service;
 
 import java.util.List;
 import javax.validation.constraints.Min;
@@ -88,25 +88,25 @@ public interface TaskService extends JAXRSService {
     /**
      * Returns the task matching the given id.
      *
-     * @param taskId id of task to be read
+     * @param taskKey key of task to be read
      * @param <T> type of taskTO
      * @return task with matching id
      */
     @GET
-    @Path("{taskId}")
+    @Path("{taskKey}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    <T extends AbstractTaskTO> T read(@NotNull @PathParam("taskId") Long taskId);
+    <T extends AbstractTaskTO> T read(@NotNull @PathParam("taskKey") Long taskKey);
 
     /**
      * Returns the task execution with the given id.
      *
-     * @param executionId id of task execution to be read
+     * @param executionKey key of task execution to be read
      * @return task execution with matching Id
      */
     @GET
-    @Path("executions/{executionId}")
+    @Path("executions/{executionKey}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    TaskExecTO readExecution(@NotNull @PathParam("executionId") Long executionId);
+    TaskExecTO readExecution(@NotNull @PathParam("executionKey") Long executionKey);
 
     /**
      * Returns a list of tasks with matching type.
@@ -179,57 +179,57 @@ public interface TaskService extends JAXRSService {
     <T extends SchedTaskTO> Response create(@NotNull T taskTO);
 
     /**
-     * Updates the task matching the provided id.
+     * Updates the task matching the provided key.
      *
-     * @param taskId id of task to be updated
+     * @param taskKey key of task to be updated
      * @param taskTO updated task to be stored
      */
     @PUT
-    @Path("{taskId}")
+    @Path("{taskKey}")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    void update(@NotNull @PathParam("taskId") Long taskId, @NotNull AbstractTaskTO taskTO);
+    void update(@NotNull @PathParam("taskKey") Long taskKey, @NotNull AbstractTaskTO taskTO);
 
     /**
-     * Deletes the task matching the provided id.
+     * Deletes the task matching the provided key.
      *
-     * @param taskId id of task to be deleted
+     * @param taskKey key of task to be deleted
      */
     @DELETE
-    @Path("{taskId}")
-    void delete(@NotNull @PathParam("taskId") Long taskId);
+    @Path("{taskKey}")
+    void delete(@NotNull @PathParam("taskKey") Long taskKey);
 
     /**
-     * Deletes the task execution matching the provided id.
+     * Deletes the task execution matching the provided key.
      *
-     * @param executionId id of task execution to be deleted
+     * @param executionKey key of task execution to be deleted
      */
     @DELETE
-    @Path("executions/{executionId}")
-    void deleteExecution(@NotNull @PathParam("executionId") Long executionId);
+    @Path("executions/{executionKey}")
+    void deleteExecution(@NotNull @PathParam("executionKey") Long executionKey);
 
     /**
      * Executes the task matching the given id.
      *
-     * @param taskId id of task to be executed
+     * @param taskKey key of task to be executed
      * @param dryRun if true, task will only be simulated
      * @return execution report for the task matching the given id
      */
     @POST
-    @Path("{taskId}/execute")
+    @Path("{taskKey}/execute")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    TaskExecTO execute(@NotNull @PathParam("taskId") Long taskId,
+    TaskExecTO execute(@NotNull @PathParam("taskKey") Long taskKey,
             @QueryParam("dryRun") @DefaultValue("false") boolean dryRun);
 
     /**
      * Reports task execution result.
      *
-     * @param executionId id of task execution being reported
+     * @param executionKey key of task execution being reported
      * @param reportExec execution being reported
      */
     @POST
-    @Path("executions/{executionId}/report")
+    @Path("executions/{executionKey}/report")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    void report(@NotNull @PathParam("executionId") Long executionId, @NotNull ReportExecTO reportExec);
+    void report(@NotNull @PathParam("executionKey") Long executionKey, @NotNull ReportExecTO reportExec);
 
     /**
      * Executes the provided bulk action.

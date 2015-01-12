@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.rest.api;
+package org.apache.syncope.common.rest.api.service;
 
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
@@ -32,6 +32,7 @@ import org.apache.cxf.jaxrs.model.wadl.Description;
 import org.apache.cxf.jaxrs.model.wadl.Descriptions;
 import org.apache.cxf.jaxrs.model.wadl.DocTarget;
 import org.apache.syncope.common.lib.types.SubjectType;
+import org.apache.syncope.common.rest.api.RESTHeaders;
 
 /**
  * REST operations for workflow definition management.

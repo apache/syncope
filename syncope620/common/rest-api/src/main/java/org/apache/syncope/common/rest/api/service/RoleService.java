@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.rest.api;
+package org.apache.syncope.common.rest.api.service;
 
 import java.util.List;
 import javax.validation.constraints.Min;
@@ -53,41 +53,41 @@ public interface RoleService extends JAXRSService {
     /**
      * Returns children roles of given role.
      *
-     * @param roleId id of role to get children from
+     * @param roleKey key of role to get children from
      * @return children roles of given role
      */
     @GET
-    @Path("{roleId}/children")
+    @Path("{roleKey}/children")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    List<RoleTO> children(@NotNull @PathParam("roleId") Long roleId);
+    List<RoleTO> children(@NotNull @PathParam("roleKey") Long roleKey);
 
     /**
      * Returns parent role of the given role (or null if no parent exists).
      *
-     * @param roleId id of role to get parent role from
+     * @param roleKey key of role to get parent role from
      * @return parent role of the given role (or null if no parent exists)
      */
     @GET
-    @Path("{roleId}/parent")
+    @Path("{roleKey}/parent")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    RoleTO parent(@NotNull @PathParam("roleId") Long roleId);
+    RoleTO parent(@NotNull @PathParam("roleKey") Long roleKey);
 
     /**
-     * Reads the role matching the provided roleId.
+     * Reads the role matching the provided roleKey.
      *
-     * @param roleId id of role to be read
+     * @param roleKey key of role to be read
      * @return role with matching id
      */
     @GET
-    @Path("{roleId}")
+    @Path("{roleKey}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    RoleTO read(@NotNull @PathParam("roleId") Long roleId);
+    RoleTO read(@NotNull @PathParam("roleKey") Long roleKey);
 
     /**
      * This method is similar to {@link #read(Long)}, but uses different authentication handling to ensure that a user
      * can read his own roles.
      *
-     * @param roleId id of role to be read
+     * @param roleKey key of role to be read
      * @return role with matching id
      */
     @Descriptions({
@@ -96,9 +96,9 @@ public interface RoleService extends JAXRSService {
                 + "ensure that a user can read his own roles.")
     })
     @GET
-    @Path("{roleId}/own")
+    @Path("{roleKey}/own")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    RoleTO readSelf(@NotNull @PathParam("roleId") Long roleId);
+    RoleTO readSelf(@NotNull @PathParam("roleKey") Long roleKey);
 
     /**
      * Returns a paged list of existing roles.
@@ -221,10 +221,10 @@ public interface RoleService extends JAXRSService {
     Response create(@NotNull RoleTO roleTO);
 
     /**
-     * Updates role matching the provided roleId.
+     * Updates role matching the provided roleKey.
      *
-     * @param roleId id of role to be updated
-     * @param roleMod modification to be applied to role matching the provided roleId
+     * @param roleKey key of role to be updated
+     * @param roleMod modification to be applied to role matching the provided roleKey
      * @return <tt>Response</tt> object featuring the updated role enriched with propagation status information
      * - {@link RoleTO} as <tt>Entity</tt>
      */
@@ -234,15 +234,15 @@ public interface RoleService extends JAXRSService {
                 + "<tt>RoleTO</tt> as <tt>Entity</tt>")
     })
     @POST
-    @Path("{roleId}")
+    @Path("{roleKey}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    Response update(@NotNull @PathParam("roleId") Long roleId, @NotNull RoleMod roleMod);
+    Response update(@NotNull @PathParam("roleKey") Long roleKey, @NotNull RoleMod roleMod);
 
     /**
-     * Deletes role matching provided roleId.
+     * Deletes role matching provided roleKey.
      *
-     * @param roleId id of role to be deleted
+     * @param roleKey key of role to be deleted
      * @return <tt>Response</tt> object featuring the deleted role enriched with propagation status information
      * - {@link RoleTO} as <tt>Entity</tt>
      */
@@ -252,15 +252,15 @@ public interface RoleService extends JAXRSService {
                 + "<tt>RoleTO</tt> as <tt>Entity</tt>")
     })
     @DELETE
-    @Path("{roleId}")
+    @Path("{roleKey}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    Response delete(@NotNull @PathParam("roleId") Long roleId);
+    Response delete(@NotNull @PathParam("roleKey") Long roleKey);
 
     /**
      * Executes resource-related operations on given role.
      *
-     * @param roleId role id.
+     * @param roleKey role id.
      * @param type resource association action type
      * @param resourceNames external resources to be used for propagation-related operations
      * @return <tt>Response</tt> object featuring
@@ -271,17 +271,17 @@ public interface RoleService extends JAXRSService {
                 value = "Featuring <tt>BulkActionResult</tt> as <tt>Entity</tt>")
     })
     @POST
-    @Path("{roleId}/deassociate/{type}")
+    @Path("{roleKey}/deassociate/{type}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    Response bulkDeassociation(@NotNull @PathParam("roleId") Long roleId,
+    Response bulkDeassociation(@NotNull @PathParam("roleKey") Long roleKey,
             @NotNull @PathParam("type") ResourceDeassociationActionType type,
             @NotNull List<ResourceName> resourceNames);
 
     /**
      * Executes resource-related operations on given role.
      *
-     * @param roleId role id.
+     * @param roleKey role id.
      * @param type resource association action type
      * @param resourceNames external resources to be used for propagation-related operations
      * @return <tt>Response</tt> object featuring {@link org.apache.syncope.common.reqres.BulkActionResult}
@@ -292,10 +292,10 @@ public interface RoleService extends JAXRSService {
                 value = "Featuring <tt>BulkActionResult</tt> as <tt>Entity</tt>")
     })
     @POST
-    @Path("{roleId}/associate/{type}")
+    @Path("{roleKey}/associate/{type}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    Response bulkAssociation(@NotNull @PathParam("roleId") Long roleId,
+    Response bulkAssociation(@NotNull @PathParam("roleKey") Long roleKey,
             @NotNull @PathParam("type") ResourceAssociationActionType type,
             @NotNull List<ResourceName> resourceNames);
 

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.rest.api;
+package org.apache.syncope.common.rest.api.service;
 
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
@@ -91,8 +91,8 @@ public interface UserSelfService extends JAXRSService {
     /**
      * Self-updates user.
      *
-     * @param userId id of user to be updated
-     * @param userMod modification to be applied to user matching the provided userId
+     * @param userKey id of user to be updated
+     * @param userMod modification to be applied to user matching the provided userKey
      * @return <tt>Response</tt> object featuring the updated user - {@link UserTO} as <tt>Entity</tt>
      */
     @Descriptions({
@@ -100,10 +100,10 @@ public interface UserSelfService extends JAXRSService {
                 value = "Featuring the updated user - <tt>UserTO</tt> as <tt>Entity</tt>")
     })
     @POST
-    @Path("{userId}")
+    @Path("{userKey}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    Response update(@NotNull @PathParam("userId") Long userId, @NotNull UserMod userMod);
+    Response update(@NotNull @PathParam("userKey") Long userKey, @NotNull UserMod userMod);
 
     /**
      * Self-deletes user.

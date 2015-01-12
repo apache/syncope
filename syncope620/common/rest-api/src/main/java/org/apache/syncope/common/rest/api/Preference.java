@@ -18,22 +18,42 @@
  */
 package org.apache.syncope.common.rest.api;
 
-public interface JAXRSService {
+/**
+ * Preferences available to be specified during requests.
+ *
+ * @see RESTHeaders#PREFER
+ * @see RESTHeaders#PREFERENCE_APPLIED
+ */
+public enum Preference {
 
-    final String PARAM_FIQL = "fiql";
+    NONE(""),
+    RETURN_CONTENT("return-content"),
+    RETURN_NO_CONTENT("return-no-content");
 
-    final String PARAM_PAGE = "page";
+    private String literal;
 
-    final String DEFAULT_PARAM_PAGE = "1";
+    private Preference(final String literal) {
+        this.literal = literal;
+    }
 
-    final int DEFAULT_PARAM_PAGE_VALUE = Integer.valueOf(DEFAULT_PARAM_PAGE);
+    @Override
+    public String toString() {
+        return literal;
+    }
 
-    final String PARAM_SIZE = "size";
+    public static Preference fromString(final String literal) {
+        Preference result = null;
 
-    final String DEFAULT_PARAM_SIZE = "25";
+        for (Preference preference : values()) {
+            if (preference.toString().equalsIgnoreCase(literal)) {
+                result = preference;
+            }
+        }
 
-    final int DEFAULT_PARAM_SIZE_VALUE = Integer.valueOf(DEFAULT_PARAM_SIZE);
+        if (result == null) {
+            result = NONE;
+        }
 
-    final String PARAM_ORDERBY = "orderby";
-
+        return result;
+    }
 }

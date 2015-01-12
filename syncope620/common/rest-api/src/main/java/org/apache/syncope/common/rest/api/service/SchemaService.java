@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.rest.api;
+package org.apache.syncope.common.rest.api.service;
 
 import java.util.List;
 import javax.validation.constraints.NotNull;
@@ -49,14 +49,14 @@ public interface SchemaService extends JAXRSService {
      * @param <T> actual SchemaTO
      * @param attrType kind for schemas to be read
      * @param schemaType type for schemas to be read
-     * @param schemaName name of schema to be read
+     * @param schemaKey name of schema to be read
      * @return schema matching the given kind, type and name
      */
     @GET
-    @Path("{name}")
+    @Path("{key}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     <T extends AbstractSchemaTO> T read(@NotNull @PathParam("kind") AttributableType attrType,
-            @NotNull @PathParam("type") SchemaType schemaType, @NotNull @PathParam("name") String schemaName);
+            @NotNull @PathParam("type") SchemaType schemaType, @NotNull @PathParam("key") String schemaKey);
 
     /**
      * Returns a list of schemas with matching kind and type.
@@ -94,26 +94,26 @@ public interface SchemaService extends JAXRSService {
      * @param <T> actual SchemaTO
      * @param attrType kind for schemas to be updated
      * @param schemaType type for schemas to be updated
-     * @param schemaName name of schema to be updated
+     * @param schemaKey name of schema to be updated
      * @param schemaTO updated schema to be stored
      */
     @PUT
-    @Path("{name}")
+    @Path("{key}")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     <T extends AbstractSchemaTO> void update(@NotNull @PathParam("kind") AttributableType attrType,
             @NotNull @PathParam("type") SchemaType schemaType,
-            @NotNull @PathParam("name") String schemaName, @NotNull T schemaTO);
+            @NotNull @PathParam("key") String schemaKey, @NotNull T schemaTO);
 
     /**
      * Deletes the schema matching the given kind, type and name.
      *
      * @param attrType kind for schema to be deleted
      * @param schemaType type for schema to be deleted
-     * @param schemaName name of schema to be deleted
+     * @param schemaKey name of schema to be deleted
      */
     @DELETE
-    @Path("{name}")
+    @Path("{key}")
     void delete(@NotNull @PathParam("kind") AttributableType attrType,
             @NotNull @PathParam("type") SchemaType schemaType,
-            @NotNull @PathParam("name") String schemaName);
+            @NotNull @PathParam("key") String schemaKey);
 }
