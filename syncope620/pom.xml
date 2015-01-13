@@ -364,6 +364,7 @@ under the License.
     <secretKey>1abcdefghilmnopqrstuvz2!</secretKey>
 
     <targetJdk>1.7</targetJdk>
+    <rootpom.basedir>${basedir}</rootpom.basedir>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
@@ -808,6 +809,27 @@ under the License.
             <encoding>utf-8</encoding>
             <runOrder>alphabetical</runOrder>
             <argLine>-Xms512m -Xmx1024m -XX:PermSize=256m -XX:MaxPermSize=512m</argLine>
+          </configuration>
+        </plugin>
+        
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-checkstyle-plugin</artifactId>
+          <version>2.13</version>
+          <configuration>
+            <configLocation>${rootpom.basedir}/src/main/resources/org/apache/syncope/checkstyle.xml</configLocation>
+            <targetJdk>${targetJdk}</targetJdk>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-pmd-plugin</artifactId>
+          <version>3.3</version>
+          <configuration>
+            <rulesets>
+              <rulesets>${rootpom.basedir}/src/main/resources/org/apache/syncope/pmd.xml</rulesets>
+            </rulesets>
+            <targetJdk>${targetJdk}</targetJdk>
           </configuration>
         </plugin>
       </plugins>

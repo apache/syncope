@@ -32,6 +32,10 @@ under the License.
   <groupId>org.apache.syncope.server</groupId>
   <artifactId>syncope-provisioning-api</artifactId>
   <packaging>jar</packaging>
+  
+  <properties>
+    <rootpom.basedir>${basedir}/../..</rootpom.basedir>
+  </properties>
 
   <dependencies>
     <dependency>
@@ -51,4 +55,16 @@ under the License.
     </dependency>
   </dependencies>
 
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-pmd-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
 </project>

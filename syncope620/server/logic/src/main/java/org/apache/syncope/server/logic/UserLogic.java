@@ -148,7 +148,7 @@ public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
         Set<Long> adminRoleIds = RoleEntitlementUtil.getRoleKeys(AuthContextUtil.getOwnedEntitlementNames());
 
         List<User> users = userDAO.findAll(adminRoleIds, page, size, orderBy);
-        List<UserTO> userTOs = new ArrayList<UserTO>(users.size());
+        List<UserTO> userTOs = new ArrayList<>(users.size());
         for (User user : users) {
             userTOs.add(binder.getUserTO(user));
         }

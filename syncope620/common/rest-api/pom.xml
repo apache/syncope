@@ -32,7 +32,11 @@ under the License.
   <groupId>org.apache.syncope.common</groupId>
   <artifactId>syncope-common-rest-api</artifactId>
   <packaging>jar</packaging>
-
+  
+  <properties>
+    <rootpom.basedir>${basedir}/../..</rootpom.basedir>
+  </properties>
+  
   <dependencies>
     <dependency>
       <groupId>javax.validation</groupId>
@@ -62,4 +66,17 @@ under the License.
       <version>${project.version}</version>
     </dependency>
   </dependencies>
+  
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-pmd-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
 </project>

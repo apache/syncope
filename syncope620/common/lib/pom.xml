@@ -33,6 +33,10 @@ under the License.
   <artifactId>syncope-common-lib</artifactId>
   <packaging>jar</packaging>
 
+  <properties>
+    <rootpom.basedir>${basedir}/../..</rootpom.basedir>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>javax.ws.rs</groupId>
@@ -74,4 +78,17 @@ under the License.
       <scope>test</scope>
     </dependency>
   </dependencies>
+  
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-pmd-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
 </project>
