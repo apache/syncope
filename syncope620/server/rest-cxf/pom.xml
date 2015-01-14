@@ -38,6 +38,12 @@ under the License.
   </properties>
 
   <dependencies>
+    <dependency> 
+      <groupId>javax.servlet</groupId> 
+      <artifactId>javax.servlet-api</artifactId> 
+      <scope>provided</scope>
+    </dependency>
+    
     <dependency>
       <groupId>org.apache.geronimo.specs</groupId>
       <artifactId>geronimo-jpa_2.0_spec</artifactId>
@@ -46,8 +52,20 @@ under the License.
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-orm</artifactId>
+    </dependency>      
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-web</artifactId>
     </dependency>
-
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-web</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-config</artifactId>
+    </dependency>
+    
     <dependency>
       <groupId>com.fasterxml.jackson.jaxrs</groupId>
       <artifactId>jackson-jaxrs-json-provider</artifactId>
@@ -83,6 +101,12 @@ under the License.
     </dependency>  
     
     <dependency>
+      <groupId>org.apache.syncope.common</groupId>
+      <artifactId>syncope-common-rest-api</artifactId>
+      <version>${project.version}</version>
+      <classifier>javadoc</classifier>
+    </dependency>
+    <dependency>
       <groupId>org.apache.syncope.server</groupId>
       <artifactId>syncope-server-logic</artifactId>
       <version>${project.version}</version>
@@ -105,5 +129,12 @@ under the License.
         <artifactId>maven-pmd-plugin</artifactId>
       </plugin>
     </plugins>
+    
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
   </build>
 </project>

@@ -30,7 +30,7 @@ under the License.
   <name>Apache Syncope Server Persistence JPA</name>
   <description>Apache Syncope Server Persistence JPA</description>
   <groupId>org.apache.syncope.server</groupId>
-  <artifactId>syncope-persistence-jpa</artifactId>
+  <artifactId>syncope-server-persistence-jpa</artifactId>
   <packaging>jar</packaging>
   
   <properties>
@@ -95,7 +95,7 @@ under the License.
       
     <dependency>
       <groupId>org.apache.syncope.server</groupId>
-      <artifactId>syncope-workflow-api</artifactId>
+      <artifactId>syncope-server-workflow-api</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

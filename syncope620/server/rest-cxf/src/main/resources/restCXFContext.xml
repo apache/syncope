@@ -85,11 +85,11 @@ under the License.
     <property name="useJaxbContextForQnames" value="true"/>
     <property name="ignoreMessageWriters" value="true"/>
     <property name="addResourceAndMethodIds" value="true"/>
-    <property name="javaDocPath" value="/WEB-INF/lib/syncope-common-${syncope.version}-javadoc.jar"/>
+    <property name="javaDocPath" value="/WEB-INF/lib/syncope-common-rest-api-${syncope.version}-javadoc.jar"/>
   </bean>
   
   <bean id="addETagFilter" class="org.apache.syncope.server.rest.cxf.service.AddETagFilter"/>
-
+  
   <jaxrs:server id="restContainer" address="/" 
                 basePackages="org.apache.syncope.common.rest.api.service, org.apache.syncope.server.rest.cxf.service" 
                 staticSubresourceResolution="true">

@@ -30,7 +30,7 @@ under the License.
   <name>Apache Syncope Server Persistence API</name>
   <description>Apache Syncope Server Persistence API</description>
   <groupId>org.apache.syncope.server</groupId>
-  <artifactId>syncope-persistence-api</artifactId>
+  <artifactId>syncope-server-persistence-api</artifactId>
   <packaging>jar</packaging>
   
   <properties>

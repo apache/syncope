@@ -235,10 +235,10 @@ public class ReportLogic extends AbstractTransactionalLogic<ReportTO> {
             // a single ZipEntry in the ZipInputStream (see ReportJob)
             zis.getNextEntry();
 
-            Pipeline<SAXPipelineComponent> pipeline = new NonCachingPipeline<SAXPipelineComponent>();
+            Pipeline<SAXPipelineComponent> pipeline = new NonCachingPipeline<>();
             pipeline.addComponent(new XMLGenerator(zis));
 
-            Map<String, Object> parameters = new HashMap<String, Object>();
+            Map<String, Object> parameters = new HashMap<>();
             parameters.put("status", reportExec.getStatus());
             parameters.put("message", reportExec.getMessage());
             parameters.put("startDate", reportExec.getStartDate());

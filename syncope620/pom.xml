@@ -325,7 +325,7 @@ under the License.
     <jackson.version>2.5.0</jackson.version>
 
     <spring.version>4.1.4.RELEASE</spring.version>
-    <spring-security.version>4.0.0.RC1</spring-security.version>
+    <spring-security.version>3.2.5.RELEASE</spring-security.version>
 
     <openjpa.version>2.3.0</openjpa.version>
     <commons-dbcp.version>2.0.1</commons-dbcp.version>
@@ -337,8 +337,11 @@ under the License.
 
     <cocoon.version>3.0.0-alpha-3</cocoon.version>
 
+    <groovy.version>2.3.9</groovy.version>
+
     <slf4j.version>1.7.10</slf4j.version>
     <log4j.version>2.1</log4j.version>
+    <disruptor.version>3.3.0</disruptor.version>
 
     <commons-io.version>2.4</commons-io.version>
     <commons-codec.version>1.10</commons-codec.version>
@@ -355,8 +358,31 @@ under the License.
     <log.directory>${project.build.directory}/log</log.directory>
     <activiti-modeler.directory>${project.build.directory}/activiti-modeler</activiti-modeler.directory>
     
-    <testconnectorserver.key>testconnectorserver</testconnectorserver.key>
+    <jquery.version>1.11.1</jquery.version>
+    <jquery-ui.version>1.10.4</jquery-ui.version>
+    <highlightjs.version>8.0</highlightjs.version>
+    <codemirror.version>3.23</codemirror.version>
+    
+    <testds.port>1389</testds.port>
+    <testdb.webport>9082</testdb.webport>
+
+    <testdb.driver>org.h2.Driver</testdb.driver>
+    <testdb.url>jdbc:h2:tcp://localhost:9092/mem:testdb;DB_CLOSE_DELAY=-1</testdb.url>
+    <testdb.username>sa</testdb.username>
+    <testdb.password>sa</testdb.password>
+
     <testconnectorserver.port>4554</testconnectorserver.port>
+    <testconnectorserver.key>testconnectorserver</testconnectorserver.key>
+
+    <test.csvdir.path>${project.build.directory}/test-csvdir</test.csvdir.path>
+
+    <cargo.servlet.port>9080</cargo.servlet.port>
+    <cargo.tomcat.ajp.port>9889</cargo.tomcat.ajp.port>
+    <cargo.rmi.port>9805</cargo.rmi.port>
+    <cargo.log>${log.directory}/cargo.log</cargo.log>
+    <cargo.output>${log.directory}/cargo-output.log</cargo.output>
+
+    <tomcat.version>8.0.15</tomcat.version>
 
     <anonymousUser>anonymous</anonymousUser>
     <!-- static keys, only used for build: generated overlays will override during archetype:generate -->
@@ -397,7 +423,24 @@ under the License.
         <artifactId>geronimo-javamail_1.4_mail</artifactId>
         <version>1.8.4</version>
       </dependency>
-
+      <dependency> 
+        <groupId>javax.servlet</groupId> 
+        <artifactId>javax.servlet-api</artifactId> 
+        <version>3.1.0</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>javax.servlet.jsp</groupId>
+        <artifactId>javax.servlet.jsp-api</artifactId>
+        <version>2.3.1</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>javax.servlet</groupId>
+        <artifactId>jstl</artifactId>
+        <version>1.2</version>
+      </dependency>
+      
       <!-- CXF -->
       <dependency>
         <groupId>org.apache.cxf</groupId>
@@ -506,11 +549,46 @@ under the License.
         <version>${spring.version}</version>
       </dependency>
       <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-web</artifactId>
+        <version>${spring.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-aop</artifactId>
+        <version>${spring.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-expression</artifactId>
+        <version>${spring.version}</version>
+      </dependency>
+      <dependency>
         <groupId>org.springframework.security</groupId>
         <artifactId>spring-security-core</artifactId>
         <version>${spring-security.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aop</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-expression</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
-
+      <dependency>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-web</artifactId>
+        <version>${spring-security.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.security</groupId>
+        <artifactId>spring-security-config</artifactId>
+        <version>${spring-security.version}</version>
+      </dependency>
+    
       <dependency>
         <groupId>org.aspectj</groupId>
         <artifactId>aspectjweaver</artifactId>
@@ -555,9 +633,21 @@ under the License.
       </dependency>
       
       <dependency>
+        <groupId>org.codehaus.groovy</groupId>
+        <artifactId>groovy-all</artifactId>
+        <version>${groovy.version}</version>
+      </dependency>
+
+      <dependency>
         <groupId>com.h2database</groupId>
         <artifactId>h2</artifactId>
         <version>${h2.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.directory.server</groupId>
+        <artifactId>apacheds-all</artifactId>
+        <version>2.0.0-M19</version>
       </dependency>
       
       <dependency>
@@ -658,7 +748,7 @@ under the License.
         <artifactId>xercesImpl</artifactId>
         <version>2.11.0</version>
       </dependency>
-
+      
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
@@ -673,6 +763,48 @@ under the License.
         <groupId>org.apache.logging.log4j</groupId>
         <artifactId>log4j-core</artifactId>
         <version>${log4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.lmax</groupId>
+        <artifactId>disruptor</artifactId>
+        <version>${disruptor.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-slf4j-impl</artifactId>
+        <version>${log4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>commons-logging</groupId>
+        <artifactId>commons-logging</artifactId>
+        <version>${commons.logging.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>jcl-over-slf4j</artifactId>
+        <version>${slf4j.version}</version>
+      </dependency>
+      
+      <dependency>
+        <groupId>org.webjars</groupId>
+        <artifactId>jquery</artifactId>
+        <version>${jquery.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.webjars</groupId>
+        <artifactId>jquery-ui</artifactId>
+        <version>${jquery-ui.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.webjars</groupId>
+        <artifactId>highlightjs</artifactId>
+        <version>${highlightjs.version}-3</version>
+      </dependency>
+      <dependency>
+        <groupId>org.webjars</groupId>
+        <artifactId>codemirror</artifactId>
+        <version>${codemirror.version}</version>
       </dependency>
       
       <!-- TEST -->
@@ -707,16 +839,6 @@ under the License.
       </releases>
       <snapshots>
         <enabled>true</enabled>
-      </snapshots>
-    </repository>
-    
-    <!-- TMP for Spring Security 4.0.0-RC1 -->
-    <repository>
-      <id>spring-milestones</id>
-      <name>Spring Milestones</name>
-      <url>http://repo.spring.io/milestone</url>
-      <snapshots>
-        <enabled>false</enabled>
       </snapshots>
     </repository>
   </repositories>
@@ -802,6 +924,31 @@ under the License.
         
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-war-plugin</artifactId>
+          <version>2.6</version>
+        </plugin>
+        
+        <plugin>
+          <groupId>org.codehaus.cargo</groupId>
+          <artifactId>cargo-maven2-plugin</artifactId>
+          <version>1.4.11</version>
+          <configuration>
+            <container>
+              <containerId>tomcat8x</containerId>
+              <zipUrlInstaller>
+                <url>http://archive.apache.org/dist/tomcat/tomcat-8/v${tomcat.version}/bin/apache-tomcat-${tomcat.version}.zip</url>
+                <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
+                <extractDir>${project.build.directory}/cargo/extract</extractDir>
+              </zipUrlInstaller>
+              <timeout>240000</timeout>
+              <log>${cargo.log}</log>
+              <output>${cargo.output}</output>    
+            </container>
+          </configuration>
+        </plugin>
+        
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
           <version>2.18</version>
           <configuration>
@@ -843,5 +990,6 @@ under the License.
     <module>common</module>
     <module>server</module>
     <module>client</module>
+    <module>fit</module>
   </modules>
 </project>

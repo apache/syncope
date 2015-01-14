@@ -30,7 +30,7 @@ under the License.
   <name>Apache Syncope Server Workflow Java</name>
   <description>Apache Syncope Server Workflow Java</description>
   <groupId>org.apache.syncope.server</groupId>
-  <artifactId>syncope-workflow-java</artifactId>
+  <artifactId>syncope-server-workflow-java</artifactId>
   <packaging>jar</packaging>
   
   <properties>
@@ -49,7 +49,7 @@ under the License.
 
     <dependency>
       <groupId>org.apache.syncope.server</groupId>
-      <artifactId>syncope-workflow-api</artifactId>
+      <artifactId>syncope-server-workflow-api</artifactId>
       <version>${project.version}</version>
     </dependency>
   </dependencies>

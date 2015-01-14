@@ -29,6 +29,7 @@ under the License.
         <value>classpath:security.properties</value>
         <value>classpath:connid.properties</value>
         <value>classpath:mail.properties</value>
+        <value>classpath:workflow.properties</value>
       </list>
     </property>
     <property name="ignoreResourceNotFound" value="true"/>
@@ -40,8 +41,5 @@ under the License.
     <property name="fallback" value="classpath:content.xml"/>
   </bean>
   <bean class="org.apache.syncope.server.persistence.jpa.content.XMLContentLoader" init-method="load"/>
-  
-  <bean class="org.apache.syncope.server.workflow.java.DefaultUserWorkflowAdapter"/>
-  <bean class="org.apache.syncope.server.workflow.java.DefaultRoleWorkflowAdapter"/>
   
 </beans>

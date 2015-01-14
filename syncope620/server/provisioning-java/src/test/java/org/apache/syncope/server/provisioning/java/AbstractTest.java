@@ -26,6 +26,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @ContextConfiguration(locations = {
     "classpath:persistenceTest.xml",
     "classpath:provisioningContext.xml",
+    "classpath:workflowContext.xml",
     "classpath:provisioningTest.xml"
 })
 public abstract class AbstractTest {

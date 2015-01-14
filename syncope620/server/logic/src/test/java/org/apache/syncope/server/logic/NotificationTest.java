@@ -89,6 +89,7 @@ import org.springframework.transaction.annotation.Transactional;
 @ContextConfiguration(locations = {
     "classpath:provisioningContext.xml",
     "classpath:logicContext.xml",
+    "classpath:workflowContext.xml",
     "classpath:persistenceTest.xml",
     "classpath:logicTest.xml"
 })

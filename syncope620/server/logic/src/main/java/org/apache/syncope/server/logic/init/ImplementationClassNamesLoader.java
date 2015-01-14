@@ -33,6 +33,7 @@ import org.apache.syncope.server.provisioning.api.sync.PushActions;
 import org.apache.syncope.server.provisioning.api.sync.SyncActions;
 import org.apache.syncope.server.provisioning.api.sync.SyncCorrelationRule;
 import org.apache.syncope.server.logic.report.Reportlet;
+import org.apache.syncope.server.persistence.api.SyncopeLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +48,7 @@ import org.springframework.util.ClassUtils;
  * Cache class names for all implementations of Syncope interfaces found in classpath, for later usage.
  */
 @Component
-public class ImplementationClassNamesLoader {
+public class ImplementationClassNamesLoader implements SyncopeLoader {
 
     public enum Type {
 
@@ -72,10 +73,16 @@ public class ImplementationClassNamesLoader {
 
     private Map<Type, Set<String>> classNames;
 
+    @Override
+    public Integer getPriority() {
+        return 400;
+    }
+
+    @Override
     public void load() {
         CachingMetadataReaderFactory factory = new CachingMetadataReaderFactory();
 
-        classNames = new EnumMap<Type, Set<String>>(Type.class);
+        classNames = new EnumMap<>(Type.class);
         for (Type type : Type.values()) {
             classNames.put(type, new HashSet<String>());
         }

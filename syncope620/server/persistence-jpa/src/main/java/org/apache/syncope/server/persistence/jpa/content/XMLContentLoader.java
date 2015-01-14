@@ -41,6 +41,11 @@ public class XMLContentLoader extends AbstractContentDealer implements ContentLo
     @Resource(name = "contentXML")
     private ResourceWithFallbackLoader contentXML;
 
+    @Override
+    public Integer getPriority() {
+        return 0;
+    }
+
     @Transactional
     @Override
     public void load() {

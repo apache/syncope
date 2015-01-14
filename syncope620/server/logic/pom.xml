@@ -99,7 +99,7 @@ under the License.
       
     <dependency>
       <groupId>org.apache.syncope.server</groupId>
-      <artifactId>syncope-provisioning-java</artifactId>
+      <artifactId>syncope-server-provisioning-java</artifactId>
       <version>${project.version}</version>
     </dependency>
     
@@ -111,7 +111,7 @@ under the License.
     </dependency>
     <dependency>
       <groupId>org.apache.syncope.server</groupId>
-      <artifactId>syncope-workflow-java</artifactId>
+      <artifactId>syncope-server-workflow-java</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
@@ -122,7 +122,7 @@ under the License.
     </dependency>
     <dependency>
       <groupId>org.apache.syncope.server</groupId>
-      <artifactId>syncope-persistence-jpa</artifactId>
+      <artifactId>syncope-server-persistence-jpa</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>

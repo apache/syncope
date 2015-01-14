@@ -30,7 +30,7 @@ under the License.
   <name>Apache Syncope Server Provisioning API</name>
   <description>Apache Syncope Server Provisioning API</description>
   <groupId>org.apache.syncope.server</groupId>
-  <artifactId>syncope-provisioning-api</artifactId>
+  <artifactId>syncope-server-provisioning-api</artifactId>
   <packaging>jar</packaging>
   
   <properties>
@@ -39,18 +39,13 @@ under the License.
 
   <dependencies>
     <dependency>
-      <groupId>net.tirasa.connid</groupId>
-      <artifactId>connector-framework</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>org.quartz-scheduler</groupId>
       <artifactId>quartz</artifactId>
     </dependency>
 
     <dependency>
       <groupId>org.apache.syncope.server</groupId>
-      <artifactId>syncope-persistence-api</artifactId>
+      <artifactId>syncope-server-persistence-api</artifactId>
       <version>${project.version}</version>
     </dependency>
   </dependencies>

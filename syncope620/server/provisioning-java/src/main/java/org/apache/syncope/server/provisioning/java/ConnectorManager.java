@@ -134,6 +134,11 @@ public class ConnectorManager implements ConnectorRegistry, ConnectorFactory {
         ApplicationContextProvider.getBeanFactory().destroySingleton(id);
     }
 
+    @Override
+    public Integer getPriority() {
+        return 100;
+    }
+
     @Transactional(readOnly = true)
     @Override
     public void load() {

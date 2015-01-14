@@ -77,6 +77,15 @@ under the License.
       <groupId>org.jasypt</groupId>
       <artifactId>jasypt</artifactId>
     </dependency>
+    
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-aop</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-expression</artifactId>
+    </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-core</artifactId>
@@ -84,7 +93,7 @@ under the License.
     
     <dependency>
       <groupId>org.apache.syncope.server</groupId>
-      <artifactId>syncope-provisioning-api</artifactId>
+      <artifactId>syncope-server-provisioning-api</artifactId>
       <version>${project.version}</version>
     </dependency>
     

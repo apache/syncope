@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.server.persistence.api.content;
 
-public interface ContentLoader {
+import org.apache.syncope.server.persistence.api.SyncopeLoader;
 
-    void load();
+public interface ContentLoader extends SyncopeLoader {
 
 }

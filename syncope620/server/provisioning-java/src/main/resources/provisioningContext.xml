@@ -81,7 +81,7 @@ under the License.
   </bean>
 
   <bean id="velocityResourceLoader" class="org.apache.syncope.server.misc.spring.ResourceWithFallbackLoader">
-    <property name="primary" value="file:${conf.directory}/"/>
+    <property name="primary" value="file:${templates.directory}/"/>
     <property name="fallback" value="classpath:"/>
   </bean>
   <bean id="velocityEngine" class="org.apache.syncope.server.provisioning.java.notification.VelocityEngineFactoryBean">

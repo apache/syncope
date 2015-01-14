@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.server.logic.init;
 
+import org.apache.syncope.server.persistence.api.SyncopeLoader;
 import org.apache.syncope.server.workflow.api.RoleWorkflowAdapter;
 import org.apache.syncope.server.workflow.api.UserWorkflowAdapter;
 import org.apache.syncope.server.workflow.api.WorkflowInstanceLoader;
@@ -32,7 +33,7 @@ import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.stereotype.Component;
 
 @Component
-public class WorkflowAdapterLoader implements BeanFactoryAware {
+public class WorkflowAdapterLoader implements BeanFactoryAware, SyncopeLoader {
 
     private static final Logger LOG = LoggerFactory.getLogger(WorkflowAdapterLoader.class);
 
@@ -76,6 +77,12 @@ public class WorkflowAdapterLoader implements BeanFactoryAware {
         }
     }
 
+    @Override
+    public Integer getPriority() {
+        return Integer.MIN_VALUE;
+    }
+
+    @Override
     public void load() {
         lazyInit();
         if (wfLoader == null) {

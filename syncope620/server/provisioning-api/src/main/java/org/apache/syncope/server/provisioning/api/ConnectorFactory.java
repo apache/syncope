@@ -20,15 +20,16 @@ package org.apache.syncope.server.provisioning.api;
 
 import java.util.Set;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
+import org.apache.syncope.server.persistence.api.SyncopeLoader;
 import org.apache.syncope.server.persistence.api.entity.ConnInstance;
 import org.apache.syncope.server.persistence.api.entity.ExternalResource;
 
 /**
  * Entry point for creating and destroying connectors for external resources.
  *
- * @see org.apache.syncope.core.propagation.Connector
+ * @see Connector
  */
-public interface ConnectorFactory {
+public interface ConnectorFactory extends SyncopeLoader {
 
     /**
      * Create connector from given connector instance and configuration properties.
@@ -52,6 +53,7 @@ public interface ConnectorFactory {
      *
      * @see ExternalResource
      */
+    @Override
     void load();
 
     /**

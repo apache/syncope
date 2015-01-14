@@ -445,7 +445,7 @@ under the License.
                 bundleName="net.tirasa.connid.bundles.soap"
                 connectorName="net.tirasa.connid.bundles.soap.WebServiceConnector"
                 version="${connid.soap.version}"
-                jsonConf='[{"schema":{"name":"endpoint","displayName":null,"helpMessage":null,"type":"java.lang.String","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["http://localhost:9080/wssample/services/provisioning"]},{"schema":{"name":"servicename","displayName":null,"helpMessage":null,"type":"java.lang.String","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["net.tirasa.connid.bundles.soap.provisioning.interfaces.Provisioning"]}]'/>
+                jsonConf='[{"schema":{"name":"endpoint","displayName":null,"helpMessage":null,"type":"java.lang.String","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["http://localhost:${cargo.servlet.port}/wssample/services/provisioning"]},{"schema":{"name":"servicename","displayName":null,"helpMessage":null,"type":"java.lang.String","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["net.tirasa.connid.bundles.soap.provisioning.interfaces.Provisioning"]}]'/>
   <ConnInstance_capabilities ConnInstance_id="100" capabilities="ONE_PHASE_CREATE"/>
   <ConnInstance_capabilities ConnInstance_id="100" capabilities="ONE_PHASE_UPDATE"/>
   <ConnInstance_capabilities ConnInstance_id="100" capabilities="ONE_PHASE_DELETE"/>
@@ -476,7 +476,7 @@ under the License.
                 connectorName="net.tirasa.connid.bundles.soap.WebServiceConnector"
                 version="${connid.soap.version}"
                 connRequestTimeout="10"
-                jsonConf='[{"schema":{"name":"servicename","displayName":null,"helpMessage":null,"type":"java.lang.String","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["net.tirasa.connid.bundles.soap.provisioning.interfaces.Provisioning"]},{"schema":{"name":"endpoint","displayName":null,"helpMessage":null,"type":"java.lang.String","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":true,"values":["http://localhost:9080/wssample/services/provisioning"]}]'/>
+                jsonConf='[{"schema":{"name":"servicename","displayName":null,"helpMessage":null,"type":"java.lang.String","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["net.tirasa.connid.bundles.soap.provisioning.interfaces.Provisioning"]},{"schema":{"name":"endpoint","displayName":null,"helpMessage":null,"type":"java.lang.String","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":true,"values":["http://localhost:${cargo.servlet.port}/wssample/services/provisioning"]}]'/>
   <ConnInstance_capabilities ConnInstance_id="102" capabilities="ONE_PHASE_CREATE"/>
   <ConnInstance_capabilities ConnInstance_id="102" capabilities="ONE_PHASE_UPDATE"/>
   <ConnInstance_capabilities ConnInstance_id="102" capabilities="ONE_PHASE_DELETE"/>
@@ -490,7 +490,7 @@ under the License.
                 bundleName="net.tirasa.connid.bundles.soap"
                 connectorName="net.tirasa.connid.bundles.soap.WebServiceConnector"
                 version="${connid.soap.version}"
-                jsonConf='[{"schema":{"name":"endpoint","displayName":null,"helpMessage":null,"type":"java.lang.String","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["http://localhost:9080/wssample/services/provisioning"]},{"schema":{"name":"servicename","displayName":null,"helpMessage":null,"type":"java.lang.String","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["net.tirasa.connid.bundles.soap.provisioning.interfaces.Provisioning"]}]'/>
+                jsonConf='[{"schema":{"name":"endpoint","displayName":null,"helpMessage":null,"type":"java.lang.String","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["http://localhost:${cargo.servlet.port}/wssample/services/provisioning"]},{"schema":{"name":"servicename","displayName":null,"helpMessage":null,"type":"java.lang.String","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["net.tirasa.connid.bundles.soap.provisioning.interfaces.Provisioning"]}]'/>
 
   <ConnInstance id="104" displayName="CSVDir"
                 location="${connid.location}"
@@ -555,7 +555,7 @@ under the License.
   <ExternalResource name="ws-target-resource-timeout" connector_id="102"
                     randomPwdIfNotProvided="0" enforceMandatoryCondition="1" propagationMode="TWO_PHASES"
                     propagationPriority="0" propagationPrimary="1" createTraceLevel="FAILURES" deleteTraceLevel="NONE" updateTraceLevel="ALL" syncTraceLevel="ALL"
-                    jsonConf='[{"schema":{"name":"endpoint","displayName":null,"helpMessage":null,"type":"java.lang.String","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":true,"values":["http://localhost:9080/syncope-build-tools/services/provisioning"]}]'
+                    jsonConf='[{"schema":{"name":"endpoint","displayName":null,"helpMessage":null,"type":"java.lang.String","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":true,"values":["http://localhost:${cargo.servlet.port}/syncope-fit-build-tools/services/provisioning"]}]'
                     creator="admin" lastModifier="admin" 
                     creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
   <ExternalResource name="ws-target-resource-list-mappings-1" connector_id="100"

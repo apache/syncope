@@ -19,231 +19,23 @@
 package org.apache.syncope.server.logic.init;
 
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.lib.types.TaskType;
-import org.apache.syncope.server.persistence.api.dao.ConfDAO;
-import org.apache.syncope.server.persistence.api.dao.NotFoundException;
-import org.apache.syncope.server.persistence.api.dao.ReportDAO;
-import org.apache.syncope.server.persistence.api.dao.TaskDAO;
 import org.apache.syncope.server.persistence.api.entity.Report;
-import org.apache.syncope.server.persistence.api.entity.conf.CPlainAttr;
-import org.apache.syncope.server.persistence.api.entity.task.PushTask;
-import org.apache.syncope.server.persistence.api.entity.task.SchedTask;
-import org.apache.syncope.server.persistence.api.entity.task.SyncTask;
 import org.apache.syncope.server.persistence.api.entity.task.Task;
-import org.apache.syncope.server.provisioning.api.job.JobNamer;
-import org.apache.syncope.server.provisioning.api.job.SyncJob;
-import org.apache.syncope.server.provisioning.api.job.TaskJob;
-import org.apache.syncope.server.provisioning.api.sync.SyncActions;
-import org.apache.syncope.server.logic.notification.NotificationJob;
-import org.apache.syncope.server.logic.report.ReportJob;
-import org.apache.syncope.server.misc.spring.ApplicationContextProvider;
-import org.quartz.Job;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobKey;
-import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
-import org.quartz.TriggerKey;
-import org.quartz.impl.JobDetailImpl;
-import org.quartz.impl.triggers.CronTriggerImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.support.AbstractBeanDefinition;
-import org.springframework.scheduling.quartz.SchedulerFactoryBean;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
-@Component
-public class JobInstanceLoader {
+public interface JobInstanceLoader {
 
-    private static final Logger LOG = LoggerFactory.getLogger(JobInstanceLoader.class);
+    void registerJob(Task task, String jobClassName, String cronExpression)
+            throws ClassNotFoundException, SchedulerException, ParseException;
 
-    @Autowired
-    private SchedulerFactoryBean scheduler;
+    void registerJob(Report report) throws SchedulerException, ParseException;
 
-    @Autowired
-    private TaskDAO taskDAO;
+    void registerReportJob(Long reportKey) throws SchedulerException, ParseException;
 
-    @Autowired
-    private ReportDAO reportDAO;
+    void registerTaskJob(Long taskKey) throws ClassNotFoundException, SchedulerException, ParseException;
 
-    @Autowired
-    private ConfDAO confDAO;
+    void unregisterJob(Task task);
 
-    private void registerJob(final String jobName, final Job jobInstance, final String cronExpression)
-            throws SchedulerException, ParseException {
+    void unregisterJob(Report report);
 
-        synchronized (scheduler.getScheduler()) {
-            boolean jobAlreadyRunning = false;
-            for (JobExecutionContext jobCtx : scheduler.getScheduler().getCurrentlyExecutingJobs()) {
-                if (jobName.equals(jobCtx.getJobDetail().getKey().getName())
-                        && Scheduler.DEFAULT_GROUP.equals(jobCtx.getJobDetail().getKey().getGroup())) {
-
-                    jobAlreadyRunning = true;
-
-                    LOG.debug("Job {} already running, cancel", jobCtx.getJobDetail().getKey());
-                }
-            }
-
-            if (jobAlreadyRunning) {
-                return;
-            }
-        }
-
-        // 0. unregister job
-        unregisterJob(jobName);
-
-        // 1. Job bean
-        ApplicationContextProvider.getBeanFactory().registerSingleton(jobName, jobInstance);
-
-        // 2. JobDetail bean
-        JobDetailImpl jobDetail = new JobDetailImpl();
-        jobDetail.setName(jobName);
-        jobDetail.setGroup(Scheduler.DEFAULT_GROUP);
-        jobDetail.setJobClass(jobInstance.getClass());
-
-        // 3. Trigger
-        if (cronExpression == null) {
-            // Jobs added with no trigger must be durable
-            jobDetail.setDurability(true);
-            scheduler.getScheduler().addJob(jobDetail, true);
-        } else {
-            CronTriggerImpl cronTrigger = new CronTriggerImpl();
-            cronTrigger.setName(JobNamer.getTriggerName(jobName));
-            cronTrigger.setCronExpression(cronExpression);
-
-            scheduler.getScheduler().scheduleJob(jobDetail, cronTrigger);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    public void registerJob(final Task task, final String jobClassName, final String cronExpression)
-            throws ClassNotFoundException, SchedulerException, ParseException {
-
-        final Class<?> jobClass = Class.forName(jobClassName);
-        Job jobInstance = (Job) ApplicationContextProvider.getBeanFactory().
-                createBean(jobClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
-        if (jobInstance instanceof TaskJob) {
-            ((TaskJob) jobInstance).setTaskId(task.getKey());
-        }
-
-        // In case of synchronization job/task retrieve and set synchronization actions:
-        // actions cannot be changed at runtime but connector and synchronization policies (reloaded at execution time).
-        if (jobInstance instanceof SyncJob && task instanceof SyncTask) {
-            final List<SyncActions> actions = new ArrayList<>();
-            for (String className : ((SyncTask) task).getActionsClassNames()) {
-                try {
-                    Class<?> actionsClass = Class.forName(className);
-
-                    final SyncActions syncActions =
-                            (SyncActions) ApplicationContextProvider.getBeanFactory().
-                            createBean(actionsClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true);
-
-                    actions.add(syncActions);
-                } catch (Exception e) {
-                    LOG.info("Class '{}' not found", className, e);
-                }
-            }
-
-            ((SyncJob) jobInstance).setActions(actions);
-        }
-
-        registerJob(JobNamer.getJobName(task), jobInstance, cronExpression);
-    }
-
-    @Transactional(readOnly = true)
-    public void registerTaskJob(final Long taskId)
-            throws ClassNotFoundException, SchedulerException, ParseException {
-
-        SchedTask task = taskDAO.find(taskId);
-        if (task == null) {
-            throw new NotFoundException("Task " + taskId);
-        } else {
-            registerJob(task, task.getJobClassName(), task.getCronExpression());
-        }
-    }
-
-    public void registerJob(final Report report) throws SchedulerException, ParseException {
-        Job jobInstance = (Job) ApplicationContextProvider.getBeanFactory().
-                createBean(ReportJob.class, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
-        ((ReportJob) jobInstance).setReportKey(report.getKey());
-
-        registerJob(JobNamer.getJobName(report), jobInstance, report.getCronExpression());
-    }
-
-    @Transactional(readOnly = true)
-    public void registerReportJob(final Long reportId) throws SchedulerException, ParseException {
-        Report report = reportDAO.find(reportId);
-        if (report == null) {
-            throw new NotFoundException("Report " + reportId);
-        } else {
-            registerJob(report);
-        }
-    }
-
-    private void unregisterJob(final String jobName) {
-        try {
-            scheduler.getScheduler().unscheduleJob(new TriggerKey(jobName, Scheduler.DEFAULT_GROUP));
-            scheduler.getScheduler().deleteJob(new JobKey(jobName, Scheduler.DEFAULT_GROUP));
-        } catch (SchedulerException e) {
-            LOG.error("Could not remove job " + jobName, e);
-        }
-
-        if (ApplicationContextProvider.getBeanFactory().containsSingleton(jobName)) {
-            ApplicationContextProvider.getBeanFactory().destroySingleton(jobName);
-        }
-    }
-
-    public void unregisterJob(final Task task) {
-        unregisterJob(JobNamer.getJobName(task));
-    }
-
-    public void unregisterJob(final Report report) {
-        unregisterJob(JobNamer.getJobName(report));
-    }
-
-    @Transactional
-    public void load() {
-        // 1. jobs for SchedTasks
-        Set<SchedTask> tasks = new HashSet<>(taskDAO.<SchedTask>findAll(TaskType.SCHEDULED));
-        tasks.addAll(taskDAO.<SyncTask>findAll(TaskType.SYNCHRONIZATION));
-        tasks.addAll(taskDAO.<PushTask>findAll(TaskType.PUSH));
-        for (SchedTask task : tasks) {
-            try {
-                registerJob(task, task.getJobClassName(), task.getCronExpression());
-            } catch (Exception e) {
-                LOG.error("While loading job instance for task " + task.getKey(), e);
-            }
-        }
-
-        // 2. NotificationJob
-        CPlainAttr notificationJobCronExp =
-                confDAO.find("notificationjob.cronExpression", NotificationJob.DEFAULT_CRON_EXP);
-        if (StringUtils.isBlank(notificationJobCronExp.getValuesAsStrings().get(0))) {
-            LOG.debug("Empty value provided for NotificationJob's cron, not registering anything on Quartz");
-        } else {
-            LOG.debug("NotificationJob's cron expression: {} - registering Quartz job and trigger",
-                    notificationJobCronExp);
-
-            try {
-                registerJob(null, NotificationJob.class.getName(), notificationJobCronExp.getValuesAsStrings().get(0));
-            } catch (Exception e) {
-                LOG.error("While loading NotificationJob instance", e);
-            }
-        }
-
-        // 3. ReportJobs
-        for (Report report : reportDAO.findAll()) {
-            try {
-                registerJob(report);
-            } catch (Exception e) {
-                LOG.error("While loading job instance for report " + report.getName(), e);
-            }
-        }
-    }
 }

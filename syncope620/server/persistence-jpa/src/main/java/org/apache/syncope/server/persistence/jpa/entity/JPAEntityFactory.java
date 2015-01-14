@@ -25,6 +25,7 @@ import org.apache.syncope.server.persistence.api.entity.Entitlement;
 import org.apache.syncope.server.persistence.api.entity.Entity;
 import org.apache.syncope.server.persistence.api.entity.EntityFactory;
 import org.apache.syncope.server.persistence.api.entity.ExternalResource;
+import org.apache.syncope.server.persistence.api.entity.Logger;
 import org.apache.syncope.server.persistence.api.entity.Notification;
 import org.apache.syncope.server.persistence.api.entity.PasswordPolicy;
 import org.apache.syncope.server.persistence.api.entity.Policy;
@@ -252,6 +253,8 @@ public class JPAEntityFactory implements EntityFactory {
             result = (T) new JPATaskExec();
         } else if (reference.equals(SecurityQuestion.class)) {
             result = (T) new JPASecurityQuestion();
+        } else if (reference.equals(Logger.class)) {
+            result = (T) new JPALogger();
         } else {
             throw new IllegalArgumentException("Could not find a JPA implementation of " + reference.getName());
         }

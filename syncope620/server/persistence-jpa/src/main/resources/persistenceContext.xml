@@ -60,19 +60,19 @@ under the License.
     <constructor-arg value="${database.schema}"/>
   </bean>
   <bean id="persistenceProperties" class="org.apache.syncope.server.misc.spring.ResourceWithFallbackLoader">
-    <property name="primary" value="file:${conf.directory}/persistence.properties"/>
+    <property name="primary" value="file:${content.directory}/persistence.properties"/>
     <property name="fallback" value="classpath:persistence.properties"/>
   </bean>
   <bean id="contentXML" class="org.apache.syncope.server.misc.spring.ResourceWithFallbackLoader">
-    <property name="primary" value="file:${conf.directory}/content.xml"/>
+    <property name="primary" value="file:${content.directory}/content.xml"/>
     <property name="fallback" value="classpath:content.xml"/>
   </bean>
   <bean id="viewsXML" class="org.apache.syncope.server.misc.spring.ResourceWithFallbackLoader">
-    <property name="primary" value="file:${conf.directory}/views.xml"/>
+    <property name="primary" value="file:${content.directory}/views.xml"/>
     <property name="fallback" value="classpath:views.xml"/>
   </bean>
   <bean id="indexesXML" class="org.apache.syncope.server.misc.spring.ResourceWithFallbackLoader">
-    <property name="primary" value="file:${conf.directory}/indexes.xml"/>
+    <property name="primary" value="file:${content.directory}/indexes.xml"/>
     <property name="fallback" value="classpath:indexes.xml"/>
   </bean>
 
