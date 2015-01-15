@@ -340,7 +340,7 @@ under the License.
     <camel.version>2.14.1</camel.version>	
     <spring.version>4.0.9.RELEASE</spring.version>
     <spring-security.version>3.2.5.RELEASE</spring-security.version>
-    <jackson.version>2.4.4</jackson.version>
+    <jackson.version>2.4.5</jackson.version>
     <velocity.version>1.7</velocity.version>
     <velocitytools.version>2.0</velocitytools.version>
     <quartz.version>2.2.1</quartz.version>
@@ -726,8 +726,13 @@ under the License.
       </dependency>
       <dependency>
         <groupId>org.apache.camel</groupId>
-       <artifactId>camel-spring</artifactId>
-       <version>${camel.version}</version>
+        <artifactId>camel-spring</artifactId>
+        <version>${camel.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.camel</groupId>
+        <artifactId>camel-script</artifactId>
+        <version>${camel.version}</version>
       </dependency>
       <!-- /Camel -->
 
