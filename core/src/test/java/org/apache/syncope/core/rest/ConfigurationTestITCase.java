@@ -151,22 +151,22 @@ public class ConfigurationTestITCase extends AbstractTest {
             assertTrue(e.getElements().iterator().next().contains(EntityViolationType.InvalidName.name()));
         }
     }
-    
+
     @Test
-    public void issueSYNCOPE629() throws IOException{
+    public void issueSYNCOPE629() throws IOException {
         SchemaTO membershipKey = new SchemaTO();
-        membershipKey.setName("membershipKey"+getUUIDString());
+        membershipKey.setName("membershipKey" + getUUIDString());
         membershipKey.setType(AttributeSchemaType.String);
         createSchema(AttributableType.MEMBERSHIP, SchemaType.NORMAL, membershipKey);
-        
+
         SchemaTO roleKey = new SchemaTO();
-        roleKey.setName("roleKey"+getUUIDString());
+        roleKey.setName("roleKey" + getUUIDString());
         roleKey.setType(AttributeSchemaType.String);
-        createSchema(AttributableType.ROLE, SchemaType.NORMAL, roleKey);        
-                
+        createSchema(AttributableType.ROLE, SchemaType.NORMAL, roleKey);
+
         RoleTO roleTO = new RoleTO();
         roleTO.setName("aRole" + getUUIDString());
-        roleTO.setParent(8L);        
+        roleTO.setParent(8L);
         // verify inheritance password and account policies
         roleTO.setInheritAccountPolicy(false);
         // not inherited so setter execution shouldn't be ignored
@@ -176,39 +176,44 @@ public class ConfigurationTestITCase extends AbstractTest {
         roleTO.setPasswordPolicy(2L);
         roleTO.getRAttrTemplates().add("icon");
         roleTO.getAttrs().add(attributeTO("icon", "anIcon"));
-        roleTO.getResources().add(RESOURCE_NAME_LDAP);       
+        roleTO.getResources().add(RESOURCE_NAME_LDAP);
         roleTO.getMAttrTemplates().add(membershipKey.getName());
         roleTO.getRAttrTemplates().add(roleKey.getName());
         RoleTO testRole = createRole(roleTO);
-                       
-        Response response = configurationService.export();
-        assertNotNull(response);
-        assertEquals(Response.Status.OK.getStatusCode(), response.getStatusInfo().getStatusCode());
-        assertTrue(response.getMediaType().toString().startsWith(MediaType.TEXT_XML));
-        String contentDisposition = response.getHeaderString(HttpHeaders.CONTENT_DISPOSITION);
-        assertNotNull(contentDisposition);
 
-        Object entity = response.getEntity();
-        assertTrue(entity instanceof InputStream);
-        String configExport = IOUtils.toString((InputStream) entity, SyncopeConstants.DEFAULT_ENCODING);
-        assertFalse(configExport.isEmpty());
-        assertTrue(configExport.length() > 1000);
-        
-        String[] result = StringUtils.substringsBetween(configExport, "<RATTRTEMPLATE", "/>");
-        boolean rattrExists = false;
-        for(String entry : result){
-            if(entry.contains(roleKey.getName())) rattrExists = true;
-        }
-        assertTrue(rattrExists);
-        
-        result = StringUtils.substringsBetween(configExport, "<MATTRTEMPLATE", "/>");
-        boolean mattrExists = false;
-        for(String entry : result){
-            if(entry.contains(membershipKey.getName())) mattrExists = true;
-        }
-        assertTrue(mattrExists);
-        
-        deleteRole(testRole.getId());
+        try {
+            Response response = configurationService.export();
+            assertNotNull(response);
+            assertEquals(Response.Status.OK.getStatusCode(), response.getStatusInfo().getStatusCode());
+            assertTrue(response.getMediaType().toString().startsWith(MediaType.TEXT_XML));
+            String contentDisposition = response.getHeaderString(HttpHeaders.CONTENT_DISPOSITION);
+            assertNotNull(contentDisposition);
 
+            Object entity = response.getEntity();
+            assertTrue(entity instanceof InputStream);
+            String configExport = IOUtils.toString((InputStream) entity, SyncopeConstants.DEFAULT_ENCODING);
+            assertFalse(configExport.isEmpty());
+            assertTrue(configExport.length() > 1000);
+
+            String[] result = StringUtils.substringsBetween(configExport, "<RATTRTEMPLATE", "/>");
+            boolean rattrExists = false;
+            for (String entry : result) {
+                if (entry.contains(roleKey.getName())) {
+                    rattrExists = true;
+                }
+            }
+            assertTrue(rattrExists);
+
+            result = StringUtils.substringsBetween(configExport, "<MATTRTEMPLATE", "/>");
+            boolean mattrExists = false;
+            for (String entry : result) {
+                if (entry.contains(membershipKey.getName())) {
+                    mattrExists = true;
+                }
+            }
+            assertTrue(mattrExists);
+        } finally {
+            deleteRole(testRole.getId());
+        }
     }
 }
