@@ -948,6 +948,12 @@ under the License.
         <artifactId>codemirror</artifactId>
         <version>${codemirror.version}</version>
       </dependency>
+      
+      <dependency>
+        <groupId>com.beust</groupId>
+        <artifactId>jcommander</artifactId>
+        <version>1.47</version>
+      </dependency>
 
       <dependency>
         <groupId>org.codehaus.izpack</groupId>
@@ -1181,7 +1187,7 @@ under the License.
         <plugin>
           <groupId>org.codehaus.cargo</groupId>
           <artifactId>cargo-maven2-plugin</artifactId>
-          <version>1.4.11</version>
+          <version>1.4.12</version>
           <configuration>
             <container>
               <containerId>tomcat7x</containerId>
@@ -1621,5 +1627,6 @@ under the License.
     <module>standalone</module>
     <module>installer</module>
     <module>deb</module>
+    <module>cli</module>
   </modules>
 </project>
