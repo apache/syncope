@@ -20,6 +20,7 @@ package org.apache.syncope.cli;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
+import org.apache.syncope.cli.commands.ConfigurationCommand;
 import org.apache.syncope.cli.commands.LoggerCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,11 +31,14 @@ public class SyncopeAdm {
 
     private static final String helpMessage = "Usage: Main [options]\n"
             + "  Options:\n"
-            + "    logger --help \n";
+            + "    logger --help \n"
+            + "    config --help \n";
+
+    private static final JCommander jcommander = new JCommander();
 
     private static LoggerCommand loggerCommand;
 
-    private static final JCommander jc = new JCommander();
+    private static ConfigurationCommand configurationCommand;
 
     public static void main(final String[] args) {
         LOG.debug("Starting with args \n");
@@ -49,7 +53,7 @@ public class SyncopeAdm {
             System.out.println(helpMessage);
         } else {
             try {
-                jc.parse(args);
+                jcommander.parse(args);
             } catch (final ParameterException ioe) {
                 System.out.println(helpMessage);
                 LOG.error("Parameter exception", ioe);
@@ -62,17 +66,22 @@ public class SyncopeAdm {
     private static void instantiateCommands() {
         LOG.debug("Init JCommander");
         loggerCommand = new LoggerCommand();
-        jc.addCommand(loggerCommand);
+        jcommander.addCommand(loggerCommand);
         LOG.debug("Added LoggerCommand");
+        configurationCommand = new ConfigurationCommand();
+        jcommander.addCommand(configurationCommand);
+        LOG.debug("Added ConfigurationCommand");
     }
 
     private static void executeCommand() {
-        final String command = jc.getParsedCommand();
+        final String command = jcommander.getParsedCommand();
 
         LOG.debug("Called command {}", command);
 
         if ("logger".equalsIgnoreCase(command)) {
             loggerCommand.execute();
+        } else if ("config".equalsIgnoreCase(command)) {
+            configurationCommand.execute();
         }
     }
 }

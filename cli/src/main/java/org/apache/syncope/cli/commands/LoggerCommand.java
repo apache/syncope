@@ -26,6 +26,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.cli.SyncopeServices;
 import org.apache.syncope.cli.validators.DebugLevelValidator;
+import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.common.services.LoggerService;
 import org.apache.syncope.common.to.LoggerTO;
 import org.apache.syncope.common.types.LoggerLevel;
@@ -38,43 +39,48 @@ import org.slf4j.LoggerFactory;
         optionPrefixes = "-",
         separators = "=",
         commandDescription = "Apache Syncope logger service")
-public class LoggerCommand {
+public class LoggerCommand extends AbstractCommand {
 
     private static final Logger LOG = LoggerFactory.getLogger(LoggerCommand.class);
 
-    private static final Class syncopeLoggerClass = LoggerService.class;
+    private static final Class SYNCOPE_LOGGER_CLASS = LoggerService.class;
 
     private final String helpMessage = "Usage: logger [options]\n"
             + "  Options:\n"
             + "    -h, --help \n"
             + "    -l, --list \n"
-            + "    -ua, --update-all \n"
-            + "       Syntax: -ua={LOGGER-LEVEL} \n"
+            + "    -r, --read \n"
+            + "       Syntax: -r={LOG-NAME} \n"
             + "    -u, --update \n"
             + "       Syntax: {LOG-NAME}={LOG-LEVEL} \n"
+            + "    -ua, --update-all \n"
+            + "       Syntax: -ua={LOG-LEVEL} \n"
+            + "    -c, --create \n"
+            + "       Syntax: {LOG-NAME}={LOG-LEVEL} \n"
             + "    -d, --delete \n"
-            + "       Syntax: -d={LOGGER-NAME}";
-
-    @Parameter(names = {"-h", "--help"})
-    public boolean help = false;
+            + "       Syntax: -d={LOG-NAME}";
 
     @Parameter(names = {"-l", "--list"})
     public boolean list = false;
 
+    @Parameter(names = {"-r", "--read"})
+    public String logNameToRead;
+
+    @DynamicParameter(names = {"-u", "--update"})
+    private final Map<String, String> updateLogs = new HashMap<String, String>();
+
     @Parameter(names = {"-ua", "--update-all"}, validateWith = DebugLevelValidator.class)
     public String logLevel;
 
-    @Parameter(names = {"-r", "--read"})
-    public String logNameToRead;
+    @DynamicParameter(names = {"-u", "--update"})
+    private final Map<String, String> createLogs = new HashMap<String, String>();
 
     @Parameter(names = {"-d", "--delete"})
     public String logNameToDelete;
 
-    @DynamicParameter(names = {"-u", "--update"})
-    private final Map<String, String> params = new HashMap<String, String>();
-
+    @Override
     public void execute() {
-        final LoggerService loggerService = ((LoggerService) SyncopeServices.get(syncopeLoggerClass));
+        final LoggerService loggerService = ((LoggerService) SyncopeServices.get(SYNCOPE_LOGGER_CLASS));
 
         LOG.debug("Logger service successfully created");
 
@@ -83,32 +89,66 @@ public class LoggerCommand {
             System.out.println(helpMessage);
         } else if (list) {
             LOG.debug("- logger list command");
-            for (final LoggerTO loggerTO : loggerService.list(LoggerType.LOG)) {
-                System.out.println(" - " + loggerTO.getName() + " -> " + loggerTO.getLevel());
-            }
-        } else if (StringUtils.isNotBlank(logLevel)) {
-            LOG.debug("- logger update all command with level {}", logLevel);
-            for (final LoggerTO loggerTO : loggerService.list(LoggerType.LOG)) {
-                loggerTO.setLevel(LoggerLevel.valueOf(logLevel));
-                loggerService.update(LoggerType.LOG, loggerTO.getName(), loggerTO);
-                System.out.println(" - Logger " + loggerTO.getName() + " new value -> " + loggerTO.getLevel());
-            }
-        } else if (!params.isEmpty()) {
-            LOG.debug("- logger update command with params {}", params);
-            for (final Map.Entry<String, String> entrySet : params.entrySet()) {
-                final LoggerTO loggerTO = loggerService.read(LoggerType.LOG, entrySet.getKey());
-                loggerTO.setLevel(LoggerLevel.valueOf(entrySet.getValue()));
-                loggerService.update(LoggerType.LOG, loggerTO.getName(), loggerTO);
-                System.out.println(" - Logger " + loggerTO.getName() + " new value -> " + loggerTO.getLevel());
+            try {
+                for (final LoggerTO loggerTO : loggerService.list(LoggerType.LOG)) {
+                    System.out.println(" - " + loggerTO.getName() + " -> " + loggerTO.getLevel());
+                }
+            } catch (final SyncopeClientException ex) {
+                System.out.println(" - Error: " + ex.getMessage());
             }
         } else if (StringUtils.isNotBlank(logNameToRead)) {
             LOG.debug("- logger read {} command", logNameToRead);
-            final LoggerTO loggerTO = loggerService.read(LoggerType.LOG, logNameToRead);
-            System.out.println(" - Logger " + loggerTO.getName() + " with level -> " + loggerTO.getLevel());
+            try {
+                final LoggerTO loggerTO = loggerService.read(LoggerType.LOG, logNameToRead);
+                System.out.println(" - Logger " + loggerTO.getName() + " with level -> " + loggerTO.getLevel());
+            } catch (final SyncopeClientException ex) {
+                System.out.println(" - Error: " + ex.getMessage());
+            }
+        } else if (!updateLogs.isEmpty()) {
+            LOG.debug("- logger update command with params {}", updateLogs);
+            try {
+                for (final Map.Entry<String, String> entrySet : updateLogs.entrySet()) {
+                    final LoggerTO loggerTO = loggerService.read(LoggerType.LOG, entrySet.getKey());
+                    loggerTO.setLevel(LoggerLevel.valueOf(entrySet.getValue()));
+                    loggerService.update(LoggerType.LOG, loggerTO.getName(), loggerTO);
+                    System.out.println(" - Logger " + loggerTO.getName() + " new level -> " + loggerTO.getLevel());
+                }
+            } catch (final SyncopeClientException ex) {
+                System.out.println(" - Error: " + ex.getMessage());
+            }
+        } else if (StringUtils.isNotBlank(logLevel)) {
+            LOG.debug("- logger update all command with level {}", logLevel);
+            try {
+
+                for (final LoggerTO loggerTO : loggerService.list(LoggerType.LOG)) {
+                    loggerTO.setLevel(LoggerLevel.valueOf(logLevel));
+                    loggerService.update(LoggerType.LOG, loggerTO.getName(), loggerTO);
+                    System.out.println(" - Logger " + loggerTO.getName() + " new level -> " + loggerTO.getLevel());
+                }
+            } catch (final SyncopeClientException ex) {
+                System.out.println(" - Error: " + ex.getMessage());
+            }
+        } else if (!createLogs.isEmpty()) {
+            LOG.debug("- logger create command with params {}", createLogs);
+            try {
+                for (final Map.Entry<String, String> entrySet : createLogs.entrySet()) {
+                    final LoggerTO loggerTO = new LoggerTO();
+                    loggerTO.setName(entrySet.getKey());
+                    loggerTO.setLevel(LoggerLevel.valueOf(entrySet.getValue()));
+                    loggerService.update(LoggerType.LOG, loggerTO.getName(), loggerTO);
+                    System.out.println(" - Logger " + loggerTO.getName() + " created with level -> " + loggerTO.getLevel());
+                }
+            } catch (final SyncopeClientException ex) {
+                System.out.println(" - Error: " + ex.getMessage());
+            }
         } else if (StringUtils.isNotBlank(logNameToDelete)) {
-            LOG.debug("- logger delete {} command", logNameToDelete);
-            loggerService.delete(LoggerType.LOG, logNameToDelete);
-            System.out.println(" - Logger " + logNameToDelete + " deleted!");
+            try {
+                LOG.debug("- logger delete {} command", logNameToDelete);
+                loggerService.delete(LoggerType.LOG, logNameToDelete);
+                System.out.println(" - Logger " + logNameToDelete + " deleted!");
+            } catch (final SyncopeClientException ex) {
+                System.out.println(" - Error: " + ex.getMessage());
+            }
         } else {
             System.out.println(helpMessage);
         }
