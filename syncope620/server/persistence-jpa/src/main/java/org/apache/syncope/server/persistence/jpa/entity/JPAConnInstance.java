@@ -186,7 +186,7 @@ public class JPAConnInstance extends AbstractEntity<Long> implements ConnInstanc
         if (!StringUtils.isBlank(jsonConf)) {
             ConnConfProperty[] deserialized = POJOHelper.deserialize(jsonConf, ConnConfProperty[].class);
             if (ArrayUtils.isNotEmpty(deserialized)) {
-                configuration = new HashSet<ConnConfProperty>(Arrays.asList(deserialized));
+                configuration = new HashSet<>(Arrays.asList(deserialized));
             }
         }
 
@@ -195,7 +195,7 @@ public class JPAConnInstance extends AbstractEntity<Long> implements ConnInstanc
 
     @Override
     public void setConfiguration(final Set<ConnConfProperty> configuration) {
-        jsonConf = POJOHelper.serialize(new HashSet<ConnConfProperty>(configuration));
+        jsonConf = POJOHelper.serialize(new HashSet<>(configuration));
     }
 
     @Override

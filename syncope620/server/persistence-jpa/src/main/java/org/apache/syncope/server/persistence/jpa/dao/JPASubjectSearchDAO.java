@@ -20,6 +20,7 @@ package org.apache.syncope.server.persistence.jpa.dao;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -31,6 +32,7 @@ import javax.persistence.TemporalType;
 import javax.validation.ValidationException;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.SubjectType;
@@ -50,7 +52,6 @@ import org.apache.syncope.server.persistence.api.entity.AttributableUtilFactory;
 import org.apache.syncope.server.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.server.persistence.api.entity.PlainSchema;
 import org.apache.syncope.server.persistence.api.entity.Subject;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.ReflectionUtils;
@@ -652,6 +653,11 @@ public class JPASubjectSearchDAO extends AbstractDAO<Subject<?, ?, ?>, Long> imp
 
         final AttributableUtil attrUtil = attrUtilFactory.getInstance(type.asAttributableType());
 
+        // Keeps track of difference between entity's getKey() and JPA @Id fields
+        if ("key".equals(cond.getSchema())) {
+            cond.setSchema("id");
+        }
+
         Field subjectField = ReflectionUtils.findField(attrUtil.attributableClass(), cond.getSchema());
         if (subjectField == null) {
             LOG.warn("Ignoring invalid schema '{}'", cond.getSchema());
@@ -685,13 +691,22 @@ public class JPASubjectSearchDAO extends AbstractDAO<Subject<?, ?, ?>, Long> imp
 
         // Deal with subject fields representing relationships to other entities
         if (subjectField.getType().getAnnotation(Entity.class) != null) {
-            if (BeanUtils.findDeclaredMethodWithMinimalParameters(subjectField.getType(), "getId") != null) {
-                cond.setSchema(cond.getSchema() + "_id");
-                schema.setType(AttrSchemaType.Long);
+            Method relMethod = null;
+            try {
+                relMethod = ClassUtils.getPublicMethod(subjectField.getType(), "getKey", new Class[0]);
+            } catch (Exception e) {
+                LOG.error("Could not find {}#getKey", subjectField.getType(), e);
             }
-            if (BeanUtils.findDeclaredMethodWithMinimalParameters(subjectField.getType(), "getName") != null) {
-                cond.setSchema(cond.getSchema() + "_name");
-                schema.setType(AttrSchemaType.String);
+
+            if (relMethod != null) {
+                if (Long.class.isAssignableFrom(relMethod.getReturnType())) {
+                    cond.setSchema(cond.getSchema() + "_id");
+                    schema.setType(AttrSchemaType.Long);
+                }
+                if (String.class.isAssignableFrom(relMethod.getReturnType())) {
+                    cond.setSchema(cond.getSchema() + "_name");
+                    schema.setType(AttrSchemaType.String);
+                }
             }
         }
 

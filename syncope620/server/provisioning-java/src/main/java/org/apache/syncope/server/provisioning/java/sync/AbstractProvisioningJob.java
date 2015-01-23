@@ -20,6 +20,7 @@ package org.apache.syncope.server.provisioning.java.sync;
 
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.server.persistence.api.dao.EntitlementDAO;
@@ -97,7 +98,7 @@ public abstract class AbstractProvisioningJob<T extends ProvisioningTask, A exte
      * @param dryRun dry run?
      * @return report as string
      */
-    protected String createReport(final List<ProvisioningResult> provResults, final TraceLevel syncTraceLevel,
+    protected String createReport(final Collection<ProvisioningResult> provResults, final TraceLevel syncTraceLevel,
             final boolean dryRun) {
 
         if (syncTraceLevel == TraceLevel.NONE) {
@@ -341,7 +342,9 @@ public abstract class AbstractProvisioningJob<T extends ProvisioningTask, A exte
                     uMapping,
                     rMapping,
                     dryRun);
-
+        } catch (Throwable t) {
+            LOG.error("While executing provisioning job {}", getClass().getName(), t);
+            throw t;
         } finally {
             // POST: clean up the SecurityContextHolder
             SecurityContextHolder.clearContext();

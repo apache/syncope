@@ -32,5 +32,5 @@ public @interface FormAttributeField {
 
     boolean roleSearch() default false;
 
-    IntMappingType schema() default IntMappingType.UserSchema;
+    IntMappingType schema() default IntMappingType.UserPlainSchema;
 }

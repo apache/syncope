@@ -73,6 +73,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
         return create(userTO, true, false, null, Collections.<String>emptySet());
     }
 
+    @Override
     public Map.Entry<Long, List<PropagationStatus>> create(final UserTO userTO, final boolean storePassword) {
         return create(userTO, storePassword, false, null, Collections.<String>emptySet());
     }
@@ -99,7 +100,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
             propagationReporter.onPrimaryResourceFailure(tasks);
         }
 
-        Map.Entry<Long, List<PropagationStatus>> result = new AbstractMap.SimpleEntry<Long, List<PropagationStatus>>(
+        Map.Entry<Long, List<PropagationStatus>> result = new AbstractMap.SimpleEntry<>(
                 created.getResult().getKey(), propagationReporter.getStatuses());
         return result;
     }
@@ -149,7 +150,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
             }
         }
 
-        Map.Entry<Long, List<PropagationStatus>> result = new AbstractMap.SimpleEntry<Long, List<PropagationStatus>>(
+        Map.Entry<Long, List<PropagationStatus>> result = new AbstractMap.SimpleEntry<>(
                 updated.getResult().getKey().getKey(), propagationReporter.getStatuses());
         return result;
     }
@@ -198,11 +199,11 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
         if (statusMod.isOnSyncope()) {
             updated = uwfAdapter.activate(user.getKey(), statusMod.getToken());
         } else {
-            updated = new WorkflowResult<Long>(user.getKey(), null, statusMod.getType().name().toLowerCase());
+            updated = new WorkflowResult<>(user.getKey(), null, statusMod.getType().name().toLowerCase());
         }
 
         List<PropagationStatus> statuses = propagateStatus(user, statusMod);
-        return new AbstractMap.SimpleEntry<Long, List<PropagationStatus>>(updated.getResult(), statuses);
+        return new AbstractMap.SimpleEntry<>(updated.getResult(), statuses);
     }
 
     @Override
@@ -211,11 +212,11 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
         if (statusMod.isOnSyncope()) {
             updated = uwfAdapter.reactivate(user.getKey());
         } else {
-            updated = new WorkflowResult<Long>(user.getKey(), null, statusMod.getType().name().toLowerCase());
+            updated = new WorkflowResult<>(user.getKey(), null, statusMod.getType().name().toLowerCase());
         }
 
         List<PropagationStatus> statuses = propagateStatus(user, statusMod);
-        return new AbstractMap.SimpleEntry<Long, List<PropagationStatus>>(updated.getResult(), statuses);
+        return new AbstractMap.SimpleEntry<>(updated.getResult(), statuses);
     }
 
     @Override
@@ -224,15 +225,15 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
         if (statusMod.isOnSyncope()) {
             updated = uwfAdapter.suspend(user.getKey());
         } else {
-            updated = new WorkflowResult<Long>(user.getKey(), null, statusMod.getType().name().toLowerCase());
+            updated = new WorkflowResult<>(user.getKey(), null, statusMod.getType().name().toLowerCase());
         }
 
         List<PropagationStatus> statuses = propagateStatus(user, statusMod);
-        return new AbstractMap.SimpleEntry<Long, List<PropagationStatus>>(updated.getResult(), statuses);
+        return new AbstractMap.SimpleEntry<>(updated.getResult(), statuses);
     }
 
     protected List<PropagationStatus> propagateStatus(final User user, final StatusMod statusMod) {
-        Set<String> resourcesToBeExcluded = new HashSet<String>(user.getResourceNames());
+        Set<String> resourcesToBeExcluded = new HashSet<>(user.getResourceNames());
         resourcesToBeExcluded.removeAll(statusMod.getResourceNames());
 
         List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(
@@ -261,7 +262,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
 
             final List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(
                     new WorkflowResult<Map.Entry<UserMod, Boolean>>(
-                            new AbstractMap.SimpleEntry<UserMod, Boolean>(userMod, Boolean.FALSE),
+                            new AbstractMap.SimpleEntry<>(userMod, Boolean.FALSE),
                             updated.getPropByRes(), updated.getPerformedTasks()));
 
             taskExecutor.execute(tasks);
@@ -276,7 +277,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
         noPropResourceName.removeAll(resources);
 
         final List<PropagationTask> tasks =
-                propagationManager.getUserDeleteTaskIds(userKey, new HashSet<String>(resources), noPropResourceName);
+                propagationManager.getUserDeleteTaskIds(userKey, new HashSet<>(resources), noPropResourceName);
         final PropagationReporter propagationReporter =
                 ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
         try {
@@ -303,7 +304,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
             result.setMessage("Update failed, trying to sync status anyway (if configured)\n" + e.getMessage());
 
             updated = new WorkflowResult<Map.Entry<UserMod, Boolean>>(
-                    new AbstractMap.SimpleEntry<UserMod, Boolean>(userMod, false), new PropagationByResource(),
+                    new AbstractMap.SimpleEntry<>(userMod, false), new PropagationByResource(),
                     new HashSet<String>());
         }
 
@@ -341,7 +342,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
             propagationReporter.onPrimaryResourceFailure(tasks);
         }
 
-        return new AbstractMap.SimpleEntry<Long, List<PropagationStatus>>(updated.getResult().getKey().getKey(),
+        return new AbstractMap.SimpleEntry<>(updated.getResult().getKey().getKey(),
                 propagationReporter.getStatuses());
 
     }

@@ -77,7 +77,7 @@ public final class RESTHeaders {
     /**
      * Declares the type of exception being raised.
      *
-     * @see ClientExceptionType
+     * @see org.apache.syncope.common.lib.types.ClientExceptionType
      */
     public static final String ERROR_CODE = "X-Application-Error-Code";
 

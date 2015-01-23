@@ -339,7 +339,7 @@ public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
     public UserTO delete(final Long key) {
         List<Role> ownedRoles = roleDAO.findOwnedByUser(key);
         if (!ownedRoles.isEmpty()) {
-            List<String> owned = new ArrayList<String>(ownedRoles.size());
+            List<String> owned = new ArrayList<>(ownedRoles.size());
             for (Role role : ownedRoles) {
                 owned.add(role.getKey() + " " + role.getName());
             }

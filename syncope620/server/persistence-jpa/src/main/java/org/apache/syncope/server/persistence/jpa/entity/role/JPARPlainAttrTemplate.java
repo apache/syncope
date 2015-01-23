@@ -19,24 +19,33 @@
 package org.apache.syncope.server.persistence.jpa.entity.role;
 
 import javax.persistence.Entity;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import org.apache.syncope.server.persistence.api.entity.role.RPlainAttrTemplate;
 import org.apache.syncope.server.persistence.api.entity.role.RPlainSchema;
 import org.apache.syncope.server.persistence.api.entity.role.Role;
-import org.apache.syncope.server.persistence.jpa.entity.AbstractAttrTemplate;
+import org.apache.syncope.server.persistence.jpa.entity.AbstractPlainAttrTemplate;
 
 @Entity
 @Table(name = JPARPlainAttrTemplate.TABLE)
-public class JPARPlainAttrTemplate extends AbstractAttrTemplate<RPlainSchema> implements RPlainAttrTemplate {
+public class JPARPlainAttrTemplate extends AbstractPlainAttrTemplate<RPlainSchema> implements RPlainAttrTemplate {
 
     private static final long serialVersionUID = 6943917051517266268L;
 
     public static final String TABLE = "RPlainAttrTemplate";
 
+    @Id
+    private Long id;
+
     @ManyToOne
     private JPARole owner;
+
+    @Override
+    public Long getKey() {
+        return id;
+    }
 
     @ManyToOne
     @JoinColumn(name = "schema_name")

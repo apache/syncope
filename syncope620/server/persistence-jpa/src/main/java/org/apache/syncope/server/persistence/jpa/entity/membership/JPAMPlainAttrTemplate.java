@@ -19,22 +19,26 @@
 package org.apache.syncope.server.persistence.jpa.entity.membership;
 
 import javax.persistence.Entity;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import org.apache.syncope.server.persistence.api.entity.membership.MPlainAttrTemplate;
 import org.apache.syncope.server.persistence.api.entity.membership.MPlainSchema;
 import org.apache.syncope.server.persistence.api.entity.role.Role;
-import org.apache.syncope.server.persistence.jpa.entity.AbstractAttrTemplate;
+import org.apache.syncope.server.persistence.jpa.entity.AbstractPlainAttrTemplate;
 import org.apache.syncope.server.persistence.jpa.entity.role.JPARole;
 
 @Entity
 @Table(name = JPAMPlainAttrTemplate.TABLE)
-public class JPAMPlainAttrTemplate extends AbstractAttrTemplate<MPlainSchema> implements MPlainAttrTemplate {
+public class JPAMPlainAttrTemplate extends AbstractPlainAttrTemplate<MPlainSchema> implements MPlainAttrTemplate {
 
     private static final long serialVersionUID = -8768086609963244514L;
 
     public static final String TABLE = "MPlainAttrTemplate";
+
+    @Id
+    private Long id;
 
     @ManyToOne
     private JPARole owner;
@@ -42,6 +46,11 @@ public class JPAMPlainAttrTemplate extends AbstractAttrTemplate<MPlainSchema> im
     @ManyToOne
     @JoinColumn(name = "schema_name")
     private JPAMPlainSchema schema;
+
+    @Override
+    public Long getKey() {
+        return id;
+    }
 
     @Override
     public MPlainSchema getSchema() {

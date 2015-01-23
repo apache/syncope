@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.server.provisioning.java.sync;
 
-import java.util.List;
 import org.apache.syncope.server.persistence.api.entity.Subject;
 import org.apache.syncope.server.provisioning.api.sync.PushActions;
 import org.apache.syncope.server.provisioning.api.sync.ProvisioningProfile;
@@ -78,11 +77,12 @@ public abstract class DefaultPushActions implements PushActions {
 
     @Override
     public <T extends Subject<?, ?, ?>> void after(
-            final ProvisioningProfile<?, ?> profile, final T subject, final ProvisioningResult result) throws JobExecutionException {
+            final ProvisioningProfile<?, ?> profile, final T subject, final ProvisioningResult result)
+            throws JobExecutionException {
     }
 
     @Override
-    public void afterAll(final ProvisioningProfile<?, ?> profile, final List<ProvisioningResult> results)
+    public void afterAll(final ProvisioningProfile<?, ?> profile)
             throws JobExecutionException {
     }
 }

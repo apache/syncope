@@ -23,8 +23,17 @@ import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
+import org.apache.commons.lang3.ClassUtils;
 import org.apache.syncope.server.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.server.misc.spring.ApplicationContextProvider;
+import org.apache.syncope.server.persistence.api.entity.AnnotatedEntity;
+import org.apache.syncope.server.persistence.api.entity.Attr;
+import org.apache.syncope.server.persistence.api.entity.Attributable;
+import org.apache.syncope.server.persistence.api.entity.Entity;
+import org.apache.syncope.server.persistence.api.entity.Policy;
+import org.apache.syncope.server.persistence.api.entity.Schema;
+import org.apache.syncope.server.persistence.api.entity.Subject;
+import org.apache.syncope.server.persistence.api.entity.task.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +54,24 @@ public class EntityValidationListener {
         Set<ConstraintViolation<Object>> violations = validator.validate(object);
         if (!violations.isEmpty()) {
             LOG.warn("Bean validation errors found: {}", violations);
-            throw new InvalidEntityException(object.getClass().getSimpleName(), violations);
+
+            Class<?> entityInt = null;
+            for (Class<?> interf : ClassUtils.getAllInterfaces(object.getClass())) {
+                if (!Entity.class.equals(interf)
+                        && !AnnotatedEntity.class.equals(interf)
+                        && !Schema.class.equals(interf)
+                        && !Attr.class.equals(interf)
+                        && !Task.class.equals(interf)
+                        && !Policy.class.equals(interf)
+                        && !Attributable.class.equals(interf)
+                        && !Subject.class.equals(interf)
+                        && Entity.class.isAssignableFrom(interf)) {
+
+                    entityInt = interf;
+                }
+            }
+
+            throw new InvalidEntityException(entityInt == null ? "Entity" : entityInt.getSimpleName(), violations);
         }
     }
 }

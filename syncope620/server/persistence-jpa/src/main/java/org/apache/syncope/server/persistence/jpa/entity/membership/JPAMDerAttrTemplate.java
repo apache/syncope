@@ -25,12 +25,12 @@ import javax.persistence.Table;
 import org.apache.syncope.server.persistence.api.entity.membership.MDerAttrTemplate;
 import org.apache.syncope.server.persistence.api.entity.membership.MDerSchema;
 import org.apache.syncope.server.persistence.api.entity.role.Role;
-import org.apache.syncope.server.persistence.jpa.entity.AbstractAttrTemplate;
+import org.apache.syncope.server.persistence.jpa.entity.AbstractDerAttrTemplate;
 import org.apache.syncope.server.persistence.jpa.entity.role.JPARole;
 
 @Entity
 @Table(name = JPAMDerAttrTemplate.TABLE)
-public class JPAMDerAttrTemplate extends AbstractAttrTemplate<MDerSchema> implements MDerAttrTemplate {
+public class JPAMDerAttrTemplate extends AbstractDerAttrTemplate<MDerSchema> implements MDerAttrTemplate {
 
     private static final long serialVersionUID = -4465930976210263434L;
 

@@ -262,7 +262,7 @@ public class NotificationTest {
         notification.setSelfAsRecipient(true);
 
         notification.setRecipientAttrName("email");
-        notification.setRecipientAttrType(IntMappingType.UserSchema);
+        notification.setRecipientAttrType(IntMappingType.UserPlainSchema);
 
         Random random = new Random(System.currentTimeMillis());
         String sender = "syncopetest-" + random.nextLong() + "@syncope.apache.org";
@@ -320,7 +320,7 @@ public class NotificationTest {
         notification.setSelfAsRecipient(true);
 
         notification.setRecipientAttrName("email");
-        notification.setRecipientAttrType(IntMappingType.UserSchema);
+        notification.setRecipientAttrType(IntMappingType.UserPlainSchema);
 
         Random random = new Random(System.currentTimeMillis());
         String sender = "syncope192-" + random.nextLong() + "@syncope.apache.org";
@@ -372,7 +372,7 @@ public class NotificationTest {
         notification.setSelfAsRecipient(true);
 
         notification.setRecipientAttrName("email");
-        notification.setRecipientAttrType(IntMappingType.UserSchema);
+        notification.setRecipientAttrType(IntMappingType.UserPlainSchema);
 
         Random random = new Random(System.currentTimeMillis());
         String sender = "syncopetest-" + random.nextLong() + "@syncope.apache.org";
@@ -422,7 +422,7 @@ public class NotificationTest {
         notification.setSelfAsRecipient(true);
 
         notification.setRecipientAttrName("email");
-        notification.setRecipientAttrType(IntMappingType.UserSchema);
+        notification.setRecipientAttrType(IntMappingType.UserPlainSchema);
 
         Random random = new Random(System.currentTimeMillis());
         String sender = "syncopetest-" + random.nextLong() + "@syncope.apache.org";
@@ -491,7 +491,7 @@ public class NotificationTest {
         notification.setSelfAsRecipient(true);
 
         notification.setRecipientAttrName("email");
-        notification.setRecipientAttrType(IntMappingType.UserSchema);
+        notification.setRecipientAttrType(IntMappingType.UserPlainSchema);
 
         notification.getStaticRecipients().add("syncope445@syncope.apache.org");
 
@@ -549,7 +549,7 @@ public class NotificationTest {
         notification.setSelfAsRecipient(true);
 
         notification.setRecipientAttrName("email");
-        notification.setRecipientAttrType(IntMappingType.UserSchema);
+        notification.setRecipientAttrType(IntMappingType.UserPlainSchema);
 
         notification.getStaticRecipients().add("syncope492@syncope.apache.org");
 
@@ -593,7 +593,7 @@ public class NotificationTest {
         notification.setSelfAsRecipient(false);
 
         notification.setRecipientAttrName("email");
-        notification.setRecipientAttrType(IntMappingType.UserSchema);
+        notification.setRecipientAttrType(IntMappingType.UserPlainSchema);
 
         notification.getStaticRecipients().add(MAIL_ADDRESS);
 
@@ -635,7 +635,7 @@ public class NotificationTest {
 
         assertNotNull(taskId);
         assertNotNull(textBody);
-        assertTrue(recipients.contains(MAIL_ADDRESS));
+        assertTrue(recipients != null && recipients.contains(MAIL_ADDRESS));
 
         // 5. execute Notification task and verify e-mail
         taskLogic.execute(taskId, false);

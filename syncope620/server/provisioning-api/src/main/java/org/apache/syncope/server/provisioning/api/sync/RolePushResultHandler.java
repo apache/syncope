@@ -16,26 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.server.logic.init;
+package org.apache.syncope.server.provisioning.api.sync;
 
-import java.text.ParseException;
-import org.apache.syncope.server.persistence.api.entity.Report;
-import org.apache.syncope.server.persistence.api.entity.task.Task;
-import org.quartz.SchedulerException;
-
-public interface JobInstanceLoader {
-
-    void registerJob(Task task, String jobClassName, String cronExpression)
-            throws ClassNotFoundException, SchedulerException, ParseException;
-
-    void registerJob(Report report) throws SchedulerException, ParseException;
-
-    void registerReportJob(Long reportKey) throws SchedulerException, ParseException;
-
-    void registerTaskJob(Long taskKey) throws ClassNotFoundException, SchedulerException, ParseException;
-
-    void unregisterJob(Task task);
-
-    void unregisterJob(Report report);
+public interface RolePushResultHandler extends SyncopePushResultHandler {
 
 }

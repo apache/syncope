@@ -45,6 +45,7 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.server.misc.security.UnauthorizedRoleException;
 import org.apache.syncope.server.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.server.persistence.api.attrvalue.validation.ParsingValidationException;
+import org.apache.syncope.server.persistence.api.dao.DuplicateException;
 import org.apache.syncope.server.persistence.api.dao.NotFoundException;
 import org.apache.syncope.server.workflow.api.WorkflowException;
 import org.identityconnectors.framework.common.exceptions.ConfigurationException;
@@ -89,7 +90,7 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
                     header(HttpHeaders.WWW_AUTHENTICATE, BASIC_REALM_UNAUTHORIZED);
         } else if (ex instanceof UnauthorizedRoleException) {
             builder = builder(Response.Status.UNAUTHORIZED, ClientExceptionType.UnauthorizedRole, getExMessage(ex));
-        } else if (ex instanceof EntityExistsException) {
+        } else if (ex instanceof EntityExistsException || ex instanceof DuplicateException) {
             builder = builder(Response.Status.CONFLICT, ClientExceptionType.EntityExists, getExMessage(ex));
         } else if (ex instanceof DataIntegrityViolationException) {
             builder = builder(Response.Status.CONFLICT, ClientExceptionType.DataIntegrityViolation, getExMessage(ex));

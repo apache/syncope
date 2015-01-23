@@ -41,5 +41,5 @@ under the License.
     <property name="primary" value="file:${conf.directory}/content.xml"/>
     <property name="fallback" value="classpath:content.xml"/>
   </bean>
-  
+
 </beans>

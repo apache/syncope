@@ -76,7 +76,7 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
                     null,
                     null,
                     result,
-                    reporter.getStatuses(),
+                    reporter == null ? null : reporter.getStatuses(),
                     tasks);
 
             auditManager.audit(
@@ -85,7 +85,7 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
                     null,
                     null,
                     result,
-                    reporter.getStatuses(),
+                    reporter == null ? null : reporter.getStatuses(),
                     tasks);
         }
     }

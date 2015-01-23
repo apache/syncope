@@ -304,8 +304,8 @@ public class ConnObjectUtil {
                     }
                     break;
 
-                case UserSchema:
-                case RoleSchema:
+                case UserPlainSchema:
+                case RolePlainSchema:
                     attributeTO = new AttrTO();
                     attributeTO.setSchema(item.getIntAttrName());
 
@@ -446,7 +446,7 @@ public class ConnObjectUtil {
 
                 ((RoleTO) subjectTO).setInheritOwner(((RoleTO) template).isInheritOwner());
                 ((RoleTO) subjectTO).setInheritTemplates(((RoleTO) template).isInheritTemplates());
-                ((RoleTO) subjectTO).setInheritAttrs(((RoleTO) template).isInheritAttrs());
+                ((RoleTO) subjectTO).setInheritPlainAttrs(((RoleTO) template).isInheritPlainAttrs());
                 ((RoleTO) subjectTO).setInheritDerAttrs(((RoleTO) template).isInheritDerAttrs());
                 ((RoleTO) subjectTO).setInheritVirAttrs(((RoleTO) template).isInheritVirAttrs());
                 ((RoleTO) subjectTO).setInheritPasswordPolicy(((RoleTO) template).isInheritPasswordPolicy());
@@ -700,7 +700,7 @@ public class ConnObjectUtil {
     }
 
     private void fillFromTemplate(final AbstractAttributableTO attributableTO, final AbstractAttributableTO template) {
-        Map<String, AttrTO> currentAttrMap = attributableTO.getAttrMap();
+        Map<String, AttrTO> currentAttrMap = attributableTO.getPlainAttrMap();
         for (AttrTO templateAttr : template.getPlainAttrs()) {
             if (templateAttr.getValues() != null && !templateAttr.getValues().isEmpty()
                     && (!currentAttrMap.containsKey(templateAttr.getSchema())

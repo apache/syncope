@@ -72,13 +72,13 @@ public interface ReportService extends JAXRSService {
     /**
      * Returns report execution with matching key.
      *
-     * @param executionId report execution id to be selected
+     * @param executionKey report execution id to be selected
      * @return report execution with matching key
      */
     @GET
-    @Path("executions/{executionId}")
+    @Path("executions/{executionKey}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    ReportExecTO readExecution(@NotNull @PathParam("executionId") Long executionId);
+    ReportExecTO readExecution(@NotNull @PathParam("executionKey") Long executionKey);
 
     /**
      * Returns a paged list of all existing reports.
@@ -163,11 +163,11 @@ public interface ReportService extends JAXRSService {
     /**
      * Deletes report execution with matching key.
      *
-     * @param executionId key of execution report to be deleted
+     * @param executionKey key of execution report to be deleted
      */
     @DELETE
-    @Path("executions/{executionId}")
-    void deleteExecution(@NotNull @PathParam("executionId") Long executionId);
+    @Path("executions/{executionKey}")
+    void deleteExecution(@NotNull @PathParam("executionKey") Long executionKey);
 
     /**
      * Executes the report with matching key.
@@ -183,13 +183,13 @@ public interface ReportService extends JAXRSService {
     /**
      * Exports the report execution with matching key in the requested format.
      *
-     * @param executionId key of execution report to be selected
+     * @param executionKey key of execution report to be selected
      * @param fmt file-format selection
      * @return a stream for content download
      */
     @GET
-    @Path("executions/{executionId}/stream")
+    @Path("executions/{executionKey}/stream")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    Response exportExecutionResult(@NotNull @PathParam("executionId") Long executionId,
+    Response exportExecutionResult(@NotNull @PathParam("executionKey") Long executionKey,
             @QueryParam("format") ReportExecExportFormat fmt);
 }

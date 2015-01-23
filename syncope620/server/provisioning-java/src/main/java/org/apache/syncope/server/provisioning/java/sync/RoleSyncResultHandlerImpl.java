@@ -19,37 +19,47 @@
 package org.apache.syncope.server.provisioning.java.sync;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.syncope.common.lib.mod.AbstractSubjectMod;
+import org.apache.syncope.common.lib.mod.AttrMod;
+import org.apache.syncope.common.lib.mod.RoleMod;
 import org.apache.syncope.common.lib.mod.UserMod;
 import org.apache.syncope.common.lib.to.AbstractSubjectTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
-import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.server.persistence.api.entity.AttributableUtil;
 import org.apache.syncope.server.provisioning.api.sync.ProvisioningResult;
+import org.apache.syncope.server.provisioning.api.sync.RoleSyncResultHandler;
 import org.identityconnectors.framework.common.objects.SyncDelta;
-import org.quartz.JobExecutionException;
 
-public class UserSyncResultHandler extends AbstractSubjectSyncResultHandler {
+public class RoleSyncResultHandlerImpl extends AbstractSyncResultHandler implements RoleSyncResultHandler {
+
+    protected Map<Long, String> roleOwnerMap = new HashMap<>();
+
+    @Override
+    public Map<Long, String> getRoleOwnerMap() {
+        return this.roleOwnerMap;
+    }
 
     @Override
     protected AttributableUtil getAttributableUtil() {
-        return attrUtilFactory.getInstance(AttributableType.USER);
+        return attrUtilFactory.getInstance(AttributableType.ROLE);
     }
 
     @Override
     protected String getName(final AbstractSubjectTO subjectTO) {
-        return UserTO.class.cast(subjectTO).getUsername();
+        return RoleTO.class.cast(subjectTO).getName();
     }
 
     @Override
     protected AbstractSubjectTO getSubjectTO(final long key) {
         try {
-            return userTransfer.getUserTO(userDAO.authFetch(key));
+            return roleTransfer.getRoleTO(key);
         } catch (Exception e) {
-            LOG.warn("Error retrieving user {}", key, e);
+            LOG.warn("Error retrieving role {}", key, e);
             return null;
         }
     }
@@ -63,31 +73,24 @@ public class UserSyncResultHandler extends AbstractSubjectSyncResultHandler {
                 delta.getObject(),
                 subjectTO,
                 profile.getTask(),
-                getAttributableUtil());
+                attrUtilFactory.getInstance(AttributableType.ROLE));
     }
 
     @Override
     protected AbstractSubjectTO create(
-            final AbstractSubjectTO subjectTO, final SyncDelta delta, final ProvisioningResult result) {
+            final AbstractSubjectTO subjectTO, final SyncDelta _delta, final ProvisioningResult result) {
 
-        UserTO userTO = UserTO.class.cast(subjectTO);
+        RoleTO roleTO = RoleTO.class.cast(subjectTO);
 
-        Boolean enabled = syncUtilities.readEnabled(delta.getObject(), profile.getTask());
-        //Delegate User Workflow Creation and its Propagation to provisioning manager
-        Map.Entry<Long, List<PropagationStatus>> created = userProvisioningManager.create(userTO, true, true, enabled,
+        Map.Entry<Long, List<PropagationStatus>> created = roleProvisioningManager.create(roleTO, roleOwnerMap,
                 Collections.singleton(profile.getTask().getResource().getKey()));
 
-        userTO = userTransfer.getUserTO(userDAO.authFetch(created.getKey()));
+        roleTO = roleTransfer.getRoleTO(created.getKey());
 
         result.setId(created.getKey());
+        result.setName(getName(subjectTO));
 
-        return userTO;
-    }
-
-    @Override
-    protected List<ProvisioningResult> link(SyncDelta delta, List<Long> subjects, AttributableUtil attrUtil,
-            boolean unlink) throws JobExecutionException {
-        return super.link(delta, subjects, attrUtil, unlink); //To change body of generated methods, choose Tools | Templates.
+        return roleTO;
     }
 
     @Override
@@ -96,16 +99,16 @@ public class UserSyncResultHandler extends AbstractSubjectSyncResultHandler {
             final ProvisioningResult result,
             final boolean unlink) {
 
-        final UserMod userMod = new UserMod();
-        userMod.setKey(before.getKey());
+        final RoleMod roleMod = new RoleMod();
+        roleMod.setKey(before.getKey());
 
         if (unlink) {
-            userMod.getResourcesToRemove().add(profile.getTask().getResource().getKey());
+            roleMod.getResourcesToRemove().add(profile.getTask().getResource().getKey());
         } else {
-            userMod.getResourcesToAdd().add(profile.getTask().getResource().getKey());
+            roleMod.getResourcesToAdd().add(profile.getTask().getResource().getKey());
         }
 
-        return userTransfer.getUserTO(userDAO.authFetch(uwfAdapter.update(userMod).getResult().getKey().getKey()));
+        return roleTransfer.getRoleTO(rwfAdapter.update(roleMod).getResult());
     }
 
     @Override
@@ -115,41 +118,52 @@ public class UserSyncResultHandler extends AbstractSubjectSyncResultHandler {
             final SyncDelta delta,
             final ProvisioningResult result) {
 
-        final UserMod userMod = UserMod.class.cast(subjectMod);
-        final Boolean enabled = syncUtilities.readEnabled(delta.getObject(), profile.getTask());
+        RoleMod roleMod = RoleMod.class.cast(subjectMod);
 
-        Map.Entry<Long, List<PropagationStatus>> updated = userProvisioningManager.update(userMod, before.getKey(),
-                result, enabled, Collections.singleton(profile.getTask().getResource().getKey()));
+        Map.Entry<Long, List<PropagationStatus>> updated = roleProvisioningManager.update(roleMod);
 
-        return userTransfer.getUserTO(userDAO.authFetch(updated.getKey()));
+        //moved after role provisioning manager
+        String roleOwner = null;
+        for (AttrMod attrMod : roleMod.getPlainAttrsToUpdate()) {
+            if (attrMod.getSchema().isEmpty()) {
+                roleOwner = attrMod.getValuesToBeAdded().iterator().next();
+            }
+        }
+        if (roleOwner != null) {
+            roleOwnerMap.put(updated.getKey(), roleOwner);
+        }
+
+        final RoleTO after = roleTransfer.getRoleTO(updated.getKey());
+
+        result.setName(getName(after));
+
+        return after;
     }
 
     @Override
-    protected void deprovision(
-            final Long key,
-            final boolean unlink) {
+    protected void deprovision(final Long id, final boolean unlink) {
 
         taskExecutor.execute(
-                propagationManager.getUserDeleteTaskIds(key, profile.getTask().getResource().getKey()));
+                propagationManager.getRoleDeleteTaskIds(id, profile.getTask().getResource().getKey()));
 
         if (unlink) {
             final UserMod userMod = new UserMod();
-            userMod.setKey(key);
+            userMod.setKey(id);
             userMod.getResourcesToRemove().add(profile.getTask().getResource().getKey());
         }
     }
 
     @Override
-    protected void delete(final Long key) {
+    protected void delete(final Long id) {
         try {
-            userProvisioningManager.
-                    delete(key, Collections.<String>singleton(profile.getTask().getResource().getKey()));
+            taskExecutor.execute(
+                    propagationManager.getRoleDeleteTaskIds(id, profile.getTask().getResource().getKey()));
         } catch (Exception e) {
             // A propagation failure doesn't imply a synchronization failure.
             // The propagation exception status will be reported into the propagation task execution.
-            LOG.error("Could not propagate user " + key, e);
+            LOG.error("Could not propagate user " + id, e);
         }
 
-        uwfAdapter.delete(key);
+        roleProvisioningManager.delete(id);
     }
 }

@@ -16,10 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.server.logic;
+package org.apache.syncope.server.provisioning.java.job;
 
 import org.apache.syncope.server.provisioning.api.job.JobNamer;
-import org.apache.syncope.server.logic.init.JobInstanceLoader;
+import org.apache.syncope.server.provisioning.api.job.JobInstanceLoader;
 import org.quartz.SchedulerContext;
 import org.quartz.spi.TriggerFiredBundle;
 import org.springframework.beans.BeanWrapper;

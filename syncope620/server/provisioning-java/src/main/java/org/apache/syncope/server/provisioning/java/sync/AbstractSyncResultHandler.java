@@ -19,7 +19,6 @@
 package org.apache.syncope.server.provisioning.java.sync;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -29,7 +28,6 @@ import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.server.persistence.api.dao.NotFoundException;
-import org.apache.syncope.server.persistence.api.dao.UserDAO;
 import org.apache.syncope.server.persistence.api.entity.AttributableUtil;
 import org.apache.syncope.server.persistence.api.entity.task.SyncTask;
 import org.apache.syncope.server.provisioning.api.AttributableTransformer;
@@ -37,14 +35,14 @@ import org.apache.syncope.server.provisioning.api.propagation.PropagationExcepti
 import org.apache.syncope.server.provisioning.api.sync.SyncActions;
 import org.apache.syncope.server.provisioning.api.sync.ProvisioningResult;
 import org.apache.syncope.server.misc.security.UnauthorizedRoleException;
+import org.apache.syncope.server.provisioning.api.sync.SyncopeSyncResultHandler;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.identityconnectors.framework.common.objects.SyncDeltaType;
-import org.identityconnectors.framework.common.objects.SyncResultsHandler;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public abstract class AbstractSubjectSyncResultHandler extends AbstractSyncopeResultHandler<SyncTask, SyncActions>
-        implements SyncResultsHandler {
+public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHandler<SyncTask, SyncActions>
+        implements SyncopeSyncResultHandler {
 
     @Autowired
     protected SyncUtilities syncUtilities;
@@ -74,7 +72,7 @@ public abstract class AbstractSubjectSyncResultHandler extends AbstractSyncopeRe
     @Override
     public boolean handle(final SyncDelta delta) {
         try {
-            doHandle(delta, profile.getResults());
+            doHandle(delta);
             return true;
         } catch (JobExecutionException e) {
             LOG.error("Synchronization failed", e);
@@ -203,30 +201,27 @@ public abstract class AbstractSubjectSyncResultHandler extends AbstractSyncopeRe
 
         LOG.debug("About to update {}", subjects);
 
-        List<ProvisioningResult> updResults = new ArrayList<>();
+        List<ProvisioningResult> results = new ArrayList<>();
 
-        for (Long id : subjects) {
-            LOG.debug("About to update {}", id);
-
-            Object output;
-            AbstractSubjectTO before = null;
-            Result resultStatus;
+        for (Long key : subjects) {
+            LOG.debug("About to update {}", key);
 
             final ProvisioningResult result = new ProvisioningResult();
             result.setOperation(ResourceOperation.UPDATE);
             result.setSubjectType(attrUtil.getType());
             result.setStatus(ProvisioningResult.Status.SUCCESS);
-            result.setId(id);
+            result.setId(key);
 
-            before = getSubjectTO(id);
-
+            AbstractSubjectTO before = getSubjectTO(key);
             if (before == null) {
                 result.setStatus(ProvisioningResult.Status.FAILURE);
-                result.setMessage(String.format("Subject '%s(%d)' not found", attrUtil.getType().name(), id));
+                result.setMessage(String.format("Subject '%s(%d)' not found", attrUtil.getType().name(), key));
             } else {
                 result.setName(getName(before));
             }
 
+            Result resultStatus;
+            Object output;
             if (!profile.isDryRun()) {
                 if (before == null) {
                     resultStatus = Result.FAILURE;
@@ -252,7 +247,7 @@ public abstract class AbstractSubjectSyncResultHandler extends AbstractSyncopeRe
                         output = updated;
                         resultStatus = Result.SUCCESS;
                         result.setName(getName(updated));
-                        LOG.debug("{} {} successfully updated", attrUtil.getType(), id);
+                        LOG.debug("{} {} successfully updated", attrUtil.getType(), key);
                     } catch (PropagationException e) {
                         // A propagation failure doesn't imply a synchronization failure.
                         // The propagation exception status will be reported into the propagation task execution.
@@ -269,9 +264,9 @@ public abstract class AbstractSubjectSyncResultHandler extends AbstractSyncopeRe
                 }
                 audit("update", resultStatus, before, output, delta);
             }
-            updResults.add(result);
+            results.add(result);
         }
-        return updResults;
+        return results;
     }
 
     protected List<ProvisioningResult> deprovision(
@@ -513,7 +508,7 @@ public abstract class AbstractSubjectSyncResultHandler extends AbstractSyncopeRe
      * @param delta returned by the underlying profile.getConnector()
      * @throws JobExecutionException in case of synchronization failure.
      */
-    protected final void doHandle(final SyncDelta delta, final Collection<ProvisioningResult> syncResults)
+    protected final void doHandle(final SyncDelta delta)
             throws JobExecutionException {
 
         final AttributableUtil attrUtil = getAttributableUtil();
@@ -526,20 +521,20 @@ public abstract class AbstractSubjectSyncResultHandler extends AbstractSyncopeRe
                 : delta.getPreviousUid().getUidValue();
 
         try {
-            List<Long> subjectIds = syncUtilities.findExisting(
+            List<Long> subjectKeys = syncUtilities.findExisting(
                     uid, delta.getObject(), profile.getTask().getResource(), attrUtil);
 
-            if (subjectIds.size() > 1) {
+            if (subjectKeys.size() > 1) {
                 switch (profile.getResAct()) {
                     case IGNORE:
-                        throw new IllegalStateException("More than one match " + subjectIds);
+                        throw new IllegalStateException("More than one match " + subjectKeys);
 
                     case FIRSTMATCH:
-                        subjectIds = subjectIds.subList(0, 1);
+                        subjectKeys = subjectKeys.subList(0, 1);
                         break;
 
                     case LASTMATCH:
-                        subjectIds = subjectIds.subList(subjectIds.size() - 1, subjectIds.size());
+                        subjectKeys = subjectKeys.subList(subjectKeys.size() - 1, subjectKeys.size());
                         break;
 
                     default:
@@ -548,7 +543,7 @@ public abstract class AbstractSubjectSyncResultHandler extends AbstractSyncopeRe
             }
 
             if (SyncDeltaType.CREATE_OR_UPDATE == delta.getDeltaType()) {
-                if (subjectIds.isEmpty()) {
+                if (subjectKeys.isEmpty()) {
                     switch (profile.getTask().getUnmatchingRule()) {
                         case ASSIGN:
                             profile.getResults().addAll(assign(delta, attrUtil));
@@ -562,34 +557,32 @@ public abstract class AbstractSubjectSyncResultHandler extends AbstractSyncopeRe
                 } else {
                     switch (profile.getTask().getMatchingRule()) {
                         case UPDATE:
-                            profile.getResults().addAll(update(delta, subjectIds, attrUtil));
+                            profile.getResults().addAll(update(delta, subjectKeys, attrUtil));
                             break;
                         case DEPROVISION:
-                            profile.getResults().addAll(deprovision(delta, subjectIds, attrUtil, false));
+                            profile.getResults().addAll(deprovision(delta, subjectKeys, attrUtil, false));
                             break;
                         case UNASSIGN:
-                            profile.getResults().addAll(deprovision(delta, subjectIds, attrUtil, true));
+                            profile.getResults().addAll(deprovision(delta, subjectKeys, attrUtil, true));
                             break;
                         case LINK:
-                            profile.getResults().addAll(link(delta, subjectIds, attrUtil, false));
+                            profile.getResults().addAll(link(delta, subjectKeys, attrUtil, false));
                             break;
                         case UNLINK:
-                            profile.getResults().addAll(link(delta, subjectIds, attrUtil, true));
+                            profile.getResults().addAll(link(delta, subjectKeys, attrUtil, true));
                             break;
                         default:
                         // do nothing
                     }
                 }
             } else if (SyncDeltaType.DELETE == delta.getDeltaType()) {
-                if (subjectIds.isEmpty()) {
+                if (subjectKeys.isEmpty()) {
                     LOG.debug("No match found for deletion");
                 } else {
-                    profile.getResults().addAll(delete(delta, subjectIds, attrUtil));
+                    profile.getResults().addAll(delete(delta, subjectKeys, attrUtil));
                 }
             }
-        } catch (IllegalStateException e) {
-            LOG.warn(e.getMessage());
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalStateException | IllegalArgumentException e) {
             LOG.warn(e.getMessage());
         }
     }

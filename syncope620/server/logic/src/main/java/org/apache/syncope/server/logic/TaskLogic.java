@@ -51,7 +51,7 @@ import org.apache.syncope.server.provisioning.api.job.JobNamer;
 import org.apache.syncope.server.provisioning.api.job.TaskJob;
 import org.apache.syncope.server.provisioning.api.propagation.PropagationTaskExecutor;
 import org.apache.syncope.server.logic.init.ImplementationClassNamesLoader;
-import org.apache.syncope.server.logic.init.JobInstanceLoader;
+import org.apache.syncope.server.provisioning.api.job.JobInstanceLoader;
 import org.apache.syncope.server.logic.notification.NotificationJob;
 import org.quartz.JobDataMap;
 import org.quartz.JobKey;
@@ -305,6 +305,7 @@ public class TaskLogic extends AbstractTransactionalLogic<AbstractTaskTO> {
         if (TaskType.SCHEDULED == taskUtil.getType()
                 || TaskType.SYNCHRONIZATION == taskUtil.getType()
                 || TaskType.PUSH == taskUtil.getType()) {
+
             jobInstanceLoader.unregisterJob(task);
         }
 
@@ -373,9 +374,6 @@ public class TaskLogic extends AbstractTransactionalLogic<AbstractTaskTO> {
         return res;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected AbstractTaskTO resolveReference(final Method method, final Object... args)
             throws UnresolvedReferenceException {

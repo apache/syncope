@@ -303,9 +303,9 @@ public final class MappingUtil {
         final Map.Entry<String, Attribute> result;
 
         switch (mapItem.getIntMappingType()) {
-            case UserSchema:
-            case RoleSchema:
-            case MembershipSchema:
+            case UserPlainSchema:
+            case RolePlainSchema:
+            case MembershipPlainSchema:
                 final PlainSchemaDAO plainSchemaDAO = context.getBean(PlainSchemaDAO.class);
                 schema = plainSchemaDAO.find(mapItem.getIntAttrName(),
                         MappingUtil.getIntMappingTypeClass(mapItem.getIntMappingType()));
@@ -487,9 +487,9 @@ public final class MappingUtil {
         List<PlainAttrValue> values = new ArrayList<>();
         PlainAttrValue attrValue;
         switch (mappingItem.getIntMappingType()) {
-            case UserSchema:
-            case RoleSchema:
-            case MembershipSchema:
+            case UserPlainSchema:
+            case RolePlainSchema:
+            case MembershipPlainSchema:
                 for (Attributable<?, ?, ?> attributable : attributables) {
                     final PlainAttr attr = attributable.getPlainAttr(mappingItem.getIntAttrName());
                     if (attr != null) {
@@ -687,15 +687,15 @@ public final class MappingUtil {
         Class result;
 
         switch (intMappingType) {
-            case UserSchema:
+            case UserPlainSchema:
                 result = UPlainSchema.class;
                 break;
 
-            case RoleSchema:
+            case RolePlainSchema:
                 result = RPlainSchema.class;
                 break;
 
-            case MembershipSchema:
+            case MembershipPlainSchema:
                 result = MPlainSchema.class;
                 break;
 

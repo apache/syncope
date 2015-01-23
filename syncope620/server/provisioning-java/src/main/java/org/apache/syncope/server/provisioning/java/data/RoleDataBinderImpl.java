@@ -29,7 +29,6 @@ import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.server.persistence.api.dao.EntitlementDAO;
-import org.apache.syncope.server.persistence.api.dao.RoleDAO;
 import org.apache.syncope.server.persistence.api.entity.AccountPolicy;
 import org.apache.syncope.server.persistence.api.entity.AttrTemplate;
 import org.apache.syncope.server.persistence.api.entity.Entitlement;
@@ -64,9 +63,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class RoleDataBinderImpl extends AbstractAttributableDataBinder implements RoleDataBinder {
 
     @Autowired
-    private RoleDAO roleDAO;
-
-    @Autowired
     private ConnObjectUtil connObjectUtil;
 
     @Autowired
@@ -76,7 +72,7 @@ public class RoleDataBinderImpl extends AbstractAttributableDataBinder implement
             final Role role, final List<String> schemaNames,
             final Class<T> templateClass, final Class<S> schemaClass) {
 
-        List<T> toRemove = new ArrayList<T>();
+        List<T> toRemove = new ArrayList<>();
         for (T template : role.getAttrTemplates(templateClass)) {
             if (!schemaNames.contains(template.getSchema().getKey())) {
                 toRemove.add(template);
@@ -89,7 +85,7 @@ public class RoleDataBinderImpl extends AbstractAttributableDataBinder implement
                 S schema = getSchema(schemaName, schemaClass);
                 if (schema != null) {
                     try {
-                        T template = templateClass.newInstance();
+                        T template = entityFactory.newEntity(templateClass);
                         template.setSchema(schema);
                         template.setOwner(role);
                         role.getAttrTemplates(templateClass).add(template);
@@ -105,7 +101,7 @@ public class RoleDataBinderImpl extends AbstractAttributableDataBinder implement
     public Role create(final Role role, final RoleTO roleTO) {
         role.setInheritOwner(roleTO.isInheritOwner());
 
-        role.setInheritPlainAttrs(roleTO.isInheritAttrs());
+        role.setInheritPlainAttrs(roleTO.isInheritPlainAttrs());
         role.setInheritDerAttrs(roleTO.isInheritDerAttrs());
         role.setInheritVirAttrs(roleTO.isInheritVirAttrs());
 
@@ -335,7 +331,7 @@ public class RoleDataBinderImpl extends AbstractAttributableDataBinder implement
 
         roleTO.setInheritTemplates(role.isInheritTemplates());
 
-        roleTO.setInheritAttrs(role.isInheritPlainAttrs());
+        roleTO.setInheritPlainAttrs(role.isInheritPlainAttrs());
         roleTO.setInheritDerAttrs(role.isInheritDerAttrs());
         roleTO.setInheritVirAttrs(role.isInheritVirAttrs());
 

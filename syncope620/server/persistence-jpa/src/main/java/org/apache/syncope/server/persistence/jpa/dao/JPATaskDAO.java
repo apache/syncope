@@ -144,7 +144,7 @@ public class JPATaskDAO extends AbstractDAO<Task, Long> implements TaskDAO {
     @Override
     public int count(final TaskType type) {
         Query countQuery = entityManager.createNativeQuery("SELECT COUNT(id) FROM Task WHERE TYPE=?1");
-        countQuery.setParameter(1, type.toString());
+        countQuery.setParameter(1, type.name());
         return ((Number) countQuery.getSingleResult()).intValue();
     }
 

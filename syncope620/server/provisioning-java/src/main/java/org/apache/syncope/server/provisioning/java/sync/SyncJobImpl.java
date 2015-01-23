@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.server.provisioning.java.sync;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.mod.ReferenceMod;
@@ -34,11 +32,12 @@ import org.apache.syncope.server.persistence.api.entity.task.SyncTask;
 import org.apache.syncope.server.persistence.api.entity.user.UMapping;
 import org.apache.syncope.server.provisioning.api.Connector;
 import org.apache.syncope.server.provisioning.api.sync.ProvisioningProfile;
-import org.apache.syncope.server.provisioning.api.sync.ProvisioningResult;
 import org.apache.syncope.server.provisioning.api.sync.SyncActions;
 import org.apache.syncope.server.misc.security.UnauthorizedRoleException;
 import org.apache.syncope.server.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.server.provisioning.api.job.SyncJob;
+import org.apache.syncope.server.provisioning.api.sync.RoleSyncResultHandler;
+import org.apache.syncope.server.provisioning.api.sync.UserSyncResultHandler;
 import org.apache.syncope.server.workflow.api.RoleWorkflowAdapter;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.SyncToken;
@@ -74,14 +73,14 @@ public class SyncJobImpl extends AbstractProvisioningJob<SyncTask, SyncActions> 
                 roleMod.setRoleOwner(null);
                 roleMod.setUserOwner(null);
             } else {
-                Long userId = syncUtilities.findMatchingAttributableId(
+                Long userId = syncUtilities.findMatchingAttributableKey(
                         ObjectClass.ACCOUNT,
                         entry.getValue(),
                         rhandler.getProfile().getTask().getResource(),
                         rhandler.getProfile().getConnector());
 
                 if (userId == null) {
-                    Long roleId = syncUtilities.findMatchingAttributableId(
+                    Long roleId = syncUtilities.findMatchingAttributableKey(
                             ObjectClass.GROUP,
                             entry.getValue(),
                             rhandler.getProfile().getTask().getResource(),
@@ -109,27 +108,26 @@ public class SyncJobImpl extends AbstractProvisioningJob<SyncTask, SyncActions> 
 
         LOG.debug("Execute synchronization with token {}", syncTask.getResource().getUsyncToken());
 
-        final List<ProvisioningResult> results = new ArrayList<>();
-
         final ProvisioningProfile<SyncTask, SyncActions> profile = new ProvisioningProfile<>(connector, syncTask);
-        profile.getActions().addAll(actions);
+        if (actions != null) {
+            profile.getActions().addAll(actions);
+        }
         profile.setDryRun(dryRun);
         profile.setResAct(getSyncPolicySpec(syncTask).getConflictResolutionAction());
-        profile.getResults().addAll(results);
 
         // Prepare handler for SyncDelta objects (users)
         final UserSyncResultHandler uhandler =
-                (UserSyncResultHandler) ApplicationContextProvider.getApplicationContext().getBeanFactory().createBean(
-                        UserSyncResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+                (UserSyncResultHandler) ApplicationContextProvider.getApplicationContext().getBeanFactory().
+                createBean(UserSyncResultHandlerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
         uhandler.setProfile(profile);
 
         // Prepare handler for SyncDelta objects (roles/groups)
         final RoleSyncResultHandler rhandler =
-                (RoleSyncResultHandler) ApplicationContextProvider.getApplicationContext().getBeanFactory().createBean(
-                        RoleSyncResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+                (RoleSyncResultHandler) ApplicationContextProvider.getApplicationContext().getBeanFactory().
+                createBean(RoleSyncResultHandlerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
         rhandler.setProfile(profile);
 
-        if (!profile.isDryRun()) {
+        if (actions != null && !profile.isDryRun()) {
             for (SyncActions action : actions) {
                 action.beforeAll(profile);
             }
@@ -189,13 +187,13 @@ public class SyncJobImpl extends AbstractProvisioningJob<SyncTask, SyncActions> 
             LOG.error("While setting role owners", e);
         }
 
-        if (!profile.isDryRun()) {
+        if (actions != null && !profile.isDryRun()) {
             for (SyncActions action : actions) {
-                action.afterAll(profile, results);
+                action.afterAll(profile);
             }
         }
 
-        final String result = createReport(results, syncTask.getResource().getSyncTraceLevel(), dryRun);
+        final String result = createReport(profile.getResults(), syncTask.getResource().getSyncTraceLevel(), dryRun);
 
         LOG.debug("Sync result: {}", result);
 

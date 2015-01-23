@@ -163,7 +163,7 @@ abstract class AbstractServiceImpl implements JAXRSService {
             return Collections.<OrderByClause>emptyList();
         }
 
-        List<OrderByClause> result = new ArrayList<OrderByClause>();
+        List<OrderByClause> result = new ArrayList<>();
 
         for (String clause : orderBy.split(",")) {
             String[] elems = clause.split(" ");
@@ -195,7 +195,7 @@ abstract class AbstractServiceImpl implements JAXRSService {
     protected <T extends AbstractBaseBean> PagedResult<T> buildPagedResult(
             final List<T> list, final int page, final int size, final int totalCount) {
 
-        PagedResult<T> result = new PagedResult<T>();
+        PagedResult<T> result = new PagedResult<>();
         result.getResult().addAll(list);
 
         result.setPage(page);

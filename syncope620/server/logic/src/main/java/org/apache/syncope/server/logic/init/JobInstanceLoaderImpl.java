@@ -35,6 +35,7 @@ import org.apache.syncope.server.persistence.api.entity.task.PushTask;
 import org.apache.syncope.server.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.server.persistence.api.entity.task.SyncTask;
 import org.apache.syncope.server.persistence.api.entity.task.Task;
+import org.apache.syncope.server.provisioning.api.job.JobInstanceLoader;
 import org.apache.syncope.server.provisioning.api.job.JobNamer;
 import org.apache.syncope.server.provisioning.api.job.SyncJob;
 import org.apache.syncope.server.provisioning.api.job.TaskJob;

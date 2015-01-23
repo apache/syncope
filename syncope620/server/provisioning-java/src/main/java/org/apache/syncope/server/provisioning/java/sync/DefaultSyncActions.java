@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.server.provisioning.java.sync;
 
-import java.util.List;
 import org.apache.syncope.common.lib.mod.AbstractSubjectMod;
 import org.apache.syncope.common.lib.to.AbstractSubjectTO;
 import org.apache.syncope.server.provisioning.api.sync.SyncActions;
@@ -104,12 +103,13 @@ public abstract class DefaultSyncActions implements SyncActions {
 
     @Override
     public <T extends AbstractSubjectTO> void after(
-            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final T subject, final ProvisioningResult result)
+            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final T subject,
+            final ProvisioningResult result)
             throws JobExecutionException {
     }
 
     @Override
-    public void afterAll(final ProvisioningProfile<?, ?> profile, final List<ProvisioningResult> results)
+    public void afterAll(final ProvisioningProfile<?, ?> profile)
             throws JobExecutionException {
     }
 }

@@ -46,7 +46,7 @@ public class ConnObjectTO extends AbstractAnnotatedBean {
     }
 
     @JsonIgnore
-    public Map<String, AttrTO> getAttrMap() {
+    public Map<String, AttrTO> getPlainAttrMap() {
         Map<String, AttrTO> result = new HashMap<>(attrs.size());
         for (AttrTO attributeTO : attrs) {
             result.put(attributeTO.getSchema(), attributeTO);

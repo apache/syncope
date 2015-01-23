@@ -25,11 +25,11 @@ import javax.persistence.Table;
 import org.apache.syncope.server.persistence.api.entity.role.RDerAttrTemplate;
 import org.apache.syncope.server.persistence.api.entity.role.RDerSchema;
 import org.apache.syncope.server.persistence.api.entity.role.Role;
-import org.apache.syncope.server.persistence.jpa.entity.AbstractAttrTemplate;
+import org.apache.syncope.server.persistence.jpa.entity.AbstractDerAttrTemplate;
 
 @Entity
 @Table(name = JPARDerAttrTemplate.TABLE)
-public class JPARDerAttrTemplate extends AbstractAttrTemplate<RDerSchema> implements RDerAttrTemplate {
+public class JPARDerAttrTemplate extends AbstractDerAttrTemplate<RDerSchema> implements RDerAttrTemplate {
 
     private static final long serialVersionUID = 624868884107016649L;
 

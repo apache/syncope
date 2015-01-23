@@ -20,10 +20,16 @@ under the License.
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:task="http://www.springframework.org/schema/task"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
                            http://www.springframework.org/schema/beans/spring-beans.xsd
                            http://www.springframework.org/schema/context
-                           http://www.springframework.org/schema/context/spring-context.xsd">
+                           http://www.springframework.org/schema/context/spring-context.xsd
+                           http://www.springframework.org/schema/task
+                           http://www.springframework.org/schema/task/spring-task.xsd">
+  
+  <task:annotation-driven executor="connectorExecutor"/>
+  <task:executor id="connectorExecutor" pool-size="10"/>
   
   <bean id="scheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean"
         lazy-init="false" depends-on="nonJPAdbInitializer">
@@ -34,7 +40,7 @@ under the License.
     <property name="dataSource" ref="dataSource"/>
     <property name="transactionManager" ref="transactionManager"/>
     <property name="jobFactory">
-      <bean class="org.springframework.scheduling.quartz.SpringBeanJobFactory"/>
+      <bean class="org.apache.syncope.server.provisioning.java.job.SpringBeanJobFactory"/>
     </property>
     <property name="quartzProperties">
       <props>

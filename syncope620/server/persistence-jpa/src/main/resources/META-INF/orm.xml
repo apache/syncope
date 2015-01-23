@@ -124,11 +124,27 @@ under the License.
       </id>
     </attributes>
   </entity>
+  <entity class="org.apache.syncope.server.persistence.jpa.entity.role.JPARPlainAttrTemplate">
+    <attributes>
+      <id name="id">
+        <generated-value generator="SEQ_RPlainAttrTemplate" strategy="TABLE"/>
+        <table-generator name="SEQ_RPlainAttrTemplate" pk-column-value="SEQ_RPlainAttrTemplate" initial-value="1000"/>
+      </id>
+    </attributes>
+  </entity>
   <entity class="org.apache.syncope.server.persistence.jpa.entity.membership.JPAMPlainAttr">
     <attributes>
       <id name="id">
-        <generated-value generator="SEQ_MAttrPlain" strategy="TABLE"/>
-        <table-generator name="SEQ_MAttrPlain" pk-column-value="SEQ_MAttrPlain" initial-value="1000"/>
+        <generated-value generator="SEQ_MPlainAttr" strategy="TABLE"/>
+        <table-generator name="SEQ_MPlainAttr" pk-column-value="SEQ_MPlainAttr" initial-value="1000"/>
+      </id>
+    </attributes>
+  </entity>
+  <entity class="org.apache.syncope.server.persistence.jpa.entity.membership.JPAMPlainAttrTemplate">
+    <attributes>
+      <id name="id">
+        <generated-value generator="SEQ_MPlainAttrTemplate" strategy="TABLE"/>
+        <table-generator name="SEQ_MPlainAttrTemplate" pk-column-value="SEQ_MPlainAttrTemplate" initial-value="1000"/>
       </id>
     </attributes>
   </entity>

@@ -21,38 +21,38 @@ package org.apache.syncope.server.provisioning.java.sync;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.apache.syncope.common.lib.mod.UserMod;
+import org.apache.syncope.common.lib.mod.RoleMod;
 import org.apache.syncope.common.lib.to.AbstractSubjectTO;
-import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.server.persistence.api.entity.Mapping;
 import org.apache.syncope.server.persistence.api.entity.MappingItem;
 import org.apache.syncope.server.persistence.api.entity.Subject;
-import org.apache.syncope.server.persistence.api.entity.user.User;
+import org.apache.syncope.server.persistence.api.entity.role.Role;
 import org.apache.syncope.server.provisioning.api.TimeoutException;
+import org.apache.syncope.server.provisioning.api.sync.RolePushResultHandler;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.Uid;
 
-public class UserPushResultHandler extends AbstractSubjectPushResultHandler {
+public class RolePushResultHandlerImpl extends AbstractPushResultHandler implements RolePushResultHandler {
 
     @Override
     protected Subject<?, ?, ?> deprovision(final Subject<?, ?, ?> sbj) {
-        final UserTO before = userTransfer.getUserTO(userDAO.authFetch(sbj.getKey()));
+        final RoleTO before = roleTransfer.getRoleTO(Role.class.cast(sbj));
 
         final List<String> noPropResources = new ArrayList<>(before.getResources());
         noPropResources.remove(profile.getTask().getResource().getKey());
 
-        taskExecutor.execute(propagationManager.getUserDeleteTaskIds(before.getKey(),
-                Collections.singleton(profile.getTask().getResource().getKey()), noPropResources));
+        taskExecutor.execute(propagationManager.getRoleDeleteTaskIds(before.getKey(), noPropResources));
 
-        return userDAO.authFetch(before.getKey());
+        return roleDAO.authFetch(before.getKey());
     }
 
     @Override
     protected Subject<?, ?, ?> provision(final Subject<?, ?, ?> sbj, final Boolean enabled) {
-        final UserTO before = userTransfer.getUserTO(userDAO.authFetch(sbj.getKey()));
+        final RoleTO before = roleTransfer.getRoleTO(Role.class.cast(sbj));
 
         final List<String> noPropResources = new ArrayList<>(before.getResources());
         noPropResources.remove(profile.getTask().getResource().getKey());
@@ -60,61 +60,58 @@ public class UserPushResultHandler extends AbstractSubjectPushResultHandler {
         final PropagationByResource propByRes = new PropagationByResource();
         propByRes.add(ResourceOperation.CREATE, profile.getTask().getResource().getKey());
 
-        taskExecutor.execute(propagationManager.getUserCreateTaskIds(
+        taskExecutor.execute(propagationManager.getRoleCreateTaskIds(
                 before.getKey(),
-                enabled,
-                propByRes,
-                null,
                 Collections.unmodifiableCollection(before.getVirAttrs()),
-                Collections.unmodifiableCollection(before.getMemberships()),
+                propByRes,
                 noPropResources));
 
-        return userDAO.authFetch(before.getKey());
+        return roleDAO.authFetch(before.getKey());
     }
 
     @Override
     protected Subject<?, ?, ?> link(final Subject<?, ?, ?> sbj, final Boolean unlink) {
-        final UserMod userMod = new UserMod();
-        userMod.setKey(sbj.getKey());
+        final RoleMod roleMod = new RoleMod();
+        roleMod.setKey(sbj.getKey());
 
         if (unlink) {
-            userMod.getResourcesToRemove().add(profile.getTask().getResource().getKey());
+            roleMod.getResourcesToRemove().add(profile.getTask().getResource().getKey());
         } else {
-            userMod.getResourcesToAdd().add(profile.getTask().getResource().getKey());
+            roleMod.getResourcesToAdd().add(profile.getTask().getResource().getKey());
         }
 
-        uwfAdapter.update(userMod);
+        rwfAdapter.update(roleMod);
 
-        return userDAO.authFetch(userMod.getKey());
+        return roleDAO.authFetch(sbj.getKey());
     }
 
     @Override
     protected Subject<?, ?, ?> unassign(final Subject<?, ?, ?> sbj) {
-        final UserMod userMod = new UserMod();
-        userMod.setKey(sbj.getKey());
-        userMod.getResourcesToRemove().add(profile.getTask().getResource().getKey());
-        uwfAdapter.update(userMod);
+        final RoleMod roleMod = new RoleMod();
+        roleMod.setKey(sbj.getKey());
+        roleMod.getResourcesToRemove().add(profile.getTask().getResource().getKey());
+        rwfAdapter.update(roleMod);
         return deprovision(sbj);
     }
 
     @Override
     protected Subject<?, ?, ?> assign(final Subject<?, ?, ?> sbj, final Boolean enabled) {
-        final UserMod userMod = new UserMod();
-        userMod.setKey(sbj.getKey());
-        userMod.getResourcesToAdd().add(profile.getTask().getResource().getKey());
-        uwfAdapter.update(userMod);
+        final RoleMod roleMod = new RoleMod();
+        roleMod.setKey(sbj.getKey());
+        roleMod.getResourcesToAdd().add(profile.getTask().getResource().getKey());
+        rwfAdapter.update(roleMod);
         return provision(sbj, enabled);
     }
 
     @Override
     protected String getName(final Subject<?, ?, ?> subject) {
-        return User.class.cast(subject).getUsername();
+        return Role.class.cast(subject).getName();
     }
 
     @Override
     protected AbstractSubjectTO getSubjectTO(final long key) {
         try {
-            return userTransfer.getUserTO(userDAO.authFetch(key));
+            return roleTransfer.getRoleTO(key);
         } catch (Exception e) {
             LOG.warn("Error retrieving user {}", key, e);
             return null;
@@ -124,9 +121,9 @@ public class UserPushResultHandler extends AbstractSubjectPushResultHandler {
     @Override
     protected Subject<?, ?, ?> getSubject(final long key) {
         try {
-            return userDAO.authFetch(key);
+            return roleDAO.authFetch(key);
         } catch (Exception e) {
-            LOG.warn("Error retrieving user {}", key, e);
+            LOG.warn("Error retrieving role {}", key, e);
             return null;
         }
     }
@@ -139,10 +136,9 @@ public class UserPushResultHandler extends AbstractSubjectPushResultHandler {
             final Uid uid = new Uid(accountId);
 
             obj = profile.getConnector().getObject(
-                    ObjectClass.ACCOUNT,
+                    ObjectClass.GROUP,
                     uid,
                     profile.getConnector().getOperationOptions(Collections.<MappingItem>emptySet()));
-
         } catch (TimeoutException toe) {
             LOG.debug("Request timeout", toe);
             throw toe;
@@ -154,6 +150,6 @@ public class UserPushResultHandler extends AbstractSubjectPushResultHandler {
 
     @Override
     protected Mapping<?> getMapping() {
-        return profile.getTask().getResource().getUmapping();
+        return profile.getTask().getResource().getRmapping();
     }
 }

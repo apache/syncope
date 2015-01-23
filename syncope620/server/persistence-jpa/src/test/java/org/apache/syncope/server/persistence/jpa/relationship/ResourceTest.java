@@ -118,7 +118,7 @@ public class ResourceTest extends AbstractTest {
             UMappingItem item = entityFactory.newEntity(UMappingItem.class);
             item.setExtAttrName("test" + i);
             item.setIntAttrName("nonexistent" + i);
-            item.setIntMappingType(IntMappingType.UserSchema);
+            item.setIntMappingType(IntMappingType.UserPlainSchema);
             item.setMandatoryCondition("false");
             item.setPurpose(MappingPurpose.SYNCHRONIZATION);
             mapping.addItem(item);
@@ -257,13 +257,16 @@ public class ResourceTest extends AbstractTest {
         List<? extends RMappingItem> items = ldap.getRmapping().getItems();
         assertNotNull(items);
         assertFalse(items.isEmpty());
-        List<Long> itemIds = new ArrayList<Long>(items.size());
+        List<Long> itemIds = new ArrayList<>(items.size());
         for (RMappingItem item : items) {
             itemIds.add(item.getKey());
         }
 
         ldap.setRmapping(null);
 
+        // need to avoid any class not defined in this Maven module
+        ldap.getPropagationActionsClassNames().clear();
+        
         resourceDAO.save(ldap);
         resourceDAO.flush();
 

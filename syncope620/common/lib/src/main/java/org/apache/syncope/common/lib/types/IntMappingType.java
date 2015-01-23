@@ -35,7 +35,7 @@ public enum IntMappingType {
     // -------------------------
     // User attribute types (the same in UserMappingType)
     // -------------------------
-    UserSchema(AttributableType.USER),
+    UserPlainSchema(AttributableType.USER),
     UserDerivedSchema(AttributableType.USER),
     UserVirtualSchema(AttributableType.USER),
     UserId(AttributableType.USER),
@@ -44,7 +44,7 @@ public enum IntMappingType {
     // -------------------------
     // Role attribute types (the same in RoleMappingType)
     // -------------------------
-    RoleSchema(AttributableType.ROLE),
+    RolePlainSchema(AttributableType.ROLE),
     RoleDerivedSchema(AttributableType.ROLE),
     RoleVirtualSchema(AttributableType.ROLE),
     RoleId(AttributableType.ROLE),
@@ -53,7 +53,7 @@ public enum IntMappingType {
     // -------------------------
     // Membership attribute types (the same in MembershipMappingType)
     // -------------------------
-    MembershipSchema(AttributableType.MEMBERSHIP),
+    MembershipPlainSchema(AttributableType.MEMBERSHIP),
     MembershipDerivedSchema(AttributableType.MEMBERSHIP),
     MembershipVirtualSchema(AttributableType.MEMBERSHIP),
     MembershipId(AttributableType.MEMBERSHIP);
@@ -164,7 +164,7 @@ public enum IntMappingType {
      */
     private enum UserMappingType {
 
-        UserSchema,
+        UserPlainSchema,
         UserDerivedSchema,
         UserVirtualSchema,
         UserId,
@@ -178,7 +178,7 @@ public enum IntMappingType {
      */
     private enum RoleMappingType {
 
-        RoleSchema,
+        RolePlainSchema,
         RoleDerivedSchema,
         RoleVirtualSchema,
         RoleId,
@@ -192,7 +192,7 @@ public enum IntMappingType {
      */
     private enum MembershipMappingType {
 
-        MembershipSchema,
+        MembershipPlainSchema,
         MembershipDerivedSchema,
         MembershipVirtualSchema,
         MembershipId;

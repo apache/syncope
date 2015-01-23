@@ -388,13 +388,12 @@ public class ConnectorFacadeProxy implements Connector {
 
             @Override
             public boolean handle(final ConnectorObject obj) {
-                final SyncDeltaBuilder bld = new SyncDeltaBuilder();
-                bld.setObject(obj);
-                bld.setUid(obj.getUid());
-                bld.setDeltaType(SyncDeltaType.CREATE_OR_UPDATE);
-                bld.setToken(new SyncToken(""));
-
-                return handler.handle(bld.build());
+                return handler.handle(new SyncDeltaBuilder().
+                        setObject(obj).
+                        setUid(obj.getUid()).
+                        setDeltaType(SyncDeltaType.CREATE_OR_UPDATE).
+                        setToken(new SyncToken("")).
+                        build());
             }
         }, options);
     }

@@ -80,12 +80,33 @@ public final class JPATaskUtil implements TaskUtil {
 
     @Override
     public <T extends Task> T newTask() {
-        final Class<T> taskClass = taskClass();
-        try {
-            return taskClass == null ? null : taskClass.newInstance();
-        } catch (Exception e) {
-            return null;
+        T result = null;
+
+        switch (type) {
+            case PROPAGATION:
+                result = (T) new JPAPropagationTask();
+                break;
+
+            case SCHEDULED:
+                result = (T) new JPASchedTask();
+                break;
+
+            case SYNCHRONIZATION:
+                result = (T) new JPASyncTask();
+                break;
+
+            case PUSH:
+                result = (T) new JPAPushTask();
+                break;
+
+            case NOTIFICATION:
+                result = (T) new JPANotificationTask();
+                break;
+
+            default:
         }
+
+        return result;
     }
 
     @Override
@@ -119,7 +140,6 @@ public final class JPATaskUtil implements TaskUtil {
         return result;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public <T extends AbstractTaskTO> T newTaskTO() {
         final Class<T> taskClass = taskTOClass();

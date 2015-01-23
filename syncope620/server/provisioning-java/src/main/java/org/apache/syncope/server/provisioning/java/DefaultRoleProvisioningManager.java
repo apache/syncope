@@ -99,7 +99,7 @@ public class DefaultRoleProvisioningManager implements RoleProvisioningManager {
             final RoleTO roleTO, final Map<Long, String> roleOwnerMap, final Set<String> excludedResources) {
 
         WorkflowResult<Long> created = rwfAdapter.create((RoleTO) roleTO);
-        AttrTO roleOwner = roleTO.getAttrMap().get(StringUtils.EMPTY);
+        AttrTO roleOwner = roleTO.getPlainAttrMap().get(StringUtils.EMPTY);
         if (roleOwner != null) {
             roleOwnerMap.put(created.getResult(), roleOwner.getValues().iterator().next());
         }

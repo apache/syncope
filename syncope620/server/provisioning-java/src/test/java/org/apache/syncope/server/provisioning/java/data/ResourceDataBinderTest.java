@@ -115,7 +115,7 @@ public class ResourceDataBinderTest extends AbstractTest {
 
         MappingItemTO item = new MappingItemTO();
         item.setIntAttrName("userId");
-        item.setIntMappingType(IntMappingType.UserSchema);
+        item.setIntMappingType(IntMappingType.UserPlainSchema);
         item.setExtAttrName("campo1");
         item.setAccountid(true);
         item.setMandatoryCondition("false");

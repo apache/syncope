@@ -55,7 +55,7 @@ import org.apache.syncope.server.persistence.api.entity.ReportExec;
 import org.apache.syncope.server.provisioning.api.data.ReportDataBinder;
 import org.apache.syncope.server.provisioning.api.job.JobNamer;
 import org.apache.syncope.server.logic.init.ImplementationClassNamesLoader;
-import org.apache.syncope.server.logic.init.JobInstanceLoader;
+import org.apache.syncope.server.provisioning.api.job.JobInstanceLoader;
 import org.apache.syncope.server.logic.report.Reportlet;
 import org.apache.syncope.server.logic.report.ReportletConfClass;
 import org.apache.syncope.server.logic.report.TextSerializer;
@@ -206,20 +206,20 @@ public class ReportLogic extends AbstractTransactionalLogic<ReportTO> {
     }
 
     @PreAuthorize("hasRole('REPORT_READ')")
-    public ReportTO read(final Long reportId) {
-        Report report = reportDAO.find(reportId);
+    public ReportTO read(final Long reportKey) {
+        Report report = reportDAO.find(reportKey);
         if (report == null) {
-            throw new NotFoundException("Report " + reportId);
+            throw new NotFoundException("Report " + reportKey);
         }
         return binder.getReportTO(report);
     }
 
     @PreAuthorize("hasRole('REPORT_READ')")
     @Transactional(readOnly = true)
-    public ReportExecTO readExecution(final Long executionId) {
-        ReportExec reportExec = reportExecDAO.find(executionId);
+    public ReportExecTO readExecution(final Long executionKey) {
+        ReportExec reportExec = reportExecDAO.find(executionKey);
         if (reportExec == null) {
-            throw new NotFoundException("Report execution " + executionId);
+            throw new NotFoundException("Report execution " + executionKey);
         }
         return binder.getReportExecTO(reportExec);
     }
@@ -291,10 +291,10 @@ public class ReportLogic extends AbstractTransactionalLogic<ReportTO> {
     }
 
     @PreAuthorize("hasRole('REPORT_READ')")
-    public ReportExec getAndCheckReportExec(final Long executionId) {
-        ReportExec reportExec = reportExecDAO.find(executionId);
+    public ReportExec getAndCheckReportExec(final Long executionKey) {
+        ReportExec reportExec = reportExecDAO.find(executionKey);
         if (reportExec == null) {
-            throw new NotFoundException("Report execution " + executionId);
+            throw new NotFoundException("Report execution " + executionKey);
         }
         if (!ReportExecStatus.SUCCESS.name().equals(reportExec.getStatus()) || reportExec.getExecResult() == null) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidReportExec);
@@ -307,10 +307,10 @@ public class ReportLogic extends AbstractTransactionalLogic<ReportTO> {
     }
 
     @PreAuthorize("hasRole('REPORT_EXECUTE')")
-    public ReportExecTO execute(final Long reportId) {
-        Report report = reportDAO.find(reportId);
+    public ReportExecTO execute(final Long reportKey) {
+        Report report = reportDAO.find(reportKey);
         if (report == null) {
-            throw new NotFoundException("Report " + reportId);
+            throw new NotFoundException("Report " + reportKey);
         }
 
         try {
@@ -327,7 +327,7 @@ public class ReportLogic extends AbstractTransactionalLogic<ReportTO> {
         }
 
         ReportExecTO result = new ReportExecTO();
-        result.setReport(reportId);
+        result.setReport(reportKey);
         result.setStartDate(new Date());
         result.setStatus(ReportExecStatus.STARTED.name());
         result.setMessage("Job fired; waiting for results...");
@@ -336,10 +336,10 @@ public class ReportLogic extends AbstractTransactionalLogic<ReportTO> {
     }
 
     @PreAuthorize("hasRole('REPORT_DELETE')")
-    public ReportTO delete(final Long reportId) {
-        Report report = reportDAO.find(reportId);
+    public ReportTO delete(final Long reportKey) {
+        Report report = reportDAO.find(reportKey);
         if (report == null) {
-            throw new NotFoundException("Report " + reportId);
+            throw new NotFoundException("Report " + reportKey);
         }
 
         ReportTO deletedReport = binder.getReportTO(report);
@@ -349,10 +349,10 @@ public class ReportLogic extends AbstractTransactionalLogic<ReportTO> {
     }
 
     @PreAuthorize("hasRole('REPORT_DELETE')")
-    public ReportExecTO deleteExecution(final Long executionId) {
-        ReportExec reportExec = reportExecDAO.find(executionId);
+    public ReportExecTO deleteExecution(final Long executionKey) {
+        ReportExec reportExec = reportExecDAO.find(executionKey);
         if (reportExec == null) {
-            throw new NotFoundException("Report execution " + executionId);
+            throw new NotFoundException("Report execution " + executionKey);
         }
 
         ReportExecTO reportExecToDelete = binder.getReportExecTO(reportExec);

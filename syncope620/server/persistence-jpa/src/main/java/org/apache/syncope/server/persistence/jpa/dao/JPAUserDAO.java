@@ -51,6 +51,7 @@ import org.apache.syncope.server.misc.security.AuthContextUtil;
 import org.apache.syncope.server.misc.security.UnauthorizedRoleException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class JPAUserDAO extends AbstractSubjectDAO<UPlainAttr, UDerAttr, UVirAttr> implements UserDAO {
@@ -249,6 +250,7 @@ public class JPAUserDAO extends AbstractSubjectDAO<UPlainAttr, UDerAttr, UVirAtt
         }
     }
 
+    @Transactional(readOnly = true)
     @Override
     public User authFetch(final Long key) {
         if (key == null) {
@@ -265,6 +267,7 @@ public class JPAUserDAO extends AbstractSubjectDAO<UPlainAttr, UDerAttr, UVirAtt
         return user;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public User authFetch(final String username) {
         if (username == null) {

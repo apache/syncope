@@ -350,7 +350,7 @@ public class NotificationManager {
                 email = user.getUsername();
                 break;
 
-            case UserSchema:
+            case UserPlainSchema:
                 UPlainAttr attr = user.getPlainAttr(recipientAttrName);
                 if (attr != null && !attr.getValuesAsStrings().isEmpty()) {
                     email = attr.getValuesAsStrings().get(0);

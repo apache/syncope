@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.server.provisioning.api.sync;
 
-import java.util.List;
 import org.quartz.JobExecutionException;
 
 public interface ProvisioningActions {
@@ -35,9 +34,7 @@ public interface ProvisioningActions {
      * Action to be executed after the synchronization task completion.
      *
      * @param profile sync profile
-     * @param results synchronization result
      * @throws JobExecutionException in case of generic failure
      */
-    void afterAll(final ProvisioningProfile<?, ?> profile, final List<ProvisioningResult> results)
-            throws JobExecutionException;
+    void afterAll(final ProvisioningProfile<?, ?> profile) throws JobExecutionException;
 }

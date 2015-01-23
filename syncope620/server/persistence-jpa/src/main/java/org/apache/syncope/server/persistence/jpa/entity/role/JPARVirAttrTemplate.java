@@ -25,11 +25,11 @@ import javax.persistence.Table;
 import org.apache.syncope.server.persistence.api.entity.role.RVirAttrTemplate;
 import org.apache.syncope.server.persistence.api.entity.role.RVirSchema;
 import org.apache.syncope.server.persistence.api.entity.role.Role;
-import org.apache.syncope.server.persistence.jpa.entity.AbstractAttrTemplate;
+import org.apache.syncope.server.persistence.jpa.entity.AbstractVirAttrTemplate;
 
 @Entity
 @Table(name = JPARVirAttrTemplate.TABLE)
-public class JPARVirAttrTemplate extends AbstractAttrTemplate<RVirSchema> implements RVirAttrTemplate {
+public class JPARVirAttrTemplate extends AbstractVirAttrTemplate<RVirSchema> implements RVirAttrTemplate {
 
     private static final long serialVersionUID = 4896495904794493479L;
 

@@ -47,7 +47,7 @@ public class RoleTO extends AbstractSubjectTO {
 
     private boolean inheritTemplates;
 
-    private boolean inheritAttrs;
+    private boolean inheritPlainAttrs;
 
     private boolean inheritDerAttrs;
 
@@ -123,12 +123,12 @@ public class RoleTO extends AbstractSubjectTO {
         this.inheritTemplates = inheritTemplates;
     }
 
-    public boolean isInheritAttrs() {
-        return inheritAttrs;
+    public boolean isInheritPlainAttrs() {
+        return inheritPlainAttrs;
     }
 
-    public void setInheritAttrs(final boolean inheritAttrs) {
-        this.inheritAttrs = inheritAttrs;
+    public void setInheritPlainAttrs(final boolean inheritPlainAttrs) {
+        this.inheritPlainAttrs = inheritPlainAttrs;
     }
 
     public boolean isInheritDerAttrs() {

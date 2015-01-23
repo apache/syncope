@@ -113,8 +113,6 @@ public class JPAReport extends AbstractEntity<Long> implements Report {
             return false;
         }
 
-        checkType(reportletConf, JPAReportletConfInstance.class);
-
         JPAReportletConfInstance found = null;
         for (JPAReportletConfInstance instance : reportletConfs) {
             if (reportletConf.equals(instance.getInstance())) {

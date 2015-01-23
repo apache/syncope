@@ -46,8 +46,8 @@ public interface WorkflowService extends JAXRSService {
      * @param kind user or role
      * @return <tt>Response</tt> contains special syncope HTTP header indicating if Activiti is enabled for
      * users / roles
-     * @see org.apache.syncope.common.types.RESTHeaders#ACTIVITI_USER_ENABLED
-     * @see org.apache.syncope.common.types.RESTHeaders#ACTIVITI_ROLE_ENABLED
+     * @see org.apache.syncope.common.rest.api.RESTHeaders#ACTIVITI_USER_ENABLED
+     * @see org.apache.syncope.common.rest.api.RESTHeaders#ACTIVITI_ROLE_ENABLED
      */
     @Descriptions({
         @Description(target = DocTarget.RESPONSE,

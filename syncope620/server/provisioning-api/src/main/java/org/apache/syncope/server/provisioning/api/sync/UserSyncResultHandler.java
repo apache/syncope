@@ -16,11 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.server.misc.policy;
+package org.apache.syncope.server.provisioning.api.sync;
 
-import org.apache.syncope.server.persistence.api.entity.user.User;
+public interface UserSyncResultHandler extends SyncopeSyncResultHandler {
 
-public interface UserSuspender {
-
-    void suspend(User user, boolean propagateSuspension);
 }

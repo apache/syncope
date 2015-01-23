@@ -81,7 +81,7 @@ public final class AttributableOperations {
                 if (virtuals) {
                     result.getVirAttrsToUpdate().add(mod);
                 } else {
-                    result.getAttrsToUpdate().add(mod);
+                    result.getPlainAttrsToUpdate().add(mod);
                 }
             } else if (!updatedValues.equals(originalValues)) {
                 // avoid unwanted inputs
@@ -93,7 +93,7 @@ public final class AttributableOperations {
                         if (virtuals) {
                             result.getVirAttrsToRemove().add(mod.getSchema());
                         } else {
-                            result.getAttrsToRemove().add(mod.getSchema());
+                            result.getPlainAttrsToRemove().add(mod.getSchema());
                         }
                     }
                 }
@@ -104,7 +104,7 @@ public final class AttributableOperations {
                     if (virtuals) {
                         result.getVirAttrsToUpdate().add(mod);
                     } else {
-                        result.getAttrsToUpdate().add(mod);
+                        result.getPlainAttrsToUpdate().add(mod);
                     }
                 }
             }
@@ -124,15 +124,15 @@ public final class AttributableOperations {
         result.setKey(updated.getKey());
 
         // 2. attributes
-        Map<String, AttrTO> updatedAttrs = new HashMap<>(updated.getAttrMap());
-        Map<String, AttrTO> originalAttrs = new HashMap<>(original.getAttrMap());
+        Map<String, AttrTO> updatedAttrs = new HashMap<>(updated.getPlainAttrMap());
+        Map<String, AttrTO> originalAttrs = new HashMap<>(original.getPlainAttrMap());
 
         Set<String> originalAttrNames = new HashSet<>(originalAttrs.keySet());
         originalAttrNames.removeAll(updatedAttrs.keySet());
 
         if (!incremental) {
-            result.getAttrsToRemove().clear();
-            result.getAttrsToRemove().addAll(originalAttrNames);
+            result.getPlainAttrsToRemove().clear();
+            result.getPlainAttrsToRemove().addAll(originalAttrNames);
         }
 
         Set<String> emptyUpdatedAttrs = new HashSet<>();
@@ -144,7 +144,7 @@ public final class AttributableOperations {
         }
         for (String emptyUpdatedAttr : emptyUpdatedAttrs) {
             updatedAttrs.remove(emptyUpdatedAttr);
-            result.getAttrsToRemove().add(emptyUpdatedAttr);
+            result.getPlainAttrsToRemove().add(emptyUpdatedAttr);
         }
 
         populate(updatedAttrs, originalAttrs, result);
@@ -269,8 +269,8 @@ public final class AttributableOperations {
                     attrMod.getValuesToBeAdded().addAll(attr.getValues());
 
                     if (!attrMod.isEmpty()) {
-                        membMod.getAttrsToUpdate().add(attrMod);
-                        membMod.getAttrsToRemove().add(attrMod.getSchema());
+                        membMod.getPlainAttrsToUpdate().add(attrMod);
+                        membMod.getPlainAttrsToRemove().add(attrMod.getSchema());
                     }
                 }
                 for (AttrTO attr : entry.getValue().getDerAttrs()) {
@@ -283,7 +283,7 @@ public final class AttributableOperations {
 
                     if (!attrMod.isEmpty()) {
                         membMod.getVirAttrsToUpdate().add(attrMod);
-                        membMod.getAttrsToRemove().add(attrMod.getSchema());
+                        membMod.getPlainAttrsToRemove().add(attrMod.getSchema());
                     }
                 }
             }
@@ -333,7 +333,7 @@ public final class AttributableOperations {
         result.setInheritTemplates(updated.isInheritTemplates());
         result.setInheritAccountPolicy(updated.isInheritAccountPolicy());
         result.setInheritPasswordPolicy(updated.isInheritPasswordPolicy());
-        result.setInheritPlainAttrs(updated.isInheritAttrs());
+        result.setInheritPlainAttrs(updated.isInheritPlainAttrs());
         result.setInheritDerAttrs(updated.isInheritDerAttrs());
         result.setInheritVirAttrs(updated.isInheritVirAttrs());
 
@@ -448,8 +448,8 @@ public final class AttributableOperations {
             final K mod, final T result) {
 
         // 1. attributes
-        result.getPlainAttrs().addAll(getUpdateValues(to.getAttrMap(),
-                mod.getAttrsToRemove(), mod.getAttrsToUpdate()));
+        result.getPlainAttrs().addAll(getUpdateValues(to.getPlainAttrMap(),
+                mod.getPlainAttrsToRemove(), mod.getPlainAttrsToUpdate()));
 
         // 2. derived attributes
         Map<String, AttrTO> attrs = to.getDerAttrMap();

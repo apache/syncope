@@ -133,7 +133,7 @@ public class ResourceTest extends AbstractTest {
 
         UMappingItem accountId = entityFactory.newEntity(UMappingItem.class);
         accountId.setAccountid(true);
-        accountId.setIntMappingType(IntMappingType.UserSchema);
+        accountId.setIntMappingType(IntMappingType.UserPlainSchema);
         mapping.addItem(accountId);
 
         // save the resource
@@ -176,12 +176,12 @@ public class ResourceTest extends AbstractTest {
         UMappingItem item = entityFactory.newEntity(UMappingItem.class);
         item.setAccountid(true);
         item.setIntAttrName("fullname");
-        item.setIntMappingType(IntMappingType.UserSchema);
+        item.setIntMappingType(IntMappingType.UserPlainSchema);
         mapping.addItem(item);
 
         item = entityFactory.newEntity(UMappingItem.class);
         item.setIntAttrName("userId");
-        item.setIntMappingType(IntMappingType.UserSchema);
+        item.setIntMappingType(IntMappingType.UserPlainSchema);
         mapping.addItem(item);
 
         ExternalResource actual = resourceDAO.save(resource);
@@ -202,14 +202,14 @@ public class ResourceTest extends AbstractTest {
         UMappingItem item = entityFactory.newEntity(UMappingItem.class);
         item.setIntAttrName("fullname");
         item.setExtAttrName("fullname");
-        item.setIntMappingType(IntMappingType.UserSchema);
+        item.setIntMappingType(IntMappingType.UserPlainSchema);
         item.setPurpose(MappingPurpose.BOTH);
         mapping.setAccountIdItem(item);
 
         item = entityFactory.newEntity(UMappingItem.class);
         item.setIntAttrName("icon");
         item.setExtAttrName("icon");
-        item.setIntMappingType(IntMappingType.RoleSchema);
+        item.setIntMappingType(IntMappingType.RolePlainSchema);
         item.setPurpose(MappingPurpose.BOTH);
         mapping.addItem(item);
 

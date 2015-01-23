@@ -264,7 +264,7 @@ public interface RoleService extends JAXRSService {
      * @param type resource association action type
      * @param resourceNames external resources to be used for propagation-related operations
      * @return <tt>Response</tt> object featuring
-     * {@link org.apache.syncope.common.reqres.BulkActionResult} as <tt>Entity</tt>
+     * {@link BulkActionResult} as <tt>Entity</tt>
      */
     @Descriptions({
         @Description(target = DocTarget.RESPONSE,
@@ -284,8 +284,7 @@ public interface RoleService extends JAXRSService {
      * @param roleKey role id.
      * @param type resource association action type
      * @param resourceNames external resources to be used for propagation-related operations
-     * @return <tt>Response</tt> object featuring {@link org.apache.syncope.common.reqres.BulkActionResult}
-     * as <tt>Entity</tt>
+     * @return <tt>Response</tt> object featuring {@link BulkActionResult} as <tt>Entity</tt>
      */
     @Descriptions({
         @Description(target = DocTarget.RESPONSE,

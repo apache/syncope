@@ -29,7 +29,7 @@ public class LoggerTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = -7794833835668648505L;
 
-    private String name;
+    private String key;
 
     private LoggerLevel level;
 
@@ -41,11 +41,11 @@ public class LoggerTO extends AbstractBaseBean {
         this.level = level;
     }
 
-    public String getName() {
-        return name;
+    public String getKey() {
+        return key;
     }
 
-    public void setName(final String name) {
-        this.name = name;
+    public void setKey(final String key) {
+        this.key = key;
     }
 }

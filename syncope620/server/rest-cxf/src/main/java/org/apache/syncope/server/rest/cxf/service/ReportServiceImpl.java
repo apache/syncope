@@ -92,14 +92,14 @@ public class ReportServiceImpl extends AbstractServiceImpl implements ReportServ
     }
 
     @Override
-    public ReportExecTO readExecution(final Long executionId) {
-        return logic.readExecution(executionId);
+    public ReportExecTO readExecution(final Long executionKey) {
+        return logic.readExecution(executionKey);
     }
 
     @Override
-    public Response exportExecutionResult(final Long executionId, final ReportExecExportFormat fmt) {
+    public Response exportExecutionResult(final Long executionKey, final ReportExecExportFormat fmt) {
         final ReportExecExportFormat format = (fmt == null) ? ReportExecExportFormat.XML : fmt;
-        final ReportExec reportExec = logic.getAndCheckReportExec(executionId);
+        final ReportExec reportExec = logic.getAndCheckReportExec(executionKey);
         StreamingOutput sout = new StreamingOutput() {
 
             @Override
@@ -125,7 +125,7 @@ public class ReportServiceImpl extends AbstractServiceImpl implements ReportServ
     }
 
     @Override
-    public void deleteExecution(final Long executionId) {
-        logic.deleteExecution(executionId);
+    public void deleteExecution(final Long executionKey) {
+        logic.deleteExecution(executionKey);
     }
 }

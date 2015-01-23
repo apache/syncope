@@ -117,7 +117,7 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
 
         AttributesImpl atts = new AttributesImpl();
         if (!attrs.isEmpty()) {
-            Map<String, AttrTO> attrMap = attributableTO.getAttrMap();
+            Map<String, AttrTO> attrMap = attributableTO.getPlainAttrMap();
 
             handler.startElement("", "", "attributes", null);
             for (String attrName : attrs) {
@@ -271,7 +271,7 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
             // values to String is already encapsulated there
             UserTO userTO = userDataBinder.getUserTO(user);
 
-            doExtractAttributes(handler, userTO, conf.getAttrs(), conf.getDerAttrs(), conf.getVirAttrs());
+            doExtractAttributes(handler, userTO, conf.getPlainAttrs(), conf.getDerAttrs(), conf.getVirAttrs());
 
             if (conf.getFeatures().contains(Feature.memberships)) {
                 handler.startElement("", "", "memberships", null);
@@ -284,7 +284,7 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
                     atts.addAttribute("", "", "roleName", ReportXMLConst.XSD_STRING, String.valueOf(memb.getRoleName()));
                     handler.startElement("", "", "membership", atts);
 
-                    doExtractAttributes(handler, memb, memb.getAttrMap().keySet(), memb.getDerAttrMap()
+                    doExtractAttributes(handler, memb, memb.getPlainAttrMap().keySet(), memb.getDerAttrMap()
                             .keySet(), memb.getVirAttrMap().keySet());
 
                     if (conf.getFeatures().contains(Feature.resources)) {
@@ -324,7 +324,7 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
             handler.endElement("", "", "feature");
         }
 
-        for (String attr : conf.getAttrs()) {
+        for (String attr : conf.getPlainAttrs()) {
             atts.clear();
             handler.startElement("", "", "attribute", atts);
             handler.characters(attr.toCharArray(), 0, attr.length());

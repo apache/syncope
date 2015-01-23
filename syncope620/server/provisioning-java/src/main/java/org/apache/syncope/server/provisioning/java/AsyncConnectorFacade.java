@@ -58,7 +58,7 @@ public class AsyncConnectorFacade {
             final GuardedString password,
             final OperationOptions options) {
 
-        return new AsyncResult<Uid>(connector.authenticate(ObjectClass.ACCOUNT, username, password, options));
+        return new AsyncResult<>(connector.authenticate(ObjectClass.ACCOUNT, username, password, options));
     }
 
     @Async
@@ -68,7 +68,7 @@ public class AsyncConnectorFacade {
             final Set<Attribute> attrs,
             final OperationOptions options) {
 
-        return new AsyncResult<Uid>(connector.create(objectClass, attrs, options));
+        return new AsyncResult<>(connector.create(objectClass, attrs, options));
     }
 
     @Async
@@ -79,7 +79,7 @@ public class AsyncConnectorFacade {
             final Set<Attribute> attrs,
             final OperationOptions options) {
 
-        return new AsyncResult<Uid>(connector.update(objectClass, uid, attrs, options));
+        return new AsyncResult<>(connector.update(objectClass, uid, attrs, options));
     }
 
     @Async
@@ -90,14 +90,14 @@ public class AsyncConnectorFacade {
             final OperationOptions options) {
 
         connector.delete(objectClass, uid, options);
-        return new AsyncResult<Uid>(uid);
+        return new AsyncResult<>(uid);
     }
 
     @Async
     public Future<SyncToken> getLatestSyncToken(
             final ConnectorFacade connector, final ObjectClass objectClass) {
 
-        return new AsyncResult<SyncToken>(connector.getLatestSyncToken(objectClass));
+        return new AsyncResult<>(connector.getLatestSyncToken(objectClass));
     }
 
     @Async
@@ -107,7 +107,7 @@ public class AsyncConnectorFacade {
             final Uid uid,
             final OperationOptions options) {
 
-        return new AsyncResult<ConnectorObject>(connector.getObject(objectClass, uid, options));
+        return new AsyncResult<>(connector.getObject(objectClass, uid, options));
     }
 
     @Async
@@ -127,7 +127,7 @@ public class AsyncConnectorFacade {
             attribute = object.getAttributeByName(attributeName);
         }
 
-        return new AsyncResult<Attribute>(attribute);
+        return new AsyncResult<>(attribute);
     }
 
     @Async
@@ -137,7 +137,7 @@ public class AsyncConnectorFacade {
             final Uid uid,
             final OperationOptions options) {
 
-        final Set<Attribute> attributes = new HashSet<Attribute>();
+        final Set<Attribute> attributes = new HashSet<>();
 
         final ConnectorObject object = connector.getObject(objectClass, uid, options);
 
@@ -149,7 +149,7 @@ public class AsyncConnectorFacade {
             }
         }
 
-        return new AsyncResult<Set<Attribute>>(attributes);
+        return new AsyncResult<>(attributes);
     }
 
     @Async
@@ -170,7 +170,7 @@ public class AsyncConnectorFacade {
             LOG.debug("While reading schema on connector {}", connector, e);
         }
 
-        return new AsyncResult<Set<String>>(schemaNames);
+        return new AsyncResult<>(schemaNames);
     }
 
     @Async
@@ -187,18 +187,18 @@ public class AsyncConnectorFacade {
             LOG.debug("While reading schema on connector {}", connector, e);
         }
 
-        return new AsyncResult<Set<ObjectClass>>(objectClasses);
+        return new AsyncResult<>(objectClasses);
     }
 
     @Async
     public Future<String> validate(final ConnectorFacade connector) {
         connector.validate();
-        return new AsyncResult<String>("OK");
+        return new AsyncResult<>("OK");
     }
 
     @Async
     public Future<String> test(final ConnectorFacade connector) {
         connector.test();
-        return new AsyncResult<String>("OK");
+        return new AsyncResult<>("OK");
     }
 }

@@ -73,6 +73,7 @@ under the License.
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
+        <inherited>true</inherited>
         <executions>
           <execution>
             <id>attach-javadocs</id>

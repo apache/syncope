@@ -61,14 +61,14 @@ public abstract class AbstractAttributableMod extends AbstractBaseBean {
     @XmlElementWrapper(name = "plainAttrsToRemove")
     @XmlElement(name = "attribute")
     @JsonProperty("plainAttrsToRemove")
-    public Set<String> getAttrsToRemove() {
+    public Set<String> getPlainAttrsToRemove() {
         return plainAttrsToRemove;
     }
 
     @XmlElementWrapper(name = "plainAttrsToUpdate")
     @XmlElement(name = "attributeMod")
     @JsonProperty("plainAttrsToUpdate")
-    public Set<AttrMod> getAttrsToUpdate() {
+    public Set<AttrMod> getPlainAttrsToUpdate() {
         return plainAttrsToUpdate;
     }
 

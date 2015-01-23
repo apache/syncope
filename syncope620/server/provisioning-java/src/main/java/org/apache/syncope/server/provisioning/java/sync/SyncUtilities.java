@@ -115,11 +115,12 @@ public class SyncUtilities {
     @Autowired
     protected AttributableUtilFactory attrUtilFactory;
 
-    public Long findMatchingAttributableId(
+    public Long findMatchingAttributableKey(
             final ObjectClass oclass,
             final String name,
             final ExternalResource resource,
             final Connector connector) {
+
         Long result = null;
 
         final AttributableUtil attrUtil = attrUtilFactory.getInstance(oclass);
@@ -137,15 +138,15 @@ public class SyncUtilities {
 
             ConnectorObject connObj = found.iterator().next();
             try {
-                final List<Long> subjectIds = findExisting(connObj.getUid().getUidValue(), connObj, resource, attrUtil);
-                if (subjectIds.isEmpty()) {
+                List<Long> subjectKeys = findExisting(connObj.getUid().getUidValue(), connObj, resource, attrUtil);
+                if (subjectKeys.isEmpty()) {
                     LOG.debug("No matching {} found for {}, aborting", attrUtil.getType(), connObj);
                 } else {
-                    if (subjectIds.size() > 1) {
-                        LOG.warn("More than one {} found {} - taking first only", attrUtil.getType(), subjectIds);
+                    if (subjectKeys.size() > 1) {
+                        LOG.warn("More than one {} found {} - taking first only", attrUtil.getType(), subjectKeys);
                     }
 
-                    result = subjectIds.iterator().next();
+                    result = subjectKeys.iterator().next();
                 }
             } catch (IllegalArgumentException e) {
                 LOG.warn(e.getMessage());
@@ -155,14 +156,14 @@ public class SyncUtilities {
         return result;
     }
 
-    public List<Long> findByAccountIdItem(
+    private List<Long> findByAccountIdItem(
             final String uid, final ExternalResource resource, final AttributableUtil attrUtil) {
         final List<Long> result = new ArrayList<>();
 
         final MappingItem accountIdItem = attrUtil.getAccountIdItem(resource);
         switch (accountIdItem.getIntMappingType()) {
-            case UserSchema:
-            case RoleSchema:
+            case UserPlainSchema:
+            case RolePlainSchema:
                 final PlainAttrValue value = attrUtil.newPlainAttrValue();
 
                 PlainSchema schema = plainSchemaDAO.find(accountIdItem.getIntAttrName(), attrUtil.plainSchemaClass());
@@ -227,7 +228,7 @@ public class SyncUtilities {
         return result;
     }
 
-    public List<Long> search(final SearchCond searchCond, final SubjectType type) {
+    private List<Long> search(final SearchCond searchCond, final SubjectType type) {
         final List<Long> result = new ArrayList<>();
 
         List<Subject<?, ?, ?>> subjects = searchDAO.search(
@@ -240,13 +241,13 @@ public class SyncUtilities {
         return result;
     }
 
-    public List<Long> findByCorrelationRule(
+    private List<Long> findByCorrelationRule(
             final ConnectorObject connObj, final SyncCorrelationRule rule, final SubjectType type) {
 
         return search(rule.getSearchCond(connObj), type);
     }
 
-    public List<Long> findByAttributableSearch(
+    private List<Long> findByAttributableSearch(
             final ConnectorObject connObj,
             final List<String> altSearchSchemas,
             final ExternalResource resource,
@@ -287,7 +288,7 @@ public class SyncUtilities {
             SearchCond nodeCond;
             // users: just id or username can be selected to be used
             // roles: just id or name can be selected to be used
-            if ("id".equalsIgnoreCase(schema)
+            if ("key".equalsIgnoreCase(schema)
                     || "username".equalsIgnoreCase(schema) || "name".equalsIgnoreCase(schema)) {
 
                 SubjectCond cond = new SubjectCond();

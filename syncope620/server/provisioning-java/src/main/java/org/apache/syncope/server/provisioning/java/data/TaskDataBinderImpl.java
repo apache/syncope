@@ -180,7 +180,7 @@ public class TaskDataBinderImpl implements TaskDataBinder {
         final Class<? extends AbstractTaskTO> taskTOClass = taskUtil.taskTOClass();
 
         if (taskTOClass == null || !taskTOClass.equals(taskTO.getClass())) {
-            throw new ClassCastException(
+            throw new IllegalArgumentException(
                     String.format("taskUtil is type %s but task is not: %s", taskTOClass, taskTO.getClass()));
         }
 
@@ -211,13 +211,13 @@ public class TaskDataBinderImpl implements TaskDataBinder {
         Class<? extends Task> taskClass = taskUtil.taskClass();
         Class<? extends AbstractTaskTO> taskTOClass = taskUtil.taskTOClass();
 
-        if (taskClass == null || !taskClass.equals(task.getClass())) {
-            throw new ClassCastException(
+        if (taskClass == null || !taskClass.isAssignableFrom(task.getClass())) {
+            throw new IllegalArgumentException(
                     String.format("taskUtil is type %s but task is not: %s", taskClass, task.getClass()));
         }
 
         if (taskTOClass == null || !taskTOClass.equals(taskTO.getClass())) {
-            throw new ClassCastException(
+            throw new IllegalArgumentException(
                     String.format("taskUtil is type %s but task is not: %s", taskTOClass, taskTO.getClass()));
         }
 
@@ -283,7 +283,7 @@ public class TaskDataBinderImpl implements TaskDataBinder {
         switch (taskUtil.getType()) {
             case PROPAGATION:
                 if (!(task instanceof PropagationTask)) {
-                    throw new ClassCastException("taskUtil is type Propagation but task is not PropagationTask: "
+                    throw new IllegalArgumentException("taskUtil is type Propagation but task is not PropagationTask: "
                             + task.getClass().getName());
                 }
                 ((PropagationTaskTO) taskTO).setResource(((PropagationTask) task).getResource().getKey());
@@ -291,7 +291,7 @@ public class TaskDataBinderImpl implements TaskDataBinder {
 
             case SCHEDULED:
                 if (!(task instanceof SchedTask)) {
-                    throw new ClassCastException("taskUtil is type Sched but task is not SchedTask: "
+                    throw new IllegalArgumentException("taskUtil is type Sched but task is not SchedTask: "
                             + task.getClass().getName());
                 }
                 setExecTime((SchedTaskTO) taskTO, task);
@@ -301,7 +301,7 @@ public class TaskDataBinderImpl implements TaskDataBinder {
 
             case SYNCHRONIZATION:
                 if (!(task instanceof SyncTask)) {
-                    throw new ClassCastException("taskUtil is type Sync but task is not SyncTask: "
+                    throw new IllegalArgumentException("taskUtil is type Sync but task is not SyncTask: "
                             + task.getClass().getName());
                 }
                 setExecTime((SchedTaskTO) taskTO, task);
@@ -316,7 +316,7 @@ public class TaskDataBinderImpl implements TaskDataBinder {
 
             case PUSH:
                 if (!(task instanceof PushTask)) {
-                    throw new ClassCastException("taskUtil is type Push but task is not PushTask: "
+                    throw new IllegalArgumentException("taskUtil is type Push but task is not PushTask: "
                             + task.getClass().getName());
                 }
                 setExecTime((SchedTaskTO) taskTO, task);

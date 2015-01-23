@@ -80,7 +80,7 @@ public class LoggerServiceImpl extends AbstractServiceImpl implements LoggerServ
     public LoggerTO read(final LoggerType type, final String name) {
         List<LoggerTO> logger = list(type);
         for (LoggerTO l : logger) {
-            if (l.getName().equals(name)) {
+            if (l.getKey().equals(name)) {
                 return l;
             }
         }

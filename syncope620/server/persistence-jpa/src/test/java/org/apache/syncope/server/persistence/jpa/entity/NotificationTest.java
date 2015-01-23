@@ -65,7 +65,7 @@ public class NotificationTest extends AbstractTest {
         notification.setRecipients("fake search condition");
 
         notification.setRecipientAttrName("email");
-        notification.setRecipientAttrType(IntMappingType.UserSchema);
+        notification.setRecipientAttrType(IntMappingType.UserPlainSchema);
 
         notification.setSender("syncope@syncope.apache.org");
         notification.setSubject("Test notification");
@@ -92,7 +92,7 @@ public class NotificationTest extends AbstractTest {
         notification.setRecipients("fake search condition");
 
         notification.setRecipientAttrName("email");
-        notification.setRecipientAttrType(IntMappingType.UserSchema);
+        notification.setRecipientAttrType(IntMappingType.UserPlainSchema);
 
         notification.addStaticRecipient("syncope445@syncope.apache.org");
 
@@ -115,7 +115,7 @@ public class NotificationTest extends AbstractTest {
         notification.setRoleAbout("fake search condition");
 
         notification.setRecipientAttrName("email");
-        notification.setRecipientAttrType(IntMappingType.UserSchema);
+        notification.setRecipientAttrType(IntMappingType.UserPlainSchema);
 
         notification.addStaticRecipient("syncope446@syncope.apache.org");
 

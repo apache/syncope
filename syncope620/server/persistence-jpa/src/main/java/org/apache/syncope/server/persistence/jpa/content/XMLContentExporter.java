@@ -86,6 +86,9 @@ public class XMLContentExporter extends AbstractContentDealer implements Content
                 JPAMDerAttr.TABLE, JPAMVirAttr.TABLE
             }));
 
+    protected final static Set<String> TABLE_SUFFIXES_TO_BE_INCLUDED =
+            new HashSet<>(Arrays.asList(new String[] { "TEMPLATE" }));
+
     protected static final Map<String, String> TABLES_TO_BE_FILTERED =
             Collections.singletonMap("TASK", "DTYPE <> 'PropagationTask'");
 
@@ -96,7 +99,11 @@ public class XMLContentExporter extends AbstractContentDealer implements Content
         boolean allowed = true;
         for (String prefix : TABLE_PREFIXES_TO_BE_EXCLUDED) {
             if (tableName.toUpperCase().startsWith(prefix)) {
-                allowed = false;
+                for (String suffix : TABLE_SUFFIXES_TO_BE_INCLUDED) {
+                    if (!tableName.toUpperCase().endsWith(suffix)) {
+                        allowed = false;
+                    }
+                }
             }
         }
         return allowed;

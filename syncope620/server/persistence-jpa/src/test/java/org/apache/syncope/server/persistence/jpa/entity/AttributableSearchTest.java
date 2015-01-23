@@ -131,7 +131,7 @@ public class AttributableSearchTest extends AbstractTest {
         assertNotNull(users);
         assertEquals(4, users.size());
 
-        Set<Long> ids = new HashSet<Long>(users.size());
+        Set<Long> ids = new HashSet<>(users.size());
         for (User user : users) {
             ids.add(user.getKey());
         }
@@ -254,16 +254,30 @@ public class AttributableSearchTest extends AbstractTest {
     }
 
     @Test
-    public void searchByUsernameAndId() {
-        SubjectCond usernameLeafCond = new SubjectCond(SubjectCond.Type.EQ);
+    public void searchByBooleanSubjectCond() {
+        SubjectCond booleanCond = new SubjectCond(SubjectCond.Type.EQ);
+        booleanCond.setSchema("inheritPlainAttrs");
+        booleanCond.setExpression("true");
+
+        SearchCond searchCondition = SearchCond.getLeafCond(booleanCond);
+
+        List<Role> matchingRoles = searchDAO.search(RoleEntitlementUtil.getRoleKeys(entitlementDAO.findAll()),
+                searchCondition, SubjectType.ROLE);
+        assertNotNull(matchingRoles);
+        assertFalse(matchingRoles.isEmpty());
+    }
+
+    @Test
+    public void searchByUsernameAndKey() {
+        SubjectCond usernameLeafCond = new SubjectCond(SubjectCond.Type.LIKE);
         usernameLeafCond.setSchema("username");
-        usernameLeafCond.setExpression("rossini");
+        usernameLeafCond.setExpression("%ini");
 
         SubjectCond idRightCond = new SubjectCond(SubjectCond.Type.LT);
-        idRightCond.setSchema("id");
+        idRightCond.setSchema("key");
         idRightCond.setExpression("2");
 
-        SearchCond searchCondition = SearchCond.getOrCond(SearchCond.getLeafCond(usernameLeafCond),
+        SearchCond searchCondition = SearchCond.getAndCond(SearchCond.getLeafCond(usernameLeafCond),
                 SearchCond.getLeafCond(idRightCond));
 
         List<User> matchingUsers = searchDAO.search(RoleEntitlementUtil.getRoleKeys(entitlementDAO.findAll()),
@@ -276,13 +290,13 @@ public class AttributableSearchTest extends AbstractTest {
     }
 
     @Test
-    public void searchByRolenameAndId() {
+    public void searchByRolenameAndKey() {
         SubjectCond rolenameLeafCond = new SubjectCond(SubjectCond.Type.EQ);
         rolenameLeafCond.setSchema("name");
         rolenameLeafCond.setExpression("root");
 
         SubjectCond idRightCond = new SubjectCond(SubjectCond.Type.LT);
-        idRightCond.setSchema("id");
+        idRightCond.setSchema("key");
         idRightCond.setExpression("2");
 
         SearchCond searchCondition = SearchCond.getAndCond(SearchCond.getLeafCond(rolenameLeafCond),

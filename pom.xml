@@ -1428,6 +1428,7 @@ under the License.
             <exclude>**/.*</exclude>
             <exclude>**/deb/control/conffiles</exclude>
             <exclude>**/deb/control/control</exclude>
+            <exclude>**/syncope620/**</exclude>
           </excludes>
         </configuration>
         <executions>

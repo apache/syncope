@@ -22,6 +22,7 @@ import java.util.regex.Pattern;
 import org.apache.syncope.common.lib.types.AccountPolicySpec;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.server.persistence.api.entity.user.User;
+import org.apache.syncope.server.provisioning.api.UserSuspender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

@@ -18,25 +18,11 @@
  */
 package org.apache.syncope.server.persistence.jpa.entity;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.MappedSuperclass;
 import org.apache.syncope.server.persistence.api.entity.AttrTemplate;
 import org.apache.syncope.server.persistence.api.entity.Schema;
 
-@MappedSuperclass
 public abstract class AbstractAttrTemplate<S extends Schema> extends AbstractEntity<Long> implements AttrTemplate<S> {
 
     private static final long serialVersionUID = 4829112252713766666L;
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    protected Long id;
-
-    @Override
-    public Long getKey() {
-        return id;
-    }
 
 }

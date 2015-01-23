@@ -57,16 +57,16 @@ public class UserReportletConf extends AbstractReportletConf {
     @FormAttributeField(userSearch = true)
     private String matchingCond;
 
-    @FormAttributeField(schema = IntMappingType.UserSchema)
-    private final List<String> attrs = new ArrayList<String>();
+    @FormAttributeField(schema = IntMappingType.UserPlainSchema)
+    private final List<String> attrs = new ArrayList<>();
 
     @FormAttributeField(schema = IntMappingType.UserDerivedSchema)
-    private final List<String> derAttrs = new ArrayList<String>();
+    private final List<String> derAttrs = new ArrayList<>();
 
     @FormAttributeField(schema = IntMappingType.UserVirtualSchema)
-    private final List<String> virAttrs = new ArrayList<String>();
+    private final List<String> virAttrs = new ArrayList<>();
 
-    private final List<Feature> features = new ArrayList<Feature>();
+    private final List<Feature> features = new ArrayList<>();
 
     public UserReportletConf() {
         super();
@@ -76,10 +76,10 @@ public class UserReportletConf extends AbstractReportletConf {
         super(name);
     }
 
-    @XmlElementWrapper(name = "attributes")
-    @XmlElement(name = "attribute")
-    @JsonProperty("attributes")
-    public List<String> getAttrs() {
+    @XmlElementWrapper(name = "plainAttributes")
+    @XmlElement(name = "plainAttribute")
+    @JsonProperty("plainAttributes")
+    public List<String> getPlainAttrs() {
         return attrs;
     }
 

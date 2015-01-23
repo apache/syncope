@@ -58,7 +58,7 @@ public interface ResourceService extends JAXRSService {
      * @return connector object from the external resource, for the given type and key
      */
     @GET
-    @Path("{resourceKey}/{type}/{id}")
+    @Path("{resourceKey}/{type}/{key}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     ConnObjectTO getConnectorObject(@NotNull @PathParam("resourceKey") String resourceKey,
             @NotNull @PathParam("type") SubjectType type, @NotNull @PathParam("key") Long key);

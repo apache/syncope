@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.server.provisioning.java.sync;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -36,11 +35,12 @@ import org.apache.syncope.server.persistence.api.entity.user.UMapping;
 import org.apache.syncope.server.persistence.api.entity.user.User;
 import org.apache.syncope.server.provisioning.api.Connector;
 import org.apache.syncope.server.provisioning.api.sync.ProvisioningProfile;
-import org.apache.syncope.server.provisioning.api.sync.ProvisioningResult;
 import org.apache.syncope.server.provisioning.api.sync.PushActions;
 import org.apache.syncope.server.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.server.misc.search.SearchCondConverter;
 import org.apache.syncope.server.provisioning.api.job.PushJob;
+import org.apache.syncope.server.provisioning.api.sync.RolePushResultHandler;
+import org.apache.syncope.server.provisioning.api.sync.UserPushResultHandler;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
@@ -50,6 +50,7 @@ import org.springframework.beans.factory.support.AbstractBeanDefinition;
  *
  * @see AbstractProvisioningJob
  * @see PushTask
+ * @see PushActions
  */
 public class PushJobImpl extends AbstractProvisioningJob<PushTask, PushActions> implements PushJob {
 
@@ -82,27 +83,26 @@ public class PushJobImpl extends AbstractProvisioningJob<PushTask, PushActions> 
             final boolean dryRun) throws JobExecutionException {
         LOG.debug("Execute synchronization (push) with resource {}", pushTask.getResource());
 
-        final List<ProvisioningResult> results = new ArrayList<>();
-
         final Set<Long> authorizations = RoleEntitlementUtil.getRoleKeys(entitlementDAO.findAll());
 
         final ProvisioningProfile<PushTask, PushActions> profile = new ProvisioningProfile<>(connector, pushTask);
-        profile.getActions().addAll(actions);
+        if (actions != null) {
+            profile.getActions().addAll(actions);
+        }
         profile.setDryRun(dryRun);
         profile.setResAct(null);
-        profile.getResults().addAll(results);
 
         final UserPushResultHandler uhandler =
-                (UserPushResultHandler) ApplicationContextProvider.getApplicationContext().getBeanFactory().createBean(
-                        UserPushResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+                (UserPushResultHandler) ApplicationContextProvider.getApplicationContext().getBeanFactory().
+                createBean(UserPushResultHandlerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
         uhandler.setProfile(profile);
 
         final RolePushResultHandler rhandler =
-                (RolePushResultHandler) ApplicationContextProvider.getApplicationContext().getBeanFactory().createBean(
-                        RolePushResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+                (RolePushResultHandler) ApplicationContextProvider.getApplicationContext().getBeanFactory().
+                createBean(RolePushResultHandlerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
         rhandler.setProfile(profile);
 
-        if (!profile.isDryRun()) {
+        if (actions != null && !profile.isDryRun()) {
             for (PushActions action : actions) {
                 action.beforeAll(profile);
             }
@@ -139,13 +139,13 @@ public class PushJobImpl extends AbstractProvisioningJob<PushTask, PushActions> 
             }
         }
 
-        if (!profile.isDryRun()) {
+        if (actions != null && !profile.isDryRun()) {
             for (PushActions action : actions) {
-                action.afterAll(profile, results);
+                action.afterAll(profile);
             }
         }
 
-        final String result = createReport(results, pushTask.getResource().getSyncTraceLevel(), dryRun);
+        final String result = createReport(profile.getResults(), pushTask.getResource().getSyncTraceLevel(), dryRun);
 
         LOG.debug("Sync result: {}", result);
 

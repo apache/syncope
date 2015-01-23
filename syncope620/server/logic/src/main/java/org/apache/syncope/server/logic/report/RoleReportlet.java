@@ -110,7 +110,7 @@ public class RoleReportlet extends AbstractReportlet<RoleReportletConf> {
 
         AttributesImpl atts = new AttributesImpl();
         if (!attrs.isEmpty()) {
-            Map<String, AttrTO> attrMap = attributableTO.getAttrMap();
+            Map<String, AttrTO> attrMap = attributableTO.getPlainAttrMap();
 
             handler.startElement("", "", "attributes", null);
             for (String attrName : attrs) {
@@ -233,7 +233,7 @@ public class RoleReportlet extends AbstractReportlet<RoleReportletConf> {
             // values to String is already encapsulated there
             RoleTO roleTO = roleDataBinder.getRoleTO(role);
 
-            doExtractAttributes(handler, roleTO, conf.getAttrs(), conf.getDerAttrs(), conf.getVirAttrs());
+            doExtractAttributes(handler, roleTO, conf.getPlainAttrs(), conf.getDerAttrs(), conf.getVirAttrs());
 
             if (conf.getFeatures().contains(Feature.entitlements)) {
                 handler.startElement("", "", "entitlements", null);
@@ -292,7 +292,7 @@ public class RoleReportlet extends AbstractReportlet<RoleReportletConf> {
             handler.endElement("", "", "feature");
         }
 
-        for (String attr : conf.getAttrs()) {
+        for (String attr : conf.getPlainAttrs()) {
             atts.clear();
             handler.startElement("", "", "attribute", atts);
             handler.characters(attr.toCharArray(), 0, attr.length());

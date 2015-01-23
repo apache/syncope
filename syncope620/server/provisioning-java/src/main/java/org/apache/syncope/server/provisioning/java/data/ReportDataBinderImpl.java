@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.server.provisioning.java.data;
 
+import java.util.HashSet;
+import java.util.Set;
 import org.apache.syncope.server.provisioning.api.data.ReportDataBinder;
 import org.apache.syncope.common.lib.report.AbstractReportletConf;
 import org.apache.syncope.common.lib.report.ReportletConf;
@@ -59,7 +61,17 @@ public class ReportDataBinderImpl implements ReportDataBinder {
     @Override
     public void getReport(final Report report, final ReportTO reportTO) {
         BeanUtils.copyProperties(reportTO, report, IGNORE_REPORT_PROPERTIES);
-        report.getReportletConfs().clear();
+
+        // 1. remove all reportlet confs
+        Set<ReportletConf> toRemove = new HashSet<>();
+        for (ReportletConf conf : report.getReportletConfs()) {
+            toRemove.add(conf);
+        }
+        for (ReportletConf conf : toRemove) {
+            report.removeReportletConf(conf);
+        }
+
+        // 2. take all reportlet confs from reportTO
         for (ReportletConf conf : reportTO.getReportletConfs()) {
             report.addReportletConf(conf);
         }

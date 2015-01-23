@@ -14,15 +14,15 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-Hi $user.getAttrMap().get("firstname").getValues().get(0) $user.getAttrMap().get("surname").getValues().get(0), welcome to Syncope!
+Hi $user.getPlainAttrMap().get("firstname").getValues().get(0) $user.getPlainAttrMap().get("surname").getValues().get(0), welcome to Syncope!
 
 Your username is $user.getUsername().
-Your email address is $user.getAttrMap().get("email").getValues().get(0).
-Your email address inside a link: http://localhost/?email=$esc.url($user.getAttrMap().get("email").getValues().get(0)) .
+Your email address is $user.getPlainAttrMap().get("email").getValues().get(0).
+Your email address inside a link: http://localhost/?email=$esc.url($user.getPlainAttrMap().get("email").getValues().get(0)) .
 
 This message was sent to the following recipients:
 #foreach($recipient in $recipients)
-   * $recipient.getAttrMap().get("surname").getValues().get(0)
+   * $recipient.getPlainAttrMap().get("surname").getValues().get(0)
 #end
 
 because one of the following events occurred:

@@ -26,11 +26,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class PasswordPolicyEnforcer implements PolicyEnforcer<PasswordPolicySpec, User> {
 
-    /* (non-Javadoc)
-     * @see
-     * org.apache.syncope.core.policy.PasswordPolicyEnforcer#enforce(org.apache.syncope.common.types.PasswordPolicySpec,
-     * org.apache.syncope.common.types.PolicyType, java.lang.String)
-     */
     @Override
     public void enforce(final PasswordPolicySpec policy, final PolicyType type, final User user)
             throws PasswordPolicyException, PolicyEnforceException {
@@ -43,7 +38,7 @@ public class PasswordPolicyEnforcer implements PolicyEnforcer<PasswordPolicySpec
         }
 
         if (password == null && !policy.isAllowNullPassword()) {
-            throw new PolicyEnforceException("Password must not be null and must be stored internally");
+            throw new PolicyEnforceException("Password mandatory");
         } else if (password != null && clearPassword != null) {
             // check length
             if (policy.getMinLength() > 0 && policy.getMinLength() > clearPassword.length()) {

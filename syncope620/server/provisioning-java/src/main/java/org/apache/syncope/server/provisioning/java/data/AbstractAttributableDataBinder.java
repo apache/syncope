@@ -215,7 +215,7 @@ abstract class AbstractAttributableDataBinder {
     }
 
     private boolean evaluateMandatoryCondition(final AttributableUtil attrUtil, final ExternalResource resource,
-            final Attributable attributable, final String intAttrName, final IntMappingType intMappingType) {
+            final Attributable<?,?,?> attributable, final String intAttrName, final IntMappingType intMappingType) {
 
         boolean result = false;
 
@@ -409,7 +409,7 @@ abstract class AbstractAttributableDataBinder {
         }
 
         // 3. attributes to be removed
-        for (String attributeToBeRemoved : attributableMod.getAttrsToRemove()) {
+        for (String attributeToBeRemoved : attributableMod.getPlainAttrsToRemove()) {
             PlainSchema schema = getPlainSchema(attributeToBeRemoved, attrUtil.plainSchemaClass());
             if (schema != null) {
                 PlainAttr attr = attributable.getPlainAttr(schema.getKey());
@@ -417,7 +417,7 @@ abstract class AbstractAttributableDataBinder {
                     LOG.debug("No attribute found for schema {}", schema);
                 } else {
                     String newValue = null;
-                    for (AttrMod mod : attributableMod.getAttrsToUpdate()) {
+                    for (AttrMod mod : attributableMod.getPlainAttrsToUpdate()) {
                         if (schema.getKey().equals(mod.getSchema())) {
                             newValue = mod.getValuesToBeAdded().get(0);
                         }
@@ -456,7 +456,7 @@ abstract class AbstractAttributableDataBinder {
         LOG.debug("Attributes to be removed:\n{}", propByRes);
 
         // 4. attributes to be updated
-        for (AttrMod attributeMod : attributableMod.getAttrsToUpdate()) {
+        for (AttrMod attributeMod : attributableMod.getPlainAttrsToUpdate()) {
             PlainSchema schema = getPlainSchema(attributeMod.getSchema(), attrUtil.plainSchemaClass());
             PlainAttr attr = null;
             if (schema != null) {

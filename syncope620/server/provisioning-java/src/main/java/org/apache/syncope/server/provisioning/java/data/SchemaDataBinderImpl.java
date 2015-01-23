@@ -69,15 +69,13 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
         List<PlainAttr> attrs = schemaDAO.findAttrs(schema, attributableUtil.plainAttrClass());
         if (!attrs.isEmpty()) {
             if (schema.getType() != schemaTO.getType()) {
-                SyncopeClientException e = SyncopeClientException.build(
-                        ClientExceptionType.valueOf("Invalid" + schema.getClass().getSimpleName()));
+                SyncopeClientException e = SyncopeClientException.build(ClientExceptionType.InvalidPlainSchema);
                 e.getElements().add("Cannot change type since " + schema.getKey() + " has attributes");
 
                 scce.addException(e);
             }
             if (schema.isUniqueConstraint() != schemaTO.isUniqueConstraint()) {
-                SyncopeClientException e = SyncopeClientException.build(ClientExceptionType.valueOf("Invalid"
-                        + schema.getClass().getSimpleName()));
+                SyncopeClientException e = SyncopeClientException.build(ClientExceptionType.InvalidPlainSchema);
                 e.getElements().add("Cannot alter unique contraint since " + schema.getKey() + " has attributes");
 
                 scce.addException(e);
@@ -112,11 +110,10 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
 
             scce.addException(requiredValuesMissing);
         } else if (!JexlUtil.isExpressionValid(derSchemaTO.getExpression())) {
-            SyncopeClientException invalidMandatoryCondition = SyncopeClientException.build(
-                    ClientExceptionType.InvalidValues);
-            invalidMandatoryCondition.getElements().add(derSchemaTO.getExpression());
+            SyncopeClientException e = SyncopeClientException.build(ClientExceptionType.InvalidValues);
+            e.getElements().add(derSchemaTO.getExpression());
 
-            scce.addException(invalidMandatoryCondition);
+            scce.addException(e);
         }
 
         if (scce.hasExceptions()) {

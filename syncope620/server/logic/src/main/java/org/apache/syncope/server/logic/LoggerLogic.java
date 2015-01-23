@@ -80,9 +80,9 @@ public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
 
     private List<LoggerTO> list(final LoggerType type) {
         List<LoggerTO> result = new ArrayList<>();
-        for (Logger syncopeLogger : loggerDAO.findAll(type)) {
+        for (Logger logger : loggerDAO.findAll(type)) {
             LoggerTO loggerTO = new LoggerTO();
-            BeanUtils.copyProperties(syncopeLogger, loggerTO);
+            BeanUtils.copyProperties(logger, loggerTO);
             result.add(loggerTO);
         }
 
@@ -102,9 +102,9 @@ public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
 
         for (LoggerTO logger : list(LoggerType.AUDIT)) {
             try {
-                result.add(AuditLoggerName.fromLoggerName(logger.getName()));
+                result.add(AuditLoggerName.fromLoggerName(logger.getKey()));
             } catch (Exception e) {
-                LOG.warn("Unexpected audit logger name: {}", logger.getName(), e);
+                LOG.warn("Unexpected audit logger name: {}", logger.getKey(), e);
             }
         }
 

@@ -45,11 +45,13 @@ import org.apache.syncope.server.persistence.api.entity.user.User;
 import org.apache.syncope.server.provisioning.api.sync.ProvisioningResult;
 import org.apache.syncope.server.provisioning.api.sync.PushActions;
 import org.apache.syncope.server.misc.MappingUtil;
+import org.apache.syncope.server.provisioning.api.sync.SyncopePushResultHandler;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.quartz.JobExecutionException;
 import org.springframework.transaction.annotation.Transactional;
 
-public abstract class AbstractSubjectPushResultHandler extends AbstractSyncopeResultHandler<PushTask, PushActions> {
+public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHandler<PushTask, PushActions>
+        implements SyncopePushResultHandler {
 
     protected abstract String getName(final Subject<?, ?, ?> subject);
 
@@ -72,6 +74,7 @@ public abstract class AbstractSubjectPushResultHandler extends AbstractSyncopeRe
     protected abstract ConnectorObject getRemoteObject(final String accountId);
 
     @Transactional
+    @Override
     public boolean handle(final long subjectId) {
         try {
             doHandle(subjectId);

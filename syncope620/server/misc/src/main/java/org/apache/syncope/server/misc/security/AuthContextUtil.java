@@ -59,7 +59,7 @@ public final class AuthContextUtil {
      */
     public static void extendAuthContext(final Long roleKey, final String roleEntitlement) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>(auth.getAuthorities());
+        List<GrantedAuthority> authorities = new ArrayList<>(auth.getAuthorities());
         authorities.add(new SimpleGrantedAuthority(roleEntitlement));
         Authentication newAuth = new UsernamePasswordAuthenticationToken(
                 auth.getPrincipal(), auth.getCredentials(), authorities);

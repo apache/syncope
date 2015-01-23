@@ -29,6 +29,7 @@ import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.server.persistence.api.attrvalue.validation.Validator;
@@ -231,7 +232,7 @@ public abstract class AbstractPlainSchema extends AbstractEntity<String> impleme
 
     @Override
     public void setConversionPattern(final String conversionPattern) {
-        if (!getType().isConversionPatternNeeded()) {
+        if (StringUtils.isNotBlank(conversionPattern) && !getType().isConversionPatternNeeded()) {
             LOG.warn("Conversion pattern will be ignored: this attribute type is {}", getType());
         }
 

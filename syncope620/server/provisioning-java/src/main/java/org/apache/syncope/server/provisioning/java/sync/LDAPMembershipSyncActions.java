@@ -146,17 +146,17 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
     /**
      * Build UserMod for adding membership to given user, for given role.
      *
-     * @param userId user to be assigned membership to given role
+     * @param userKey user to be assigned membership to given role
      * @param roleTO role for adding membership
      * @return UserMod for user update
      */
-    protected UserMod getUserMod(final Long userId, final RoleTO roleTO) {
+    protected UserMod getUserMod(final Long userKey, final RoleTO roleTO) {
         UserMod userMod = new UserMod();
         // no actual modification takes place when user has already the role assigned
-        if (membersBeforeRoleUpdate.containsKey(userId)) {
-            membersBeforeRoleUpdate.remove(userId);
+        if (membersBeforeRoleUpdate.containsKey(userKey)) {
+            membersBeforeRoleUpdate.remove(userKey);
         } else {
-            userMod.setKey(userId);
+            userMod.setKey(userKey);
 
             MembershipMod membershipMod = new MembershipMod();
             membershipMod.setRole(roleTO.getKey());
@@ -265,13 +265,13 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
         final Connector connector = profile.getConnector();
 
         for (Object membValue : getMembAttrValues(delta, connector)) {
-            Long userId = syncUtilities.findMatchingAttributableId(
+            Long userKey = syncUtilities.findMatchingAttributableKey(
                     ObjectClass.ACCOUNT,
                     membValue.toString(),
                     profile.getTask().getResource(),
                     profile.getConnector());
-            if (userId != null) {
-                UserMod userMod = getUserMod(userId, roleTO);
+            if (userKey != null) {
+                UserMod userMod = getUserMod(userKey, roleTO);
                 userUpdate(userMod, resource.getKey());
             }
         }

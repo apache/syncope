@@ -744,15 +744,15 @@ public class JPAAttributableUtil implements AttributableUtil {
 
         switch (type) {
             case ROLE:
-                result = IntMappingType.RoleSchema;
+                result = IntMappingType.RolePlainSchema;
                 break;
 
             case MEMBERSHIP:
-                result = IntMappingType.MembershipSchema;
+                result = IntMappingType.MembershipPlainSchema;
                 break;
 
             case USER:
-                result = IntMappingType.UserSchema;
+                result = IntMappingType.UserPlainSchema;
                 break;
 
             case CONFIGURATION:
@@ -768,15 +768,15 @@ public class JPAAttributableUtil implements AttributableUtil {
 
         switch (type) {
             case ROLE:
-                result = IntMappingType.RoleSchema;
+                result = IntMappingType.RoleDerivedSchema;
                 break;
 
             case MEMBERSHIP:
-                result = IntMappingType.MembershipSchema;
+                result = IntMappingType.MembershipDerivedSchema;
                 break;
 
             case USER:
-                result = IntMappingType.UserSchema;
+                result = IntMappingType.UserDerivedSchema;
                 break;
 
             case CONFIGURATION:
