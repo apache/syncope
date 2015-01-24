@@ -16,13 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.server.workflow.api;
+package org.apache.syncope.workflow.activiti.task;
 
-public interface WorkflowInstanceLoader {
+import org.springframework.stereotype.Component;
 
-    void load();
+@Component
+public class Suspend extends AbstractActivitiServiceTask {
 
-    String getTablePrefix();
-
-    void init();
+    @Override
+    protected void doExecute(final String executionId) {
+    }
 }

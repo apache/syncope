@@ -169,8 +169,8 @@ public class JPARoleDAO extends AbstractSubjectDAO<RPlainAttr, RDerAttr, RVirAtt
 
         StringBuilder queryString = new StringBuilder("SELECT e FROM ").append(JPARole.class.getSimpleName()).
                 append(" e WHERE e.userOwner=:owner ");
-        for (Long roleId : owner.getRoleIds()) {
-            queryString.append("OR e.roleOwner.id=").append(roleId).append(' ');
+        for (Long roleKey : owner.getRoleKeys()) {
+            queryString.append("OR e.roleOwner.id=").append(roleKey).append(' ');
         }
 
         TypedQuery<Role> query = entityManager.createQuery(queryString.toString(), Role.class);
@@ -550,8 +550,8 @@ public class JPARoleDAO extends AbstractSubjectDAO<RPlainAttr, RDerAttr, RVirAtt
             throw new NotFoundException("Role " + key);
         }
 
-        Set<Long> allowedRoleIds = RoleEntitlementUtil.getRoleKeys(AuthContextUtil.getOwnedEntitlementNames());
-        if (!allowedRoleIds.contains(role.getKey())) {
+        Set<Long> allowedRoleKeys = RoleEntitlementUtil.getRoleKeys(AuthContextUtil.getOwnedEntitlementNames());
+        if (!allowedRoleKeys.contains(role.getKey())) {
             throw new UnauthorizedRoleException(role.getKey());
         }
         return role;

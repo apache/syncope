@@ -47,7 +47,7 @@ import org.apache.syncope.server.provisioning.api.propagation.PropagationTaskExe
 import org.apache.syncope.server.provisioning.api.sync.ProvisioningProfile;
 import org.apache.syncope.server.provisioning.api.sync.ProvisioningResult;
 import org.apache.syncope.server.misc.AuditManager;
-import org.apache.syncope.server.provisioning.java.notification.NotificationManager;
+import org.apache.syncope.server.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.server.workflow.api.UserWorkflowAdapter;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.ObjectClass;

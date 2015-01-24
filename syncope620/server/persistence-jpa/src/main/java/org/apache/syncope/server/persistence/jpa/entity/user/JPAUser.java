@@ -242,7 +242,7 @@ public class JPAUser extends AbstractSubject<UPlainAttr, UDerAttr, UVirAttr> imp
     }
 
     @Override
-    public Set<Long> getRoleIds() {
+    public Set<Long> getRoleKeys() {
         List<Role> roles = getRoles();
 
         Set<Long> result = new HashSet<>(roles.size());

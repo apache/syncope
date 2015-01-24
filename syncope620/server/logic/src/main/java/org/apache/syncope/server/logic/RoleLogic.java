@@ -125,7 +125,7 @@ public class RoleLogic extends AbstractSubjectLogic<RoleTO, RoleMod> {
         if (authUser == null) {
             ownedRoleIds = Collections.<Long>emptySet();
         } else {
-            ownedRoleIds = authUser.getRoleIds();
+            ownedRoleIds = authUser.getRoleKeys();
         }
 
         Set<Long> allowedRoleIds = RoleEntitlementUtil.getRoleKeys(AuthContextUtil.getOwnedEntitlementNames());

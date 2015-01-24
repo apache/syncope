@@ -27,7 +27,7 @@ import org.apache.syncope.server.provisioning.api.WorkflowResult;
 import org.apache.syncope.server.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.server.workflow.api.UserWorkflowAdapter;
 import org.apache.syncope.server.workflow.api.WorkflowException;
-import org.apache.syncope.server.workflow.api.WorkflowInstanceLoader;
+import org.apache.syncope.server.workflow.api.WorkflowDefinitionLoader;
 import org.identityconnectors.common.Base64;
 import org.identityconnectors.common.security.EncryptorFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,7 +56,7 @@ public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter
     }
 
     @Override
-    public Class<? extends WorkflowInstanceLoader> getLoaderClass() {
+    public Class<? extends WorkflowDefinitionLoader> getDefinitionLoaderClass() {
         return null;
     }
 

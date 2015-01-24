@@ -22,7 +22,7 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.server.misc.AuditManager;
-import org.apache.syncope.server.provisioning.java.notification.NotificationManager;
+import org.apache.syncope.server.provisioning.api.notification.NotificationManager;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;

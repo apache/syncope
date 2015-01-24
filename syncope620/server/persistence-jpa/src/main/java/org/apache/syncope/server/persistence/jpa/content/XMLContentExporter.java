@@ -319,6 +319,7 @@ public class XMLContentExporter extends AbstractContentDealer implements Content
         }
     }
 
+    @Override
     public void export(final OutputStream os, final String wfTablePrefix)
             throws SAXException, TransformerConfigurationException {
 
@@ -345,7 +346,7 @@ public class XMLContentExporter extends AbstractContentDealer implements Content
 
             rs = meta.getTables(null, StringUtils.isBlank(dbSchema) ? null : dbSchema, null, new String[] { "TABLE" });
 
-            final Set<String> tableNames = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+            final Set<String> tableNames = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
 
             while (rs.next()) {
                 String tableName = rs.getString("TABLE_NAME");

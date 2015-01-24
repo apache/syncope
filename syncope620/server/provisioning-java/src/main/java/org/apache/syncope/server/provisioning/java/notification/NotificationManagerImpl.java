@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.server.provisioning.java.notification;
 
+import org.apache.syncope.server.provisioning.api.notification.NotificationManager;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -72,14 +73,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * Create notification tasks that will be executed by NotificationJob.
- *
- * @see NotificationTask
- */
 @Component
 @Transactional(rollbackFor = { Throwable.class })
-public class NotificationManager {
+public class NotificationManagerImpl implements NotificationManager {
 
     /**
      * Logger.
@@ -159,6 +155,7 @@ public class NotificationManager {
     private AttributableUtilFactory attrUtilFactory;
 
     @Transactional(readOnly = true)
+    @Override
     public long getMaxRetries() {
         return confDAO.find("notification.maxRetries", "0").getValues().get(0).getLongValue();
     }
@@ -262,9 +259,7 @@ public class NotificationManager {
         return new VelocityContext(model, toolContext);
     }
 
-    /**
-     * Create notification tasks for each notification matching the given user id and (some of) tasks performed.
-     */
+    @Override
     public void createTasks(
             final AuditElements.EventCategoryType type,
             final String category,
@@ -377,12 +372,7 @@ public class NotificationManager {
         return email;
     }
 
-    /**
-     * Store execution of a NotificationTask.
-     *
-     * @param execution task execution.
-     * @return merged task execution.
-     */
+    @Override
     public TaskExec storeExec(final TaskExec execution) {
         NotificationTask task = taskDAO.find(execution.getTask().getKey());
         task.addExec(execution);
@@ -393,25 +383,14 @@ public class NotificationManager {
         return execution;
     }
 
-    /**
-     * Set execution state of NotificationTask with provided id.
-     *
-     * @param taskId task to be updated
-     * @param executed execution state
-     */
+    @Override
     public void setTaskExecuted(final Long taskId, final boolean executed) {
         NotificationTask task = taskDAO.find(taskId);
         task.setExecuted(executed);
         taskDAO.save(task);
     }
 
-    /**
-     * Count the number of task executions of a given task with a given status.
-     *
-     * @param taskId task id
-     * @param status status
-     * @return number of task executions
-     */
+    @Override
     public long countExecutionsWithStatus(final Long taskId, final String status) {
         NotificationTask task = taskDAO.find(taskId);
         long count = 0;

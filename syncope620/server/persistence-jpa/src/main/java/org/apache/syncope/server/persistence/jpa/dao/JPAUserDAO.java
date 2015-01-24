@@ -241,11 +241,11 @@ public class JPAUserDAO extends AbstractSubjectDAO<UPlainAttr, UDerAttr, UVirAtt
         if (!AuthContextUtil.getAuthenticatedUsername().equals(anonymousUser)
                 && !AuthContextUtil.getAuthenticatedUsername().equals(user.getUsername())) {
 
-            Set<Long> roleIds = user.getRoleIds();
-            Set<Long> adminRoleIds = RoleEntitlementUtil.getRoleKeys(AuthContextUtil.getOwnedEntitlementNames());
-            roleIds.removeAll(adminRoleIds);
-            if (!roleIds.isEmpty()) {
-                throw new UnauthorizedRoleException(roleIds);
+            Set<Long> roleKeys = user.getRoleKeys();
+            Set<Long> adminRoleKeys = RoleEntitlementUtil.getRoleKeys(AuthContextUtil.getOwnedEntitlementNames());
+            roleKeys.removeAll(adminRoleKeys);
+            if (!roleKeys.isEmpty()) {
+                throw new UnauthorizedRoleException(roleKeys);
             }
         }
     }

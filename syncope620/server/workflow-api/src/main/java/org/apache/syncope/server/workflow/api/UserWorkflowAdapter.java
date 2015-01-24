@@ -37,8 +37,8 @@ public interface UserWorkflowAdapter extends WorkflowAdapter {
      * @return user just created
      * @throws WorkflowException workflow exception
      */
-    WorkflowResult<Map.Entry<Long, Boolean>> create(UserTO userTO, boolean storePassword) throws
-            WorkflowException;
+    WorkflowResult<Map.Entry<Long, Boolean>> create(UserTO userTO, boolean storePassword)
+            throws WorkflowException;
 
     /**
      * Create an user, optionally disabling password policy check.

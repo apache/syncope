@@ -47,10 +47,10 @@ import org.apache.syncope.server.provisioning.api.propagation.PropagationActions
 import org.apache.syncope.server.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.server.provisioning.api.propagation.PropagationTaskExecutor;
 import org.apache.syncope.server.misc.AuditManager;
-import org.apache.syncope.server.provisioning.java.notification.NotificationManager;
 import org.apache.syncope.server.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.server.misc.ConnObjectUtil;
 import org.apache.syncope.server.misc.ExceptionUtil;
+import org.apache.syncope.server.provisioning.api.notification.NotificationManager;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeUtil;

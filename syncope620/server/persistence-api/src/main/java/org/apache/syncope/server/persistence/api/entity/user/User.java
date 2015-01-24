@@ -57,7 +57,7 @@ public interface User extends Subject<UPlainAttr, UDerAttr, UVirAttr> {
 
     List<String> getPasswordHistory();
 
-    Set<Long> getRoleIds();
+    Set<Long> getRoleKeys();
 
     List<Role> getRoles();
 

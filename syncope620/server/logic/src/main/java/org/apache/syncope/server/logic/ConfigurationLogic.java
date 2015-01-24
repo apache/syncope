@@ -35,7 +35,7 @@ import org.apache.syncope.server.persistence.api.entity.conf.CPlainSchema;
 import org.apache.syncope.server.provisioning.api.data.ConfigurationDataBinder;
 import org.apache.syncope.server.logic.init.ImplementationClassNamesLoader;
 import org.apache.syncope.server.logic.init.WorkflowAdapterLoader;
-import org.apache.syncope.server.provisioning.java.notification.NotificationManager;
+import org.apache.syncope.server.provisioning.java.notification.NotificationManagerImpl;
 import org.apache.syncope.server.misc.spring.ResourceWithFallbackLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -109,20 +109,18 @@ public class ConfigurationLogic extends AbstractTransactionalLogic<ConfTO> {
 
     @PreAuthorize("hasRole('CONFIGURATION_LIST')")
     public Set<String> getMailTemplates() {
-        Set<String> htmlTemplates = new HashSet<String>();
-        Set<String> textTemplates = new HashSet<String>();
+        Set<String> htmlTemplates = new HashSet<>();
+        Set<String> textTemplates = new HashSet<>();
 
         try {
-            for (Resource resource : resourceLoader.getResources(NotificationManager.MAIL_TEMPLATES + "*.vm")) {
+            for (Resource resource : resourceLoader.getResources(NotificationManagerImpl.MAIL_TEMPLATES + "*.vm")) {
                 String template = resource.getURL().toExternalForm();
-                if (template.endsWith(NotificationManager.MAIL_TEMPLATE_HTML_SUFFIX)) {
-                    htmlTemplates.add(
-                            template.substring(template.indexOf(NotificationManager.MAIL_TEMPLATES) + 14,
-                                    template.indexOf(NotificationManager.MAIL_TEMPLATE_HTML_SUFFIX)));
-                } else if (template.endsWith(NotificationManager.MAIL_TEMPLATE_TEXT_SUFFIX)) {
-                    textTemplates.add(
-                            template.substring(template.indexOf(NotificationManager.MAIL_TEMPLATES) + 14,
-                                    template.indexOf(NotificationManager.MAIL_TEMPLATE_TEXT_SUFFIX)));
+                if (template.endsWith(NotificationManagerImpl.MAIL_TEMPLATE_HTML_SUFFIX)) {
+                    htmlTemplates.add(template.substring(template.indexOf(NotificationManagerImpl.MAIL_TEMPLATES) + 14,
+                                    template.indexOf(NotificationManagerImpl.MAIL_TEMPLATE_HTML_SUFFIX)));
+                } else if (template.endsWith(NotificationManagerImpl.MAIL_TEMPLATE_TEXT_SUFFIX)) {
+                    textTemplates.add(template.substring(template.indexOf(NotificationManagerImpl.MAIL_TEMPLATES) + 14,
+                                    template.indexOf(NotificationManagerImpl.MAIL_TEMPLATE_TEXT_SUFFIX)));
                 } else {
                     LOG.warn("Unexpected template found: {}, ignoring...", template);
                 }
@@ -141,7 +139,7 @@ public class ConfigurationLogic extends AbstractTransactionalLogic<ConfTO> {
     @Transactional(readOnly = true)
     public void export(final OutputStream os) {
         try {
-            exporter.export(os, wfAdapterLoader.getTablePrefix());
+            exporter.export(os, wfAdapterLoader.getPrefix());
             LOG.debug("Database content successfully exported");
         } catch (Exception e) {
             LOG.error("While exporting database content", e);
