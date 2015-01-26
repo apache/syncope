@@ -24,18 +24,22 @@ import org.apache.syncope.client.SyncopeClientFactoryBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SyncopeServices {
+public final class SyncopeServices {
 
     private static final Logger LOG = LoggerFactory.getLogger(SyncopeServices.class);
 
-    private final static ResourceBundle syncopeProperties = ResourceBundle.getBundle("syncope");
+    private final static ResourceBundle SYNCOPE_PROPS = ResourceBundle.getBundle("syncope");
 
-    private static final SyncopeClient client = new SyncopeClientFactoryBean()
-            .setAddress(syncopeProperties.getString("syncope.rest.services"))
-            .create(syncopeProperties.getString("syncope.user"), syncopeProperties.getString("syncope.password"));
+    private static final SyncopeClient CLIENT = new SyncopeClientFactoryBean()
+            .setAddress(SYNCOPE_PROPS.getString("syncope.rest.services"))
+            .create(SYNCOPE_PROPS.getString("syncope.user"), SYNCOPE_PROPS.getString("syncope.password"));
 
-    public static Object get(final Class claz) {
+    public static Object get(final Class<?> claz) {
         LOG.debug("Creting service for {}", claz.getName());
-        return client.getService(claz);
+        return CLIENT.getService(claz);
+    }
+
+    private SyncopeServices() {
+        // private constructor for static utility class
     }
 }
