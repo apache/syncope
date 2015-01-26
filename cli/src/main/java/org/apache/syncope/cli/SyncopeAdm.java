@@ -22,6 +22,9 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
 import org.apache.syncope.cli.commands.ConfigurationCommand;
 import org.apache.syncope.cli.commands.LoggerCommand;
+import org.apache.syncope.cli.commands.NotificationCommand;
+import org.apache.syncope.cli.commands.PolicyCommand;
+import org.apache.syncope.cli.commands.ReportCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,13 +35,22 @@ public class SyncopeAdm {
     private static final String helpMessage = "Usage: Main [options]\n"
             + "  Options:\n"
             + "    logger --help \n"
-            + "    config --help \n";
+            + "    config --help \n"
+            + "    notification --help \n"
+            + "    report --help \n"
+            + "    policy --help \n";
 
     private static final JCommander jcommander = new JCommander();
 
     private static LoggerCommand loggerCommand;
 
     private static ConfigurationCommand configurationCommand;
+
+    private static NotificationCommand notificationCommand;
+
+    private static ReportCommand reportCommand;
+
+    private static PolicyCommand policyCommand;
 
     public static void main(final String[] args) {
         LOG.debug("Starting with args \n");
@@ -71,6 +83,15 @@ public class SyncopeAdm {
         configurationCommand = new ConfigurationCommand();
         jcommander.addCommand(configurationCommand);
         LOG.debug("Added ConfigurationCommand");
+        notificationCommand = new NotificationCommand();
+        jcommander.addCommand(notificationCommand);
+        LOG.debug("Added NotificationCommand");
+        reportCommand = new ReportCommand();
+        jcommander.addCommand(reportCommand);
+        LOG.debug("Added ReportCommand");
+        policyCommand = new PolicyCommand();
+        jcommander.addCommand(policyCommand);
+        LOG.debug("Added PolicyCommand");
     }
 
     private static void executeCommand() {
@@ -82,6 +103,12 @@ public class SyncopeAdm {
             loggerCommand.execute();
         } else if ("config".equalsIgnoreCase(command)) {
             configurationCommand.execute();
+        } else if ("notification".equalsIgnoreCase(command)) {
+            notificationCommand.execute();
+        } else if ("report".equalsIgnoreCase(command)) {
+            reportCommand.execute();
+        } else if ("policy".equalsIgnoreCase(command)) {
+            policyCommand.execute();
         }
     }
 }

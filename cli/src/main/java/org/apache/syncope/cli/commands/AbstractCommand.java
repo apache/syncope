@@ -24,6 +24,9 @@ public abstract class AbstractCommand {
 
     @Parameter(names = {"-h", "--help"})
     protected boolean help = false;
-    
-    public abstract void execute();
+
+    @Parameter(names = {"-l", "--list"})
+    protected boolean list = false;
+
+    protected abstract void execute();
 }

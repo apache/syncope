@@ -25,7 +25,6 @@ import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.cli.SyncopeServices;
-import org.apache.syncope.cli.validators.DebugLevelValidator;
 import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.common.services.LoggerService;
 import org.apache.syncope.common.to.LoggerTO;
@@ -60,19 +59,16 @@ public class LoggerCommand extends AbstractCommand {
             + "    -d, --delete \n"
             + "       Syntax: -d={LOG-NAME}";
 
-    @Parameter(names = {"-l", "--list"})
-    public boolean list = false;
-
     @Parameter(names = {"-r", "--read"})
     public String logNameToRead;
 
     @DynamicParameter(names = {"-u", "--update"})
     private final Map<String, String> updateLogs = new HashMap<String, String>();
 
-    @Parameter(names = {"-ua", "--update-all"}, validateWith = DebugLevelValidator.class)
+    @Parameter(names = {"-ua", "--update-all"})
     public String logLevel;
 
-    @DynamicParameter(names = {"-u", "--update"})
+    @DynamicParameter(names = {"-c", "--create"})
     private final Map<String, String> createLogs = new HashMap<String, String>();
 
     @Parameter(names = {"-d", "--delete"})
@@ -106,40 +102,57 @@ public class LoggerCommand extends AbstractCommand {
             }
         } else if (!updateLogs.isEmpty()) {
             LOG.debug("- logger update command with params {}", updateLogs);
-            try {
-                for (final Map.Entry<String, String> entrySet : updateLogs.entrySet()) {
-                    final LoggerTO loggerTO = loggerService.read(LoggerType.LOG, entrySet.getKey());
-                    loggerTO.setLevel(LoggerLevel.valueOf(entrySet.getValue()));
+
+            for (final Map.Entry<String, String> log : updateLogs.entrySet()) {
+                final LoggerTO loggerTO = loggerService.read(LoggerType.LOG, log.getKey());
+                try {
+                    loggerTO.setLevel(LoggerLevel.valueOf(log.getValue()));
                     loggerService.update(LoggerType.LOG, loggerTO.getName(), loggerTO);
                     System.out.println(" - Logger " + loggerTO.getName() + " new level -> " + loggerTO.getLevel());
+                } catch (final SyncopeClientException ex) {
+                    System.out.println(" - Error: " + ex.getMessage());
+                } catch (final IllegalArgumentException ex) {
+                    System.out.println(" - Error: " + log.getValue() + " isn't a valid logger level, try with:");
+                    for (final LoggerLevel level : LoggerLevel.values()) {
+                        System.out.println("  *** " + level.name());
+                    }
                 }
-            } catch (final SyncopeClientException ex) {
-                System.out.println(" - Error: " + ex.getMessage());
             }
         } else if (StringUtils.isNotBlank(logLevel)) {
             LOG.debug("- logger update all command with level {}", logLevel);
-            try {
-
-                for (final LoggerTO loggerTO : loggerService.list(LoggerType.LOG)) {
+            for (final LoggerTO loggerTO : loggerService.list(LoggerType.LOG)) {
+                try {
                     loggerTO.setLevel(LoggerLevel.valueOf(logLevel));
                     loggerService.update(LoggerType.LOG, loggerTO.getName(), loggerTO);
                     System.out.println(" - Logger " + loggerTO.getName() + " new level -> " + loggerTO.getLevel());
+                } catch (final SyncopeClientException ex) {
+                    System.out.println(" - Error: " + ex.getMessage());
+                } catch (final IllegalArgumentException ex) {
+                    System.out.println(" - Error: " + loggerTO.getLevel() + " isn't a valid logger level, try with:");
+                    for (final LoggerLevel level : LoggerLevel.values()) {
+                        System.out.println("  *** " + level.name());
+                    }
                 }
-            } catch (final SyncopeClientException ex) {
-                System.out.println(" - Error: " + ex.getMessage());
             }
         } else if (!createLogs.isEmpty()) {
             LOG.debug("- logger create command with params {}", createLogs);
-            try {
-                for (final Map.Entry<String, String> entrySet : createLogs.entrySet()) {
-                    final LoggerTO loggerTO = new LoggerTO();
+
+            for (final Map.Entry<String, String> entrySet : createLogs.entrySet()) {
+                final LoggerTO loggerTO = new LoggerTO();
+                try {
                     loggerTO.setName(entrySet.getKey());
                     loggerTO.setLevel(LoggerLevel.valueOf(entrySet.getValue()));
                     loggerService.update(LoggerType.LOG, loggerTO.getName(), loggerTO);
-                    System.out.println(" - Logger " + loggerTO.getName() + " created with level -> " + loggerTO.getLevel());
+                    System.out.println(" - Logger " + loggerTO.getName() + " created with level -> " + loggerTO.
+                            getLevel());
+                } catch (final SyncopeClientException ex) {
+                    System.out.println(" - Error: " + ex.getMessage());
+                } catch (final IllegalArgumentException ex) {
+                    System.out.println(" - Error: " + loggerTO.getLevel() + " isn't a valid logger level, try with:");
+                    for (final LoggerLevel level : LoggerLevel.values()) {
+                        System.out.println("  *** " + level.name());
+                    }
                 }
-            } catch (final SyncopeClientException ex) {
-                System.out.println(" - Error: " + ex.getMessage());
             }
         } else if (StringUtils.isNotBlank(logNameToDelete)) {
             try {

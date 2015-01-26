@@ -21,22 +21,16 @@ package org.apache.syncope.cli.commands;
 import com.beust.jcommander.DynamicParameter;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
-import java.io.File;
 import java.io.IOException;
 import java.io.SequenceInputStream;
-import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.cxf.helpers.IOUtils;
 import org.apache.syncope.cli.SyncopeServices;
+import org.apache.syncope.cli.util.XmlUtils;
 import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.common.services.ConfigurationService;
 import org.apache.syncope.common.to.AttributeTO;
@@ -45,7 +39,6 @@ import org.apache.syncope.common.wrap.MailTemplate;
 import org.apache.syncope.common.wrap.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 @Parameters(
@@ -77,9 +70,6 @@ public class ConfigurationCommand extends AbstractCommand {
             + "    -mt, --mail-templates \n"
             + "    -e, --export \n"
             + "       Syntax: -e={WHERE-DIR} \n";
-
-    @Parameter(names = {"-l", "--list"})
-    public boolean list = false;
 
     @Parameter(names = {"-r", "--read"})
     public String confNameToRead;
@@ -171,8 +161,9 @@ public class ConfigurationCommand extends AbstractCommand {
         } else if (validators) {
             LOG.debug("- configuration validators command");
             try {
+                System.out.println("Conf validator class: ");
                 for (final Validator validator : configurationService.getValidators()) {
-                    System.out.println(" - Conf validator class: " + validator.getElement());
+                    System.out.println("  *** " + validator.getElement());
                 }
             } catch (final SyncopeClientException ex) {
                 System.out.println(" - Error: " + ex.getMessage());
@@ -180,9 +171,9 @@ public class ConfigurationCommand extends AbstractCommand {
         } else if (mailTemplates) {
             LOG.debug("- configuration mailTemplates command");
             try {
-                System.out.println(" - Conf mail template for:");
+                System.out.println("Conf mail template for:");
                 for (final MailTemplate mailTemplate : configurationService.getMailTemplates()) {
-                    System.out.println("    *** " + mailTemplate.getElement());
+                    System.out.println("  *** " + mailTemplate.getElement());
                 }
             } catch (final SyncopeClientException ex) {
                 System.out.println(" - Error: " + ex.getMessage());
@@ -191,12 +182,8 @@ public class ConfigurationCommand extends AbstractCommand {
             LOG.debug("- configuration export command, directory where xml will be export: {}", export);
 
             try {
-                TransformerFactory.newInstance().newTransformer()
-                        .transform(new DOMSource(DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(
-                                                new InputSource(new StringReader(IOUtils.toString(
-                                                                        (SequenceInputStream) configurationService.
-                                                                        export().getEntity()))))),
-                                new StreamResult(new File(export + EXPORT_FILE_NAME)));
+                XmlUtils.createXMLFile((SequenceInputStream) configurationService.export().getEntity(), export
+                        + EXPORT_FILE_NAME);
                 System.out.println(" - " + export + EXPORT_FILE_NAME + " successfully created");
             } catch (final IOException ex) {
                 LOG.error("Error creating content.xml file in {} directory", export, ex);
