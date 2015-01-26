@@ -406,17 +406,6 @@ public class ResourceTestITCase extends AbstractTest {
     }
 
     @Test
-    public void listByType() {
-        List<ResourceTO> actuals = resourceService.list(105L);
-        assertNotNull(actuals);
-
-        for (ResourceTO resourceTO : actuals) {
-            assertNotNull(resourceTO);
-            assertEquals(105L, resourceTO.getConnectorId().longValue());
-        }
-    }
-
-    @Test
     public void read() {
         ResourceTO actual = resourceService.read(RESOURCE_NAME_TESTDB);
         assertNotNull(actual);
@@ -507,7 +496,7 @@ public class ResourceTestITCase extends AbstractTest {
         item.setExtAttrName("cn");
         item.setPurpose(MappingPurpose.BOTH);
         mapping.setAccountIdItem(item);
-            
+
         item = new MappingItemTO();
         item.setIntMappingType(IntMappingType.RoleOwnerSchema);
         item.setExtAttrName("owner");

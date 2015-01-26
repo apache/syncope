@@ -100,9 +100,6 @@ under the License.
   <jaxrs:server id="restContainer" address="/" 
                 basePackages="org.apache.syncope.common.services, org.apache.syncope.core.services" 
                 staticSubresourceResolution="true">
-    <jaxrs:resourceComparator>
-      <bean id="queryResourceInfoComparator" class="org.apache.syncope.core.rest.utils.QueryResourceInfoComparator"/>
-    </jaxrs:resourceComparator>
     <jaxrs:properties> 
       <entry key="search.lax.property.match" value="true"/> 
     </jaxrs:properties> 
