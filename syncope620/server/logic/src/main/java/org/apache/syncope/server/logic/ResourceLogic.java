@@ -46,7 +46,6 @@ import org.apache.syncope.server.persistence.api.entity.Subject;
 import org.apache.syncope.server.provisioning.api.Connector;
 import org.apache.syncope.server.provisioning.api.ConnectorFactory;
 import org.apache.syncope.server.provisioning.api.data.ResourceDataBinder;
-import org.apache.syncope.server.logic.init.ImplementationClassNamesLoader;
 import org.apache.syncope.server.misc.ConnObjectUtil;
 import org.apache.syncope.server.misc.MappingUtil;
 import org.identityconnectors.framework.common.objects.Attribute;
@@ -77,9 +76,6 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
 
     @Autowired
     private ResourceDataBinder binder;
-
-    @Autowired
-    private ImplementationClassNamesLoader classNamesLoader;
 
     @Autowired
     private ConnObjectUtil connObjectUtil;
@@ -160,14 +156,6 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         }
 
         return binder.getResourceTO(resource);
-    }
-
-    @PreAuthorize("hasRole('RESOURCE_READ')")
-    public Set<String> getPropagationActionsClasses() {
-        Set<String> actionsClasses = classNamesLoader.getClassNames(
-                ImplementationClassNamesLoader.Type.PROPAGATION_ACTIONS);
-
-        return actionsClasses;
     }
 
     @PreAuthorize("isAuthenticated()")
@@ -268,28 +256,25 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         return res;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected ResourceTO resolveReference(final Method method, final Object... args)
             throws UnresolvedReferenceException {
 
-        String name = null;
+        String key = null;
 
         if (ArrayUtils.isNotEmpty(args)) {
-            for (int i = 0; name == null && i < args.length; i++) {
+            for (int i = 0; key == null && i < args.length; i++) {
                 if (args[i] instanceof String) {
-                    name = (String) args[i];
+                    key = (String) args[i];
                 } else if (args[i] instanceof ResourceTO) {
-                    name = ((ResourceTO) args[i]).getKey();
+                    key = ((ResourceTO) args[i]).getKey();
                 }
             }
         }
 
-        if (name != null) {
+        if (key != null) {
             try {
-                return binder.getResourceTO(resourceDAO.find(name));
+                return binder.getResourceTO(resourceDAO.find(key));
             } catch (Throwable ignore) {
                 LOG.debug("Unresolved reference", ignore);
                 throw new UnresolvedReferenceException(ignore);

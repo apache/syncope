@@ -295,7 +295,7 @@ public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
             LOG.error("Failure retrieving audit/notification events", e);
         }
 
-        return new ArrayList<EventCategoryTO>(events);
+        return new ArrayList<>(events);
     }
 
     @Override

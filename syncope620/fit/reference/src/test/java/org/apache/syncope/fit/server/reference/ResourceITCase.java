@@ -43,7 +43,6 @@ import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
-import org.apache.syncope.common.lib.wrap.PropagationActionClass;
 import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -88,7 +87,7 @@ public class ResourceITCase extends AbstractITCase {
 
     @Test
     public void getPropagationActionsClasses() {
-        List<PropagationActionClass> actions = resourceService.getPropagationActionsClasses();
+        List<String> actions = syncopeService.info().getPropagationActions();
         assertNotNull(actions);
         assertFalse(actions.isEmpty());
     }

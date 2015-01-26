@@ -24,7 +24,6 @@ import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import org.apache.syncope.common.lib.wrap.Validator;
 import org.apache.syncope.server.provisioning.api.job.PushJob;
 import org.apache.syncope.server.provisioning.api.job.SyncJob;
 import org.apache.syncope.server.provisioning.api.job.TaskJob;
@@ -34,6 +33,7 @@ import org.apache.syncope.server.provisioning.api.sync.SyncActions;
 import org.apache.syncope.server.provisioning.api.sync.SyncCorrelationRule;
 import org.apache.syncope.server.logic.report.Reportlet;
 import org.apache.syncope.server.persistence.api.SyncopeLoader;
+import org.apache.syncope.server.persistence.api.attrvalue.validation.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,11 +54,11 @@ public class ImplementationClassNamesLoader implements SyncopeLoader {
 
         REPORTLET,
         TASKJOB,
+        PROPAGATION_ACTIONS,
         SYNC_ACTIONS,
         PUSH_ACTIONS,
-        SYNC_CORRELATION_RULES,
-        PUSH_CORRELATION_RULES,
-        PROPAGATION_ACTIONS,
+        SYNC_CORRELATION_RULE,
+        PUSH_CORRELATION_RULE,
         VALIDATOR
 
     }
@@ -116,10 +116,13 @@ public class ImplementationClassNamesLoader implements SyncopeLoader {
                     }
 
                     if (interfaces.contains(SyncCorrelationRule.class) && !metadata.isAbstract()) {
-                        classNames.get(Type.SYNC_CORRELATION_RULES).add(metadata.getClassName());
+                        classNames.get(Type.SYNC_CORRELATION_RULE).add(metadata.getClassName());
                     }
 
-                    // TODO: add push correlation rules management
+                    // TODO: SYNCOPE-631
+                    /* if (interfaces.contains(PushCorrelationRule.class) && !metadata.isAbstract()) {
+                     * classNames.get(Type.PUSH_CORRELATION_RULES).add(metadata.getClassName());
+                     * } */
                     if (interfaces.contains(PropagationActions.class) && !metadata.isAbstract()) {
                         classNames.get(Type.PROPAGATION_ACTIONS).add(metadata.getClassName());
                     }

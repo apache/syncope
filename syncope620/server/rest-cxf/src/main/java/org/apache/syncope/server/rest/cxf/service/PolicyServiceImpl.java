@@ -27,8 +27,6 @@ import org.apache.syncope.common.lib.to.AccountPolicyTO;
 import org.apache.syncope.common.lib.to.PasswordPolicyTO;
 import org.apache.syncope.common.lib.to.SyncPolicyTO;
 import org.apache.syncope.common.lib.types.PolicyType;
-import org.apache.syncope.common.lib.wrap.CorrelationRuleClass;
-import org.apache.syncope.common.rest.api.CollectionWrapper;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.PolicyService;
 import org.apache.syncope.server.logic.PolicyLogic;
@@ -46,7 +44,7 @@ public class PolicyServiceImpl extends AbstractServiceImpl implements PolicyServ
         AbstractPolicyTO policy = logic.create(policyTO);
         URI location = uriInfo.getAbsolutePathBuilder().path(String.valueOf(policy.getKey())).build();
         return Response.created(location).
-                header(RESTHeaders.RESOURCE_ID.toString(), policy.getKey()).
+                header(RESTHeaders.RESOURCE_ID, policy.getKey()).
                 build();
     }
 
@@ -116,10 +114,5 @@ public class PolicyServiceImpl extends AbstractServiceImpl implements PolicyServ
             default:
                 break;
         }
-    }
-
-    @Override
-    public List<CorrelationRuleClass> getSyncCorrelationRuleClasses() {
-        return CollectionWrapper.wrap(logic.getSyncCorrelationRuleClasses(), CorrelationRuleClass.class);
     }
 }

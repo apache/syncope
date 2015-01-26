@@ -63,7 +63,7 @@ public class UserSelfITCase extends AbstractITCase {
 
     @Test
     public void create() {
-        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers());
+        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
 
         // 1. self-registration as admin: failure
         try {
@@ -84,7 +84,7 @@ public class UserSelfITCase extends AbstractITCase {
 
     @Test
     public void createAndApprove() {
-        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers());
+        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
 
         // self-create user with membership: goes 'createApproval' with resources and membership but no propagation
         UserTO userTO = UserITCase.getUniqueSampleTO("anonymous@syncope.apache.org");
@@ -153,13 +153,14 @@ public class UserSelfITCase extends AbstractITCase {
         UserTO updated = authClient.getService(UserSelfService.class).update(created.getKey(), userMod).
                 readEntity(UserTO.class);
         assertNotNull(updated);
-        assertEquals(ActivitiDetector.isActivitiEnabledForUsers() ? "active" : "created", updated.getStatus());
+        assertEquals(ActivitiDetector.isActivitiEnabledForUsers(syncopeService)
+                ? "active" : "created", updated.getStatus());
         assertTrue(updated.getUsername().endsWith("XX"));
     }
 
     @Test
     public void updateWitApproval() {
-        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers());
+        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
 
         // 1. create user as admin
         UserTO created = createUser(UserITCase.getUniqueSampleTO("anonymous@syncope.apache.org"));
@@ -227,7 +228,8 @@ public class UserSelfITCase extends AbstractITCase {
         SyncopeClient authClient = clientFactory.create(created.getUsername(), "password123");
         UserTO deleted = authClient.getService(UserSelfService.class).delete().readEntity(UserTO.class);
         assertNotNull(deleted);
-        assertEquals(ActivitiDetector.isActivitiEnabledForUsers() ? "deleteApproval" : null, deleted.getStatus());
+        assertEquals(ActivitiDetector.isActivitiEnabledForUsers(syncopeService)
+                ? "deleteApproval" : null, deleted.getStatus());
     }
 
     @Test
@@ -238,7 +240,7 @@ public class UserSelfITCase extends AbstractITCase {
 
     @Test
     public void noContent() throws IOException {
-        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers());
+        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
 
         SyncopeClient anonClient = clientFactory.createAnonymous();
         UserSelfService noContentService = anonClient.prefer(UserSelfService.class, Preference.RETURN_NO_CONTENT);

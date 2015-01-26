@@ -22,7 +22,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
@@ -50,7 +49,6 @@ import org.apache.syncope.server.provisioning.api.data.TaskDataBinder;
 import org.apache.syncope.server.provisioning.api.job.JobNamer;
 import org.apache.syncope.server.provisioning.api.job.TaskJob;
 import org.apache.syncope.server.provisioning.api.propagation.PropagationTaskExecutor;
-import org.apache.syncope.server.logic.init.ImplementationClassNamesLoader;
 import org.apache.syncope.server.provisioning.api.job.JobInstanceLoader;
 import org.apache.syncope.server.logic.notification.NotificationJob;
 import org.quartz.JobDataMap;
@@ -84,9 +82,6 @@ public class TaskLogic extends AbstractTransactionalLogic<AbstractTaskTO> {
 
     @Autowired
     private SchedulerFactoryBean scheduler;
-
-    @Autowired
-    private ImplementationClassNamesLoader classNamesLoader;
 
     @Autowired
     private TaskUtilFactory taskUtilFactory;
@@ -160,21 +155,6 @@ public class TaskLogic extends AbstractTransactionalLogic<AbstractTaskTO> {
         }
 
         return taskTOs;
-    }
-
-    @PreAuthorize("hasRole('TASK_LIST')")
-    public Set<String> getJobClasses() {
-        return classNamesLoader.getClassNames(ImplementationClassNamesLoader.Type.TASKJOB);
-    }
-
-    @PreAuthorize("hasRole('TASK_LIST')")
-    public Set<String> getSyncActionsClasses() {
-        return classNamesLoader.getClassNames(ImplementationClassNamesLoader.Type.SYNC_ACTIONS);
-    }
-
-    @PreAuthorize("hasRole('TASK_LIST')")
-    public Set<String> getPushActionsClasses() {
-        return classNamesLoader.getClassNames(ImplementationClassNamesLoader.Type.PUSH_ACTIONS);
     }
 
     @PreAuthorize("hasRole('TASK_READ')")
@@ -378,23 +358,23 @@ public class TaskLogic extends AbstractTransactionalLogic<AbstractTaskTO> {
     protected AbstractTaskTO resolveReference(final Method method, final Object... args)
             throws UnresolvedReferenceException {
 
-        Long id = null;
+        Long key = null;
 
         if (ArrayUtils.isNotEmpty(args)
                 && !"deleteExecution".equals(method.getName()) && !"readExecution".equals(method.getName())) {
 
-            for (int i = 0; id == null && i < args.length; i++) {
+            for (int i = 0; key == null && i < args.length; i++) {
                 if (args[i] instanceof Long) {
-                    id = (Long) args[i];
+                    key = (Long) args[i];
                 } else if (args[i] instanceof AbstractTaskTO) {
-                    id = ((AbstractTaskTO) args[i]).getKey();
+                    key = ((AbstractTaskTO) args[i]).getKey();
                 }
             }
         }
 
-        if ((id != null) && !id.equals(0l)) {
+        if ((key != null) && !key.equals(0l)) {
             try {
-                final Task task = taskDAO.find(id);
+                final Task task = taskDAO.find(key);
                 return binder.getTaskTO(task, taskUtilFactory.getInstance(task));
             } catch (Throwable ignore) {
                 LOG.debug("Unresolved reference", ignore);

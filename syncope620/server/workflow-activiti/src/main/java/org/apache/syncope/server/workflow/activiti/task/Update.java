@@ -16,14 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.workflow.activiti.task;
+package org.apache.syncope.server.workflow.activiti.task;
 
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.common.lib.mod.UserMod;
 import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.server.persistence.api.entity.user.User;
 import org.apache.syncope.server.provisioning.api.data.UserDataBinder;
-import org.apache.syncope.workflow.activiti.ActivitiUserWorkflowAdapter;
+import org.apache.syncope.server.workflow.activiti.ActivitiUserWorkflowAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -35,7 +35,7 @@ public class Update extends AbstractActivitiServiceTask {
 
     @Override
     protected void doExecute(final String executionId) {
-        User user = runtimeService.getVariable(executionId, ActivitiUserWorkflowAdapter.SYNCOPE_USER, User.class);
+        User user = runtimeService.getVariable(executionId, ActivitiUserWorkflowAdapter.USER, User.class);
         UserMod userMod =
                 runtimeService.getVariable(executionId, ActivitiUserWorkflowAdapter.USER_MOD, UserMod.class);
 
@@ -48,7 +48,7 @@ public class Update extends AbstractActivitiServiceTask {
         PropagationByResource propByRes = dataBinder.update(user, actualMod);
 
         // report updated user and propagation by resource as result
-        runtimeService.setVariable(executionId, ActivitiUserWorkflowAdapter.SYNCOPE_USER, user);
+        runtimeService.setVariable(executionId, ActivitiUserWorkflowAdapter.USER, user);
         runtimeService.setVariable(executionId, ActivitiUserWorkflowAdapter.PROP_BY_RESOURCE, propByRes);
     }
 }

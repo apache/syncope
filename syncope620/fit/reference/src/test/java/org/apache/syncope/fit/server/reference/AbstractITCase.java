@@ -59,6 +59,7 @@ import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.apache.syncope.common.rest.api.service.RoleService;
 import org.apache.syncope.common.rest.api.service.SchemaService;
 import org.apache.syncope.common.rest.api.service.SecurityQuestionService;
+import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.syncope.common.rest.api.service.UserService;
@@ -142,6 +143,8 @@ public abstract class AbstractITCase {
 
     protected static SyncopeClient adminClient;
 
+    protected static SyncopeService syncopeService;
+
     protected static UserService userService;
 
     protected static UserSelfService userSelfService;
@@ -207,6 +210,7 @@ public abstract class AbstractITCase {
 
         adminClient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
 
+        syncopeService = adminClient.getService(SyncopeService.class);
         userService = adminClient.getService(UserService.class);
         userSelfService = adminClient.getService(UserSelfService.class);
         userWorkflowService = adminClient.getService(UserWorkflowService.class);

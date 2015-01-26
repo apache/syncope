@@ -377,23 +377,23 @@ public class RoleLogic extends AbstractSubjectLogic<RoleTO, RoleMod> {
 
     @Override
     protected RoleTO resolveReference(final Method method, final Object... args) throws UnresolvedReferenceException {
-        Long id = null;
+        Long key = null;
 
         if (ArrayUtils.isNotEmpty(args)) {
-            for (int i = 0; id == null && i < args.length; i++) {
+            for (int i = 0; key == null && i < args.length; i++) {
                 if (args[i] instanceof Long) {
-                    id = (Long) args[i];
+                    key = (Long) args[i];
                 } else if (args[i] instanceof RoleTO) {
-                    id = ((RoleTO) args[i]).getKey();
+                    key = ((RoleTO) args[i]).getKey();
                 } else if (args[i] instanceof RoleMod) {
-                    id = ((RoleMod) args[i]).getKey();
+                    key = ((RoleMod) args[i]).getKey();
                 }
             }
         }
 
-        if ((id != null) && !id.equals(0l)) {
+        if ((key != null) && !key.equals(0l)) {
             try {
-                return binder.getRoleTO(id);
+                return binder.getRoleTO(key);
             } catch (Throwable ignore) {
                 LOG.debug("Unresolved reference", ignore);
                 throw new UnresolvedReferenceException(ignore);

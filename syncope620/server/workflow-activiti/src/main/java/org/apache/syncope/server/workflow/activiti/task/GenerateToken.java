@@ -16,14 +16,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.workflow.activiti.task;
+package org.apache.syncope.server.workflow.activiti.task;
 
+import org.apache.syncope.server.persistence.api.dao.ConfDAO;
+import org.apache.syncope.server.persistence.api.entity.user.User;
+import org.apache.syncope.server.workflow.activiti.ActivitiUserWorkflowAdapter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class Suspend extends AbstractActivitiServiceTask {
+public class GenerateToken extends AbstractActivitiServiceTask {
+
+    @Autowired
+    private ConfDAO confDAO;
 
     @Override
     protected void doExecute(final String executionId) {
+        User user = runtimeService.getVariable(executionId, ActivitiUserWorkflowAdapter.USER, User.class);
+
+        user.generateToken(
+                confDAO.find("token.length", "256").getValues().get(0).getLongValue().intValue(),
+                confDAO.find("token.expireTime", "60").getValues().get(0).getLongValue().intValue());
+
+        runtimeService.setVariable(executionId, ActivitiUserWorkflowAdapter.USER, user);
     }
 }

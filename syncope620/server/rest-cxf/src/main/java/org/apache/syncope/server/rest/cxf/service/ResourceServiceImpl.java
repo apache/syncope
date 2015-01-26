@@ -30,9 +30,7 @@ import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.ResourceDeassociationActionType;
 import org.apache.syncope.common.lib.types.SubjectType;
-import org.apache.syncope.common.lib.wrap.PropagationActionClass;
 import org.apache.syncope.common.lib.wrap.SubjectId;
-import org.apache.syncope.common.rest.api.CollectionWrapper;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.apache.syncope.server.logic.AbstractResourceAssociator;
@@ -77,11 +75,6 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
     @Override
     public ResourceTO read(final String resourceKey) {
         return logic.read(resourceKey);
-    }
-
-    @Override
-    public List<PropagationActionClass> getPropagationActionsClasses() {
-        return CollectionWrapper.wrap(logic.getPropagationActionsClasses(), PropagationActionClass.class);
     }
 
     @Override

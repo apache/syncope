@@ -16,14 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.workflow.activiti.task;
+package org.apache.syncope.server.workflow.activiti.task;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.server.persistence.api.entity.user.User;
 import org.apache.syncope.server.provisioning.api.notification.NotificationManager;
-import org.apache.syncope.workflow.activiti.ActivitiUserWorkflowAdapter;
+import org.apache.syncope.server.workflow.activiti.ActivitiUserWorkflowAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -40,7 +40,7 @@ public class Notify extends AbstractActivitiServiceTask {
 
     @Override
     protected void doExecute(final String executionId) {
-        User user = runtimeService.getVariable(executionId, ActivitiUserWorkflowAdapter.SYNCOPE_USER, User.class);
+        User user = runtimeService.getVariable(executionId, ActivitiUserWorkflowAdapter.USER, User.class);
         UserTO userTO = runtimeService.getVariable(executionId, ActivitiUserWorkflowAdapter.USER_TO, UserTO.class);
         String event = runtimeService.getVariable(executionId, ActivitiUserWorkflowAdapter.EVENT, String.class);
 

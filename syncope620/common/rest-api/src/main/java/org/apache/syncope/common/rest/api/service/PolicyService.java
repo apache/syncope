@@ -36,23 +36,12 @@ import org.apache.cxf.jaxrs.model.wadl.Descriptions;
 import org.apache.cxf.jaxrs.model.wadl.DocTarget;
 import org.apache.syncope.common.lib.to.AbstractPolicyTO;
 import org.apache.syncope.common.lib.types.PolicyType;
-import org.apache.syncope.common.lib.wrap.CorrelationRuleClass;
 
 /**
  * REST operations for policies.
  */
 @Path("policies")
 public interface PolicyService extends JAXRSService {
-
-    /**
-     * Returns a list of classes to be used as correlation rules.
-     *
-     * @return list of classes to be used as correlation rules
-     */
-    @GET
-    @Path("syncCorrelationRuleClasses")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    List<CorrelationRuleClass> getSyncCorrelationRuleClasses();
 
     /**
      * Returns the policy matching the given key.

@@ -20,16 +20,13 @@ package org.apache.syncope.client.lib;
 
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.common.lib.search.OrderByClauseBuilder;
 import org.apache.syncope.common.lib.search.RoleFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.search.UserFiqlSearchConditionBuilder;
-import org.apache.syncope.common.lib.types.SubjectType;
 import org.apache.syncope.common.rest.api.Preference;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
-import org.apache.syncope.common.rest.api.service.WorkflowService;
 
 /**
  * Entry point for client access to all REST services exposed by Syncope core; obtain instances via
@@ -236,31 +233,6 @@ public class SyncopeClient {
     public boolean isPwdResetRequiringSecurityQuestions() {
         return Boolean.valueOf(restClientFactory.createServiceInstance(UserSelfService.class, mediaType, null, null).
                 getOptions().getHeaderString(RESTHeaders.PWDRESET_NEEDS_SECURITYQUESTIONS));
-    }
-
-    /**
-     * Checks whether Activiti workflow is enabled for users / roles, by calling <tt>WorkflowService</tt>'s options.
-     *
-     * @param subjectType user / role
-     * @return whether Activiti workflow is enabled for given attributable type
-     * @see WorkflowService#getOptions(org.apache.syncope.common.types.SubjectType)
-     */
-    public boolean isActivitiEnabledFor(final SubjectType subjectType) {
-        Response options = getService(WorkflowService.class).getOptions(subjectType);
-
-        boolean result;
-        switch (subjectType) {
-            case ROLE:
-                result = Boolean.valueOf(options.getHeaderString(RESTHeaders.ACTIVITI_ROLE_ENABLED));
-                break;
-
-            case USER:
-            default:
-                result = Boolean.valueOf(options.getHeaderString(RESTHeaders.ACTIVITI_USER_ENABLED));
-                break;
-        }
-
-        return result;
     }
 
     /**

@@ -77,10 +77,7 @@ import org.apache.syncope.common.lib.types.SubjectType;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
-import org.apache.syncope.common.lib.wrap.JobClass;
-import org.apache.syncope.common.lib.wrap.PushActionClass;
 import org.apache.syncope.common.lib.wrap.ResourceName;
-import org.apache.syncope.common.lib.wrap.SyncActionClass;
 import org.apache.syncope.common.rest.api.CollectionWrapper;
 import org.apache.syncope.common.rest.api.service.NotificationService;
 import org.apache.syncope.common.rest.api.service.ResourceService;
@@ -151,21 +148,21 @@ public class TaskITCase extends AbstractITCase {
 
     @Test
     public void getJobClasses() {
-        List<JobClass> jobClasses = taskService.getJobClasses();
+        List<String> jobClasses = syncopeService.info().getTaskJobs();
         assertNotNull(jobClasses);
         assertFalse(jobClasses.isEmpty());
     }
 
     @Test
     public void getSyncActionsClasses() {
-        List<SyncActionClass> actions = taskService.getSyncActionsClasses();
+        List<String> actions = syncopeService.info().getSyncActions();
         assertNotNull(actions);
         assertFalse(actions.isEmpty());
     }
 
     @Test
     public void getPushActionsClasses() {
-        List<PushActionClass> actions = taskService.getPushActionsClasses();
+        List<String> actions = syncopeService.info().getPushActions();
         assertNotNull(actions);
     }
 
@@ -382,7 +379,8 @@ public class TaskITCase extends AbstractITCase {
             UserTO userTO = userService.read(inUserTO.getKey());
             assertNotNull(userTO);
             assertEquals(userName, userTO.getUsername());
-            assertEquals(ActivitiDetector.isActivitiEnabledForUsers() ? "active" : "created", userTO.getStatus());
+            assertEquals(ActivitiDetector.isActivitiEnabledForUsers(syncopeService)
+                    ? "active" : "created", userTO.getStatus());
             assertEquals("test9@syncope.apache.org", userTO.getPlainAttrMap().get("email").getValues().get(0));
             assertEquals("test9@syncope.apache.org", userTO.getPlainAttrMap().get("userId").getValues().get(0));
             assertTrue(Integer.valueOf(userTO.getPlainAttrMap().get("fullname").getValues().get(0)) <= 10);

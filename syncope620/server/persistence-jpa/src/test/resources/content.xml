@@ -1014,7 +1014,7 @@ under the License.
                          serializedInstance='{"@class":"org.apache.syncope.common.lib.report.UserReportletConf","name":"testUserReportlet","matchingCond":null,"plainAttributes":["fullname","gender"],"derivedAttributes":["cn"],"virtualAttributes":["virtualdata"],"features":["key","username","workflowId","status","creationDate","lastLoginDate","changePwdDate","passwordHistorySize","failedLoginCount","memberships","resources"]}'/>
   <ReportExec Report_id="1" id="1" status="SUCCESS" startDate="2012-02-26 15:40:04" endDate="2012-02-26 15:41:04"/>
   
-  <SyncopeLogger logName="syncope.audit.[REST]:[EntitlementController]:[]:[getOwn]:[SUCCESS]" logLevel="DEBUG" logType="AUDIT"/>
+  <SyncopeLogger logName="syncope.audit.[REST]:[EntitlementLogic]:[]:[getOwn]:[SUCCESS]" logLevel="DEBUG" logType="AUDIT"/>
 
   <!-- Authentication and authorization -->
   <Entitlement name="base"/>

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.workflow.activiti;
+package org.apache.syncope.server.workflow.activiti;
 
 import java.util.ArrayList;
 import java.util.Collections;

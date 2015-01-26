@@ -16,30 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.workflow.activiti;
+package org.apache.syncope.server.workflow.activiti;
 
 import org.activiti.engine.impl.interceptor.Session;
-import org.activiti.engine.impl.interceptor.SessionFactory;
 
-public class SyncopeSessionFactory implements SessionFactory {
+public interface SyncopeSession extends Session {
 
-    private SyncopeSession syncopeSession;
-
-    @Override
-    public Class<?> getSessionType() {
-        return syncopeSession.getType();
-    }
-
-    @Override
-    public Session openSession() {
-        return syncopeSession;
-    }
-
-    public SyncopeSession getSyncopeSession() {
-        return syncopeSession;
-    }
-
-    public void setSyncopeSession(final SyncopeSession syncopeSession) {
-        this.syncopeSession = syncopeSession;
-    }
+    Class<?> getType();
 }

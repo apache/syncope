@@ -16,15 +16,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.wrap;
+package org.apache.syncope.server.rest.cxf.service;
 
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import org.apache.syncope.common.lib.to.SyncopeTO;
+import org.apache.syncope.common.rest.api.service.SyncopeService;
+import org.apache.syncope.server.logic.SyncopeLogic;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-@XmlRootElement(name = "validator")
-@XmlType
-public class Validator extends AbstractWrappable<String> {
+@Service
+public class SyncopeServiceImpl extends AbstractServiceImpl implements SyncopeService {
 
-    private static final long serialVersionUID = 7233619557177034453L;
+    @Autowired
+    private SyncopeLogic logic;
+
+    @Override
+    public SyncopeTO info() {
+        return logic.info();
+    }
 
 }

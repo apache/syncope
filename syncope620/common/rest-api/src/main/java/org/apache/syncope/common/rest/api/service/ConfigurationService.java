@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.common.rest.api.service;
 
-import java.util.List;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -31,8 +30,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.ConfTO;
-import org.apache.syncope.common.lib.wrap.MailTemplate;
-import org.apache.syncope.common.lib.wrap.Validator;
 
 /**
  * REST operations for configuration.
@@ -48,26 +45,6 @@ public interface ConfigurationService extends JAXRSService {
     @GET
     @Path("stream")
     Response export();
-
-    /**
-     * Returns a list of known mail-template names.
-     *
-     * @return a list of known mail-template names
-     */
-    @GET
-    @Path("mailTemplates")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    List<MailTemplate> getMailTemplates();
-
-    /**
-     * Returns a list of known validator names.
-     *
-     * @return a list of known validator names
-     */
-    @GET
-    @Path("validators")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    List<Validator> getValidators();
 
     /**
      * Returns all configuration parameters.

@@ -16,16 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.workflow.activiti.task;
+package org.apache.syncope.common.rest.api.service;
 
-import org.apache.syncope.workflow.activiti.ActivitiUserWorkflowAdapter;
-import org.springframework.stereotype.Component;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import org.apache.syncope.common.lib.to.SyncopeTO;
 
-@Component
-public class AutoActivate extends AbstractActivitiServiceTask {
+@Path("")
+public interface SyncopeService extends JAXRSService {
 
-    @Override
-    protected void doExecute(final String executionId) {
-        runtimeService.setVariable(executionId, ActivitiUserWorkflowAdapter.PROPAGATE_ENABLE, Boolean.TRUE);
-    }
+    @GET
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.APPLICATION_XHTML_XML })
+    SyncopeTO info();
 }

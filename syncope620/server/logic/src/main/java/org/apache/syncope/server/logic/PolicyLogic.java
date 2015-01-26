@@ -21,7 +21,6 @@ package org.apache.syncope.server.logic;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.to.AbstractPolicyTO;
 import org.apache.syncope.common.lib.to.AccountPolicyTO;
@@ -35,16 +34,12 @@ import org.apache.syncope.server.persistence.api.entity.PasswordPolicy;
 import org.apache.syncope.server.persistence.api.entity.Policy;
 import org.apache.syncope.server.persistence.api.entity.SyncPolicy;
 import org.apache.syncope.server.provisioning.api.data.PolicyDataBinder;
-import org.apache.syncope.server.logic.init.ImplementationClassNamesLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
 @Component
 public class PolicyLogic extends AbstractTransactionalLogic<AbstractPolicyTO> {
-
-    @Autowired
-    private ImplementationClassNamesLoader classNamesLoader;
 
     @Autowired
     private PolicyDAO policyDAO;
@@ -158,11 +153,6 @@ public class PolicyLogic extends AbstractTransactionalLogic<AbstractPolicyTO> {
         policyDAO.delete(policy);
 
         return policyToDelete;
-    }
-
-    @PreAuthorize("hasRole('POLICY_LIST')")
-    public Set<String> getSyncCorrelationRuleClasses() {
-        return classNamesLoader.getClassNames(ImplementationClassNamesLoader.Type.SYNC_CORRELATION_RULES);
     }
 
     /**

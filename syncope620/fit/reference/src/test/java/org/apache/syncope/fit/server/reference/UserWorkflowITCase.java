@@ -49,7 +49,7 @@ public class UserWorkflowITCase extends AbstractITCase {
 
     @Test
     public void createWithReject() {
-        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers());
+        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
 
         UserTO userTO = UserITCase.getUniqueSampleTO("createWithReject@syncope.apache.org");
         userTO.getResources().add(RESOURCE_NAME_TESTDB);
@@ -118,7 +118,7 @@ public class UserWorkflowITCase extends AbstractITCase {
 
     @Test
     public void createWithApproval() {
-        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers());
+        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
 
         // read forms *before* any operation
         List<WorkflowFormTO> forms = userWorkflowService.getForms();
@@ -201,7 +201,7 @@ public class UserWorkflowITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE15() {
-        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers());
+        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
 
         // read forms *before* any operation
         List<WorkflowFormTO> forms = userWorkflowService.getForms();

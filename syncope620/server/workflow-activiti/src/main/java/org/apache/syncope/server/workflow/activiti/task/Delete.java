@@ -16,15 +16,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.wrap;
+package org.apache.syncope.server.workflow.activiti.task;
 
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import org.apache.syncope.server.persistence.api.entity.user.User;
+import org.apache.syncope.server.workflow.activiti.ActivitiUserWorkflowAdapter;
+import org.springframework.stereotype.Component;
 
-@XmlRootElement(name = "correlationRuleClass")
-@XmlType
-public class CorrelationRuleClass extends AbstractWrappable<String> {
+@Component
+public class Delete extends AbstractActivitiServiceTask {
 
-    private static final long serialVersionUID = -6715106427060816725L;
+    @Override
+    protected void doExecute(final String executionId) {
+        User user = runtimeService.getVariable(executionId, ActivitiUserWorkflowAdapter.USER, User.class);
 
+        // Do something with SyncopeUser...
+        if (user != null) {
+            user.checkToken("");
+        }
+
+        // remove SyncopeUser variable
+        runtimeService.removeVariable(executionId, ActivitiUserWorkflowAdapter.USER);
+    }
 }

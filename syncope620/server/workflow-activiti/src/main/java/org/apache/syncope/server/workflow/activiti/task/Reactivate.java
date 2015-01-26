@@ -16,11 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.workflow.activiti;
+package org.apache.syncope.server.workflow.activiti.task;
 
-import org.activiti.engine.impl.interceptor.Session;
+import org.springframework.stereotype.Component;
 
-public interface SyncopeSession extends Session {
+@Component
+public class Reactivate extends AbstractActivitiServiceTask {
 
-    Class<?> getType();
+    @Override
+    protected void doExecute(final String executionId) {
+    }
 }

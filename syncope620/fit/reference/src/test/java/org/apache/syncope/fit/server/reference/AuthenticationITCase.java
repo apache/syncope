@@ -366,7 +366,7 @@ public class AuthenticationITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE434() {
-        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers());
+        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
 
         // 1. create user with role 9 (users with role 9 are defined in workflow as subject to approval)
         UserTO userTO = UserITCase.getUniqueSampleTO("createWithReject@syncope.apache.org");

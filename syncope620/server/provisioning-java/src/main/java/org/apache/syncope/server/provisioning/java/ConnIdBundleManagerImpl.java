@@ -65,6 +65,13 @@ public class ConnIdBundleManagerImpl implements ConnIdBundleManager {
             Collections.synchronizedMap(new LinkedHashMap<URI, ConnectorInfoManager>());
 
     @Override
+    public List<URI> getLocations() {
+        init();
+
+        return locations;
+    }
+
+    @Override
     public void setStringLocations(final String stringLocations) {
         this.stringLocations = stringLocations;
     }

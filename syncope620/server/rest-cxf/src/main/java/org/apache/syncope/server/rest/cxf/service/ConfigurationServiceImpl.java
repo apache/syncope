@@ -20,16 +20,12 @@ package org.apache.syncope.server.rest.cxf.service;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.List;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.ConfTO;
-import org.apache.syncope.common.lib.wrap.MailTemplate;
-import org.apache.syncope.common.lib.wrap.Validator;
-import org.apache.syncope.common.rest.api.CollectionWrapper;
 import org.apache.syncope.common.rest.api.service.ConfigurationService;
 import org.apache.syncope.server.logic.ConfigurationLogic;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,16 +57,6 @@ public class ConfigurationServiceImpl extends AbstractServiceImpl implements Con
     @Override
     public void delete(final String key) {
         logic.delete(key);
-    }
-
-    @Override
-    public List<MailTemplate> getMailTemplates() {
-        return CollectionWrapper.wrap(logic.getMailTemplates(), MailTemplate.class);
-    }
-
-    @Override
-    public List<Validator> getValidators() {
-        return CollectionWrapper.wrap(logic.getValidators(), Validator.class);
     }
 
     @Override

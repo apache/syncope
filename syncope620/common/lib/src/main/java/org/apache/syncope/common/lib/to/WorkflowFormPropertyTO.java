@@ -31,7 +31,7 @@ public class WorkflowFormPropertyTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = 9139969592634304261L;
 
-    private String key;
+    private String id;
 
     private String name;
 
@@ -47,14 +47,14 @@ public class WorkflowFormPropertyTO extends AbstractBaseBean {
 
     private String datePattern;
 
-    private Map<String, String> enumValues = new HashMap<>();
+    private final Map<String, String> enumValues = new HashMap<>();
 
-    public String getKey() {
-        return key;
+    public String getId() {
+        return id;
     }
 
-    public void setKey(final String key) {
-        this.key = key;
+    public void setId(final String id) {
+        this.id = id;
     }
 
     public String getName() {

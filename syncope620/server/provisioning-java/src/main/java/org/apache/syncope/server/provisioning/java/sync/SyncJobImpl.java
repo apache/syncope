@@ -177,8 +177,8 @@ public class SyncJobImpl extends AbstractProvisioningJob<SyncTask, SyncActions> 
                     throw new JobExecutionException("While updating SyncToken", e);
                 }
             }
-        } catch (Exception e) {
-            throw new JobExecutionException("While syncing on connector", e);
+        } catch (Throwable t) {
+            throw new JobExecutionException("While syncing on connector", t);
         }
 
         try {

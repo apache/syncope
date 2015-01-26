@@ -16,33 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.workflow.activiti.task;
+package org.apache.syncope.server.workflow.activiti.task;
 
-import org.activiti.engine.RuntimeService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
-/**
- * Abstract base class for Activiti's service tasks in Syncope, with Spring support.
- */
 @Component
-public abstract class AbstractActivitiServiceTask {
+public class Suspend extends AbstractActivitiServiceTask {
 
-    /**
-     * Logger.
-     */
-    protected static final Logger LOG = LoggerFactory.getLogger(AbstractActivitiServiceTask.class);
-
-    @Autowired
-    protected RuntimeService runtimeService;
-
-    @Transactional(rollbackFor = { Throwable.class })
-    public void execute(final String executionId) {
-        doExecute(executionId);
+    @Override
+    protected void doExecute(final String executionId) {
     }
-
-    protected abstract void doExecute(final String executionId);
 }

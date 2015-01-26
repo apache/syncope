@@ -18,19 +18,19 @@
  */
 package org.apache.syncope.fit.server.reference;
 
+import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// TODO: REMOVE!!!
 public class ActivitiDetector {
 
     private static final Logger LOG = LoggerFactory.getLogger(ActivitiDetector.class);
 
-    public static boolean isActivitiEnabledForUsers() {
-        return false;
+    public static boolean isActivitiEnabledForUsers(final SyncopeService syncopeService) {
+        return syncopeService.info().getUserWorkflowAdapter().indexOf("Activiti") != -1;
     }
 
-    public static boolean isActivitiEnabledForRoles() {
-        return false;
+    public static boolean isActivitiEnabledForRoles(final SyncopeService syncopeService) {
+        return syncopeService.info().getRoleWorkflowAdapter().indexOf("Activiti") != -1;
     }
 }

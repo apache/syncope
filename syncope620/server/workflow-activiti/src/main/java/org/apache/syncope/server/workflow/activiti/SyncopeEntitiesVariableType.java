@@ -16,25 +16,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.workflow.activiti.task;
+package org.apache.syncope.server.workflow.activiti;
 
-import org.apache.syncope.server.persistence.api.entity.user.User;
-import org.apache.syncope.workflow.activiti.ActivitiUserWorkflowAdapter;
-import org.springframework.stereotype.Component;
+import org.activiti.engine.impl.variable.SerializableType;
+import org.apache.syncope.server.persistence.api.entity.Entity;
 
-@Component
-public class Delete extends AbstractActivitiServiceTask {
+/**
+ * Activiti variable type for handling Syncope entities as Activiti variables.
+ * Main purpose: avoid Activiti to handle Syncope entities as JPA entities,
+ * since this can cause troubles with transactions.
+ */
+public class SyncopeEntitiesVariableType extends SerializableType {
 
     @Override
-    protected void doExecute(final String executionId) {
-        User user = runtimeService.getVariable(executionId, ActivitiUserWorkflowAdapter.SYNCOPE_USER, User.class);
-
-        // Do something with SyncopeUser...
-        if (user != null) {
-            user.checkToken("");
-        }
-
-        // remove SyncopeUser variable
-        runtimeService.removeVariable(executionId, ActivitiUserWorkflowAdapter.SYNCOPE_USER);
+    public boolean isAbleToStore(final Object value) {
+        return value instanceof Entity;
     }
 }

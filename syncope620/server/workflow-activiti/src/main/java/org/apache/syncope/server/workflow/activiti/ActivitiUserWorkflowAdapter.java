@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.workflow.activiti;
+package org.apache.syncope.server.workflow.activiti;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -101,7 +101,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
     public static final String WF_DGRM_RESOURCE = "userWorkflow.userWorkflow.png";
 
-    public static final String SYNCOPE_USER = "user";
+    public static final String USER = "user";
 
     public static final String WF_EXECUTOR = "wfExecutor";
 
@@ -272,7 +272,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         }
 
         User user =
-                runtimeService.getVariable(processInstance.getProcessInstanceId(), SYNCOPE_USER, User.class);
+                runtimeService.getVariable(processInstance.getProcessInstanceId(), USER, User.class);
 
         Boolean updatedEnabled =
                 runtimeService.getVariable(processInstance.getProcessInstanceId(), ENABLED, Boolean.class);
@@ -315,7 +315,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         // using BeanUtils to access all user's properties and trigger lazy loading - we are about to
         // serialize a User instance for availability within workflow tasks, and this breaks transactions
         BeanUtils.copyProperties(user, entityFactory.newEntity(User.class));
-        variables.put(SYNCOPE_USER, user);
+        variables.put(USER, user);
 
         if (moreVariables != null && !moreVariables.isEmpty()) {
             variables.putAll(moreVariables);
@@ -500,13 +500,13 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             ObjectNode modelNode = (ObjectNode) objectMapper.readTree(model.getMetaInfo());
-            modelNode.put(ModelDataJsonConstants.MODEL_ID, model.getKey());
+            modelNode.put(ModelDataJsonConstants.MODEL_ID, model.getId());
             modelNode.replace(MODEL_DATA_JSON_MODEL,
-                    objectMapper.readTree(repositoryService.getModelEditorSource(model.getKey())));
+                    objectMapper.readTree(repositoryService.getModelEditorSource(model.getId())));
 
             os.write(modelNode.toString().getBytes());
         } catch (IOException e) {
-            LOG.error("While exporting workflow definition {}", model.getKey(), e);
+            LOG.error("While exporting workflow definition {}", model.getId(), e);
         }
     }
 
@@ -644,7 +644,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
         for (HistoricFormPropertyEntity prop : props) {
             WorkflowFormPropertyTO propertyTO = new WorkflowFormPropertyTO();
-            propertyTO.setKey(prop.getPropertyId());
+            propertyTO.setId(prop.getPropertyId());
             propertyTO.setName(prop.getPropertyId());
             propertyTO.setValue(prop.getPropertyValue());
             formTO.addProperty(propertyTO);

@@ -16,13 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.workflow.activiti.task;
+package org.apache.syncope.server.workflow.activiti.task;
 
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.server.persistence.api.entity.EntityFactory;
 import org.apache.syncope.server.persistence.api.entity.user.User;
 import org.apache.syncope.server.provisioning.api.data.UserDataBinder;
-import org.apache.syncope.workflow.activiti.ActivitiUserWorkflowAdapter;
+import org.apache.syncope.server.workflow.activiti.ActivitiUserWorkflowAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -46,6 +46,6 @@ public class Create extends AbstractActivitiServiceTask {
         user.setWorkflowId(executionId);
 
         // report SyncopeUser as result
-        runtimeService.setVariable(executionId, ActivitiUserWorkflowAdapter.SYNCOPE_USER, user);
+        runtimeService.setVariable(executionId, ActivitiUserWorkflowAdapter.USER, user);
     }
 }

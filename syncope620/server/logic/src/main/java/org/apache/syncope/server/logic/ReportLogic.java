@@ -161,18 +161,6 @@ public class ReportLogic extends AbstractTransactionalLogic<ReportTO> {
         return result;
     }
 
-    public Class<Reportlet> findReportletClassHavingConfClass(final Class<? extends ReportletConf> reportletConfClass) {
-        Class<Reportlet> result = null;
-        for (Class<Reportlet> reportletClass : getAllReportletClasses()) {
-            Class<? extends ReportletConf> found = getReportletConfClass(reportletClass);
-            if (found != null && found.equals(reportletConfClass)) {
-                result = reportletClass;
-            }
-        }
-
-        return result;
-    }
-
     @SuppressWarnings({ "unchecked", "rawtypes" })
     private Set<Class<Reportlet>> getAllReportletClasses() {
         Set<Class<Reportlet>> reportletClasses = new HashSet<>();
@@ -191,7 +179,6 @@ public class ReportLogic extends AbstractTransactionalLogic<ReportTO> {
     }
 
     @PreAuthorize("hasRole('REPORT_LIST')")
-    @SuppressWarnings("rawtypes")
     public Set<String> getReportletConfClasses() {
         Set<String> reportletConfClasses = new HashSet<>();
 
@@ -203,6 +190,18 @@ public class ReportLogic extends AbstractTransactionalLogic<ReportTO> {
         }
 
         return reportletConfClasses;
+    }
+
+    public Class<Reportlet> findReportletClassHavingConfClass(final Class<? extends ReportletConf> reportletConfClass) {
+        Class<Reportlet> result = null;
+        for (Class<Reportlet> reportletClass : getAllReportletClasses()) {
+            Class<? extends ReportletConf> found = getReportletConfClass(reportletClass);
+            if (found != null && found.equals(reportletConfClass)) {
+                result = reportletClass;
+            }
+        }
+
+        return result;
     }
 
     @PreAuthorize("hasRole('REPORT_READ')")
@@ -360,30 +359,27 @@ public class ReportLogic extends AbstractTransactionalLogic<ReportTO> {
         return reportExecToDelete;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected ReportTO resolveReference(final Method method, final Object... args)
             throws UnresolvedReferenceException {
 
-        Long id = null;
+        Long key = null;
 
         if (ArrayUtils.isNotEmpty(args) && ("create".equals(method.getName())
                 || "update".equals(method.getName())
                 || "delete".equals(method.getName()))) {
-            for (int i = 0; id == null && i < args.length; i++) {
+            for (int i = 0; key == null && i < args.length; i++) {
                 if (args[i] instanceof Long) {
-                    id = (Long) args[i];
+                    key = (Long) args[i];
                 } else if (args[i] instanceof ReportTO) {
-                    id = ((ReportTO) args[i]).getKey();
+                    key = ((ReportTO) args[i]).getKey();
                 }
             }
         }
 
-        if ((id != null) && !id.equals(0l)) {
+        if ((key != null) && !key.equals(0l)) {
             try {
-                return binder.getReportTO(reportDAO.find(id));
+                return binder.getReportTO(reportDAO.find(key));
             } catch (Throwable ignore) {
                 LOG.debug("Unresolved reference", ignore);
                 throw new UnresolvedReferenceException(ignore);

@@ -37,7 +37,7 @@ public class EntitlementLogic extends AbstractTransactionalLogic<EntitlementTO> 
 
     public List<String> getAll() {
         List<Entitlement> entitlements = entitlementDAO.findAll();
-        List<String> result = new ArrayList<String>(entitlements.size());
+        List<String> result = new ArrayList<>(entitlements.size());
         for (Entitlement entitlement : entitlements) {
             result.add(entitlement.getKey());
         }

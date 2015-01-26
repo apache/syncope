@@ -806,7 +806,7 @@ public class UserITCase extends AbstractITCase {
 
     @Test
     public void createActivate() {
-        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers());
+        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
 
         UserTO userTO = getUniqueSampleTO("createActivate@syncope.apache.org");
 
@@ -844,7 +844,7 @@ public class UserITCase extends AbstractITCase {
         userTO = createUser(userTO);
 
         assertNotNull(userTO);
-        assertEquals(ActivitiDetector.isActivitiEnabledForUsers()
+        assertEquals(ActivitiDetector.isActivitiEnabledForUsers(syncopeService)
                 ? "active"
                 : "created", userTO.getStatus());
 
@@ -877,7 +877,7 @@ public class UserITCase extends AbstractITCase {
         userTO.getResources().add(RESOURCE_NAME_LDAP);
         userTO = createUser(userTO);
         assertNotNull(userTO);
-        assertEquals(ActivitiDetector.isActivitiEnabledForUsers()
+        assertEquals(ActivitiDetector.isActivitiEnabledForUsers(syncopeService)
                 ? "active"
                 : "created", userTO.getStatus());
         long userId = userTO.getKey();

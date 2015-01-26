@@ -40,7 +40,6 @@ import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.ResourceDeassociationActionType;
 import org.apache.syncope.common.lib.types.SubjectType;
-import org.apache.syncope.common.lib.wrap.PropagationActionClass;
 import org.apache.syncope.common.lib.wrap.SubjectId;
 
 /**
@@ -62,16 +61,6 @@ public interface ResourceService extends JAXRSService {
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     ConnObjectTO getConnectorObject(@NotNull @PathParam("resourceKey") String resourceKey,
             @NotNull @PathParam("type") SubjectType type, @NotNull @PathParam("key") Long key);
-
-    /**
-     * Returns a list of classes that can be used to customize the propagation process.
-     *
-     * @return list of classes that can be used to customize the propagation process
-     */
-    @GET
-    @Path("propagationActionsClasses")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    List<PropagationActionClass> getPropagationActionsClasses();
 
     /**
      * Returns the resource with matching name.

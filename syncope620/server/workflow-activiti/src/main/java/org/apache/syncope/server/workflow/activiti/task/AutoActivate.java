@@ -16,15 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.wrap;
+package org.apache.syncope.server.workflow.activiti.task;
 
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import org.apache.syncope.server.workflow.activiti.ActivitiUserWorkflowAdapter;
+import org.springframework.stereotype.Component;
 
-@XmlRootElement(name = "mailTemplate")
-@XmlType
-public class MailTemplate extends AbstractWrappable<String> {
+@Component
+public class AutoActivate extends AbstractActivitiServiceTask {
 
-    private static final long serialVersionUID = 7232619557172031478L;
-
+    @Override
+    protected void doExecute(final String executionId) {
+        runtimeService.setVariable(executionId, ActivitiUserWorkflowAdapter.PROPAGATE_ENABLE, Boolean.TRUE);
+    }
 }

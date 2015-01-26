@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.common.rest.api.service;
 
-import java.util.List;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
@@ -45,9 +44,6 @@ import org.apache.syncope.common.lib.to.ReportExecTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.TaskExecTO;
 import org.apache.syncope.common.lib.types.TaskType;
-import org.apache.syncope.common.lib.wrap.JobClass;
-import org.apache.syncope.common.lib.wrap.PushActionClass;
-import org.apache.syncope.common.lib.wrap.SyncActionClass;
 
 /**
  * REST operations for tasks.
@@ -56,37 +52,7 @@ import org.apache.syncope.common.lib.wrap.SyncActionClass;
 public interface TaskService extends JAXRSService {
 
     /**
-     * Returns a list of classes to be used for jobs.
-     *
-     * @return list of classes to be used for jobs
-     */
-    @GET
-    @Path("jobClasses")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    List<JobClass> getJobClasses();
-
-    /**
-     * Returns a list of classes to be used as synchronization actions.
-     *
-     * @return list of classes to be used as synchronization actions
-     */
-    @GET
-    @Path("syncActionsClasses")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    List<SyncActionClass> getSyncActionsClasses();
-
-    /**
-     * Returns a list of classes to be used as push actions.
-     *
-     * @return list of classes to be used as push actions
-     */
-    @GET
-    @Path("pushActionsClasses")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    List<PushActionClass> getPushActionsClasses();
-
-    /**
-     * Returns the task matching the given id.
+     * Returns the task matching the given key.
      *
      * @param taskKey key of task to be read
      * @param <T> type of taskTO

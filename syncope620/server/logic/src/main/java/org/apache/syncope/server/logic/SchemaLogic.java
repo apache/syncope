@@ -272,40 +272,37 @@ public class SchemaLogic extends AbstractTransactionalLogic<AbstractSchemaTO> {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected AbstractSchemaTO resolveReference(final Method method, final Object... args)
             throws UnresolvedReferenceException {
 
         String kind = null;
-        String name = null;
+        String key = null;
         if (ArrayUtils.isNotEmpty(args)) {
-            for (int i = 0; (name == null || kind == null) && i < args.length; i++) {
+            for (int i = 0; (key == null || kind == null) && i < args.length; i++) {
                 if (args[i] instanceof String) {
                     if (kind == null) {
                         kind = (String) args[i];
                     } else {
-                        name = (String) args[i];
+                        key = (String) args[i];
                     }
                 } else if (args[i] instanceof AbstractSchemaTO) {
-                    name = ((AbstractSchemaTO) args[i]).getKey();
+                    key = ((AbstractSchemaTO) args[i]).getKey();
                 }
             }
         }
 
-        if (name != null) {
+        if (key != null) {
             try {
                 final AttributableUtil attrUtil = attrUtilFactory.getInstance(kind);
 
                 AbstractSchemaTO result = null;
 
-                PlainSchema plainSchema = plainSchemaDAO.find(name, attrUtil.plainSchemaClass());
+                PlainSchema plainSchema = plainSchemaDAO.find(key, attrUtil.plainSchemaClass());
                 if (plainSchema == null) {
-                    DerSchema derSchema = derSchemaDAO.find(name, attrUtil.derSchemaClass());
+                    DerSchema derSchema = derSchemaDAO.find(key, attrUtil.derSchemaClass());
                     if (derSchema == null) {
-                        VirSchema virSchema = virSchemaDAO.find(name, attrUtil.virSchemaClass());
+                        VirSchema virSchema = virSchemaDAO.find(key, attrUtil.virSchemaClass());
                         if (virSchema != null) {
                             result = binder.getVirSchemaTO(virSchema);
                         }

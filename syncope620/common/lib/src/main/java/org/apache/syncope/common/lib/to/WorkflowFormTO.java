@@ -52,11 +52,7 @@ public class WorkflowFormTO extends AbstractBaseBean {
 
     private String owner;
 
-    private final List<WorkflowFormPropertyTO> properties;
-
-    public WorkflowFormTO() {
-        properties = new ArrayList<>();
-    }
+    private final List<WorkflowFormPropertyTO> properties = new ArrayList<>();
 
     public long getUserKey() {
         return userKey;
@@ -133,27 +129,21 @@ public class WorkflowFormTO extends AbstractBaseBean {
 
     @JsonIgnore
     public Map<String, WorkflowFormPropertyTO> getPropertyMap() {
-        Map<String, WorkflowFormPropertyTO> result;
-
-        if (getProperties() == null) {
-            result = Collections.emptyMap();
-        } else {
-            result = new HashMap<>();
-            for (WorkflowFormPropertyTO prop : getProperties()) {
-                result.put(prop.getKey(), prop);
-            }
-            result = Collections.unmodifiableMap(result);
+        Map<String, WorkflowFormPropertyTO> result = new HashMap<>();
+        for (WorkflowFormPropertyTO prop : getProperties()) {
+            result.put(prop.getId(), prop);
         }
+        result = Collections.unmodifiableMap(result);
 
         return result;
     }
 
     @JsonIgnore
     public Map<String, String> getPropertiesForSubmit() {
-        Map<String, String> props = new HashMap<String, String>();
+        Map<String, String> props = new HashMap<>();
         for (WorkflowFormPropertyTO prop : getProperties()) {
             if (prop.isWritable()) {
-                props.put(prop.getKey(), prop.getValue());
+                props.put(prop.getId(), prop.getValue());
             }
         }
 

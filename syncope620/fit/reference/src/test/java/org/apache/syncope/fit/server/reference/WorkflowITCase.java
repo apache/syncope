@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.fit.server.reference;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
@@ -33,14 +32,6 @@ import org.junit.Test;
 
 public class WorkflowITCase extends AbstractITCase {
 
-    @Test
-    public void isActivitiEnabled() {
-        assertEquals(ActivitiDetector.isActivitiEnabledForUsers(),
-                adminClient.isActivitiEnabledFor(SubjectType.USER));
-        assertEquals(ActivitiDetector.isActivitiEnabledForRoles(),
-                adminClient.isActivitiEnabledFor(SubjectType.ROLE));
-    }
-
     private void exportDefinition(final SubjectType type) throws IOException {
         Response response = workflowService.exportDefinition(type);
         assertTrue(response.getMediaType().toString().
@@ -53,13 +44,13 @@ public class WorkflowITCase extends AbstractITCase {
 
     @Test
     public void exportUserDefinition() throws IOException {
-        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers());
+        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
         exportDefinition(SubjectType.USER);
     }
 
     @Test
     public void getRoleDefinition() throws IOException {
-        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForRoles());
+        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForRoles(syncopeService));
         exportDefinition(SubjectType.ROLE);
     }
 
@@ -72,14 +63,14 @@ public class WorkflowITCase extends AbstractITCase {
 
     @Test
     public void updateUserDefinition() throws IOException {
-        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers());
+        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
 
         importDefinition(SubjectType.USER);
     }
 
     @Test
     public void updateRoleDefinition() throws IOException {
-        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForRoles());
+        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForRoles(syncopeService));
 
         importDefinition(SubjectType.ROLE);
     }

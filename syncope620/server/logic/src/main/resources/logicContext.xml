@@ -28,6 +28,10 @@ under the License.
                            http://www.springframework.org/schema/context
                            http://www.springframework.org/schema/context/spring-context.xsd">
   
+  <bean id="version" class="java.lang.String">
+    <constructor-arg value="${syncope.version}"/>
+  </bean>
+
   <aop:aspectj-autoproxy/>
 
   <context:component-scan base-package="org.apache.syncope.server.logic"/>

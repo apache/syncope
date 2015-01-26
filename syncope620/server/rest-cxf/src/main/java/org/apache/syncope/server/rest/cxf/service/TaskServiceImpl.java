@@ -33,10 +33,6 @@ import org.apache.syncope.common.lib.to.SyncTaskTO;
 import org.apache.syncope.common.lib.to.TaskExecTO;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.lib.types.TaskType;
-import org.apache.syncope.common.lib.wrap.JobClass;
-import org.apache.syncope.common.lib.wrap.PushActionClass;
-import org.apache.syncope.common.lib.wrap.SyncActionClass;
-import org.apache.syncope.common.rest.api.CollectionWrapper;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.syncope.server.logic.TaskLogic;
@@ -78,21 +74,6 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService 
     @Override
     public TaskExecTO execute(final Long taskKey, final boolean dryRun) {
         return logic.execute(taskKey, dryRun);
-    }
-
-    @Override
-    public List<JobClass> getJobClasses() {
-        return CollectionWrapper.wrap(logic.getJobClasses(), JobClass.class);
-    }
-
-    @Override
-    public List<SyncActionClass> getSyncActionsClasses() {
-        return CollectionWrapper.wrap(logic.getSyncActionsClasses(), SyncActionClass.class);
-    }
-
-    @Override
-    public List<PushActionClass> getPushActionsClasses() {
-        return CollectionWrapper.wrap(logic.getPushActionsClasses(), PushActionClass.class);
     }
 
     @Override

@@ -16,28 +16,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.workflow.activiti.task;
+package org.apache.syncope.server.workflow.activiti.task;
 
-import org.apache.syncope.server.persistence.api.dao.ConfDAO;
 import org.apache.syncope.server.persistence.api.entity.user.User;
-import org.apache.syncope.workflow.activiti.ActivitiUserWorkflowAdapter;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.syncope.server.workflow.api.WorkflowException;
+import org.apache.syncope.server.workflow.activiti.ActivitiUserWorkflowAdapter;
 import org.springframework.stereotype.Component;
 
 @Component
-public class GenerateToken extends AbstractActivitiServiceTask {
-
-    @Autowired
-    private ConfDAO confDAO;
+public class PasswordReset extends AbstractActivitiServiceTask {
 
     @Override
     protected void doExecute(final String executionId) {
-        User user = runtimeService.getVariable(executionId, ActivitiUserWorkflowAdapter.SYNCOPE_USER, User.class);
+        User user = runtimeService.getVariable(executionId, ActivitiUserWorkflowAdapter.USER, User.class);
+        String token = runtimeService.getVariable(executionId, ActivitiUserWorkflowAdapter.TOKEN, String.class);
+        String password = runtimeService.getVariable(executionId, ActivitiUserWorkflowAdapter.PASSWORD, String.class);
 
-        user.generateToken(
-                confDAO.find("token.length", "256").getValues().get(0).getLongValue().intValue(),
-                confDAO.find("token.expireTime", "60").getValues().get(0).getLongValue().intValue());
+        if (!user.checkToken(token)) {
+            throw new WorkflowException(new IllegalArgumentException("Wrong token: " + token + " for " + user));
+        }
 
-        runtimeService.setVariable(executionId, ActivitiUserWorkflowAdapter.SYNCOPE_USER, user);
+        user.removeToken();
+        user.setPassword(password, user.getCipherAlgorithm());
+        runtimeService.setVariable(executionId, ActivitiUserWorkflowAdapter.USER, user);
     }
+
 }

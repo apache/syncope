@@ -18,14 +18,10 @@
  */
 package org.apache.syncope.server.logic;
 
-import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
-import java.util.HashSet;
-import java.util.Set;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.ConfTO;
-import org.apache.syncope.common.lib.wrap.Validator;
 import org.apache.syncope.server.persistence.api.content.ContentExporter;
 import org.apache.syncope.server.persistence.api.dao.ConfDAO;
 import org.apache.syncope.server.persistence.api.dao.NotFoundException;
@@ -33,12 +29,8 @@ import org.apache.syncope.server.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.server.persistence.api.entity.conf.CPlainAttr;
 import org.apache.syncope.server.persistence.api.entity.conf.CPlainSchema;
 import org.apache.syncope.server.provisioning.api.data.ConfigurationDataBinder;
-import org.apache.syncope.server.logic.init.ImplementationClassNamesLoader;
 import org.apache.syncope.server.logic.init.WorkflowAdapterLoader;
-import org.apache.syncope.server.provisioning.java.notification.NotificationManagerImpl;
-import org.apache.syncope.server.misc.spring.ResourceWithFallbackLoader;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -57,12 +49,6 @@ public class ConfigurationLogic extends AbstractTransactionalLogic<ConfTO> {
 
     @Autowired
     private ContentExporter exporter;
-
-    @Autowired
-    private ImplementationClassNamesLoader classNamesLoader;
-
-    @javax.annotation.Resource(name = "velocityResourceLoader")
-    private ResourceWithFallbackLoader resourceLoader;
 
     @Autowired
     private WorkflowAdapterLoader wfAdapterLoader;
@@ -100,39 +86,6 @@ public class ConfigurationLogic extends AbstractTransactionalLogic<ConfTO> {
     @PreAuthorize("hasRole('CONFIGURATION_SET')")
     public void set(final AttrTO value) {
         confDAO.save(binder.getAttribute(value));
-    }
-
-    @PreAuthorize("hasRole('CONFIGURATION_LIST')")
-    public Set<String> getValidators() {
-        return classNamesLoader.getClassNames(ImplementationClassNamesLoader.Type.VALIDATOR);
-    }
-
-    @PreAuthorize("hasRole('CONFIGURATION_LIST')")
-    public Set<String> getMailTemplates() {
-        Set<String> htmlTemplates = new HashSet<>();
-        Set<String> textTemplates = new HashSet<>();
-
-        try {
-            for (Resource resource : resourceLoader.getResources(NotificationManagerImpl.MAIL_TEMPLATES + "*.vm")) {
-                String template = resource.getURL().toExternalForm();
-                if (template.endsWith(NotificationManagerImpl.MAIL_TEMPLATE_HTML_SUFFIX)) {
-                    htmlTemplates.add(template.substring(template.indexOf(NotificationManagerImpl.MAIL_TEMPLATES) + 14,
-                                    template.indexOf(NotificationManagerImpl.MAIL_TEMPLATE_HTML_SUFFIX)));
-                } else if (template.endsWith(NotificationManagerImpl.MAIL_TEMPLATE_TEXT_SUFFIX)) {
-                    textTemplates.add(template.substring(template.indexOf(NotificationManagerImpl.MAIL_TEMPLATES) + 14,
-                                    template.indexOf(NotificationManagerImpl.MAIL_TEMPLATE_TEXT_SUFFIX)));
-                } else {
-                    LOG.warn("Unexpected template found: {}, ignoring...", template);
-                }
-            }
-        } catch (IOException e) {
-            LOG.error("While searching for class implementing {}", Validator.class.getName(), e);
-        }
-
-        // Only templates available both as HTML and TEXT are considered
-        htmlTemplates.retainAll(textTemplates);
-
-        return htmlTemplates;
     }
 
     @PreAuthorize("hasRole('CONFIGURATION_EXPORT')")

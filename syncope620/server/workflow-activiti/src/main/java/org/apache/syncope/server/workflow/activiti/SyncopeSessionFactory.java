@@ -16,15 +16,30 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.wrap;
+package org.apache.syncope.server.workflow.activiti;
 
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import org.activiti.engine.impl.interceptor.Session;
+import org.activiti.engine.impl.interceptor.SessionFactory;
 
-@XmlRootElement(name = "jobClass")
-@XmlType
-public class JobClass extends AbstractWrappable<String> {
+public class SyncopeSessionFactory implements SessionFactory {
 
-    private static final long serialVersionUID = -1953799905627918822L;
+    private SyncopeSession syncopeSession;
 
+    @Override
+    public Class<?> getSessionType() {
+        return syncopeSession.getType();
+    }
+
+    @Override
+    public Session openSession() {
+        return syncopeSession;
+    }
+
+    public SyncopeSession getSyncopeSession() {
+        return syncopeSession;
+    }
+
+    public void setSyncopeSession(final SyncopeSession syncopeSession) {
+        this.syncopeSession = syncopeSession;
+    }
 }
