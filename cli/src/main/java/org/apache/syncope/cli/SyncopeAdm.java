@@ -21,6 +21,7 @@ package org.apache.syncope.cli;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
 import org.apache.syncope.cli.commands.ConfigurationCommand;
+import org.apache.syncope.cli.commands.EntitlementCommand;
 import org.apache.syncope.cli.commands.LoggerCommand;
 import org.apache.syncope.cli.commands.NotificationCommand;
 import org.apache.syncope.cli.commands.PolicyCommand;
@@ -38,7 +39,8 @@ public class SyncopeAdm {
             + "    config --help \n"
             + "    notification --help \n"
             + "    report --help \n"
-            + "    policy --help \n";
+            + "    policy --help \n"
+            + "    entitlement --help \n";
 
     private static final JCommander jcommander = new JCommander();
 
@@ -51,6 +53,8 @@ public class SyncopeAdm {
     private static ReportCommand reportCommand;
 
     private static PolicyCommand policyCommand;
+    
+    private static EntitlementCommand entitlementCommand;
 
     public static void main(final String[] args) {
         LOG.debug("Starting with args \n");
@@ -92,6 +96,9 @@ public class SyncopeAdm {
         policyCommand = new PolicyCommand();
         jcommander.addCommand(policyCommand);
         LOG.debug("Added PolicyCommand");
+        entitlementCommand = new EntitlementCommand();
+        jcommander.addCommand(entitlementCommand);
+        LOG.debug("Added EntitlementCommand");
     }
 
     private static void executeCommand() {
@@ -109,6 +116,8 @@ public class SyncopeAdm {
             reportCommand.execute();
         } else if ("policy".equalsIgnoreCase(command)) {
             policyCommand.execute();
+        } else if ("entitlement".equalsIgnoreCase(command)) {
+            entitlementCommand.execute();
         }
     }
 }
