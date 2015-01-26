@@ -38,7 +38,6 @@ import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.AbstractSubject;
 import org.apache.syncope.core.persistence.beans.ConnInstance;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
-import org.apache.syncope.core.persistence.dao.ConnInstanceDAO;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.persistence.dao.ResourceDAO;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
@@ -64,9 +63,6 @@ public class ResourceController extends AbstractTransactionalController<Resource
 
     @Autowired
     private ResourceDAO resourceDAO;
-
-    @Autowired
-    private ConnInstanceDAO connInstanceDAO;
 
     @Autowired
     private UserDAO userDAO;
@@ -171,17 +167,8 @@ public class ResourceController extends AbstractTransactionalController<Resource
 
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
-    public List<ResourceTO> list(final Long connInstanceId) {
-        List<ExternalResource> resources;
-
-        if (connInstanceId == null) {
-            resources = resourceDAO.findAll();
-        } else {
-            ConnInstance connInstance = connInstanceDAO.find(connInstanceId);
-            resources = connInstance.getResources();
-        }
-
-        return binder.getResourceTOs(resources);
+    public List<ResourceTO> list() {
+        return binder.getResourceTOs(resourceDAO.findAll());
     }
 
     @PreAuthorize("hasRole('RESOURCE_GETCONNECTOROBJECT')")
