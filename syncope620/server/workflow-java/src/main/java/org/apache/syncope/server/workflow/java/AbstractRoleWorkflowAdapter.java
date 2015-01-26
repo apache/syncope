@@ -27,7 +27,6 @@ import org.apache.syncope.server.provisioning.api.WorkflowResult;
 import org.apache.syncope.server.provisioning.api.data.RoleDataBinder;
 import org.apache.syncope.server.workflow.api.RoleWorkflowAdapter;
 import org.apache.syncope.server.workflow.api.WorkflowException;
-import org.apache.syncope.server.workflow.api.WorkflowDefinitionLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,7 +43,7 @@ public abstract class AbstractRoleWorkflowAdapter implements RoleWorkflowAdapter
     protected EntityFactory entityFactory;
 
     @Override
-    public Class<? extends WorkflowDefinitionLoader> getDefinitionLoaderClass() {
+    public String getPrefix() {
         return null;
     }
 

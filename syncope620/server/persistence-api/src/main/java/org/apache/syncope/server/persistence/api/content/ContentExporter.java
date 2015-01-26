@@ -24,5 +24,6 @@ import org.xml.sax.SAXException;
 
 public interface ContentExporter {
 
-    void export(OutputStream output, String wfTablePrefix) throws SAXException, TransformerConfigurationException;
+    void export(OutputStream output, String uwfPrefix, String rwfPrefix) 
+            throws SAXException, TransformerConfigurationException;
 }

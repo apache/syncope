@@ -32,12 +32,14 @@ import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.spring.SpringProcessEngineConfiguration;
 import org.apache.commons.io.IOUtils;
 import org.apache.syncope.server.misc.spring.ResourceWithFallbackLoader;
-import org.apache.syncope.server.workflow.api.WorkflowDefinitionLoader;
+import org.apache.syncope.server.persistence.api.SyncopeLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-public class ActivitiDefinitionLoader implements WorkflowDefinitionLoader {
+@Component
+public class ActivitiDefinitionLoader implements SyncopeLoader {
 
     private static final Logger LOG = LoggerFactory.getLogger(ActivitiDefinitionLoader.class);
 
@@ -54,16 +56,8 @@ public class ActivitiDefinitionLoader implements WorkflowDefinitionLoader {
     private ActivitiImportUtils importUtils;
 
     @Override
-    public String getPrefix() {
-        return "ACT_";
-    }
-
-    @Override
-    public void init() {
-        // jump to the next ID block
-        for (int i = 0; i < conf.getIdBlockSize(); i++) {
-            conf.getIdGenerator().getNextId();
-        }
+    public Integer getPriority() {
+        return Integer.MIN_VALUE;
     }
 
     @Override
@@ -99,6 +93,11 @@ public class ActivitiDefinitionLoader implements WorkflowDefinitionLoader {
             } finally {
                 IOUtils.closeQuietly(wfIn);
             }
+        }
+
+        // jump to the next ID block
+        for (int i = 0; i < conf.getIdBlockSize(); i++) {
+            conf.getIdGenerator().getNextId();
         }
     }
 }

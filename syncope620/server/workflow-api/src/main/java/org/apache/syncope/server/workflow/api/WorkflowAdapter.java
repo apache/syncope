@@ -28,13 +28,9 @@ import org.apache.syncope.server.persistence.api.dao.NotFoundException;
 public interface WorkflowAdapter {
 
     /**
-     * Give the class to be instantiated and invoked by SpringContextInitializer for loading anything needed by this
-     * adapter.
-     *
-     * @return null if no init is needed or the WorkflowLoader class for handling initialization
-     * @see org.apache.syncope.core.init.SpringContextInitializer
+     * @return any string that might be interpreted as &quot;prefix&quote; (say table prefix in SQL environments)
      */
-    Class<? extends WorkflowDefinitionLoader> getDefinitionLoaderClass();
+    String getPrefix();
 
     /**
      * Export workflow definition.

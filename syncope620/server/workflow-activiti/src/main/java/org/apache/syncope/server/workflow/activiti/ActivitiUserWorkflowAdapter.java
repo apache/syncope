@@ -76,7 +76,6 @@ import org.apache.syncope.server.provisioning.api.WorkflowResult;
 import org.apache.syncope.server.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.server.workflow.api.WorkflowDefinitionFormat;
 import org.apache.syncope.server.workflow.api.WorkflowException;
-import org.apache.syncope.server.workflow.api.WorkflowDefinitionLoader;
 import org.apache.syncope.server.workflow.java.AbstractUserWorkflowAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -160,8 +159,8 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     private UserDataBinder userDataBinder;
 
     @Override
-    public Class<? extends WorkflowDefinitionLoader> getDefinitionLoaderClass() {
-        return ActivitiDefinitionLoader.class;
+    public String getPrefix() {
+        return "ACT_";
     }
 
     private void throwException(final ActivitiException e, final String defaultMessage) {

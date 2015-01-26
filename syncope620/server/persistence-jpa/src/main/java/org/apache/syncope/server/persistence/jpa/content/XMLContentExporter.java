@@ -320,11 +320,14 @@ public class XMLContentExporter extends AbstractContentDealer implements Content
     }
 
     @Override
-    public void export(final OutputStream os, final String wfTablePrefix)
+    public void export(final OutputStream os, final String uwfPrefix, String rwfPrefix)
             throws SAXException, TransformerConfigurationException {
 
-        if (StringUtils.isNotBlank(wfTablePrefix)) {
-            TABLE_PREFIXES_TO_BE_EXCLUDED.add(wfTablePrefix);
+        if (StringUtils.isNotBlank(uwfPrefix)) {
+            TABLE_PREFIXES_TO_BE_EXCLUDED.add(uwfPrefix);
+        }
+        if (StringUtils.isNotBlank(rwfPrefix)) {
+            TABLE_PREFIXES_TO_BE_EXCLUDED.add(rwfPrefix);
         }
 
         StreamResult streamResult = new StreamResult(os);

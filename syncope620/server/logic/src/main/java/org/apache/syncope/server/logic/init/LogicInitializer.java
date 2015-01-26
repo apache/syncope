@@ -24,11 +24,13 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import org.apache.syncope.server.persistence.api.SyncopeLoader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.stereotype.Component;
 
@@ -38,8 +40,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class LogicInitializer implements InitializingBean, BeanFactoryAware {
 
-    @Autowired
-    private WorkflowAdapterLoader workflowAdapterLoader;
+    private static final Logger LOG = LoggerFactory.getLogger(LogicInitializer.class);
 
     private DefaultListableBeanFactory beanFactory;
 
@@ -53,21 +54,19 @@ public class LogicInitializer implements InitializingBean, BeanFactoryAware {
         Map<String, SyncopeLoader> loaderMap = beanFactory.getBeansOfType(SyncopeLoader.class);
 
         List<SyncopeLoader> loaders = new ArrayList<>(loaderMap.values());
-        Collections.sort(loaders, new PriorityComparator());
+        Collections.sort(loaders, new Comparator<SyncopeLoader>() {
 
+            @Override
+            public int compare(final SyncopeLoader o1, final SyncopeLoader o2) {
+                return o1.getPriority().compareTo(o2.getPriority());
+            }
+        });
+
+        LOG.debug("Starting initialization...");
         for (SyncopeLoader loader : loaders) {
+            LOG.debug("Invoking {} with priority {}", AopUtils.getTargetClass(loader).getName(), loader.getPriority());
             loader.load();
         }
-
-        workflowAdapterLoader.init();
-    }
-
-    private static class PriorityComparator implements Comparator<SyncopeLoader> {
-
-        @Override
-        public int compare(final SyncopeLoader o1, final SyncopeLoader o2) {
-            return o1.getPriority().compareTo(o2.getPriority());
-        }
-
+        LOG.debug("Initialization completed");
     }
 }
