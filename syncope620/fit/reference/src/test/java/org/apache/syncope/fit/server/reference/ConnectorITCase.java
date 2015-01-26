@@ -27,6 +27,7 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -265,6 +266,18 @@ public class ConnectorITCase extends AbstractITCase {
         assertEquals(Integer.valueOf(20), actual.getConnRequestTimeout());
     }
 
+    private List<ResourceTO> filter(final List<ResourceTO> input, final Long connectorKey) {
+        List<ResourceTO> result = new ArrayList<>();
+
+        for (ResourceTO resource : input) {
+            if (connectorKey.equals(resource.getConnectorId())) {
+                result.add(resource);
+            }
+        }
+
+        return result;
+    }
+
     @Test
     public void issueSYNCOPE10() {
         // ----------------------------------
@@ -276,8 +289,7 @@ public class ConnectorITCase extends AbstractITCase {
         assertNotNull(connInstanceTO);
 
         // check for resource
-        List<ResourceTO> resources = resourceService.list(Long.valueOf(103));
-
+        List<ResourceTO> resources = filter(resourceService.list(), 103L);
         assertEquals(4, resources.size());
 
         // Retrieve a resource TO template.
@@ -317,8 +329,7 @@ public class ConnectorITCase extends AbstractITCase {
 
         assertNotNull(resourceTO);
 
-        resources = resourceService.list(connId);
-
+        resources = filter(resourceService.list(), connId);
         assertEquals(1, resources.size());
         // ----------------------------------
 

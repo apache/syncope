@@ -31,7 +31,6 @@ import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.SubjectType;
-import org.apache.syncope.server.persistence.api.dao.ConnInstanceDAO;
 import org.apache.syncope.server.persistence.api.dao.DuplicateException;
 import org.apache.syncope.server.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.server.persistence.api.dao.NotFoundException;
@@ -64,9 +63,6 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
 
     @Autowired
     private ExternalResourceDAO resourceDAO;
-
-    @Autowired
-    private ConnInstanceDAO connInstanceDAO;
 
     @Autowired
     private UserDAO userDAO;
@@ -160,17 +156,8 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
 
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
-    public List<ResourceTO> list(final Long connInstanceId) {
-        List<? extends ExternalResource> resources;
-
-        if (connInstanceId == null) {
-            resources = resourceDAO.findAll();
-        } else {
-            ConnInstance connInstance = connInstanceDAO.find(connInstanceId);
-            resources = connInstance.getResources();
-        }
-
-        return binder.getResourceTOs(resources);
+    public List<ResourceTO> list() {
+        return binder.getResourceTOs(resourceDAO.findAll());
     }
 
     @PreAuthorize("hasRole('RESOURCE_GETCONNECTOROBJECT')")
