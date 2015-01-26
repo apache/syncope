@@ -86,12 +86,7 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
 
     @Override
     public List<ResourceTO> list() {
-        return controller.list(null);
-    }
-
-    @Override
-    public List<ResourceTO> list(final Long connInstanceId) {
-        return controller.list(connInstanceId);
+        return controller.list();
     }
 
     @Override

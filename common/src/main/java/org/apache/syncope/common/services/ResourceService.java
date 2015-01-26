@@ -23,7 +23,6 @@ import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
-import javax.ws.rs.MatrixParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -92,16 +91,6 @@ public interface ResourceService extends JAXRSService {
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     List<ResourceTO> list();
-
-    /**
-     * Returns a list of resources using matching connector instance id.
-     *
-     * @param connInstanceId Connector id to filter for resources
-     * @return resources using matching connector instance id
-     */
-    @GET
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    List<ResourceTO> list(@NotNull @MatrixParam("connectorId") Long connInstanceId);
 
     /**
      * Creates a new resource.
