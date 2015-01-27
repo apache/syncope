@@ -29,12 +29,12 @@ public class Delete extends AbstractActivitiServiceTask {
     protected void doExecute(final String executionId) {
         User user = runtimeService.getVariable(executionId, ActivitiUserWorkflowAdapter.USER, User.class);
 
-        // Do something with SyncopeUser...
+        // Do something with user...
         if (user != null) {
             user.checkToken("");
         }
 
-        // remove SyncopeUser variable
+        // remove user variable
         runtimeService.removeVariable(executionId, ActivitiUserWorkflowAdapter.USER);
     }
 }

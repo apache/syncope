@@ -33,7 +33,7 @@ import javax.validation.Payload;
 @Documented
 public @interface RoleCheck {
 
-    String message() default "{org.apache.syncope.server.persistence.validation.syncoperole}";
+    String message() default "{org.apache.syncope.server.persistence.validation.role}";
 
     Class<?>[] groups() default {};
 

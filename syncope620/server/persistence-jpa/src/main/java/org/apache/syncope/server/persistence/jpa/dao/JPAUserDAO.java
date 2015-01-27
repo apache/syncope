@@ -236,7 +236,7 @@ public class JPAUserDAO extends AbstractSubjectDAO<UPlainAttr, UDerAttr, UVirAtt
     }
 
     private void securityChecks(final User user) {
-        // Allows anonymous (during self-registration) and self (during self-update) to read own SyncopeUser,
+        // Allows anonymous (during self-registration) and self (during self-update) to read own user,
         // otherwise goes thorugh security checks to see if needed role entitlements are owned
         if (!AuthContextUtil.getAuthenticatedUsername().equals(anonymousUser)
                 && !AuthContextUtil.getAuthenticatedUsername().equals(user.getUsername())) {

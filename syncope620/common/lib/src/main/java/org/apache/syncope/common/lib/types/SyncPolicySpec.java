@@ -33,7 +33,7 @@ public class SyncPolicySpec implements PolicySpec {
     private static final long serialVersionUID = -3144027171719498127L;
 
     /**
-     * SyncopeUser attributes and fields for matching during synchronization.
+     * User attributes and fields for matching during synchronization.
      */
     @SchemaList(extended = true)
     private final List<String> uAltSearchSchemas = new ArrayList<String>();
@@ -42,7 +42,7 @@ public class SyncPolicySpec implements PolicySpec {
     private String userJavaRule;
 
     /**
-     * SyncopeRole attributes and fields for matching during synchronization.
+     * Role attributes and fields for matching during synchronization.
      */
     @SchemaList(extended = true)
     private final List<String> rAltSearchSchemas = new ArrayList<String>();

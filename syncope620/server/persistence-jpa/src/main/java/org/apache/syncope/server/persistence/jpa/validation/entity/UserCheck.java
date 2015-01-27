@@ -34,7 +34,7 @@ import javax.validation.Payload;
 @Documented
 public @interface UserCheck {
 
-    String message() default "{org.apache.syncope.server.persistence.validation.syncopeuser}";
+    String message() default "{org.apache.syncope.server.persistence.validation.user}";
 
     Class<?>[] groups() default {};
 

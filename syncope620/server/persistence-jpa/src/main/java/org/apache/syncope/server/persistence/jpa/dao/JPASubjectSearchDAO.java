@@ -673,7 +673,7 @@ public class JPASubjectSearchDAO extends AbstractDAO<Subject<?, ?, ?>, Long> imp
         }
 
         // Deal with subject Integer fields logically mapping to boolean values
-        // (SyncopeRole.inheritPlainAttrs, for example)
+        // (JPARole.inheritPlainAttrs, for example)
         boolean foundBooleanMin = false;
         boolean foundBooleanMax = false;
         if (Integer.class.equals(subjectField.getType())) {

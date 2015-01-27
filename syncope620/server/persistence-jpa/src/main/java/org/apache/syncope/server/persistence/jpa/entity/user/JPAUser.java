@@ -68,7 +68,7 @@ import org.apache.syncope.server.misc.security.Encryptor;
 import org.apache.syncope.server.misc.security.SecureRandomUtil;
 
 /**
- * Syncope user bean.
+ * JPA user bean.
  */
 @Entity
 @Table(name = JPAUser.TABLE)
@@ -211,12 +211,12 @@ public class JPAUser extends AbstractSubject<UPlainAttr, UDerAttr, UVirAttr> imp
     }
 
     @Override
-    public Membership getMembership(final Long syncopeRoleId) {
+    public Membership getMembership(final Long roleKey) {
         Membership result = null;
         Membership membership;
         for (Iterator<? extends Membership> itor = getMemberships().iterator(); result == null && itor.hasNext();) {
             membership = itor.next();
-            if (membership.getRole() != null && syncopeRoleId.equals(membership.getRole().getKey())) {
+            if (membership.getRole() != null && roleKey.equals(membership.getRole().getKey())) {
                 result = membership;
             }
         }

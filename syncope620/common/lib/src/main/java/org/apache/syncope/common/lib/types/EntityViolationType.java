@@ -34,7 +34,7 @@ public enum EntityViolationType {
     InvalidMVirSchema("org.apache.syncope.server.persistence.validation.attrvalue.mVirSchema"),
     InvalidName("org.apache.syncope.server.persistence.validation.name"),
     InvalidNotification("org.apache.syncope.server.persistence.validation.notification"),
-    InvalidPassword("org.apache.syncope.server.persistence.validation.syncopeuser.password"),
+    InvalidPassword("org.apache.syncope.server.persistence.validation.user.password"),
     InvalidPasswordPolicy("org.apache.syncope.server.persistence.validation.passwordpolicy"),
     InvalidPolicy("org.apache.syncope.server.persistence.validation.policy"),
     InvalidPropagationTask("org.apache.syncope.server.persistence.validation.propagationtask"),
@@ -43,7 +43,7 @@ public enum EntityViolationType {
     InvalidRVirSchema("org.apache.syncope.server.persistence.validation.attrvalue.rVirSchema"),
     InvalidReport("org.apache.syncope.server.persistence.validation.report"),
     InvalidResource("org.apache.syncope.server.persistence.validation.externalresource"),
-    InvalidRoleOwner("org.apache.syncope.server.persistence.validation.syncoperole.owner"),
+    InvalidRoleOwner("org.apache.syncope.server.persistence.validation.role.owner"),
     InvalidSchemaEncrypted("org.apache.syncope.server.persistence.validation.schema.encrypted"),
     InvalidSchemaEnum("org.apache.syncope.server.persistence.validation.schema.enum"),
     InvalidSchemaMultivalueUnique("org.apache.syncope.server.persistence.validation.schema.multivalueUnique"),
@@ -53,7 +53,7 @@ public enum EntityViolationType {
     InvalidUPlainSchema("org.apache.syncope.server.persistence.validation.attrvalue.uPlainSchema"),
     InvalidUDerSchema("org.apache.syncope.server.persistence.validation.attrvalue.derSchema"),
     InvalidUVirSchema("org.apache.syncope.server.persistence.validation.attrvalue.uVirSchema"),
-    InvalidUsername("org.apache.syncope.server.persistence.validation.syncopeuser.username"),
+    InvalidUsername("org.apache.syncope.server.persistence.validation.user.username"),
     InvalidValueList("org.apache.syncope.server.persistence.validation.attr.valueList"),
     MoreThanOneNonNull("org.apache.syncope.server.persistence.validation.attrvalue.moreThanOneNonNull");
 

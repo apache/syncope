@@ -74,7 +74,7 @@ public interface RoleDAO extends SubjectDAO<RPlainAttr, RDerAttr, RVirAttr> {
 
     int count();
 
-    Role save(Role syncopeRole) throws InvalidEntityException;
+    Role save(Role role) throws InvalidEntityException;
 
     void delete(Role role);
 

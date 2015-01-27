@@ -47,7 +47,7 @@ public interface User extends Subject<UPlainAttr, UDerAttr, UVirAttr> {
 
     Date getLastLoginDate();
 
-    Membership getMembership(Long syncopeRoleId);
+    Membership getMembership(Long roleKey);
 
     List<? extends Membership> getMemberships();
 

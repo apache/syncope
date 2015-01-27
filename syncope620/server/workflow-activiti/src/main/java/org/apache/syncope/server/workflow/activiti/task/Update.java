@@ -44,7 +44,7 @@ public class Update extends AbstractActivitiServiceTask {
         if (actualMod.getPwdPropRequest() != null && !actualMod.getPwdPropRequest().isOnSyncope()) {
             actualMod.setPassword(null);
         }
-        // update SyncopeUser
+        // update user
         PropagationByResource propByRes = dataBinder.update(user, actualMod);
 
         // report updated user and propagation by resource as result

@@ -45,7 +45,7 @@ public class Create extends AbstractActivitiServiceTask {
         dataBinder.create(user, userTO, storePassword == null ? true : storePassword);
         user.setWorkflowId(executionId);
 
-        // report SyncopeUser as result
+        // report user as result
         runtimeService.setVariable(executionId, ActivitiUserWorkflowAdapter.USER, user);
     }
 }

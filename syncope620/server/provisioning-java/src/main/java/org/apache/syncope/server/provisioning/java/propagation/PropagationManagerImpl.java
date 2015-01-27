@@ -279,7 +279,7 @@ public class PropagationManagerImpl implements PropagationManager {
             final Set<String> noPropResourceNames) throws NotFoundException {
 
         return getUpdateTaskIds(
-                user, // SyncopeUser to be updated on external resources
+                user, // user to be updated on external resources
                 null, // no password
                 false,
                 enable, // status to be propagated
