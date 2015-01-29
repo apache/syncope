@@ -29,6 +29,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.AccessControlException;
 import java.util.List;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.SearchControls;
+import javax.naming.directory.SearchResult;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -40,11 +45,15 @@ import org.apache.syncope.common.reqres.BulkActionResult;
 import org.apache.syncope.common.reqres.PagedResult;
 import org.apache.syncope.common.services.RoleService;
 import org.apache.syncope.common.to.ConnObjectTO;
+import org.apache.syncope.common.to.MappingItemTO;
+import org.apache.syncope.common.to.ResourceTO;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.SchemaTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.ClientExceptionType;
+import org.apache.syncope.common.types.IntMappingType;
+import org.apache.syncope.common.types.MappingPurpose;
 import org.apache.syncope.common.types.Preference;
 import org.apache.syncope.common.types.RESTHeaders;
 import org.apache.syncope.common.types.ResourceAssociationActionType;
@@ -793,5 +802,88 @@ public class RoleTestITCase extends AbstractTest {
         assertNotNull(child);
         assertNotNull(child.getAttrMap().get("icon").getValues());
         assertEquals("parentIcon", child.getAttrMap().get("icon").getValues().get(0));
+    }
+
+    @Test
+    public void issueSYNCOPE632() {
+        RoleTO roleTO = null;
+        try {
+            // 1. create new LDAP resource having account id mapped to a derived attribute
+            ResourceTO newLDAP = resourceService.read(RESOURCE_NAME_LDAP);
+            newLDAP.setName("new-ldap");
+            newLDAP.setPropagationPrimary(true);
+            MappingItemTO accountId = newLDAP.getRmapping().getAccountIdItem();
+            accountId.setIntMappingType(IntMappingType.RoleDerivedSchema);
+            accountId.setIntAttrName("displayProperty");
+            newLDAP.getRmapping().setAccountIdItem(accountId);
+            newLDAP.getRmapping().setAccountLink("'cn=' + displayProperty + ',ou=groups,o=isp'");
+
+            MappingItemTO description = new MappingItemTO();
+            description.setIntMappingType(IntMappingType.RoleId);
+            description.setExtAttrName("description");
+            description.setPurpose(MappingPurpose.BOTH);
+            newLDAP.getRmapping().addItem(description);
+
+            newLDAP = createResource(newLDAP);
+            assertNotNull(newLDAP);
+
+            // 2. create a role and give the resource created above
+            roleTO = buildRoleTO("lastRole");
+            roleTO.getRAttrTemplates().add("icon");
+            roleTO.getAttrs().add(attributeTO("icon", "anIcon"));
+            roleTO.getRAttrTemplates().add("show");
+            roleTO.getAttrs().add(attributeTO("show", "true"));
+            roleTO.getRDerAttrTemplates().add("displayProperty");
+            roleTO.getDerAttrs().add(attributeTO("displayProperty", null));
+            roleTO.getResources().clear();
+            roleTO.getResources().add("new-ldap");
+
+            roleTO = createRole(roleTO);
+            assertNotNull(roleTO);
+
+            // 3. update the role
+            RoleMod roleMod = new RoleMod();
+            roleMod.setId(roleTO.getId());
+            roleMod.getAttrsToRemove().add("icon");
+            roleMod.getAttrsToUpdate().add(attributeMod("icon", "anotherIcon"));
+
+            roleTO = updateRole(roleMod);
+            assertNotNull(roleTO);
+
+            // 4. check that a single group exists in LDAP for the role created and updated above
+            int entries = 0;
+            DirContext ctx = null;
+            try {
+                ctx = getLdapResourceDirContext(null, null);
+
+                SearchControls ctls = new SearchControls();
+                ctls.setReturningAttributes(new String[] { "*", "+" });
+                ctls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+
+                NamingEnumeration<SearchResult> result =
+                        ctx.search("ou=groups,o=isp", "(description=" + roleTO.getId() + ")", ctls);
+                while (result.hasMore()) {
+                    SearchResult entry = result.next();
+                    entries++;
+                }
+            } catch (Exception e) {
+                // ignore
+            } finally {
+                if (ctx != null) {
+                    try {
+                        ctx.close();
+                    } catch (NamingException e) {
+                        // ignore
+                    }
+                }
+            }
+
+            assertEquals(1, entries);
+        } finally {
+            if (roleTO != null) {
+                roleService.delete(roleTO.getId());
+            }
+            resourceService.delete("new-ldap");
+        }
     }
 }

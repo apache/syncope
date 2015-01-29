@@ -22,25 +22,24 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javax.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.SyncopeClientCompositeException;
+import org.apache.syncope.common.SyncopeClientException;
+import org.apache.syncope.common.mod.AttributeMod;
 import org.apache.syncope.common.mod.MembershipMod;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.to.MembershipTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
-import org.apache.syncope.common.types.IntMappingType;
-import org.apache.syncope.common.types.ResourceOperation;
 import org.apache.syncope.common.types.ClientExceptionType;
+import org.apache.syncope.common.types.ResourceOperation;
 import org.apache.syncope.common.util.BeanUtils;
-import org.apache.syncope.common.SyncopeClientCompositeException;
-import org.apache.syncope.common.SyncopeClientException;
-import org.apache.syncope.common.mod.AttributeMod;
 import org.apache.syncope.core.connid.ConnObjectUtil;
 import org.apache.syncope.core.persistence.beans.AbstractAttr;
 import org.apache.syncope.core.persistence.beans.AbstractDerAttr;
-import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.SecurityQuestion;
@@ -55,8 +54,8 @@ import org.apache.syncope.core.persistence.dao.SecurityQuestionDAO;
 import org.apache.syncope.core.propagation.PropagationByResource;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.util.AttributableUtil;
-import org.apache.syncope.core.util.EntitlementUtil;
 import org.apache.syncope.core.util.Encryptor;
+import org.apache.syncope.core.util.EntitlementUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -267,6 +266,9 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
         Set<String> currentResources = user.getResourceNames();
 
+        // fetch account ids before update
+        Map<String, String> oldAccountIds = getAccountIds(user, AttributableType.USER);
+
         // password
         if (StringUtils.isNotBlank(userMod.getPassword())) {
             setPassword(user, userMod.getPassword(), scce);
@@ -276,18 +278,9 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
         // username
         if (userMod.getUsername() != null && !userMod.getUsername().equals(user.getUsername())) {
-            String oldUsername = user.getUsername();
-
-            user.setUsername(userMod.getUsername());
             propByRes.addAll(ResourceOperation.UPDATE, currentResources);
 
-            for (ExternalResource resource : user.getResources()) {
-                for (AbstractMappingItem mapItem : resource.getUmapping().getItems()) {
-                    if (mapItem.isAccountid() && mapItem.getIntMappingType() == IntMappingType.Username) {
-                        propByRes.addOldAccountId(resource.getName(), oldUsername);
-                    }
-                }
-            }
+            user.setUsername(userMod.getUsername());
         }
 
         // security question / answer:
@@ -403,6 +396,17 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
         if (!toBeDeprovisioned.isEmpty() || !toBeProvisioned.isEmpty()) {
             currentResources.removeAll(toBeDeprovisioned);
             propByRes.addAll(ResourceOperation.UPDATE, currentResources);
+        }
+
+        // check if some account id was changed by the update above
+        Map<String, String> newAccountIds = getAccountIds(user, AttributableType.USER);
+        for (Map.Entry<String, String> entry : oldAccountIds.entrySet()) {
+            if (newAccountIds.containsKey(entry.getKey())
+                    && !entry.getValue().equals(newAccountIds.get(entry.getKey()))) {
+
+                propByRes.addOldAccountId(entry.getKey(), entry.getValue());
+                propByRes.add(ResourceOperation.UPDATE, entry.getKey());
+            }
         }
 
         return propByRes;

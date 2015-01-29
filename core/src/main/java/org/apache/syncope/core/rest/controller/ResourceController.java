@@ -190,8 +190,8 @@ public class ResourceController extends AbstractTransactionalController<Resource
 
         AbstractMappingItem accountIdItem = attrUtil.getAccountIdItem(resource);
         if (accountIdItem == null) {
-            throw new NotFoundException("AccountId mapping for " + type + " " + id + " on resource '" + resourceName
-                    + "'");
+            throw new NotFoundException(
+                    "AccountId mapping for " + type + " " + id + " on resource '" + resourceName + "'");
         }
         final String accountIdValue = MappingUtil.getAccountIdValue(
                 subject, resource, attrUtil.getAccountIdItem(resource));

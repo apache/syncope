@@ -21,9 +21,11 @@ package org.apache.syncope.core.rest.data;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.SyncopeClientCompositeException;
@@ -76,6 +78,7 @@ import org.apache.syncope.core.persistence.dao.AttrValueDAO;
 import org.apache.syncope.core.persistence.dao.DerAttrDAO;
 import org.apache.syncope.core.persistence.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.dao.MembershipDAO;
+import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.persistence.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.dao.ResourceDAO;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
@@ -915,5 +918,27 @@ public abstract class AbstractAttributableDataBinder {
                 ((AbstractSubjectTO) attributableTO).getResources().add(resource.getName());
             }
         }
+    }
+
+    protected Map<String, String> getAccountIds(final AbstractSubject subject, final AttributableType type) {
+        Map<String, String> accountIds = new HashMap<String, String>();
+
+        for (ExternalResource resource : subject.getResources()) {
+            if ((type == AttributableType.USER && resource.getUmapping() != null)
+                    || (type == AttributableType.ROLE && resource.getRmapping() != null)) {
+
+                AbstractMappingItem accountIdItem =
+                        AttributableUtil.getInstance(type).getAccountIdItem(resource);
+                if (accountIdItem == null) {
+                    throw new NotFoundException(
+                            "AccountId mapping for " + type + " " + subject.getId()
+                            + " on resource '" + resource.getName() + "'");
+                }
+
+                accountIds.put(resource.getName(), MappingUtil.getAccountIdValue(subject, resource, accountIdItem));
+            }
+        }
+
+        return accountIds;
     }
 }

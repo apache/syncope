@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 import javax.naming.Context;
+import javax.naming.NamingException;
 import javax.naming.directory.InitialDirContext;
 import javax.sql.DataSource;
 import javax.ws.rs.core.Response;
@@ -335,12 +336,9 @@ public abstract class AbstractTest {
         return getObject(response.getLocation(), ResourceService.class, ResourceTO.class);
     }
 
-    protected Object getLdapRemoteObject(final String objectDn) {
-        return getLdapRemoteObject(null, null, objectDn);
-    }
-
     @SuppressWarnings({ "unchecked", "rawtypes", "UseOfObsoleteCollectionType" })
-    protected Object getLdapRemoteObject(final String bindDn, final String bindPwd, final String objectDn) {
+    protected InitialDirContext getLdapResourceDirContext(final String bindDn, final String bindPwd)
+            throws NamingException {
         ResourceTO ldapRes = resourceService.read(RESOURCE_NAME_LDAP);
         final Map<String, ConnConfProperty> ldapConnConf =
                 connectorService.read(ldapRes.getConnectorId()).getConfigurationMap();
@@ -355,11 +353,29 @@ public abstract class AbstractTest {
         env.put(Context.SECURITY_CREDENTIALS,
                 bindPwd == null ? ldapConnConf.get("credentials").getValues().get(0) : bindPwd);
 
+        return new InitialDirContext(env);
+    }
+
+    protected Object getLdapRemoteObject(final String bindDn, final String bindPwd, final String objectDn) {
+        InitialDirContext ctx = null;
         try {
-            final InitialDirContext ctx = new InitialDirContext(env);
+            ctx = getLdapResourceDirContext(bindDn, bindPwd);
             return ctx.lookup(objectDn);
         } catch (Exception e) {
             return null;
+        } finally {
+            if (ctx != null) {
+                try {
+                    ctx.close();
+                } catch (NamingException e) {
+                    // ignore
+                }
+            }
         }
     }
+
+    protected Object getLdapRemoteObject(final String objectDn) {
+        return getLdapRemoteObject(null, null, objectDn);
+    }
+
 }
