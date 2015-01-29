@@ -158,7 +158,7 @@ public class UserSelfTestITCase extends AbstractTest {
     }
 
     @Test
-    public void updateWitApproval() {
+    public void updateWithApproval() {
         Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers());
 
         // 1. create user as admin
