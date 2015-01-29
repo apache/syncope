@@ -313,7 +313,7 @@ public class ConnectorTestITCase extends AbstractTest {
 
         connInstanceTO = getObject(response.getLocation(), ConnectorService.class, ConnInstanceTO.class);
         assertNotNull(connInstanceTO);
-        assertTrue(connInstanceTO.getCapabilities().isEmpty());
+        assertFalse(connInstanceTO.getCapabilities().contains(ConnectorCapability.AUTHENTICATE));
 
         long connId = connInstanceTO.getId();
 
@@ -337,26 +337,23 @@ public class ConnectorTestITCase extends AbstractTest {
         // Check for spring bean.
         // ----------------------------------
         ConnInstanceTO connInstanceBean = connectorService.readByResource(resourceTO.getName());
-
         assertNotNull(connInstanceBean);
-        assertTrue(connInstanceBean.getCapabilities().isEmpty());
+        assertFalse(connInstanceBean.getCapabilities().contains(ConnectorCapability.AUTHENTICATE));
         // ----------------------------------
 
         // ----------------------------------
         // Check for spring bean update after connector instance update.
         // ----------------------------------
-        connInstanceTO.getCapabilities().add(ConnectorCapability.SEARCH);
+        connInstanceTO.getCapabilities().add(ConnectorCapability.AUTHENTICATE);
 
         connectorService.update(connInstanceTO.getId(), connInstanceTO);
         ConnInstanceTO actual = connectorService.read(connInstanceTO.getId());
-
         assertNotNull(actual);
-        assertFalse(connInstanceTO.getCapabilities().isEmpty());
+        assertTrue(connInstanceTO.getCapabilities().contains(ConnectorCapability.AUTHENTICATE));
 
         // check for spring bean update
         connInstanceBean = connectorService.readByResource(resourceTO.getName());
-
-        assertFalse(connInstanceBean.getCapabilities().isEmpty());
+        assertTrue(connInstanceBean.getCapabilities().contains(ConnectorCapability.AUTHENTICATE));
         // ----------------------------------
     }
 

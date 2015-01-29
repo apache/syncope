@@ -21,14 +21,15 @@ package org.apache.syncope.core.rest.data;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import org.apache.syncope.common.SyncopeClientCompositeException;
+import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.common.mod.RoleMod;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.types.AttributableType;
-import org.apache.syncope.common.types.ResourceOperation;
 import org.apache.syncope.common.types.ClientExceptionType;
-import org.apache.syncope.common.SyncopeClientCompositeException;
-import org.apache.syncope.common.SyncopeClientException;
+import org.apache.syncope.common.types.ResourceOperation;
 import org.apache.syncope.core.connid.ConnObjectUtil;
 import org.apache.syncope.core.persistence.beans.AbstractAttrTemplate;
 import org.apache.syncope.core.persistence.beans.AbstractSchema;
@@ -245,7 +246,8 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
 
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
 
-        Set<String> currentResources = role.getResourceNames();
+        // fetch account ids before update
+        Map<String, String> oldAccountIds = getAccountIds(role, AttributableType.ROLE);
 
         // name
         SyncopeClientException invalidRoles = SyncopeClientException.build(ClientExceptionType.InvalidRoles);
@@ -254,10 +256,7 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
                     role.getParent() == null ? null : role.getParent().getId());
             if (otherRole == null || role.equals(otherRole)) {
                 if (!roleMod.getName().equals(role.getName())) {
-                    propByRes.addAll(ResourceOperation.UPDATE, currentResources);
-                    for (String resource : currentResources) {
-                        propByRes.addOldAccountId(resource, role.getName());
-                    }
+                    propByRes.addAll(ResourceOperation.UPDATE, role.getResourceNames());
 
                     role.setName(roleMod.getName());
                 }
@@ -353,6 +352,17 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
 
         // attributes, derived attributes, virtual attributes and resources
         propByRes.merge(fill(role, roleMod, AttributableUtil.getInstance(AttributableType.ROLE), scce));
+
+        // check if some account id was changed by the update above
+        Map<String, String> newAccountIds = getAccountIds(role, AttributableType.ROLE);
+        for (Map.Entry<String, String> entry : oldAccountIds.entrySet()) {
+            if (newAccountIds.containsKey(entry.getKey())
+                    && !entry.getValue().equals(newAccountIds.get(entry.getKey()))) {
+
+                propByRes.addOldAccountId(entry.getKey(), entry.getValue());
+                propByRes.add(ResourceOperation.UPDATE, entry.getKey());
+            }
+        }
 
         return propByRes;
     }
