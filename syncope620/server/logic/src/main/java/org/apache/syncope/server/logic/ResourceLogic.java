@@ -179,8 +179,8 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
 
         MappingItem accountIdItem = attrUtil.getAccountIdItem(resource);
         if (accountIdItem == null) {
-            throw new NotFoundException("AccountId mapping for " + type + " " + id + " on resource '" + resourceName
-                    + "'");
+            throw new NotFoundException(
+                    "AccountId mapping for " + type + " " + id + " on resource '" + resourceName + "'");
         }
         final String accountIdValue = MappingUtil.getAccountIdValue(
                 subject, resource, attrUtil.getAccountIdItem(resource));

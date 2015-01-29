@@ -159,7 +159,7 @@ public class UserSelfITCase extends AbstractITCase {
     }
 
     @Test
-    public void updateWitApproval() {
+    public void updateWithApproval() {
         Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
 
         // 1. create user as admin

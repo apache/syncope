@@ -46,18 +46,17 @@ public class MappingTO extends AbstractBaseBean {
         this.accountLink = accountLink;
     }
 
-    @SuppressWarnings("unchecked")
-    public <T extends MappingItemTO> T getAccountIdItem() {
-        T accountIdItem = null;
+    public MappingItemTO getAccountIdItem() {
+        MappingItemTO accountIdItem = null;
         for (MappingItemTO item : getItems()) {
             if (item.isAccountid()) {
-                accountIdItem = (T) item;
+                accountIdItem = item;
             }
         }
         return accountIdItem;
     }
 
-    protected <T extends MappingItemTO> boolean addAccountIdItem(final T accountIdItem) {
+    protected boolean addAccountIdItem(final MappingItemTO accountIdItem) {
         if (IntMappingType.UserVirtualSchema == accountIdItem.getIntMappingType()
                 || IntMappingType.RoleVirtualSchema == accountIdItem.getIntMappingType()
                 || IntMappingType.MembershipVirtualSchema == accountIdItem.getIntMappingType()
@@ -76,11 +75,9 @@ public class MappingTO extends AbstractBaseBean {
     }
 
     public boolean setAccountIdItem(final MappingItemTO accountIdItem) {
-        if (accountIdItem == null) {
-            return this.removeItem(getAccountIdItem());
-        } else {
-            return addAccountIdItem(accountIdItem);
-        }
+        return accountIdItem == null
+                ? removeItem(getAccountIdItem())
+                : addAccountIdItem(accountIdItem);
     }
 
     public MappingItemTO getPasswordItem() {

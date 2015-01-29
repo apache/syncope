@@ -594,7 +594,7 @@ under the License.
       <dependency>
         <groupId>org.aspectj</groupId>
         <artifactId>aspectjweaver</artifactId>
-        <version>1.8.4</version>
+        <version>1.8.5</version>
       </dependency>
       
       <dependency>
@@ -940,7 +940,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-dependency-plugin</artifactId>
-          <version>2.9</version>
+          <version>2.10</version>
           <configuration>
             <outputDirectory>${bundles.directory}</outputDirectory>
             <artifactItems>

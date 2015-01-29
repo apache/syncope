@@ -285,7 +285,6 @@ public class ConnectorITCase extends AbstractITCase {
         // ----------------------------------
         // Retrieve a connector instance template.
         ConnInstanceTO connInstanceTO = connectorService.read(103L);
-
         assertNotNull(connInstanceTO);
 
         // check for resource
@@ -313,7 +312,7 @@ public class ConnectorITCase extends AbstractITCase {
 
         connInstanceTO = getObject(response.getLocation(), ConnectorService.class, ConnInstanceTO.class);
         assertNotNull(connInstanceTO);
-        assertTrue(connInstanceTO.getCapabilities().isEmpty());
+        assertFalse(connInstanceTO.getCapabilities().contains(ConnectorCapability.AUTHENTICATE));
 
         long connId = connInstanceTO.getKey();
 
@@ -337,26 +336,23 @@ public class ConnectorITCase extends AbstractITCase {
         // Check for spring bean.
         // ----------------------------------
         ConnInstanceTO connInstanceBean = connectorService.readByResource(resourceTO.getKey());
-
         assertNotNull(connInstanceBean);
-        assertTrue(connInstanceBean.getCapabilities().isEmpty());
+        assertFalse(connInstanceBean.getCapabilities().contains(ConnectorCapability.AUTHENTICATE));
         // ----------------------------------
 
         // ----------------------------------
         // Check for spring bean update after connector instance update.
         // ----------------------------------
-        connInstanceTO.getCapabilities().add(ConnectorCapability.SEARCH);
+        connInstanceTO.getCapabilities().add(ConnectorCapability.AUTHENTICATE);
 
         connectorService.update(connInstanceTO.getKey(), connInstanceTO);
         ConnInstanceTO actual = connectorService.read(connInstanceTO.getKey());
-
         assertNotNull(actual);
-        assertFalse(connInstanceTO.getCapabilities().isEmpty());
+        assertTrue(connInstanceTO.getCapabilities().contains(ConnectorCapability.AUTHENTICATE));
 
         // check for spring bean update
         connInstanceBean = connectorService.readByResource(resourceTO.getKey());
-
-        assertFalse(connInstanceBean.getCapabilities().isEmpty());
+        assertTrue(connInstanceBean.getCapabilities().contains(ConnectorCapability.AUTHENTICATE));
         // ----------------------------------
     }
 

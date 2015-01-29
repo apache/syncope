@@ -20,9 +20,11 @@ package org.apache.syncope.server.provisioning.java.data;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
@@ -86,6 +88,7 @@ import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.server.provisioning.java.VirAttrHandler;
 import org.apache.syncope.server.misc.MappingUtil;
 import org.apache.syncope.server.misc.jexl.JexlUtil;
+import org.apache.syncope.server.persistence.api.dao.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -215,7 +218,7 @@ abstract class AbstractAttributableDataBinder {
     }
 
     private boolean evaluateMandatoryCondition(final AttributableUtil attrUtil, final ExternalResource resource,
-            final Attributable<?,?,?> attributable, final String intAttrName, final IntMappingType intMappingType) {
+            final Attributable<?, ?, ?> attributable, final String intAttrName, final IntMappingType intMappingType) {
 
         boolean result = false;
 
@@ -750,5 +753,27 @@ abstract class AbstractAttributableDataBinder {
                 ((AbstractSubjectTO) attributableTO).getResources().add(resource.getKey());
             }
         }
+    }
+
+    protected Map<String, String> getAccountIds(final Subject<?, ?, ?> subject, final AttributableType type) {
+        Map<String, String> accountIds = new HashMap<>();
+
+        for (ExternalResource resource : subject.getResources()) {
+            if ((type == AttributableType.USER && resource.getUmapping() != null)
+                    || (type == AttributableType.ROLE && resource.getRmapping() != null)) {
+
+                MappingItem accountIdItem =
+                        attrUtilFactory.getInstance(type).getAccountIdItem(resource);
+                if (accountIdItem == null) {
+                    throw new NotFoundException(
+                            "AccountId mapping for " + type + " " + subject.getKey()
+                            + " on resource '" + resource.getKey() + "'");
+                }
+
+                accountIds.put(resource.getKey(), MappingUtil.getAccountIdValue(subject, resource, accountIdItem));
+            }
+        }
+
+        return accountIds;
     }
 }

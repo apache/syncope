@@ -21,6 +21,7 @@ package org.apache.syncope.server.provisioning.java.data;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import javax.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
@@ -33,13 +34,11 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.server.persistence.api.dao.ConfDAO;
 import org.apache.syncope.server.persistence.api.dao.SecurityQuestionDAO;
 import org.apache.syncope.server.persistence.api.entity.DerAttr;
 import org.apache.syncope.server.persistence.api.entity.ExternalResource;
-import org.apache.syncope.server.persistence.api.entity.MappingItem;
 import org.apache.syncope.server.persistence.api.entity.PlainAttr;
 import org.apache.syncope.server.persistence.api.entity.VirAttr;
 import org.apache.syncope.server.persistence.api.entity.membership.MDerAttr;
@@ -210,6 +209,9 @@ public class UserDataBinderImpl extends AbstractAttributableDataBinder implement
 
         Set<String> currentResources = user.getResourceNames();
 
+        // fetch account ids before update
+        Map<String, String> oldAccountIds = getAccountIds(user, AttributableType.USER);
+
         // password
         if (StringUtils.isNotBlank(userMod.getPassword())) {
             setPassword(user, userMod.getPassword(), scce);
@@ -219,18 +221,9 @@ public class UserDataBinderImpl extends AbstractAttributableDataBinder implement
 
         // username
         if (userMod.getUsername() != null && !userMod.getUsername().equals(user.getUsername())) {
-            String oldUsername = user.getUsername();
-
-            user.setUsername(userMod.getUsername());
             propByRes.addAll(ResourceOperation.UPDATE, currentResources);
 
-            for (ExternalResource resource : user.getResources()) {
-                for (MappingItem mapItem : resource.getUmapping().getItems()) {
-                    if (mapItem.isAccountid() && mapItem.getIntMappingType() == IntMappingType.Username) {
-                        propByRes.addOldAccountId(resource.getKey(), oldUsername);
-                    }
-                }
-            }
+            user.setUsername(userMod.getUsername());
         }
 
         // security question / answer:
@@ -346,6 +339,17 @@ public class UserDataBinderImpl extends AbstractAttributableDataBinder implement
         if (!toBeDeprovisioned.isEmpty() || !toBeProvisioned.isEmpty()) {
             currentResources.removeAll(toBeDeprovisioned);
             propByRes.addAll(ResourceOperation.UPDATE, currentResources);
+        }
+
+        // check if some account id was changed by the update above
+        Map<String, String> newAccountIds = getAccountIds(user, AttributableType.USER);
+        for (Map.Entry<String, String> entry : oldAccountIds.entrySet()) {
+            if (newAccountIds.containsKey(entry.getKey())
+                    && !entry.getValue().equals(newAccountIds.get(entry.getKey()))) {
+
+                propByRes.addOldAccountId(entry.getKey(), entry.getValue());
+                propByRes.add(ResourceOperation.UPDATE, entry.getKey());
+            }
         }
 
         return propByRes;
