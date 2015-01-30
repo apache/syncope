@@ -1410,6 +1410,7 @@ under the License.
             <exclude>**/.*</exclude>
             <exclude>**/deb/control/conffiles</exclude>
             <exclude>**/deb/control/control</exclude>
+            <exclude>**/*.lst</exclude>
           </excludes>
         </configuration>
         <executions>
