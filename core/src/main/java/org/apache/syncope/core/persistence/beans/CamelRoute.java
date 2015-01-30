@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.beans;
 
+import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -30,8 +31,10 @@ import javax.validation.constraints.NotNull;
 import org.apache.syncope.common.types.SubjectType;
 
 @Entity
-public class CamelRoute {
+public class CamelRoute implements Serializable {
 
+    private static final long serialVersionUID = -2767606675667839161L;
+    
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id")

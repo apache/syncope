@@ -35,7 +35,6 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import org.apache.syncope.common.types.SubjectType;
 import org.apache.syncope.core.persistence.beans.CamelRoute;
-import org.apache.syncope.core.persistence.dao.RouteDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,38 +53,36 @@ public class CamelRouteLoader {
     private static final Logger LOG = LoggerFactory.getLogger(CamelRouteLoader.class);
 
     @Autowired
-    private RouteDAO routeDAO;
-    
-    @Autowired
     private DataSource dataSource;
-    
+
     private int size = 0;
-    
+
     private boolean routeLoaded = false;
-    
+
     @Transactional
     public void load() {
-        if(!routeLoaded){
+        if (!routeLoaded) {
             loadRoutes("/userRoute.xml", SubjectType.USER);
-            loadRoutes("/roleRoute.xml", SubjectType.ROLE);        
+            loadRoutes("/roleRoute.xml", SubjectType.ROLE);
             routeLoaded = true;
         }
     }
-    
+
     public void loadRoutes(String path, SubjectType subject) {
 
-        if(getRoutes(subject).isEmpty()){
-            URL url = getClass().getResource(path);
+        if (getRoutes(subject).isEmpty()) {
+            final URL url = getClass().getResource(path);
 
-            File file = new File(url.getPath());
-            String query = "INSERT INTO CamelRoute(ID, NAME, SUBJECT, ROUTECONTENT) VALUES (?, ?, ?, ?)";
+            final File file = new File(url.getPath());
+            final String query = String.format("INSERT INTO %s(ID, NAME, SUBJECT, ROUTECONTENT) VALUES (?, ?, ?, ?)",
+                    CamelRoute.class.getSimpleName());
             try {
 
-                DocumentBuilder dBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-                Document doc = dBuilder.parse(file);
+                final DocumentBuilder dBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+                final Document doc = dBuilder.parse(file);
                 doc.getDocumentElement().normalize();
-                JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-                NodeList listOfRoutes = doc.getElementsByTagName("route");
+                final JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+                final NodeList listOfRoutes = doc.getElementsByTagName("route");
                 for (int s = 0; s < listOfRoutes.getLength(); s++) {
                     //getting the route node element
                     Node routeEl = listOfRoutes.item(s);
@@ -94,8 +91,8 @@ public class CamelRouteLoader {
                     route.setSubject(subject);
                     route.setName(((Element) routeEl).getAttribute("id"));
                     route.setRouteContent(nodeToString(listOfRoutes.item(s)));
-                    jdbcTemplate.update(query, new Object[] { size++, ((Element) routeEl).getAttribute("id"), 
-                                                             subject.name(), nodeToString(listOfRoutes.item(s)) });
+                    jdbcTemplate.update(query, new Object[] { size++, ((Element) routeEl).getAttribute("id"),
+                        subject.name(), nodeToString(listOfRoutes.item(s)) });
                     LOG.info("Route with id {} Registration Successed", ((Element) routeEl).getAttribute("id"));
                 }
             } catch (DataAccessException e) {
@@ -105,7 +102,7 @@ public class CamelRouteLoader {
             }
         }
     }
-    
+
     private String nodeToString(Node node) {
         StringWriter sw = new StringWriter();
         try {
@@ -117,17 +114,17 @@ public class CamelRouteLoader {
         }
         return sw.toString();
     }
-    
+
     @Transactional(readOnly = true)
-    public List<CamelRoute> getRoutes(final SubjectType subject) {                        
-        String sql = "SELECT * FROM CAMELROUTE WHERE SUBJECT = ?";
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-        List<CamelRoute> routes = new ArrayList<CamelRoute>();
-        List<Map<String,Object>> rows = jdbcTemplate.queryForList(sql, new Object[] {subject.name()});
-        for (Map row : rows) {
-            CamelRoute route = new CamelRoute();                    
-            route.setName((String)row.get("NAME"));
-            route.setSubject(SubjectType.valueOf((String)row.get("SUBJECT")));
+    public List<CamelRoute> getRoutes(final SubjectType subject) {
+        final String sql = String.format("SELECT * FROM %s WHERE SUBJECT = ?", CamelRoute.class.getSimpleName());
+        final JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        final List<CamelRoute> routes = new ArrayList<CamelRoute>();
+        final List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, new Object[] { subject.name() });
+        for (Map<String, ?> row : rows) {
+            CamelRoute route = new CamelRoute();
+            route.setName((String) row.get("NAME"));
+            route.setSubject(SubjectType.valueOf((String) row.get("SUBJECT")));
             route.setRouteContent((String) row.get("ROUTECONTENT"));
             routes.add(route);
         }
