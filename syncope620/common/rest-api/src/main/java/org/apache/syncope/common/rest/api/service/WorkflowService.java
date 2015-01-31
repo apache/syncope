@@ -21,16 +21,12 @@ package org.apache.syncope.common.rest.api.service;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
-import javax.ws.rs.OPTIONS;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.apache.cxf.jaxrs.model.wadl.Description;
-import org.apache.cxf.jaxrs.model.wadl.Descriptions;
-import org.apache.cxf.jaxrs.model.wadl.DocTarget;
 import org.apache.syncope.common.lib.types.SubjectType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 
@@ -39,22 +35,6 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
  */
 @Path("workflows/{kind}")
 public interface WorkflowService extends JAXRSService {
-
-    /**
-     * Checks whether Activiti is enabled (for users or roles).
-     *
-     * @param kind user or role
-     * @return <tt>Response</tt> contains special syncope HTTP header indicating if Activiti is enabled for
-     * users / roles
-     * @see org.apache.syncope.common.rest.api.RESTHeaders#ACTIVITI_USER_ENABLED
-     * @see org.apache.syncope.common.rest.api.RESTHeaders#ACTIVITI_ROLE_ENABLED
-     */
-    @Descriptions({
-        @Description(target = DocTarget.RESPONSE,
-                value = "Contains special syncope HTTP header indicating if Activiti is enabled for users / roles")
-    })
-    @OPTIONS
-    Response getOptions(@NotNull @PathParam("kind") SubjectType kind);
 
     /**
      * Exports workflow definition for matching kind.

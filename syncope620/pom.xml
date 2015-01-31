@@ -322,6 +322,8 @@ under the License.
 
     <cxf.version>3.0.3</cxf.version>
 
+    <camel.version>2.14.1</camel.version>	
+
     <jackson.version>2.4.5</jackson.version>
 
     <spring.version>4.1.4.RELEASE</spring.version>
@@ -475,6 +477,24 @@ under the License.
         <version>${cxf.version}</version>
       </dependency>      
       <!-- /CXF -->
+      
+      <!-- Camel -->
+      <dependency>
+        <groupId>org.apache.camel</groupId>
+        <artifactId>camel-core</artifactId>
+        <version>${camel.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.camel</groupId>
+        <artifactId>camel-spring</artifactId>
+        <version>${camel.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.camel</groupId>
+        <artifactId>camel-script</artifactId>
+        <version>${camel.version}</version>
+      </dependency>
+      <!-- /Camel -->
       
       <dependency>
         <groupId>org.apache.openjpa</groupId>
@@ -1183,5 +1203,7 @@ under the License.
     <module>server</module>
     <module>client</module>
     <module>fit</module>
+    <module>ext</module>
   </modules>
+
 </project>

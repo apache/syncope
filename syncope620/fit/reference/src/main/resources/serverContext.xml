@@ -34,6 +34,7 @@ under the License.
         <value>file:${conf.directory}/mail.properties</value>
         <value>file:${conf.directory}/logic.properties</value>
         <value>file:${conf.directory}/workflow.properties</value>
+        <value>file:${conf.directory}/provisioning.properties</value>
       </list>
     </property>
   </bean>
@@ -46,6 +47,7 @@ under the License.
         <value>classpath:mail.properties</value>
         <value>classpath:logic.properties</value>
         <value>classpath:workflow.properties</value>
+        <value>classpath:provisioning.properties</value>
       </list>
     </property>
   </bean>

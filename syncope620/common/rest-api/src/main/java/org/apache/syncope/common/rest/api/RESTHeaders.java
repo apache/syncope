@@ -49,27 +49,6 @@ public final class RESTHeaders {
     public static final String PWDRESET_NEEDS_SECURITYQUESTIONS = "Syncope.PasswordReset.SecurityQuestions";
 
     /**
-     * Option key stating if Activiti workflow adapter is in use for users.
-     */
-    public static final String ACTIVITI_USER_ENABLED = "Syncope.Activiti.User.Enabled";
-
-    /**
-     * Option key stating if Activiti workflow adapter is in use for roles.
-     */
-    public static final String ACTIVITI_ROLE_ENABLED = "Syncope.Activiti.Role.Enabled";
-    
-     /**
-     * Option key stating if Camel is the current provisioning manager engine.
-     */
-    public static final String CAMEL_USER_PROVISIONING_MANAGER ="Syncope.Provisioning.Camel.User.Enabled";
-    
-    /**
-     * Option key stating if Camel is the current provisioning manager engine.
-     */
-    public static final String CAMEL_ROLE_PROVISIONING_MANAGER ="Syncope.Provisioning.Camel.Role.Enabled";
-
-
-    /**
      * HTTP header key for object ID assigned to an object after its creation.
      */
     public static final String RESOURCE_ID = "Syncope.Id";

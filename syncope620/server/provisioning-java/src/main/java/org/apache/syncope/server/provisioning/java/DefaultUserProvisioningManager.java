@@ -46,9 +46,7 @@ import org.apache.syncope.server.workflow.api.UserWorkflowAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-@Component
 public class DefaultUserProvisioningManager implements UserProvisioningManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(UserProvisioningManager.class);

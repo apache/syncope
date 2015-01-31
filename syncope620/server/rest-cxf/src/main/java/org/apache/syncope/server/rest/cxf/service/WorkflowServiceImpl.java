@@ -20,7 +20,6 @@ package org.apache.syncope.server.rest.cxf.service;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
@@ -36,25 +35,6 @@ public class WorkflowServiceImpl extends AbstractServiceImpl implements Workflow
 
     @Autowired
     private WorkflowLogic logic;
-
-    @Override
-    public Response getOptions(final SubjectType kind) {
-        String key;
-        String value;
-        if (kind == SubjectType.USER) {
-            key = RESTHeaders.ACTIVITI_USER_ENABLED;
-            value = "false"; //Boolean.toString(ActivitiDetector.isActivitiEnabledForUsers());
-        } else {
-            key = RESTHeaders.ACTIVITI_ROLE_ENABLED;
-            value = "false"; //Boolean.toString(ActivitiDetector.isActivitiEnabledForRoles());
-        }
-
-        Response.ResponseBuilder builder = Response.ok().header(HttpHeaders.ALLOW, OPTIONS_ALLOW);
-        if (key != null && value != null) {
-            builder.header(key, value);
-        }
-        return builder.build();
-    }
 
     @Override
     public Response exportDefinition(final SubjectType kind) {

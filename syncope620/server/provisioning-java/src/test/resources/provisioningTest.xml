@@ -30,6 +30,7 @@ under the License.
         <value>classpath:connid.properties</value>
         <value>classpath:mail.properties</value>
         <value>classpath:workflow.properties</value>
+        <value>classpath:provisioning.properties</value>
       </list>
     </property>
     <property name="ignoreResourceNotFound" value="true"/>

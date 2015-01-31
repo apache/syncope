@@ -48,7 +48,6 @@ import org.apache.syncope.server.persistence.api.entity.role.RMappingItem;
 import org.apache.syncope.server.persistence.api.entity.user.UMapping;
 import org.apache.syncope.server.persistence.api.entity.user.UMappingItem;
 import org.apache.syncope.server.provisioning.api.ConnectorRegistry;
-import org.apache.syncope.server.provisioning.java.ConnectorManager;
 import org.apache.syncope.server.misc.jexl.JexlUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

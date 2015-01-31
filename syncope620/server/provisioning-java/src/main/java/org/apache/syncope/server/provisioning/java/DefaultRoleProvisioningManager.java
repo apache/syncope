@@ -48,9 +48,7 @@ import org.apache.syncope.server.provisioning.api.propagation.PropagationTaskExe
 import org.apache.syncope.server.misc.security.AuthContextUtil;
 import org.apache.syncope.server.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.server.workflow.api.RoleWorkflowAdapter;
-import org.springframework.stereotype.Component;
 
-@Component
 public class DefaultRoleProvisioningManager implements RoleProvisioningManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(RoleProvisioningManager.class);

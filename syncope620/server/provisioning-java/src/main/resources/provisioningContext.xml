@@ -31,6 +31,9 @@ under the License.
   <task:annotation-driven executor="connectorExecutor"/>
   <task:executor id="connectorExecutor" pool-size="10"/>
   
+  <bean class="${userProvisioningManager}"/>
+  <bean class="${roleProvisioningManager}"/>
+
   <bean id="scheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean"
         lazy-init="false" depends-on="nonJPAdbInitializer">
     <property name="autoStartup" value="true"/>
