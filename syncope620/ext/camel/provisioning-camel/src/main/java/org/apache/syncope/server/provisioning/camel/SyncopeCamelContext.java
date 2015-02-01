@@ -25,10 +25,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
 import javax.xml.bind.Unmarshaller;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import org.apache.camel.model.Constants;
 import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.spring.SpringCamelContext;
@@ -41,8 +38,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+import org.w3c.dom.bootstrap.DOMImplementationRegistry;
+import org.w3c.dom.ls.DOMImplementationLS;
+import org.w3c.dom.ls.LSInput;
+import org.w3c.dom.ls.LSParser;
 
 @Component
 public class SyncopeCamelContext {
@@ -77,43 +77,30 @@ public class SyncopeCamelContext {
 
     public void loadContext(final CamelRouteDAO routeDAO, final List<CamelRoute> routes) {
         try {
-            DocumentBuilder dBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            DOMImplementationRegistry reg = DOMImplementationRegistry.newInstance();
+            DOMImplementationLS domImpl = (DOMImplementationLS) reg.getDOMImplementation("LS");
+            LSParser parser = domImpl.createLSParser(DOMImplementationLS.MODE_SYNCHRONOUS, null);
+
             JAXBContext jaxbContext = JAXBContext.newInstance(Constants.JAXB_CONTEXT_PACKAGES);
             Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
             List<RouteDefinition> routeDefs = new ArrayList<>();
             for (CamelRoute route : routes) {
-                InputStream is = null;
+                InputStream input = null;
                 try {
-                    is = new ByteArrayInputStream(
+                    input = new ByteArrayInputStream(
                             URLDecoder.decode(route.getContent(), SyncopeConstants.DEFAULT_ENCODING).getBytes());
-                    Document doc = dBuilder.parse(is);
-                    doc.getDocumentElement().normalize();
-                    Node routeEl = doc.getElementsByTagName("route").item(0);
-                    JAXBElement<RouteDefinition> obj = unmarshaller.unmarshal(routeEl, RouteDefinition.class);
-                    routeDefs.add(obj.getValue());
+                    LSInput lsinput = domImpl.createLSInput();
+                    lsinput.setByteStream(input);
+
+                    Node routeElement = parser.parse(lsinput).getElementsByTagName("route").item(0);
+                    routeDefs.add(unmarshaller.unmarshal(routeElement, RouteDefinition.class).getValue());
                 } finally {
-                    IOUtils.closeQuietly(is);
+                    IOUtils.closeQuietly(input);
                 }
             }
             camelContext.addRouteDefinitions(routeDefs);
         } catch (Exception e) {
             LOG.error("While loading Camel context {}", e);
-        }
-    }
-
-    public void reloadContext() {
-        if (camelContext == null) {
-            getContext();
-        } else {
-            if (!camelContext.getRouteDefinitions().isEmpty()) {
-                try {
-                    camelContext.removeRouteDefinitions(new ArrayList<>(camelContext.getRouteDefinitions()));
-                } catch (Exception e) {
-                    LOG.error("While clearing Camel context {}", e);
-                }
-            }
-
-            loadContext(routeDAO, new ArrayList<>(routeDAO.findAll()));
         }
     }
 
@@ -128,7 +115,4 @@ public class SyncopeCamelContext {
         }
     }
 
-    public List<RouteDefinition> getDefinitions() {
-        return camelContext.getRouteDefinitions();
-    }
 }

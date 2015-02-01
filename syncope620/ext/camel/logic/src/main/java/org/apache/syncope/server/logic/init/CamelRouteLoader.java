@@ -22,29 +22,30 @@ import java.io.StringWriter;
 import java.util.List;
 import java.util.Map;
 import javax.sql.DataSource;
-import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import org.apache.syncope.common.lib.types.SubjectType;
+import org.apache.syncope.server.misc.spring.ResourceWithFallbackLoader;
 import org.apache.syncope.server.persistence.api.SyncopeLoader;
 import org.apache.syncope.server.persistence.api.entity.CamelEntityFactory;
 import org.apache.syncope.server.persistence.api.entity.CamelRoute;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.bootstrap.DOMImplementationRegistry;
+import org.w3c.dom.ls.DOMImplementationLS;
+import org.w3c.dom.ls.LSInput;
+import org.w3c.dom.ls.LSOutput;
+import org.w3c.dom.ls.LSParser;
+import org.w3c.dom.ls.LSSerializer;
 
 @Component
 public class CamelRouteLoader implements SyncopeLoader {
@@ -54,6 +55,12 @@ public class CamelRouteLoader implements SyncopeLoader {
     private static final DocumentBuilderFactory DOC_FACTORY = DocumentBuilderFactory.newInstance();
 
     private static final TransformerFactory T_FACTORY = TransformerFactory.newInstance();
+
+    @javax.annotation.Resource(name = "userRoutes")
+    private ResourceWithFallbackLoader userRoutesLoader;
+
+    @javax.annotation.Resource(name = "roleRoutes")
+    private ResourceWithFallbackLoader roleRoutesLoader;
 
     @Autowired
     private DataSource dataSource;
@@ -74,8 +81,8 @@ public class CamelRouteLoader implements SyncopeLoader {
     public void load() {
         synchronized (this) {
             if (!loaded) {
-                loadRoutes("/userRoute.xml", SubjectType.USER);
-                loadRoutes("/roleRoute.xml", SubjectType.ROLE);
+                loadRoutes(userRoutesLoader.getResource(), SubjectType.USER);
+                loadRoutes(roleRoutesLoader.getResource(), SubjectType.ROLE);
                 loadEntitlements();
                 loaded = true;
             }
@@ -89,45 +96,52 @@ public class CamelRouteLoader implements SyncopeLoader {
         return !rows.isEmpty();
     }
 
-    private String nodeToString(final Node node) {
-        StringWriter sw = new StringWriter();
+    private String nodeToString(final Node content, final DOMImplementationLS impl) {
+        StringWriter writer = new StringWriter();
         try {
-            Transformer transformer = T_FACTORY.newTransformer();
-            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-            transformer.transform(new DOMSource(node), new StreamResult(sw));
-        } catch (TransformerException te) {
-            LOG.debug("nodeToString Transformer Exception", te);
+            LSSerializer serializer = impl.createLSSerializer();
+            LSOutput lso = impl.createLSOutput();
+            lso.setCharacterStream(writer);
+            serializer.write(content, lso);
+        } catch (Exception e) {
+            LOG.debug("While serializing route node", e);
         }
-        return sw.toString();
+        return writer.toString();
     }
 
-    private void loadRoutes(final String path, final SubjectType subjectType) {
+    private void loadRoutes(final Resource resource, final SubjectType subjectType) {
         if (routesAvailable(subjectType)) {
-            final String query = String.format("INSERT INTO %s(ID, NAME, SUBJECT, ROUTECONTENT) VALUES (?, ?, ?, ?)",
+            String query = String.format("INSERT INTO %s(NAME, SUBJECT, ROUTECONTENT) VALUES (?, ?, ?, ?)",
                     CamelRoute.class.getSimpleName());
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+
             try {
-                final DocumentBuilder dBuilder = DOC_FACTORY.newDocumentBuilder();
-                final Document doc = dBuilder.parse(getClass().getResourceAsStream(path));
-                doc.getDocumentElement().normalize();
-                final JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-                final NodeList listOfRoutes = doc.getElementsByTagName("route");
-                for (int s = 0; s < listOfRoutes.getLength(); s++) {
-                    //getting the route node element
-                    Node routeEl = listOfRoutes.item(s);
+                DOMImplementationRegistry reg = DOMImplementationRegistry.newInstance();
+                DOMImplementationLS domImpl = (DOMImplementationLS) reg.getDOMImplementation("LS");
+                LSInput lsinput = domImpl.createLSInput();
+                lsinput.setByteStream(resource.getInputStream());
+
+                LSParser parser = domImpl.createLSParser(DOMImplementationLS.MODE_SYNCHRONOUS, null);
+
+                NodeList routeNodes = parser.parse(lsinput).getElementsByTagName("route");
+                for (int s = 0; s < routeNodes.getLength(); s++) {
+                    Node routeElement = routeNodes.item(s);
+                    String routeContent = nodeToString(routeNodes.item(s), domImpl);
+
                     //crate an instance of CamelRoute Entity
                     CamelRoute route = entityFactory.newCamelRoute();
                     route.setSubjectType(subjectType);
-                    route.setKey(((Element) routeEl).getAttribute("id"));
-                    route.setContent(nodeToString(listOfRoutes.item(s)));
+                    route.setKey(((Element) routeElement).getAttribute("id"));
+                    route.setContent(routeContent);
 
-                    jdbcTemplate.update(query, new Object[] { size++, ((Element) routeEl).getAttribute("id"),
-                        subjectType.name(), nodeToString(listOfRoutes.item(s)) });
-                    LOG.debug("Route {} successfully registered", ((Element) routeEl).getAttribute("id"));
+                    jdbcTemplate.update(query, new Object[] {
+                        ((Element) routeElement).getAttribute("id"), subjectType.name(), routeContent });
+                    LOG.debug("Route {} successfully loaded", ((Element) routeElement).getAttribute("id"));
                 }
             } catch (DataAccessException e) {
                 LOG.error("While trying to store queries {}", e);
             } catch (Exception e) {
-                LOG.error("Route Registration failed {}", e.getMessage());
+                LOG.error("Route load failed {}", e.getMessage());
             }
         }
     }
