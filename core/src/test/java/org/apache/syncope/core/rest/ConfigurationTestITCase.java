@@ -195,19 +195,19 @@ public class ConfigurationTestITCase extends AbstractTest {
             assertFalse(configExport.isEmpty());
             assertTrue(configExport.length() > 1000);
 
-            String[] result = StringUtils.substringsBetween(configExport, "<RATTRTEMPLATE", "/>");
+            String[] result = StringUtils.substringsBetween(configExport.toUpperCase(), "<RATTRTEMPLATE", "/>");
             boolean rattrExists = false;
             for (String entry : result) {
-                if (entry.contains(roleKey.getName())) {
+                if (entry.contains(roleKey.getName().toUpperCase())) {
                     rattrExists = true;
                 }
             }
             assertTrue(rattrExists);
 
-            result = StringUtils.substringsBetween(configExport, "<MATTRTEMPLATE", "/>");
+            result = StringUtils.substringsBetween(configExport.toUpperCase(), "<MATTRTEMPLATE", "/>");
             boolean mattrExists = false;
             for (String entry : result) {
-                if (entry.contains(membershipKey.getName())) {
+                if (entry.contains(membershipKey.getName().toUpperCase())) {
                     mattrExists = true;
                 }
             }
