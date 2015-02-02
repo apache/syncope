@@ -115,6 +115,11 @@ $ mvn -Pdev -Dit.test=UserTestITCase#create</source>
         <a href="https://mariadb.org/">MariaDB</a> database via
         <source>$ mvn -Pmysql-it</source>
 
+        <h5>MariaDB</h5>
+        After providing connection information in <code>src/test/resources/mariadb/persistence.properties</code>,
+        perform the full test suite against a <a href="https://mariadb.org/">MariaDB</a> database via
+        <source>$ mvn -Pmariadb-it</source>
+
         <h5>Oracle database</h5>
         After providing connection information in <code>src/test/resources/oracle/persistence.properties</code>
         and having <a href="http://www.mkyong.com/maven/how-to-add-oracle-jdbc-driver-in-your-maven-local-repository/">

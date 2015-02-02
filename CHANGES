@@ -2,6 +2,29 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 1.2.2
+================================================================================
+
+** Bug
+    * [SYNCOPE-607] - Error when adding a value to a multivalue configuration parameter of type long
+    * [SYNCOPE-608] - Cannot configure audit for AuthenticationController
+    * [SYNCOPE-610] - Installer doesn't update the console.properties with the container port
+    * [SYNCOPE-611] - An approver displays all approval tasks including those not assigned to him
+    * [SYNCOPE-613] - delete overridable connector configuration property of type array String in resource edit panel
+    * [SYNCOPE-614] - NotificationJob fails with NullPointerException
+    * [SYNCOPE-615] - Updating properties and xml files of the installer module with the current version
+    * [SYNCOPE-617] - User/role schema attribute with minus symbol in name
+    * [SYNCOPE-625] - Build fails with Java 6
+    * [SYNCOPE-629] - ATTRTEMPLATE entities not exported
+    * [SYNCOPE-632] - Errors during update propagation when derived attribute is configured as account id
+
+** Improvement
+    * [SYNCOPE-612] - explicit configuration of Velocity logging
+    * [SYNCOPE-616] - Improving the management of the xml and properties files inside the installer
+    * [SYNCOPE-621] - Reduce log level of bean validation errors (in data binder)
+    * [SYNCOPE-622] - Improve VirAttrCache management
+    * [SYNCOPE-630] - Eliminate duplicate Syncope WADL methods
+
 Release Notes - Syncope - Version 1.2.1
 ================================================================================
 
