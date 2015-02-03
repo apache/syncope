@@ -18,9 +18,7 @@
  */
 package org.apache.syncope.server.provisioning.camel;
 
-import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -30,7 +28,6 @@ import org.apache.camel.model.Constants;
 import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.spring.SpringCamelContext;
 import org.apache.commons.io.IOUtils;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.server.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.server.persistence.api.dao.CamelRouteDAO;
 import org.apache.syncope.server.persistence.api.entity.CamelRoute;
@@ -64,7 +61,7 @@ public class SyncopeCamelContext {
         if (camelContext.getRouteDefinitions().isEmpty()) {
             List<CamelRoute> routes = routeDAO.findAll();
             LOG.debug("{} route(s) are going to be loaded ", routes.size());
-            loadContext(routeDAO, routes);
+            loadContext(routes);
             try {
                 camelContext.start();
             } catch (Exception e) {
@@ -75,7 +72,7 @@ public class SyncopeCamelContext {
         return camelContext;
     }
 
-    public void loadContext(final CamelRouteDAO routeDAO, final List<CamelRoute> routes) {
+    private void loadContext(final List<CamelRoute> routes) {
         try {
             DOMImplementationRegistry reg = DOMImplementationRegistry.newInstance();
             DOMImplementationLS domImpl = (DOMImplementationLS) reg.getDOMImplementation("LS");
@@ -87,12 +84,11 @@ public class SyncopeCamelContext {
             for (CamelRoute route : routes) {
                 InputStream input = null;
                 try {
-                    input = new ByteArrayInputStream(
-                            URLDecoder.decode(route.getContent(), SyncopeConstants.DEFAULT_ENCODING).getBytes());
+                    input = IOUtils.toInputStream(route.getContent());
                     LSInput lsinput = domImpl.createLSInput();
                     lsinput.setByteStream(input);
 
-                    Node routeElement = parser.parse(lsinput).getElementsByTagName("route").item(0);
+                    Node routeElement = parser.parse(lsinput).getDocumentElement();
                     routeDefs.add(unmarshaller.unmarshal(routeElement, RouteDefinition.class).getValue());
                 } finally {
                     IOUtils.closeQuietly(input);
@@ -104,14 +100,23 @@ public class SyncopeCamelContext {
         }
     }
 
-    public void reloadContext(final String routeKey) {
+    public void updateContext(final String routeKey) {
         if (camelContext == null) {
             getContext();
         } else {
             if (!camelContext.getRouteDefinitions().isEmpty()) {
                 camelContext.getRouteDefinitions().remove(camelContext.getRouteDefinition(routeKey));
-                loadContext(routeDAO, Collections.singletonList(routeDAO.find(routeKey)));
+                loadContext(Collections.singletonList(routeDAO.find(routeKey)));
             }
+        }
+    }
+
+    public void restartContext() {
+        try {
+            camelContext.stop();
+            camelContext.start();
+        } catch (Exception e) {
+            LOG.error("While restarting Camel context", e);
         }
     }
 

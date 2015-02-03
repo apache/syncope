@@ -59,6 +59,8 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
     public Map.Entry<Long, List<PropagationStatus>> create(final UserTO userTO, final boolean storePassword,
             boolean disablePwdPolicyCheck, Boolean enabled, Set<String> excludedResources) {
 
+        PollingConsumer pollingConsumer = getConsumer("direct:createPort");
+
         Map<String, Object> props = new HashMap<>();
         props.put("storePassword", storePassword);
         props.put("disablePwdPolicyCheck", disablePwdPolicyCheck);
@@ -67,8 +69,6 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
 
         sendMessage("direct:createUser", userTO, props);
 
-        String uri = "direct:createPort";
-        PollingConsumer pollingConsumer = getConsumer(uri);
         Exchange exchange = pollingConsumer.receive();
 
         if (exchange.getProperty(Exchange.EXCEPTION_CAUGHT) != null) {
@@ -86,13 +86,13 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
     @Override
     @SuppressWarnings("unchecked")
     public Map.Entry<Long, List<PropagationStatus>> update(UserMod userMod, boolean removeMemberships) {
+        PollingConsumer pollingConsumer = getConsumer("direct:updatePort");
+
         Map<String, Object> props = new HashMap<>();
         props.put("removeMemberships", removeMemberships);
 
         sendMessage("direct:updateUser", userMod, props);
 
-        String uri = "direct:updatePort";
-        PollingConsumer pollingConsumer = getConsumer(uri);
         Exchange exchange = pollingConsumer.receive();
 
         if (exchange.getProperty(Exchange.EXCEPTION_CAUGHT) != null) {
@@ -110,13 +110,13 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
     @Override
     @SuppressWarnings("unchecked")
     public List<PropagationStatus> delete(final Long userKey, final Set<String> excludedResources) {
+        PollingConsumer pollingConsumer = getConsumer("direct:deletePort");
+
         Map<String, Object> props = new HashMap<>();
         props.put("excludedResources", excludedResources);
 
         sendMessage("direct:deleteUser", userKey, props);
 
-        String uri = "direct:deletePort";
-        PollingConsumer pollingConsumer = getConsumer(uri);
         Exchange exchange = pollingConsumer.receive();
 
         if (exchange.getProperty(Exchange.EXCEPTION_CAUGHT) != null) {
@@ -128,10 +128,10 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
 
     @Override
     public Long unlink(final UserMod userMod) {
+        PollingConsumer pollingConsumer = getConsumer("direct:unlinkPort");
+
         sendMessage("direct:unlinkUser", userMod);
 
-        String uri = "direct:unlinkPort";
-        PollingConsumer pollingConsumer = getConsumer(uri);
         Exchange exchange = pollingConsumer.receive();
 
         if (exchange.getProperty(Exchange.EXCEPTION_CAUGHT) != null) {
@@ -145,6 +145,8 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
     @Override
     @SuppressWarnings("unchecked")
     public Map.Entry<Long, List<PropagationStatus>> activate(final User user, final StatusMod statusMod) {
+        PollingConsumer pollingConsumer = getConsumer("direct:statusPort");
+
         Map<String, Object> props = new HashMap<>();
         props.put("token", statusMod.getToken());
         props.put("user", user);
@@ -155,11 +157,9 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
         } else {
             WorkflowResult<Long> updated =
                     new WorkflowResult<>(user.getKey(), null, statusMod.getType().name().toLowerCase());
-            sendMessage("direct:statusUser", updated, props);
+            sendMessage("direct:userStatusPropagation", updated, props);
         }
 
-        String uri = "direct:statusPort";
-        PollingConsumer pollingConsumer = getConsumer(uri);
         Exchange exchange = pollingConsumer.receive();
 
         if (exchange.getProperty(Exchange.EXCEPTION_CAUGHT) != null) {
@@ -172,6 +172,8 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
     @Override
     @SuppressWarnings("unchecked")
     public Map.Entry<Long, List<PropagationStatus>> reactivate(final User user, final StatusMod statusMod) {
+        PollingConsumer pollingConsumer = getConsumer("direct:statusPort");
+
         Map<String, Object> props = new HashMap<>();
         props.put("user", user);
         props.put("statusMod", statusMod);
@@ -181,11 +183,9 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
         } else {
             WorkflowResult<Long> updated =
                     new WorkflowResult<>(user.getKey(), null, statusMod.getType().name().toLowerCase());
-            sendMessage("direct:statusUser", updated, props);
+            sendMessage("direct:userStatusPropagation", updated, props);
         }
 
-        String uri = "direct:statusPort";
-        PollingConsumer pollingConsumer = getConsumer(uri);
         Exchange exchange = pollingConsumer.receive();
 
         if (exchange.getProperty(Exchange.EXCEPTION_CAUGHT) != null) {
@@ -198,6 +198,8 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
     @Override
     @SuppressWarnings("unchecked")
     public Map.Entry<Long, List<PropagationStatus>> suspend(final User user, final StatusMod statusMod) {
+        PollingConsumer pollingConsumer = getConsumer("direct:statusPort");
+
         Map<String, Object> props = new HashMap<>();
         props.put("user", user);
         props.put("statusMod", statusMod);
@@ -207,11 +209,9 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
         } else {
             WorkflowResult<Long> updated =
                     new WorkflowResult<>(user.getKey(), null, statusMod.getType().name().toLowerCase());
-            sendMessage("direct:statusUser", updated, props);
+            sendMessage("direct:userStatusPropagation", updated, props);
         }
 
-        String uri = "direct:statusPort";
-        PollingConsumer pollingConsumer = getConsumer(uri);
         Exchange exchange = pollingConsumer.receive();
 
         if (exchange.getProperty(Exchange.EXCEPTION_CAUGHT) != null) {
@@ -223,10 +223,10 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
 
     @Override
     public Long link(final UserMod subjectMod) {
+        PollingConsumer pollingConsumer = getConsumer("direct:linkPort");
+
         sendMessage("direct:linkUser", subjectMod);
 
-        String uri = "direct:linkPort";
-        PollingConsumer pollingConsumer = getConsumer(uri);
         Exchange exchange = pollingConsumer.receive();
 
         if (exchange.getProperty(Exchange.EXCEPTION_CAUGHT) != null) {
@@ -240,13 +240,13 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
     @Override
     @SuppressWarnings("unchecked")
     public List<PropagationStatus> deprovision(final Long user, final Collection<String> resources) {
+        PollingConsumer pollingConsumer = getConsumer("direct:deprovisionPort");
+
         Map<String, Object> props = new HashMap<>();
         props.put("resources", resources);
 
         sendMessage("direct:deprovisionUser", user, props);
 
-        String uri = "direct:deprovisionPort";
-        PollingConsumer pollingConsumer = getConsumer(uri);
         Exchange exchange = pollingConsumer.receive();
 
         if (exchange.getProperty(Exchange.EXCEPTION_CAUGHT) != null) {
@@ -259,24 +259,24 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
     @Override
     @SuppressWarnings("unchecked")
     public Map.Entry<Long, List<PropagationStatus>> update(
-            final UserMod userMod, Long id, final ProvisioningResult result,
+            final UserMod userMod, final Long key, final ProvisioningResult result,
             final Boolean enabled, final Set<String> excludedResources) {
 
+        PollingConsumer pollingConsumer = getConsumer("direct:updateInSyncPort");
+
         Map<String, Object> props = new HashMap<>();
-        props.put("id", id);
+        props.put("key", key);
         props.put("result", result);
         props.put("enabled", enabled);
         props.put("excludedResources", excludedResources);
 
-        sendMessage("direct:updateSyncUser", userMod, props);
+        sendMessage("direct:updateUserInSync", userMod, props);
 
-        String uri = "direct:updateSyncPort";
-        PollingConsumer pollingConsumer = getConsumer(uri);
         Exchange exchange = pollingConsumer.receive();
 
         Exception e;
         if ((e = (Exception) exchange.getProperty(Exchange.EXCEPTION_CAUGHT)) != null) {
-            LOG.error("Update of user {} failed, trying to sync its status anyway (if configured)", id, e);
+            LOG.error("Update of user {} failed, trying to sync its status anyway (if configured)", key, e);
 
             result.setStatus(ProvisioningResult.Status.FAILURE);
             result.setMessage("Update failed, trying to sync status anyway (if configured)\n" + e.getMessage());
@@ -284,7 +284,7 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
             WorkflowResult<Map.Entry<UserMod, Boolean>> updated = new WorkflowResult<Map.Entry<UserMod, Boolean>>(
                     new AbstractMap.SimpleEntry<>(userMod, false), new PropagationByResource(),
                     new HashSet<String>());
-            sendMessage("direct:syncUserStatus", updated, props);
+            sendMessage("direct:userInSync", updated, props);
             exchange = pollingConsumer.receive();
         }
 
@@ -292,14 +292,14 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
     }
 
     @Override
-    public void innerSuspend(final User user, final boolean suspend) {
+    public void innerSuspend(final User user, final boolean propagate) {
+        PollingConsumer pollingConsumer = getConsumer("direct:innerSuspendUserPort");
+
         Map<String, Object> props = new HashMap<>();
-        props.put("suspend", suspend);
+        props.put("propagate", propagate);
 
-        sendMessage("direct:suspendUserWF", user, props);
+        sendMessage("direct:innerSuspendUser", user, props);
 
-        String uri = "direct:suspendWFPort";
-        PollingConsumer pollingConsumer = getConsumer(uri);
         Exchange exchange = pollingConsumer.receive();
 
         if (exchange.getProperty(Exchange.EXCEPTION_CAUGHT) != null) {
@@ -309,10 +309,10 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
 
     @Override
     public void requestPasswordReset(final Long userKey) {
+        PollingConsumer pollingConsumer = getConsumer("direct:requestPwdResetPort");
+
         sendMessage("direct:requestPwdReset", userKey);
 
-        String uri = "direct:requestPwdResetPort";
-        PollingConsumer pollingConsumer = getConsumer(uri);
         Exchange exchange = pollingConsumer.receive();
 
         if (exchange.getProperty(Exchange.EXCEPTION_CAUGHT) != null) {
@@ -322,16 +322,16 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
 
     @Override
     public void confirmPasswordReset(final User user, final String token, final String password) {
+        PollingConsumer pollingConsumer = getConsumer("direct:confirmPwdResetPort");
+
         Map<String, Object> props = new HashMap<>();
         props.put("user", user);
-        props.put("userId", user.getKey());
+        props.put("userKey", user.getKey());
         props.put("token", token);
         props.put("password", password);
 
         sendMessage("direct:confirmPwdReset", user, props);
 
-        String uri = "direct:confirmPwdResetPort";
-        PollingConsumer pollingConsumer = getConsumer(uri);
         Exchange exchange = pollingConsumer.receive();
 
         if (exchange.getProperty(Exchange.EXCEPTION_CAUGHT) != null) {

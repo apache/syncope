@@ -42,13 +42,13 @@ public class CamelRoleProvisioningManager extends AbstractCamelProvisioningManag
     @Override
     @SuppressWarnings("unchecked")
     public Map.Entry<Long, List<PropagationStatus>> create(final RoleTO roleTO, final Set<String> excludedResources) {
+        PollingConsumer pollingConsumer = getConsumer("direct:createRolePort");
+
         Map<String, Object> props = new HashMap<>();
         props.put("excludedResources", excludedResources);
 
         sendMessage("direct:createRole", roleTO, props);
 
-        String uri = "direct:createRolePort";
-        PollingConsumer pollingConsumer = getConsumer(uri);
         Exchange exchange = pollingConsumer.receive();
 
         if (exchange.getProperty(Exchange.EXCEPTION_CAUGHT) != null) {
@@ -63,14 +63,14 @@ public class CamelRoleProvisioningManager extends AbstractCamelProvisioningManag
     public Map.Entry<Long, List<PropagationStatus>> create(final RoleTO roleTO, final Map<Long, String> roleOwnerMap,
             final Set<String> excludedResources) throws PropagationException {
 
+        PollingConsumer pollingConsumer = getConsumer("direct:createRoleInSyncPort");
+
         Map<String, Object> props = new HashMap<>();
         props.put("roleOwnerMap", roleOwnerMap);
         props.put("excludedResources", excludedResources);
 
-        sendMessage("direct:createRoleSync", roleTO, props);
+        sendMessage("direct:createRoleInSync", roleTO, props);
 
-        String uri = "direct:createRoleSyncPort";
-        PollingConsumer pollingConsumer = getConsumer(uri);
         Exchange exchange = pollingConsumer.receive();
 
         if (exchange.getProperty(Exchange.EXCEPTION_CAUGHT) != null) {
@@ -90,13 +90,13 @@ public class CamelRoleProvisioningManager extends AbstractCamelProvisioningManag
     public Map.Entry<Long, List<PropagationStatus>> update(
             final RoleMod subjectMod, final Set<String> excludedResources) {
 
+        PollingConsumer pollingConsumer = getConsumer("direct:updateRolePort");
+
         Map<String, Object> props = new HashMap<>();
         props.put("excludedResources", excludedResources);
 
         sendMessage("direct:updateRole", subjectMod, props);
 
-        String uri = "direct:updateRolePort";
-        PollingConsumer pollingConsumer = getConsumer(uri);
         Exchange exchange = pollingConsumer.receive();
 
         if (exchange.getProperty(Exchange.EXCEPTION_CAUGHT) != null) {
@@ -109,10 +109,10 @@ public class CamelRoleProvisioningManager extends AbstractCamelProvisioningManag
     @Override
     @SuppressWarnings("unchecked")
     public List<PropagationStatus> delete(final Long roleKey) {
+        PollingConsumer pollingConsumer = getConsumer("direct:deleteRolePort");
+
         sendMessage("direct:deleteRole", roleKey);
 
-        String uri = "direct:deleteRolePort";
-        PollingConsumer pollingConsumer = getConsumer(uri);
         Exchange exchange = pollingConsumer.receive();
 
         if (exchange.getProperty(Exchange.EXCEPTION_CAUGHT) != null) {
@@ -124,10 +124,10 @@ public class CamelRoleProvisioningManager extends AbstractCamelProvisioningManag
 
     @Override
     public Long unlink(final RoleMod roleMod) {
+        PollingConsumer pollingConsumer = getConsumer("direct:unlinkRolePort");
+
         sendMessage("direct:unlinkRole", roleMod);
 
-        String uri = "direct:unlinkRolePort";
-        PollingConsumer pollingConsumer = getConsumer(uri);
         Exchange exchange = pollingConsumer.receive();
 
         if (exchange.getProperty(Exchange.EXCEPTION_CAUGHT) != null) {
@@ -139,10 +139,10 @@ public class CamelRoleProvisioningManager extends AbstractCamelProvisioningManag
 
     @Override
     public Long link(final RoleMod roleMod) {
+        PollingConsumer pollingConsumer = getConsumer("direct:linkRolePort");
+
         sendMessage("direct:linkRole", roleMod);
 
-        String uri = "direct:linkRolePort";
-        PollingConsumer pollingConsumer = getConsumer(uri);
         Exchange exchange = pollingConsumer.receive();
 
         if (exchange.getProperty(Exchange.EXCEPTION_CAUGHT) != null) {
@@ -155,13 +155,13 @@ public class CamelRoleProvisioningManager extends AbstractCamelProvisioningManag
     @Override
     @SuppressWarnings("unchecked")
     public List<PropagationStatus> deprovision(final Long roleKey, Collection<String> resources) {
+        PollingConsumer pollingConsumer = getConsumer("direct:deprovisionRolePort");
+
         Map<String, Object> props = new HashMap<>();
         props.put("resources", resources);
 
         sendMessage("direct:deprovisionRole", roleKey, props);
 
-        String uri = "direct:deprovisionRolePort";
-        PollingConsumer pollingConsumer = getConsumer(uri);
         Exchange exchange = pollingConsumer.receive();
 
         if (exchange.getProperty(Exchange.EXCEPTION_CAUGHT) != null) {

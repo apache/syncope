@@ -77,7 +77,8 @@ public class DefaultRoleProvisioningManager implements RoleProvisioningManager {
         AuthContextUtil.extendAuthContext(
                 created.getResult(), RoleEntitlementUtil.getEntitlementNameFromRoleKey(created.getResult()));
 
-        List<PropagationTask> tasks = propagationManager.getRoleCreateTaskIds(created, subject.getVirAttrs());
+        List<PropagationTask> tasks =
+                propagationManager.getRoleCreateTaskIds(created, subject.getVirAttrs(), excludedResources);
         PropagationReporter propagationReporter = ApplicationContextProvider.getApplicationContext().getBean(
                 PropagationReporter.class);
         try {
@@ -87,16 +88,14 @@ public class DefaultRoleProvisioningManager implements RoleProvisioningManager {
             propagationReporter.onPrimaryResourceFailure(tasks);
         }
 
-        Map.Entry<Long, List<PropagationStatus>> result = new AbstractMap.SimpleEntry<Long, List<PropagationStatus>>(
-                created.getResult(), propagationReporter.getStatuses());
-        return result;
+        return new AbstractMap.SimpleEntry<>(created.getResult(), propagationReporter.getStatuses());
     }
 
     @Override
     public Map.Entry<Long, List<PropagationStatus>> create(
             final RoleTO roleTO, final Map<Long, String> roleOwnerMap, final Set<String> excludedResources) {
 
-        WorkflowResult<Long> created = rwfAdapter.create((RoleTO) roleTO);
+        WorkflowResult<Long> created = rwfAdapter.create(roleTO);
         AttrTO roleOwner = roleTO.getPlainAttrMap().get(StringUtils.EMPTY);
         if (roleOwner != null) {
             roleOwnerMap.put(created.getResult(), roleOwner.getValues().iterator().next());
@@ -110,7 +109,7 @@ public class DefaultRoleProvisioningManager implements RoleProvisioningManager {
 
         taskExecutor.execute(tasks);
 
-        return new AbstractMap.SimpleEntry<Long, List<PropagationStatus>>(created.getResult(), null);
+        return new AbstractMap.SimpleEntry<>(created.getResult(), null);
     }
 
     @Override
@@ -126,8 +125,8 @@ public class DefaultRoleProvisioningManager implements RoleProvisioningManager {
 
         List<PropagationTask> tasks = propagationManager.getRoleUpdateTaskIds(updated,
                 subjectMod.getVirAttrsToRemove(), subjectMod.getVirAttrsToUpdate());
-        PropagationReporter propagationReporter = ApplicationContextProvider.getApplicationContext().getBean(
-                PropagationReporter.class);
+        PropagationReporter propagationReporter =
+                ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
         try {
             taskExecutor.execute(tasks, propagationReporter);
         } catch (PropagationException e) {
@@ -135,16 +134,16 @@ public class DefaultRoleProvisioningManager implements RoleProvisioningManager {
             propagationReporter.onPrimaryResourceFailure(tasks);
         }
 
-        Map.Entry<Long, List<PropagationStatus>> result = new AbstractMap.SimpleEntry<Long, List<PropagationStatus>>(
+        Map.Entry<Long, List<PropagationStatus>> result = new AbstractMap.SimpleEntry<>(
                 updated.getResult(), propagationReporter.getStatuses());
         return result;
     }
 
     @Override
-    public List<PropagationStatus> delete(final Long subjectId) {
+    public List<PropagationStatus> delete(final Long subjectKey) {
         final List<Role> toBeDeprovisioned = new ArrayList<>();
 
-        final Role syncopeRole = roleDAO.find(subjectId);
+        final Role syncopeRole = roleDAO.find(subjectKey);
 
         if (syncopeRole != null) {
             toBeDeprovisioned.add(syncopeRole);
@@ -182,7 +181,7 @@ public class DefaultRoleProvisioningManager implements RoleProvisioningManager {
         }
 
         try {
-            rwfAdapter.delete(subjectId);
+            rwfAdapter.delete(subjectKey);
         } catch (RuntimeException e) {
             throw e;
         }
@@ -198,15 +197,15 @@ public class DefaultRoleProvisioningManager implements RoleProvisioningManager {
 
     @Override
     public List<PropagationStatus> deprovision(final Long roleKey, final Collection<String> resources) {
-        final Role role = roleDAO.authFetch(roleKey);
+        Role role = roleDAO.authFetch(roleKey);
 
-        final Set<String> noPropResourceName = role.getResourceNames();
+        Set<String> noPropResourceName = role.getResourceNames();
         noPropResourceName.removeAll(resources);
 
-        final List<PropagationTask> tasks = propagationManager.getRoleDeleteTaskIds(roleKey, new HashSet<String>(
-                resources), noPropResourceName);
-        PropagationReporter propagationReporter = ApplicationContextProvider.getApplicationContext().getBean(
-                PropagationReporter.class);
+        List<PropagationTask> tasks = propagationManager.getRoleDeleteTaskIds(
+                roleKey, new HashSet<>(resources), noPropResourceName);
+        PropagationReporter propagationReporter =
+                ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
         try {
             taskExecutor.execute(tasks, propagationReporter);
         } catch (PropagationException e) {

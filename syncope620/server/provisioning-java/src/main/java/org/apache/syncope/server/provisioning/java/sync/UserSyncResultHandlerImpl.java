@@ -73,7 +73,6 @@ public class UserSyncResultHandlerImpl extends AbstractSyncResultHandler impleme
         UserTO userTO = UserTO.class.cast(subjectTO);
 
         Boolean enabled = syncUtilities.readEnabled(delta.getObject(), profile.getTask());
-        //Delegate User Workflow Creation and its Propagation to provisioning manager
         Map.Entry<Long, List<PropagationStatus>> created = userProvisioningManager.create(userTO, true, true, enabled,
                 Collections.singleton(profile.getTask().getResource().getKey()));
 

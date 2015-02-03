@@ -77,7 +77,12 @@ public class CamelRouteLogic extends AbstractTransactionalLogic<CamelRouteTO> {
         LOG.debug("Updating route {} with content {}", routeTO.getKey(), routeTO.getContent());
         binder.update(route, routeTO);
 
-        context.reloadContext(routeTO.getKey());
+        context.updateContext(routeTO.getKey());
+    }
+
+    @PreAuthorize("hasRole('ROUTE_UPDATE')")
+    public void restartContext() {
+        context.restartContext();
     }
 
     @Override

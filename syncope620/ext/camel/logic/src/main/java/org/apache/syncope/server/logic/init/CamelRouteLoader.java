@@ -22,8 +22,6 @@ import java.io.StringWriter;
 import java.util.List;
 import java.util.Map;
 import javax.sql.DataSource;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.TransformerFactory;
 import org.apache.syncope.common.lib.types.SubjectType;
 import org.apache.syncope.server.misc.spring.ResourceWithFallbackLoader;
 import org.apache.syncope.server.persistence.api.SyncopeLoader;
@@ -52,10 +50,6 @@ public class CamelRouteLoader implements SyncopeLoader {
 
     private static final Logger LOG = LoggerFactory.getLogger(CamelRouteLoader.class);
 
-    private static final DocumentBuilderFactory DOC_FACTORY = DocumentBuilderFactory.newInstance();
-
-    private static final TransformerFactory T_FACTORY = TransformerFactory.newInstance();
-
     @javax.annotation.Resource(name = "userRoutes")
     private ResourceWithFallbackLoader userRoutesLoader;
 
@@ -67,8 +61,6 @@ public class CamelRouteLoader implements SyncopeLoader {
 
     @Autowired
     private CamelEntityFactory entityFactory;
-
-    private int size = 0;
 
     private boolean loaded = false;
 
@@ -89,18 +81,19 @@ public class CamelRouteLoader implements SyncopeLoader {
         }
     }
 
-    private boolean routesAvailable(final SubjectType subject) {
-        final String sql = String.format("SELECT * FROM %s WHERE SUBJECT = ?", CamelRoute.class.getSimpleName());
+    private boolean loadRoutesFor(final SubjectType subject) {
+        final String sql = String.format("SELECT * FROM %s WHERE SUBJECTTYPE = ?", CamelRoute.class.getSimpleName());
         final JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
         final List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, new Object[] { subject.name() });
-        return !rows.isEmpty();
+        return rows.isEmpty();
     }
 
-    private String nodeToString(final Node content, final DOMImplementationLS impl) {
+    private String nodeToString(final Node content, final DOMImplementationLS domImpl) {
         StringWriter writer = new StringWriter();
         try {
-            LSSerializer serializer = impl.createLSSerializer();
-            LSOutput lso = impl.createLSOutput();
+            LSSerializer serializer = domImpl.createLSSerializer();
+            serializer.getDomConfig().setParameter("xml-declaration", false);
+            LSOutput lso = domImpl.createLSOutput();
             lso.setCharacterStream(writer);
             serializer.write(content, lso);
         } catch (Exception e) {
@@ -110,8 +103,8 @@ public class CamelRouteLoader implements SyncopeLoader {
     }
 
     private void loadRoutes(final Resource resource, final SubjectType subjectType) {
-        if (routesAvailable(subjectType)) {
-            String query = String.format("INSERT INTO %s(NAME, SUBJECT, ROUTECONTENT) VALUES (?, ?, ?, ?)",
+        if (loadRoutesFor(subjectType)) {
+            String query = String.format("INSERT INTO %s(NAME, SUBJECTTYPE, CONTENT) VALUES (?, ?, ?)",
                     CamelRoute.class.getSimpleName());
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
@@ -123,20 +116,19 @@ public class CamelRouteLoader implements SyncopeLoader {
 
                 LSParser parser = domImpl.createLSParser(DOMImplementationLS.MODE_SYNCHRONOUS, null);
 
-                NodeList routeNodes = parser.parse(lsinput).getElementsByTagName("route");
+                NodeList routeNodes = parser.parse(lsinput).getDocumentElement().getElementsByTagName("route");
                 for (int s = 0; s < routeNodes.getLength(); s++) {
                     Node routeElement = routeNodes.item(s);
                     String routeContent = nodeToString(routeNodes.item(s), domImpl);
+                    String routeId = ((Element) routeElement).getAttribute("id");
 
-                    //crate an instance of CamelRoute Entity
                     CamelRoute route = entityFactory.newCamelRoute();
                     route.setSubjectType(subjectType);
-                    route.setKey(((Element) routeElement).getAttribute("id"));
+                    route.setKey(routeId);
                     route.setContent(routeContent);
 
-                    jdbcTemplate.update(query, new Object[] {
-                        ((Element) routeElement).getAttribute("id"), subjectType.name(), routeContent });
-                    LOG.debug("Route {} successfully loaded", ((Element) routeElement).getAttribute("id"));
+                    jdbcTemplate.update(query, new Object[] { routeId, subjectType.name(), routeContent });
+                    LOG.debug("Route {} successfully loaded", routeId);
                 }
             } catch (DataAccessException e) {
                 LOG.error("While trying to store queries {}", e);
@@ -148,8 +140,8 @@ public class CamelRouteLoader implements SyncopeLoader {
 
     private void loadEntitlements() {
         final JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-        jdbcTemplate.update("INSERT INTO Entitlement VALUES('ROUTE_READ')");
-        jdbcTemplate.update("INSERT INTO Entitlement VALUES('ROUTE_LIST')");
-        jdbcTemplate.update("INSERT INTO Entitlement VALUES('ROUTE_UPDATE')");
+        jdbcTemplate.update("INSERT INTO Entitlement(NAME) VALUES('ROUTE_READ')");
+        jdbcTemplate.update("INSERT INTO Entitlement(NAME) VALUES('ROUTE_LIST')");
+        jdbcTemplate.update("INSERT INTO Entitlement(NAME) VALUES('ROUTE_UPDATE')");
     }
 }

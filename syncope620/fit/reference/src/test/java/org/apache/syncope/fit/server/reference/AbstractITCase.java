@@ -49,6 +49,7 @@ import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.service.CamelRouteService;
 import org.apache.syncope.common.rest.api.service.ConfigurationService;
 import org.apache.syncope.common.rest.api.service.ConnectorService;
 import org.apache.syncope.common.rest.api.service.EntitlementService;
@@ -177,6 +178,8 @@ public abstract class AbstractITCase {
     protected static PolicyService policyService;
 
     protected static SecurityQuestionService securityQuestionService;
+    
+    protected static CamelRouteService camelRouteService;
 
     @Autowired
     protected DataSource testDataSource;
@@ -228,6 +231,7 @@ public abstract class AbstractITCase {
         notificationService = adminClient.getService(NotificationService.class);
         schemaService = adminClient.getService(SchemaService.class);
         securityQuestionService = adminClient.getService(SecurityQuestionService.class);
+        camelRouteService = adminClient.getService(CamelRouteService.class);
     }
 
     protected static String getUUIDString() {

@@ -41,7 +41,7 @@ public class JPACamelRoute extends AbstractEntity<String> implements CamelRoute 
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    private SubjectType subject;
+    private SubjectType subjectType;
 
     @Lob
     private String content;
@@ -58,12 +58,12 @@ public class JPACamelRoute extends AbstractEntity<String> implements CamelRoute 
 
     @Override
     public SubjectType getSubjectType() {
-        return subject;
+        return subjectType;
     }
 
     @Override
-    public void setSubjectType(final SubjectType subject) {
-        this.subject = subject;
+    public void setSubjectType(final SubjectType subjectType) {
+        this.subjectType = subjectType;
     }
 
     @Override

@@ -33,7 +33,7 @@ public class JPACamelRouteDAO extends AbstractDAO<CamelRoute, String> implements
 
     @Override
     public CamelRoute find(final String key) {
-        return entityManager.find(CamelRoute.class, key);
+        return entityManager.find(JPACamelRoute.class, key);
     }
 
     @Transactional(readOnly = true)

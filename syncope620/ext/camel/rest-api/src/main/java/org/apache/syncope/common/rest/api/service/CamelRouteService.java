@@ -22,6 +22,8 @@ import java.util.List;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.MatrixParam;
+import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -34,18 +36,20 @@ import org.apache.syncope.common.lib.types.SubjectType;
 public interface CamelRouteService extends JAXRSService {
 
     @GET
-    @Path("{subjectType}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    List<CamelRouteTO> list(@NotNull @PathParam("subjectType") SubjectType subjectType);
+    List<CamelRouteTO> list(@NotNull @MatrixParam("subjectType") SubjectType subjectType);
 
     @GET
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    CamelRouteTO read(@PathParam("key") String key);
+    CamelRouteTO read(@NotNull @PathParam("key") String key);
 
     @PUT
     @Path("{key}")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    void update(@PathParam("key") String key, CamelRouteTO route);
+    void update(@NotNull @PathParam("key") String key, @NotNull CamelRouteTO route);
 
+    @POST
+    @Path("restartContext")
+    void restartContext();
 }

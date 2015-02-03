@@ -89,8 +89,8 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
 
         List<PropagationTask> tasks = propagationManager.getUserCreateTaskIds(
                 created, userTO.getPassword(), userTO.getVirAttrs(), excludedResources, userTO.getMemberships());
-        PropagationReporter propagationReporter = ApplicationContextProvider.getApplicationContext().
-                getBean(PropagationReporter.class);
+        PropagationReporter propagationReporter =
+                ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
         try {
             taskExecutor.execute(tasks, propagationReporter);
         } catch (PropagationException e) {
@@ -98,9 +98,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
             propagationReporter.onPrimaryResourceFailure(tasks);
         }
 
-        Map.Entry<Long, List<PropagationStatus>> result = new AbstractMap.SimpleEntry<>(
-                created.getResult().getKey(), propagationReporter.getStatuses());
-        return result;
+        return new AbstractMap.SimpleEntry<>(created.getResult().getKey(), propagationReporter.getStatuses());
     }
 
     @Override
@@ -160,10 +158,15 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
 
     @Override
     public List<PropagationStatus> delete(final Long subjectId, final Set<String> excludedResources) {
+        // Note here that we can only notify about "delete", not any other
+        // task defined in workflow process definition: this because this
+        // information could only be available after uwfAdapter.delete(), which
+        // will also effectively remove user from db, thus making virtually
+        // impossible by NotificationManager to fetch required user information
         List<PropagationTask> tasks = propagationManager.getUserDeleteTaskIds(subjectId, excludedResources);
 
-        PropagationReporter propagationReporter = ApplicationContextProvider.getApplicationContext().
-                getBean(PropagationReporter.class);
+        PropagationReporter propagationReporter =
+                ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
         try {
             taskExecutor.execute(tasks, propagationReporter);
         } catch (PropagationException e) {
@@ -289,14 +292,14 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
     }
 
     @Override
-    public Map.Entry<Long, List<PropagationStatus>> update(final UserMod userMod, final Long id,
+    public Map.Entry<Long, List<PropagationStatus>> update(final UserMod userMod, final Long key,
             final ProvisioningResult result, final Boolean enabled, final Set<String> excludedResources) {
 
         WorkflowResult<Map.Entry<UserMod, Boolean>> updated;
         try {
             updated = uwfAdapter.update(userMod);
         } catch (Exception e) {
-            LOG.error("Update of user {} failed, trying to sync its status anyway (if configured)", id, e);
+            LOG.error("Update of user {} failed, trying to sync its status anyway (if configured)", key, e);
 
             result.setStatus(ProvisioningResult.Status.FAILURE);
             result.setMessage("Update failed, trying to sync status anyway (if configured)\n" + e.getMessage());
@@ -307,15 +310,15 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
         }
 
         if (enabled != null) {
-            User user = userDAO.find(id);
+            User user = userDAO.find(key);
 
             WorkflowResult<Long> enableUpdate = null;
             if (user.isSuspended() == null) {
-                enableUpdate = uwfAdapter.activate(id, null);
+                enableUpdate = uwfAdapter.activate(key, null);
             } else if (enabled && user.isSuspended()) {
-                enableUpdate = uwfAdapter.reactivate(id);
+                enableUpdate = uwfAdapter.reactivate(key);
             } else if (!enabled && !user.isSuspended()) {
-                enableUpdate = uwfAdapter.suspend(id);
+                enableUpdate = uwfAdapter.suspend(key);
             }
 
             if (enableUpdate != null) {

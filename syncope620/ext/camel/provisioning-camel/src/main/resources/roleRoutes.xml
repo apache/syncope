@@ -18,15 +18,7 @@ specific language governing permissions and limitations
 under the License.
 -->
 <routes>
- 
-  <!--
-      The default routes define each task involved in user creation:
-      main operations consist in user workflow creation and its propagation.         
-  -->
-  <!--
-      CREATE ROLE
-  -->
-        
+     
   <route id="createRole">
     <from uri="direct:createRole"/>
     <setProperty propertyName="subject">
@@ -34,7 +26,7 @@ under the License.
     </setProperty>
     <doTry>
       <bean ref="rwfAdapter" method="create(${body})"/>
-      <process ref="defaultRoleCreatePropagation" />
+      <process ref="roleCreateProcessor"/>
       <to uri="direct:createRolePort"/>
       <doCatch>        
         <exception>java.lang.RuntimeException</exception>
@@ -46,32 +38,25 @@ under the License.
     </doTry>
   </route> 
                
-  <!--
-      CREATE ROLE SYNC
-  -->
   <route id="createRoleSync">
-    <from uri="direct:createRoleSync"/>
+    <from uri="direct:createRoleInSync"/>
     <setProperty propertyName="subject">
       <simple>${body}</simple>
     </setProperty>
     <doTry>
       <bean ref="rwfAdapter" method="create(${body})"/>
-      <process ref="defaultRoleCreateSyncPropagation" />
-      <to uri="direct:createRoleSyncPort"/>
+      <process ref="roleCreateInSyncProcessor"/>
+      <to uri="direct:createRoleInSyncPort"/>
       <doCatch>        
         <exception>java.lang.RuntimeException</exception>
         <handled>
           <constant>false</constant>
         </handled>
-        <to uri="direct:createRoleSyncPort"/>
+        <to uri="direct:createRoleInSyncPort"/>
       </doCatch>
     </doTry>
   </route> 
-        
          
-  <!--
-      UPDATE ROLE
-  -->
   <route id="updateRole">
     <from uri="direct:updateRole"/>
     <setProperty propertyName="subjectMod">
@@ -79,7 +64,7 @@ under the License.
     </setProperty>
     <doTry>
       <bean ref="rwfAdapter" method="update(${body})"/>
-      <process ref="defaultRoleUpdatePropagation" />
+      <process ref="roleUpdateProcessor"/>
       <to uri="direct:updateRolePort"/>
       <doCatch>        
         <exception>java.lang.RuntimeException</exception>
@@ -90,14 +75,11 @@ under the License.
       </doCatch>
     </doTry>
   </route>
-               
-  <!--
-      DELETE ROLE
-  -->
+
   <route id="deleteRole">
     <from uri="direct:deleteRole"/>
     <doTry>
-      <process ref="defaultRoleDeletePropagation" />
+      <process ref="roleDeleteProcessor"/>
       <bean ref="rwfAdapter" method="delete(${body})"/>
       <setBody>
         <simple>${property.statuses}</simple>
@@ -112,10 +94,7 @@ under the License.
       </doCatch>
     </doTry>
   </route>
-        
-  <!-- 
-      UNLINK USER
-  -->
+
   <route id="unlinkRole">
     <from uri="direct:unlinkRole"/>
     <doTry>
@@ -133,10 +112,6 @@ under the License.
       </doCatch>
     </doTry>            
   </route>
-        
-  <!--
-      LINK USER
-  -->
         
   <route id="linkRole">
     <from uri="direct:linkRole"/>
@@ -156,12 +131,9 @@ under the License.
     </doTry>            
   </route>
         
-  <!--
-      DEPROVISION ROLE
-  -->
   <route id="deprovisionRole">
     <from uri="direct:deprovisionRole"/>            
-    <process ref="defaultRoleDeprovisionPropagation" />
+    <process ref="roleDeprovisionProcessor"/>
     <to uri="direct:deprovisionRolePort"/>              
   </route>
     

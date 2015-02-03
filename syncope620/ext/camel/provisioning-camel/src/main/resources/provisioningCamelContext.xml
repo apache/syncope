@@ -19,8 +19,11 @@ under the License.
 -->
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans   
-                           http://www.springframework.org/schema/beans/spring-beans.xsd">
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/context
+                           http://www.springframework.org/schema/context/spring-context.xsd">
 
   <bean id="userRoutes" class="org.apache.syncope.server.misc.spring.ResourceWithFallbackLoader">
     <property name="primary" value="file:${camel.directory}/userWorkflow.bpmn20.xml"/>
@@ -31,4 +34,6 @@ under the License.
     <property name="fallback" value="classpath:roleRoutes.xml"/>
   </bean>
     
+  <context:component-scan base-package="org.apache.syncope.server.provisioning.camel"/>
+
 </beans>

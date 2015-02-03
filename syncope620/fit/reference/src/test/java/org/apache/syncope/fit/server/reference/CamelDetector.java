@@ -16,18 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.rest.api.service;
+package org.apache.syncope.fit.server.reference;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import org.apache.syncope.common.lib.to.SyncopeTO;
+import org.apache.syncope.common.rest.api.service.SyncopeService;
 
-@Path("")
-public interface SyncopeService extends JAXRSService {
+public class CamelDetector {
 
-    @GET
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    SyncopeTO info();
+    public static boolean isCamelEnabledForUsers(final SyncopeService syncopeService) {
+        return syncopeService.info().getUserProvisioningManager().indexOf("Camel") != -1;
+    }
+
+    public static boolean isCamelEnabledForRoles(final SyncopeService syncopeService) {
+        return syncopeService.info().getRoleProvisioningManager().indexOf("Camel") != -1;
+    }
 }

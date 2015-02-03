@@ -37,7 +37,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 abstract class AbstractCamelProvisioningManager {
 
-    private static final Logger LOG = LoggerFactory.getLogger(CamelUserProvisioningManager.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractCamelProvisioningManager.class);
 
     @Autowired
     protected CamelRouteDAO routeDAO;

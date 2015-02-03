@@ -135,6 +135,12 @@ under the License.
     
     <!-- TEST -->
     <dependency>
+      <groupId>org.apache.syncope.ext.camel</groupId>
+      <artifactId>syncope-ext-camel-rest-cxf</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>          
+    </dependency>
+    <dependency>
       <groupId>org.apache.syncope.client</groupId>
       <artifactId>syncope-client-lib</artifactId>
       <version>${project.version}</version>
@@ -438,6 +444,22 @@ under the License.
         <dependency>
           <groupId>org.apache.syncope.server</groupId>
           <artifactId>syncope-server-workflow-activiti</artifactId>
+          <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+          <groupId>org.apache.syncope.ext.camel</groupId>
+          <artifactId>syncope-ext-camel-rest-cxf</artifactId>
+          <version>${project.version}</version>
+        </dependency>
+        <dependency>
+          <groupId>org.apache.syncope.ext.camel</groupId>
+          <artifactId>syncope-ext-camel-persistence-jpa</artifactId>
+          <version>${project.version}</version>
+        </dependency>
+        <dependency>
+          <groupId>org.apache.syncope.ext.camel</groupId>
+          <artifactId>syncope-ext-camel-provisioning</artifactId>
           <version>${project.version}</version>
         </dependency>
       </dependencies>

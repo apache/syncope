@@ -48,4 +48,9 @@ public class CamelRouteServiceImpl extends AbstractServiceImpl implements CamelR
         logic.update(route);
     }
 
+    @Override
+    public void restartContext() {
+        logic.restartContext();
+    }
+
 }
