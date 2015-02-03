@@ -18,12 +18,13 @@
  */
 package org.apache.syncope.server.logic.init;
 
-import java.io.IOException;
+import java.lang.reflect.Modifier;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.server.provisioning.api.job.PushJob;
 import org.apache.syncope.server.provisioning.api.job.SyncJob;
 import org.apache.syncope.server.provisioning.api.job.TaskJob;
@@ -36,11 +37,10 @@ import org.apache.syncope.server.persistence.api.SyncopeLoader;
 import org.apache.syncope.server.persistence.api.attrvalue.validation.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.ResourcePatternResolver;
-import org.springframework.core.type.ClassMetadata;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.classreading.CachingMetadataReaderFactory;
+import org.springframework.core.type.filter.AssignableTypeFilter;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ClassUtils;
 
@@ -68,9 +68,6 @@ public class ImplementationClassNamesLoader implements SyncopeLoader {
      */
     private static final Logger LOG = LoggerFactory.getLogger(ImplementationClassNamesLoader.class);
 
-    @Autowired
-    private ResourcePatternResolver resResolver;
-
     private Map<Type, Set<String>> classNames;
 
     @Override
@@ -87,59 +84,62 @@ public class ImplementationClassNamesLoader implements SyncopeLoader {
             classNames.put(type, new HashSet<String>());
         }
 
-        try {
-            for (Resource resource : resResolver.getResources("classpath*:**/*.class")) {
-                ClassMetadata metadata = factory.getMetadataReader(resource).getClassMetadata();
+        ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(false);
+        scanner.addIncludeFilter(new AssignableTypeFilter(Reportlet.class));
+        scanner.addIncludeFilter(new AssignableTypeFilter(TaskJob.class));
+        scanner.addIncludeFilter(new AssignableTypeFilter(SyncActions.class));
+        scanner.addIncludeFilter(new AssignableTypeFilter(PushActions.class));
+        scanner.addIncludeFilter(new AssignableTypeFilter(SyncCorrelationRule.class));
+        // TODO: SYNCOPE-631
+        //scanner.addIncludeFilter(new AssignableTypeFilter(PushCorrelationRule.class));
+        scanner.addIncludeFilter(new AssignableTypeFilter(PropagationActions.class));
+        scanner.addIncludeFilter(new AssignableTypeFilter(Validator.class));
 
-                try {
-                    Class<?> clazz = ClassUtils.forName(metadata.getClassName(), ClassUtils.getDefaultClassLoader());
-                    Set<Class<?>> interfaces = ClassUtils.getAllInterfacesForClassAsSet(clazz);
+        for (BeanDefinition bd : scanner.findCandidateComponents(StringUtils.EMPTY)) {
+            try {
+                Class<?> clazz = ClassUtils.resolveClassName(
+                        bd.getBeanClassName(), ClassUtils.getDefaultClassLoader());
+                boolean isAbsractClazz = Modifier.isAbstract(clazz.getModifiers());
 
-                    if (interfaces.contains(Reportlet.class) && !metadata.isAbstract()) {
-                        classNames.get(Type.REPORTLET).add(clazz.getName());
-                    }
-
-                    if ((interfaces.contains(TaskJob.class))
-                            && !metadata.isAbstract()
-                            && !SyncJob.class.getName().equals(metadata.getClassName())
-                            && !PushJob.class.getName().equals(metadata.getClassName())) {
-
-                        classNames.get(Type.TASKJOB).add(metadata.getClassName());
-                    }
-
-                    if (interfaces.contains(SyncActions.class) && !metadata.isAbstract()) {
-                        classNames.get(Type.SYNC_ACTIONS).add(metadata.getClassName());
-                    }
-
-                    if (interfaces.contains(PushActions.class) && !metadata.isAbstract()) {
-                        classNames.get(Type.PUSH_ACTIONS).add(metadata.getClassName());
-                    }
-
-                    if (interfaces.contains(SyncCorrelationRule.class) && !metadata.isAbstract()) {
-                        classNames.get(Type.SYNC_CORRELATION_RULE).add(metadata.getClassName());
-                    }
-
-                    // TODO: SYNCOPE-631
-                    /* if (interfaces.contains(PushCorrelationRule.class) && !metadata.isAbstract()) {
-                     * classNames.get(Type.PUSH_CORRELATION_RULES).add(metadata.getClassName());
-                     * } */
-                    if (interfaces.contains(PropagationActions.class) && !metadata.isAbstract()) {
-                        classNames.get(Type.PROPAGATION_ACTIONS).add(metadata.getClassName());
-                    }
-
-                    if (interfaces.contains(Validator.class) && !metadata.isAbstract()) {
-                        classNames.get(Type.VALIDATOR).add(metadata.getClassName());
-                    }
-                } catch (ClassNotFoundException e) {
-                    LOG.warn("Could not load class {}", metadata.getClassName());
-                } catch (LinkageError e) {
-                    LOG.warn("Could not link class {}", metadata.getClassName());
+                if (Reportlet.class.isAssignableFrom(clazz) && !isAbsractClazz) {
+                    classNames.get(Type.REPORTLET).add(clazz.getName());
                 }
-            }
-        } catch (IOException e) {
-            LOG.error("While searching for implementatiom classes", e);
-        }
 
+                if (TaskJob.class.isAssignableFrom(clazz) && !isAbsractClazz
+                        && !SyncJob.class.isAssignableFrom(clazz)
+                        && !PushJob.class.isAssignableFrom(clazz)) {
+
+                    classNames.get(Type.TASKJOB).add(bd.getBeanClassName());
+                }
+
+                if (SyncActions.class.isAssignableFrom(clazz) && !isAbsractClazz) {
+                    classNames.get(Type.SYNC_ACTIONS).add(bd.getBeanClassName());
+                }
+
+                if (PushActions.class.isAssignableFrom(clazz) && !isAbsractClazz) {
+                    classNames.get(Type.PUSH_ACTIONS).add(bd.getBeanClassName());
+                }
+
+                if (SyncCorrelationRule.class.isAssignableFrom(clazz) && !isAbsractClazz) {
+                    classNames.get(Type.SYNC_CORRELATION_RULE).add(bd.getBeanClassName());
+                }
+
+                // TODO: SYNCOPE-631
+                /* if (PushCorrelationRule.class.isAssignableFrom(clazz) && !isAbsractClazz) {
+                 * classNames.get(Type.PUSH_CORRELATION_RULES).add(metadata.getClassName());
+                 * } */
+                
+                if (PropagationActions.class.isAssignableFrom(clazz) && !isAbsractClazz) {
+                    classNames.get(Type.PROPAGATION_ACTIONS).add(bd.getBeanClassName());
+                }
+
+                if (Validator.class.isAssignableFrom(clazz) && !isAbsractClazz) {
+                    classNames.get(Type.VALIDATOR).add(bd.getBeanClassName());
+                }
+            } catch (Throwable t) {
+                LOG.warn("Could not inspect class {}", bd.getBeanClassName(), t);
+            }
+        }
         classNames = Collections.unmodifiableMap(classNames);
 
         LOG.debug("Implementation classes found: {}", classNames);

@@ -28,14 +28,16 @@ import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.orm.jpa.persistenceunit.MutablePersistenceUnitInfo;
 import org.springframework.orm.jpa.persistenceunit.PersistenceUnitPostProcessor;
 
+/**
+ * Allows having JPA entities spread in several JAR files; this is needed in order to support the Syncope extensions.
+ */
 public class MultiJarAwarePersistenceUnitPostProcessor implements PersistenceUnitPostProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(MultiJarAwarePersistenceUnitPostProcessor.class);
 
     @Override
     public void postProcessPersistenceUnitInfo(final MutablePersistenceUnitInfo pui) {
-        ClassPathScanningCandidateComponentProvider scanner =
-                new ClassPathScanningCandidateComponentProvider(false);
+        ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(false);
         scanner.addIncludeFilter(new AnnotationTypeFilter(Entity.class));
 
         for (BeanDefinition bd : scanner.findCandidateComponents(AbstractEntity.class.getPackage().getName())) {

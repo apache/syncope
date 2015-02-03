@@ -435,6 +435,27 @@ under the License.
     </profile>
     
     <profile>
+      <id>light</id>
+      
+      <build>
+        <resources>
+          <resource>
+            <directory>src/main/resources</directory>
+            <filtering>true</filtering>
+            <excludes>
+              <exclude>workflow.properties</exclude>
+              <exclude>provisioning.properties</exclude>
+            </excludes>
+          </resource>
+          <resource>
+            <directory>src/main/resources/light</directory>
+            <filtering>true</filtering>
+          </resource>
+        </resources>
+      </build>
+    </profile>
+    
+    <profile>
       <id>all</id>
       <activation>
         <activeByDefault>true</activeByDefault>
