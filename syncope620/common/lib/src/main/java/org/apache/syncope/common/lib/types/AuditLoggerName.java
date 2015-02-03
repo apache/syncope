@@ -108,7 +108,7 @@ public class AuditLoggerName extends AbstractBaseBean {
                 eventCategory.getValue());
     }
 
-    private static Map.Entry<EventCategoryTO, Result> parseEventCategory(final String event) {
+    public static Map.Entry<EventCategoryTO, Result> parseEventCategory(final String event) {
         final EventCategoryTO eventCategoryTO = new EventCategoryTO();
 
         Result condition = null;

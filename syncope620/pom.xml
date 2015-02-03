@@ -367,6 +367,8 @@ under the License.
     <highlightjs.version>8.0</highlightjs.version>
     <codemirror.version>3.23</codemirror.version>
     
+    <wicket.version>6.19.0</wicket.version>
+
     <testds.port>1389</testds.port>
     <testdb.webport>9082</testdb.webport>
 
@@ -771,6 +773,7 @@ under the License.
         <version>2.11.0</version>
       </dependency>
       
+      <!-- Activiti -->
       <dependency>
         <groupId>org.activiti</groupId>
         <artifactId>activiti-engine</artifactId>
@@ -813,6 +816,36 @@ under the License.
         <version>${activiti.version}</version>
         <type>war</type>
       </dependency>
+      <!-- /Activiti -->
+
+      <!-- Wicket -->
+      <dependency>
+        <groupId>org.apache.wicket</groupId>
+        <artifactId>wicket</artifactId>
+        <version>${wicket.version}</version>
+        <type>pom</type>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.wicket</groupId>
+        <artifactId>wicket-extensions</artifactId>
+        <version>${wicket.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.wicket</groupId>
+        <artifactId>wicket-datetime</artifactId>
+        <version>${wicket.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.wicket</groupId>
+        <artifactId>wicket-spring</artifactId>
+        <version>${wicket.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.wicket</groupId>
+        <artifactId>wicket-auth-roles</artifactId>
+        <version>${wicket.version}</version>
+      </dependency>
+      <!-- /Wicket -->
       
       <dependency>
         <groupId>org.slf4j</groupId>

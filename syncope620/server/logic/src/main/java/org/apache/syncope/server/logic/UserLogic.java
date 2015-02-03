@@ -42,7 +42,6 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.SubjectType;
 import org.apache.syncope.server.persistence.api.RoleEntitlementUtil;
-import org.apache.syncope.server.persistence.api.dao.ConfDAO;
 import org.apache.syncope.server.persistence.api.dao.NotFoundException;
 import org.apache.syncope.server.persistence.api.dao.RoleDAO;
 import org.apache.syncope.server.persistence.api.dao.SubjectSearchDAO;
@@ -81,9 +80,6 @@ public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
     protected SubjectSearchDAO searchDAO;
 
     @Autowired
-    protected ConfDAO confDAO;
-
-    @Autowired
     protected UserDataBinder binder;
 
     @Autowired
@@ -101,20 +97,8 @@ public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
     @Autowired
     protected UserProvisioningManager provisioningManager;
 
-    @Transactional(readOnly = true)
-    public boolean isSelfRegAllowed() {
-        return confDAO.find("selfRegistration.allowed", "false").getValues().get(0).getBooleanValue();
-    }
-
-    @Transactional(readOnly = true)
-    public boolean isPwdResetAllowed() {
-        return confDAO.find("passwordReset.allowed", "false").getValues().get(0).getBooleanValue();
-    }
-
-    @Transactional(readOnly = true)
-    public boolean isPwdResetRequiringSecurityQuestions() {
-        return confDAO.find("passwordReset.securityQuestion", "true").getValues().get(0).getBooleanValue();
-    }
+    @Autowired
+    protected SyncopeLogic syncopeLogic;
 
     @PreAuthorize("hasRole('USER_READ')")
     public String getUsername(final Long key) {
@@ -307,7 +291,7 @@ public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
             throw new NotFoundException("User " + username);
         }
 
-        if (isPwdResetRequiringSecurityQuestions()
+        if (syncopeLogic.isPwdResetRequiringSecurityQuestions()
                 && (securityAnswer == null || !securityAnswer.equals(user.getSecurityAnswer()))) {
 
             throw SyncopeClientException.build(ClientExceptionType.InvalidSecurityAnswer);

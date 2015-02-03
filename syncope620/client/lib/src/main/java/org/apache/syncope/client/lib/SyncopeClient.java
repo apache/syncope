@@ -26,7 +26,6 @@ import org.apache.syncope.common.lib.search.RoleFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.search.UserFiqlSearchConditionBuilder;
 import org.apache.syncope.common.rest.api.Preference;
 import org.apache.syncope.common.rest.api.RESTHeaders;
-import org.apache.syncope.common.rest.api.service.UserSelfService;
 
 /**
  * Entry point for client access to all REST services exposed by Syncope core; obtain instances via
@@ -200,39 +199,6 @@ public class SyncopeClient {
      */
     public <T> T ifNoneMatch(final Class<T> serviceClass, final EntityTag etag) {
         return match(getService(serviceClass), etag, true);
-    }
-
-    /**
-     * Checks whether self-registration is allowed by calling <tt>UserSelfService</tt>'s options.
-     *
-     * @return whether self-registration is allowed
-     * @see UserSelfService#getOptions()
-     */
-    public boolean isSelfRegAllowed() {
-        return Boolean.valueOf(restClientFactory.createServiceInstance(UserSelfService.class, mediaType, null, null).
-                getOptions().getHeaderString(RESTHeaders.SELFREG_ALLOWED));
-    }
-
-    /**
-     * Checks whether password reset is allowed by calling <tt>UserSelfService</tt>'s options.
-     *
-     * @return whether password reset is allowed
-     * @see UserSelfService#getOptions()
-     */
-    public boolean isPwdResetAllowed() {
-        return Boolean.valueOf(restClientFactory.createServiceInstance(UserSelfService.class, mediaType, null, null).
-                getOptions().getHeaderString(RESTHeaders.PWDRESET_ALLOWED));
-    }
-
-    /**
-     * Checks whether password reset requires security question by calling <tt>UserSelfService</tt>'s options.
-     *
-     * @return whether password reset requires security question
-     * @see UserSelfService#getOptions()
-     */
-    public boolean isPwdResetRequiringSecurityQuestions() {
-        return Boolean.valueOf(restClientFactory.createServiceInstance(UserSelfService.class, mediaType, null, null).
-                getOptions().getHeaderString(RESTHeaders.PWDRESET_NEEDS_SECURITYQUESTIONS));
     }
 
     /**

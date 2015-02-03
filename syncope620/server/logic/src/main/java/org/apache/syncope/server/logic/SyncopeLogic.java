@@ -29,6 +29,7 @@ import javax.annotation.Resource;
 import org.apache.syncope.common.lib.to.SyncopeTO;
 import org.apache.syncope.server.logic.init.ImplementationClassNamesLoader;
 import org.apache.syncope.server.misc.spring.ResourceWithFallbackLoader;
+import org.apache.syncope.server.persistence.api.dao.ConfDAO;
 import org.apache.syncope.server.provisioning.api.AttributableTransformer;
 import org.apache.syncope.server.provisioning.api.ConnIdBundleManager;
 import org.apache.syncope.server.provisioning.api.RoleProvisioningManager;
@@ -40,9 +41,13 @@ import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class SyncopeLogic extends AbstractLogic<SyncopeTO> {
+
+    @Autowired
+    private ConfDAO confDAO;
 
     @Resource(name = "version")
     private String version;
@@ -71,10 +76,30 @@ public class SyncopeLogic extends AbstractLogic<SyncopeTO> {
     @Resource(name = "velocityResourceLoader")
     private ResourceWithFallbackLoader resourceLoader;
 
+    @Transactional(readOnly = true)
+    public boolean isSelfRegAllowed() {
+        return confDAO.find("selfRegistration.allowed", "false").getValues().get(0).getBooleanValue();
+    }
+
+    @Transactional(readOnly = true)
+    public boolean isPwdResetAllowed() {
+        return confDAO.find("passwordReset.allowed", "false").getValues().get(0).getBooleanValue();
+    }
+
+    @Transactional(readOnly = true)
+    public boolean isPwdResetRequiringSecurityQuestions() {
+        return confDAO.find("passwordReset.securityQuestion", "true").getValues().get(0).getBooleanValue();
+    }
+
     @PreAuthorize("isAuthenticated()")
+    @Transactional(readOnly = true)
     public SyncopeTO info() {
         SyncopeTO syncopeTO = new SyncopeTO();
         syncopeTO.setVersion(version);
+
+        syncopeTO.setSelfRegAllowed(isSelfRegAllowed());
+        syncopeTO.setPwdResetAllowed(isPwdResetAllowed());
+        syncopeTO.setPwdResetRequiringSecurityQuestions(isPwdResetRequiringSecurityQuestions());
 
         if (bundleManager.getLocations() != null) {
             for (URI location : bundleManager.getLocations()) {

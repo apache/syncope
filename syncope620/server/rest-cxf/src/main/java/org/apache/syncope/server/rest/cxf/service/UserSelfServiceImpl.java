@@ -18,14 +18,13 @@
  */
 package org.apache.syncope.server.rest.cxf.service;
 
-import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.mod.UserMod;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
+import org.apache.syncope.server.logic.SyncopeLogic;
 import org.apache.syncope.server.logic.UserLogic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -36,18 +35,12 @@ public class UserSelfServiceImpl extends AbstractServiceImpl implements UserSelf
     @Autowired
     private UserLogic logic;
 
-    @Override
-    public Response getOptions() {
-        return Response.ok().header(HttpHeaders.ALLOW, OPTIONS_ALLOW).
-                header(RESTHeaders.SELFREG_ALLOWED, logic.isSelfRegAllowed()).
-                header(RESTHeaders.PWDRESET_ALLOWED, logic.isPwdResetAllowed()).
-                header(RESTHeaders.PWDRESET_NEEDS_SECURITYQUESTIONS, logic.isPwdResetRequiringSecurityQuestions()).
-                build();
-    }
+    @Autowired
+    private SyncopeLogic syncopeLogic;
 
     @Override
     public Response create(final UserTO userTO, final boolean storePassword) {
-        if (!logic.isSelfRegAllowed()) {
+        if (!syncopeLogic.isSelfRegAllowed()) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Unauthorized);
             sce.getElements().add("Self registration forbidden by configuration");
             throw sce;
@@ -77,7 +70,7 @@ public class UserSelfServiceImpl extends AbstractServiceImpl implements UserSelf
 
     @Override
     public void requestPasswordReset(final String username, final String securityAnswer) {
-        if (!logic.isPwdResetAllowed()) {
+        if (!syncopeLogic.isPwdResetAllowed()) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Unauthorized);
             sce.getElements().add("Password reset forbidden by configuration");
             throw sce;
@@ -88,7 +81,7 @@ public class UserSelfServiceImpl extends AbstractServiceImpl implements UserSelf
 
     @Override
     public void confirmPasswordReset(final String token, final String password) {
-        if (!logic.isPwdResetAllowed()) {
+        if (!syncopeLogic.isPwdResetAllowed()) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Unauthorized);
             sce.getElements().add("Password reset forbidden by configuration");
             throw sce;

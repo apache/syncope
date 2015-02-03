@@ -34,21 +34,6 @@ public final class RESTHeaders {
     public static final String USERNAME = "Syncope.Username";
 
     /**
-     * Option key stating if user request create is allowed or not.
-     */
-    public static final String SELFREG_ALLOWED = "Syncope.SelfRegistration.Allowed";
-
-    /**
-     * Option key stating if password reset is allowed or not.
-     */
-    public static final String PWDRESET_ALLOWED = "Syncope.PasswordReset.Allowed";
-
-    /**
-     * Option key stating if password reset requires security question or not.
-     */
-    public static final String PWDRESET_NEEDS_SECURITYQUESTIONS = "Syncope.PasswordReset.SecurityQuestions";
-
-    /**
      * HTTP header key for object ID assigned to an object after its creation.
      */
     public static final String RESOURCE_ID = "Syncope.Id";

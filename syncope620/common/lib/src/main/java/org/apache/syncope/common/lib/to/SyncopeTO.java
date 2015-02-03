@@ -35,6 +35,12 @@ public class SyncopeTO extends AbstractBaseBean {
 
     private String version;
 
+    private boolean selfRegAllowed;
+
+    private boolean pwdResetAllowed;
+
+    private boolean pwdResetRequiringSecurityQuestions;
+
     private final List<String> connIdLocations = new ArrayList<>();
 
     private String attributableTransformer;
@@ -67,6 +73,18 @@ public class SyncopeTO extends AbstractBaseBean {
 
     public String getVersion() {
         return version;
+    }
+
+    public boolean isSelfRegAllowed() {
+        return selfRegAllowed;
+    }
+
+    public boolean isPwdResetAllowed() {
+        return pwdResetAllowed;
+    }
+
+    public boolean isPwdResetRequiringSecurityQuestions() {
+        return pwdResetRequiringSecurityQuestions;
     }
 
     @XmlElementWrapper(name = "connIdLocations")
@@ -161,6 +179,18 @@ public class SyncopeTO extends AbstractBaseBean {
 
     public void setVersion(final String version) {
         this.version = version;
+    }
+
+    public void setSelfRegAllowed(final boolean selfRegAllowed) {
+        this.selfRegAllowed = selfRegAllowed;
+    }
+
+    public void setPwdResetAllowed(final boolean pwdResetAllowed) {
+        this.pwdResetAllowed = pwdResetAllowed;
+    }
+
+    public void setPwdResetRequiringSecurityQuestions(final boolean pwdResetRequiringSecurityQuestions) {
+        this.pwdResetRequiringSecurityQuestions = pwdResetRequiringSecurityQuestions;
     }
 
     public void setAttributableTransformer(final String attributableTransformer) {

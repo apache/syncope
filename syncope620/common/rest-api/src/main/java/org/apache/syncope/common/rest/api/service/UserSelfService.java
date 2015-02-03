@@ -23,7 +23,6 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
-import javax.ws.rs.OPTIONS;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -42,23 +41,6 @@ import org.apache.syncope.common.lib.to.UserTO;
  */
 @Path("users/self")
 public interface UserSelfService extends JAXRSService {
-
-    /**
-     * Checks whether self-registration is allowed.
-     *
-     * @return <tt>Response</tt> contains special Syncope HTTP header indicating if user self registration and / or
-     * password reset is allowed
-     * @see org.apache.syncope.common.rest.api.RESTHeaders#SELFREG_ALLOWED
-     * @see org.apache.syncope.common.rest.api.RESTHeaders#PWDRESET_ALLOWED
-     * @see org.apache.syncope.common.rest.api.RESTHeaders#PWDRESET_NEEDS_SECURITYQUESTIONS
-     */
-    @Descriptions({
-        @Description(target = DocTarget.RESPONSE,
-                value = "Contains special Syncope HTTP header indicating if user self registration "
-                + "and / or password reset is allowed")
-    })
-    @OPTIONS
-    Response getOptions();
 
     /**
      * Returns the user making the service call.
