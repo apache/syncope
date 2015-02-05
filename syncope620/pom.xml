@@ -1140,7 +1140,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-pmd-plugin</artifactId>
-          <version>3.3</version>
+          <version>3.4</version>
           <configuration>
             <rulesets>
               <rulesets>${rootpom.basedir}/src/main/resources/org/apache/syncope/pmd.xml</rulesets>
