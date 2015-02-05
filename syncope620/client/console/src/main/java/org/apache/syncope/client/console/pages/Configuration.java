@@ -324,9 +324,9 @@ public class Configuration extends BasePage {
     private void setupNotification() {
         notificationPaginatorRows = prefMan.getPaginatorRows(getRequest(), Constants.PREF_NOTIFICATION_PAGINATOR_ROWS);
 
-        final List<IColumn<NotificationTO, String>> notificationCols = new ArrayList<IColumn<NotificationTO, String>>();
+        final List<IColumn<NotificationTO, String>> notificationCols = new ArrayList<>();
         notificationCols.add(new PropertyColumn<NotificationTO, String>(
-                new ResourceModel("id"), "id", "id"));
+                new ResourceModel("key"), "key", "key"));
         notificationCols.add(new CollectionPropertyColumn<NotificationTO>(
                 new ResourceModel("events"), "events", "events"));
         notificationCols.add(new PropertyColumn<NotificationTO, String>(
@@ -464,10 +464,9 @@ public class Configuration extends BasePage {
     }
 
     private void setupSecurityQuestion() {
-        final List<IColumn<SecurityQuestionTO, String>> securityQuestionCols =
-                new ArrayList<IColumn<SecurityQuestionTO, String>>();
+        final List<IColumn<SecurityQuestionTO, String>> securityQuestionCols = new ArrayList<>();
         securityQuestionCols.add(new PropertyColumn<SecurityQuestionTO, String>(
-                new ResourceModel("id"), "id", "id"));
+                new ResourceModel("key"), "key", "key"));
         securityQuestionCols.add(new PropertyColumn<SecurityQuestionTO, String>(
                 new ResourceModel("content"), "content", "content"));
 
@@ -581,7 +580,7 @@ public class Configuration extends BasePage {
 
         public NotificationProvider() {
             //Default sorting
-            setSort("id", SortOrder.ASCENDING);
+            setSort("key", SortOrder.ASCENDING);
             comparator = new SortableDataProviderComparator<NotificationTO>(this);
         }
 
@@ -621,8 +620,8 @@ public class Configuration extends BasePage {
 
         public SecurityQuestionProvider() {
             //Default sorting
-            setSort("id", SortOrder.ASCENDING);
-            comparator = new SortableDataProviderComparator<SecurityQuestionTO>(this);
+            setSort("key", SortOrder.ASCENDING);
+            comparator = new SortableDataProviderComparator<>(this);
         }
 
         @Override
@@ -668,9 +667,9 @@ public class Configuration extends BasePage {
 
         @Override
         protected void populateItem(final ListItem<LoggerTO> item) {
-            item.add(new Label("name"));
+            item.add(new Label("key"));
 
-            DropDownChoice<LoggerLevel> level = new DropDownChoice<LoggerLevel>("level");
+            DropDownChoice<LoggerLevel> level = new DropDownChoice<>("level");
             level.setModel(new IModel<LoggerLevel>() {
 
                 private static final long serialVersionUID = -2350428186089596562L;

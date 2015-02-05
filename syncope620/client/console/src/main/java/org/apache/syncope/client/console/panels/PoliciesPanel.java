@@ -117,9 +117,9 @@ public class PoliciesPanel extends Panel {
 
         setWindowClosedCallback(mwindow, container);
 
-        final List<IColumn<AbstractPolicyTO, String>> columns = new ArrayList<IColumn<AbstractPolicyTO, String>>();
+        final List<IColumn<AbstractPolicyTO, String>> columns = new ArrayList<>();
 
-        columns.add(new PropertyColumn<AbstractPolicyTO, String>(new ResourceModel("id"), "id", "id"));
+        columns.add(new PropertyColumn<AbstractPolicyTO, String>(new ResourceModel("key"), "key", "key"));
 
         columns.add(new PropertyColumn<AbstractPolicyTO, String>(
                 new ResourceModel("description"), "description", "description"));

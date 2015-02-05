@@ -283,38 +283,41 @@ public class JPASubjectSearchDAO extends AbstractDAO<Subject<?, ?, ?>, Long> imp
         for (OrderByClause clause : orderByClauses) {
             OrderBySupport.Item obs = new OrderBySupport.Item();
 
-            Field subjectField = ReflectionUtils.findField(attrUtil.attributableClass(), clause.getField());
+            // Manage difference among external key attribute and internal JPA @Id
+            String fieldName = "key".equals(clause.getField()) ? "id" : clause.getField();
+
+            Field subjectField = ReflectionUtils.findField(attrUtil.attributableClass(), fieldName);
             if (subjectField == null) {
-                PlainSchema schema = schemaDAO.find(clause.getField(), attrUtil.plainSchemaClass());
+                PlainSchema schema = schemaDAO.find(fieldName, attrUtil.plainSchemaClass());
                 if (schema != null) {
                     if (schema.isUniqueConstraint()) {
                         orderBySupport.views.add(svs.uniqueAttr());
 
                         obs.select = new StringBuilder().
                                 append(svs.uniqueAttr().alias).append('.').append(svs.fieldName(schema.getType())).
-                                append(" AS ").append(clause.getField()).toString();
+                                append(" AS ").append(fieldName).toString();
                         obs.where = new StringBuilder().
                                 append(svs.uniqueAttr().alias).
-                                append(".schema_name='").append(clause.getField()).append("'").toString();
-                        obs.orderBy = clause.getField() + " " + clause.getDirection().name();
+                                append(".schema_name='").append(fieldName).append("'").toString();
+                        obs.orderBy = fieldName + " " + clause.getDirection().name();
                     } else {
                         orderBySupport.views.add(svs.attr());
 
                         obs.select = new StringBuilder().
                                 append(svs.attr().alias).append('.').append(svs.fieldName(schema.getType())).
-                                append(" AS ").append(clause.getField()).toString();
+                                append(" AS ").append(fieldName).toString();
                         obs.where = new StringBuilder().
                                 append(svs.attr().alias).
-                                append(".schema_name='").append(clause.getField()).append("'").toString();
-                        obs.orderBy = clause.getField() + " " + clause.getDirection().name();
+                                append(".schema_name='").append(fieldName).append("'").toString();
+                        obs.orderBy = fieldName + " " + clause.getDirection().name();
                     }
                 }
             } else {
                 orderBySupport.views.add(svs.field());
 
-                obs.select = svs.field().alias + "." + clause.getField();
+                obs.select = svs.field().alias + "." + fieldName;
                 obs.where = StringUtils.EMPTY;
-                obs.orderBy = svs.field().alias + "." + clause.getField() + " " + clause.getDirection().name();
+                obs.orderBy = svs.field().alias + "." + fieldName + " " + clause.getDirection().name();
             }
 
             if (obs.isEmpty()) {

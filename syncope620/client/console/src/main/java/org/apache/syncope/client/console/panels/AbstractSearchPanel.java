@@ -131,11 +131,11 @@ public abstract class AbstractSearchPanel extends Panel {
         searchFeedback.setOutputMarkupId(true);
         add(searchFeedback);
 
-        this.searchClauses = new ArrayList<SearchClause>();
+        this.searchClauses = new ArrayList<>();
         this.searchClauses.add(new SearchClause());
         if (StringUtils.isNotBlank(fiql)) {
             try {
-                FiqlParser<SearchBean> fiqlParser = new FiqlParser<SearchBean>(
+                FiqlParser<SearchBean> fiqlParser = new FiqlParser<>(
                         SearchBean.class, SyncopeFiqlSearchConditionBuilder.CONTEXTUAL_PROPERTIES);
                 List<SearchClause> parsed = getSearchClauses(fiqlParser.parse(fiql));
 
@@ -158,8 +158,8 @@ public abstract class AbstractSearchPanel extends Panel {
 
             @Override
             protected List<String> load() {
-                return SearchableFields.get(attributableType == AttributableType.USER
-                        ? SubjectType.USER : SubjectType.ROLE);
+                return SearchableFields.get(
+                        attributableType == AttributableType.USER ? SubjectType.USER : SubjectType.ROLE);
             }
         };
 
@@ -169,7 +169,7 @@ public abstract class AbstractSearchPanel extends Panel {
 
             @Override
             protected List<String> load() {
-                return schemaRestClient.getSchemaNames(attributableType);
+                return schemaRestClient.getPlainSchemaNames(attributableType);
             }
         };
 

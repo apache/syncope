@@ -153,7 +153,7 @@ public class SchedTasks extends AbstractTasks {
         final List<IColumn<AbstractTaskTO, String>> columns = new ArrayList<IColumn<AbstractTaskTO, String>>();
 
         columns.add(new PropertyColumn<AbstractTaskTO, String>(
-                new StringResourceModel("id", this, null), "id", "id"));
+                new StringResourceModel("key", this, null), "key", "key"));
         columns.add(new PropertyColumn<AbstractTaskTO, String>(
                 new StringResourceModel("name", this, null), "name", "name"));
         columns.add(new PropertyColumn<AbstractTaskTO, String>(

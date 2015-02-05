@@ -30,15 +30,21 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component
-public class MIMETypesInitializer {
+public class MIMETypesLoader implements SyncopeConsoleLoader {
 
     /**
      * Logger.
      */
-    private static final Logger LOG = LoggerFactory.getLogger(MIMETypesInitializer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MIMETypesLoader.class);
 
     private List<String> mimeTypes;
 
+    @Override
+    public Integer getPriority() {
+        return 10;
+    }
+
+    @Override
     public void load() {
         final Set<String> mediaTypes = new HashSet<>();
         this.mimeTypes = new ArrayList<>();
@@ -57,7 +63,7 @@ public class MIMETypesInitializer {
     }
 
     public List<String> getMimeTypes() {
-        LOG.debug("Returning loaded MIME types list");
+        LOG.debug("Returning loaded MIME types list {}", mimeTypes);
         return mimeTypes;
     }
 }

@@ -18,7 +18,9 @@ under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
   <wicket:extend>
-    <p class="ui-widget ui-corner-all ui-widget-header"><wicket:message key="title"/></p>
+    <p class="ui-widget ui-corner-all ui-widget-header">
+        <span wicket:id="new"/>&nbsp;<wicket:message key="title"/>&nbsp;<span wicket:id="key"/>
+    </p>
     <div style="margin: 5px;">
       <form wicket:id="form">
         <div id="tabs">

@@ -73,7 +73,7 @@ public class ConfigurationRestClient extends BaseRestClient {
             attrLayout.setSchema(type.getConfKey());
         }
         if (attrLayout.getValues().isEmpty()) {
-            attrLayout.getValues().addAll(schemaRestClient.getSchemaNames(type.getAttrType()));
+            attrLayout.getValues().addAll(schemaRestClient.getPlainSchemaNames(type.getAttrType()));
         }
 
         return attrLayout;

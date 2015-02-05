@@ -56,12 +56,12 @@ public class DerSchemaModalPage extends AbstractSchemaModalPage<DerSchemaTO> {
             schema = new DerSchemaTO();
         }
 
-        final Form<DerSchemaTO> schemaForm = new Form<DerSchemaTO>(FORM);
+        final Form<DerSchemaTO> schemaForm = new Form<>(FORM);
 
-        schemaForm.setModel(new CompoundPropertyModel<DerSchemaTO>(schema));
+        schemaForm.setModel(new CompoundPropertyModel<>(schema));
 
-        final AjaxTextFieldPanel name = new AjaxTextFieldPanel("name", getString("name"), new PropertyModel<String>(
-                schema, "name"));
+        final AjaxTextFieldPanel name =
+                new AjaxTextFieldPanel("key", getString("key"), new PropertyModel<String>(schema, "key"));
         name.addRequiredLabel();
 
         final AjaxTextFieldPanel expression = new AjaxTextFieldPanel("expression", getString("expression"),

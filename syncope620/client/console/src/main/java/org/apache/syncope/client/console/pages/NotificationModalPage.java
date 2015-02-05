@@ -416,7 +416,7 @@ class NotificationModalPage extends BaseModalPage {
         } else {
             switch (type) {
                 case UserPlainSchema:
-                    result = schemaRestClient.getSchemaNames(AttributableType.USER);
+                    result = schemaRestClient.getPlainSchemaNames(AttributableType.USER);
                     break;
 
                 case UserDerivedSchema:

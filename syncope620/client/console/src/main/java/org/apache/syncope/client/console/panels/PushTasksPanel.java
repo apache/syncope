@@ -55,7 +55,7 @@ public class PushTasksPanel extends AbstractProvisioningTasksPanel<PushTaskTO> {
         final List<IColumn<AbstractTaskTO, String>> pushTasksColumns = new ArrayList<IColumn<AbstractTaskTO, String>>();
 
         pushTasksColumns.add(new PropertyColumn<AbstractTaskTO, String>(
-                new StringResourceModel("id", this, null), "id", "id"));
+                new StringResourceModel("key", this, null), "key", "key"));
         pushTasksColumns.add(new PropertyColumn<AbstractTaskTO, String>(
                 new StringResourceModel("name", this, null), "name", "name"));
         pushTasksColumns.add(new PropertyColumn<AbstractTaskTO, String>(

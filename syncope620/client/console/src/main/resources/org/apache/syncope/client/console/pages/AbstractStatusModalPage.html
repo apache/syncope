@@ -72,7 +72,9 @@ under the License.
     </style>
   </wicket:head>
   <wicket:extend>
-    <p class="ui-widget ui-corner-all ui-widget-header"><wicket:message key="title"/></p>
+    <p class="ui-widget ui-corner-all ui-widget-header">
+      <wicket:message key="title"/>&nbsp;<span wicket:id="displayName"/>
+    </p>
     <span wicket:id="resourceDatatable" id="dataTableSpan">[resources]</span>
 
     <span wicket:id="pwdMgtFields">[password management]</span>

@@ -122,10 +122,10 @@ public class RolePanel extends Panel {
         // Attributes panel
         //--------------------------------
         this.add(new PlainAttrsPanel(
-                "attrs", builder.roleTO, builder.form, builder.mode, attrTemplates));
+                "plainAttrs", builder.roleTO, builder.form, builder.mode, attrTemplates));
 
-        final AjaxCheckBoxPanel inhAttributes = new AjaxCheckBoxPanel("inheritAttrs", "inheritAttrs",
-                new PropertyModel<Boolean>(builder.roleTO, "inheritAttrs"));
+        final AjaxCheckBoxPanel inhAttributes = new AjaxCheckBoxPanel("inheritPlainAttrs", "inheritPlainAttrs",
+                new PropertyModel<Boolean>(builder.roleTO, "inheritPlainAttrs"));
         inhAttributes.setOutputMarkupId(true);
         this.add(inhAttributes);
         //--------------------------------

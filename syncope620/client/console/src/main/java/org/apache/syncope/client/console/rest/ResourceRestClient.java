@@ -28,7 +28,7 @@ import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.ResourceDeassociationActionType;
 import org.apache.syncope.common.lib.types.SubjectType;
-import org.apache.syncope.common.lib.wrap.SubjectId;
+import org.apache.syncope.common.lib.wrap.SubjectKey;
 import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.springframework.stereotype.Component;
 
@@ -85,7 +85,7 @@ public class ResourceRestClient extends BaseRestClient {
 
     public BulkActionResult bulkAssociationAction(
             final String resourceName, final Class<? extends AbstractAttributableTO> typeRef,
-            final ResourceDeassociationActionType type, final List<SubjectId> subjtectIds) {
+            final ResourceDeassociationActionType type, final List<SubjectKey> subjtectIds) {
 
         return getService(ResourceService.class).bulkDeassociation(resourceName,
                 UserTO.class.isAssignableFrom(typeRef) ? SubjectType.USER : SubjectType.ROLE,

@@ -565,7 +565,7 @@ public class ResourceMappingPanel extends Panel {
                 case UserPlainSchema:
                 case RolePlainSchema:
                 case MembershipPlainSchema:
-                    toBeUpdated.setChoices(schemaRestClient.getSchemaNames(type.getAttributableType()));
+                    toBeUpdated.setChoices(schemaRestClient.getPlainSchemaNames(type.getAttributableType()));
                     break;
 
                 case UserDerivedSchema:

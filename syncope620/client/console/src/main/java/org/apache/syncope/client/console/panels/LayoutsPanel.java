@@ -75,7 +75,7 @@ public class LayoutsPanel extends Panel {
         final AttrTO attrLayout = confRestClient.readAttrLayout(attrLayoutType);
         form.setModel(new CompoundPropertyModel(attrLayout.getValues()));
 
-        final List<String> fields = schemaRestClient.getSchemaNames(attrLayoutType.getAttrType());
+        final List<String> fields = schemaRestClient.getPlainSchemaNames(attrLayoutType.getAttrType());
         final ListModel<String> selectedFields =
                 new ListModel<String>(attrLayout.getValues().isEmpty() ? fields : attrLayout.getValues());
         final ListModel<String> availableFields = new ListModel<String>(fields);

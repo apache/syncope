@@ -33,8 +33,8 @@ public class SortableAttributableProviderComparator extends SortableDataProvider
 
     private static final long serialVersionUID = 1775967163571699258L;
 
-    private static final Set<String> INLINE_PROPS = new HashSet<String>(Arrays.asList(
-            new String[] { "id", "status", "token", "username" }));
+    private static final Set<String> INLINE_PROPS = new HashSet<>(Arrays.asList(
+            new String[] { "key", "status", "token", "username" }));
 
     public SortableAttributableProviderComparator(final SortableDataProvider<AbstractAttributableTO, String> provider) {
         super(provider);

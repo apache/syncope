@@ -141,8 +141,8 @@ public class Tasks extends BasePage {
             super();
 
             //Default sorting
-            setSort("id", SortOrder.DESCENDING);
-            comparator = new SortableDataProviderComparator<T>(this);
+            setSort("key", SortOrder.DESCENDING);
+            comparator = new SortableDataProviderComparator<>(this);
             this.paginatorRows = paginatorRows;
             this.restClient = restClient;
             this.id = id;
@@ -151,7 +151,7 @@ public class Tasks extends BasePage {
 
         @Override
         public Iterator<T> iterator(final long first, final long count) {
-            final List<T> tasks = new ArrayList<T>();
+            final List<T> tasks = new ArrayList<>();
 
             final int page = ((int) first / paginatorRows);
 
@@ -184,7 +184,7 @@ public class Tasks extends BasePage {
 
         @Override
         public IModel<T> model(final T object) {
-            return new CompoundPropertyModel<T>(object);
+            return new CompoundPropertyModel<>(object);
         }
     }
 
@@ -208,7 +208,7 @@ public class Tasks extends BasePage {
             final BaseRestClient restClient) {
 
         @SuppressWarnings("unchecked")
-        final AjaxDataTablePanel<AbstractTaskTO, String> table = new AjaxDataTablePanel<AbstractTaskTO, String>(
+        final AjaxDataTablePanel<AbstractTaskTO, String> table = new AjaxDataTablePanel<>(
                 "datatable",
                 columns,
                 (ISortableDataProvider<AbstractTaskTO, String>) dataProvider,
@@ -216,7 +216,7 @@ public class Tasks extends BasePage {
                 Arrays.asList(new ActionLink.ActionType[] {
                     ActionLink.ActionType.DELETE, ActionLink.ActionType.DRYRUN, ActionLink.ActionType.EXECUTE }),
                 restClient,
-                "id",
+                "key",
                 TASKS,
                 pageRef);
 

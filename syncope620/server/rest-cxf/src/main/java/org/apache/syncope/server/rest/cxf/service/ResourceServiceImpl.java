@@ -30,7 +30,7 @@ import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.ResourceDeassociationActionType;
 import org.apache.syncope.common.lib.types.SubjectType;
-import org.apache.syncope.common.lib.wrap.SubjectId;
+import org.apache.syncope.common.lib.wrap.SubjectKey;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.apache.syncope.server.logic.AbstractResourceAssociator;
@@ -99,7 +99,7 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
 
     @Override
     public BulkActionResult bulkDeassociation(final String resourceKey, final SubjectType subjectType,
-            final ResourceDeassociationActionType type, final List<SubjectId> subjectIds) {
+            final ResourceDeassociationActionType type, final List<SubjectKey> subjectKeys) {
 
         AbstractResourceAssociator<? extends AbstractAttributableTO> associator = subjectType == SubjectType.USER
                 ? userLogic
@@ -107,29 +107,29 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
 
         final BulkActionResult res = new BulkActionResult();
 
-        for (SubjectId id : subjectIds) {
+        for (SubjectKey key : subjectKeys) {
             final Set<String> resources = Collections.singleton(resourceKey);
             try {
                 switch (type) {
                     case DEPROVISION:
-                        associator.deprovision(id.getElement(), resources);
+                        associator.deprovision(key.getElement(), resources);
                         break;
 
                     case UNASSIGN:
-                        associator.unassign(id.getElement(), resources);
+                        associator.unassign(key.getElement(), resources);
                         break;
 
                     case UNLINK:
-                        associator.unlink(id.getElement(), resources);
+                        associator.unlink(key.getElement(), resources);
                         break;
 
                     default:
                 }
 
-                res.add(id, BulkActionResult.Status.SUCCESS);
+                res.add(key, BulkActionResult.Status.SUCCESS);
             } catch (Exception e) {
-                LOG.warn("While executing {} on {} {}", type, subjectType, id.getElement(), e);
-                res.add(id, BulkActionResult.Status.FAILURE);
+                LOG.warn("While executing {} on {} {}", type, subjectType, key.getElement(), e);
+                res.add(key, BulkActionResult.Status.FAILURE);
             }
         }
 

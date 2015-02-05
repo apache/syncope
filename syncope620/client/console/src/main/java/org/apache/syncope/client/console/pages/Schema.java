@@ -88,10 +88,10 @@ public class Schema extends BasePage {
         private static final long serialVersionUID = 3109256773218160485L;
 
         {
-            put(SchemaType.PLAIN, Arrays.asList(new String[] { "name", "type",
+            put(SchemaType.PLAIN, Arrays.asList(new String[] { "key", "type",
                 "mandatoryCondition", "uniqueConstraint", "multivalue", "readonly" }));
-            put(SchemaType.DERIVED, Arrays.asList(new String[] { "name", "expression" }));
-            put(SchemaType.VIRTUAL, Arrays.asList(new String[] { "name", "readonly" }));
+            put(SchemaType.DERIVED, Arrays.asList(new String[] { "key", "expression" }));
+            put(SchemaType.VIRTUAL, Arrays.asList(new String[] { "key", "readonly" }));
         }
     };
 
@@ -210,7 +210,7 @@ public class Schema extends BasePage {
                         @Override
                         public String getCssClass() {
                             String css = super.getCssClass();
-                            if ("name".equals(field)) {
+                            if ("key".equals(field)) {
                                 css = StringUtils.isBlank(css)
                                         ? "medium_fixedsize"
                                         : css + " medium_fixedsize";
@@ -282,7 +282,7 @@ public class Schema extends BasePage {
                                 break;
 
                             default:
-                                restClient.deleteSchema(attributableType, schemaTO.getKey());
+                                restClient.deletePlainSchema(attributableType, schemaTO.getKey());
                                 break;
                         }
 
@@ -377,9 +377,9 @@ public class Schema extends BasePage {
             this.schemaType = schemaType;
 
             // Default sorting
-            setSort("name", SortOrder.ASCENDING);
+            setSort("key", SortOrder.ASCENDING);
 
-            comparator = new SortableDataProviderComparator<AbstractSchemaTO>(this);
+            comparator = new SortableDataProviderComparator<>(this);
         }
 
         @Override

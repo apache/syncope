@@ -53,10 +53,10 @@ public class SyncTasksPanel extends AbstractProvisioningTasksPanel<SyncTaskTO> {
 
     @Override
     protected List<IColumn<AbstractTaskTO, String>> getColumns() {
-        final List<IColumn<AbstractTaskTO, String>> syncTaskscolumns = new ArrayList<IColumn<AbstractTaskTO, String>>();
+        final List<IColumn<AbstractTaskTO, String>> syncTaskscolumns = new ArrayList<>();
 
         syncTaskscolumns.add(new PropertyColumn<AbstractTaskTO, String>(
-                new StringResourceModel("id", this, null), "id", "id"));
+                new StringResourceModel("key", this, null), "key", "key"));
         syncTaskscolumns.add(new PropertyColumn<AbstractTaskTO, String>(
                 new StringResourceModel("name", this, null), "name", "name"));
         syncTaskscolumns.add(new PropertyColumn<AbstractTaskTO, String>(
@@ -202,7 +202,7 @@ public class SyncTasksPanel extends AbstractProvisioningTasksPanel<SyncTaskTO> {
                     }
 
                     @Override
-                    public Component getHeader(String componentId) {
+                    public Component getHeader(final String componentId) {
                         final ActionLinksPanel panel = new ActionLinksPanel(componentId, new Model(), pageRef);
 
                         panel.add(new ActionLink() {

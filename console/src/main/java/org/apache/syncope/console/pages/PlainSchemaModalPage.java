@@ -59,11 +59,11 @@ import org.apache.wicket.util.string.Strings;
 /**
  * Modal window with Schema form.
  */
-public class SchemaModalPage extends AbstractSchemaModalPage<SchemaTO> {
+public class PlainSchemaModalPage extends AbstractSchemaModalPage<SchemaTO> {
 
     private static final long serialVersionUID = -5991561277287424057L;
 
-    public SchemaModalPage(final AttributableType kind) {
+    public PlainSchemaModalPage(final AttributableType kind) {
         super(kind);
     }
 
@@ -164,7 +164,7 @@ public class SchemaModalPage extends AbstractSchemaModalPage<SchemaTO> {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                SchemaModalPage.this.showHide(schema, type,
+                PlainSchemaModalPage.this.showHide(schema, type,
                         conversionParams, conversionPattern,
                         enumParams, enumerationValuesPanel, enumerationValues, enumerationKeys,
                         encryptedParams, secretKey, cipherAlgorithm,

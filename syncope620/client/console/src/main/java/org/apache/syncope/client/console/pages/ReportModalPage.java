@@ -219,19 +219,19 @@ public class ReportModalPage extends BaseModalPage {
         });
         add(reportletConfWin);
 
-        final Label idLabel = new Label("idLabel", new ResourceModel("id"));
+        final Label idLabel = new Label("idLabel", new ResourceModel("key"));
         profile.add(idLabel);
 
-        final AjaxTextFieldPanel id = new AjaxTextFieldPanel("id", getString("id"), new PropertyModel<String>(reportTO,
-                "id"));
-        id.setEnabled(false);
-        profile.add(id);
+        final AjaxTextFieldPanel key =
+                new AjaxTextFieldPanel("key", getString("key"), new PropertyModel<String>(reportTO, "key"));
+        key.setEnabled(false);
+        profile.add(key);
 
         final Label nameLabel = new Label("nameLabel", new ResourceModel("name"));
         profile.add(nameLabel);
 
-        final AjaxTextFieldPanel name = new AjaxTextFieldPanel("name", getString("name"), new PropertyModel<String>(
-                reportTO, "name"));
+        final AjaxTextFieldPanel name =
+                new AjaxTextFieldPanel("name", getString("name"), new PropertyModel<String>(reportTO, "name"));
         profile.add(name);
 
         final AjaxTextFieldPanel lastExec = new AjaxTextFieldPanel("lastExec", getString("lastExec"),
@@ -433,7 +433,7 @@ public class ReportModalPage extends BaseModalPage {
         add(reportExecExportWin);
 
         final List<IColumn> columns = new ArrayList<IColumn>();
-        columns.add(new PropertyColumn(new ResourceModel("id"), "id", "id"));
+        columns.add(new PropertyColumn(new ResourceModel("key"), "key", "key"));
         columns.add(new DatePropertyColumn(new ResourceModel("startDate"), "startDate", "startDate"));
         columns.add(new DatePropertyColumn(new ResourceModel("endDate"), "endDate", "endDate"));
         columns.add(new PropertyColumn(new ResourceModel("status"), "status", "status"));

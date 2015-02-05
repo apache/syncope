@@ -48,6 +48,7 @@ import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDa
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.CheckBoxMultipleChoice;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
@@ -86,12 +87,19 @@ public class ConnectorModalPage extends BaseModalPage {
 
         super();
 
+        this.add(new Label("new", connInstanceTO.getKey() == 0
+                ? new ResourceModel("new")
+                : new Model<>(StringUtils.EMPTY)));
+        this.add(new Label("key", connInstanceTO.getKey() == 0
+                ? StringUtils.EMPTY
+                : connInstanceTO.getKey()));
+
         // general data setup
-        selectedCapabilities = new ArrayList<ConnectorCapability>(connInstanceTO.getKey() == 0
+        selectedCapabilities = new ArrayList<>(connInstanceTO.getKey() == 0
                 ? EnumSet.noneOf(ConnectorCapability.class)
                 : connInstanceTO.getCapabilities());
 
-        mapConnBundleTOs = new HashMap<String, Map<String, Map<String, ConnBundleTO>>>();
+        mapConnBundleTOs = new HashMap<>();
         for (ConnBundleTO connBundleTO : restClient.getAllBundles()) {
             // by location
             if (!mapConnBundleTOs.containsKey(connBundleTO.getLocation())) {
@@ -115,8 +123,8 @@ public class ConnectorModalPage extends BaseModalPage {
         properties = fillProperties(bundleTO, connInstanceTO);
 
         // form - first tab
-        final Form<ConnInstanceTO> connectorForm = new Form<ConnInstanceTO>(FORM);
-        connectorForm.setModel(new CompoundPropertyModel<ConnInstanceTO>(connInstanceTO));
+        final Form<ConnInstanceTO> connectorForm = new Form<>(FORM);
+        connectorForm.setModel(new CompoundPropertyModel<>(connInstanceTO));
         connectorForm.setOutputMarkupId(true);
         add(connectorForm);
 
@@ -124,8 +132,8 @@ public class ConnectorModalPage extends BaseModalPage {
         propertiesContainer.setOutputMarkupId(true);
         connectorForm.add(propertiesContainer);
 
-        final Form<ConnInstanceTO> connectorPropForm = new Form<ConnInstanceTO>("connectorPropForm");
-        connectorPropForm.setModel(new CompoundPropertyModel<ConnInstanceTO>(connInstanceTO));
+        final Form<ConnInstanceTO> connectorPropForm = new Form<>("connectorPropForm");
+        connectorPropForm.setModel(new CompoundPropertyModel<>(connInstanceTO));
         connectorPropForm.setOutputMarkupId(true);
         propertiesContainer.add(connectorPropForm);
 
@@ -165,7 +173,7 @@ public class ConnectorModalPage extends BaseModalPage {
         connectorForm.add(connectorName);
 
         final AjaxDropDownChoicePanel<String> version =
-                new AjaxDropDownChoicePanel<String>("version", "version",
+                new AjaxDropDownChoicePanel<>("version", "version",
                         new Model<>(bundleTO == null ? null : bundleTO.getVersion()));
         version.setStyleSheet("long_dynamicsize");
         version.setChoices(bundleTO == null
@@ -181,39 +189,39 @@ public class ConnectorModalPage extends BaseModalPage {
         connectorForm.add(version);
 
         final SpinnerFieldPanel<Integer> connRequestTimeout =
-                new SpinnerFieldPanel<Integer>("connRequestTimeout", "connRequestTimeout", Integer.class,
+                new SpinnerFieldPanel<>("connRequestTimeout", "connRequestTimeout", Integer.class,
                         new PropertyModel<Integer>(connInstanceTO, "connRequestTimeout"), 0, null);
-        connRequestTimeout.getField().add(new RangeValidator<Integer>(0, Integer.MAX_VALUE));
+        connRequestTimeout.getField().add(new RangeValidator<>(0, Integer.MAX_VALUE));
         connectorForm.add(connRequestTimeout);
 
         if (connInstanceTO.getPoolConf() == null) {
             connInstanceTO.setPoolConf(new ConnPoolConfTO());
         }
         final SpinnerFieldPanel<Integer> poolMaxObjects =
-                new SpinnerFieldPanel<Integer>("poolMaxObjects", "poolMaxObjects", Integer.class,
+                new SpinnerFieldPanel<>("poolMaxObjects", "poolMaxObjects", Integer.class,
                         new PropertyModel<Integer>(connInstanceTO.getPoolConf(), "maxObjects"), 0, null);
-        poolMaxObjects.getField().add(new RangeValidator<Integer>(0, Integer.MAX_VALUE));
+        poolMaxObjects.getField().add(new RangeValidator<>(0, Integer.MAX_VALUE));
         connectorForm.add(poolMaxObjects);
         final SpinnerFieldPanel<Integer> poolMinIdle =
-                new SpinnerFieldPanel<Integer>("poolMinIdle", "poolMinIdle", Integer.class,
+                new SpinnerFieldPanel<>("poolMinIdle", "poolMinIdle", Integer.class,
                         new PropertyModel<Integer>(connInstanceTO.getPoolConf(), "minIdle"), 0, null);
-        poolMinIdle.getField().add(new RangeValidator<Integer>(0, Integer.MAX_VALUE));
+        poolMinIdle.getField().add(new RangeValidator<>(0, Integer.MAX_VALUE));
         connectorForm.add(poolMinIdle);
         final SpinnerFieldPanel<Integer> poolMaxIdle =
-                new SpinnerFieldPanel<Integer>("poolMaxIdle", "poolMaxIdle", Integer.class,
+                new SpinnerFieldPanel<>("poolMaxIdle", "poolMaxIdle", Integer.class,
                         new PropertyModel<Integer>(connInstanceTO.getPoolConf(), "maxIdle"), 0, null);
-        poolMaxIdle.getField().add(new RangeValidator<Integer>(0, Integer.MAX_VALUE));
+        poolMaxIdle.getField().add(new RangeValidator<>(0, Integer.MAX_VALUE));
         connectorForm.add(poolMaxIdle);
         final SpinnerFieldPanel<Long> poolMaxWait =
-                new SpinnerFieldPanel<Long>("poolMaxWait", "poolMaxWait", Long.class,
+                new SpinnerFieldPanel<>("poolMaxWait", "poolMaxWait", Long.class,
                         new PropertyModel<Long>(connInstanceTO.getPoolConf(), "maxWait"), 0L, null);
-        poolMaxWait.getField().add(new RangeValidator<Long>(0L, Long.MAX_VALUE));
+        poolMaxWait.getField().add(new RangeValidator<>(0L, Long.MAX_VALUE));
         connectorForm.add(poolMaxWait);
         final SpinnerFieldPanel<Long> poolMinEvictableIdleTime =
-                new SpinnerFieldPanel<Long>("poolMinEvictableIdleTime", "poolMinEvictableIdleTime", Long.class,
+                new SpinnerFieldPanel<>("poolMinEvictableIdleTime", "poolMinEvictableIdleTime", Long.class,
                         new PropertyModel<Long>(connInstanceTO.getPoolConf(), "minEvictableIdleTimeMillis"),
                         0L, null);
-        poolMinEvictableIdleTime.getField().add(new RangeValidator<Long>(0L, Long.MAX_VALUE));
+        poolMinEvictableIdleTime.getField().add(new RangeValidator<>(0L, Long.MAX_VALUE));
         connectorForm.add(poolMinEvictableIdleTime);
 
         // form - first tab - onchange()
@@ -227,7 +235,7 @@ public class ConnectorModalPage extends BaseModalPage {
                 connInstanceTO.setLocation(location.getModelObject());
                 target.add(location);
 
-                connectorName.setChoices(new ArrayList<String>(
+                connectorName.setChoices(new ArrayList<>(
                         mapConnBundleTOs.get(location.getModelObject()).keySet()));
                 connectorName.setEnabled(true);
                 connectorName.getField().setModelValue(null);
@@ -252,7 +260,7 @@ public class ConnectorModalPage extends BaseModalPage {
                 connInstanceTO.setBundleName(connectorName.getModelObject());
                 target.add(connectorName);
 
-                List<String> versions = new ArrayList<String>(
+                List<String> versions = new ArrayList<>(
                         mapConnBundleTOs.get(location.getModelObject()).get(connectorName.getModelObject()).keySet());
                 version.setChoices(versions);
                 version.setEnabled(true);
@@ -320,7 +328,7 @@ public class ConnectorModalPage extends BaseModalPage {
                     }
                 };
         CheckBoxMultipleChoice<ConnectorCapability> capabilitiesPalette =
-                new CheckBoxMultipleChoice<ConnectorCapability>("capabilitiesPalette",
+                new CheckBoxMultipleChoice<>("capabilitiesPalette",
                         new PropertyModel<List<ConnectorCapability>>(this, "selectedCapabilities"), capabilities);
 
         capabilitiesPalette.add(new AjaxFormChoiceComponentUpdatingBehavior() {
@@ -335,7 +343,7 @@ public class ConnectorModalPage extends BaseModalPage {
         connectorForm.add(capabilitiesPalette);
 
         // form - submit / cancel buttons
-        final AjaxButton submit = new IndicatingAjaxButton(APPLY, new Model<String>(getString(SUBMIT))) {
+        final AjaxButton submit = new IndicatingAjaxButton(APPLY, new Model<>(getString(SUBMIT))) {
 
             private static final long serialVersionUID = -958724007591692537L;
 

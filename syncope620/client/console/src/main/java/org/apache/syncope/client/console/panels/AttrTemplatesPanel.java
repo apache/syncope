@@ -41,7 +41,7 @@ public class AttrTemplatesPanel extends Panel {
 
     public enum Type {
 
-        rAttrTemplates,
+        rPlainAttrTemplates,
         rDerAttrTemplates,
         rVirAttrTemplates,
         mPlainAttrTemplates,
@@ -67,7 +67,7 @@ public class AttrTemplatesPanel extends Panel {
         super(id);
         this.roleTO = roleTO;
 
-        rPlainAttrTemplates = buildPalette(Type.rAttrTemplates,
+        rPlainAttrTemplates = buildPalette(Type.rPlainAttrTemplates,
                 schemaRestClient.getSchemaNames(AttributableType.ROLE, SchemaType.PLAIN));
         this.add(rPlainAttrTemplates);
         rDerAttrTemplates = buildPalette(Type.rDerAttrTemplates,
@@ -89,7 +89,7 @@ public class AttrTemplatesPanel extends Panel {
         if (allSchemas != null && !allSchemas.isEmpty()) {
             Collections.sort(allSchemas);
         }
-        ListModel<String> availableSchemas = new ListModel<String>(allSchemas);
+        ListModel<String> availableSchemas = new ListModel<>(allSchemas);
 
         return new NonI18nPalette<String>(type.name(), new PropertyModel<List<String>>(roleTO, type.name()),
                 availableSchemas, new SelectChoiceRenderer<String>(), 8, false, true) {
@@ -101,7 +101,7 @@ public class AttrTemplatesPanel extends Panel {
                         final Recorder<String> recorder = super.newRecorderComponent();
 
                         switch (type) {
-                            case rAttrTemplates:
+                            case rPlainAttrTemplates:
                             case rDerAttrTemplates:
                             case rVirAttrTemplates:
                                 recorder.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
@@ -126,7 +126,7 @@ public class AttrTemplatesPanel extends Panel {
     public Collection<String> getSelected(final Type type) {
         Collection<String> selected;
         switch (type) {
-            case rAttrTemplates:
+            case rPlainAttrTemplates:
                 selected = this.rPlainAttrTemplates.getModelCollection();
                 break;
 

@@ -24,7 +24,7 @@ import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvid
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 
-public class SortableDataProviderComparator<T extends Object> implements Comparator<T>, Serializable {
+public class SortableDataProviderComparator<T> implements Comparator<T>, Serializable {
 
     private static final long serialVersionUID = -8897687699977460543L;
 
@@ -58,8 +58,8 @@ public class SortableDataProviderComparator<T extends Object> implements Compara
     @SuppressWarnings("rawtypes")
     @Override
     public int compare(final T object1, final T object2) {
-        IModel<Comparable> model1 = new PropertyModel<Comparable>(object1, provider.getSort().getProperty());
-        IModel<Comparable> model2 = new PropertyModel<Comparable>(object2, provider.getSort().getProperty());
+        IModel<Comparable> model1 = new PropertyModel<>(object1, provider.getSort().getProperty());
+        IModel<Comparable> model2 = new PropertyModel<>(object2, provider.getSort().getProperty());
 
         return compare(model1, model2);
     }

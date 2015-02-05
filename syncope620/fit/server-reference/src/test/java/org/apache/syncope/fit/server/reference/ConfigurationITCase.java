@@ -166,8 +166,8 @@ public class ConfigurationITCase extends AbstractITCase {
 
         RoleTO roleTO = new RoleTO();
         roleTO.setName("aRole" + getUUIDString());
-        roleTO.getMAttrTemplates().add(membershipKey.getKey());
-        roleTO.getRAttrTemplates().add(roleKey.getKey());
+        roleTO.getMPlainAttrTemplates().add(membershipKey.getKey());
+        roleTO.getRPlainAttrTemplates().add(roleKey.getKey());
         roleTO = createRole(roleTO);
 
         try {

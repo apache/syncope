@@ -75,8 +75,8 @@ public abstract class TaskModalPage extends BaseModalPage {
         taskExecMessageWin.setCookieName("task-exec-message-win-modal");
         add(taskExecMessageWin);
 
-        form = new Form<AbstractTaskTO>(FORM);
-        form.setModel(new CompoundPropertyModel<AbstractTaskTO>(taskTO));
+        form = new Form<>(FORM);
+        form.setModel(new CompoundPropertyModel<>(taskTO));
         add(form);
 
         profile = new WebMarkupContainer("profile");
@@ -87,27 +87,23 @@ public abstract class TaskModalPage extends BaseModalPage {
         executions.setOutputMarkupId(true);
         form.add(executions);
 
-        final Label idLabel = new Label("idLabel", new ResourceModel("id"));
+        final Label idLabel = new Label("idLabel", new ResourceModel("key"));
         profile.add(idLabel);
 
         final AjaxTextFieldPanel id =
-                new AjaxTextFieldPanel("id", getString("id"), new PropertyModel<String>(taskTO, "id"));
+                new AjaxTextFieldPanel("key", getString("key"), new PropertyModel<String>(taskTO, "key"));
 
         id.setEnabled(false);
         profile.add(id);
 
-        final List<IColumn<TaskExecTO, String>> columns = new ArrayList<IColumn<TaskExecTO, String>>();
+        final List<IColumn<TaskExecTO, String>> columns = new ArrayList<>();
 
         final int paginatorRows = 10;
 
-        columns.add(new PropertyColumn<TaskExecTO, String>(new ResourceModel("id"), "id", "id"));
-
+        columns.add(new PropertyColumn<TaskExecTO, String>(new ResourceModel("key"), "key", "key"));
         columns.add(new DatePropertyColumn<TaskExecTO>(new ResourceModel("startDate"), "startDate", "startDate"));
-
         columns.add(new DatePropertyColumn<TaskExecTO>(new ResourceModel("endDate"), "endDate", "endDate"));
-
         columns.add(new PropertyColumn<TaskExecTO, String>(new ResourceModel("status"), "status", "status"));
-
         columns.add(new ActionColumn<TaskExecTO, String>(new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;

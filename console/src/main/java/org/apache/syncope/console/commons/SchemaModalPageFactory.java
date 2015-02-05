@@ -22,7 +22,7 @@ import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.SchemaType;
 import org.apache.syncope.console.pages.AbstractSchemaModalPage;
 import org.apache.syncope.console.pages.DerSchemaModalPage;
-import org.apache.syncope.console.pages.SchemaModalPage;
+import org.apache.syncope.console.pages.PlainSchemaModalPage;
 import org.apache.syncope.console.pages.VirSchemaModalPage;
 
 public final class SchemaModalPageFactory {
@@ -49,7 +49,7 @@ public final class SchemaModalPageFactory {
                 break;
 
             default:
-                page = (T) new SchemaModalPage(entity);
+                page = (T) new PlainSchemaModalPage(entity);
                 break;
         }
 

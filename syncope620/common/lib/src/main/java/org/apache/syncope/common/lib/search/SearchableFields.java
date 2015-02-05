@@ -20,8 +20,10 @@ package org.apache.syncope.common.lib.search;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.to.AbstractAttributableTO;
 import org.apache.syncope.common.lib.to.RoleTO;
@@ -31,9 +33,7 @@ import org.apache.syncope.common.lib.types.SubjectType;
 public class SearchableFields {
 
     protected static final String[] ATTRIBUTES_NOTINCLUDED = {
-        "plainAttrs", "derAttrs", "virAttrs",
-        "serialVersionUID", "memberships", "entitlements", "resources", "password",
-        "propagationTOs", "propagationStatusMap"
+        "serialVersionUID", "password"
     };
 
     public static final List<String> get(final SubjectType subjectType) {
@@ -49,7 +49,10 @@ public class SearchableFields {
         Class<?> clazz = attributableRef;
         while (clazz != null && clazz != Object.class) {
             for (Field field : clazz.getDeclaredFields()) {
-                if (!ArrayUtils.contains(ATTRIBUTES_NOTINCLUDED, field.getName())) {
+                if (!ArrayUtils.contains(ATTRIBUTES_NOTINCLUDED, field.getName())
+                        && !Collection.class.isAssignableFrom(field.getType())
+                        && !Map.class.isAssignableFrom(field.getType())) {
+
                     fieldNames.add(field.getName());
                 }
             }
@@ -58,7 +61,6 @@ public class SearchableFields {
 
         Collections.reverse(fieldNames);
         return fieldNames;
-
     }
 
     private SearchableFields() {

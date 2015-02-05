@@ -18,9 +18,8 @@
  */
 package org.apache.syncope.client.console.init;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.client.console.preview.BinaryPreview;
 import org.apache.syncope.client.console.preview.PreviewerClassScanner;
 import org.apache.syncope.client.console.wicket.markup.html.form.preview.AbstractBinaryPreviewer;
@@ -30,23 +29,26 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class PreviewPanelClassInitializer {
+public class BinaryPreviewersLoader implements SyncopeConsoleLoader {
 
     /**
      * Logger.
      */
-    private static final Logger LOG = LoggerFactory.getLogger(PreviewPanelClassInitializer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BinaryPreviewersLoader.class);
 
     @Autowired
     private PreviewerClassScanner classScanner;
 
     private List<Class<? extends AbstractBinaryPreviewer>> classes;
 
+    @Override
+    public Integer getPriority() {
+        return 0;
+    }
+
+    @Override
     public void load() {
-        classes = new ArrayList<Class<? extends AbstractBinaryPreviewer>>();
-        for (Class<? extends AbstractBinaryPreviewer> candidate : classScanner.getComponentClasses()) {
-            classes.add(candidate);
-        }
+        classes = classScanner.getComponentClasses();
     }
 
     public List<Class<? extends AbstractBinaryPreviewer>> getClasses() {
@@ -59,7 +61,7 @@ public class PreviewPanelClassInitializer {
         Class<? extends AbstractBinaryPreviewer> previewer = null;
         for (Class<? extends AbstractBinaryPreviewer> candidate : classes) {
             LOG.debug("Evaluating previewer class {} for MIME type {}", candidate.getName(), mimeType);
-            if (Arrays.asList(candidate.getAnnotation(BinaryPreview.class).mimeTypes()).contains(mimeType)) {
+            if (ArrayUtils.contains(candidate.getAnnotation(BinaryPreview.class).mimeTypes(), mimeType)) {
                 LOG.debug("Found existing previewer for MIME type {}: {}", mimeType, candidate.getName());
                 previewer = candidate;
             }

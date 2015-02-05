@@ -39,7 +39,7 @@ import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.ResourceDeassociationActionType;
 import org.apache.syncope.common.lib.types.SubjectType;
-import org.apache.syncope.common.lib.wrap.SubjectId;
+import org.apache.syncope.common.lib.wrap.SubjectKey;
 
 /**
  * REST operations for external resources.
@@ -133,7 +133,7 @@ public interface ResourceService extends JAXRSService {
      * @param resourceKey name of resource
      * @param subjectType subject type (user or role)
      * @param type resource de-association action type
-     * @param subjectIds users or roles against which the bulk action will be performed
+     * @param subjectKeys users or roles against which the bulk action will be performed
      * @return <tt>Response</tt> object featuring {@link BulkActionResult} as <tt>Entity</tt>
      */
     @Descriptions({
@@ -146,7 +146,7 @@ public interface ResourceService extends JAXRSService {
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     BulkActionResult bulkDeassociation(@NotNull @PathParam("resourceKey") String resourceKey,
             @NotNull @PathParam("subjType") SubjectType subjectType,
-            @NotNull @PathParam("type") ResourceDeassociationActionType type, @NotNull List<SubjectId> subjectIds);
+            @NotNull @PathParam("type") ResourceDeassociationActionType type, @NotNull List<SubjectKey> subjectKeys);
 
     /**
      * Executes the provided bulk action.

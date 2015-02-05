@@ -76,7 +76,7 @@ public class UserSearchResultPanel extends AbstractSearchResultPanel {
 
         super(id, filtered, fiql, callerRef, restClient);
 
-        this.pSchemaNames = schemaRestClient.getSchemaNames(AttributableType.USER);
+        this.pSchemaNames = schemaRestClient.getPlainSchemaNames(AttributableType.USER);
         this.dSchemaNames = schemaRestClient.getDerSchemaNames(AttributableType.USER);
         this.vSchemaNames = schemaRestClient.getVirSchemaNames(AttributableType.USER);
 
@@ -85,8 +85,7 @@ public class UserSearchResultPanel extends AbstractSearchResultPanel {
 
     @Override
     protected List<IColumn<AbstractAttributableTO, String>> getColumns() {
-        final List<IColumn<AbstractAttributableTO, String>> columns =
-                new ArrayList<IColumn<AbstractAttributableTO, String>>();
+        final List<IColumn<AbstractAttributableTO, String>> columns = new ArrayList<>();
 
         for (String name : prefMan.getList(getRequest(), Constants.PREF_USERS_DETAILS_VIEW)) {
             final Field field = ReflectionUtils.findField(UserTO.class, name);

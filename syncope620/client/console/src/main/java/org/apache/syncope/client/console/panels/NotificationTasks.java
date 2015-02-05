@@ -137,10 +137,10 @@ public class NotificationTasks extends AbstractTasks {
     }
 
     private List<IColumn<AbstractTaskTO, String>> getColumns() {
-        final List<IColumn<AbstractTaskTO, String>> columns = new ArrayList<IColumn<AbstractTaskTO, String>>();
+        final List<IColumn<AbstractTaskTO, String>> columns = new ArrayList<>();
 
         columns.add(new PropertyColumn<AbstractTaskTO, String>(
-                new StringResourceModel("id", this, null), "id", "id"));
+                new StringResourceModel("key", this, null), "key", "key"));
         columns.add(new PropertyColumn<AbstractTaskTO, String>(
                 new StringResourceModel("sender", this, null), "sender", "sender"));
         columns.add(new PropertyColumn<AbstractTaskTO, String>(

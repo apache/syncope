@@ -55,14 +55,13 @@ public class ResourceModalPage extends BaseModalPage {
 
         this.add(new Label("new", StringUtils.isBlank(resourceTO.getKey())
                 ? new ResourceModel("new")
-                : new Model("")));
-
+                : new Model(StringUtils.EMPTY)));
         this.add(new Label("name", StringUtils.isBlank(resourceTO.getKey())
-                ? ""
+                ? StringUtils.EMPTY
                 : resourceTO.getKey()));
 
-        final Form<ResourceTO> form = new Form<ResourceTO>(FORM);
-        form.setModel(new CompoundPropertyModel<ResourceTO>(resourceTO));
+        final Form<ResourceTO> form = new Form<>(FORM);
+        form.setModel(new CompoundPropertyModel<>(resourceTO));
 
         //--------------------------------
         // Resource details panel
@@ -180,10 +179,8 @@ public class ResourceModalPage extends BaseModalPage {
 
         add(form);
 
-        MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE, xmlRolesReader.getEntitlement("Resources",
-                createFlag
-                        ? "create"
-                        : "update"));
+        MetaDataRoleAuthorizationStrategy.authorize(
+                submit, ENABLE, xmlRolesReader.getEntitlement("Resources", createFlag ? "create" : "update"));
     }
 
     /**
@@ -194,7 +191,7 @@ public class ResourceModalPage extends BaseModalPage {
         /**
          * Request target.
          */
-        private AjaxRequestTarget target;
+        private final AjaxRequestTarget target;
 
         /**
          * Constructor.

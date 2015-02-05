@@ -116,11 +116,11 @@ public abstract class AbstractSchedTaskModalPage extends TaskModalPage {
         cancel.setDefaultFormProcessing(false);
 
         if (taskTO.getKey() > 0) {
-            MetaDataRoleAuthorizationStrategy.authorize(submit, RENDER, xmlRolesReader.getEntitlement(TASKS,
-                    "update"));
+            MetaDataRoleAuthorizationStrategy.authorize(
+                    submit, RENDER, xmlRolesReader.getEntitlement(TASKS, "update"));
         } else {
-            MetaDataRoleAuthorizationStrategy.authorize(submit, RENDER, xmlRolesReader.getEntitlement(TASKS,
-                    "create"));
+            MetaDataRoleAuthorizationStrategy.authorize(
+                    submit, RENDER, xmlRolesReader.getEntitlement(TASKS, "create"));
         }
 
         form.add(submit);

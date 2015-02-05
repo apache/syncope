@@ -72,8 +72,8 @@ public class ReportletConfModalPage extends BaseModalPage {
 
     private static final long serialVersionUID = 3910027601200382958L;
 
-    private static final String[] EXCLUDE_PROPERTIES = new String[] { "serialVersionUID", "class", "name",
-        "reportletClassName" };
+    private static final String[] EXCLUDE_PROPERTIES =
+            new String[] { "serialVersionUID", "class", "name", "reportletClassName" };
 
     private AbstractReportletConf reportletConf;
 
@@ -294,7 +294,7 @@ public class ReportletConfModalPage extends BaseModalPage {
                         List<String> choices;
                         switch (annotation.schema()) {
                             case UserPlainSchema:
-                                choices = schemaRestClient.getSchemaNames(AttributableType.USER);
+                                choices = schemaRestClient.getPlainSchemaNames(AttributableType.USER);
                                 break;
 
                             case UserDerivedSchema:
@@ -306,7 +306,7 @@ public class ReportletConfModalPage extends BaseModalPage {
                                 break;
 
                             case RolePlainSchema:
-                                choices = schemaRestClient.getSchemaNames(AttributableType.ROLE);
+                                choices = schemaRestClient.getPlainSchemaNames(AttributableType.ROLE);
                                 break;
 
                             case RoleDerivedSchema:
@@ -318,7 +318,7 @@ public class ReportletConfModalPage extends BaseModalPage {
                                 break;
 
                             case MembershipPlainSchema:
-                                choices = schemaRestClient.getSchemaNames(AttributableType.MEMBERSHIP);
+                                choices = schemaRestClient.getPlainSchemaNames(AttributableType.MEMBERSHIP);
                                 break;
 
                             case MembershipDerivedSchema:

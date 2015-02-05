@@ -258,7 +258,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
         roleTO.setName("all" + getUUIDString());
         roleTO.setParent(8L);
 
-        roleTO.getRAttrTemplates().add(newPlainSchemaTO.getKey());
+        roleTO.getRPlainAttrTemplates().add(newPlainSchemaTO.getKey());
         roleTO.getPlainAttrs().add(attrTO(newPlainSchemaTO.getKey(), "all"));
 
         roleTO = createRole(roleTO);

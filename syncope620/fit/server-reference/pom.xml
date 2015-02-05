@@ -71,26 +71,6 @@ under the License.
     </dependency>
     
     <dependency>
-      <groupId>org.apache.syncope.fit</groupId>
-      <artifactId>syncope-fit-build-tools</artifactId>
-      <version>${project.version}</version>
-      <type>war</type>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>net.tirasa.connid.bundles.soap</groupId>
-      <artifactId>wssample</artifactId>
-      <version>${connid.soap.version}</version>
-      <type>war</type>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.h2database</groupId>
-      <artifactId>h2</artifactId>
-      <scope>test</scope>
-    </dependency>
-    
-    <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
     </dependency>
@@ -134,6 +114,25 @@ under the License.
     </dependency>
     
     <!-- TEST -->
+    <dependency>
+      <groupId>org.apache.syncope.fit</groupId>
+      <artifactId>syncope-fit-build-tools</artifactId>
+      <version>${project.version}</version>
+      <type>war</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>net.tirasa.connid.bundles.soap</groupId>
+      <artifactId>wssample</artifactId>
+      <version>${connid.soap.version}</version>
+      <type>war</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>org.apache.syncope.ext.camel</groupId>
       <artifactId>syncope-ext-camel-rest-cxf</artifactId>
@@ -435,27 +434,6 @@ under the License.
     </profile>
     
     <profile>
-      <id>light</id>
-      
-      <build>
-        <resources>
-          <resource>
-            <directory>src/main/resources</directory>
-            <filtering>true</filtering>
-            <excludes>
-              <exclude>workflow.properties</exclude>
-              <exclude>provisioning.properties</exclude>
-            </excludes>
-          </resource>
-          <resource>
-            <directory>src/main/resources/light</directory>
-            <filtering>true</filtering>
-          </resource>
-        </resources>
-      </build>
-    </profile>
-    
-    <profile>
       <id>all</id>
       <activation>
         <activeByDefault>true</activeByDefault>
@@ -520,6 +498,21 @@ under the License.
             </configuration>
           </plugin>
         </plugins>
+        
+        <resources>
+          <resource>
+            <directory>src/main/resources</directory>
+            <filtering>true</filtering>
+            <excludes>
+              <exclude>workflow.properties</exclude>
+              <exclude>provisioning.properties</exclude>
+            </excludes>
+          </resource>
+          <resource>
+            <directory>src/main/resources/all</directory>
+            <filtering>true</filtering>
+          </resource>
+        </resources>
       </build>
     </profile>
   </profiles>

@@ -74,13 +74,13 @@ public class BulkActionModalPage<T, S> extends BaseModalPage {
 
             @Override
             public IModel<T> model(final T object) {
-                return new CompoundPropertyModel<T>(object);
+                return new CompoundPropertyModel<>(object);
             }
         };
 
-        add(new AjaxFallbackDefaultDataTable<T, S>(
+        add(new AjaxFallbackDefaultDataTable<>(
                 "selectedObjects",
-                new ArrayList<IColumn<T, S>>(columns.subList(1, columns.size() - 1)),
+                new ArrayList<>(columns.subList(1, columns.size() - 1)),
                 dataProvider,
                 Integer.MAX_VALUE).setVisible(items != null && !items.isEmpty()));
 
@@ -139,7 +139,7 @@ public class BulkActionModalPage<T, S> extends BaseModalPage {
             }, action, pageId, !items.isEmpty());
         }
 
-        final Form<Void> form = new Form<Void>(FORM);
+        final Form<Void> form = new Form<>(FORM);
         add(form);
 
         final AjaxButton cancel =

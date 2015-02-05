@@ -80,7 +80,7 @@ public class PolicyBeanPanel extends Panel {
 
         @Override
         protected List<String> load() {
-            return schemaRestClient.getSchemaNames(AttributableType.USER);
+            return schemaRestClient.getPlainSchemaNames(AttributableType.USER);
         }
     };
 
@@ -90,7 +90,7 @@ public class PolicyBeanPanel extends Panel {
 
         @Override
         protected List<String> load() {
-            return schemaRestClient.getSchemaNames(AttributableType.ROLE);
+            return schemaRestClient.getPlainSchemaNames(AttributableType.ROLE);
         }
     };
 
@@ -183,7 +183,7 @@ public class PolicyBeanPanel extends Panel {
                         item.add(new Label("field", new Model(null)));
                     } else if (Collection.class.isAssignableFrom(field.getType())) {
                         if (field.getSchemaList() != null) {
-                            final List<String> values = new ArrayList<String>();
+                            final List<String> values = new ArrayList<>();
                             if (field.getName().charAt(0) == 'r') {
                                 values.addAll(roleSchemas.getObject());
 
@@ -194,13 +194,13 @@ public class PolicyBeanPanel extends Panel {
                                 values.addAll(userSchemas.getObject());
 
                                 if (field.getSchemaList().extended()) {
-                                    values.add("id");
+                                    values.add("key");
                                     values.add("username");
                                 }
                             }
 
                             component = new AjaxPalettePanel("field", new PropertyModel(policy, field.getName()),
-                                    new ListModel<String>(values));
+                                    new ListModel<>(values));
                             item.add(component);
 
                             Collection<?> collection = (Collection) propDesc.getReadMethod().invoke(policy);

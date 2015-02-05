@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.common.lib.types;
 
-public interface PolicySpec {
+import java.io.Serializable;
+
+public interface PolicySpec extends Serializable {
 
 }

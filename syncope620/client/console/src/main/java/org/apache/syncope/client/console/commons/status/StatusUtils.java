@@ -40,6 +40,7 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.image.Image;
+import org.apache.wicket.request.resource.ContextRelativeResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,7 +53,7 @@ public class StatusUtils implements Serializable {
      */
     private static final Logger LOG = LoggerFactory.getLogger(StatusUtils.class);
 
-    public static final String IMG_STATUES = "../statuses/";
+    private static final String IMG_PREFIX = "/img/statuses/";
 
     private final AbstractSubjectRestClient restClient;
 
@@ -102,7 +103,7 @@ public class StatusUtils implements Serializable {
             final String resourceName,
             final ConnObjectTO objectTO,
             final boolean isRole) {
-        
+
         final StatusBean statusBean = new StatusBean(attributable, resourceName);
 
         if (objectTO != null) {
@@ -111,8 +112,8 @@ public class StatusUtils implements Serializable {
             final Status status = enabled == null
                     ? (isRole ? Status.ACTIVE : Status.UNDEFINED)
                     : enabled
-                    ? Status.ACTIVE
-                    : Status.SUSPENDED;
+                            ? Status.ACTIVE
+                            : Status.SUSPENDED;
 
             final String accountLink = getAccountLink(objectTO);
 
@@ -177,7 +178,7 @@ public class StatusUtils implements Serializable {
             final Collection<String> resourcesToRemove) {
 
         if (statusPanel != null) {
-            Map<String, StatusBean> statusMap = new LinkedHashMap<String, StatusBean>();
+            Map<String, StatusBean> statusMap = new LinkedHashMap<>();
             for (StatusBean statusBean : statusPanel.getStatusBeans()) {
                 statusMap.put(statusBean.getResourceName(), statusBean);
             }
@@ -200,7 +201,7 @@ public class StatusUtils implements Serializable {
                 statusMap.remove(resource);
             }
 
-            statusPanel.updateStatusBeans(new ArrayList<StatusBean>(statusMap.values()));
+            statusPanel.updateStatusBeans(new ArrayList<>(statusMap.values()));
             target.add(statusPanel);
         }
     }
@@ -254,8 +255,8 @@ public class StatusUtils implements Serializable {
                 title = "Disabled";
         }
 
-        final Image img = new Image(componentId, IMG_STATUES + statusName + Constants.PNG_EXT);
-
+        final Image img = new Image(componentId,
+                new ContextRelativeResource(IMG_PREFIX + statusName + Constants.PNG_EXT));
         img.add(new Behavior() {
 
             private static final long serialVersionUID = 1469628524240283489L;
@@ -305,7 +306,8 @@ public class StatusUtils implements Serializable {
                 title = "Disabled";
         }
 
-        final ImagePanel imagePanel = new ImagePanel(componentId, IMG_STATUES + statusName + Constants.PNG_EXT);
+        final ImagePanel imagePanel = new ImagePanel(componentId,
+                new ContextRelativeResource(IMG_PREFIX + statusName + Constants.PNG_EXT));
         imagePanel.add(new Behavior() {
 
             private static final long serialVersionUID = 1469628524240283489L;

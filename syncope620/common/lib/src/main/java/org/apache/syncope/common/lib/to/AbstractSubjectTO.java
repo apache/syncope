@@ -45,7 +45,7 @@ public abstract class AbstractSubjectTO extends AbstractAttributableTO {
 
     public boolean removePropagationTO(final String resource) {
         if (resource != null && getPropagationStatusTOs().isEmpty()) {
-            final List<PropagationStatus> toBeRemoved = new ArrayList<PropagationStatus>();
+            final List<PropagationStatus> toBeRemoved = new ArrayList<>();
 
             for (PropagationStatus propagationTO : getPropagationStatusTOs()) {
                 if (resource.equals(propagationTO.getResource())) {

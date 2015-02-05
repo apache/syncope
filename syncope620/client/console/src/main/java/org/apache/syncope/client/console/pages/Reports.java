@@ -113,8 +113,8 @@ public class Reports extends BasePage {
 
         paginatorRows = prefMan.getPaginatorRows(getRequest(), Constants.PREF_REPORT_PAGINATOR_ROWS);
 
-        List<IColumn<ReportTO, String>> columns = new ArrayList<IColumn<ReportTO, String>>();
-        columns.add(new PropertyColumn<ReportTO, String>(new ResourceModel("id"), "id", "id"));
+        List<IColumn<ReportTO, String>> columns = new ArrayList<>();
+        columns.add(new PropertyColumn<ReportTO, String>(new ResourceModel("key"), "key", "key"));
         columns.add(new PropertyColumn<ReportTO, String>(new ResourceModel("name"), "name", "name"));
         columns.add(new DatePropertyColumn<ReportTO>(new ResourceModel("lastExec"), "lastExec", "lastExec"));
         columns.add(new DatePropertyColumn<ReportTO>(new ResourceModel("nextExec"), "nextExec", "nextExec"));
@@ -213,8 +213,7 @@ public class Reports extends BasePage {
         });
 
         final AjaxFallbackDefaultDataTable<ReportTO, String> reportTable =
-                new AjaxFallbackDefaultDataTable<ReportTO, String>(
-                        "reportTable", columns, new ReportProvider(), paginatorRows);
+                new AjaxFallbackDefaultDataTable<>("reportTable", columns, new ReportProvider(), paginatorRows);
 
         reportContainer.add(reportTable);
         reportContainer.setOutputMarkupId(true);
@@ -248,7 +247,7 @@ public class Reports extends BasePage {
         paginatorForm.add(rowsChooser);
         add(paginatorForm);
 
-        AjaxLink createLink = new ClearIndicatingAjaxLink("createLink", getPageReference()) {
+        AjaxLink<Void> createLink = new ClearIndicatingAjaxLink<Void>("createLink", getPageReference()) {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
@@ -298,7 +297,7 @@ public class Reports extends BasePage {
                     audit.getResult()));
         }
 
-        final ListModel<String> model = new ListModel<String>(new ArrayList<String>(events));
+        final ListModel<String> model = new ListModel<>(new ArrayList<>(events));
 
         form.add(new LoggerCategoryPanel(
                 "events", loggerRestClient.listEvents(), model, getPageReference(), "Reports") {
@@ -377,8 +376,8 @@ public class Reports extends BasePage {
             super();
 
             //Default sorting
-            setSort("id", SortOrder.ASCENDING);
-            comparator = new SortableDataProviderComparator<ReportTO>(this);
+            setSort("key", SortOrder.ASCENDING);
+            comparator = new SortableDataProviderComparator<>(this);
         }
 
         @Override

@@ -154,11 +154,11 @@ public class PlainAttrsPanel extends Panel {
             schemaTOs = schemaRestClient.getSchemas(AttributableType.ROLE);
             Set<String> allowed;
             if (attrTemplates == null) {
-                allowed = new HashSet<>(roleTO.getRAttrTemplates());
+                allowed = new HashSet<>(roleTO.getRPlainAttrTemplates());
             } else {
-                allowed = new HashSet<>(attrTemplates.getSelected(AttrTemplatesPanel.Type.rAttrTemplates));
+                allowed = new HashSet<>(attrTemplates.getSelected(AttrTemplatesPanel.Type.rPlainAttrTemplates));
                 if (roleTO.isInheritTemplates() && roleTO.getParent() != 0) {
-                    allowed.addAll(roleRestClient.read(roleTO.getParent()).getRAttrTemplates());
+                    allowed.addAll(roleRestClient.read(roleTO.getParent()).getRPlainAttrTemplates());
                 }
             }
             schemaRestClient.filter(schemaTOs, allowed, true);
@@ -169,7 +169,7 @@ public class PlainAttrsPanel extends Panel {
             attrLayout = confRestClient.readAttrLayout(AttrLayoutType.valueOf(mode, AttributableType.MEMBERSHIP));
             schemaTOs = schemaRestClient.getSchemas(AttributableType.MEMBERSHIP);
             Set<String> allowed = new HashSet<>(
-                    roleRestClient.read(((MembershipTO) entityTO).getRoleId()).getMAttrTemplates());
+                    roleRestClient.read(((MembershipTO) entityTO).getRoleId()).getMPlainAttrTemplates());
             schemaRestClient.filter(schemaTOs, allowed, true);
         } else {
             schemas = new TreeMap<>();
@@ -385,7 +385,7 @@ public class PlainAttrsPanel extends Panel {
     public void onEvent(final IEvent<?> event) {
         if ((event.getPayload() instanceof RoleAttrTemplatesChange)) {
             final RoleAttrTemplatesChange update = (RoleAttrTemplatesChange) event.getPayload();
-            if (attrTemplates != null && update.getType() == AttrTemplatesPanel.Type.rAttrTemplates) {
+            if (attrTemplates != null && update.getType() == AttrTemplatesPanel.Type.rPlainAttrTemplates) {
                 setSchemas();
                 setAttrs();
                 update.getTarget().add(this);

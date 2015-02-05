@@ -119,7 +119,10 @@ public class StatusModalPage<T extends AbstractSubjectTO> extends AbstractStatus
 
         statusUtils = new StatusUtils(subjectTO instanceof UserTO ? userRestClient : roleRestClient);
 
-        columns = new ArrayList<IColumn<StatusBean, String>>();
+        add(new Label("displayName", subjectTO.getKey() + " "
+                + (subjectTO instanceof UserTO ? ((UserTO) subjectTO).getUsername() : ((RoleTO) subjectTO).getName())));
+
+        columns = new ArrayList<>();
         columns.add(new AbstractColumn<StatusBean, String>(
                 new StringResourceModel("resourceName", this, null, "Resource name"), "resourceName") {
 

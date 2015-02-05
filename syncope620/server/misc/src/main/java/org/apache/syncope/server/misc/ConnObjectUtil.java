@@ -434,10 +434,10 @@ public class ConnObjectUtil {
 
                 ((RoleTO) subjectTO).getEntitlements().addAll(((RoleTO) template).getEntitlements());
 
-                ((RoleTO) subjectTO).getRAttrTemplates().addAll(((RoleTO) template).getRAttrTemplates());
+                ((RoleTO) subjectTO).getRPlainAttrTemplates().addAll(((RoleTO) template).getRPlainAttrTemplates());
                 ((RoleTO) subjectTO).getRDerAttrTemplates().addAll(((RoleTO) template).getRDerAttrTemplates());
                 ((RoleTO) subjectTO).getRVirAttrTemplates().addAll(((RoleTO) template).getRVirAttrTemplates());
-                ((RoleTO) subjectTO).getMAttrTemplates().addAll(((RoleTO) template).getMAttrTemplates());
+                ((RoleTO) subjectTO).getMPlainAttrTemplates().addAll(((RoleTO) template).getMPlainAttrTemplates());
                 ((RoleTO) subjectTO).getMDerAttrTemplates().addAll(((RoleTO) template).getMDerAttrTemplates());
                 ((RoleTO) subjectTO).getMVirAttrTemplates().addAll(((RoleTO) template).getMVirAttrTemplates());
 

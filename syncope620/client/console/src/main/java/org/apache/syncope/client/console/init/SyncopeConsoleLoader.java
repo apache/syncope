@@ -18,28 +18,18 @@
  */
 package org.apache.syncope.client.console.init;
 
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
-import org.springframework.stereotype.Component;
-
 /**
- * Take care of all initializations needed by Syncope Console to run up and safe.
+ * Marker interface for Syncope console initialization.
  */
-@Component
-@Configurable
-public class SpringContextInitializer implements InitializingBean {
+public interface SyncopeConsoleLoader {
 
-    @Autowired
-    private PreviewPanelClassInitializer previewPanelClassInitializer;
+    /**
+     * @return the priority that the implementing class has in the initialization process.
+     */
+    Integer getPriority();
 
-    @Autowired
-    private MIMETypesInitializer mimeTypesInitializer;
-
-    @Override
-    public void afterPropertiesSet() {
-        previewPanelClassInitializer.load();
-        mimeTypesInitializer.load();
-    }
-
+    /**
+     * Perform initialization operations.
+     */
+    void load();
 }

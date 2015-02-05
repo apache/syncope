@@ -27,14 +27,10 @@ import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class AttributableDataProvider extends SortableDataProvider<AbstractAttributableTO, String> {
 
     private static final long serialVersionUID = 6267494272884913376L;
-
-    private static final Logger LOG = LoggerFactory.getLogger(AttributableDataProvider.class);
 
     private final SortableAttributableProviderComparator comparator;
 
@@ -56,7 +52,7 @@ public class AttributableDataProvider extends SortableDataProvider<AbstractAttri
         this.paginatorRows = paginatorRows;
 
         // default sorting
-        setSort("id", SortOrder.ASCENDING);
+        setSort("key", SortOrder.ASCENDING);
 
         this.comparator = new SortableAttributableProviderComparator(this);
     }
@@ -100,6 +96,6 @@ public class AttributableDataProvider extends SortableDataProvider<AbstractAttri
 
     @Override
     public IModel<AbstractAttributableTO> model(final AbstractAttributableTO object) {
-        return new CompoundPropertyModel<AbstractAttributableTO>(object);
+        return new CompoundPropertyModel<>(object);
     }
 }

@@ -143,10 +143,10 @@ public class RoleDataBinderImpl extends AbstractAttributableDataBinder implement
         }
 
         // attribute templates
-        setAttrTemplates(role, roleTO.getRAttrTemplates(), RPlainAttrTemplate.class, RPlainSchema.class);
+        setAttrTemplates(role, roleTO.getRPlainAttrTemplates(), RPlainAttrTemplate.class, RPlainSchema.class);
         setAttrTemplates(role, roleTO.getRDerAttrTemplates(), RDerAttrTemplate.class, RDerSchema.class);
         setAttrTemplates(role, roleTO.getRVirAttrTemplates(), RVirAttrTemplate.class, RVirSchema.class);
-        setAttrTemplates(role, roleTO.getMAttrTemplates(), MPlainAttrTemplate.class, MPlainSchema.class);
+        setAttrTemplates(role, roleTO.getMPlainAttrTemplates(), MPlainAttrTemplate.class, MPlainSchema.class);
         setAttrTemplates(role, roleTO.getMDerAttrTemplates(), MDerAttrTemplate.class, MDerSchema.class);
         setAttrTemplates(role, roleTO.getMVirAttrTemplates(), MVirAttrTemplate.class, MVirSchema.class);
 
@@ -375,7 +375,7 @@ public class RoleDataBinderImpl extends AbstractAttributableDataBinder implement
         }
 
         for (RPlainAttrTemplate template : role.findInheritedTemplates(RPlainAttrTemplate.class)) {
-            roleTO.getRAttrTemplates().add(template.getSchema().getKey());
+            roleTO.getRPlainAttrTemplates().add(template.getSchema().getKey());
         }
         for (RDerAttrTemplate template : role.findInheritedTemplates(RDerAttrTemplate.class)) {
             roleTO.getRDerAttrTemplates().add(template.getSchema().getKey());
@@ -384,7 +384,7 @@ public class RoleDataBinderImpl extends AbstractAttributableDataBinder implement
             roleTO.getRVirAttrTemplates().add(template.getSchema().getKey());
         }
         for (MPlainAttrTemplate template : role.findInheritedTemplates(MPlainAttrTemplate.class)) {
-            roleTO.getMAttrTemplates().add(template.getSchema().getKey());
+            roleTO.getMPlainAttrTemplates().add(template.getSchema().getKey());
         }
         for (MDerAttrTemplate template : role.findInheritedTemplates(MDerAttrTemplate.class)) {
             roleTO.getMDerAttrTemplates().add(template.getSchema().getKey());

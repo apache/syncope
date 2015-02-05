@@ -358,14 +358,14 @@ public final class AttributableOperations {
         }
 
         // 5. templates
-        Set<String> updatedTemplates = new HashSet<>(updated.getRAttrTemplates());
-        Set<String> originalTemplates = new HashSet<>(original.getRAttrTemplates());
+        Set<String> updatedTemplates = new HashSet<>(updated.getRPlainAttrTemplates());
+        Set<String> originalTemplates = new HashSet<>(original.getRPlainAttrTemplates());
         if (updatedTemplates.equals(originalTemplates)) {
             result.setModRAttrTemplates(false);
             result.getRPlainAttrTemplates().clear();
         } else {
             result.setModRAttrTemplates(true);
-            result.getRPlainAttrTemplates().addAll(updated.getRAttrTemplates());
+            result.getRPlainAttrTemplates().addAll(updated.getRPlainAttrTemplates());
         }
         updatedTemplates = new HashSet<>(updated.getRDerAttrTemplates());
         originalTemplates = new HashSet<>(original.getRDerAttrTemplates());
@@ -385,14 +385,14 @@ public final class AttributableOperations {
             result.setModRVirAttrTemplates(true);
             result.getRVirAttrTemplates().addAll(updated.getRVirAttrTemplates());
         }
-        updatedTemplates = new HashSet<>(updated.getMAttrTemplates());
-        originalTemplates = new HashSet<>(original.getMAttrTemplates());
+        updatedTemplates = new HashSet<>(updated.getMPlainAttrTemplates());
+        originalTemplates = new HashSet<>(original.getMPlainAttrTemplates());
         if (updatedTemplates.equals(originalTemplates)) {
             result.setModMAttrTemplates(false);
             result.getMPlainAttrTemplates().clear();
         } else {
             result.setModMAttrTemplates(true);
-            result.getMPlainAttrTemplates().addAll(updated.getMAttrTemplates());
+            result.getMPlainAttrTemplates().addAll(updated.getMPlainAttrTemplates());
         }
         updatedTemplates = new HashSet<>(updated.getMDerAttrTemplates());
         originalTemplates = new HashSet<>(original.getMDerAttrTemplates());

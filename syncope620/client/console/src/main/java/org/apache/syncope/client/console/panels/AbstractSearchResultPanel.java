@@ -205,10 +205,10 @@ public abstract class AbstractSearchResultPanel extends Panel implements IEventS
         // ---------------------------
         // Rows-per-page selector
         // ---------------------------
-        final Form paginatorForm = new Form("paginator");
+        final Form<?> paginatorForm = new Form<>("paginator");
         container.add(paginatorForm);
 
-        final DropDownChoice<Integer> rowsChooser = new DropDownChoice<Integer>(
+        final DropDownChoice<Integer> rowsChooser = new DropDownChoice<>(
                 "rowsChooser", new PropertyModel<Integer>(this, "rows"), prefMan.getPaginatorChoices());
 
         rowsChooser.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
@@ -254,14 +254,14 @@ public abstract class AbstractSearchResultPanel extends Panel implements IEventS
                         : (int) resultTable.getCurrentPage())
                 : 0;
 
-        resultTable = new AjaxDataTablePanel<AbstractAttributableTO, String>(
+        resultTable = new AjaxDataTablePanel<>(
                 "resultTable",
                 getColumns(),
                 dataProvider,
                 rows,
                 getBulkActions(),
                 restClient,
-                "id",
+                "key",
                 getPageId(),
                 page.getPageReference());
 

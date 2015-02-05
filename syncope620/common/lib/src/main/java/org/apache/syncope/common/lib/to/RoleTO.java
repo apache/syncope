@@ -59,13 +59,13 @@ public class RoleTO extends AbstractSubjectTO {
 
     private final List<String> entitlements = new ArrayList<>();
 
-    private List<String> rAttrTemplates = new ArrayList<>();
+    private List<String> rPlainAttrTemplates = new ArrayList<>();
 
     private List<String> rDerAttrTemplates = new ArrayList<>();
 
     private List<String> rVirAttrTemplates = new ArrayList<>();
 
-    private List<String> mAttrTemplates = new ArrayList<>();
+    private List<String> mPlainAttrTemplates = new ArrayList<>();
 
     private List<String> mDerAttrTemplates = new ArrayList<>();
 
@@ -154,11 +154,11 @@ public class RoleTO extends AbstractSubjectTO {
         return entitlements;
     }
 
-    @XmlElementWrapper(name = "rAttrTemplates")
-    @XmlElement(name = "rAttrTemplate")
-    @JsonProperty("rAttrTemplates")
-    public List<String> getRAttrTemplates() {
-        return rAttrTemplates;
+    @XmlElementWrapper(name = "rPlainAttrTemplates")
+    @XmlElement(name = "rPlainAttrTemplate")
+    @JsonProperty("rPlainAttrTemplates")
+    public List<String> getRPlainAttrTemplates() {
+        return rPlainAttrTemplates;
     }
 
     @XmlElementWrapper(name = "rDerAttrTemplates")
@@ -175,11 +175,11 @@ public class RoleTO extends AbstractSubjectTO {
         return rVirAttrTemplates;
     }
 
-    @XmlElementWrapper(name = "mAttrTemplates")
-    @XmlElement(name = "mAttrTemplate")
-    @JsonProperty("mAttrTemplates")
-    public List<String> getMAttrTemplates() {
-        return mAttrTemplates;
+    @XmlElementWrapper(name = "mPlainAttrTemplates")
+    @XmlElement(name = "mPlainAttrTemplate")
+    @JsonProperty("mPlainAttrTemplates")
+    public List<String> getMPlainAttrTemplates() {
+        return mPlainAttrTemplates;
     }
 
     @XmlElementWrapper(name = "mDerAttrTemplates")

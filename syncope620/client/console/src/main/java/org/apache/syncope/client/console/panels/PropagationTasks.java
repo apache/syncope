@@ -124,8 +124,7 @@ public class PropagationTasks extends AbstractTasks {
 
                 table = Tasks.updateTaskTable(
                         getColumns(),
-                        new TasksProvider<PropagationTaskTO>(restClient, paginatorRows,
-                                getId(), PropagationTaskTO.class),
+                        new TasksProvider<>(restClient, paginatorRows, getId(), PropagationTaskTO.class),
                         container,
                         table == null ? 0 : (int) table.getCurrentPage(),
                         pageRef,
@@ -140,32 +139,24 @@ public class PropagationTasks extends AbstractTasks {
     }
 
     private List<IColumn<AbstractTaskTO, String>> getColumns() {
-        final List<IColumn<AbstractTaskTO, String>> columns = new ArrayList<IColumn<AbstractTaskTO, String>>();
+        final List<IColumn<AbstractTaskTO, String>> columns = new ArrayList<>();
 
         columns.add(new PropertyColumn<AbstractTaskTO, String>(
-                new StringResourceModel("id", this, null), "id", "id"));
-
+                new StringResourceModel("key", this, null), "key", "key"));
         columns.add(new PropertyColumn<AbstractTaskTO, String>(
                 new StringResourceModel("resource", this, null), "resource", "resource"));
-
         columns.add(new PropertyColumn<AbstractTaskTO, String>(
                 new StringResourceModel("accountId", this, null), "accountId", "accountId"));
-
         columns.add(new PropertyColumn<AbstractTaskTO, String>(
                 new StringResourceModel("propagationMode", this, null), "propagationMode", "propagationMode"));
-
         columns.add(new PropertyColumn<AbstractTaskTO, String>(new StringResourceModel(
                 "propagationOperation", this, null), "propagationOperation", "propagationOperation"));
-
         columns.add(new DatePropertyColumn<AbstractTaskTO>(
                 new StringResourceModel("startDate", this, null), "startDate", "startDate"));
-
         columns.add(new DatePropertyColumn<AbstractTaskTO>(
                 new StringResourceModel("endDate", this, null), "endDate", "endDate"));
-
         columns.add(new PropertyColumn<AbstractTaskTO, String>(
                 new StringResourceModel("latestExecStatus", this, null), "latestExecStatus", "latestExecStatus"));
-
         columns.add(new ActionColumn<AbstractTaskTO, String>(new StringResourceModel("actions", this, null, "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;

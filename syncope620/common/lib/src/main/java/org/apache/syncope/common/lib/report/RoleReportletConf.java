@@ -53,7 +53,7 @@ public class RoleReportletConf extends AbstractReportletConf {
     private String matchingCond;
 
     @FormAttributeField(schema = IntMappingType.RolePlainSchema)
-    private final List<String> attrs = new ArrayList<>();
+    private final List<String> plainAttrs = new ArrayList<>();
 
     @FormAttributeField(schema = IntMappingType.RoleDerivedSchema)
     private final List<String> derAttrs = new ArrayList<>();
@@ -75,7 +75,7 @@ public class RoleReportletConf extends AbstractReportletConf {
     @XmlElement(name = "plainAttribute")
     @JsonProperty("plainAttributes")
     public List<String> getPlainAttrs() {
-        return attrs;
+        return plainAttrs;
     }
 
     @XmlElementWrapper(name = "derivedAttributes")

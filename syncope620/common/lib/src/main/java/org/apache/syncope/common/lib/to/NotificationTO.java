@@ -37,7 +37,7 @@ public class NotificationTO extends AbstractBaseBean {
 
     private Long key;
 
-    private List<String> events = new ArrayList<>();
+    private final List<String> events = new ArrayList<>();
 
     private String userAbout;
 
@@ -45,7 +45,7 @@ public class NotificationTO extends AbstractBaseBean {
 
     private String recipients;
 
-    private List<String> staticRecipients = new ArrayList<>();
+    private final List<String> staticRecipients = new ArrayList<>();
 
     private IntMappingType recipientAttrType;
 

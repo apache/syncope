@@ -176,10 +176,9 @@ public class Resources extends BasePage {
     }
 
     private void setupResources() {
-        List<IColumn<ResourceTO, String>> columns = new ArrayList<IColumn<ResourceTO, String>>();
+        List<IColumn<ResourceTO, String>> columns = new ArrayList<>();
 
-        columns.add(
-                new PropertyColumn<ResourceTO, String>(new StringResourceModel("name", this, null), "name", "name"));
+        columns.add(new PropertyColumn<ResourceTO, String>(new StringResourceModel("key", this, null), "key", "key"));
 
         columns.add(new AbstractColumn<ResourceTO, String>(
                 new StringResourceModel("connector", this, null, "connector")) {
@@ -236,7 +235,7 @@ public class Resources extends BasePage {
                             final String componentId, final IModel<ResourceTO> model) {
 
                         item.add(new Label(componentId, ""));
-                        item.add(new AttributeModifier("class", new Model<String>(
+                        item.add(new AttributeModifier("class", new Model<>(
                                                 Boolean.toString(model.getObject().isPropagationPrimary()))));
                     }
 
@@ -305,7 +304,7 @@ public class Resources extends BasePage {
 
                             @Override
                             public Page createPage() {
-                                return new ProvisioningModalPage<RoleTO>(
+                                return new ProvisioningModalPage<>(
                                         getPageReference(), statusmodal, model.getObject(), RoleTO.class);
                             }
                         });
@@ -381,14 +380,14 @@ public class Resources extends BasePage {
             }
         });
 
-        final AjaxDataTablePanel<ResourceTO, String> table = new AjaxDataTablePanel<ResourceTO, String>(
+        final AjaxDataTablePanel<ResourceTO, String> table = new AjaxDataTablePanel<>(
                 "resourceDatatable",
                 columns,
                 (ISortableDataProvider<ResourceTO, String>) new ResourcesProvider(),
                 resourcePaginatorRows,
                 Arrays.asList(new ActionLink.ActionType[] { ActionLink.ActionType.DELETE }),
                 resourceRestClient,
-                "name",
+                "key",
                 "Resources",
                 getPageReference());
 
@@ -466,10 +465,10 @@ public class Resources extends BasePage {
     }
 
     private void setupConnectors() {
-        List<IColumn<ConnInstanceTO, String>> columns = new ArrayList<IColumn<ConnInstanceTO, String>>();
+        List<IColumn<ConnInstanceTO, String>> columns = new ArrayList<>();
 
         columns.add(new PropertyColumn<ConnInstanceTO, String>(
-                new StringResourceModel("id", this, null), "id", "id"));
+                new StringResourceModel("key", this, null), "key", "key"));
         columns.add(new PropertyColumn<ConnInstanceTO, String>(
                 new StringResourceModel("name", this, null), "connectorName", "connectorName"));
         columns.add(new PropertyColumn<ConnInstanceTO, String>(
@@ -547,7 +546,7 @@ public class Resources extends BasePage {
                 connectorPaginatorRows,
                 Arrays.asList(new ActionLink.ActionType[] { ActionLink.ActionType.DELETE }),
                 connectorRestClient,
-                "id",
+                "key",
                 "Connectors",
                 getPageReference());
 
@@ -640,13 +639,13 @@ public class Resources extends BasePage {
         public ResourcesProvider() {
             super();
             //Default sorting
-            setSort("name", SortOrder.ASCENDING);
-            comparator = new SortableDataProviderComparator<ResourceTO>(this);
+            setSort("key", SortOrder.ASCENDING);
+            comparator = new SortableDataProviderComparator<>(this);
         }
 
         @Override
         public Iterator<ResourceTO> iterator(final long first, final long count) {
-            List<ResourceTO> list = getResourcesListDB();
+            List<ResourceTO> list = resourceRestClient.getAll();
 
             Collections.sort(list, comparator);
 
@@ -655,7 +654,7 @@ public class Resources extends BasePage {
 
         @Override
         public long size() {
-            return getResourcesListDB().size();
+            return resourceRestClient.getAll().size();
         }
 
         @Override
@@ -670,10 +669,6 @@ public class Resources extends BasePage {
                 }
             };
         }
-
-        public List<ResourceTO> getResourcesListDB() {
-            return resourceRestClient.getAll();
-        }
     }
 
     private class ConnectorsProvider extends SortableDataProvider<ConnInstanceTO, String> {
@@ -685,13 +680,13 @@ public class Resources extends BasePage {
         public ConnectorsProvider() {
             super();
             //Default sorting
-            setSort("id", SortOrder.ASCENDING);
-            comparator = new SortableDataProviderComparator<ConnInstanceTO>(this);
+            setSort("key", SortOrder.ASCENDING);
+            comparator = new SortableDataProviderComparator<>(this);
         }
 
         @Override
         public Iterator<ConnInstanceTO> iterator(long first, long count) {
-            List<ConnInstanceTO> list = getConnectorsListDB();
+            List<ConnInstanceTO> list = connectorRestClient.getAllConnectors();
 
             Collections.sort(list, comparator);
 
@@ -700,7 +695,7 @@ public class Resources extends BasePage {
 
         @Override
         public long size() {
-            return getConnectorsListDB().size();
+            return connectorRestClient.getAllConnectors().size();
         }
 
         @Override
@@ -715,10 +710,6 @@ public class Resources extends BasePage {
                     return connector;
                 }
             };
-        }
-
-        public List<ConnInstanceTO> getConnectorsListDB() {
-            return connectorRestClient.getAllConnectors();
         }
     }
 

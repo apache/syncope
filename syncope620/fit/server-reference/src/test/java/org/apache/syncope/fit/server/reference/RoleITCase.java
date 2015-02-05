@@ -90,7 +90,7 @@ public class RoleITCase extends AbstractITCase {
         // inherited so setter execution should be ignored
         roleTO.setPasswordPolicy(2L);
 
-        roleTO.getRAttrTemplates().add("icon");
+        roleTO.getRPlainAttrTemplates().add("icon");
         roleTO.getPlainAttrs().add(attrTO("icon", "anIcon"));
 
         roleTO.getResources().add(RESOURCE_NAME_LDAP);
@@ -243,7 +243,7 @@ public class RoleITCase extends AbstractITCase {
     @Test
     public void update() {
         RoleTO roleTO = buildRoleTO("latestRole" + getUUIDString());
-        roleTO.getRAttrTemplates().add("show");
+        roleTO.getRPlainAttrTemplates().add("show");
         roleTO = createRole(roleTO);
 
         assertEquals(1, roleTO.getPlainAttrs().size());
@@ -749,7 +749,7 @@ public class RoleITCase extends AbstractITCase {
         // 1. create ancestor role
         RoleTO ancestor = buildBasicRoleTO(ancestorName);
         ancestor.setParent(0L);
-        ancestor.getRAttrTemplates().add("icon");
+        ancestor.getRPlainAttrTemplates().add("icon");
         ancestor.getPlainAttrs().add(attrTO("icon", "ancestorIcon"));
         ancestor = createRole(ancestor);
         assertEquals("ancestorIcon", ancestor.getPlainAttrMap().get("icon").getValues().get(0));
@@ -757,7 +757,7 @@ public class RoleITCase extends AbstractITCase {
         // 2. create parent role
         RoleTO parent = buildBasicRoleTO(parentName);
         parent.setParent(ancestor.getKey());
-        parent.getRAttrTemplates().add("icon");
+        parent.getRPlainAttrTemplates().add("icon");
         parent.getPlainAttrs().add(attrTO("icon", "parentIcon"));
         parent = createRole(parent);
         assertEquals("parentIcon", parent.getPlainAttrMap().get("icon").getValues().get(0));
@@ -765,7 +765,7 @@ public class RoleITCase extends AbstractITCase {
         // 3. create child role
         RoleTO child = buildBasicRoleTO(childName);
         child.setParent(parent.getKey());
-        child.getRAttrTemplates().add("icon");
+        child.getRPlainAttrTemplates().add("icon");
         child.getPlainAttrs().add(attrTO("icon", "childIcon"));
         child = createRole(child);
         assertEquals("childIcon", child.getPlainAttrMap().get("icon").getValues().get(0));
@@ -829,9 +829,9 @@ public class RoleITCase extends AbstractITCase {
 
             // 2. create a role and give the resource created above
             roleTO = buildRoleTO("lastRole");
-            roleTO.getRAttrTemplates().add("icon");
+            roleTO.getRPlainAttrTemplates().add("icon");
             roleTO.getPlainAttrs().add(attrTO("icon", "anIcon"));
-            roleTO.getRAttrTemplates().add("show");
+            roleTO.getRPlainAttrTemplates().add("show");
             roleTO.getPlainAttrs().add(attrTO("show", "true"));
             roleTO.getRDerAttrTemplates().add("displayProperty");
             roleTO.getDerAttrs().add(attrTO("displayProperty", null));

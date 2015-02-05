@@ -22,6 +22,7 @@ import org.apache.wicket.Component;
 import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.request.resource.ContextRelativeResource;
 
 public class ImagePanel extends Panel {
 
@@ -29,7 +30,7 @@ public class ImagePanel extends Panel {
 
     final Image img;
 
-    public ImagePanel(final String id, final String img) {
+    public ImagePanel(final String id, final ContextRelativeResource img) {
         super(id);
         this.img = new Image("img", img);
         add(this.img);

@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.common.lib.wrap;
 
-public class SubjectId extends AbstractWrappable<Long> {
+public class SubjectKey extends AbstractWrappable<Long> {
 
     private static final long serialVersionUID = -8664228651057889297L;
 

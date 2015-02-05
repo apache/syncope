@@ -31,7 +31,7 @@ under the License.
 
   <bean id="confDirectoryPropertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
     <property name="order" value="1"/>
-    <property name="location" value="file:${conf.directory}/console.properties"/>
+    <property name="location" value="file:${console.directory}/console.properties"/>
     <property name="ignoreResourceNotFound" value="true"/>
     <property name="ignoreUnresolvablePlaceholders" value="true"/>
   </bean>

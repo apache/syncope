@@ -140,11 +140,11 @@ public class RoleDetailsPanel extends Panel {
         this.add(parentFragment);
 
         final AjaxTextFieldPanel name =
-                new AjaxTextFieldPanel("name", "name", new PropertyModel<String>(roleTO, "name"));
+                new AjaxTextFieldPanel("name", "name", new PropertyModel<String>(roleTO, "key"));
 
         final WebMarkupContainer jexlHelp = JexlHelpUtil.getJexlHelpWebContainer("jexlHelp");
 
-        final AjaxLink questionMarkJexlHelp = JexlHelpUtil.getAjaxLink(jexlHelp, "questionMarkJexlHelp");
+        final AjaxLink<Void> questionMarkJexlHelp = JexlHelpUtil.getAjaxLink(jexlHelp, "questionMarkJexlHelp");
         this.add(questionMarkJexlHelp);
         questionMarkJexlHelp.add(jexlHelp);
 
@@ -241,7 +241,7 @@ public class RoleDetailsPanel extends Panel {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                send(getPage(), Broadcast.BREADTH, new RoleAttrTemplatesChange(Type.rAttrTemplates, target));
+                send(getPage(), Broadcast.BREADTH, new RoleAttrTemplatesChange(Type.rPlainAttrTemplates, target));
                 send(getPage(), Broadcast.BREADTH, new RoleAttrTemplatesChange(Type.rDerAttrTemplates, target));
                 send(getPage(), Broadcast.BREADTH, new RoleAttrTemplatesChange(Type.rVirAttrTemplates, target));
             }

@@ -35,7 +35,7 @@ public class AnnotatedEntityListener {
 
     @PrePersist
     @PreUpdate
-    public void setSysInfo(final AnnotatedEntity entity) {
+    public void setSysInfo(final AnnotatedEntity<?> entity) {
         final String username = AuthContextUtil.getAuthenticatedUsername();
         LOG.debug("Set system properties for '{}'", entity);
 

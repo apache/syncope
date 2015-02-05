@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.preview;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.wicket.markup.html.form.preview.AbstractBinaryPreviewer;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
@@ -30,8 +31,6 @@ import org.springframework.util.ClassUtils;
 @Component
 public class PreviewerClassScanner extends ClassPathScanningCandidateComponentProvider {
 
-    private static final String BASE_PATH = "org.apache.syncope.console.wicket.markup.html.form";
-
     public PreviewerClassScanner() {
         super(false);
         addIncludeFilter(new AnnotationTypeFilter(BinaryPreview.class));
@@ -39,9 +38,8 @@ public class PreviewerClassScanner extends ClassPathScanningCandidateComponentPr
 
     @SuppressWarnings("unchecked")
     public final List<Class<? extends AbstractBinaryPreviewer>> getComponentClasses() {
-        List<Class<? extends AbstractBinaryPreviewer>> classes =
-                new ArrayList<Class<? extends AbstractBinaryPreviewer>>();
-        for (BeanDefinition candidate : findCandidateComponents(BASE_PATH)) {
+        List<Class<? extends AbstractBinaryPreviewer>> classes = new ArrayList<>();
+        for (BeanDefinition candidate : findCandidateComponents(StringUtils.EMPTY)) {
             classes.add((Class<AbstractBinaryPreviewer>) ClassUtils.resolveClassName(candidate.getBeanClassName(),
                     ClassUtils.getDefaultClassLoader()));
         }

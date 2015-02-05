@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.pages;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.Mode;
 import org.apache.syncope.client.console.panels.DerAttrsPanel;
@@ -93,12 +94,12 @@ public abstract class UserModalPage extends BaseModalPage {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     protected Form setupEditPanel() {
         fragment.add(new Label("id", userTO.getKey() == 0
-                ? ""
+                ? StringUtils.EMPTY
                 : userTO.getUsername()));
 
         fragment.add(new Label("new", userTO.getKey() == 0
                 ? new ResourceModel("new")
-                : new Model("")));
+                : new Model(StringUtils.EMPTY)));
 
         final Form form = new Form("UserForm");
         form.setModel(new CompoundPropertyModel(userTO));

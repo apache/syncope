@@ -57,14 +57,14 @@ public class DisplayAttributesModalPage extends BaseModalPage {
      */
     private static final int MAX_SELECTIONS = 9;
 
-    public static final String[] DEFAULT_SELECTION = { "id", "username", "status" };
+    public static final String[] DEFAULT_SELECTION = { "key", "username", "status" };
 
     @SpringBean
     private PreferenceManager prefMan;
 
     private final List<String> selectedDetails;
 
-    private final List<String> selectedSchemas;
+    private final List<String> selectedPlainSchemas;
 
     private final List<String> selectedDerSchemas;
 
@@ -120,7 +120,7 @@ public class DisplayAttributesModalPage extends BaseModalPage {
 
         selectedDetails = prefMan.getList(getRequest(), Constants.PREF_USERS_DETAILS_VIEW);
 
-        selectedSchemas = prefMan.getList(getRequest(), Constants.PREF_USERS_ATTRIBUTES_VIEW);
+        selectedPlainSchemas = prefMan.getList(getRequest(), Constants.PREF_USERS_ATTRIBUTES_VIEW);
 
         selectedDerSchemas = prefMan.getList(getRequest(), Constants.PREF_USERS_DERIVED_ATTRIBUTES_VIEW);
 
@@ -142,23 +142,23 @@ public class DisplayAttributesModalPage extends BaseModalPage {
         dgroup.add(details);
 
         if (names.getObject() == null || names.getObject().isEmpty()) {
-            final Fragment fragment = new Fragment("schemas", "emptyFragment", form);
+            final Fragment fragment = new Fragment("plainSchemas", "emptyFragment", form);
             form.add(fragment);
 
-            selectedSchemas.clear();
+            selectedPlainSchemas.clear();
         } else {
-            final Fragment fragment = new Fragment("schemas", "sfragment", form);
+            final Fragment fragment = new Fragment("plainSchemas", "sfragment", form);
             form.add(fragment);
 
-            final CheckGroup sgroup = new CheckGroup("sCheckGroup", new PropertyModel(this, "selectedSchemas"));
+            final CheckGroup sgroup = new CheckGroup("psCheckGroup", new PropertyModel(this, "selectedPlainSchemas"));
             fragment.add(sgroup);
 
-            final ListView<String> schemas = new ListView<String>("schemas", names) {
+            final ListView<String> schemas = new ListView<String>("plainSchemas", names) {
 
                 private static final long serialVersionUID = 9101744072914090143L;
 
                 @Override
-                protected void populateItem(ListItem<String> item) {
+                protected void populateItem(final ListItem<String> item) {
                     item.add(new Check("scheck", item.getModel()));
                     item.add(new Label("sname", new ResourceModel(item.getModelObject(), item.getModelObject())));
                 }
@@ -222,7 +222,7 @@ public class DisplayAttributesModalPage extends BaseModalPage {
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-                if (selectedDetails.size() + selectedSchemas.size() + selectedVirSchemas.size() + selectedDerSchemas.
+                if (selectedDetails.size() + selectedPlainSchemas.size() + selectedVirSchemas.size() + selectedDerSchemas.
                         size()
                         > MAX_SELECTIONS) {
 
@@ -233,7 +233,7 @@ public class DisplayAttributesModalPage extends BaseModalPage {
 
                     prefs.put(Constants.PREF_USERS_DETAILS_VIEW, selectedDetails);
 
-                    prefs.put(Constants.PREF_USERS_ATTRIBUTES_VIEW, selectedSchemas);
+                    prefs.put(Constants.PREF_USERS_ATTRIBUTES_VIEW, selectedPlainSchemas);
 
                     prefs.put(Constants.PREF_USERS_DERIVED_ATTRIBUTES_VIEW, selectedDerSchemas);
 

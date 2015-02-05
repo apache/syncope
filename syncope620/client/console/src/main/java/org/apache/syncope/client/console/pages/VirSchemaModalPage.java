@@ -54,12 +54,12 @@ public class VirSchemaModalPage extends AbstractSchemaModalPage<VirSchemaTO> {
             schema = new VirSchemaTO();
         }
 
-        final Form<VirSchemaTO> schemaForm = new Form<VirSchemaTO>(FORM);
+        final Form<VirSchemaTO> schemaForm = new Form<>(FORM);
 
-        schemaForm.setModel(new CompoundPropertyModel<VirSchemaTO>(schema));
+        schemaForm.setModel(new CompoundPropertyModel<>(schema));
 
-        final AjaxTextFieldPanel name = new AjaxTextFieldPanel("name", getString("name"), new PropertyModel<String>(
-                schema, "name"));
+        final AjaxTextFieldPanel name =
+                new AjaxTextFieldPanel("key", getString("key"), new PropertyModel<String>(schema, "key"));
         name.addRequiredLabel();
 
         name.setEnabled(createFlag);

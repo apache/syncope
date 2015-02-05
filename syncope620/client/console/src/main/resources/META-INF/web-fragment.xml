@@ -46,6 +46,10 @@ under the License.
     <filter-name>SyncopeConsole</filter-name>
     <filter-class>org.apache.wicket.protocol.http.WicketFilter</filter-class>
     <init-param>
+      <param-name>filterMappingUrlPattern</param-name>
+      <param-value>/*</param-value>
+    </init-param>
+    <init-param>
       <param-name>applicationFactoryClassName</param-name>
       <param-value>org.apache.wicket.spring.SpringWebApplicationFactory</param-value>
     </init-param>

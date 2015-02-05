@@ -89,7 +89,7 @@ public class SchemaRestClient extends BaseRestClient {
     }
 
     public List<String> getSchemaNames(final AttributableType attrType, final SchemaType schemaType) {
-        final List<String> schemaNames = new ArrayList<String>();
+        final List<String> schemaNames = new ArrayList<>();
 
         try {
             final List<? extends AbstractSchemaTO> schemas = getSchemas(attrType, schemaType);
@@ -103,8 +103,8 @@ public class SchemaRestClient extends BaseRestClient {
         return schemaNames;
     }
 
-    public List<String> getSchemaNames(final AttributableType type) {
-        final List<String> schemaNames = new ArrayList<String>();
+    public List<String> getPlainSchemaNames(final AttributableType type) {
+        final List<String> schemaNames = new ArrayList<>();
 
         try {
             final List<PlainSchemaTO> schemas = getSchemas(type);
@@ -131,7 +131,7 @@ public class SchemaRestClient extends BaseRestClient {
     }
 
     public List<String> getDerSchemaNames(final AttributableType type) {
-        final List<String> userDerSchemasNames = new ArrayList<String>();
+        final List<String> userDerSchemasNames = new ArrayList<>();
 
         try {
             final List<DerSchemaTO> userDerSchemas = getService(SchemaService.class).list(type, SchemaType.DERIVED);
@@ -174,11 +174,11 @@ public class SchemaRestClient extends BaseRestClient {
         return userVirSchemasNames;
     }
 
-    public void createSchema(final AttributableType type, final PlainSchemaTO schemaTO) {
+    public void createPlainSchema(final AttributableType type, final PlainSchemaTO schemaTO) {
         getService(SchemaService.class).create(type, SchemaType.PLAIN, schemaTO);
     }
 
-    public PlainSchemaTO readSchema(final AttributableType type, final String name) {
+    public PlainSchemaTO readPlainSchema(final AttributableType type, final String name) {
         PlainSchemaTO schema = null;
 
         try {
@@ -189,11 +189,11 @@ public class SchemaRestClient extends BaseRestClient {
         return schema;
     }
 
-    public void updateSchema(final AttributableType type, final PlainSchemaTO schemaTO) {
+    public void updatePlainSchema(final AttributableType type, final PlainSchemaTO schemaTO) {
         getService(SchemaService.class).update(type, SchemaType.PLAIN, schemaTO.getKey(), schemaTO);
     }
 
-    public PlainSchemaTO deleteSchema(final AttributableType type, final String name) {
+    public PlainSchemaTO deletePlainSchema(final AttributableType type, final String name) {
         PlainSchemaTO response = getService(SchemaService.class).read(type, SchemaType.PLAIN, name);
         getService(SchemaService.class).delete(type, SchemaType.PLAIN, name);
         return response;
@@ -237,9 +237,6 @@ public class SchemaRestClient extends BaseRestClient {
         return schemaTO;
     }
 
-    /**
-     * Populator for Validator Schema DropDown components.
-     */
     public List<String> getAllValidatorClasses() {
         List<String> response = null;
 

@@ -53,7 +53,7 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.apache.wicket.request.resource.ContextRelativeResource;
 
 /**
  * Show user or role status after performing a successful operation.
@@ -62,10 +62,7 @@ public class ResultStatusModalPage extends BaseModalPage {
 
     private static final long serialVersionUID = 2646115294319713723L;
 
-    private static final String IMG_STATUSES = "statuses/";
-
-    @SpringBean(name = "anonymousUser")
-    private String anonymousUser;
+    private static final String IMG_PREFIX = "/img/statuses/";
 
     private final AbstractSubjectTO subject;
 
@@ -184,8 +181,9 @@ public class ResultStatusModalPage extends BaseModalPage {
                                 case SUCCESS:
                                 case SUBMITTED:
                                 case CREATED:
-                                    image = new Image("icon", IMG_STATUSES + Status.ACTIVE.toString()
-                                            + Constants.PNG_EXT);
+                                    image = new Image("icon",
+                                            new ContextRelativeResource(IMG_PREFIX + Status.ACTIVE.toString()
+                                                    + Constants.PNG_EXT));
                                     alt = "success icon";
                                     title = "success";
                                     failureWindow.setVisible(false);
@@ -193,8 +191,9 @@ public class ResultStatusModalPage extends BaseModalPage {
                                     break;
 
                                 default:
-                                    image = new Image("icon", IMG_STATUSES + Status.SUSPENDED.toString()
-                                            + Constants.PNG_EXT);
+                                    image = new Image("icon",
+                                            new ContextRelativeResource(IMG_PREFIX + Status.SUSPENDED.toString()
+                                                    + Constants.PNG_EXT));
                                     alt = "failure icon";
                                     title = "failure";
                             }
@@ -381,15 +380,15 @@ public class ResultStatusModalPage extends BaseModalPage {
                 subject, resourceName, objectTO, this.subject instanceof RoleTO).getStatus()) {
 
             case ACTIVE:
-                image = new Image("status", IMG_STATUSES + Status.ACTIVE.toString()
-                        + Constants.PNG_EXT);
+                image = new Image("status",
+                        new ContextRelativeResource(IMG_PREFIX + Status.ACTIVE.toString() + Constants.PNG_EXT));
                 alt = "active icon";
                 title = "Enabled";
                 break;
 
             case SUSPENDED:
-                image = new Image("status", IMG_STATUSES + Status.SUSPENDED.toString()
-                        + Constants.PNG_EXT);
+                image = new Image("status",
+                        new ContextRelativeResource(IMG_PREFIX + Status.SUSPENDED.toString() + Constants.PNG_EXT));
                 alt = "inactive icon";
                 title = "Disabled";
                 break;

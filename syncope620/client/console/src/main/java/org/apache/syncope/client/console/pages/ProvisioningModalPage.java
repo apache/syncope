@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.status.AbstractStatusBeanProvider;
 import org.apache.syncope.client.console.commons.status.ConnObjectWrapper;
@@ -38,7 +39,7 @@ import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.ResourceDeassociationActionType;
 import org.apache.syncope.common.lib.wrap.AbstractWrappable;
-import org.apache.syncope.common.lib.wrap.SubjectId;
+import org.apache.syncope.common.lib.wrap.SubjectKey;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
@@ -48,6 +49,7 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.ISortableDataProvider;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.StringResourceModel;
@@ -83,10 +85,12 @@ public class ProvisioningModalPage<T extends AbstractAttributableTO> extends Abs
 
         statusUtils = new StatusUtils((UserTO.class.isAssignableFrom(typeRef) ? userRestClient : roleRestClient));
 
-        final List<IColumn<StatusBean, String>> columns = new ArrayList<IColumn<StatusBean, String>>();
+        add(new Label("displayName", StringUtils.EMPTY));
+
+        final List<IColumn<StatusBean, String>> columns = new ArrayList<>();
         columns.add(new PropertyColumn<StatusBean, String>(
-                new StringResourceModel("id", this, null, "Attributable id"),
-                "attributableId", "attributableId"));
+                new StringResourceModel("key", this, null, "Attributable key"),
+                "attributableKey", "attributableKey"));
         columns.add(new PropertyColumn<StatusBean, String>(
                 new StringResourceModel("name", this, null, "Attributable name"),
                 "attributableName", "attributableName"));
@@ -116,7 +120,7 @@ public class ProvisioningModalPage<T extends AbstractAttributableTO> extends Abs
                             }
                 });
 
-        final ActionDataTablePanel<StatusBean, String> table = new ActionDataTablePanel<StatusBean, String>(
+        final ActionDataTablePanel<StatusBean, String> table = new ActionDataTablePanel<>(
                 "resourceDatatable",
                 columns,
                 (ISortableDataProvider<StatusBean, String>) new StatusBeanProvider(),
@@ -191,21 +195,18 @@ public class ProvisioningModalPage<T extends AbstractAttributableTO> extends Abs
         public List<StatusBean> getStatusBeans() {
             final String fiql = SyncopeClient.getUserSearchConditionBuilder().hasResources(resourceTO.getKey()).query();
 
-            final List<T> subjects = new ArrayList<T>();
+            final List<T> subjects = new ArrayList<>();
             if (UserTO.class.isAssignableFrom(typeRef)) {
-                subjects.addAll((List<T>) userRestClient.search(fiql, 1, ROWS_PER_PAGE,
-                        new SortParam<String>("id", true)));
+                subjects.addAll((List<T>) userRestClient.search(fiql, 1, ROWS_PER_PAGE, new SortParam<>("key", true)));
             } else {
-                subjects.addAll((List<T>) roleRestClient.search(fiql, 1, ROWS_PER_PAGE,
-                        new SortParam<String>("id", true)));
+                subjects.addAll((List<T>) roleRestClient.search(fiql, 1, ROWS_PER_PAGE, new SortParam<>("key", true)));
             }
 
             final List<ConnObjectWrapper> connObjects = statusUtils.getConnectorObjects(
                     (List<AbstractSubjectTO>) subjects, Collections.<String>singleton(resourceTO.getKey()));
 
-            final List<StatusBean> statusBeans = new ArrayList<StatusBean>(connObjects.size() + 1);
-            final LinkedHashMap<String, StatusBean> initialStatusBeanMap = new LinkedHashMap<String, StatusBean>(
-                    connObjects.size());
+            final List<StatusBean> statusBeans = new ArrayList<>(connObjects.size() + 1);
+            final LinkedHashMap<String, StatusBean> initialStatusBeanMap = new LinkedHashMap<>(connObjects.size());
 
             for (ConnObjectWrapper entry : connObjects) {
                 final StatusBean statusBean = statusUtils.getStatusBean(
@@ -228,23 +229,22 @@ public class ProvisioningModalPage<T extends AbstractAttributableTO> extends Abs
             final ActionDataTablePanel<StatusBean, String> table,
             final List<IColumn<StatusBean, String>> columns) {
 
-        final List<StatusBean> beans = new ArrayList<StatusBean>(table.getModelObject());
-        List<SubjectId> subjectIds = new ArrayList<SubjectId>();
+        final List<StatusBean> beans = new ArrayList<>(table.getModelObject());
+        List<SubjectKey> subjectKeys = new ArrayList<>();
         for (StatusBean bean : beans) {
             LOG.debug("Selected bean {}", bean);
-            subjectIds.add(AbstractWrappable.getInstance(SubjectId.class, bean.getAttributableId()));
+            subjectKeys.add(AbstractWrappable.getInstance(SubjectKey.class, bean.getAttributableId()));
         }
 
         if (beans.isEmpty()) {
             window.close(target);
         } else {
             final BulkActionResult res = resourceRestClient.bulkAssociationAction(
-                    resourceTO.getKey(), typeRef, type, subjectIds);
+                    resourceTO.getKey(), typeRef, type, subjectKeys);
 
             ((BasePage) pageRef.getPage()).setModalResult(true);
 
-            setResponsePage(new BulkActionResultModalPage<StatusBean, String>(
-                    window, beans, columns, res, "attributableId"));
+            setResponsePage(new BulkActionResultModalPage<>(window, beans, columns, res, "attributableKey"));
         }
     }
 }

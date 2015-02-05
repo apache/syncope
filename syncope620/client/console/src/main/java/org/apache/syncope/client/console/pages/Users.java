@@ -95,7 +95,7 @@ public class Users extends BasePage {
 
         setWindowClosedReloadCallback(editModalWin);
 
-        final Form searchForm = new Form("searchForm");
+        final Form<?> searchForm = new Form<>("searchForm");
         add(searchForm);
 
         final UserSearchPanel searchPanel = new UserSearchPanel.Builder("searchPanel").build();

@@ -20,24 +20,17 @@ package org.apache.syncope.client.console.preview;
 
 import java.lang.reflect.InvocationTargetException;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.console.init.PreviewPanelClassInitializer;
+import org.apache.syncope.client.console.init.BinaryPreviewersLoader;
 import org.apache.syncope.client.console.wicket.markup.html.form.preview.AbstractBinaryPreviewer;
 import org.apache.wicket.Component;
 import org.apache.wicket.util.crypt.Base64;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @org.springframework.stereotype.Component
 public class PreviewUtil {
 
-    /**
-     * Logger.
-     */
-    private static final Logger LOG = LoggerFactory.getLogger(PreviewUtil.class);
-
     @Autowired
-    private PreviewPanelClassInitializer previewPanelClassInitializer;
+    private BinaryPreviewersLoader previewPanelClassInitializer;
 
     public Component getPreviewer(final String mimeType, final String file) throws ClassNotFoundException,
             NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {

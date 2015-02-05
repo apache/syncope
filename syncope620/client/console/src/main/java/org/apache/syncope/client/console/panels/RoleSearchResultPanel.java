@@ -60,13 +60,10 @@ public class RoleSearchResultPanel extends AbstractSearchResultPanel {
 
     @Override
     protected List<IColumn<AbstractAttributableTO, String>> getColumns() {
-        final List<IColumn<AbstractAttributableTO, String>> columns =
-                new ArrayList<IColumn<AbstractAttributableTO, String>>();
+        final List<IColumn<AbstractAttributableTO, String>> columns = new ArrayList<>();
 
-        final String[] colnames = { "id", "name", "entitlements" };
-        for (String name : colnames) {
-            columns.add(
-                    new PropertyColumn<AbstractAttributableTO, String>(new ResourceModel(name, name), name, name));
+        for (String item : new String[] { "key", "name", "entitlements" }) {
+            columns.add(new PropertyColumn<AbstractAttributableTO, String>(new ResourceModel(item, item), item, item));
         }
 
         columns.add(new AbstractColumn<AbstractAttributableTO, String>(new ResourceModel("actions", "")) {

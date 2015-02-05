@@ -86,12 +86,12 @@ public class PolicyModalPage<T extends AbstractPolicyTO> extends BaseModalPage {
     public PolicyModalPage(final PageReference pageRef, final ModalWindow window, final T policyTO) {
         super();
 
-        final Form<?> form = new Form<Void>(FORM);
+        final Form<?> form = new Form<>(FORM);
         form.setOutputMarkupId(true);
         add(form);
 
-        final AjaxTextFieldPanel policyid = new AjaxTextFieldPanel("id", "id",
-                new PropertyModel<String>(policyTO, "id"));
+        final AjaxTextFieldPanel policyid =
+                new AjaxTextFieldPanel("key", "key", new PropertyModel<String>(policyTO, "key"));
         policyid.setEnabled(false);
         policyid.setStyleSheet("ui-widget-content ui-corner-all short_fixedsize");
         form.add(policyid);
@@ -102,8 +102,8 @@ public class PolicyModalPage<T extends AbstractPolicyTO> extends BaseModalPage {
         description.setStyleSheet("ui-widget-content ui-corner-all medium_dynamicsize");
         form.add(description);
 
-        final AjaxDropDownChoicePanel<PolicyType> type = new AjaxDropDownChoicePanel<PolicyType>("type", "type",
-                new PropertyModel<PolicyType>(policyTO, "type"));
+        final AjaxDropDownChoicePanel<PolicyType> type =
+                new AjaxDropDownChoicePanel<>("type", "type", new PropertyModel<PolicyType>(policyTO, "type"));
         switch (policyTO.getType()) {
             case GLOBAL_ACCOUNT:
             case ACCOUNT:
@@ -154,7 +154,7 @@ public class PolicyModalPage<T extends AbstractPolicyTO> extends BaseModalPage {
         mwindow.setCookieName("meta-edit-modal");
         add(mwindow);
 
-        List<IColumn<String, String>> resColumns = new ArrayList<IColumn<String, String>>();
+        List<IColumn<String, String>> resColumns = new ArrayList<>();
         resColumns.add(new AbstractColumn<String, String>(new StringResourceModel("name", this, null, "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
@@ -228,15 +228,15 @@ public class PolicyModalPage<T extends AbstractPolicyTO> extends BaseModalPage {
 
             @Override
             public IModel<String> model(final String object) {
-                return new Model<String>(object);
+                return new Model<>(object);
             }
         };
         final AjaxFallbackDefaultDataTable<String, String> resources =
-                new AjaxFallbackDefaultDataTable<String, String>("resources", resColumns, resDataProvider, 10);
+                new AjaxFallbackDefaultDataTable<>("resources", resColumns, resDataProvider, 10);
         form.add(resources);
 
-        List<IColumn<RoleTO, String>> roleColumns = new ArrayList<IColumn<RoleTO, String>>();
-        roleColumns.add(new PropertyColumn<RoleTO, String>(new ResourceModel("id", "id"), "id", "id"));
+        List<IColumn<RoleTO, String>> roleColumns = new ArrayList<>();
+        roleColumns.add(new PropertyColumn<RoleTO, String>(new ResourceModel("key", "key"), "key", "key"));
         roleColumns.add(new PropertyColumn<RoleTO, String>(new ResourceModel("name", "name"), "name", "name"));
         roleColumns.add(new AbstractColumn<RoleTO, String>(new StringResourceModel("actions", this, null, "")) {
 
@@ -306,11 +306,11 @@ public class PolicyModalPage<T extends AbstractPolicyTO> extends BaseModalPage {
 
             @Override
             public IModel<RoleTO> model(final RoleTO object) {
-                return new Model<RoleTO>(object);
+                return new Model<>(object);
             }
         };
         final AjaxFallbackDefaultDataTable<RoleTO, String> roles =
-                new AjaxFallbackDefaultDataTable<RoleTO, String>("roles", roleColumns, roleDataProvider, 10);
+                new AjaxFallbackDefaultDataTable<>("roles", roleColumns, roleDataProvider, 10);
         form.add(roles);
 
         mwindow.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
