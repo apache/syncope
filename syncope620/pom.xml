@@ -1203,7 +1203,6 @@ under the License.
             <exclude>**/deb/control/conffiles</exclude>
             <exclude>**/deb/control/control</exclude>
             <exclude>**/*.lst</exclude>
-            <exclude>**/syncope620/**</exclude>
           </excludes>
         </configuration>
         <executions>
@@ -1214,6 +1213,94 @@ under the License.
             </goals>
           </execution>
         </executions>
+      </plugin>
+      
+      <!-- Drop inherited behavior (i.e. don't put any more default LICENSE and NOTICE files in all artifacts) -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-remote-resources-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>process</goal>
+            </goals>
+            <phase>none</phase>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- Put NOTICE and LICENSE files in all artifacts and javadocs -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>2.6</version>
+        <executions>
+          <execution>
+            <id>copy-artifact-legal-files</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.directory}/classes/META-INF</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>${rootpom.basedir}</directory>
+                  <includes>
+                    <include>LICENSE</include>
+                    <include>NOTICE</include>
+                  </includes>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+          <execution>
+            <id>copy-javadoc-legal-files</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.directory}/apidocs/META-INF</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>${rootpom.basedir}</directory>
+                  <includes>
+                    <include>LICENSE</include>
+                    <include>NOTICE</include>
+                  </includes>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>ianal-maven-plugin</artifactId>
+        <version>1.0-alpha-1</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>verify-legal-files</goal>
+            </goals>
+            <configuration>
+              <!-- Fail the build if any artifacts are missing legal files -->
+              <strict>true</strict>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-release-plugin</artifactId>
+        <version>2.5.1</version>
+        <configuration>
+          <mavenExecutorId>forked-path</mavenExecutorId>
+          <autoVersionSubmodules>true</autoVersionSubmodules>
+          <tagNameFormat>syncope-@{project.version}</tagNameFormat>
+        </configuration>
       </plugin>
     </plugins>
     
@@ -1294,7 +1381,7 @@ under the License.
                       <link>http://connid.tirasa.net/apidocs/1.4/</link>
                       <link>http://camel.apache.org/maven/current/camel-core/apidocs/</link>
                       <link>http://camel.apache.org/maven/current/camel-spring/apidocs/</link>
-                      <link>http://ci.apache.org/projects/wicket/apidocs/7.x/</link>
+                      <link>http://ci.apache.org/projects/wicket/apidocs/6.x/</link>
                       <link>http://docs.spring.io/spring/docs/4.1.x/javadoc-api/</link>
                       <link>http://docs.spring.io/spring-security/site/docs/3.2.x/apidocs/</link>
                       <link>http://activiti.org/javadocs/</link>
