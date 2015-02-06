@@ -111,8 +111,8 @@ public class StatusPanel extends Panel implements IHeaderContributor {
 
         connObjects = statusUtils.getConnectorObjects(subject);
 
-        final List<StatusBean> statusBeans = new ArrayList<StatusBean>(connObjects.size() + 1);
-        initialStatusBeanMap = new LinkedHashMap<String, StatusBean>(connObjects.size() + 1);
+        final List<StatusBean> statusBeans = new ArrayList<>(connObjects.size() + 1);
+        initialStatusBeanMap = new LinkedHashMap<>(connObjects.size() + 1);
 
         final StatusBean syncope = new StatusBean(subject, "syncope");
 

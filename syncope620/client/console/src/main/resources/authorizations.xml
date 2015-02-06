@@ -317,7 +317,7 @@ under the License.
       <entitlement>POLICY_UPDATE</entitlement>
     </action>
   </page>
-  <page id="Routes">
+  <page id="CamelRoutes">
     <action id="list">
       <entitlement>ROUTE_LIST</entitlement>
     </action>

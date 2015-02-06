@@ -22,7 +22,7 @@ import java.io.ByteArrayInputStream;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.console.preview.PreviewUtil;
+import org.apache.syncope.client.console.commons.PreviewUtil;
 import org.apache.syncope.client.console.commons.HttpResourceStream;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.BaseModalPage;

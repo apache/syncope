@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.client.console.pages;
 
+import static org.apache.syncope.client.console.pages.AbstractBasePage.LOG;
+
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -28,11 +30,15 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.LoggerConfig;
+import org.apache.syncope.client.console.ExtensionPanel;
 import org.apache.syncope.client.console.commons.AttrLayoutType;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.HttpResourceStream;
 import org.apache.syncope.client.console.commons.PreferenceManager;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
+import org.apache.syncope.client.console.init.ImplementationClassNamesLoader;
+import org.apache.syncope.client.console.panels.AbstractExtensionPanel;
+import org.apache.syncope.client.console.panels.JQueryUITabbedPanel;
 import org.apache.syncope.client.console.panels.LayoutsPanel;
 import org.apache.syncope.client.console.panels.PoliciesPanel;
 import org.apache.syncope.client.console.rest.LoggerRestClient;
@@ -51,6 +57,7 @@ import org.apache.syncope.common.lib.to.SecurityQuestionTO;
 import org.apache.syncope.common.lib.types.LoggerLevel;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.wicket.Page;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -64,6 +71,7 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColu
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
+import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
@@ -73,6 +81,7 @@ import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.PropertyListView;
+import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
@@ -85,6 +94,7 @@ import org.apache.wicket.request.resource.ContentDisposition;
 import org.apache.wicket.request.resource.DynamicImageResource;
 import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.springframework.util.ClassUtils;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**
@@ -121,6 +131,9 @@ public class Configuration extends BasePage {
     @SpringBean
     private PreferenceManager prefMan;
 
+    @SpringBean
+    private ImplementationClassNamesLoader implementationClassNamesLoader;
+
     private final ModalWindow syncopeConfWin;
 
     private final ModalWindow createNotificationWin;
@@ -139,6 +152,14 @@ public class Configuration extends BasePage {
 
     public Configuration() {
         super();
+
+        // Layouts
+        add(new LayoutsPanel("adminUserLayoutPanel", AttrLayoutType.ADMIN_USER, feedbackPanel));
+        add(new LayoutsPanel("selfUserLayoutPanel", AttrLayoutType.SELF_USER, feedbackPanel));
+        add(new LayoutsPanel("adminRoleLayoutPanel", AttrLayoutType.ADMIN_ROLE, feedbackPanel));
+        add(new LayoutsPanel("selfRoleLayoutPanel", AttrLayoutType.SELF_ROLE, feedbackPanel));
+        add(new LayoutsPanel("adminMembershipLayoutPanel", AttrLayoutType.ADMIN_MEMBERSHIP, feedbackPanel));
+        add(new LayoutsPanel("selfMembershipLayoutPanel", AttrLayoutType.SELF_MEMBERSHIP, feedbackPanel));
 
         add(syncopeConfWin = new ModalWindow("syncopeConfWin"));
         syncopeConfWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
@@ -190,7 +211,7 @@ public class Configuration extends BasePage {
         }
 
         BookmarkablePageLink<Void> activitiModeler =
-                new BookmarkablePageLink<Void>("activitiModeler", ActivitiModelerPopupPage.class);
+                new BookmarkablePageLink<>("activitiModeler", ActivitiModelerPopupPage.class);
         activitiModeler.setPopupSettings(new VeilPopupSettings().setHeight(600).setWidth(800));
         MetaDataRoleAuthorizationStrategy.authorize(activitiModeler, ENABLE,
                 xmlRolesReader.getEntitlement("Configuration", "workflowDefRead"));
@@ -260,12 +281,8 @@ public class Configuration extends BasePage {
                 consoleLoggerContainer, ENABLE, xmlRolesReader.getEntitlement("Configuration", "logList"));
         add(consoleLoggerContainer);
 
-        add(new LayoutsPanel("adminUserLayoutPanel", AttrLayoutType.ADMIN_USER, feedbackPanel));
-        add(new LayoutsPanel("selfUserLayoutPanel", AttrLayoutType.SELF_USER, feedbackPanel));
-        add(new LayoutsPanel("adminRoleLayoutPanel", AttrLayoutType.ADMIN_ROLE, feedbackPanel));
-        add(new LayoutsPanel("selfRoleLayoutPanel", AttrLayoutType.SELF_ROLE, feedbackPanel));
-        add(new LayoutsPanel("adminMembershipLayoutPanel", AttrLayoutType.ADMIN_MEMBERSHIP, feedbackPanel));
-        add(new LayoutsPanel("selfMembershipLayoutPanel", AttrLayoutType.SELF_MEMBERSHIP, feedbackPanel));
+        // Extension panels
+        setupExtPanels();
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -401,7 +418,7 @@ public class Configuration extends BasePage {
         });
 
         final AjaxFallbackDefaultDataTable<NotificationTO, String> notificationTable =
-                new AjaxFallbackDefaultDataTable<NotificationTO, String>(
+                new AjaxFallbackDefaultDataTable<>(
                         "notificationTable", notificationCols, new NotificationProvider(), notificationPaginatorRows);
 
         notificationContainer = new WebMarkupContainer("notificationContainer");
@@ -533,7 +550,7 @@ public class Configuration extends BasePage {
         });
 
         final AjaxFallbackDefaultDataTable<SecurityQuestionTO, String> securityQuestionTable =
-                new AjaxFallbackDefaultDataTable<SecurityQuestionTO, String>("securityQuestionTable",
+                new AjaxFallbackDefaultDataTable<>("securityQuestionTable",
                         securityQuestionCols, new SecurityQuestionProvider(), 50);
 
         securityQuestionContainer = new WebMarkupContainer("securityQuestionContainer");
@@ -572,6 +589,48 @@ public class Configuration extends BasePage {
         add(createSecurityQuestionLink);
     }
 
+    private void setupExtPanels() {
+        List<AbstractTab> tabs = new ArrayList<>();
+        int index = 0;
+        for (final Class<? extends AbstractExtensionPanel> clazz
+                : implementationClassNamesLoader.getExtPanelClasses()) {
+
+            String title = clazz.getAnnotation(ExtensionPanel.class) == null
+                    ? "Extension " + index
+                    : clazz.getAnnotation(ExtensionPanel.class).value();
+            tabs.add(new AbstractTab(new Model<>(title)) {
+
+                private static final long serialVersionUID = -5861786415855103549L;
+
+                @Override
+                public WebMarkupContainer getPanel(final String panelId) {
+                    Panel panel;
+
+                    try {
+                        panel = ClassUtils.getConstructorIfAvailable(clazz, String.class, PageReference.class).
+                                newInstance(panelId, Configuration.this.getPageReference());
+                    } catch (Exception e) {
+                        panel = new Panel(panelId) {
+
+                            private static final long serialVersionUID = 5538299138211283825L;
+
+                        };
+
+                        LOG.error("Could not instantiate {}", clazz.getName(), e);
+                    }
+
+                    return panel;
+                }
+            });
+
+            index++;
+        }
+
+        JQueryUITabbedPanel<AbstractTab> extPanels = new JQueryUITabbedPanel<>("extPanels", tabs);
+        extPanels.setVisible(!tabs.isEmpty());
+        add(extPanels);
+    }
+
     private class NotificationProvider extends SortableDataProvider<NotificationTO, String> {
 
         private static final long serialVersionUID = -276043813563988590L;
@@ -581,7 +640,7 @@ public class Configuration extends BasePage {
         public NotificationProvider() {
             //Default sorting
             setSort("key", SortOrder.ASCENDING);
-            comparator = new SortableDataProviderComparator<NotificationTO>(this);
+            comparator = new SortableDataProviderComparator<>(this);
         }
 
         @Override

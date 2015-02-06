@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.preview;
+package org.apache.syncope.client.console;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -27,8 +27,8 @@ import java.lang.annotation.Target;
 @Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface BinaryPreview {
+public @interface ExtensionPanel {
 
-    public String[] mimeTypes() default {};
+    public String value();
 
 }

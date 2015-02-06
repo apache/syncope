@@ -42,6 +42,7 @@ under the License.
     <module>logic</module>
     <module>rest-api</module>
     <module>rest-cxf</module>
+    <module>client-console</module>
   </modules>
 
 </project>

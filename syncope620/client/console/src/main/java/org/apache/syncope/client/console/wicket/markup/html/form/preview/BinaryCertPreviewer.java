@@ -24,7 +24,7 @@ import java.security.cert.X509Certificate;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.console.preview.BinaryPreview;
+import org.apache.syncope.client.console.BinaryPreview;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.Model;

@@ -39,7 +39,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
-import org.springframework.core.type.classreading.CachingMetadataReaderFactory;
 import org.springframework.core.type.filter.AssignableTypeFilter;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ClassUtils;
@@ -77,8 +76,6 @@ public class ImplementationClassNamesLoader implements SyncopeLoader {
 
     @Override
     public void load() {
-        CachingMetadataReaderFactory factory = new CachingMetadataReaderFactory();
-
         classNames = new EnumMap<>(Type.class);
         for (Type type : Type.values()) {
             classNames.put(type, new HashSet<String>());
@@ -128,7 +125,6 @@ public class ImplementationClassNamesLoader implements SyncopeLoader {
                 /* if (PushCorrelationRule.class.isAssignableFrom(clazz) && !isAbsractClazz) {
                  * classNames.get(Type.PUSH_CORRELATION_RULES).add(metadata.getClassName());
                  * } */
-                
                 if (PropagationActions.class.isAssignableFrom(clazz) && !isAbsractClazz) {
                     classNames.get(Type.PROPAGATION_ACTIONS).add(bd.getBeanClassName());
                 }

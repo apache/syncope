@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console;
 
 import java.io.Serializable;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.XMLRolesReader;
 import org.apache.syncope.client.console.pages.Configuration;
@@ -160,70 +161,70 @@ public class SyncopeApplication
         };
         page.add(infoLink);
 
-        BookmarkablePageLink<Page> schemaLink = new BookmarkablePageLink<Page>("schema", Schema.class);
+        BookmarkablePageLink<Page> schemaLink = new BookmarkablePageLink<>("schema", Schema.class);
         MetaDataRoleAuthorizationStrategy.authorize(
                 schemaLink, WebPage.ENABLE, xmlRolesReader.getEntitlement("Schema", "list"));
         page.add(schemaLink);
         schemaLink.add(new Image("schemaIcon", new ContextRelativeResource(IMG_PREFIX + (notsel
                 ? IMG_NOTSEL
-                : "") + "schema" + Constants.PNG_EXT)));
+                : StringUtils.EMPTY) + "schema" + Constants.PNG_EXT)));
 
-        BookmarkablePageLink<Page> usersLink = new BookmarkablePageLink<Page>("users", Users.class);
+        BookmarkablePageLink<Page> usersLink = new BookmarkablePageLink<>("users", Users.class);
         MetaDataRoleAuthorizationStrategy.authorize(
                 usersLink, WebPage.ENABLE, xmlRolesReader.getEntitlement("Users", "list"));
         page.add(usersLink);
         usersLink.add(new Image("usersIcon", new ContextRelativeResource(IMG_PREFIX + (notsel
                 ? IMG_NOTSEL
-                : "") + "users" + Constants.PNG_EXT)));
+                : StringUtils.EMPTY) + "users" + Constants.PNG_EXT)));
 
-        BookmarkablePageLink<Page> rolesLink = new BookmarkablePageLink<Page>("roles", Roles.class);
+        BookmarkablePageLink<Page> rolesLink = new BookmarkablePageLink<>("roles", Roles.class);
         MetaDataRoleAuthorizationStrategy.authorize(
                 rolesLink, WebPage.ENABLE, xmlRolesReader.getEntitlement("Roles", "list"));
         page.add(rolesLink);
         rolesLink.add(new Image("rolesIcon", new ContextRelativeResource(IMG_PREFIX + (notsel
                 ? IMG_NOTSEL
-                : "") + "roles" + Constants.PNG_EXT)));
+                : StringUtils.EMPTY) + "roles" + Constants.PNG_EXT)));
 
-        BookmarkablePageLink<Page> resourcesLink = new BookmarkablePageLink<Page>("resources", Resources.class);
+        BookmarkablePageLink<Page> resourcesLink = new BookmarkablePageLink<>("resources", Resources.class);
         MetaDataRoleAuthorizationStrategy.authorize(
                 resourcesLink, WebPage.ENABLE, xmlRolesReader.getEntitlement("Resources", "list"));
         page.add(resourcesLink);
         resourcesLink.add(new Image("resourcesIcon", new ContextRelativeResource(IMG_PREFIX + (notsel
                 ? IMG_NOTSEL
-                : "") + "resources" + Constants.PNG_EXT)));
+                : StringUtils.EMPTY) + "resources" + Constants.PNG_EXT)));
 
-        BookmarkablePageLink<Page> todoLink = new BookmarkablePageLink<Page>("todo", Todo.class);
+        BookmarkablePageLink<Page> todoLink = new BookmarkablePageLink<>("todo", Todo.class);
         MetaDataRoleAuthorizationStrategy.authorize(
                 todoLink, WebPage.ENABLE, xmlRolesReader.getEntitlement("Approval", "list"));
         page.add(todoLink);
         todoLink.add(new Image("todoIcon", new ContextRelativeResource(IMG_PREFIX + (notsel
                 ? IMG_NOTSEL
-                : "") + "todo" + Constants.PNG_EXT)));
+                : StringUtils.EMPTY) + "todo" + Constants.PNG_EXT)));
 
-        BookmarkablePageLink<Page> reportLink = new BookmarkablePageLink<Page>("reports", Reports.class);
+        BookmarkablePageLink<Page> reportLink = new BookmarkablePageLink<>("reports", Reports.class);
         MetaDataRoleAuthorizationStrategy.authorize(
                 reportLink, WebPage.ENABLE, xmlRolesReader.getEntitlement("Reports", "list"));
         page.add(reportLink);
         reportLink.add(new Image("reportsIcon", new ContextRelativeResource(IMG_PREFIX + (notsel
                 ? IMG_NOTSEL
-                : "") + "reports" + Constants.PNG_EXT)));
+                : StringUtils.EMPTY) + "reports" + Constants.PNG_EXT)));
 
-        BookmarkablePageLink<Page> configurationLink = new BookmarkablePageLink<Page>("configuration",
+        BookmarkablePageLink<Page> configurationLink = new BookmarkablePageLink<>("configuration",
                 Configuration.class);
         MetaDataRoleAuthorizationStrategy.authorize(
                 configurationLink, WebPage.ENABLE, xmlRolesReader.getEntitlement("Configuration", "list"));
         page.add(configurationLink);
         configurationLink.add(new Image("configurationIcon", new ContextRelativeResource(IMG_PREFIX + (notsel
                 ? IMG_NOTSEL
-                : "") + "configuration" + Constants.PNG_EXT)));
+                : StringUtils.EMPTY) + "configuration" + Constants.PNG_EXT)));
 
-        BookmarkablePageLink<Page> taskLink = new BookmarkablePageLink<Page>("tasks", Tasks.class);
+        BookmarkablePageLink<Page> taskLink = new BookmarkablePageLink<>("tasks", Tasks.class);
         MetaDataRoleAuthorizationStrategy.authorize(
                 taskLink, WebPage.ENABLE, xmlRolesReader.getEntitlement("Tasks", "list"));
         page.add(taskLink);
         taskLink.add(new Image("tasksIcon", new ContextRelativeResource(IMG_PREFIX + (notsel
                 ? IMG_NOTSEL
-                : "") + "tasks" + Constants.PNG_EXT)));
+                : StringUtils.EMPTY) + "tasks" + Constants.PNG_EXT)));
 
         page.add(new BookmarkablePageLink<Page>("logout", Logout.class));
     }

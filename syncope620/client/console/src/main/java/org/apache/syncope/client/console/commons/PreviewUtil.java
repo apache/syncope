@@ -16,45 +16,47 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.preview;
+package org.apache.syncope.client.console.commons;
 
 import java.lang.reflect.InvocationTargetException;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.console.init.BinaryPreviewersLoader;
+import org.apache.syncope.client.console.init.ImplementationClassNamesLoader;
 import org.apache.syncope.client.console.wicket.markup.html.form.preview.AbstractBinaryPreviewer;
 import org.apache.wicket.Component;
 import org.apache.wicket.util.crypt.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.ClassUtils;
 
 @org.springframework.stereotype.Component
 public class PreviewUtil {
 
     @Autowired
-    private BinaryPreviewersLoader previewPanelClassInitializer;
+    private ImplementationClassNamesLoader implementationClassNamesLoader;
 
-    public Component getPreviewer(final String mimeType, final String file) throws ClassNotFoundException,
-            NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
+    public Component getPreviewer(final String mimeType, final String file)
+            throws InstantiationException, IllegalAccessException, InvocationTargetException {
 
         final Class<? extends AbstractBinaryPreviewer> previewer = StringUtils.isBlank(file)
                 ? null
-                : previewPanelClassInitializer.getClass(mimeType);
+                : implementationClassNamesLoader.getPreviewerClass(mimeType);
 
         return previewer == null
                 ? null
-                : ((AbstractBinaryPreviewer) Class.forName(previewer.getName()).
-                getConstructor(String.class, String.class, byte[].class).newInstance(
-                        new Object[] { "previewer", mimeType, Base64.decodeBase64(file) })).preview();
+                : ClassUtils.getConstructorIfAvailable(previewer, String.class, String.class, byte[].class).
+                newInstance(new Object[] { "previewer", mimeType, Base64.decodeBase64(file) }).
+                preview();
     }
 
-    public Component getPreviewer(final String mimeType, final byte[] file) throws ClassNotFoundException,
-            NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
+    public Component getPreviewer(final String mimeType, final byte[] file)
+            throws InstantiationException, IllegalAccessException, InvocationTargetException {
 
-        final Class<? extends AbstractBinaryPreviewer> previewer = previewPanelClassInitializer.getClass(mimeType);
+        final Class<? extends AbstractBinaryPreviewer> previewer =
+                implementationClassNamesLoader.getPreviewerClass(mimeType);
 
         return previewer == null
                 ? null
-                : ((AbstractBinaryPreviewer) Class.forName(previewer.getName()).
-                getConstructor(String.class, String.class, byte[].class).newInstance(
-                        new Object[] { "previewer", mimeType, file })).preview();
+                : ClassUtils.getConstructorIfAvailable(previewer, String.class, String.class, byte[].class).
+                newInstance(new Object[] { "previewer", mimeType, file }).
+                preview();
     }
 }

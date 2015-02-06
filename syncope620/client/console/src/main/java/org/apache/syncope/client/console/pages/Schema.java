@@ -148,13 +148,13 @@ public class Schema extends BasePage {
         for (final AttributableType attrType : AttributableType.values()) {
             final String attrTypeAsString = attrType.name().toLowerCase();
 
-            List<ITab> tabs = new ArrayList<ITab>();
+            List<ITab> tabs = new ArrayList<>();
 
             for (final SchemaType schemaType : SchemaType.values()) {
                 if (attrType != AttributableType.CONFIGURATION || schemaType == SchemaType.PLAIN) {
                     final String schemaTypeAsString = schemaType.name().toLowerCase();
 
-                    tabs.add(new AbstractTab(new Model<String>(getString(schemaTypeAsString))) {
+                    tabs.add(new AbstractTab(new Model<>(getString(schemaTypeAsString))) {
 
                         private static final long serialVersionUID = -5861786415855103549L;
 

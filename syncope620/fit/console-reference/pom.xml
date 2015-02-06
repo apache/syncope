@@ -50,7 +50,12 @@ under the License.
       <groupId>javax.servlet</groupId>
       <artifactId>jstl</artifactId>
     </dependency>
-    
+
+    <dependency>
+      <groupId>org.apache.syncope.ext.camel</groupId>
+      <artifactId>syncope-ext-camel-client-console</artifactId>
+      <version>${project.version}</version>
+    </dependency>    
     <dependency>
       <groupId>org.apache.syncope.client</groupId>
       <artifactId>syncope-client-console</artifactId>
@@ -468,6 +473,9 @@ under the License.
                   <resource>
                     <directory>${basedir}/../../client/console/target/classes</directory>
                   </resource>
+                  <resource>
+                    <directory>${basedir}/../../ext/camel/client-console/target/classes</directory>
+                  </resource>
                 </resources>
               </classpath>
               
@@ -477,6 +485,10 @@ under the License.
                   <resource>
                     <target>/</target>
                     <directory>${basedir}/../../client/console/target/classes/META-INF/resources/</directory>
+                  </resource>
+                  <resource>
+                    <target>/</target>
+                    <directory>${basedir}/../../ext/camel/client-console/target/classes</directory>
                   </resource>
                 </resources>
               </web>
