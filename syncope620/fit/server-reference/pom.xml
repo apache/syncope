@@ -350,6 +350,72 @@ under the License.
   
   <profiles>
     <profile>
+      <id>postgres-it</id>
+
+      <properties>
+        <jdbcdriver.groupId>org.postgresql</jdbcdriver.groupId>
+        <jdbcdriver.artifactId>postgresql</jdbcdriver.artifactId>
+      </properties>
+
+      <dependencies>
+        <dependency>
+          <groupId>org.postgresql</groupId>
+          <artifactId>postgresql</artifactId>
+          <version>9.4-1200-jdbc41</version>
+          <scope>test</scope>
+        </dependency>
+      </dependencies>
+
+      <build>
+        <defaultGoal>clean verify</defaultGoal>
+
+        <resources>
+          <resource>
+            <directory>src/main/resources</directory>
+            <filtering>true</filtering>
+          </resource>
+          <resource>
+            <directory>src/main/resources/postgres</directory>
+            <filtering>true</filtering>
+          </resource>
+        </resources>
+      </build>
+    </profile>
+    
+    <profile>
+      <id>mysql-it</id>
+
+      <properties>
+        <jdbcdriver.groupId>mysql</jdbcdriver.groupId>
+        <jdbcdriver.artifactId>mysql-connector-java</jdbcdriver.artifactId>
+      </properties>
+
+      <dependencies>
+        <dependency>
+          <groupId>mysql</groupId>
+          <artifactId>mysql-connector-java</artifactId>
+          <version>5.1.34</version>
+          <scope>test</scope>
+        </dependency>
+      </dependencies>
+      
+      <build>
+        <defaultGoal>clean verify</defaultGoal>
+
+        <resources>
+          <resource>
+            <directory>src/main/resources</directory>
+            <filtering>true</filtering>
+          </resource>
+          <resource>
+            <directory>src/main/resources/mysql</directory>
+            <filtering>true</filtering>
+          </resource>
+        </resources>
+      </build>
+    </profile>
+    
+    <profile>
       <id>debug</id>
 
       <properties>

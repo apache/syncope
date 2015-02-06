@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.fit.server.reference;
 
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -27,10 +28,13 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -152,6 +156,37 @@ public class ConfigurationITCase extends AbstractITCase {
         }
     }
 
+    private static String[] substringsBetween(final String str, final String open, final String close) {
+        if (str == null || isEmpty(open) || isEmpty(close)) {
+            return null;
+        }
+        final int strLen = str.length();
+        if (strLen == 0) {
+            return ArrayUtils.EMPTY_STRING_ARRAY;
+        }
+        final int closeLen = close.length();
+        final int openLen = open.length();
+        final List<String> list = new ArrayList<>();
+        int pos = 0;
+        while (pos < strLen - closeLen) {
+            int start = StringUtils.indexOfIgnoreCase(str, open, pos);
+            if (start < 0) {
+                break;
+            }
+            start += openLen;
+            final int end = StringUtils.indexOfIgnoreCase(str, close, start);
+            if (end < 0) {
+                break;
+            }
+            list.add(str.substring(start, end));
+            pos = end + closeLen;
+        }
+        if (list.isEmpty()) {
+            return null;
+        }
+        return list.toArray(new String[list.size()]);
+    }
+
     @Test
     public void issueSYNCOPE629() throws IOException {
         PlainSchemaTO membershipKey = new PlainSchemaTO();
@@ -184,7 +219,7 @@ public class ConfigurationITCase extends AbstractITCase {
             assertFalse(configExport.isEmpty());
             assertTrue(configExport.length() > 1000);
 
-            String[] result = StringUtils.substringsBetween(configExport, "<RPLAINATTRTEMPLATE", "/>");
+            String[] result = substringsBetween(configExport, "<RPLAINATTRTEMPLATE", "/>");
             assertNotNull(result);
             boolean rattrExists = false;
             for (String entry : result) {
@@ -194,7 +229,7 @@ public class ConfigurationITCase extends AbstractITCase {
             }
             assertTrue(rattrExists);
 
-            result = StringUtils.substringsBetween(configExport, "<MPLAINATTRTEMPLATE", "/>");
+            result = substringsBetween(configExport, "<MPLAINATTRTEMPLATE", "/>");
             assertNotNull(result);
             boolean mattrExists = false;
             for (String entry : result) {
