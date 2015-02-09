@@ -124,7 +124,7 @@ public class JPAUserDAO extends AbstractSubjectDAO<UPlainAttr, UDerAttr, UVirAtt
     @Override
     public User findByToken(final String token) {
         TypedQuery<User> query = entityManager.createQuery("SELECT e FROM " + JPAUser.class.getSimpleName()
-                + " e WHERE e.token = :token", User.class);
+                + " e WHERE e.token LIKE :token", User.class);
         query.setParameter("token", token);
 
         User result = null;

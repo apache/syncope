@@ -140,8 +140,28 @@ public class CamelRouteLoader implements SyncopeLoader {
 
     private void loadEntitlements() {
         final JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-        jdbcTemplate.update("INSERT INTO Entitlement(NAME) VALUES('ROUTE_READ')");
-        jdbcTemplate.update("INSERT INTO Entitlement(NAME) VALUES('ROUTE_LIST')");
-        jdbcTemplate.update("INSERT INTO Entitlement(NAME) VALUES('ROUTE_UPDATE')");
+
+        boolean existingData;
+        try {
+            existingData = jdbcTemplate.queryForObject(
+                    "SELECT COUNT(0) FROM Entitlement WHERE NAME LIKE 'ROUTE_%'", Integer.class) > 0;
+        } catch (DataAccessException e) {
+            LOG.error("Could not access to Entitlement table", e);
+            existingData = true;
+        }
+
+        if (existingData) {
+            LOG.info("Data found in the database, leaving untouched");
+        } else {
+            LOG.info("Empty database found, loading default content");
+
+            try {
+                jdbcTemplate.update("INSERT INTO Entitlement(NAME) VALUES('ROUTE_READ')");
+                jdbcTemplate.update("INSERT INTO Entitlement(NAME) VALUES('ROUTE_LIST')");
+                jdbcTemplate.update("INSERT INTO Entitlement(NAME) VALUES('ROUTE_UPDATE')");
+            } catch (Exception e) {
+                LOG.error("While adding additional entitlements", e);
+            }
+        }
     }
 }

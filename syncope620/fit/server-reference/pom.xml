@@ -416,6 +416,72 @@ under the License.
     </profile>
     
     <profile>
+      <id>mariadb-it</id>
+
+      <properties>
+        <jdbcdriver.groupId>org.mariadb.jdbc</jdbcdriver.groupId>
+        <jdbcdriver.artifactId>mariadb-java-client</jdbcdriver.artifactId>
+      </properties>
+
+      <dependencies>
+        <dependency>
+          <groupId>org.mariadb.jdbc</groupId>
+          <artifactId>mariadb-java-client</artifactId>
+          <version>1.1.8</version>
+          <scope>test</scope>
+        </dependency>
+      </dependencies>
+      
+      <build>
+        <defaultGoal>clean verify</defaultGoal>
+
+        <resources>
+          <resource>
+            <directory>src/main/resources</directory>
+            <filtering>true</filtering>
+          </resource>
+          <resource>
+            <directory>src/main/resources/mariadb</directory>
+            <filtering>true</filtering>
+          </resource>
+        </resources>
+      </build>
+    </profile>
+    
+    <profile>
+      <id>sqlserver-it</id>
+
+      <properties>
+        <jdbcdriver.groupId>com.microsoft.sqlserver</jdbcdriver.groupId>
+        <jdbcdriver.artifactId>sqljdbc4</jdbcdriver.artifactId>
+      </properties>
+
+      <dependencies>
+        <dependency>
+          <groupId>com.microsoft.sqlserver</groupId>
+          <artifactId>sqljdbc4</artifactId>
+          <version>4.0</version>
+          <scope>test</scope>
+        </dependency>
+      </dependencies>
+      
+      <build>
+        <defaultGoal>clean verify</defaultGoal>
+
+        <resources>
+          <resource>
+            <directory>src/main/resources</directory>
+            <filtering>true</filtering>
+          </resource>
+          <resource>
+            <directory>src/main/resources/sqlserver</directory>
+            <filtering>true</filtering>
+          </resource>
+        </resources>
+      </build>
+    </profile>
+    
+    <profile>
       <id>debug</id>
 
       <properties>
