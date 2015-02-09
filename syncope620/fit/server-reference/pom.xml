@@ -449,6 +449,39 @@ under the License.
     </profile>
     
     <profile>
+      <id>oracle-it</id>
+
+      <properties>
+        <jdbcdriver.groupId>com.oracle</jdbcdriver.groupId>
+        <jdbcdriver.artifactId>ojdbc6</jdbcdriver.artifactId>
+      </properties>
+
+      <dependencies>
+        <dependency>
+          <groupId>com.oracle</groupId>
+          <artifactId>ojdbc6</artifactId>
+          <version>11.1.0</version>
+          <scope>test</scope>
+        </dependency>
+      </dependencies>
+      
+      <build>
+        <defaultGoal>clean verify</defaultGoal>
+
+        <resources>
+          <resource>
+            <directory>src/main/resources</directory>
+            <filtering>true</filtering>
+          </resource>
+          <resource>
+            <directory>src/main/resources/oracle</directory>
+            <filtering>true</filtering>
+          </resource>
+        </resources>
+      </build>
+    </profile>
+
+    <profile>
       <id>sqlserver-it</id>
 
       <properties>
