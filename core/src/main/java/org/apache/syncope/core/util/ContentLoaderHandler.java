@@ -54,7 +54,7 @@ public class ContentLoaderHandler extends DefaultHandler {
     private Object[] getParameters(final String tableName, final Attributes attrs) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
-        Map<String, Integer> colTypes = jdbcTemplate.query("SELECT * FROM " + tableName,
+        Map<String, Integer> colTypes = jdbcTemplate.query("SELECT * FROM " + tableName + " WHERE 0=1",
                 new ResultSetExtractor<Map<String, Integer>>() {
 
             @Override
