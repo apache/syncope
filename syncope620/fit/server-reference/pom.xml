@@ -550,6 +550,126 @@ under the License.
     </profile>
     
     <profile>
+      <id>jboss-it</id>
+
+      <dependencies>
+        <dependency>
+          <groupId>com.h2database</groupId>
+          <artifactId>h2</artifactId>
+        </dependency>
+        
+        <dependency>
+          <groupId>org.apache.syncope.ext.camel</groupId>
+          <artifactId>syncope-ext-camel-persistence-jpa</artifactId>
+          <version>${project.version}</version>
+        </dependency>
+      </dependencies>
+
+      <build>
+        <defaultGoal>clean verify</defaultGoal>
+
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-war-plugin</artifactId>
+            <configuration>
+              <packagingExcludes>WEB-INF/lib/syncope-*-persistence-jpa-${project.version}.jar</packagingExcludes>
+            </configuration>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <inherited>true</inherited>
+            <executions>
+              <execution>
+                <id>unpack-jpa-entities</id>
+                <phase>process-resources</phase>
+                <goals>
+                  <goal>unpack</goal>
+                </goals>
+                <configuration>
+                  <artifactItems>
+                    <artifactItem>
+                      <groupId>org.apache.syncope.server</groupId>
+                      <artifactId>syncope-server-persistence-jpa</artifactId>
+                      <version>${project.version}</version>
+                      <type>jar</type>
+                      <overWrite>false</overWrite>
+                    </artifactItem>
+                    <artifactItem>
+                      <groupId>org.apache.syncope.ext.camel</groupId>
+                      <artifactId>syncope-ext-camel-persistence-jpa</artifactId>
+                      <version>${project.version}</version>
+                      <type>jar</type>
+                      <overWrite>false</overWrite>
+                    </artifactItem>
+                  </artifactItems>
+                  <outputDirectory>${project.build.directory}/${project.build.finalName}/WEB-INF/classes</outputDirectory>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <inherited>true</inherited>
+            <executions>
+              <execution>
+                <id>remove-jpa-jar</id>
+                <phase>package</phase>
+                <configuration>
+                  <target>
+                    <delete> 
+                      <fileset dir="${project.build.directory}/${project.build.finalName}/WEB-INF/lib"
+                               includes="syncope-*-persistence-jpa-${project.version}.jar"/>
+                    </delete>
+                  </target>
+                </configuration>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+
+          <plugin>
+            <groupId>org.codehaus.cargo</groupId>
+            <artifactId>cargo-maven2-plugin</artifactId>
+            <inherited>true</inherited>
+            <configuration>
+              <container>
+                <containerId>wildfly8x</containerId>
+                <zipUrlInstaller>
+                  <url>http://download.jboss.org/wildfly/8.2.0.Final/wildfly-8.2.0.Final.zip</url>
+                  <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
+                  <extractDir>${project.build.directory}/cargo/extract</extractDir>
+                </zipUrlInstaller>
+                <log>${cargo.log}</log>
+                <output>${cargo.output}</output>
+              </container>
+              <configuration>
+                <properties>
+                  <cargo.jvmargs>-Xms1024m -Xmx2048m -XX:PermSize=512m -XX:MaxPermSize=1024m -XX:+UseConcMarkSweepGC -XX:+CMSPermGenSweepingEnabled -XX:+CMSClassUnloadingEnabled</cargo.jvmargs>
+                </properties>
+              </configuration>
+            </configuration>            
+          </plugin>
+        </plugins>
+
+        <resources>
+          <resource>
+            <directory>src/main/resources</directory>
+            <filtering>true</filtering>
+          </resource>
+          <resource>
+            <directory>src/main/resources/jboss</directory>
+            <filtering>true</filtering>
+          </resource>
+        </resources>
+      </build>
+    </profile>
+
+    <profile>
       <id>debug</id>
 
       <properties>
