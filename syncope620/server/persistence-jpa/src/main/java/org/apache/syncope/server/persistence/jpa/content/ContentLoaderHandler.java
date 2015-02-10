@@ -56,12 +56,14 @@ class ContentLoaderHandler extends DefaultHandler {
     private Object[] getParameters(final String tableName, final Attributes attrs) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
-        Map<String, Integer> colTypes = jdbcTemplate.query("SELECT * FROM " + tableName,
+        Map<String, Integer> colTypes = jdbcTemplate.query("SELECT * FROM " + tableName + " WHERE 0=1",
                 new ResultSetExtractor<Map<String, Integer>>() {
 
                     @Override
-                    public Map<String, Integer> extractData(final ResultSet rs) throws SQLException, DataAccessException {
-                        Map<String, Integer> colTypes = new HashMap<String, Integer>();
+                    public Map<String, Integer> extractData(final ResultSet rs)
+                    throws SQLException, DataAccessException {
+
+                        Map<String, Integer> colTypes = new HashMap<>();
                         for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
                             colTypes.put(rs.getMetaData().getColumnName(i).toUpperCase(),
                                     rs.getMetaData().getColumnType(i));
