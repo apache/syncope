@@ -664,49 +664,49 @@ under the License.
                 intMappingType="UserId" mandatoryCondition="true"
                 accountid="1" password="0" purpose="PROPAGATION"/>
   <UMappingItem id="100" extAttrName="email" mapping_id="15"
-                intAttrName="email" intMappingType="UserSchema" mandatoryCondition="true"
+                intAttrName="email" intMappingType="UserPlainSchema" mandatoryCondition="true"
                 accountid="0" password="0" purpose="PROPAGATION"/>
   <UMappingItem id="101" extAttrName="surname" mapping_id="15"
-                intAttrName="surname" intMappingType="UserSchema" mandatoryCondition="true"
+                intAttrName="surname" intMappingType="UserPlainSchema" mandatoryCondition="true"
                 accountid="0" password="0" purpose="PROPAGATION"/>
   <UMappingItem id="102" mapping_id="15"
                 extAttrName="__PASSWORD__" intMappingType="Password" mandatoryCondition="true"
                 accountid="0" password="1" purpose="PROPAGATION"/>
   <UMappingItem id="335" mapping_id="15" 
-                extAttrName="fullname" intAttrName="surname" intMappingType="UserSchema" mandatoryCondition="true"
+                extAttrName="fullname" intAttrName="surname" intMappingType="UserPlainSchema" mandatoryCondition="true"
                 accountid="0" password="0" purpose="PROPAGATION"/>
   <UMappingItem id="336" mapping_id="15"
-                extAttrName="type" intAttrName="type" intMappingType="UserSchema" mandatoryCondition="true"
+                extAttrName="type" intAttrName="type" intMappingType="UserPlainSchema" mandatoryCondition="true"
                 accountid="0" password="0" purpose="PROPAGATION"/>
   <UMappingItem id="337" mapping_id="15"
-                extAttrName="name" intAttrName="firstname" intMappingType="UserSchema" mandatoryCondition="false"
+                extAttrName="name" intAttrName="firstname" intMappingType="UserPlainSchema" mandatoryCondition="false"
                 accountid="0" password="0" purpose="NONE"/>
   
   <UMapping id="12" resource_name="ws-target-resource-list-mappings-1"/>
   <UMappingItem id="103" mapping_id="12"
-                extAttrName="email" intAttrName="email" intMappingType="UserSchema" mandatoryCondition="true"
+                extAttrName="email" intAttrName="email" intMappingType="UserPlainSchema" mandatoryCondition="true"
                 accountid="1" password="0" purpose="PROPAGATION"/>
   <UMappingItem id="104" extAttrName="surname" mapping_id="12"
-                intAttrName="surname" intMappingType="UserSchema" mandatoryCondition="true"
+                intAttrName="surname" intMappingType="UserPlainSchema" mandatoryCondition="true"
                 accountid="0" password="0" purpose="PROPAGATION"/>
 
   <UMapping id="13" resource_name="ws-target-resource-list-mappings-2"/>
   <UMappingItem id="105" mapping_id="13"
-                extAttrName="userId" intAttrName="userId" intMappingType="UserSchema" mandatoryCondition="true"
+                extAttrName="userId" intAttrName="userId" intMappingType="UserPlainSchema" mandatoryCondition="true"
                 accountid="1" password="0" purpose="PROPAGATION"/>
 
   <UMapping id="1" resource_name="ws-target-resource-2"/>
   <UMappingItem id="106" mapping_id="1" extAttrName="fullname"
-                intAttrName="fullname" intMappingType="UserSchema" mandatoryCondition="true"
+                intAttrName="fullname" intMappingType="UserPlainSchema" mandatoryCondition="true"
                 accountid="1" password="0" purpose="BOTH"/>
   <UMappingItem id="107" mapping_id="1"
                 extAttrName="__PASSWORD__" intMappingType="Password" mandatoryCondition="true"
                 accountid="0" password="1" purpose="BOTH"/>
   <UMappingItem id="108" extAttrName="type" mapping_id="1"
-                intAttrName="type" intMappingType="UserSchema" mandatoryCondition="true"
+                intAttrName="type" intMappingType="UserPlainSchema" mandatoryCondition="true"
                 accountid="0" password="0" purpose="BOTH"/>
   <UMappingItem id="109" extAttrName="surname" mapping_id="1"
-                intAttrName="surname" intMappingType="UserSchema" mandatoryCondition="type == 'F'"
+                intAttrName="surname" intMappingType="UserPlainSchema" mandatoryCondition="type == 'F'"
                 accountid="0" password="0" purpose="BOTH"/>
   <UMappingItem id="110" extAttrName="name" mapping_id="1"
                 intAttrName="virtualdata" intMappingType="UserVirtualSchema" mandatoryCondition="type == 'F'"
@@ -717,33 +717,33 @@ under the License.
     
   <UMapping id="2" resource_name="ws-target-resource-update"/>
   <UMappingItem id="112" extAttrName="email" mapping_id="2"
-                intAttrName="email" intMappingType="UserSchema" mandatoryCondition="false"
+                intAttrName="email" intMappingType="UserPlainSchema" mandatoryCondition="false"
                 accountid="0" password="0" purpose="PROPAGATION"/>
   <UMappingItem id="113" extAttrName="userId" mapping_id="2"
-                intAttrName="userId" intMappingType="UserSchema" mandatoryCondition="false"
+                intAttrName="userId" intMappingType="UserPlainSchema" mandatoryCondition="false"
                 accountid="1" password="0" purpose="PROPAGATION"/>
   <UMappingItem id="114" extAttrName="test3" mapping_id="2" 
-                intAttrName="fullname" intMappingType="UserSchema" mandatoryCondition="false"
+                intAttrName="fullname" intMappingType="UserPlainSchema" mandatoryCondition="false"
                 accountid="0" password="0" purpose="PROPAGATION"/>
     
   <UMapping id="3" resource_name="ws-target-resource-nopropagation"/>
   <UMappingItem id="115" mapping_id="3" extAttrName="fullname" 
-                intAttrName="fullname" intMappingType="UserSchema" mandatoryCondition="true"
+                intAttrName="fullname" intMappingType="UserPlainSchema" mandatoryCondition="true"
                 accountid="1" password="0" purpose="PROPAGATION"/>
                      
   <UMapping id="4" resource_name="ws-target-resource-nopropagation2"/>
   <UMappingItem id="116" mapping_id="4" extAttrName="fullname" 
-                intAttrName="fullname" intMappingType="UserSchema" mandatoryCondition="true"
+                intAttrName="fullname" intMappingType="UserPlainSchema" mandatoryCondition="true"
                 accountid="1" password="0" purpose="PROPAGATION"/>
                      
   <UMapping id="5" resource_name="ws-target-resource-nopropagation3"/>
   <UMappingItem id="117" mapping_id="5" extAttrName="fullname"
-                intAttrName="fullname" intMappingType="UserSchema" mandatoryCondition="true"
+                intAttrName="fullname" intMappingType="UserPlainSchema" mandatoryCondition="true"
                 accountid="1" password="0" purpose="PROPAGATION"/>
                      
   <UMapping id="6" resource_name="ws-target-resource-nopropagation4"/>
   <UMappingItem id="118" mapping_id="6"
-                extAttrName="fullname" intAttrName="fullname" intMappingType="UserSchema" mandatoryCondition="true"
+                extAttrName="fullname" intAttrName="fullname" intMappingType="UserPlainSchema" mandatoryCondition="true"
                 accountid="1" password="0" purpose="PROPAGATION"/>
                        
   <UMapping id="7" resource_name="resource-testdb"/>
@@ -767,22 +767,22 @@ under the License.
                 intMappingType="Username" mandatoryCondition="true"
                 accountid="0" password="0" purpose="BOTH"/>
   <UMappingItem id="201" extAttrName="id" mapping_id="9"
-                intAttrName="fullname" intMappingType="UserSchema" mandatoryCondition="true"
+                intAttrName="fullname" intMappingType="UserPlainSchema" mandatoryCondition="true"
                 accountid="0" password="0" purpose="BOTH"/>
   <UMappingItem id="202" mapping_id="9"
                 extAttrName="__PASSWORD__" intMappingType="Password" mandatoryCondition="true"
                 accountid="0" password="1" purpose="BOTH"/>
   <UMappingItem id="203" extAttrName="name" mapping_id="9"
-                intAttrName="firstname" intMappingType="UserSchema" mandatoryCondition="false"
+                intAttrName="firstname" intMappingType="UserPlainSchema" mandatoryCondition="false"
                 accountid="0" password="0" purpose="BOTH"/>
   <UMappingItem id="204" extAttrName="surname" mapping_id="9"
-                intAttrName="surname" intMappingType="UserSchema" mandatoryCondition="false"
+                intAttrName="surname" intMappingType="UserPlainSchema" mandatoryCondition="false"
                 accountid="0" password="0" purpose="BOTH"/>
   <UMappingItem id="205" extAttrName="email" mapping_id="9"
-                intAttrName="userId" intMappingType="UserSchema" mandatoryCondition="true"
+                intAttrName="userId" intMappingType="UserPlainSchema" mandatoryCondition="true"
                 accountid="0" password="0" purpose="SYNCHRONIZATION"/>
   <UMappingItem id="206" extAttrName="email" mapping_id="9"
-                intAttrName="email" intMappingType="UserSchema" mandatoryCondition="true"
+                intAttrName="email" intMappingType="UserPlainSchema" mandatoryCondition="true"
                 accountid="0" password="0" purpose="SYNCHRONIZATION"/>
   <UMappingItem id="207" extAttrName="__NAME__" mapping_id="9"
                 intAttrName="csvuserid" intMappingType="UserDerivedSchema" mandatoryCondition="true"
@@ -796,10 +796,10 @@ under the License.
                          
   <UMapping id="10" resource_name="ws-target-resource-update-resetsynctoken"/>
   <UMappingItem id="300" mapping_id="10"
-                extAttrName="userId" intAttrName="userId" intMappingType="UserSchema" mandatoryCondition="false"
+                extAttrName="userId" intAttrName="userId" intMappingType="UserPlainSchema" mandatoryCondition="false"
                 accountid="1" password="0" purpose="BOTH"/>
   <UMappingItem id="301" mapping_id="10"
-                extAttrName="__PASSWORD__" intAttrName="fullname" intMappingType="UserSchema" mandatoryCondition="false"
+                extAttrName="__PASSWORD__" intAttrName="fullname" intMappingType="UserPlainSchema" mandatoryCondition="false"
                 accountid="0" password="1" purpose="BOTH"/>
 
   <UMapping id="11" resource_name="resource-ldap"
@@ -811,13 +811,13 @@ under the License.
                 extAttrName="__PASSWORD__" intAttrName="Password" intMappingType="Password"
                 mandatoryCondition="true" purpose="BOTH"/>
   <UMappingItem id="313" accountid="0" password="0" mapping_id="11"
-                extAttrName="sn" intAttrName="surname" intMappingType="UserSchema"
+                extAttrName="sn" intAttrName="surname" intMappingType="UserPlainSchema"
                 mandatoryCondition="true" purpose="BOTH"/>
   <UMappingItem id="314" accountid="0" password="0" mapping_id="11"
-                extAttrName="cn" intAttrName="fullname" intMappingType="UserSchema"
+                extAttrName="cn" intAttrName="fullname" intMappingType="UserPlainSchema"
                 mandatoryCondition="true" purpose="BOTH"/>
   <UMappingItem id="315" accountid="0" password="0" mapping_id="11"
-                extAttrName="mail" intAttrName="email" intMappingType="UserSchema"
+                extAttrName="mail" intAttrName="email" intMappingType="UserPlainSchema"
                 mandatoryCondition="false" purpose="BOTH"/>
   <UMappingItem id="316" accountid="0" password="0" mapping_id="11"
                 extAttrName="title" intAttrName="title" intMappingType="RoleSchema"
@@ -826,16 +826,16 @@ under the License.
                 extAttrName="postalAddress" intAttrName="postalAddress" intMappingType="MembershipSchema"
                 mandatoryCondition="false" purpose="BOTH"/>
   <UMappingItem id="318" accountid="0" password="0" mapping_id="11"
-                extAttrName="mail" intAttrName="userId" intMappingType="UserSchema"
+                extAttrName="mail" intAttrName="userId" intMappingType="UserPlainSchema"
                 mandatoryCondition="false" purpose="BOTH"/>
   <UMappingItem id="319" accountid="0" password="0" mapping_id="11"
                 extAttrName="givenname" intAttrName="virtualReadOnly" intMappingType="UserVirtualSchema"
                 mandatoryCondition="false" purpose="BOTH"/>
   <UMappingItem id="320" accountid="0" password="0" mapping_id="11"
-                extAttrName="registeredAddress" intAttrName="obscure" intMappingType="UserSchema"
+                extAttrName="registeredAddress" intAttrName="obscure" intMappingType="UserPlainSchema"
                 mandatoryCondition="false" purpose="BOTH"/>
   <UMappingItem id="321" accountid="0" password="0" mapping_id="11"
-                extAttrName="jpegPhoto" intAttrName="photo" intMappingType="UserSchema"
+                extAttrName="jpegPhoto" intAttrName="photo" intMappingType="UserPlainSchema"
                 mandatoryCondition="false" purpose="BOTH"/>
   
   <RMapping id="1" resource_name="resource-ldap"
@@ -855,22 +855,22 @@ under the License.
         
   <UMapping id="16" resource_name="resource-db-sync"/>
   <UMappingItem id="322" accountid="0" mapping_id="16"
-                extAttrName="EMAIL" intAttrName="email" intMappingType="UserSchema" 
+                extAttrName="EMAIL" intAttrName="email" intMappingType="UserPlainSchema" 
                 mandatoryCondition="false" password="0" purpose="BOTH"/>
   <UMappingItem id="323" accountid="0" mapping_id="16"
-                extAttrName="SURNAME" intAttrName="fullname" intMappingType="UserSchema" 
+                extAttrName="SURNAME" intAttrName="fullname" intMappingType="UserPlainSchema" 
                 mandatoryCondition="false" password="0" purpose="BOTH"/>
   <UMappingItem id="324" accountid="1" mapping_id="16"
-                extAttrName="ID" intAttrName="aLong" intMappingType="UserSchema" 
+                extAttrName="ID" intAttrName="aLong" intMappingType="UserPlainSchema" 
                 mandatoryCondition="false" password="0" purpose="BOTH"/>
   <UMappingItem id="325" accountid="0" mapping_id="16"
-                extAttrName="SURNAME" intAttrName="surname" intMappingType="UserSchema" 
+                extAttrName="SURNAME" intAttrName="surname" intMappingType="UserPlainSchema" 
                 mandatoryCondition="false" password="0" purpose="BOTH"/>
   <UMappingItem id="326" accountid="0" mapping_id="16"
                 extAttrName="USERNAME" intAttrName="Username" intMappingType="Username" 
                 mandatoryCondition="false" password="0" purpose="BOTH"/>
   <UMappingItem id="327" accountid="0" mapping_id="16"
-                extAttrName="EMAIL" intAttrName="userId" intMappingType="UserSchema" 
+                extAttrName="EMAIL" intAttrName="userId" intMappingType="UserPlainSchema" 
                 mandatoryCondition="false" password="0" purpose="BOTH"/>
               
   <UMapping id="17" resource_name="resource-db-virattr"/>
@@ -883,7 +883,7 @@ under the License.
                 
   <UMapping id="18" resource_name="ws-target-resource-timeout"/>
   <UMappingItem id="333" mapping_id="18" accountid="1" password="0"
-                extAttrName="fullname" intAttrName="fullname" intMappingType="UserSchema"
+                extAttrName="fullname" intAttrName="fullname" intMappingType="UserPlainSchema"
                 mandatoryCondition="true" purpose="PROPAGATION"/>
   
   <UMapping id="19" resource_name="ws-target-resource-delete"/>
@@ -989,12 +989,12 @@ under the License.
         performCreate="1" performUpdate="1" performDelete="1" syncStatus="1" fullReconciliation="0"
         jobClassName="org.apache.syncope.core.sync.impl.SyncJob" unmatchingRule="ASSIGN" matchingRule="IGNORE"/>
 
-  <Notification id="1" active="1" recipientAttrName="email" recipientAttrType="UserSchema" selfAsRecipient="1" 
+  <Notification id="1" active="1" recipientAttrName="email" recipientAttrType="UserPlainSchema" selfAsRecipient="1" 
                 sender="admin@syncope.apache.org" subject="Password Reset request" template="requestPasswordReset" 
                 traceLevel="FAILURES" userAbout="token!=$null"/> 
   <Notification_events Notification_id="1" events="[CUSTOM]:[]:[]:[requestPasswordReset]:[SUCCESS]"/>
   
-  <Notification id="2" active="1" recipientAttrName="email" recipientAttrType="UserSchema" selfAsRecipient="1" 
+  <Notification id="2" active="1" recipientAttrName="email" recipientAttrType="UserPlainSchema" selfAsRecipient="1" 
                 sender="admin@syncope.apache.org" subject="Password Reset successful" template="confirmPasswordReset" 
                 traceLevel="FAILURES" userAbout="token!=$null"/> 
   <Notification_events Notification_id="2" events="[CUSTOM]:[]:[]:[confirmPasswordReset]:[SUCCESS]"/>
@@ -1003,7 +1003,7 @@ under the License.
                 traceLevel="FAILURES"
                 userAbout="fullname==*o*;fullname==*i*"
                 recipients="$roles==7"
-                recipientAttrType="UserSchema" recipientAttrName="email" active="1"/>
+                recipientAttrType="UserPlainSchema" recipientAttrName="email" active="1"/>
   <Notification_events Notification_id="10" events="[CUSTOM]:[]:[]:[unexisting1]:[FAILURE]"/>
   <Notification_events Notification_id="10" events="[CUSTOM]:[]:[]:[unexisting2]:[SUCCESS]"/>
     

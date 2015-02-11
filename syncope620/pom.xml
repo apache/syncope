@@ -1416,6 +1416,7 @@ under the License.
     <module>client</module>
     <module>fit</module>
     <module>ext</module>
+    <module>archetype</module>
   </modules>
 
 </project>

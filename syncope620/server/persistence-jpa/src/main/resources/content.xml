@@ -98,12 +98,12 @@ under the License.
                 validatorClass="org.apache.syncope.server.persistence.jpa.attrvalue.validation.EmailAddressValidator"/>
   
   <!-- Password reset notifications -->
-  <Notification id="1" active="1" recipientAttrName="email" recipientAttrType="UserSchema" selfAsRecipient="1" 
+  <Notification id="1" active="1" recipientAttrName="email" recipientAttrType="UserPlainSchema" selfAsRecipient="1" 
                 sender="admin@syncope.apache.org" subject="Password Reset request" template="requestPasswordReset" 
                 traceLevel="FAILURES" userAbout="token!=$null"/> 
   <Notification_events Notification_id="1" events="[CUSTOM]:[]:[]:[requestPasswordReset]:[SUCCESS]"/>
   
-  <Notification id="2" active="1" recipientAttrName="email" recipientAttrType="UserSchema" selfAsRecipient="1" 
+  <Notification id="2" active="1" recipientAttrName="email" recipientAttrType="UserPlainSchema" selfAsRecipient="1" 
                 sender="admin@syncope.apache.org" subject="Password Reset successful" template="confirmPasswordReset" 
                 traceLevel="FAILURES" userAbout="token!=$null"/> 
   <Notification_events Notification_id="2" events="[CUSTOM]:[]:[]:[confirmPasswordReset]:[SUCCESS]"/>  
