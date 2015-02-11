@@ -25,15 +25,15 @@ under the License.
                            http://www.springframework.org/schema/context
                            http://www.springframework.org/schema/context/spring-context.xsd">
 
-  <bean id="userRoutes" class="org.apache.syncope.server.misc.spring.ResourceWithFallbackLoader">
+  <bean id="userRoutes" class="org.apache.syncope.core.misc.spring.ResourceWithFallbackLoader">
     <property name="primary" value="file:${camel.directory}/userWorkflow.bpmn20.xml"/>
     <property name="fallback" value="classpath:userRoutes.xml"/>
   </bean>
-  <bean id="roleRoutes" class="org.apache.syncope.server.misc.spring.ResourceWithFallbackLoader">
+  <bean id="roleRoutes" class="org.apache.syncope.core.misc.spring.ResourceWithFallbackLoader">
     <property name="primary" value="file:${camel.directory}/userWorkflow.bpmn20.xml"/>
     <property name="fallback" value="classpath:roleRoutes.xml"/>
   </bean>
     
-  <context:component-scan base-package="org.apache.syncope.server.provisioning.camel"/>
+  <context:component-scan base-package="org.apache.syncope.core.provisioning.camel"/>
 
 </beans>

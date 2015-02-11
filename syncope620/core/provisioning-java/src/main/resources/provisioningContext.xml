@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/context
+                           http://www.springframework.org/schema/context/spring-context.xsd
+                           http://www.springframework.org/schema/task
+                           http://www.springframework.org/schema/task/spring-task.xsd">
+  
+  <task:annotation-driven executor="connectorExecutor"/>
+  <task:executor id="connectorExecutor" pool-size="10"/>
+  
+  <bean class="${userProvisioningManager}"/>
+  <bean class="${roleProvisioningManager}"/>
+
+  <bean id="scheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean"
+        lazy-init="false" depends-on="nonJPAdbInitializer">
+    <property name="autoStartup" value="true"/>
+    <property name="applicationContextSchedulerContextKey" value="applicationContext"/>
+    <property name="waitForJobsToCompleteOnShutdown" value="true"/>
+    <property name="overwriteExistingJobs" value="true"/>
+    <property name="dataSource" ref="dataSource"/>
+    <property name="transactionManager" ref="transactionManager"/>
+    <property name="jobFactory">
+      <bean class="org.apache.syncope.core.provisioning.java.job.SpringBeanJobFactory"/>
+    </property>
+    <property name="quartzProperties">
+      <props>
+        <prop key="org.quartz.scheduler.idleWaitTime">${quartz.scheduler.idleWaitTime:30000}</prop>
+
+        <prop key="org.quartz.jobStore.misfireThreshold">6000000</prop>
+        <prop key="org.quartz.jobStore.driverDelegateClass">${quartz.jobstore}</prop>
+
+        <prop key="org.quartz.jobStore.isClustered">true</prop>
+        <prop key="org.quartz.jobStore.clusterCheckinInterval">20000</prop>
+
+        <prop key="org.quartz.scheduler.instanceName">ClusteredScheduler</prop>
+        <prop key="org.quartz.scheduler.instanceId">AUTO</prop>
+        <prop key="org.quartz.scheduler.jmx.export">true</prop>
+      </props>
+    </property>
+  </bean>
+  
+  <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+    <property name="defaultEncoding" value="${smtpEncoding}"/>
+    <property name="host" value="${smtpHost}"/>
+    <property name="port" value="${smtpPort}"/>
+    <property name="username" value="${smtpUser}"/>
+    <property name="password" value="${smtpPassword}"/>
+    <property name="protocol" value="${smtpProtocol}"/>
+
+    <property name="javaMailProperties">
+      <props>
+        <prop key="mail.smtp.connectiontimeout">${smtpConnectionTimeout}</prop>
+        <prop key="mail.debug">${mailDebug}</prop>
+      </props>
+    </property>
+  </bean>
+
+  <bean class="org.apache.syncope.core.provisioning.java.propagation.PropagationManagerImpl"/>
+  <bean class="org.apache.syncope.core.provisioning.java.propagation.DefaultPropagationReporter" scope="prototype"/>
+
+  <context:component-scan base-package="org.apache.syncope.core.misc"/>  
+  <context:component-scan base-package="org.apache.syncope.core.provisioning.java"/>
+
+  <bean id="virAttrCache" class="org.apache.syncope.core.provisioning.java.cache.MemoryVirAttrCache" scope="singleton">
+    <constructor-arg value="60"/>
+    <constructor-arg value="5000"/>
+  </bean>
+
+  <bean id="velocityResourceLoader" class="org.apache.syncope.core.misc.spring.ResourceWithFallbackLoader">
+    <property name="primary" value="file:${templates.directory}/"/>
+    <property name="fallback" value="classpath:"/>
+  </bean>
+  <bean id="velocityEngine" class="org.apache.syncope.core.provisioning.java.notification.VelocityEngineFactoryBean">
+    <property name="resourceLoader" ref="velocityResourceLoader"/>
+  </bean>
+  <bean id="velocityToolManager" class="org.apache.velocity.tools.ToolManager">
+    <!-- autoConfigure -->
+    <constructor-arg index="0" value="true"/>
+    <!-- include default velocity tools -->
+    <constructor-arg index="1" value="true"/>
+  </bean>
+
+  <bean id="connIdBundleManager" class="org.apache.syncope.core.provisioning.java.ConnIdBundleManagerImpl" scope="singleton">
+    <property name="stringLocations" value="${connid.locations}"/>
+  </bean>
+
+</beans>

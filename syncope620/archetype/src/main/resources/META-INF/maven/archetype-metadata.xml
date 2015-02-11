@@ -26,7 +26,7 @@ under the License.
   </requiredProperties>
   
   <modules>
-    <module id="server" dir="server" name="server">
+    <module id="core" dir="core" name="core">
       <fileSets>
         <fileSet filtered="false" encoding="UTF-8">
           <directory>src/main/resources</directory>

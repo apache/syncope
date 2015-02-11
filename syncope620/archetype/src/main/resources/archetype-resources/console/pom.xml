@@ -211,11 +211,11 @@ under the License.
                 <phase>package</phase>
                 <configuration>
                   <target>
-                    <copy file="../server/target/test-classes/persistence.properties" 
-                          todir="../server/target/syncope/WEB-INF/classes" 
+                    <copy file="../core/target/test-classes/persistence.properties" 
+                          todir="../core/target/syncope/WEB-INF/classes" 
                           overwrite="true"/>
-                    <copy file="../server/target/test-classes/db.jsp" 
-                          todir="../server/target/syncope" 
+                    <copy file="../core/target/test-classes/db.jsp" 
+                          todir="../core/target/syncope" 
                           overwrite="true"/>
 
                     <copy file="${project.build.directory}/test-classes/console.properties" 
@@ -255,7 +255,7 @@ under the License.
               </configuration>
               <deployables>
                 <deployable>
-                  <location>../server/target/syncope</location>
+                  <location>../core/target/syncope</location>
                   <properties>
                     <context>syncope</context>
                   </properties>

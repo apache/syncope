@@ -39,8 +39,8 @@ under the License.
 
   <dependencies>    
     <dependency>
-      <groupId>org.apache.syncope.server</groupId>
-      <artifactId>syncope-server-persistence-jpa</artifactId>
+      <groupId>org.apache.syncope.core</groupId>
+      <artifactId>syncope-core-persistence-jpa</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
@@ -64,8 +64,8 @@ under the License.
           </dependency>
         </dependencies>
         <configuration>
-          <persistenceXmlFile>${rootpom.basedir}/server/persistence-jpa/src/main/resources/META-INF/spring-persistence.xml</persistenceXmlFile> 
-          <includes>org/apache/syncope/server/persistence/jpa/entity/**/*.class</includes>
+          <persistenceXmlFile>${rootpom.basedir}/core/persistence-jpa/src/test/resources/META-INF/persistence-enhance.xml</persistenceXmlFile> 
+          <includes>org/apache/syncope/core/persistence/jpa/entity/**/*.class</includes>
           <connectionDriverName>org.springframework.jdbc.datasource.DriverManagerDataSource</connectionDriverName>
           <connectionProperties>
             driverClassName=org.h2.Driver,
@@ -97,7 +97,7 @@ under the License.
 
     <testResources>
       <testResource>
-        <directory>${rootpom.basedir}/server/persistence-jpa/src/main/resources</directory>
+        <directory>${rootpom.basedir}/core/persistence-jpa/src/main/resources</directory>
         <filtering>true</filtering>        
       </testResource>
     </testResources>

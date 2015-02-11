@@ -35,7 +35,7 @@ under the License.
 
   <modules>
     <module>build-tools</module>
-    <module>server-reference</module>
+    <module>core-reference</module>
     <module>console-reference</module>
   </modules>
 

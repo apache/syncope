@@ -1412,7 +1412,7 @@ under the License.
   
   <modules>
     <module>common</module>
-    <module>server</module>
+    <module>core</module>
     <module>client</module>
     <module>fit</module>
     <module>ext</module>

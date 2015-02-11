@@ -39,8 +39,8 @@ under the License.
 
   <dependencies>
     <dependency>
-      <groupId>org.apache.syncope.server</groupId>
-      <artifactId>syncope-server-provisioning-api</artifactId>
+      <groupId>org.apache.syncope.core</groupId>
+      <artifactId>syncope-core-provisioning-api</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

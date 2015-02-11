@@ -40,24 +40,24 @@ under the License.
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>org.apache.syncope.server</groupId>
-        <artifactId>syncope-server-rest-cxf</artifactId>
+        <groupId>org.apache.syncope.core</groupId>
+        <artifactId>syncope-core-rest-cxf</artifactId>
         <version>${syncope.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.apache.syncope.server</groupId>
-        <artifactId>syncope-server-workflow-java</artifactId>
+        <groupId>org.apache.syncope.core</groupId>
+        <artifactId>syncope-core-workflow-java</artifactId>
         <version>${syncope.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.apache.syncope.server</groupId>
-        <artifactId>syncope-server-persistence-jpa</artifactId>
+        <groupId>org.apache.syncope.core</groupId>
+        <artifactId>syncope-core-persistence-jpa</artifactId>
         <version>${syncope.version}</version>
       </dependency>
     
       <dependency>
-        <groupId>org.apache.syncope.server</groupId>
-        <artifactId>syncope-server-workflow-activiti</artifactId>
+        <groupId>org.apache.syncope.core</groupId>
+        <artifactId>syncope-core-workflow-activiti</artifactId>
         <version>${syncope.version}</version>
       </dependency>
         
@@ -103,7 +103,7 @@ under the License.
   </build>
     
   <modules>
-    <module>server</module>
+    <module>core</module>
     <module>console</module>
   </modules>
 

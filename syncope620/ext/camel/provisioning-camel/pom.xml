@@ -52,8 +52,8 @@ under the License.
     </dependency>
       
     <dependency>
-      <groupId>org.apache.syncope.server</groupId>
-      <artifactId>syncope-server-provisioning-java</artifactId>
+      <groupId>org.apache.syncope.core</groupId>
+      <artifactId>syncope-core-provisioning-java</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

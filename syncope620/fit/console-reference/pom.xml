@@ -266,7 +266,7 @@ under the License.
               </properties>
             </deployable>
             <deployable>
-              <location>${basedir}/../server-reference/target/syncope-fit-server-reference-${project.version}</location>
+              <location>${basedir}/../core-reference/target/syncope-fit-core-reference-${project.version}</location>
               <pingURL>http://localhost:${cargo.servlet.port}/syncope/cacheStats.jsp</pingURL>
               <pingTimeout>60000</pingTimeout>
               <properties>
@@ -328,7 +328,7 @@ under the License.
             <configuration>
               <configuration>
                 <properties>
-                  <cargo.jvmargs>-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n
+                  <cargo.jvmargs>-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,core=y,suspend=n
                     -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:MaxPermSize=512m</cargo.jvmargs>
                 </properties>
               </configuration>
@@ -505,7 +505,7 @@ under the License.
             <configuration>
               <configuration>
                 <properties>
-                  <cargo.jvmargs>-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n
+                  <cargo.jvmargs>-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,core=y,suspend=n
                     -noverify ${javaagent} -Drebel.spring_plugin=true 
                     -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:MaxPermSize=256m</cargo.jvmargs>
                 </properties>
