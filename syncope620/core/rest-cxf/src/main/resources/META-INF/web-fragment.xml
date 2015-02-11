@@ -23,7 +23,7 @@ under the License.
                                   http://xmlns.jcp.org/xml/ns/javaee/web-fragment_3_1.xsd"
               id="${pom.artifactId}" version="3.1">
   
-  <display-name>Apache Syncope ${syncope.version} Server</display-name>
+  <display-name>Apache Syncope ${syncope.version} Core</display-name>
 
   <context-param>
     <param-name>contextConfigLocation</param-name>
