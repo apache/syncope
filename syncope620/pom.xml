@@ -390,7 +390,7 @@ under the License.
     <cargo.log>${log.directory}/cargo.log</cargo.log>
     <cargo.output>${log.directory}/cargo-output.log</cargo.output>
 
-    <tomcat.version>8.0.17</tomcat.version>
+    <tomcat.version>8.0.18</tomcat.version>
 
     <anonymousUser>anonymous</anonymousUser>
     <!-- static keys, only used for build: generated overlays will override during archetype:generate -->
@@ -908,6 +908,13 @@ under the License.
       </dependency>
       
       <!-- TEST -->
+      <dependency>
+        <groupId>net.tirasa.connid.bundles.soap</groupId>
+        <artifactId>wssample</artifactId>
+        <version>${connid.soap.version}</version>
+        <type>war</type>
+        <scope>test</scope>
+      </dependency>
       <dependency>
         <groupId>com.icegreen</groupId>
         <artifactId>greenmail</artifactId>

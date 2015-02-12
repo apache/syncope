@@ -1,0 +1,15 @@
+This package contains a full working distribution of Apache Syncope, equivalent to the embedded mode described at [1].
+
+In order to run this distribution you must:
+ 1. unzip the archive
+ 2. cd into the 'apache-tomcat-*' directory
+ 3. (Unix-only) chmod 755 ./bin/*.sh
+ 4. start Apache Tomcat by running './bin/startup.sh' (Unix) or 'bin/startup.bat' (Windows)
+ 5. point your favourite browser to http://localhost:9080/syncope-console/
+
+For more information about what features are available and how to access, check [1]. 
+
+For more information about this distribution, take a look at the original issue [2].
+
+[1] https://cwiki.apache.org/confluence/display/SYNCOPE/Run+Syncope+in+embedded+mode#RunSyncopeinembeddedmode-Componentsavailable
+[2] https://issues.apache.org/jira/browse/SYNCOPE-206
