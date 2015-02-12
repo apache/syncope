@@ -907,6 +907,12 @@ under the License.
         <version>${codemirror.version}</version>
       </dependency>
       
+      <dependency>
+        <groupId>com.beust</groupId>
+        <artifactId>jcommander</artifactId>
+        <version>1.47</version>
+      </dependency>
+      
       <!-- TEST -->
       <dependency>
         <groupId>net.tirasa.connid.bundles.soap</groupId>
