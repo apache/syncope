@@ -26,11 +26,11 @@ under the License.
                            http://www.springframework.org/schema/context/spring-context.xsd">
 
   <bean id="userRoutes" class="org.apache.syncope.core.misc.spring.ResourceWithFallbackLoader">
-    <property name="primary" value="file:${camel.directory}/userWorkflow.bpmn20.xml"/>
+    <property name="primary" value="file:${camel.directory}/userRoutes.xml"/>
     <property name="fallback" value="classpath:userRoutes.xml"/>
   </bean>
   <bean id="roleRoutes" class="org.apache.syncope.core.misc.spring.ResourceWithFallbackLoader">
-    <property name="primary" value="file:${camel.directory}/userWorkflow.bpmn20.xml"/>
+    <property name="primary" value="file:${camel.directory}/roleRoutes.xml"/>
     <property name="fallback" value="classpath:roleRoutes.xml"/>
   </bean>
     

@@ -124,7 +124,6 @@ under the License.
     <dependency>
       <groupId>net.tirasa.connid.bundles.soap</groupId>
       <artifactId>wssample</artifactId>
-      <version>${connid.soap.version}</version>
       <type>war</type>
       <scope>test</scope>
     </dependency>

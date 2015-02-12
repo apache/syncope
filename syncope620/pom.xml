@@ -1155,6 +1155,12 @@ under the License.
             <targetJdk>${targetJdk}</targetJdk>
           </configuration>
         </plugin>
+        
+        <plugin>
+          <groupId>org.vafer</groupId>
+          <artifactId>jdeb</artifactId>
+          <version>1.3</version>
+        </plugin>
       </plugins>
     </pluginManagement>
 
@@ -1424,6 +1430,8 @@ under the License.
     <module>fit</module>
     <module>ext</module>
     <module>archetype</module>
+    <module>standalone</module>
+    <module>deb</module>
   </modules>
 
 </project>

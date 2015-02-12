@@ -128,7 +128,7 @@ public class CamelRouteLoader implements SyncopeLoader {
                     route.setContent(routeContent);
 
                     jdbcTemplate.update(query, new Object[] { routeId, subjectType.name(), routeContent });
-                    LOG.debug("Route {} successfully loaded", routeId);
+                    LOG.info("Route successfully loaded: {}", routeId);
                 }
             } catch (DataAccessException e) {
                 LOG.error("While trying to store queries {}", e);
@@ -151,9 +151,9 @@ public class CamelRouteLoader implements SyncopeLoader {
         }
 
         if (existingData) {
-            LOG.info("Data found in the database, leaving untouched");
+            LOG.info("Camel route entitlements found in the database, leaving untouched");
         } else {
-            LOG.info("Empty database found, loading default content");
+            LOG.info("No Camel route entitlements found in the database, loading");
 
             try {
                 jdbcTemplate.update("INSERT INTO Entitlement(NAME) VALUES('ROUTE_READ')");
