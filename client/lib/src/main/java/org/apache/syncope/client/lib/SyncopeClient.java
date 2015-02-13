@@ -85,7 +85,9 @@ public class SyncopeClient {
      * @return service instance of the given reference class
      */
     public <T> T getService(final Class<T> serviceClass) {
-        return restClientFactory.createServiceInstance(serviceClass, mediaType, username, password);
+        synchronized (restClientFactory) {
+            return restClientFactory.createServiceInstance(serviceClass, mediaType, username, password);
+        }
     }
 
     /**

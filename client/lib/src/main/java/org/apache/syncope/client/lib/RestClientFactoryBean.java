@@ -33,7 +33,7 @@ public class RestClientFactoryBean extends JAXRSClientFactoryBean {
      *
      * @param <T> any service class
      * @param serviceClass service class reference
-     * @param mediaType XML or JSON are suppoorted
+     * @param mediaType XML or JSON are supported
      * @return anonymous service instance of the given reference class
      */
     public <T> T createServiceInstance(final Class<T> serviceClass, final MediaType mediaType) {
@@ -45,7 +45,7 @@ public class RestClientFactoryBean extends JAXRSClientFactoryBean {
      *
      * @param <T> any service class
      * @param serviceClass service class reference
-     * @param mediaType XML or JSON are suppoorted
+     * @param mediaType XML or JSON are supported
      * @param username username for REST authentication
      * @param password password for REST authentication
      * @return anonymous service instance of the given reference class

@@ -62,6 +62,18 @@ under the License.
       <artifactId>syncope-common-rest-api</artifactId>
       <version>${project.version}</version>
     </dependency>
+    
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <version>${slf4j.version}</version>
+      <scope>test</scope>
+    </dependency>        
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
   
   <build>
