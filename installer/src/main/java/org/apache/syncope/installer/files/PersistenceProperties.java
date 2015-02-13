@@ -59,7 +59,20 @@ public class PersistenceProperties {
             + "audit.sql=audit.sql\n"
             + "database.schema=\n";
 
-    public static final String ORACLE = "jpa.driverClassName=oracle.jdbc.OracleDriver\n"
+    public static final String MARIADB = ""
+            + "jpa.driverClassName=org.mariadb.jdbc.Driver\n"
+            + "jpa.url=%s\n"
+            + "jpa.username=%s\n"
+            + "jpa.password=%s\n"
+            + "jpa.dialect=org.apache.openjpa.jdbc.sql.MariaDBDictionary\n"
+            + "jpa.pool.validationQuery=SELECT 1\n"
+            + "quartz.jobstore=org.quartz.impl.jdbcjobstore.StdJDBCDelegate\n"
+            + "quartz.sql=tables_mariadb.sql\n"
+            + "audit.sql=audit.sql\n"
+            + "database.schema=\n";
+    
+    public static final String ORACLE = ""
+            + "jpa.driverClassName=oracle.jdbc.OracleDriver\n"
             + "jpa.url=%s\n"
             + "jpa.username=%s\n"
             + "jpa.password=%s\n"
@@ -87,8 +100,8 @@ public class PersistenceProperties {
             + "audit.sql=audit_sqlserver.sql\n" 
             + "database.schema=";
 
-    public static final String QUARTZ_INNO_DB = "quartz.sql=tables_mysql_innodb.sql";
+    public static final String MYSQL_QUARTZ_INNO_DB = "quartz.sql=tables_mysql_innodb.sql";
 
-    public static final String QUARTZ = "quartz.sql=tables_mysql.sql";
+    public static final String MYSQL_QUARTZ = "quartz.sql=tables_mysql.sql";
 
 }

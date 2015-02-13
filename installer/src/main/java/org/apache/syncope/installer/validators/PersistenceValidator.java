@@ -82,8 +82,8 @@ public class PersistenceValidator extends AbstractValidator {
 
         switch (selectedDB) {
             case POSTGRES:
-                return checkConnection(selectedDB);
             case MYSQL:
+            case MARIADB:
                 return checkConnection(selectedDB);
             case SQLSERVER:
                 warning = new StringBuilder("Remember to check your SqlServer db connection");

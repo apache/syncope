@@ -70,10 +70,14 @@ public class PersistenceProcess extends BaseProcess {
                 persistenceProperties.append(String.format(
                         PersistenceProperties.MYSQL, persistenceUrl, persistenceUser, persistencePassword));
                 if (mysqlInnoDB) {
-                    persistenceProperties.append(PersistenceProperties.QUARTZ_INNO_DB);
+                    persistenceProperties.append(PersistenceProperties.MYSQL_QUARTZ_INNO_DB);
                 } else {
-                    persistenceProperties.append(PersistenceProperties.QUARTZ);
+                    persistenceProperties.append(PersistenceProperties.MYSQL_QUARTZ);
                 }
+                break;
+            case MARIADB:
+                persistenceProperties.append(String.format(
+                        PersistenceProperties.MARIADB, persistenceUrl, persistenceUser, persistencePassword));
                 break;
             case ORACLE:
                 persistenceProperties.append(String.format(
