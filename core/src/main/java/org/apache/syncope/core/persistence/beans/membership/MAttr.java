@@ -101,7 +101,6 @@ public class MAttr extends AbstractAttr {
             throw new ClassCastException("attributeValue is expected to be typed MAttrValue: " + attributeValue.
                     getClass().getName());
         }
-        attributeValue.setAttribute(this);
         return values.add((MAttrValue) attributeValue);
     }
 
@@ -111,9 +110,7 @@ public class MAttr extends AbstractAttr {
             throw new ClassCastException("attributeValue is expected to be typed MAttrValue: " + attributeValue.
                     getClass().getName());
         }
-        boolean result = values.remove((MAttrValue) attributeValue);
-        attributeValue.setAttribute(null);
-        return result;
+        return values.remove((MAttrValue) attributeValue);
     }
 
     @SuppressWarnings("unchecked")
