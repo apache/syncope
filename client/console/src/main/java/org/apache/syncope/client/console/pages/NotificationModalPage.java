@@ -189,14 +189,14 @@ class NotificationModalPage extends BaseModalPage {
         recipientAttrType.setChoices(new ArrayList<IntMappingType>(
                 IntMappingType.getAttributeTypes(AttributableType.USER,
                         EnumSet.of(IntMappingType.UserId, IntMappingType.Password))));
-        recipientAttrType.setRequired(true);
+        recipientAttrType.addRequiredLabel();
         form.add(recipientAttrType);
 
         final AjaxDropDownChoicePanel<String> recipientAttrName = new AjaxDropDownChoicePanel<String>(
                 "recipientAttrName", new ResourceModel("recipientAttrName", "recipientAttrName").getObject(),
                 new PropertyModel<String>(notificationTO, "recipientAttrName"));
         recipientAttrName.setChoices(getSchemaNames(recipientAttrType.getModelObject()));
-        recipientAttrName.setRequired(true);
+        recipientAttrName.addRequiredLabel();
         form.add(recipientAttrName);
 
         recipientAttrType.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
