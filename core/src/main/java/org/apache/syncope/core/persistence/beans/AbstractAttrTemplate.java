@@ -18,9 +18,6 @@
  */
 package org.apache.syncope.core.persistence.beans;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 
@@ -28,14 +25,6 @@ import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 public abstract class AbstractAttrTemplate<T extends AbstractSchema> extends AbstractBaseBean {
 
     private static final long serialVersionUID = 4829112252713766666L;
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    protected Long id;
-
-    public Long getId() {
-        return id;
-    }
 
     public abstract SyncopeRole getOwner();
 
