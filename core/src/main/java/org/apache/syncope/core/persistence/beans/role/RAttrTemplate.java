@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.beans.role;
 
 import javax.persistence.Entity;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import org.apache.syncope.core.persistence.beans.AbstractAttrTemplate;
@@ -28,12 +29,19 @@ public class RAttrTemplate extends AbstractAttrTemplate<RSchema> {
 
     private static final long serialVersionUID = -3424574558427502145L;
 
+    @Id
+    private Long id;
+
     @ManyToOne
     private SyncopeRole owner;
 
     @ManyToOne
     @JoinColumn(name = "schema_name")
     private RSchema schema;
+
+    public Long getId() {
+        return id;
+    }
 
     @Override
     public RSchema getSchema() {

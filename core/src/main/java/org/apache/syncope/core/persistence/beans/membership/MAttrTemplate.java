@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.beans.membership;
 
 import javax.persistence.Entity;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import org.apache.syncope.core.persistence.beans.AbstractAttrTemplate;
@@ -29,12 +30,19 @@ public class MAttrTemplate extends AbstractAttrTemplate<MSchema> {
 
     private static final long serialVersionUID = -3424574558427502145L;
 
+    @Id
+    private Long id;
+
     @ManyToOne
     private SyncopeRole owner;
 
     @ManyToOne
     @JoinColumn(name = "schema_name")
     private MSchema schema;
+
+    public Long getId() {
+        return id;
+    }
 
     @Override
     public MSchema getSchema() {

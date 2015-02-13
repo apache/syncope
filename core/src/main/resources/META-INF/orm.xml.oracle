@@ -109,6 +109,23 @@ under the License.
     </attributes>
   </entity>
 
+  <entity class="org.apache.syncope.core.persistence.beans.role.RAttrTemplate">
+    <attributes>
+      <id name="id">
+        <generated-value generator="SEQ_RAttrTemplate" strategy="TABLE"/>
+        <table-generator name="SEQ_RAttrTemplate" pk-column-value="SEQ_RAttrTemplate" initial-value="1000"/>
+      </id>
+    </attributes>
+  </entity>
+  <entity class="org.apache.syncope.core.persistence.beans.membership.MAttrTemplate">
+    <attributes>
+      <id name="id">
+        <generated-value generator="SEQ_MAttrTemplate" strategy="TABLE"/>
+        <table-generator name="SEQ_MAttrTemplate" pk-column-value="SEQ_MAttrTemplate" initial-value="1000"/>
+      </id>
+    </attributes>
+  </entity>
+
   <entity class="org.apache.syncope.core.persistence.beans.user.UAttr">
     <attributes>
       <id name="id">
