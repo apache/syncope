@@ -22,6 +22,7 @@ public enum DBs {
 
     POSTGRES("postgres"),
     MYSQL("mysql"),
+    MARIADB("mariadb"),
     SQLSERVER("sqlserver"),
     ORACLE("oracle");
 
@@ -41,6 +42,8 @@ public enum DBs {
             db = POSTGRES;
         } else if (MYSQL.getName().equalsIgnoreCase(containerName)) {
             db = MYSQL;
+        } else if (MARIADB.getName().equalsIgnoreCase(containerName)) {
+            db = MARIADB;
         } else if (ORACLE.getName().equalsIgnoreCase(containerName)) {
             db = ORACLE;
         } else {
