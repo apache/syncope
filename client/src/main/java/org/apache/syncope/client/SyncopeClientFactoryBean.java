@@ -35,7 +35,7 @@ import org.apache.syncope.client.rest.RestClientFactoryBean;
 import org.apache.syncope.common.to.AbstractPolicyTO;
 
 /**
- * Factory bean for creating instances of <tt>SyncopeClient</tt>.
+ * Factory bean for creating instances of {@link SyncopeClient}.
  * Supports Spring-bean configuration and override via subclassing (see protected methods).
  */
 public class SyncopeClientFactoryBean {
