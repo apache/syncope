@@ -34,14 +34,6 @@ under the License.
   <artifactId>syncope-installer</artifactId>
   <packaging>jar</packaging>
   
-  <distributionManagement>
-    <site>
-      <id>syncope.website</id>
-      <name>Apache Syncope website</name>
-      <url>${site.deploymentBaseUrl}/${project.artifactId}</url>
-    </site>
-  </distributionManagement>
-
   <properties>
     <staging.dir>${project.build.directory}/staging</staging.dir>
   </properties>
@@ -61,6 +53,7 @@ under the License.
       <groupId>org.codehaus.izpack</groupId>
       <artifactId>izpack-panel</artifactId>
     </dependency>
+    
     <dependency>
       <groupId>org.apache.maven.shared</groupId>
       <artifactId>maven-invoker</artifactId>
@@ -114,9 +107,6 @@ under the License.
               <resources>
                 <resource>
                   <directory>src/main/resources/izpack</directory>
-                  <includes>
-                    <include>**/*</include>
-                  </includes>
                   <filtering>false</filtering>
                 </resource>
                 <resource>
@@ -133,6 +123,7 @@ under the License.
       </plugin>
 
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
         <executions>
           <execution>
@@ -152,6 +143,7 @@ under the License.
         <groupId>org.codehaus.izpack</groupId>
         <artifactId>izpack-maven-plugin</artifactId>
         <configuration>
+          <attach>false</attach>
           <descriptorEncoding>${project.build.sourceEncoding}</descriptorEncoding>
         </configuration>
         <executions>
@@ -169,17 +161,28 @@ under the License.
           </execution>
         </executions>
       </plugin>
+      
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-pmd-plugin</artifactId>
+      </plugin>
     </plugins>
 
     <resources>
       <resource>
-        <directory>${basedir}/../core/src/main/resources/</directory>
+        <directory>src/main/resources</directory>
         <includes>
-          <include>**/orm*</include>
+          <include>installer.properties</include>
+          <include>modelerPom.xml</include>
         </includes>
+        <filtering>true</filtering>
       </resource>
       <resource>
-        <directory>${basedir}/../core/src/test/resources/</directory>
+        <directory>${basedir}/../fit/core-reference/src/main/resources/jboss</directory>
         <includes>
           <include>**/persistenceContextEMFactory.xml</include>
         </includes>
@@ -191,14 +194,6 @@ under the License.
           <include>LICENSE</include>
           <include>NOTICE</include>
         </includes>
-      </resource>
-      <resource>
-        <directory>src/main/resources</directory>
-        <includes>
-          <include>**/configuration.properties</include>
-          <include>**/modelerPom.xml</include>
-        </includes>
-        <filtering>true</filtering>
       </resource>
     </resources>
   </build>

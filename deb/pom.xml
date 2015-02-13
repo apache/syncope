@@ -34,7 +34,7 @@ under the License.
   <packaging>pom</packaging>
 
   <properties>
-    <debian.dependencies>tomcat7</debian.dependencies>
+    <debian.dependencies>tomcat8</debian.dependencies>
 
     <conf.directory>/etc/apache-syncope</conf.directory>
     <bundles.directory>/var/lib/apache-syncope/bundles</bundles.directory>

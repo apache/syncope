@@ -16,4 +16,4 @@
 # specific language governing permissions and limitations
 # under the License.
 chmod 775 /var/log/apache-syncope
-chown tomcat7 /var/log/apache-syncope
+chown tomcat8 /var/log/apache-syncope

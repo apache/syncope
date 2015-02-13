@@ -1,4 +1,4 @@
-Package: apache-syncope-core
+Package: apache-syncope
 Version: [[project.version]]
 Section: misc
 Priority: optional

@@ -35,49 +35,166 @@ under the License.
 
   <dependencies>
     <dependency>
-      <groupId>org.apache.syncope</groupId>
-      <artifactId>syncope-core</artifactId>
+      <groupId>org.apache.syncope.core</groupId>
+      <artifactId>syncope-core-rest-cxf</artifactId>
       <version>${project.version}</version>
-      <type>war</type>
-      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.syncope.core</groupId>
+      <artifactId>syncope-core-workflow-java</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.syncope.core</groupId>
+      <artifactId>syncope-core-persistence-jpa</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.syncope.core</groupId>
+      <artifactId>syncope-core-workflow-activiti</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.syncope.ext.camel</groupId>
+      <artifactId>syncope-ext-camel-rest-cxf</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.syncope.ext.camel</groupId>
+      <artifactId>syncope-ext-camel-persistence-jpa</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.syncope.ext.camel</groupId>
+      <artifactId>syncope-ext-camel-provisioning</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+        
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.lmax</groupId>
+      <artifactId>disruptor</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-slf4j-impl</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>jcl-over-slf4j</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.webjars</groupId>
+      <artifactId>jquery</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.webjars</groupId>
+      <artifactId>jquery-ui</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.webjars</groupId>
+      <artifactId>highlightjs</artifactId>
     </dependency>
   </dependencies>
 
   <build>
     <resources>
       <resource>
-        <directory>${project.basedir}/src/deb/tomcat7</directory>
+        <directory>${project.basedir}/src/deb/tomcat8</directory>
         <filtering>true</filtering>
-        <targetPath>${project.build.directory}/tomcat7</targetPath>
+        <targetPath>${project.build.directory}/tomcat8</targetPath>
+      </resource>
+      
+      <resource>
+        <directory>${basedir}/../../core/persistence-jpa/src/main/resources</directory>
+        <includes>
+          <include>content.xml</include>
+          <include>persistence.properties</include>
+        </includes>
+        <targetPath>${project.build.directory}/etc</targetPath>
+        <filtering>true</filtering>
       </resource>
       <resource>
-        <directory>${project.basedir}/../../core/src/main/resources</directory>
-        <filtering>true</filtering>
-        <targetPath>${project.build.directory}/etc</targetPath>
+        <directory>${basedir}/../../core/workflow-activiti/src/main/resources</directory>
         <includes>
-          <include>*.properties</include>
-          <include>*.xml</include>
+          <include>workflow.properties</include>
+          <include>userWorkflow.bpmn20.xml</include>
+        </includes>
+        <targetPath>${project.build.directory}/etc</targetPath>
+        <filtering>true</filtering>
+      </resource>
+      <resource>
+        <directory>${basedir}/../../core/provisioning-java/src/main/resources</directory>
+        <includes>
+          <include>mail.properties</include>
+          <include>connid.properties</include>
           <include>mailTemplates/*.vm</include>
         </includes>
-        <excludes>
-          <exclude>*Context*.xml</exclude>
-          <exclude>*log4j2.xml</exclude>
-        </excludes>
+        <targetPath>${project.build.directory}/etc</targetPath>
+        <filtering>true</filtering>
       </resource>
+      <resource>
+        <directory>${basedir}/../../ext/camel/provisioning-camel/src/main/resources</directory>
+        <includes>
+          <include>provisioning.properties</include>
+          <include>userRoutes.xml</include>
+          <include>roleRoutes.xml</include>
+        </includes>
+        <targetPath>${project.build.directory}/etc</targetPath>
+        <filtering>true</filtering>
+      </resource>
+      <resource>
+        <directory>${basedir}/../../core/misc/src/main/resources</directory>
+        <includes>
+          <include>security.properties</include>
+        </includes>
+        <targetPath>${project.build.directory}/etc</targetPath>
+        <filtering>true</filtering>
+      </resource>
+      <resource>
+        <directory>${basedir}/../../core/logic/src/main/resources</directory>
+        <includes>
+          <include>logic.properties</include>
+        </includes>
+        <targetPath>${project.build.directory}/etc</targetPath>
+        <filtering>true</filtering>
+      </resource>
+      <resource>
+        <directory>${basedir}/../../fit/core-reference/src/main/resources</directory>
+        <includes>
+          <include>coreContext.xml</include>
+          <include>log4j2.xml</include>
+        </includes>
+        <targetPath>${project.build.directory}/etc</targetPath>
+        <filtering>true</filtering>
+      </resource>
+                  
       <resource>
         <directory>${project.build.directory}/etc</directory>
         <targetPath>${project.build.directory}/classes</targetPath>
       </resource>
+      
       <resource>
-        <directory>${project.basedir}/../../core/src/main/resources</directory>
-        <filtering>true</filtering>
-        <targetPath>${project.build.directory}/classes</targetPath>
-        <includes>
-          <include>log4j2.xml</include>
-        </includes>
-      </resource>
-      <resource>
-        <directory>../..</directory>
+        <directory>${basedir}</directory>
         <targetPath>META-INF</targetPath>
         <includes>
           <include>LICENSE</include>
@@ -139,23 +256,17 @@ under the License.
         <inherited>false</inherited>
         <extensions>true</extensions>
         <configuration>
-          <attachClasses>false</attachClasses>
+          <failOnMissingWebXml>false</failOnMissingWebXml>
           <webResources>
             <resource>
-              <directory>${basedir}/../../core</directory>
+              <directory>${basedir}</directory>
               <targetPath>META-INF</targetPath>
               <includes>
                 <include>LICENSE</include>
                 <include>NOTICE</include>
               </includes>
             </resource>
-          </webResources>   
-          <overlays>
-            <overlay>
-              <groupId>org.apache.syncope</groupId>
-              <artifactId>syncope-core</artifactId>
-            </overlay>
-          </overlays>                   
+          </webResources>                
         </configuration>
       </plugin>
       
@@ -183,19 +294,19 @@ under the License.
                   </paths>
                   <mapper>
                     <type>perm</type>
-                    <user>tomcat7</user>
-                    <group>tomcat7</group>
+                    <user>tomcat8</user>
+                    <group>tomcat8</group>
                   </mapper>
                 </data>
 
                 <data>
-                  <src>${project.build.directory}/tomcat7</src>
+                  <src>${project.build.directory}/tomcat8</src>
                   <type>directory</type>
                   <mapper>
                     <type>perm</type>
-                    <prefix>/etc/tomcat7/Catalina/localhost</prefix>
-                    <user>tomcat7</user>
-                    <group>tomcat7</group>
+                    <prefix>/etc/tomcat8/Catalina/localhost</prefix>
+                    <user>tomcat8</user>
+                    <group>tomcat8</group>
                   </mapper>
                 </data>
                 <data>
@@ -204,8 +315,8 @@ under the License.
                   <mapper>
                     <type>perm</type>
                     <prefix>${conf.directory}</prefix>
-                    <user>tomcat7</user>
-                    <group>tomcat7</group>
+                    <user>tomcat8</user>
+                    <group>tomcat8</group>
                   </mapper>
                 </data>
                 <data>
@@ -214,8 +325,8 @@ under the License.
                   <mapper>
                     <type>perm</type>
                     <prefix>/usr/share/apache-syncope</prefix>
-                    <user>tomcat7</user>
-                    <group>tomcat7</group>
+                    <user>tomcat8</user>
+                    <group>tomcat8</group>
                   </mapper>
                 </data>
                 <data>
@@ -224,8 +335,8 @@ under the License.
                   <mapper>
                     <type>perm</type>
                     <prefix>/usr/share/apache-syncope</prefix>
-                    <user>tomcat7</user>
-                    <group>tomcat7</group>
+                    <user>tomcat8</user>
+                    <group>tomcat8</group>
                   </mapper>
                 </data>
                 <data>
@@ -234,12 +345,12 @@ under the License.
                   <mapper>
                     <type>perm</type>
                     <prefix>${bundles.directory}</prefix>
-                    <user>tomcat7</user>
-                    <group>tomcat7</group>
+                    <user>tomcat8</user>
+                    <group>tomcat8</group>
                   </mapper>
                 </data>
                 <data>
-                  <src>${basedir}/../../core</src>
+                  <src>${basedir}</src>
                   <type>directory</type>
                   <includes>LICENSE,NOTICE</includes>
                   <mapper>

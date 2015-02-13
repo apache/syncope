@@ -35,7 +35,7 @@ public class BaseProcess {
 
     static {
         try {
-            is = BaseProcess.class.getResourceAsStream("/configuration.properties");
+            is = BaseProcess.class.getResourceAsStream("/installer.properties");
             properties.load(is);
         } catch (final IOException e) {
         } finally {

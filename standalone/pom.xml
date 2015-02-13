@@ -33,17 +33,10 @@ under the License.
   <artifactId>syncope-standalone</artifactId>
   <packaging>jar</packaging>
   
-  <distributionManagement>
-    <site>
-      <id>syncope.website</id>
-      <name>Apache Syncope website</name>
-      <url>${site.deploymentBaseUrl}/${project.artifactId}</url>
-    </site>
-  </distributionManagement>
-
   <properties>
     <connid.location>connid://${testconnectorserver.key}@localhost:${testconnectorserver.port}</connid.location>
     <log.directory>./logs</log.directory>
+    <test.csvdir.path>./test-csvdir</test.csvdir.path>
 
     <work.dir>${project.build.directory}/standalone</work.dir>
   </properties>
@@ -53,30 +46,67 @@ under the License.
       <groupId>net.tirasa.connid.bundles.soap</groupId>
       <artifactId>wssample</artifactId>
       <type>war</type>
+      <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.apache.syncope</groupId>
-      <artifactId>syncope-build-tools</artifactId>
+      <groupId>org.apache.syncope.fit</groupId>
+      <artifactId>syncope-fit-build-tools</artifactId>
       <version>${project.version}</version>
       <type>war</type>
+      <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.apache.syncope</groupId>
-      <artifactId>syncope-core</artifactId>
+      <groupId>org.apache.syncope.fit</groupId>
+      <artifactId>syncope-fit-core-reference</artifactId>
       <version>${project.version}</version>
       <type>war</type>
+      <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.apache.syncope</groupId>
-      <artifactId>syncope-console</artifactId>
+      <groupId>org.apache.syncope.fit</groupId>
+      <artifactId>syncope-fit-console-reference</artifactId>
       <version>${project.version}</version>
       <type>war</type>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 
   <build>
 
     <plugins>
+      <!-- Adds Activiti test content -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>xml-maven-plugin</artifactId>
+        <inherited>true</inherited>
+        <executions>
+          <execution>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>transform</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <transformationSets>
+            <transformationSet>
+              <dir>${project.build.directory}/classes/core</dir>
+              <includes>
+                <include>content.xml</include>
+              </includes>
+              <outputDir>${project.build.directory}/classes/core</outputDir>
+              <stylesheet>${basedir}/../fit/core-reference/src/test/resources/addActivitiToContent.xsl</stylesheet>
+              <outputProperties>
+                <outputProperty>
+                  <name>indent</name>
+                  <value>yes</value>
+                </outputProperty>
+              </outputProperties>
+            </transformationSet>
+          </transformationSets>
+        </configuration>
+      </plugin>
+          
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-antrun-plugin</artifactId>
@@ -101,39 +131,48 @@ under the License.
                 <delete dir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/docs" />
                 <delete dir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/examples" />
 
-                <!-- Syncope core (as run for integration tests) -->
+                <!-- Syncope core -->
                 <copy todir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope">
-                  <fileset dir="../core/target/syncope-core-test" includes="**/*" />
+                  <fileset dir="../fit/core-reference/target/syncope-fit-core-reference-${project.version}" includes="**/*" />
                 </copy>
                 <copy todir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope/WEB-INF/classes" overwrite="true">
                   <fileset dir="${project.build.outputDirectory}/core" />
                 </copy>
 
-                <!-- Syncope console (exploded) -->
+                <!-- Syncope console -->
                 <copy todir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope-console">
-                  <fileset dir="../console/target/syncope-console" includes="**/*" />
+                  <fileset dir="../fit/console-reference/target/syncope-fit-console-reference-${project.version}" includes="**/*" />
                 </copy>
                 <copy todir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope-console/WEB-INF/classes" overwrite="true">
                   <fileset dir="${project.build.outputDirectory}/console" />
                 </copy>
 
+                <mkdir dir="${work.dir}/apache-tomcat-${tomcat.version}/${test.csvdir.path}" />
+                <copy file="../fit/core-reference/src/test/resources/test.csv" todir="${work.dir}/apache-tomcat-${tomcat.version}/${test.csvdir.path}" />
+
                 <!-- ConnId's SOAP wssample (provides endpoint for SOAP resources) -->
                 <copy file="${settings.localRepository}/net/tirasa/connid/bundles/soap/wssample/${connid.soap.version}/wssample-${connid.soap.version}.war" tofile="${work.dir}/apache-tomcat-${tomcat.version}/webapps/wssample.war" />
 
                 <!-- Syncope build tools (provide H2 and Apache DS resources + ConnId connector server) -->
-                <unzip src="../build-tools/target/syncope-build-tools-${project.version}.war" dest="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope-build-tools" />
+                <copy todir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope-build-tools">
+                  <fileset dir="../fit/build-tools/target/syncope-fit-build-tools-${project.version}" includes="**/*" />
+                </copy>
                 <copy todir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope-build-tools/WEB-INF/lib">
-                  <fileset dir="../core/target/bundles" includes="**/*" />
+                  <fileset dir="../fit/core-reference/target/bundles/" includes="**/*" />
                 </copy>
                 <zip destfile="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope-build-tools.war" basedir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope-build-tools" />
                 <delete dir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope-build-tools" />
 
-                <!-- Tomcat shared libraries: H2 and groovy -->
+                <!-- Tomcat shared libraries: H2, groovy, StAX2 API, Woodstox -->
                 <copy file="${settings.localRepository}/com/h2database/h2/${h2.version}/h2-${h2.version}.jar" todir="${work.dir}/apache-tomcat-${tomcat.version}/lib" />
                 <copy file="${settings.localRepository}/org/codehaus/groovy/groovy-all/${groovy.version}/groovy-all-${groovy.version}.jar" todir="${work.dir}/apache-tomcat-${tomcat.version}/lib" />
+                <copy todir="${work.dir}/apache-tomcat-${tomcat.version}/lib">
+                  <fileset dir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope/WEB-INF/lib" includes="stax2-api-*.jar" />
+                  <fileset dir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope/WEB-INF/lib" includes="woodstox-core-asl-*.jar" />
+                </copy>
 
                 <!-- Other custom Tomcat resources -->
-                <copy file="../core/target/test-classes/context.xml" todir="${work.dir}/apache-tomcat-${tomcat.version}/conf" overwrite="true" />
+                <copy file="../fit/core-reference/target/classes/context.xml" todir="${work.dir}/apache-tomcat-${tomcat.version}/conf" overwrite="true" />
                 <copy file="src/main/resources/setenv.sh" todir="${work.dir}/apache-tomcat-${tomcat.version}/bin" />
                 <copy file="src/main/resources/setenv.bat" todir="${work.dir}/apache-tomcat-${tomcat.version}/bin" />
                 <replace file="${work.dir}/apache-tomcat-${tomcat.version}/conf/server.xml" token="8080" value="${cargo.servlet.port}" />
@@ -165,44 +204,44 @@ under the License.
 
     <resources>
       <resource>
-        <directory>../core/src/test/resources</directory>
-        <filtering>true</filtering>
-        <targetPath>core</targetPath>
-      </resource>
-      <resource>
-        <directory>../core/src/main/resources</directory>
-        <filtering>true</filtering>
-        <targetPath>core</targetPath>
+        <directory>../core/persistence-jpa/src/test/resources</directory>
         <includes>
-          <include>log4j2.xml</include>
+          <include>content.xml</include>
+          <include>persistence.properties</include>
         </includes>
+        <targetPath>core</targetPath>
+        <filtering>true</filtering>
       </resource>
       <resource>
-        <directory>../console/src/test/resources</directory>
-        <filtering>true</filtering>
-        <targetPath>console</targetPath>
-      </resource>
-      <resource>
-        <directory>../console/src/main/resources</directory>
-        <filtering>true</filtering>
-        <targetPath>console</targetPath>
+        <directory>../fit/core-reference/src/main/resources</directory>
         <includes>
-          <include>log4j2.xml</include>
+          <include>*.xml</include>
+          <include>*.properties</include>
         </includes>
+        <targetPath>core</targetPath>
+        <filtering>true</filtering>
       </resource>
+      <resource>
+        <directory>../fit/core-reference/src/main/resources/all</directory>
+        <includes>
+          <include>*.xml</include>
+          <include>*.properties</include>
+        </includes>
+        <targetPath>core</targetPath>
+        <filtering>true</filtering>
+      </resource>
+
+      <resource>
+        <directory>../fit/console-reference/src/main/resources</directory>
+        <targetPath>console</targetPath>
+        <filtering>true</filtering>
+      </resource>
+      
       <resource>
         <directory>src/main/resources</directory>
       </resource>
       <resource>
         <directory>src/assemble</directory>
-      </resource>
-      <resource>
-        <directory>..</directory>
-        <targetPath>META-INF</targetPath>
-        <includes>
-          <include>LICENSE</include>
-          <include>NOTICE</include>
-        </includes>
       </resource>
     </resources>
   </build>

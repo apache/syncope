@@ -21,7 +21,7 @@ under the License.
                      xmlns:izpack="http://izpack.org/schema/installation"
                      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                      xsi:schemaLocation="http://izpack.org/schema/installation
-                     http://izpack.org/schema/5.0/izpack-installation-5.0.xsd">
+                                         http://izpack.org/schema/5.0/izpack-installation-5.0.xsd">
   
   <info>
     <appname>Apache Syncope</appname>
@@ -60,7 +60,6 @@ under the License.
   </variables>
   
   <dynamicvariables>
-    <variable name="JDK_HOME" value="${izpack.version}"/>
     <variable name="TARGET" value="${project.build.directory}"/>
   </dynamicvariables>
   

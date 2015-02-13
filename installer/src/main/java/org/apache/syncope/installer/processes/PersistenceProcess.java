@@ -79,17 +79,10 @@ public class PersistenceProcess extends BaseProcess {
                 persistenceProperties.append(String.format(
                         PersistenceProperties.ORACLE, persistenceUrl, persistenceUser, persistencePassword,
                         oracleTableSpace));
-                fileSystemUtils.copyFileFromResources("/META-INF/orm.xml.oracle",
-                        syncopeInstallDir + properties.getProperty("coreMetaInfDirectory")
-                        + "/" + properties.getProperty("ormXmlFile"), handler);
                 break;
             case SQLSERVER:
                 persistenceProperties.append(String.format(
                         PersistenceProperties.SQLSERVER, persistenceUrl, persistenceUser, persistencePassword));
-                fileSystemUtils.copyFileFromResources("/META-INF/orm.xml.sqlserver",
-                        syncopeInstallDir
-                        + properties.getProperty("coreMetaInfDirectory")
-                        + "/" + properties.getProperty("ormXmlFile"), handler);
                 break;
         }
 

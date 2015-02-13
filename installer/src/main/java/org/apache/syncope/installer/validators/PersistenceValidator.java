@@ -100,19 +100,18 @@ public class PersistenceValidator extends AbstractValidator {
     private Status checkConnection(final DBs selectedDb) {
         Driver driver = null;
         try {
-            driver = DriverLoader.load(selectedDb, isProxyEnabled, proxyHost, proxyPort, proxyUser,
-                    proxyPwd);
+            driver = DriverLoader.load(selectedDb, isProxyEnabled, proxyHost, proxyPort, proxyUser, proxyPwd);
             final Properties props = new Properties();
             props.put("user", persistenceDbuser);
             props.put("password", persistenceDbPassword);
             driver.connect(persistenceUrl, props);
             return Status.OK;
         } catch (Exception ex) {
-            error =
-                    new StringBuilder(
-                            "Error during connection to database: please check inserted data.");
-            error.append(driver == null ? new StringBuilder(" Unable to get ").append(selectedDb.getName()).append(
-                    " driver!").toString() : "");
+            error = new StringBuilder(
+                    "Error during connection to database: please check inserted data.");
+            error.append(driver == null
+                    ? new StringBuilder(" Unable to get ").append(selectedDb.getName()).append(" driver!").toString()
+                    : "");
             return Status.ERROR;
         }
     }

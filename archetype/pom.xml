@@ -33,14 +33,6 @@ under the License.
   <artifactId>syncope-archetype</artifactId>
   <packaging>maven-archetype</packaging>
 
-  <distributionManagement>
-    <site>
-      <id>syncope.website</id>
-      <name>Apache Syncope website</name>
-      <url>${site.deploymentBaseUrl}/${project.artifactId}</url>
-    </site>
-  </distributionManagement>
-
   <build>
     <extensions>
       <extension>
@@ -121,6 +113,7 @@ under the License.
       <resource>
         <directory>src/main/resources</directory>
       </resource>
+
       <resource>
         <directory>..</directory>
         <targetPath>META-INF</targetPath>
@@ -131,55 +124,94 @@ under the License.
       </resource>
 
       <resource>
-        <directory>../core/src/main/resources</directory>
-        <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/main/resources</targetPath>
-        <includes>
-          <include>*.properties</include>
-          <include>*.xml</include>
-        </includes>
-      </resource>
-      <resource>
-        <directory>../core/src/main/resources/META-INF</directory>
-        <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/main/resources/META-INF</targetPath>
-        <includes>
-          <include>spring-persistence.xml</include>
-        </includes>
-      </resource>
-      <resource>
-        <directory>../core/src/main/webapp</directory>
-        <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/main/webapp</targetPath>
-      </resource>
-      <resource>
-        <directory>../core/src/test/resources</directory>
-        <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/test/resources</targetPath>
-        <includes>
-          <include>*.properties</include>
-          <include>content.xml</include>
-          <include>*.csv</include>
-          <include>*.jsp</include>
-        </includes>
+        <directory>../core/provisioning-java/src/main/resources</directory>
         <excludes>
-          <exclude>rest.properties</exclude>
+          <exclude>*Context.xml</exclude>
+        </excludes>
+        <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/main/resources</targetPath>
+      </resource>
+      <resource>
+        <directory>../core/persistence-jpa/src/main/resources</directory>
+        <excludes>
+          <exclude>*Context.xml</exclude>
+          <exclude>META-INF/spring-persistence.xml</exclude>
+        </excludes>
+        <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/main/resources</targetPath>
+      </resource>
+      <resource>
+        <directory>../core/persistence-jpa/src/test/resources</directory>
+        <includes>
+          <include>persistence.properties</include>
+        </includes>
+        <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/test/resources</targetPath>
+      </resource>
+      <resource>
+        <directory>../core/logic/src/main/resources</directory>
+        <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/main/resources</targetPath>
+        <excludes>
+          <exclude>*Context.xml</exclude>
         </excludes>
       </resource>
-
       <resource>
-        <directory>../console/src/main/resources</directory>
-        <targetPath>${project.build.outputDirectory}/archetype-resources/console/src/main/resources</targetPath>
+        <directory>../core/misc/src/main/resources</directory>
         <includes>
-          <include>*.*</include>
+          <include>security.properties</include>
+        </includes>
+        <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/main/resources</targetPath>
+      </resource>
+      <resource>
+        <directory>../fit/core-reference/src/main/resources</directory>
+        <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/main/resources</targetPath>
+        <includes>
+          <include>coreContext.xml</include>
+          <include>log4j2.xml</include>
         </includes>
       </resource>
       <resource>
-        <directory>../console/src/main/webapp/WEB-INF</directory>
-        <targetPath>${project.build.outputDirectory}/archetype-resources/console/src/main/webapp/WEB-INF</targetPath>
+        <directory>../fit/core-reference/src/main/resources/all</directory>
+        <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/main/resources</targetPath>
+        <includes>
+          <include>workflow.properties</include>
+        </includes>
       </resource>
       <resource>
-        <directory>../console/src/test/resources</directory>
+        <directory>../fit/core-reference/src/main/webapp</directory>
+        <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/test/resources</targetPath>
+        <includes>
+          <include>*.jsp</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>../fit/core-reference/src/main/webapp/WEB-INF</directory>
+        <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/main/webapp/WEB-INF</targetPath>
+      </resource>
+            
+      <resource>
+        <directory>../client/console/src/main/resources</directory>
+        <targetPath>${project.build.outputDirectory}/archetype-resources/console/src/main/resources</targetPath>
+        <includes>
+          <include>consoleContext.xml</include>
+          <include>console.properties</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>../fit/console-reference/src/main/resources</directory>
+        <targetPath>${project.build.outputDirectory}/archetype-resources/console/src/main/resources</targetPath>
+        <includes>
+          <include>log4j2.xml</include>
+          <include>oryx.debug.js-tokenValueMap.properties</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>../fit/console-reference/src/main/resources</directory>
         <targetPath>${project.build.outputDirectory}/archetype-resources/console/src/test/resources</targetPath>
         <includes>
           <include>console.properties</include>
         </includes>
+      </resource>
+      <resource>
+        <directory>../fit/console-reference/src/main/webapp/WEB-INF</directory>
+        <targetPath>${project.build.outputDirectory}/archetype-resources/console/src/main/webapp/WEB-INF</targetPath>
       </resource>
     </resources>
   </build>

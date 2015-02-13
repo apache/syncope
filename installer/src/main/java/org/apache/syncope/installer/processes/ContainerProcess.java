@@ -31,8 +31,6 @@ import org.apache.syncope.installer.containers.jboss.JBoss;
 import org.apache.syncope.installer.enums.Containers;
 import org.apache.syncope.installer.files.ConsoleProperties;
 import org.apache.syncope.installer.files.GlassfishCoreWebXml;
-import org.apache.syncope.installer.files.JBossDeploymentStructureXml;
-import org.apache.syncope.installer.files.CoreWebXml;
 import org.apache.syncope.installer.files.PersistenceContextEMFactoryXml;
 import org.apache.syncope.installer.utilities.InstallLog;
 import org.apache.syncope.installer.utilities.MavenUtils;
@@ -140,34 +138,14 @@ public class ContainerProcess extends BaseProcess {
         mavenProxyAutoconf = Boolean.valueOf(args[28]);
 
         final FileSystemUtils fileSystemUtils = new FileSystemUtils(handler);
-        
+
         handler.logOutput("Configure web.xml file according to " + selectedContainer + " properties", true);
         InstallLog.getInstance().info("Configure web.xml file according to " + selectedContainer + " properties");
-        
-        setSyncopeInstallDir(installPath, artifactId);
-                
-        if (withDataSource) {
-            final File coreWebXmlFile =
-                    new File(syncopeInstallDir + properties.getProperty("coreWebXmlFile"));
-            final String contentCoreWebXmlFile = fileSystemUtils.readFile(coreWebXmlFile);
 
+        setSyncopeInstallDir(installPath, artifactId);
+
+        if (withDataSource) {
             switch (selectedContainer) {
-                case TOMCAT:
-                    fileSystemUtils.writeToFile(coreWebXmlFile, CoreWebXml.withDataSource(contentCoreWebXmlFile));
-                    break;
-                case JBOSS:
-                    fileSystemUtils.
-                            writeToFile(coreWebXmlFile, CoreWebXml.withDataSourceForJBoss(contentCoreWebXmlFile));
-                    final File jbossDeploymentStructureFile =
-                            new File(syncopeInstallDir + properties.getProperty("jBossDeploymentStructureXmlFile"));
-                    final String contentJbossDeploymentStructureFile =
-                            fileSystemUtils.readFile(jbossDeploymentStructureFile);
-                    fileSystemUtils.writeToFile(
-                            jbossDeploymentStructureFile,
-                            contentJbossDeploymentStructureFile.replace(
-                                    JBossDeploymentStructureXml.PLACEHOLDER,
-                                    String.format(JBossDeploymentStructureXml.JBOSSMODULE, jbossJdbcModuleName)));
-                    break;
                 case GLASSFISH:
                     final File glassfishCoreWebXmlFile =
                             new File(syncopeInstallDir + properties.getProperty("glassfishCoreWebXmlFile"));
@@ -176,13 +154,14 @@ public class ContainerProcess extends BaseProcess {
                             contentGlassfishWebXmlFile.replace(GlassfishCoreWebXml.PLACEHOLDER,
                                     GlassfishCoreWebXml.DATA_SOURCE));
                     break;
+
+                default:
             }
         }
 
-        final File consolePropertiesFile =
-                new File(syncopeInstallDir
-                        + properties.getProperty("consoleResDirectory")
-                        + "/" + properties.getProperty("consolePropertiesFile"));
+        final File consolePropertiesFile = new File(syncopeInstallDir
+                + properties.getProperty("consoleResDirectory")
+                + File.separator + properties.getProperty("consolePropertiesFile"));
         final String contentConsolePropertiesFile = fileSystemUtils.readFile(consolePropertiesFile);
 
         final String scheme;
