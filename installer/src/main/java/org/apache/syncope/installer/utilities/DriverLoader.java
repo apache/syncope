@@ -29,10 +29,11 @@ import java.sql.Driver;
 
 public final class DriverLoader extends URLClassLoader {
 
-    private final static String POSTGRES_JAR = "http://jdbc.postgresql.org/download/postgresql-9.3-1101.jdbc41.jar";
+    private final static String POSTGRES_JAR = 
+            "http://repo1.maven.org/maven2/postgresql/postgresql/9.1-901.jdbc3/postgresql-9.1-901.jdbc3.jar";
 
     private final static String MYSQL_JAR =
-            "http://central.maven.org/maven2/mysql/mysql-connector-java/5.1.6/mysql-connector-java-5.1.6.jar";
+            "http://central.maven.org/maven2/mysql/mysql-connector-java/5.1.34/mysql-connector-java-5.1.34.jar";
 
     private static final String POSTGRES_CLASS_DRIVER = "org.postgresql.Driver";
 
