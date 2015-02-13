@@ -29,15 +29,20 @@ import java.sql.Driver;
 
 public final class DriverLoader extends URLClassLoader {
 
-    private final static String POSTGRES_JAR = 
+    private final static String POSTGRES_JAR =
             "http://repo1.maven.org/maven2/postgresql/postgresql/9.1-901.jdbc3/postgresql-9.1-901.jdbc3.jar";
 
     private final static String MYSQL_JAR =
             "http://central.maven.org/maven2/mysql/mysql-connector-java/5.1.34/mysql-connector-java-5.1.34.jar";
 
+    private final static String MARIADB_JAR =
+            "http://repo1.maven.org/maven2/org/mariadb/jdbc/mariadb-java-client/1.1.8/mariadb-java-client-1.1.8.jar";
+
     private static final String POSTGRES_CLASS_DRIVER = "org.postgresql.Driver";
 
     private static final String MYSQL_CLASS_DRIVER = "com.mysql.jdbc.Driver";
+
+    private static final String MARIADB_CLASS_DRIVER = "org.mariadb.jdbc.Driver";
 
     private DriverLoader(final URL[] urls) {
         super(urls);
@@ -56,6 +61,10 @@ public final class DriverLoader extends URLClassLoader {
                 break;
             case MYSQL:
                 driver = downloadDriver(MYSQL_JAR, MYSQL_CLASS_DRIVER, isProxyEnabled, proxyHost, proxyPort,
+                        proxyUser, proxyPwd);
+                break;
+            case MARIADB:
+                driver = downloadDriver(MARIADB_JAR, MARIADB_CLASS_DRIVER, isProxyEnabled, proxyHost, proxyPort,
                         proxyUser, proxyPwd);
                 break;
             case SQLSERVER:
