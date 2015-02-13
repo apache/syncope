@@ -35,7 +35,7 @@ import org.apache.syncope.common.types.SubjectType;
 
 /**
  * Entry point for client access to all REST services exposed by Syncope core; obtain instances via
- * <tt>SyncopeClientFactoryBean</tt>.
+ * {@link SyncopeClientFactoryBean}.
  *
  * @see SyncopeClientFactoryBean
  */
@@ -93,7 +93,9 @@ public class SyncopeClient {
      * @return service instance of the given reference class
      */
     public <T> T getService(final Class<T> serviceClass) {
-        return restClientFactory.createServiceInstance(serviceClass, mediaType, username, password);
+        synchronized (restClientFactory) {
+            return restClientFactory.createServiceInstance(serviceClass, mediaType, username, password);
+        }
     }
 
     /**
