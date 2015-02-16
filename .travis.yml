@@ -16,8 +16,6 @@
 language: java
 jdk:
   - openjdk7
-env:
-  - MAVEN_OPTS="-Xms512m -Xmx1024m -XX:PermSize=256m -XX:MaxPermSize=512m"
 # default install is mvn install --quiet -DskipTests=true
 install: mvn --show-version --quiet -P all,skipTests
 #invoker.streamLogs: we cannot access to log files through Travis web ui, so display everything in the console
