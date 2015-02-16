@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.api;
 
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -37,13 +37,14 @@ public class WorkflowResult<T> {
     public WorkflowResult(final T result, final PropagationByResource propByRes, final String performedTask) {
         this.result = result;
         this.propByRes = propByRes;
-        this.performedTasks = Collections.singleton(performedTask);
+        this.performedTasks = new HashSet<>();
+        this.performedTasks.add(performedTask);
     }
 
     public WorkflowResult(final T result, final PropagationByResource propByRes, final Set<String> performedTasks) {
         this.result = result;
         this.propByRes = propByRes;
-        this.performedTasks = performedTasks;
+        this.performedTasks = new HashSet<>(performedTasks);
     }
 
     public T getResult() {
@@ -56,10 +57,6 @@ public class WorkflowResult<T> {
 
     public Set<String> getPerformedTasks() {
         return performedTasks;
-    }
-
-    public void setPerformedTasks(final Set<String> performedTasks) {
-        this.performedTasks = performedTasks;
     }
 
     public PropagationByResource getPropByRes() {
