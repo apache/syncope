@@ -407,10 +407,10 @@ under the License.
   <RDerAttrTemplate id="1003" owner_id="1" schema_name="rderToBePropagated"/>    
   <RDerAttr id="1003" owner_id="1" template_id="1003"/>    
 
-  <RVirAttrTemplate id="100" owner_id="4" schema_name="rvirtualdata"/>
-  <RVirAttr id="100" owner_id="4" template_id="100"/>
+  <RVirAttrTemplate id="98" owner_id="4" schema_name="rvirtualdata"/>
+  <RVirAttr id="98" owner_id="4" template_id="98"/>
 
-  <RVirAttrTemplate id="101" owner_id="3" schema_name="rvirtualdata"/>
+  <RVirAttrTemplate id="99" owner_id="3" schema_name="rvirtualdata"/>
 
   <MAttrTemplate id="98" owner_id="1" schema_name="mderived_sx"/>
   
@@ -433,12 +433,12 @@ under the License.
 
   <MAttrTemplate id="104" owner_id="12" schema_name="postalAddress"/>
 
-  <MDerAttrTemplate id="100" owner_id="1" schema_name="mderiveddata"/>
-  <MDerAttr id="100" owner_id="1" template_id="100"/>
+  <MDerAttrTemplate id="99" owner_id="1" schema_name="mderiveddata"/>
+  <MDerAttr id="99" owner_id="1" template_id="99"/>
   
-  <MDerAttrTemplate id="101" owner_id="1" schema_name="mderToBePropagated"/>  
+  <MDerAttrTemplate id="100" owner_id="1" schema_name="mderToBePropagated"/>  
     
-  <MVirAttrTemplate id="100" owner_id="2" schema_name="mvirtualdata"/>
+  <MVirAttrTemplate id="99" owner_id="2" schema_name="mvirtualdata"/>
 
   <ConnInstance id="100" displayName="ConnInstance100"
                 location="${connid.location}"
