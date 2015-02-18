@@ -354,7 +354,7 @@ under the License.
 
     <wicket.version>6.19.0</wicket.version>
 
-    <groovy.version>2.3.9</groovy.version>
+    <groovy.version>2.3.10</groovy.version>
 
     <h2.version>1.4.185</h2.version>
 
