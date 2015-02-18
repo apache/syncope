@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.MappingPurpose;
 import org.apache.syncope.common.types.SubjectType;
 import org.apache.syncope.common.types.SyncPolicySpec;
@@ -39,6 +40,7 @@ import org.apache.syncope.core.persistence.dao.EntitlementDAO;
 import org.apache.syncope.core.persistence.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.dao.RoleDAO;
 import org.apache.syncope.core.persistence.dao.SchemaDAO;
+import org.apache.syncope.core.persistence.dao.SubjectDAO;
 import org.apache.syncope.core.persistence.dao.SubjectSearchDAO;
 import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.persistence.dao.search.AttributeCond;
@@ -168,7 +170,7 @@ public class SyncUtilities {
                 }
 
                 List<AbstractSubject> subjects =
-                        userDAO.findByAttrValue(accountIdItem.getIntAttrName(), value, attrUtil);
+                        getSubjectDAO(accountIdItem).findByAttrValue(accountIdItem.getIntAttrName(), value, attrUtil);
                 for (AbstractSubject subject : subjects) {
                     result.add(subject.getId());
                 }
@@ -176,7 +178,8 @@ public class SyncUtilities {
 
             case UserDerivedSchema:
             case RoleDerivedSchema:
-                subjects = userDAO.findByDerAttrValue(accountIdItem.getIntAttrName(), uid, attrUtil);
+                subjects = getSubjectDAO(accountIdItem).
+                        findByDerAttrValue(accountIdItem.getIntAttrName(), uid, attrUtil);
                 for (AbstractSubject subject : subjects) {
                     result.add(subject.getId());
                 }
@@ -351,5 +354,9 @@ public class SyncUtilities {
         }
 
         return enabled;
+    }
+
+    private SubjectDAO getSubjectDAO(final AbstractMappingItem accountIdItem) {
+        return AttributableType.USER == accountIdItem.getIntMappingType().getAttributableType() ? userDAO : roleDAO;
     }
 }
