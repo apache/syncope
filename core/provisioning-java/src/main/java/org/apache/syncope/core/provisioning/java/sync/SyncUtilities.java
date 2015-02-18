@@ -34,6 +34,7 @@ import org.apache.syncope.core.persistence.api.dao.EntitlementDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
+import org.apache.syncope.core.persistence.api.dao.SubjectDAO;
 import org.apache.syncope.core.persistence.api.dao.SubjectSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
@@ -156,6 +157,10 @@ public class SyncUtilities {
         return result;
     }
 
+    private SubjectDAO<?, ?, ?> getSubjectDAO(final MappingItem accountIdItem) {
+        return AttributableType.USER == accountIdItem.getIntMappingType().getAttributableType() ? userDAO : roleDAO;
+    }
+
     private List<Long> findByAccountIdItem(
             final String uid, final ExternalResource resource, final AttributableUtil attrUtil) {
         final List<Long> result = new ArrayList<>();
@@ -178,17 +183,18 @@ public class SyncUtilities {
                     }
                 }
 
-                List<? extends Subject<UPlainAttr, UDerAttr, UVirAttr>> users =
-                        userDAO.findByAttrValue(accountIdItem.getIntAttrName(), value, attrUtil);
-                for (Subject<UPlainAttr, UDerAttr, UVirAttr> subject : users) {
+                List<? extends Subject<?, ?, ?>> subjects =
+                        getSubjectDAO(accountIdItem).findByAttrValue(accountIdItem.getIntAttrName(), value, attrUtil);
+                for (Subject<?, ?, ?> subject : subjects) {
                     result.add(subject.getKey());
                 }
                 break;
 
             case UserDerivedSchema:
             case RoleDerivedSchema:
-                users = userDAO.findByDerAttrValue(accountIdItem.getIntAttrName(), uid, attrUtil);
-                for (Subject<UPlainAttr, UDerAttr, UVirAttr> subject : users) {
+                subjects = getSubjectDAO(accountIdItem).
+                        findByDerAttrValue(accountIdItem.getIntAttrName(), uid, attrUtil);
+                for (Subject<?, ?, ?> subject : subjects) {
                     result.add(subject.getKey());
                 }
                 break;
