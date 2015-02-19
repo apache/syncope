@@ -264,4 +264,27 @@ public class ResourceTest extends AbstractDAOTest {
             assertTrue(e.hasViolation(EntityViolationType.InvalidName));
         }
     }
+
+    @Test(expected = InvalidEntityException.class)
+    public void issueSYNCOPE645() {
+        ExternalResource resource = new ExternalResource();
+        resource.setName("ws-target-resource-basic-save-invalid");
+
+        ConnInstance connector = resourceDAO.find("ws-target-resource-1").getConnector();
+        resource.setConnector(connector);
+
+        UMapping mapping = new UMapping();
+        resource.setUmapping(mapping);
+
+        final UMappingItem item = new UMappingItem();
+        item.setIntAttrName("icon");
+        item.setExtAttrName("icon");
+        item.setIntMappingType(IntMappingType.RoleSchema);
+        item.setPurpose(MappingPurpose.BOTH);
+        mapping.setAccountIdItem(item);
+
+        // save the resource
+        ExternalResource actual = resourceDAO.save(resource);
+        assertNotNull(actual);
+    }
 }
