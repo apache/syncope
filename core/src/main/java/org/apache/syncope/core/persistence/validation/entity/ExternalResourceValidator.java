@@ -82,7 +82,7 @@ public class ExternalResourceValidator extends AbstractValidator<ExternalResourc
             context.buildConstraintViolationWithTemplate(
                     getTemplate(EntityViolationType.InvalidMapping,
                             "Role attribute as accountId is not permitted")).
-                    addNode("attributableType").addConstraintViolation();
+                    addPropertyNode("attributableType").addConstraintViolation();
             return false;
         }
 
