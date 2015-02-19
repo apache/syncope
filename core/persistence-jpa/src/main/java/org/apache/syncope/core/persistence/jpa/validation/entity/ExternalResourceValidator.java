@@ -20,11 +20,13 @@ package org.apache.syncope.core.persistence.jpa.validation.entity;
 
 import javax.validation.ConstraintValidatorContext;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Mapping;
 import org.apache.syncope.core.persistence.api.entity.MappingItem;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
+import org.apache.syncope.core.persistence.api.entity.user.UMapping;
 
 public class ExternalResourceValidator extends AbstractValidator<ExternalResourceCheck, ExternalResource> {
 
@@ -71,6 +73,16 @@ public class ExternalResourceValidator extends AbstractValidator<ExternalResourc
             context.buildConstraintViolationWithTemplate(
                     getTemplate(EntityViolationType.InvalidMapping, "One and only one accountId mapping is needed")).
                     addPropertyNode("accountId.size").addConstraintViolation();
+            return false;
+        }
+
+        final MappingItem accountId = mapping.getAccountIdItem();
+        if (mapping instanceof UMapping
+                && AttributableType.ROLE == accountId.getIntMappingType().getAttributableType()) {
+            context.buildConstraintViolationWithTemplate(
+                    getTemplate(EntityViolationType.InvalidMapping,
+                            "Role attribute as accountId is not permitted")).
+                    addPropertyNode("attributableType").addConstraintViolation();
             return false;
         }
 
