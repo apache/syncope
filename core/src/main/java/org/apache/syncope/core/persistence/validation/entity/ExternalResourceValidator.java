@@ -20,11 +20,13 @@ package org.apache.syncope.core.persistence.validation.entity;
 
 import javax.validation.ConstraintValidatorContext;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.EntityViolationType;
 import org.apache.syncope.core.persistence.beans.AbstractMapping;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.propagation.PropagationActions;
+import org.apache.syncope.core.persistence.beans.user.UMapping;
 
 public class ExternalResourceValidator extends AbstractValidator<ExternalResourceCheck, ExternalResource> {
 
@@ -71,6 +73,16 @@ public class ExternalResourceValidator extends AbstractValidator<ExternalResourc
             context.buildConstraintViolationWithTemplate(
                     getTemplate(EntityViolationType.InvalidMapping, "One and only one accountId mapping is needed")).
                     addNode("accountId.size").addConstraintViolation();
+            return false;
+        }
+
+        final AbstractMappingItem accountId = mapping.getAccountIdItem();
+        if (mapping instanceof UMapping 
+                && AttributableType.ROLE == accountId.getIntMappingType().getAttributableType()) {
+            context.buildConstraintViolationWithTemplate(
+                    getTemplate(EntityViolationType.InvalidMapping,
+                            "Role attribute as accountId is not permitted")).
+                    addNode("attributableType").addConstraintViolation();
             return false;
         }
 
