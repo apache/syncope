@@ -59,6 +59,7 @@ import org.activiti.engine.task.Task;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.mod.StatusMod;
 import org.apache.syncope.common.lib.mod.UserMod;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.WorkflowFormPropertyTO;
@@ -885,6 +886,15 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
             userMod = new UserMod();
             userMod.setKey(updated.getKey());
             userMod.setPassword(clearPassword);
+            
+          if (propByRes != null) {
+                final StatusMod st = new StatusMod();
+                userMod.setPwdPropRequest(st);
+                st.setOnSyncope(true);
+                for (String res : propByRes.get(ResourceOperation.CREATE)) {
+                    st.getResourceNames().add(res);
+                }
+            }
         }
 
         return new WorkflowResult<>(userMod, propByRes, postTasks);

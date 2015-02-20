@@ -1046,6 +1046,11 @@ public class UserITCase extends AbstractITCase {
         userMod.setPassword("123password");
         userMod.getResourcesToAdd().add(RESOURCE_NAME_TESTDB);
 
+        final StatusMod st = new StatusMod();
+        st.setOnSyncope(false);
+        st.getResourceNames().add(RESOURCE_NAME_TESTDB);
+        userMod.setPwdPropRequest(st);
+
         userTO = updateUser(userMod);
         assertNotNull(userTO);
 
@@ -1534,6 +1539,11 @@ public class UserITCase extends AbstractITCase {
         UserMod userMod = new UserMod();
         userMod.setKey(userTO.getKey());
         userMod.getResourcesToAdd().add(RESOURCE_NAME_WS1);
+        
+        final StatusMod st = new StatusMod();
+        st.setOnSyncope(false);
+        st.getResourceNames().add(RESOURCE_NAME_WS1);
+        userMod.setPwdPropRequest(st); 
 
         userTO = updateUser(userMod);
         assertNotNull(userTO);
@@ -1564,6 +1574,12 @@ public class UserITCase extends AbstractITCase {
         UserMod userMod = new UserMod();
         userMod.setKey(userTO.getKey());
         userMod.getResourcesToAdd().add(RESOURCE_NAME_LDAP);
+        
+        final StatusMod st = new StatusMod();
+        st.setOnSyncope(false);
+        st.getResourceNames().add(RESOURCE_NAME_LDAP);
+        userMod.setPwdPropRequest(st);
+
         userTO = updateUser(userMod);
         assertNotNull(userTO);
 
@@ -2278,6 +2294,12 @@ public class UserITCase extends AbstractITCase {
         UserMod userMod = new UserMod();
         userMod.setKey(user.getKey());
         userMod.getResourcesToAdd().add(RESOURCE_NAME_TESTDB);
+        
+        final StatusMod st = new StatusMod();
+        st.setOnSyncope(false);
+        st.getResourceNames().add(RESOURCE_NAME_TESTDB);
+        userMod.setPwdPropRequest(st);
+
         user = updateUser(userMod);
         assertNotNull(user);
         assertEquals(1, user.getResources().size());
@@ -2315,6 +2337,12 @@ public class UserITCase extends AbstractITCase {
         UserMod userMod = new UserMod();
         userMod.setKey(user.getKey());
         userMod.getResourcesToAdd().add(RESOURCE_NAME_LDAP);
+        
+        final StatusMod st = new StatusMod();
+        st.setOnSyncope(false);
+        st.getResourceNames().add(RESOURCE_NAME_LDAP);
+        userMod.setPwdPropRequest(st);
+
         user = updateUser(userMod);
         assertNotNull(user);
         assertEquals(1, user.getResources().size());

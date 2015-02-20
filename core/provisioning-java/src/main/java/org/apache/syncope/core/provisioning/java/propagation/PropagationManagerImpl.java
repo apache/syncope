@@ -325,7 +325,7 @@ public class PropagationManagerImpl implements PropagationManager {
         List<PropagationTask> tasks = new ArrayList<>();
         if (userMod.getPwdPropRequest() == null) {
             // a. no specific password propagation request: generate propagation tasks for any resource associated
-            tasks = getUserUpdateTaskIds(wfResult, true, null);
+            tasks = getUserUpdateTaskIds(wfResult, false, null);
         } else {
             // b. generate the propagation task list in two phases: first the ones containing password,
             // the the rest (with no password)
