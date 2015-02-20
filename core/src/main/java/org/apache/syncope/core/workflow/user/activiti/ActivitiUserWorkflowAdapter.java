@@ -65,6 +65,7 @@ import org.apache.syncope.common.types.ResourceOperation;
 import org.apache.syncope.common.types.WorkflowFormPropertyType;
 import org.apache.syncope.common.util.BeanUtils;
 import org.apache.syncope.common.SyncopeClientException;
+import org.apache.syncope.common.mod.StatusMod;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.apache.syncope.core.persistence.validation.attrvalue.ParsingValidationException;
@@ -879,6 +880,16 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
             userMod = new UserMod();
             userMod.setId(updated.getId());
             userMod.setPassword(clearPassword);
+
+            if (propByRes != null) {
+                final StatusMod st = new StatusMod();
+                userMod.setPwdPropRequest(st);
+
+                st.setOnSyncope(true);
+                for (String res : propByRes.get(ResourceOperation.CREATE)) {
+                    st.getResourceNames().add(res);
+                }
+            }
         }
 
         return new WorkflowResult<UserMod>(userMod, propByRes, postTasks);

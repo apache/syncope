@@ -93,7 +93,7 @@ public class UserSelfTestITCase extends AbstractTest {
         membership.setRoleId(3L);
         userTO.getMemberships().add(membership);
         userTO.getResources().add(RESOURCE_NAME_TESTDB);
-
+        
         SyncopeClient anonClient = clientFactory.createAnonymous();
         userTO = anonClient.getService(UserSelfService.class).
                 create(userTO, true).
