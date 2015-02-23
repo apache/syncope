@@ -305,6 +305,12 @@ under the License.
       <organizationUrl>http://www.exprivia.it/home</organizationUrl>
       <url>http://br.linkedin.com/pub/bruno-moura/1b/2a/806</url>
     </contributor>
+    <contributor>
+      <name>Nicola Baiocco</name>
+      <email>nicola.baiocco@intesys.it</email>
+      <organization>Intesys</organization>
+      <organizationUrl>http://www.intesys.it/</organizationUrl>
+    </contributor>
   </contributors>
 
   <prerequisites>
