@@ -417,6 +417,19 @@ public abstract class AbstractAttributableDataBinder {
         }
     }
 
+    private void updateOnResourcesIfMappingMatches(final AttributableUtil attrUtil, final String schemaName,
+            final Set<ExternalResource> resources, final IntMappingType mappingType,
+            final PropagationByResource propByRes) {
+
+        for (ExternalResource resource : resources) {
+            for (AbstractMappingItem mapItem : attrUtil.getMappingItems(resource, MappingPurpose.PROPAGATION)) {
+                if (schemaName.equals(mapItem.getIntAttrName()) && mapItem.getIntMappingType() == mappingType) {
+                    propByRes.add(ResourceOperation.UPDATE, resource.getName());
+                }
+            }
+        }
+    }
+
     public PropagationByResource fillVirtual(final AbstractAttributable attributable,
             final Set<String> vAttrsToBeRemoved, final Set<AttributeMod> vAttrsToBeUpdated,
             final AttributableUtil attrUtil) {
@@ -427,10 +440,10 @@ public abstract class AbstractAttributableDataBinder {
         if (attributable instanceof AbstractSubject) {
             externalResources.addAll(((AbstractSubject) attributable).getResources());
         }
-
         if (attributable instanceof Membership) {
             externalResources.clear();
             externalResources.addAll(((Membership) attributable).getSyncopeUser().getResources());
+            externalResources.addAll(((Membership) attributable).getSyncopeRole().getResources());
         }
 
         // 1. virtual attributes to be removed
@@ -445,11 +458,10 @@ public abstract class AbstractAttributableDataBinder {
                     virAttrDAO.delete(virAttr);
                 }
 
-                for (ExternalResource resource : resourceDAO.findAll()) {
+                for (ExternalResource resource : externalResources) {
                     for (AbstractMappingItem mapItem : attrUtil.getMappingItems(resource, MappingPurpose.PROPAGATION)) {
                         if (virSchema.getName().equals(mapItem.getIntAttrName())
-                                && mapItem.getIntMappingType() == attrUtil.virIntMappingType()
-                                && externalResources.contains(resource)) {
+                                && mapItem.getIntMappingType() == attrUtil.virIntMappingType()) {
 
                             propByRes.add(ResourceOperation.UPDATE, resource.getName());
 
@@ -483,15 +495,12 @@ public abstract class AbstractAttributableDataBinder {
             }
 
             if (virSchema != null && virAttr != null && virAttr.getSchema() != null) {
-                for (ExternalResource resource : resourceDAO.findAll()) {
-                    for (AbstractMappingItem mapItem : attrUtil.getMappingItems(resource, MappingPurpose.PROPAGATION)) {
-                        if (virSchema.getName().equals(mapItem.getIntAttrName())
-                                && mapItem.getIntMappingType() == attrUtil.virIntMappingType()
-                                && externalResources.contains(resource)) {
-
-                            propByRes.add(ResourceOperation.UPDATE, resource.getName());
-                        }
-                    }
+                if (attributable instanceof AbstractSubject) {
+                    updateOnResourcesIfMappingMatches(attrUtil, virSchema.getName(),
+                            externalResources, attrUtil.virIntMappingType(), propByRes);
+                } else if (attributable instanceof Membership) {
+                    updateOnResourcesIfMappingMatches(attrUtil, virSchema.getName(),
+                            externalResources, IntMappingType.MembershipVirtualSchema, propByRes);
                 }
 
                 final List<String> values = new ArrayList<String>(virAttr.getValues());
@@ -588,6 +597,16 @@ public abstract class AbstractAttributableDataBinder {
             }
         }
 
+        final Set<ExternalResource> externalResources = new HashSet<ExternalResource>();
+        if (attributable instanceof AbstractSubject) {
+            externalResources.addAll(((AbstractSubject) attributable).getResources());
+        }
+        if (attributable instanceof Membership) {
+            externalResources.clear();
+            externalResources.addAll(((Membership) attributable).getSyncopeUser().getResources());
+            externalResources.addAll(((Membership) attributable).getSyncopeRole().getResources());
+        }
+
         LOG.debug("Attributes to be removed:\n{}", propByRes);
 
         // 4. attributes to be updated
@@ -610,17 +629,11 @@ public abstract class AbstractAttributableDataBinder {
 
             if (schema != null && attr != null && attr.getSchema() != null) {
                 if (attributable instanceof AbstractSubject) {
-                    for (ExternalResource resource : resourceDAO.findAll()) {
-                        for (AbstractMappingItem mapItem : attrUtil.
-                                getMappingItems(resource, MappingPurpose.PROPAGATION)) {
-                            if (schema.getName().equals(mapItem.getIntAttrName())
-                                    && mapItem.getIntMappingType() == attrUtil.intMappingType()
-                                    && ((AbstractSubject) attributable).getResources().contains(resource)) {
-
-                                propByRes.add(ResourceOperation.UPDATE, resource.getName());
-                            }
-                        }
-                    }
+                    updateOnResourcesIfMappingMatches(attrUtil, schema.getName(),
+                            externalResources, attrUtil.intMappingType(), propByRes);
+                } else if (attributable instanceof Membership) {
+                    updateOnResourcesIfMappingMatches(attrUtil, schema.getName(),
+                            externalResources, IntMappingType.MembershipSchema, propByRes);
                 }
 
                 // 1.1 remove values
@@ -707,17 +720,11 @@ public abstract class AbstractAttributableDataBinder {
             AbstractDerSchema derSchema = getDerSchema(derAttrToBeAdded, attrUtil.derSchemaClass());
             if (derSchema != null) {
                 if (attributable instanceof AbstractSubject) {
-                    for (ExternalResource resource : resourceDAO.findAll()) {
-                        for (AbstractMappingItem mapItem : attrUtil.
-                                getMappingItems(resource, MappingPurpose.PROPAGATION)) {
-                            if (derSchema.getName().equals(mapItem.getIntAttrName())
-                                    && mapItem.getIntMappingType() == attrUtil.derIntMappingType()
-                                    && ((AbstractSubject) attributable).getResources().contains(resource)) {
-
-                                propByRes.add(ResourceOperation.UPDATE, resource.getName());
-                            }
-                        }
-                    }
+                    updateOnResourcesIfMappingMatches(attrUtil, derSchema.getName(),
+                            externalResources, attrUtil.derIntMappingType(), propByRes);
+                } else if (attributable instanceof Membership) {
+                    updateOnResourcesIfMappingMatches(attrUtil, derSchema.getName(),
+                            externalResources, IntMappingType.MembershipDerivedSchema, propByRes);
                 }
 
                 AbstractDerAttr derAttr = attrUtil.newDerAttr();
