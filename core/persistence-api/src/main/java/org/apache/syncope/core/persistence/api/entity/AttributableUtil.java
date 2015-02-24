@@ -77,7 +77,7 @@ public interface AttributableUtil {
 
     <T extends MappingItem> List<T> getUidToMappingItems(ExternalResource resource, MappingPurpose purpose);
 
-    IntMappingType intMappingType();
+    IntMappingType plainIntMappingType();
 
     IntMappingType derIntMappingType();
 

@@ -739,7 +739,7 @@ public class JPAAttributableUtil implements AttributableUtil {
     }
 
     @Override
-    public IntMappingType intMappingType() {
+    public IntMappingType plainIntMappingType() {
         IntMappingType result = null;
 
         switch (type) {

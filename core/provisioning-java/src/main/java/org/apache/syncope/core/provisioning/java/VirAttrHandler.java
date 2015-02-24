@@ -20,7 +20,6 @@ package org.apache.syncope.core.provisioning.java;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -28,6 +27,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.mod.AttrMod;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.types.AttributableType;
+import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
@@ -116,6 +116,19 @@ public class VirAttrHandler {
         }
     }
 
+    public void updateOnResourcesIfMappingMatches(final AttributableUtil attrUtil, final String schemaKey,
+            final Set<ExternalResource> resources, final IntMappingType mappingType,
+            final PropagationByResource propByRes) {
+
+        for (ExternalResource resource : resources) {
+            for (MappingItem mapItem : attrUtil.getMappingItems(resource, MappingPurpose.PROPAGATION)) {
+                if (schemaKey.equals(mapItem.getIntAttrName()) && mapItem.getIntMappingType() == mappingType) {
+                    propByRes.add(ResourceOperation.UPDATE, resource.getKey());
+                }
+            }
+        }
+    }
+
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public PropagationByResource fillVirtual(final Attributable attributable,
             final Set<String> vAttrsToBeRemoved, final Set<AttrMod> vAttrsToBeUpdated,
@@ -126,11 +139,9 @@ public class VirAttrHandler {
         final Set<ExternalResource> externalResources = new HashSet<>();
         if (attributable instanceof Subject) {
             externalResources.addAll(((Subject<?, ?, ?>) attributable).getResources());
-        }
-
-        if (attributable instanceof Membership) {
-            externalResources.clear();
+        } else if (attributable instanceof Membership) {
             externalResources.addAll(((Membership) attributable).getUser().getResources());
+            externalResources.addAll(((Membership) attributable).getRole().getResources());
         }
 
         // 1. virtual attributes to be removed
@@ -145,11 +156,10 @@ public class VirAttrHandler {
                     virAttrDAO.delete(virAttr);
                 }
 
-                for (ExternalResource resource : resourceDAO.findAll()) {
+                for (ExternalResource resource : externalResources) {
                     for (MappingItem mapItem : attrUtil.getMappingItems(resource, MappingPurpose.PROPAGATION)) {
                         if (virSchema.getKey().equals(mapItem.getIntAttrName())
-                                && mapItem.getIntMappingType() == attrUtil.virIntMappingType()
-                                && externalResources.contains(resource)) {
+                                && mapItem.getIntMappingType() == attrUtil.virIntMappingType()) {
 
                             propByRes.add(ResourceOperation.UPDATE, resource.getKey());
 
@@ -183,15 +193,12 @@ public class VirAttrHandler {
             }
 
             if (virSchema != null && virAttr != null && virAttr.getSchema() != null) {
-                for (ExternalResource resource : resourceDAO.findAll()) {
-                    for (MappingItem mapItem : attrUtil.getMappingItems(resource, MappingPurpose.PROPAGATION)) {
-                        if (virSchema.getKey().equals(mapItem.getIntAttrName())
-                                && mapItem.getIntMappingType() == attrUtil.virIntMappingType()
-                                && externalResources.contains(resource)) {
-
-                            propByRes.add(ResourceOperation.UPDATE, resource.getKey());
-                        }
-                    }
+                if (attributable instanceof Subject) {
+                    updateOnResourcesIfMappingMatches(attrUtil, virSchema.getKey(),
+                            externalResources, attrUtil.derIntMappingType(), propByRes);
+                } else if (attributable instanceof Membership) {
+                    updateOnResourcesIfMappingMatches(attrUtil, virSchema.getKey(),
+                            externalResources, IntMappingType.MembershipVirtualSchema, propByRes);
                 }
 
                 final List<String> values = new ArrayList<>(virAttr.getValues());
@@ -263,6 +270,14 @@ public class VirAttrHandler {
                 attrUtilFactory.getInstance(AttributableType.USER));
     }
 
+    private Set<String> getAttrNames(final List<? extends VirAttr> virAttrs) {
+        final Set<String> virAttrNames = new HashSet<>();
+        for (VirAttr attr : virAttrs) {
+            virAttrNames.add(attr.getSchema().getKey());
+        }
+        return virAttrNames;
+    }
+
     /**
      * SYNCOPE-501: build membership virtual attribute changes in case no other changes were made.
      *
@@ -285,9 +300,7 @@ public class VirAttrHandler {
         return membership == null ? new PropagationByResource() : isRemoval
                 ? fillVirtual(
                         membership,
-                        membership.getVirAttrs() == null
-                                ? Collections.<String>emptySet()
-                                : getAttrNames(membership.getVirAttrs()),
+                        getAttrNames(membership.getVirAttrs()),
                         vAttrsToBeUpdated,
                         attrUtilFactory.getInstance(AttributableType.MEMBERSHIP))
                 : fillVirtual(
@@ -295,14 +308,6 @@ public class VirAttrHandler {
                         vAttrsToBeRemoved,
                         vAttrsToBeUpdated,
                         attrUtilFactory.getInstance(AttributableType.MEMBERSHIP));
-    }
-
-    private Set<String> getAttrNames(final List<? extends VirAttr> virAttrs) {
-        final Set<String> virAttrNames = new HashSet<>();
-        for (VirAttr attr : virAttrs) {
-            virAttrNames.add(attr.getSchema().getKey());
-        }
-        return virAttrNames;
     }
 
 }

@@ -1539,11 +1539,11 @@ public class UserITCase extends AbstractITCase {
         UserMod userMod = new UserMod();
         userMod.setKey(userTO.getKey());
         userMod.getResourcesToAdd().add(RESOURCE_NAME_WS1);
-        
+
         final StatusMod st = new StatusMod();
         st.setOnSyncope(false);
         st.getResourceNames().add(RESOURCE_NAME_WS1);
-        userMod.setPwdPropRequest(st); 
+        userMod.setPwdPropRequest(st);
 
         userTO = updateUser(userMod);
         assertNotNull(userTO);
@@ -1574,7 +1574,7 @@ public class UserITCase extends AbstractITCase {
         UserMod userMod = new UserMod();
         userMod.setKey(userTO.getKey());
         userMod.getResourcesToAdd().add(RESOURCE_NAME_LDAP);
-        
+
         final StatusMod st = new StatusMod();
         st.setOnSyncope(false);
         st.getResourceNames().add(RESOURCE_NAME_LDAP);
@@ -2294,7 +2294,7 @@ public class UserITCase extends AbstractITCase {
         UserMod userMod = new UserMod();
         userMod.setKey(user.getKey());
         userMod.getResourcesToAdd().add(RESOURCE_NAME_TESTDB);
-        
+
         final StatusMod st = new StatusMod();
         st.setOnSyncope(false);
         st.getResourceNames().add(RESOURCE_NAME_TESTDB);
@@ -2337,7 +2337,7 @@ public class UserITCase extends AbstractITCase {
         UserMod userMod = new UserMod();
         userMod.setKey(user.getKey());
         userMod.getResourcesToAdd().add(RESOURCE_NAME_LDAP);
-        
+
         final StatusMod st = new StatusMod();
         st.setOnSyncope(false);
         st.getResourceNames().add(RESOURCE_NAME_LDAP);
@@ -2466,5 +2466,46 @@ public class UserITCase extends AbstractITCase {
             csv.setPasswordPolicy(null);
             resourceService.update(RESOURCE_NAME_CSV, csv);
         }
+    }
+
+    @Test
+    public void issueSYNCOPE647() {
+        UserTO userTO = getUniqueSampleTO("syncope647@syncope.apache.org");
+        userTO.getResources().clear();
+        userTO.getMemberships().clear();
+        userTO.getDerAttrs().clear();
+        userTO.getVirAttrs().clear();
+        userTO.getDerAttrs().add(attrTO("csvuserid", null));
+
+        MembershipTO membershipTO = new MembershipTO();
+        membershipTO.setRoleId(12L);
+        membershipTO.getPlainAttrs().add(attrTO("postalAddress", "postalAddress"));
+        userTO.getMemberships().add(membershipTO);
+
+        userTO.getResources().add(RESOURCE_NAME_LDAP);
+
+        UserTO actual = createUser(userTO);
+        assertNotNull(actual);
+        assertNotNull(actual.getDerAttrMap().get("csvuserid"));
+
+        ConnObjectTO connObjectTO =
+                resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.USER, actual.getKey());
+        assertNotNull(connObjectTO);
+        assertEquals("postalAddress", connObjectTO.getPlainAttrMap().get("postalAddress").getValues().get(0));
+
+        UserMod userMod = new UserMod();
+        userMod.setKey(actual.getKey());
+
+        MembershipMod membershipMod = new MembershipMod();
+        membershipMod.setRole(12L);
+        membershipMod.getPlainAttrsToUpdate().add(attrMod("postalAddress", "newPostalAddress"));
+        userMod.getMembershipsToAdd().add(membershipMod);
+        userMod.getMembershipsToRemove().add(actual.getMemberships().iterator().next().getKey());
+
+        actual = updateUser(userMod);
+
+        connObjectTO = resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.USER, actual.getKey());
+        assertNotNull(connObjectTO);
+        assertEquals("newPostalAddress", connObjectTO.getPlainAttrMap().get("postalAddress").getValues().get(0));
     }
 }
