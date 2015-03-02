@@ -369,7 +369,7 @@ under the License.
     <disruptor.version>3.3.2</disruptor.version>
 
     <junit.version>4.11</junit.version>
-    <selenium.version>2.44.0</selenium.version>
+    <selenium.version>2.45.0</selenium.version>
 
     <apacheds.version>1.5.7</apacheds.version>
     
