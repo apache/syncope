@@ -30,6 +30,8 @@ public class ConcurrencyTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConcurrencyTest.class);
 
+    private static final int THREAD_NUMBER = 1000;
+
     private static final SyncopeClient client =
             new SyncopeClientFactoryBean().setAddress("http://url").create("username", "password");
 
@@ -37,7 +39,7 @@ public class ConcurrencyTest {
     public void multiThreadTest()
             throws InterruptedException {
 
-        for (int i = 0; i < 10000; i++) {
+        for (int i = 0; i < THREAD_NUMBER; i++) {
             Thread execution = new Thread("Th-" + StringUtils.leftPad(String.valueOf(i), 5, '0')) {
 
                 @Override
@@ -55,13 +57,13 @@ public class ConcurrencyTest {
             execution.start();
         }
 
-        Thread.sleep(10000);
+        Thread.sleep(THREAD_NUMBER);
     }
 
     @Test
     public void multiCallTest() {
         try {
-            for (int i = 0; i < 10000; i++) {
+            for (int i = 0; i < THREAD_NUMBER; i++) {
                 client.getService(ResourceService.class);
             }
         } catch (Exception e) {
