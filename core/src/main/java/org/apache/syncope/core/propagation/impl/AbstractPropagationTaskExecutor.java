@@ -130,23 +130,18 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         return result;
     }
 
-    public static void createOrUpdate(
-            final ObjectClass oclass,
-            final String accountId,
-            final Set<Attribute> attrs,
-            final String resource,
-            final PropagationMode propagationMode,
+    protected void createOrUpdate(
+            final PropagationTask task,
             final ConnectorObject beforeObj,
             final Connector connector,
-            final Set<String> propagationAttempted,
-            final ConnObjectUtil connObjectUtil) {
+            final Set<String> propagationAttempted) {
 
         // set of attributes to be propagated
-        final Set<Attribute> attributes = new HashSet<Attribute>(attrs);
+        final Set<Attribute> attributes = new HashSet<Attribute>(task.getAttributes());
 
         // check if there is any missing or null / empty mandatory attribute
         List<Object> mandatoryAttrNames = new ArrayList<Object>();
-        Attribute mandatoryMissing = AttributeUtil.find(MANDATORY_MISSING_ATTR_NAME, attrs);
+        Attribute mandatoryMissing = AttributeUtil.find(MANDATORY_MISSING_ATTR_NAME, task.getAttributes());
         if (mandatoryMissing != null) {
             attributes.remove(mandatoryMissing);
 
@@ -154,7 +149,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 mandatoryAttrNames.addAll(mandatoryMissing.getValue());
             }
         }
-        Attribute mandatoryNullOrEmpty = AttributeUtil.find(MANDATORY_NULL_OR_EMPTY_ATTR_NAME, attrs);
+        Attribute mandatoryNullOrEmpty = AttributeUtil.find(MANDATORY_NULL_OR_EMPTY_ATTR_NAME, task.getAttributes());
         if (mandatoryNullOrEmpty != null) {
             attributes.remove(mandatoryNullOrEmpty);
 
@@ -166,8 +161,13 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         }
 
         if (beforeObj == null) {
-            LOG.debug("Create {} on {}", attributes, resource);
-            connector.create(propagationMode, oclass, attributes, null, propagationAttempted);
+            LOG.debug("Create {} on {}", attributes, task.getResource().getName());
+            connector.create(
+                    task.getResource().getPropagationMode(),
+                    new ObjectClass(task.getObjectClassName()),
+                    attributes,
+                    null,
+                    propagationAttempted);
         } else {
             // 1. check if rename is really required
             final Name newName = (Name) AttributeUtil.find(Name.NAME, attributes);
@@ -208,30 +208,12 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 }
 
                 // 3. provision entry
-                LOG.debug("Update {} on {}", strictlyModified, resource);
+                LOG.debug("Update {} on {}", strictlyModified, task.getResource().getName());
 
-                connector.update(propagationMode, beforeObj.getObjectClass(),
+                connector.update(task.getResource().getPropagationMode(), beforeObj.getObjectClass(),
                         beforeObj.getUid(), strictlyModified, null, propagationAttempted);
             }
         }
-    }
-
-    protected void createOrUpdate(
-            final PropagationTask task,
-            final ConnectorObject beforeObj,
-            final Connector connector,
-            final Set<String> propagationAttempted) {
-
-        createOrUpdate(
-                new ObjectClass(task.getObjectClassName()),
-                task.getAccountId(),
-                task.getAttributes(),
-                task.getResource().getName(),
-                task.getResource().getPropagationMode(),
-                beforeObj,
-                connector,
-                propagationAttempted,
-                connObjectUtil);
     }
 
     protected AbstractSubject getSubject(final PropagationTask task) {
