@@ -417,7 +417,9 @@ public class JPAUser extends AbstractSubject<UPlainAttr, UDerAttr, UVirAttr> imp
 
     @Override
     public boolean checkToken(final String token) {
-        return this.token == null || this.token.equals(token) && !hasTokenExpired();
+        return this.token == null 
+                ? token == null
+                : this.token.equals(token) && !hasTokenExpired();
     }
 
     @Override
