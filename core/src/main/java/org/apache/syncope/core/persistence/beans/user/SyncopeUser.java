@@ -429,7 +429,9 @@ public class SyncopeUser extends AbstractSubject {
     }
 
     public boolean checkToken(final String token) {
-        return this.token == null || this.token.equals(token) && !hasTokenExpired();
+        return this.token == null 
+                ? token == null
+                : this.token.equals(token) && !hasTokenExpired();
     }
 
     public boolean hasTokenExpired() {
