@@ -194,7 +194,7 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
         return token;
     }
 
-    private void updateLoginAttributes(SyncopeUser user, boolean authenticated) {
+    protected void updateLoginAttributes(SyncopeUser user, boolean authenticated) {
         boolean userModified = false;
 
         if (authenticated) {
