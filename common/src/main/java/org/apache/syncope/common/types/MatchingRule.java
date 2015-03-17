@@ -49,6 +49,11 @@ public enum MatchingRule {
     /**
      * Just link resource without performing any (de-)provisioning operation.
      */
-    LINK
+    LINK;
+
+    public static String toEventName(final MatchingRule rule) {
+        return new StringBuilder(MatchingRule.class.getSimpleName()).
+                append("_").append(rule.name()).toString().toLowerCase();
+    }
 
 }

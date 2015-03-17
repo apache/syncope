@@ -132,7 +132,7 @@ public abstract class AbstractSubjectPushResultHandler extends AbstractSyncopeRe
         } else {
             try {
                 if (beforeObj == null) {
-                    operation = profile.getSyncTask().getUnmatchingRule().name().toLowerCase();
+                    operation = UnmatchingRule.toEventName(profile.getSyncTask().getUnmatchingRule());
                     result.setOperation(getResourceOperation(profile.getSyncTask().getUnmatchingRule()));
 
                     switch (profile.getSyncTask().getUnmatchingRule()) {
@@ -172,12 +172,15 @@ public abstract class AbstractSubjectPushResultHandler extends AbstractSyncopeRe
                             }
 
                             break;
+                        case IGNORE:
+                            LOG.debug("Ignored subjectId: {}", subjectId);
+                            break;
                         default:
                         // do nothing
                     }
 
                 } else {
-                    operation = profile.getSyncTask().getMatchingRule().name().toLowerCase();
+                    operation = MatchingRule.toEventName(profile.getSyncTask().getMatchingRule());           
                     result.setOperation(getResourceOperation(profile.getSyncTask().getMatchingRule()));
 
                     switch (profile.getSyncTask().getMatchingRule()) {
@@ -240,6 +243,9 @@ public abstract class AbstractSubjectPushResultHandler extends AbstractSyncopeRe
                             }
 
                             break;
+                        case IGNORE:
+                            LOG.debug("Ignored subjectId: {}", subjectId);
+                            break;
                         default:
                         // do nothing
                     }
@@ -263,7 +269,7 @@ public abstract class AbstractSubjectPushResultHandler extends AbstractSyncopeRe
             } finally {
                 notificationManager.createTasks(
                         AuditElements.EventCategoryType.PUSH,
-                        AttributableType.USER.name().toLowerCase(),
+                        attrUtil.getType().name().toLowerCase(),
                         profile.getSyncTask().getResource().getName(),
                         operation,
                         resultStatus,

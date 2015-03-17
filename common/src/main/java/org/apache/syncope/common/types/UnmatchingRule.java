@@ -42,6 +42,11 @@ public enum UnmatchingRule {
      * Just unlink resource without performing any (de-)provisioning operation.
      * In case of sync task UNLINK and IGNORE will coincide.
      */
-    UNLINK
+    UNLINK;
+
+    public static String toEventName(final UnmatchingRule rule) {
+        return new StringBuilder(UnmatchingRule.class.getSimpleName()).
+                append("_").append(rule.name()).toString().toLowerCase();
+    }
 
 }

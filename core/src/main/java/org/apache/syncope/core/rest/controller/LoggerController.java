@@ -41,6 +41,8 @@ import org.apache.syncope.common.types.LoggerType;
 import org.apache.syncope.common.types.ResourceOperation;
 import org.apache.syncope.common.util.BeanUtils;
 import org.apache.syncope.common.SyncopeClientException;
+import org.apache.syncope.common.types.MatchingRule;
+import org.apache.syncope.common.types.UnmatchingRule;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.SchedTask;
 import org.apache.syncope.core.persistence.beans.SyncTask;
@@ -217,7 +219,7 @@ public class LoggerController extends AbstractTransactionalController<LoggerTO> 
             final String packageSearchPath =
                     ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX
                     + ClassUtils.convertClassNameToResourcePath(
-                    SystemPropertyUtils.resolvePlaceholders(this.getClass().getPackage().getName()))
+                            SystemPropertyUtils.resolvePlaceholders(this.getClass().getPackage().getName()))
                     + "/" + "**/*.class";
 
             final Resource[] resources = resourcePatternResolver.getResources(packageSearchPath);
@@ -239,7 +241,7 @@ public class LoggerController extends AbstractTransactionalController<LoggerTO> 
                     }
                 }
             }
-            
+
             //SYNCOPE-608
             final EventCategoryTO authenticationControllerEvents = new EventCategoryTO();
             authenticationControllerEvents.setCategory("AuthenticationController");
@@ -268,6 +270,18 @@ public class LoggerController extends AbstractTransactionalController<LoggerTO> 
                         propEventCategoryTO.getEvents().add(resourceOperation.name().toLowerCase());
                         syncEventCategoryTO.getEvents().add(resourceOperation.name().toLowerCase());
                         pushEventCategoryTO.getEvents().add(resourceOperation.name().toLowerCase());
+                    }
+
+                    for (UnmatchingRule unmatching : UnmatchingRule.values()) {
+                        String event = UnmatchingRule.toEventName(unmatching);
+                        syncEventCategoryTO.getEvents().add(event);
+                        pushEventCategoryTO.getEvents().add(event);
+                    }
+
+                    for (MatchingRule matching : MatchingRule.values()) {
+                        String event = MatchingRule.toEventName(matching);
+                        syncEventCategoryTO.getEvents().add(event);
+                        pushEventCategoryTO.getEvents().add(event);
                     }
 
                     events.add(propEventCategoryTO);

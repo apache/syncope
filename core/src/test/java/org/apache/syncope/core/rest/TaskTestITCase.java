@@ -1385,4 +1385,48 @@ public class TaskTestITCase extends AbstractTest {
             }
         }
     }
+
+    @Test
+    public void issueSYNCOPE648() {
+        //1. Create Push Task
+        final PushTaskTO task = new PushTaskTO();
+        task.setName("Test create Push");
+        task.setResource(RESOURCE_NAME_LDAP);
+        task.setUserFilter(
+                SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("_NO_ONE_").query());
+        task.setRoleFilter(
+                SyncopeClient.getRoleSearchConditionBuilder().is("name").equalTo("citizen").query());
+        task.setMatchingRule(MatchingRule.IGNORE);
+        task.setUnmatchingRule(UnmatchingRule.IGNORE);
+
+        final Response response = taskService.create(task);
+        final PushTaskTO actual = getObject(response.getLocation(), TaskService.class, PushTaskTO.class);
+        assertNotNull(actual);
+
+        // 2. Create notification
+        NotificationTO notification = new NotificationTO();
+        notification.setTraceLevel(TraceLevel.FAILURES);
+        notification.getEvents().add("[PushTask]:[role]:[resource-ldap]:[matchingrule_ignore]:[SUCCESS]");
+        notification.getEvents().add("[PushTask]:[role]:[resource-ldap]:[unmatchingrule_ignore]:[SUCCESS]");
+
+        notification.getStaticRecipients().add("issueyncope648@syncope.apache.org");
+        notification.setSelfAsRecipient(false);
+        notification.setRecipientAttrName("email");
+        notification.setRecipientAttrType(IntMappingType.UserSchema);
+
+        notification.setSender("syncope648@syncope.apache.org");
+        String subject = "Test notification";
+        notification.setSubject(subject);
+        notification.setTemplate("optin");
+        notification.setActive(true);
+
+        Response responseNotification = notificationService.create(notification);
+        notification = getObject(responseNotification.getLocation(), NotificationService.class, NotificationTO.class);
+        assertNotNull(notification);
+
+        execSyncTask(actual.getId(), 50, false);
+        
+        NotificationTaskTO taskTO = findNotificationTaskBySender("syncope648@syncope.apache.org");
+        assertNotNull(taskTO);
+    }
 }

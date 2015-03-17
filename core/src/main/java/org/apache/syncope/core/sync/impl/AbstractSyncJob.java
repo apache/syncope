@@ -116,12 +116,14 @@ public abstract class AbstractSyncJob<T extends AbstractSyncTask, A extends Abst
         List<SyncResult> uFailUpdate = new ArrayList<SyncResult>();
         List<SyncResult> uSuccDelete = new ArrayList<SyncResult>();
         List<SyncResult> uFailDelete = new ArrayList<SyncResult>();
+        List<SyncResult> uSuccNone = new ArrayList<SyncResult>();
         List<SyncResult> rSuccCreate = new ArrayList<SyncResult>();
         List<SyncResult> rFailCreate = new ArrayList<SyncResult>();
         List<SyncResult> rSuccUpdate = new ArrayList<SyncResult>();
         List<SyncResult> rFailUpdate = new ArrayList<SyncResult>();
         List<SyncResult> rSuccDelete = new ArrayList<SyncResult>();
         List<SyncResult> rFailDelete = new ArrayList<SyncResult>();
+        List<SyncResult> rSuccNone = new ArrayList<SyncResult>();
 
         for (SyncResult syncResult : syncResults) {
             switch (syncResult.getStatus()) {
@@ -163,6 +165,20 @@ public abstract class AbstractSyncJob<T extends AbstractSyncTask, A extends Abst
 
                                 case ROLE:
                                     rSuccDelete.add(syncResult);
+                                    break;
+
+                                default:
+                            }
+                            break;
+
+                        case NONE:
+                            switch (syncResult.getSubjectType()) {
+                                case USER:
+                                    uSuccNone.add(syncResult);
+                                    break;
+
+                                case ROLE:
+                                    rSuccNone.add(syncResult);
                                     break;
 
                                 default:
@@ -232,13 +248,16 @@ public abstract class AbstractSyncJob<T extends AbstractSyncTask, A extends Abst
                 append("[updated/failures]: ").append(uSuccUpdate.size()).append('/').append(uFailUpdate.size()).
                 append(' ').
                 append("[deleted/failures]: ").append(uSuccDelete.size()).append('/').append(uFailDelete.size()).
-                append('\n');
+                append(' ').
+                append("[ignored]: ").append(uSuccNone.size()).append('\n');
         report.append("Roles ").
                 append("[created/failures]: ").append(rSuccCreate.size()).append('/').append(rFailCreate.size()).
                 append(' ').
                 append("[updated/failures]: ").append(rSuccUpdate.size()).append('/').append(rFailUpdate.size()).
                 append(' ').
-                append("[deleted/failures]: ").append(rSuccDelete.size()).append('/').append(rFailDelete.size());
+                append("[deleted/failures]: ").append(rSuccDelete.size()).append('/').append(rFailDelete.size()).
+                append(' ').
+                append("[ignored]: ").append(rSuccNone.size());
 
         // Failures
         if (syncTraceLevel == TraceLevel.FAILURES || syncTraceLevel == TraceLevel.ALL) {
@@ -276,13 +295,17 @@ public abstract class AbstractSyncJob<T extends AbstractSyncTask, A extends Abst
                     .append("\nUsers updated:\n")
                     .append(SyncResult.produceReport(uSuccUpdate, syncTraceLevel))
                     .append("\nUsers deleted:\n")
-                    .append(SyncResult.produceReport(uSuccDelete, syncTraceLevel));
+                    .append(SyncResult.produceReport(uSuccDelete, syncTraceLevel))
+                    .append("\nUsers ignored:\n")
+                    .append(SyncResult.produceReport(uSuccNone, syncTraceLevel));
             report.append("\n\nRoles created:\n")
                     .append(SyncResult.produceReport(rSuccCreate, syncTraceLevel))
                     .append("\nRoles updated:\n")
                     .append(SyncResult.produceReport(rSuccUpdate, syncTraceLevel))
                     .append("\nRoles deleted:\n")
-                    .append(SyncResult.produceReport(rSuccDelete, syncTraceLevel));
+                    .append(SyncResult.produceReport(rSuccDelete, syncTraceLevel))
+                    .append("\nRoles ignored:\n")
+                    .append(SyncResult.produceReport(rSuccNone, syncTraceLevel));
         }
 
         return report.toString();
@@ -316,7 +339,7 @@ public abstract class AbstractSyncJob<T extends AbstractSyncTask, A extends Abst
             } catch (Exception e) {
                 final String msg = String.
                         format("Connector instance bean for resource %s and connInstance %s not found",
-                        syncTask.getResource(), syncTask.getResource().getConnector());
+                                syncTask.getResource(), syncTask.getResource().getConnector());
 
                 throw new JobExecutionException(msg, e);
             }
