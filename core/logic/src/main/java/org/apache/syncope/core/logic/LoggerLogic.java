@@ -38,8 +38,10 @@ import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.LoggerLevel;
 import org.apache.syncope.common.lib.types.LoggerType;
+import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.TaskType;
+import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.LoggerDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -272,6 +274,18 @@ public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
                         propEventCategoryTO.getEvents().add(resourceOperation.name().toLowerCase());
                         syncEventCategoryTO.getEvents().add(resourceOperation.name().toLowerCase());
                         pushEventCategoryTO.getEvents().add(resourceOperation.name().toLowerCase());
+                    }
+
+                    for (UnmatchingRule unmatching : UnmatchingRule.values()) {
+                        String event = UnmatchingRule.toEventName(unmatching);
+                        syncEventCategoryTO.getEvents().add(event);
+                        pushEventCategoryTO.getEvents().add(event);
+                    }
+
+                    for (MatchingRule matching : MatchingRule.values()) {
+                        String event = MatchingRule.toEventName(matching);
+                        syncEventCategoryTO.getEvents().add(event);
+                        pushEventCategoryTO.getEvents().add(event);
                     }
 
                     events.add(propEventCategoryTO);

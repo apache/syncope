@@ -26,7 +26,6 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.lib.mod.AttrMod;
 import org.apache.syncope.common.lib.mod.MembershipMod;
 import org.apache.syncope.common.lib.to.AbstractSubjectTO;
-import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
 import org.apache.syncope.common.lib.types.IntMappingType;
@@ -52,6 +51,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHandler<PushTask, PushActions>
         implements SyncopePushResultHandler {
+
+    protected abstract AttributableUtil getAttributableUtil();
 
     protected abstract String getName(final Subject<?, ?, ?> subject);
 
@@ -129,7 +130,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         } else {
             try {
                 if (beforeObj == null) {
-                    operation = profile.getTask().getUnmatchingRule().name().toLowerCase();
+                    operation = UnmatchingRule.toEventName(profile.getTask().getUnmatchingRule());
                     result.setOperation(getResourceOperation(profile.getTask().getUnmatchingRule()));
 
                     switch (profile.getTask().getUnmatchingRule()) {
@@ -169,12 +170,15 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                             }
 
                             break;
+                        case IGNORE:
+                            LOG.debug("Ignored subjectId: {}", subjectId);
+                            break;
                         default:
                         // do nothing
                     }
 
                 } else {
-                    operation = profile.getTask().getMatchingRule().name().toLowerCase();
+                    operation = MatchingRule.toEventName(profile.getTask().getMatchingRule());
                     result.setOperation(getResourceOperation(profile.getTask().getMatchingRule()));
 
                     switch (profile.getTask().getMatchingRule()) {
@@ -237,6 +241,9 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                             }
 
                             break;
+                        case IGNORE:
+                            LOG.debug("Ignored subjectId: {}", subjectId);
+                            break;
                         default:
                         // do nothing
                     }
@@ -260,7 +267,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
             } finally {
                 notificationManager.createTasks(
                         AuditElements.EventCategoryType.PUSH,
-                        AttributableType.USER.name().toLowerCase(),
+                        getAttributableUtil().getType().name().toLowerCase(),
                         profile.getTask().getResource().getKey(),
                         operation,
                         resultStatus,
@@ -269,7 +276,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                         subject);
                 auditManager.audit(
                         AuditElements.EventCategoryType.PUSH,
-                        AttributableType.USER.name().toLowerCase(),
+                        getAttributableUtil().getType().name().toLowerCase(),
                         profile.getTask().getResource().getKey(),
                         operation,
                         resultStatus,

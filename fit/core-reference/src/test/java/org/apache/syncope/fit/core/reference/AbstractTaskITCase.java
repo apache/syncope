@@ -18,7 +18,9 @@
  */
 package org.apache.syncope.fit.core.reference;
 
+import static org.apache.syncope.fit.core.reference.AbstractITCase.taskService;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
@@ -33,8 +35,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
+import org.apache.syncope.common.lib.to.NotificationTaskTO;
+import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.TaskExecTO;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.types.TaskType;
 
 public abstract class AbstractTaskITCase extends AbstractITCase {
 
@@ -132,6 +137,19 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
         service.shutdownNow();
 
         return res;
+    }
+
+    protected NotificationTaskTO findNotificationTaskBySender(final String sender) {
+        PagedResult<NotificationTaskTO> tasks = taskService.list(TaskType.NOTIFICATION);
+        assertNotNull(tasks);
+        assertFalse(tasks.getResult().isEmpty());
+        NotificationTaskTO taskTO = null;
+        for (NotificationTaskTO task : tasks.getResult()) {
+            if (sender.equals(task.getSender())) {
+                taskTO = task;
+            }
+        }
+        return taskTO;
     }
 
 }

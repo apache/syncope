@@ -24,8 +24,10 @@ import java.util.List;
 import org.apache.syncope.common.lib.mod.UserMod;
 import org.apache.syncope.common.lib.to.AbstractSubjectTO;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
+import org.apache.syncope.core.persistence.api.entity.AttributableUtil;
 import org.apache.syncope.core.persistence.api.entity.Mapping;
 import org.apache.syncope.core.persistence.api.entity.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.Subject;
@@ -37,6 +39,11 @@ import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.Uid;
 
 public class UserPushResultHandlerImpl extends AbstractPushResultHandler implements UserPushResultHandler {
+
+    @Override
+    protected AttributableUtil getAttributableUtil() {
+        return attrUtilFactory.getInstance(AttributableType.USER);
+    }
 
     @Override
     protected Subject<?, ?, ?> deprovision(final Subject<?, ?, ?> sbj) {

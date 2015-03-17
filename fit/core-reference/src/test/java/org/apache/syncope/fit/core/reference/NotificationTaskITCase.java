@@ -28,11 +28,9 @@ import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.NotificationTO;
 import org.apache.syncope.common.lib.to.NotificationTaskTO;
-import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.TaskExecTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.IntMappingType;
-import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.common.rest.api.service.NotificationService;
 import org.junit.FixMethodOrder;
@@ -103,19 +101,6 @@ public class NotificationTaskITCase extends AbstractTaskITCase {
             // Remove execution to make test re-runnable
             taskService.deleteExecution(taskTO.getExecutions().get(0).getKey());
         }
-    }
-
-    private NotificationTaskTO findNotificationTaskBySender(final String sender) {
-        PagedResult<NotificationTaskTO> tasks = taskService.list(TaskType.NOTIFICATION);
-        assertNotNull(tasks);
-        assertFalse(tasks.getResult().isEmpty());
-        NotificationTaskTO taskTO = null;
-        for (NotificationTaskTO task : tasks.getResult()) {
-            if (sender.equals(task.getSender())) {
-                taskTO = task;
-            }
-        }
-        return taskTO;
     }
 
     private void createNotificationTask(final String sender) {

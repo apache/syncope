@@ -117,12 +117,14 @@ public abstract class AbstractProvisioningJob<T extends ProvisioningTask, A exte
         List<ProvisioningResult> uFailUpdate = new ArrayList<>();
         List<ProvisioningResult> uSuccDelete = new ArrayList<>();
         List<ProvisioningResult> uFailDelete = new ArrayList<>();
+        List<ProvisioningResult> uSuccNone = new ArrayList<>();
         List<ProvisioningResult> rSuccCreate = new ArrayList<>();
         List<ProvisioningResult> rFailCreate = new ArrayList<>();
         List<ProvisioningResult> rSuccUpdate = new ArrayList<>();
         List<ProvisioningResult> rFailUpdate = new ArrayList<>();
         List<ProvisioningResult> rSuccDelete = new ArrayList<>();
         List<ProvisioningResult> rFailDelete = new ArrayList<>();
+        List<ProvisioningResult> rSuccNone = new ArrayList<>();
 
         for (ProvisioningResult provResult : provResults) {
             switch (provResult.getStatus()) {
@@ -164,6 +166,20 @@ public abstract class AbstractProvisioningJob<T extends ProvisioningTask, A exte
 
                                 case ROLE:
                                     rSuccDelete.add(provResult);
+                                    break;
+
+                                default:
+                            }
+                            break;
+
+                        case NONE:
+                            switch (provResult.getSubjectType()) {
+                                case USER:
+                                    uSuccNone.add(provResult);
+                                    break;
+
+                                case ROLE:
+                                    rSuccNone.add(provResult);
                                     break;
 
                                 default:
@@ -233,13 +249,16 @@ public abstract class AbstractProvisioningJob<T extends ProvisioningTask, A exte
                 append("[updated/failures]: ").append(uSuccUpdate.size()).append('/').append(uFailUpdate.size()).
                 append(' ').
                 append("[deleted/failures]: ").append(uSuccDelete.size()).append('/').append(uFailDelete.size()).
-                append('\n');
+                append(' ').
+                append("[ignored]: ").append(uSuccNone.size()).append('\n');
         report.append("Roles ").
                 append("[created/failures]: ").append(rSuccCreate.size()).append('/').append(rFailCreate.size()).
                 append(' ').
                 append("[updated/failures]: ").append(rSuccUpdate.size()).append('/').append(rFailUpdate.size()).
                 append(' ').
-                append("[deleted/failures]: ").append(rSuccDelete.size()).append('/').append(rFailDelete.size());
+                append("[deleted/failures]: ").append(rSuccDelete.size()).append('/').append(rFailDelete.size()).
+                append(' ').
+                append("[ignored]: ").append(rSuccNone.size());
 
         // Failures
         if (syncTraceLevel == TraceLevel.FAILURES || syncTraceLevel == TraceLevel.ALL) {
@@ -277,13 +296,17 @@ public abstract class AbstractProvisioningJob<T extends ProvisioningTask, A exte
                     .append("\nUsers updated:\n")
                     .append(ProvisioningResult.produceReport(uSuccUpdate, syncTraceLevel))
                     .append("\nUsers deleted:\n")
-                    .append(ProvisioningResult.produceReport(uSuccDelete, syncTraceLevel));
+                    .append(ProvisioningResult.produceReport(uSuccDelete, syncTraceLevel))
+                    .append("\nUsers ignored:\n")
+                    .append(ProvisioningResult.produceReport(uSuccNone, syncTraceLevel));
             report.append("\n\nRoles created:\n")
                     .append(ProvisioningResult.produceReport(rSuccCreate, syncTraceLevel))
                     .append("\nRoles updated:\n")
                     .append(ProvisioningResult.produceReport(rSuccUpdate, syncTraceLevel))
                     .append("\nRoles deleted:\n")
-                    .append(ProvisioningResult.produceReport(rSuccDelete, syncTraceLevel));
+                    .append(ProvisioningResult.produceReport(rSuccDelete, syncTraceLevel))
+                    .append("\nRoles ignored:\n")
+                    .append(ProvisioningResult.produceReport(rSuccNone, syncTraceLevel));
         }
 
         return report.toString();

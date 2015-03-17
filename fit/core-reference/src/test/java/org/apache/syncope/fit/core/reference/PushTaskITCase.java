@@ -33,6 +33,8 @@ import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
 import org.apache.syncope.common.lib.to.MappingItemTO;
 import org.apache.syncope.common.lib.to.MappingTO;
+import org.apache.syncope.common.lib.to.NotificationTO;
+import org.apache.syncope.common.lib.to.NotificationTaskTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
@@ -48,7 +50,9 @@ import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.lib.types.SubjectType;
 import org.apache.syncope.common.lib.types.TaskType;
+import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
+import org.apache.syncope.common.rest.api.service.NotificationService;
 import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.apache.syncope.common.rest.api.service.TaskService;
 import org.junit.FixMethodOrder;
@@ -349,5 +353,49 @@ public class PushTaskITCase extends AbstractTaskITCase {
                 resourceService.delete(resourceName);
             }
         }
+    }
+
+    @Test
+    public void issueSYNCOPE648() {
+        //1. Create Push Task
+        final PushTaskTO task = new PushTaskTO();
+        task.setName("Test create Push");
+        task.setResource(RESOURCE_NAME_LDAP);
+        task.setUserFilter(
+                SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("_NO_ONE_").query());
+        task.setRoleFilter(
+                SyncopeClient.getRoleSearchConditionBuilder().is("name").equalTo("citizen").query());
+        task.setMatchingRule(MatchingRule.IGNORE);
+        task.setUnmatchingRule(UnmatchingRule.IGNORE);
+
+        final Response response = taskService.create(task);
+        final PushTaskTO actual = getObject(response.getLocation(), TaskService.class, PushTaskTO.class);
+        assertNotNull(actual);
+
+        // 2. Create notification
+        NotificationTO notification = new NotificationTO();
+        notification.setTraceLevel(TraceLevel.FAILURES);
+        notification.getEvents().add("[PushTask]:[role]:[resource-ldap]:[matchingrule_ignore]:[SUCCESS]");
+        notification.getEvents().add("[PushTask]:[role]:[resource-ldap]:[unmatchingrule_ignore]:[SUCCESS]");
+
+        notification.getStaticRecipients().add("issueyncope648@syncope.apache.org");
+        notification.setSelfAsRecipient(false);
+        notification.setRecipientAttrName("email");
+        notification.setRecipientAttrType(IntMappingType.UserPlainSchema);
+
+        notification.setSender("syncope648@syncope.apache.org");
+        String subject = "Test notification";
+        notification.setSubject(subject);
+        notification.setTemplate("optin");
+        notification.setActive(true);
+
+        Response responseNotification = notificationService.create(notification);
+        notification = getObject(responseNotification.getLocation(), NotificationService.class, NotificationTO.class);
+        assertNotNull(notification);
+
+        execSyncTask(actual.getKey(), 50, false);
+
+        NotificationTaskTO taskTO = findNotificationTaskBySender("syncope648@syncope.apache.org");
+        assertNotNull(taskTO);
     }
 }

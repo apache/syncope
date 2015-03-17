@@ -26,15 +26,17 @@ import org.apache.syncope.common.lib.mod.AbstractSubjectMod;
 import org.apache.syncope.common.lib.to.AbstractSubjectTO;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
+import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.ResourceOperation;
+import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.AttributableUtil;
 import org.apache.syncope.core.persistence.api.entity.task.SyncTask;
 import org.apache.syncope.core.provisioning.api.AttributableTransformer;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationException;
 import org.apache.syncope.core.provisioning.api.sync.SyncActions;
-import org.apache.syncope.core.provisioning.api.sync.ProvisioningResult;
 import org.apache.syncope.core.misc.security.UnauthorizedRoleException;
+import org.apache.syncope.core.provisioning.api.sync.ProvisioningResult;
 import org.apache.syncope.core.provisioning.api.sync.SyncopeSyncResultHandler;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.identityconnectors.framework.common.objects.SyncDeltaType;
@@ -111,7 +113,7 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
                 _delta = action.beforeAssign(this.getProfile(), _delta, transformed);
             }
 
-            create(transformed, _delta, attrUtil, "assign", result);
+            create(transformed, _delta, attrUtil, UnmatchingRule.toEventName(UnmatchingRule.ASSIGN), result);
         }
 
         return Collections.singletonList(result);
@@ -147,7 +149,7 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
                 _delta = action.beforeProvision(this.getProfile(), _delta, transformed);
             }
 
-            create(transformed, _delta, attrUtil, "provision", result);
+            create(transformed, _delta, attrUtil, UnmatchingRule.toEventName(UnmatchingRule.PROVISION), result);
         }
 
         return Collections.<ProvisioningResult>singletonList(result);
@@ -262,7 +264,7 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
                         resultStatus = Result.FAILURE;
                     }
                 }
-                audit("update", resultStatus, before, output, delta);
+                audit(MatchingRule.toEventName(MatchingRule.UPDATE), resultStatus, before, output, delta);
             }
             results.add(result);
         }
@@ -345,7 +347,9 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
                         resultStatus = Result.FAILURE;
                     }
                 }
-                audit(unlink ? "unassign" : "deprovision", resultStatus, before, output, delta);
+                audit(unlink
+                        ? MatchingRule.toEventName(MatchingRule.UNASSIGN)
+                        : MatchingRule.toEventName(MatchingRule.DEPROVISION), resultStatus, before, output, delta);
             }
             updResults.add(result);
         }
@@ -428,7 +432,8 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
                         resultStatus = Result.FAILURE;
                     }
                 }
-                audit(unlink ? "unlink" : "link", resultStatus, before, output, delta);
+                audit(unlink ? MatchingRule.toEventName(MatchingRule.UNLINK)
+                        : MatchingRule.toEventName(MatchingRule.LINK), resultStatus, before, output, delta);
             }
             updResults.add(result);
         }
@@ -485,7 +490,7 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
                         action.after(this.getProfile(), delta, before, result);
                     }
 
-                    audit("delete", resultStatus, before, output, delta);
+                    audit(ResourceOperation.DELETE.name().toLowerCase(), resultStatus, before, output, delta);
                 }
 
                 delResults.add(result);
@@ -500,6 +505,30 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
         }
 
         return delResults;
+    }
+
+    private List<ProvisioningResult> ignore(SyncDelta delta, final AttributableUtil attrUtil, final boolean matching)
+            throws JobExecutionException {
+
+        LOG.debug("Subject to ignore {}", delta.getObject().getUid().getUidValue());
+
+        final List<ProvisioningResult> ignoreResults = new ArrayList<ProvisioningResult>();
+        final ProvisioningResult result = new ProvisioningResult();
+
+        result.setId(null);
+        result.setName(delta.getObject().getUid().getUidValue());
+        result.setOperation(ResourceOperation.NONE);
+        result.setSubjectType(attrUtil.getType());
+        result.setStatus(ProvisioningResult.Status.SUCCESS);
+        ignoreResults.add(result);
+
+        if (!profile.isDryRun()) {
+            audit(matching
+                    ? MatchingRule.toEventName(MatchingRule.IGNORE)
+                    : UnmatchingRule.toEventName(UnmatchingRule.IGNORE), Result.SUCCESS, null, null, delta);
+        }
+
+        return ignoreResults;
     }
 
     /**
@@ -551,6 +580,9 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
                         case PROVISION:
                             profile.getResults().addAll(create(delta, attrUtil));
                             break;
+                        case IGNORE:
+                            profile.getResults().addAll(ignore(delta, attrUtil, false));
+                            break;
                         default:
                         // do nothing
                     }
@@ -570,6 +602,9 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
                             break;
                         case UNLINK:
                             profile.getResults().addAll(link(delta, subjectKeys, attrUtil, true));
+                            break;
+                        case IGNORE:
+                            profile.getResults().addAll(ignore(delta, attrUtil, true));
                             break;
                         default:
                         // do nothing
