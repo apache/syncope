@@ -52,6 +52,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 public abstract class AbstractSubjectPushResultHandler extends AbstractSyncopeResultHandler<PushTask, PushActions> {
 
+    protected abstract AttributableUtil getAttributableUtil();
+
     protected abstract String getName(final AbstractSubject subject);
 
     protected abstract AbstractMapping getMapping();
@@ -114,7 +116,6 @@ public abstract class AbstractSubjectPushResultHandler extends AbstractSyncopeRe
         String operation = null;
 
         // Try to read remote object (user / group) BEFORE any actual operation
-
         final String accountId = MappingUtil.getAccountIdValue(
                 subject, profile.getSyncTask().getResource(), getMapping().getAccountIdItem());
 
@@ -180,7 +181,7 @@ public abstract class AbstractSubjectPushResultHandler extends AbstractSyncopeRe
                     }
 
                 } else {
-                    operation = MatchingRule.toEventName(profile.getSyncTask().getMatchingRule());           
+                    operation = MatchingRule.toEventName(profile.getSyncTask().getMatchingRule());
                     result.setOperation(getResourceOperation(profile.getSyncTask().getMatchingRule()));
 
                     switch (profile.getSyncTask().getMatchingRule()) {
@@ -269,7 +270,7 @@ public abstract class AbstractSubjectPushResultHandler extends AbstractSyncopeRe
             } finally {
                 notificationManager.createTasks(
                         AuditElements.EventCategoryType.PUSH,
-                        attrUtil.getType().name().toLowerCase(),
+                        getAttributableUtil().getType().name().toLowerCase(),
                         profile.getSyncTask().getResource().getName(),
                         operation,
                         resultStatus,
@@ -278,7 +279,7 @@ public abstract class AbstractSubjectPushResultHandler extends AbstractSyncopeRe
                         subject);
                 auditManager.audit(
                         AuditElements.EventCategoryType.PUSH,
-                        AttributableType.USER.name().toLowerCase(),
+                        getAttributableUtil().getType().name().toLowerCase(),
                         profile.getSyncTask().getResource().getName(),
                         operation,
                         resultStatus,

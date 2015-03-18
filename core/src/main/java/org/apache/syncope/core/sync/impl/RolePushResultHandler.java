@@ -24,6 +24,7 @@ import java.util.List;
 import org.apache.syncope.common.mod.RoleMod;
 import org.apache.syncope.common.to.AbstractSubjectTO;
 import org.apache.syncope.common.to.RoleTO;
+import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.ResourceOperation;
 import org.apache.syncope.core.persistence.beans.AbstractMapping;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
@@ -31,11 +32,17 @@ import org.apache.syncope.core.persistence.beans.AbstractSubject;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
 import org.apache.syncope.core.propagation.PropagationByResource;
 import org.apache.syncope.core.propagation.TimeoutException;
+import org.apache.syncope.core.util.AttributableUtil;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.Uid;
 
 public class RolePushResultHandler extends AbstractSubjectPushResultHandler {
+
+    @Override
+    protected AttributableUtil getAttributableUtil() {
+        return AttributableUtil.getInstance(AttributableType.ROLE);
+    }
 
     @Override
     protected AbstractSubject deprovision(final AbstractSubject sbj) {
