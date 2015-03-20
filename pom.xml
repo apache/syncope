@@ -345,7 +345,7 @@ under the License.
 
     <cocoon.version>3.0.0-alpha-3</cocoon.version>
 
-    <groovy.version>2.4.1</groovy.version>
+    <groovy.version>2.4.2</groovy.version>
 
     <activiti.version>5.16.4</activiti.version>
 
