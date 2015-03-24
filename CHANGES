@@ -2,6 +2,30 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 1.2.3
+================================================================================
+
+** Bug
+    * [SYNCOPE-638] - MAttrTemplate and RAttrTemplate sequence values are not managed in content.xml
+    * [SYNCOPE-639] - Notification 'recipientAttrType' and 'recipientAttrName' are not required
+    * [SYNCOPE-641] - Concurrency issues with multiple client threads
+    * [SYNCOPE-643] - WorkflowResult provides unmodifiable collection for performed tasks
+    * [SYNCOPE-644] - Error during synchronization of roles when using a RoleSchema as accountId
+    * [SYNCOPE-647] - Problem during propagation of an updated membership on a resource 
+    * [SYNCOPE-649] - Paged lists not working properly
+
+** Improvement
+    * [SYNCOPE-634] - performance optimization for content loading
+    * [SYNCOPE-640] - Allow MariaDB to be chosen with installer
+    * [SYNCOPE-645] - Provide validation error message when add a role attribute in a user mapping as accountId
+    * [SYNCOPE-646] - Do not propagate password if not explicitely requested
+    * [SYNCOPE-648] - Notification Configuration: missing some labels in events
+    * [SYNCOPE-651] - SyncopeUser:checkToken() should fail if token is not set on user
+
+** Task
+    * [SYNCOPE-633] - Add support for MariaDB
+    * [SYNCOPE-635] - Upgrade CSVDir connector bundle dependency version
+
 Release Notes - Syncope - Version 1.2.2
 ================================================================================
 
