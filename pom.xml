@@ -365,7 +365,7 @@ under the License.
     <h2.version>1.4.186</h2.version>
 
     <log4j.version>2.2</log4j.version>
-    <slf4j.version>1.7.10</slf4j.version>
+    <slf4j.version>1.7.12</slf4j.version>
     <disruptor.version>3.3.2</disruptor.version>
 
     <junit.version>4.11</junit.version>
@@ -732,7 +732,7 @@ under the License.
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-databind</artifactId>
-        <version>${jackson.version}</version>
+        <version>${jackson.version}.1</version>
       </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
@@ -1027,7 +1027,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.1</version> 
+          <version>3.3</version> 
           <configuration>
             <source>${targetJdk}</source>
             <target>${targetJdk}</target>
