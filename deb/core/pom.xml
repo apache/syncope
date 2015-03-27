@@ -77,6 +77,16 @@ under the License.
         </includes>
       </resource>
       <resource>
+        <directory>${project.basedir}/../../core/src/main/resources</directory>
+        <filtering>true</filtering>
+        <targetPath>${project.build.directory}/overlay</targetPath>
+        <includes>
+          <include>coreContext.xml</include>
+          <include>persistenceContext.xml</include>
+          <include>workflowContext.xml</include>
+        </includes>
+      </resource>
+      <resource>
         <directory>../..</directory>
         <targetPath>META-INF</targetPath>
         <includes>
@@ -149,11 +159,20 @@ under the License.
                 <include>NOTICE</include>
               </includes>
             </resource>
+            <resource>
+              <directory>${project.build.directory}/overlay</directory>
+              <targetPath>WEB-INF/classes</targetPath>
+            </resource>
           </webResources>   
           <overlays>
             <overlay>
               <groupId>org.apache.syncope</groupId>
               <artifactId>syncope-core</artifactId>
+              <excludes>
+                <exclude>WEB-INF/classes/coreContext.xml</exclude>
+                <exclude>WEB-INF/classes/persistenceContext.xml</exclude>
+                <exclude>WEB-INF/classes/workflowContext.xml</exclude>
+              </excludes>
             </overlay>
           </overlays>                   
         </configuration>

@@ -76,6 +76,14 @@ under the License.
         </includes>
       </resource>
       <resource>
+        <directory>${project.basedir}/../../console/src/main/resources</directory>
+        <filtering>true</filtering>
+        <targetPath>${project.build.directory}/overlay</targetPath>
+        <includes>
+          <include>consoleContext.xml</include>
+        </includes>
+      </resource>
+      <resource>
         <directory>../..</directory>
         <targetPath>META-INF</targetPath>
         <includes>
@@ -130,11 +138,18 @@ under the License.
                 <include>NOTICE</include>
               </includes>
             </resource>
+            <resource>
+              <directory>${project.build.directory}/overlay</directory>
+              <targetPath>WEB-INF/classes</targetPath>
+            </resource>
           </webResources>   
           <overlays>
             <overlay>
               <groupId>org.apache.syncope</groupId>
               <artifactId>syncope-console</artifactId>
+              <excludes>
+                <exclude>WEB-INF/classes/consoleContext.xml</exclude>
+              </excludes>
             </overlay>
           </overlays>                   
         </configuration>
