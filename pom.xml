@@ -330,7 +330,7 @@ under the License.
 
     <camel.version>2.15.0</camel.version>	
 
-    <jackson.version>2.4.5</jackson.version>
+    <jackson.version>2.5.2</jackson.version>
 
     <spring.version>4.1.6.RELEASE</spring.version>
     <spring-security.version>3.2.7.RELEASE</spring-security.version>
@@ -541,7 +541,7 @@ under the License.
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-databind</artifactId>
-        <version>${jackson.version}.1</version>
+        <version>${jackson.version}</version>
       </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
