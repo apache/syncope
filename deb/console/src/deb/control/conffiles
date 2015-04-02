@@ -1,1 +1,3 @@
 /etc/tomcat8/Catalina/localhost/syncope-console.xml
+/etc/apache-syncope/consoleContext.xml
+/etc/apache-syncope/console.properties
