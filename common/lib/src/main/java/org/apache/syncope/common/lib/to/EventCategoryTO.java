@@ -40,19 +40,22 @@ public class EventCategoryTO extends AbstractBaseBean {
 
     private String subcategory;
 
-    private final List<String> events = new ArrayList<String>();
+    private final List<String> events = new ArrayList<>();
 
     /**
      * Constructor for Type.REST event category.
      */
     public EventCategoryTO() {
-        this.type = AuditElements.EventCategoryType.REST;
+        this(AuditElements.EventCategoryType.REST);
     }
 
     /**
      * Constructor for the given Type event category.
+     *
+     * @param type event category type
      */
     public EventCategoryTO(final AuditElements.EventCategoryType type) {
+        super();
         this.type = type;
     }
 

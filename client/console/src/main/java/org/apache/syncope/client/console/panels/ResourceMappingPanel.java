@@ -120,7 +120,7 @@ public class ResourceMappingPanel extends Panel {
     private final ResourceTO resourceTO;
 
     /**
-     * User / role.
+     * User / group.
      */
     private final AttributableType attrType;
 
@@ -145,11 +145,11 @@ public class ResourceMappingPanel extends Panel {
             }
             result = this.resourceTO.getUmapping();
         }
-        if (AttributableType.ROLE == this.attrType) {
-            if (this.resourceTO.getRmapping() == null) {
-                this.resourceTO.setRmapping(new MappingTO());
+        if (AttributableType.GROUP == this.attrType) {
+            if (this.resourceTO.getGmapping() == null) {
+                this.resourceTO.setGmapping(new MappingTO());
             }
-            result = this.resourceTO.getRmapping();
+            result = this.resourceTO.getGmapping();
         }
 
         return result;
@@ -160,7 +160,7 @@ public class ResourceMappingPanel extends Panel {
      *
      * @param id panel id
      * @param resourceTO external resource
-     * @param attrType USER / ROLE
+     * @param attrType USER / GROUP
      */
     public ResourceMappingPanel(final String id, final ResourceTO resourceTO, final AttributableType attrType) {
         super(id);
@@ -324,8 +324,8 @@ public class ResourceMappingPanel extends Panel {
                         new AjaxDropDownChoicePanel<AttributableType>("entities",
                                 new ResourceModel("entities", "entities").getObject(), new Model<AttributableType>(
                                         entity));
-                entitiesPanel.setChoices(attrType == AttributableType.ROLE
-                        ? Collections.<AttributableType>singletonList(AttributableType.ROLE)
+                entitiesPanel.setChoices(attrType == AttributableType.GROUP
+                        ? Collections.<AttributableType>singletonList(AttributableType.GROUP)
                         : Arrays.asList(AttributableType.values()));
                 entitiesPanel.setStyleSheet(DEF_FIELD_STYLE);
                 entitiesPanel.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
@@ -512,7 +512,7 @@ public class ResourceMappingPanel extends Panel {
 
         boolean enabled = objectClasses.isEmpty()
                 || (AttributableType.USER == attrType && objectClasses.contains(ConnIdObjectClassTO.ACCOUNT))
-                || (AttributableType.ROLE == attrType && objectClasses.contains(ConnIdObjectClassTO.GROUP));
+                || (AttributableType.GROUP == attrType && objectClasses.contains(ConnIdObjectClassTO.GROUP));
         this.mappingContainer.setEnabled(enabled);
         this.mappingContainer.setVisible(enabled);
         this.accountLinkContainer.setEnabled(enabled);
@@ -563,19 +563,19 @@ public class ResourceMappingPanel extends Panel {
             switch (type) {
                 // user attribute names
                 case UserPlainSchema:
-                case RolePlainSchema:
+                case GroupPlainSchema:
                 case MembershipPlainSchema:
                     toBeUpdated.setChoices(schemaRestClient.getPlainSchemaNames(type.getAttributableType()));
                     break;
 
                 case UserDerivedSchema:
-                case RoleDerivedSchema:
+                case GroupDerivedSchema:
                 case MembershipDerivedSchema:
                     toBeUpdated.setChoices(schemaRestClient.getDerSchemaNames(type.getAttributableType()));
                     break;
 
                 case UserVirtualSchema:
-                case RoleVirtualSchema:
+                case GroupVirtualSchema:
                 case MembershipVirtualSchema:
                     toBeUpdated.setChoices(schemaRestClient.getVirSchemaNames(type.getAttributableType()));
                     break;
@@ -583,8 +583,8 @@ public class ResourceMappingPanel extends Panel {
                 case UserId:
                 case Password:
                 case Username:
-                case RoleId:
-                case RoleName:
+                case GroupId:
+                case GroupName:
                 default:
                     toBeUpdated.setRequired(false);
                     toBeUpdated.setEnabled(false);
@@ -606,7 +606,7 @@ public class ResourceMappingPanel extends Panel {
         if (type != null && type.getAttributableType() != null) {
             switch (type) {
                 case UserVirtualSchema:
-                case RoleVirtualSchema:
+                case GroupVirtualSchema:
                 case MembershipVirtualSchema:
                 // Virtual accountId is not permitted
                 case Password:

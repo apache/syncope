@@ -37,7 +37,7 @@ import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.rest.api.CollectionWrapper;
 import org.apache.syncope.core.logic.ReportLogic;
 import org.apache.syncope.core.logic.ResourceLogic;
-import org.apache.syncope.core.logic.RoleLogic;
+import org.apache.syncope.core.logic.GroupLogic;
 import org.apache.syncope.core.logic.UserLogic;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -143,7 +143,7 @@ public class LoggerITCase extends AbstractITCase {
 
         found = false;
         for (EventCategoryTO eventCategoryTO : events) {
-            if (RoleLogic.class.getSimpleName().equals(eventCategoryTO.getCategory())) {
+            if (GroupLogic.class.getSimpleName().equals(eventCategoryTO.getCategory())) {
                 assertEquals(EventCategoryType.REST, eventCategoryTO.getType());
                 assertTrue(eventCategoryTO.getEvents().contains("create"));
                 assertTrue(eventCategoryTO.getEvents().contains("list"));

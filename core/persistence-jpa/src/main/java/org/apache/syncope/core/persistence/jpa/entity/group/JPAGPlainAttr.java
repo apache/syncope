@@ -1,0 +1,140 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+package org.apache.syncope.core.persistence.jpa.entity.group;
+
+import java.util.ArrayList;
+import java.util.List;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
+import javax.validation.Valid;
+import org.apache.syncope.core.persistence.api.entity.Attributable;
+import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
+import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
+import org.apache.syncope.core.persistence.api.entity.PlainSchema;
+import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
+import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrTemplate;
+import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrUniqueValue;
+import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrValue;
+import org.apache.syncope.core.persistence.api.entity.group.GPlainSchema;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
+import org.apache.syncope.core.persistence.jpa.entity.AbstractPlainAttr;
+
+@Entity
+@Table(name = JPAGPlainAttr.TABLE)
+public class JPAGPlainAttr extends AbstractPlainAttr implements GPlainAttr {
+
+    private static final long serialVersionUID = 2848159565890995780L;
+
+    public static final String TABLE = "GPlainAttr";
+
+    @Id
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    private JPAGroup owner;
+
+    @Column(nullable = false)
+    @OneToOne(cascade = CascadeType.MERGE)
+    private JPAGPlainAttrTemplate template;
+
+    @OneToMany(cascade = CascadeType.MERGE, orphanRemoval = true, mappedBy = "attribute")
+    @Valid
+    private List<JPAGPlainAttrValue> values;
+
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "attribute")
+    @Valid
+    private JPAGPlainAttrUniqueValue uniqueValue;
+
+    public JPAGPlainAttr() {
+        super();
+        values = new ArrayList<>();
+    }
+
+    @Override
+    public Long getKey() {
+        return id;
+    }
+
+    @Override
+    public Group getOwner() {
+        return owner;
+    }
+
+    @Override
+    public void setOwner(final Attributable<?, ?, ?> owner) {
+        checkType(owner, JPAGroup.class);
+        this.owner = (JPAGroup) owner;
+    }
+
+    @Override
+    public GPlainAttrTemplate getTemplate() {
+        return template;
+    }
+
+    @Override
+    public void setTemplate(final GPlainAttrTemplate template) {
+        checkType(template, JPAGPlainAttrTemplate.class);
+        this.template = (JPAGPlainAttrTemplate) template;
+    }
+
+    @Override
+    public GPlainSchema getSchema() {
+        return template == null ? null : template.getSchema();
+    }
+
+    @Override
+    public void setSchema(final PlainSchema schema) {
+        LOG.warn("This is group attribute, set template to select schema");
+    }
+
+    @Override
+    protected boolean addValue(final PlainAttrValue attrValue) {
+        checkType(attrValue, JPAGPlainAttrValue.class);
+        return values.add((JPAGPlainAttrValue) attrValue);
+    }
+
+    @Override
+    public boolean removeValue(final PlainAttrValue attrValue) {
+        checkType(attrValue, JPAGPlainAttrValue.class);
+        return values.remove((JPAGPlainAttrValue) attrValue);
+    }
+
+    @Override
+    public List<? extends GPlainAttrValue> getValues() {
+        return values;
+    }
+
+    @Override
+    public GPlainAttrUniqueValue getUniqueValue() {
+        return uniqueValue;
+    }
+
+    @Override
+    public void setUniqueValue(final PlainAttrUniqueValue uniqueValue) {
+        checkType(owner, JPAGPlainAttrUniqueValue.class);
+        this.uniqueValue = (JPAGPlainAttrUniqueValue) uniqueValue;
+    }
+}

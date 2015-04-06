@@ -29,7 +29,7 @@ public class PushTaskTO extends AbstractProvisioningTaskTO {
 
     private String userFilter;
 
-    private String roleFilter;
+    private String groupFilter;
 
     public String getUserFilter() {
         return userFilter;
@@ -39,11 +39,11 @@ public class PushTaskTO extends AbstractProvisioningTaskTO {
         this.userFilter = filter;
     }
 
-    public String getRoleFilter() {
-        return roleFilter;
+    public String getGroupFilter() {
+        return groupFilter;
     }
 
-    public void setRoleFilter(final String roleFilter) {
-        this.roleFilter = roleFilter;
+    public void setGroupFilter(final String filter) {
+        this.groupFilter = filter;
     }
 }

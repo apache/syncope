@@ -18,12 +18,10 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import java.util.Date;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.lib.AbstractBaseBean;
 
 @XmlType
-public class AbstractExecTO extends AbstractBaseBean {
+public class AbstractExecTO extends AbstractStartEndBean {
 
     private static final long serialVersionUID = -4621191979198357081L;
 
@@ -33,15 +31,11 @@ public class AbstractExecTO extends AbstractBaseBean {
 
     protected String message;
 
-    protected Date startDate;
-
-    protected Date endDate;
-
     public long getKey() {
         return key;
     }
 
-    public void setKey(long key) {
+    public void setKey(final long key) {
         this.key = key;
     }
 
@@ -59,29 +53,5 @@ public class AbstractExecTO extends AbstractBaseBean {
 
     public void setStatus(final String status) {
         this.status = status;
-    }
-
-    public Date getStartDate() {
-        return startDate == null
-                ? null
-                : new Date(startDate.getTime());
-    }
-
-    public void setStartDate(final Date startDate) {
-        if (startDate != null) {
-            this.startDate = new Date(startDate.getTime());
-        }
-    }
-
-    public Date getEndDate() {
-        return endDate == null
-                ? null
-                : new Date(endDate.getTime());
-    }
-
-    public void setEndDate(final Date endDate) {
-        if (endDate != null) {
-            this.endDate = new Date(endDate.getTime());
-        }
     }
 }

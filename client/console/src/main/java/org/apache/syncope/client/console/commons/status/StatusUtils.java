@@ -102,7 +102,7 @@ public class StatusUtils implements Serializable {
             final AbstractAttributableTO attributable,
             final String resourceName,
             final ConnObjectTO objectTO,
-            final boolean isRole) {
+            final boolean isGroup) {
 
         final StatusBean statusBean = new StatusBean(attributable, resourceName);
 
@@ -110,7 +110,7 @@ public class StatusUtils implements Serializable {
             final Boolean enabled = isEnabled(objectTO);
 
             final Status status = enabled == null
-                    ? (isRole ? Status.ACTIVE : Status.UNDEFINED)
+                    ? (isGroup ? Status.ACTIVE : Status.UNDEFINED)
                     : enabled
                             ? Status.ACTIVE
                             : Status.SUSPENDED;

@@ -24,7 +24,7 @@ import org.apache.syncope.core.persistence.api.entity.AttributableUtil;
 import org.apache.syncope.core.persistence.api.entity.AttributableUtilFactory;
 import org.apache.syncope.core.persistence.api.entity.conf.Conf;
 import org.apache.syncope.core.persistence.api.entity.membership.Membership;
-import org.apache.syncope.core.persistence.api.entity.role.Role;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.springframework.stereotype.Component;
@@ -49,7 +49,7 @@ public class JPAttributableUtilFactory implements AttributableUtilFactory {
             type = AttributableType.USER;
         }
         if (ObjectClass.GROUP.equals(objectClass)) {
-            type = AttributableType.ROLE;
+            type = AttributableType.GROUP;
         }
 
         if (type == null) {
@@ -65,8 +65,8 @@ public class JPAttributableUtilFactory implements AttributableUtilFactory {
         if (attributable instanceof User) {
             type = AttributableType.USER;
         }
-        if (attributable instanceof Role) {
-            type = AttributableType.ROLE;
+        if (attributable instanceof Group) {
+            type = AttributableType.GROUP;
         }
         if (attributable instanceof Membership) {
             type = AttributableType.MEMBERSHIP;

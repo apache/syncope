@@ -22,6 +22,5 @@ import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 
 public interface Validator {
 
-    void validate(String value, PlainAttrValue attrValue)
-            throws ParsingValidationException, InvalidPlainAttrValueException;
+    void validate(String value, PlainAttrValue attrValue);
 }

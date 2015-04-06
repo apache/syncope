@@ -24,9 +24,9 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import org.apache.syncope.core.persistence.api.entity.membership.MVirAttrTemplate;
 import org.apache.syncope.core.persistence.api.entity.membership.MVirSchema;
-import org.apache.syncope.core.persistence.api.entity.role.Role;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractVirAttrTemplate;
-import org.apache.syncope.core.persistence.jpa.entity.role.JPARole;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
 
 @Entity
 @Table(name = JPAMVirAttrTemplate.TABLE)
@@ -37,7 +37,7 @@ public class JPAMVirAttrTemplate extends AbstractVirAttrTemplate<MVirSchema> imp
     public static final String TABLE = "MVirAttrTemplate";
 
     @ManyToOne
-    private JPARole owner;
+    private JPAGroup owner;
 
     @ManyToOne
     @JoinColumn(name = "schema_name")
@@ -55,13 +55,13 @@ public class JPAMVirAttrTemplate extends AbstractVirAttrTemplate<MVirSchema> imp
     }
 
     @Override
-    public Role getOwner() {
+    public Group getOwner() {
         return owner;
     }
 
     @Override
-    public void setOwner(final Role role) {
-        checkType(role, JPARole.class);
-        this.owner = (JPARole) role;
+    public void setOwner(final Group group) {
+        checkType(group, JPAGroup.class);
+        this.owner = (JPAGroup) group;
     }
 }

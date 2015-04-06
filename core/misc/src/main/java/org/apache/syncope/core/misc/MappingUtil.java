@@ -55,11 +55,11 @@ import org.apache.syncope.core.persistence.api.entity.membership.MDerSchema;
 import org.apache.syncope.core.persistence.api.entity.membership.MPlainSchema;
 import org.apache.syncope.core.persistence.api.entity.membership.MVirSchema;
 import org.apache.syncope.core.persistence.api.entity.membership.Membership;
-import org.apache.syncope.core.persistence.api.entity.role.RDerSchema;
-import org.apache.syncope.core.persistence.api.entity.role.RPlainAttrValue;
-import org.apache.syncope.core.persistence.api.entity.role.RPlainSchema;
-import org.apache.syncope.core.persistence.api.entity.role.RVirSchema;
-import org.apache.syncope.core.persistence.api.entity.role.Role;
+import org.apache.syncope.core.persistence.api.entity.group.GDerSchema;
+import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrValue;
+import org.apache.syncope.core.persistence.api.entity.group.GPlainSchema;
+import org.apache.syncope.core.persistence.api.entity.group.GVirSchema;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.UDerSchema;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainSchema;
@@ -133,8 +133,8 @@ public final class MappingUtil {
     /**
      * Prepare attributes for sending to a connector instance.
      *
-     * @param attrUtil user / role
-     * @param subject given user / role
+     * @param attrUtil user / group
+     * @param subject given user / group
      * @param password clear-text password
      * @param changePwd whether password should be included for propagation attributes or not
      * @param vAttrsToBeRemoved virtual attributes to be removed
@@ -172,8 +172,8 @@ public final class MappingUtil {
             try {
                 if ((attrUtil.getType() == AttributableType.USER
                         && mapping.getIntMappingType() == IntMappingType.UserVirtualSchema)
-                        || (attrUtil.getType() == AttributableType.ROLE
-                        && mapping.getIntMappingType() == IntMappingType.RoleVirtualSchema)) {
+                        || (attrUtil.getType() == AttributableType.GROUP
+                        && mapping.getIntMappingType() == IntMappingType.GroupVirtualSchema)) {
 
                     LOG.debug("Expire entry cache {}-{}", subject.getKey(), mapping.getIntAttrName());
                     virAttrCache.expire(attrUtil.getType(), subject.getKey(), mapping.getIntAttrName());
@@ -272,14 +272,14 @@ public final class MappingUtil {
                 }
                 break;
 
-            case ROLE:
+            case GROUP:
                 if (subject instanceof User) {
-                    for (Role role : ((User) subject).getRoles()) {
-                        connObjectUtil.retrieveVirAttrValues(role, attrUtilFactory.getInstance(role));
-                        attributables.add(role);
+                    for (Group group : ((User) subject).getGroups()) {
+                        connObjectUtil.retrieveVirAttrValues(group, attrUtilFactory.getInstance(group));
+                        attributables.add(group);
                     }
                 }
-                if (subject instanceof Role) {
+                if (subject instanceof Group) {
                     attributables.add(subject);
                 }
                 break;
@@ -304,7 +304,7 @@ public final class MappingUtil {
 
         switch (mapItem.getIntMappingType()) {
             case UserPlainSchema:
-            case RolePlainSchema:
+            case GroupPlainSchema:
             case MembershipPlainSchema:
                 final PlainSchemaDAO plainSchemaDAO = context.getBean(PlainSchemaDAO.class);
                 schema = plainSchemaDAO.find(mapItem.getIntAttrName(),
@@ -313,7 +313,7 @@ public final class MappingUtil {
                 break;
 
             case UserVirtualSchema:
-            case RoleVirtualSchema:
+            case GroupVirtualSchema:
             case MembershipVirtualSchema:
                 VirSchemaDAO virSchemaDAO = context.getBean(VirSchemaDAO.class);
                 VirSchema virSchema = virSchemaDAO.find(mapItem.getIntAttrName(),
@@ -402,7 +402,7 @@ public final class MappingUtil {
      * Build __NAME__ for propagation. First look if there ia a defined accountLink for the given resource (and in this
      * case evaluate as JEXL); otherwise, take given accountId.
      *
-     * @param subject given user / role
+     * @param subject given user / group
      * @param resource target resource
      * @param accountId accountId
      * @return the value to be propagated as __NAME__
@@ -447,7 +447,7 @@ public final class MappingUtil {
         return name;
     }
 
-    private static String getRoleOwnerValue(
+    private static String getGroupOwnerValue(
             final ExternalResource resource, final Subject<?, ?, ?> subject) {
 
         AttributableUtilFactory attrUtilFactory =
@@ -459,8 +459,8 @@ public final class MappingUtil {
                 Collections.<String>emptySet(), Collections.<String, AttrMod>emptyMap());
         String accountId = preparedAttr.getKey();
 
-        final Name roleOwnerName = evaluateNAME(subject, resource, accountId);
-        return roleOwnerName.getNameValue();
+        final Name groupOwnerName = evaluateNAME(subject, resource, accountId);
+        return groupOwnerName.getNameValue();
     }
 
     /**
@@ -488,7 +488,7 @@ public final class MappingUtil {
         PlainAttrValue attrValue;
         switch (mappingItem.getIntMappingType()) {
             case UserPlainSchema:
-            case RolePlainSchema:
+            case GroupPlainSchema:
             case MembershipPlainSchema:
                 for (Attributable<?, ?, ?> attributable : attributables) {
                     final PlainAttr attr = attributable.getPlainAttr(mappingItem.getIntAttrName());
@@ -510,7 +510,7 @@ public final class MappingUtil {
                 break;
 
             case UserVirtualSchema:
-            case RoleVirtualSchema:
+            case GroupVirtualSchema:
                 for (Attributable<?, ?, ?> attributable : attributables) {
                     VirAttr virAttr = attributable.getVirAttr(mappingItem.getIntAttrName());
                     if (virAttr != null) {
@@ -579,13 +579,13 @@ public final class MappingUtil {
                 break;
 
             case UserDerivedSchema:
-            case RoleDerivedSchema:
+            case GroupDerivedSchema:
             case MembershipDerivedSchema:
                 for (Attributable<?, ?, ?> attributable : attributables) {
                     DerAttr derAttr = attributable.getDerAttr(mappingItem.getIntAttrName());
                     if (derAttr != null) {
-                        attrValue = attributable instanceof Role
-                                ? entityFactory.newEntity(RPlainAttrValue.class)
+                        attrValue = attributable instanceof Group
+                                ? entityFactory.newEntity(GPlainAttrValue.class)
                                 : entityFactory.newEntity(UPlainAttrValue.class);
                         attrValue.setStringValue(derAttr.getValue(attributable.getPlainAttrs()));
                         values.add(attrValue);
@@ -600,7 +600,7 @@ public final class MappingUtil {
                 break;
 
             case UserId:
-            case RoleId:
+            case GroupId:
             case MembershipId:
                 for (Attributable<?, ?, ?> attributable : attributables) {
                     attrValue = entityFactory.newEntity(UPlainAttrValue.class);
@@ -619,31 +619,31 @@ public final class MappingUtil {
                 }
                 break;
 
-            case RoleName:
+            case GroupName:
                 for (Attributable<?, ?, ?> attributable : attributables) {
-                    if (attributable instanceof Role) {
-                        attrValue = entityFactory.newEntity(RPlainAttrValue.class);
-                        attrValue.setStringValue(((Role) attributable).getName());
+                    if (attributable instanceof Group) {
+                        attrValue = entityFactory.newEntity(GPlainAttrValue.class);
+                        attrValue.setStringValue(((Group) attributable).getName());
                         values.add(attrValue);
                     }
                 }
                 break;
 
-            case RoleOwnerSchema:
+            case GroupOwnerSchema:
                 for (Attributable<?, ?, ?> attributable : attributables) {
-                    if (attributable instanceof Role) {
-                        Role role = (Role) attributable;
-                        String roleOwnerValue = null;
-                        if (role.getUserOwner() != null && resource.getUmapping() != null) {
-                            roleOwnerValue = getRoleOwnerValue(resource, role.getUserOwner());
+                    if (attributable instanceof Group) {
+                        Group group = (Group) attributable;
+                        String groupOwnerValue = null;
+                        if (group.getUserOwner() != null && resource.getUmapping() != null) {
+                            groupOwnerValue = getGroupOwnerValue(resource, group.getUserOwner());
                         }
-                        if (role.getRoleOwner() != null && resource.getRmapping() != null) {
-                            roleOwnerValue = getRoleOwnerValue(resource, role.getRoleOwner());
+                        if (group.getGroupOwner() != null && resource.getGmapping() != null) {
+                            groupOwnerValue = getGroupOwnerValue(resource, group.getGroupOwner());
                         }
 
-                        if (StringUtils.isNotBlank(roleOwnerValue)) {
-                            attrValue = entityFactory.newEntity(RPlainAttrValue.class);
-                            attrValue.setStringValue(roleOwnerValue);
+                        if (StringUtils.isNotBlank(groupOwnerValue)) {
+                            attrValue = entityFactory.newEntity(GPlainAttrValue.class);
+                            attrValue.setStringValue(groupOwnerValue);
                             values.add(attrValue);
                         }
                     }
@@ -691,8 +691,8 @@ public final class MappingUtil {
                 result = UPlainSchema.class;
                 break;
 
-            case RolePlainSchema:
-                result = RPlainSchema.class;
+            case GroupPlainSchema:
+                result = GPlainSchema.class;
                 break;
 
             case MembershipPlainSchema:
@@ -703,8 +703,8 @@ public final class MappingUtil {
                 result = UDerSchema.class;
                 break;
 
-            case RoleDerivedSchema:
-                result = RDerSchema.class;
+            case GroupDerivedSchema:
+                result = GDerSchema.class;
                 break;
 
             case MembershipDerivedSchema:
@@ -715,8 +715,8 @@ public final class MappingUtil {
                 result = UVirSchema.class;
                 break;
 
-            case RoleVirtualSchema:
-                result = RVirSchema.class;
+            case GroupVirtualSchema:
+                result = GVirSchema.class;
                 break;
 
             case MembershipVirtualSchema:

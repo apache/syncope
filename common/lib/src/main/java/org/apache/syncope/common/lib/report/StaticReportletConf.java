@@ -60,7 +60,7 @@ public class StaticReportletConf extends AbstractReportletConf {
                 : new Date(dateField.getTime());
     }
 
-    public void setDateField(Date dateField) {
+    public void setDateField(final Date dateField) {
         this.dateField = dateField == null
                 ? null
                 : new Date(dateField.getTime());
@@ -70,7 +70,7 @@ public class StaticReportletConf extends AbstractReportletConf {
         return doubleField;
     }
 
-    public void setDoubleField(Double doubleField) {
+    public void setDoubleField(final Double doubleField) {
         this.doubleField = doubleField;
     }
 
@@ -85,7 +85,7 @@ public class StaticReportletConf extends AbstractReportletConf {
         return longField;
     }
 
-    public void setLongField(Long longField) {
+    public void setLongField(final Long longField) {
         this.longField = longField;
     }
 
@@ -93,7 +93,7 @@ public class StaticReportletConf extends AbstractReportletConf {
         return stringField;
     }
 
-    public void setStringField(String stringField) {
+    public void setStringField(final String stringField) {
         this.stringField = stringField;
     }
 
@@ -101,7 +101,7 @@ public class StaticReportletConf extends AbstractReportletConf {
         return traceLevel;
     }
 
-    public void setTraceLevel(TraceLevel traceLevel) {
+    public void setTraceLevel(final TraceLevel traceLevel) {
         this.traceLevel = traceLevel;
     }
 }

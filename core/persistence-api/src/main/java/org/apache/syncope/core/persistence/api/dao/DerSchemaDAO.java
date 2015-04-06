@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.List;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.entity.AttributableUtil;
 import org.apache.syncope.core.persistence.api.entity.DerAttr;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
@@ -32,7 +31,7 @@ public interface DerSchemaDAO extends DAO<DerSchema, String> {
 
     <T extends DerAttr> List<T> findAttrs(DerSchema schema, Class<T> reference);
 
-    <T extends DerSchema> T save(T derSchema) throws InvalidEntityException;
+    <T extends DerSchema> T save(T derSchema);
 
     void delete(String name, AttributableUtil attributableUtil);
 }

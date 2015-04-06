@@ -28,7 +28,7 @@ import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
-import org.apache.syncope.common.lib.to.RoleTO;
+import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.SyncTaskTO;
 import org.apache.syncope.common.lib.to.TaskExecTO;
@@ -107,7 +107,7 @@ public class TaskDataBinderImpl implements TaskDataBinder {
             final PushTaskTO pushTaskTO = (PushTaskTO) taskTO;
 
             pushTask.setUserFilter(pushTaskTO.getUserFilter());
-            pushTask.setRoleFilter(pushTaskTO.getRoleFilter());
+            pushTask.setGroupFilter(pushTaskTO.getGroupFilter());
 
             pushTask.setMatchingRule(pushTaskTO.getMatchingRule() == null
                     ? MatchingRule.LINK : pushTaskTO.getMatchingRule());
@@ -125,7 +125,7 @@ public class TaskDataBinderImpl implements TaskDataBinder {
             syncTask.setUnmatchingRule(syncTaskTO.getUnmatchingRule() == null
                     ? UnmatchingRule.PROVISION : syncTaskTO.getUnmatchingRule());
 
-            // 1. validate JEXL expressions in user and role templates
+            // 1. validate JEXL expressions in user and group templates
             if (syncTaskTO.getUserTemplate() != null) {
                 UserTO template = syncTaskTO.getUserTemplate();
 
@@ -146,8 +146,8 @@ public class TaskDataBinderImpl implements TaskDataBinder {
                     checkJexl(memb, sce);
                 }
             }
-            if (syncTaskTO.getRoleTemplate() != null) {
-                RoleTO template = syncTaskTO.getRoleTemplate();
+            if (syncTaskTO.getGroupTemplate() != null) {
+                GroupTO template = syncTaskTO.getGroupTemplate();
 
                 if (StringUtils.isNotBlank(template.getName()) && !JexlUtil.isExpressionValid(template.getName())) {
                     sce.getElements().add("Invalid JEXL: " + template.getName());
@@ -159,9 +159,9 @@ public class TaskDataBinderImpl implements TaskDataBinder {
                 throw sce;
             }
 
-            // 2. all JEXL expressions are valid: accept user and role templates
+            // 2. all JEXL expressions are valid: accept user and group templates
             syncTask.setUserTemplate(syncTaskTO.getUserTemplate());
-            syncTask.setRoleTemplate(syncTaskTO.getRoleTemplate());
+            syncTask.setGroupTemplate(syncTaskTO.getGroupTemplate());
 
             syncTask.setFullReconciliation(syncTaskTO.isFullReconciliation());
         }

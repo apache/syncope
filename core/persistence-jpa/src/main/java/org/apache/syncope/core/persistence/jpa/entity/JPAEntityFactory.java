@@ -51,20 +51,20 @@ import org.apache.syncope.core.persistence.api.entity.membership.MVirAttr;
 import org.apache.syncope.core.persistence.api.entity.membership.MVirAttrTemplate;
 import org.apache.syncope.core.persistence.api.entity.membership.MVirSchema;
 import org.apache.syncope.core.persistence.api.entity.membership.Membership;
-import org.apache.syncope.core.persistence.api.entity.role.RDerAttr;
-import org.apache.syncope.core.persistence.api.entity.role.RDerAttrTemplate;
-import org.apache.syncope.core.persistence.api.entity.role.RDerSchema;
-import org.apache.syncope.core.persistence.api.entity.role.RMapping;
-import org.apache.syncope.core.persistence.api.entity.role.RMappingItem;
-import org.apache.syncope.core.persistence.api.entity.role.RPlainAttr;
-import org.apache.syncope.core.persistence.api.entity.role.RPlainAttrTemplate;
-import org.apache.syncope.core.persistence.api.entity.role.RPlainAttrUniqueValue;
-import org.apache.syncope.core.persistence.api.entity.role.RPlainAttrValue;
-import org.apache.syncope.core.persistence.api.entity.role.RPlainSchema;
-import org.apache.syncope.core.persistence.api.entity.role.RVirAttr;
-import org.apache.syncope.core.persistence.api.entity.role.RVirAttrTemplate;
-import org.apache.syncope.core.persistence.api.entity.role.RVirSchema;
-import org.apache.syncope.core.persistence.api.entity.role.Role;
+import org.apache.syncope.core.persistence.api.entity.group.GDerAttr;
+import org.apache.syncope.core.persistence.api.entity.group.GDerAttrTemplate;
+import org.apache.syncope.core.persistence.api.entity.group.GDerSchema;
+import org.apache.syncope.core.persistence.api.entity.group.GMapping;
+import org.apache.syncope.core.persistence.api.entity.group.GMappingItem;
+import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
+import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrTemplate;
+import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrUniqueValue;
+import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrValue;
+import org.apache.syncope.core.persistence.api.entity.group.GPlainSchema;
+import org.apache.syncope.core.persistence.api.entity.group.GVirAttr;
+import org.apache.syncope.core.persistence.api.entity.group.GVirAttrTemplate;
+import org.apache.syncope.core.persistence.api.entity.group.GVirSchema;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
@@ -100,20 +100,20 @@ import org.apache.syncope.core.persistence.jpa.entity.membership.JPAMVirAttr;
 import org.apache.syncope.core.persistence.jpa.entity.membership.JPAMVirAttrTemplate;
 import org.apache.syncope.core.persistence.jpa.entity.membership.JPAMVirSchema;
 import org.apache.syncope.core.persistence.jpa.entity.membership.JPAMembership;
-import org.apache.syncope.core.persistence.jpa.entity.role.JPARDerAttr;
-import org.apache.syncope.core.persistence.jpa.entity.role.JPARDerAttrTemplate;
-import org.apache.syncope.core.persistence.jpa.entity.role.JPARDerSchema;
-import org.apache.syncope.core.persistence.jpa.entity.role.JPARMapping;
-import org.apache.syncope.core.persistence.jpa.entity.role.JPARMappingItem;
-import org.apache.syncope.core.persistence.jpa.entity.role.JPARPlainAttr;
-import org.apache.syncope.core.persistence.jpa.entity.role.JPARPlainAttrTemplate;
-import org.apache.syncope.core.persistence.jpa.entity.role.JPARPlainAttrUniqueValue;
-import org.apache.syncope.core.persistence.jpa.entity.role.JPARPlainAttrValue;
-import org.apache.syncope.core.persistence.jpa.entity.role.JPARPlainSchema;
-import org.apache.syncope.core.persistence.jpa.entity.role.JPARVirAttr;
-import org.apache.syncope.core.persistence.jpa.entity.role.JPARVirAttrTemplate;
-import org.apache.syncope.core.persistence.jpa.entity.role.JPARVirSchema;
-import org.apache.syncope.core.persistence.jpa.entity.role.JPARole;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGDerAttr;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGDerAttrTemplate;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGDerSchema;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGMapping;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGMappingItem;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttr;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttrTemplate;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttrUniqueValue;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttrValue;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainSchema;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGVirAttr;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGVirAttrTemplate;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGVirSchema;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPANotificationTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAPropagationTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAPushTask;
@@ -143,8 +143,8 @@ public class JPAEntityFactory implements EntityFactory {
 
         if (reference.equals(User.class)) {
             result = (T) new JPAUser();
-        } else if (reference.equals(Role.class)) {
-            result = (T) new JPARole();
+        } else if (reference.equals(Group.class)) {
+            result = (T) new JPAGroup();
         } else if (reference.equals(Membership.class)) {
             result = (T) new JPAMembership();
         } else if (reference.equals(Conf.class)) {
@@ -177,32 +177,32 @@ public class JPAEntityFactory implements EntityFactory {
             result = (T) new JPAUMapping();
         } else if (reference.equals(UMappingItem.class)) {
             result = (T) new JPAUMappingItem();
-        } else if (reference.equals(RPlainSchema.class)) {
-            result = (T) new JPARPlainSchema();
-        } else if (reference.equals(RPlainAttr.class)) {
-            result = (T) new JPARPlainAttr();
-        } else if (reference.equals(RPlainAttrValue.class)) {
-            result = (T) new JPARPlainAttrValue();
-        } else if (reference.equals(RPlainAttrUniqueValue.class)) {
-            result = (T) new JPARPlainAttrUniqueValue();
-        } else if (reference.equals(RPlainAttrTemplate.class)) {
-            result = (T) new JPARPlainAttrTemplate();
-        } else if (reference.equals(RDerAttrTemplate.class)) {
-            result = (T) new JPARDerAttrTemplate();
-        } else if (reference.equals(RVirAttrTemplate.class)) {
-            result = (T) new JPARVirAttrTemplate();
-        } else if (reference.equals(RDerSchema.class)) {
-            result = (T) new JPARDerSchema();
-        } else if (reference.equals(RDerAttr.class)) {
-            result = (T) new JPARDerAttr();
-        } else if (reference.equals(RVirSchema.class)) {
-            result = (T) new JPARVirSchema();
-        } else if (reference.equals(RVirAttr.class)) {
-            result = (T) new JPARVirAttr();
-        } else if (reference.equals(RMapping.class)) {
-            result = (T) new JPARMapping();
-        } else if (reference.equals(RMappingItem.class)) {
-            result = (T) new JPARMappingItem();
+        } else if (reference.equals(GPlainSchema.class)) {
+            result = (T) new JPAGPlainSchema();
+        } else if (reference.equals(GPlainAttr.class)) {
+            result = (T) new JPAGPlainAttr();
+        } else if (reference.equals(GPlainAttrValue.class)) {
+            result = (T) new JPAGPlainAttrValue();
+        } else if (reference.equals(GPlainAttrUniqueValue.class)) {
+            result = (T) new JPAGPlainAttrUniqueValue();
+        } else if (reference.equals(GPlainAttrTemplate.class)) {
+            result = (T) new JPAGPlainAttrTemplate();
+        } else if (reference.equals(GDerAttrTemplate.class)) {
+            result = (T) new JPAGDerAttrTemplate();
+        } else if (reference.equals(GVirAttrTemplate.class)) {
+            result = (T) new JPAGVirAttrTemplate();
+        } else if (reference.equals(GDerSchema.class)) {
+            result = (T) new JPAGDerSchema();
+        } else if (reference.equals(GDerAttr.class)) {
+            result = (T) new JPAGDerAttr();
+        } else if (reference.equals(GVirSchema.class)) {
+            result = (T) new JPAGVirSchema();
+        } else if (reference.equals(GVirAttr.class)) {
+            result = (T) new JPAGVirAttr();
+        } else if (reference.equals(GMapping.class)) {
+            result = (T) new JPAGMapping();
+        } else if (reference.equals(GMappingItem.class)) {
+            result = (T) new JPAGMappingItem();
         } else if (reference.equals(MPlainSchema.class)) {
             result = (T) new JPAMPlainSchema();
         } else if (reference.equals(MPlainAttr.class)) {

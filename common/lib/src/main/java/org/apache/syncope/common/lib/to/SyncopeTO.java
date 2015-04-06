@@ -47,11 +47,11 @@ public class SyncopeTO extends AbstractBaseBean {
 
     private String userWorkflowAdapter;
 
-    private String roleWorkflowAdapter;
+    private String groupWorkflowAdapter;
 
     private String userProvisioningManager;
 
-    private String roleProvisioningManager;
+    private String groupProvisioningManager;
 
     private final List<String> reportlets = new ArrayList<>();
 
@@ -102,16 +102,16 @@ public class SyncopeTO extends AbstractBaseBean {
         return userWorkflowAdapter;
     }
 
-    public String getRoleWorkflowAdapter() {
-        return roleWorkflowAdapter;
+    public String getGroupWorkflowAdapter() {
+        return groupWorkflowAdapter;
     }
 
     public String getUserProvisioningManager() {
         return userProvisioningManager;
     }
 
-    public String getRoleProvisioningManager() {
-        return roleProvisioningManager;
+    public String getGroupProvisioningManager() {
+        return groupProvisioningManager;
     }
 
     @XmlElementWrapper(name = "reportlets")
@@ -201,16 +201,16 @@ public class SyncopeTO extends AbstractBaseBean {
         this.userWorkflowAdapter = userWorkflowAdapter;
     }
 
-    public void setRoleWorkflowAdapter(final String roleWorkflowAdapter) {
-        this.roleWorkflowAdapter = roleWorkflowAdapter;
+    public void setGroupWorkflowAdapter(final String groupWorkflowAdapter) {
+        this.groupWorkflowAdapter = groupWorkflowAdapter;
     }
 
     public void setUserProvisioningManager(final String userProvisioningManager) {
         this.userProvisioningManager = userProvisioningManager;
     }
 
-    public void setRoleProvisioningManager(final String roleProvisioningManager) {
-        this.roleProvisioningManager = roleProvisioningManager;
+    public void setGroupProvisioningManager(final String groupProvisioningManager) {
+        this.groupProvisioningManager = groupProvisioningManager;
     }
 
 }

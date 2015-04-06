@@ -29,7 +29,7 @@ import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
-import org.apache.syncope.core.persistence.api.dao.RoleDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AccountPolicy;
@@ -37,7 +37,7 @@ import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Mapping;
 import org.apache.syncope.core.persistence.api.entity.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.Policy;
-import org.apache.syncope.core.persistence.api.entity.role.Role;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.persistence.api.entity.task.SyncTask;
@@ -45,7 +45,7 @@ import org.apache.syncope.core.persistence.api.entity.user.UMappingItem;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractMappingItem;
 import org.apache.syncope.core.persistence.jpa.entity.JPAExternalResource;
-import org.apache.syncope.core.persistence.jpa.entity.role.JPARMappingItem;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGMappingItem;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUMappingItem;
 import org.apache.syncope.core.provisioning.api.ConnectorRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,7 +62,7 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource, String
     private UserDAO userDAO;
 
     @Autowired
-    private RoleDAO roleDAO;
+    private GroupDAO groupDAO;
 
     @Autowired
     private PolicyDAO policyDAO;
@@ -173,7 +173,7 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource, String
 
         Class<? extends AbstractMappingItem> jpaRef = reference.equals(UMappingItem.class)
                 ? JPAUMappingItem.class
-                : JPARMappingItem.class;
+                : JPAGMappingItem.class;
 
         TypedQuery<T> query = entityManager.createQuery("SELECT m FROM " + jpaRef.getSimpleName()
                 + " m WHERE m.intAttrName=:intAttrName AND m.intMappingType=:intMappingType", reference);
@@ -218,8 +218,8 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource, String
         for (User user : userDAO.findByResource(resource)) {
             user.removeResource(resource);
         }
-        for (Role role : roleDAO.findByResource(resource)) {
-            role.removeResource(resource);
+        for (Group group : groupDAO.findByResource(resource)) {
+            group.removeResource(resource);
         }
         for (AccountPolicy policy : policyDAO.findByResource(resource)) {
             policy.removeResource(resource);
@@ -240,13 +240,13 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource, String
             resource.getUmapping().setResource(null);
             resource.setUmapping(null);
         }
-        if (resource.getRmapping() != null) {
-            for (MappingItem item : resource.getRmapping().getItems()) {
+        if (resource.getGmapping() != null) {
+            for (MappingItem item : resource.getGmapping().getItems()) {
                 item.setMapping(null);
             }
-            resource.getRmapping().getItems().clear();
-            resource.getRmapping().setResource(null);
-            resource.setRmapping(null);
+            resource.getGmapping().getItems().clear();
+            resource.getGmapping().setResource(null);
+            resource.setGmapping(null);
         }
 
         entityManager.remove(resource);

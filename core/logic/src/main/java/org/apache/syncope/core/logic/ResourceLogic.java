@@ -34,7 +34,7 @@ import org.apache.syncope.common.lib.types.SubjectType;
 import org.apache.syncope.core.persistence.api.dao.DuplicateException;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
-import org.apache.syncope.core.persistence.api.dao.RoleDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AttributableUtil;
 import org.apache.syncope.core.persistence.api.entity.AttributableUtilFactory;
@@ -68,7 +68,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
     private UserDAO userDAO;
 
     @Autowired
-    private RoleDAO roleDAO;
+    private GroupDAO groupDAO;
 
     @Autowired
     private ResourceDataBinder binder;
@@ -170,7 +170,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
 
         Subject<?, ?, ?> subject = type == SubjectType.USER
                 ? userDAO.find(id)
-                : roleDAO.find(id);
+                : groupDAO.find(id);
         if (subject == null) {
             throw new NotFoundException(type + " " + id);
         }

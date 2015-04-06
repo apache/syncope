@@ -49,8 +49,9 @@ public class AuditLoggerName extends AbstractBaseBean {
             @JsonProperty("category") final String category,
             @JsonProperty("subcategory") final String subcategory,
             @JsonProperty("event") final String event,
-            @JsonProperty("result") final Result result)
-            throws IllegalArgumentException {
+            @JsonProperty("result") final Result result) {
+
+        super();
 
         this.type = type == null ? AuditElements.EventCategoryType.CUSTOM : type;
         this.category = category;
@@ -86,7 +87,7 @@ public class AuditLoggerName extends AbstractBaseBean {
 
     @SuppressWarnings("unchecked")
     public static AuditLoggerName fromLoggerName(final String loggerName)
-            throws IllegalArgumentException, ParseException {
+            throws ParseException {
 
         if (StringUtils.isBlank(loggerName)) {
             throw new IllegalArgumentException("Null value not permitted");
@@ -153,7 +154,7 @@ public class AuditLoggerName extends AbstractBaseBean {
             }
         }
 
-        return new AbstractMap.SimpleEntry< EventCategoryTO, Result>(eventCategoryTO, condition);
+        return new AbstractMap.SimpleEntry<>(eventCategoryTO, condition);
     }
 
     /**
@@ -183,38 +184,24 @@ public class AuditLoggerName extends AbstractBaseBean {
                 eventBuilder.append(type.name());
             }
         }
-        eventBuilder.append(']');
-
-        eventBuilder.append(":");
-
-        eventBuilder.append('[');
+        eventBuilder.append("]:[");
         if (StringUtils.isNotBlank(category)) {
             eventBuilder.append(category);
         }
-        eventBuilder.append(']');
-
-        eventBuilder.append(":");
-
-        eventBuilder.append('[');
+        eventBuilder.append("]:[");
         if (StringUtils.isNotBlank(subcategory)) {
             eventBuilder.append(subcategory);
         }
-        eventBuilder.append(']');
-
-        eventBuilder.append(":");
-
-        eventBuilder.append('[');
+        eventBuilder.append("]:[");
         if (StringUtils.isNotBlank(event)) {
             eventBuilder.append(event);
         }
         eventBuilder.append(']');
 
         if (resultValueCondition != null) {
-            eventBuilder.append(":");
-
-            eventBuilder.append('[');
-            eventBuilder.append(resultValueCondition);
-            eventBuilder.append(']');
+            eventBuilder.append(":[").
+                    append(resultValueCondition).
+                    append(']');
         }
 
         return eventBuilder.toString();

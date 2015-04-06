@@ -26,8 +26,8 @@ public enum AttrLayoutType {
 
     ADMIN_USER("admin.user.layout", Mode.ADMIN, AttributableType.USER),
     SELF_USER("self.user.layout", Mode.SELF, AttributableType.USER),
-    ADMIN_ROLE("admin.role.layout", Mode.ADMIN, AttributableType.ROLE),
-    SELF_ROLE("self.role.layout", Mode.SELF, AttributableType.ROLE),
+    ADMIN_GROUP("admin.group.layout", Mode.ADMIN, AttributableType.GROUP),
+    SELF_GROUP("self.group.layout", Mode.SELF, AttributableType.GROUP),
     ADMIN_MEMBERSHIP("admin.membership.layout", Mode.ADMIN, AttributableType.MEMBERSHIP),
     SELF_MEMBERSHIP("self.membership.layout", Mode.SELF, AttributableType.MEMBERSHIP);
 
@@ -76,8 +76,8 @@ public enum AttrLayoutType {
                     result = ADMIN_MEMBERSHIP;
                     break;
 
-                case ROLE:
-                    result = ADMIN_ROLE;
+                case GROUP:
+                    result = ADMIN_GROUP;
                     break;
 
                 default:
@@ -92,8 +92,8 @@ public enum AttrLayoutType {
                     result = SELF_MEMBERSHIP;
                     break;
 
-                case ROLE:
-                    result = SELF_ROLE;
+                case GROUP:
+                    result = SELF_GROUP;
                     break;
 
                 default:

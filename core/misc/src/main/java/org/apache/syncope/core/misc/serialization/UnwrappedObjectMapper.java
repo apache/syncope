@@ -18,10 +18,8 @@
  */
 package org.apache.syncope.core.misc.serialization;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.IOException;
@@ -57,28 +55,28 @@ public class UnwrappedObjectMapper extends ObjectMapper {
 
     @Override
     public void writeValue(final JsonGenerator jgen, final Object value)
-            throws IOException, JsonGenerationException, JsonMappingException {
+            throws IOException {
 
         super.writeValue(jgen, unwrapMap(value));
     }
 
     @Override
     public void writeValue(final File resultFile, final Object value)
-            throws IOException, JsonGenerationException, JsonMappingException {
+            throws IOException {
 
         super.writeValue(resultFile, unwrapMap(value));
     }
 
     @Override
     public void writeValue(final OutputStream out, final Object value)
-            throws IOException, JsonGenerationException, JsonMappingException {
+            throws IOException {
 
         super.writeValue(out, unwrapMap(value));
     }
 
     @Override
     public void writeValue(final Writer w, final Object value)
-            throws IOException, JsonGenerationException, JsonMappingException {
+            throws IOException {
 
         super.writeValue(w, unwrapMap(value));
     }

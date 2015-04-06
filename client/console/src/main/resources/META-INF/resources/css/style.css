@@ -29,7 +29,7 @@ body {
   margin: 0px 5px;
   margin-top: 5px;
 }
-#roletabs {
+#grouptabs {
   margin: 0px 5px;
   margin-top: 5px;
 }
@@ -258,7 +258,7 @@ div#executions table td, div#executions table th { border: 1px solid #eee; paddi
   color: #9C0;
 }
 
-#navigationPane .roles {
+#navigationPane .groups {
   color: #F90;
 }
 
@@ -347,13 +347,13 @@ td.action{
   text-align: right;
 }
 
-.role-tree {
+.group-tree {
   width: 30%;
   display: block;
   float: left;
 }
 
-.roleTable {
+.groupTable {
   line-height: 1.5em;
 }
 

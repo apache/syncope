@@ -47,9 +47,9 @@ import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.membership.MVirAttr;
 import org.apache.syncope.core.persistence.api.entity.membership.MVirAttrTemplate;
 import org.apache.syncope.core.persistence.api.entity.membership.Membership;
-import org.apache.syncope.core.persistence.api.entity.role.RVirAttr;
-import org.apache.syncope.core.persistence.api.entity.role.RVirAttrTemplate;
-import org.apache.syncope.core.persistence.api.entity.role.Role;
+import org.apache.syncope.core.persistence.api.entity.group.GVirAttr;
+import org.apache.syncope.core.persistence.api.entity.group.GVirAttrTemplate;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.UVirAttr;
 import org.apache.syncope.core.persistence.api.entity.user.UVirSchema;
 import org.slf4j.Logger;
@@ -100,15 +100,15 @@ public class VirAttrHandler {
 
         if (virAttr instanceof UVirAttr) {
             ((UVirAttr) virAttr).setSchema((UVirSchema) virSchema);
-        } else if (virAttr instanceof RVirAttr) {
-            RVirAttrTemplate template = ((Role) attributable).
-                    getAttrTemplate(RVirAttrTemplate.class, virSchema.getKey());
+        } else if (virAttr instanceof GVirAttr) {
+            GVirAttrTemplate template = ((Group) attributable).
+                    getAttrTemplate(GVirAttrTemplate.class, virSchema.getKey());
             if (template != null) {
-                ((RVirAttr) virAttr).setTemplate(template);
+                ((GVirAttr) virAttr).setTemplate(template);
             }
         } else if (virAttr instanceof MVirAttr) {
             MVirAttrTemplate template =
-                    ((Membership) attributable).getRole().
+                    ((Membership) attributable).getGroup().
                     getAttrTemplate(MVirAttrTemplate.class, virSchema.getKey());
             if (template != null) {
                 ((MVirAttr) virAttr).setTemplate(template);
@@ -141,7 +141,7 @@ public class VirAttrHandler {
             externalResources.addAll(((Subject<?, ?, ?>) attributable).getResources());
         } else if (attributable instanceof Membership) {
             externalResources.addAll(((Membership) attributable).getUser().getResources());
-            externalResources.addAll(((Membership) attributable).getRole().getResources());
+            externalResources.addAll(((Membership) attributable).getGroup().getResources());
         }
 
         // 1. virtual attributes to be removed
@@ -282,7 +282,7 @@ public class VirAttrHandler {
      * SYNCOPE-501: build membership virtual attribute changes in case no other changes were made.
      *
      * @param key user key
-     * @param roleKey role key
+     * @param groupKey group key
      * @param membershipKey membership key
      * @param vAttrsToBeRemoved virtual attributes to be removed.
      * @param vAttrsToBeUpdated virtual attributes to be updated.
@@ -290,11 +290,11 @@ public class VirAttrHandler {
      * @return operations to be performed on external resources for membership virtual attributes changes
      */
     public PropagationByResource fillMembershipVirtual(
-            final Long key, final Long roleKey, final Long membershipKey, final Set<String> vAttrsToBeRemoved,
+            final Long key, final Long groupKey, final Long membershipKey, final Set<String> vAttrsToBeRemoved,
             final Set<AttrMod> vAttrsToBeUpdated, final boolean isRemoval) {
 
         final Membership membership = membershipKey == null
-                ? userDAO.authFetch(key).getMembership(roleKey)
+                ? userDAO.authFetch(key).getMembership(groupKey)
                 : membershipDAO.authFetch(membershipKey);
 
         return membership == null ? new PropagationByResource() : isRemoval

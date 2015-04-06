@@ -24,7 +24,7 @@ import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.membership.MPlainSchema;
-import org.apache.syncope.core.persistence.api.entity.role.RPlainSchema;
+import org.apache.syncope.core.persistence.api.entity.group.GPlainSchema;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainSchema;
 
 public class PlainAttrValueValidator extends AbstractValidator<PlainAttrValueCheck, PlainAttrValue> {
@@ -78,8 +78,8 @@ public class PlainAttrValueValidator extends AbstractValidator<PlainAttrValueChe
 
                     EntityViolationType violationType = attrSchema instanceof UPlainSchema
                             ? EntityViolationType.InvalidUPlainSchema
-                            : attrSchema instanceof RPlainSchema
-                                    ? EntityViolationType.InvalidRPlainSchema
+                            : attrSchema instanceof GPlainSchema
+                                    ? EntityViolationType.InvalidGPlainSchema
                                     : attrSchema instanceof MPlainSchema
                                             ? EntityViolationType.InvalidMPlainSchema
                                             : EntityViolationType.InvalidCPlainSchema;

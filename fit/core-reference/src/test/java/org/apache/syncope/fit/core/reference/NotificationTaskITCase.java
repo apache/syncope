@@ -109,9 +109,9 @@ public class NotificationTaskITCase extends AbstractTaskITCase {
         notification.setTraceLevel(TraceLevel.FAILURES);
         notification.getEvents().add("[REST]:[UserLogic]:[]:[create]:[SUCCESS]");
 
-        notification.setUserAbout(SyncopeClient.getUserSearchConditionBuilder().hasRoles(7L).query());
+        notification.setUserAbout(SyncopeClient.getUserSearchConditionBuilder().inGroups(7L).query());
 
-        notification.setRecipients(SyncopeClient.getUserSearchConditionBuilder().hasRoles(8L).query());
+        notification.setRecipients(SyncopeClient.getUserSearchConditionBuilder().inGroups(8L).query());
         notification.setSelfAsRecipient(true);
 
         notification.setRecipientAttrName("email");
@@ -130,7 +130,7 @@ public class NotificationTaskITCase extends AbstractTaskITCase {
         // 2. create user
         UserTO userTO = UserITCase.getUniqueSampleTO("syncope@syncope.apache.org");
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setRoleId(7);
+        membershipTO.setGroupId(7);
         userTO.getMemberships().add(membershipTO);
 
         userTO = createUser(userTO);

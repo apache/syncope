@@ -75,7 +75,7 @@ public class NotificationITCase extends AbstractITCase {
     @Test
     public void create() {
         NotificationTO notificationTO = buildNotificationTO();
-        notificationTO.setRecipients(SyncopeClient.getUserSearchConditionBuilder().hasRoles(7L).query());
+        notificationTO.setRecipients(SyncopeClient.getUserSearchConditionBuilder().inGroups(7L).query());
 
         Response response = notificationService.create(notificationTO);
         NotificationTO actual = getObject(response.getLocation(), NotificationService.class,
@@ -90,7 +90,7 @@ public class NotificationITCase extends AbstractITCase {
     @Test
     public void update() {
         NotificationTO notificationTO = notificationService.read(10L);
-        notificationTO.setRecipients(SyncopeClient.getUserSearchConditionBuilder().hasRoles(7L).query());
+        notificationTO.setRecipients(SyncopeClient.getUserSearchConditionBuilder().inGroups(7L).query());
 
         notificationService.update(notificationTO.getKey(), notificationTO);
         NotificationTO actual = notificationService.read(notificationTO.getKey());
@@ -155,7 +155,8 @@ public class NotificationITCase extends AbstractITCase {
     public void issueSYNCOPE446() {
         NotificationTO notificationTO = buildNotificationTO();
         notificationTO.getStaticRecipients().add("syncope446@syncope.apache.org");
-        notificationTO.setRoleAbout(SyncopeClient.getRoleSearchConditionBuilder().hasEntitlements("ROLE_READ").query());
+        notificationTO.setGroupAbout(
+                SyncopeClient.getGroupSearchConditionBuilder().hasEntitlements("GROUP_READ").query());
 
         NotificationTO actual = null;
         try {

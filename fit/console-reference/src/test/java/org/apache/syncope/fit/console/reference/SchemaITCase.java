@@ -35,7 +35,7 @@ public class SchemaITCase extends AbstractITCase {
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='tabs']")));
 
         seleniumDriver.findElement(By.xpath("//div[@id='tabs']/ul/li[4]/a")).click();
-        seleniumDriver.findElement(By.xpath("//div[@id='rschema']/div/div/div/a")).click();
+        seleniumDriver.findElement(By.xpath("//div[@id='gschema']/div/div/div/a")).click();
 
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//iframe")));
         seleniumDriver.switchTo().frame(0);

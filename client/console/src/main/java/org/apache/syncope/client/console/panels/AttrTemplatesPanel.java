@@ -25,7 +25,7 @@ import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.SelectChoiceRenderer;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.NonI18nPalette;
-import org.apache.syncope.common.lib.to.RoleTO;
+import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -41,9 +41,9 @@ public class AttrTemplatesPanel extends Panel {
 
     public enum Type {
 
-        rPlainAttrTemplates,
-        rDerAttrTemplates,
-        rVirAttrTemplates,
+        gPlainAttrTemplates,
+        gDerAttrTemplates,
+        gVirAttrTemplates,
         mPlainAttrTemplates,
         mDerAttrTemplates,
         mVirAttrTemplates;
@@ -55,7 +55,7 @@ public class AttrTemplatesPanel extends Panel {
     @SpringBean
     private SchemaRestClient schemaRestClient;
 
-    private final RoleTO roleTO;
+    private final GroupTO groupTO;
 
     private final NonI18nPalette<String> rPlainAttrTemplates;
 
@@ -63,18 +63,18 @@ public class AttrTemplatesPanel extends Panel {
 
     private final NonI18nPalette<String> rVirAttrTemplates;
 
-    public AttrTemplatesPanel(final String id, final RoleTO roleTO) {
+    public AttrTemplatesPanel(final String id, final GroupTO groupTO) {
         super(id);
-        this.roleTO = roleTO;
+        this.groupTO = groupTO;
 
-        rPlainAttrTemplates = buildPalette(Type.rPlainAttrTemplates,
-                schemaRestClient.getSchemaNames(AttributableType.ROLE, SchemaType.PLAIN));
+        rPlainAttrTemplates = buildPalette(Type.gPlainAttrTemplates,
+                schemaRestClient.getSchemaNames(AttributableType.GROUP, SchemaType.PLAIN));
         this.add(rPlainAttrTemplates);
-        rDerAttrTemplates = buildPalette(Type.rDerAttrTemplates,
-                schemaRestClient.getSchemaNames(AttributableType.ROLE, SchemaType.DERIVED));
+        rDerAttrTemplates = buildPalette(Type.gDerAttrTemplates,
+                schemaRestClient.getSchemaNames(AttributableType.GROUP, SchemaType.DERIVED));
         this.add(rDerAttrTemplates);
-        rVirAttrTemplates = buildPalette(Type.rVirAttrTemplates,
-                schemaRestClient.getSchemaNames(AttributableType.ROLE, SchemaType.VIRTUAL));
+        rVirAttrTemplates = buildPalette(Type.gVirAttrTemplates,
+                schemaRestClient.getSchemaNames(AttributableType.GROUP, SchemaType.VIRTUAL));
         this.add(rVirAttrTemplates);
 
         this.add(buildPalette(Type.mPlainAttrTemplates,
@@ -91,7 +91,7 @@ public class AttrTemplatesPanel extends Panel {
         }
         ListModel<String> availableSchemas = new ListModel<>(allSchemas);
 
-        return new NonI18nPalette<String>(type.name(), new PropertyModel<List<String>>(roleTO, type.name()),
+        return new NonI18nPalette<String>(type.name(), new PropertyModel<List<String>>(groupTO, type.name()),
                 availableSchemas, new SelectChoiceRenderer<String>(), 8, false, true) {
 
                     private static final long serialVersionUID = 2295567122085510330L;
@@ -101,16 +101,16 @@ public class AttrTemplatesPanel extends Panel {
                         final Recorder<String> recorder = super.newRecorderComponent();
 
                         switch (type) {
-                            case rPlainAttrTemplates:
-                            case rDerAttrTemplates:
-                            case rVirAttrTemplates:
+                            case gPlainAttrTemplates:
+                            case gDerAttrTemplates:
+                            case gVirAttrTemplates:
                                 recorder.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
                                     private static final long serialVersionUID = -1107858522700306810L;
 
                                     @Override
                                     protected void onUpdate(final AjaxRequestTarget target) {
-                                        send(getPage(), Broadcast.BREADTH, new RoleAttrTemplatesChange(type, target));
+                                        send(getPage(), Broadcast.BREADTH, new GroupAttrTemplatesChange(type, target));
                                     }
                                 });
                                 break;
@@ -126,15 +126,15 @@ public class AttrTemplatesPanel extends Panel {
     public Collection<String> getSelected(final Type type) {
         Collection<String> selected;
         switch (type) {
-            case rPlainAttrTemplates:
+            case gPlainAttrTemplates:
                 selected = this.rPlainAttrTemplates.getModelCollection();
                 break;
 
-            case rDerAttrTemplates:
+            case gDerAttrTemplates:
                 selected = this.rDerAttrTemplates.getModelCollection();
                 break;
 
-            case rVirAttrTemplates:
+            case gVirAttrTemplates:
                 selected = this.rVirAttrTemplates.getModelCollection();
                 break;
 
@@ -145,13 +145,13 @@ public class AttrTemplatesPanel extends Panel {
         return selected;
     }
 
-    public static class RoleAttrTemplatesChange {
+    public static class GroupAttrTemplatesChange {
 
         private final Type type;
 
         private final AjaxRequestTarget target;
 
-        public RoleAttrTemplatesChange(final Type type, final AjaxRequestTarget target) {
+        public GroupAttrTemplatesChange(final Type type, final AjaxRequestTarget target) {
             this.type = type;
             this.target = target;
         }

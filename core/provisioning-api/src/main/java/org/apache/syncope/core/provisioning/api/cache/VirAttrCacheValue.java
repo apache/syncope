@@ -47,11 +47,11 @@ public class VirAttrCacheValue {
     public VirAttrCacheValue() {
         this.creationDate = new Date();
         this.lastAccessDate = new Date();
-        values = new HashMap<>();
+        this.values = new HashMap<>();
     }
 
-    public void setResourceValues(final String resourceName, final Set<String> values) {
-        this.values.put(resourceName, values);
+    public void setResourceValues(final String resourceName, final Set<String> cached) {
+        this.values.put(resourceName, cached);
     }
 
     public Date getCreationDate() {
@@ -80,7 +80,7 @@ public class VirAttrCacheValue {
         return lastAccessDate;
     }
 
-    void setLastAccessDate(final Date lastAccessDate) {
+    public void setLastAccessDate(final Date lastAccessDate) {
         this.lastAccessDate = lastAccessDate;
     }
 }

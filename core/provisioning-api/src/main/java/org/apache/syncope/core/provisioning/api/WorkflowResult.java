@@ -32,19 +32,18 @@ public class WorkflowResult<T> {
 
     private PropagationByResource propByRes;
 
-    private Set<String> performedTasks;
+    private final Set<String> performedTasks = new HashSet<>();
 
     public WorkflowResult(final T result, final PropagationByResource propByRes, final String performedTask) {
         this.result = result;
         this.propByRes = propByRes;
-        this.performedTasks = new HashSet<>();
         this.performedTasks.add(performedTask);
     }
 
     public WorkflowResult(final T result, final PropagationByResource propByRes, final Set<String> performedTasks) {
         this.result = result;
         this.propByRes = propByRes;
-        this.performedTasks = new HashSet<>(performedTasks);
+        this.performedTasks.addAll(performedTasks);
     }
 
     public T getResult() {

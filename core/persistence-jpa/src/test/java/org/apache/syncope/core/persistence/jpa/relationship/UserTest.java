@@ -26,7 +26,7 @@ import java.util.List;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrValueDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
-import org.apache.syncope.core.persistence.api.dao.RoleDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.membership.Membership;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
@@ -44,7 +44,7 @@ public class UserTest extends AbstractTest {
     private UserDAO userDAO;
 
     @Autowired
-    private RoleDAO roleDAO;
+    private GroupDAO groupDAO;
 
     @Autowired
     private PlainSchemaDAO plainSchemaDAO;
@@ -66,7 +66,7 @@ public class UserTest extends AbstractTest {
         assertNull(plainAttrValueDAO.find(22L, UPlainAttrValue.class));
         assertNotNull(plainSchemaDAO.find("loginDate", UPlainSchema.class));
 
-        List<Membership> memberships = roleDAO.findMemberships(roleDAO.find(7L));
+        List<Membership> memberships = groupDAO.findMemberships(groupDAO.find(7L));
         assertTrue(memberships.isEmpty());
     }
 }

@@ -28,7 +28,7 @@ import org.apache.syncope.client.console.pages.Login;
 import org.apache.syncope.client.console.pages.Logout;
 import org.apache.syncope.client.console.pages.Reports;
 import org.apache.syncope.client.console.pages.Resources;
-import org.apache.syncope.client.console.pages.Roles;
+import org.apache.syncope.client.console.pages.Groups;
 import org.apache.syncope.client.console.pages.Schema;
 import org.apache.syncope.client.console.pages.Tasks;
 import org.apache.syncope.client.console.pages.Todo;
@@ -177,13 +177,13 @@ public class SyncopeApplication
                 ? IMG_NOTSEL
                 : StringUtils.EMPTY) + "users" + Constants.PNG_EXT)));
 
-        BookmarkablePageLink<Page> rolesLink = new BookmarkablePageLink<>("roles", Roles.class);
+        BookmarkablePageLink<Page> groupsLink = new BookmarkablePageLink<>("groups", Groups.class);
         MetaDataRoleAuthorizationStrategy.authorize(
-                rolesLink, WebPage.ENABLE, xmlRolesReader.getEntitlement("Roles", "list"));
-        page.add(rolesLink);
-        rolesLink.add(new Image("rolesIcon", new ContextRelativeResource(IMG_PREFIX + (notsel
+                groupsLink, WebPage.ENABLE, xmlRolesReader.getEntitlement("Groups", "list"));
+        page.add(groupsLink);
+        groupsLink.add(new Image("groupsIcon", new ContextRelativeResource(IMG_PREFIX + (notsel
                 ? IMG_NOTSEL
-                : StringUtils.EMPTY) + "roles" + Constants.PNG_EXT)));
+                : StringUtils.EMPTY) + "groups" + Constants.PNG_EXT)));
 
         BookmarkablePageLink<Page> resourcesLink = new BookmarkablePageLink<>("resources", Resources.class);
         MetaDataRoleAuthorizationStrategy.authorize(

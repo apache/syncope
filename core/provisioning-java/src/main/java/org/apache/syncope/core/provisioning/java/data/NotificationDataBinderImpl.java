@@ -42,7 +42,7 @@ public class NotificationDataBinderImpl implements NotificationDataBinder {
 
         result.setKey(notification.getKey());
         result.setUserAbout(notification.getUserAbout());
-        result.setRoleAbout(notification.getRoleAbout());
+        result.setGroupAbout(notification.getGroupAbout());
         result.setRecipients(notification.getRecipients());
 
         return result;
@@ -60,7 +60,7 @@ public class NotificationDataBinderImpl implements NotificationDataBinder {
         BeanUtils.copyProperties(notificationTO, notification, IGNORE_PROPERTIES);
 
         notification.setUserAbout(notificationTO.getUserAbout());
-        notification.setRoleAbout(notificationTO.getRoleAbout());
+        notification.setGroupAbout(notificationTO.getGroupAbout());
         notification.setRecipients(notificationTO.getRecipients());
     }
 }

@@ -24,8 +24,7 @@ import java.util.List;
 import java.util.Set;
 import javax.swing.tree.DefaultMutableTreeNode;
 import org.apache.syncope.client.console.commons.Mode;
-import org.apache.syncope.client.console.commons.RoleTreeBuilder;
-import org.apache.syncope.client.console.commons.RoleUtils;
+import org.apache.syncope.client.console.commons.GroupTreeBuilder;
 import org.apache.syncope.client.console.commons.status.StatusUtils;
 import org.apache.syncope.client.console.pages.MembershipModalPage;
 import org.apache.syncope.client.console.pages.UserModalPage;
@@ -33,9 +32,9 @@ import org.apache.syncope.client.console.wicket.ajax.markup.html.ClearIndicating
 import org.apache.syncope.client.console.wicket.ajax.markup.html.IndicatingOnConfirmAjaxLink;
 import org.apache.syncope.client.console.wicket.markup.html.tree.DefaultMutableTreeNodeExpansion;
 import org.apache.syncope.client.console.wicket.markup.html.tree.DefaultMutableTreeNodeExpansionModel;
-import org.apache.syncope.client.console.wicket.markup.html.tree.TreeRoleProvider;
+import org.apache.syncope.client.console.wicket.markup.html.tree.TreeGroupProvider;
 import org.apache.syncope.common.lib.to.MembershipTO;
-import org.apache.syncope.common.lib.to.RoleTO;
+import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
@@ -63,7 +62,7 @@ public class MembershipsPanel extends Panel {
     private static final long serialVersionUID = -2559791301973107191L;
 
     @SpringBean
-    private RoleTreeBuilder roleTreeBuilder;
+    private GroupTreeBuilder groupTreeBuilder;
 
     private final ListView<MembershipTO> membView;
 
@@ -89,7 +88,7 @@ public class MembershipsPanel extends Panel {
         membWin.setCookieName("create-membership-modal");
         add(membWin);
 
-        final ITreeProvider<DefaultMutableTreeNode> treeProvider = new TreeRoleProvider(roleTreeBuilder, true);
+        final ITreeProvider<DefaultMutableTreeNode> treeProvider = new TreeGroupProvider(groupTreeBuilder, true);
         final DefaultMutableTreeNodeExpansionModel treeModel = new DefaultMutableTreeNodeExpansionModel();
 
         tree = new DefaultNestedTree<DefaultMutableTreeNode>("treeTable", treeProvider, treeModel) {
@@ -99,7 +98,7 @@ public class MembershipsPanel extends Panel {
             @Override
             protected Component newContentComponent(final String id, final IModel<DefaultMutableTreeNode> node) {
                 final DefaultMutableTreeNode treeNode = node.getObject();
-                final RoleTO roleTO = (RoleTO) treeNode.getUserObject();
+                final GroupTO groupTO = (GroupTO) treeNode.getUserObject();
 
                 return new Folder<DefaultMutableTreeNode>(id, MembershipsPanel.this.tree, node) {
 
@@ -112,12 +111,12 @@ public class MembershipsPanel extends Panel {
 
                     @Override
                     protected IModel<?> newLabelModel(final IModel<DefaultMutableTreeNode> model) {
-                        return new Model<String>(roleTO.getDisplayName());
+                        return new Model<String>(groupTO.getDisplayName());
                     }
 
                     @Override
                     protected void onClick(final AjaxRequestTarget target) {
-                        if (roleTO.getKey() > 0) {
+                        if (groupTO.getKey() > 0) {
                             membWin.setPageCreator(new ModalWindow.PageCreator() {
 
                                 private static final long serialVersionUID = 7661763358801821185L;
@@ -127,13 +126,13 @@ public class MembershipsPanel extends Panel {
                                     PageReference pageRef = getPage().getPageReference();
 
                                     for (MembershipTO membTO : membView.getList()) {
-                                        if (membTO.getRoleId() == roleTO.getKey()) {
+                                        if (membTO.getGroupId() == groupTO.getKey()) {
                                             return new MembershipModalPage(pageRef, membWin, membTO, mode);
                                         }
                                     }
                                     MembershipTO membTO = new MembershipTO();
-                                    membTO.setRoleId(roleTO.getKey());
-                                    membTO.setRoleName(roleTO.getName());
+                                    membTO.setGroupId(groupTO.getKey());
+                                    membTO.setGroupName(groupTO.getName());
 
                                     return new MembershipModalPage(pageRef, membWin, membTO, mode);
                                 }
@@ -160,8 +159,8 @@ public class MembershipsPanel extends Panel {
                     protected void populateItem(final ListItem<MembershipTO> item) {
                         final MembershipTO membershipTO = (MembershipTO) item.getDefaultModelObject();
 
-                        item.add(new Label("roleId", new Model<Long>(membershipTO.getRoleId())));
-                        item.add(new Label("roleName", new Model<String>(membershipTO.getRoleName())));
+                        item.add(new Label("groupId", new Model<Long>(membershipTO.getGroupId())));
+                        item.add(new Label("groupName", new Model<String>(membershipTO.getGroupName())));
 
                         AjaxLink editLink = new ClearIndicatingAjaxLink("editLink", pageRef) {
 
@@ -195,15 +194,15 @@ public class MembershipsPanel extends Panel {
                                 ((UserModalPage) getPage()).getUserTO().getMemberships().remove(membershipTO);
                                 target.add(membershipsContainer);
 
-                                RoleTO roleTO = RoleUtils.findRole(roleTreeBuilder, membershipTO.getRoleId());
-                                Set<String> resourcesToRemove = roleTO == null
-                                        ? Collections.<String>emptySet() : roleTO.getResources();
+                                GroupTO groupTO = groupTreeBuilder.findGroup(membershipTO.getGroupId());
+                                Set<String> resourcesToRemove = groupTO == null
+                                        ? Collections.<String>emptySet() : groupTO.getResources();
                                 if (!resourcesToRemove.isEmpty()) {
-                                    Set<String> resourcesAssignedViaMembership = new HashSet<String>();
+                                    Set<String> resourcesAssignedViaMembership = new HashSet<>();
                                     for (MembershipTO membTO : userTO.getMemberships()) {
-                                        roleTO = RoleUtils.findRole(roleTreeBuilder, membTO.getRoleId());
-                                        if (roleTO != null) {
-                                            resourcesAssignedViaMembership.addAll(roleTO.getResources());
+                                        groupTO = groupTreeBuilder.findGroup(membTO.getGroupId());
+                                        if (groupTO != null) {
+                                            resourcesAssignedViaMembership.addAll(groupTO.getResources());
                                         }
                                     }
                                     resourcesToRemove.removeAll(resourcesAssignedViaMembership);
@@ -236,11 +235,11 @@ public class MembershipsPanel extends Panel {
                         Set<Long> diff = new HashSet<Long>(updatedUserTO.getMembershipMap().keySet());
                         diff.removeAll(userTO.getMembershipMap().keySet());
 
-                        Set<String> resourcesToAdd = new HashSet<String>();
+                        Set<String> resourcesToAdd = new HashSet<>();
                         for (Long diffMembId : diff) {
-                            long roleId = updatedUserTO.getMembershipMap().get(diffMembId).getRoleId();
-                            RoleTO roleTO = RoleUtils.findRole(roleTreeBuilder, roleId);
-                            resourcesToAdd.addAll(roleTO.getResources());
+                            long groupId = updatedUserTO.getMembershipMap().get(diffMembId).getGroupId();
+                            GroupTO groupTO = groupTreeBuilder.findGroup(groupId);
+                            resourcesToAdd.addAll(groupTO.getResources());
                             StatusUtils.update(
                                     userTO, statusPanel, target, resourcesToAdd, Collections.<String>emptySet());
                         }

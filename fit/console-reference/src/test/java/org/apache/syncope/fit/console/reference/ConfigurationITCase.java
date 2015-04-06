@@ -161,11 +161,11 @@ public class ConfigurationITCase extends AbstractITCase {
 
         wait.until(ExpectedConditions.presenceOfElementLocated(
                 By.xpath("//select[@name='eventSelection:categoryContainer:category:dropDownChoiceField']"
-                        + "/option[text()='role']")));
+                        + "/option[text()='group']")));
 
         select = new Select(seleniumDriver.findElement(By.xpath(
                 "//select[@name='eventSelection:categoryContainer:category:dropDownChoiceField']")));
-        select.selectByVisibleText("role");
+        select.selectByVisibleText("group");
 
         wait.until(ExpectedConditions.presenceOfElementLocated(
                 By.xpath("//select[@name='eventSelection:categoryContainer:subcategory:dropDownChoiceField']"
@@ -256,12 +256,12 @@ public class ConfigurationITCase extends AbstractITCase {
 
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(
                 "//select[@name='eventSelection:categoryContainer:category:dropDownChoiceField']"
-                + "/option[text()='role']")));
+                + "/option[text()='group']")));
 
         select = new Select(
                 seleniumDriver.findElement(By.xpath(
                                 "//select[@name='eventSelection:categoryContainer:category:dropDownChoiceField']")));
-        select.selectByVisibleText("role");
+        select.selectByVisibleText("group");
 
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(
                 "//select[@name='eventSelection:categoryContainer:subcategory:dropDownChoiceField']"
@@ -350,12 +350,12 @@ public class ConfigurationITCase extends AbstractITCase {
 
         wait.until(ExpectedConditions.presenceOfElementLocated(
                 By.xpath("//select[@name='eventSelection:categoryContainer:category:dropDownChoiceField']"
-                        + "/option[text()='RoleLogic']")));
+                        + "/option[text()='GroupLogic']")));
 
         select = new Select(
                 seleniumDriver.findElement(By.xpath(
                                 "//select[@name='eventSelection:categoryContainer:category:dropDownChoiceField']")));
-        select.selectByVisibleText("RoleLogic");
+        select.selectByVisibleText("GroupLogic");
 
         wait.until(ExpectedConditions.presenceOfElementLocated(
                 By.xpath("//input[@name='eventSelection:eventsContainer:eventsPanel:successGroup']")));
@@ -366,24 +366,24 @@ public class ConfigurationITCase extends AbstractITCase {
         seleniumDriver.findElement(By.xpath("//div[2]/form/div[3]/div[3]/span/div[4]/div/span/input")).click();
 
         wait.until(ExpectedConditions.presenceOfElementLocated(
-                By.xpath("//select[@name='aboutContainer:roleAbout:searchFormContainer:searchView:0:type']"
+                By.xpath("//select[@name='aboutContainer:groupAbout:searchFormContainer:searchView:0:type']"
                         + "/option[text()='ENTITLEMENT']")));
 
         wait.until(ExpectedConditions.elementToBeClickable(
-                By.xpath("//select[@name='aboutContainer:roleAbout:searchFormContainer:searchView:0:type']")));
+                By.xpath("//select[@name='aboutContainer:groupAbout:searchFormContainer:searchView:0:type']")));
 
         select = new Select(
                 seleniumDriver.findElement(By.xpath(
-                                "//select[@name='aboutContainer:roleAbout:searchFormContainer:searchView:0:type']")));
+                                "//select[@name='aboutContainer:groupAbout:searchFormContainer:searchView:0:type']")));
         select.selectByVisibleText("ENTITLEMENT");
 
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(
-                "//select[@name='aboutContainer:roleAbout:searchFormContainer:searchView:0:property']"
-                + "/option[text()='ROLE_CREATE']")));
+                "//select[@name='aboutContainer:groupAbout:searchFormContainer:searchView:0:property']"
+                + "/option[text()='GROUP_CREATE']")));
 
         select = new Select(seleniumDriver.findElement(By.xpath(
-                "//select[@name='aboutContainer:roleAbout:searchFormContainer:searchView:0:property']")));
-        select.selectByVisibleText("ROLE_CREATE");
+                "//select[@name='aboutContainer:groupAbout:searchFormContainer:searchView:0:property']")));
+        select.selectByVisibleText("GROUP_CREATE");
 
         seleniumDriver.findElement(By.xpath("//div[2]/form/div[3]/ul/li[4]/a/span")).click();
         seleniumDriver.findElement(By.xpath("//input[@name='recipientsContainer:checkRecipients:checkboxField']")).

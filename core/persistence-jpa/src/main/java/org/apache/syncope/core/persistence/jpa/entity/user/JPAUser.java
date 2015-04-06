@@ -53,7 +53,7 @@ import javax.validation.constraints.NotNull;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.membership.Membership;
-import org.apache.syncope.core.persistence.api.entity.role.Role;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
 import org.apache.syncope.core.persistence.api.entity.user.UDerAttr;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
@@ -211,12 +211,12 @@ public class JPAUser extends AbstractSubject<UPlainAttr, UDerAttr, UVirAttr> imp
     }
 
     @Override
-    public Membership getMembership(final Long roleKey) {
+    public Membership getMembership(final Long groupKey) {
         Membership result = null;
         Membership membership;
         for (Iterator<? extends Membership> itor = getMemberships().iterator(); result == null && itor.hasNext();) {
             membership = itor.next();
-            if (membership.getRole() != null && roleKey.equals(membership.getRole().getKey())) {
+            if (membership.getGroup() != null && groupKey.equals(membership.getGroup().getKey())) {
                 result = membership;
             }
         }
@@ -229,12 +229,12 @@ public class JPAUser extends AbstractSubject<UPlainAttr, UDerAttr, UVirAttr> imp
     }
 
     @Override
-    public List<Role> getRoles() {
-        List<Role> result = new ArrayList<>();
+    public List<Group> getGroups() {
+        List<Group> result = new ArrayList<>();
 
         for (Membership membership : memberships) {
-            if (membership.getRole() != null) {
-                result.add(membership.getRole());
+            if (membership.getGroup() != null) {
+                result.add(membership.getGroup());
             }
         }
 
@@ -242,12 +242,12 @@ public class JPAUser extends AbstractSubject<UPlainAttr, UDerAttr, UVirAttr> imp
     }
 
     @Override
-    public Set<Long> getRoleKeys() {
-        List<Role> roles = getRoles();
+    public Set<Long> getGroupKeys() {
+        List<Group> groups = getGroups();
 
-        Set<Long> result = new HashSet<>(roles.size());
-        for (Role role : roles) {
-            result.add(role.getKey());
+        Set<Long> result = new HashSet<>(groups.size());
+        for (Group group : groups) {
+            result.add(group.getKey());
         }
 
         return result;
@@ -257,8 +257,8 @@ public class JPAUser extends AbstractSubject<UPlainAttr, UDerAttr, UVirAttr> imp
     public Set<ExternalResource> getResources() {
         Set<ExternalResource> result = new HashSet<>();
         result.addAll(super.getResources());
-        for (Role role : getRoles()) {
-            result.addAll(role.getResources());
+        for (Group group : getGroups()) {
+            result.addAll(group.getResources());
         }
 
         return result;

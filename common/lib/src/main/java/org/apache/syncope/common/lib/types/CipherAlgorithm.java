@@ -35,9 +35,9 @@ public enum CipherAlgorithm {
     SSHA512("S-SHA-512", false),
     BCRYPT("BCRYPT", false);
 
-    final private String algorithm;
+    private final String algorithm;
 
-    final private boolean invertible;
+    private final boolean invertible;
 
     CipherAlgorithm(final String algorithm, final boolean invertible) {
         this.algorithm = algorithm;

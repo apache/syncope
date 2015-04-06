@@ -23,15 +23,14 @@ import java.util.List;
 import java.util.Set;
 import javax.annotation.Resource;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.core.persistence.api.RoleEntitlementUtil;
+import org.apache.syncope.core.persistence.api.GroupEntitlementUtil;
 import org.apache.syncope.core.persistence.api.dao.EntitlementDAO;
-import org.apache.syncope.core.persistence.api.dao.RoleDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Entitlement;
-import org.apache.syncope.core.persistence.api.entity.role.Role;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
-import org.springframework.dao.DataAccessException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -45,7 +44,7 @@ public class SyncopeUserDetailsService implements UserDetailsService {
     protected UserDAO userDAO;
 
     @Autowired
-    protected RoleDAO roleDAO;
+    protected GroupDAO groupDAO;
 
     @Autowired
     protected EntitlementDAO entitlementDAO;
@@ -57,7 +56,7 @@ public class SyncopeUserDetailsService implements UserDetailsService {
     protected String anonymousUser;
 
     @Override
-    public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException, DataAccessException {
+    public UserDetails loadUserByUsername(final String username) {
         final Set<SimpleGrantedAuthority> authorities = new HashSet<>();
         if (anonymousUser.equals(username)) {
             authorities.add(new SimpleGrantedAuthority(SyncopeConstants.ANONYMOUS_ENTITLEMENT));
@@ -72,27 +71,27 @@ public class SyncopeUserDetailsService implements UserDetailsService {
                 throw new UsernameNotFoundException("Could not find any user with id " + username);
             }
 
-            // Give entitlements based on roles assigned to user (and their ancestors)
-            final Set<Role> roles = new HashSet<>(user.getRoles());
-            for (Role role : user.getRoles()) {
-                roles.addAll(roleDAO.findAncestors(role));
+            // Give entitlements based on groups assigned to user (and their ancestors)
+            final Set<Group> groups = new HashSet<>(user.getGroups());
+            for (Group group : user.getGroups()) {
+                groups.addAll(groupDAO.findAncestors(group));
             }
-            for (Role role : roles) {
-                for (Entitlement entitlement : role.getEntitlements()) {
+            for (Group group : groups) {
+                for (Entitlement entitlement : group.getEntitlements()) {
                     authorities.add(new SimpleGrantedAuthority(entitlement.getKey()));
                 }
             }
-            // Give role operational entitlements for owned roles
-            List<Role> ownedRoles = roleDAO.findOwnedByUser(user.getKey());
-            if (!ownedRoles.isEmpty()) {
-                authorities.add(new SimpleGrantedAuthority("ROLE_CREATE"));
-                authorities.add(new SimpleGrantedAuthority("ROLE_READ"));
-                authorities.add(new SimpleGrantedAuthority("ROLE_UPDATE"));
-                authorities.add(new SimpleGrantedAuthority("ROLE_DELETE"));
+            // Give group operational entitlements for owned groups
+            List<Group> ownedGroups = groupDAO.findOwnedByUser(user.getKey());
+            if (!ownedGroups.isEmpty()) {
+                authorities.add(new SimpleGrantedAuthority("GROUP_CREATE"));
+                authorities.add(new SimpleGrantedAuthority("GROUP_READ"));
+                authorities.add(new SimpleGrantedAuthority("GROUP_UPDATE"));
+                authorities.add(new SimpleGrantedAuthority("GROUP_DELETE"));
 
-                for (Role role : ownedRoles) {
+                for (Group group : ownedGroups) {
                     authorities.add(new SimpleGrantedAuthority(
-                            RoleEntitlementUtil.getEntitlementNameFromRoleKey(role.getKey())));
+                            GroupEntitlementUtil.getEntitlementNameFromGroupKey(group.getKey())));
                 }
             }
         }

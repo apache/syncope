@@ -66,25 +66,25 @@ under the License.
     </action>
   </page>
 
-  <page id="Roles">
+  <page id="Groups">
     <action id="list">
-      <entitlement>ROLE_LIST</entitlement>
+      <entitlement>GROUP_LIST</entitlement>
     </action>
 
     <action id="create">
-      <entitlement>ROLE_CREATE</entitlement>
+      <entitlement>GROUP_CREATE</entitlement>
     </action>
 
     <action id="read">
-      <entitlement>ROLE_READ</entitlement>
+      <entitlement>GROUP_READ</entitlement>
     </action>
 
     <action id="update">
-      <entitlement>ROLE_UPDATE</entitlement>
+      <entitlement>GROUP_UPDATE</entitlement>
     </action>
 
     <action id="delete">
-      <entitlement>ROLE_DELETE</entitlement>
+      <entitlement>GROUP_DELETE</entitlement>
     </action>
   </page>
 

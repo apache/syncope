@@ -22,7 +22,7 @@ under the License.
                 version="1.0">
 
   <xsl:import href="userReportlet2fo.xsl"/>
-  <xsl:import href="roleReportlet2fo.xsl"/>
+  <xsl:import href="groupReportlet2fo.xsl"/>
   <xsl:import href="staticReportlet2fo.xsl"/>
  
   <xsl:param name="status"/>

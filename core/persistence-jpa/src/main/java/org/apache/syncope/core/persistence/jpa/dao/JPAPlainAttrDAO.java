@@ -23,12 +23,12 @@ import org.apache.syncope.core.persistence.api.entity.Attributable;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.membership.MPlainAttr;
-import org.apache.syncope.core.persistence.api.entity.role.RPlainAttr;
+import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractPlainAttr;
 import org.apache.syncope.core.persistence.jpa.entity.conf.JPACPlainAttr;
 import org.apache.syncope.core.persistence.jpa.entity.membership.JPAMPlainAttr;
-import org.apache.syncope.core.persistence.jpa.entity.role.JPARPlainAttr;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttr;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUPlainAttr;
 import org.springframework.stereotype.Repository;
 
@@ -40,8 +40,8 @@ public class JPAPlainAttrDAO extends AbstractDAO<PlainAttr, Long> implements Pla
 
         return CPlainAttr.class.isAssignableFrom(reference)
                 ? JPACPlainAttr.class
-                : RPlainAttr.class.isAssignableFrom(reference)
-                        ? JPARPlainAttr.class
+                : GPlainAttr.class.isAssignableFrom(reference)
+                        ? JPAGPlainAttr.class
                         : MPlainAttr.class.isAssignableFrom(reference)
                                 ? JPAMPlainAttr.class
                                 : UPlainAttr.class.isAssignableFrom(reference)

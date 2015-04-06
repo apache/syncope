@@ -39,7 +39,7 @@ import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.ResourceTO;
-import org.apache.syncope.common.lib.to.RoleTO;
+import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.SyncPolicyTO;
 import org.apache.syncope.common.lib.to.SyncTaskTO;
 import org.apache.syncope.common.lib.to.TaskExecTO;
@@ -102,13 +102,13 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         userTemplate.getResources().add(RESOURCE_NAME_WS2);
 
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setRoleId(8L);
+        membershipTO.setGroupId(8L);
         userTemplate.getMemberships().add(membershipTO);
         task.setUserTemplate(userTemplate);
 
-        RoleTO roleTemplate = new RoleTO();
-        roleTemplate.getResources().add(RESOURCE_NAME_LDAP);
-        task.setRoleTemplate(roleTemplate);
+        GroupTO groupTemplate = new GroupTO();
+        groupTemplate.getResources().add(RESOURCE_NAME_LDAP);
+        task.setGroupTemplate(groupTemplate);
 
         Response response = taskService.create(task);
         SyncTaskTO actual = getObject(response.getLocation(), TaskService.class, SyncTaskTO.class);
@@ -119,7 +119,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         assertEquals(actual.getKey(), task.getKey());
         assertEquals(actual.getJobClassName(), task.getJobClassName());
         assertEquals(userTemplate, task.getUserTemplate());
-        assertEquals(roleTemplate, task.getRoleTemplate());
+        assertEquals(groupTemplate, task.getGroupTemplate());
     }
 
     @Test
@@ -254,14 +254,14 @@ public class SyncTaskITCase extends AbstractTaskITCase {
      * Clean Syncope and LDAP resource status.
      */
     private void ldapCleanup() {
-        PagedResult<RoleTO> matchingRoles = roleService.search(
-                SyncopeClient.getRoleSearchConditionBuilder().is("name").equalTo("testLDAPGroup").query());
-        if (matchingRoles.getSize() > 0) {
-            for (RoleTO role : matchingRoles.getResult()) {
-                roleService.bulkDeassociation(role.getKey(),
+        PagedResult<GroupTO> matchingGroups = groupService.search(
+                SyncopeClient.getGroupSearchConditionBuilder().is("name").equalTo("testLDAPGroup").query());
+        if (matchingGroups.getSize() > 0) {
+            for (GroupTO group : matchingGroups.getResult()) {
+                groupService.bulkDeassociation(group.getKey(),
                         ResourceDeassociationActionType.UNLINK,
                         CollectionWrapper.wrap(RESOURCE_NAME_LDAP, ResourceName.class));
-                roleService.delete(role.getKey());
+                groupService.delete(group.getKey());
             }
         }
         PagedResult<UserTO> matchingUsers = userService.search(
@@ -278,7 +278,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void reconcileFromLDAP() {
-        // First of all, clear any potential conflict with existing user / role
+        // First of all, clear any potential conflict with existing user / group
         ldapCleanup();
 
         // Update sync task
@@ -289,11 +289,11 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         assertNotNull(status);
         assertTrue(PropagationTaskExecStatus.valueOf(status).isSuccessful());
 
-        // 2. verify that synchronized role is found, with expected attributes
-        final PagedResult<RoleTO> matchingRoles = roleService.search(
-                SyncopeClient.getRoleSearchConditionBuilder().is("name").equalTo("testLDAPGroup").query());
-        assertNotNull(matchingRoles);
-        assertEquals(1, matchingRoles.getResult().size());
+        // 2. verify that synchronized group is found, with expected attributes
+        final PagedResult<GroupTO> matchingGroups = groupService.search(
+                SyncopeClient.getGroupSearchConditionBuilder().is("name").equalTo("testLDAPGroup").query());
+        assertNotNull(matchingGroups);
+        assertEquals(1, matchingGroups.getResult().size());
 
         final PagedResult<UserTO> matchingUsers = userService.search(
                 SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("syncFromLDAP").query());
@@ -308,17 +308,17 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         // Check for SYNCOPE-123
         assertNotNull(matchingUsers.getResult().get(0).getPlainAttrMap().get("photo"));
 
-        final RoleTO roleTO = matchingRoles.getResult().iterator().next();
-        assertNotNull(roleTO);
-        assertEquals("testLDAPGroup", roleTO.getName());
-        assertEquals(8L, roleTO.getParent());
-        assertEquals("true", roleTO.getPlainAttrMap().get("show").getValues().get(0));
-        assertEquals(matchingUsers.getResult().iterator().next().getKey(), (long) roleTO.getUserOwner());
-        assertNull(roleTO.getRoleOwner());
+        final GroupTO groupTO = matchingGroups.getResult().iterator().next();
+        assertNotNull(groupTO);
+        assertEquals("testLDAPGroup", groupTO.getName());
+        assertEquals(8L, groupTO.getParent());
+        assertEquals("true", groupTO.getPlainAttrMap().get("show").getValues().get(0));
+        assertEquals(matchingUsers.getResult().iterator().next().getKey(), (long) groupTO.getUserOwner());
+        assertNull(groupTO.getGroupOwner());
 
-        // 3. verify that LDAP group membership is propagated as Syncope role membership
+        // 3. verify that LDAP group membership is propagated as Syncope group membership
         final PagedResult<UserTO> members = userService.search(
-                SyncopeClient.getUserSearchConditionBuilder().hasRoles(roleTO.getKey()).query());
+                SyncopeClient.getUserSearchConditionBuilder().inGroups(groupTO.getKey()).query());
         assertNotNull(members);
         assertEquals(1, members.getResult().size());
     }
@@ -343,7 +343,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         userTO.getResources().add(RESOURCE_NAME_NOPROPAGATION4);
 
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setRoleId(7L);
+        membershipTO.setGroupId(7L);
 
         userTO.getMemberships().add(membershipTO);
 
@@ -361,7 +361,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
             UserTO template = new UserTO();
 
             membershipTO = new MembershipTO();
-            membershipTO.setRoleId(10L);
+            membershipTO.setGroupId(10L);
 
             template.getMemberships().add(membershipTO);
 
@@ -610,7 +610,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void issueSYNCOPE313LDAP() throws Exception {
-        // First of all, clear any potential conflict with existing user / role
+        // First of all, clear any potential conflict with existing user / group
         ldapCleanup();
 
         // 1. create user in LDAP

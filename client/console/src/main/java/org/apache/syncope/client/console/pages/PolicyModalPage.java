@@ -36,7 +36,7 @@ import org.apache.syncope.common.lib.to.AbstractPolicyTO;
 import org.apache.syncope.common.lib.to.AccountPolicyTO;
 import org.apache.syncope.common.lib.to.PasswordPolicyTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
-import org.apache.syncope.common.lib.to.RoleTO;
+import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.SyncPolicyTO;
 import org.apache.syncope.common.lib.types.AccountPolicySpec;
 import org.apache.syncope.common.lib.types.PasswordPolicySpec;
@@ -235,10 +235,10 @@ public class PolicyModalPage<T extends AbstractPolicyTO> extends BaseModalPage {
                 new AjaxFallbackDefaultDataTable<>("resources", resColumns, resDataProvider, 10);
         form.add(resources);
 
-        List<IColumn<RoleTO, String>> roleColumns = new ArrayList<>();
-        roleColumns.add(new PropertyColumn<RoleTO, String>(new ResourceModel("key", "key"), "key", "key"));
-        roleColumns.add(new PropertyColumn<RoleTO, String>(new ResourceModel("name", "name"), "name", "name"));
-        roleColumns.add(new AbstractColumn<RoleTO, String>(new StringResourceModel("actions", this, null, "")) {
+        List<IColumn<GroupTO, String>> groupColumns = new ArrayList<>();
+        groupColumns.add(new PropertyColumn<GroupTO, String>(new ResourceModel("key", "key"), "key", "key"));
+        groupColumns.add(new PropertyColumn<GroupTO, String>(new ResourceModel("name", "name"), "name", "name"));
+        groupColumns.add(new AbstractColumn<GroupTO, String>(new StringResourceModel("actions", this, null, "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
 
@@ -248,10 +248,10 @@ public class PolicyModalPage<T extends AbstractPolicyTO> extends BaseModalPage {
             }
 
             @Override
-            public void populateItem(final Item<ICellPopulator<RoleTO>> cellItem, final String componentId,
-                    final IModel<RoleTO> model) {
+            public void populateItem(final Item<ICellPopulator<GroupTO>> cellItem, final String componentId,
+                    final IModel<GroupTO> model) {
 
-                final RoleTO role = model.getObject();
+                final GroupTO group = model.getObject();
 
                 final ActionLinksPanel panel = new ActionLinksPanel(componentId, model, getPageReference());
                 panel.add(new ActionLink() {
@@ -266,52 +266,51 @@ public class PolicyModalPage<T extends AbstractPolicyTO> extends BaseModalPage {
 
                             @Override
                             public Page createPage() {
-                                return new RoleModalPage(PolicyModalPage.this.getPageReference(), mwindow, role);
+                                return new GroupModalPage(PolicyModalPage.this.getPageReference(), mwindow, group);
                             }
                         });
 
                         mwindow.show(target);
                     }
-                }, ActionLink.ActionType.EDIT, "Roles");
+                }, ActionLink.ActionType.EDIT, "Groups");
 
                 cellItem.add(panel);
             }
         });
-        ISortableDataProvider<RoleTO, String> roleDataProvider = new SortableDataProvider<RoleTO, String>() {
+        ISortableDataProvider<GroupTO, String> groupDataProvider = new SortableDataProvider<GroupTO, String>() {
 
             private static final long serialVersionUID = 8263758912838836438L;
 
             @Override
-            public Iterator<? extends RoleTO> iterator(final long first, final long count) {
-                List<RoleTO> roles = new ArrayList<>();
+            public Iterator<? extends GroupTO> iterator(final long first, final long count) {
+                List<GroupTO> groups = new ArrayList<>();
 
                 if (policyTO.getKey() > 0) {
-                    for (Long roleId : policyRestClient.getPolicy(policyTO.getKey()).
-                            getUsedByRoles().subList((int) first, (int) first + (int) count)) {
+                    for (Long groupId : policyRestClient.getPolicy(policyTO.getKey()).getUsedByGroups().
+                            subList((int) first, (int) first + (int) count)) {
 
-                        roles.add(roleRestClient.read(roleId));
+                        groups.add(groupRestClient.read(groupId));
                     }
                 }
 
-                return roles.iterator();
+                return groups.iterator();
             }
 
             @Override
             public long size() {
                 return policyTO.getKey() == 0
                         ? 0
-                        : policyRestClient.getPolicy(policyTO.getKey()).
-                        getUsedByRoles().size();
+                        : policyRestClient.getPolicy(policyTO.getKey()).getUsedByGroups().size();
             }
 
             @Override
-            public IModel<RoleTO> model(final RoleTO object) {
+            public IModel<GroupTO> model(final GroupTO object) {
                 return new Model<>(object);
             }
         };
-        final AjaxFallbackDefaultDataTable<RoleTO, String> roles =
-                new AjaxFallbackDefaultDataTable<>("roles", roleColumns, roleDataProvider, 10);
-        form.add(roles);
+        final AjaxFallbackDefaultDataTable<GroupTO, String> groups =
+                new AjaxFallbackDefaultDataTable<>("groups", groupColumns, groupDataProvider, 10);
+        form.add(groups);
 
         mwindow.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
 
@@ -320,7 +319,7 @@ public class PolicyModalPage<T extends AbstractPolicyTO> extends BaseModalPage {
             @Override
             public void onClose(final AjaxRequestTarget target) {
                 target.add(resources);
-                target.add(roles);
+                target.add(groups);
                 if (isModalResult()) {
                     info(getString(Constants.OPERATION_SUCCEEDED));
                     feedbackPanel.refresh(target);

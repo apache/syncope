@@ -35,7 +35,7 @@ public class PasswordPolicyTO extends AbstractPolicyTO {
         this(false);
     }
 
-    public PasswordPolicyTO(boolean global) {
+    public PasswordPolicyTO(final boolean global) {
         super();
 
         PolicyType type = global

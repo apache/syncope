@@ -22,7 +22,6 @@ import static org.junit.Assert.assertNotNull;
 
 import java.io.InputStream;
 import java.net.URI;
-import java.util.Hashtable;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
@@ -37,13 +36,13 @@ import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.mod.AttrMod;
-import org.apache.syncope.common.lib.mod.RoleMod;
+import org.apache.syncope.common.lib.mod.GroupMod;
 import org.apache.syncope.common.lib.mod.UserMod;
 import org.apache.syncope.common.lib.to.AbstractPolicyTO;
 import org.apache.syncope.common.lib.to.AbstractSchemaTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
-import org.apache.syncope.common.lib.to.RoleTO;
+import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
@@ -58,7 +57,7 @@ import org.apache.syncope.common.rest.api.service.NotificationService;
 import org.apache.syncope.common.rest.api.service.PolicyService;
 import org.apache.syncope.common.rest.api.service.ReportService;
 import org.apache.syncope.common.rest.api.service.ResourceService;
-import org.apache.syncope.common.rest.api.service.RoleService;
+import org.apache.syncope.common.rest.api.service.GroupService;
 import org.apache.syncope.common.rest.api.service.SchemaService;
 import org.apache.syncope.common.rest.api.service.SecurityQuestionService;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
@@ -153,7 +152,7 @@ public abstract class AbstractITCase {
 
     protected static UserWorkflowService userWorkflowService;
 
-    protected static RoleService roleService;
+    protected static GroupService groupService;
 
     protected static ResourceService resourceService;
 
@@ -178,7 +177,7 @@ public abstract class AbstractITCase {
     protected static PolicyService policyService;
 
     protected static SecurityQuestionService securityQuestionService;
-    
+
     protected static CamelRouteService camelRouteService;
 
     @Autowired
@@ -218,7 +217,7 @@ public abstract class AbstractITCase {
         userService = adminClient.getService(UserService.class);
         userSelfService = adminClient.getService(UserSelfService.class);
         userWorkflowService = adminClient.getService(UserWorkflowService.class);
-        roleService = adminClient.getService(RoleService.class);
+        groupService = adminClient.getService(GroupService.class);
         resourceService = adminClient.getService(ResourceService.class);
         entitlementService = adminClient.getService(EntitlementService.class);
         configurationService = adminClient.getService(ConfigurationService.class);
@@ -302,23 +301,23 @@ public abstract class AbstractITCase {
         return (T) getObject(response.getLocation(), SchemaService.class, schemaTO.getClass());
     }
 
-    protected RoleTO createRole(final RoleTO newRoleTO) {
-        Response response = roleService.create(newRoleTO);
+    protected GroupTO createGroup(final GroupTO newGroupTO) {
+        Response response = groupService.create(newGroupTO);
         if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
             Exception ex = clientFactory.getExceptionMapper().fromResponse(response);
             if (ex != null) {
                 throw (RuntimeException) ex;
             }
         }
-        return getObject(response.getLocation(), RoleService.class, RoleTO.class);
+        return getObject(response.getLocation(), GroupService.class, GroupTO.class);
     }
 
-    protected RoleTO updateRole(final RoleMod roleMod) {
-        return roleService.update(roleMod.getKey(), roleMod).readEntity(RoleTO.class);
+    protected GroupTO updateGroup(final GroupMod groupMod) {
+        return groupService.update(groupMod.getKey(), groupMod).readEntity(GroupTO.class);
     }
 
-    protected RoleTO deleteRole(final Long id) {
-        return roleService.delete(id).readEntity(RoleTO.class);
+    protected GroupTO deleteGroup(final Long id) {
+        return groupService.delete(id).readEntity(GroupTO.class);
     }
 
     @SuppressWarnings("unchecked")
@@ -351,7 +350,7 @@ public abstract class AbstractITCase {
         final Map<String, ConnConfProperty> ldapConnConf =
                 connectorService.read(ldapRes.getConnectorId()).getConfigurationMap();
 
-        Hashtable env = new Hashtable();
+        Properties env = new Properties();
         env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
         env.put(Context.PROVIDER_URL, "ldap://" + ldapConnConf.get("host").getValues().get(0)
                 + ":" + ldapConnConf.get("port").getValues().get(0) + "/");

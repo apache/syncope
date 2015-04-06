@@ -50,19 +50,19 @@ public final class Constants {
 
     public static final String PREF_CONF_SCHEMA_PAGINATOR_ROWS = "conf.schema.paginator.rows";
 
-    public static final String PREF_USER_SCHEMA_PAGINATOR_ROWS = "user.schema.paginator.rows";
+    public static final String PREF_USER_PLAIN_SCHEMA_PAGINATOR_ROWS = "user.schema.paginator.rows";
 
     public static final String PREF_USER_DER_SCHEMA_PAGINATOR_ROWS = "user.derived.schema.paginator.rows";
 
     public static final String PREF_USER_VIR_SCHEMA_PAGINATOR_ROWS = "user.virtual.schema.paginator.rows";
 
-    public static final String PREF_ROLE_SCHEMA_PAGINATOR_ROWS = "role.schema.paginator.rows";
+    public static final String PREF_GROUP_PLAIN_SCHEMA_PAGINATOR_ROWS = "group.schema.paginator.rows";
 
-    public static final String PREF_ROLE_DER_SCHEMA_PAGINATOR_ROWS = "role.derived.schema.paginator.rows";
+    public static final String PREF_GROUP_DER_SCHEMA_PAGINATOR_ROWS = "group.derived.schema.paginator.rows";
 
-    public static final String PREF_ROLE_VIR_SCHEMA_PAGINATOR_ROWS = "role.virtual.schema.paginator.rows";
+    public static final String PREF_GROUP_VIR_SCHEMA_PAGINATOR_ROWS = "group.virtual.schema.paginator.rows";
 
-    public static final String PREF_MEMBERSHIP_SCHEMA_PAGINATOR_ROWS = "membership.schema.paginator.rows";
+    public static final String PREF_MEMBERSHIP_PLAIN_SCHEMA_PAGINATOR_ROWS = "membership.schema.paginator.rows";
 
     public static final String PREF_MEMBERSHIP_DER_SCHEMA_PAGINATOR_ROWS = "membership.derived.aschema.paginator.rows";
 

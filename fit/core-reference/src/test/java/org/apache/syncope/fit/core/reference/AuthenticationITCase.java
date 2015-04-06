@@ -40,7 +40,7 @@ import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
-import org.apache.syncope.common.lib.to.RoleTO;
+import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.WorkflowFormPropertyTO;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
@@ -99,14 +99,14 @@ public class AuthenticationITCase extends AbstractITCase {
 
     @Test
     public void testUserSchemaAuthorization() {
-        // 0. create a role that can only read schemas
-        RoleTO authRoleTO = new RoleTO();
-        authRoleTO.setName("authRole" + getUUIDString());
-        authRoleTO.setParent(8L);
-        authRoleTO.getEntitlements().add("SCHEMA_READ");
+        // 0. create a group that can only read schemas
+        GroupTO authGroupTO = new GroupTO();
+        authGroupTO.setName("authGroup" + getUUIDString());
+        authGroupTO.setParent(8L);
+        authGroupTO.getEntitlements().add("SCHEMA_READ");
 
-        authRoleTO = createRole(authRoleTO);
-        assertNotNull(authRoleTO);
+        authGroupTO = createGroup(authGroupTO);
+        assertNotNull(authGroupTO);
 
         String schemaName = "authTestSchema" + getUUIDString();
 
@@ -119,11 +119,11 @@ public class AuthenticationITCase extends AbstractITCase {
         PlainSchemaTO newPlainSchemaTO = createSchema(AttributableType.USER, SchemaType.PLAIN, schemaTO);
         assertEquals(schemaTO, newPlainSchemaTO);
 
-        // 2. create an user with the role created above (as admin)
+        // 2. create an user with the group created above (as admin)
         UserTO userTO = UserITCase.getUniqueSampleTO("auth@test.org");
 
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setRoleId(authRoleTO.getKey());
+        membershipTO.setGroupId(authGroupTO.getKey());
         AttrTO testAttrTO = new AttrTO();
         testAttrTO.setSchema("testAttribute");
         testAttrTO.getValues().add("a value");
@@ -146,7 +146,7 @@ public class AuthenticationITCase extends AbstractITCase {
 
         // 5. update the schema create above (as user) - failure
         try {
-            schemaService2.update(AttributableType.ROLE, SchemaType.PLAIN, schemaName, schemaTO);
+            schemaService2.update(AttributableType.GROUP, SchemaType.PLAIN, schemaName, schemaTO);
             fail("Schemaupdate as user schould not work");
         } catch (SyncopeClientException e) {
             assertNotNull(e);
@@ -164,7 +164,7 @@ public class AuthenticationITCase extends AbstractITCase {
         UserTO userTO = UserITCase.getUniqueSampleTO("testuserread@test.org");
 
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setRoleId(7L);
+        membershipTO.setGroupId(7L);
         AttrTO testAttrTO = new AttrTO();
         testAttrTO.setSchema("testAttribute");
         testAttrTO.getValues().add("a value");
@@ -190,7 +190,7 @@ public class AuthenticationITCase extends AbstractITCase {
             exception = e;
         }
         assertNotNull(exception);
-        assertEquals(ClientExceptionType.UnauthorizedRole, exception.getType());
+        assertEquals(ClientExceptionType.UnauthorizedGroup, exception.getType());
     }
 
     @Test
@@ -198,7 +198,7 @@ public class AuthenticationITCase extends AbstractITCase {
         UserTO userTO = UserITCase.getUniqueSampleTO("testusersearch@test.org");
 
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setRoleId(7L);
+        membershipTO.setGroupId(7L);
         AttrTO testAttrTO = new AttrTO();
         testAttrTO.setSchema("testAttribute");
         testAttrTO.getValues().add("a value");
@@ -240,7 +240,7 @@ public class AuthenticationITCase extends AbstractITCase {
         UserTO userTO = UserITCase.getUniqueSampleTO("checkFailedLogin@syncope.apache.org");
 
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setRoleId(7L);
+        membershipTO.setGroupId(7L);
         AttrTO testAttrTO = new AttrTO();
         testAttrTO.setSchema("testAttribute");
         testAttrTO.getValues().add("a value");
@@ -273,7 +273,7 @@ public class AuthenticationITCase extends AbstractITCase {
         UserTO userTO = UserITCase.getUniqueSampleTO("checkSuspension@syncope.apache.org");
 
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setRoleId(7L);
+        membershipTO.setGroupId(7L);
         AttrTO testAttrTO = new AttrTO();
         testAttrTO.setSchema("testAttribute");
         testAttrTO.getValues().add("a value");
@@ -322,56 +322,56 @@ public class AuthenticationITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE48() {
-        // Parent role, able to create users with role 1
-        RoleTO parentRole = new RoleTO();
-        parentRole.setName("parentAdminRole" + getUUIDString());
-        parentRole.getEntitlements().add("USER_CREATE");
-        parentRole.getEntitlements().add("ROLE_1");
-        parentRole.setParent(1L);
-        parentRole = createRole(parentRole);
-        assertNotNull(parentRole);
+        // Parent group, able to create users with group 1
+        GroupTO parentGroup = new GroupTO();
+        parentGroup.setName("parentAdminGroup" + getUUIDString());
+        parentGroup.getEntitlements().add("USER_CREATE");
+        parentGroup.getEntitlements().add("GROUP_1");
+        parentGroup.setParent(1L);
+        parentGroup = createGroup(parentGroup);
+        assertNotNull(parentGroup);
 
-        // Child role, with no entitlements
-        RoleTO childRole = new RoleTO();
-        childRole.setName("childAdminRole");
-        childRole.setParent(parentRole.getKey());
+        // Child group, with no entitlements
+        GroupTO childGroup = new GroupTO();
+        childGroup.setName("childAdminGroup");
+        childGroup.setParent(parentGroup.getKey());
 
-        childRole = createRole(childRole);
-        assertNotNull(childRole);
+        childGroup = createGroup(childGroup);
+        assertNotNull(childGroup);
 
-        // User with child role, created by admin
-        UserTO role1Admin = UserITCase.getUniqueSampleTO("syncope48admin@apache.org");
-        role1Admin.setPassword("password");
+        // User with child group, created by admin
+        UserTO group1Admin = UserITCase.getUniqueSampleTO("syncope48admin@apache.org");
+        group1Admin.setPassword("password");
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setRoleId(childRole.getKey());
-        role1Admin.getMemberships().add(membershipTO);
+        membershipTO.setGroupId(childGroup.getKey());
+        group1Admin.getMemberships().add(membershipTO);
 
-        role1Admin = createUser(role1Admin);
-        assertNotNull(role1Admin);
+        group1Admin = createUser(group1Admin);
+        assertNotNull(group1Admin);
 
-        UserService userService2 = clientFactory.create(role1Admin.getUsername(), "password").getService(
+        UserService userService2 = clientFactory.create(group1Admin.getUsername(), "password").getService(
                 UserService.class);
 
-        // User with role 1, created by user with child role created above
-        UserTO role1User = UserITCase.getUniqueSampleTO("syncope48user@apache.org");
+        // User with group 1, created by user with child group created above
+        UserTO group1User = UserITCase.getUniqueSampleTO("syncope48user@apache.org");
         membershipTO = new MembershipTO();
-        membershipTO.setRoleId(1L);
-        role1User.getMemberships().add(membershipTO);
+        membershipTO.setGroupId(1L);
+        group1User.getMemberships().add(membershipTO);
 
-        Response response = userService2.create(role1User, true);
+        Response response = userService2.create(group1User, true);
         assertNotNull(response);
-        role1User = response.readEntity(UserTO.class);
-        assertNotNull(role1User);
+        group1User = response.readEntity(UserTO.class);
+        assertNotNull(group1User);
     }
 
     @Test
     public void issueSYNCOPE434() {
         Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
 
-        // 1. create user with role 9 (users with role 9 are defined in workflow as subject to approval)
+        // 1. create user with group 9 (users with group 9 are defined in workflow as subject to approval)
         UserTO userTO = UserITCase.getUniqueSampleTO("createWithReject@syncope.apache.org");
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setRoleId(9L);
+        membershipTO.setGroupId(9L);
         userTO.getMemberships().add(membershipTO);
 
         userTO = createUser(userTO);

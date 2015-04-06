@@ -49,9 +49,9 @@ public class WorkflowITCase extends AbstractITCase {
     }
 
     @Test
-    public void getRoleDefinition() throws IOException {
-        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForRoles(syncopeService));
-        exportDefinition(SubjectType.ROLE);
+    public void getGroupDefinition() throws IOException {
+        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForGroups(syncopeService));
+        exportDefinition(SubjectType.GROUP);
     }
 
     private void importDefinition(final SubjectType type) throws IOException {
@@ -64,14 +64,12 @@ public class WorkflowITCase extends AbstractITCase {
     @Test
     public void updateUserDefinition() throws IOException {
         Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
-
         importDefinition(SubjectType.USER);
     }
 
     @Test
-    public void updateRoleDefinition() throws IOException {
-        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForRoles(syncopeService));
-
-        importDefinition(SubjectType.ROLE);
+    public void updateGroupDefinition() throws IOException {
+        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForGroups(syncopeService));
+        importDefinition(SubjectType.GROUP);
     }
 }

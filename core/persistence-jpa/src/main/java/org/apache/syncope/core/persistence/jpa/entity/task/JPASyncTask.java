@@ -31,7 +31,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-import org.apache.syncope.common.lib.to.RoleTO;
+import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.entity.task.SyncTask;
@@ -55,7 +55,7 @@ public class JPASyncTask extends AbstractProvisioningTask implements SyncTask {
     private String userTemplate;
 
     @Lob
-    private String roleTemplate;
+    private String groupTemplate;
 
     @Basic
     @Min(0)
@@ -87,15 +87,15 @@ public class JPASyncTask extends AbstractProvisioningTask implements SyncTask {
     }
 
     @Override
-    public RoleTO getRoleTemplate() {
+    public GroupTO getGroupTemplate() {
         return userTemplate == null
-                ? new RoleTO()
-                : POJOHelper.deserialize(roleTemplate, RoleTO.class);
+                ? new GroupTO()
+                : POJOHelper.deserialize(groupTemplate, GroupTO.class);
     }
 
     @Override
-    public void setRoleTemplate(final RoleTO roleTemplate) {
-        this.roleTemplate = POJOHelper.serialize(roleTemplate);
+    public void setGroupTemplate(final GroupTO groupTemplate) {
+        this.groupTemplate = POJOHelper.serialize(groupTemplate);
     }
 
     @Override

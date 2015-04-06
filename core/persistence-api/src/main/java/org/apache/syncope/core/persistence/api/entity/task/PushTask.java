@@ -20,11 +20,11 @@ package org.apache.syncope.core.persistence.api.entity.task;
 
 public interface PushTask extends ProvisioningTask {
 
-    String getRoleFilter();
+    String getGroupFilter();
 
     String getUserFilter();
 
-    void setRoleFilter(String roleFilter);
+    void setGroupFilter(String filter);
 
     void setUserFilter(String filter);
 }

@@ -29,7 +29,7 @@ public class SyncTaskTO extends AbstractProvisioningTaskTO {
 
     private UserTO userTemplate;
 
-    private RoleTO roleTemplate;
+    private GroupTO groupTemplate;
 
     private boolean fullReconciliation;
 
@@ -41,19 +41,19 @@ public class SyncTaskTO extends AbstractProvisioningTaskTO {
         this.userTemplate = userTemplate;
     }
 
-    public RoleTO getRoleTemplate() {
-        return roleTemplate;
+    public GroupTO getGroupTemplate() {
+        return groupTemplate;
     }
 
-    public void setRoleTemplate(final RoleTO roleTemplate) {
-        this.roleTemplate = roleTemplate;
+    public void setGroupTemplate(final GroupTO groupTemplate) {
+        this.groupTemplate = groupTemplate;
     }
 
     public boolean isFullReconciliation() {
         return fullReconciliation;
     }
 
-    public void setFullReconciliation(boolean fullReconciliation) {
+    public void setFullReconciliation(final boolean fullReconciliation) {
         this.fullReconciliation = fullReconciliation;
     }
 }

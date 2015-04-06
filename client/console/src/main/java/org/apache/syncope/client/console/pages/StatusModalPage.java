@@ -36,7 +36,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPan
 import org.apache.syncope.common.lib.to.AbstractSubjectTO;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ResourceTO;
-import org.apache.syncope.common.lib.to.RoleTO;
+import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.ResourceAssociationActionType;
 import org.apache.wicket.PageReference;
@@ -117,10 +117,10 @@ public class StatusModalPage<T extends AbstractSubjectTO> extends AbstractStatus
         this.statusOnly = statusOnly;
         this.subjectTO = subjectTO;
 
-        statusUtils = new StatusUtils(subjectTO instanceof UserTO ? userRestClient : roleRestClient);
+        statusUtils = new StatusUtils(subjectTO instanceof UserTO ? userRestClient : groupRestClient);
 
         add(new Label("displayName", subjectTO.getKey() + " "
-                + (subjectTO instanceof UserTO ? ((UserTO) subjectTO).getUsername() : ((RoleTO) subjectTO).getName())));
+                + (subjectTO instanceof UserTO ? ((UserTO) subjectTO).getUsername() : ((GroupTO) subjectTO).getName())));
 
         columns = new ArrayList<>();
         columns.add(new AbstractColumn<StatusBean, String>(
@@ -194,7 +194,7 @@ public class StatusModalPage<T extends AbstractSubjectTO> extends AbstractStatus
                 };
         table.setOutputMarkupId(true);
 
-        final String pageId = subjectTO instanceof RoleTO ? "Roles" : "Users";
+        final String pageId = subjectTO instanceof GroupTO ? "Groups" : "Users";
 
         final Fragment pwdMgtFragment = new Fragment("pwdMgtFields", "pwdMgtFragment", this);
         addOrReplace(pwdMgtFragment);
@@ -316,7 +316,7 @@ public class StatusModalPage<T extends AbstractSubjectTO> extends AbstractStatus
                                     subjectTO.getKey(),
                                     new ArrayList<>(table.getModelObject()));
                         } else {
-                            roleRestClient.unlink(
+                            groupRestClient.unlink(
                                     subjectTO.getETagValue(),
                                     subjectTO.getKey(),
                                     new ArrayList<>(table.getModelObject()));
@@ -345,7 +345,7 @@ public class StatusModalPage<T extends AbstractSubjectTO> extends AbstractStatus
                                     subjectTO.getKey(),
                                     new ArrayList<>(table.getModelObject()));
                         } else {
-                            roleRestClient.link(
+                            groupRestClient.link(
                                     subjectTO.getETagValue(),
                                     subjectTO.getKey(),
                                     new ArrayList<>(table.getModelObject()));
@@ -375,7 +375,7 @@ public class StatusModalPage<T extends AbstractSubjectTO> extends AbstractStatus
                                     subjectTO.getKey(),
                                     new ArrayList<>(table.getModelObject()));
                         } else {
-                            bulkActionResult = roleRestClient.deprovision(
+                            bulkActionResult = groupRestClient.deprovision(
                                     subjectTO.getETagValue(),
                                     subjectTO.getKey(),
                                     new ArrayList<>(table.getModelObject()));
@@ -403,7 +403,7 @@ public class StatusModalPage<T extends AbstractSubjectTO> extends AbstractStatus
                                 target, ResourceAssociationActionType.PROVISION, table.getModelObject());
                     } else {
                         try {
-                            final BulkActionResult bulkActionResult = roleRestClient.provision(
+                            final BulkActionResult bulkActionResult = groupRestClient.provision(
                                     subjectTO.getETagValue(),
                                     subjectTO.getKey(),
                                     new ArrayList<>(table.getModelObject()));
@@ -433,7 +433,7 @@ public class StatusModalPage<T extends AbstractSubjectTO> extends AbstractStatus
                                     subjectTO.getKey(),
                                     new ArrayList<>(table.getModelObject()));
                         } else {
-                            bulkActionResult = roleRestClient.unassign(
+                            bulkActionResult = groupRestClient.unassign(
                                     subjectTO.getETagValue(),
                                     subjectTO.getKey(),
                                     new ArrayList<>(table.getModelObject()));
@@ -460,7 +460,7 @@ public class StatusModalPage<T extends AbstractSubjectTO> extends AbstractStatus
                                 target, ResourceAssociationActionType.ASSIGN, table.getModelObject());
                     } else {
                         try {
-                            final BulkActionResult bulkActionResult = roleRestClient.assign(
+                            final BulkActionResult bulkActionResult = groupRestClient.assign(
                                     subjectTO.getETagValue(),
                                     subjectTO.getKey(),
                                     new ArrayList<>(table.getModelObject()));
@@ -502,11 +502,10 @@ public class StatusModalPage<T extends AbstractSubjectTO> extends AbstractStatus
             final List<StatusBean> statusBeans = new ArrayList<StatusBean>(connObjects.size() + 1);
 
             for (ConnObjectWrapper entry : connObjects) {
-                final StatusBean statusBean = statusUtils.getStatusBean(
-                        subjectTO,
+                final StatusBean statusBean = statusUtils.getStatusBean(subjectTO,
                         entry.getResourceName(),
                         entry.getConnObjectTO(),
-                        subjectTO instanceof RoleTO);
+                        subjectTO instanceof GroupTO);
 
                 statusBeans.add(statusBean);
                 resources.remove(entry.getResourceName());
@@ -530,11 +529,10 @@ public class StatusModalPage<T extends AbstractSubjectTO> extends AbstractStatus
                 statusBeans.add(syncope);
             } else {
                 for (String resource : resources) {
-                    final StatusBean statusBean = statusUtils.getStatusBean(
-                            subjectTO,
+                    final StatusBean statusBean = statusUtils.getStatusBean(subjectTO,
                             resource,
                             null,
-                            subjectTO instanceof RoleTO);
+                            subjectTO instanceof GroupTO);
 
                     statusBean.setLinked(false);
                     statusBeans.add(statusBean);
@@ -625,11 +623,10 @@ public class StatusModalPage<T extends AbstractSubjectTO> extends AbstractStatus
         final List<StatusBean> statusBeans = new ArrayList<StatusBean>(connObjects.size());
 
         for (ConnObjectWrapper entry : connObjects) {
-            final StatusBean statusBean = statusUtils.getStatusBean(
-                    subjectTO,
+            final StatusBean statusBean = statusUtils.getStatusBean(subjectTO,
                     entry.getResourceName(),
                     entry.getConnObjectTO(),
-                    subjectTO instanceof RoleTO);
+                    subjectTO instanceof GroupTO);
 
             statusBeans.add(statusBean);
         }

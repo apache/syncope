@@ -33,13 +33,14 @@ public class ReferenceMod extends AbstractBaseBean {
 
     private static final long serialVersionUID = -4188817853738067677L;
 
-    private Long key;
+    private Long key = null;
 
     public ReferenceMod() {
-        this.key = null;
+        this(null);
     }
 
     public ReferenceMod(final Long key) {
+        super();
         this.key = key;
     }
 

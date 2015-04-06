@@ -41,7 +41,7 @@ public class NotificationTO extends AbstractBaseBean {
 
     private String userAbout;
 
-    private String roleAbout;
+    private String groupAbout;
 
     private String recipients;
 
@@ -71,12 +71,12 @@ public class NotificationTO extends AbstractBaseBean {
         this.userAbout = userAbout;
     }
 
-    public String getRoleAbout() {
-        return roleAbout;
+    public String getGroupAbout() {
+        return groupAbout;
     }
 
-    public void setRoleAbout(final String roleAbout) {
-        this.roleAbout = roleAbout;
+    public void setGroupAbout(final String groupAbout) {
+        this.groupAbout = groupAbout;
     }
 
     @XmlElementWrapper(name = "events")
@@ -97,7 +97,7 @@ public class NotificationTO extends AbstractBaseBean {
         return key;
     }
 
-    public void setKey(Long key) {
+    public void setKey(final Long key) {
         this.key = key;
     }
 

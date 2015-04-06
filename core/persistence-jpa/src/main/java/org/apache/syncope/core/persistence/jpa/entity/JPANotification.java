@@ -61,7 +61,7 @@ public class JPANotification extends AbstractEntity<Long> implements Notificatio
 
     private String userAbout;
 
-    private String roleAbout;
+    private String groupAbout;
 
     private String recipients;
 
@@ -128,13 +128,13 @@ public class JPANotification extends AbstractEntity<Long> implements Notificatio
     }
 
     @Override
-    public String getRoleAbout() {
-        return roleAbout;
+    public String getGroupAbout() {
+        return groupAbout;
     }
 
     @Override
-    public void setRoleAbout(final String roleAbout) {
-        this.roleAbout = roleAbout;
+    public void setGroupAbout(final String groupAbout) {
+        this.groupAbout = groupAbout;
     }
 
     @Override

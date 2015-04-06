@@ -26,7 +26,7 @@ import org.apache.syncope.core.persistence.api.dao.MembershipDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.membership.Membership;
-import org.apache.syncope.core.persistence.api.entity.role.Role;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.membership.JPAMembership;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,18 +44,19 @@ public class JPAMembershipDAO extends AbstractDAO<Membership, Long> implements M
     }
 
     @Override
-    public Membership find(final User user, final Role role) {
+    public Membership find(final User user, final Group group) {
         Query query = entityManager.createQuery(
-                "SELECT e FROM " + JPAMembership.class.getSimpleName() + " e WHERE e.user = :user AND e.role = :role");
+                "SELECT e FROM " + JPAMembership.class.getSimpleName()
+                + " e WHERE e.user = :user AND e.group = :group");
         query.setParameter("user", user);
-        query.setParameter("role", role);
+        query.setParameter("group", group);
 
         Membership result = null;
 
         try {
             result = (Membership) query.getSingleResult();
         } catch (NoResultException e) {
-            LOG.debug("No membership was found for user {} and role {}", user, role, e);
+            LOG.debug("No membership was found for user {} and group {}", user, group, e);
         }
 
         return result;

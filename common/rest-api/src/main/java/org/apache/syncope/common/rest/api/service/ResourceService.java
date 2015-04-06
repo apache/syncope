@@ -51,8 +51,8 @@ public interface ResourceService extends JAXRSService {
      * Returns connector object from the external resource, for the given type and key.
      *
      * @param resourceKey Name of resource to read connector object from
-     * @param type user / role
-     * @param key user key / role key
+     * @param type user /group
+     * @param key user key / group key
      * @return connector object from the external resource, for the given type and key
      */
     @GET
@@ -128,12 +128,12 @@ public interface ResourceService extends JAXRSService {
     boolean check(@NotNull ResourceTO resourceTO);
 
     /**
-     * De-associate users or roles (depending on the provided subject type) from the given resource.
+     * De-associate users or groups (depending on the provided subject type) from the given resource.
      *
      * @param resourceKey name of resource
-     * @param subjectType subject type (user or role)
+     * @param subjectType subject type (user or group)
      * @param type resource de-association action type
-     * @param subjectKeys users or roles against which the bulk action will be performed
+     * @param subjectKeys users or groups against which the bulk action will be performed
      * @return <tt>Response</tt> object featuring {@link BulkActionResult} as <tt>Entity</tt>
      */
     @Descriptions({

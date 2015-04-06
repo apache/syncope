@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.api.dao;
 import java.util.List;
 import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.PolicyType;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.Policy;
@@ -38,7 +37,7 @@ public interface ExternalResourceDAO extends DAO<ExternalResource, String> {
 
     List<ExternalResource> findAllByPriority();
 
-    ExternalResource save(ExternalResource resource) throws InvalidEntityException;
+    ExternalResource save(ExternalResource resource);
 
     <T extends MappingItem> void deleteMapping(
             String schemaName, IntMappingType intMappingType, Class<T> reference);

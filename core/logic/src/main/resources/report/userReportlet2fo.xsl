@@ -133,7 +133,7 @@ under the License.
         <xsl:when test="string-length(memberships/membership) &gt; 0">
           <fo:block font-size="11pt" font-weight="bold">Memberships</fo:block>
           <xsl:for-each select="memberships/membership">
-            <fo:block font-size="10pt" font-weight="bold" space-before="2mm">Role: <xsl:value-of select="@roleName"/>(<xsl:value-of select="@roleId"/>)</fo:block>
+            <fo:block font-size="10pt" font-weight="bold" space-before="2mm">Group: <xsl:value-of select="@groupName"/>(<xsl:value-of select="@groupId"/>)</fo:block>
             <fo:block start-indent="1cm" space-before="3mm" space-after="0.5cm">
               <xsl:choose>
                 <xsl:when test="string-length(attributes/attribute) &gt; 0">
@@ -143,7 +143,7 @@ under the License.
                   </xsl:call-template>
                 </xsl:when>
                 <xsl:otherwise>
-                  <fo:block color="red" font-size="8pt" space-after="2mm">THIS ROLE HASN'T ANY ATTRIBUTE</fo:block>
+                  <fo:block color="red" font-size="8pt" space-after="2mm">THIS GROUP HASN'T ANY ATTRIBUTE</fo:block>
                 </xsl:otherwise>
               </xsl:choose>
               <xsl:choose>
@@ -154,7 +154,7 @@ under the License.
                   </xsl:call-template>
                 </xsl:when>
                 <xsl:otherwise>
-                  <fo:block color="red" font-size="8pt" space-after="2mm">THIS ROLE HASN'T ANY DERIVED ATTRIBUTE</fo:block>
+                  <fo:block color="red" font-size="8pt" space-after="2mm">THIS GROUP HASN'T ANY DERIVED ATTRIBUTE</fo:block>
                 </xsl:otherwise>
               </xsl:choose>
               <xsl:choose>
@@ -165,18 +165,18 @@ under the License.
                   </xsl:call-template>
                 </xsl:when>
                 <xsl:otherwise>
-                  <fo:block color="red" font-size="8pt" space-after="2mm">THIS ROLE HASN'T ANY VIRTUAL ATTRIBUTE</fo:block>
+                  <fo:block color="red" font-size="8pt" space-after="2mm">THIS GROUP HASN'T ANY VIRTUAL ATTRIBUTE</fo:block>
                 </xsl:otherwise>
               </xsl:choose>
-              <!-- 'roleResources" is defined in roleReportlet2fo.xsl -->
-              <xsl:call-template name="roleResources">
+              <!-- 'groupResources" is defined in groupReportlet2fo.xsl -->
+              <xsl:call-template name="groupResources">
                 <xsl:with-param name="node" select="resources/resource"/>
               </xsl:call-template>
             </fo:block>
           </xsl:for-each>
         </xsl:when>
         <xsl:otherwise>
-          <fo:block color="red" font-size="9pt" space-after="3mm">THIS USER HASN'T BEEN ASSIGNED TO ANY ROLE</fo:block>
+          <fo:block color="red" font-size="9pt" space-after="3mm">THIS USER HASN'T BEEN ASSIGNED TO ANY GROUP</fo:block>
         </xsl:otherwise>
       </xsl:choose>
       <xsl:call-template name="resources">

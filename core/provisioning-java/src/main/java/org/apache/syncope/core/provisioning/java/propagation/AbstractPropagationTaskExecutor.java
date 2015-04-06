@@ -31,7 +31,7 @@ import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.PropagationMode;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.lib.types.TraceLevel;
-import org.apache.syncope.core.persistence.api.dao.RoleDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AttributableUtilFactory;
@@ -94,7 +94,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
      * User DAO.
      */
     @Autowired
-    protected RoleDAO roleDAO;
+    protected GroupDAO groupDAO;
 
     /**
      * Task DAO.
@@ -242,11 +242,11 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                     }
                     break;
 
-                case ROLE:
+                case GROUP:
                     try {
-                        subject = roleDAO.authFetch(task.getSubjectKey());
+                        subject = groupDAO.authFetch(task.getSubjectKey());
                     } catch (Exception e) {
-                        LOG.error("Could not read role {}", task.getSubjectKey(), e);
+                        LOG.error("Could not read group {}", task.getSubjectKey(), e);
                     }
                     break;
 
@@ -266,17 +266,17 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         } else {
             /*
              * We must choose here whether to
-             * a. actually delete the provided user / role from the external resource
-             * b. just update the provided user / role data onto the external resource
+             * a. actually delete the provided user / group from the external resource
+             * b. just update the provided user / group data onto the external resource
              *
-             * (a) happens when either there is no user / role associated with the PropagationTask (this takes place
-             * when the task is generated via UserController.delete() / RoleController.delete()) or the provided updated
-             * user / role hasn't the current resource assigned (when the task is generated via
-             * UserController.update() / RoleController.update()).
+             * (a) happens when either there is no user / group associated with the PropagationTask (this takes place
+             * when the task is generated via UserLogic.delete() / GroupLogic.delete()) or the provided updated
+             * user / group hasn't the current resource assigned (when the task is generated via
+             * UserController.update() / GroupLogic.update()).
              *
-             * (b) happens when the provided updated user / role does have the current resource assigned (when the task
-             * is generated via UserController.update() / RoleController.updae()): this basically means that before such
-             * update, this user / role used to have the current resource assigned by more than one mean (for example,
+             * (b) happens when the provided updated user / group does have the current resource assigned (when the task
+             * is generated via UserLogic.update() / GroupLogic.updae()): this basically means that before such
+             * update, this user / group used to have the current resource assigned by more than one mean (for example,
              * two different memberships with the same resource).
              */
             Subject<?, ?, ?> subject = getSubject(task);

@@ -124,7 +124,7 @@ public class BinaryFieldPanel extends FieldPanel<String> {
                         final byte[] uploadedBytes = uploadedFile.getBytes();
                         final String uploaded = new String(
                                 Base64.encodeBase64(uploadedBytes),
-                                SyncopeConstants.DEFAULT_ENCODING);
+                                SyncopeConstants.DEFAULT_CHARSET);
                         field.setModelObject(uploaded);
                         target.add(field);
 

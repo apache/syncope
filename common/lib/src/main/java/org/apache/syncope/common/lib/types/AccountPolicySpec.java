@@ -18,16 +18,10 @@
  */
 package org.apache.syncope.common.lib.types;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.ArrayList;
-import java.util.List;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.lib.annotation.SchemaList;
 
 @XmlType
-public class AccountPolicySpec implements PolicySpec {
+public class AccountPolicySpec extends AbstractPolicySpec {
 
     private static final long serialVersionUID = 3259256974414758406L;
 
@@ -45,27 +39,6 @@ public class AccountPolicySpec implements PolicySpec {
      * Pattern (regular expression) that must match.
      */
     private String pattern;
-
-    /**
-     * Substrings not permitted.
-     */
-    private List<String> wordsNotPermitted;
-
-    /**
-     * User attribute values not permitted.
-     */
-    @SchemaList
-    private List<String> schemasNotPermitted;
-
-    /**
-     * Substrings not permitted as prefix.
-     */
-    private List<String> prefixesNotPermitted;
-
-    /**
-     * Substrings not permitted as suffix.
-     */
-    private List<String> suffixesNotPermitted;
 
     /**
      * Specify if one or more lowercase characters are permitted.
@@ -128,46 +101,6 @@ public class AccountPolicySpec implements PolicySpec {
 
     public void setPattern(final String pattern) {
         this.pattern = pattern;
-    }
-
-    @XmlElementWrapper(name = "prefixesNotPermitted")
-    @XmlElement(name = "prefix")
-    @JsonProperty("prefixesNotPermitted")
-    public List<String> getPrefixesNotPermitted() {
-        if (prefixesNotPermitted == null) {
-            prefixesNotPermitted = new ArrayList<String>();
-        }
-        return prefixesNotPermitted;
-    }
-
-    @XmlElementWrapper(name = "schemasNotPermitted")
-    @XmlElement(name = "schema")
-    @JsonProperty("schemasNotPermitted")
-    public List<String> getSchemasNotPermitted() {
-        if (schemasNotPermitted == null) {
-            schemasNotPermitted = new ArrayList<String>();
-        }
-        return schemasNotPermitted;
-    }
-
-    @XmlElementWrapper(name = "suffixesNotPermitted")
-    @XmlElement(name = "suffix")
-    @JsonProperty("suffixesNotPermitted")
-    public List<String> getSuffixesNotPermitted() {
-        if (suffixesNotPermitted == null) {
-            suffixesNotPermitted = new ArrayList<String>();
-        }
-        return suffixesNotPermitted;
-    }
-
-    @XmlElementWrapper(name = "wordsNotPermitted")
-    @XmlElement(name = "word")
-    @JsonProperty("wordsNotPermitted")
-    public List<String> getWordsNotPermitted() {
-        if (wordsNotPermitted == null) {
-            wordsNotPermitted = new ArrayList<String>();
-        }
-        return wordsNotPermitted;
     }
 
     public boolean isPropagateSuspension() {

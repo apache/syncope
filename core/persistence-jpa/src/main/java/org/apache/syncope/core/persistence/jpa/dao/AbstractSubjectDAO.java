@@ -82,7 +82,7 @@ abstract class AbstractSubjectDAO<P extends PlainAttr, D extends DerAttr, V exte
      *
      * @param expression derived schema expression
      * @param value derived attribute value
-     * @param attrUtil USER / ROLE
+     * @param attrUtil USER / GROUP
      * @return where clauses to use to build the query
      */
     private Set<String> getWhereClause(final String expression, final String value, final AttributableUtil attrUtil) {
@@ -276,7 +276,7 @@ abstract class AbstractSubjectDAO<P extends PlainAttr, D extends DerAttr, V exte
     }
 
     /**
-     * Find users / roles by derived attribute value. This method could fail if one or more string literals contained
+     * Find users / groups by derived attribute value. This method could fail if one or more string literals contained
      * into the derived attribute value provided derive from identifier (schema name) replacement. When you are going to
      * specify a derived attribute expression you must be quite sure that string literals used to build the expression
      * cannot be found into the attribute values used to replace attribute schema names used as identifiers.
@@ -284,7 +284,7 @@ abstract class AbstractSubjectDAO<P extends PlainAttr, D extends DerAttr, V exte
      * @param schemaName derived schema name
      * @param value derived attribute value
      * @param attrUtil AttributableUtil
-     * @return list of users / roles
+     * @return list of users / groups
      */
     @Override
     public List<? extends Subject<P, D, V>> findByDerAttrValue(

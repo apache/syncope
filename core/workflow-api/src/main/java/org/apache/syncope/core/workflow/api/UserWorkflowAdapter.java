@@ -35,10 +35,8 @@ public interface UserWorkflowAdapter extends WorkflowAdapter {
      * @param userTO user to be created and whether to propagate it as active
      * @param storePassword whether password shall be stored into the internal storage
      * @return user just created
-     * @throws WorkflowException workflow exception
      */
-    WorkflowResult<Map.Entry<Long, Boolean>> create(UserTO userTO, boolean storePassword)
-            throws WorkflowException;
+    WorkflowResult<Map.Entry<Long, Boolean>> create(UserTO userTO, boolean storePassword);
 
     /**
      * Create an user, optionally disabling password policy check.
@@ -47,10 +45,9 @@ public interface UserWorkflowAdapter extends WorkflowAdapter {
      * @param disablePwdPolicyCheck disable password policy check?
      * @param storePassword whether password shall be stored into the internal storage
      * @return user just created
-     * @throws WorkflowException workflow exception
      */
-    WorkflowResult<Map.Entry<Long, Boolean>> create(UserTO userTO, boolean disablePwdPolicyCheck,
-            boolean storePassword) throws WorkflowException;
+    WorkflowResult<Map.Entry<Long, Boolean>> create(
+            UserTO userTO, boolean disablePwdPolicyCheck, boolean storePassword);
 
     /**
      * Create an user, optionally disabling password policy check.
@@ -60,10 +57,9 @@ public interface UserWorkflowAdapter extends WorkflowAdapter {
      * @param enabled specify true/false to force active/supended status
      * @param storePassword whether password shall be stored into the internal storage
      * @return user just created
-     * @throws WorkflowException workflow exception
      */
-    WorkflowResult<Map.Entry<Long, Boolean>> create(UserTO userTO, boolean disablePwdPolicyCheck, final Boolean enabled,
-            boolean storePassword) throws WorkflowException;
+    WorkflowResult<Map.Entry<Long, Boolean>> create(
+            UserTO userTO, boolean disablePwdPolicyCheck, final Boolean enabled, boolean storePassword);
 
     /**
      * Execute a task on an user.
@@ -71,9 +67,8 @@ public interface UserWorkflowAdapter extends WorkflowAdapter {
      * @param userTO user to be subject to task
      * @param taskId to be executed
      * @return user just updated
-     * @throws WorkflowException workflow exception
      */
-    WorkflowResult<Long> execute(UserTO userTO, String taskId) throws WorkflowException;
+    WorkflowResult<Long> execute(UserTO userTO, String taskId);
 
     /**
      * Activate an user.
@@ -81,54 +76,47 @@ public interface UserWorkflowAdapter extends WorkflowAdapter {
      * @param userKey user to be activated
      * @param token to be verified for activation
      * @return user just updated
-     * @throws WorkflowException workflow exception
      */
-    WorkflowResult<Long> activate(Long userKey, String token) throws WorkflowException;
+    WorkflowResult<Long> activate(Long userKey, String token);
 
     /**
      * Update an user.
      *
      * @param userMod modification set to be performed
      * @return user just updated and propagations to be performed
-     * @throws WorkflowException workflow exception
      */
-    WorkflowResult<Map.Entry<UserMod, Boolean>> update(UserMod userMod)
-            throws WorkflowException;
+    WorkflowResult<Map.Entry<UserMod, Boolean>> update(UserMod userMod);
 
     /**
      * Suspend an user.
      *
      * @param userKey user to be suspended
      * @return user just suspended
-     * @throws WorkflowException workflow exception
      */
-    WorkflowResult<Long> suspend(Long userKey) throws WorkflowException;
+    WorkflowResult<Long> suspend(Long userKey);
 
     /**
      * Suspend an user.
      *
      * @param user to be suspended
      * @return user just suspended
-     * @throws WorkflowException workflow exception
      */
-    WorkflowResult<Long> suspend(User user) throws WorkflowException;
+    WorkflowResult<Long> suspend(User user);
 
     /**
      * Reactivate an user.
      *
      * @param userKey user to be reactivated
      * @return user just reactivated
-     * @throws WorkflowException workflow exception
      */
-    WorkflowResult<Long> reactivate(Long userKey) throws WorkflowException;
+    WorkflowResult<Long> reactivate(Long userKey);
 
     /**
      * Request password reset for an user.
      *
      * @param userKey user requesting password reset
-     * @throws WorkflowException workflow exception
      */
-    void requestPasswordReset(Long userKey) throws WorkflowException;
+    void requestPasswordReset(Long userKey);
 
     /**
      * Confirm password reset for an user.
@@ -136,16 +124,13 @@ public interface UserWorkflowAdapter extends WorkflowAdapter {
      * @param userKey user confirming password reset
      * @param token security token
      * @param password new password value
-     * @throws WorkflowException workflow exception
      */
-    void confirmPasswordReset(Long userKey, String token, String password)
-            throws WorkflowException;
+    void confirmPasswordReset(Long userKey, String token, String password);
 
     /**
      * Delete an user.
      *
      * @param userKey user to be deleted
-     * @throws WorkflowException workflow exception
      */
-    void delete(Long userKey) throws WorkflowException;
+    void delete(Long userKey);
 }

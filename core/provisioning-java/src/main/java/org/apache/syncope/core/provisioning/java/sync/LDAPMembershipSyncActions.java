@@ -27,15 +27,15 @@ import org.apache.syncope.common.lib.mod.AbstractSubjectMod;
 import org.apache.syncope.common.lib.mod.MembershipMod;
 import org.apache.syncope.common.lib.mod.UserMod;
 import org.apache.syncope.common.lib.to.AbstractSubjectTO;
-import org.apache.syncope.common.lib.to.RoleTO;
+import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
-import org.apache.syncope.core.persistence.api.dao.RoleDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.membership.Membership;
-import org.apache.syncope.core.persistence.api.entity.role.Role;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
 import org.apache.syncope.core.persistence.api.entity.task.SyncTask;
@@ -59,8 +59,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * Simple action for synchronizing LDAP groups memberships to Syncope role memberships, when the same resource is
- * configured for both users and roles.
+ * Simple action for synchronizing LDAP groups memberships to Syncope group memberships, when the same resource is
+ * configured for both users and groups.
  *
  * @see org.apache.syncope.core.propagation.impl.LDAPMembershipPropagationActions
  */
@@ -69,7 +69,7 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
     protected static final Logger LOG = LoggerFactory.getLogger(LDAPMembershipSyncActions.class);
 
     @Autowired
-    protected RoleDAO roleDAO;
+    protected GroupDAO groupDAO;
 
     @Autowired
     protected UserWorkflowAdapter uwfAdapter;
@@ -89,7 +89,7 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
     @Autowired
     private SyncUtilities syncUtilities;
 
-    protected Map<Long, Long> membersBeforeRoleUpdate = Collections.<Long, Long>emptyMap();
+    protected Map<Long, Long> membersBeforeGroupUpdate = Collections.<Long, Long>emptyMap();
 
     /**
      * Allows easy subclassing for the ConnId AD connector bundle.
@@ -115,10 +115,9 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
     }
 
     /**
-     * Keep track of members of the role being updated <b>before</b> actual update takes place. This is not needed on
-     * <ul> <li>beforeProvision() - because the synchronizing role does not exist yet on Syncope</li> <li>beforeDelete()
-     * -
-     * because role delete cascades as membership removal for all users involved</li> </ul>
+     * Keep track of members of the group being updated <b>before</b> actual update takes place. This is not needed on
+     * <ul> <li>beforeProvision() - because the synchronizing group does not exist yet on Syncope</li>
+     * <li>beforeDelete() - because group delete cascades as membership removal for all users involved</li> </ul>
      *
      * {@inheritDoc}
      */
@@ -127,15 +126,15 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
             final ProvisioningProfile<?, ?> profile,
             final SyncDelta delta, final T subject, final K subjectMod) throws JobExecutionException {
 
-        if (subject instanceof RoleTO) {
-            // search for all users assigned to given role
-            Role role = roleDAO.find(subject.getKey());
-            if (role != null) {
-                List<Membership> membs = roleDAO.findMemberships(role);
-                // save memberships before role update takes place
-                membersBeforeRoleUpdate = new HashMap<>(membs.size());
+        if (subject instanceof GroupTO) {
+            // search for all users assigned to given group
+            Group group = groupDAO.find(subject.getKey());
+            if (group != null) {
+                List<Membership> membs = groupDAO.findMemberships(group);
+                // save memberships before group update takes place
+                membersBeforeGroupUpdate = new HashMap<>(membs.size());
                 for (Membership memb : membs) {
-                    membersBeforeRoleUpdate.put(memb.getUser().getKey(), memb.getKey());
+                    membersBeforeGroupUpdate.put(memb.getUser().getKey(), memb.getKey());
                 }
             }
         }
@@ -144,22 +143,22 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
     }
 
     /**
-     * Build UserMod for adding membership to given user, for given role.
+     * Build UserMod for adding membership to given user, for given group.
      *
-     * @param userKey user to be assigned membership to given role
-     * @param roleTO role for adding membership
+     * @param userKey user to be assigned membership to given group
+     * @param groupTO group for adding membership
      * @return UserMod for user update
      */
-    protected UserMod getUserMod(final Long userKey, final RoleTO roleTO) {
+    protected UserMod getUserMod(final Long userKey, final GroupTO groupTO) {
         UserMod userMod = new UserMod();
-        // no actual modification takes place when user has already the role assigned
-        if (membersBeforeRoleUpdate.containsKey(userKey)) {
-            membersBeforeRoleUpdate.remove(userKey);
+        // no actual modification takes place when user has already the group assigned
+        if (membersBeforeGroupUpdate.containsKey(userKey)) {
+            membersBeforeGroupUpdate.remove(userKey);
         } else {
             userMod.setKey(userKey);
 
             MembershipMod membershipMod = new MembershipMod();
-            membershipMod.setRole(roleTO.getKey());
+            membershipMod.setGroup(groupTO.getKey());
             userMod.getMembershipsToAdd().add(membershipMod);
         }
 
@@ -170,7 +169,7 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
      * Read values of attribute returned by getGroupMembershipAttrName(); if not present in the given delta, perform an
      * additional read on the underlying connector.
      *
-     * @param delta representing the synchronizing role
+     * @param delta representing the synchronizing group
      * @param connector associated to the current resource
      * @return value of attribute returned by
      * {@link #getGroupMembershipAttrName(org.apache.syncope.core.propagation.Connector) }
@@ -195,7 +194,7 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
     }
 
     /**
-     * Perform actual modifications (i.e. membership add / remove) for the given role on the given resource.
+     * Perform actual modifications (i.e. membership add / remove) for the given group on the given resource.
      *
      * @param userMod modifications to perform on the user
      * @param resourceName resource to be propagated for changes
@@ -252,12 +251,12 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
      * Synchronize Syncope memberships with the situation read on the external resource's group.
      *
      * @param profile sync profile
-     * @param delta representing the synchronizing role
-     * @param roleTO role after modification performed by the handler
+     * @param delta representing the synchronizing group
+     * @param groupTO group after modification performed by the handler
      * @throws JobExecutionException if anything goes wrong
      */
     protected void synchronizeMemberships(
-            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final RoleTO roleTO) throws
+            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final GroupTO groupTO) throws
             JobExecutionException {
 
         final ProvisioningTask task = profile.getTask();
@@ -271,13 +270,13 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
                     profile.getTask().getResource(),
                     profile.getConnector());
             if (userKey != null) {
-                UserMod userMod = getUserMod(userKey, roleTO);
+                UserMod userMod = getUserMod(userKey, groupTO);
                 userUpdate(userMod, resource.getKey());
             }
         }
 
-        // finally remove any residual membership that was present before role update but not any more
-        for (Map.Entry<Long, Long> member : membersBeforeRoleUpdate.entrySet()) {
+        // finally remove any residual membership that was present before group update but not any more
+        for (Map.Entry<Long, Long> member : membersBeforeGroupUpdate.entrySet()) {
             UserMod userMod = new UserMod();
             userMod.setKey(member.getKey());
             userMod.getMembershipsToRemove().add(member.getValue());
@@ -286,7 +285,7 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
     }
 
     /**
-     * Synchronize membership at role synchronization time (because SyncJob first synchronize users then roles).
+     * Synchronize membership at group synchronization time (because SyncJob first synchronize users then groups).
      * {@inheritDoc}
      */
     @Override
@@ -300,10 +299,10 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
             return;
         }
 
-        if (!(subject instanceof RoleTO) || profile.getTask().getResource().getUmapping() == null) {
+        if (!(subject instanceof GroupTO) || profile.getTask().getResource().getUmapping() == null) {
             super.after(profile, delta, subject, result);
         } else {
-            synchronizeMemberships(profile, delta, (RoleTO) subject);
+            synchronizeMemberships(profile, delta, (GroupTO) subject);
         }
     }
 }

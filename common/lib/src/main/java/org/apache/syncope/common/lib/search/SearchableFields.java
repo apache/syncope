@@ -26,23 +26,23 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.to.AbstractAttributableTO;
-import org.apache.syncope.common.lib.to.RoleTO;
+import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.SubjectType;
 
-public class SearchableFields {
+public final class SearchableFields {
 
-    protected static final String[] ATTRIBUTES_NOTINCLUDED = {
+    private static final String[] ATTRIBUTES_NOTINCLUDED = {
         "serialVersionUID", "password"
     };
 
-    public static final List<String> get(final SubjectType subjectType) {
+    public static List<String> get(final SubjectType subjectType) {
         return get(subjectType == SubjectType.USER
                 ? UserTO.class
-                : RoleTO.class);
+                : GroupTO.class);
     }
 
-    public static final List<String> get(final Class<? extends AbstractAttributableTO> attributableRef) {
+    public static List<String> get(final Class<? extends AbstractAttributableTO> attributableRef) {
         final List<String> fieldNames = new ArrayList<>();
 
         // loop on class and all superclasses searching for field

@@ -26,9 +26,6 @@ public final class AuditElements implements Serializable {
 
     private static final long serialVersionUID = -4385059255522273254L;
 
-    private AuditElements() {
-    }
-
     @XmlEnum
     public enum EventCategoryType {
 

@@ -45,7 +45,7 @@ import org.apache.syncope.core.persistence.api.entity.membership.MDerAttr;
 import org.apache.syncope.core.persistence.api.entity.membership.MPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.membership.MVirAttr;
 import org.apache.syncope.core.persistence.api.entity.membership.Membership;
-import org.apache.syncope.core.persistence.api.entity.role.Role;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.common.lib.types.PropagationByResource;
@@ -140,24 +140,24 @@ public class UserDataBinderImpl extends AbstractAttributableDataBinder implement
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
 
         // memberships
-        Role role;
+        Group group;
         for (MembershipTO membershipTO : userTO.getMemberships()) {
-            role = roleDAO.find(membershipTO.getRoleId());
+            group = groupDAO.find(membershipTO.getGroupId());
 
-            if (role == null) {
+            if (group == null) {
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug("Ignoring invalid role " + membershipTO.getRoleName());
+                    LOG.debug("Ignoring invalid group " + membershipTO.getGroupName());
                 }
             } else {
                 Membership membership = null;
                 if (user.getKey() != null) {
-                    membership = user.getMembership(role.getKey()) == null
-                            ? membershipDAO.find(user, role)
-                            : user.getMembership(role.getKey());
+                    membership = user.getMembership(group.getKey()) == null
+                            ? membershipDAO.find(user, group)
+                            : user.getMembership(group.getKey());
                 }
                 if (membership == null) {
                     membership = entityFactory.newEntity(Membership.class);
-                    membership.setRole(role);
+                    membership.setGroup(group);
                     membership.setUser(user);
 
                     user.addMembership(membership);
@@ -244,10 +244,10 @@ public class UserDataBinderImpl extends AbstractAttributableDataBinder implement
         // attributes, derived attributes, virtual attributes and resources
         propByRes.merge(fill(user, userMod, attrUtilFactory.getInstance(AttributableType.USER), scce));
 
-        // store the role ids of membership required to be added
-        Set<Long> membershipToBeAddedRoleIds = new HashSet<>();
+        // store the group ids of membership required to be added
+        Set<Long> membershipToBeAddedGroupKeys = new HashSet<>();
         for (MembershipMod membToBeAdded : userMod.getMembershipsToAdd()) {
-            membershipToBeAddedRoleIds.add(membToBeAdded.getRole());
+            membershipToBeAddedGroupKeys.add(membToBeAdded.getGroup());
         }
 
         final Set<String> toBeDeprovisioned = new HashSet<>();
@@ -261,16 +261,16 @@ public class UserDataBinderImpl extends AbstractAttributableDataBinder implement
             if (membership == null) {
                 LOG.debug("Invalid membership id specified to be removed: {}", membershipId);
             } else {
-                if (!membershipToBeAddedRoleIds.contains(membership.getRole().getKey())) {
-                    toBeDeprovisioned.addAll(membership.getRole().getResourceNames());
+                if (!membershipToBeAddedGroupKeys.contains(membership.getGroup().getKey())) {
+                    toBeDeprovisioned.addAll(membership.getGroup().getResourceNames());
                 }
 
                 // In order to make the removeMembership() below to work,
                 // we need to be sure to take exactly the same membership
                 // of the user object currently in memory (which has potentially
                 // some modifications compared to the one stored in the DB
-                membership = user.getMembership(membership.getRole().getKey());
-                if (membershipToBeAddedRoleIds.contains(membership.getRole().getKey())) {
+                membership = user.getMembership(membership.getGroup().getKey());
+                if (membershipToBeAddedGroupKeys.contains(membership.getGroup().getKey())) {
                     Set<Long> attributeIds = new HashSet<>(membership.getPlainAttrs().size());
                     for (PlainAttr attribute : membership.getPlainAttrs()) {
                         attributeIds.add(attribute.getKey());
@@ -307,21 +307,21 @@ public class UserDataBinderImpl extends AbstractAttributableDataBinder implement
 
         // memberships to be added
         for (MembershipMod membershipMod : userMod.getMembershipsToAdd()) {
-            LOG.debug("Membership to be added: role({})", membershipMod.getRole());
+            LOG.debug("Membership to be added: group({})", membershipMod.getGroup());
 
-            Role role = roleDAO.find(membershipMod.getRole());
-            if (role == null) {
-                LOG.debug("Ignoring invalid role {}", membershipMod.getRole());
+            Group group = groupDAO.find(membershipMod.getGroup());
+            if (group == null) {
+                LOG.debug("Ignoring invalid group {}", membershipMod.getGroup());
             } else {
-                Membership membership = user.getMembership(role.getKey());
+                Membership membership = user.getMembership(group.getKey());
                 if (membership == null) {
                     membership = entityFactory.newEntity(Membership.class);
-                    membership.setRole(role);
+                    membership.setGroup(group);
                     membership.setUser(user);
 
                     user.addMembership(membership);
 
-                    toBeProvisioned.addAll(role.getResourceNames());
+                    toBeProvisioned.addAll(group.getResourceNames());
                 }
 
                 propByRes.merge(fill(membership, membershipMod,
@@ -333,7 +333,7 @@ public class UserDataBinderImpl extends AbstractAttributableDataBinder implement
         propByRes.addAll(ResourceOperation.UPDATE, toBeProvisioned);
 
         /**
-         * In case of new memberships all the current resources have to be updated in order to propagate new role and
+         * In case of new memberships all the current resources have to be updated in order to propagate new group and
          * membership attribute values.
          */
         if (!toBeDeprovisioned.isEmpty() || !toBeProvisioned.isEmpty()) {
@@ -380,8 +380,8 @@ public class UserDataBinderImpl extends AbstractAttributableDataBinder implement
             membershipTO.setLastChangeDate(membership.getLastChangeDate());
 
             membershipTO.setKey(membership.getKey());
-            membershipTO.setRoleId(membership.getRole().getKey());
-            membershipTO.setRoleName(membership.getRole().getName());
+            membershipTO.setGroupId(membership.getGroup().getKey());
+            membershipTO.setGroupName(membership.getGroup().getName());
 
             // SYNCOPE-458 retrieve also membership virtual attributes
             connObjectUtil.retrieveVirAttrValues(membership, attrUtilFactory.getInstance(AttributableType.MEMBERSHIP));

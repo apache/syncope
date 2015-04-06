@@ -27,7 +27,7 @@ import org.apache.syncope.core.persistence.api.dao.EntitlementDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.entity.Entitlement;
-import org.apache.syncope.core.persistence.api.entity.role.RMapping;
+import org.apache.syncope.core.persistence.api.entity.group.GMapping;
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.persistence.api.entity.task.SyncTask;
@@ -136,7 +136,7 @@ public abstract class AbstractProvisioningJob<T extends ProvisioningTask, A exte
                                     uSuccCreate.add(provResult);
                                     break;
 
-                                case ROLE:
+                                case GROUP:
                                     rSuccCreate.add(provResult);
                                     break;
 
@@ -150,7 +150,7 @@ public abstract class AbstractProvisioningJob<T extends ProvisioningTask, A exte
                                     uSuccUpdate.add(provResult);
                                     break;
 
-                                case ROLE:
+                                case GROUP:
                                     rSuccUpdate.add(provResult);
                                     break;
 
@@ -164,7 +164,7 @@ public abstract class AbstractProvisioningJob<T extends ProvisioningTask, A exte
                                     uSuccDelete.add(provResult);
                                     break;
 
-                                case ROLE:
+                                case GROUP:
                                     rSuccDelete.add(provResult);
                                     break;
 
@@ -178,7 +178,7 @@ public abstract class AbstractProvisioningJob<T extends ProvisioningTask, A exte
                                     uSuccNone.add(provResult);
                                     break;
 
-                                case ROLE:
+                                case GROUP:
                                     rSuccNone.add(provResult);
                                     break;
 
@@ -198,7 +198,7 @@ public abstract class AbstractProvisioningJob<T extends ProvisioningTask, A exte
                                     uFailCreate.add(provResult);
                                     break;
 
-                                case ROLE:
+                                case GROUP:
                                     rFailCreate.add(provResult);
                                     break;
 
@@ -212,7 +212,7 @@ public abstract class AbstractProvisioningJob<T extends ProvisioningTask, A exte
                                     uFailUpdate.add(provResult);
                                     break;
 
-                                case ROLE:
+                                case GROUP:
                                     rFailUpdate.add(provResult);
                                     break;
 
@@ -226,7 +226,7 @@ public abstract class AbstractProvisioningJob<T extends ProvisioningTask, A exte
                                     uFailDelete.add(provResult);
                                     break;
 
-                                case ROLE:
+                                case GROUP:
                                     rFailDelete.add(provResult);
                                     break;
 
@@ -251,7 +251,7 @@ public abstract class AbstractProvisioningJob<T extends ProvisioningTask, A exte
                 append("[deleted/failures]: ").append(uSuccDelete.size()).append('/').append(uFailDelete.size()).
                 append(' ').
                 append("[ignored]: ").append(uSuccNone.size()).append('\n');
-        report.append("Roles ").
+        report.append("Groups ").
                 append("[created/failures]: ").append(rSuccCreate.size()).append('/').append(rFailCreate.size()).
                 append(' ').
                 append("[updated/failures]: ").append(rSuccUpdate.size()).append('/').append(rFailUpdate.size()).
@@ -276,15 +276,15 @@ public abstract class AbstractProvisioningJob<T extends ProvisioningTask, A exte
             }
 
             if (!rFailCreate.isEmpty()) {
-                report.append("\n\nRoles failed to create: ");
+                report.append("\n\nGroups failed to create: ");
                 report.append(ProvisioningResult.produceReport(rFailCreate, syncTraceLevel));
             }
             if (!rFailUpdate.isEmpty()) {
-                report.append("\nRoles failed to update: ");
+                report.append("\nGroups failed to update: ");
                 report.append(ProvisioningResult.produceReport(rFailUpdate, syncTraceLevel));
             }
             if (!rFailDelete.isEmpty()) {
-                report.append("\nRoles failed to delete: ");
+                report.append("\nGroups failed to delete: ");
                 report.append(ProvisioningResult.produceReport(rFailDelete, syncTraceLevel));
             }
         }
@@ -299,13 +299,13 @@ public abstract class AbstractProvisioningJob<T extends ProvisioningTask, A exte
                     .append(ProvisioningResult.produceReport(uSuccDelete, syncTraceLevel))
                     .append("\nUsers ignored:\n")
                     .append(ProvisioningResult.produceReport(uSuccNone, syncTraceLevel));
-            report.append("\n\nRoles created:\n")
+            report.append("\n\nGroups created:\n")
                     .append(ProvisioningResult.produceReport(rSuccCreate, syncTraceLevel))
-                    .append("\nRoles updated:\n")
+                    .append("\nGroups updated:\n")
                     .append(ProvisioningResult.produceReport(rSuccUpdate, syncTraceLevel))
-                    .append("\nRoles deleted:\n")
+                    .append("\nGroups deleted:\n")
                     .append(ProvisioningResult.produceReport(rSuccDelete, syncTraceLevel))
-                    .append("\nRoles ignored:\n")
+                    .append("\nGroups ignored:\n")
                     .append(ProvisioningResult.produceReport(rSuccNone, syncTraceLevel));
         }
 
@@ -350,13 +350,13 @@ public abstract class AbstractProvisioningJob<T extends ProvisioningTask, A exte
                 throw new JobExecutionException(
                         "Invalid user account id mapping for resource " + syncTask.getResource());
             }
-            final RMapping rMapping = syncTask.getResource().getRmapping();
+            final GMapping rMapping = syncTask.getResource().getGmapping();
             if (rMapping != null && rMapping.getAccountIdItem() == null) {
                 throw new JobExecutionException(
-                        "Invalid role account id mapping for resource " + syncTask.getResource());
+                        "Invalid group account id mapping for resource " + syncTask.getResource());
             }
             if (uMapping == null && rMapping == null) {
-                return "No mapping configured for both users and roles: aborting...";
+                return "No mapping configured for both users and groups: aborting...";
             }
 
             return executeWithSecurityContext(
@@ -378,7 +378,7 @@ public abstract class AbstractProvisioningJob<T extends ProvisioningTask, A exte
             final T task,
             final Connector connector,
             final UMapping uMapping,
-            final RMapping rMapping,
+            final GMapping rMapping,
             final boolean dryRun) throws JobExecutionException;
 
     @Override

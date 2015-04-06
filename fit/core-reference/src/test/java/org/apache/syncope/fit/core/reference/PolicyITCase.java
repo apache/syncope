@@ -68,7 +68,7 @@ public class PolicyITCase extends AbstractITCase {
 
         assertNotNull(policyTO);
         assertTrue(policyTO.getUsedByResources().isEmpty());
-        assertEquals(Arrays.asList(6L, 7L, 10L, 14L), policyTO.getUsedByRoles());
+        assertTrue(policyTO.getUsedByGroups().containsAll(Arrays.asList(6L, 7L, 10L, 14L)));
     }
 
     @Test
@@ -77,7 +77,7 @@ public class PolicyITCase extends AbstractITCase {
 
         assertNotNull(policyTO);
         assertTrue(policyTO.getUsedByResources().contains(RESOURCE_NAME_NOPROPAGATION));
-        assertEquals(Arrays.asList(6L, 7L, 10L, 8L), policyTO.getUsedByRoles());
+        assertTrue(policyTO.getUsedByGroups().containsAll(Arrays.asList(6L, 7L, 10L, 8L)));
     }
 
     @Test
@@ -85,7 +85,7 @@ public class PolicyITCase extends AbstractITCase {
         SyncPolicyTO policyTO = policyService.read(1L);
 
         assertNotNull(policyTO);
-        assertTrue(policyTO.getUsedByRoles().isEmpty());
+        assertTrue(policyTO.getUsedByGroups().isEmpty());
     }
 
     @Test
@@ -114,7 +114,7 @@ public class PolicyITCase extends AbstractITCase {
         assertEquals(PolicyType.GLOBAL_SYNC, policyTO.getType());
         assertFalse(policyTO.getUsedByResources().contains(RESOURCE_NAME_CSV));
         assertFalse(policyTO.getUsedByResources().contains(RESOURCE_NAME_WS2));
-        assertTrue(policyTO.getUsedByRoles().isEmpty());
+        assertTrue(policyTO.getUsedByGroups().isEmpty());
     }
 
     @Test

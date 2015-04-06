@@ -43,8 +43,8 @@ import org.apache.syncope.core.persistence.api.entity.Mapping;
 import org.apache.syncope.core.persistence.api.entity.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.SyncPolicy;
-import org.apache.syncope.core.persistence.api.entity.role.RMapping;
-import org.apache.syncope.core.persistence.api.entity.role.RMappingItem;
+import org.apache.syncope.core.persistence.api.entity.group.GMapping;
+import org.apache.syncope.core.persistence.api.entity.group.GMappingItem;
 import org.apache.syncope.core.persistence.api.entity.user.UMapping;
 import org.apache.syncope.core.persistence.api.entity.user.UMappingItem;
 import org.apache.syncope.core.provisioning.api.ConnectorRegistry;
@@ -117,13 +117,13 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
             resource.setUmapping(mapping);
             populateMapping(resourceTO.getUmapping(), mapping, entityFactory.newEntity(UMappingItem.class));
         }
-        if (resourceTO.getRmapping() == null || resourceTO.getRmapping().getItems().isEmpty()) {
-            resource.setRmapping(null);
+        if (resourceTO.getGmapping() == null || resourceTO.getGmapping().getItems().isEmpty()) {
+            resource.setGmapping(null);
         } else {
-            RMapping mapping = entityFactory.newEntity(RMapping.class);
+            GMapping mapping = entityFactory.newEntity(GMapping.class);
             mapping.setResource(resource);
-            resource.setRmapping(mapping);
-            populateMapping(resourceTO.getRmapping(), mapping, entityFactory.newEntity(RMappingItem.class));
+            resource.setGmapping(mapping);
+            populateMapping(resourceTO.getGmapping(), mapping, entityFactory.newEntity(GMappingItem.class));
         }
 
         resource.setCreateTraceLevel(resourceTO.getCreateTraceLevel());
@@ -276,10 +276,10 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
             resourceTO.setUmapping(mappingTO);
             populateMappingTO(resource.getUmapping(), mappingTO);
         }
-        if (resource.getRmapping() != null) {
+        if (resource.getGmapping() != null) {
             MappingTO mappingTO = new MappingTO();
-            resourceTO.setRmapping(mappingTO);
-            populateMappingTO(resource.getRmapping(), mappingTO);
+            resourceTO.setGmapping(mappingTO);
+            populateMappingTO(resource.getGmapping(), mappingTO);
         }
 
         resourceTO.setEnforceMandatoryCondition(resource.isEnforceMandatoryCondition());

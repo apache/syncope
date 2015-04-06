@@ -24,7 +24,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import javax.swing.tree.DefaultMutableTreeNode;
-import org.apache.syncope.common.lib.to.RoleTO;
+import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.wicket.MetaDataKey;
 import org.apache.wicket.Session;
 
@@ -57,12 +57,12 @@ public class DefaultMutableTreeNodeExpansion implements Set<DefaultMutableTreeNo
 
     @Override
     public boolean add(final DefaultMutableTreeNode node) {
-        RoleTO roleTO = (RoleTO) node.getUserObject();
+        GroupTO groupTO = (GroupTO) node.getUserObject();
         boolean isAdded;
         if (inverse) {
-            isAdded = ids.remove(roleTO.getKey());
+            isAdded = ids.remove(groupTO.getKey());
         } else {
-            isAdded = ids.add(roleTO.getKey());
+            isAdded = ids.add(groupTO.getKey());
         }
         return isAdded;
     }
@@ -70,12 +70,12 @@ public class DefaultMutableTreeNodeExpansion implements Set<DefaultMutableTreeNo
     @Override
     public boolean remove(final Object object) {
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) object;
-        RoleTO roleTO = (RoleTO) node.getUserObject();
+        GroupTO groupTO = (GroupTO) node.getUserObject();
         boolean isRemoved;
         if (inverse) {
-            isRemoved = ids.add(roleTO.getKey());
+            isRemoved = ids.add(groupTO.getKey());
         } else {
-            isRemoved = ids.remove(roleTO.getKey());
+            isRemoved = ids.remove(groupTO.getKey());
         }
         return isRemoved;
     }
@@ -83,12 +83,12 @@ public class DefaultMutableTreeNodeExpansion implements Set<DefaultMutableTreeNo
     @Override
     public boolean contains(final Object object) {
         DefaultMutableTreeNode node = (DefaultMutableTreeNode) object;
-        RoleTO roleTO = (RoleTO) node.getUserObject();
+        GroupTO groupTO = (GroupTO) node.getUserObject();
         boolean isContained;
         if (inverse) {
-            isContained = !ids.contains(roleTO.getKey());
+            isContained = !ids.contains(groupTO.getKey());
         } else {
-            isContained = ids.contains(roleTO.getKey());
+            isContained = ids.contains(groupTO.getKey());
         }
         return isContained;
     }

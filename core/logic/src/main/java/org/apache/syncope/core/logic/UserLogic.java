@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.logic;
 
-import org.apache.syncope.core.misc.security.UnauthorizedRoleException;
+import org.apache.syncope.core.misc.security.UnauthorizedGroupException;
 import java.lang.reflect.Method;
 import java.security.AccessControlException;
 import java.util.ArrayList;
@@ -41,14 +41,14 @@ import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.SubjectType;
-import org.apache.syncope.core.persistence.api.RoleEntitlementUtil;
+import org.apache.syncope.core.persistence.api.GroupEntitlementUtil;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
-import org.apache.syncope.core.persistence.api.dao.RoleDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.SubjectSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
-import org.apache.syncope.core.persistence.api.entity.role.Role;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.AttributableTransformer;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
@@ -74,7 +74,7 @@ public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
     protected UserDAO userDAO;
 
     @Autowired
-    protected RoleDAO roleDAO;
+    protected GroupDAO groupDAO;
 
     @Autowired
     protected SubjectSearchDAO searchDAO;
@@ -114,14 +114,14 @@ public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
     @Transactional(readOnly = true, rollbackFor = { Throwable.class })
     @Override
     public int count() {
-        return userDAO.count(RoleEntitlementUtil.getRoleKeys(AuthContextUtil.getOwnedEntitlementNames()));
+        return userDAO.count(GroupEntitlementUtil.getGroupKeys(AuthContextUtil.getOwnedEntitlementNames()));
     }
 
     @PreAuthorize("hasRole('USER_LIST')")
     @Transactional(readOnly = true, rollbackFor = { Throwable.class })
     @Override
     public int searchCount(final SearchCond searchCondition) {
-        return searchDAO.count(RoleEntitlementUtil.getRoleKeys(AuthContextUtil.getOwnedEntitlementNames()),
+        return searchDAO.count(GroupEntitlementUtil.getGroupKeys(AuthContextUtil.getOwnedEntitlementNames()),
                 searchCondition, SubjectType.USER);
     }
 
@@ -129,9 +129,9 @@ public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
     @Transactional(readOnly = true, rollbackFor = { Throwable.class })
     @Override
     public List<UserTO> list(final int page, final int size, final List<OrderByClause> orderBy) {
-        Set<Long> adminRoleIds = RoleEntitlementUtil.getRoleKeys(AuthContextUtil.getOwnedEntitlementNames());
+        Set<Long> adminGroupIds = GroupEntitlementUtil.getGroupKeys(AuthContextUtil.getOwnedEntitlementNames());
 
-        List<User> users = userDAO.findAll(adminRoleIds, page, size, orderBy);
+        List<User> users = userDAO.findAll(adminGroupIds, page, size, orderBy);
         List<UserTO> userTOs = new ArrayList<>(users.size());
         for (User user : users) {
             userTOs.add(binder.getUserTO(user));
@@ -160,8 +160,7 @@ public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
     public List<UserTO> search(final SearchCond searchCondition, final int page, final int size,
             final List<OrderByClause> orderBy) {
 
-        final List<User> matchingUsers = searchDAO.search(
-                RoleEntitlementUtil.getRoleKeys(AuthContextUtil.getOwnedEntitlementNames()),
+        final List<User> matchingUsers = searchDAO.search(GroupEntitlementUtil.getGroupKeys(AuthContextUtil.getOwnedEntitlementNames()),
                 searchCondition, page, size, orderBy, SubjectType.USER);
 
         final List<UserTO> result = new ArrayList<>(matchingUsers.size());
@@ -179,14 +178,14 @@ public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
 
     @PreAuthorize("hasRole('USER_CREATE')")
     public UserTO create(final UserTO userTO, final boolean storePassword) {
-        Set<Long> requestRoleIds = new HashSet<>(userTO.getMemberships().size());
+        Set<Long> requestGroupIds = new HashSet<>(userTO.getMemberships().size());
         for (MembershipTO membership : userTO.getMemberships()) {
-            requestRoleIds.add(membership.getRoleId());
+            requestGroupIds.add(membership.getGroupId());
         }
-        Set<Long> adminRoleIds = RoleEntitlementUtil.getRoleKeys(AuthContextUtil.getOwnedEntitlementNames());
-        requestRoleIds.removeAll(adminRoleIds);
-        if (!requestRoleIds.isEmpty()) {
-            throw new UnauthorizedRoleException(requestRoleIds);
+        Set<Long> adminGroupIds = GroupEntitlementUtil.getGroupKeys(AuthContextUtil.getOwnedEntitlementNames());
+        requestGroupIds.removeAll(adminGroupIds);
+        if (!requestGroupIds.isEmpty()) {
+            throw new UnauthorizedGroupException(requestGroupIds);
         }
 
         return doCreate(userTO, storePassword);
@@ -321,14 +320,14 @@ public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
     @PreAuthorize("hasRole('USER_DELETE')")
     @Override
     public UserTO delete(final Long key) {
-        List<Role> ownedRoles = roleDAO.findOwnedByUser(key);
-        if (!ownedRoles.isEmpty()) {
-            List<String> owned = new ArrayList<>(ownedRoles.size());
-            for (Role role : ownedRoles) {
-                owned.add(role.getKey() + " " + role.getName());
+        List<Group> ownedGroups = groupDAO.findOwnedByUser(key);
+        if (!ownedGroups.isEmpty()) {
+            List<String> owned = new ArrayList<>(ownedGroups.size());
+            for (Group group : ownedGroups) {
+                owned.add(group.getKey() + " " + group.getName());
             }
 
-            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.RoleOwnership);
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.GroupOwnership);
             sce.getElements().addAll(owned);
             throw sce;
         }

@@ -52,30 +52,30 @@ public class AuditManager {
             final Object output,
             final Object... input) {
 
-        final Throwable throwable;
-        final StringBuilder message = new StringBuilder();
+        final StringBuilder message = new StringBuilder(32);
 
-        message.append("BEFORE:\n");
-        message.append("\t").append(before == null ? "unknown" : before).append("\n");
+        message.append("BEFORE:\n").
+                append('\t').append(before == null ? "unknown" : before).append('\n');
 
         message.append("INPUT:\n");
 
         if (ArrayUtils.isNotEmpty(input)) {
             for (Object obj : input) {
-                message.append("\t").append(obj == null ? null : obj.toString()).append("\n");
+                message.append('\t').append(obj == null ? null : obj.toString()).append('\n');
             }
         } else {
-            message.append("\t").append("none").append("\n");
+            message.append('\t').append("none").append('\n');
         }
 
         message.append("OUTPUT:\n");
 
+        Throwable throwable;
         if (output instanceof Throwable) {
             throwable = (Throwable) output;
-            message.append("\t").append(throwable.getMessage());
+            message.append('\t').append(throwable.getMessage());
         } else {
             throwable = null;
-            message.append("\t").append(output == null ? "none" : output.toString());
+            message.append('\t').append(output == null ? "none" : output.toString());
         }
 
         AuditLoggerName auditLoggerName = null;
@@ -93,7 +93,7 @@ public class AuditManager {
 
                 final SecurityContext ctx = SecurityContextHolder.getContext();
                 if (ctx != null && ctx.getAuthentication() != null) {
-                    auditMessage.append('[').append(ctx.getAuthentication().getName()).append(']').append(' ');
+                    auditMessage.append('[').append(ctx.getAuthentication().getName()).append("] ");
                 }
                 auditMessage.append(message);
 

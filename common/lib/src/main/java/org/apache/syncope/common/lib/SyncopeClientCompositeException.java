@@ -73,18 +73,18 @@ public class SyncopeClientCompositeException extends SyncopeClientException {
     public String getMessage() {
         StringBuilder message = new StringBuilder();
 
-        message.append("{");
+        message.append('{');
         Iterator<SyncopeClientException> iter = getExceptions().iterator();
         while (iter.hasNext()) {
             SyncopeClientException e = iter.next();
-            message.append("[");
-            message.append(e.getMessage());
-            message.append("]");
+            message.append('[').
+                    append(e.getMessage()).
+                    append(']');
             if (iter.hasNext()) {
                 message.append(", ");
             }
         }
-        message.append("}");
+        message.append('}');
 
         return message.toString();
     }

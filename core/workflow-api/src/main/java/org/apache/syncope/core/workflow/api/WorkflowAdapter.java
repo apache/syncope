@@ -23,7 +23,6 @@ import java.io.OutputStream;
 import java.util.List;
 import org.apache.syncope.common.lib.mod.AbstractAttributableMod;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
-import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 
 public interface WorkflowAdapter {
 
@@ -37,26 +36,23 @@ public interface WorkflowAdapter {
      *
      * @param format export format
      * @param os export stream
-     * @throws WorkflowException workflow exception
      */
-    void exportDefinition(WorkflowDefinitionFormat format, OutputStream os) throws WorkflowException;
+    void exportDefinition(WorkflowDefinitionFormat format, OutputStream os);
 
     /**
      * Export workflow graphical representation (if available).
      *
      * @param os export stream
-     * @throws WorkflowException workflow exception
      */
-    void exportDiagram(OutputStream os) throws WorkflowException;
+    void exportDiagram(OutputStream os);
 
     /**
      * Update workflow definition.
      *
      * @param format import format
      * @param definition definition
-     * @throws WorkflowException workflow exception
      */
-    void importDefinition(WorkflowDefinitionFormat format, String definition) throws WorkflowException;
+    void importDefinition(WorkflowDefinitionFormat format, String definition);
 
     /**
      * Get all defined forms for current workflow process instances.
@@ -79,29 +75,22 @@ public interface WorkflowAdapter {
      *
      * @param workflowId workflow id
      * @return form (if present), otherwise null
-     * @throws NotFoundException definition not found exception
-     * @throws WorkflowException workflow exception
      */
-    WorkflowFormTO getForm(String workflowId) throws NotFoundException, WorkflowException;
+    WorkflowFormTO getForm(String workflowId);
 
     /**
      * Claim a form for a given user.
      *
      * @param taskId Workflow task to which the form is associated
      * @return updated form
-     * @throws NotFoundException not found exception
-     * @throws WorkflowException workflow exception
      */
-    WorkflowFormTO claimForm(String taskId) throws NotFoundException, WorkflowException;
+    WorkflowFormTO claimForm(String taskId);
 
     /**
      * Submit a form.
      *
      * @param form to be submitted
      * @return user updated by this form submit
-     * @throws NotFoundException not found exception
-     * @throws WorkflowException workflow exception
      */
-    WorkflowResult<? extends AbstractAttributableMod> submitForm(WorkflowFormTO form)
-            throws NotFoundException, WorkflowException;
+    WorkflowResult<? extends AbstractAttributableMod> submitForm(WorkflowFormTO form);
 }

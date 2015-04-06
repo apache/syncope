@@ -76,6 +76,6 @@ public class JPAMVirAttr extends AbstractVirAttr implements MVirAttr {
 
     @Override
     public void setSchema(final VirSchema schema) {
-        LOG.warn("This is role attribute, set template to select schema");
+        LOG.warn("This is membership attribute, set template to select schema");
     }
 }

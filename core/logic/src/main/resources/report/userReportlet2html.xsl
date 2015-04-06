@@ -110,7 +110,7 @@ under the License.
         <xsl:when test="string-length(memberships/membership) &gt; 0">
           <h4>Memberships</h4>
           <xsl:for-each select="memberships/membership">
-            <h5>Role: <xsl:value-of select="@roleName"/>(<xsl:value-of select="@roleId"/>)</h5>
+            <h5>Group: <xsl:value-of select="@groupName"/>(<xsl:value-of select="@groupId"/>)</h5>
             <blockquote>
               <xsl:choose>
                 <xsl:when test="string-length(attributes/attribute) &gt; 0">
@@ -120,7 +120,7 @@ under the License.
                   </xsl:call-template>
                 </xsl:when>
                 <xsl:otherwise>
-                  <h5>THIS ROLE HASN'T ATTRIBUTES</h5>
+                  <h5>THIS GROUP HASN'T ATTRIBUTES</h5>
                 </xsl:otherwise>
               </xsl:choose>
               <xsl:choose>
@@ -131,7 +131,7 @@ under the License.
                   </xsl:call-template>
                 </xsl:when>
                 <xsl:otherwise>
-                  <h5>THIS ROLE HASN'T DERIVED ATTRIBUTES</h5>
+                  <h5>THIS GROUP HASN'T DERIVED ATTRIBUTES</h5>
                 </xsl:otherwise>
               </xsl:choose>
               <xsl:choose>
@@ -142,18 +142,18 @@ under the License.
                   </xsl:call-template>
                 </xsl:when>
                 <xsl:otherwise>
-                  <h5>THIS ROLE HASN'T VIRTUAL ATTRIBUTES</h5>
+                  <h5>THIS GROUP HASN'T VIRTUAL ATTRIBUTES</h5>
                 </xsl:otherwise>
               </xsl:choose>
-              <!-- 'roleResources" is defined in roleReportlet2html.xsl -->
-              <xsl:call-template name="roleResources">
+              <!-- 'groupResources" is defined in groupReportlet2html.xsl -->
+              <xsl:call-template name="groupResources">
                 <xsl:with-param name="node" select="resources/resource"/>
               </xsl:call-template>
             </blockquote>
           </xsl:for-each>
         </xsl:when>
         <xsl:otherwise>
-          <h5>THIS USER ISN'T ASSIGNED TO A ROLE</h5>
+          <h5>THIS USER ISN'T ASSIGNED TO A GROUP</h5>
         </xsl:otherwise>
       </xsl:choose>
       <xsl:if test="string-length(resources) &gt; 0">

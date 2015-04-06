@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.List;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.entity.AttributableUtil;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
@@ -32,7 +31,7 @@ public interface PlainSchemaDAO extends DAO<PlainSchema, String> {
 
     <T extends PlainAttr> List<T> findAttrs(PlainSchema schema, Class<T> reference);
 
-    <T extends PlainSchema> T save(T schema) throws InvalidEntityException;
+    <T extends PlainSchema> T save(T schema);
 
     void delete(String name, AttributableUtil attributableUtil);
 }

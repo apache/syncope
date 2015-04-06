@@ -37,7 +37,7 @@ import org.apache.syncope.common.lib.to.AbstractSubjectTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
-import org.apache.syncope.common.lib.to.RoleTO;
+import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.AttributableType;
@@ -46,10 +46,9 @@ import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.PasswordPolicySpec;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValidationException;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
-import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
-import org.apache.syncope.core.persistence.api.dao.RoleDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Attributable;
 import org.apache.syncope.core.persistence.api.entity.AttributableUtil;
@@ -61,7 +60,7 @@ import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Subject;
 import org.apache.syncope.core.persistence.api.entity.VirAttr;
 import org.apache.syncope.core.persistence.api.entity.membership.Membership;
-import org.apache.syncope.core.persistence.api.entity.role.Role;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.task.SyncTask;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.Connector;
@@ -69,7 +68,6 @@ import org.apache.syncope.core.provisioning.api.ConnectorFactory;
 import org.apache.syncope.core.provisioning.api.cache.VirAttrCache;
 import org.apache.syncope.core.provisioning.api.cache.VirAttrCacheValue;
 import org.apache.syncope.core.misc.security.Encryptor;
-import org.apache.syncope.core.misc.security.UnauthorizedRoleException;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.misc.jexl.JexlUtil;
 import org.identityconnectors.common.Base64;
@@ -102,7 +100,7 @@ public class ConnObjectUtil {
     private UserDAO userDAO;
 
     @Autowired
-    private RoleDAO roleDAO;
+    private GroupDAO groupDAO;
 
     @Autowired
     private ExternalResourceDAO resourceDAO;
@@ -130,7 +128,7 @@ public class ConnObjectUtil {
         if (subject instanceof User) {
             result = ObjectClass.ACCOUNT;
         }
-        if (subject instanceof Role) {
+        if (subject instanceof Group) {
             result = ObjectClass.GROUP;
         }
 
@@ -138,12 +136,12 @@ public class ConnObjectUtil {
     }
 
     /**
-     * Build a UserTO / RoleTO out of connector object attributes and schema mapping.
+     * Build a UserTO / GroupTO out of connector object attributes and schema mapping.
      *
      * @param obj connector object
      * @param syncTask synchronization task
      * @param attrUtil AttributableUtil
-     * @param <T> user/role
+     * @param <T> user/group
      * @return UserTO for the user to be created
      */
     @Transactional(readOnly = true)
@@ -164,11 +162,11 @@ public class ConnObjectUtil {
             }
 
             for (MembershipTO memb : userTO.getMemberships()) {
-                Role role = roleDAO.find(memb.getRoleId());
-                if (role != null && role.getPasswordPolicy() != null
-                        && role.getPasswordPolicy().getSpecification(PasswordPolicySpec.class) != null) {
+                Group group = groupDAO.find(memb.getGroupId());
+                if (group != null && group.getPasswordPolicy() != null
+                        && group.getPasswordPolicy().getSpecification(PasswordPolicySpec.class) != null) {
 
-                    ppSpecs.add(role.getPasswordPolicy().getSpecification(PasswordPolicySpec.class));
+                    ppSpecs.add(group.getPasswordPolicy().getSpecification(PasswordPolicySpec.class));
                 }
             }
 
@@ -203,16 +201,13 @@ public class ConnObjectUtil {
      * @param original subject to get diff from
      * @param syncTask synchronization task
      * @param attrUtil AttributableUtil
-     * @param <T> user/role
-     * @return modifications for the user/role to be updated
-     * @throws NotFoundException if given id does not correspond to a T instance
-     * @throws UnauthorizedRoleException if there are no enough entitlements to access the T instance
+     * @param <T> user/group
+     * @return modifications for the user/group to be updated
      */
     @SuppressWarnings("unchecked")
     @Transactional(readOnly = true)
     public <T extends AbstractAttributableMod> T getAttributableMod(final Long key, final ConnectorObject obj,
-            final AbstractAttributableTO original, final SyncTask syncTask, final AttributableUtil attrUtil)
-            throws NotFoundException, UnauthorizedRoleException {
+            final AbstractAttributableTO original, final SyncTask syncTask, final AttributableUtil attrUtil) {
 
         final AbstractAttributableTO updated = getSubjectTOFromConnObject(obj, syncTask, attrUtil);
         updated.setKey(key);
@@ -228,7 +223,7 @@ public class ConnObjectUtil {
             }
 
             for (MembershipTO membTO : ((UserTO) updated).getMemberships()) {
-                Membership memb = user.getMembership(membTO.getRoleId());
+                Membership memb = user.getMembership(membTO.getGroupId());
                 if (memb != null) {
                     membTO.setKey(memb.getKey());
                 }
@@ -236,10 +231,10 @@ public class ConnObjectUtil {
 
             return (T) AttributableOperations.diff(((UserTO) updated), ((UserTO) original), true);
         }
-        if (AttributableType.ROLE == attrUtil.getType()) {
+        if (AttributableType.GROUP == attrUtil.getType()) {
             // reading from connector object cannot change entitlements
-            ((RoleTO) updated).getEntitlements().addAll(((RoleTO) original).getEntitlements());
-            return (T) AttributableOperations.diff(((RoleTO) updated), ((RoleTO) original), true);
+            ((GroupTO) updated).getEntitlements().addAll(((GroupTO) original).getEntitlements());
+            return (T) AttributableOperations.diff(((GroupTO) updated), ((GroupTO) original), true);
         }
 
         return null;
@@ -259,7 +254,7 @@ public class ConnObjectUtil {
             AttrTO attributeTO;
             switch (item.getIntMappingType()) {
                 case UserId:
-                case RoleId:
+                case GroupId:
                     break;
 
                 case Password:
@@ -279,19 +274,19 @@ public class ConnObjectUtil {
                     }
                     break;
 
-                case RoleName:
-                    if (subjectTO instanceof RoleTO) {
-                        ((RoleTO) subjectTO).setName(attribute == null || attribute.getValue().isEmpty()
+                case GroupName:
+                    if (subjectTO instanceof GroupTO) {
+                        ((GroupTO) subjectTO).setName(attribute == null || attribute.getValue().isEmpty()
                                 || attribute.getValue().get(0) == null
                                         ? null
                                         : attribute.getValue().get(0).toString());
                     }
                     break;
 
-                case RoleOwnerSchema:
-                    if (subjectTO instanceof RoleTO && attribute != null) {
+                case GroupOwnerSchema:
+                    if (subjectTO instanceof GroupTO && attribute != null) {
                         // using a special attribute (with schema "", that will be ignored) for carrying the
-                        // RoleOwnerSchema value
+                        // GroupOwnerSchema value
                         attributeTO = new AttrTO();
                         attributeTO.setSchema(StringUtils.EMPTY);
                         if (attribute.getValue().isEmpty() || attribute.getValue().get(0) == null) {
@@ -300,12 +295,12 @@ public class ConnObjectUtil {
                             attributeTO.getValues().add(attribute.getValue().get(0).toString());
                         }
 
-                        ((RoleTO) subjectTO).getPlainAttrs().add(attributeTO);
+                        ((GroupTO) subjectTO).getPlainAttrs().add(attributeTO);
                     }
                     break;
 
                 case UserPlainSchema:
-                case RolePlainSchema:
+                case GroupPlainSchema:
                     attributeTO = new AttrTO();
                     attributeTO.setSchema(item.getIntAttrName());
 
@@ -335,6 +330,7 @@ public class ConnObjectUtil {
                                         attrValue.setStringValue(value.toString());
                                         schemaType = AttrSchemaType.String;
                                     }
+                                    break;
                             }
                             attributeTO.getValues().add(attrValue.getValueAsString(schemaType));
                         }
@@ -344,14 +340,14 @@ public class ConnObjectUtil {
                     break;
 
                 case UserDerivedSchema:
-                case RoleDerivedSchema:
+                case GroupDerivedSchema:
                     attributeTO = new AttrTO();
                     attributeTO.setSchema(item.getIntAttrName());
                     subjectTO.getDerAttrs().add(attributeTO);
                     break;
 
                 case UserVirtualSchema:
-                case RoleVirtualSchema:
+                case GroupVirtualSchema:
                     attributeTO = new AttrTO();
                     attributeTO.setSchema(item.getIntAttrName());
 
@@ -373,7 +369,7 @@ public class ConnObjectUtil {
 
         // 2. add data from defined template (if any)
         AbstractSubjectTO template = AttributableType.USER == attrUtil.getType()
-                ? syncTask.getUserTemplate() : syncTask.getRoleTemplate();
+                ? syncTask.getUserTemplate() : syncTask.getGroupTemplate();
 
         if (template != null) {
             if (template instanceof UserTO) {
@@ -394,63 +390,63 @@ public class ConnObjectUtil {
                 Map<Long, MembershipTO> currentMembs = ((UserTO) subjectTO).getMembershipMap();
                 for (MembershipTO membTO : ((UserTO) template).getMemberships()) {
                     MembershipTO membTBU;
-                    if (currentMembs.containsKey(membTO.getRoleId())) {
-                        membTBU = currentMembs.get(membTO.getRoleId());
+                    if (currentMembs.containsKey(membTO.getGroupId())) {
+                        membTBU = currentMembs.get(membTO.getGroupId());
                     } else {
                         membTBU = new MembershipTO();
-                        membTBU.setRoleId(membTO.getRoleId());
+                        membTBU.setGroupId(membTO.getGroupId());
                         ((UserTO) subjectTO).getMemberships().add(membTBU);
                     }
                     fillFromTemplate(membTBU, membTO);
                 }
             }
-            if (template instanceof RoleTO) {
-                if (StringUtils.isNotBlank(((RoleTO) template).getName())) {
-                    String evaluated = JexlUtil.evaluate(((RoleTO) template).getName(), subjectTO);
+            if (template instanceof GroupTO) {
+                if (StringUtils.isNotBlank(((GroupTO) template).getName())) {
+                    String evaluated = JexlUtil.evaluate(((GroupTO) template).getName(), subjectTO);
                     if (StringUtils.isNotBlank(evaluated)) {
-                        ((RoleTO) subjectTO).setName(evaluated);
+                        ((GroupTO) subjectTO).setName(evaluated);
                     }
                 }
 
-                if (((RoleTO) template).getParent() != 0) {
-                    final Role parentRole = roleDAO.find(((RoleTO) template).getParent());
-                    if (parentRole != null) {
-                        ((RoleTO) subjectTO).setParent(parentRole.getKey());
+                if (((GroupTO) template).getParent() != 0) {
+                    final Group parentGroup = groupDAO.find(((GroupTO) template).getParent());
+                    if (parentGroup != null) {
+                        ((GroupTO) subjectTO).setParent(parentGroup.getKey());
                     }
                 }
 
-                if (((RoleTO) template).getUserOwner() != null) {
-                    final User userOwner = userDAO.find(((RoleTO) template).getUserOwner());
+                if (((GroupTO) template).getUserOwner() != null) {
+                    final User userOwner = userDAO.find(((GroupTO) template).getUserOwner());
                     if (userOwner != null) {
-                        ((RoleTO) subjectTO).setUserOwner(userOwner.getKey());
+                        ((GroupTO) subjectTO).setUserOwner(userOwner.getKey());
                     }
                 }
-                if (((RoleTO) template).getRoleOwner() != null) {
-                    final Role roleOwner = roleDAO.find(((RoleTO) template).getRoleOwner());
-                    if (roleOwner != null) {
-                        ((RoleTO) subjectTO).setRoleOwner(roleOwner.getKey());
+                if (((GroupTO) template).getGroupOwner() != null) {
+                    final Group groupOwner = groupDAO.find(((GroupTO) template).getGroupOwner());
+                    if (groupOwner != null) {
+                        ((GroupTO) subjectTO).setGroupOwner(groupOwner.getKey());
                     }
                 }
 
-                ((RoleTO) subjectTO).getEntitlements().addAll(((RoleTO) template).getEntitlements());
+                ((GroupTO) subjectTO).getEntitlements().addAll(((GroupTO) template).getEntitlements());
 
-                ((RoleTO) subjectTO).getRPlainAttrTemplates().addAll(((RoleTO) template).getRPlainAttrTemplates());
-                ((RoleTO) subjectTO).getRDerAttrTemplates().addAll(((RoleTO) template).getRDerAttrTemplates());
-                ((RoleTO) subjectTO).getRVirAttrTemplates().addAll(((RoleTO) template).getRVirAttrTemplates());
-                ((RoleTO) subjectTO).getMPlainAttrTemplates().addAll(((RoleTO) template).getMPlainAttrTemplates());
-                ((RoleTO) subjectTO).getMDerAttrTemplates().addAll(((RoleTO) template).getMDerAttrTemplates());
-                ((RoleTO) subjectTO).getMVirAttrTemplates().addAll(((RoleTO) template).getMVirAttrTemplates());
+                ((GroupTO) subjectTO).getGPlainAttrTemplates().addAll(((GroupTO) template).getGPlainAttrTemplates());
+                ((GroupTO) subjectTO).getGDerAttrTemplates().addAll(((GroupTO) template).getGDerAttrTemplates());
+                ((GroupTO) subjectTO).getGVirAttrTemplates().addAll(((GroupTO) template).getGVirAttrTemplates());
+                ((GroupTO) subjectTO).getMPlainAttrTemplates().addAll(((GroupTO) template).getMPlainAttrTemplates());
+                ((GroupTO) subjectTO).getMDerAttrTemplates().addAll(((GroupTO) template).getMDerAttrTemplates());
+                ((GroupTO) subjectTO).getMVirAttrTemplates().addAll(((GroupTO) template).getMVirAttrTemplates());
 
-                ((RoleTO) subjectTO).setAccountPolicy(((RoleTO) template).getAccountPolicy());
-                ((RoleTO) subjectTO).setPasswordPolicy(((RoleTO) template).getPasswordPolicy());
+                ((GroupTO) subjectTO).setAccountPolicy(((GroupTO) template).getAccountPolicy());
+                ((GroupTO) subjectTO).setPasswordPolicy(((GroupTO) template).getPasswordPolicy());
 
-                ((RoleTO) subjectTO).setInheritOwner(((RoleTO) template).isInheritOwner());
-                ((RoleTO) subjectTO).setInheritTemplates(((RoleTO) template).isInheritTemplates());
-                ((RoleTO) subjectTO).setInheritPlainAttrs(((RoleTO) template).isInheritPlainAttrs());
-                ((RoleTO) subjectTO).setInheritDerAttrs(((RoleTO) template).isInheritDerAttrs());
-                ((RoleTO) subjectTO).setInheritVirAttrs(((RoleTO) template).isInheritVirAttrs());
-                ((RoleTO) subjectTO).setInheritPasswordPolicy(((RoleTO) template).isInheritPasswordPolicy());
-                ((RoleTO) subjectTO).setInheritAccountPolicy(((RoleTO) template).isInheritAccountPolicy());
+                ((GroupTO) subjectTO).setInheritOwner(((GroupTO) template).isInheritOwner());
+                ((GroupTO) subjectTO).setInheritTemplates(((GroupTO) template).isInheritTemplates());
+                ((GroupTO) subjectTO).setInheritPlainAttrs(((GroupTO) template).isInheritPlainAttrs());
+                ((GroupTO) subjectTO).setInheritDerAttrs(((GroupTO) template).isInheritDerAttrs());
+                ((GroupTO) subjectTO).setInheritVirAttrs(((GroupTO) template).isInheritVirAttrs());
+                ((GroupTO) subjectTO).setInheritPasswordPolicy(((GroupTO) template).isInheritPasswordPolicy());
+                ((GroupTO) subjectTO).setInheritAccountPolicy(((GroupTO) template).isInheritAccountPolicy());
             }
 
             fillFromTemplate(subjectTO, template);
@@ -533,7 +529,7 @@ public class ConnObjectUtil {
     /**
      * Query connected external resources for values to populated virtual attributes associated with the given owner.
      *
-     * @param owner user or role
+     * @param owner user or group
      * @param attrUtil attributable util
      */
     public void retrieveVirAttrValues(final Attributable<?, ?, ?> owner, final AttributableUtil attrUtil) {
@@ -541,8 +537,8 @@ public class ConnObjectUtil {
         final ConnectorFactory connFactory = context.getBean(ConnectorFactory.class);
 
         final IntMappingType type = attrUtil.getType() == AttributableType.USER
-                ? IntMappingType.UserVirtualSchema : attrUtil.getType() == AttributableType.ROLE
-                        ? IntMappingType.RoleVirtualSchema : IntMappingType.MembershipVirtualSchema;
+                ? IntMappingType.UserVirtualSchema : attrUtil.getType() == AttributableType.GROUP
+                        ? IntMappingType.GroupVirtualSchema : IntMappingType.MembershipVirtualSchema;
 
         final Map<String, ConnectorObject> externalResources = new HashMap<>();
 

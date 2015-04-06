@@ -66,7 +66,7 @@ public class ResourceAssociationMod extends AbstractBaseBean {
         return changePwd;
     }
 
-    public void setChangePwd(boolean changePwd) {
+    public void setChangePwd(final boolean changePwd) {
         this.changePwd = changePwd;
     }
 
@@ -74,7 +74,7 @@ public class ResourceAssociationMod extends AbstractBaseBean {
         return password;
     }
 
-    public void setPassword(String password) {
+    public void setPassword(final String password) {
         this.password = password;
     }
 }

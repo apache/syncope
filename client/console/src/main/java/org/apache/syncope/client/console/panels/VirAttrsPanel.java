@@ -26,8 +26,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.panels.AttrTemplatesPanel.RoleAttrTemplatesChange;
-import org.apache.syncope.client.console.rest.RoleRestClient;
+import org.apache.syncope.client.console.panels.AttrTemplatesPanel.GroupAttrTemplatesChange;
+import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDecoratedCheckbox;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
@@ -35,7 +35,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel
 import org.apache.syncope.common.lib.to.AbstractAttributableTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
-import org.apache.syncope.common.lib.to.RoleTO;
+import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.VirSchemaTO;
 import org.apache.syncope.common.lib.types.AttributableType;
@@ -69,7 +69,7 @@ public class VirAttrsPanel extends Panel {
     private SchemaRestClient schemaRestClient;
 
     @SpringBean
-    private RoleRestClient roleRestClient;
+    private GroupRestClient groupRestClient;
 
     private final AttrTemplatesPanel attrTemplates;
 
@@ -105,18 +105,17 @@ public class VirAttrsPanel extends Panel {
             protected List<String> load() {
                 List<VirSchemaTO> schemaTOs;
 
-                if (entityTO instanceof RoleTO) {
-                    final RoleTO roleTO = (RoleTO) entityTO;
+                if (entityTO instanceof GroupTO) {
+                    final GroupTO groupTO = (GroupTO) entityTO;
 
-                    schemaTOs = schemaRestClient.getVirSchemas(AttributableType.ROLE);
+                    schemaTOs = schemaRestClient.getVirSchemas(AttributableType.GROUP);
                     Set<String> allowed;
                     if (attrTemplates == null) {
-                        allowed = new HashSet<String>(roleTO.getRVirAttrTemplates());
+                        allowed = new HashSet<>(groupTO.getGVirAttrTemplates());
                     } else {
-                        allowed = new HashSet<String>(attrTemplates.getSelected(
-                                AttrTemplatesPanel.Type.rVirAttrTemplates));
-                        if (roleTO.isInheritTemplates() && roleTO.getParent() != 0) {
-                            allowed.addAll(roleRestClient.read(roleTO.getParent()).getRVirAttrTemplates());
+                        allowed = new HashSet<>(attrTemplates.getSelected(AttrTemplatesPanel.Type.gVirAttrTemplates));
+                        if (groupTO.isInheritTemplates() && groupTO.getParent() != 0) {
+                            allowed.addAll(groupRestClient.read(groupTO.getParent()).getGVirAttrTemplates());
                         }
                     }
                     filter(schemaTOs, allowed);
@@ -125,7 +124,7 @@ public class VirAttrsPanel extends Panel {
                 } else {
                     schemaTOs = schemaRestClient.getVirSchemas(AttributableType.MEMBERSHIP);
                     Set<String> allowed = new HashSet<String>(
-                            roleRestClient.read(((MembershipTO) entityTO).getRoleId()).getMVirAttrTemplates());
+                            groupRestClient.read(((MembershipTO) entityTO).getGroupId()).getMVirAttrTemplates());
                     filter(schemaTOs, allowed);
                 }
 
@@ -285,9 +284,9 @@ public class VirAttrsPanel extends Panel {
 
     @Override
     public void onEvent(final IEvent<?> event) {
-        if ((event.getPayload() instanceof RoleAttrTemplatesChange)) {
-            final RoleAttrTemplatesChange update = (RoleAttrTemplatesChange) event.getPayload();
-            if (attrTemplates != null && update.getType() == AttrTemplatesPanel.Type.rVirAttrTemplates) {
+        if ((event.getPayload() instanceof GroupAttrTemplatesChange)) {
+            final GroupAttrTemplatesChange update = (GroupAttrTemplatesChange) event.getPayload();
+            if (attrTemplates != null && update.getType() == AttrTemplatesPanel.Type.gVirAttrTemplates) {
                 update.getTarget().add(this);
             }
         }

@@ -27,7 +27,7 @@ import org.quartz.Job;
 @DisallowConcurrentExecution
 public interface TaskJob extends Job {
 
-    public static final String DRY_RUN_JOBDETAIL_KEY = "dryRun";
+    String DRY_RUN_JOBDETAIL_KEY = "dryRun";
 
     /**
      * Task execution status.

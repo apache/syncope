@@ -54,16 +54,16 @@ public class UserWorkflowITCase extends AbstractITCase {
         UserTO userTO = UserITCase.getUniqueSampleTO("createWithReject@syncope.apache.org");
         userTO.getResources().add(RESOURCE_NAME_TESTDB);
 
-        // User with role 9 are defined in workflow as subject to approval
+        // User with group 9 are defined in workflow as subject to approval
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setRoleId(9L);
+        membershipTO.setGroupId(9L);
         userTO.getMemberships().add(membershipTO);
 
-        // 1. create user with role 9
+        // 1. create user with group 9
         userTO = createUser(userTO);
         assertNotNull(userTO);
         assertEquals(1, userTO.getMemberships().size());
-        assertEquals(9, userTO.getMemberships().get(0).getRoleId());
+        assertEquals(9, userTO.getMemberships().get(0).getGroupId());
         assertEquals("createApproval", userTO.getStatus());
 
         // 2. request if there is any pending task for user just created
@@ -74,7 +74,7 @@ public class UserWorkflowITCase extends AbstractITCase {
         assertNotNull(form.getTaskId());
         assertNull(form.getOwner());
 
-        // 3. claim task from rossini, not in role 7 (designated for approval in workflow definition): fail
+        // 3. claim task from rossini, not in group 7 (designated for approval in workflow definition): fail
         UserWorkflowService userService2 = clientFactory.create(
                 "rossini", ADMIN_PWD).getService(UserWorkflowService.class);
 
@@ -85,7 +85,7 @@ public class UserWorkflowITCase extends AbstractITCase {
             assertEquals(ClientExceptionType.Workflow, e.getType());
         }
 
-        // 4. claim task from bellini, in role 7
+        // 4. claim task from bellini, in group 7
         UserWorkflowService userService3 = clientFactory.create(
                 "bellini", ADMIN_PWD).getService(UserWorkflowService.class);
 
@@ -128,16 +128,16 @@ public class UserWorkflowITCase extends AbstractITCase {
         UserTO userTO = UserITCase.getUniqueSampleTO("createWithApproval@syncope.apache.org");
         userTO.getResources().add(RESOURCE_NAME_TESTDB);
 
-        // User with role 9 are defined in workflow as subject to approval
+        // User with group 9 are defined in workflow as subject to approval
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setRoleId(9L);
+        membershipTO.setGroupId(9L);
         userTO.getMemberships().add(membershipTO);
 
-        // 1. create user with role 9 (and verify that no propagation occurred)
+        // 1. create user with group 9 (and verify that no propagation occurred)
         userTO = createUser(userTO);
         assertNotNull(userTO);
         assertEquals(1, userTO.getMemberships().size());
-        assertEquals(9, userTO.getMemberships().get(0).getRoleId());
+        assertEquals(9, userTO.getMemberships().get(0).getGroupId());
         assertEquals("createApproval", userTO.getStatus());
         assertEquals(Collections.singleton(RESOURCE_NAME_TESTDB), userTO.getResources());
 
@@ -214,12 +214,12 @@ public class UserWorkflowITCase extends AbstractITCase {
         userTO.getDerAttrs().clear();
         userTO.getMemberships().clear();
 
-        // User with role 9 are defined in workflow as subject to approval
+        // User with group 9 are defined in workflow as subject to approval
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setRoleId(9L);
+        membershipTO.setGroupId(9L);
         userTO.getMemberships().add(membershipTO);
 
-        // 1. create user with role 9 (and verify that no propagation occurred)
+        // 1. create user with group 9 (and verify that no propagation occurred)
         userTO = createUser(userTO);
         assertNotNull(userTO);
         assertNotEquals(0L, userTO.getKey());

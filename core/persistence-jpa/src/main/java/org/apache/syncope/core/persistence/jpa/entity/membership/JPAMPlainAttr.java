@@ -107,7 +107,7 @@ public class JPAMPlainAttr extends AbstractPlainAttr implements MPlainAttr {
 
     @Override
     public void setSchema(final PlainSchema schema) {
-        LOG.warn("This is role attribute, set template to select schema");
+        LOG.warn("This is membership attribute, set template to select schema");
     }
 
     @Override

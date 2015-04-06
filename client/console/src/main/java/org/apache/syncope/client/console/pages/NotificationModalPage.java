@@ -25,7 +25,7 @@ import java.util.EnumSet;
 import java.util.List;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.LoggerCategoryPanel;
-import org.apache.syncope.client.console.panels.RoleSearchPanel;
+import org.apache.syncope.client.console.panels.GroupSearchPanel;
 import org.apache.syncope.client.console.panels.UserSearchPanel;
 import org.apache.syncope.client.console.rest.LoggerRestClient;
 import org.apache.syncope.client.console.rest.NotificationRestClient;
@@ -108,26 +108,26 @@ class NotificationModalPage extends BaseModalPage {
         form.add(aboutContainer);
 
         final AjaxCheckBoxPanel checkAbout = new AjaxCheckBoxPanel("checkAbout", "checkAbout", new Model<Boolean>(
-                notificationTO.getUserAbout() == null && notificationTO.getRoleAbout() == null));
+                notificationTO.getUserAbout() == null && notificationTO.getGroupAbout() == null));
         aboutContainer.add(checkAbout);
 
         final AjaxCheckBoxPanel checkUserAbout = new AjaxCheckBoxPanel("checkUserAbout", "checkUserAbout",
                 new Model<Boolean>(notificationTO.getUserAbout() != null));
         aboutContainer.add(checkUserAbout);
 
-        final AjaxCheckBoxPanel checkRoleAbout = new AjaxCheckBoxPanel("checkRoleAbout", "checkRoleAbout",
-                new Model<Boolean>(notificationTO.getRoleAbout() != null));
-        aboutContainer.add(checkRoleAbout);
+        final AjaxCheckBoxPanel checkGroupAbout = new AjaxCheckBoxPanel("checkGroupAbout", "checkGroupAbout",
+                new Model<Boolean>(notificationTO.getGroupAbout() != null));
+        aboutContainer.add(checkGroupAbout);
 
         final UserSearchPanel userAbout =
                 new UserSearchPanel.Builder("userAbout").fiql(notificationTO.getUserAbout()).build();
         aboutContainer.add(userAbout);
         userAbout.setEnabled(checkUserAbout.getModelObject());
 
-        final RoleSearchPanel roleAbout =
-                new RoleSearchPanel.Builder("roleAbout").fiql(notificationTO.getRoleAbout()).build();
-        aboutContainer.add(roleAbout);
-        roleAbout.setEnabled(checkRoleAbout.getModelObject());
+        final GroupSearchPanel groupAbout =
+                new GroupSearchPanel.Builder("groupAbout").fiql(notificationTO.getGroupAbout()).build();
+        aboutContainer.add(groupAbout);
+        groupAbout.setEnabled(checkGroupAbout.getModelObject());
 
         checkAbout.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
@@ -137,9 +137,9 @@ class NotificationModalPage extends BaseModalPage {
             protected void onUpdate(final AjaxRequestTarget target) {
                 if (checkAbout.getModelObject()) {
                     checkUserAbout.setModelObject(Boolean.FALSE);
-                    checkRoleAbout.setModelObject(Boolean.FALSE);
+                    checkGroupAbout.setModelObject(Boolean.FALSE);
                     userAbout.setEnabled(Boolean.FALSE);
-                    roleAbout.setEnabled(Boolean.FALSE);
+                    groupAbout.setEnabled(Boolean.FALSE);
                 } else {
                     checkAbout.setModelObject(Boolean.TRUE);
                 }
@@ -155,8 +155,8 @@ class NotificationModalPage extends BaseModalPage {
             protected void onUpdate(final AjaxRequestTarget target) {
                 if (checkUserAbout.getModelObject()) {
                     checkAbout.setModelObject(!checkUserAbout.getModelObject());
-                    checkRoleAbout.setModelObject(!checkUserAbout.getModelObject());
-                    roleAbout.setEnabled(Boolean.FALSE);
+                    checkGroupAbout.setModelObject(!checkUserAbout.getModelObject());
+                    groupAbout.setEnabled(Boolean.FALSE);
                 } else {
                     checkUserAbout.setModelObject(Boolean.TRUE);
                 }
@@ -165,20 +165,20 @@ class NotificationModalPage extends BaseModalPage {
             }
         });
 
-        checkRoleAbout.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+        checkGroupAbout.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                if (checkRoleAbout.getModelObject()) {
+                if (checkGroupAbout.getModelObject()) {
                     checkAbout.setModelObject(Boolean.FALSE);
                     checkUserAbout.setModelObject(Boolean.FALSE);
                     userAbout.setEnabled(Boolean.FALSE);
                 } else {
-                    checkRoleAbout.setModelObject(Boolean.TRUE);
+                    checkGroupAbout.setModelObject(Boolean.TRUE);
                 }
-                roleAbout.setEnabled(Boolean.TRUE);
+                groupAbout.setEnabled(Boolean.TRUE);
                 target.add(aboutContainer);
             }
         });
@@ -353,9 +353,9 @@ class NotificationModalPage extends BaseModalPage {
             protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                 notificationTO.setUserAbout(
                         !checkAbout.getModelObject() && checkUserAbout.getModelObject() ? userAbout.buildFIQL() : null);
-                notificationTO.setRoleAbout(
+                notificationTO.setGroupAbout(
                         !checkAbout.getModelObject()
-                        && checkRoleAbout.getModelObject() ? roleAbout.buildFIQL() : null);
+                        && checkGroupAbout.getModelObject() ? groupAbout.buildFIQL() : null);
                 notificationTO.setRecipients(checkRecipients.getModelObject() ? recipients.buildFIQL() : null);
                 notificationTO.getStaticRecipients().removeAll(Collections.singleton(null));
 

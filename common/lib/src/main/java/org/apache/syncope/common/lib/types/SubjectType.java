@@ -24,11 +24,11 @@ import javax.xml.bind.annotation.XmlEnum;
 public enum SubjectType {
 
     USER,
-    ROLE;
+    GROUP;
 
     public AttributableType asAttributableType() {
         return this == USER
                 ? AttributableType.USER
-                : AttributableType.ROLE;
+                : AttributableType.GROUP;
     }
 }

@@ -26,7 +26,7 @@ import org.apache.syncope.common.lib.types.PasswordPolicySpec;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.PasswordPolicy;
-import org.apache.syncope.core.persistence.api.entity.role.Role;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.misc.policy.InvalidPasswordPolicySpecException;
 import org.apache.syncope.core.misc.policy.PolicyPattern;
@@ -66,11 +66,11 @@ public class PasswordGenerator {
             ppSpecs.add(globalPP.getSpecification(PasswordPolicySpec.class));
         }
 
-        for (Role role : user.getRoles()) {
-            if (role.getPasswordPolicy() != null
-                    && role.getPasswordPolicy().getSpecification(PasswordPolicySpec.class) != null) {
+        for (Group group : user.getGroups()) {
+            if (group.getPasswordPolicy() != null
+                    && group.getPasswordPolicy().getSpecification(PasswordPolicySpec.class) != null) {
 
-                ppSpecs.add(role.getPasswordPolicy().getSpecification(PasswordPolicySpec.class));
+                ppSpecs.add(group.getPasswordPolicy().getSpecification(PasswordPolicySpec.class));
             }
         }
 
@@ -287,13 +287,15 @@ public class PasswordGenerator {
         if (policySpec.isUppercaseRequired()
                 && !PolicyPattern.ALPHA_UPPERCASE.matcher(StringUtils.join(generatedPassword)).matches()) {
 
-            generatedPassword[firstEmptyChar(generatedPassword)] = SecureRandomUtil.generateRandomLetter().toUpperCase();
+            generatedPassword[firstEmptyChar(generatedPassword)] =
+                    SecureRandomUtil.generateRandomLetter().toUpperCase();
         }
 
         if (policySpec.isLowercaseRequired()
                 && !PolicyPattern.ALPHA_LOWERCASE.matcher(StringUtils.join(generatedPassword)).matches()) {
 
-            generatedPassword[firstEmptyChar(generatedPassword)] = SecureRandomUtil.generateRandomLetter().toLowerCase();
+            generatedPassword[firstEmptyChar(generatedPassword)] =
+                    SecureRandomUtil.generateRandomLetter().toLowerCase();
         }
 
         if (policySpec.isNonAlphanumericRequired()

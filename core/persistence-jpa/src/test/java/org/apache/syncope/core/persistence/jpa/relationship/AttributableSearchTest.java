@@ -26,13 +26,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.apache.syncope.common.lib.types.SubjectType;
-import org.apache.syncope.core.persistence.api.RoleEntitlementUtil;
+import org.apache.syncope.core.persistence.api.GroupEntitlementUtil;
 import org.apache.syncope.core.persistence.api.dao.EntitlementDAO;
-import org.apache.syncope.core.persistence.api.dao.RoleDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.SubjectSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
-import org.apache.syncope.core.persistence.api.entity.role.Role;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.junit.Test;
@@ -43,7 +43,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AttributableSearchTest extends AbstractTest {
 
     @Autowired
-    private RoleDAO roleDAO;
+    private GroupDAO groupDAO;
 
     @Autowired
     private SubjectSearchDAO searchDAO;
@@ -53,11 +53,11 @@ public class AttributableSearchTest extends AbstractTest {
 
     @Test
     public void issueSYNCOPE95() {
-        Set<Role> roles = new HashSet<>(roleDAO.findAll());
-        for (Role role : roles) {
-            roleDAO.delete(role.getKey());
+        Set<Group> groups = new HashSet<>(groupDAO.findAll());
+        for (Group group : groups) {
+            groupDAO.delete(group.getKey());
         }
-        roleDAO.flush();
+        groupDAO.flush();
 
         final AttributeCond coolLeafCond = new AttributeCond(AttributeCond.Type.EQ);
         coolLeafCond.setSchema("cool");
@@ -67,7 +67,7 @@ public class AttributableSearchTest extends AbstractTest {
         assertTrue(cond.isValid());
 
         final List<User> users =
-                searchDAO.search(RoleEntitlementUtil.getRoleKeys(entitlementDAO.findAll()), cond, SubjectType.USER);
+                searchDAO.search(GroupEntitlementUtil.getGroupKeys(entitlementDAO.findAll()), cond, SubjectType.USER);
         assertNotNull(users);
         assertEquals(1, users.size());
 

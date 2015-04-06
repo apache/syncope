@@ -19,11 +19,10 @@
 package org.apache.syncope.core.persistence.api.entity;
 
 import java.util.List;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidPlainAttrValueException;
 
 public interface PlainAttr extends Attr<PlainSchema> {
 
-    void addValue(String value, AttributableUtil attributableUtil) throws InvalidPlainAttrValueException;
+    void addValue(String value, AttributableUtil attributableUtil);
 
     boolean removeValue(PlainAttrValue attrValue);
 

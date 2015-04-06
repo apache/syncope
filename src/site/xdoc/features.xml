@@ -27,15 +27,15 @@ under the License.
   </properties>
 
   <body>    
-    <section name="Account and Role Administration">
+    <section name="Account and Group Administration">
       <ul>
         <li>Password management and Self-Service Operations</li>
         <li>Configurable Password encryption</li>
         <li>Attribute validators (Reg-Exp based and custom)</li>
         <li>Account Policy management</li>
         <li>Password Policy management</li>
-        <li>User role-based provisioning</li>
-        <li>Role provisioning</li>
+        <li>User group-based provisioning</li>
+        <li>Group provisioning</li>
         <li>Account status information on external resources</li>
       </ul>
     </section>
@@ -71,9 +71,9 @@ under the License.
       <ul>
         <li>RESTFul interface</li>
         <li>Web-based multilingual AJAX administration console</li>
-        <li>Role-based administration</li>
+        <li>Group-based administration</li>
         <li>Attribute schema, Derived attribute schema and Virtual Attribute schema management</li>
-        <li>Role tree management</li>
+        <li>Group tree management</li>
         <li>Schedulable Task execution</li>
       </ul>
     </section>

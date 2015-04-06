@@ -156,8 +156,8 @@ public class Configuration extends BasePage {
         // Layouts
         add(new LayoutsPanel("adminUserLayoutPanel", AttrLayoutType.ADMIN_USER, feedbackPanel));
         add(new LayoutsPanel("selfUserLayoutPanel", AttrLayoutType.SELF_USER, feedbackPanel));
-        add(new LayoutsPanel("adminRoleLayoutPanel", AttrLayoutType.ADMIN_ROLE, feedbackPanel));
-        add(new LayoutsPanel("selfRoleLayoutPanel", AttrLayoutType.SELF_ROLE, feedbackPanel));
+        add(new LayoutsPanel("adminGroupLayoutPanel", AttrLayoutType.ADMIN_GROUP, feedbackPanel));
+        add(new LayoutsPanel("selfGroupLayoutPanel", AttrLayoutType.SELF_GROUP, feedbackPanel));
         add(new LayoutsPanel("adminMembershipLayoutPanel", AttrLayoutType.ADMIN_MEMBERSHIP, feedbackPanel));
         add(new LayoutsPanel("selfMembershipLayoutPanel", AttrLayoutType.SELF_MEMBERSHIP, feedbackPanel));
 

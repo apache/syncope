@@ -19,19 +19,14 @@
 package org.apache.syncope.core.misc.serialization;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import java.io.IOException;
 import org.identityconnectors.common.Base64;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.objects.Attribute;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 class AttributeSerializer extends JsonSerializer<Attribute> {
-
-    private static final Logger LOG = LoggerFactory.getLogger(AttributeSerializer.class);
 
     public static final String BYTE_ARRAY_PREFIX = "<binary>";
 
@@ -39,7 +34,7 @@ class AttributeSerializer extends JsonSerializer<Attribute> {
 
     @Override
     public void serialize(final Attribute source, final JsonGenerator jgen, final SerializerProvider sp)
-            throws IOException, JsonProcessingException {
+            throws IOException {
 
         jgen.writeStartObject();
 

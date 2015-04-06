@@ -31,15 +31,15 @@ import org.apache.syncope.core.persistence.api.entity.conf.CPlainSchema;
 import org.apache.syncope.core.persistence.api.entity.membership.MDerSchema;
 import org.apache.syncope.core.persistence.api.entity.membership.MPlainSchema;
 import org.apache.syncope.core.persistence.api.entity.membership.MVirSchema;
-import org.apache.syncope.core.persistence.api.entity.role.RDerSchema;
-import org.apache.syncope.core.persistence.api.entity.role.RPlainSchema;
-import org.apache.syncope.core.persistence.api.entity.role.RVirSchema;
+import org.apache.syncope.core.persistence.api.entity.group.GDerSchema;
+import org.apache.syncope.core.persistence.api.entity.group.GPlainSchema;
+import org.apache.syncope.core.persistence.api.entity.group.GVirSchema;
 import org.apache.syncope.core.persistence.api.entity.user.UDerSchema;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainSchema;
 import org.apache.syncope.core.persistence.api.entity.user.UVirSchema;
 import org.apache.syncope.core.persistence.jpa.entity.conf.JPAConf;
 import org.apache.syncope.core.persistence.jpa.entity.membership.JPAMembership;
-import org.apache.syncope.core.persistence.jpa.entity.role.JPARole;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 
 public class SchemaNameValidator extends AbstractValidator<SchemaNameCheck, Object> {
@@ -55,7 +55,7 @@ public class SchemaNameValidator extends AbstractValidator<SchemaNameCheck, Obje
     static {
         initUnallowedSchemaNames(JPAUser.class, UNALLOWED_USCHEMA_NAMES);
         initUnallowedSchemaNames(JPAMembership.class, UNALLOWED_MSCHEMA_NAMES);
-        initUnallowedSchemaNames(JPARole.class, UNALLOWED_RSCHEMA_NAMES);
+        initUnallowedSchemaNames(JPAGroup.class, UNALLOWED_RSCHEMA_NAMES);
         initUnallowedSchemaNames(JPAConf.class, UNALLOWED_CSCHEMA_NAMES);
     }
 
@@ -96,14 +96,14 @@ public class SchemaNameValidator extends AbstractValidator<SchemaNameCheck, Obje
         } else if (object instanceof MVirSchema) {
             schemaName = ((MVirSchema) object).getKey();
             unallowedNames = UNALLOWED_MSCHEMA_NAMES;
-        } else if (object instanceof RPlainSchema) {
-            schemaName = ((RPlainSchema) object).getKey();
+        } else if (object instanceof GPlainSchema) {
+            schemaName = ((GPlainSchema) object).getKey();
             unallowedNames = UNALLOWED_RSCHEMA_NAMES;
-        } else if (object instanceof RDerSchema) {
-            schemaName = ((RDerSchema) object).getKey();
+        } else if (object instanceof GDerSchema) {
+            schemaName = ((GDerSchema) object).getKey();
             unallowedNames = UNALLOWED_RSCHEMA_NAMES;
-        } else if (object instanceof RVirSchema) {
-            schemaName = ((RVirSchema) object).getKey();
+        } else if (object instanceof GVirSchema) {
+            schemaName = ((GVirSchema) object).getKey();
             unallowedNames = UNALLOWED_RSCHEMA_NAMES;
         } else if (object instanceof CPlainSchema) {
             schemaName = ((CPlainSchema) object).getKey();

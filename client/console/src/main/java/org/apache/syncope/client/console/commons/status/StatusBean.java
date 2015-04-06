@@ -24,7 +24,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.syncope.common.lib.to.AbstractAttributableTO;
-import org.apache.syncope.common.lib.to.RoleTO;
+import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 
 public class StatusBean implements Serializable {
@@ -46,7 +46,7 @@ public class StatusBean implements Serializable {
     public StatusBean(final AbstractAttributableTO attributable, String resourceName) {
         this.attributableKey = attributable.getKey();
         this.attributableName = attributable instanceof UserTO
-                ? ((UserTO) attributable).getUsername() : ((RoleTO) attributable).getName();
+                ? ((UserTO) attributable).getUsername() : ((GroupTO) attributable).getName();
         this.resourceName = resourceName;
     }
 

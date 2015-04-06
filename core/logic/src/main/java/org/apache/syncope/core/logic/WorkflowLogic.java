@@ -22,7 +22,7 @@ import java.io.OutputStream;
 import java.lang.reflect.Method;
 import javax.ws.rs.core.MediaType;
 import org.apache.syncope.common.lib.AbstractBaseBean;
-import org.apache.syncope.core.workflow.api.RoleWorkflowAdapter;
+import org.apache.syncope.core.workflow.api.GroupWorkflowAdapter;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
 import org.apache.syncope.core.workflow.api.WorkflowAdapter;
 import org.apache.syncope.core.workflow.api.WorkflowDefinitionFormat;
@@ -39,7 +39,7 @@ public class WorkflowLogic extends AbstractTransactionalLogic<AbstractBaseBean> 
     private UserWorkflowAdapter uwfAdapter;
 
     @Autowired
-    private RoleWorkflowAdapter rwfAdapter;
+    private GroupWorkflowAdapter gwfAdapter;
 
     private void exportDefinition(
             final WorkflowAdapter adapter, final WorkflowDefinitionFormat format, final OutputStream os)
@@ -64,10 +64,10 @@ public class WorkflowLogic extends AbstractTransactionalLogic<AbstractBaseBean> 
 
     @PreAuthorize("hasRole('WORKFLOW_DEF_READ')")
     @Transactional(readOnly = true)
-    public void exportRoleDefinition(final MediaType format, final OutputStream os)
+    public void exportGroupDefinition(final MediaType format, final OutputStream os)
             throws WorkflowException {
 
-        exportDefinition(rwfAdapter, getFormat(format), os);
+        exportDefinition(gwfAdapter, getFormat(format), os);
     }
 
     private void exportDiagram(final WorkflowAdapter adapter, final OutputStream os)
@@ -85,10 +85,10 @@ public class WorkflowLogic extends AbstractTransactionalLogic<AbstractBaseBean> 
 
     @PreAuthorize("hasRole('WORKFLOW_DEF_READ')")
     @Transactional(readOnly = true)
-    public void exportRoleDiagram(final OutputStream os)
+    public void exportGroupDiagram(final OutputStream os)
             throws WorkflowException {
 
-        exportDiagram(rwfAdapter, os);
+        exportDiagram(gwfAdapter, os);
     }
 
     private void importDefinition(
@@ -103,8 +103,8 @@ public class WorkflowLogic extends AbstractTransactionalLogic<AbstractBaseBean> 
     }
 
     @PreAuthorize("hasRole('WORKFLOW_DEF_UPDATE')")
-    public void importRoleDefinition(final MediaType format, final String definition) {
-        importDefinition(rwfAdapter, getFormat(format), definition);
+    public void importGroupDefinition(final MediaType format, final String definition) {
+        importDefinition(gwfAdapter, getFormat(format), definition);
     }
 
     @Override

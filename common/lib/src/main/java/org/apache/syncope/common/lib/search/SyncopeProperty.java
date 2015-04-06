@@ -24,12 +24,12 @@ import org.apache.cxf.jaxrs.ext.search.client.Property;
 /**
  * Extension of fluent interface, for {@link SyncopeFiqlSearchConditionBuilder}.
  */
-public abstract interface SyncopeProperty extends Property {
+public interface SyncopeProperty extends Property {
 
     CompleteCondition nullValue();
 
     CompleteCondition notNullValue();
-    
+
     CompleteCondition hasResources(String resource, String... moreResources);
 
     CompleteCondition hasNotResources(String resource, String... moreResources);

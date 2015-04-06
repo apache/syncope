@@ -30,7 +30,7 @@ public @interface FormAttributeField {
 
     boolean userSearch() default false;
 
-    boolean roleSearch() default false;
+    boolean groupSearch() default false;
 
     IntMappingType schema() default IntMappingType.UserPlainSchema;
 }

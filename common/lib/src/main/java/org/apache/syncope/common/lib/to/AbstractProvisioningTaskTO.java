@@ -50,13 +50,13 @@ public class AbstractProvisioningTaskTO extends SchedTaskTO {
 
     private MatchingRule matchingRule;
 
-    private List<String> actionsClassNames = new ArrayList<>();
+    private final List<String> actionsClassNames = new ArrayList<>();
 
     public String getResource() {
         return resource;
     }
 
-    public void setResource(String resource) {
+    public void setResource(final String resource) {
         this.resource = resource;
     }
 
@@ -64,7 +64,7 @@ public class AbstractProvisioningTaskTO extends SchedTaskTO {
         return performCreate;
     }
 
-    public void setPerformCreate(boolean performCreate) {
+    public void setPerformCreate(final boolean performCreate) {
         this.performCreate = performCreate;
     }
 
@@ -72,7 +72,7 @@ public class AbstractProvisioningTaskTO extends SchedTaskTO {
         return performUpdate;
     }
 
-    public void setPerformUpdate(boolean performUpdate) {
+    public void setPerformUpdate(final boolean performUpdate) {
         this.performUpdate = performUpdate;
     }
 
@@ -80,7 +80,7 @@ public class AbstractProvisioningTaskTO extends SchedTaskTO {
         return performDelete;
     }
 
-    public void setPerformDelete(boolean performDelete) {
+    public void setPerformDelete(final boolean performDelete) {
         this.performDelete = performDelete;
     }
 
@@ -88,7 +88,7 @@ public class AbstractProvisioningTaskTO extends SchedTaskTO {
         return syncStatus;
     }
 
-    public void setSyncStatus(boolean syncStatus) {
+    public void setSyncStatus(final boolean syncStatus) {
         this.syncStatus = syncStatus;
     }
 

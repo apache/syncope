@@ -52,15 +52,15 @@ public final class AuthContextUtil {
     }
 
     /**
-     * Extend the current authentication context to include the given role.
+     * Extend the current authentication context to include the given group.
      *
-     * @param roleKey role key
-     * @param roleEntitlement role entitlement
+     * @param groupKey group key
+     * @param groupEntitlement group entitlement
      */
-    public static void extendAuthContext(final Long roleKey, final String roleEntitlement) {
+    public static void extendAuthContext(final Long groupKey, final String groupEntitlement) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         List<GrantedAuthority> authorities = new ArrayList<>(auth.getAuthorities());
-        authorities.add(new SimpleGrantedAuthority(roleEntitlement));
+        authorities.add(new SimpleGrantedAuthority(groupEntitlement));
         Authentication newAuth = new UsernamePasswordAuthenticationToken(
                 auth.getPrincipal(), auth.getCredentials(), authorities);
         SecurityContextHolder.getContext().setAuthentication(newAuth);

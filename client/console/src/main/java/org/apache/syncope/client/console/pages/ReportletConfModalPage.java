@@ -27,7 +27,7 @@ import java.util.Date;
 import java.util.List;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.panels.RoleSearchPanel;
+import org.apache.syncope.client.console.panels.GroupSearchPanel;
 import org.apache.syncope.client.console.panels.UserSearchPanel;
 import org.apache.syncope.client.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
@@ -278,8 +278,8 @@ public class ReportletConfModalPage extends BaseModalPage {
                             fiql((String) wrapper.getPropertyValue(fieldName)).required(false).build();
                     // This is needed in order to manually update this.reportletConf with search panel selections
                     panel.setDefaultModel(new Model<String>(fieldName));
-                } else if (String.class.equals(field.getType()) && annotation != null && annotation.roleSearch()) {
-                    panel = new RoleSearchPanel.Builder("value").
+                } else if (String.class.equals(field.getType()) && annotation != null && annotation.groupSearch()) {
+                    panel = new GroupSearchPanel.Builder("value").
                             fiql((String) wrapper.getPropertyValue(fieldName)).required(false).build();
                     // This is needed in order to manually update this.reportletConf with search panel selections
                     panel.setDefaultModel(new Model<String>(fieldName));
@@ -305,16 +305,16 @@ public class ReportletConfModalPage extends BaseModalPage {
                                 choices = schemaRestClient.getVirSchemaNames(AttributableType.USER);
                                 break;
 
-                            case RolePlainSchema:
-                                choices = schemaRestClient.getPlainSchemaNames(AttributableType.ROLE);
+                            case GroupPlainSchema:
+                                choices = schemaRestClient.getPlainSchemaNames(AttributableType.GROUP);
                                 break;
 
-                            case RoleDerivedSchema:
-                                choices = schemaRestClient.getDerSchemaNames(AttributableType.ROLE);
+                            case GroupDerivedSchema:
+                                choices = schemaRestClient.getDerSchemaNames(AttributableType.GROUP);
                                 break;
 
-                            case RoleVirtualSchema:
-                                choices = schemaRestClient.getVirSchemaNames(AttributableType.ROLE);
+                            case GroupVirtualSchema:
+                                choices = schemaRestClient.getVirSchemaNames(AttributableType.GROUP);
                                 break;
 
                             case MembershipPlainSchema:

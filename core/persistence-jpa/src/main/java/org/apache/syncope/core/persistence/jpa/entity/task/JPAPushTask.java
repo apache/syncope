@@ -46,7 +46,7 @@ public class JPAPushTask extends AbstractProvisioningTask implements PushTask {
 
     private String userFilter;
 
-    private String roleFilter;
+    private String groupFilter;
 
     /**
      * Default constructor.
@@ -71,12 +71,12 @@ public class JPAPushTask extends AbstractProvisioningTask implements PushTask {
     }
 
     @Override
-    public String getRoleFilter() {
-        return roleFilter;
+    public String getGroupFilter() {
+        return groupFilter;
     }
 
     @Override
-    public void setRoleFilter(final String roleFilter) {
-        this.roleFilter = roleFilter;
+    public void setGroupFilter(final String filter) {
+        this.groupFilter = filter;
     }
 }

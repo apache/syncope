@@ -346,7 +346,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
             for (Membership membership : User.class.cast(sbj).getMemberships()) {
                 final MembershipMod membershipMod = new MembershipMod();
                 membershipMod.setKey(membership.getKey());
-                membershipMod.setRole(membership.getRole().getKey());
+                membershipMod.setGroup(membership.getGroup().getKey());
 
                 for (VirAttr vattr : membership.getVirAttrs()) {
                     membVattrToBeRemoved.remove(vattr.getSchema().getKey());

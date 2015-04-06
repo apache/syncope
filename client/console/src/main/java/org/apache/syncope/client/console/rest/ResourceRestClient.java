@@ -88,7 +88,7 @@ public class ResourceRestClient extends BaseRestClient {
             final ResourceDeassociationActionType type, final List<SubjectKey> subjtectIds) {
 
         return getService(ResourceService.class).bulkDeassociation(resourceName,
-                UserTO.class.isAssignableFrom(typeRef) ? SubjectType.USER : SubjectType.ROLE,
+                UserTO.class.isAssignableFrom(typeRef) ? SubjectType.USER : SubjectType.GROUP,
                 type, subjtectIds);
     }
 }

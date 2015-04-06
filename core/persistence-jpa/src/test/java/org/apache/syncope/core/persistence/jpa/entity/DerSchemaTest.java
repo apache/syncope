@@ -30,7 +30,7 @@ import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
-import org.apache.syncope.core.persistence.api.entity.role.RDerSchema;
+import org.apache.syncope.core.persistence.api.entity.group.GDerSchema;
 import org.apache.syncope.core.persistence.api.entity.user.UDerSchema;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.junit.Test;
@@ -79,12 +79,12 @@ public class DerSchemaTest extends AbstractTest {
         assertNull("delete did not work", actual);
 
         // ------------- //
-        RDerSchema rderiveddata = derSchemaDAO.find("rderiveddata", RDerSchema.class);
+        GDerSchema rderiveddata = derSchemaDAO.find("rderiveddata", GDerSchema.class);
         assertNotNull(rderiveddata);
 
-        derSchemaDAO.delete(rderiveddata.getKey(), attrUtilFactory.getInstance(AttributableType.ROLE));
+        derSchemaDAO.delete(rderiveddata.getKey(), attrUtilFactory.getInstance(AttributableType.GROUP));
 
-        actual = derSchemaDAO.find("rderiveddata", RDerSchema.class);
+        actual = derSchemaDAO.find("rderiveddata", GDerSchema.class);
         assertNull("delete did not work", actual);
     }
 

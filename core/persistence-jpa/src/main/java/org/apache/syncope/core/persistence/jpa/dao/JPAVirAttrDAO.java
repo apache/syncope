@@ -24,11 +24,11 @@ import org.apache.syncope.core.persistence.api.dao.VirAttrDAO;
 import org.apache.syncope.core.persistence.api.entity.Attributable;
 import org.apache.syncope.core.persistence.api.entity.VirAttr;
 import org.apache.syncope.core.persistence.api.entity.membership.MVirAttr;
-import org.apache.syncope.core.persistence.api.entity.role.RVirAttr;
+import org.apache.syncope.core.persistence.api.entity.group.GVirAttr;
 import org.apache.syncope.core.persistence.api.entity.user.UVirAttr;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractVirAttr;
 import org.apache.syncope.core.persistence.jpa.entity.membership.JPAMVirAttr;
-import org.apache.syncope.core.persistence.jpa.entity.role.JPARVirAttr;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGVirAttr;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUVirAttr;
 import org.springframework.stereotype.Repository;
 
@@ -38,8 +38,8 @@ public class JPAVirAttrDAO extends AbstractDAO<VirAttr, Long> implements VirAttr
     public <T extends VirAttr> Class<? extends AbstractVirAttr> getJPAEntityReference(
             final Class<T> reference) {
 
-        return RVirAttr.class.isAssignableFrom(reference)
-                ? JPARVirAttr.class
+        return GVirAttr.class.isAssignableFrom(reference)
+                ? JPAGVirAttr.class
                 : MVirAttr.class.isAssignableFrom(reference)
                         ? JPAMVirAttr.class
                         : UVirAttr.class.isAssignableFrom(reference)

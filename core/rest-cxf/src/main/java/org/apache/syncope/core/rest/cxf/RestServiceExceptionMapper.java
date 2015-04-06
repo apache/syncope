@@ -42,7 +42,7 @@ import org.apache.syncope.common.lib.to.ErrorTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
-import org.apache.syncope.core.misc.security.UnauthorizedRoleException;
+import org.apache.syncope.core.misc.security.UnauthorizedGroupException;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValidationException;
 import org.apache.syncope.core.persistence.api.dao.DuplicateException;
@@ -88,8 +88,8 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
         } else if (ex instanceof AccessDeniedException) {
             builder = Response.status(Response.Status.UNAUTHORIZED).
                     header(HttpHeaders.WWW_AUTHENTICATE, BASIC_REALM_UNAUTHORIZED);
-        } else if (ex instanceof UnauthorizedRoleException) {
-            builder = builder(Response.Status.UNAUTHORIZED, ClientExceptionType.UnauthorizedRole, getExMessage(ex));
+        } else if (ex instanceof UnauthorizedGroupException) {
+            builder = builder(Response.Status.UNAUTHORIZED, ClientExceptionType.UnauthorizedGroup, getExMessage(ex));
         } else if (ex instanceof EntityExistsException || ex instanceof DuplicateException) {
             builder = builder(Response.Status.CONFLICT, ClientExceptionType.EntityExists, getExMessage(ex));
         } else if (ex instanceof DataIntegrityViolationException) {

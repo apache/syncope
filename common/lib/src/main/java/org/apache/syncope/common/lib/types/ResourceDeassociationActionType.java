@@ -24,15 +24,15 @@ import javax.xml.bind.annotation.XmlEnum;
 public enum ResourceDeassociationActionType {
 
     /**
-     * Remove association between user/role on Syncope and external resource(s) without any propagation.
+     * Remove association between user/group on Syncope and external resource(s) without any propagation.
      */
     UNLINK,
     /**
-     * Remove user/role from external resource(s).
+     * Remove user/group from external resource(s).
      */
     DEPROVISION,
     /**
-     * Unassign (unlink + de-provision) external resource(s) from user/role.
+     * Unassign (unlink + de-provision) external resource(s) from user/group.
      */
     UNASSIGN
 

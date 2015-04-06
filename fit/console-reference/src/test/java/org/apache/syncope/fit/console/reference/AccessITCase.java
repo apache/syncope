@@ -35,21 +35,18 @@ public class AccessITCase extends AbstractITCase {
                 By.xpath("//div[@id='uschema']/div/div/span/ul/li[2]/a")));
 
         seleniumDriver.findElement(By.xpath("//div[@id='uschema']/div/div/span/ul/li[2]/a")).click();
-        seleniumDriver.findElement(By.xpath("//div[@id='uschema']/div/div/span/ul/li[3]/a")).click();
         seleniumDriver.findElement(By.xpath("//div[@id='tabs']/ul/li[3]/a")).click();
         seleniumDriver.findElement(By.xpath("//div[@id='mschema']/div/div/span/ul/li[2]/a")).click();
-        seleniumDriver.findElement(By.xpath("//div[@id='mschema']/div/div/span/ul/li[3]/a")).click();
         seleniumDriver.findElement(By.xpath("//div[@id='tabs']/ul/li[4]/a")).click();
 
-        seleniumDriver.findElement(By.xpath("//div[@id='rschema']/div/div/span/ul/li[2]/a")).click();
-        seleniumDriver.findElement(By.xpath("//div[@id='rschema']/div/div/span/ul/li[3]/a")).click();
+        seleniumDriver.findElement(By.xpath("//div[@id='gschema']/div/div/span/ul/li[2]/a")).click();
 
         seleniumDriver.findElement(By.xpath("//img[@alt=\"Users\"]")).click();
 
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[3]/ul/li[2]/a/span")));
         seleniumDriver.findElement(By.xpath("//div[3]/ul/li[2]/a/span")).click();
 
-        seleniumDriver.findElement(By.xpath("//img[@alt=\"Roles\"]")).click();
+        seleniumDriver.findElement(By.xpath("//img[@alt=\"Groups\"]")).click();
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//img[@alt=\"Resources\"]")));
 
         seleniumDriver.findElement(By.xpath("//img[@alt=\"Resources\"]")).click();

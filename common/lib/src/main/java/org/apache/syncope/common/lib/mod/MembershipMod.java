@@ -28,19 +28,19 @@ public class MembershipMod extends AbstractAttributableMod {
 
     private static final long serialVersionUID = 2511869129977331525L;
 
-    private long role;
+    private long group;
 
-    public long getRole() {
-        return role;
+    public long getGroup() {
+        return group;
     }
 
-    public void setRole(final long role) {
-        this.role = role;
+    public void setGroup(final long group) {
+        this.group = group;
     }
 
     @JsonIgnore
     @Override
     public boolean isEmpty() {
-        return super.isEmpty() && role == 0;
+        return super.isEmpty() && group == 0;
     }
 }

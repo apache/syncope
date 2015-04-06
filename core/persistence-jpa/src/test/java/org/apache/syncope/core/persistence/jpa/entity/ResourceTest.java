@@ -189,7 +189,7 @@ public class ResourceTest extends AbstractTest {
     }
 
     @Test
-    public void saveWithRoleMappingType() {
+    public void saveWithGroupMappingType() {
         ExternalResource resource = entityFactory.newEntity(ExternalResource.class);
         resource.setKey("ws-target-resource-basic-save-invalid");
 
@@ -209,7 +209,7 @@ public class ResourceTest extends AbstractTest {
         item = entityFactory.newEntity(UMappingItem.class);
         item.setIntAttrName("icon");
         item.setExtAttrName("icon");
-        item.setIntMappingType(IntMappingType.RolePlainSchema);
+        item.setIntMappingType(IntMappingType.GroupPlainSchema);
         item.setPurpose(MappingPurpose.BOTH);
         mapping.addItem(item);
 
@@ -229,7 +229,7 @@ public class ResourceTest extends AbstractTest {
             items++;
 
             if ("icon".equals(mapItem.getIntAttrName())) {
-                assertTrue(IntMappingType.contains(AttributableType.ROLE,
+                assertTrue(IntMappingType.contains(AttributableType.GROUP,
                         mapItem.getIntMappingType().toString()));
             }
             if ("mderiveddata".equals(mapItem.getIntAttrName())) {
@@ -278,7 +278,7 @@ public class ResourceTest extends AbstractTest {
         final UMappingItem item = entityFactory.newEntity(UMappingItem.class);
         item.setIntAttrName("icon");
         item.setExtAttrName("icon");
-        item.setIntMappingType(IntMappingType.RolePlainSchema);
+        item.setIntMappingType(IntMappingType.GroupPlainSchema);
         item.setPurpose(MappingPurpose.BOTH);
         mapping.setAccountIdItem(item);
 

@@ -23,64 +23,61 @@ import java.util.Set;
 import org.apache.syncope.common.lib.types.SubjectType;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
-import org.apache.syncope.core.persistence.api.entity.DerAttr;
-import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.Subject;
-import org.apache.syncope.core.persistence.api.entity.VirAttr;
 
 public interface SubjectSearchDAO extends DAO<Subject<?, ?, ?>, Long> {
 
     /**
-     * @param adminRoles the set of admin roles owned by the caller
+     * @param adminGroups the set of admin groups owned by the caller
      * @param searchCondition the search condition
-     * @param type user or role
+     * @param type user or group
      * @return size of search result
      */
-    int count(Set<Long> adminRoles, SearchCond searchCondition, SubjectType type);
+    int count(Set<Long> adminGroups, SearchCond searchCondition, SubjectType type);
 
     /**
-     * @param adminRoles the set of admin roles owned by the caller
+     * @param adminGroups the set of admin groups owned by the caller
      * @param searchCondition the search condition
-     * @param type user or role
-     * @param <T> user/role
-     * @return the list of users/roles matching the given search condition
+     * @param type user or group
+     * @param <T> user/group
+     * @return the list of users/groups matching the given search condition
      */
     <T extends Subject<?, ?, ?>> List<T> search(
-            Set<Long> adminRoles, SearchCond searchCondition, SubjectType type);
+            Set<Long> adminGroups, SearchCond searchCondition, SubjectType type);
 
     /**
-     * @param adminRoles the set of admin roles owned by the caller
+     * @param adminGroups the set of admin groups owned by the caller
      * @param searchCondition the search condition
      * @param orderBy list of ordering clauses
-     * @param type user or role
-     * @param <T> user/role
-     * @return the list of users/roles matching the given search condition
+     * @param type user or group
+     * @param <T> user/group
+     * @return the list of users/groups matching the given search condition
      */
     <T extends Subject<?, ?, ?>> List<T> search(
-            Set<Long> adminRoles, SearchCond searchCondition, List<OrderByClause> orderBy, SubjectType type);
+            Set<Long> adminGroups, SearchCond searchCondition, List<OrderByClause> orderBy, SubjectType type);
 
     /**
-     * @param adminRoles the set of admin roles owned by the caller
+     * @param adminGroups the set of admin groups owned by the caller
      * @param searchCondition the search condition
      * @param page position of the first result, start from 1
      * @param itemsPerPage number of results per page
      * @param orderBy list of ordering clauses
-     * @param type user or role
-     * @param <T> user/role
-     * @return the list of users/roles matching the given search condition (in the given page)
+     * @param type user or group
+     * @param <T> user/group
+     * @return the list of users/groups matching the given search condition (in the given page)
      */
     <T extends Subject<?, ?, ?>> List<T> search(
-            Set<Long> adminRoles, SearchCond searchCondition, int page, int itemsPerPage,
+            Set<Long> adminGroups, SearchCond searchCondition, int page, int itemsPerPage,
             List<OrderByClause> orderBy, SubjectType type);
 
     /**
-     * Verify if user/role matches the given search condition.
+     * Verify if user/group matches the given search condition.
      *
      * @param subject to be checked
      * @param searchCondition to be verified
-     * @param type user or role
-     * @param <T> user/role
-     * @return true if user/role matches searchCondition
+     * @param type user or group
+     * @param <T> user/group
+     * @return true if user/group matches searchCondition
      */
     <T extends Subject<?, ?, ?>> boolean matches(T subject, SearchCond searchCondition, SubjectType type);
 }

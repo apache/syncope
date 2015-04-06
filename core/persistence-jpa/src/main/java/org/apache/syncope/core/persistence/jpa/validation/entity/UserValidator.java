@@ -30,7 +30,7 @@ import org.apache.syncope.core.persistence.api.entity.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.Policy;
-import org.apache.syncope.core.persistence.api.entity.role.Role;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.misc.policy.AccountPolicyEnforcer;
 import org.apache.syncope.core.misc.policy.AccountPolicyException;
@@ -153,9 +153,9 @@ public class UserValidator extends AbstractValidator<UserCheck, User> {
             }
         }
 
-        // add role policies
-        for (Role role : user.getRoles()) {
-            policy = role.getPasswordPolicy();
+        // add group policies
+        for (Group group : user.getGroups()) {
+            policy = group.getPasswordPolicy();
             if (policy != null) {
                 policies.add(policy);
             }
@@ -181,9 +181,9 @@ public class UserValidator extends AbstractValidator<UserCheck, User> {
             }
         }
 
-        // add role policies
-        for (Role role : user.getRoles()) {
-            policy = role.getAccountPolicy();
+        // add group policies
+        for (Group group : user.getGroups()) {
+            policy = group.getAccountPolicy();
             if (policy != null) {
                 policies.add(policy);
             }

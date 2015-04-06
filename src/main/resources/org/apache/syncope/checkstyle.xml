@@ -56,7 +56,7 @@ under the License.
 
   <!-- Checks that a package-info.java file exists for each package.     -->
   <!-- See http://checkstyle.sf.net/config_javadoc.html#JavadocPackage -->
-  <module name="JavadocPackage"/>
+  <!--<module name="JavadocPackage"/>-->
 
   <!-- Checks whether files end with a new line.                        -->
   <!-- See http://checkstyle.sf.net/config_misc.html#NewlineAtEndOfFile -->
@@ -89,10 +89,16 @@ under the License.
 
     <!-- Checks for Javadoc comments.                     -->
     <!-- See http://checkstyle.sf.net/config_javadoc.html -->
-    <module name="JavadocMethod"/>
+    <!--<module name="JavadocMethod">
+      <property name="scope" value="public"/>
+      <property name="allowMissingPropertyJavadoc" value="true"/>
+    </module>
     <module name="JavadocType"/>
-    <module name="JavadocVariable"/>
-    <module name="JavadocStyle"/>
+    <module name="JavadocVariable">
+      <property name="scope" value="public"/>
+      <property name="ignoreNamePattern" value="LOG"/>
+    </module>
+    <module name="JavadocStyle"/>-->
 
 
     <!-- Checks for Naming Conventions.                  -->
@@ -104,7 +110,9 @@ under the License.
     <module name="MethodName"/>
     <module name="PackageName"/>
     <module name="ParameterName"/>
-    <module name="StaticVariableName"/>
+    <module name="StaticVariableName">
+      <property name="format" value="^[A-Z][A-Z0-9_]*$"/>
+    </module>
     <module name="TypeName"/>
 
 
@@ -140,8 +148,8 @@ under the License.
       <property name="max" value="120"/>
       <property name="ignorePattern" value="^import"/>
     </module>
-    <module name="MethodLength"/>
-    <module name="ParameterNumber"/>
+    <!--<module name="MethodLength"/>-->
+    <!--<module name="ParameterNumber"/>-->
 
 
     <!-- Checks for whitespace                               -->
@@ -167,7 +175,9 @@ under the License.
     <!-- Checks for blocks. You know, those {}'s         -->
     <!-- See http://checkstyle.sf.net/config_blocks.html -->
     <module name="AvoidNestedBlocks"/>
-    <module name="EmptyBlock"/>
+    <module name="EmptyBlock">
+      <property name="option" value="text"/>
+    </module>
     <module name="LeftCurly"/>
     <module name="NeedBraces"/>
     <module name="RightCurly"/>
@@ -176,7 +186,6 @@ under the License.
     <!-- Checks for common coding problems               -->
     <!-- See http://checkstyle.sf.net/config_coding.html -->
     <!--        <module name="AvoidInlineConditionals"/>-->
-    <!--module name="DoubleCheckedLocking"/-->    <!-- MY FAVOURITE -->
     <module name="EmptyStatement"/>
     <module name="EqualsHashCode"/>
     <module name="HiddenField">
@@ -196,7 +205,7 @@ under the License.
     <!--<module name="DesignForExtension"/>-->
     <module name="FinalClass"/>
     <module name="HideUtilityClassConstructor"/>
-    <module name="InterfaceIsType"/>
+    <!--<module name="InterfaceIsType"/>-->
     <module name="VisibilityModifier">
       <property name="protectedAllowed" value="true"/>
     </module>

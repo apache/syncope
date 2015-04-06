@@ -28,7 +28,7 @@ import org.apache.cxf.jaxrs.ext.search.SearchUtils;
 import org.apache.cxf.jaxrs.ext.search.visitor.AbstractSearchConditionVisitor;
 import org.apache.syncope.common.lib.search.SearchableFields;
 import org.apache.syncope.common.lib.search.SpecialAttr;
-import org.apache.syncope.common.lib.to.RoleTO;
+import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
 import org.apache.syncope.core.persistence.api.dao.search.EntitlementCond;
@@ -47,7 +47,7 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
     static {
         ATTRIBUTABLE_FIELDS = new ArrayList<String>();
         ATTRIBUTABLE_FIELDS.addAll(SearchableFields.get(UserTO.class));
-        ATTRIBUTABLE_FIELDS.addAll(SearchableFields.get(RoleTO.class));
+        ATTRIBUTABLE_FIELDS.addAll(SearchableFields.get(GroupTO.class));
     }
 
     private SearchCond searchCond;
@@ -96,9 +96,9 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
                     leaf = SearchCond.getLeafCond(attributeCond);
                 } else {
                     switch (specialAttrName) {
-                        case ROLES:
+                        case GROUPS:
                             MembershipCond membershipCond = new MembershipCond();
-                            membershipCond.setRoleId(Long.valueOf(value));
+                            membershipCond.setGroupId(Long.valueOf(value));
                             leaf = SearchCond.getLeafCond(membershipCond);
                             break;
 

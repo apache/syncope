@@ -21,10 +21,10 @@ package org.apache.syncope.client.console.panels;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.syncope.client.console.rest.RoleRestClient;
+import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.lib.SyncopeClient;
-import org.apache.syncope.common.lib.search.SyncopeFiqlSearchConditionBuilder;
-import org.apache.syncope.common.lib.to.RoleTO;
+import org.apache.syncope.common.lib.search.AbstractFiqlSearchConditionBuilder;
+import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
@@ -34,7 +34,7 @@ public class UserSearchPanel extends AbstractSearchPanel {
     private static final long serialVersionUID = -1769527800450203738L;
 
     @SpringBean
-    private RoleRestClient roleRestClient;
+    private GroupRestClient groupRestClient;
 
     public static class Builder implements Serializable {
 
@@ -87,17 +87,17 @@ public class UserSearchPanel extends AbstractSearchPanel {
             }
         };
 
-        this.roleNames = new LoadableDetachableModel<List<String>>() {
+        this.groupNames = new LoadableDetachableModel<List<String>>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
             @Override
             protected List<String> load() {
-                List<RoleTO> roleTOs = roleRestClient.list();
+                List<GroupTO> groupTOs = groupRestClient.list();
 
-                List<String> result = new ArrayList<String>(roleTOs.size());
-                for (RoleTO role : roleTOs) {
-                    result.add(role.getDisplayName());
+                List<String> result = new ArrayList<>(groupTOs.size());
+                for (GroupTO group : groupTOs) {
+                    result.add(group.getDisplayName());
                 }
 
                 return result;
@@ -106,7 +106,7 @@ public class UserSearchPanel extends AbstractSearchPanel {
     }
 
     @Override
-    protected SyncopeFiqlSearchConditionBuilder getSearchConditionBuilder() {
+    protected AbstractFiqlSearchConditionBuilder getSearchConditionBuilder() {
         return SyncopeClient.getUserSearchConditionBuilder();
     }
 

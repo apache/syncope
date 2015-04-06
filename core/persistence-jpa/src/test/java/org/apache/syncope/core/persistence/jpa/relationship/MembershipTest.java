@@ -21,9 +21,9 @@ package org.apache.syncope.core.persistence.jpa.relationship;
 import static org.junit.Assert.assertTrue;
 
 import org.apache.syncope.core.persistence.api.dao.MembershipDAO;
-import org.apache.syncope.core.persistence.api.dao.RoleDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.entity.membership.Membership;
-import org.apache.syncope.core.persistence.api.entity.role.Role;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.junit.Test;
@@ -37,13 +37,13 @@ public class MembershipTest extends AbstractTest {
     private MembershipDAO membershipDAO;
 
     @Autowired
-    private RoleDAO roleDAO;
+    private GroupDAO groupDAO;
 
     @Test
     public void delete() {
         Membership membership = membershipDAO.find(4L);
         User user = membership.getUser();
-        Role role = membership.getRole();
+        Group group = membership.getGroup();
 
         membershipDAO.delete(4L);
 
@@ -52,7 +52,7 @@ public class MembershipTest extends AbstractTest {
         for (Membership m : user.getMemberships()) {
             assertTrue(m.getKey() != 4L);
         }
-        for (Membership m : roleDAO.findMemberships(role)) {
+        for (Membership m : groupDAO.findMemberships(group)) {
             assertTrue(m.getKey() != 4L);
         }
     }
@@ -61,7 +61,7 @@ public class MembershipTest extends AbstractTest {
     public void deleteAndCreate() {
         Membership membership = membershipDAO.find(3L);
         User user = membership.getUser();
-        Role role = membership.getRole();
+        Group group = membership.getGroup();
 
         // 1. delete that membership
         membershipDAO.delete(membership.getKey());
@@ -71,10 +71,10 @@ public class MembershipTest extends AbstractTest {
         membershipDAO.flush();
 
         // 2. (in the same transaction) create new membership with same user
-        // and role (in order to check the UNIQE constraint on Membership)
+        // and group (in order to check the UNIQE constraint on Membership)
         membership = entityFactory.newEntity(Membership.class);
         membership.setUser(user);
-        membership.setRole(role);
+        membership.setGroup(group);
 
         membership = membershipDAO.save(membership);
     }

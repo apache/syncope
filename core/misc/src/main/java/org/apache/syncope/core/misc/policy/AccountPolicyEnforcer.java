@@ -35,9 +35,7 @@ public class AccountPolicyEnforcer implements PolicyEnforcer<AccountPolicySpec, 
     private UserSuspender userSuspender;
 
     @Override
-    public void enforce(final AccountPolicySpec policy, final PolicyType type, final User user)
-            throws AccountPolicyException, PolicyEnforceException {
-
+    public void enforce(final AccountPolicySpec policy, final PolicyType type, final User user) {
         if (user.getUsername() == null) {
             throw new PolicyEnforceException("Invalid account");
         }

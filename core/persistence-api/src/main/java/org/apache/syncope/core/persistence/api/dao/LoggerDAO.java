@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.List;
 import org.apache.syncope.common.lib.types.LoggerType;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.entity.Logger;
 
 public interface LoggerDAO extends DAO<Logger, String> {
@@ -29,7 +28,7 @@ public interface LoggerDAO extends DAO<Logger, String> {
 
     List<Logger> findAll(LoggerType type);
 
-    Logger save(Logger logger) throws InvalidEntityException;
+    Logger save(Logger logger);
 
     void delete(String key);
 

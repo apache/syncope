@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.List;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
 
 public interface SecurityQuestionDAO extends DAO<SecurityQuestion, Long> {
@@ -28,7 +27,7 @@ public interface SecurityQuestionDAO extends DAO<SecurityQuestion, Long> {
 
     List<SecurityQuestion> findAll();
 
-    SecurityQuestion save(SecurityQuestion securityQuestion) throws InvalidEntityException;
+    SecurityQuestion save(SecurityQuestion securityQuestion);
 
     void delete(Long key);
 

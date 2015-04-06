@@ -69,13 +69,13 @@ public class VirSchemaITCase extends AbstractITCase {
 
     @Test
     public void delete() {
-        VirSchemaTO schema = schemaService.read(AttributableType.ROLE, SchemaType.VIRTUAL, "rvirtualdata");
+        VirSchemaTO schema = schemaService.read(AttributableType.GROUP, SchemaType.VIRTUAL, "rvirtualdata");
         assertNotNull(schema);
 
-        schemaService.delete(AttributableType.ROLE, SchemaType.VIRTUAL, schema.getKey());
+        schemaService.delete(AttributableType.GROUP, SchemaType.VIRTUAL, schema.getKey());
 
         try {
-            schemaService.read(AttributableType.ROLE, SchemaType.VIRTUAL, "rvirtualdata");
+            schemaService.read(AttributableType.GROUP, SchemaType.VIRTUAL, "rvirtualdata");
             fail();
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());

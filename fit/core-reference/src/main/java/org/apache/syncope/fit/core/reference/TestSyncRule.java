@@ -23,10 +23,13 @@ import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.provisioning.api.sync.SyncCorrelationRule;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 
+/**
+ * Test synchronization rule relying on <tt>email</tt> attribute value.
+ */
 public class TestSyncRule implements SyncCorrelationRule {
 
     @Override
-    public SearchCond getSearchCond(ConnectorObject connObj) {
+    public SearchCond getSearchCond(final ConnectorObject connObj) {
         AttributeCond cond = new AttributeCond();
         cond.setSchema("email");
         cond.setType(AttributeCond.Type.EQ);

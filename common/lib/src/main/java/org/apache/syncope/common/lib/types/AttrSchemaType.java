@@ -33,7 +33,7 @@ public enum AttrSchemaType {
     Encrypted(byte[].class),
     Binary(byte[].class);
 
-    final private Class<?> type;
+    private final Class<?> type;
 
     AttrSchemaType(final Class<?> type) {
         this.type = type;

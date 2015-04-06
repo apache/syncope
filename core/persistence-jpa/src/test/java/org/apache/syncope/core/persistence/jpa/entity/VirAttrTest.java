@@ -24,16 +24,16 @@ import static org.junit.Assert.assertNull;
 
 import java.util.List;
 import org.apache.syncope.core.persistence.api.dao.MembershipDAO;
-import org.apache.syncope.core.persistence.api.dao.RoleDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.VirAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.membership.MVirAttr;
 import org.apache.syncope.core.persistence.api.entity.membership.MVirAttrTemplate;
 import org.apache.syncope.core.persistence.api.entity.membership.Membership;
-import org.apache.syncope.core.persistence.api.entity.role.RVirAttr;
-import org.apache.syncope.core.persistence.api.entity.role.RVirAttrTemplate;
-import org.apache.syncope.core.persistence.api.entity.role.Role;
+import org.apache.syncope.core.persistence.api.entity.group.GVirAttr;
+import org.apache.syncope.core.persistence.api.entity.group.GVirAttrTemplate;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.UVirAttr;
 import org.apache.syncope.core.persistence.api.entity.user.UVirSchema;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -52,7 +52,7 @@ public class VirAttrTest extends AbstractTest {
     private UserDAO userDAO;
 
     @Autowired
-    private RoleDAO roleDAO;
+    private GroupDAO groupDAO;
 
     @Autowired
     private MembershipDAO membershipDAO;
@@ -98,7 +98,7 @@ public class VirAttrTest extends AbstractTest {
 
         MVirAttr virAttr = entityFactory.newEntity(MVirAttr.class);
         virAttr.setOwner(owner);
-        virAttr.setTemplate(owner.getRole().getAttrTemplate(MVirAttrTemplate.class, "mvirtualdata"));
+        virAttr.setTemplate(owner.getGroup().getAttrTemplate(MVirAttrTemplate.class, "mvirtualdata"));
 
         virAttr = virAttrDAO.save(virAttr);
         assertNotNull(virAttr.getTemplate());
@@ -110,17 +110,17 @@ public class VirAttrTest extends AbstractTest {
 
     @Test
     public void saveRVirAttribute() {
-        Role owner = roleDAO.find(3L);
+        Group owner = groupDAO.find(3L);
         assertNotNull("did not get expected membership", owner);
 
-        RVirAttr virAttr = entityFactory.newEntity(RVirAttr.class);
+        GVirAttr virAttr = entityFactory.newEntity(GVirAttr.class);
         virAttr.setOwner(owner);
-        virAttr.setTemplate(owner.getAttrTemplate(RVirAttrTemplate.class, "rvirtualdata"));
+        virAttr.setTemplate(owner.getAttrTemplate(GVirAttrTemplate.class, "rvirtualdata"));
 
         virAttr = virAttrDAO.save(virAttr);
         assertNotNull(virAttr.getTemplate());
 
-        RVirAttr actual = virAttrDAO.find(virAttr.getKey(), RVirAttr.class);
+        GVirAttr actual = virAttrDAO.find(virAttr.getKey(), GVirAttr.class);
         assertNotNull("expected save to work", actual);
         assertEquals(virAttr, actual);
     }

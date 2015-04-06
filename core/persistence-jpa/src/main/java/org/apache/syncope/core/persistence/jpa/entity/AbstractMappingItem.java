@@ -115,7 +115,7 @@ public abstract class AbstractMappingItem extends AbstractEntity<Long> implement
 
         switch (getIntMappingType()) {
             case UserId:
-            case RoleId:
+            case GroupId:
             case MembershipId:
                 name = "id";
                 break;
@@ -128,12 +128,12 @@ public abstract class AbstractMappingItem extends AbstractEntity<Long> implement
                 name = "password";
                 break;
 
-            case RoleName:
-                name = "roleName";
+            case GroupName:
+                name = "groupName";
                 break;
 
-            case RoleOwnerSchema:
-                name = "roleOwnerSchema";
+            case GroupOwnerSchema:
+                name = "groupOwnerSchema";
                 break;
 
             default:

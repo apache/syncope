@@ -29,9 +29,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.apache.syncope.common.lib.types.SubjectType;
-import org.apache.syncope.core.persistence.api.RoleEntitlementUtil;
+import org.apache.syncope.core.persistence.api.GroupEntitlementUtil;
 import org.apache.syncope.core.persistence.api.dao.EntitlementDAO;
-import org.apache.syncope.core.persistence.api.dao.RoleDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.SubjectSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
@@ -40,7 +40,7 @@ import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.ResourceCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.dao.search.SubjectCond;
-import org.apache.syncope.core.persistence.api.entity.role.Role;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.junit.Test;
@@ -54,7 +54,7 @@ public class AttributableSearchTest extends AbstractTest {
     private UserDAO userDAO;
 
     @Autowired
-    private RoleDAO roleDAO;
+    private GroupDAO groupDAO;
 
     @Autowired
     private SubjectSearchDAO searchDAO;
@@ -68,25 +68,25 @@ public class AttributableSearchTest extends AbstractTest {
         assertNotNull(user);
 
         MembershipCond membershipCond = new MembershipCond();
-        membershipCond.setRoleId(5L);
+        membershipCond.setGroupId(5L);
 
         assertFalse(searchDAO.matches(user, SearchCond.getLeafCond(membershipCond), SubjectType.USER));
 
-        membershipCond.setRoleId(1L);
+        membershipCond.setGroupId(1L);
 
         assertTrue(searchDAO.matches(user, SearchCond.getLeafCond(membershipCond), SubjectType.USER));
     }
 
     @Test
-    public void roleMatch() {
-        Role role = roleDAO.find(1L);
-        assertNotNull(role);
+    public void groupMatch() {
+        Group group = groupDAO.find(1L);
+        assertNotNull(group);
 
         AttributeCond attrCond = new AttributeCond();
         attrCond.setSchema("show");
         attrCond.setType(AttributeCond.Type.ISNOTNULL);
 
-        assertTrue(searchDAO.matches(role, SearchCond.getLeafCond(attrCond), SubjectType.ROLE));
+        assertTrue(searchDAO.matches(group, SearchCond.getLeafCond(attrCond), SubjectType.GROUP));
     }
 
     @Test
@@ -96,7 +96,7 @@ public class AttributableSearchTest extends AbstractTest {
         fullnameLeafCond.setExpression("%o%");
 
         MembershipCond membershipCond = new MembershipCond();
-        membershipCond.setRoleId(1L);
+        membershipCond.setGroupId(1L);
 
         AttributeCond loginDateCond = new AttributeCond(AttributeCond.Type.EQ);
         loginDateCond.setSchema("loginDate");
@@ -112,7 +112,7 @@ public class AttributableSearchTest extends AbstractTest {
         assertTrue(cond.isValid());
 
         List<User> users =
-                searchDAO.search(RoleEntitlementUtil.getRoleKeys(entitlementDAO.findAll()), cond, SubjectType.USER);
+                searchDAO.search(GroupEntitlementUtil.getGroupKeys(entitlementDAO.findAll()), cond, SubjectType.USER);
         assertNotNull(users);
         assertEquals(1, users.size());
     }
@@ -127,7 +127,7 @@ public class AttributableSearchTest extends AbstractTest {
         assertTrue(cond.isValid());
 
         List<User> users =
-                searchDAO.search(RoleEntitlementUtil.getRoleKeys(entitlementDAO.findAll()), cond, SubjectType.USER);
+                searchDAO.search(GroupEntitlementUtil.getGroupKeys(entitlementDAO.findAll()), cond, SubjectType.USER);
         assertNotNull(users);
         assertEquals(4, users.size());
 
@@ -149,7 +149,7 @@ public class AttributableSearchTest extends AbstractTest {
         assertTrue(cond.isValid());
 
         List<User> users =
-                searchDAO.search(RoleEntitlementUtil.getRoleKeys(entitlementDAO.findAll()), cond, SubjectType.USER);
+                searchDAO.search(GroupEntitlementUtil.getGroupKeys(entitlementDAO.findAll()), cond, SubjectType.USER);
         assertNotNull(users);
         assertEquals(1, users.size());
 
@@ -163,7 +163,7 @@ public class AttributableSearchTest extends AbstractTest {
         fullnameLeafCond.setExpression("%o%");
 
         MembershipCond membershipCond = new MembershipCond();
-        membershipCond.setRoleId(1L);
+        membershipCond.setGroupId(1L);
 
         AttributeCond loginDateCond = new AttributeCond(AttributeCond.Type.EQ);
         loginDateCond.setSchema("loginDate");
@@ -178,13 +178,13 @@ public class AttributableSearchTest extends AbstractTest {
 
         assertTrue(cond.isValid());
 
-        List<User> users = searchDAO.search(RoleEntitlementUtil.getRoleKeys(entitlementDAO.findAll()),
+        List<User> users = searchDAO.search(GroupEntitlementUtil.getGroupKeys(entitlementDAO.findAll()),
                 cond, 1, 2, Collections.<OrderByClause>emptyList(),
                 SubjectType.USER);
         assertNotNull(users);
         assertEquals(1, users.size());
 
-        users = searchDAO.search(RoleEntitlementUtil.getRoleKeys(entitlementDAO.findAll()),
+        users = searchDAO.search(GroupEntitlementUtil.getGroupKeys(entitlementDAO.findAll()),
                 cond, 2, 2, Collections.<OrderByClause>emptyList(),
                 SubjectType.USER);
         assertNotNull(users);
@@ -194,19 +194,17 @@ public class AttributableSearchTest extends AbstractTest {
     @Test
     public void searchByMembership() {
         MembershipCond membershipCond = new MembershipCond();
-        membershipCond.setRoleId(1L);
+        membershipCond.setGroupId(1L);
 
-        List<User> users = searchDAO.search(
-                RoleEntitlementUtil.getRoleKeys(entitlementDAO.findAll()), SearchCond.getLeafCond(membershipCond),
+        List<User> users = searchDAO.search(GroupEntitlementUtil.getGroupKeys(entitlementDAO.findAll()), SearchCond.getLeafCond(membershipCond),
                 SubjectType.USER);
         assertNotNull(users);
         assertEquals(2, users.size());
 
         membershipCond = new MembershipCond();
-        membershipCond.setRoleId(5L);
+        membershipCond.setGroupId(5L);
 
-        users = searchDAO.search(
-                RoleEntitlementUtil.getRoleKeys(entitlementDAO.findAll()), SearchCond.getNotLeafCond(membershipCond),
+        users = searchDAO.search(GroupEntitlementUtil.getGroupKeys(entitlementDAO.findAll()), SearchCond.getNotLeafCond(membershipCond),
                 SubjectType.USER);
         assertNotNull(users);
         assertEquals(5, users.size());
@@ -217,8 +215,7 @@ public class AttributableSearchTest extends AbstractTest {
         AttributeCond coolLeafCond = new AttributeCond(AttributeCond.Type.ISNULL);
         coolLeafCond.setSchema("cool");
 
-        List<User> users = searchDAO.search(
-                RoleEntitlementUtil.getRoleKeys(entitlementDAO.findAll()), SearchCond.getLeafCond(coolLeafCond),
+        List<User> users = searchDAO.search(GroupEntitlementUtil.getGroupKeys(entitlementDAO.findAll()), SearchCond.getLeafCond(coolLeafCond),
                 SubjectType.USER);
         assertNotNull(users);
         assertEquals(4, users.size());
@@ -226,8 +223,7 @@ public class AttributableSearchTest extends AbstractTest {
         coolLeafCond = new AttributeCond(AttributeCond.Type.ISNOTNULL);
         coolLeafCond.setSchema("cool");
 
-        users = searchDAO.search(
-                RoleEntitlementUtil.getRoleKeys(entitlementDAO.findAll()), SearchCond.getLeafCond(coolLeafCond),
+        users = searchDAO.search(GroupEntitlementUtil.getGroupKeys(entitlementDAO.findAll()), SearchCond.getLeafCond(coolLeafCond),
                 SubjectType.USER);
         assertNotNull(users);
         assertEquals(1, users.size());
@@ -245,8 +241,7 @@ public class AttributableSearchTest extends AbstractTest {
 
         assertTrue(searchCondition.isValid());
 
-        List<User> users = searchDAO.search(
-                RoleEntitlementUtil.getRoleKeys(entitlementDAO.findAll()), searchCondition,
+        List<User> users = searchDAO.search(GroupEntitlementUtil.getGroupKeys(entitlementDAO.findAll()), searchCondition,
                 SubjectType.USER);
 
         assertNotNull(users);
@@ -261,10 +256,10 @@ public class AttributableSearchTest extends AbstractTest {
 
         SearchCond searchCondition = SearchCond.getLeafCond(booleanCond);
 
-        List<Role> matchingRoles = searchDAO.search(RoleEntitlementUtil.getRoleKeys(entitlementDAO.findAll()),
-                searchCondition, SubjectType.ROLE);
-        assertNotNull(matchingRoles);
-        assertFalse(matchingRoles.isEmpty());
+        List<Group> matchingGroups = searchDAO.search(GroupEntitlementUtil.getGroupKeys(entitlementDAO.findAll()),
+                searchCondition, SubjectType.GROUP);
+        assertNotNull(matchingGroups);
+        assertFalse(matchingGroups.isEmpty());
     }
 
     @Test
@@ -280,7 +275,7 @@ public class AttributableSearchTest extends AbstractTest {
         SearchCond searchCondition = SearchCond.getAndCond(SearchCond.getLeafCond(usernameLeafCond),
                 SearchCond.getLeafCond(idRightCond));
 
-        List<User> matchingUsers = searchDAO.search(RoleEntitlementUtil.getRoleKeys(entitlementDAO.findAll()),
+        List<User> matchingUsers = searchDAO.search(GroupEntitlementUtil.getGroupKeys(entitlementDAO.findAll()),
                 searchCondition, SubjectType.USER);
 
         assertNotNull(matchingUsers);
@@ -290,27 +285,27 @@ public class AttributableSearchTest extends AbstractTest {
     }
 
     @Test
-    public void searchByRolenameAndKey() {
-        SubjectCond rolenameLeafCond = new SubjectCond(SubjectCond.Type.EQ);
-        rolenameLeafCond.setSchema("name");
-        rolenameLeafCond.setExpression("root");
+    public void searchByGroupNameAndKey() {
+        SubjectCond groupNameLeafCond = new SubjectCond(SubjectCond.Type.EQ);
+        groupNameLeafCond.setSchema("name");
+        groupNameLeafCond.setExpression("root");
 
         SubjectCond idRightCond = new SubjectCond(SubjectCond.Type.LT);
         idRightCond.setSchema("key");
         idRightCond.setExpression("2");
 
-        SearchCond searchCondition = SearchCond.getAndCond(SearchCond.getLeafCond(rolenameLeafCond),
+        SearchCond searchCondition = SearchCond.getAndCond(SearchCond.getLeafCond(groupNameLeafCond),
                 SearchCond.getLeafCond(idRightCond));
 
         assertTrue(searchCondition.isValid());
 
-        List<Role> matchingRoles = searchDAO.search(RoleEntitlementUtil.getRoleKeys(entitlementDAO.findAll()),
-                searchCondition, SubjectType.ROLE);
+        List<Group> matchingGroups = searchDAO.search(GroupEntitlementUtil.getGroupKeys(entitlementDAO.findAll()),
+                searchCondition, SubjectType.GROUP);
 
-        assertNotNull(matchingRoles);
-        assertEquals(1, matchingRoles.size());
-        assertEquals("root", matchingRoles.iterator().next().getName());
-        assertEquals(1L, matchingRoles.iterator().next().getKey().longValue());
+        assertNotNull(matchingGroups);
+        assertEquals(1, matchingGroups.size());
+        assertEquals("root", matchingGroups.iterator().next().getName());
+        assertEquals(1L, matchingGroups.iterator().next().getKey().longValue());
     }
 
     @Test
@@ -327,7 +322,7 @@ public class AttributableSearchTest extends AbstractTest {
                 SearchCond.getLeafCond(idRightCond));
 
         List<User> matchingUsers =
-                searchDAO.search(RoleEntitlementUtil.getRoleKeys(entitlementDAO.findAll()), searchCondition,
+                searchDAO.search(GroupEntitlementUtil.getGroupKeys(entitlementDAO.findAll()), searchCondition,
                         SubjectType.USER);
 
         assertNotNull(matchingUsers);
@@ -344,7 +339,7 @@ public class AttributableSearchTest extends AbstractTest {
         assertTrue(searchCondition.isValid());
 
         List<User> users =
-                searchDAO.search(RoleEntitlementUtil.getRoleKeys(entitlementDAO.findAll()), searchCondition,
+                searchDAO.search(GroupEntitlementUtil.getGroupKeys(entitlementDAO.findAll()), searchCondition,
                         SubjectType.USER);
 
         assertNotNull(users);
@@ -358,7 +353,7 @@ public class AttributableSearchTest extends AbstractTest {
         searchCondition = SearchCond.getNotLeafCond(idLeafCond);
         assertTrue(searchCondition.isValid());
 
-        users = searchDAO.search(RoleEntitlementUtil.getRoleKeys(entitlementDAO.findAll()), searchCondition,
+        users = searchDAO.search(GroupEntitlementUtil.getGroupKeys(entitlementDAO.findAll()), searchCondition,
                 SubjectType.USER);
 
         assertNotNull(users);
@@ -393,16 +388,16 @@ public class AttributableSearchTest extends AbstractTest {
         orderByClause.setDirection(OrderByClause.Direction.ASC);
         orderByClauses.add(orderByClause);
 
-        List<User> users = searchDAO.search(RoleEntitlementUtil.getRoleKeys(entitlementDAO.findAll()),
+        List<User> users = searchDAO.search(GroupEntitlementUtil.getGroupKeys(entitlementDAO.findAll()),
                 searchCondition, Collections.singletonList(orderByClause),
                 SubjectType.USER);
-        assertEquals(searchDAO.count(RoleEntitlementUtil.getRoleKeys(entitlementDAO.findAll()),
+        assertEquals(searchDAO.count(GroupEntitlementUtil.getGroupKeys(entitlementDAO.findAll()),
                 searchCondition, SubjectType.USER),
                 users.size());
     }
 
     @Test
-    public void roleOrderBy() {
+    public void groupOrderBy() {
         SubjectCond idLeafCond = new SubjectCond(SubjectCond.Type.LIKE);
         idLeafCond.setSchema("name");
         idLeafCond.setExpression("%r");
@@ -412,11 +407,11 @@ public class AttributableSearchTest extends AbstractTest {
         OrderByClause orderByClause = new OrderByClause();
         orderByClause.setField("name");
 
-        List<Role> roles = searchDAO.search(RoleEntitlementUtil.getRoleKeys(entitlementDAO.findAll()),
-                searchCondition, Collections.singletonList(orderByClause), SubjectType.ROLE);
-        assertEquals(searchDAO.count(RoleEntitlementUtil.getRoleKeys(entitlementDAO.findAll()),
-                searchCondition, SubjectType.ROLE),
-                roles.size());
+        List<Group> groups = searchDAO.search(GroupEntitlementUtil.getGroupKeys(entitlementDAO.findAll()),
+                searchCondition, Collections.singletonList(orderByClause), SubjectType.GROUP);
+        assertEquals(searchDAO.count(GroupEntitlementUtil.getGroupKeys(entitlementDAO.findAll()),
+                searchCondition, SubjectType.GROUP),
+                groups.size());
     }
 
     @Test
@@ -431,7 +426,7 @@ public class AttributableSearchTest extends AbstractTest {
                 SearchCond.getAndCond(SearchCond.getNotLeafCond(ws2), SearchCond.getNotLeafCond(ws1));
         assertTrue(searchCondition.isValid());
 
-        List<User> users = searchDAO.search(RoleEntitlementUtil.getRoleKeys(entitlementDAO.findAll()),
+        List<User> users = searchDAO.search(GroupEntitlementUtil.getGroupKeys(entitlementDAO.findAll()),
                 searchCondition, SubjectType.USER);
         assertNotNull(users);
         assertEquals(2, users.size());
@@ -453,7 +448,7 @@ public class AttributableSearchTest extends AbstractTest {
         SearchCond searchCondition = SearchCond.getLeafCond(cond);
         assertTrue(searchCondition.isValid());
 
-        List<User> users = searchDAO.search(RoleEntitlementUtil.getRoleKeys(entitlementDAO.findAll()),
+        List<User> users = searchDAO.search(GroupEntitlementUtil.getGroupKeys(entitlementDAO.findAll()),
                 searchCondition, SubjectType.USER);
         assertNotNull(users);
         assertTrue(users.isEmpty());
@@ -468,7 +463,7 @@ public class AttributableSearchTest extends AbstractTest {
         SearchCond searchCondition = SearchCond.getLeafCond(cond);
         assertTrue(searchCondition.isValid());
 
-        List<User> users = searchDAO.search(RoleEntitlementUtil.getRoleKeys(entitlementDAO.findAll()),
+        List<User> users = searchDAO.search(GroupEntitlementUtil.getGroupKeys(entitlementDAO.findAll()),
                 searchCondition, SubjectType.USER);
         assertNotNull(users);
         assertEquals(1, users.size());
@@ -486,7 +481,7 @@ public class AttributableSearchTest extends AbstractTest {
         SearchCond searchCond = SearchCond.getOrCond(
                 SearchCond.getLeafCond(isNullCond), SearchCond.getLeafCond(likeCond));
 
-        Integer count = searchDAO.count(RoleEntitlementUtil.getRoleKeys(entitlementDAO.findAll()), searchCond,
+        Integer count = searchDAO.count(GroupEntitlementUtil.getGroupKeys(entitlementDAO.findAll()), searchCond,
                 SubjectType.USER);
         assertNotNull(count);
         assertTrue(count > 0);

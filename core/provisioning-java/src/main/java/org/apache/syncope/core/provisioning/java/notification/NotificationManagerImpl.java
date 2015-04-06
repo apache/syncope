@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.to.RoleTO;
+import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.common.lib.types.AuditElements;
@@ -36,11 +36,11 @@ import org.apache.syncope.common.lib.types.AuditElements.Result;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.SubjectType;
-import org.apache.syncope.core.persistence.api.RoleEntitlementUtil;
+import org.apache.syncope.core.persistence.api.GroupEntitlementUtil;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.EntitlementDAO;
 import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
-import org.apache.syncope.core.persistence.api.dao.RoleDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.SubjectSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -51,14 +51,14 @@ import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Notification;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.Subject;
-import org.apache.syncope.core.persistence.api.entity.role.Role;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.persistence.api.entity.user.UDerAttr;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.UVirAttr;
 import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.apache.syncope.core.provisioning.api.data.RoleDataBinder;
+import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.misc.ConnObjectUtil;
 import org.apache.syncope.core.misc.search.SearchCondConverter;
@@ -107,10 +107,10 @@ public class NotificationManagerImpl implements NotificationManager {
     private UserDAO userDAO;
 
     /**
-     * Role DAO.
+     * Group DAO.
      */
     @Autowired
-    private RoleDAO roleDAO;
+    private GroupDAO groupDAO;
 
     /**
      * User Search DAO.
@@ -146,7 +146,7 @@ public class NotificationManagerImpl implements NotificationManager {
     private UserDataBinder userDataBinder;
 
     @Autowired
-    private RoleDataBinder roleDataBinder;
+    private GroupDataBinder groupDataBinder;
 
     @Autowired
     private EntityFactory entityFactory;
@@ -176,13 +176,13 @@ public class NotificationManagerImpl implements NotificationManager {
         if (attributable != null) {
             connObjectUtil.retrieveVirAttrValues(attributable,
                     attrUtilFactory.getInstance(
-                            attributable instanceof User ? AttributableType.USER : AttributableType.ROLE));
+                            attributable instanceof User ? AttributableType.USER : AttributableType.GROUP));
         }
 
         final List<User> recipients = new ArrayList<>();
 
         if (notification.getRecipients() != null) {
-            recipients.addAll(searchDAO.<User>search(RoleEntitlementUtil.getRoleKeys(entitlementDAO.findAll()),
+            recipients.addAll(searchDAO.<User>search(GroupEntitlementUtil.getGroupKeys(entitlementDAO.findAll()),
                     SearchCondConverter.convert(notification.getRecipients()),
                     Collections.<OrderByClause>emptyList(), SubjectType.USER));
         }
@@ -279,19 +279,19 @@ public class NotificationManagerImpl implements NotificationManager {
         } else if (output instanceof UserTO) {
             subjectType = SubjectType.USER;
             subject = userDAO.find(((UserTO) output).getKey());
-        } else if (before instanceof RoleTO) {
-            subjectType = SubjectType.ROLE;
-            subject = roleDAO.find(((RoleTO) before).getKey());
-        } else if (output instanceof RoleTO) {
-            subjectType = SubjectType.ROLE;
-            subject = roleDAO.find(((RoleTO) output).getKey());
+        } else if (before instanceof GroupTO) {
+            subjectType = SubjectType.GROUP;
+            subject = groupDAO.find(((GroupTO) before).getKey());
+        } else if (output instanceof GroupTO) {
+            subjectType = SubjectType.GROUP;
+            subject = groupDAO.find(((GroupTO) output).getKey());
         }
 
         LOG.debug("Search notification for [{}]{}", subjectType, subject);
 
         for (Notification notification : notificationDAO.findAll()) {
             LOG.debug("Notification available user about {}", notification.getUserAbout());
-            LOG.debug("Notification available role about {}", notification.getRoleAbout());
+            LOG.debug("Notification available group about {}", notification.getGroupAbout());
             if (notification.isActive()) {
 
                 final Set<String> events = new HashSet<>(notification.getEvents());
@@ -301,11 +301,11 @@ public class NotificationManagerImpl implements NotificationManager {
                 if (events.isEmpty()) {
                     LOG.debug("No events found about {}", subject);
                 } else if (subjectType == null || subject == null
-                        || notification.getUserAbout() == null || notification.getRoleAbout() == null
+                        || notification.getUserAbout() == null || notification.getGroupAbout() == null
                         || searchDAO.matches(subject,
                                 SearchCondConverter.convert(notification.getUserAbout()), subjectType)
                         || searchDAO.matches(subject,
-                                SearchCondConverter.convert(notification.getRoleAbout()), subjectType)) {
+                                SearchCondConverter.convert(notification.getGroupAbout()), subjectType)) {
 
                     LOG.debug("Creating notification task for events {} about {}", events, subject);
 
@@ -321,16 +321,16 @@ public class NotificationManagerImpl implements NotificationManager {
 
                     if (subject instanceof User) {
                         model.put("user", userDataBinder.getUserTO((User) subject));
-                    } else if (subject instanceof Role) {
-                        model.put("role", roleDataBinder.getRoleTO((Role) subject));
+                    } else if (subject instanceof Group) {
+                        model.put("group", groupDataBinder.getGroupTO((Group) subject));
                     }
 
                     taskDAO.save(getNotificationTask(notification, subject, model));
                 }
             } else {
-                LOG.debug("Notification {}, userAbout {}, roleAbout {} is deactivated, "
+                LOG.debug("Notification {}, userAbout {}, groupAbout {} is deactivated, "
                         + "notification task will not be created", notification.getKey(),
-                        notification.getUserAbout(), notification.getRoleAbout());
+                        notification.getUserAbout(), notification.getGroupAbout());
             }
         }
     }

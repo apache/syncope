@@ -36,7 +36,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.LinkPanel;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
-import org.apache.syncope.common.lib.to.RoleTO;
+import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
@@ -305,13 +305,13 @@ public class Resources extends BasePage {
                             @Override
                             public Page createPage() {
                                 return new ProvisioningModalPage<>(
-                                        getPageReference(), statusmodal, model.getObject(), RoleTO.class);
+                                        getPageReference(), statusmodal, model.getObject(), GroupTO.class);
                             }
                         });
 
                         statusmodal.show(target);
                     }
-                }, ActionLink.ActionType.MANAGE_ROLES, "Resources");
+                }, ActionLink.ActionType.MANAGE_GROUPS, "Resources");
 
                 panel.add(new ActionLink() {
 

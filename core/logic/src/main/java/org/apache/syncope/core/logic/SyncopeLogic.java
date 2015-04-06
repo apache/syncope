@@ -32,10 +32,10 @@ import org.apache.syncope.core.misc.spring.ResourceWithFallbackLoader;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.provisioning.api.AttributableTransformer;
 import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
-import org.apache.syncope.core.provisioning.api.RoleProvisioningManager;
+import org.apache.syncope.core.provisioning.api.GroupProvisioningManager;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.java.notification.NotificationManagerImpl;
-import org.apache.syncope.core.workflow.api.RoleWorkflowAdapter;
+import org.apache.syncope.core.workflow.api.GroupWorkflowAdapter;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,13 +62,13 @@ public class SyncopeLogic extends AbstractLogic<SyncopeTO> {
     private UserWorkflowAdapter uwfAdapter;
 
     @Autowired
-    private RoleWorkflowAdapter rwfAdapter;
+    private GroupWorkflowAdapter gwfAdapter;
 
     @Autowired
     private UserProvisioningManager uProvisioningManager;
 
     @Autowired
-    private RoleProvisioningManager rProvisioningManager;
+    private GroupProvisioningManager gProvisioningManager;
 
     @Autowired
     private ImplementationClassNamesLoader classNamesLoader;
@@ -110,10 +110,10 @@ public class SyncopeLogic extends AbstractLogic<SyncopeTO> {
         syncopeTO.setAttributableTransformer(attrTransformer.getClass().getName());
 
         syncopeTO.setUserWorkflowAdapter(AopUtils.getTargetClass(uwfAdapter).getName());
-        syncopeTO.setRoleWorkflowAdapter(AopUtils.getTargetClass(rwfAdapter).getName());
+        syncopeTO.setGroupWorkflowAdapter(AopUtils.getTargetClass(gwfAdapter).getName());
 
         syncopeTO.setUserProvisioningManager(uProvisioningManager.getClass().getName());
-        syncopeTO.setRoleProvisioningManager(rProvisioningManager.getClass().getName());
+        syncopeTO.setGroupProvisioningManager(gProvisioningManager.getClass().getName());
 
         syncopeTO.getReportlets().addAll(
                 classNamesLoader.getClassNames(ImplementationClassNamesLoader.Type.REPORTLET));

@@ -59,6 +59,7 @@ public class SchedTaskTO extends AbstractTaskTO {
         this.jobClassName = jobClassName;
     }
 
+    @SuppressWarnings("CPD-START")
     public Date getLastExec() {
         return lastExec == null
                 ? null
@@ -82,6 +83,8 @@ public class SchedTaskTO extends AbstractTaskTO {
             this.nextExec = new Date(nextExec.getTime());
         }
     }
+
+    @SuppressWarnings("CPD-END")
 
     public String getDescription() {
         return description;

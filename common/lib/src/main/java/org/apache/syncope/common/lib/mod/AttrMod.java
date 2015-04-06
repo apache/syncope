@@ -36,16 +36,9 @@ public class AttrMod extends AbstractBaseBean {
 
     private String schema;
 
-    private List<String> valuesToBeAdded;
+    private final List<String> valuesToBeAdded = new ArrayList<>();
 
-    private List<String> valuesToBeRemoved;
-
-    public AttrMod() {
-        super();
-
-        valuesToBeAdded = new ArrayList<>();
-        valuesToBeRemoved = new ArrayList<>();
-    }
+    private final List<String> valuesToBeRemoved = new ArrayList<>();
 
     public String getSchema() {
         return schema;

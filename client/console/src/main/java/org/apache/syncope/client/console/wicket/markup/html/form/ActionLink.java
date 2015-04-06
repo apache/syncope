@@ -32,7 +32,7 @@ public abstract class ActionLink implements Serializable {
         CREATE("create"),
         EDIT("read"),
         USER_TEMPLATE("read"),
-        ROLE_TEMPLATE("read"),
+        GROUP_TEMPLATE("read"),
         RESET("update"),
         ENABLE("update"),
         SEARCH("read"),
@@ -54,7 +54,7 @@ public abstract class ActionLink implements Serializable {
         PROVISION("update"),
         MANAGE_RESOURCES("update"),
         MANAGE_USERS("update"),
-        MANAGE_ROLES("update");
+        MANAGE_GROUPS("update");
 
         private final String actionId;
 

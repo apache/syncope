@@ -24,10 +24,10 @@ import static org.junit.Assert.assertNull;
 
 import java.util.List;
 import org.apache.syncope.core.persistence.api.dao.MembershipDAO;
-import org.apache.syncope.core.persistence.api.dao.RoleDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.membership.Membership;
-import org.apache.syncope.core.persistence.api.entity.role.Role;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.junit.Test;
@@ -44,7 +44,7 @@ public class MembershipTest extends AbstractTest {
     private UserDAO userDAO;
 
     @Autowired
-    private RoleDAO roleDAO;
+    private GroupDAO groupDAO;
 
     @Test
     public void findAll() {
@@ -61,11 +61,11 @@ public class MembershipTest extends AbstractTest {
     @Test
     public void save() {
         User user = userDAO.find(4L);
-        Role role = roleDAO.find(1L);
+        Group group = groupDAO.find(1L);
 
         Membership membership = entityFactory.newEntity(Membership.class);
         membership.setUser(user);
-        membership.setRole(role);
+        membership.setGroup(group);
 
         membership = membershipDAO.save(membership);
 

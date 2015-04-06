@@ -28,12 +28,12 @@ import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.SubjectType;
 import org.apache.syncope.common.lib.types.SyncPolicySpec;
-import org.apache.syncope.core.persistence.api.RoleEntitlementUtil;
+import org.apache.syncope.core.persistence.api.GroupEntitlementUtil;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValidationException;
 import org.apache.syncope.core.persistence.api.dao.EntitlementDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
-import org.apache.syncope.core.persistence.api.dao.RoleDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.SubjectDAO;
 import org.apache.syncope.core.persistence.api.dao.SubjectSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -49,7 +49,7 @@ import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Subject;
 import org.apache.syncope.core.persistence.api.entity.SyncPolicy;
-import org.apache.syncope.core.persistence.api.entity.role.Role;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
 import org.apache.syncope.core.persistence.api.entity.user.UDerAttr;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
@@ -102,10 +102,10 @@ public class SyncUtilities {
     protected UserDAO userDAO;
 
     /**
-     * Role DAO.
+     * Group DAO.
      */
     @Autowired
-    protected RoleDAO roleDAO;
+    protected GroupDAO groupDAO;
 
     /**
      * Search DAO.
@@ -158,7 +158,7 @@ public class SyncUtilities {
     }
 
     private SubjectDAO<?, ?, ?> getSubjectDAO(final MappingItem accountIdItem) {
-        return AttributableType.USER == accountIdItem.getIntMappingType().getAttributableType() ? userDAO : roleDAO;
+        return AttributableType.USER == accountIdItem.getIntMappingType().getAttributableType() ? userDAO : groupDAO;
     }
 
     private List<Long> findByAccountIdItem(
@@ -168,7 +168,7 @@ public class SyncUtilities {
         final MappingItem accountIdItem = attrUtil.getAccountIdItem(resource);
         switch (accountIdItem.getIntMappingType()) {
             case UserPlainSchema:
-            case RolePlainSchema:
+            case GroupPlainSchema:
                 final PlainAttrValue value = attrUtil.newPlainAttrValue();
 
                 PlainSchema schema = plainSchemaDAO.find(accountIdItem.getIntAttrName(), attrUtil.plainSchemaClass());
@@ -191,7 +191,7 @@ public class SyncUtilities {
                 break;
 
             case UserDerivedSchema:
-            case RoleDerivedSchema:
+            case GroupDerivedSchema:
                 subjects = getSubjectDAO(accountIdItem).
                         findByDerAttrValue(accountIdItem.getIntAttrName(), uid, attrUtil);
                 for (Subject<?, ?, ?> subject : subjects) {
@@ -213,17 +213,17 @@ public class SyncUtilities {
                 }
                 break;
 
-            case RoleName:
-                List<Role> roles = roleDAO.find(uid);
-                for (Role role : roles) {
-                    result.add(role.getKey());
+            case GroupName:
+                List<Group> groups = groupDAO.find(uid);
+                for (Group group : groups) {
+                    result.add(group.getKey());
                 }
                 break;
 
-            case RoleId:
-                Role role = roleDAO.find(Long.parseLong(uid));
-                if (role != null) {
-                    result.add(role.getKey());
+            case GroupId:
+                Group group = groupDAO.find(Long.parseLong(uid));
+                if (group != null) {
+                    result.add(group.getKey());
                 }
                 break;
 
@@ -237,8 +237,7 @@ public class SyncUtilities {
     private List<Long> search(final SearchCond searchCond, final SubjectType type) {
         final List<Long> result = new ArrayList<>();
 
-        List<Subject<?, ?, ?>> subjects = searchDAO.search(
-                RoleEntitlementUtil.getRoleKeys(entitlementDAO.findAll()),
+        List<Subject<?, ?, ?>> subjects = searchDAO.search(GroupEntitlementUtil.getGroupKeys(entitlementDAO.findAll()),
                 searchCond, Collections.<OrderByClause>emptyList(), type);
         for (Subject<?, ?, ?> subject : subjects) {
             result.add(subject.getKey());
@@ -266,7 +265,7 @@ public class SyncUtilities {
             extValues.put(item.getIntAttrName(), connObj.getAttributeByName(item.getExtAttrName()));
         }
 
-        // search for user/role by attribute(s) specified in the policy
+        // search for user/group by attribute(s) specified in the policy
         SearchCond searchCond = null;
 
         for (String schema : altSearchSchemas) {
@@ -293,7 +292,7 @@ public class SyncUtilities {
 
             SearchCond nodeCond;
             // users: just id or username can be selected to be used
-            // roles: just id or name can be selected to be used
+            // groups: just id or name can be selected to be used
             if ("key".equalsIgnoreCase(schema)
                     || "username".equalsIgnoreCase(schema) || "name".equalsIgnoreCase(schema)) {
 
@@ -327,8 +326,8 @@ public class SyncUtilities {
             case USER:
                 clazz = policySpec.getUserJavaRule();
                 break;
-            case ROLE:
-                clazz = policySpec.getRoleJavaRule();
+            case GROUP:
+                clazz = policySpec.getGroupJavaRule();
                 break;
             case MEMBERSHIP:
             case CONFIGURATION:
@@ -356,7 +355,7 @@ public class SyncUtilities {
             case USER:
                 result = policySpec.getuAltSearchSchemas();
                 break;
-            case ROLE:
+            case GROUP:
                 result = policySpec.getrAltSearchSchemas();
                 break;
             case MEMBERSHIP:
@@ -368,13 +367,13 @@ public class SyncUtilities {
     }
 
     /**
-     * Find users / roles based on mapped uid value (or previous uid value, if updated).
+     * Find users / groups based on mapped uid value (or previous uid value, if updated).
      *
      * @param uid for finding by account id
      * @param connObj for finding by attribute value
      * @param resource external resource
      * @param attrUtil attributable util
-     * @return list of matching users / roles
+     * @return list of matching users / groups
      */
     public List<Long> findExisting(
             final String uid,

@@ -123,7 +123,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
             for (MembershipMod membershipMod : userMod.getMembershipsToAdd()) {
                 if (!virtAttrHandler.fillMembershipVirtual(
                         updated.getResult().getKey().getKey(),
-                        membershipMod.getRole(),
+                        membershipMod.getGroup(),
                         null,
                         membershipMod.getVirAttrsToRemove(),
                         membershipMod.getVirAttrsToUpdate(),

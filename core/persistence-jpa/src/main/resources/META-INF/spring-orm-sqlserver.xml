@@ -35,7 +35,7 @@ under the License.
   </persistence-unit-metadata>
   
   <table-generator name="SEQ_UPlainAttrValue" pk-column-value="SEQ_UPlainAttrValue" initial-value="100"/>
-  <table-generator name="SEQ_RPlainAttrValue" pk-column-value="SEQ_RPlainAttrValue" initial-value="100"/>
+  <table-generator name="SEQ_GPlainAttrValue" pk-column-value="SEQ_GPlainAttrValue" initial-value="100"/>
   <table-generator name="SEQ_MAttrPlainValue" pk-column-value="SEQ_MAttrPlainValue" initial-value="100"/>
   <table-generator name="SEQ_CAttrPlainValue" pk-column-value="SEQ_CAttrPlainValue" initial-value="100"/>
 
@@ -48,11 +48,11 @@ under the License.
     </attributes>
   </entity>
 
-  <entity class="org.apache.syncope.core.persistence.jpa.entity.role.JPARole">
+  <entity class="org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup">
     <attributes>
       <id name="id">
-        <generated-value generator="SEQ_Role" strategy="TABLE"/>
-        <table-generator name="SEQ_Role" pk-column-value="SEQ_Role" initial-value="100"/>
+        <generated-value generator="SEQ_Group" strategy="TABLE"/>
+        <table-generator name="SEQ_Group" pk-column-value="SEQ_Group" initial-value="100"/>
       </id>
     </attributes>
   </entity>
@@ -74,11 +74,11 @@ under the License.
       </id>
     </attributes>
   </entity>
-  <entity class="org.apache.syncope.core.persistence.jpa.entity.role.JPARMapping">
+  <entity class="org.apache.syncope.core.persistence.jpa.entity.group.JPAGMapping">
     <attributes>
       <id name="id">
-        <generated-value generator="SEQ_RMapping" strategy="TABLE"/>
-        <table-generator name="SEQ_RMapping" pk-column-value="SEQ_RMapping" initial-value="100"/>
+        <generated-value generator="SEQ_GMapping" strategy="TABLE"/>
+        <table-generator name="SEQ_GMapping" pk-column-value="SEQ_GMapping" initial-value="100"/>
       </id>
     </attributes>
   </entity>
@@ -90,11 +90,11 @@ under the License.
       </id>
     </attributes>
   </entity>
-  <entity class="org.apache.syncope.core.persistence.jpa.entity.role.JPARMappingItem">
+  <entity class="org.apache.syncope.core.persistence.jpa.entity.group.JPAGMappingItem">
     <attributes>
       <id name="id">
-        <generated-value generator="SEQ_RMappingItem" strategy="TABLE"/>
-        <table-generator name="SEQ_RMappingItem" pk-column-value="SEQ_RMappingItem" initial-value="1000"/>
+        <generated-value generator="SEQ_GMappingItem" strategy="TABLE"/>
+        <table-generator name="SEQ_GMappingItem" pk-column-value="SEQ_GMappingItem" initial-value="1000"/>
       </id>
     </attributes>
   </entity>
@@ -116,19 +116,19 @@ under the License.
       </id>
     </attributes>
   </entity>
-  <entity class="org.apache.syncope.core.persistence.jpa.entity.role.JPARPlainAttr">
+  <entity class="org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttr">
     <attributes>
       <id name="id">
-        <generated-value generator="SEQ_RPlainAttr" strategy="TABLE"/>
-        <table-generator name="SEQ_RPlainAttr" pk-column-value="SEQ_RPlainAttr" initial-value="1000"/>
+        <generated-value generator="SEQ_GPlainAttr" strategy="TABLE"/>
+        <table-generator name="SEQ_GPlainAttr" pk-column-value="SEQ_GPlainAttr" initial-value="1000"/>
       </id>
     </attributes>
   </entity>
-  <entity class="org.apache.syncope.core.persistence.jpa.entity.role.JPARPlainAttrTemplate">
+  <entity class="org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttrTemplate">
     <attributes>
       <id name="id">
-        <generated-value generator="SEQ_RPlainAttrTemplate" strategy="TABLE"/>
-        <table-generator name="SEQ_RPlainAttrTemplate" pk-column-value="SEQ_RPlainAttrTemplate" initial-value="1000"/>
+        <generated-value generator="SEQ_GPlainAttrTemplate" strategy="TABLE"/>
+        <table-generator name="SEQ_GPlainAttrTemplate" pk-column-value="SEQ_GPlainAttrTemplate" initial-value="1000"/>
       </id>
     </attributes>
   </entity>
@@ -181,14 +181,14 @@ under the License.
       </id>
     </attributes>
   </entity>
-  <entity class="org.apache.syncope.core.persistence.jpa.entity.role.JPARPlainAttrValue">
+  <entity class="org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttrValue">
     <attributes>
       <id name="id">
-        <generated-value generator="SEQ_RPlainAttrValue" strategy="TABLE"/>
+        <generated-value generator="SEQ_GPlainAttrValue" strategy="TABLE"/>
       </id>
     </attributes>
   </entity>
-  <entity class="org.apache.syncope.core.persistence.jpa.entity.role.JPARPlainAttrUniqueValue">
+  <entity class="org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttrUniqueValue">
     <table>
       <unique-constraint>
         <column-name>booleanValue</column-name>
@@ -201,7 +201,7 @@ under the License.
     </table>
     <attributes>
       <id name="id">
-        <generated-value generator="SEQ_RPlainAttrValue" strategy="TABLE"/>
+        <generated-value generator="SEQ_GPlainAttrValue" strategy="TABLE"/>
       </id>
     </attributes>
   </entity>

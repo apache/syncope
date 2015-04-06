@@ -110,9 +110,9 @@ public class NotificationTest extends AbstractTest {
     @Test
     public void issueSYNCOPE446() {
         Notification notification = entityFactory.newEntity(Notification.class);
-        notification.addEvent("[REST]:[RoleController]:[]:[create]:[SUCCESS]");
+        notification.addEvent("[REST]:[GroupLogic]:[]:[create]:[SUCCESS]");
 
-        notification.setRoleAbout("fake search condition");
+        notification.setGroupAbout("fake search condition");
 
         notification.setRecipientAttrName("email");
         notification.setRecipientAttrType(IntMappingType.UserPlainSchema);

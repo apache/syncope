@@ -94,8 +94,8 @@ class SearchSupport {
                 result = "user_search";
                 break;
 
-            case ROLE:
-                result = "role_search";
+            case GROUP:
+                result = "group_search";
                 break;
         }
 
@@ -118,8 +118,8 @@ class SearchSupport {
         return new SearchView("svr", field().name + "_resource");
     }
 
-    public SearchView roleResource() {
-        return new SearchView("svrr", field().name + "_role_resource");
+    public SearchView groupResource() {
+        return new SearchView("svrr", field().name + "_group_resource");
     }
 
     public SearchView uniqueAttr() {

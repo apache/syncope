@@ -49,16 +49,18 @@ public class ConnIdObjectClassTO extends AbstractBaseBean {
         }
     }
 
-    public static ConnIdObjectClassTO ACCOUNT = new ConnIdObjectClassTO(DefaultType.ACCOUNT.getSpecialName());
+    public static final ConnIdObjectClassTO ACCOUNT = new ConnIdObjectClassTO(DefaultType.ACCOUNT.getSpecialName());
 
-    public static ConnIdObjectClassTO GROUP = new ConnIdObjectClassTO(DefaultType.GROUP.getSpecialName());
+    public static final ConnIdObjectClassTO GROUP = new ConnIdObjectClassTO(DefaultType.GROUP.getSpecialName());
 
     private String type;
 
     public ConnIdObjectClassTO() {
+        super();
     }
 
     public ConnIdObjectClassTO(final String type) {
+        super();
         this.type = type;
     }
 

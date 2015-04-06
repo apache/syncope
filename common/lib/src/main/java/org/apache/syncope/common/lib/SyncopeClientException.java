@@ -80,13 +80,11 @@ public class SyncopeClientException extends RuntimeException {
 
     @Override
     public String getMessage() {
-        StringBuilder message = new StringBuilder();
-
-        message.append(getType());
-        message.append(" ");
-        message.append(getElements());
-
-        return message.toString();
+        return new StringBuilder().
+                append(getType()).
+                append(' ').
+                append(getElements()).
+                toString();
     }
 
     @Override

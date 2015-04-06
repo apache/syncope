@@ -18,16 +18,10 @@
  */
 package org.apache.syncope.common.lib.types;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.ArrayList;
-import java.util.List;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.lib.annotation.SchemaList;
 
 @XmlType
-public class PasswordPolicySpec implements PolicySpec {
+public class PasswordPolicySpec extends AbstractPolicySpec {
 
     private static final long serialVersionUID = -7988778083915548547L;
 
@@ -45,17 +39,6 @@ public class PasswordPolicySpec implements PolicySpec {
      * Maximum length.
      */
     private int minLength;
-
-    /**
-     * Substrings not permitted.
-     */
-    private List<String> wordsNotPermitted;
-
-    /**
-     * User attribute values not permitted.
-     */
-    @SchemaList
-    private List<String> schemasNotPermitted;
 
     /**
      * Specify if one or more non alphanumeric characters are required.
@@ -146,16 +129,6 @@ public class PasswordPolicySpec implements PolicySpec {
      * Specify if password shall not be stored internally.
      */
     private boolean allowNullPassword;
-
-    /**
-     * Substrings not permitted as prefix.
-     */
-    private List<String> prefixesNotPermitted;
-
-    /**
-     * Substrings not permitted as suffix.
-     */
-    private List<String> suffixesNotPermitted;
 
     public boolean isDigitRequired() {
         return digitRequired;
@@ -261,52 +234,12 @@ public class PasswordPolicySpec implements PolicySpec {
         this.nonAlphanumericRequired = nonAlphanumericRequired;
     }
 
-    @XmlElementWrapper(name = "prefixesNotPermitted")
-    @XmlElement(name = "prefix")
-    @JsonProperty("prefixesNotPermitted")
-    public List<String> getPrefixesNotPermitted() {
-        if (prefixesNotPermitted == null) {
-            prefixesNotPermitted = new ArrayList<String>();
-        }
-        return prefixesNotPermitted;
-    }
-
-    @XmlElementWrapper(name = "schemasNotPermitted")
-    @XmlElement(name = "schema")
-    @JsonProperty("schemasNotPermitted")
-    public List<String> getSchemasNotPermitted() {
-        if (schemasNotPermitted == null) {
-            schemasNotPermitted = new ArrayList<String>();
-        }
-        return schemasNotPermitted;
-    }
-
-    @XmlElementWrapper(name = "suffixesNotPermitted")
-    @XmlElement(name = "suffix")
-    @JsonProperty("suffixesNotPermitted")
-    public List<String> getSuffixesNotPermitted() {
-        if (suffixesNotPermitted == null) {
-            suffixesNotPermitted = new ArrayList<String>();
-        }
-        return suffixesNotPermitted;
-    }
-
     public boolean isUppercaseRequired() {
         return uppercaseRequired;
     }
 
     public void setUppercaseRequired(final boolean uppercaseRequired) {
         this.uppercaseRequired = uppercaseRequired;
-    }
-
-    @XmlElementWrapper(name = "wordsNotPermitted")
-    @XmlElement(name = "word")
-    @JsonProperty("wordsNotPermitted")
-    public List<String> getWordsNotPermitted() {
-        if (wordsNotPermitted == null) {
-            wordsNotPermitted = new ArrayList<String>();
-        }
-        return wordsNotPermitted;
     }
 
     public boolean isAlphanumericRequired() {

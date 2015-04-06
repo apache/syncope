@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.panels;
 import java.beans.PropertyDescriptor;
 import java.io.Serializable;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -58,6 +59,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.util.ClassUtils;
+import org.springframework.util.ReflectionUtils;
+import org.springframework.util.ReflectionUtils.FieldCallback;
+import org.springframework.util.ReflectionUtils.FieldFilter;
 
 public class PolicyBeanPanel extends Panel {
 
@@ -84,13 +88,13 @@ public class PolicyBeanPanel extends Panel {
         }
     };
 
-    final IModel<List<String>> roleSchemas = new LoadableDetachableModel<List<String>>() {
+    final IModel<List<String>> groupSchemas = new LoadableDetachableModel<List<String>>() {
 
         private static final long serialVersionUID = 5275935387613157437L;
 
         @Override
         protected List<String> load() {
-            return schemaRestClient.getPlainSchemaNames(AttributableType.ROLE);
+            return schemaRestClient.getPlainSchemaNames(AttributableType.GROUP);
         }
     };
 
@@ -108,9 +112,10 @@ public class PolicyBeanPanel extends Panel {
         super(id);
 
         final List<FieldWrapper> items = new ArrayList<>();
+        ReflectionUtils.doWithFields(policy.getClass(), new FieldCallback() {
 
-        for (Field field : policy.getClass().getDeclaredFields()) {
-            if (!"serialVersionUID".equals(field.getName())) {
+            @Override
+            public void doWith(final Field field) throws IllegalArgumentException, IllegalAccessException {
                 FieldWrapper fieldWrapper = new FieldWrapper();
                 fieldWrapper.setName(field.getName());
                 fieldWrapper.setType(field.getType());
@@ -123,7 +128,14 @@ public class PolicyBeanPanel extends Panel {
 
                 items.add(fieldWrapper);
             }
-        }
+        },
+                new FieldFilter() {
+
+                    @Override
+                    public boolean matches(final Field field) {
+                        return !Modifier.isStatic(field.getModifiers()) && !"serialVersionUID".equals(field.getName());
+                    }
+                });
 
         final ListView<FieldWrapper> policies = new AltListView<FieldWrapper>("policies", items) {
 
@@ -185,7 +197,7 @@ public class PolicyBeanPanel extends Panel {
                         if (field.getSchemaList() != null) {
                             final List<String> values = new ArrayList<>();
                             if (field.getName().charAt(0) == 'r') {
-                                values.addAll(roleSchemas.getObject());
+                                values.addAll(groupSchemas.getObject());
 
                                 if (field.getSchemaList().extended()) {
                                     values.add("name");

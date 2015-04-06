@@ -26,7 +26,7 @@ public class ActivitiDetector {
         return syncopeService.info().getUserWorkflowAdapter().indexOf("Activiti") != -1;
     }
 
-    public static boolean isActivitiEnabledForRoles(final SyncopeService syncopeService) {
-        return syncopeService.info().getRoleWorkflowAdapter().indexOf("Activiti") != -1;
+    public static boolean isActivitiEnabledForGroups(final SyncopeService syncopeService) {
+        return syncopeService.info().getGroupWorkflowAdapter().indexOf("Activiti") != -1;
     }
 }

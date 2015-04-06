@@ -50,7 +50,7 @@ public interface Connector {
     Uid authenticate(String username, String password, OperationOptions options);
 
     /**
-     * Create user / role on a connector instance.
+     * Create user / group on a connector instance.
      *
      * @param propagationMode propagation mode
      * @param objectClass ConnId's object class
@@ -64,7 +64,7 @@ public interface Connector {
             Set<String> propagationAttempted);
 
     /**
-     * Update user / role on a connector instance.
+     * Update user / group on a connector instance.
      *
      * @param propagationMode propagation mode
      * @param objectClass ConnId's object class
@@ -79,7 +79,7 @@ public interface Connector {
             Set<String> propagationAttempted);
 
     /**
-     * Delete user / role on a connector instance.
+     * Delete user / group on a connector instance.
      *
      * @param propagationMode propagation mode
      * @param objectClass ConnId's object class
@@ -91,7 +91,7 @@ public interface Connector {
             Uid uid, OperationOptions options, Set<String> propagationAttempted);
 
     /**
-     * Sync users / roles from a connector instance.
+     * Sync users / groups from a connector instance.
      *
      * @param objectClass ConnId's object class
      * @param token to be passed to the underlying connector

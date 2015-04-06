@@ -36,19 +36,19 @@ public class SyncPolicySpec implements PolicySpec {
      * User attributes and fields for matching during synchronization.
      */
     @SchemaList(extended = true)
-    private final List<String> uAltSearchSchemas = new ArrayList<String>();
+    private final List<String> uAltSearchSchemas = new ArrayList<>();
 
     @ClassList
     private String userJavaRule;
 
     /**
-     * Role attributes and fields for matching during synchronization.
+     * Group attributes and fields for matching during synchronization.
      */
     @SchemaList(extended = true)
-    private final List<String> rAltSearchSchemas = new ArrayList<String>();
+    private final List<String> gAltSearchSchemas = new ArrayList<>();
 
     @ClassList
-    private String roleJavaRule;
+    private String groupJavaRule;
 
     /**
      * Conflict resolution action.
@@ -72,19 +72,19 @@ public class SyncPolicySpec implements PolicySpec {
         return uAltSearchSchemas;
     }
 
-    @XmlElementWrapper(name = "roleAltSearchSchemas")
-    @XmlElement(name = "roleAltSearchSchema")
-    @JsonProperty("roleAltSearchSchemas")
+    @XmlElementWrapper(name = "groupAltSearchSchemas")
+    @XmlElement(name = "groupAltSearchSchema")
+    @JsonProperty("groupAltSearchSchemas")
     public List<String> getrAltSearchSchemas() {
-        return rAltSearchSchemas;
+        return gAltSearchSchemas;
     }
 
-    public String getRoleJavaRule() {
-        return roleJavaRule;
+    public String getGroupJavaRule() {
+        return groupJavaRule;
     }
 
-    public void setRoleJavaRule(final String roleJavaRule) {
-        this.roleJavaRule = roleJavaRule;
+    public void setGroupJavaRule(final String groupJavaRule) {
+        this.groupJavaRule = groupJavaRule;
     }
 
     public String getUserJavaRule() {

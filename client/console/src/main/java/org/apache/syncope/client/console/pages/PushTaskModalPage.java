@@ -20,7 +20,7 @@ package org.apache.syncope.client.console.pages;
 
 import java.util.List;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.panels.RoleSearchPanel;
+import org.apache.syncope.client.console.panels.GroupSearchPanel;
 import org.apache.syncope.client.console.panels.UserSearchPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.common.lib.to.PushTaskTO;
@@ -44,11 +44,11 @@ public class PushTaskModalPage extends AbstractSyncTaskModalPage {
 
     private final UserSearchPanel userFilter;
 
-    private final RoleSearchPanel roleFilter;
+    private final GroupSearchPanel groupFilter;
 
     private final AjaxCheckBoxPanel checkUserFilter;
 
-    private final AjaxCheckBoxPanel checkRoleFilter;
+    private final AjaxCheckBoxPanel checkGroupFilter;
 
     @Override
     protected List<String> getSyncActions() {
@@ -75,21 +75,21 @@ public class PushTaskModalPage extends AbstractSyncTaskModalPage {
         filterContainer.setOutputMarkupId(true);
 
         checkUserFilter = new AjaxCheckBoxPanel("checkUserFilter", "checkUserFilter",
-                new Model<Boolean>(taskTO.getUserFilter() != null));
+                new Model<>(taskTO.getUserFilter() != null));
         filterContainer.add(checkUserFilter);
 
-        checkRoleFilter = new AjaxCheckBoxPanel("checkRoleFilter", "checkRoleFilter",
-                new Model<Boolean>(taskTO.getRoleFilter() != null));
-        filterContainer.add(checkRoleFilter);
+        checkGroupFilter = new AjaxCheckBoxPanel("checkGroupFilter", "checkGroupFilter",
+                new Model<>(taskTO.getGroupFilter() != null));
+        filterContainer.add(checkGroupFilter);
 
         userFilter = new UserSearchPanel.Builder("userFilter").fiql(taskTO.getUserFilter()).build();
         userFilter.setEnabled(checkUserFilter.getModelObject());
 
         filterContainer.add(userFilter);
 
-        roleFilter = new RoleSearchPanel.Builder("roleFilter").fiql(taskTO.getRoleFilter()).build();
-        roleFilter.setEnabled(checkRoleFilter.getModelObject());
-        filterContainer.add(roleFilter);
+        groupFilter = new GroupSearchPanel.Builder("groupFilter").fiql(taskTO.getGroupFilter()).build();
+        groupFilter.setEnabled(checkGroupFilter.getModelObject());
+        filterContainer.add(groupFilter);
 
         checkUserFilter.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
@@ -102,13 +102,13 @@ public class PushTaskModalPage extends AbstractSyncTaskModalPage {
             }
         });
 
-        checkRoleFilter.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+        checkGroupFilter.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                roleFilter.setEnabled(checkRoleFilter.getModelObject());
+                groupFilter.setEnabled(checkGroupFilter.getModelObject());
                 target.add(filterContainer);
             }
         });
@@ -129,7 +129,7 @@ public class PushTaskModalPage extends AbstractSyncTaskModalPage {
     private void setFilters(final PushTaskTO pushTaskTO) {
         // set user filter if enabled
         pushTaskTO.setUserFilter(checkUserFilter.getModelObject() ? userFilter.buildFIQL() : null);
-        // set role filter if enabled
-        pushTaskTO.setRoleFilter(checkRoleFilter.getModelObject() ? roleFilter.buildFIQL() : null);
+        // set group filter if enabled
+        pushTaskTO.setGroupFilter(checkGroupFilter.getModelObject() ? groupFilter.buildFIQL() : null);
     }
 }

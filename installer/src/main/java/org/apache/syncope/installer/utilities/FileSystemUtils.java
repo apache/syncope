@@ -30,6 +30,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.URL;
+import java.nio.charset.Charset;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
@@ -146,7 +147,7 @@ public class FileSystemUtils {
             transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
             transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
             transformer.transform(new DOMSource(doc),
-                    new StreamResult(new OutputStreamWriter(out, "UTF-8")));
+                    new StreamResult(new OutputStreamWriter(out, Charset.forName("UTF-8"))));
         } finally {
             IOUtils.closeQuietly(out);
         }

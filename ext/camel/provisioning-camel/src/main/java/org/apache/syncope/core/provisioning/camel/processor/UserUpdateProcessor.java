@@ -74,7 +74,7 @@ public class UserUpdateProcessor implements Processor {
             for (MembershipMod membershipMod : actual.getMembershipsToAdd()) {
                 if (!virtAttrHandler.fillMembershipVirtual(
                         updated.getResult().getKey().getKey(),
-                        membershipMod.getRole(),
+                        membershipMod.getGroup(),
                         null,
                         membershipMod.getVirAttrsToRemove(),
                         membershipMod.getVirAttrsToUpdate(),

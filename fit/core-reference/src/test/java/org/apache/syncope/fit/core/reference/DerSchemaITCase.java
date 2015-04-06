@@ -71,19 +71,19 @@ public class DerSchemaITCase extends AbstractITCase {
 
     @Test
     public void delete() {
-        DerSchemaTO schema = schemaService.read(AttributableType.ROLE, SchemaType.DERIVED, "rderiveddata");
+        DerSchemaTO schema = schemaService.read(AttributableType.GROUP, SchemaType.DERIVED, "rderiveddata");
         assertNotNull(schema);
 
-        schemaService.delete(AttributableType.ROLE, SchemaType.DERIVED, schema.getKey());
+        schemaService.delete(AttributableType.GROUP, SchemaType.DERIVED, schema.getKey());
 
         try {
-            schemaService.read(AttributableType.ROLE, SchemaType.DERIVED, "rderiveddata");
+            schemaService.read(AttributableType.GROUP, SchemaType.DERIVED, "rderiveddata");
             fail();
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
         } finally {
             // Recreate schema to make test re-runnable
-            schema = createSchema(AttributableType.ROLE, SchemaType.DERIVED, schema);
+            schema = createSchema(AttributableType.GROUP, SchemaType.DERIVED, schema);
             assertNotNull(schema);
         }
     }
@@ -113,11 +113,11 @@ public class DerSchemaITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE323() {
-        DerSchemaTO actual = schemaService.read(AttributableType.ROLE, SchemaType.DERIVED, "rderiveddata");
+        DerSchemaTO actual = schemaService.read(AttributableType.GROUP, SchemaType.DERIVED, "rderiveddata");
         assertNotNull(actual);
 
         try {
-            createSchema(AttributableType.ROLE, SchemaType.DERIVED, actual);
+            createSchema(AttributableType.GROUP, SchemaType.DERIVED, actual);
             fail();
         } catch (SyncopeClientException e) {
             assertEquals(Response.Status.CONFLICT, e.getType().getResponseStatus());
@@ -126,7 +126,7 @@ public class DerSchemaITCase extends AbstractITCase {
 
         actual.setKey(null);
         try {
-            createSchema(AttributableType.ROLE, SchemaType.DERIVED, actual);
+            createSchema(AttributableType.GROUP, SchemaType.DERIVED, actual);
             fail();
         } catch (SyncopeClientException e) {
             assertEquals(Response.Status.BAD_REQUEST, e.getType().getResponseStatus());
@@ -141,7 +141,7 @@ public class DerSchemaITCase extends AbstractITCase {
         schema.setExpression("derived_sx + '_' + derived_dx");
 
         try {
-            createSchema(AttributableType.ROLE, SchemaType.DERIVED, schema);
+            createSchema(AttributableType.GROUP, SchemaType.DERIVED, schema);
             fail();
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidDerSchema, e.getType());

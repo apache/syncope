@@ -40,9 +40,8 @@ public interface NotificationManager {
     /**
      * Create notification tasks for each notification matching the given user id and (some of) tasks performed.
      */
-    void createTasks(final AuditElements.EventCategoryType type, final String category, final String subcategory,
-            final String event, final AuditElements.Result condition, final Object before, final Object output,
-            final Object... input);
+    void createTasks(AuditElements.EventCategoryType type, String category, String subcategory,
+            String event, AuditElements.Result condition, Object before, Object output, Object... input);
 
     long getMaxRetries();
 

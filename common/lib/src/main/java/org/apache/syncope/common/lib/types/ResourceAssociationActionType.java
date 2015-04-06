@@ -24,15 +24,15 @@ import javax.xml.bind.annotation.XmlEnum;
 public enum ResourceAssociationActionType {
 
     /**
-     * Add association between user/role on Syncope and external resource(s) without any propagation.
+     * Add association between user/group on Syncope and external resource(s) without any propagation.
      */
     LINK,
     /**
-     * Add user/role into external resource(s).
+     * Add user/group into external resource(s).
      */
     PROVISION,
     /**
-     * Assign (link + provision) external resource(s) with user/role.
+     * Assign (link + provision) external resource(s) with user/group.
      */
     ASSIGN
 

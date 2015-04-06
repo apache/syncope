@@ -133,7 +133,7 @@ public class ProvisioningResult {
     public static String produceReport(final Collection<ProvisioningResult> results, final TraceLevel level) {
         StringBuilder sb = new StringBuilder();
         for (ProvisioningResult result : results) {
-            sb.append(result.getReportString(level)).append("\n");
+            sb.append(result.getReportString(level)).append('\n');
         }
         return sb.toString();
     }

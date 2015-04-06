@@ -49,7 +49,7 @@ public class ConnectorITCase extends AbstractITCase {
         Select select = new Select(
                 seleniumDriver.findElement(By.xpath("//form/div[2]/div[1]/div[1]/div[2]/div[2]/span/select")));
 
-        select.selectByValue("1");
+        select.selectByValue("0");
 
         wait.until(ExpectedConditions.presenceOfElementLocated(
                 By.xpath("//select[@name='connectorName:dropDownChoiceField']/option[3]")));

@@ -39,7 +39,7 @@ public interface WorkflowService extends JAXRSService {
     /**
      * Exports workflow definition for matching kind.
      *
-     * @param kind user or role
+     * @param kind user or group
      * @return workflow definition for matching kind
      */
     @GET
@@ -49,7 +49,7 @@ public interface WorkflowService extends JAXRSService {
     /**
      * Exports workflow diagram representation.
      *
-     * @param kind user or role
+     * @param kind user or group
      * @return workflow diagram representation
      */
     @GET
@@ -60,7 +60,7 @@ public interface WorkflowService extends JAXRSService {
     /**
      * Imports workflow definition for matching kind.
      *
-     * @param kind user or role
+     * @param kind user or group
      * @param definition workflow definition for matching kind
      */
     @PUT

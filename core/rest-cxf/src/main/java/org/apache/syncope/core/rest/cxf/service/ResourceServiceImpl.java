@@ -35,7 +35,7 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.apache.syncope.core.logic.AbstractResourceAssociator;
 import org.apache.syncope.core.logic.ResourceLogic;
-import org.apache.syncope.core.logic.RoleLogic;
+import org.apache.syncope.core.logic.GroupLogic;
 import org.apache.syncope.core.logic.UserLogic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -50,7 +50,7 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
     private UserLogic userLogic;
 
     @Autowired
-    private RoleLogic roleLogic;
+    private GroupLogic groupLogic;
 
     @Override
     public Response create(final ResourceTO resourceTO) {
@@ -103,7 +103,7 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
 
         AbstractResourceAssociator<? extends AbstractAttributableTO> associator = subjectType == SubjectType.USER
                 ? userLogic
-                : roleLogic;
+                : groupLogic;
 
         final BulkActionResult res = new BulkActionResult();
 

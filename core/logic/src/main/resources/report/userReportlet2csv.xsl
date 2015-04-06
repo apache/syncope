@@ -83,9 +83,9 @@ under the License.
         <xsl:when test="name($attrs/*[name(.)=$nameAttr]/*[name(.)='membership']) 
                         and count($attrs/*[name(.)=$nameAttr]/node()) &gt; 0">
           <xsl:text>"</xsl:text>       
-          <xsl:variable name="value" select="@roleName"/>
+          <xsl:variable name="value" select="@groupName"/>
           <xsl:for-each select="$attrs/*/membership">
-            <xsl:variable name="value" select="@roleName"/>
+            <xsl:variable name="value" select="@groupName"/>
             <xsl:value-of select="$value"/>
             <xsl:if test="position() != last()">
               <xsl:value-of select="$delimiter"/>

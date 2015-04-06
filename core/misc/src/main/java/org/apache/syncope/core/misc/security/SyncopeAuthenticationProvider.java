@@ -35,7 +35,7 @@ import org.apache.syncope.core.persistence.api.entity.AttributableUtil;
 import org.apache.syncope.core.persistence.api.entity.AttributableUtilFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttr;
-import org.apache.syncope.core.persistence.api.entity.role.Role;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.ConnectorFactory;
 import org.apache.syncope.core.misc.AuditManager;
@@ -50,7 +50,6 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -123,9 +122,7 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
 
     @Override
     @Transactional(noRollbackFor = { BadCredentialsException.class, DisabledException.class })
-    public Authentication authenticate(final Authentication authentication)
-            throws AuthenticationException {
-
+    public Authentication authenticate(final Authentication authentication) {
         boolean authenticated = false;
         User user = null;
 
@@ -174,9 +171,9 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
                     null,
                     authenticated,
                     authentication,
-                    "Successfully authenticated, with roles: " + token.getAuthorities());
+                    "Successfully authenticated, with groups: " + token.getAuthorities());
 
-            LOG.debug("User {} successfully authenticated, with roles {}",
+            LOG.debug("User {} successfully authenticated, with groups {}",
                     authentication.getPrincipal(), token.getAuthorities());
         } else {
             auditManager.audit(
@@ -198,7 +195,7 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
         return token;
     }
 
-    protected void updateLoginAttributes(User user, boolean authenticated) {
+    protected void updateLoginAttributes(final User user, final boolean authenticated) {
         boolean userModified = false;
 
         if (authenticated) {
@@ -235,13 +232,13 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
             }
         }
 
-        // 2. look for owned roles, pick the ones whose account policy has authentication resources
-        for (Role role : user.getRoles()) {
-            if (role.getAccountPolicy() != null && !role.getAccountPolicy().getResources().isEmpty()) {
+        // 2. look for owned groups, pick the ones whose account policy has authentication resources
+        for (Group group : user.getGroups()) {
+            if (group.getAccountPolicy() != null && !group.getAccountPolicy().getResources().isEmpty()) {
                 if (result == null) {
-                    result = role.getAccountPolicy().getResources();
+                    result = group.getAccountPolicy().getResources();
                 } else {
-                    result.retainAll(role.getAccountPolicy().getResources());
+                    result.retainAll(group.getAccountPolicy().getResources());
                 }
             }
         }

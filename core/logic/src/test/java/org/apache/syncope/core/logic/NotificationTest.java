@@ -39,12 +39,12 @@ import javax.mail.Session;
 import javax.mail.Store;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.search.RoleFiqlSearchConditionBuilder;
+import org.apache.syncope.common.lib.search.GroupFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.search.UserFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.NotificationTaskTO;
-import org.apache.syncope.common.lib.to.RoleTO;
+import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.common.lib.types.IntMappingType;
@@ -137,7 +137,7 @@ public class NotificationTest {
     private UserLogic userLogic;
 
     @Autowired
-    private RoleLogic roleLogic;
+    private GroupLogic groupLogic;
 
     @Autowired
     private TaskLogic taskLogic;
@@ -257,8 +257,8 @@ public class NotificationTest {
         // 1. create suitable notification for subsequent tests
         Notification notification = entityFactory.newEntity(Notification.class);
         notification.addEvent("[REST]:[UserLogic]:[]:[create]:[SUCCESS]");
-        notification.setUserAbout(new UserFiqlSearchConditionBuilder().hasRoles(7L).query());
-        notification.setRecipients(new UserFiqlSearchConditionBuilder().hasRoles(8L).query());
+        notification.setUserAbout(new UserFiqlSearchConditionBuilder().inGroups(7L).query());
+        notification.setRecipients(new UserFiqlSearchConditionBuilder().inGroups(8L).query());
         notification.setSelfAsRecipient(true);
 
         notification.setRecipientAttrName("email");
@@ -279,7 +279,7 @@ public class NotificationTest {
         // 2. create user
         UserTO userTO = getSampleTO(MAIL_ADDRESS);
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setRoleId(7);
+        membershipTO.setGroupId(7);
         userTO.getMemberships().add(membershipTO);
 
         userLogic.create(userTO, true);
@@ -315,8 +315,8 @@ public class NotificationTest {
         // 1. create suitable notification for subsequent tests
         Notification notification = entityFactory.newEntity(Notification.class);
         notification.addEvent("[REST]:[UserLogic]:[]:[create]:[SUCCESS]");
-        notification.setUserAbout(new UserFiqlSearchConditionBuilder().hasRoles(7L).query());
-        notification.setRecipients(new UserFiqlSearchConditionBuilder().hasRoles(8L).query());
+        notification.setUserAbout(new UserFiqlSearchConditionBuilder().inGroups(7L).query());
+        notification.setRecipients(new UserFiqlSearchConditionBuilder().inGroups(8L).query());
         notification.setSelfAsRecipient(true);
 
         notification.setRecipientAttrName("email");
@@ -336,7 +336,7 @@ public class NotificationTest {
         // 2. create user
         UserTO userTO = getSampleTO(MAIL_ADDRESS);
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setRoleId(7);
+        membershipTO.setGroupId(7);
         userTO.getMemberships().add(membershipTO);
 
         userLogic.create(userTO, true);
@@ -368,7 +368,7 @@ public class NotificationTest {
         Notification notification = entityFactory.newEntity(Notification.class);
         notification.addEvent("[REST]:[UserLogic]:[]:[create]:[SUCCESS]");
         notification.setUserAbout(null);
-        notification.setRecipients(new UserFiqlSearchConditionBuilder().hasRoles(8L).query());
+        notification.setRecipients(new UserFiqlSearchConditionBuilder().inGroups(8L).query());
         notification.setSelfAsRecipient(true);
 
         notification.setRecipientAttrName("email");
@@ -389,7 +389,7 @@ public class NotificationTest {
         // 2. create user
         UserTO userTO = getSampleTO(MAIL_ADDRESS);
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setRoleId(7);
+        membershipTO.setGroupId(7);
         userTO.getMemberships().add(membershipTO);
 
         userLogic.create(userTO, true);
@@ -418,7 +418,7 @@ public class NotificationTest {
         Notification notification = entityFactory.newEntity(Notification.class);
         notification.addEvent("[REST]:[UserLogic]:[]:[create]:[SUCCESS]");
         notification.setUserAbout(null);
-        notification.setRecipients(new UserFiqlSearchConditionBuilder().hasRoles(8L).query());
+        notification.setRecipients(new UserFiqlSearchConditionBuilder().inGroups(8L).query());
         notification.setSelfAsRecipient(true);
 
         notification.setRecipientAttrName("email");
@@ -439,7 +439,7 @@ public class NotificationTest {
         // 2. create user
         UserTO userTO = getSampleTO(MAIL_ADDRESS);
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setRoleId(7);
+        membershipTO.setGroupId(7);
         userTO.getMemberships().add(membershipTO);
 
         userLogic.create(userTO, true);
@@ -486,8 +486,8 @@ public class NotificationTest {
         // 1. create suitable notification for subsequent tests
         Notification notification = entityFactory.newEntity(Notification.class);
         notification.addEvent("[REST]:[UserLogic]:[]:[create]:[SUCCESS]");
-        notification.setUserAbout(new UserFiqlSearchConditionBuilder().hasRoles(7L).query());
-        notification.setRecipients(new UserFiqlSearchConditionBuilder().hasRoles(8L).query());
+        notification.setUserAbout(new UserFiqlSearchConditionBuilder().inGroups(7L).query());
+        notification.setRecipients(new UserFiqlSearchConditionBuilder().inGroups(8L).query());
         notification.setSelfAsRecipient(true);
 
         notification.setRecipientAttrName("email");
@@ -510,7 +510,7 @@ public class NotificationTest {
         // 2. create user
         UserTO userTO = getSampleTO(MAIL_ADDRESS);
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setRoleId(7);
+        membershipTO.setGroupId(7);
         userTO.getMemberships().add(membershipTO);
 
         userLogic.create(userTO, true);
@@ -545,7 +545,7 @@ public class NotificationTest {
         // 1. create suitable disabled notification for subsequent tests
         Notification notification = entityFactory.newEntity(Notification.class);
         notification.addEvent("[REST]:[UserLogic]:[]:[create]:[SUCCESS]");
-        notification.setUserAbout(new UserFiqlSearchConditionBuilder().hasRoles(7L).query());
+        notification.setUserAbout(new UserFiqlSearchConditionBuilder().inGroups(7L).query());
         notification.setSelfAsRecipient(true);
 
         notification.setRecipientAttrName("email");
@@ -571,7 +571,7 @@ public class NotificationTest {
         // 2. create user
         UserTO userTO = getUniqueSampleTO(MAIL_ADDRESS);
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setRoleId(7);
+        membershipTO.setGroupId(7);
         userTO.getMemberships().add(membershipTO);
 
         userLogic.create(userTO, true);
@@ -588,8 +588,8 @@ public class NotificationTest {
 
         // 1. create suitable notification for subsequent tests
         Notification notification = entityFactory.newEntity(Notification.class);
-        notification.addEvent("[REST]:[RoleLogic]:[]:[create]:[SUCCESS]");
-        notification.setRoleAbout(new RoleFiqlSearchConditionBuilder().is("name").equalTo("role446").query());
+        notification.addEvent("[REST]:[GroupLogic]:[]:[create]:[SUCCESS]");
+        notification.setGroupAbout(new GroupFiqlSearchConditionBuilder().is("name").equalTo("group446").query());
         notification.setSelfAsRecipient(false);
 
         notification.setRecipientAttrName("email");
@@ -609,13 +609,13 @@ public class NotificationTest {
 
         notificationDAO.flush();
 
-        // 2. create role
-        RoleTO roleTO = new RoleTO();
-        roleTO.setName("role446");
-        roleTO.setParent(1L);
+        // 2. create group
+        GroupTO groupTO = new GroupTO();
+        groupTO.setName("group446");
+        groupTO.setParent(1L);
 
-        RoleTO createdRole = roleLogic.create(roleTO);
-        assertNotNull(createdRole);
+        GroupTO createdGroup = groupLogic.create(groupTO);
+        assertNotNull(createdGroup);
 
         // 3. force Quartz job execution and verify e-mail
         notificationJob.execute(null);

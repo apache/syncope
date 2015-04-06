@@ -41,7 +41,7 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.ConfTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
-import org.apache.syncope.common.lib.to.RoleTO;
+import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -194,16 +194,17 @@ public class ConfigurationITCase extends AbstractITCase {
         membershipKey.setType(AttrSchemaType.String);
         createSchema(AttributableType.MEMBERSHIP, SchemaType.PLAIN, membershipKey);
 
-        PlainSchemaTO roleKey = new PlainSchemaTO();
-        roleKey.setKey("roleKey" + getUUIDString());
-        roleKey.setType(AttrSchemaType.String);
-        createSchema(AttributableType.ROLE, SchemaType.PLAIN, roleKey);
+        PlainSchemaTO groupKey = new PlainSchemaTO();
+        groupKey.setKey("group"
+                + "Key" + getUUIDString());
+        groupKey.setType(AttrSchemaType.String);
+        createSchema(AttributableType.GROUP, SchemaType.PLAIN, groupKey);
 
-        RoleTO roleTO = new RoleTO();
-        roleTO.setName("aRole" + getUUIDString());
-        roleTO.getMPlainAttrTemplates().add(membershipKey.getKey());
-        roleTO.getRPlainAttrTemplates().add(roleKey.getKey());
-        roleTO = createRole(roleTO);
+        GroupTO groupTO = new GroupTO();
+        groupTO.setName("aGroup" + getUUIDString());
+        groupTO.getMPlainAttrTemplates().add(membershipKey.getKey());
+        groupTO.getGPlainAttrTemplates().add(groupKey.getKey());
+        groupTO = createGroup(groupTO);
 
         try {
             Response response = configurationService.export();
@@ -219,11 +220,11 @@ public class ConfigurationITCase extends AbstractITCase {
             assertFalse(configExport.isEmpty());
             assertTrue(configExport.length() > 1000);
 
-            String[] result = substringsBetween(configExport, "<RPLAINATTRTEMPLATE", "/>");
+            String[] result = substringsBetween(configExport, "<GPLAINATTRTEMPLATE", "/>");
             assertNotNull(result);
             boolean rattrExists = false;
             for (String entry : result) {
-                if (entry.contains(roleKey.getKey())) {
+                if (entry.contains(groupKey.getKey())) {
                     rattrExists = true;
                 }
             }
@@ -239,7 +240,7 @@ public class ConfigurationITCase extends AbstractITCase {
             }
             assertTrue(mattrExists);
         } finally {
-            deleteRole(roleTO.getKey());
+            deleteGroup(groupTO.getKey());
         }
     }
 }

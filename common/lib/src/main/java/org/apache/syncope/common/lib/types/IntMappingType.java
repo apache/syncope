@@ -42,14 +42,14 @@ public enum IntMappingType {
     Username(AttributableType.USER),
     Password(AttributableType.USER),
     // -------------------------
-    // Role attribute types (the same in RoleMappingType)
+    // Group attribute types (the same in GroupMappingType)
     // -------------------------
-    RolePlainSchema(AttributableType.ROLE),
-    RoleDerivedSchema(AttributableType.ROLE),
-    RoleVirtualSchema(AttributableType.ROLE),
-    RoleId(AttributableType.ROLE),
-    RoleName(AttributableType.ROLE),
-    RoleOwnerSchema(AttributableType.ROLE),
+    GroupPlainSchema(AttributableType.GROUP),
+    GroupDerivedSchema(AttributableType.GROUP),
+    GroupVirtualSchema(AttributableType.GROUP),
+    GroupId(AttributableType.GROUP),
+    GroupName(AttributableType.GROUP),
+    GroupOwnerSchema(AttributableType.GROUP),
     // -------------------------
     // Membership attribute types (the same in MembershipMappingType)
     // -------------------------
@@ -58,7 +58,7 @@ public enum IntMappingType {
     MembershipVirtualSchema(AttributableType.MEMBERSHIP),
     MembershipId(AttributableType.MEMBERSHIP);
 
-    private AttributableType attributableType;
+    private final AttributableType attributableType;
 
     private IntMappingType(final AttributableType attributableType) {
         this.attributableType = attributableType;
@@ -91,11 +91,11 @@ public enum IntMappingType {
      * @return set of attribute types.
      */
     public static Set<IntMappingType> getAttributeTypes(final AttributableType attributableType) {
-        final EnumSet<?> enumset;
+        EnumSet<?> enumset;
 
         switch (attributableType) {
-            case ROLE:
-                enumset = EnumSet.allOf(RoleMappingType.class);
+            case GROUP:
+                enumset = EnumSet.allOf(GroupMappingType.class);
                 break;
 
             case MEMBERSHIP:
@@ -105,9 +105,10 @@ public enum IntMappingType {
             case USER:
             default:
                 enumset = EnumSet.allOf(UserMappingType.class);
+                break;
         }
 
-        final Set<IntMappingType> result = new HashSet<IntMappingType>(enumset.size());
+        final Set<IntMappingType> result = new HashSet<>(enumset.size());
         for (Object obj : enumset) {
             result.add(IntMappingType.valueOf(obj.toString()));
         }
@@ -116,9 +117,8 @@ public enum IntMappingType {
     }
 
     public static Set<IntMappingType> getEmbedded() {
-        return EnumSet.of(
-                IntMappingType.UserId, IntMappingType.Username, IntMappingType.Password,
-                IntMappingType.RoleId, IntMappingType.RoleName, IntMappingType.RoleOwnerSchema,
+        return EnumSet.of(IntMappingType.UserId, IntMappingType.Username, IntMappingType.Password,
+                IntMappingType.GroupId, IntMappingType.GroupName, IntMappingType.GroupOwnerSchema,
                 IntMappingType.MembershipId);
     }
 
@@ -131,8 +131,8 @@ public enum IntMappingType {
      */
     public static boolean contains(final AttributableType attributableType, final String type) {
         switch (attributableType) {
-            case ROLE:
-                for (RoleMappingType c : RoleMappingType.values()) {
+            case GROUP:
+                for (GroupMappingType c : GroupMappingType.values()) {
                     if (c.name().equals(type)) {
                         return true;
                     }
@@ -174,16 +174,16 @@ public enum IntMappingType {
     }
 
     /**
-     * Role attribute types.
+     * Group attribute types.
      */
-    private enum RoleMappingType {
+    private enum GroupMappingType {
 
-        RolePlainSchema,
-        RoleDerivedSchema,
-        RoleVirtualSchema,
-        RoleId,
-        RoleName,
-        RoleOwnerSchema;
+        GroupPlainSchema,
+        GroupDerivedSchema,
+        GroupVirtualSchema,
+        GroupId,
+        GroupName,
+        GroupOwnerSchema;
 
     }
 

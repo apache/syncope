@@ -25,22 +25,18 @@ public class MembershipCond extends AbstractSearchCond {
 
     private static final long serialVersionUID = -728155256293925989L;
 
-    private Long roleId;
+    private Long groupId;
 
-    public MembershipCond() {
-        super();
+    public Long getGroupId() {
+        return groupId;
     }
 
-    public Long getRoleId() {
-        return roleId;
-    }
-
-    public void setRoleId(final Long roleId) {
-        this.roleId = roleId;
+    public void setGroupId(final Long groupId) {
+        this.groupId = groupId;
     }
 
     @Override
     public final boolean isValid() {
-        return roleId != null;
+        return groupId != null;
     }
 }

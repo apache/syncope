@@ -43,10 +43,10 @@ because one of the following events occurred:
 </p>
 
 #if(!$user.getMemberships().isEmpty())
-You have been provided with the following roles:
+You have been provided with the following groups:
 <ul>
 #foreach($membership in $user.getMemberships())
-  <li>$membership.roleName</i>
+  <li>$membership.groupName</i>
 #end
 </ul>
 #end

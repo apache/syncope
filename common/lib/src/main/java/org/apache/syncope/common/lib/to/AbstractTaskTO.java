@@ -22,20 +22,18 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.lib.AbstractBaseBean;
 
 @XmlRootElement(name = "abstractTask")
 @XmlType
 @XmlSeeAlso({ PropagationTaskTO.class, SchedTaskTO.class, NotificationTaskTO.class })
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
-public abstract class AbstractTaskTO extends AbstractBaseBean {
+public abstract class AbstractTaskTO extends AbstractStartEndBean {
 
     private static final long serialVersionUID = 386450127003321197L;
 
@@ -44,10 +42,6 @@ public abstract class AbstractTaskTO extends AbstractBaseBean {
     private String latestExecStatus;
 
     private final List<TaskExecTO> executions = new ArrayList<>();
-
-    private Date startDate;
-
-    private Date endDate;
 
     public long getKey() {
         return key;
@@ -70,29 +64,5 @@ public abstract class AbstractTaskTO extends AbstractBaseBean {
     @JsonProperty("executions")
     public List<TaskExecTO> getExecutions() {
         return executions;
-    }
-
-    public Date getStartDate() {
-        return startDate == null
-                ? null
-                : new Date(startDate.getTime());
-    }
-
-    public void setStartDate(final Date startDate) {
-        if (startDate != null) {
-            this.startDate = new Date(startDate.getTime());
-        }
-    }
-
-    public Date getEndDate() {
-        return endDate == null
-                ? null
-                : new Date(endDate.getTime());
-    }
-
-    public void setEndDate(final Date endDate) {
-        if (endDate != null) {
-            this.endDate = new Date(endDate.getTime());
-        }
     }
 }

@@ -54,7 +54,7 @@ public class ResourceTO extends AbstractAnnotatedBean {
 
     private MappingTO umapping;
 
-    private MappingTO rmapping;
+    private MappingTO gmapping;
 
     private boolean propagationPrimary;
 
@@ -80,18 +80,17 @@ public class ResourceTO extends AbstractAnnotatedBean {
 
     private Long syncPolicy;
 
-    private Set<ConnConfProperty> connConfProperties;
+    private final Set<ConnConfProperty> connConfProperties = new HashSet<>();
 
     private String usyncToken;
 
     private String rsyncToken;
 
-    private List<String> propagationActionsClassNames = new ArrayList<>();
+    private final List<String> propagationActionsClassNames = new ArrayList<>();
 
     public ResourceTO() {
         super();
 
-        connConfProperties = new HashSet<>();
         propagationMode = PropagationMode.TWO_PHASES;
         propagationPriority = 0;
 
@@ -141,12 +140,12 @@ public class ResourceTO extends AbstractAnnotatedBean {
         this.umapping = umapping;
     }
 
-    public MappingTO getRmapping() {
-        return rmapping;
+    public MappingTO getGmapping() {
+        return gmapping;
     }
 
-    public void setRmapping(final MappingTO rmapping) {
-        this.rmapping = rmapping;
+    public void setGmapping(final MappingTO gmapping) {
+        this.gmapping = gmapping;
     }
 
     public boolean isPropagationPrimary() {

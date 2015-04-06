@@ -35,7 +35,7 @@ import org.apache.syncope.common.lib.to.AbstractAttributableTO;
 import org.apache.syncope.common.lib.to.AbstractSubjectTO;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ResourceTO;
-import org.apache.syncope.common.lib.to.RoleTO;
+import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.ResourceDeassociationActionType;
 import org.apache.syncope.common.lib.wrap.AbstractWrappable;
@@ -83,7 +83,7 @@ public class ProvisioningModalPage<T extends AbstractAttributableTO> extends Abs
         this.resourceTO = resourceTO;
         this.typeRef = typeRef;
 
-        statusUtils = new StatusUtils((UserTO.class.isAssignableFrom(typeRef) ? userRestClient : roleRestClient));
+        statusUtils = new StatusUtils((UserTO.class.isAssignableFrom(typeRef) ? userRestClient : groupRestClient));
 
         add(new Label("displayName", StringUtils.EMPTY));
 
@@ -199,7 +199,7 @@ public class ProvisioningModalPage<T extends AbstractAttributableTO> extends Abs
             if (UserTO.class.isAssignableFrom(typeRef)) {
                 subjects.addAll((List<T>) userRestClient.search(fiql, 1, ROWS_PER_PAGE, new SortParam<>("key", true)));
             } else {
-                subjects.addAll((List<T>) roleRestClient.search(fiql, 1, ROWS_PER_PAGE, new SortParam<>("key", true)));
+                subjects.addAll((List<T>) groupRestClient.search(fiql, 1, ROWS_PER_PAGE, new SortParam<>("key", true)));
             }
 
             final List<ConnObjectWrapper> connObjects = statusUtils.getConnectorObjects(
@@ -209,11 +209,10 @@ public class ProvisioningModalPage<T extends AbstractAttributableTO> extends Abs
             final LinkedHashMap<String, StatusBean> initialStatusBeanMap = new LinkedHashMap<>(connObjects.size());
 
             for (ConnObjectWrapper entry : connObjects) {
-                final StatusBean statusBean = statusUtils.getStatusBean(
-                        entry.getAttributable(),
+                final StatusBean statusBean = statusUtils.getStatusBean(entry.getAttributable(),
                         entry.getResourceName(),
                         entry.getConnObjectTO(),
-                        RoleTO.class.isAssignableFrom(typeRef));
+                        GroupTO.class.isAssignableFrom(typeRef));
 
                 initialStatusBeanMap.put(entry.getResourceName(), statusBean);
                 statusBeans.add(statusBean);

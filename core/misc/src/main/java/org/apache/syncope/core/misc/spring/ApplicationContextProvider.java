@@ -25,14 +25,14 @@ import org.springframework.context.ConfigurableApplicationContext;
 
 public class ApplicationContextProvider implements ApplicationContextAware {
 
-    private static ConfigurableApplicationContext ctx;
+    private static ConfigurableApplicationContext CTX;
 
     public static ConfigurableApplicationContext getApplicationContext() {
-        return ctx;
+        return CTX;
     }
 
     public static DefaultListableBeanFactory getBeanFactory() {
-        return (DefaultListableBeanFactory) ctx.getBeanFactory();
+        return (DefaultListableBeanFactory) CTX.getBeanFactory();
     }
 
     /**
@@ -42,6 +42,6 @@ public class ApplicationContextProvider implements ApplicationContextAware {
      */
     @Override
     public void setApplicationContext(final ApplicationContext ctx) {
-        ApplicationContextProvider.ctx = (ConfigurableApplicationContext) ctx;
+        CTX = (ConfigurableApplicationContext) ctx;
     }
 }

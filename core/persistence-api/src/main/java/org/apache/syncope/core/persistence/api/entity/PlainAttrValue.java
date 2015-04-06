@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.api.entity;
 
 import java.util.Date;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValidationException;
 
 public interface PlainAttrValue extends Entity<Long> {
 
@@ -44,7 +43,7 @@ public interface PlainAttrValue extends Entity<Long> {
 
     String getValueAsString(AttrSchemaType type);
 
-    void parseValue(PlainSchema schema, String value) throws ParsingValidationException;
+    void parseValue(PlainSchema schema, String value);
 
     void setAttr(PlainAttr attr);
 

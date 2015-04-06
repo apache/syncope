@@ -37,7 +37,7 @@ public class InvalidPlainAttrValueException extends ValidationException {
         this("Could not validate " + value.getValue());
     }
 
-    public InvalidPlainAttrValueException(final PlainAttrValue value, Throwable cause) {
+    public InvalidPlainAttrValueException(final PlainAttrValue value, final Throwable cause) {
         this("Could not validate " + value.getValue(), cause);
     }
 }

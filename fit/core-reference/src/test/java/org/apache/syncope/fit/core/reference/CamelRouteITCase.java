@@ -50,13 +50,13 @@ public class CamelRouteITCase extends AbstractITCase {
     }
 
     @Test
-    public void roleRoutes() {
-        Assume.assumeTrue(CamelDetector.isCamelEnabledForRoles(syncopeService));
+    public void groupRoutes() {
+        Assume.assumeTrue(CamelDetector.isCamelEnabledForGroups(syncopeService));
 
-        List<CamelRouteTO> roleRoutes = camelRouteService.list(SubjectType.ROLE);
-        assertNotNull(roleRoutes);
-        assertEquals(7, roleRoutes.size());
-        for (CamelRouteTO route : roleRoutes) {
+        List<CamelRouteTO> groupRoutes = camelRouteService.list(SubjectType.GROUP);
+        assertNotNull(groupRoutes);
+        assertEquals(7, groupRoutes.size());
+        for (CamelRouteTO route : groupRoutes) {
             assertNotNull(route.getContent());
         }
     }

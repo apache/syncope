@@ -20,20 +20,20 @@ package org.apache.syncope.common.rest.api.service;
 
 public interface JAXRSService {
 
-    final String PARAM_FIQL = "fiql";
+    String PARAM_FIQL = "fiql";
 
-    final String PARAM_PAGE = "page";
+    String PARAM_PAGE = "page";
 
-    final String DEFAULT_PARAM_PAGE = "1";
+    String DEFAULT_PARAM_PAGE = "1";
 
-    final int DEFAULT_PARAM_PAGE_VALUE = Integer.valueOf(DEFAULT_PARAM_PAGE);
+    int DEFAULT_PARAM_PAGE_VALUE = Integer.valueOf(DEFAULT_PARAM_PAGE);
 
-    final String PARAM_SIZE = "size";
+    String PARAM_SIZE = "size";
 
-    final String DEFAULT_PARAM_SIZE = "25";
+    String DEFAULT_PARAM_SIZE = "25";
 
-    final int DEFAULT_PARAM_SIZE_VALUE = Integer.valueOf(DEFAULT_PARAM_SIZE);
+    int DEFAULT_PARAM_SIZE_VALUE = Integer.valueOf(DEFAULT_PARAM_SIZE);
 
-    final String PARAM_ORDERBY = "orderby";
+    String PARAM_ORDERBY = "orderby";
 
 }

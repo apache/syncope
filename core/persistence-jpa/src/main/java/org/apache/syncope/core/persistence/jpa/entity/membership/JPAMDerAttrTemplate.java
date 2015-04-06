@@ -24,9 +24,9 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import org.apache.syncope.core.persistence.api.entity.membership.MDerAttrTemplate;
 import org.apache.syncope.core.persistence.api.entity.membership.MDerSchema;
-import org.apache.syncope.core.persistence.api.entity.role.Role;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractDerAttrTemplate;
-import org.apache.syncope.core.persistence.jpa.entity.role.JPARole;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
 
 @Entity
 @Table(name = JPAMDerAttrTemplate.TABLE)
@@ -37,7 +37,7 @@ public class JPAMDerAttrTemplate extends AbstractDerAttrTemplate<MDerSchema> imp
     public static final String TABLE = "MDerAttrTemplate";
 
     @ManyToOne
-    private JPARole owner;
+    private JPAGroup owner;
 
     @ManyToOne
     @JoinColumn(name = "schema_name")
@@ -55,13 +55,13 @@ public class JPAMDerAttrTemplate extends AbstractDerAttrTemplate<MDerSchema> imp
     }
 
     @Override
-    public Role getOwner() {
+    public Group getOwner() {
         return owner;
     }
 
     @Override
-    public void setOwner(final Role owner) {
-        checkType(owner, JPARole.class);
-        this.owner = (JPARole) owner;
+    public void setOwner(final Group owner) {
+        checkType(owner, JPAGroup.class);
+        this.owner = (JPAGroup) owner;
     }
 }

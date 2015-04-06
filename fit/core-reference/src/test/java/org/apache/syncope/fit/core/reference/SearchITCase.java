@@ -27,7 +27,7 @@ import java.util.HashSet;
 import java.util.Set;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.to.PagedResult;
-import org.apache.syncope.common.lib.to.RoleTO;
+import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -76,15 +76,15 @@ public class SearchITCase extends AbstractITCase {
     }
 
     @Test
-    public void searchByRolenameAndKey() {
-        final PagedResult<RoleTO> matchingRoles = roleService.search(
-                SyncopeClient.getRoleSearchConditionBuilder().
+    public void searchByGroupNameAndKey() {
+        final PagedResult<GroupTO> matchingGroups = groupService.search(
+                SyncopeClient.getGroupSearchConditionBuilder().
                 is("name").equalTo("root").and("key").lessThan(2).query());
 
-        assertNotNull(matchingRoles);
-        assertEquals(1, matchingRoles.getResult().size());
-        assertEquals("root", matchingRoles.getResult().iterator().next().getName());
-        assertEquals(1L, matchingRoles.getResult().iterator().next().getKey());
+        assertNotNull(matchingGroups);
+        assertEquals(1, matchingGroups.getResult().size());
+        assertEquals("root", matchingGroups.getResult().iterator().next().getName());
+        assertEquals(1L, matchingGroups.getResult().iterator().next().getKey());
     }
 
     @Test
@@ -131,29 +131,29 @@ public class SearchITCase extends AbstractITCase {
 
     @Test
     public void searchByBooleanSubjectCond() {
-        final PagedResult<RoleTO> matchingRoles = roleService.search(
-                SyncopeClient.getRoleSearchConditionBuilder().is("inheritPlainAttrs").equalTo("true").query());
-        assertNotNull(matchingRoles);
-        assertFalse(matchingRoles.getResult().isEmpty());
+        final PagedResult<GroupTO> matchingGroups = groupService.search(
+                SyncopeClient.getGroupSearchConditionBuilder().is("inheritPlainAttrs").equalTo("true").query());
+        assertNotNull(matchingGroups);
+        assertFalse(matchingGroups.getResult().isEmpty());
     }
 
     @Test
     public void searchByEntitlement() {
-        final PagedResult<RoleTO> matchingRoles = roleService.search(
-                SyncopeClient.getRoleSearchConditionBuilder().hasEntitlements("USER_LIST", "USER_READ").query());
-        assertNotNull(matchingRoles);
-        assertFalse(matchingRoles.getResult().isEmpty());
+        final PagedResult<GroupTO> matchingGroups = groupService.search(
+                SyncopeClient.getGroupSearchConditionBuilder().hasEntitlements("USER_LIST", "USER_READ").query());
+        assertNotNull(matchingGroups);
+        assertFalse(matchingGroups.getResult().isEmpty());
     }
 
     @Test
     public void searchByRelationshipSubjectCond() {
-        final PagedResult<RoleTO> matchingRoles = roleService.search(SyncopeClient.getRoleSearchConditionBuilder().
+        final PagedResult<GroupTO> matchingGroups = groupService.search(SyncopeClient.getGroupSearchConditionBuilder().
                 isNotNull("passwordPolicy").and("userOwner").equalTo(5).query());
 
-        assertNotNull(matchingRoles);
-        assertEquals(1, matchingRoles.getResult().size());
-        assertEquals("director", matchingRoles.getResult().iterator().next().getName());
-        assertEquals(6L, matchingRoles.getResult().iterator().next().getKey());
+        assertNotNull(matchingGroups);
+        assertEquals(1, matchingGroups.getResult().size());
+        assertEquals("director", matchingGroups.getResult().iterator().next().getName());
+        assertEquals(6L, matchingGroups.getResult().iterator().next().getKey());
     }
 
     @Test

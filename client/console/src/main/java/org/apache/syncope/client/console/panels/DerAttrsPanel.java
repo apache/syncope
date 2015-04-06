@@ -21,14 +21,14 @@ package org.apache.syncope.client.console.panels;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.panels.AttrTemplatesPanel.RoleAttrTemplatesChange;
-import org.apache.syncope.client.console.rest.RoleRestClient;
+import org.apache.syncope.client.console.panels.AttrTemplatesPanel.GroupAttrTemplatesChange;
+import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDecoratedCheckbox;
 import org.apache.syncope.common.lib.to.AbstractAttributableTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
-import org.apache.syncope.common.lib.to.RoleTO;
+import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.wicket.Component;
@@ -62,7 +62,7 @@ public class DerAttrsPanel extends Panel {
     private SchemaRestClient schemaRestClient;
 
     @SpringBean
-    private RoleRestClient roleRestClient;
+    private GroupRestClient groupRestClient;
 
     private final AttrTemplatesPanel attrTemplates;
 
@@ -85,22 +85,22 @@ public class DerAttrsPanel extends Panel {
             protected List<String> load() {
                 List<String> derSchemaNames;
 
-                if (entityTO instanceof RoleTO) {
-                    final RoleTO roleTO = (RoleTO) entityTO;
+                if (entityTO instanceof GroupTO) {
+                    final GroupTO groupTO = (GroupTO) entityTO;
 
                     if (attrTemplates == null) {
-                        derSchemaNames = roleTO.getRDerAttrTemplates();
+                        derSchemaNames = groupTO.getGDerAttrTemplates();
                     } else {
                         derSchemaNames = new ArrayList<>(
-                                attrTemplates.getSelected(AttrTemplatesPanel.Type.rDerAttrTemplates));
-                        if (roleTO.isInheritTemplates() && roleTO.getParent() != 0) {
-                            derSchemaNames.addAll(roleRestClient.read(roleTO.getParent()).getRDerAttrTemplates());
+                                attrTemplates.getSelected(AttrTemplatesPanel.Type.gDerAttrTemplates));
+                        if (groupTO.isInheritTemplates() && groupTO.getParent() != 0) {
+                            derSchemaNames.addAll(groupRestClient.read(groupTO.getParent()).getGDerAttrTemplates());
                         }
                     }
                 } else if (entityTO instanceof UserTO) {
                     derSchemaNames = schemaRestClient.getDerSchemaNames(AttributableType.USER);
                 } else {
-                    derSchemaNames = roleRestClient.read(((MembershipTO) entityTO).getRoleId()).getMDerAttrTemplates();
+                    derSchemaNames = groupRestClient.read(((MembershipTO) entityTO).getGroupId()).getMDerAttrTemplates();
                 }
 
                 return derSchemaNames;
@@ -196,9 +196,9 @@ public class DerAttrsPanel extends Panel {
 
     @Override
     public void onEvent(final IEvent<?> event) {
-        if ((event.getPayload() instanceof RoleAttrTemplatesChange)) {
-            final RoleAttrTemplatesChange update = (RoleAttrTemplatesChange) event.getPayload();
-            if (attrTemplates != null && update.getType() == AttrTemplatesPanel.Type.rDerAttrTemplates) {
+        if ((event.getPayload() instanceof GroupAttrTemplatesChange)) {
+            final GroupAttrTemplatesChange update = (GroupAttrTemplatesChange) event.getPayload();
+            if (attrTemplates != null && update.getType() == AttrTemplatesPanel.Type.gDerAttrTemplates) {
                 update.getTarget().add(this);
             }
         }

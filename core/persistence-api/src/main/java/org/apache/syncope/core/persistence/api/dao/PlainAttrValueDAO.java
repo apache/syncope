@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.List;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 
 public interface PlainAttrValueDAO extends DAO<PlainAttrValue, Long> {
@@ -28,7 +27,7 @@ public interface PlainAttrValueDAO extends DAO<PlainAttrValue, Long> {
 
     <T extends PlainAttrValue> List<T> findAll(Class<T> reference);
 
-    <T extends PlainAttrValue> T save(T attributeValue) throws InvalidEntityException;
+    <T extends PlainAttrValue> T save(T attributeValue);
 
     <T extends PlainAttrValue> void delete(Long key, Class<T> reference);
 

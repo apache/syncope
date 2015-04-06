@@ -47,7 +47,7 @@ public class CamelRouteRestClient extends BaseRestClient {
     public boolean isCamelEnabledFor(final SubjectType subjectType) {
         return subjectType == SubjectType.USER
                 ? SyncopeSession.get().getSyncopeTO().getUserProvisioningManager().indexOf("Camel") != -1
-                : SyncopeSession.get().getSyncopeTO().getRoleProvisioningManager().indexOf("Camel") != -1;
+                : SyncopeSession.get().getSyncopeTO().getGroupProvisioningManager().indexOf("Camel") != -1;
 
     }
 }

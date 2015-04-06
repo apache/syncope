@@ -18,12 +18,12 @@
  */
 package org.apache.syncope.core.provisioning.java.sync;
 
-import org.apache.syncope.core.persistence.api.dao.RoleDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AttributableUtilFactory;
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
-import org.apache.syncope.core.provisioning.api.RoleProvisioningManager;
-import org.apache.syncope.core.provisioning.api.data.RoleDataBinder;
+import org.apache.syncope.core.provisioning.api.GroupProvisioningManager;
+import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
@@ -34,7 +34,7 @@ import org.apache.syncope.core.provisioning.api.sync.SyncopeResultHandler;
 import org.apache.syncope.core.misc.AuditManager;
 import org.apache.syncope.core.misc.ConnObjectUtil;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
-import org.apache.syncope.core.workflow.api.RoleWorkflowAdapter;
+import org.apache.syncope.core.workflow.api.GroupWorkflowAdapter;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +52,7 @@ public abstract class AbstractSyncopeResultHandler<T extends ProvisioningTask, A
     protected UserDAO userDAO;
 
     @Autowired
-    protected RoleDAO roleDAO;
+    protected GroupDAO groupDAO;
 
     /**
      * ConnectorObject util.
@@ -91,22 +91,22 @@ public abstract class AbstractSyncopeResultHandler<T extends ProvisioningTask, A
     protected UserWorkflowAdapter uwfAdapter;
 
     /**
-     * Role workflow adapter.
+     * Group workflow adapter.
      */
     @Autowired
-    protected RoleWorkflowAdapter rwfAdapter;
+    protected GroupWorkflowAdapter gwfAdapter;
 
     @Autowired
     protected UserDataBinder userTransfer;
 
     @Autowired
-    protected RoleDataBinder roleTransfer;
+    protected GroupDataBinder groupTransfer;
 
     @Autowired
     protected UserProvisioningManager userProvisioningManager;
 
     @Autowired
-    protected RoleProvisioningManager roleProvisioningManager;
+    protected GroupProvisioningManager groupProvisioningManager;
 
     @Autowired
     protected AttributableUtilFactory attrUtilFactory;

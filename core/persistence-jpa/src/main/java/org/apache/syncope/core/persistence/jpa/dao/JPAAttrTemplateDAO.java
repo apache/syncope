@@ -27,16 +27,16 @@ import org.apache.syncope.core.persistence.api.entity.Schema;
 import org.apache.syncope.core.persistence.api.entity.membership.MDerAttrTemplate;
 import org.apache.syncope.core.persistence.api.entity.membership.MPlainAttrTemplate;
 import org.apache.syncope.core.persistence.api.entity.membership.MVirAttrTemplate;
-import org.apache.syncope.core.persistence.api.entity.role.RDerAttrTemplate;
-import org.apache.syncope.core.persistence.api.entity.role.RPlainAttrTemplate;
-import org.apache.syncope.core.persistence.api.entity.role.RVirAttrTemplate;
+import org.apache.syncope.core.persistence.api.entity.group.GDerAttrTemplate;
+import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrTemplate;
+import org.apache.syncope.core.persistence.api.entity.group.GVirAttrTemplate;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractAttrTemplate;
 import org.apache.syncope.core.persistence.jpa.entity.membership.JPAMDerAttrTemplate;
 import org.apache.syncope.core.persistence.jpa.entity.membership.JPAMPlainAttrTemplate;
 import org.apache.syncope.core.persistence.jpa.entity.membership.JPAMVirAttrTemplate;
-import org.apache.syncope.core.persistence.jpa.entity.role.JPARDerAttrTemplate;
-import org.apache.syncope.core.persistence.jpa.entity.role.JPARPlainAttrTemplate;
-import org.apache.syncope.core.persistence.jpa.entity.role.JPARVirAttrTemplate;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGDerAttrTemplate;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttrTemplate;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGVirAttrTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.ReflectionUtils;
 
@@ -53,12 +53,12 @@ public class JPAAttrTemplateDAO<S extends Schema>
                         ? JPAMDerAttrTemplate.class
                         : MVirAttrTemplate.class.isAssignableFrom(reference)
                                 ? JPAMVirAttrTemplate.class
-                                : RPlainAttrTemplate.class.isAssignableFrom(reference)
-                                        ? JPARPlainAttrTemplate.class
-                                        : RDerAttrTemplate.class.isAssignableFrom(reference)
-                                                ? JPARDerAttrTemplate.class
-                                                : RVirAttrTemplate.class.isAssignableFrom(reference)
-                                                        ? JPARVirAttrTemplate.class
+                                : GPlainAttrTemplate.class.isAssignableFrom(reference)
+                                        ? JPAGPlainAttrTemplate.class
+                                        : GDerAttrTemplate.class.isAssignableFrom(reference)
+                                                ? JPAGDerAttrTemplate.class
+                                                : GVirAttrTemplate.class.isAssignableFrom(reference)
+                                                        ? JPAGVirAttrTemplate.class
                                                         : null;
     }
 

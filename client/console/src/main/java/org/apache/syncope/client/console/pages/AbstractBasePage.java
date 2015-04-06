@@ -25,7 +25,7 @@ import org.apache.syncope.client.console.panels.NotificationPanel;
 import org.apache.syncope.client.console.rest.ConfigurationRestClient;
 import org.apache.syncope.client.console.rest.ReportRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
-import org.apache.syncope.client.console.rest.RoleRestClient;
+import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.console.rest.TaskRestClient;
 import org.apache.syncope.client.console.rest.UserRestClient;
@@ -71,7 +71,7 @@ public class AbstractBasePage extends WebPage {
     protected UserSelfRestClient userSelfRestClient;
 
     @SpringBean
-    protected RoleRestClient roleRestClient;
+    protected GroupRestClient groupRestClient;
 
     @SpringBean
     protected TaskRestClient taskRestClient;

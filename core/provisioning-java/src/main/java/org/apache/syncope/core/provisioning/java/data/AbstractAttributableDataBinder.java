@@ -49,7 +49,7 @@ import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrValueDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
-import org.apache.syncope.core.persistence.api.dao.RoleDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.VirAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
@@ -74,12 +74,12 @@ import org.apache.syncope.core.persistence.api.entity.membership.MPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.membership.MPlainAttrTemplate;
 import org.apache.syncope.core.persistence.api.entity.membership.MVirAttrTemplate;
 import org.apache.syncope.core.persistence.api.entity.membership.Membership;
-import org.apache.syncope.core.persistence.api.entity.role.RDerAttr;
-import org.apache.syncope.core.persistence.api.entity.role.RDerAttrTemplate;
-import org.apache.syncope.core.persistence.api.entity.role.RPlainAttr;
-import org.apache.syncope.core.persistence.api.entity.role.RPlainAttrTemplate;
-import org.apache.syncope.core.persistence.api.entity.role.RVirAttrTemplate;
-import org.apache.syncope.core.persistence.api.entity.role.Role;
+import org.apache.syncope.core.persistence.api.entity.group.GDerAttr;
+import org.apache.syncope.core.persistence.api.entity.group.GDerAttrTemplate;
+import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
+import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrTemplate;
+import org.apache.syncope.core.persistence.api.entity.group.GVirAttrTemplate;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.UDerAttr;
 import org.apache.syncope.core.persistence.api.entity.user.UDerSchema;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
@@ -101,7 +101,7 @@ abstract class AbstractAttributableDataBinder {
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractAttributableDataBinder.class);
 
     @Autowired
-    protected RoleDAO roleDAO;
+    protected GroupDAO groupDAO;
 
     @Autowired
     protected PlainSchemaDAO plainSchemaDAO;
@@ -259,12 +259,12 @@ abstract class AbstractAttributableDataBinder {
         // Check if there is some mandatory schema defined for which no value has been provided
         List<? extends PlainSchema> plainSchemas;
         switch (attrUtil.getType()) {
-            case ROLE:
-                plainSchemas = ((Role) attributable).getAttrTemplateSchemas(RPlainAttrTemplate.class);
+            case GROUP:
+                plainSchemas = ((Group) attributable).getAttrTemplateSchemas(GPlainAttrTemplate.class);
                 break;
 
             case MEMBERSHIP:
-                plainSchemas = ((Membership) attributable).getRole().getAttrTemplateSchemas(MPlainAttrTemplate.class);
+                plainSchemas = ((Membership) attributable).getGroup().getAttrTemplateSchemas(MPlainAttrTemplate.class);
                 break;
 
             case USER:
@@ -286,12 +286,12 @@ abstract class AbstractAttributableDataBinder {
 
         List<? extends DerSchema> derSchemas;
         switch (attrUtil.getType()) {
-            case ROLE:
-                derSchemas = ((Role) attributable).getAttrTemplateSchemas(RDerAttrTemplate.class);
+            case GROUP:
+                derSchemas = ((Group) attributable).getAttrTemplateSchemas(GDerAttrTemplate.class);
                 break;
 
             case MEMBERSHIP:
-                derSchemas = ((Membership) attributable).getRole().getAttrTemplateSchemas(MDerAttrTemplate.class);
+                derSchemas = ((Membership) attributable).getGroup().getAttrTemplateSchemas(MDerAttrTemplate.class);
                 break;
 
             case USER:
@@ -311,12 +311,12 @@ abstract class AbstractAttributableDataBinder {
 
         List<? extends VirSchema> virSchemas;
         switch (attrUtil.getType()) {
-            case ROLE:
-                virSchemas = ((Role) attributable).getAttrTemplateSchemas(RVirAttrTemplate.class);
+            case GROUP:
+                virSchemas = ((Group) attributable).getAttrTemplateSchemas(GVirAttrTemplate.class);
                 break;
 
             case MEMBERSHIP:
-                virSchemas = ((Membership) attributable).getRole().getAttrTemplateSchemas(MVirAttrTemplate.class);
+                virSchemas = ((Membership) attributable).getGroup().getAttrTemplateSchemas(MVirAttrTemplate.class);
                 break;
 
             case USER:
@@ -343,14 +343,14 @@ abstract class AbstractAttributableDataBinder {
 
         if (attr instanceof UPlainAttr) {
             ((UPlainAttr) attr).setSchema((UPlainSchema) schema);
-        } else if (attr instanceof RPlainAttr) {
-            RPlainAttrTemplate template =
-                    ((Role) attributable).getAttrTemplate(RPlainAttrTemplate.class, schema.getKey());
+        } else if (attr instanceof GPlainAttr) {
+            GPlainAttrTemplate template =
+                    ((Group) attributable).getAttrTemplate(GPlainAttrTemplate.class, schema.getKey());
             if (template != null) {
-                ((RPlainAttr) attr).setTemplate(template);
+                ((GPlainAttr) attr).setTemplate(template);
             }
         } else if (attr instanceof MPlainAttr) {
-            MPlainAttrTemplate template = ((Membership) attributable).getRole().
+            MPlainAttrTemplate template = ((Membership) attributable).getGroup().
                     getAttrTemplate(MPlainAttrTemplate.class, schema.getKey());
             if (template != null) {
                 ((MPlainAttr) attr).setTemplate(template);
@@ -363,14 +363,14 @@ abstract class AbstractAttributableDataBinder {
 
         if (derAttr instanceof UDerAttr) {
             ((UDerAttr) derAttr).setSchema((UDerSchema) derSchema);
-        } else if (derAttr instanceof RDerAttr) {
-            RDerAttrTemplate template = ((Role) attributable).
-                    getAttrTemplate(RDerAttrTemplate.class, derSchema.getKey());
+        } else if (derAttr instanceof GDerAttr) {
+            GDerAttrTemplate template = ((Group) attributable).
+                    getAttrTemplate(GDerAttrTemplate.class, derSchema.getKey());
             if (template != null) {
-                ((RDerAttr) derAttr).setTemplate(template);
+                ((GDerAttr) derAttr).setTemplate(template);
             }
         } else if (derAttr instanceof MDerAttr) {
-            MDerAttrTemplate template = ((Membership) attributable).getRole().
+            MDerAttrTemplate template = ((Membership) attributable).getGroup().
                     getAttrTemplate(MDerAttrTemplate.class, derSchema.getKey());
             if (template != null) {
                 ((MDerAttr) derAttr).setTemplate(template);
@@ -416,7 +416,7 @@ abstract class AbstractAttributableDataBinder {
             externalResources.addAll(((Subject<?, ?, ?>) attributable).getResources());
         } else if (attributable instanceof Membership) {
             externalResources.addAll(((Membership) attributable).getUser().getResources());
-            externalResources.addAll(((Membership) attributable).getRole().getResources());
+            externalResources.addAll(((Membership) attributable).getGroup().getResources());
         }
 
         // 3. attributes to be removed
@@ -591,8 +591,8 @@ abstract class AbstractAttributableDataBinder {
 
         LOG.debug("Derived attributes to be added:\n{}", propByRes);
 
-        // 7. virtual attributes: for users and roles this is delegated to PropagationManager
-        if (AttributableType.USER != attrUtil.getType() && AttributableType.ROLE != attrUtil.getType()) {
+        // 7. virtual attributes: for users and groups this is delegated to PropagationManager
+        if (AttributableType.USER != attrUtil.getType() && AttributableType.GROUP != attrUtil.getType()) {
             virtAttrHander.fillVirtual(attributable, attributableMod.getVirAttrsToRemove(),
                     attributableMod.getVirAttrsToUpdate(), attrUtil);
         }
@@ -663,9 +663,9 @@ abstract class AbstractAttributableDataBinder {
             }
         }
 
-        // 3. user and role virtual attributes will be evaluated by the propagation manager only (if needed).
+        // 3. user and group virtual attributes will be evaluated by the propagation manager only (if needed).
         if (AttributableType.USER == attrUtil.getType()
-                || AttributableType.ROLE == attrUtil.getType()) {
+                || AttributableType.GROUP == attrUtil.getType()) {
 
             for (AttrTO vattrTO : attributableTO.getVirAttrs()) {
                 VirSchema virSchema = virtAttrHander.getVirSchema(vattrTO.getSchema(), attrUtil.virSchemaClass());
@@ -753,7 +753,7 @@ abstract class AbstractAttributableDataBinder {
 
         for (ExternalResource resource : subject.getResources()) {
             if ((type == AttributableType.USER && resource.getUmapping() != null)
-                    || (type == AttributableType.ROLE && resource.getRmapping() != null)) {
+                    || (type == AttributableType.GROUP && resource.getGmapping() != null)) {
 
                 MappingItem accountIdItem =
                         attrUtilFactory.getInstance(type).getAccountIdItem(resource);

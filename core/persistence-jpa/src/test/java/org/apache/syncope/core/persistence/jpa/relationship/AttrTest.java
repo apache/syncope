@@ -33,14 +33,14 @@ import org.apache.syncope.core.persistence.api.dao.MembershipDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrValueDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
-import org.apache.syncope.core.persistence.api.dao.RoleDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.membership.MPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.membership.MPlainAttrTemplate;
 import org.apache.syncope.core.persistence.api.entity.membership.MPlainSchema;
 import org.apache.syncope.core.persistence.api.entity.membership.Membership;
-import org.apache.syncope.core.persistence.api.entity.role.RPlainAttrTemplate;
-import org.apache.syncope.core.persistence.api.entity.role.Role;
+import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrTemplate;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.UDerAttr;
 import org.apache.syncope.core.persistence.api.entity.user.UDerSchema;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
@@ -73,7 +73,7 @@ public class AttrTest extends AbstractTest {
     private MembershipDAO membershipDAO;
 
     @Autowired
-    private RoleDAO roleDAO;
+    private GroupDAO groupDAO;
 
     @Autowired
     private UserDAO userDAO;
@@ -119,7 +119,7 @@ public class AttrTest extends AbstractTest {
 
         MPlainAttrTemplate template = entityFactory.newEntity(MPlainAttrTemplate.class);
         template.setSchema(actualSchema);
-        membership.getRole().getAttrTemplates(MPlainAttrTemplate.class).add(template);
+        membership.getGroup().getAttrTemplates(MPlainAttrTemplate.class).add(template);
 
         MPlainAttr attr = entityFactory.newEntity(MPlainAttr.class);
         attr.setTemplate(template);
@@ -172,20 +172,20 @@ public class AttrTest extends AbstractTest {
     }
 
     @Test
-    public void unmatchedRoleAttr() {
-        Role role = roleDAO.find(1L);
-        assertNotNull(role);
+    public void unmatchedGroupAttr() {
+        Group group = groupDAO.find(1L);
+        assertNotNull(group);
 
-        assertNotNull(role.getAttrTemplate(RPlainAttrTemplate.class, "icon"));
-        assertNotNull(role.getPlainAttr("icon"));
+        assertNotNull(group.getAttrTemplate(GPlainAttrTemplate.class, "icon"));
+        assertNotNull(group.getPlainAttr("icon"));
 
-        assertTrue(role.getAttrTemplates(RPlainAttrTemplate.class).
-                remove(role.getAttrTemplate(RPlainAttrTemplate.class, "icon")));
+        assertTrue(group.getAttrTemplates(GPlainAttrTemplate.class).
+                remove(group.getAttrTemplate(GPlainAttrTemplate.class, "icon")));
 
-        role = roleDAO.save(role);
-        roleDAO.flush();
+        group = groupDAO.save(group);
+        groupDAO.flush();
 
-        assertNull(role.getAttrTemplate(RPlainAttrTemplate.class, "icon"));
-        assertNull(role.getPlainAttr("icon"));
+        assertNull(group.getAttrTemplate(GPlainAttrTemplate.class, "icon"));
+        assertNull(group.getPlainAttr("icon"));
     }
 }

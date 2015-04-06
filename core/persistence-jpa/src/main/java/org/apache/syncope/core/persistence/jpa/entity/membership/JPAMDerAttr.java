@@ -76,7 +76,7 @@ public class JPAMDerAttr extends AbstractDerAttr implements MDerAttr {
 
     @Override
     public void setSchema(final DerSchema schema) {
-        LOG.warn("This is role attribute, set template to select schema");
+        LOG.warn("This is membership attribute, set template to select schema");
     }
 
 }

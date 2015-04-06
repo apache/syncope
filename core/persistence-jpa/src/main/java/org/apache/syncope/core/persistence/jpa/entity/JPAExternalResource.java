@@ -51,10 +51,10 @@ import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.SyncPolicy;
-import org.apache.syncope.core.persistence.api.entity.role.RMapping;
+import org.apache.syncope.core.persistence.api.entity.group.GMapping;
 import org.apache.syncope.core.persistence.api.entity.user.UMapping;
 import org.apache.syncope.core.persistence.jpa.validation.entity.ExternalResourceCheck;
-import org.apache.syncope.core.persistence.jpa.entity.role.JPARMapping;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGMapping;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUMapping;
 import org.apache.syncope.core.misc.serialization.POJOHelper;
 import org.identityconnectors.framework.common.objects.SyncToken;
@@ -100,10 +100,10 @@ public class JPAExternalResource extends AbstractAnnotatedEntity<String> impleme
     private JPAUMapping umapping;
 
     /**
-     * Mapping for role objects.
+     * Mapping for group objects.
      */
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "resource")
-    private JPARMapping rmapping;
+    private JPAGMapping rmapping;
 
     /**
      * Is this resource primary, for propagations?
@@ -171,7 +171,7 @@ public class JPAExternalResource extends AbstractAnnotatedEntity<String> impleme
     private String userializedSyncToken;
 
     /**
-     * SyncToken for calling ConnId's sync() on roles.
+     * SyncToken for calling ConnId's sync() on groups.
      */
     @Lob
     private String rserializedSyncToken;
@@ -237,14 +237,14 @@ public class JPAExternalResource extends AbstractAnnotatedEntity<String> impleme
     }
 
     @Override
-    public RMapping getRmapping() {
+    public GMapping getGmapping() {
         return rmapping;
     }
 
     @Override
-    public void setRmapping(final RMapping rmapping) {
-        checkType(rmapping, JPARMapping.class);
-        this.rmapping = (JPARMapping) rmapping;
+    public void setGmapping(final GMapping gmapping) {
+        checkType(gmapping, JPAGMapping.class);
+        this.rmapping = (JPAGMapping) gmapping;
     }
 
     @Override

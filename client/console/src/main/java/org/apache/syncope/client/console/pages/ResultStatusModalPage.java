@@ -35,7 +35,7 @@ import org.apache.syncope.common.lib.to.AbstractSubjectTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
-import org.apache.syncope.common.lib.to.RoleTO;
+import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.wicket.Component;
@@ -56,7 +56,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.resource.ContextRelativeResource;
 
 /**
- * Show user or role status after performing a successful operation.
+ * Show user or group status after performing a successful operation.
  */
 public class ResultStatusModalPage extends BaseModalPage {
 
@@ -133,8 +133,8 @@ public class ResultStatusModalPage extends BaseModalPage {
             fragment.add(new Label("info",
                     ((subject instanceof UserTO) && ((UserTO) subject).getUsername() != null)
                             ? ((UserTO) subject).getUsername()
-                            : ((subject instanceof RoleTO) && ((RoleTO) subject).getName() != null)
-                                    ? ((RoleTO) subject).getName()
+                            : ((subject instanceof GroupTO) && ((GroupTO) subject).getName() != null)
+                                    ? ((GroupTO) subject).getName()
                                     : String.valueOf(subject.getKey())));
 
             final ListView<PropagationStatus> propRes = new ListView<PropagationStatus>("resources",
@@ -376,8 +376,7 @@ public class ResultStatusModalPage extends BaseModalPage {
     private Fragment getStatusIcon(final String id, final String resourceName, final ConnObjectTO objectTO) {
         final Image image;
         final String alt, title;
-        switch (statusUtils.getStatusBean(
-                subject, resourceName, objectTO, this.subject instanceof RoleTO).getStatus()) {
+        switch (statusUtils.getStatusBean(subject, resourceName, objectTO, this.subject instanceof GroupTO).getStatus()) {
 
             case ACTIVE:
                 image = new Image("status",

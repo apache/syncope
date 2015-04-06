@@ -26,12 +26,11 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.report.AbstractReportletConf;
 
 @XmlRootElement(name = "report")
 @XmlType
-public class ReportTO extends AbstractBaseBean {
+public class ReportTO extends AbstractStartEndBean {
 
     private static final long serialVersionUID = 5274568072084814410L;
 
@@ -51,15 +50,11 @@ public class ReportTO extends AbstractBaseBean {
 
     private Date nextExec;
 
-    private Date startDate;
-
-    private Date endDate;
-
     public long getKey() {
         return key;
     }
 
-    public void setKey(long key) {
+    public void setKey(final long key) {
         this.key = key;
     }
 
@@ -101,6 +96,7 @@ public class ReportTO extends AbstractBaseBean {
         this.latestExecStatus = latestExecStatus;
     }
 
+    @SuppressWarnings("CPD-START")
     public Date getLastExec() {
         return lastExec == null
                 ? null
@@ -125,27 +121,4 @@ public class ReportTO extends AbstractBaseBean {
         }
     }
 
-    public Date getStartDate() {
-        return startDate == null
-                ? null
-                : new Date(startDate.getTime());
-    }
-
-    public void setStartDate(final Date startDate) {
-        if (startDate != null) {
-            this.startDate = new Date(startDate.getTime());
-        }
-    }
-
-    public Date getEndDate() {
-        return endDate == null
-                ? null
-                : new Date(endDate.getTime());
-    }
-
-    public void setEndDate(final Date endDate) {
-        if (endDate != null) {
-            this.endDate = new Date(endDate.getTime());
-        }
-    }
 }

@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.List;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.entity.Report;
 
 public interface ReportDAO extends DAO<Report, Long> {
@@ -33,7 +32,7 @@ public interface ReportDAO extends DAO<Report, Long> {
 
     int count();
 
-    Report save(Report report) throws InvalidEntityException;
+    Report save(Report report);
 
     void delete(Long key);
 

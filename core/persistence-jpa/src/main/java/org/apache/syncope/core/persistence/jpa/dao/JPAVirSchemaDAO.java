@@ -32,13 +32,13 @@ import org.apache.syncope.core.persistence.api.entity.AttributableUtil;
 import org.apache.syncope.core.persistence.api.entity.VirAttr;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.membership.MVirSchema;
-import org.apache.syncope.core.persistence.api.entity.role.RVirSchema;
+import org.apache.syncope.core.persistence.api.entity.group.GVirSchema;
 import org.apache.syncope.core.persistence.api.entity.user.UMappingItem;
 import org.apache.syncope.core.persistence.api.entity.user.UVirAttr;
 import org.apache.syncope.core.persistence.api.entity.user.UVirSchema;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractVirSchema;
 import org.apache.syncope.core.persistence.jpa.entity.membership.JPAMVirSchema;
-import org.apache.syncope.core.persistence.jpa.entity.role.JPARVirSchema;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGVirSchema;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUVirSchema;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -56,8 +56,8 @@ public class JPAVirSchemaDAO extends AbstractDAO<VirSchema, String> implements V
     private ExternalResourceDAO resourceDAO;
 
     private <T extends VirSchema> Class<? extends AbstractVirSchema> getJPAEntityReference(final Class<T> reference) {
-        return RVirSchema.class.isAssignableFrom(reference)
-                ? JPARVirSchema.class
+        return GVirSchema.class.isAssignableFrom(reference)
+                ? JPAGVirSchema.class
                 : MVirSchema.class.isAssignableFrom(reference)
                         ? JPAMVirSchema.class
                         : UVirSchema.class.isAssignableFrom(reference)

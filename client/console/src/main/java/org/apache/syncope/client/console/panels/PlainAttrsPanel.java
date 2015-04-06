@@ -34,9 +34,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.AttrLayoutType;
 import org.apache.syncope.client.console.commons.JexlHelpUtil;
 import org.apache.syncope.client.console.commons.Mode;
-import org.apache.syncope.client.console.panels.AttrTemplatesPanel.RoleAttrTemplatesChange;
+import org.apache.syncope.client.console.panels.AttrTemplatesPanel.GroupAttrTemplatesChange;
 import org.apache.syncope.client.console.rest.ConfigurationRestClient;
-import org.apache.syncope.client.console.rest.RoleRestClient;
+import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
@@ -54,7 +54,7 @@ import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.ConfTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
-import org.apache.syncope.common.lib.to.RoleTO;
+import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.AttributableType;
@@ -81,7 +81,7 @@ public class PlainAttrsPanel extends Panel {
     private ConfigurationRestClient confRestClient;
 
     @SpringBean
-    private RoleRestClient roleRestClient;
+    private GroupRestClient groupRestClient;
 
     private final AbstractAttributableTO entityTO;
 
@@ -147,18 +147,18 @@ public class PlainAttrsPanel extends Panel {
         AttrTO attrLayout = null;
         List<PlainSchemaTO> schemaTOs;
 
-        if (entityTO instanceof RoleTO) {
-            final RoleTO roleTO = (RoleTO) entityTO;
+        if (entityTO instanceof GroupTO) {
+            final GroupTO groupTO = (GroupTO) entityTO;
 
-            attrLayout = confRestClient.readAttrLayout(AttrLayoutType.valueOf(mode, AttributableType.ROLE));
-            schemaTOs = schemaRestClient.getSchemas(AttributableType.ROLE);
+            attrLayout = confRestClient.readAttrLayout(AttrLayoutType.valueOf(mode, AttributableType.GROUP));
+            schemaTOs = schemaRestClient.getSchemas(AttributableType.GROUP);
             Set<String> allowed;
             if (attrTemplates == null) {
-                allowed = new HashSet<>(roleTO.getRPlainAttrTemplates());
+                allowed = new HashSet<>(groupTO.getGPlainAttrTemplates());
             } else {
-                allowed = new HashSet<>(attrTemplates.getSelected(AttrTemplatesPanel.Type.rPlainAttrTemplates));
-                if (roleTO.isInheritTemplates() && roleTO.getParent() != 0) {
-                    allowed.addAll(roleRestClient.read(roleTO.getParent()).getRPlainAttrTemplates());
+                allowed = new HashSet<>(attrTemplates.getSelected(AttrTemplatesPanel.Type.gPlainAttrTemplates));
+                if (groupTO.isInheritTemplates() && groupTO.getParent() != 0) {
+                    allowed.addAll(groupRestClient.read(groupTO.getParent()).getGPlainAttrTemplates());
                 }
             }
             schemaRestClient.filter(schemaTOs, allowed, true);
@@ -169,7 +169,7 @@ public class PlainAttrsPanel extends Panel {
             attrLayout = confRestClient.readAttrLayout(AttrLayoutType.valueOf(mode, AttributableType.MEMBERSHIP));
             schemaTOs = schemaRestClient.getSchemas(AttributableType.MEMBERSHIP);
             Set<String> allowed = new HashSet<>(
-                    roleRestClient.read(((MembershipTO) entityTO).getRoleId()).getMPlainAttrTemplates());
+                    groupRestClient.read(((MembershipTO) entityTO).getGroupId()).getMPlainAttrTemplates());
             schemaRestClient.filter(schemaTOs, allowed, true);
         } else {
             schemas = new TreeMap<>();
@@ -383,9 +383,9 @@ public class PlainAttrsPanel extends Panel {
 
     @Override
     public void onEvent(final IEvent<?> event) {
-        if ((event.getPayload() instanceof RoleAttrTemplatesChange)) {
-            final RoleAttrTemplatesChange update = (RoleAttrTemplatesChange) event.getPayload();
-            if (attrTemplates != null && update.getType() == AttrTemplatesPanel.Type.rPlainAttrTemplates) {
+        if ((event.getPayload() instanceof GroupAttrTemplatesChange)) {
+            final GroupAttrTemplatesChange update = (GroupAttrTemplatesChange) event.getPayload();
+            if (attrTemplates != null && update.getType() == AttrTemplatesPanel.Type.gPlainAttrTemplates) {
                 setSchemas();
                 setAttrs();
                 update.getTarget().add(this);

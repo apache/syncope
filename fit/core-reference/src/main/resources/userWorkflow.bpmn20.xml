@@ -34,10 +34,10 @@ under the License.
     <sequenceFlow id="flow2" sourceRef="create" targetRef="createGW"/>
     <exclusiveGateway id="createGW"/>
     <sequenceFlow id="createAsAnonymous2Approval" sourceRef="createGW" targetRef="createApproval">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${wfExecutor == 'anonymous' || user.getRoleKeys().contains(9)}]]></conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${wfExecutor == 'anonymous' || user.getGroupKeys().contains(9)}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="create2Activate" sourceRef="createGW" targetRef="enableGW">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${!user.getRoleKeys().contains(9)}]]></conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${!user.getGroupKeys().contains(9)}]]></conditionExpression>
     </sequenceFlow>
     <userTask id="createApproval" name="Create approval" activiti:candidateGroups="7" activiti:formKey="createApproval">
       <extensionElements>
@@ -56,7 +56,7 @@ under the License.
     </sequenceFlow>
     <exclusiveGateway id="enableGW"/>
     <sequenceFlow id="createApprovalGW2OptIn" sourceRef="enableGW" targetRef="generateToken">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${user.getRoleKeys().contains(11)}]]></conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${user.getGroupKeys().contains(11)}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="createApprovalGW2Activate" sourceRef="enableGW" targetRef="activate">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${enabled == null}]]></conditionExpression>

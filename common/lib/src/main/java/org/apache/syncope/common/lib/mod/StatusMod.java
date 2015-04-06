@@ -70,7 +70,7 @@ public class StatusMod extends AbstractBaseBean {
         return key;
     }
 
-    public void setKey(long key) {
+    public void setKey(final long key) {
         this.key = key;
     }
 

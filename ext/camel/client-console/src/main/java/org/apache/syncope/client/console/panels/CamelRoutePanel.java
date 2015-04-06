@@ -145,8 +145,8 @@ public class CamelRoutePanel extends AbstractExtensionPanel {
             if (restClient.isCamelEnabledFor(SubjectType.USER)) {
                 list.addAll(restClient.list(SubjectType.USER));
             }
-            if (restClient.isCamelEnabledFor(SubjectType.ROLE)) {
-                list.addAll(restClient.list(SubjectType.ROLE));
+            if (restClient.isCamelEnabledFor(SubjectType.GROUP)) {
+                list.addAll(restClient.list(SubjectType.GROUP));
             }
 
             Collections.sort(list, comparator);
@@ -159,8 +159,8 @@ public class CamelRoutePanel extends AbstractExtensionPanel {
             return (restClient.isCamelEnabledFor(SubjectType.USER)
                     ? restClient.list(SubjectType.USER).size()
                     : 0)
-                    + (restClient.isCamelEnabledFor(SubjectType.ROLE)
-                            ? restClient.list(SubjectType.ROLE).size()
+                    + (restClient.isCamelEnabledFor(SubjectType.GROUP)
+                            ? restClient.list(SubjectType.GROUP).size()
                             : 0);
         }
 

@@ -26,25 +26,24 @@ import org.activiti.engine.ActivitiException;
 import org.activiti.engine.identity.Group;
 import org.activiti.engine.identity.GroupQuery;
 import org.activiti.engine.impl.persistence.entity.GroupEntity;
-import org.apache.syncope.core.persistence.api.dao.RoleDAO;
-import org.apache.syncope.core.persistence.api.entity.role.Role;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 
 public class SyncopeGroupQueryImpl implements GroupQuery {
 
-    private RoleDAO roleDAO;
+    private GroupDAO groupDAO;
 
-    private Long roleId;
+    private Long groupId;
 
     private List<Group> result;
 
-    public SyncopeGroupQueryImpl(final RoleDAO roleDAO) {
-        this.roleDAO = roleDAO;
+    public SyncopeGroupQueryImpl(final GroupDAO groupDAO) {
+        this.groupDAO = groupDAO;
     }
 
     @Override
     public GroupQuery groupId(final String groupId) {
         try {
-            roleId = Long.valueOf(groupId);
+            this.groupId = Long.valueOf(groupId);
         } catch (NumberFormatException e) {
         }
 
@@ -96,23 +95,23 @@ public class SyncopeGroupQueryImpl implements GroupQuery {
         return this;
     }
 
-    private Group fromSyncopeRole(Role role) {
-        return new GroupEntity(role.getKey().toString());
+    private Group fromSyncopeGroup(final org.apache.syncope.core.persistence.api.entity.group.Group group) {
+        return new GroupEntity(group.getKey().toString());
     }
 
     private void execute() {
-        if (roleId != null) {
-            Role role = roleDAO.find(roleId);
-            if (role == null) {
+        if (groupId != null) {
+            org.apache.syncope.core.persistence.api.entity.group.Group syncopeGroup = groupDAO.find(groupId);
+            if (syncopeGroup == null) {
                 result = Collections.emptyList();
             } else {
-                result = Collections.singletonList(fromSyncopeRole(role));
+                result = Collections.singletonList(fromSyncopeGroup(syncopeGroup));
             }
         }
         if (result == null) {
-            result = new ArrayList<Group>();
-            for (Role role : roleDAO.findAll()) {
-                result.add(fromSyncopeRole(role));
+            result = new ArrayList<>();
+            for ( org.apache.syncope.core.persistence.api.entity.group.Group syncopeGroup : groupDAO.findAll()) {
+                result.add(fromSyncopeGroup(syncopeGroup));
             }
         }
     }

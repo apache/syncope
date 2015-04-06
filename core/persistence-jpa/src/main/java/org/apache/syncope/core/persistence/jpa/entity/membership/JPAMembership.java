@@ -34,15 +34,15 @@ import org.apache.syncope.core.persistence.api.entity.membership.MPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.membership.MVirAttr;
 import org.apache.syncope.core.persistence.api.entity.membership.MVirAttrTemplate;
 import org.apache.syncope.core.persistence.api.entity.membership.Membership;
-import org.apache.syncope.core.persistence.api.entity.role.Role;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractAttributable;
-import org.apache.syncope.core.persistence.jpa.entity.role.JPARole;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 
 @Entity
 @Table(name = JPAMembership.TABLE, uniqueConstraints =
-        @UniqueConstraint(columnNames = { "user_id", "role_id" }))
+        @UniqueConstraint(columnNames = { "user_id", "group_id" }))
 public class JPAMembership extends AbstractAttributable<MPlainAttr, MDerAttr, MVirAttr> implements Membership {
 
     private static final long serialVersionUID = 5030106264797289469L;
@@ -56,7 +56,7 @@ public class JPAMembership extends AbstractAttributable<MPlainAttr, MDerAttr, MV
     private JPAUser user;
 
     @ManyToOne
-    private JPARole role;
+    private JPAGroup group;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     @Valid
@@ -84,14 +84,14 @@ public class JPAMembership extends AbstractAttributable<MPlainAttr, MDerAttr, MV
     }
 
     @Override
-    public Role getRole() {
-        return role;
+    public Group getGroup() {
+        return group;
     }
 
     @Override
-    public void setRole(final Role role) {
-        checkType(role, JPARole.class);
-        this.role = (JPARole) role;
+    public void setGroup(final Group group) {
+        checkType(group, JPAGroup.class);
+        this.group = (JPAGroup) group;
     }
 
     @Override
@@ -126,9 +126,9 @@ public class JPAMembership extends AbstractAttributable<MPlainAttr, MDerAttr, MV
     public boolean addDerAttr(final MDerAttr derAttr) {
         checkType(derAttr, JPAMDerAttr.class);
 
-        if (getRole() != null && derAttr.getSchema() != null) {
+        if (getGroup() != null && derAttr.getSchema() != null) {
             MDerAttrTemplate found = null;
-            for (MDerAttrTemplate template : getRole().findInheritedTemplates(MDerAttrTemplate.class)) {
+            for (MDerAttrTemplate template : getGroup().findInheritedTemplates(MDerAttrTemplate.class)) {
                 if (derAttr.getSchema().equals(template.getSchema())) {
                     found = template;
                 }
@@ -139,7 +139,7 @@ public class JPAMembership extends AbstractAttributable<MPlainAttr, MDerAttr, MV
             }
         }
 
-        LOG.warn("Attribute not added because either role was not yet set, "
+        LOG.warn("Attribute not added because either group was not yet set, "
                 + "schema was not specified or no template for that schema is available");
         return false;
     }
@@ -159,9 +159,9 @@ public class JPAMembership extends AbstractAttributable<MPlainAttr, MDerAttr, MV
     public boolean addVirAttr(final MVirAttr virAttr) {
         checkType(virAttr, JPAMVirAttr.class);
 
-        if (getRole() != null && virAttr.getSchema() != null) {
+        if (getGroup() != null && virAttr.getSchema() != null) {
             MVirAttrTemplate found = null;
-            for (MVirAttrTemplate template : getRole().findInheritedTemplates(MVirAttrTemplate.class)) {
+            for (MVirAttrTemplate template : getGroup().findInheritedTemplates(MVirAttrTemplate.class)) {
                 if (virAttr.getSchema().equals(template.getSchema())) {
                     found = template;
                 }
@@ -190,6 +190,6 @@ public class JPAMembership extends AbstractAttributable<MPlainAttr, MDerAttr, MV
 
     @Override
     public String toString() {
-        return "Membership[" + "id=" + id + ", " + user + ", " + role + ']';
+        return "Membership[" + "id=" + id + ", " + user + ", " + group + ']';
     }
 }

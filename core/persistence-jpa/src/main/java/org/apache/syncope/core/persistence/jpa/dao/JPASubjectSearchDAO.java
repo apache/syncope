@@ -37,7 +37,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.SubjectType;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
-import org.apache.syncope.core.persistence.api.dao.RoleDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.SubjectSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
@@ -65,7 +65,7 @@ public class JPASubjectSearchDAO extends AbstractDAO<Subject<?, ?, ?>, Long> imp
     private UserDAO userDAO;
 
     @Autowired
-    private RoleDAO roleDAO;
+    private GroupDAO groupDAO;
 
     @Autowired
     private PlainSchemaDAO schemaDAO;
@@ -73,50 +73,50 @@ public class JPASubjectSearchDAO extends AbstractDAO<Subject<?, ?, ?>, Long> imp
     @Autowired
     private AttributableUtilFactory attrUtilFactory;
 
-    private String getAdminRolesFilter(final Set<Long> adminRoles, final SubjectType type) {
-        final StringBuilder adminRolesFilter = new StringBuilder();
+    private String getAdminGroupsFilter(final Set<Long> adminGroups, final SubjectType type) {
+        final StringBuilder adminGroupFilter = new StringBuilder();
 
         if (type == SubjectType.USER) {
-            adminRolesFilter.append("SELECT user_id AS subject_id FROM Membership M1 WHERE role_id IN (").
-                    append("SELECT role_id FROM Membership M2 WHERE M2.user_id=M1.user_id ").
-                    append("AND role_id NOT IN (");
+            adminGroupFilter.append("SELECT user_id AS subject_id FROM Membership M1 WHERE group_id IN (").
+                    append("SELECT group_id FROM Membership M2 WHERE M2.user_id=M1.user_id ").
+                    append("AND group_id NOT IN (");
         }
 
-        adminRolesFilter.append("SELECT id AS ").
-                append(type == SubjectType.USER ? "role" : "subject").
-                append("_id FROM SyncopeRole");
+        adminGroupFilter.append("SELECT id AS ").
+                append(type == SubjectType.USER ? "group" : "subject").
+                append("_id FROM SyncopeGroup");
 
-        boolean firstRole = true;
+        boolean firstGroup = true;
 
-        for (Long adminRoleId : adminRoles) {
-            if (firstRole) {
-                adminRolesFilter.append(" WHERE");
-                firstRole = false;
+        for (Long adminGroupId : adminGroups) {
+            if (firstGroup) {
+                adminGroupFilter.append(" WHERE");
+                firstGroup = false;
             } else {
-                adminRolesFilter.append(type == SubjectType.USER ? " OR" : " AND");
+                adminGroupFilter.append(type == SubjectType.USER ? " OR" : " AND");
             }
-            adminRolesFilter.append(type == SubjectType.USER ? " id = " : " id <> ").append(adminRoleId);
+            adminGroupFilter.append(type == SubjectType.USER ? " id = " : " id <> ").append(adminGroupId);
         }
 
         if (type == SubjectType.USER) {
-            adminRolesFilter.append("))");
+            adminGroupFilter.append("))");
         }
 
-        return adminRolesFilter.toString();
+        return adminGroupFilter.toString();
     }
 
     @Override
-    public int count(final Set<Long> adminRoles, final SearchCond searchCondition, final SubjectType type) {
+    public int count(final Set<Long> adminGroups, final SearchCond searchCondition, final SubjectType type) {
         List<Object> parameters = Collections.synchronizedList(new ArrayList<>());
 
         // 1. get the query string from the search condition
         SearchSupport svs = new SearchSupport(type);
         StringBuilder queryString = getQuery(searchCondition, parameters, type, svs);
 
-        // 2. take into account administrative roles
+        // 2. take into account administrative groups
         queryString.insert(0, "SELECT u.subject_id FROM (");
         queryString.append(") u WHERE subject_id NOT IN (");
-        queryString.append(getAdminRolesFilter(adminRoles, type)).append(')');
+        queryString.append(getAdminGroupsFilter(adminGroups, type)).append(')');
 
         // 3. prepare the COUNT query
         queryString.insert(0, "SELECT COUNT(subject_id) FROM (");
@@ -135,32 +135,32 @@ public class JPASubjectSearchDAO extends AbstractDAO<Subject<?, ?, ?>, Long> imp
 
     @Override
     public <T extends Subject<?, ?, ?>> List<T> search(
-            final Set<Long> adminRoles, final SearchCond searchCondition, final SubjectType type) {
+            final Set<Long> adminGroups, final SearchCond searchCondition, final SubjectType type) {
 
-        return search(adminRoles, searchCondition, Collections.<OrderByClause>emptyList(), type);
+        return search(adminGroups, searchCondition, Collections.<OrderByClause>emptyList(), type);
     }
 
     @Override
     public <T extends Subject<?, ?, ?>> List<T> search(
-            final Set<Long> adminRoles, final SearchCond searchCondition, final List<OrderByClause> orderBy,
+            final Set<Long> adminGroups, final SearchCond searchCondition, final List<OrderByClause> orderBy,
             final SubjectType type) {
 
-        return search(adminRoles, searchCondition, -1, -1, orderBy, type);
+        return search(adminGroups, searchCondition, -1, -1, orderBy, type);
     }
 
     @Override
     public <T extends Subject<?, ?, ?>> List<T> search(
-            final Set<Long> adminRoles, final SearchCond searchCondition, final int page, final int itemsPerPage,
+            final Set<Long> adminGroups, final SearchCond searchCondition, final int page, final int itemsPerPage,
             final List<OrderByClause> orderBy, final SubjectType type) {
 
         List<T> result = Collections.<T>emptyList();
 
-        if (adminRoles != null && (!adminRoles.isEmpty() || roleDAO.findAll().isEmpty())) {
+        if (adminGroups != null && (!adminGroups.isEmpty() || groupDAO.findAll().isEmpty())) {
             LOG.debug("Search condition:\n{}", searchCondition);
 
             if (searchCondition != null && searchCondition.isValid()) {
                 try {
-                    result = doSearch(adminRoles, searchCondition, page, itemsPerPage, orderBy, type);
+                    result = doSearch(adminGroups, searchCondition, page, itemsPerPage, orderBy, type);
                 } catch (Exception e) {
                     LOG.error("While searching for {}", type, e);
                 }
@@ -184,7 +184,7 @@ public class JPASubjectSearchDAO extends AbstractDAO<Subject<?, ?, ?>, Long> imp
 
         boolean matches;
         if (queryString.length() == 0) {
-            // Could be empty: got into a role search with a single membership condition ...
+            // Could be empty: got into a group search with a single membership condition ...
             matches = false;
         } else {
             // 2. take into account the passed user
@@ -331,7 +331,7 @@ public class JPASubjectSearchDAO extends AbstractDAO<Subject<?, ?, ?>, Long> imp
     }
 
     @SuppressWarnings("unchecked")
-    private <T extends Subject<?, ?, ?>> List<T> doSearch(final Set<Long> adminRoles,
+    private <T extends Subject<?, ?, ?>> List<T> doSearch(final Set<Long> adminGroups,
             final SearchCond nodeCond, final int page, final int itemsPerPage, final List<OrderByClause> orderBy,
             final SubjectType type) {
 
@@ -341,7 +341,7 @@ public class JPASubjectSearchDAO extends AbstractDAO<Subject<?, ?, ?>, Long> imp
         SearchSupport svs = new SearchSupport(type);
         StringBuilder queryString = getQuery(nodeCond, parameters, type, svs);
 
-        // 2. take into account administrative roles and ordering
+        // 2. take into account administrative groups and ordering
         OrderBySupport orderBySupport = parseOrderBy(type, svs, orderBy);
         if (queryString.charAt(0) == '(') {
             queryString.insert(0, buildSelect(orderBySupport));
@@ -351,7 +351,7 @@ public class JPASubjectSearchDAO extends AbstractDAO<Subject<?, ?, ?>, Long> imp
             queryString.append(')').append(buildWhere(orderBySupport, type));
         }
         queryString.
-                append(getAdminRolesFilter(adminRoles, type)).append(')').
+                append(getAdminGroupsFilter(adminGroups, type)).append(')').
                 append(buildOrderBy(orderBySupport));
 
         // 3. prepare the search query
@@ -382,7 +382,7 @@ public class JPASubjectSearchDAO extends AbstractDAO<Subject<?, ?, ?>, Long> imp
 
             T subject = type == SubjectType.USER
                     ? (T) userDAO.find(actualId)
-                    : (T) roleDAO.find(actualId);
+                    : (T) groupDAO.find(actualId);
             if (subject == null) {
                 LOG.error("Could not find {} with id {}, even though returned by the native query",
                         type, actualId);
@@ -461,7 +461,7 @@ public class JPASubjectSearchDAO extends AbstractDAO<Subject<?, ?, ?>, Long> imp
 
         query.append("SELECT DISTINCT subject_id ").append("FROM ").
                 append(svs.membership().name).append(" WHERE ").
-                append("role_id=?").append(setParameter(parameters, cond.getRoleId())).
+                append("group_id=?").append(setParameter(parameters, cond.getGroupId())).
                 append(')');
 
         return query.toString();
@@ -486,7 +486,7 @@ public class JPASubjectSearchDAO extends AbstractDAO<Subject<?, ?, ?>, Long> imp
 
         if (type == SubjectType.USER) {
             query.append(" UNION SELECT DISTINCT subject_id FROM ").
-                    append(svs.roleResource().name).
+                    append(svs.groupResource().name).
                     append(" WHERE resource_name=?").
                     append(setParameter(parameters, cond.getResourceName()));
         }
@@ -676,7 +676,7 @@ public class JPASubjectSearchDAO extends AbstractDAO<Subject<?, ?, ?>, Long> imp
         }
 
         // Deal with subject Integer fields logically mapping to boolean values
-        // (JPARole.inheritPlainAttrs, for example)
+        // (JPAGroup.inheritPlainAttrs, for example)
         boolean foundBooleanMin = false;
         boolean foundBooleanMax = false;
         if (Integer.class.equals(subjectField.getType())) {

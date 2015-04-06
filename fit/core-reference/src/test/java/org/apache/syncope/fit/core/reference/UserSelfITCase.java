@@ -89,7 +89,7 @@ public class UserSelfITCase extends AbstractITCase {
         // self-create user with membership: goes 'createApproval' with resources and membership but no propagation
         UserTO userTO = UserITCase.getUniqueSampleTO("anonymous@syncope.apache.org");
         MembershipTO membership = new MembershipTO();
-        membership.setRoleId(3L);
+        membership.setGroupId(3L);
         userTO.getMemberships().add(membership);
         userTO.getResources().add(RESOURCE_NAME_TESTDB);
 
@@ -169,7 +169,7 @@ public class UserSelfITCase extends AbstractITCase {
 
         // 2. self-update (username + memberships + resource) - works but needs approval
         MembershipMod membershipMod = new MembershipMod();
-        membershipMod.setRole(7L);
+        membershipMod.setGroup(7L);
         AttrMod testAttrMod = new AttrMod();
         testAttrMod.setSchema("testAttribute");
         testAttrMod.getValuesToBeAdded().add("a value");

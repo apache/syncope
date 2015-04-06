@@ -28,8 +28,8 @@ public interface VirAttrCache {
     /**
      * Force entry expiring.
      *
-     * @param type user or role
-     * @param id user or role id
+     * @param type user or group
+     * @param id user or group id
      * @param schemaName virtual attribute schema name
      */
     void expire(AttributableType type, Long id, String schemaName);
@@ -37,8 +37,8 @@ public interface VirAttrCache {
     /**
      * Retrieve cached value. Return null in case of virtual attribute not cached.
      *
-     * @param type user or role
-     * @param id user or role id
+     * @param type user or group
+     * @param id user or group id
      * @param schemaName virtual attribute schema name.
      * @return cached values or null if virtual attribute is not cached.
      */
@@ -55,8 +55,8 @@ public interface VirAttrCache {
     /**
      * Cache virtual attribute values.
      *
-     * @param type user or role
-     * @param id user or role id
+     * @param type user or group
+     * @param id user or group id
      * @param schemaName virtual attribute name
      * @param value virtual attribute values
      */

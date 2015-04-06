@@ -22,7 +22,7 @@ import org.apache.syncope.common.lib.mod.AbstractAttributableMod;
 import org.apache.syncope.common.lib.to.AbstractAttributableTO;
 
 /**
- * Provides logic for transforming user or role, received as input by RESTful methods, before any internal
+ * Provides logic for transforming user or group, received as input by RESTful methods, before any internal
  * processing logic takes place.
  */
 public interface AttributableTransformer {

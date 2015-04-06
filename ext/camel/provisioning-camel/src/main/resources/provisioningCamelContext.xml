@@ -29,9 +29,9 @@ under the License.
     <property name="primary" value="file:${camel.directory}/userRoutes.xml"/>
     <property name="fallback" value="classpath:userRoutes.xml"/>
   </bean>
-  <bean id="roleRoutes" class="org.apache.syncope.core.misc.spring.ResourceWithFallbackLoader">
-    <property name="primary" value="file:${camel.directory}/roleRoutes.xml"/>
-    <property name="fallback" value="classpath:roleRoutes.xml"/>
+  <bean id="groupRoutes" class="org.apache.syncope.core.misc.spring.ResourceWithFallbackLoader">
+    <property name="primary" value="file:${camel.directory}/groupRoutes.xml"/>
+    <property name="fallback" value="classpath:groupRoutes.xml"/>
   </bean>
     
   <context:component-scan base-package="org.apache.syncope.core.provisioning.camel"/>

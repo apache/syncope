@@ -27,6 +27,9 @@ import org.apache.syncope.core.provisioning.java.sync.DefaultSyncActions;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.quartz.JobExecutionException;
 
+/**
+ * Test synchronization action.
+ */
 public class TestSyncActions extends DefaultSyncActions {
 
     private int counter = 0;

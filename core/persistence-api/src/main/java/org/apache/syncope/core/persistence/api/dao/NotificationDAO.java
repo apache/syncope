@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.List;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.entity.Notification;
 
 public interface NotificationDAO extends DAO<Notification, Long> {
@@ -28,7 +27,7 @@ public interface NotificationDAO extends DAO<Notification, Long> {
 
     List<Notification> findAll();
 
-    Notification save(Notification notification) throws InvalidEntityException;
+    Notification save(Notification notification);
 
     void delete(Long key);
 }

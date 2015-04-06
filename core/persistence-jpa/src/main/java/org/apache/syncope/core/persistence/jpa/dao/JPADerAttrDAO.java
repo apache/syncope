@@ -24,11 +24,11 @@ import org.apache.syncope.core.persistence.api.dao.DerAttrDAO;
 import org.apache.syncope.core.persistence.api.entity.Attributable;
 import org.apache.syncope.core.persistence.api.entity.DerAttr;
 import org.apache.syncope.core.persistence.api.entity.membership.MDerAttr;
-import org.apache.syncope.core.persistence.api.entity.role.RDerAttr;
+import org.apache.syncope.core.persistence.api.entity.group.GDerAttr;
 import org.apache.syncope.core.persistence.api.entity.user.UDerAttr;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractDerAttr;
 import org.apache.syncope.core.persistence.jpa.entity.membership.JPAMDerAttr;
-import org.apache.syncope.core.persistence.jpa.entity.role.JPARDerAttr;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGDerAttr;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUDerAttr;
 import org.springframework.stereotype.Repository;
 
@@ -38,8 +38,8 @@ public class JPADerAttrDAO extends AbstractDAO<DerAttr, Long> implements DerAttr
     public <T extends DerAttr> Class<? extends AbstractDerAttr> getJPAEntityReference(
             final Class<T> reference) {
 
-        return RDerAttr.class.isAssignableFrom(reference)
-                ? JPARDerAttr.class
+        return GDerAttr.class.isAssignableFrom(reference)
+                ? JPAGDerAttr.class
                 : MDerAttr.class.isAssignableFrom(reference)
                         ? JPAMDerAttr.class
                         : UDerAttr.class.isAssignableFrom(reference)

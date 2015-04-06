@@ -29,14 +29,14 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PasswordPolicySpec;
 import org.apache.syncope.common.lib.types.SyncPolicySpec;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
-import org.apache.syncope.core.persistence.api.dao.RoleDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.entity.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.Policy;
 import org.apache.syncope.core.persistence.api.entity.SyncPolicy;
-import org.apache.syncope.core.persistence.api.entity.role.Role;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,7 +54,7 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
     private ExternalResourceDAO resourceDAO;
 
     @Autowired
-    private RoleDAO roleDAO;
+    private GroupDAO groupDAO;
 
     @Autowired
     private EntityFactory entityFactory;
@@ -102,12 +102,12 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
                 policyTO.getUsedByResources().add(resource.getKey());
             }
         }
-        for (Role role : roleDAO.findByPolicy(policy)) {
-            policyTO.getUsedByRoles().add(role.getKey());
+        for (Group group : groupDAO.findByPolicy(policy)) {
+            policyTO.getUsedByGroups().add(group.getKey());
         }
         if (policy.getType().isGlobal()) {
-            for (Role role : roleDAO.findWithoutPolicy(policy.getType())) {
-                policyTO.getUsedByRoles().add(role.getKey());
+            for (Group group : groupDAO.findWithoutPolicy(policy.getType())) {
+                policyTO.getUsedByGroups().add(group.getKey());
             }
         }
 

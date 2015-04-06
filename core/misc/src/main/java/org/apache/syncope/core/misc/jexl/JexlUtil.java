@@ -48,28 +48,24 @@ import org.slf4j.LoggerFactory;
  */
 public final class JexlUtil {
 
-    /**
-     * Logger.
-     *
-     */
     private static final Logger LOG = LoggerFactory.getLogger(JexlUtil.class);
 
     private static final String[] IGNORE_FIELDS = { "password", "clearPassword", "serialVersionUID", "class" };
 
-    private static JexlEngine jexlEngine;
+    private static JexlEngine JEXL_ENGINE;
 
     private static JexlEngine getEngine() {
         synchronized (LOG) {
-            if (jexlEngine == null) {
-                jexlEngine = new JexlEngine(new ClassFreeUberspectImpl(null), null, null, null);
-                jexlEngine.setClassLoader(new EmptyClassLoader());
-                jexlEngine.setCache(512);
-                jexlEngine.setLenient(true);
-                jexlEngine.setSilent(false);
+            if (JEXL_ENGINE == null) {
+                JEXL_ENGINE = new JexlEngine(new ClassFreeUberspectImpl(null), null, null, null);
+                JEXL_ENGINE.setClassLoader(new EmptyClassLoader());
+                JEXL_ENGINE.setCache(512);
+                JEXL_ENGINE.setLenient(true);
+                JEXL_ENGINE.setSilent(false);
             }
         }
 
-        return jexlEngine;
+        return JEXL_ENGINE;
     }
 
     public static boolean isExpressionValid(final String expression) {

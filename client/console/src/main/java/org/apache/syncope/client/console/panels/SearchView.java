@@ -52,7 +52,7 @@ public class SearchView extends ListView<SearchClause> {
 
     private final IModel<List<String>> dnames;
 
-    private final IModel<List<String>> roleNames;
+    private final IModel<List<String>> groupNames;
 
     private final IModel<List<String>> resourceNames;
 
@@ -64,7 +64,7 @@ public class SearchView extends ListView<SearchClause> {
             final IModel<List<SearchClause.Type>> types,
             final IModel<List<String>> anames,
             final IModel<List<String>> dnames,
-            final IModel<List<String>> roleNames,
+            final IModel<List<String>> groupNames,
             final IModel<List<String>> resourceNames,
             final IModel<List<String>> entitlements) {
 
@@ -75,7 +75,7 @@ public class SearchView extends ListView<SearchClause> {
         this.types = types;
         this.anames = anames;
         this.dnames = dnames;
-        this.roleNames = roleNames;
+        this.groupNames = groupNames;
         this.resourceNames = resourceNames;
         this.entitlements = entitlements;
     }
@@ -290,7 +290,7 @@ public class SearchView extends ListView<SearchClause> {
                     break;
 
                 case MEMBERSHIP:
-                    property.setChoices(roleNames);
+                    property.setChoices(groupNames);
                     property.setChoiceRenderer(new IChoiceRenderer<String>() {
 
                         private static final long serialVersionUID = -4288397951948436434L;

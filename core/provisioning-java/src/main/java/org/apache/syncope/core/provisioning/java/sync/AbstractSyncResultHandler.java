@@ -35,7 +35,7 @@ import org.apache.syncope.core.persistence.api.entity.task.SyncTask;
 import org.apache.syncope.core.provisioning.api.AttributableTransformer;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationException;
 import org.apache.syncope.core.provisioning.api.sync.SyncActions;
-import org.apache.syncope.core.misc.security.UnauthorizedRoleException;
+import org.apache.syncope.core.misc.security.UnauthorizedGroupException;
 import org.apache.syncope.core.provisioning.api.sync.ProvisioningResult;
 import org.apache.syncope.core.provisioning.api.sync.SyncopeSyncResultHandler;
 import org.identityconnectors.framework.common.objects.SyncDelta;
@@ -60,7 +60,8 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
 
     protected abstract AbstractSubjectMod getSubjectMod(AbstractSubjectTO subjectTO, SyncDelta delta);
 
-    protected abstract AbstractSubjectTO create(AbstractSubjectTO subjectTO, SyncDelta _delta, ProvisioningResult result);
+    protected abstract AbstractSubjectTO create(
+            AbstractSubjectTO subjectTO, SyncDelta _delta, ProvisioningResult result);
 
     protected abstract AbstractSubjectTO link(AbstractSubjectTO before, ProvisioningResult result, boolean unlink);
 
@@ -497,7 +498,7 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
 
             } catch (NotFoundException e) {
                 LOG.error("Could not find {} {}", attrUtil.getType(), id, e);
-            } catch (UnauthorizedRoleException e) {
+            } catch (UnauthorizedGroupException e) {
                 LOG.error("Not allowed to read {} {}", attrUtil.getType(), id, e);
             } catch (Exception e) {
                 LOG.error("Could not delete {} {}", attrUtil.getType(), id, e);
@@ -532,7 +533,7 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
     }
 
     /**
-     * Look into SyncDelta and take necessary profile.getActions() (create / update / delete) on user(s)/role(s).
+     * Look into SyncDelta and take necessary profile.getActions() (create / update / delete) on user(s)/group(s).
      *
      * @param delta returned by the underlying profile.getConnector()
      * @throws JobExecutionException in case of synchronization failure.

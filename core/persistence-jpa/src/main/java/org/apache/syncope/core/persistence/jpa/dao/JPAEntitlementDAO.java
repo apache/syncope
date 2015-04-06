@@ -20,11 +20,11 @@ package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.util.List;
 import javax.persistence.TypedQuery;
-import org.apache.syncope.core.persistence.api.RoleEntitlementUtil;
+import org.apache.syncope.core.persistence.api.GroupEntitlementUtil;
 import org.apache.syncope.core.persistence.api.dao.EntitlementDAO;
-import org.apache.syncope.core.persistence.api.dao.RoleDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.entity.Entitlement;
-import org.apache.syncope.core.persistence.api.entity.role.Role;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.jpa.entity.JPAEntitlement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -33,7 +33,7 @@ import org.springframework.stereotype.Repository;
 public class JPAEntitlementDAO extends AbstractDAO<Entitlement, String> implements EntitlementDAO {
 
     @Autowired
-    private RoleDAO roleDAO;
+    private GroupDAO groupDAO;
 
     @Override
     public Entitlement find(final String name) {
@@ -54,12 +54,12 @@ public class JPAEntitlementDAO extends AbstractDAO<Entitlement, String> implemen
     }
 
     @Override
-    public Entitlement saveRoleEntitlement(final Role role) {
-        Entitlement roleEnt = new JPAEntitlement();
-        roleEnt.setKey(RoleEntitlementUtil.getEntitlementNameFromRoleKey(role.getKey()));
-        roleEnt.setDescription("Entitlement for managing role " + role.getKey());
+    public Entitlement saveGroupEntitlement(final Group group) {
+        Entitlement groupEnt = new JPAEntitlement();
+        groupEnt.setKey(GroupEntitlementUtil.getEntitlementNameFromGroupKey(group.getKey()));
+        groupEnt.setDescription("Entitlement for managing group " + group.getKey());
 
-        return save(roleEnt);
+        return save(groupEnt);
     }
 
     @Override
@@ -78,9 +78,9 @@ public class JPAEntitlementDAO extends AbstractDAO<Entitlement, String> implemen
             return;
         }
 
-        for (Role role : roleDAO.findByEntitlement(entitlement)) {
-            role.removeEntitlement(entitlement);
-            roleDAO.save(role);
+        for (Group group : groupDAO.findByEntitlement(entitlement)) {
+            group.removeEntitlement(entitlement);
+            groupDAO.save(group);
         }
 
         entityManager.remove(entitlement);

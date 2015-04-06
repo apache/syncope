@@ -25,7 +25,7 @@ import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Subject;
 import org.apache.syncope.core.persistence.api.entity.membership.Membership;
-import org.apache.syncope.core.persistence.api.entity.role.Role;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 
 public interface User extends Subject<UPlainAttr, UDerAttr, UVirAttr> {
 
@@ -47,7 +47,7 @@ public interface User extends Subject<UPlainAttr, UDerAttr, UVirAttr> {
 
     Date getLastLoginDate();
 
-    Membership getMembership(Long roleKey);
+    Membership getMembership(Long groupKey);
 
     List<? extends Membership> getMemberships();
 
@@ -57,9 +57,9 @@ public interface User extends Subject<UPlainAttr, UDerAttr, UVirAttr> {
 
     List<String> getPasswordHistory();
 
-    Set<Long> getRoleKeys();
+    Set<Long> getGroupKeys();
 
-    List<Role> getRoles();
+    List<Group> getGroups();
 
     String getSecurityAnswer();
 

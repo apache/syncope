@@ -86,7 +86,7 @@ public class UserTO extends AbstractSubjectTO {
         } else {
             result = new HashMap<>(getMemberships().size());
             for (MembershipTO membership : getMemberships()) {
-                result.put(membership.getRoleId(), membership);
+                result.put(membership.getGroupId(), membership);
             }
             result = Collections.unmodifiableMap(result);
         }

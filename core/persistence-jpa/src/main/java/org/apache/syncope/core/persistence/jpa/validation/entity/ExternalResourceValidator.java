@@ -78,10 +78,10 @@ public class ExternalResourceValidator extends AbstractValidator<ExternalResourc
 
         final MappingItem accountId = mapping.getAccountIdItem();
         if (mapping instanceof UMapping
-                && AttributableType.ROLE == accountId.getIntMappingType().getAttributableType()) {
+                && AttributableType.GROUP == accountId.getIntMappingType().getAttributableType()) {
             context.buildConstraintViolationWithTemplate(
                     getTemplate(EntityViolationType.InvalidMapping,
-                            "Role attribute as accountId is not permitted")).
+                            "Group attribute as accountId is not permitted")).
                     addPropertyNode("attributableType").addConstraintViolation();
             return false;
         }
@@ -137,6 +137,6 @@ public class ExternalResourceValidator extends AbstractValidator<ExternalResourc
             }
         }
 
-        return isValid(resource.getUmapping(), context) && isValid(resource.getRmapping(), context);
+        return isValid(resource.getUmapping(), context) && isValid(resource.getGmapping(), context);
     }
 }

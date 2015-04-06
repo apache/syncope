@@ -61,7 +61,7 @@ import org.apache.syncope.common.lib.to.PasswordPolicyTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
-import org.apache.syncope.common.lib.to.RoleTO;
+import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -306,7 +306,7 @@ public class UserITCase extends AbstractITCase {
         userTO.setUsername("us");
 
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setRoleId(7L);
+        membershipTO.setGroupId(7L);
 
         userTO.getMemberships().add(membershipTO);
 
@@ -324,14 +324,14 @@ public class UserITCase extends AbstractITCase {
     }
 
     @Test(expected = SyncopeClientException.class)
-    public void createWithInvalidPasswordByRole() {
-        UserTO userTO = getSampleTO("invalidPwdByRole@passwd.com");
+    public void createWithInvalidPasswordByGroup() {
+        UserTO userTO = getSampleTO("invalidPwdByGroup@passwd.com");
 
         // configured to be minLength=16
         userTO.setPassword("password1");
 
         final MembershipTO membership = new MembershipTO();
-        membership.setRoleId(8L);
+        membership.setGroupId(8L);
 
         userTO.getMemberships().add(membership);
 
@@ -362,7 +362,7 @@ public class UserITCase extends AbstractITCase {
 
         // add a membership
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setRoleId(8L);
+        membershipTO.setGroupId(8L);
         userTO.getMemberships().add(membershipTO);
 
         // add an attribute with no values: must be ignored
@@ -460,7 +460,7 @@ public class UserITCase extends AbstractITCase {
         userTO.getPlainAttrs().remove(type);
 
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setRoleId(8L);
+        membershipTO.setGroupId(8L);
         userTO.getMemberships().add(membershipTO);
 
         // 1. create user without type (mandatory by UserSchema)
@@ -647,7 +647,7 @@ public class UserITCase extends AbstractITCase {
         UserTO userTO = getUniqueSampleTO("g.h@t.com");
 
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setRoleId(8L);
+        membershipTO.setGroupId(8L);
         membershipTO.getPlainAttrs().add(attrTO("subscriptionDate", "2009-08-18T16:33:12.203+0200"));
         userTO.getMemberships().add(membershipTO);
 
@@ -657,7 +657,7 @@ public class UserITCase extends AbstractITCase {
         assertEquals(1, userTO.getMemberships().size());
 
         MembershipMod membershipMod = new MembershipMod();
-        membershipMod.setRole(8L);
+        membershipMod.setGroup(8L);
         membershipMod.getPlainAttrsToUpdate().add(attrMod("subscriptionDate", "2010-08-18T16:33:12.203+0200"));
 
         UserMod userMod = new UserMod();
@@ -704,7 +704,7 @@ public class UserITCase extends AbstractITCase {
 
         UserTO userTO = getUniqueSampleTO("pwdonly@t.com");
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setRoleId(8L);
+        membershipTO.setGroupId(8L);
         membershipTO.getPlainAttrs().add(attrTO("subscriptionDate", "2009-08-18T16:33:12.203+0200"));
         userTO.getMemberships().add(membershipTO);
 
@@ -742,7 +742,7 @@ public class UserITCase extends AbstractITCase {
 
         // add a membership
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setRoleId(8L);
+        membershipTO.setGroupId(8L);
         userTO.getMemberships().add(membershipTO);
 
         // 1. create user
@@ -811,7 +811,7 @@ public class UserITCase extends AbstractITCase {
         UserTO userTO = getUniqueSampleTO("createActivate@syncope.apache.org");
 
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setRoleId(11L);
+        membershipTO.setGroupId(11L);
         userTO.getMemberships().add(membershipTO);
 
         userTO = createUser(userTO);
@@ -838,7 +838,7 @@ public class UserITCase extends AbstractITCase {
         UserTO userTO = getUniqueSampleTO("suspendReactivate@syncope.apache.org");
 
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setRoleId(7L);
+        membershipTO.setGroupId(7L);
         userTO.getMemberships().add(membershipTO);
 
         userTO = createUser(userTO);
@@ -1105,8 +1105,8 @@ public class UserITCase extends AbstractITCase {
     }
 
     @Test
-    public void roleAttrPropagation() {
-        UserTO userTO = getUniqueSampleTO("checkRoleAttrPropagation@syncope.apache.org");
+    public void groupAttrPropagation() {
+        UserTO userTO = getUniqueSampleTO("checkGroupAttrPropagation@syncope.apache.org");
         userTO.getResources().clear();
         userTO.getMemberships().clear();
         userTO.getDerAttrs().clear();
@@ -1115,7 +1115,7 @@ public class UserITCase extends AbstractITCase {
         userTO.getDerAttrs().add(attrTO("csvuserid", null));
 
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setRoleId(1L);
+        membershipTO.setGroupId(1L);
 
         userTO.getMemberships().add(membershipTO);
 
@@ -1128,7 +1128,7 @@ public class UserITCase extends AbstractITCase {
         ConnObjectTO connObjectTO =
                 resourceService.getConnectorObject(RESOURCE_NAME_CSV, SubjectType.USER, actual.getKey());
         assertNotNull(connObjectTO);
-        assertEquals("sx-dx", connObjectTO.getPlainAttrMap().get("ROLE").getValues().get(0));
+        assertEquals("sx-dx", connObjectTO.getPlainAttrMap().get("THEIRGROUP").getValues().get(0));
     }
 
     @Test
@@ -1141,7 +1141,7 @@ public class UserITCase extends AbstractITCase {
         userTO.getDerAttrs().add(attrTO("csvuserid", null));
 
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setRoleId(1L);
+        membershipTO.setGroupId(1L);
         membershipTO.getPlainAttrs().add(attrTO("mderived_sx", "sx"));
         membershipTO.getPlainAttrs().add(attrTO("mderived_dx", "dx"));
         membershipTO.getDerAttrs().add(attrTO("mderToBePropagated", null));
@@ -1198,12 +1198,12 @@ public class UserITCase extends AbstractITCase {
         userTO.getDerAttrs().add(attrTO("csvuserid", null));
 
         MembershipTO memb12 = new MembershipTO();
-        memb12.setRoleId(12L);
+        memb12.setGroupId(12L);
 
         userTO.getMemberships().add(memb12);
 
         MembershipTO memb13 = new MembershipTO();
-        memb13.setRoleId(13L);
+        memb13.setGroupId(13L);
 
         userTO.getMemberships().add(memb13);
 
@@ -1282,12 +1282,12 @@ public class UserITCase extends AbstractITCase {
         userTO.getDerAttrs().add(attrTO("csvuserid", null));
 
         MembershipTO memb12 = new MembershipTO();
-        memb12.setRoleId(12L);
+        memb12.setGroupId(12L);
         memb12.getPlainAttrs().add(attrTO("postalAddress", "postalAddress"));
         userTO.getMemberships().add(memb12);
 
         MembershipTO memb13 = new MembershipTO();
-        memb13.setRoleId(13L);
+        memb13.setGroupId(13L);
         userTO.getMemberships().add(memb13);
 
         userTO.getResources().add(RESOURCE_NAME_LDAP);
@@ -1311,12 +1311,12 @@ public class UserITCase extends AbstractITCase {
         assertTrue(title.getValues().contains("r12") && title.getValues().contains("r13"));
 
         // -----------------------------------
-        // Remove the first membership and check for membership attr propagation and role attr propagation
+        // Remove the first membership and check for membership attr propagation and group attr propagation
         // -----------------------------------
         UserMod userMod = new UserMod();
         userMod.setKey(actual.getKey());
 
-        MembershipTO membershipTO = actual.getMemberships().get(0).getRoleId() == 12L
+        MembershipTO membershipTO = actual.getMemberships().get(0).getGroupId() == 12L
                 ? actual.getMemberships().get(0)
                 : actual.getMemberships().get(1);
 
@@ -1649,14 +1649,14 @@ public class UserITCase extends AbstractITCase {
         assertEquals(10, res.getResultByStatus(Status.SUCCESS).size());
         assertEquals(1, res.getResultByStatus(Status.FAILURE).size());
         assertEquals("suspended", userService.read(
-                Long.parseLong(res.getResultByStatus(Status.SUCCESS).get(3).toString())).getStatus());
+                Long.parseLong(res.getResultByStatus(Status.SUCCESS).get(3))).getStatus());
 
         bulkAction.setOperation(BulkAction.Type.REACTIVATE);
         res = userService.bulk(bulkAction);
         assertEquals(10, res.getResultByStatus(Status.SUCCESS).size());
         assertEquals(1, res.getResultByStatus(Status.FAILURE).size());
         assertEquals("active", userService.read(
-                Long.parseLong(res.getResultByStatus(Status.SUCCESS).get(3).toString())).getStatus());
+                Long.parseLong(res.getResultByStatus(Status.SUCCESS).get(3))).getStatus());
 
         bulkAction.setOperation(BulkAction.Type.DELETE);
         res = userService.bulk(bulkAction);
@@ -1666,37 +1666,37 @@ public class UserITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE354() {
-        // change resource-ldap role mapping for including uniqueMember (need for assertions below)
+        // change resource-ldap group mapping for including uniqueMember (need for assertions below)
         ResourceTO ldap = resourceService.read(RESOURCE_NAME_LDAP);
-        for (MappingItemTO item : ldap.getRmapping().getItems()) {
+        for (MappingItemTO item : ldap.getGmapping().getItems()) {
             if ("description".equals(item.getExtAttrName())) {
                 item.setExtAttrName("uniqueMember");
             }
         }
         resourceService.update(ldap.getKey(), ldap);
 
-        // 1. create role with LDAP resource
-        RoleTO roleTO = new RoleTO();
-        roleTO.setName("SYNCOPE354-" + getUUIDString());
-        roleTO.setParent(8L);
-        roleTO.getResources().add(RESOURCE_NAME_LDAP);
+        // 1. create group with LDAP resource
+        GroupTO groupTO = new GroupTO();
+        groupTO.setName("SYNCOPE354-" + getUUIDString());
+        groupTO.setParent(8L);
+        groupTO.getResources().add(RESOURCE_NAME_LDAP);
 
-        roleTO = createRole(roleTO);
-        assertNotNull(roleTO);
+        groupTO = createGroup(groupTO);
+        assertNotNull(groupTO);
 
-        // 2. create user with LDAP resource and membership of the above role
+        // 2. create user with LDAP resource and membership of the above group
         UserTO userTO = getUniqueSampleTO("syncope354@syncope.apache.org");
         userTO.getResources().add(RESOURCE_NAME_LDAP);
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setRoleId(roleTO.getKey());
+        membershipTO.setGroupId(groupTO.getKey());
         userTO.getMemberships().add(membershipTO);
 
         userTO = createUser(userTO);
         assertTrue(userTO.getResources().contains(RESOURCE_NAME_LDAP));
 
-        // 3. read role on resource, check that user DN is included in uniqueMember
+        // 3. read group on resource, check that user DN is included in uniqueMember
         ConnObjectTO connObj = resourceService.getConnectorObject(
-                RESOURCE_NAME_LDAP, SubjectType.ROLE, roleTO.getKey());
+                RESOURCE_NAME_LDAP, SubjectType.GROUP, groupTO.getKey());
         assertNotNull(connObj);
         assertTrue(connObj.getPlainAttrMap().get("uniqueMember").getValues().
                 contains("uid=" + userTO.getUsername() + ",ou=people,o=isp"));
@@ -1709,14 +1709,14 @@ public class UserITCase extends AbstractITCase {
         userTO = updateUser(userMod);
         assertTrue(userTO.getResources().contains(RESOURCE_NAME_LDAP));
 
-        // 5. read role on resource, check that user DN was removed from uniqueMember
-        connObj = resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.ROLE, roleTO.getKey());
+        // 5. read group on resource, check that user DN was removed from uniqueMember
+        connObj = resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.GROUP, groupTO.getKey());
         assertNotNull(connObj);
         assertFalse(connObj.getPlainAttrMap().get("uniqueMember").getValues().
                 contains("uid=" + userTO.getUsername() + ",ou=people,o=isp"));
 
-        // 6. restore original resource-ldap role mapping
-        for (MappingItemTO item : ldap.getRmapping().getItems()) {
+        // 6. restore original resource-ldap group mapping
+        for (MappingItemTO item : ldap.getGmapping().getItems()) {
             if ("uniqueMember".equals(item.getExtAttrName())) {
                 item.setExtAttrName("description");
             }
@@ -1726,22 +1726,22 @@ public class UserITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE357() throws IOException {
-        // 1. create role with LDAP resource
-        RoleTO roleTO = new RoleTO();
-        roleTO.setName("SYNCOPE357-" + getUUIDString());
-        roleTO.setParent(8L);
-        roleTO.getResources().add(RESOURCE_NAME_LDAP);
+        // 1. create group with LDAP resource
+        GroupTO groupTO = new GroupTO();
+        groupTO.setName("SYNCOPE357-" + getUUIDString());
+        groupTO.setParent(8L);
+        groupTO.getResources().add(RESOURCE_NAME_LDAP);
 
-        roleTO = createRole(roleTO);
-        assertNotNull(roleTO);
+        groupTO = createGroup(groupTO);
+        assertNotNull(groupTO);
 
-        // 2. create user with membership of the above role
+        // 2. create user with membership of the above group
         UserTO userTO = getUniqueSampleTO("syncope357@syncope.apache.org");
         userTO.getPlainAttrs().add(attrTO("obscure", "valueToBeObscured"));
         userTO.getPlainAttrs().add(attrTO("photo",
                 Base64Utility.encode(IOUtils.readBytesFromStream(getClass().getResourceAsStream("/favicon.jpg")))));
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setRoleId(roleTO.getKey());
+        membershipTO.setGroupId(groupTO.getKey());
         userTO.getMemberships().add(membershipTO);
 
         userTO = createUser(userTO);
@@ -1760,8 +1760,8 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(jpegPhoto);
         assertEquals(userTO.getPlainAttrMap().get("photo").getValues(), jpegPhoto.getValues());
 
-        // 4. remove role
-        roleService.delete(roleTO.getKey());
+        // 4. remove group
+        groupService.delete(groupTO.getKey());
 
         // 5. try to read user on resource: fail
         try {
@@ -2232,7 +2232,7 @@ public class UserITCase extends AbstractITCase {
         }
 
         ws1.setUmapping(ws1NewUMapping);
-        ws1.setRmapping(ws1.getRmapping());
+        ws1.setGmapping(ws1.getGmapping());
 
         resourceService.update(RESOURCE_NAME_WS1, ws1);
         ResourceTO newWs1 = resourceService.read(ws1.getKey());
@@ -2270,7 +2270,7 @@ public class UserITCase extends AbstractITCase {
         }
 
         newWs1.setUmapping(ws1NewUMapping);
-        newWs1.setRmapping(newWs1.getRmapping());
+        newWs1.setGmapping(newWs1.getGmapping());
 
         resourceService.update(RESOURCE_NAME_WS1, newWs1);
     }
@@ -2478,7 +2478,7 @@ public class UserITCase extends AbstractITCase {
         userTO.getDerAttrs().add(attrTO("csvuserid", null));
 
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setRoleId(12L);
+        membershipTO.setGroupId(12L);
         membershipTO.getPlainAttrs().add(attrTO("postalAddress", "postalAddress"));
         userTO.getMemberships().add(membershipTO);
 
@@ -2497,7 +2497,7 @@ public class UserITCase extends AbstractITCase {
         userMod.setKey(actual.getKey());
 
         MembershipMod membershipMod = new MembershipMod();
-        membershipMod.setRole(12L);
+        membershipMod.setGroup(12L);
         membershipMod.getPlainAttrsToUpdate().add(attrMod("postalAddress", "newPostalAddress"));
         userMod.getMembershipsToAdd().add(membershipMod);
         userMod.getMembershipsToRemove().add(actual.getMemberships().iterator().next().getKey());

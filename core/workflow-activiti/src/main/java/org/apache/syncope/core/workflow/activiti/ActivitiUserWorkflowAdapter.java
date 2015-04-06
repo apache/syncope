@@ -68,7 +68,7 @@ import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.WorkflowFormPropertyType;
 import org.apache.syncope.core.misc.security.AuthContextUtil;
-import org.apache.syncope.core.misc.security.UnauthorizedRoleException;
+import org.apache.syncope.core.misc.security.UnauthorizedGroupException;
 import org.apache.syncope.core.misc.spring.BeanUtils;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValidationException;
@@ -249,7 +249,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
     @Override
     public WorkflowResult<Map.Entry<Long, Boolean>> create(UserTO userTO, boolean storePassword) throws
-            UnauthorizedRoleException, WorkflowException {
+            UnauthorizedGroupException, WorkflowException {
 
         return create(userTO, false, storePassword);
     }
@@ -445,7 +445,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
     @Override
     public WorkflowResult<Long> execute(final UserTO userTO, final String taskId)
-            throws UnauthorizedRoleException, WorkflowException {
+            throws UnauthorizedGroupException, WorkflowException {
 
         User user = userDAO.authFetch(userTO.getKey());
 
@@ -709,8 +709,8 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
                     taskCandidateOrAssigned(user.getKey().toString())));
 
             List<String> candidateGroups = new ArrayList<>();
-            for (Long roleId : user.getRoleKeys()) {
-                candidateGroups.add(roleId.toString());
+            for (Long groupId : user.getGroupKeys()) {
+                candidateGroups.add(groupId.toString());
             }
             if (!candidateGroups.isEmpty()) {
                 forms.addAll(getForms(taskService.createTaskQuery().

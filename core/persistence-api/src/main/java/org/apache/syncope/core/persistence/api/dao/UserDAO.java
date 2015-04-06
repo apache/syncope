@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.api.dao;
 import java.util.List;
 import java.util.Set;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
 import org.apache.syncope.core.persistence.api.entity.user.UDerAttr;
@@ -50,13 +49,13 @@ public interface UserDAO extends SubjectDAO<UPlainAttr, UDerAttr, UVirAttr> {
 
     List<User> findByResource(ExternalResource resource);
 
-    List<User> findAll(Set<Long> adminRoles, int page, int itemsPerPage);
+    List<User> findAll(Set<Long> adminGroups, int page, int itemsPerPage);
 
-    List<User> findAll(Set<Long> adminRoles, int page, int itemsPerPage, List<OrderByClause> orderBy);
+    List<User> findAll(Set<Long> adminGroups, int page, int itemsPerPage, List<OrderByClause> orderBy);
 
-    int count(Set<Long> adminRoles);
+    int count(Set<Long> adminGroups);
 
-    User save(User user) throws InvalidEntityException;
+    User save(User user);
 
     void delete(Long key);
 

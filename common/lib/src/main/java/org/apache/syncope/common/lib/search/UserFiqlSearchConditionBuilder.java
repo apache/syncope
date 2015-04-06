@@ -26,7 +26,7 @@ import org.apache.cxf.jaxrs.ext.search.fiql.FiqlParser;
  * Extends <tt>SyncopeFiqlSearchConditionBuilder</tt> by providing some additional facilities for searching
  * users in Syncope.
  */
-public class UserFiqlSearchConditionBuilder extends SyncopeFiqlSearchConditionBuilder {
+public class UserFiqlSearchConditionBuilder extends AbstractFiqlSearchConditionBuilder {
 
     public UserFiqlSearchConditionBuilder() {
         super();
@@ -46,12 +46,12 @@ public class UserFiqlSearchConditionBuilder extends SyncopeFiqlSearchConditionBu
         return newBuilderInstance().is(property);
     }
 
-    public CompleteCondition hasRoles(final Long role, final Long... moreRoles) {
-        return newBuilderInstance().is(SpecialAttr.ROLES.toString()).hasRoles(role, moreRoles);
+    public CompleteCondition inGroups(final Long group, final Long... moreGroups) {
+        return newBuilderInstance().is(SpecialAttr.GROUPS.toString()).inGroups(group, moreGroups);
     }
 
-    public CompleteCondition hasNotRoles(final Long role, final Long... moreRoles) {
-        return newBuilderInstance().is(SpecialAttr.ROLES.toString()).hasNotRoles(role, moreRoles);
+    public CompleteCondition notInGroups(final Long group, final Long... moreGroups) {
+        return newBuilderInstance().is(SpecialAttr.GROUPS.toString()).notInGroups(group, moreGroups);
     }
 
     public CompleteCondition hasResources(final String resource, final String... moreResources) {
@@ -62,7 +62,7 @@ public class UserFiqlSearchConditionBuilder extends SyncopeFiqlSearchConditionBu
         return newBuilderInstance().is(SpecialAttr.RESOURCES.toString()).hasNotResources(resource, moreResources);
     }
 
-    protected static class Builder extends SyncopeFiqlSearchConditionBuilder.Builder
+    protected static class Builder extends AbstractFiqlSearchConditionBuilder.Builder
             implements UserProperty, CompleteCondition {
 
         public Builder(final Map<String, String> properties) {
@@ -81,15 +81,15 @@ public class UserFiqlSearchConditionBuilder extends SyncopeFiqlSearchConditionBu
         }
 
         @Override
-        public CompleteCondition hasRoles(final Long role, final Long... moreRoles) {
-            this.result = SpecialAttr.ROLES.toString();
-            return condition(FiqlParser.EQ, role, (Object[]) moreRoles);
+        public CompleteCondition inGroups(final Long group, final Long... moreGroups) {
+            this.result = SpecialAttr.GROUPS.toString();
+            return condition(FiqlParser.EQ, group, (Object[]) moreGroups);
         }
 
         @Override
-        public CompleteCondition hasNotRoles(final Long role, final Long... moreRoles) {
-            this.result = SpecialAttr.ROLES.toString();
-            return condition(FiqlParser.NEQ, role, (Object[]) moreRoles);
+        public CompleteCondition notInGroups(final Long group, final Long... moreGroups) {
+            this.result = SpecialAttr.GROUPS.toString();
+            return condition(FiqlParser.NEQ, group, (Object[]) moreGroups);
         }
     }
 }

@@ -33,7 +33,7 @@ public class ReportExecTO extends AbstractExecTO {
         return report;
     }
 
-    public void setReport(long report) {
+    public void setReport(final long report) {
         this.report = report;
     }
 

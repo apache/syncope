@@ -23,13 +23,13 @@ import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.SubjectType;
-import org.apache.syncope.core.persistence.api.RoleEntitlementUtil;
-import org.apache.syncope.core.persistence.api.dao.RoleDAO;
+import org.apache.syncope.core.persistence.api.GroupEntitlementUtil;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.SubjectSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
-import org.apache.syncope.core.persistence.api.entity.role.RMapping;
-import org.apache.syncope.core.persistence.api.entity.role.Role;
+import org.apache.syncope.core.persistence.api.entity.group.GMapping;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.persistence.api.entity.user.UMapping;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -39,7 +39,7 @@ import org.apache.syncope.core.provisioning.api.sync.PushActions;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.misc.search.SearchCondConverter;
 import org.apache.syncope.core.provisioning.api.job.PushJob;
-import org.apache.syncope.core.provisioning.api.sync.RolePushResultHandler;
+import org.apache.syncope.core.provisioning.api.sync.GroupPushResultHandler;
 import org.apache.syncope.core.provisioning.api.sync.UserPushResultHandler;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,10 +67,10 @@ public class PushJobImpl extends AbstractProvisioningJob<PushTask, PushActions> 
     private SubjectSearchDAO searchDAO;
 
     /**
-     * Role DAO.
+     * Group DAO.
      */
     @Autowired
-    private RoleDAO roleDAO;
+    private GroupDAO groupDAO;
 
     private final int PAGE_SIZE = 1000;
 
@@ -79,11 +79,11 @@ public class PushJobImpl extends AbstractProvisioningJob<PushTask, PushActions> 
             final PushTask pushTask,
             final Connector connector,
             final UMapping uMapping,
-            final RMapping rMapping,
+            final GMapping rMapping,
             final boolean dryRun) throws JobExecutionException {
         LOG.debug("Execute synchronization (push) with resource {}", pushTask.getResource());
 
-        final Set<Long> authorizations = RoleEntitlementUtil.getRoleKeys(entitlementDAO.findAll());
+        final Set<Long> authorizations = GroupEntitlementUtil.getGroupKeys(entitlementDAO.findAll());
 
         final ProvisioningProfile<PushTask, PushActions> profile = new ProvisioningProfile<>(connector, pushTask);
         if (actions != null) {
@@ -97,9 +97,9 @@ public class PushJobImpl extends AbstractProvisioningJob<PushTask, PushActions> 
                 createBean(UserPushResultHandlerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
         uhandler.setProfile(profile);
 
-        final RolePushResultHandler rhandler =
-                (RolePushResultHandler) ApplicationContextProvider.getApplicationContext().getBeanFactory().
-                createBean(RolePushResultHandlerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+        final GroupPushResultHandler rhandler =
+                (GroupPushResultHandler) ApplicationContextProvider.getApplicationContext().getBeanFactory().
+                createBean(GroupPushResultHandlerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
         rhandler.setProfile(profile);
 
         if (actions != null && !profile.isDryRun()) {
@@ -126,15 +126,15 @@ public class PushJobImpl extends AbstractProvisioningJob<PushTask, PushActions> 
         }
 
         if (rMapping != null) {
-            final List<Role> localRoles = getRoles(authorizations, pushTask);
+            final List<Group> localGroups = geGroups(authorizations, pushTask);
 
-            for (Role localRole : localRoles) {
+            for (Group localGroup : localGroups) {
                 try {
-                    // role propagation
-                    rhandler.handle(localRole.getKey());
+                    // group propagation
+                    rhandler.handle(localGroup.getKey());
                 } catch (Exception e) {
-                    LOG.warn("Failure pushing role '{}' on '{}'", localRole, pushTask.getResource(), e);
-                    throw new JobExecutionException("While pushing roles on connector", e);
+                    LOG.warn("Failure pushing group '{}' on '{}'", localGroup, pushTask.getResource(), e);
+                    throw new JobExecutionException("While pushing groups on connector", e);
                 }
             }
         }
@@ -163,14 +163,13 @@ public class PushJobImpl extends AbstractProvisioningJob<PushTask, PushActions> 
         }
     }
 
-    private List<Role> getRoles(final Set<Long> authorizations, final PushTask pushTask) {
-        final String filter = pushTask.getRoleFilter();
+    private List<Group> geGroups(final Set<Long> authorizations, final PushTask pushTask) {
+        final String filter = pushTask.getGroupFilter();
         if (StringUtils.isBlank(filter)) {
-            return roleDAO.findAll();
+            return groupDAO.findAll();
         } else {
-            return searchDAO.<Role>search(
-                    authorizations, SearchCondConverter.convert(filter),
-                    Collections.<OrderByClause>emptyList(), SubjectType.ROLE);
+            return searchDAO.<Group>search(authorizations, SearchCondConverter.convert(filter),
+                    Collections.<OrderByClause>emptyList(), SubjectType.GROUP);
         }
     }
 }

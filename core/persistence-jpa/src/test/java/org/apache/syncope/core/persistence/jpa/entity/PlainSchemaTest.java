@@ -32,8 +32,8 @@ import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
-import org.apache.syncope.core.persistence.api.entity.role.RPlainAttr;
-import org.apache.syncope.core.persistence.api.entity.role.RPlainSchema;
+import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
+import org.apache.syncope.core.persistence.api.entity.group.GPlainSchema;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainSchema;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.junit.Test;
@@ -51,8 +51,8 @@ public class PlainSchemaTest extends AbstractTest {
         List<UPlainSchema> userList = plainSchemaDAO.findAll(UPlainSchema.class);
         assertEquals(15, userList.size());
 
-        List<RPlainSchema> roleList = plainSchemaDAO.findAll(RPlainSchema.class);
-        assertEquals(5, roleList.size());
+        List<GPlainSchema> groupList = plainSchemaDAO.findAll(GPlainSchema.class);
+        assertEquals(5, groupList.size());
     }
 
     @Test
@@ -63,12 +63,12 @@ public class PlainSchemaTest extends AbstractTest {
 
     @Test
     public void findAttrs() {
-        List<RPlainSchema> schemas = plainSchemaDAO.findAll(RPlainSchema.class);
+        List<GPlainSchema> schemas = plainSchemaDAO.findAll(GPlainSchema.class);
         assertNotNull(schemas);
         assertFalse(schemas.isEmpty());
 
-        for (RPlainSchema schema : schemas) {
-            List<RPlainAttr> attrs = plainSchemaDAO.findAttrs(schema, RPlainAttr.class);
+        for (GPlainSchema schema : schemas) {
+            List<GPlainAttr> attrs = plainSchemaDAO.findAttrs(schema, GPlainAttr.class);
             assertNotNull(attrs);
             assertFalse(attrs.isEmpty());
         }
@@ -105,7 +105,7 @@ public class PlainSchemaTest extends AbstractTest {
 
     @Test
     public void checkForEnumType() {
-        RPlainSchema schema = entityFactory.newEntity(RPlainSchema.class);
+        GPlainSchema schema = entityFactory.newEntity(GPlainSchema.class);
         schema.setType(AttrSchemaType.Enum);
         schema.setKey("color");
 
@@ -122,7 +122,7 @@ public class PlainSchemaTest extends AbstractTest {
 
         plainSchemaDAO.save(schema);
 
-        RPlainSchema actual = plainSchemaDAO.find(schema.getKey(), RPlainSchema.class);
+        GPlainSchema actual = plainSchemaDAO.find(schema.getKey(), GPlainSchema.class);
         assertNotNull(actual);
         assertNotNull(actual.getEnumerationKeys());
         assertFalse(actual.getEnumerationKeys().isEmpty());

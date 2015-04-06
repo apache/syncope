@@ -46,13 +46,13 @@ public abstract class AbstractPolicyTO extends AbstractBaseBean {
 
     private final List<String> usedByResources = new ArrayList<>();
 
-    private final List<Long> usedByRoles = new ArrayList<>();
+    private final List<Long> usedByGroups = new ArrayList<>();
 
     public long getKey() {
         return key;
     }
 
-    public void setKey(long key) {
+    public void setKey(final long key) {
         this.key = key;
     }
 
@@ -79,11 +79,11 @@ public abstract class AbstractPolicyTO extends AbstractBaseBean {
         return usedByResources;
     }
 
-    @XmlElementWrapper(name = "usedByRoles")
-    @XmlElement(name = "role")
-    @JsonProperty("usedByRoles")
-    public List<Long> getUsedByRoles() {
-        return usedByRoles;
+    @XmlElementWrapper(name = "usedByGroups")
+    @XmlElement(name = "group")
+    @JsonProperty("usedByGroups")
+    public List<Long> getUsedByGroups() {
+        return usedByGroups;
     }
 
 }

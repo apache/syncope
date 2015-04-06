@@ -56,8 +56,8 @@ public class MemoryVirAttrCache implements VirAttrCache {
     /**
      * Cache virtual attribute values.
      *
-     * @param type user or role
-     * @param key user or role id
+     * @param type user or group
+     * @param key user or group id
      * @param schemaName virtual attribute name
      * @param value virtual attribute values
      */
@@ -81,8 +81,8 @@ public class MemoryVirAttrCache implements VirAttrCache {
     /**
      * Retrieve cached value. Return null in case of virtual attribute not cached.
      *
-     * @param type user or role
-     * @param id user or role id
+     * @param type user or group
+     * @param id user or group id
      * @param schemaName virtual attribute schema name.
      * @return cached values or null if virtual attribute is not cached.
      */
@@ -94,8 +94,8 @@ public class MemoryVirAttrCache implements VirAttrCache {
     /**
      * Force entry expiring.
      *
-     * @param type user or role
-     * @param id user or role id
+     * @param type user or group
+     * @param id user or group id
      * @param schemaName virtual attribute schema name
      */
     @Override
@@ -113,7 +113,7 @@ public class MemoryVirAttrCache implements VirAttrCache {
      * This method is not thread safe: the caller have to take care to synchronize the call.
      */
     private void free() {
-        final Set<VirAttrCacheKey> toBeRemoved = new HashSet<VirAttrCacheKey>();
+        final Set<VirAttrCacheKey> toBeRemoved = new HashSet<>();
 
         Map.Entry<VirAttrCacheKey, VirAttrCacheValue> latest = null;
 

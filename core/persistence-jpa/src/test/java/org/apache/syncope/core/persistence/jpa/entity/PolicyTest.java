@@ -108,7 +108,7 @@ public class PolicyTest extends AbstractTest {
 
         SyncPolicySpec syncPolicySpec = new SyncPolicySpec();
         syncPolicySpec.setUserJavaRule(syncURuleName);
-        syncPolicySpec.setRoleJavaRule(syncRRuleName);
+        syncPolicySpec.setGroupJavaRule(syncRRuleName);
 
         policy.setSpecification(syncPolicySpec);
         policy.setDescription("Sync policy");
@@ -118,7 +118,7 @@ public class PolicyTest extends AbstractTest {
         assertNotNull(policy);
         assertEquals(PolicyType.SYNC, policy.getType());
         assertEquals(syncURuleName, (policy.getSpecification(SyncPolicySpec.class)).getUserJavaRule());
-        assertEquals(syncRRuleName, (policy.getSpecification(SyncPolicySpec.class)).getRoleJavaRule());
+        assertEquals(syncRRuleName, (policy.getSpecification(SyncPolicySpec.class)).getGroupJavaRule());
     }
 
     @Test

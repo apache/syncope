@@ -156,7 +156,7 @@ public abstract class UserModalPage extends BaseModalPage {
         //--------------------------------
 
         //--------------------------------
-        // Roles panel
+        // Groups panel
         //--------------------------------
         form.add(new MembershipsPanel("memberships", userTO, mode, null, getPageReference()));
         //--------------------------------

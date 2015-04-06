@@ -26,6 +26,7 @@ public class SubjectCond extends AttributeCond {
     private static final long serialVersionUID = -1880319220462653955L;
 
     public SubjectCond() {
+        super();
     }
 
     public SubjectCond(final Type conditionType) {

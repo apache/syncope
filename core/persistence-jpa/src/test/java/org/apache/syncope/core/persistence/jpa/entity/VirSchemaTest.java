@@ -30,7 +30,7 @@ import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
-import org.apache.syncope.core.persistence.api.entity.role.RVirSchema;
+import org.apache.syncope.core.persistence.api.entity.group.GVirSchema;
 import org.apache.syncope.core.persistence.api.entity.user.UVirSchema;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.junit.Test;
@@ -78,12 +78,12 @@ public class VirSchemaTest extends AbstractTest {
         assertNull("delete did not work", actual);
 
         // ------------- //
-        RVirSchema rvirtualdata = virSchemaDAO.find("rvirtualdata", RVirSchema.class);
+        GVirSchema rvirtualdata = virSchemaDAO.find("rvirtualdata", GVirSchema.class);
         assertNotNull(rvirtualdata);
 
-        virSchemaDAO.delete(rvirtualdata.getKey(), attrUtilFactory.getInstance(AttributableType.ROLE));
+        virSchemaDAO.delete(rvirtualdata.getKey(), attrUtilFactory.getInstance(AttributableType.GROUP));
 
-        actual = virSchemaDAO.find("rvirtualdata", RVirSchema.class);
+        actual = virSchemaDAO.find("rvirtualdata", GVirSchema.class);
         assertNull("delete did not work", actual);
     }
 

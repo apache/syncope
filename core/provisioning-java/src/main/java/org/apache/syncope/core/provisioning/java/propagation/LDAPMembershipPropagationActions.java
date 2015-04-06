@@ -27,7 +27,7 @@ import org.apache.commons.jexl2.MapContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.entity.role.Role;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.misc.jexl.JexlUtil;
@@ -41,8 +41,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Simple action for propagating role memberships to LDAP groups, when the same resource is configured for both users
- * and roles.
+ * Simple action for propagating group memberships to LDAP groups, when the same resource is configured for both users
+ * and groups.
  *
  * @see org.apache.syncope.core.sync.impl.LDAPMembershipSyncActions
  */
@@ -67,34 +67,34 @@ public class LDAPMembershipPropagationActions extends DefaultPropagationActions 
     public void before(final PropagationTask task, final ConnectorObject beforeObj) {
         super.before(task, beforeObj);
 
-        if (AttributableType.USER == task.getSubjectType() && task.getResource().getRmapping() != null) {
+        if (AttributableType.USER == task.getSubjectType() && task.getResource().getGmapping() != null) {
             User user = userDAO.find(task.getSubjectKey());
             if (user != null) {
-                List<String> roleAccountLinks = new ArrayList<>();
-                for (Role role : user.getRoles()) {
-                    if (role.getResourceNames().contains(task.getResource().getKey())
-                            && StringUtils.isNotBlank(task.getResource().getRmapping().getAccountLink())) {
+                List<String> groupAccountLinks = new ArrayList<>();
+                for (Group group : user.getGroups()) {
+                    if (group.getResourceNames().contains(task.getResource().getKey())
+                            && StringUtils.isNotBlank(task.getResource().getGmapping().getAccountLink())) {
 
-                        LOG.debug("Evaluating accountLink for {}", role);
+                        LOG.debug("Evaluating accountLink for {}", group);
 
                         final JexlContext jexlContext = new MapContext();
-                        JexlUtil.addFieldsToContext(role, jexlContext);
-                        JexlUtil.addAttrsToContext(role.getPlainAttrs(), jexlContext);
-                        JexlUtil.addDerAttrsToContext(role.getDerAttrs(), role.getPlainAttrs(), jexlContext);
+                        JexlUtil.addFieldsToContext(group, jexlContext);
+                        JexlUtil.addAttrsToContext(group.getPlainAttrs(), jexlContext);
+                        JexlUtil.addDerAttrsToContext(group.getDerAttrs(), group.getPlainAttrs(), jexlContext);
 
-                        final String roleAccountLink =
-                                JexlUtil.evaluate(task.getResource().getRmapping().getAccountLink(), jexlContext);
-                        LOG.debug("AccountLink for {} is '{}'", role, roleAccountLink);
-                        if (StringUtils.isNotBlank(roleAccountLink)) {
-                            roleAccountLinks.add(roleAccountLink);
+                        final String groupAccountLink =
+                                JexlUtil.evaluate(task.getResource().getGmapping().getAccountLink(), jexlContext);
+                        LOG.debug("AccountLink for {} is '{}'", group, groupAccountLink);
+                        if (StringUtils.isNotBlank(groupAccountLink)) {
+                            groupAccountLinks.add(groupAccountLink);
                         }
                     }
                 }
-                LOG.debug("Role accountLinks to propagate for membership: {}", roleAccountLinks);
+                LOG.debug("Group accountLinks to propagate for membership: {}", groupAccountLinks);
 
                 Set<Attribute> attributes = new HashSet<Attribute>(task.getAttributes());
 
-                Set<String> groups = new HashSet<String>(roleAccountLinks);
+                Set<String> groups = new HashSet<String>(groupAccountLinks);
                 Attribute ldapGroups = AttributeUtil.find(getGroupMembershipAttrName(), attributes);
 
                 if (ldapGroups != null) {
@@ -107,7 +107,7 @@ public class LDAPMembershipPropagationActions extends DefaultPropagationActions 
                 task.setAttributes(attributes);
             }
         } else {
-            LOG.debug("Not about user, or role mapping missing for resource: not doing anything");
+            LOG.debug("Not about user, or group mapping missing for resource: not doing anything");
         }
     }
 }

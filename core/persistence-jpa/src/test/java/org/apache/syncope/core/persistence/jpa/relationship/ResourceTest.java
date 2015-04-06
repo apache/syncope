@@ -40,13 +40,13 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.PasswordPolicy;
-import org.apache.syncope.core.persistence.api.entity.role.RMappingItem;
+import org.apache.syncope.core.persistence.api.entity.group.GMappingItem;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.user.UMapping;
 import org.apache.syncope.core.persistence.api.entity.user.UMappingItem;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
-import org.apache.syncope.core.persistence.jpa.entity.role.JPARMappingItem;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGMappingItem;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -252,17 +252,17 @@ public class ResourceTest extends AbstractTest {
         ExternalResource ldap = resourceDAO.find("resource-ldap");
         assertNotNull(ldap);
         assertNotNull(ldap.getUmapping());
-        assertNotNull(ldap.getRmapping());
+        assertNotNull(ldap.getGmapping());
 
-        List<? extends RMappingItem> items = ldap.getRmapping().getItems();
+        List<? extends GMappingItem> items = ldap.getGmapping().getItems();
         assertNotNull(items);
         assertFalse(items.isEmpty());
         List<Long> itemIds = new ArrayList<>(items.size());
-        for (RMappingItem item : items) {
+        for (GMappingItem item : items) {
             itemIds.add(item.getKey());
         }
 
-        ldap.setRmapping(null);
+        ldap.setGmapping(null);
 
         // need to avoid any class not defined in this Maven module
         ldap.getPropagationActionsClassNames().clear();
@@ -271,7 +271,7 @@ public class ResourceTest extends AbstractTest {
         resourceDAO.flush();
 
         for (Long itemId : itemIds) {
-            assertNull(entityManager.find(JPARMappingItem.class, itemId));
+            assertNull(entityManager.find(JPAGMappingItem.class, itemId));
         }
     }
 

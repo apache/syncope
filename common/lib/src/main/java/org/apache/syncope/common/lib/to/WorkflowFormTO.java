@@ -58,7 +58,7 @@ public class WorkflowFormTO extends AbstractBaseBean {
         return userKey;
     }
 
-    public void setUserKey(long userKey) {
+    public void setUserKey(final long userKey) {
         this.userKey = userKey;
     }
 

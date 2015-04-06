@@ -29,7 +29,7 @@ import org.apache.syncope.client.console.commons.status.Status;
 import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.syncope.client.console.commons.status.StatusUtils;
 import org.apache.syncope.client.console.pages.ConnObjectModalPage;
-import org.apache.syncope.client.console.rest.RoleRestClient;
+import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
@@ -38,7 +38,7 @@ import org.apache.syncope.common.lib.mod.StatusMod;
 import org.apache.syncope.common.lib.to.AbstractAttributableTO;
 import org.apache.syncope.common.lib.to.AbstractSubjectTO;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
-import org.apache.syncope.common.lib.to.RoleTO;
+import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageReference;
@@ -78,7 +78,7 @@ public class StatusPanel extends Panel implements IHeaderContributor {
     private UserRestClient userRestClient;
 
     @SpringBean
-    private RoleRestClient roleRestClient;
+    private GroupRestClient groupRestClient;
 
     private final ModalWindow connObjectWin;
 
@@ -107,7 +107,7 @@ public class StatusPanel extends Panel implements IHeaderContributor {
         connObjectWin.setCookieName("connobject-modal");
         add(connObjectWin);
 
-        statusUtils = new StatusUtils(subject instanceof RoleTO ? roleRestClient : userRestClient);
+        statusUtils = new StatusUtils(subject instanceof GroupTO ? groupRestClient : userRestClient);
 
         connObjects = statusUtils.getConnectorObjects(subject);
 
@@ -128,8 +128,8 @@ public class StatusPanel extends Panel implements IHeaderContributor {
                 }
             }
             syncope.setStatus(syncopeStatus);
-        } else if (subject instanceof RoleTO) {
-            syncope.setAccountLink(((RoleTO) subject).getDisplayName());
+        } else if (subject instanceof GroupTO) {
+            syncope.setAccountLink(((GroupTO) subject).getDisplayName());
             syncope.setStatus(Status.ACTIVE);
         }
 
@@ -137,11 +137,10 @@ public class StatusPanel extends Panel implements IHeaderContributor {
         initialStatusBeanMap.put(syncope.getResourceName(), syncope);
 
         for (ConnObjectWrapper entry : connObjects) {
-            final StatusBean statusBean = statusUtils.getStatusBean(
-                    entry.getAttributable(),
+            final StatusBean statusBean = statusUtils.getStatusBean(entry.getAttributable(),
                     entry.getResourceName(),
                     entry.getConnObjectTO(),
-                    subject instanceof RoleTO);
+                    subject instanceof GroupTO);
 
             initialStatusBeanMap.put(entry.getResourceName(), statusBean);
             statusBeans.add(statusBean);
@@ -161,7 +160,7 @@ public class StatusPanel extends Panel implements IHeaderContributor {
         add(checkGroup);
 
         CheckGroupSelector groupSelector = new CheckGroupSelector("groupselector", checkGroup);
-        if (subject instanceof RoleTO) {
+        if (subject instanceof GroupTO) {
             groupSelector.setVisible(false);
         }
         add(groupSelector);
@@ -175,7 +174,7 @@ public class StatusPanel extends Panel implements IHeaderContributor {
                 item.add(statusUtils.getStatusImage("icon", item.getModelObject().getStatus()));
 
                 final Check<StatusBean> check = new Check<StatusBean>("check", item.getModel(), checkGroup);
-                if (subject instanceof RoleTO) {
+                if (subject instanceof GroupTO) {
                     check.setVisible(false);
                 }
                 item.add(check);

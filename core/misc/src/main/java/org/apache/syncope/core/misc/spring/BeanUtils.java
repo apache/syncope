@@ -29,7 +29,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.FatalBeanException;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
@@ -58,12 +57,12 @@ public final class BeanUtils {
      * This is just a convenience method. For more complex transfer needs,
      * consider using a full BeanWrapper.
      * </p>
+     *
      * @param source the source bean
      * @param target the target bean
-     * @throws BeansException if the copying failed
      * @see org.springframework.beans.BeanWrapper
      */
-    public static void copyProperties(final Object source, final Object target) throws BeansException {
+    public static void copyProperties(final Object source, final Object target) {
         copyProperties(source, target, null, (String[]) null);
     }
 
@@ -82,12 +81,9 @@ public final class BeanUtils {
      * @param source the source bean
      * @param target the target bean
      * @param editable the class (or interface) to restrict property setting to
-     * @throws BeansException if the copying failed
      * @see org.springframework.beans.BeanWrapper
      */
-    public static void copyProperties(final Object source, final Object target, final Class<?> editable)
-            throws BeansException {
-
+    public static void copyProperties(final Object source, final Object target, final Class<?> editable) {
         copyProperties(source, target, editable, (String[]) null);
     }
 
@@ -106,12 +102,9 @@ public final class BeanUtils {
      * @param source the source bean
      * @param target the target bean
      * @param ignoreProperties array of property names to ignore
-     * @throws BeansException if the copying failed
      * @see org.springframework.beans.BeanWrapper
      */
-    public static void copyProperties(final Object source, final Object target, final String... ignoreProperties)
-            throws BeansException {
-
+    public static void copyProperties(final Object source, final Object target, final String... ignoreProperties) {
         copyProperties(source, target, null, ignoreProperties);
     }
 
@@ -127,12 +120,11 @@ public final class BeanUtils {
      * @param target the target bean
      * @param editable the class (or interface) to restrict property setting to
      * @param ignoreProperties array of property names to ignore
-     * @throws BeansException if the copying failed
      * @see org.springframework.beans.BeanWrapper
      */
     @SuppressWarnings("unchecked")
-    private static void copyProperties(final Object source, final Object target, final Class<?> editable,
-            final String... ignoreProperties) throws BeansException {
+    private static void copyProperties(
+            final Object source, final Object target, final Class<?> editable, final String... ignoreProperties) {
 
         Assert.notNull(source, "Source must not be null");
         Assert.notNull(target, "Target must not be null");

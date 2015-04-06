@@ -50,7 +50,7 @@ public class WorkflowServiceImpl extends AbstractServiceImpl implements Workflow
                 if (kind == SubjectType.USER) {
                     logic.exportUserDefinition(accept, os);
                 } else {
-                    logic.exportRoleDefinition(accept, os);
+                    logic.exportGroupDefinition(accept, os);
                 }
             }
         };
@@ -69,7 +69,7 @@ public class WorkflowServiceImpl extends AbstractServiceImpl implements Workflow
                 if (kind == SubjectType.USER) {
                     logic.exportUserDiagram(os);
                 } else {
-                    logic.exportRoleDiagram(os);
+                    logic.exportGroupDiagram(os);
                 }
             }
         };
@@ -89,7 +89,7 @@ public class WorkflowServiceImpl extends AbstractServiceImpl implements Workflow
         if (kind == SubjectType.USER) {
             logic.importUserDefinition(contentType, definition);
         } else {
-            logic.importRoleDefinition(contentType, definition);
+            logic.importGroupDefinition(contentType, definition);
         }
     }
 

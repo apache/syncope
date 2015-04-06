@@ -20,7 +20,7 @@ package org.apache.syncope.core.misc.search;
 
 import org.apache.cxf.jaxrs.ext.search.SearchBean;
 import org.apache.cxf.jaxrs.ext.search.fiql.FiqlParser;
-import org.apache.syncope.common.lib.search.SyncopeFiqlSearchConditionBuilder;
+import org.apache.syncope.common.lib.search.AbstractFiqlSearchConditionBuilder;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 
 /**
@@ -37,7 +37,7 @@ public final class SearchCondConverter {
      */
     public static SearchCond convert(final String fiqlExpression) {
         FiqlParser<SearchBean> fiqlParser = new FiqlParser<SearchBean>(
-                SearchBean.class, SyncopeFiqlSearchConditionBuilder.CONTEXTUAL_PROPERTIES);
+                SearchBean.class, AbstractFiqlSearchConditionBuilder.CONTEXTUAL_PROPERTIES);
         SearchCondVisitor searchCondVisitor = new SearchCondVisitor();
 
         searchCondVisitor.visit(fiqlParser.parse(fiqlExpression));

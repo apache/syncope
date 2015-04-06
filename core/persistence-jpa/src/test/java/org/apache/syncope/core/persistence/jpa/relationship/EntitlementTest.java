@@ -24,9 +24,9 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 import org.apache.syncope.core.persistence.api.dao.EntitlementDAO;
-import org.apache.syncope.core.persistence.api.dao.RoleDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.entity.Entitlement;
-import org.apache.syncope.core.persistence.api.entity.role.Role;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,19 +39,19 @@ public class EntitlementTest extends AbstractTest {
     private EntitlementDAO entitlementDAO;
 
     @Autowired
-    private RoleDAO roleDAO;
+    private GroupDAO groupDAO;
 
     @Test
     public void delete() {
         Entitlement entitlement = entitlementDAO.find("base");
         assertNotNull("did not find expected entitlement", entitlement);
 
-        List<Role> roles = roleDAO.findByEntitlement(entitlement);
-        assertEquals("expected two roles", 2, roles.size());
+        List<Group> groups = groupDAO.findByEntitlement(entitlement);
+        assertEquals("expected two groups", 2, groups.size());
 
         entitlementDAO.delete("base");
 
-        roles = roleDAO.findByEntitlement(entitlement);
-        assertTrue(roles.isEmpty());
+        groups = groupDAO.findByEntitlement(entitlement);
+        assertTrue(groups.isEmpty());
     }
 }

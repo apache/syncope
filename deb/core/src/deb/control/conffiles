@@ -7,7 +7,7 @@
 /etc/apache-syncope/mail.properties
 /etc/apache-syncope/persistence.properties
 /etc/apache-syncope/provisioning.properties
-/etc/apache-syncope/roleRoutes.xml
+/etc/apache-syncope/groupRoutes.xml
 /etc/apache-syncope/security.properties
 /etc/apache-syncope/userRoutes.xml
 /etc/apache-syncope/userWorkflow.bpmn20.xml

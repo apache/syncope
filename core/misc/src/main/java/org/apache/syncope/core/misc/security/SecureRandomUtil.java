@@ -38,7 +38,7 @@ public final class SecureRandomUtil {
         return RandomStringUtils.random(1, 0, 0, false, true, null, RANDOM);
     }
 
-    public static String generateRandomSpecialCharacter(char[] characters) {
+    public static String generateRandomSpecialCharacter(final char[] characters) {
         return RandomStringUtils.random(1, 0, 0, false, false, characters, RANDOM);
     }
 

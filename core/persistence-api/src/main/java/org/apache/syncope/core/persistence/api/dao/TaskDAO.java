@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.api.dao;
 import java.util.List;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
 
@@ -42,7 +41,7 @@ public interface TaskDAO extends DAO<Task, Long> {
 
     int count(TaskType type);
 
-    <T extends Task> T save(T task) throws InvalidEntityException;
+    <T extends Task> T save(T task);
 
     void delete(Long key);
 

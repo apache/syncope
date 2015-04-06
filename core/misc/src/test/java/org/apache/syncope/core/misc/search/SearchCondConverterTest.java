@@ -20,7 +20,7 @@ package org.apache.syncope.core.misc.search;
 
 import static org.junit.Assert.assertEquals;
 
-import org.apache.syncope.common.lib.search.RoleFiqlSearchConditionBuilder;
+import org.apache.syncope.common.lib.search.GroupFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.search.SpecialAttr;
 import org.apache.syncope.common.lib.search.UserFiqlSearchConditionBuilder;
 import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
@@ -84,12 +84,12 @@ public class SearchCondConverterTest {
     }
 
     @Test
-    public void roles() {
-        String fiqlExpression = new UserFiqlSearchConditionBuilder().hasRoles(1L).query();
-        assertEquals(SpecialAttr.ROLES + "==1", fiqlExpression);
+    public void groups() {
+        String fiqlExpression = new UserFiqlSearchConditionBuilder().inGroups(1L).query();
+        assertEquals(SpecialAttr.GROUPS + "==1", fiqlExpression);
 
         MembershipCond membCond = new MembershipCond();
-        membCond.setRoleId(1L);
+        membCond.setGroupId(1L);
         SearchCond simpleCond = SearchCond.getLeafCond(membCond);
 
         assertEquals(simpleCond, SearchCondConverter.convert(fiqlExpression));
@@ -109,7 +109,7 @@ public class SearchCondConverterTest {
 
     @Test
     public void entitlements() {
-        String fiqlExpression = new RoleFiqlSearchConditionBuilder().hasEntitlements("USER_LIST").query();
+        String fiqlExpression = new GroupFiqlSearchConditionBuilder().hasEntitlements("USER_LIST").query();
         assertEquals(SpecialAttr.ENTITLEMENTS + "==USER_LIST", fiqlExpression);
 
         EntitlementCond entCond = new EntitlementCond();

@@ -22,7 +22,7 @@ public enum SpecialAttr {
 
     NULL("$null"),
     RESOURCES("$resources"),
-    ROLES("$roles"),
+    GROUPS("$groups"),
     ENTITLEMENTS("$entitlements");
 
     private final String literal;

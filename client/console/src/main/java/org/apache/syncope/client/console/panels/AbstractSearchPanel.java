@@ -31,10 +31,10 @@ import org.apache.cxf.jaxrs.ext.search.fiql.FiqlParser;
 import org.apache.syncope.client.console.rest.AuthRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
-import org.apache.syncope.common.lib.search.RoleFiqlSearchConditionBuilder;
+import org.apache.syncope.common.lib.search.GroupFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.search.SearchableFields;
 import org.apache.syncope.common.lib.search.SpecialAttr;
-import org.apache.syncope.common.lib.search.SyncopeFiqlSearchConditionBuilder;
+import org.apache.syncope.common.lib.search.AbstractFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.search.SyncopeProperty;
 import org.apache.syncope.common.lib.search.UserFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.to.ResourceTO;
@@ -78,7 +78,7 @@ public abstract class AbstractSearchPanel extends Panel {
 
     protected IModel<List<SearchClause.Type>> types;
 
-    protected IModel<List<String>> roleNames;
+    protected IModel<List<String>> groupNames;
 
     protected NotificationPanel searchFeedback;
 
@@ -136,7 +136,7 @@ public abstract class AbstractSearchPanel extends Panel {
         if (StringUtils.isNotBlank(fiql)) {
             try {
                 FiqlParser<SearchBean> fiqlParser = new FiqlParser<>(
-                        SearchBean.class, SyncopeFiqlSearchConditionBuilder.CONTEXTUAL_PROPERTIES);
+                        SearchBean.class, AbstractFiqlSearchConditionBuilder.CONTEXTUAL_PROPERTIES);
                 List<SearchClause> parsed = getSearchClauses(fiqlParser.parse(fiql));
 
                 this.searchClauses.clear();
@@ -147,7 +147,7 @@ public abstract class AbstractSearchPanel extends Panel {
         }
 
         searchFormContainer.add(new SearchView("searchView", searchClauses, searchFormContainer, required,
-                types, anames, dnames, roleNames, resourceNames, entitlements));
+                types, anames, dnames, groupNames, resourceNames, entitlements));
         add(searchFormContainer);
     }
 
@@ -159,7 +159,7 @@ public abstract class AbstractSearchPanel extends Panel {
             @Override
             protected List<String> load() {
                 return SearchableFields.get(
-                        attributableType == AttributableType.USER ? SubjectType.USER : SubjectType.ROLE);
+                        attributableType == AttributableType.USER ? SubjectType.USER : SubjectType.GROUP);
             }
         };
 
@@ -216,9 +216,9 @@ public abstract class AbstractSearchPanel extends Panel {
         String value = sc.getCondition().get(property);
         searchClause.setValue(value);
 
-        if (SpecialAttr.ROLES.toString().equals(property)) {
+        if (SpecialAttr.GROUPS.toString().equals(property)) {
             searchClause.setType(SearchClause.Type.MEMBERSHIP);
-            for (String label : roleNames.getObject()) {
+            for (String label : groupNames.getObject()) {
                 if (value.equals(label.substring(0, label.indexOf(' ')))) {
                     searchClause.setProperty(label);
                 }
@@ -298,7 +298,7 @@ public abstract class AbstractSearchPanel extends Panel {
         return clauses;
     }
 
-    protected abstract SyncopeFiqlSearchConditionBuilder getSearchConditionBuilder();
+    protected abstract AbstractFiqlSearchConditionBuilder getSearchConditionBuilder();
 
     public String buildFIQL() {
         LOG.debug("Generating FIQL from List<SearchClause>: {}", searchClauses);
@@ -307,7 +307,7 @@ public abstract class AbstractSearchPanel extends Panel {
             return StringUtils.EMPTY;
         }
 
-        SyncopeFiqlSearchConditionBuilder builder = getSearchConditionBuilder();
+        AbstractFiqlSearchConditionBuilder builder = getSearchConditionBuilder();
 
         CompleteCondition prevCondition;
         CompleteCondition condition = null;
@@ -317,17 +317,17 @@ public abstract class AbstractSearchPanel extends Panel {
             switch (searchClauses.get(i).getType()) {
                 case ENTITLEMENT:
                     condition = searchClauses.get(i).getComparator() == SearchClause.Comparator.EQUALS
-                            ? ((RoleFiqlSearchConditionBuilder) builder).
+                            ? ((GroupFiqlSearchConditionBuilder) builder).
                             hasEntitlements(searchClauses.get(i).getProperty())
-                            : ((RoleFiqlSearchConditionBuilder) builder).
+                            : ((GroupFiqlSearchConditionBuilder) builder).
                             hasNotEntitlements(searchClauses.get(i).getProperty());
                     break;
 
                 case MEMBERSHIP:
-                    Long roleId = NumberUtils.toLong(searchClauses.get(i).getProperty().split(" ")[0]);
+                    Long groupId = NumberUtils.toLong(searchClauses.get(i).getProperty().split(" ")[0]);
                     condition = searchClauses.get(i).getComparator() == SearchClause.Comparator.EQUALS
-                            ? ((UserFiqlSearchConditionBuilder) builder).hasRoles(roleId)
-                            : ((UserFiqlSearchConditionBuilder) builder).hasNotRoles(roleId);
+                            ? ((UserFiqlSearchConditionBuilder) builder).inGroups(groupId)
+                            : ((UserFiqlSearchConditionBuilder) builder).notInGroups(groupId);
                     break;
 
                 case RESOURCE:

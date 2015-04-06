@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.List;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 
 public interface ConnInstanceDAO extends DAO<ConnInstance, Long> {
@@ -28,7 +27,7 @@ public interface ConnInstanceDAO extends DAO<ConnInstance, Long> {
 
     List<ConnInstance> findAll();
 
-    ConnInstance save(ConnInstance connector) throws InvalidEntityException;
+    ConnInstance save(ConnInstance connector);
 
     void delete(Long key);
 }

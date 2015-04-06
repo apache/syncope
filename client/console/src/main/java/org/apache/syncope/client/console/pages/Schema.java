@@ -104,23 +104,23 @@ public class Schema extends BasePage {
                     put(new SimpleEntry<>(AttributableType.CONFIGURATION, SchemaType.PLAIN),
                             Constants.PREF_CONF_SCHEMA_PAGINATOR_ROWS);
                     put(new SimpleEntry<>(AttributableType.USER, SchemaType.PLAIN),
-                            Constants.PREF_USER_SCHEMA_PAGINATOR_ROWS);
+                            Constants.PREF_USER_PLAIN_SCHEMA_PAGINATOR_ROWS);
                     put(new SimpleEntry<>(AttributableType.USER, SchemaType.DERIVED),
                             Constants.PREF_USER_DER_SCHEMA_PAGINATOR_ROWS);
                     put(new SimpleEntry<>(AttributableType.USER, SchemaType.VIRTUAL),
                             Constants.PREF_USER_VIR_SCHEMA_PAGINATOR_ROWS);
                     put(new SimpleEntry<>(AttributableType.MEMBERSHIP, SchemaType.PLAIN),
-                            Constants.PREF_MEMBERSHIP_SCHEMA_PAGINATOR_ROWS);
+                            Constants.PREF_MEMBERSHIP_PLAIN_SCHEMA_PAGINATOR_ROWS);
                     put(new SimpleEntry<>(AttributableType.MEMBERSHIP, SchemaType.DERIVED),
                             Constants.PREF_MEMBERSHIP_DER_SCHEMA_PAGINATOR_ROWS);
                     put(new SimpleEntry<>(AttributableType.MEMBERSHIP, SchemaType.VIRTUAL),
                             Constants.PREF_MEMBERSHIP_VIR_SCHEMA_PAGINATOR_ROWS);
-                    put(new SimpleEntry<>(AttributableType.ROLE, SchemaType.PLAIN),
-                            Constants.PREF_ROLE_SCHEMA_PAGINATOR_ROWS);
-                    put(new SimpleEntry<>(AttributableType.ROLE, SchemaType.DERIVED),
-                            Constants.PREF_ROLE_DER_SCHEMA_PAGINATOR_ROWS);
-                    put(new SimpleEntry<>(AttributableType.ROLE, SchemaType.VIRTUAL),
-                            Constants.PREF_ROLE_VIR_SCHEMA_PAGINATOR_ROWS);
+                    put(new SimpleEntry<>(AttributableType.GROUP, SchemaType.PLAIN),
+                            Constants.PREF_GROUP_PLAIN_SCHEMA_PAGINATOR_ROWS);
+                    put(new SimpleEntry<>(AttributableType.GROUP, SchemaType.DERIVED),
+                            Constants.PREF_GROUP_DER_SCHEMA_PAGINATOR_ROWS);
+                    put(new SimpleEntry<>(AttributableType.GROUP, SchemaType.VIRTUAL),
+                            Constants.PREF_GROUP_VIR_SCHEMA_PAGINATOR_ROWS);
                 }
             };
 

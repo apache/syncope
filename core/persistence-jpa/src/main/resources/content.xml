@@ -83,9 +83,9 @@ under the License.
                 mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
   <CPlainSchema name="self.user.layout" type="String"
                 mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
-  <CPlainSchema name="admin.role.layout" type="String"
+  <CPlainSchema name="admin.group.layout" type="String"
                 mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
-  <CPlainSchema name="self.role.layout" type="String"
+  <CPlainSchema name="self.group.layout" type="String"
                 mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
   <CPlainSchema name="admin.membership.layout" type="String"
                 mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
@@ -120,11 +120,11 @@ under the License.
   <Entitlement name="USER_UPDATE"/>
   <Entitlement name="USER_DELETE"/>
   <Entitlement name="USER_VIEW"/>
-  <Entitlement name="ROLE_LIST"/>
-  <Entitlement name="ROLE_CREATE"/>
-  <Entitlement name="ROLE_READ"/>
-  <Entitlement name="ROLE_UPDATE"/>
-  <Entitlement name="ROLE_DELETE"/>
+  <Entitlement name="GROUP_LIST"/>
+  <Entitlement name="GROUP_CREATE"/>
+  <Entitlement name="GROUP_READ"/>
+  <Entitlement name="GROUP_UPDATE"/>
+  <Entitlement name="GROUP_DELETE"/>
   <Entitlement name="RESOURCE_LIST"/>
   <Entitlement name="RESOURCE_CREATE"/>
   <Entitlement name="RESOURCE_READ"/>

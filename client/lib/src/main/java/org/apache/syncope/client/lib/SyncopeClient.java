@@ -22,7 +22,7 @@ import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.MediaType;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.common.lib.search.OrderByClauseBuilder;
-import org.apache.syncope.common.lib.search.RoleFiqlSearchConditionBuilder;
+import org.apache.syncope.common.lib.search.GroupFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.search.UserFiqlSearchConditionBuilder;
 import org.apache.syncope.common.rest.api.Preference;
 import org.apache.syncope.common.rest.api.RESTHeaders;
@@ -60,12 +60,12 @@ public class SyncopeClient {
     }
 
     /**
-     * Returns a new instance of <tt>RoleFiqlSearchConditionBuilder</tt>, for assisted building of FIQL queries.
+     * Returns a new instance of <tt>GroupFiqlSearchConditionBuilder</tt>, for assisted building of FIQL queries.
      *
-     * @return default instance of <tt>RoleFiqlSearchConditionBuilder</tt>
+     * @return default instance of <tt>GroupFiqlSearchConditionBuilder</tt>
      */
-    public static RoleFiqlSearchConditionBuilder getRoleSearchConditionBuilder() {
-        return new RoleFiqlSearchConditionBuilder();
+    public static GroupFiqlSearchConditionBuilder getGroupSearchConditionBuilder() {
+        return new GroupFiqlSearchConditionBuilder();
     }
 
     /**

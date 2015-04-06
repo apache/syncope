@@ -26,9 +26,9 @@ import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.common.lib.types.SubjectType;
-import org.apache.syncope.core.persistence.api.RoleEntitlementUtil;
+import org.apache.syncope.core.persistence.api.GroupEntitlementUtil;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
-import org.apache.syncope.core.persistence.api.dao.RoleDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.SubjectSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
@@ -48,7 +48,7 @@ import org.apache.syncope.core.persistence.api.entity.user.UVirAttr;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 import org.apache.syncope.core.misc.security.AuthContextUtil;
-import org.apache.syncope.core.misc.security.UnauthorizedRoleException;
+import org.apache.syncope.core.misc.security.UnauthorizedGroupException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -60,7 +60,7 @@ public class JPAUserDAO extends AbstractSubjectDAO<UPlainAttr, UDerAttr, UVirAtt
     private SubjectSearchDAO searchDAO;
 
     @Autowired
-    private RoleDAO roleDAO;
+    private GroupDAO groupDAO;
 
     @Resource(name = "anonymousUser")
     private String anonymousUser;
@@ -69,7 +69,7 @@ public class JPAUserDAO extends AbstractSubjectDAO<UPlainAttr, UDerAttr, UVirAtt
     private AttributableUtilFactory attrUtilFactory;
 
     @Override
-    protected Subject<UPlainAttr, UDerAttr, UVirAttr> findInternal(Long key) {
+    protected Subject<UPlainAttr, UDerAttr, UVirAttr> findInternal(final Long key) {
         return find(key);
     }
 
@@ -174,8 +174,8 @@ public class JPAUserDAO extends AbstractSubjectDAO<UPlainAttr, UDerAttr, UVirAtt
     }
 
     @Override
-    public final List<User> findAll(final Set<Long> adminRoles, final int page, final int itemsPerPage) {
-        return findAll(adminRoles, page, itemsPerPage, Collections.<OrderByClause>emptyList());
+    public final List<User> findAll(final Set<Long> adminGroups, final int page, final int itemsPerPage) {
+        return findAll(adminGroups, page, itemsPerPage, Collections.<OrderByClause>emptyList());
     }
 
     private SearchCond getAllMatchingCond() {
@@ -185,16 +185,16 @@ public class JPAUserDAO extends AbstractSubjectDAO<UPlainAttr, UDerAttr, UVirAtt
     }
 
     @Override
-    public List<User> findAll(final Set<Long> adminRoles,
+    public List<User> findAll(final Set<Long> adminGroups,
             final int page, final int itemsPerPage, final List<OrderByClause> orderBy) {
 
         return searchDAO.search(
-                adminRoles, getAllMatchingCond(), page, itemsPerPage, orderBy, SubjectType.USER);
+                adminGroups, getAllMatchingCond(), page, itemsPerPage, orderBy, SubjectType.USER);
     }
 
     @Override
-    public final int count(final Set<Long> adminRoles) {
-        return searchDAO.count(adminRoles, getAllMatchingCond(), SubjectType.USER);
+    public final int count(final Set<Long> adminGroups) {
+        return searchDAO.count(adminGroups, getAllMatchingCond(), SubjectType.USER);
     }
 
     @Override
@@ -225,8 +225,8 @@ public class JPAUserDAO extends AbstractSubjectDAO<UPlainAttr, UDerAttr, UVirAtt
         for (Membership membership : user.getMemberships()) {
             membership.setUser(null);
 
-            roleDAO.save(membership.getRole());
-            membership.setRole(null);
+            groupDAO.save(membership.getGroup());
+            membership.setGroup(null);
 
             entityManager.remove(membership);
         }
@@ -237,15 +237,15 @@ public class JPAUserDAO extends AbstractSubjectDAO<UPlainAttr, UDerAttr, UVirAtt
 
     private void securityChecks(final User user) {
         // Allows anonymous (during self-registration) and self (during self-update) to read own user,
-        // otherwise goes thorugh security checks to see if needed role entitlements are owned
+        // otherwise goes thorugh security checks to see if needed group entitlements are owned
         if (!AuthContextUtil.getAuthenticatedUsername().equals(anonymousUser)
                 && !AuthContextUtil.getAuthenticatedUsername().equals(user.getUsername())) {
 
-            Set<Long> roleKeys = user.getRoleKeys();
-            Set<Long> adminRoleKeys = RoleEntitlementUtil.getRoleKeys(AuthContextUtil.getOwnedEntitlementNames());
-            roleKeys.removeAll(adminRoleKeys);
-            if (!roleKeys.isEmpty()) {
-                throw new UnauthorizedRoleException(roleKeys);
+            Set<Long> groupKeys = user.getGroupKeys();
+            Set<Long> adminGroupKeys = GroupEntitlementUtil.getGroupKeys(AuthContextUtil.getOwnedEntitlementNames());
+            groupKeys.removeAll(adminGroupKeys);
+            if (!groupKeys.isEmpty()) {
+                throw new UnauthorizedGroupException(groupKeys);
             }
         }
     }

@@ -19,7 +19,7 @@
 package org.apache.syncope.fit.buildtools;
 
 import java.io.PrintWriter;
-import java.util.Hashtable;
+import java.util.Properties;
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.Attribute;
@@ -80,12 +80,12 @@ public class ApacheDSRootDseServlet extends HttpServlet {
     /**
      * Creates an environment configuration for JNDI access.
      */
-    private Hashtable<Object, Object> createEnv() {
+    private Properties createEnv() {
         // Fetch directory service from servlet context
         ServletContext servletContext = this.getServletContext();
         DirectoryService directoryService = (DirectoryService) servletContext.getAttribute(DirectoryService.JNDI_KEY);
 
-        Hashtable<Object, Object> env = new Hashtable<>();
+        Properties env = new Properties();
         env.put(DirectoryService.JNDI_KEY, directoryService);
         env.put(Context.PROVIDER_URL, "");
         env.put(Context.INITIAL_CONTEXT_FACTORY, CoreContextFactory.class.getName());

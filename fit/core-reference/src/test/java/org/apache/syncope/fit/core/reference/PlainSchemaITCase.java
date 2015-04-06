@@ -92,7 +92,7 @@ public class PlainSchemaITCase extends AbstractITCase {
         schemaTO.setType(AttrSchemaType.Enum);
 
         try {
-            createSchema(AttributableType.ROLE, SchemaType.PLAIN, schemaTO);
+            createSchema(AttributableType.GROUP, SchemaType.PLAIN, schemaTO);
             fail("This should not be reacheable");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidPlainSchema, e.getType());
@@ -136,7 +136,7 @@ public class PlainSchemaITCase extends AbstractITCase {
         schemaTO.setType(AttrSchemaType.Binary);
         schemaTO.setMimeType("application/x-x509-ca-cert");
 
-        createSchema(AttributableType.ROLE, SchemaType.PLAIN, schemaTO);
+        createSchema(AttributableType.GROUP, SchemaType.PLAIN, schemaTO);
     }
 
     @Test
@@ -163,9 +163,9 @@ public class PlainSchemaITCase extends AbstractITCase {
             assertNotNull(schemaTO);
         }
 
-        List<PlainSchemaTO> roleSchemas = schemaService.list(AttributableType.ROLE, SchemaType.PLAIN);
-        assertFalse(roleSchemas.isEmpty());
-        for (PlainSchemaTO schemaTO : roleSchemas) {
+        List<PlainSchemaTO> groupSchemas = schemaService.list(AttributableType.GROUP, SchemaType.PLAIN);
+        assertFalse(groupSchemas.isEmpty());
+        for (PlainSchemaTO schemaTO : groupSchemas) {
             assertNotNull(schemaTO);
         }
 
@@ -178,16 +178,16 @@ public class PlainSchemaITCase extends AbstractITCase {
 
     @Test
     public void update() {
-        PlainSchemaTO schemaTO = schemaService.read(AttributableType.ROLE, SchemaType.PLAIN, "icon");
+        PlainSchemaTO schemaTO = schemaService.read(AttributableType.GROUP, SchemaType.PLAIN, "icon");
         assertNotNull(schemaTO);
 
-        schemaService.update(AttributableType.ROLE, SchemaType.PLAIN, schemaTO.getKey(), schemaTO);
-        PlainSchemaTO updatedTO = schemaService.read(AttributableType.ROLE, SchemaType.PLAIN, "icon");
+        schemaService.update(AttributableType.GROUP, SchemaType.PLAIN, schemaTO.getKey(), schemaTO);
+        PlainSchemaTO updatedTO = schemaService.read(AttributableType.GROUP, SchemaType.PLAIN, "icon");
         assertEquals(schemaTO, updatedTO);
 
         updatedTO.setType(AttrSchemaType.Date);
         try {
-            schemaService.update(AttributableType.ROLE, SchemaType.PLAIN, schemaTO.getKey(), updatedTO);
+            schemaService.update(AttributableType.GROUP, SchemaType.PLAIN, schemaTO.getKey(), updatedTO);
             fail("This should not be reacheable");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidPlainSchema, e.getType());
@@ -233,7 +233,7 @@ public class PlainSchemaITCase extends AbstractITCase {
 
         UserTO newUserTO = SerializationUtils.clone(userTO);
         MembershipTO membership = new MembershipTO();
-        membership.setRoleId(2L);
+        membership.setGroupId(2L);
         newUserTO.getMemberships().add(membership);
 
         UserMod userMod = AttributableOperations.diff(newUserTO, userTO);
@@ -266,11 +266,11 @@ public class PlainSchemaITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE323() {
-        PlainSchemaTO actual = schemaService.read(AttributableType.ROLE, SchemaType.PLAIN, "icon");
+        PlainSchemaTO actual = schemaService.read(AttributableType.GROUP, SchemaType.PLAIN, "icon");
         assertNotNull(actual);
 
         try {
-            createSchema(AttributableType.ROLE, SchemaType.PLAIN, actual);
+            createSchema(AttributableType.GROUP, SchemaType.PLAIN, actual);
             fail();
         } catch (SyncopeClientException e) {
             assertEquals(Response.Status.CONFLICT, e.getType().getResponseStatus());
@@ -279,7 +279,7 @@ public class PlainSchemaITCase extends AbstractITCase {
 
         actual.setKey(null);
         try {
-            createSchema(AttributableType.ROLE, SchemaType.PLAIN, actual);
+            createSchema(AttributableType.GROUP, SchemaType.PLAIN, actual);
             fail();
         } catch (SyncopeClientException e) {
             assertEquals(Response.Status.BAD_REQUEST, e.getType().getResponseStatus());
@@ -293,7 +293,7 @@ public class PlainSchemaITCase extends AbstractITCase {
                 AttrSchemaType.Double);
 
         try {
-            createSchema(AttributableType.ROLE, SchemaType.PLAIN, schema);
+            createSchema(AttributableType.GROUP, SchemaType.PLAIN, schema);
             fail();
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidPlainSchema, e.getType());

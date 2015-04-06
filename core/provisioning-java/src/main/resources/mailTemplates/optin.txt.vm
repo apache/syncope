@@ -31,9 +31,9 @@ because one of the following events occurred:
 #end
 
 #if(!$user.getMemberships().isEmpty())
-You have been provided with the following roles:
+You have been provided with the following groups:
 #foreach($membership in $user.getMemberships())
-  * $membership.roleName
+  * $membership.groupName
 #end
 #end
 

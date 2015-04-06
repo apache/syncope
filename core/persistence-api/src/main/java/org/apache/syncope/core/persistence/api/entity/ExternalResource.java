@@ -19,7 +19,7 @@
 package org.apache.syncope.core.persistence.api.entity;
 
 import org.apache.syncope.core.persistence.api.entity.user.UMapping;
-import org.apache.syncope.core.persistence.api.entity.role.RMapping;
+import org.apache.syncope.core.persistence.api.entity.group.GMapping;
 import java.util.List;
 import java.util.Set;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
@@ -55,7 +55,7 @@ public interface ExternalResource extends AnnotatedEntity<String> {
 
     UMapping getUmapping();
 
-    RMapping getRmapping();
+    GMapping getGmapping();
 
     SyncToken getUsyncToken();
 
@@ -97,7 +97,7 @@ public interface ExternalResource extends AnnotatedEntity<String> {
 
     void setUmapping(UMapping umapping);
 
-    void setRmapping(RMapping rmapping);
+    void setGmapping(GMapping gmapping);
 
     void setEnforceMandatoryCondition(boolean enforce);
 

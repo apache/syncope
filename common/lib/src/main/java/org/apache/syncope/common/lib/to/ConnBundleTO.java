@@ -44,7 +44,7 @@ public class ConnBundleTO extends AbstractBaseBean {
 
     private String version;
 
-    private List<ConnConfPropSchema> properties = new ArrayList<>();
+    private final List<ConnConfPropSchema> properties = new ArrayList<>();
 
     public String getDisplayName() {
         return displayName;

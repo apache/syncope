@@ -22,8 +22,8 @@ import org.apache.cxf.jaxrs.ext.search.client.CompleteCondition;
 
 public interface UserProperty extends SyncopeProperty {
 
-    CompleteCondition hasRoles(Long role, Long... moreRoles);
+    CompleteCondition inGroups(Long group, Long... moreGroups);
 
-    CompleteCondition hasNotRoles(Long role, Long... moreRoles);
+    CompleteCondition notInGroups(Long group, Long... moreGroups);
 
 }

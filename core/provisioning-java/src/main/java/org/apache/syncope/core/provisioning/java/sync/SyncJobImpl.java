@@ -21,24 +21,24 @@ package org.apache.syncope.core.provisioning.java.sync;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.mod.ReferenceMod;
-import org.apache.syncope.common.lib.mod.RoleMod;
+import org.apache.syncope.common.lib.mod.GroupMod;
 import org.apache.syncope.common.lib.types.SyncPolicySpec;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.SyncPolicy;
-import org.apache.syncope.core.persistence.api.entity.role.RMapping;
+import org.apache.syncope.core.persistence.api.entity.group.GMapping;
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
 import org.apache.syncope.core.persistence.api.entity.task.SyncTask;
 import org.apache.syncope.core.persistence.api.entity.user.UMapping;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.sync.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.api.sync.SyncActions;
-import org.apache.syncope.core.misc.security.UnauthorizedRoleException;
+import org.apache.syncope.core.misc.security.UnauthorizedGroupException;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.provisioning.api.job.SyncJob;
-import org.apache.syncope.core.provisioning.api.sync.RoleSyncResultHandler;
+import org.apache.syncope.core.provisioning.api.sync.GroupSyncResultHandler;
 import org.apache.syncope.core.provisioning.api.sync.UserSyncResultHandler;
-import org.apache.syncope.core.workflow.api.RoleWorkflowAdapter;
+import org.apache.syncope.core.workflow.api.GroupWorkflowAdapter;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.SyncToken;
 import org.quartz.JobExecutionException;
@@ -54,24 +54,24 @@ import org.springframework.beans.factory.support.AbstractBeanDefinition;
 public class SyncJobImpl extends AbstractProvisioningJob<SyncTask, SyncActions> implements SyncJob {
 
     /**
-     * Role workflow adapter.
+     * Group workflow adapter.
      */
     @Autowired
-    private RoleWorkflowAdapter rwfAdapter;
+    private GroupWorkflowAdapter gwfAdapter;
 
     @Autowired
     protected SyncUtilities syncUtilities;
 
-    protected void setRoleOwners(final RoleSyncResultHandler rhandler)
-            throws UnauthorizedRoleException, NotFoundException {
+    protected void setGroupOwners(final GroupSyncResultHandler rhandler)
+            throws UnauthorizedGroupException, NotFoundException {
 
-        for (Map.Entry<Long, String> entry : rhandler.getRoleOwnerMap().entrySet()) {
-            RoleMod roleMod = new RoleMod();
-            roleMod.setKey(entry.getKey());
+        for (Map.Entry<Long, String> entry : rhandler.getGroupOwnerMap().entrySet()) {
+            GroupMod groupMod = new GroupMod();
+            groupMod.setKey(entry.getKey());
 
             if (StringUtils.isBlank(entry.getValue())) {
-                roleMod.setRoleOwner(null);
-                roleMod.setUserOwner(null);
+                groupMod.setGroupOwner(null);
+                groupMod.setUserOwner(null);
             } else {
                 Long userId = syncUtilities.findMatchingAttributableKey(
                         ObjectClass.ACCOUNT,
@@ -80,21 +80,21 @@ public class SyncJobImpl extends AbstractProvisioningJob<SyncTask, SyncActions> 
                         rhandler.getProfile().getConnector());
 
                 if (userId == null) {
-                    Long roleId = syncUtilities.findMatchingAttributableKey(
+                    Long groupId = syncUtilities.findMatchingAttributableKey(
                             ObjectClass.GROUP,
                             entry.getValue(),
                             rhandler.getProfile().getTask().getResource(),
                             rhandler.getProfile().getConnector());
 
-                    if (roleId != null) {
-                        roleMod.setRoleOwner(new ReferenceMod(roleId));
+                    if (groupId != null) {
+                        groupMod.setGroupOwner(new ReferenceMod(groupId));
                     }
                 } else {
-                    roleMod.setUserOwner(new ReferenceMod(userId));
+                    groupMod.setUserOwner(new ReferenceMod(userId));
                 }
             }
 
-            rwfAdapter.update(roleMod);
+            gwfAdapter.update(groupMod);
         }
     }
 
@@ -103,7 +103,7 @@ public class SyncJobImpl extends AbstractProvisioningJob<SyncTask, SyncActions> 
             final SyncTask syncTask,
             final Connector connector,
             final UMapping uMapping,
-            final RMapping rMapping,
+            final GMapping rMapping,
             final boolean dryRun) throws JobExecutionException {
 
         LOG.debug("Execute synchronization with token {}", syncTask.getResource().getUsyncToken());
@@ -121,10 +121,10 @@ public class SyncJobImpl extends AbstractProvisioningJob<SyncTask, SyncActions> 
                 createBean(UserSyncResultHandlerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
         uhandler.setProfile(profile);
 
-        // Prepare handler for SyncDelta objects (roles/groups)
-        final RoleSyncResultHandler rhandler =
-                (RoleSyncResultHandler) ApplicationContextProvider.getApplicationContext().getBeanFactory().
-                createBean(RoleSyncResultHandlerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+        // Prepare handler for SyncDelta objects (groups)
+        final GroupSyncResultHandler rhandler =
+                (GroupSyncResultHandler) ApplicationContextProvider.getApplicationContext().getBeanFactory().
+                createBean(GroupSyncResultHandlerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
         rhandler.setProfile(profile);
 
         if (actions != null && !profile.isDryRun()) {
@@ -182,9 +182,9 @@ public class SyncJobImpl extends AbstractProvisioningJob<SyncTask, SyncActions> 
         }
 
         try {
-            setRoleOwners(rhandler);
+            setGroupOwners(rhandler);
         } catch (Exception e) {
-            LOG.error("While setting role owners", e);
+            LOG.error("While setting group owners", e);
         }
 
         if (actions != null && !profile.isDryRun()) {

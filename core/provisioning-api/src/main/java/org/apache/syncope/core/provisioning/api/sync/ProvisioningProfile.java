@@ -40,7 +40,7 @@ public class ProvisioningProfile<T extends ProvisioningTask, A extends Provision
 
     private ConflictResolutionAction resAct;
 
-    private List<A> actions = new ArrayList<>();
+    private final List<A> actions = new ArrayList<>();
 
     public ProvisioningProfile(final Connector connector, final T task) {
         this.connector = connector;

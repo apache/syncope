@@ -26,8 +26,8 @@ import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttrUniqueValue
 import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.membership.MPlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.membership.MPlainAttrValue;
-import org.apache.syncope.core.persistence.api.entity.role.RPlainAttrUniqueValue;
-import org.apache.syncope.core.persistence.api.entity.role.RPlainAttrValue;
+import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrUniqueValue;
+import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrValue;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractPlainAttrValue;
@@ -35,8 +35,8 @@ import org.apache.syncope.core.persistence.jpa.entity.conf.JPACPlainAttrUniqueVa
 import org.apache.syncope.core.persistence.jpa.entity.conf.JPACPlainAttrValue;
 import org.apache.syncope.core.persistence.jpa.entity.membership.JPAMPlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.jpa.entity.membership.JPAMPlainAttrValue;
-import org.apache.syncope.core.persistence.jpa.entity.role.JPARPlainAttrUniqueValue;
-import org.apache.syncope.core.persistence.jpa.entity.role.JPARPlainAttrValue;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttrUniqueValue;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttrValue;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUPlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUPlainAttrValue;
 import org.springframework.stereotype.Repository;
@@ -51,10 +51,10 @@ public class JPAPlainAttrValueDAO extends AbstractDAO<PlainAttrValue, Long> impl
                 ? JPACPlainAttrValue.class
                 : reference.equals(CPlainAttrUniqueValue.class)
                         ? JPACPlainAttrUniqueValue.class
-                        : reference.equals(RPlainAttrValue.class)
-                                ? JPARPlainAttrValue.class
-                                : reference.equals(RPlainAttrUniqueValue.class)
-                                        ? JPARPlainAttrUniqueValue.class
+                        : reference.equals(GPlainAttrValue.class)
+                                ? JPAGPlainAttrValue.class
+                                : reference.equals(GPlainAttrUniqueValue.class)
+                                        ? JPAGPlainAttrUniqueValue.class
                                         : reference.equals(MPlainAttrValue.class)
                                                 ? JPAMPlainAttrValue.class
                                                 : reference.equals(MPlainAttrUniqueValue.class)

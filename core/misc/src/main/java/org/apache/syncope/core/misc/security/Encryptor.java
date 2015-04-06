@@ -75,17 +75,17 @@ public final class Encryptor {
      */
     private static final boolean DEFAULT_ULSSC = true;
 
-    private static String secretKey;
+    private static String SECRET_KEY;
 
-    private static Integer saltIterations;
+    private static Integer SALT_ITERATIONS;
 
-    private static Integer saltSizeBytes;
+    private static Integer SALT_SIZE_BYTES;
 
-    private static Boolean ipopsier;
+    private static Boolean IPOPSIER;
 
-    private static Boolean iposimbd;
+    private static Boolean IPOSIMBD;
 
-    private static Boolean ulssc;
+    private static Boolean ULSSC;
 
     static {
         InputStream propStream = null;
@@ -94,46 +94,46 @@ public final class Encryptor {
             Properties props = new Properties();
             props.load(propStream);
 
-            secretKey = props.getProperty("secretKey");
-            saltIterations = Integer.valueOf(props.getProperty("digester.saltIterations"));
-            saltSizeBytes = Integer.valueOf(props.getProperty("digester.saltSizeBytes"));
-            ipopsier = Boolean.valueOf(props.getProperty("digester.invertPositionOfPlainSaltInEncryptionResults"));
-            iposimbd = Boolean.valueOf(props.getProperty("digester.invertPositionOfSaltInMessageBeforeDigesting"));
-            ulssc = Boolean.valueOf(props.getProperty("digester.useLenientSaltSizeCheck"));
+            SECRET_KEY = props.getProperty("secretKey");
+            SALT_ITERATIONS = Integer.valueOf(props.getProperty("digester.saltIterations"));
+            SALT_SIZE_BYTES = Integer.valueOf(props.getProperty("digester.saltSizeBytes"));
+            IPOPSIER = Boolean.valueOf(props.getProperty("digester.invertPositionOfPlainSaltInEncryptionResults"));
+            IPOSIMBD = Boolean.valueOf(props.getProperty("digester.invertPositionOfSaltInMessageBeforeDigesting"));
+            ULSSC = Boolean.valueOf(props.getProperty("digester.useLenientSaltSizeCheck"));
         } catch (Exception e) {
             LOG.error("Could not read security parameters", e);
         } finally {
             IOUtils.closeQuietly(propStream);
         }
 
-        if (secretKey == null) {
-            secretKey = DEFAULT_SECRET_KEY;
+        if (SECRET_KEY == null) {
+            SECRET_KEY = DEFAULT_SECRET_KEY;
             LOG.debug("secretKey not found, reverting to default");
         }
-        if (saltIterations == null) {
-            saltIterations = DEFAULT_SALT_ITERATIONS;
+        if (SALT_ITERATIONS == null) {
+            SALT_ITERATIONS = DEFAULT_SALT_ITERATIONS;
             LOG.debug("digester.saltIterations not found, reverting to default");
         }
-        if (saltSizeBytes == null) {
-            saltSizeBytes = DEFAULT_SALT_SIZE_BYTES;
+        if (SALT_SIZE_BYTES == null) {
+            SALT_SIZE_BYTES = DEFAULT_SALT_SIZE_BYTES;
             LOG.debug("digester.saltSizeBytes not found, reverting to default");
         }
-        if (ipopsier == null) {
-            ipopsier = DEFAULT_IPOPSIER;
+        if (IPOPSIER == null) {
+            IPOPSIER = DEFAULT_IPOPSIER;
             LOG.debug("digester.invertPositionOfPlainSaltInEncryptionResults not found, reverting to default");
         }
-        if (iposimbd == null) {
-            iposimbd = DEFAULT_IPOSIMBD;
+        if (IPOSIMBD == null) {
+            IPOSIMBD = DEFAULT_IPOSIMBD;
             LOG.debug("digester.invertPositionOfSaltInMessageBeforeDigesting not found, reverting to default");
         }
-        if (ulssc == null) {
-            ulssc = DEFAULT_ULSSC;
+        if (ULSSC == null) {
+            ULSSC = DEFAULT_ULSSC;
             LOG.debug("digester.useLenientSaltSizeCheck not found, reverting to default");
         }
     }
 
     public static Encryptor getInstance() {
-        return getInstance(secretKey);
+        return getInstance(SECRET_KEY);
     }
 
     public static Encryptor getInstance(final String secretKey) {
@@ -163,7 +163,7 @@ public final class Encryptor {
 
         try {
             keySpec = new SecretKeySpec(ArrayUtils.subarray(
-                    actualKey.getBytes(SyncopeConstants.DEFAULT_ENCODING), 0, 16),
+                    actualKey.getBytes(SyncopeConstants.DEFAULT_CHARSET), 0, 16),
                     CipherAlgorithm.AES.getAlgorithm());
         } catch (Exception e) {
             LOG.error("Error during key specification", e);
@@ -178,7 +178,7 @@ public final class Encryptor {
 
         if (value != null) {
             if (cipherAlgorithm == null || cipherAlgorithm == CipherAlgorithm.AES) {
-                final byte[] cleartext = value.getBytes(SyncopeConstants.DEFAULT_ENCODING);
+                final byte[] cleartext = value.getBytes(SyncopeConstants.DEFAULT_CHARSET);
 
                 final Cipher cipher = Cipher.getInstance(CipherAlgorithm.AES.getAlgorithm());
                 cipher.init(Cipher.ENCRYPT_MODE, keySpec);
@@ -221,12 +221,12 @@ public final class Encryptor {
         String value = null;
 
         if (encodedValue != null && cipherAlgorithm == CipherAlgorithm.AES) {
-            final byte[] encoded = encodedValue.getBytes(SyncopeConstants.DEFAULT_ENCODING);
+            final byte[] encoded = encodedValue.getBytes(SyncopeConstants.DEFAULT_CHARSET);
 
             final Cipher cipher = Cipher.getInstance(CipherAlgorithm.AES.getAlgorithm());
             cipher.init(Cipher.DECRYPT_MODE, keySpec);
 
-            value = new String(cipher.doFinal(Base64.decode(encoded)), SyncopeConstants.DEFAULT_ENCODING);
+            value = new String(cipher.doFinal(Base64.decode(encoded)), SyncopeConstants.DEFAULT_CHARSET);
         }
 
         return value;
@@ -238,11 +238,11 @@ public final class Encryptor {
         if (cipherAlgorithm.getAlgorithm().startsWith("S-")) {
             // Salted ...
             digester.setAlgorithm(cipherAlgorithm.getAlgorithm().replaceFirst("S\\-", ""));
-            digester.setIterations(saltIterations);
-            digester.setSaltSizeBytes(saltSizeBytes);
-            digester.setInvertPositionOfPlainSaltInEncryptionResults(ipopsier);
-            digester.setInvertPositionOfSaltInMessageBeforeDigesting(iposimbd);
-            digester.setUseLenientSaltSizeCheck(ulssc);
+            digester.setIterations(SALT_ITERATIONS);
+            digester.setSaltSizeBytes(SALT_SIZE_BYTES);
+            digester.setInvertPositionOfPlainSaltInEncryptionResults(IPOPSIER);
+            digester.setInvertPositionOfSaltInMessageBeforeDigesting(IPOSIMBD);
+            digester.setUseLenientSaltSizeCheck(ULSSC);
         } else {
             // Not salted ...
             digester.setAlgorithm(cipherAlgorithm.getAlgorithm());

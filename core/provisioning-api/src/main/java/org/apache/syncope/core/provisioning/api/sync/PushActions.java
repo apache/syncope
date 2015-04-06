@@ -27,10 +27,10 @@ import org.quartz.JobExecutionException;
 public interface PushActions extends ProvisioningActions {
 
     /**
-     * Action to be executed before to assign (link & provision) a synchronized user / role to the resource.
+     * Action to be executed before to assign (link & provision) a synchronized user / group to the resource.
      *
      * @param profile profile of the synchronization being executed.
-     * @param subject user / role to be created.
+     * @param subject user / group to be created.
      * @return subject.
      * @throws JobExecutionException in case of generic failure
      */
@@ -39,10 +39,10 @@ public interface PushActions extends ProvisioningActions {
             final T subject) throws JobExecutionException;
 
     /**
-     * Action to be executed before to provision a synchronized user / role to the resource.
+     * Action to be executed before to provision a synchronized user / group to the resource.
      *
      * @param profile profile of the synchronization being executed.
-     * @param subject user / role to be created.
+     * @param subject user / group to be created.
      * @return subject.
      * @throws JobExecutionException in case of generic failure
      */
@@ -51,10 +51,10 @@ public interface PushActions extends ProvisioningActions {
             final T subject) throws JobExecutionException;
 
     /**
-     * Action to be executed before to update a synchronized user / role on the resource.
+     * Action to be executed before to update a synchronized user / group on the resource.
      *
      * @param profile profile of the synchronization being executed.
-     * @param subject user / role to be updated.
+     * @param subject user / group to be updated.
      * @return subject.
      * @throws JobExecutionException in case of generic failure
      */
@@ -63,10 +63,10 @@ public interface PushActions extends ProvisioningActions {
             final T subject) throws JobExecutionException;
 
     /**
-     * Action to be executed before to link a synchronized user / role to the resource.
+     * Action to be executed before to link a synchronized user / group to the resource.
      *
      * @param profile profile of the synchronization being executed.
-     * @param subject user / role to be created.
+     * @param subject user / group to be created.
      * @return subject.
      * @throws JobExecutionException in case of generic failure
      */
@@ -75,10 +75,10 @@ public interface PushActions extends ProvisioningActions {
             final T subject) throws JobExecutionException;
 
     /**
-     * Action to be executed before to unlink a synchronized user / role from the resource.
+     * Action to be executed before to unlink a synchronized user / group from the resource.
      *
      * @param profile profile of the synchronization being executed.
-     * @param subject user / role to be created.
+     * @param subject user / group to be created.
      * @return subject.
      * @throws JobExecutionException in case of generic failure
      */
@@ -87,10 +87,10 @@ public interface PushActions extends ProvisioningActions {
             final T subject) throws JobExecutionException;
 
     /**
-     * Action to be executed before to unassign a synchronized user / role from the resource.
+     * Action to be executed before to unassign a synchronized user / group from the resource.
      *
      * @param profile profile of the synchronization being executed.
-     * @param subject user / role to be created.
+     * @param subject user / group to be created.
      * @return subject.
      * @throws JobExecutionException in case of generic failure
      */
@@ -99,10 +99,10 @@ public interface PushActions extends ProvisioningActions {
             final T subject) throws JobExecutionException;
 
     /**
-     * Action to be executed before to unassign a synchronized user / role from the resource.
+     * Action to be executed before to unassign a synchronized user / group from the resource.
      *
      * @param profile profile of the synchronization being executed.
-     * @param subject user / role to be created.
+     * @param subject user / group to be created.
      * @return subject.
      * @throws JobExecutionException in case of generic failure
      */
@@ -111,10 +111,10 @@ public interface PushActions extends ProvisioningActions {
             final T subject) throws JobExecutionException;
 
     /**
-     * Action to be executed before delete a synchronized user / role locally and from the resource.
+     * Action to be executed before delete a synchronized user / group locally and from the resource.
      *
      * @param profile profile of the synchronization being executed.
-     * @param subject user / role to be created.
+     * @param subject user / group to be created.
      * @return subject.
      * @throws JobExecutionException in case of generic failure
      */
@@ -123,10 +123,10 @@ public interface PushActions extends ProvisioningActions {
             final T subject) throws JobExecutionException;
 
     /**
-     * Action to be executed after each local user / role synchronization.
+     * Action to be executed after each local user / group synchronization.
      *
      * @param profile profile of the synchronization being executed.
-     * @param subject synchronized user / role.
+     * @param subject synchronized user / group.
      * @param result operation result.
      * @throws JobExecutionException in case of generic failure
      */

@@ -28,7 +28,7 @@ import org.activiti.engine.impl.GroupQueryImpl;
 import org.activiti.engine.impl.Page;
 import org.activiti.engine.impl.persistence.entity.GroupEntity;
 import org.activiti.engine.impl.persistence.entity.GroupIdentityManager;
-import org.apache.syncope.core.persistence.api.dao.RoleDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +39,7 @@ public class SyncopeGroupManager implements GroupIdentityManager, SyncopeSession
     private UserDAO userDAO;
 
     @Autowired
-    private RoleDAO roleDAO;
+    private GroupDAO groupDAO;
 
     @Override
     public Class<?> getType() {
@@ -53,7 +53,7 @@ public class SyncopeGroupManager implements GroupIdentityManager, SyncopeSession
 
     @Override
     public GroupQuery createNewGroupQuery() {
-        return new SyncopeGroupQueryImpl(roleDAO);
+        return new SyncopeGroupQueryImpl(groupDAO);
     }
 
     @Override
@@ -67,8 +67,8 @@ public class SyncopeGroupManager implements GroupIdentityManager, SyncopeSession
         User user = userDAO.find(userId);
         if (user != null) {
             result = new ArrayList<>();
-            for (Long roleId : user.getRoleKeys()) {
-                result.add(new GroupEntity(roleId.toString()));
+            for (Long groupId : user.getGroupKeys()) {
+                result.add(new GroupEntity(groupId.toString()));
             }
         }
 

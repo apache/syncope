@@ -27,7 +27,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
-import org.apache.syncope.core.persistence.api.RoleEntitlementUtil;
+import org.apache.syncope.core.persistence.api.GroupEntitlementUtil;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.dao.EntitlementDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -54,35 +54,35 @@ public class UserTest extends AbstractTest {
 
     @Test
     public void findAll() {
-        List<User> list = userDAO.findAll(RoleEntitlementUtil.getRoleKeys(entitlementDAO.findAll()), 1, 100);
+        List<User> list = userDAO.findAll(GroupEntitlementUtil.getGroupKeys(entitlementDAO.findAll()), 1, 100);
         assertEquals("did not get expected number of users ", 5, list.size());
     }
 
     @Test
     public void count() {
-        Integer count = userDAO.count(RoleEntitlementUtil.getRoleKeys(entitlementDAO.findAll()));
+        Integer count = userDAO.count(GroupEntitlementUtil.getGroupKeys(entitlementDAO.findAll()));
         assertNotNull(count);
         assertEquals(5, count.intValue());
     }
 
     @Test
     public void findAllByPageAndSize() {
-        Set<Long> allRoleIds = RoleEntitlementUtil.getRoleKeys(entitlementDAO.findAll());
+        Set<Long> allGroupKeys = GroupEntitlementUtil.getGroupKeys(entitlementDAO.findAll());
 
         // get first page
-        List<User> list = userDAO.findAll(allRoleIds, 1, 2);
+        List<User> list = userDAO.findAll(allGroupKeys, 1, 2);
         assertEquals("did not get expected number of users ", 2, list.size());
 
         // get second page
-        list = userDAO.findAll(allRoleIds, 2, 2);
+        list = userDAO.findAll(allGroupKeys, 2, 2);
         assertEquals("did not get expected number of users ", 2, list.size());
 
         // get second page with uncomplete set
-        list = userDAO.findAll(allRoleIds, 2, 3);
+        list = userDAO.findAll(allGroupKeys, 2, 3);
         assertEquals("did not get expected number of users ", 2, list.size());
 
         // get unexistent page
-        list = userDAO.findAll(allRoleIds, 3, 2);
+        list = userDAO.findAll(allGroupKeys, 3, 2);
         assertEquals("did not get expected number of users ", 1, list.size());
     }
 

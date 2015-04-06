@@ -79,7 +79,7 @@ public class SelectOnlyUserSearchResultPanel extends UserSearchResultPanel {
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
                         send(pageRef.getPage(), Broadcast.BREADTH,
-                                new RoleDetailsPanel.UserOwnerSelectPayload(rowModel.getObject().getKey()));
+                                new GroupDetailsPanel.UserOwnerSelectPayload(rowModel.getObject().getKey()));
                         window.close(target);
                     }
                 }, ActionLink.ActionType.SELECT, "Users");

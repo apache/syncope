@@ -81,9 +81,9 @@ under the License.
                 mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
   <CPlainSchema name="self.user.layout" type="String"
                 mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
-  <CPlainSchema name="admin.role.layout" type="String"
+  <CPlainSchema name="admin.group.layout" type="String"
                 mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
-  <CPlainSchema name="self.role.layout" type="String"
+  <CPlainSchema name="self.group.layout" type="String"
                 mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
   <CPlainSchema name="admin.membership.layout" type="String"
                 mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
@@ -92,11 +92,11 @@ under the License.
   
   <!-- sample policies -->
   <Policy DTYPE="SyncPolicy" id="1" description="global sync policy" type="GLOBAL_SYNC" 
-          specification='{"userJavaRule":null,"roleJavaRule":null,"conflictResolutionAction":"IGNORE","userAltSearchSchemas":[],"roleAltSearchSchemas":[]}'/>
+          specification='{"userJavaRule":null,"groupJavaRule":null,"conflictResolutionAction":"IGNORE","userAltSearchSchemas":[],"groupAltSearchSchemas":[]}'/>
   <Policy DTYPE="PasswordPolicy" id="2" description="global password policy" type="GLOBAL_PASSWORD" 
           specification='{"historyLength":1,"maxLength":0,"minLength":8,"nonAlphanumericRequired":false,"alphanumericRequired":false,"digitRequired":false,"lowercaseRequired":false,"uppercaseRequired":false,"mustStartWithDigit":false,"mustntStartWithDigit":false,"mustEndWithDigit":false,"mustntEndWithDigit":false,"mustStartWithNonAlpha":false,"mustStartWithAlpha":false,"mustntStartWithNonAlpha":false,"mustntStartWithAlpha":false,"mustEndWithNonAlpha":false,"mustEndWithAlpha":false,"mustntEndWithNonAlpha":false,"mustntEndWithAlpha":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[],"allowNullPassword":true}'/>
   <Policy DTYPE="SyncPolicy" id="3" description="sync policy 2" type="SYNC" 
-          specification='{"userJavaRule":null,"roleJavaRule":null,"conflictResolutionAction":"ALL","userAltSearchSchemas":["username","firstname"],"roleAltSearchSchemas":[]}'/>
+          specification='{"userJavaRule":null,"groupJavaRule":null,"conflictResolutionAction":"ALL","userAltSearchSchemas":["username","firstname"],"groupAltSearchSchemas":[]}'/>
   <Policy DTYPE="PasswordPolicy" id="4" description="sample password policy" type="PASSWORD" 
           specification='{"historyLength":0,"maxLength":0,"minLength":10,"nonAlphanumericRequired":false,"alphanumericRequired":false,"digitRequired":true,"lowercaseRequired":false,"uppercaseRequired":false,"mustStartWithDigit":false,"mustntStartWithDigit":false,"mustEndWithDigit":false,"mustntEndWithDigit":false,"mustStartWithNonAlpha":false,"mustStartWithAlpha":false,"mustntStartWithNonAlpha":false,"mustntStartWithAlpha":false,"mustEndWithNonAlpha":false,"mustEndWithAlpha":false,"mustntEndWithNonAlpha":false,"mustntEndWithAlpha":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[], "allowNullPassword":false}'/>
   <Policy DTYPE="AccountPolicy" id="5" description="global account policy" type="GLOBAL_ACCOUNT" 
@@ -104,11 +104,11 @@ under the License.
   <Policy DTYPE="AccountPolicy" id="6" description="sample account policy" type="ACCOUNT" 
           specification='{"maxLength":0,"minLength":4,"pattern":null,"allUpperCase":false,"allLowerCase":false,"propagateSuspension":false,"permittedLoginRetries":3,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[]}'/>
   <Policy DTYPE="SyncPolicy" id="7" description="sync policy 1" type="SYNC" 
-          specification='{"userJavaRule":null,"roleJavaRule":null,"conflictResolutionAction":"IGNORE","userAltSearchSchemas":[],"roleAltSearchSchemas":[]}'/>
+          specification='{"userJavaRule":null,"groupJavaRule":null,"conflictResolutionAction":"IGNORE","userAltSearchSchemas":[],"groupAltSearchSchemas":[]}'/>
   <Policy DTYPE="PasswordPolicy" id="8" description="sample password policy" type="PASSWORD" 
           specification='{"historyLength":0,"maxLength":0,"minLength":10,"nonAlphanumericRequired":true,"alphanumericRequired":false,"digitRequired":true,"lowercaseRequired":true,"uppercaseRequired":true,"mustStartWithDigit":true,"mustntStartWithDigit":false,"mustEndWithDigit":true,"mustntEndWithDigit":false,"mustStartWithNonAlpha":false,"mustStartWithAlpha":false,"mustntStartWithNonAlpha":false,"mustntStartWithAlpha":false,"mustEndWithNonAlpha":false,"mustEndWithAlpha":false,"mustntEndWithNonAlpha":false,"mustntEndWithAlpha":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[],"allowNullPassword":false}'/>
   <Policy DTYPE="SyncPolicy" id="9" description="sync policy for java rule" type="SYNC" 
-          specification='{"userJavaRule":null,"roleJavaRule":null,"conflictResolutionAction":"IGNORE","userAltSearchSchemas":[],"roleAltSearchSchemas":[]}'/>
+          specification='{"userJavaRule":null,"groupJavaRule":null,"conflictResolutionAction":"IGNORE","userAltSearchSchemas":[],"groupAltSearchSchemas":[]}'/>
     
   <SyncopeUser id="1" workflowId="4" status="active" password="5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8" cipherAlgorithm="SHA1"
                username="rossini" creator="admin" lastModifier="admin"
@@ -126,22 +126,22 @@ under the License.
                username="puccini" creator="admin" lastModifier="admin" 
                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00" suspended="0"/>
 
-  <SyncopeRole id="1" name="root"
+  <SyncopeGroup id="1" name="root"
                creator="admin" lastModifier="admin" 
                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <SyncopeRole id="2" name="child" parent_id="1"
+  <SyncopeGroup id="2" name="child" parent_id="1"
                creator="admin" lastModifier="admin" 
                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <SyncopeRole id="3" name="citizen"
+  <SyncopeGroup id="3" name="citizen"
                creator="admin" lastModifier="admin" 
                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <SyncopeRole id="4" name="employee" parent_id="3"
+  <SyncopeGroup id="4" name="employee" parent_id="3"
                creator="admin" lastModifier="admin" 
                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <SyncopeRole id="5" name="secretary" parent_id="4"
+  <SyncopeGroup id="5" name="secretary" parent_id="4"
                creator="admin" lastModifier="admin" 
                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <SyncopeRole id="6"
+  <SyncopeGroup id="6"
                name="director" parent_id="4" userOwner_id="5"
                inheritPlainAttrs="1" inheritDerAttrs="1" inheritVirAttrs="1"
                inheritPasswordPolicy="0" inheritAccountPolicy="0"
@@ -149,37 +149,37 @@ under the License.
                accountPolicy_id="6"
                creator="admin" lastModifier="admin" 
                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <SyncopeRole id="7"
+  <SyncopeGroup id="7"
                name="managingDirector" parent_id="6"
                inheritPlainAttrs="1" inheritDerAttrs="1" inheritVirAttrs="1"
                inheritPasswordPolicy="1" inheritAccountPolicy="1" inheritOwner="1"
                creator="admin" lastModifier="admin" 
                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <SyncopeRole id="8"
+  <SyncopeGroup id="8"
                name="otherchild" parent_id="1"
                inheritVirAttrs="1"
                passwordPolicy_id="4"
                creator="admin" lastModifier="admin" 
                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <SyncopeRole id="9" name="roleForWorkflowApproval" parent_id="1"
+  <SyncopeGroup id="9" name="groupForWorkflowApproval" parent_id="1"
                creator="admin" lastModifier="admin" 
                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <SyncopeRole id="10"
+  <SyncopeGroup id="10"
                name="managingConsultant" parent_id="6"
                inheritPlainAttrs="1" inheritDerAttrs="1" inheritVirAttrs="1"
                inheritPasswordPolicy="1" inheritAccountPolicy="1" inheritOwner="0"
                creator="admin" lastModifier="admin" 
                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <SyncopeRole id="11" name="roleForWorkflowOptIn" parent_id="1"
+  <SyncopeGroup id="11" name="groupForWorkflowOptIn" parent_id="1"
                creator="admin" lastModifier="admin" 
                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <SyncopeRole id="12" name="aRoleForPropagation" parent_id="1"
+  <SyncopeGroup id="12" name="aGroupForPropagation" parent_id="1"
                creator="admin" lastModifier="admin" 
                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <SyncopeRole id="13" name="bRoleForPropagation" parent_id="1"
+  <SyncopeGroup id="13" name="bGroupForPropagation" parent_id="1"
                creator="admin" lastModifier="admin" 
                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <SyncopeRole id="14"
+  <SyncopeGroup id="14"
                name="artDirector" parent_id="4"
                inheritPlainAttrs="1" inheritDerAttrs="1" inheritVirAttrs="1"
                inheritPasswordPolicy="0" inheritAccountPolicy="0"
@@ -188,25 +188,25 @@ under the License.
                creator="admin" lastModifier="admin" 
                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
 
-  <Membership id="1" user_id="1" role_id="1"
+  <Membership id="1" user_id="1" group_id="1"
               creator="admin" lastModifier="admin" 
               creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <Membership id="2" user_id="2" role_id="1"
+  <Membership id="2" user_id="2" group_id="1"
               creator="admin" lastModifier="admin" 
               creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <Membership id="3" user_id="2" role_id="2"
+  <Membership id="3" user_id="2" group_id="2"
               creator="admin" lastModifier="admin" 
               creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <Membership id="4" user_id="4" role_id="7"
+  <Membership id="4" user_id="4" group_id="7"
               creator="admin" lastModifier="admin" 
               creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <Membership id="5" user_id="1" role_id="8"
+  <Membership id="5" user_id="1" group_id="8"
               creator="admin" lastModifier="admin" 
               creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <Membership id="6" user_id="2" role_id="3"
+  <Membership id="6" user_id="2" group_id="3"
               creator="admin" lastModifier="admin" 
               creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <Membership id="7" user_id="5" role_id="14"
+  <Membership id="7" user_id="5" group_id="14"
               creator="admin" lastModifier="admin" 
               creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
 
@@ -254,25 +254,25 @@ under the License.
 
   <UVirSchema name="virtualdata"/>
 
-  <RPlainSchema name="icon" type="String"
+  <GPlainSchema name="icon" type="String"
                 mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>                
-  <RPlainSchema name="show" type="Boolean"
+  <GPlainSchema name="show" type="Boolean"
                 mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
-  <RPlainSchema name="rderived_sx" type="String"
+  <GPlainSchema name="rderived_sx" type="String"
                 mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
-  <RPlainSchema name="rderived_dx" type="String"
+  <GPlainSchema name="rderived_dx" type="String"
                 mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>           
-  <RPlainSchema name="title" type="String"
+  <GPlainSchema name="title" type="String"
                 mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
 
-  <RDerSchema name="rderiveddata" expression="rderived_sx + '-' + rderived_dx"/>
-  <RDerSchema name="displayProperty" expression="icon + ': ' + show"/>
-  <RDerSchema name="rderToBePropagated" expression="rderived_sx + '-' + rderived_dx"/>
+  <GDerSchema name="rderiveddata" expression="rderived_sx + '-' + rderived_dx"/>
+  <GDerSchema name="displayProperty" expression="icon + ': ' + show"/>
+  <GDerSchema name="rderToBePropagated" expression="rderived_sx + '-' + rderived_dx"/>
 
-  <RVirSchema name="rvirtualdata"/>
+  <GVirSchema name="rvirtualdata"/>
 
   <!-- rderiveddata is used to verify der schema deletion -->
-  <RDerSchema name="rderivedschema" expression="rderived_sx + '-' + rderived_dx"/>
+  <GDerSchema name="rderivedschema" expression="rderived_sx + '-' + rderived_dx"/>
 
   <MPlainSchema name="subscriptionDate" type="Date"
                 mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
@@ -359,58 +359,58 @@ under the License.
   <UDerAttr id="100" derSchema_name="cn" owner_id="3"/>
   <UDerAttr id="101" derSchema_name="cn" owner_id="1"/>
 
-  <RPlainAttrTemplate id="600" owner_id="1" schema_name="icon"/>
-  <RPlainAttr id="600" owner_id="1" template_id="600"/>
-  <RPlainAttrValue attribute_id="600" id="40" stringValue="niceIcon"/>
+  <GPlainAttrTemplate id="600" owner_id="1" schema_name="icon"/>
+  <GPlainAttr id="600" owner_id="1" template_id="600"/>
+  <GPlainAttrValue attribute_id="600" id="40" stringValue="niceIcon"/>
 
-  <RPlainAttrTemplate id="700" owner_id="2" schema_name="icon"/>
-  <RPlainAttr id="700" owner_id="2" template_id="700"/>
-  <RPlainAttrValue attribute_id="700" id="41" stringValue="badIcon"/>
+  <GPlainAttrTemplate id="700" owner_id="2" schema_name="icon"/>
+  <GPlainAttr id="700" owner_id="2" template_id="700"/>
+  <GPlainAttrValue attribute_id="700" id="41" stringValue="badIcon"/>
 
-  <RPlainAttrTemplate id="800" owner_id="1" schema_name="show"/>
-  <RPlainAttr id="800" owner_id="1" template_id="800"/>
-  <RPlainAttrValue attribute_id="800" id="42" booleanValue="1"/>
+  <GPlainAttrTemplate id="800" owner_id="1" schema_name="show"/>
+  <GPlainAttr id="800" owner_id="1" template_id="800"/>
+  <GPlainAttrValue attribute_id="800" id="42" booleanValue="1"/>
 
-  <RPlainAttrTemplate id="900" owner_id="6" schema_name="icon"/>
-  <RPlainAttr id="900" owner_id="6" template_id="900"/>
-  <RPlainAttrValue attribute_id="900" id="43" stringValue="icon6"/>
+  <GPlainAttrTemplate id="900" owner_id="6" schema_name="icon"/>
+  <GPlainAttr id="900" owner_id="6" template_id="900"/>
+  <GPlainAttrValue attribute_id="900" id="43" stringValue="icon6"/>
 
-  <RPlainAttrTemplate id="950" owner_id="4" schema_name="icon"/>
-  <RPlainAttr id="950" owner_id="4" template_id="950"/>
-  <RPlainAttrValue attribute_id="950" id="44" stringValue="icon4"/>
+  <GPlainAttrTemplate id="950" owner_id="4" schema_name="icon"/>
+  <GPlainAttr id="950" owner_id="4" template_id="950"/>
+  <GPlainAttrValue attribute_id="950" id="44" stringValue="icon4"/>
 
-  <RPlainAttrTemplate id="992" owner_id="1" schema_name="rderived_sx"/>
-  <RPlainAttr id="992" owner_id="1" template_id="992"/>
-  <RPlainAttrValue attribute_id="992" id="92" stringValue="sx"/>
+  <GPlainAttrTemplate id="992" owner_id="1" schema_name="rderived_sx"/>
+  <GPlainAttr id="992" owner_id="1" template_id="992"/>
+  <GPlainAttrValue attribute_id="992" id="92" stringValue="sx"/>
 
-  <RPlainAttrTemplate id="993" owner_id="1" schema_name="rderived_dx"/>
-  <RPlainAttr id="993" owner_id="1" template_id="993"/>
-  <RPlainAttrValue attribute_id="993" id="93" stringValue="dx"/>
+  <GPlainAttrTemplate id="993" owner_id="1" schema_name="rderived_dx"/>
+  <GPlainAttr id="993" owner_id="1" template_id="993"/>
+  <GPlainAttrValue attribute_id="993" id="93" stringValue="dx"/>
 
-  <RPlainAttrTemplate id="994" owner_id="12" schema_name="title"/>
-  <RPlainAttr id="994" owner_id="12" template_id="994"/>
-  <RPlainAttrValue attribute_id="994" id="94" stringValue="r12"/>
+  <GPlainAttrTemplate id="994" owner_id="12" schema_name="title"/>
+  <GPlainAttr id="994" owner_id="12" template_id="994"/>
+  <GPlainAttrValue attribute_id="994" id="94" stringValue="r12"/>
   
-  <RPlainAttrTemplate id="995" owner_id="13" schema_name="title"/>
-  <RPlainAttr id="995" owner_id="13" template_id="995"/>
-  <RPlainAttrValue attribute_id="995" id="95" stringValue="r13"/>
+  <GPlainAttrTemplate id="995" owner_id="13" schema_name="title"/>
+  <GPlainAttr id="995" owner_id="13" template_id="995"/>
+  <GPlainAttrValue attribute_id="995" id="95" stringValue="r13"/>
 
-  <RDerAttrTemplate id="1000" owner_id="1" schema_name="rderiveddata"/>
-  <RDerAttr id="1000" owner_id="1" template_id="1000"/>
+  <GDerAttrTemplate id="1000" owner_id="1" schema_name="rderiveddata"/>
+  <GDerAttr id="1000" owner_id="1" template_id="1000"/>
     
-  <RDerAttrTemplate id="1001" owner_id="1" schema_name="displayProperty"/>
-  <RDerAttr id="1001" owner_id="1" template_id="1001"/>
+  <GDerAttrTemplate id="1001" owner_id="1" schema_name="displayProperty"/>
+  <GDerAttr id="1001" owner_id="1" template_id="1001"/>
   
-  <RDerAttrTemplate id="1002" owner_id="4" schema_name="displayProperty"/>
-  <RDerAttr id="1002" owner_id="4" template_id="1002"/>
+  <GDerAttrTemplate id="1002" owner_id="4" schema_name="displayProperty"/>
+  <GDerAttr id="1002" owner_id="4" template_id="1002"/>
 
-  <RDerAttrTemplate id="1003" owner_id="1" schema_name="rderToBePropagated"/>    
-  <RDerAttr id="1003" owner_id="1" template_id="1003"/>    
+  <GDerAttrTemplate id="1003" owner_id="1" schema_name="rderToBePropagated"/>    
+  <GDerAttr id="1003" owner_id="1" template_id="1003"/>    
 
-  <RVirAttrTemplate id="98" owner_id="4" schema_name="rvirtualdata"/>
-  <RVirAttr id="98" owner_id="4" template_id="98"/>
+  <GVirAttrTemplate id="98" owner_id="4" schema_name="rvirtualdata"/>
+  <GVirAttr id="98" owner_id="4" template_id="98"/>
 
-  <RVirAttrTemplate id="99" owner_id="3" schema_name="rvirtualdata"/>
+  <GVirAttrTemplate id="99" owner_id="3" schema_name="rvirtualdata"/>
 
   <MPlainAttrTemplate id="98" owner_id="1" schema_name="mderived_sx"/>
   
@@ -497,7 +497,7 @@ under the License.
                 bundleName="net.tirasa.connid.bundles.csvdir"
                 connectorName="net.tirasa.connid.bundles.csvdir.CSVDirConnector"
                 version="${connid.csvdir.version}"
-                jsonConf='[{"schema":{"name":"fields","displayName":"fields","helpMessage":"Column names separated by comma","type":"[Ljava.lang.String;","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["id","name","surname","email","password","role","membership","status","deleted"]},{"schema":{"name":"keyColumnNames","displayName":"Key column name","helpMessage":"Name of the column used to identify user uniquely","type":"[Ljava.lang.String;","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["name","surname"]},{"schema":{"name":"deleteColumnName","displayName":"Delete column name","helpMessage":"Name of the column used to specify users to be deleted","type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["deleted"]},{"schema":{"name":"passwordColumnName","displayName":"Password column name","helpMessage":"Name of the column used to specify user password","type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["password"]},{"schema":{"name":"keyseparator","displayName":"Key separator","helpMessage":"Character used to separate keys in a multi-key scenario","type":"java.lang.String","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":[","]},{"schema":{"name":"ignoreHeader","displayName":"Ignore header","helpMessage":"Specify it first line file must be ignored","type":"java.lang.Boolean","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":[false]},{"schema":{"name":"fieldDelimiter","displayName":"fieldDelimiter","helpMessage":"fieldDelimiter","type":"char","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":[","]},{"schema":{"name":"quotationRequired","displayName":"Value quotation required","helpMessage":"Specify if value quotation is required","type":"java.lang.Boolean","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":[false]},{"schema":{"name":"statusColumn","displayName":"statusColumn","helpMessage":"Status column","type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["status"]},{"schema":{"name":"sourcePath","displayName":"Source path","helpMessage":"Absolute path of a directory where are located CSV files to be processed","type":"java.lang.String","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["${test.csvdir.path}"]},{"schema":{"name":"fileMask","displayName":"File mask","helpMessage":"Regular expression describing files to be processed","type":"java.lang.String","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["test.csv"]}]'/>
+                jsonConf='[{"schema":{"name":"fields","displayName":"fields","helpMessage":"Column names separated by comma","type":"[Ljava.lang.String;","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["id","name","surname","email","password","theirgroup","membership","status","deleted"]},{"schema":{"name":"keyColumnNames","displayName":"Key column name","helpMessage":"Name of the column used to identify user uniquely","type":"[Ljava.lang.String;","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["name","surname"]},{"schema":{"name":"deleteColumnName","displayName":"Delete column name","helpMessage":"Name of the column used to specify users to be deleted","type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["deleted"]},{"schema":{"name":"passwordColumnName","displayName":"Password column name","helpMessage":"Name of the column used to specify user password","type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["password"]},{"schema":{"name":"keyseparator","displayName":"Key separator","helpMessage":"Character used to separate keys in a multi-key scenario","type":"java.lang.String","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":[","]},{"schema":{"name":"ignoreHeader","displayName":"Ignore header","helpMessage":"Specify it first line file must be ignored","type":"java.lang.Boolean","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":[false]},{"schema":{"name":"fieldDelimiter","displayName":"fieldDelimiter","helpMessage":"fieldDelimiter","type":"char","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":[","]},{"schema":{"name":"quotationRequired","displayName":"Value quotation required","helpMessage":"Specify if value quotation is required","type":"java.lang.Boolean","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":[false]},{"schema":{"name":"statusColumn","displayName":"statusColumn","helpMessage":"Status column","type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["status"]},{"schema":{"name":"sourcePath","displayName":"Source path","helpMessage":"Absolute path of a directory where are located CSV files to be processed","type":"java.lang.String","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["${test.csvdir.path}"]},{"schema":{"name":"fileMask","displayName":"File mask","helpMessage":"Regular expression describing files to be processed","type":"java.lang.String","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["test.csv"]}]'/>
   <ConnInstance_capabilities ConnInstance_id="104" capabilities="ONE_PHASE_CREATE"/>
   <ConnInstance_capabilities ConnInstance_id="104" capabilities="ONE_PHASE_UPDATE"/>
   <ConnInstance_capabilities ConnInstance_id="104" capabilities="ONE_PHASE_DELETE"/>
@@ -651,13 +651,13 @@ under the License.
   <SyncopeUser_ExternalResource user_id="3" resource_name="ws-target-resource-2"/>
   <SyncopeUser_ExternalResource user_id="3" resource_name="ws-target-resource-1"/>
   <SyncopeUser_ExternalResource user_id="5" resource_name="resource-testdb2"/>
-  <SyncopeRole_ExternalResource role_id="3" resource_name="ws-target-resource-list-mappings-1"/>
-  <SyncopeRole_ExternalResource role_id="8" resource_name="ws-target-resource-2"/>
-  <SyncopeRole_ExternalResource role_id="3" resource_name="ws-target-resource-list-mappings-2"/>
-  <SyncopeRole_ExternalResource role_id="7" resource_name="ws-target-resource-nopropagation"/>
-  <SyncopeRole_ExternalResource role_id="10" resource_name="ws-target-resource-nopropagation3"/>
-  <SyncopeRole_ExternalResource role_id="12" resource_name="resource-csv"/>
-  <SyncopeRole_ExternalResource role_id="13" resource_name="resource-csv"/>
+  <SyncopeGroup_ExternalResource group_id="3" resource_name="ws-target-resource-list-mappings-1"/>
+  <SyncopeGroup_ExternalResource group_id="8" resource_name="ws-target-resource-2"/>
+  <SyncopeGroup_ExternalResource group_id="3" resource_name="ws-target-resource-list-mappings-2"/>
+  <SyncopeGroup_ExternalResource group_id="7" resource_name="ws-target-resource-nopropagation"/>
+  <SyncopeGroup_ExternalResource group_id="10" resource_name="ws-target-resource-nopropagation3"/>
+  <SyncopeGroup_ExternalResource group_id="12" resource_name="resource-csv"/>
+  <SyncopeGroup_ExternalResource group_id="13" resource_name="resource-csv"/>
 
   <UMapping id="15" resource_name="ws-target-resource-1"/>
   <UMappingItem id="99" mapping_id="15" extAttrName="userId"
@@ -787,8 +787,8 @@ under the License.
   <UMappingItem id="207" extAttrName="__NAME__" mapping_id="9"
                 intAttrName="csvuserid" intMappingType="UserDerivedSchema" mandatoryCondition="true"
                 accountid="1" password="0" purpose="BOTH"/>
-  <UMappingItem id="208" extAttrName="role" mapping_id="9"
-                intAttrName="rderToBePropagated" intMappingType="RoleDerivedSchema" mandatoryCondition="false"
+  <UMappingItem id="208" extAttrName="theirgroup" mapping_id="9"
+                intAttrName="rderToBePropagated" intMappingType="GroupDerivedSchema" mandatoryCondition="false"
                 accountid="0" password="0" purpose="BOTH"/>
   <UMappingItem id="209" extAttrName="membership" mapping_id="9"
                 intAttrName="mderToBePropagated" intMappingType="MembershipDerivedSchema" mandatoryCondition="false"
@@ -820,7 +820,7 @@ under the License.
                 extAttrName="mail" intAttrName="email" intMappingType="UserPlainSchema"
                 mandatoryCondition="false" purpose="BOTH"/>
   <UMappingItem id="316" accountid="0" password="0" mapping_id="11"
-                extAttrName="title" intAttrName="title" intMappingType="RolePlainSchema"
+                extAttrName="title" intAttrName="title" intMappingType="GroupPlainSchema"
                 mandatoryCondition="false" purpose="BOTH"/>
   <UMappingItem id="317" accountid="0" password="0" mapping_id="11"
                 extAttrName="postalAddress" intAttrName="postalAddress" intMappingType="MembershipPlainSchema"
@@ -838,19 +838,19 @@ under the License.
                 extAttrName="jpegPhoto" intAttrName="photo" intMappingType="UserPlainSchema"
                 mandatoryCondition="false" purpose="BOTH"/>
   
-  <RMapping id="1" resource_name="resource-ldap"
+  <GMapping id="1" resource_name="resource-ldap"
             accountlink="&apos;cn=&apos; + name + &apos;,ou=groups,o=isp&apos;"/>
-  <RMappingItem id="1" accountid="1" password="0" mapping_id="1"
-                extAttrName="cn" intAttrName="roleName" intMappingType="RoleName"
+  <GMappingItem id="1" accountid="1" password="0" mapping_id="1"
+                extAttrName="cn" intAttrName="groupName" intMappingType="GroupName"
                 mandatoryCondition="true" purpose="BOTH"/>
-  <RMappingItem id="2" accountid="0" password="0" mapping_id="1"
-                extAttrName="owner" intAttrName="roleOwnerSchema" intMappingType="RoleOwnerSchema"
+  <GMappingItem id="2" accountid="0" password="0" mapping_id="1"
+                extAttrName="owner" intAttrName="groupOwnerSchema" intMappingType="GroupOwnerSchema"
                 mandatoryCondition="false" purpose="BOTH"/>
-  <RMappingItem id="3" accountid="0" password="0" mapping_id="1"
-                extAttrName="description" intAttrName="title" intMappingType="RolePlainSchema"
+  <GMappingItem id="3" accountid="0" password="0" mapping_id="1"
+                extAttrName="description" intAttrName="title" intMappingType="GroupPlainSchema"
                 mandatoryCondition="false" purpose="BOTH"/>
-  <RMappingItem id="4" extAttrName="businessCategory" mapping_id="1"
-                intAttrName="rvirtualdata" intMappingType="RoleVirtualSchema" mandatoryCondition="false"
+  <GMappingItem id="4" extAttrName="businessCategory" mapping_id="1"
+                intAttrName="rvirtualdata" intMappingType="GroupVirtualSchema" mandatoryCondition="false"
                 accountid="0" password="0" purpose="BOTH"/>
         
   <UMapping id="16" resource_name="resource-db-sync"/>
@@ -904,8 +904,8 @@ under the License.
   <Task DTYPE="SyncTask" type="SYNCHRONIZATION" id="4" name="CSV (update matching; assign unmatching)" resource_name="resource-csv"
         performCreate="1" performUpdate="1" performDelete="1" syncStatus="1" fullReconciliation="0"
         jobClassName="org.apache.syncope.core.provisioning.api.job.SyncJob" unmatchingRule="ASSIGN" matchingRule="UPDATE"
-        userTemplate='{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"password":null,"status":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"attributes":[{"schema":"type","readonly":false,"values":["email == &apos;test8@syncope.apache.org&apos;? &apos;TYPE_8&apos;: &apos;TYPE_OTHER&apos;"]}],"derivedAttributes":[{"schema":"cn","readonly":false,"values":[null]}],"virtualAttributes":[],"resources":["resource-testdb"],"propagationStatuses":[],"memberships":[{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"roleId":8,"roleName":null,"attributes":[{"schema":"subscriptionDate","readonly":false,"values":["&apos;2009-08-18T16:33:12.203+0200&apos;"]}],"derivedAttributes":[],"virtualAttributes":[]}]}'
-        roleTemplate='{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"name":null,"parent":0,"userOwner":null,"roleOwner":null,"inheritOwner":false,"inheritTemplates":false,"inheritPlainAttrs":false,"inheritDerAttrs":false,"inheritVirAttrs":false,"inheritPasswordPolicy":false,"inheritAccountPolicy":false,"passwordPolicy":null,"accountPolicy":null,"attributes":[],"derivedAttributes":[],"virtualAttributes":[],"resources":[],"propagationStatuses":[],"entitlements":[],"rPlainAttrTemplates":[],"rDerAttrTemplates":[],"rVirAttrTemplates":[],"mPlainAttrTemplates":[],"mDerAttrTemplates":[],"mVirAttrTemplates":[]}'/>
+        userTemplate='{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"password":null,"status":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"attributes":[{"schema":"type","readonly":false,"values":["email == &apos;test8@syncope.apache.org&apos;? &apos;TYPE_8&apos;: &apos;TYPE_OTHER&apos;"]}],"derivedAttributes":[{"schema":"cn","readonly":false,"values":[null]}],"virtualAttributes":[],"resources":["resource-testdb"],"propagationStatuses":[],"memberships":[{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"groupId":8,"groupName":null,"attributes":[{"schema":"subscriptionDate","readonly":false,"values":["&apos;2009-08-18T16:33:12.203+0200&apos;"]}],"derivedAttributes":[],"virtualAttributes":[]}]}'
+        groupTemplate='{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"name":null,"parent":0,"userOwner":null,"groupOwner":null,"inheritOwner":false,"inheritTemplates":false,"inheritPlainAttrs":false,"inheritDerAttrs":false,"inheritVirAttrs":false,"inheritPasswordPolicy":false,"inheritAccountPolicy":false,"passwordPolicy":null,"accountPolicy":null,"attributes":[],"derivedAttributes":[],"virtualAttributes":[],"resources":[],"propagationStatuses":[],"entitlements":[],"gPlainAttrTemplates":[],"gDerAttrTemplates":[],"gVirAttrTemplates":[],"mPlainAttrTemplates":[],"mDerAttrTemplates":[],"mVirAttrTemplates":[]}'/>
   <Task DTYPE="SchedTask" type="SCHEDULED" id="5" name="SampleJob Task" jobClassName="org.apache.syncope.core.provisioning.java.job.SampleJob" cronExpression="0 0 0 1 * ?"/>
   <Task DTYPE="PropagationTask" type="PROPAGATION" id="6" propagationMode="TWO_PHASES" propagationOperation="UPDATE"
         objectClassName="__ACCOUNT__" resource_name="ws-target-resource-nopropagation" subjectType="USER" subjectId="1"
@@ -915,7 +915,7 @@ under the License.
         performCreate="1" performUpdate="1" performDelete="0" syncStatus="1" fullReconciliation="1"
         jobClassName="org.apache.syncope.core.provisioning.api.job.SyncJob" unmatchingRule="PROVISION" matchingRule="UPDATE"
         userTemplate='{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"password":null,"status":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"attributes":[{"schema":"type","readonly":false,"values":["&apos;type a&apos;"]},{"schema":"userId","readonly":false,"values":["&apos;reconciled@syncope.apache.org&apos;"]},{"schema":"fullname","readonly":false,"values":["&apos;reconciled fullname&apos;"]},{"schema":"surname","readonly":false,"values":["&apos;surname&apos;"]}],"derivedAttributes":[],"virtualAttributes":[],"resources":[],"propagationStatuses":[],"memberships":[]}'
-        roleTemplate='{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"name":null,"parent":0,"userOwner":null,"roleOwner":null,"inheritOwner":false,"inheritTemplates":false,"inheritPlainAttrs":false,"inheritDerAttrs":false,"inheritVirAttrs":false,"inheritPasswordPolicy":false,"inheritAccountPolicy":false,"passwordPolicy":null,"accountPolicy":null,"attributes":[],"derivedAttributes":[],"virtualAttributes":[],"resources":[],"propagationStatuses":[],"entitlements":[],"rPlainAttrTemplates":[],"rDerAttrTemplates":[],"rVirAttrTemplates":[],"mPlainAttrTemplates":[],"mDerAttrTemplates":[],"mVirAttrTemplates":[]}'/>
+        groupTemplate='{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"name":null,"parent":0,"userOwner":null,"groupOwner":null,"inheritOwner":false,"inheritTemplates":false,"inheritPlainAttrs":false,"inheritDerAttrs":false,"inheritVirAttrs":false,"inheritPasswordPolicy":false,"inheritAccountPolicy":false,"passwordPolicy":null,"accountPolicy":null,"attributes":[],"derivedAttributes":[],"virtualAttributes":[],"resources":[],"propagationStatuses":[],"entitlements":[],"gPlainAttrTemplates":[],"gDerAttrTemplates":[],"gVirAttrTemplates":[],"mPlainAttrTemplates":[],"mDerAttrTemplates":[],"mVirAttrTemplates":[]}'/>
   <Task DTYPE="NotificationTask" type="NOTIFICATION" id="8" sender="admin@prova.org" subject="Notification for SYNCOPE-81" 
         textBody="NOTIFICATION-81" htmlBody="NOTIFICATION-81" traceLevel="ALL"/>
   <Task DTYPE="SyncTask" type="SYNCHRONIZATION" id="9" name="TestDB2 Task" resource_name="resource-testdb2"
@@ -928,7 +928,7 @@ under the License.
         fullReconciliation="1" performCreate="1" performDelete="1" performUpdate="1" syncStatus="0"
         jobClassName="org.apache.syncope.core.provisioning.api.job.SyncJob" unmatchingRule="PROVISION" matchingRule="UPDATE"
         userTemplate='{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"password":null,"status":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"attributes":[],"derivedAttributes":[],"virtualAttributes":[{"schema":"virtualReadOnly","readonly":false,"values":[""]}],"resources":["resource-ldap"],"propagationStatuses":[],"memberships":[]}'
-        roleTemplate='{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"name":null,"parent":8,"userOwner":null,"roleOwner":null,"inheritOwner":false,"inheritTemplates":false,"inheritPlainAttrs":false,"inheritDerAttrs":false,"inheritVirAttrs":false,"inheritPasswordPolicy":false,"inheritAccountPolicy":false,"passwordPolicy":null,"accountPolicy":null,"attributes":[{"schema":"show","readonly":false,"values":["&apos;true&apos;"]}],"derivedAttributes":[],"virtualAttributes":[],"resources":[],"propagationStatuses":[],"entitlements":[],"rPlainAttrTemplates":["show"],"rDerAttrTemplates":[],"rVirAttrTemplates":[],"mPlainAttrTemplates":[],"mDerAttrTemplates":[],"mVirAttrTemplates":[]}'/>
+        groupTemplate='{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"name":null,"parent":8,"userOwner":null,"groupOwner":null,"inheritOwner":false,"inheritTemplates":false,"inheritPlainAttrs":false,"inheritDerAttrs":false,"inheritVirAttrs":false,"inheritPasswordPolicy":false,"inheritAccountPolicy":false,"passwordPolicy":null,"accountPolicy":null,"attributes":[{"schema":"show","readonly":false,"values":["&apos;true&apos;"]}],"derivedAttributes":[],"virtualAttributes":[],"resources":[],"propagationStatuses":[],"entitlements":[],"gPlainAttrTemplates":["show"],"gDerAttrTemplates":[],"gVirAttrTemplates":[],"mPlainAttrTemplates":[],"mDerAttrTemplates":[],"mVirAttrTemplates":[]}'/>
   <SyncTask_actionsClassNames SyncTask_id="11" actionClassName="org.apache.syncope.core.provisioning.java.sync.LDAPMembershipSyncActions"/>
   <Task DTYPE="SyncTask" type="SYNCHRONIZATION" id="12" name="VirAttrCache test" resource_name="resource-csv"
         performCreate="0" performUpdate="1" performDelete="0" syncStatus="0" fullReconciliation="1"
@@ -936,52 +936,52 @@ under the License.
   <Task DTYPE="PushTask" type="PUSH" id="13" name="Export on resource-testdb2" resource_name="resource-testdb2"
         performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"
         jobClassName="org.apache.syncope.core.provisioning.api.job.PushJob" unmatchingRule="ASSIGN" matchingRule="IGNORE" 
-        userFilter="surname==Vivaldi" roleFilter="name==_NO_ONE_"/>
+        userFilter="surname==Vivaldi" groupFilter="name==_NO_ONE_"/>
   <Task DTYPE="PushTask" type="PUSH" id="14" name="Export on resource-testdb2" resource_name="resource-testdb2"
         performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"
         jobClassName="org.apache.syncope.core.provisioning.api.job.PushJob" unmatchingRule="PROVISION" matchingRule="IGNORE" 
-        userFilter="surname==Bellini" roleFilter="name==_NO_ONE_"/>
+        userFilter="surname==Bellini" groupFilter="name==_NO_ONE_"/>
   <Task DTYPE="PushTask" type="PUSH" id="15" name="Export on resource-testdb2" resource_name="resource-testdb2"
         performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"
         jobClassName="org.apache.syncope.core.provisioning.api.job.PushJob" unmatchingRule="UNLINK" matchingRule="IGNORE" 
-        userFilter="surname==Puccini" roleFilter="name==_NO_ONE_"/>
+        userFilter="surname==Puccini" groupFilter="name==_NO_ONE_"/>
   <Task DTYPE="PushTask" type="PUSH" id="16" name="Export on resource-testdb2" resource_name="resource-testdb2"
         performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"
         jobClassName="org.apache.syncope.core.provisioning.api.job.PushJob" unmatchingRule="IGNORE" matchingRule="IGNORE" 
-        userFilter="surname==Verdi" roleFilter="name==_NO_ONE_"/>
+        userFilter="surname==Verdi" groupFilter="name==_NO_ONE_"/>
   <Task DTYPE="PushTask" type="PUSH" id="17" name="Export on resource-testdb2" resource_name="resource-testdb2"
         performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"
         jobClassName="org.apache.syncope.core.provisioning.api.job.PushJob" unmatchingRule="ASSIGN" matchingRule="UPDATE" 
-        userFilter="username==_NO_ONE_" roleFilter="name==_NO_ONE_"/>
+        userFilter="username==_NO_ONE_" groupFilter="name==_NO_ONE_"/>
   <Task DTYPE="PushTask" type="PUSH" id="18" name="Export on resource-testdb2" resource_name="resource-testdb2"
         performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"
         jobClassName="org.apache.syncope.core.provisioning.api.job.PushJob" unmatchingRule="IGNORE" matchingRule="DEPROVISION" 
-        userFilter="surname==Verdi" roleFilter="name==_NO_ONE_"/>
+        userFilter="surname==Verdi" groupFilter="name==_NO_ONE_"/>
   <Task DTYPE="PushTask" type="PUSH" id="19" name="Export on resource-testdb2" resource_name="resource-testdb2"
         performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"
         jobClassName="org.apache.syncope.core.provisioning.api.job.PushJob" unmatchingRule="IGNORE" matchingRule="UNASSIGN" 
-        userFilter="surname==Rossini" roleFilter="name==_NO_ONE_"/>
+        userFilter="surname==Rossini" groupFilter="name==_NO_ONE_"/>
   <Task DTYPE="PushTask" type="PUSH" id="20" name="Export on resource-testdb2" resource_name="resource-testdb2"
         performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"
         jobClassName="org.apache.syncope.core.provisioning.api.job.PushJob" unmatchingRule="IGNORE" matchingRule="LINK" 
-        userFilter="surname==Verdi" roleFilter="name==_NO_ONE_"/>
+        userFilter="surname==Verdi" groupFilter="name==_NO_ONE_"/>
   <Task DTYPE="PushTask" type="PUSH" id="21" name="Export on resource-testdb2" resource_name="resource-testdb2"
         performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"
         jobClassName="org.apache.syncope.core.provisioning.api.job.PushJob" unmatchingRule="IGNORE" matchingRule="UNLINK" 
-        userFilter="surname==Verdi" roleFilter="name==_NO_ONE_"/>
+        userFilter="surname==Verdi" groupFilter="name==_NO_ONE_"/>
   <Task DTYPE="PushTask" type="PUSH" id="22" name="Export on resource-testdb2" resource_name="resource-testdb2"
         performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"
         jobClassName="org.apache.syncope.core.provisioning.api.job.PushJob" unmatchingRule="IGNORE" matchingRule="UPDATE" 
-        userFilter="surname==Verdi" roleFilter="name==_NO_ONE_"/>
+        userFilter="surname==Verdi" groupFilter="name==_NO_ONE_"/>
   <Task DTYPE="PushTask" type="PUSH" id="23" name="Export on resource-ldap" resource_name="resource-ldap"
         performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"
         jobClassName="org.apache.syncope.core.provisioning.api.job.PushJob" unmatchingRule="ASSIGN" matchingRule="UNLINK" 
-        userFilter="username==_NO_ONE_" roleFilter="name==citizen"/>
+        userFilter="username==_NO_ONE_" groupFilter="name==citizen"/>
   <Task DTYPE="SyncTask" type="SYNCHRONIZATION" id="24" name="CSV Task (update matching; provision unmatching)" resource_name="resource-csv"
         performCreate="1" performUpdate="1" performDelete="1" syncStatus="1" fullReconciliation="0"
         jobClassName="org.apache.syncope.core.provisioning.api.job.SyncJob" unmatchingRule="PROVISION" matchingRule="UPDATE"
         userTemplate='{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"password":null,"status":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"attributes":[{"schema":"firstname","readonly":false,"values":[""]},{"schema":"userId","readonly":false,"values":["&apos;test&apos;"]},{"schema":"fullname","readonly":false,"values":["&apos;test&apos;"]},{"schema":"surname","readonly":false,"values":["&apos;test&apos;"]}],"derivedAttributes":[],"virtualAttributes":[],"resources":["resource-testdb"],"propagationStatuses":[],"memberships":[]}'
-        roleTemplate='{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"name":null,"parent":0,"userOwner":null,"roleOwner":null,"inheritOwner":false,"inheritTemplates":false,"inheritPlainAttrs":false,"inheritDerAttrs":false,"inheritVirAttrs":false,"inheritPasswordPolicy":false,"inheritAccountPolicy":false,"passwordPolicy":null,"accountPolicy":null,"attributes":[],"derivedAttributes":[],"virtualAttributes":[],"resources":[],"propagationStatuses":[],"entitlements":[],"rPlainAttrTemplates":[],"rDerAttrTemplates":[],"rVirAttrTemplates":[],"mPlainAttrTemplates":[],"mDerAttrTemplates":[],"mVirAttrTemplates":[]}'/>
+        groupTemplate='{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"name":null,"parent":0,"userOwner":null,"groupOwner":null,"inheritOwner":false,"inheritTemplates":false,"inheritPlainAttrs":false,"inheritDerAttrs":false,"inheritVirAttrs":false,"inheritPasswordPolicy":false,"inheritAccountPolicy":false,"passwordPolicy":null,"accountPolicy":null,"attributes":[],"derivedAttributes":[],"virtualAttributes":[],"resources":[],"propagationStatuses":[],"entitlements":[],"gPlainAttrTemplates":[],"gDerAttrTemplates":[],"gVirAttrTemplates":[],"mPlainAttrTemplates":[],"mDerAttrTemplates":[],"mVirAttrTemplates":[]}'/>
   <Task DTYPE="SyncTask" type="SYNCHRONIZATION" id="25" name="CSV (unlink matching; ignore unmatching)" resource_name="resource-csv"
         performCreate="1" performUpdate="1" performDelete="1" syncStatus="1" fullReconciliation="0"
         jobClassName="org.apache.syncope.core.provisioning.api.job.SyncJob" unmatchingRule="IGNORE" matchingRule="UNLINK"/>
@@ -1002,7 +1002,7 @@ under the License.
   <Notification id="10" sender="test@syncope.apache.org" subject="Test subject" template="test" selfAsRecipient="0" 
                 traceLevel="FAILURES"
                 userAbout="fullname==*o*;fullname==*i*"
-                recipients="$roles==7"
+                recipients="$groups==7"
                 recipientAttrType="UserPlainSchema" recipientAttrName="email" active="1"/>
   <Notification_events Notification_id="10" events="[CUSTOM]:[]:[]:[unexisting1]:[FAILURE]"/>
   <Notification_events Notification_id="10" events="[CUSTOM]:[]:[]:[unexisting2]:[SUCCESS]"/>
@@ -1030,11 +1030,11 @@ under the License.
   <Entitlement name="USER_UPDATE"/>
   <Entitlement name="USER_DELETE"/>
   <Entitlement name="USER_VIEW"/>
-  <Entitlement name="ROLE_LIST"/>
-  <Entitlement name="ROLE_CREATE"/>
-  <Entitlement name="ROLE_READ"/>
-  <Entitlement name="ROLE_UPDATE"/>
-  <Entitlement name="ROLE_DELETE"/>
+  <Entitlement name="GROUP_LIST"/>
+  <Entitlement name="GROUP_CREATE"/>
+  <Entitlement name="GROUP_READ"/>
+  <Entitlement name="GROUP_UPDATE"/>
+  <Entitlement name="GROUP_DELETE"/>
   <Entitlement name="RESOURCE_LIST"/>
   <Entitlement name="RESOURCE_CREATE"/>
   <Entitlement name="RESOURCE_READ"/>
@@ -1089,37 +1089,37 @@ under the License.
   <Entitlement name="SECURITY_QUESTION_CREATE"/>
   <Entitlement name="SECURITY_QUESTION_UPDATE"/>
   <Entitlement name="SECURITY_QUESTION_DELETE"/>
-  <Entitlement name="ROLE_1"/>
-  <Entitlement name="ROLE_2"/>
-  <Entitlement name="ROLE_3"/>
-  <Entitlement name="ROLE_4"/>
-  <Entitlement name="ROLE_5"/>
-  <Entitlement name="ROLE_6"/>
-  <Entitlement name="ROLE_7"/>
-  <Entitlement name="ROLE_8"/>
-  <Entitlement name="ROLE_9"/>
-  <Entitlement name="ROLE_10"/>
-  <Entitlement name="ROLE_11"/>
-  <Entitlement name="ROLE_12"/>
-  <Entitlement name="ROLE_13"/>
-  <Entitlement name="ROLE_14"/>
+  <Entitlement name="GROUP_1"/>
+  <Entitlement name="GROUP_2"/>
+  <Entitlement name="GROUP_3"/>
+  <Entitlement name="GROUP_4"/>
+  <Entitlement name="GROUP_5"/>
+  <Entitlement name="GROUP_6"/>
+  <Entitlement name="GROUP_7"/>
+  <Entitlement name="GROUP_8"/>
+  <Entitlement name="GROUP_9"/>
+  <Entitlement name="GROUP_10"/>
+  <Entitlement name="GROUP_11"/>
+  <Entitlement name="GROUP_12"/>
+  <Entitlement name="GROUP_13"/>
+  <Entitlement name="GROUP_14"/>
 
-  <SyncopeRole_Entitlement entitlement_name="base" role_id="1"/>
-  <SyncopeRole_Entitlement entitlement_name="advanced" role_id="1"/>
-  <SyncopeRole_Entitlement entitlement_name="base" role_id="2"/>
-  <SyncopeRole_Entitlement entitlement_name="USER_READ" role_id="2"/>
-  <SyncopeRole_Entitlement entitlement_name="USER_LIST" role_id="2"/>
-  <SyncopeRole_Entitlement entitlement_name="USER_READ" role_id="7"/>
-  <SyncopeRole_Entitlement entitlement_name="USER_LIST" role_id="7"/>
-  <SyncopeRole_Entitlement entitlement_name="ROLE_8" role_id="7"/>
-  <SyncopeRole_Entitlement entitlement_name="ROLE_9" role_id="7"/>
-  <SyncopeRole_Entitlement entitlement_name="ROLE_7" role_id="7"/>
-  <SyncopeRole_Entitlement entitlement_name="ROLE_1" role_id="7"/>
-  <SyncopeRole_Entitlement entitlement_name="WORKFLOW_FORM_CLAIM" role_id="7"/>
-  <SyncopeRole_Entitlement entitlement_name="WORKFLOW_FORM_SUBMIT" role_id="7"/>
-  <SyncopeRole_Entitlement entitlement_name="SCHEMA_READ" role_id="8"/>
-  <SyncopeRole_Entitlement entitlement_name="ROLE_READ" role_id="8"/>
-  <SyncopeRole_Entitlement entitlement_name="WORKFLOW_FORM_CLAIM" role_id="8"/>
+  <SyncopeGroup_Entitlement entitlement_name="base" group_id="1"/>
+  <SyncopeGroup_Entitlement entitlement_name="advanced" group_id="1"/>
+  <SyncopeGroup_Entitlement entitlement_name="base" group_id="2"/>
+  <SyncopeGroup_Entitlement entitlement_name="USER_READ" group_id="2"/>
+  <SyncopeGroup_Entitlement entitlement_name="USER_LIST" group_id="2"/>
+  <SyncopeGroup_Entitlement entitlement_name="USER_READ" group_id="7"/>
+  <SyncopeGroup_Entitlement entitlement_name="USER_LIST" group_id="7"/>
+  <SyncopeGroup_Entitlement entitlement_name="GROUP_8" group_id="7"/>
+  <SyncopeGroup_Entitlement entitlement_name="GROUP_9" group_id="7"/>
+  <SyncopeGroup_Entitlement entitlement_name="GROUP_7" group_id="7"/>
+  <SyncopeGroup_Entitlement entitlement_name="GROUP_1" group_id="7"/>
+  <SyncopeGroup_Entitlement entitlement_name="WORKFLOW_FORM_CLAIM" group_id="7"/>
+  <SyncopeGroup_Entitlement entitlement_name="WORKFLOW_FORM_SUBMIT" group_id="7"/>
+  <SyncopeGroup_Entitlement entitlement_name="SCHEMA_READ" group_id="8"/>
+  <SyncopeGroup_Entitlement entitlement_name="GROUP_READ" group_id="8"/>
+  <SyncopeGroup_Entitlement entitlement_name="WORKFLOW_FORM_CLAIM" group_id="8"/>
   
   <SecurityQuestion id="1" content="What's your mother's maiden name?"/>
 </dataset>

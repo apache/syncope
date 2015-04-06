@@ -20,16 +20,16 @@ package org.apache.syncope.core.persistence.api.entity.membership;
 
 import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.Attributable;
-import org.apache.syncope.core.persistence.api.entity.role.Role;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 
 public interface Membership extends Attributable<MPlainAttr, MDerAttr, MVirAttr> {
 
-    Role getRole();
+    Group getGroup();
 
     User getUser();
 
-    void setRole(Role role);
+    void setGroup(Group group);
 
     void setUser(User user);
 

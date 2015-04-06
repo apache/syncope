@@ -25,18 +25,18 @@ import org.activiti.engine.ActivitiException;
 import org.activiti.engine.identity.User;
 import org.activiti.engine.identity.UserQuery;
 import org.activiti.engine.impl.persistence.entity.UserEntity;
-import org.apache.syncope.core.persistence.api.RoleEntitlementUtil;
+import org.apache.syncope.core.persistence.api.GroupEntitlementUtil;
 import org.apache.syncope.core.persistence.api.dao.EntitlementDAO;
-import org.apache.syncope.core.persistence.api.dao.RoleDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.membership.Membership;
-import org.apache.syncope.core.persistence.api.entity.role.Role;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 
 public class SyncopeUserQueryImpl implements UserQuery {
 
     private UserDAO userDAO;
 
-    private RoleDAO roleDAO;
+    private GroupDAO groupDAO;
 
     private EntitlementDAO entitlementDAO;
 
@@ -46,9 +46,9 @@ public class SyncopeUserQueryImpl implements UserQuery {
 
     private List<User> result;
 
-    public SyncopeUserQueryImpl(final UserDAO userDAO, final RoleDAO roleDAO, final EntitlementDAO entitlementDAO) {
+    public SyncopeUserQueryImpl(final UserDAO userDAO, final GroupDAO groupDAO, final EntitlementDAO entitlementDAO) {
         this.userDAO = userDAO;
-        this.roleDAO = roleDAO;
+        this.groupDAO = groupDAO;
         this.entitlementDAO = entitlementDAO;
     }
 
@@ -142,18 +142,18 @@ public class SyncopeUserQueryImpl implements UserQuery {
             if (user == null) {
                 result = Collections.<User>emptyList();
             } else {
-                if (memberOf == null || user.getRoleKeys().contains(memberOf)) {
+                if (memberOf == null || user.getGroupKeys().contains(memberOf)) {
                     result = Collections.singletonList(fromSyncopeUser(user));
                 }
             }
         }
         if (memberOf != null) {
-            Role role = roleDAO.find(memberOf);
-            if (role == null) {
+            Group group = groupDAO.find(memberOf);
+            if (group == null) {
                 result = Collections.<User>emptyList();
             } else {
                 result = new ArrayList<>();
-                List<Membership> memberships = roleDAO.findMemberships(role);
+                List<Membership> memberships = groupDAO.findMemberships(group);
                 User user;
                 for (Membership membership : memberships) {
                     user = fromSyncopeUser(membership.getUser());
@@ -168,7 +168,7 @@ public class SyncopeUserQueryImpl implements UserQuery {
             result = new ArrayList<>();
 
             List<org.apache.syncope.core.persistence.api.entity.user.User> users =
-                    userDAO.findAll(RoleEntitlementUtil.getRoleKeys(entitlementDAO.findAll()), page, itemsPerPage);
+                    userDAO.findAll(GroupEntitlementUtil.getGroupKeys(entitlementDAO.findAll()), page, itemsPerPage);
             for (org.apache.syncope.core.persistence.api.entity.user.User user : users) {
                 result.add(fromSyncopeUser(user));
             }

@@ -68,9 +68,9 @@ under the License.
   <entry key="user_search_membership">
     CREATE VIEW user_search_membership AS
 
-    SELECT m.user_id AS subject_id, r.id AS role_id, r.name AS role_name
-    FROM Membership m, SyncopeRole r
-    WHERE m.role_id = r.id
+    SELECT m.user_id AS subject_id, r.id AS group_id, r.name AS group_name
+    FROM Membership m, SyncopeGroup r
+    WHERE m.group_id = r.id
   </entry>
   <entry key="user_search_resource">
     CREATE VIEW user_search_resource AS
@@ -78,20 +78,20 @@ under the License.
     SELECT st.user_id AS subject_id, st.resource_name AS resource_name
     FROM SyncopeUser_ExternalResource st
   </entry>
-  <entry key="user_search_role_resource">
-    CREATE VIEW user_search_role_resource AS
+  <entry key="user_search_group_resource">
+    CREATE VIEW user_search_group_resource AS
 
     SELECT m.user_id AS subject_id, st.resource_name AS resource_name
-    FROM Membership m, SyncopeRole r, SyncopeRole_ExternalResource st
-    WHERE m.role_id = r.id AND st.role_id = r.id
+    FROM Membership m, SyncopeGroup r, SyncopeGroup_ExternalResource st
+    WHERE m.group_id = r.id AND st.group_id = r.id
   </entry>
-  <entry key="role_search">
-    CREATE VIEW role_search AS
+  <entry key="group_search">
+    CREATE VIEW group_search AS
  
-    SELECT r.id as subject_id, r.* FROM SyncopeRole r
+    SELECT r.id as subject_id, r.* FROM SyncopeGroup r
   </entry>
-  <entry key="role_search_unique_attr">
-    CREATE VIEW role_search_unique_attr AS
+  <entry key="group_search_unique_attr">
+    CREATE VIEW group_search_unique_attr AS
 
     SELECT ra.owner_id AS subject_id,
     rat.schema_name AS schema_name,
@@ -100,12 +100,12 @@ under the License.
     rav.doublevalue AS doublevalue,
     rav.longvalue AS longvalue,
     rav.stringvalue AS stringvalue
-    FROM RPlainAttrUniqueValue rav, RPlainAttr ra, RPlainAttrTemplate rat
+    FROM GPlainAttrUniqueValue rav, GPlainAttr ra, GPlainAttrTemplate rat
     WHERE rav.attribute_id = ra.id
     AND ra.template_id = rat.id
   </entry>
-  <entry key="role_search_attr">
-    CREATE VIEW role_search_attr AS
+  <entry key="group_search_attr">
+    CREATE VIEW group_search_attr AS
 
     SELECT ra.owner_id AS subject_id,
     rat.schema_name AS schema_name,
@@ -114,36 +114,36 @@ under the License.
     rav.doublevalue AS doublevalue,
     rav.longvalue AS longvalue,
     rav.stringvalue AS stringvalue
-    FROM RPlainAttrValue rav, RPlainAttr ra, RPlainAttrTemplate rat
+    FROM GPlainAttrValue rav, GPlainAttr ra, GPlainAttrTemplate rat
     WHERE rav.attribute_id = ra.id
     AND ra.template_id = rat.id
   </entry>
-  <entry key="role_search_null_attr">
-    CREATE VIEW role_search_null_attr AS
+  <entry key="group_search_null_attr">
+    CREATE VIEW group_search_null_attr AS
 
     SELECT r.id AS subject_id,
-    RPlainSchema.name AS schema_name,
+    GPlainSchema.name AS schema_name,
     NULL AS booleanvalue,
     NULL AS datevalue,
     NULL AS doublevalue,
     NULL AS longvalue,
     NULL AS stringvalue
-    FROM SyncopeRole r CROSS JOIN RPlainSchema
-    LEFT OUTER JOIN RPlainAttr ra ON (ra.owner_id = r.id)
-    LEFT OUTER JOIN RPlainAttrTemplate rat ON (RPlainSchema.name = rat.schema_name AND ra.template_id = rat.id)
+    FROM SyncopeGroup r CROSS JOIN GPlainSchema
+    LEFT OUTER JOIN GPlainAttr ra ON (ra.owner_id = r.id)
+    LEFT OUTER JOIN GPlainAttrTemplate rat ON (GPlainSchema.name = rat.schema_name AND ra.template_id = rat.id)
     WHERE ra.id IS NULL
   </entry>
-  <entry key="role_search_resource">
-    CREATE VIEW role_search_resource AS
+  <entry key="group_search_resource">
+    CREATE VIEW group_search_resource AS
 
-    SELECT st.role_id AS subject_id, st.resource_name AS resource_name
-    FROM SyncopeRole_ExternalResource st
+    SELECT st.group_id AS subject_id, st.resource_name AS resource_name
+    FROM SyncopeGroup_ExternalResource st
   </entry>
-  <entry key="role_search_entitlements">
-    CREATE VIEW role_search_entitlements AS
+  <entry key="group_search_entitlements">
+    CREATE VIEW group_search_entitlements AS
 
-    SELECT st.role_id AS subject_id, st.entitlement_name AS entitlement_name
-    FROM SyncopeRole_Entitlement st
+    SELECT st.group_id AS subject_id, st.entitlement_name AS entitlement_name
+    FROM SyncopeGroup_Entitlement st
   </entry>
 
 </properties>

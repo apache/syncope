@@ -38,7 +38,7 @@ import org.apache.syncope.common.lib.to.MappingItemTO;
 import org.apache.syncope.common.lib.to.MappingTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
-import org.apache.syncope.common.lib.to.RoleTO;
+import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.IntMappingType;
@@ -59,7 +59,7 @@ public class VirAttrITCase extends AbstractITCase {
         UserTO userTO = UserITCase.getUniqueSampleTO("issue16@apache.org");
 
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setRoleId(8L);
+        membershipTO.setGroupId(8L);
         userTO.getMemberships().add(membershipTO);
 
         // 1. create user
@@ -442,7 +442,7 @@ public class VirAttrITCase extends AbstractITCase {
     @Test
     public void issueSYNCOPE453() {
         final String resourceName = "issueSYNCOPE453-Res-" + getUUIDString();
-        final String roleName = "issueSYNCOPE453-Role-" + getUUIDString();
+        final String groupName = "issueSYNCOPE453-Group-" + getUUIDString();
 
         // -------------------------------------------
         // Create a resource ad-hoc
@@ -457,7 +457,7 @@ public class VirAttrITCase extends AbstractITCase {
         MappingItemTO item = new MappingItemTO();
         item.setIntAttrName("aLong");
         item.setIntMappingType(IntMappingType.UserPlainSchema);
-        item.setExtAttrName(roleName);
+        item.setExtAttrName(groupName);
         item.setPurpose(MappingPurpose.PROPAGATION);
         item.setAccountid(true);
         mapping.setAccountIdItem(item);
@@ -472,7 +472,7 @@ public class VirAttrITCase extends AbstractITCase {
         item = new MappingItemTO();
         item.setExtAttrName("EMAIL");
         item.setIntAttrName("rvirtualdata");
-        item.setIntMappingType(IntMappingType.RoleVirtualSchema);
+        item.setIntMappingType(IntMappingType.GroupVirtualSchema);
         item.setPurpose(MappingPurpose.PROPAGATION);
         mapping.getItems().add(item);
 
@@ -482,17 +482,17 @@ public class VirAttrITCase extends AbstractITCase {
         // -------------------------------------------
 
         // -------------------------------------------
-        // Create a role ad-hoc
+        // Create a VirAttrITCase ad-hoc
         // -------------------------------------------
-        RoleTO roleTO = new RoleTO();
-        roleTO.setName(roleName);
-        roleTO.setParent(8L);
-        roleTO.getRVirAttrTemplates().add("rvirtualdata");
-        roleTO.getVirAttrs().add(attrTO("rvirtualdata", "ml@role.it"));
-        roleTO.getResources().add(RESOURCE_NAME_LDAP);
-        roleTO = createRole(roleTO);
-        assertEquals(1, roleTO.getVirAttrs().size());
-        assertEquals("ml@role.it", roleTO.getVirAttrs().get(0).getValues().get(0));
+        GroupTO groupTO = new GroupTO();
+        groupTO.setName(groupName);
+        groupTO.setParent(8L);
+        groupTO.getGVirAttrTemplates().add("rvirtualdata");
+        groupTO.getVirAttrs().add(attrTO("rvirtualdata", "ml@group.it"));
+        groupTO.getResources().add(RESOURCE_NAME_LDAP);
+        groupTO = createGroup(groupTO);
+        assertEquals(1, groupTO.getVirAttrs().size());
+        assertEquals("ml@group.it", groupTO.getVirAttrs().get(0).getValues().get(0));
         // -------------------------------------------
 
         // -------------------------------------------
@@ -507,7 +507,7 @@ public class VirAttrITCase extends AbstractITCase {
         userTO.getMemberships().clear();
 
         final MembershipTO membership = new MembershipTO();
-        membership.setRoleId(roleTO.getKey());
+        membership.setGroupId(groupTO.getKey());
         membership.getVirAttrs().add(attrTO("mvirtualdata", "mvirtualvalue"));
         userTO.getMemberships().add(membership);
 
@@ -523,14 +523,14 @@ public class VirAttrITCase extends AbstractITCase {
                 new Object[] { Integer.parseInt(userTO.getPlainAttrMap().get("aLong").getValues().get(0)) });
 
         assertEquals(userTO.getPlainAttrMap().get("aLong").getValues().get(0), actuals.get("id").toString());
-        assertEquals("ml@role.it", actuals.get("email"));
+        assertEquals("ml@group.it", actuals.get("email"));
         // -------------------------------------------
 
         // -------------------------------------------
-        // Delete resource and role ad-hoc
+        // Delete resource and group ad-hoc
         // -------------------------------------------
         resourceService.delete(resourceName);
-        roleService.delete(roleTO.getKey());
+        groupService.delete(groupTO.getKey());
         // -------------------------------------------
     }
 
@@ -565,14 +565,14 @@ public class VirAttrITCase extends AbstractITCase {
     @Test
     public void issueSYNCOPE458() {
         // -------------------------------------------
-        // Create a role ad-hoc
+        // Create a group ad-hoc
         // -------------------------------------------
-        final String roleName = "issueSYNCOPE458-Role-" + getUUIDString();
-        RoleTO roleTO = new RoleTO();
-        roleTO.setName(roleName);
-        roleTO.setParent(2L);
-        roleTO.setInheritTemplates(true);
-        roleTO = createRole(roleTO);
+        final String groupName = "issueSYNCOPE458-Group-" + getUUIDString();
+        GroupTO groupTO = new GroupTO();
+        groupTO.setName(groupName);
+        groupTO.setParent(2L);
+        groupTO.setInheritTemplates(true);
+        groupTO = createGroup(groupTO);
         // -------------------------------------------
 
         // -------------------------------------------
@@ -608,7 +608,7 @@ public class VirAttrITCase extends AbstractITCase {
 
         // add membership, with virtual attribute populated, to user
         MembershipTO membership = new MembershipTO();
-        membership.setRoleId(roleTO.getKey());
+        membership.setGroupId(groupTO.getKey());
         membership.getVirAttrs().add(attrTO("mvirtualdata", "syncope458@syncope.apache.org"));
         userTO.getMemberships().add(membership);
 
@@ -626,7 +626,7 @@ public class VirAttrITCase extends AbstractITCase {
 
         // 2. update membership virtual attribute
         MembershipMod membershipMod = new MembershipMod();
-        membershipMod.setRole(roleTO.getKey());
+        membershipMod.setGroup(groupTO.getKey());
         membershipMod.getVirAttrsToUpdate().add(attrMod("mvirtualdata", "syncope458_NEW@syncope.apache.org"));
 
         UserMod userMod = new UserMod();
@@ -657,7 +657,7 @@ public class VirAttrITCase extends AbstractITCase {
         connectorService.update(connInstanceBean.getKey(), connInstanceBean);
 
         membershipMod = new MembershipMod();
-        membershipMod.setRole(roleTO.getKey());
+        membershipMod.setGroup(groupTO.getKey());
         membershipMod.getVirAttrsToUpdate().add(attrMod("mvirtualdata", "syncope458_updated@syncope.apache.org"));
 
         userMod = new UserMod();
@@ -703,7 +703,7 @@ public class VirAttrITCase extends AbstractITCase {
 
         // 5. remove membership virtual attribute
         membershipMod = new MembershipMod();
-        membershipMod.setRole(roleTO.getKey());
+        membershipMod.setGroup(groupTO.getKey());
         membershipMod.getVirAttrsToRemove().add("mvirtualdata");
 
         userMod = new UserMod();
@@ -717,9 +717,9 @@ public class VirAttrITCase extends AbstractITCase {
         assertTrue(userTO.getMemberships().get(0).getVirAttrMap().isEmpty());
 
         // -------------------------------------------
-        // Delete role ad-hoc and restore resource mapping
+        // Delete group ad-hoc and restore resource mapping
         // -------------------------------------------
-        roleService.delete(roleTO.getKey());
+        groupService.delete(groupTO.getKey());
 
         resourceUMapping.removeItem(item);
         resourceDBVirAttr.setUmapping(resourceUMapping);
@@ -796,19 +796,19 @@ public class VirAttrITCase extends AbstractITCase {
         // -------------------------------------------
 
         // -------------------------------------------
-        // Create a role ad-hoc
+        // Create a group ad-hoc
         // -------------------------------------------
-        final String roleName = "issueSYNCOPE501-Role-" + getUUIDString();
-        RoleTO roleTO = new RoleTO();
-        roleTO.setName(roleName);
-        roleTO.setParent(2L);
-        roleTO.setInheritTemplates(true);
-        roleTO = createRole(roleTO);
+        final String groupName = "issueSYNCOPE501-Group-" + getUUIDString();
+        GroupTO groupTO = new GroupTO();
+        groupTO.setName(groupName);
+        groupTO.setParent(2L);
+        groupTO.setInheritTemplates(true);
+        groupTO = createGroup(groupTO);
         // -------------------------------------------
 
         // 1. add membership, with virtual attribute populated, to user
         MembershipMod membershipMod = new MembershipMod();
-        membershipMod.setRole(roleTO.getKey());
+        membershipMod.setGroup(groupTO.getKey());
         membershipMod.getVirAttrsToUpdate().add(attrMod("mvirtualdata", "syncope501membership@test.org"));
 
         userMod = new UserMod();
@@ -823,7 +823,7 @@ public class VirAttrITCase extends AbstractITCase {
 
         // 2. update only membership virtual attribute and propagate user
         membershipMod = new MembershipMod();
-        membershipMod.setRole(roleTO.getKey());
+        membershipMod.setGroup(groupTO.getKey());
         membershipMod.getVirAttrsToUpdate().add(attrMod("mvirtualdata",
                 "syncope501membership_updated@test.org"));
         membershipMod.getVirAttrsToRemove().add("syncope501membership@test.org");
@@ -860,9 +860,9 @@ public class VirAttrITCase extends AbstractITCase {
         // ----------------------------------------
 
         // -------------------------------------------
-        // Delete role ad-hoc and restore resource mapping
+        // Delete group ad-hoc and restore resource mapping
         // -------------------------------------------
-        roleService.delete(roleTO.getKey());
+        groupService.delete(groupTO.getKey());
 
         resourceUMapping.removeItem(item);
         resourceDBVirAttr.setUmapping(resourceUMapping);

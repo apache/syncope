@@ -51,12 +51,12 @@ public class ActionLinksPanel extends Panel {
         super.add(new Fragment("panelClaim", "emptyFragment", this));
         super.add(new Fragment("panelManageResources", "emptyFragment", this));
         super.add(new Fragment("panelManageUsers", "emptyFragment", this));
-        super.add(new Fragment("panelManageRoles", "emptyFragment", this));
+        super.add(new Fragment("panelManageGroups", "emptyFragment", this));
         super.add(new Fragment("panelCreate", "emptyFragment", this));
         super.add(new Fragment("panelEdit", "emptyFragment", this));
         super.add(new Fragment("panelReset", "emptyFragment", this));
         super.add(new Fragment("panelUserTemplate", "emptyFragment", this));
-        super.add(new Fragment("panelRoleTemplate", "emptyFragment", this));
+        super.add(new Fragment("panelGroupTemplate", "emptyFragment", this));
         super.add(new Fragment("panelEnable", "emptyFragment", this));
         super.add(new Fragment("panelSearch", "emptyFragment", this));
         super.add(new Fragment("panelDelete", "emptyFragment", this));
@@ -149,10 +149,10 @@ public class ActionLinksPanel extends Panel {
                 }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
 
-            case MANAGE_ROLES:
-                fragment = new Fragment("panelManageRoles", "fragmentManageRoles", this);
+            case MANAGE_GROUPS:
+                fragment = new Fragment("panelManageGroups", "fragmentManageGroups", this);
 
-                fragment.addOrReplace(new ClearIndicatingAjaxLink<Void>("manageRolesLink", pageRef) {
+                fragment.addOrReplace(new ClearIndicatingAjaxLink<Void>("manageGroupsLink", pageRef) {
 
                     private static final long serialVersionUID = -6957616042924610293L;
 
@@ -219,10 +219,10 @@ public class ActionLinksPanel extends Panel {
                 }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
 
-            case ROLE_TEMPLATE:
-                fragment = new Fragment("panelRoleTemplate", "fragmentRoleTemplate", this);
+            case GROUP_TEMPLATE:
+                fragment = new Fragment("panelGroupTemplate", "fragmentGroupTemplate", this);
 
-                fragment.addOrReplace(new ClearIndicatingAjaxLink<Void>("roleTemplateLink", pageRef) {
+                fragment.addOrReplace(new ClearIndicatingAjaxLink<Void>("groupTemplateLink", pageRef) {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
@@ -500,8 +500,8 @@ public class ActionLinksPanel extends Panel {
                 super.addOrReplace(new Fragment("panelManageUsers", "emptyFragment", this));
                 break;
 
-            case MANAGE_ROLES:
-                super.addOrReplace(new Fragment("panelManageRoles", "emptyFragment", this));
+            case MANAGE_GROUPS:
+                super.addOrReplace(new Fragment("panelManageGroups", "emptyFragment", this));
                 break;
 
             case CREATE:

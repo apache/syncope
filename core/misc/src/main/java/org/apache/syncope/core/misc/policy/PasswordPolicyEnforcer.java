@@ -27,9 +27,7 @@ import org.springframework.stereotype.Component;
 public class PasswordPolicyEnforcer implements PolicyEnforcer<PasswordPolicySpec, User> {
 
     @Override
-    public void enforce(final PasswordPolicySpec policy, final PolicyType type, final User user)
-            throws PasswordPolicyException, PolicyEnforceException {
-
+    public void enforce(final PasswordPolicySpec policy, final PolicyType type, final User user) {
         final String clearPassword = user.getClearPassword();
         final String password = user.getPassword();
 

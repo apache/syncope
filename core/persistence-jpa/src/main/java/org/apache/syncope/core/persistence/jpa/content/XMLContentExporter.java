@@ -93,7 +93,7 @@ public class XMLContentExporter extends AbstractContentDealer implements Content
             Collections.singletonMap("TASK", "DTYPE <> 'PropagationTask'");
 
     protected static final Map<String, Set<String>> COLUMNS_TO_BE_NULLIFIED =
-            Collections.singletonMap("SYNCOPEROLE", Collections.singleton("USEROWNER_ID"));
+            Collections.singletonMap("SYNCOPEGROUP", Collections.singleton("USEROWNER_ID"));
 
     private boolean isTableAllowed(final String tableName) {
         boolean allowed = true;

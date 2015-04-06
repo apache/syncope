@@ -25,7 +25,7 @@ import org.apache.syncope.common.lib.to.AbstractAttributableTO;
 import org.apache.syncope.common.lib.to.AbstractSubjectTO;
 import org.apache.syncope.common.lib.to.ConfTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
-import org.apache.syncope.common.lib.to.RoleTO;
+import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.common.lib.types.IntMappingType;
@@ -59,19 +59,19 @@ import org.apache.syncope.core.persistence.jpa.entity.membership.JPAMVirAttr;
 import org.apache.syncope.core.persistence.jpa.entity.membership.JPAMVirAttrTemplate;
 import org.apache.syncope.core.persistence.jpa.entity.membership.JPAMVirSchema;
 import org.apache.syncope.core.persistence.jpa.entity.membership.JPAMembership;
-import org.apache.syncope.core.persistence.jpa.entity.role.JPARDerAttr;
-import org.apache.syncope.core.persistence.jpa.entity.role.JPARDerAttrTemplate;
-import org.apache.syncope.core.persistence.jpa.entity.role.JPARDerSchema;
-import org.apache.syncope.core.persistence.jpa.entity.role.JPARMappingItem;
-import org.apache.syncope.core.persistence.jpa.entity.role.JPARPlainAttr;
-import org.apache.syncope.core.persistence.jpa.entity.role.JPARPlainAttrTemplate;
-import org.apache.syncope.core.persistence.jpa.entity.role.JPARPlainAttrUniqueValue;
-import org.apache.syncope.core.persistence.jpa.entity.role.JPARPlainAttrValue;
-import org.apache.syncope.core.persistence.jpa.entity.role.JPARPlainSchema;
-import org.apache.syncope.core.persistence.jpa.entity.role.JPARVirAttr;
-import org.apache.syncope.core.persistence.jpa.entity.role.JPARVirAttrTemplate;
-import org.apache.syncope.core.persistence.jpa.entity.role.JPARVirSchema;
-import org.apache.syncope.core.persistence.jpa.entity.role.JPARole;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGDerAttr;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGDerAttrTemplate;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGDerSchema;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGMappingItem;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttr;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttrTemplate;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttrUniqueValue;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttrValue;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainSchema;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGVirAttr;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGVirAttrTemplate;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGVirSchema;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUDerAttr;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUDerSchema;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUMappingItem;
@@ -110,8 +110,8 @@ public class JPAAttributableUtil implements AttributableUtil {
         Class result;
 
         switch (type) {
-            case ROLE:
-                result = JPARole.class;
+            case GROUP:
+                result = JPAGroup.class;
                 break;
 
             case MEMBERSHIP:
@@ -135,8 +135,8 @@ public class JPAAttributableUtil implements AttributableUtil {
         Class result;
 
         switch (type) {
-            case ROLE:
-                result = JPARPlainSchema.class;
+            case GROUP:
+                result = JPAGPlainSchema.class;
                 break;
 
             case MEMBERSHIP:
@@ -165,8 +165,8 @@ public class JPAAttributableUtil implements AttributableUtil {
                 result = (T) new JPAUPlainSchema();
                 break;
 
-            case ROLE:
-                result = (T) new JPARPlainSchema();
+            case GROUP:
+                result = (T) new JPAGPlainSchema();
                 break;
 
             case MEMBERSHIP:
@@ -186,8 +186,8 @@ public class JPAAttributableUtil implements AttributableUtil {
         Class result = null;
 
         switch (type) {
-            case ROLE:
-                result = JPARPlainAttr.class;
+            case GROUP:
+                result = JPAGPlainAttr.class;
                 break;
 
             case MEMBERSHIP:
@@ -216,8 +216,8 @@ public class JPAAttributableUtil implements AttributableUtil {
                 result = (T) new JPAUPlainAttr();
                 break;
 
-            case ROLE:
-                result = (T) new JPARPlainAttr();
+            case GROUP:
+                result = (T) new JPAGPlainAttr();
                 break;
 
             case MEMBERSHIP:
@@ -238,8 +238,8 @@ public class JPAAttributableUtil implements AttributableUtil {
         Class result;
 
         switch (type) {
-            case ROLE:
-                result = JPARPlainAttrValue.class;
+            case GROUP:
+                result = JPAGPlainAttrValue.class;
                 break;
 
             case MEMBERSHIP:
@@ -268,8 +268,8 @@ public class JPAAttributableUtil implements AttributableUtil {
                 result = (T) new JPAUPlainAttrValue();
                 break;
 
-            case ROLE:
-                result = (T) new JPARPlainAttrValue();
+            case GROUP:
+                result = (T) new JPAGPlainAttrValue();
                 break;
 
             case MEMBERSHIP:
@@ -291,8 +291,8 @@ public class JPAAttributableUtil implements AttributableUtil {
         Class result;
 
         switch (type) {
-            case ROLE:
-                result = JPARPlainAttrUniqueValue.class;
+            case GROUP:
+                result = JPAGPlainAttrUniqueValue.class;
                 break;
 
             case MEMBERSHIP:
@@ -321,8 +321,8 @@ public class JPAAttributableUtil implements AttributableUtil {
                 result = (T) new JPAUPlainAttrUniqueValue();
                 break;
 
-            case ROLE:
-                result = (T) new JPARPlainAttrUniqueValue();
+            case GROUP:
+                result = (T) new JPAGPlainAttrUniqueValue();
                 break;
 
             case MEMBERSHIP:
@@ -344,8 +344,8 @@ public class JPAAttributableUtil implements AttributableUtil {
         Class result;
 
         switch (type) {
-            case ROLE:
-                result = JPARPlainAttrTemplate.class;
+            case GROUP:
+                result = JPAGPlainAttrTemplate.class;
                 break;
 
             case MEMBERSHIP:
@@ -370,8 +370,8 @@ public class JPAAttributableUtil implements AttributableUtil {
                 result = JPAUDerSchema.class;
                 break;
 
-            case ROLE:
-                result = JPARDerSchema.class;
+            case GROUP:
+                result = JPAGDerSchema.class;
                 break;
 
             case MEMBERSHIP:
@@ -395,8 +395,8 @@ public class JPAAttributableUtil implements AttributableUtil {
                 result = (T) new JPAUDerSchema();
                 break;
 
-            case ROLE:
-                result = (T) new JPARDerSchema();
+            case GROUP:
+                result = (T) new JPAGDerSchema();
                 break;
 
             case MEMBERSHIP:
@@ -419,8 +419,8 @@ public class JPAAttributableUtil implements AttributableUtil {
                 result = JPAUDerAttr.class;
                 break;
 
-            case ROLE:
-                result = JPARDerAttr.class;
+            case GROUP:
+                result = JPAGDerAttr.class;
                 break;
 
             case MEMBERSHIP:
@@ -443,8 +443,8 @@ public class JPAAttributableUtil implements AttributableUtil {
                 result = (T) new JPAUDerAttr();
                 break;
 
-            case ROLE:
-                result = (T) new JPARDerAttr();
+            case GROUP:
+                result = (T) new JPAGDerAttr();
                 break;
 
             case MEMBERSHIP:
@@ -466,8 +466,8 @@ public class JPAAttributableUtil implements AttributableUtil {
             case USER:
                 break;
 
-            case ROLE:
-                result = JPARDerAttrTemplate.class;
+            case GROUP:
+                result = JPAGDerAttrTemplate.class;
                 break;
 
             case MEMBERSHIP:
@@ -490,8 +490,8 @@ public class JPAAttributableUtil implements AttributableUtil {
                 result = JPAUVirSchema.class;
                 break;
 
-            case ROLE:
-                result = JPARVirSchema.class;
+            case GROUP:
+                result = JPAGVirSchema.class;
                 break;
 
             case MEMBERSHIP:
@@ -514,8 +514,8 @@ public class JPAAttributableUtil implements AttributableUtil {
                 result = (T) new JPAUVirSchema();
                 break;
 
-            case ROLE:
-                result = (T) new JPARVirSchema();
+            case GROUP:
+                result = (T) new JPAGVirSchema();
                 break;
 
             case MEMBERSHIP:
@@ -538,8 +538,8 @@ public class JPAAttributableUtil implements AttributableUtil {
                 result = JPAUVirAttr.class;
                 break;
 
-            case ROLE:
-                result = JPARVirAttr.class;
+            case GROUP:
+                result = JPAGVirAttr.class;
                 break;
 
             case MEMBERSHIP:
@@ -562,8 +562,8 @@ public class JPAAttributableUtil implements AttributableUtil {
                 result = (T) new JPAUVirAttr();
                 break;
 
-            case ROLE:
-                result = (T) new JPARVirAttr();
+            case GROUP:
+                result = (T) new JPAGVirAttr();
                 break;
 
             case MEMBERSHIP:
@@ -585,8 +585,8 @@ public class JPAAttributableUtil implements AttributableUtil {
             case USER:
                 break;
 
-            case ROLE:
-                result = JPARVirAttrTemplate.class;
+            case GROUP:
+                result = JPAGVirAttrTemplate.class;
                 break;
 
             case MEMBERSHIP:
@@ -606,9 +606,9 @@ public class JPAAttributableUtil implements AttributableUtil {
 
         if (resource != null) {
             switch (type) {
-                case ROLE:
-                    if (resource.getRmapping() != null) {
-                        result = (T) resource.getRmapping().getAccountIdItem();
+                case GROUP:
+                    if (resource.getGmapping() != null) {
+                        result = (T) resource.getGmapping().getAccountIdItem();
                     }
                     break;
 
@@ -638,9 +638,9 @@ public class JPAAttributableUtil implements AttributableUtil {
                     }
                     break;
 
-                case ROLE:
-                    if (resource.getRmapping() != null) {
-                        result = resource.getRmapping().getAccountLink();
+                case GROUP:
+                    if (resource.getGmapping() != null) {
+                        result = resource.getGmapping().getAccountLink();
                     }
                     break;
 
@@ -661,9 +661,9 @@ public class JPAAttributableUtil implements AttributableUtil {
 
         if (resource != null) {
             switch (type) {
-                case ROLE:
-                    if (resource.getRmapping() != null) {
-                        items = (List<T>) resource.getRmapping().getItems();
+                case GROUP:
+                    if (resource.getGmapping() != null) {
+                        items = (List<T>) resource.getGmapping().getItems();
                     }
                     break;
 
@@ -729,7 +729,7 @@ public class JPAAttributableUtil implements AttributableUtil {
 
         List<T> items = getMappingItems(resource, purpose);
 
-        MappingItem uidItem = type == AttributableType.USER ? new JPAUMappingItem() : new JPARMappingItem();
+        MappingItem uidItem = type == AttributableType.USER ? new JPAUMappingItem() : new JPAGMappingItem();
         BeanUtils.copyProperties(getAccountIdItem(resource), uidItem);
         uidItem.setExtAttrName(Uid.NAME);
         uidItem.setAccountid(false);
@@ -743,8 +743,8 @@ public class JPAAttributableUtil implements AttributableUtil {
         IntMappingType result = null;
 
         switch (type) {
-            case ROLE:
-                result = IntMappingType.RolePlainSchema;
+            case GROUP:
+                result = IntMappingType.GroupPlainSchema;
                 break;
 
             case MEMBERSHIP:
@@ -767,8 +767,8 @@ public class JPAAttributableUtil implements AttributableUtil {
         IntMappingType result = null;
 
         switch (type) {
-            case ROLE:
-                result = IntMappingType.RoleDerivedSchema;
+            case GROUP:
+                result = IntMappingType.GroupDerivedSchema;
                 break;
 
             case MEMBERSHIP:
@@ -791,8 +791,8 @@ public class JPAAttributableUtil implements AttributableUtil {
         IntMappingType result = null;
 
         switch (type) {
-            case ROLE:
-                result = IntMappingType.RoleVirtualSchema;
+            case GROUP:
+                result = IntMappingType.GroupVirtualSchema;
                 break;
 
             case MEMBERSHIP:
@@ -819,8 +819,8 @@ public class JPAAttributableUtil implements AttributableUtil {
                 result = JPAUMappingItem.class;
                 break;
 
-            case ROLE:
-                result = JPARMappingItem.class;
+            case GROUP:
+                result = JPAGMappingItem.class;
                 break;
 
             case MEMBERSHIP:
@@ -842,8 +842,8 @@ public class JPAAttributableUtil implements AttributableUtil {
             case USER:
                 result = (T) new UserTO();
                 break;
-            case ROLE:
-                result = (T) new RoleTO();
+            case GROUP:
+                result = (T) new GroupTO();
                 break;
             case MEMBERSHIP:
                 result = (T) new MembershipTO();
@@ -865,8 +865,8 @@ public class JPAAttributableUtil implements AttributableUtil {
             case USER:
                 result = (T) new UserTO();
                 break;
-            case ROLE:
-                result = (T) new RoleTO();
+            case GROUP:
+                result = (T) new GroupTO();
                 break;
             case MEMBERSHIP:
             case CONFIGURATION:

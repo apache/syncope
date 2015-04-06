@@ -111,6 +111,8 @@ public class BulkActionResult extends AbstractBaseBean {
         }
 
         public Result(final String key, final Status value) {
+            super();
+
             this.key = key;
             this.value = value;
         }

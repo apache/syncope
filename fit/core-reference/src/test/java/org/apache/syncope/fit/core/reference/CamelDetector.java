@@ -26,7 +26,7 @@ public class CamelDetector {
         return syncopeService.info().getUserProvisioningManager().indexOf("Camel") != -1;
     }
 
-    public static boolean isCamelEnabledForRoles(final SyncopeService syncopeService) {
-        return syncopeService.info().getRoleProvisioningManager().indexOf("Camel") != -1;
+    public static boolean isCamelEnabledForGroups(final SyncopeService syncopeService) {
+        return syncopeService.info().getGroupProvisioningManager().indexOf("Camel") != -1;
     }
 }

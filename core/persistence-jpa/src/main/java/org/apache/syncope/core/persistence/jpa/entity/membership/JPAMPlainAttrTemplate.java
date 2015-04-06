@@ -25,9 +25,9 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import org.apache.syncope.core.persistence.api.entity.membership.MPlainAttrTemplate;
 import org.apache.syncope.core.persistence.api.entity.membership.MPlainSchema;
-import org.apache.syncope.core.persistence.api.entity.role.Role;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractPlainAttrTemplate;
-import org.apache.syncope.core.persistence.jpa.entity.role.JPARole;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
 
 @Entity
 @Table(name = JPAMPlainAttrTemplate.TABLE)
@@ -41,7 +41,7 @@ public class JPAMPlainAttrTemplate extends AbstractPlainAttrTemplate<MPlainSchem
     private Long id;
 
     @ManyToOne
-    private JPARole owner;
+    private JPAGroup owner;
 
     @ManyToOne
     @JoinColumn(name = "schema_name")
@@ -64,14 +64,14 @@ public class JPAMPlainAttrTemplate extends AbstractPlainAttrTemplate<MPlainSchem
     }
 
     @Override
-    public JPARole getOwner() {
+    public JPAGroup getOwner() {
         return owner;
     }
 
     @Override
-    public void setOwner(final Role owner) {
-        checkType(owner, JPARole.class);
-        this.owner = (JPARole) owner;
+    public void setOwner(final Group owner) {
+        checkType(owner, JPAGroup.class);
+        this.owner = (JPAGroup) owner;
     }
 
 }

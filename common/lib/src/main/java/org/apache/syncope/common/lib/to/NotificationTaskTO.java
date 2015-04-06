@@ -91,7 +91,7 @@ public class NotificationTaskTO extends AbstractTaskTO {
         return executed;
     }
 
-    public void setExecuted(boolean executed) {
+    public void setExecuted(final boolean executed) {
         this.executed = executed;
     }
 

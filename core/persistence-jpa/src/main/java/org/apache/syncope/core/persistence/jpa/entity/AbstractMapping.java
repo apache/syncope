@@ -58,7 +58,7 @@ public abstract class AbstractMapping<T extends MappingItem> extends AbstractEnt
 
     protected boolean addAccountIdItem(final T accountIdItem) {
         if (IntMappingType.UserVirtualSchema == accountIdItem.getIntMappingType()
-                || IntMappingType.RoleVirtualSchema == accountIdItem.getIntMappingType()
+                || IntMappingType.GroupVirtualSchema == accountIdItem.getIntMappingType()
                 || IntMappingType.MembershipVirtualSchema == accountIdItem.getIntMappingType()
                 || IntMappingType.Password == accountIdItem.getIntMappingType()) {
 

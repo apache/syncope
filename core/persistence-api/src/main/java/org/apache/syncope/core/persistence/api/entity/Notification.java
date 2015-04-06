@@ -36,7 +36,7 @@ public interface Notification extends Entity<Long> {
 
     String getRecipients();
 
-    String getRoleAbout();
+    String getGroupAbout();
 
     String getSender();
 
@@ -66,7 +66,7 @@ public interface Notification extends Entity<Long> {
 
     void setRecipients(String recipients);
 
-    void setRoleAbout(String roleAbout);
+    void setGroupAbout(String groupAbout);
 
     void setSelfAsRecipient(boolean selfAsRecipient);
 

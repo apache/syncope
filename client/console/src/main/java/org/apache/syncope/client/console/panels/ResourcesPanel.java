@@ -25,8 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.commons.RoleTreeBuilder;
-import org.apache.syncope.client.console.commons.RoleUtils;
+import org.apache.syncope.client.console.commons.GroupTreeBuilder;
 import org.apache.syncope.client.console.commons.SelectChoiceRenderer;
 import org.apache.syncope.client.console.commons.status.StatusUtils;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
@@ -35,7 +34,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.NonI18nPalette;
 import org.apache.syncope.common.lib.to.AbstractSubjectTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
-import org.apache.syncope.common.lib.to.RoleTO;
+import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
@@ -56,7 +55,7 @@ public class ResourcesPanel extends Panel {
     private ResourceRestClient resourceRestClient;
 
     @SpringBean
-    private RoleTreeBuilder roleTreeBuilder;
+    private GroupTreeBuilder groupTreeBuilder;
 
     private final AbstractSubjectTO subjectTO;
 
@@ -109,7 +108,7 @@ public class ResourcesPanel extends Panel {
             resourcesPalette = new AjaxRecordingPalettePanel<>("resourcesPalette",
                     new PropertyModel<List<String>>(subjectTO, "resources"),
                     new ListModel<>(allResources), builder.statusPanel);
-        } else if (subjectTO instanceof RoleTO) {
+        } else if (subjectTO instanceof GroupTO) {
             resourcesPalette = new AjaxPalettePanel<>("resourcesPalette",
                     new PropertyModel<List<String>>(subjectTO, "resources"), new ListModel<>(allResources));
         }
@@ -149,14 +148,14 @@ public class ResourcesPanel extends Panel {
                             if (subjectTO instanceof UserTO) {
                                 UserTO userTO = (UserTO) subjectTO;
 
-                                Set<String> resourcesToRemove = new HashSet<String>(previousResources);
+                                Set<String> resourcesToRemove = new HashSet<>(previousResources);
                                 resourcesToRemove.removeAll(userTO.getResources());
                                 if (!resourcesToRemove.isEmpty()) {
-                                    Set<String> resourcesAssignedViaMembership = new HashSet<String>();
+                                    Set<String> resourcesAssignedViaMembership = new HashSet<>();
                                     for (MembershipTO membTO : userTO.getMemberships()) {
-                                        RoleTO roleTO = RoleUtils.findRole(roleTreeBuilder, membTO.getRoleId());
-                                        if (roleTO != null) {
-                                            resourcesAssignedViaMembership.addAll(roleTO.getResources());
+                                        GroupTO groupTO = groupTreeBuilder.findGroup(membTO.getGroupId());
+                                        if (groupTO != null) {
+                                            resourcesAssignedViaMembership.addAll(groupTO.getResources());
                                         }
                                     }
                                     resourcesToRemove.removeAll(resourcesAssignedViaMembership);

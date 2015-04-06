@@ -39,7 +39,7 @@ import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
-import org.apache.syncope.common.lib.to.RoleTO;
+import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.TaskExecTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.AttributableType;
@@ -94,8 +94,8 @@ public class PushTaskITCase extends AbstractTaskITCase {
         task.setResource(RESOURCE_NAME_WS2);
         task.setUserFilter(
                 SyncopeClient.getUserSearchConditionBuilder().hasNotResources(RESOURCE_NAME_TESTDB2).query());
-        task.setRoleFilter(
-                SyncopeClient.getRoleSearchConditionBuilder().isNotNull("cool").query());
+        task.setGroupFilter(
+                SyncopeClient.getGroupSearchConditionBuilder().isNotNull("cool").query());
         task.setMatchingRule(MatchingRule.LINK);
 
         final Response response = taskService.create(task);
@@ -107,24 +107,24 @@ public class PushTaskITCase extends AbstractTaskITCase {
         assertEquals(task.getKey(), actual.getKey());
         assertEquals(task.getJobClassName(), actual.getJobClassName());
         assertEquals(task.getUserFilter(), actual.getUserFilter());
-        assertEquals(task.getRoleFilter(), actual.getRoleFilter());
+        assertEquals(task.getGroupFilter(), actual.getGroupFilter());
         assertEquals(UnmatchingRule.ASSIGN, actual.getUnmatchingRule());
         assertEquals(MatchingRule.LINK, actual.getMatchingRule());
     }
 
     @Test
-    public void pushMatchingUnmatchingRoles() {
-        assertFalse(roleService.read(3L).getResources().contains(RESOURCE_NAME_LDAP));
+    public void pushMatchingUnmatchingGroups() {
+        assertFalse(groupService.read(3L).getResources().contains(RESOURCE_NAME_LDAP));
 
         execSyncTask(23L, 50, false);
 
-        assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.ROLE, 3L));
-        assertTrue(roleService.read(3L).getResources().contains(RESOURCE_NAME_LDAP));
+        assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.GROUP, 3L));
+        assertTrue(groupService.read(3L).getResources().contains(RESOURCE_NAME_LDAP));
 
         execSyncTask(23L, 50, false);
 
-        assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.ROLE, 3L));
-        assertFalse(roleService.read(3L).getResources().contains(RESOURCE_NAME_LDAP));
+        assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.GROUP, 3L));
+        assertFalse(groupService.read(3L).getResources().contains(RESOURCE_NAME_LDAP));
     }
 
     @Test
@@ -247,27 +247,27 @@ public class PushTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void issueSYNCOPE598() {
-        // create a new role schema
+        // create a new group schema
         final PlainSchemaTO schemaTO = new PlainSchemaTO();
         schemaTO.setKey("LDAPGroupName" + getUUIDString());
         schemaTO.setType(AttrSchemaType.String);
         schemaTO.setMandatoryCondition("true");
 
-        final PlainSchemaTO newPlainSchemaTO = createSchema(AttributableType.ROLE, SchemaType.PLAIN, schemaTO);
+        final PlainSchemaTO newPlainSchemaTO = createSchema(AttributableType.GROUP, SchemaType.PLAIN, schemaTO);
         assertEquals(schemaTO, newPlainSchemaTO);
 
-        // create a new sample role
-        RoleTO roleTO = new RoleTO();
-        roleTO.setName("all" + getUUIDString());
-        roleTO.setParent(8L);
+        // create a new sample group
+        GroupTO groupTO = new GroupTO();
+        groupTO.setName("all" + getUUIDString());
+        groupTO.setParent(8L);
 
-        roleTO.getRPlainAttrTemplates().add(newPlainSchemaTO.getKey());
-        roleTO.getPlainAttrs().add(attrTO(newPlainSchemaTO.getKey(), "all"));
+        groupTO.getGPlainAttrTemplates().add(newPlainSchemaTO.getKey());
+        groupTO.getPlainAttrs().add(attrTO(newPlainSchemaTO.getKey(), "all"));
 
-        roleTO = createRole(roleTO);
-        assertNotNull(roleTO);
+        groupTO = createGroup(groupTO);
+        assertNotNull(groupTO);
 
-        String resourceName = "resource-ldap-roleonly";
+        String resourceName = "resource-ldap-grouponly";
         ResourceTO newResourceTO = null;
 
         try {
@@ -311,7 +311,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
             final MappingTO rmapping = new MappingTO();
 
             item = new MappingItemTO();
-            item.setIntMappingType(IntMappingType.RolePlainSchema);
+            item.setIntMappingType(IntMappingType.GroupPlainSchema);
             item.setExtAttrName("cn");
             item.setIntAttrName(newPlainSchemaTO.getKey());
             item.setAccountid(true);
@@ -320,14 +320,14 @@ public class PushTaskITCase extends AbstractTaskITCase {
 
             rmapping.setAccountLink("'cn=' + " + newPlainSchemaTO.getKey() + " + ',ou=groups,o=isp'");
 
-            resourceTO.setRmapping(rmapping);
+            resourceTO.setGmapping(rmapping);
 
             Response response = resourceService.create(resourceTO);
             newResourceTO = getObject(response.getLocation(), ResourceService.class, ResourceTO.class);
 
             assertNotNull(newResourceTO);
             assertNull(newResourceTO.getUmapping());
-            assertNotNull(newResourceTO.getRmapping());
+            assertNotNull(newResourceTO.getGmapping());
 
             // create push task ad-hoc
             final PushTaskTO task = new PushTaskTO();
@@ -348,7 +348,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
             final TaskExecTO pushExec = execSyncTask(push.getKey(), 50, false);
             assertTrue(PropagationTaskExecStatus.valueOf(pushExec.getStatus()).isSuccessful());
         } finally {
-            roleService.delete(roleTO.getKey());
+            groupService.delete(groupTO.getKey());
             if (newResourceTO != null) {
                 resourceService.delete(resourceName);
             }
@@ -363,8 +363,8 @@ public class PushTaskITCase extends AbstractTaskITCase {
         task.setResource(RESOURCE_NAME_LDAP);
         task.setUserFilter(
                 SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("_NO_ONE_").query());
-        task.setRoleFilter(
-                SyncopeClient.getRoleSearchConditionBuilder().is("name").equalTo("citizen").query());
+        task.setGroupFilter(
+                SyncopeClient.getGroupSearchConditionBuilder().is("name").equalTo("citizen").query());
         task.setMatchingRule(MatchingRule.IGNORE);
         task.setUnmatchingRule(UnmatchingRule.IGNORE);
 
@@ -375,8 +375,8 @@ public class PushTaskITCase extends AbstractTaskITCase {
         // 2. Create notification
         NotificationTO notification = new NotificationTO();
         notification.setTraceLevel(TraceLevel.FAILURES);
-        notification.getEvents().add("[PushTask]:[role]:[resource-ldap]:[matchingrule_ignore]:[SUCCESS]");
-        notification.getEvents().add("[PushTask]:[role]:[resource-ldap]:[unmatchingrule_ignore]:[SUCCESS]");
+        notification.getEvents().add("[PushTask]:[group]:[resource-ldap]:[matchingrule_ignore]:[SUCCESS]");
+        notification.getEvents().add("[PushTask]:[group]:[resource-ldap]:[unmatchingrule_ignore]:[SUCCESS]");
 
         notification.getStaticRecipients().add("issueyncope648@syncope.apache.org");
         notification.setSelfAsRecipient(false);

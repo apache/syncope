@@ -27,23 +27,23 @@ public class MembershipTO extends AbstractAttributableTO {
 
     private static final long serialVersionUID = 5992828670273935861L;
 
-    private long roleId;
+    private long groupId;
 
-    private String roleName;
+    private String groupName;
 
-    public long getRoleId() {
-        return roleId;
+    public long getGroupId() {
+        return groupId;
     }
 
-    public void setRoleId(final long roleId) {
-        this.roleId = roleId;
+    public void setGroupId(final long groupId) {
+        this.groupId = groupId;
     }
 
-    public String getRoleName() {
-        return roleName;
+    public String getGroupName() {
+        return groupName;
     }
 
-    public void setRoleName(final String roleName) {
-        this.roleName = roleName;
+    public void setGroupName(final String groupName) {
+        this.groupName = groupName;
     }
 }

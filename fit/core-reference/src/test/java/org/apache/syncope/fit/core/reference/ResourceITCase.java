@@ -182,13 +182,13 @@ public class ResourceITCase extends AbstractITCase {
         MappingTO rmapping = new MappingTO();
 
         item = new MappingItemTO();
-        item.setIntMappingType(IntMappingType.RoleId);
-        item.setExtAttrName("roleId");
+        item.setIntMappingType(IntMappingType.GroupId);
+        item.setExtAttrName("groupId");
         item.setAccountid(true);
         item.setPurpose(MappingPurpose.SYNCHRONIZATION);
         rmapping.setAccountIdItem(item);
 
-        resourceTO.setRmapping(rmapping);
+        resourceTO.setGmapping(rmapping);
 
         Response response = resourceService.create(resourceTO);
         ResourceTO actual = getObject(response.getLocation(), ResourceService.class, ResourceTO.class);
@@ -196,9 +196,9 @@ public class ResourceITCase extends AbstractITCase {
         assertNotNull(actual);
         assertNotNull(actual.getUmapping());
         assertNotNull(actual.getUmapping().getItems());
-        assertNotNull(actual.getRmapping());
-        assertNotNull(actual.getRmapping().getItems());
-        assertEquals(MappingPurpose.SYNCHRONIZATION, actual.getRmapping().getAccountIdItem().getPurpose());
+        assertNotNull(actual.getGmapping());
+        assertNotNull(actual.getGmapping().getItems());
+        assertEquals(MappingPurpose.SYNCHRONIZATION, actual.getGmapping().getAccountIdItem().getPurpose());
         assertEquals(MappingPurpose.PROPAGATION, actual.getUmapping().getAccountIdItem().getPurpose());
     }
 
@@ -489,22 +489,22 @@ public class ResourceITCase extends AbstractITCase {
         MappingTO mapping = new MappingTO();
 
         MappingItemTO item = new MappingItemTO();
-        item.setIntMappingType(IntMappingType.RoleName);
+        item.setIntMappingType(IntMappingType.GroupName);
         item.setExtAttrName("cn");
         item.setPurpose(MappingPurpose.BOTH);
         mapping.setAccountIdItem(item);
 
         item = new MappingItemTO();
-        item.setIntMappingType(IntMappingType.RoleOwnerSchema);
+        item.setIntMappingType(IntMappingType.GroupOwnerSchema);
         item.setExtAttrName("owner");
         item.setPurpose(MappingPurpose.BOTH);
         mapping.addItem(item);
 
-        resourceTO.setRmapping(mapping);
+        resourceTO.setGmapping(mapping);
 
         resourceTO = createResource(resourceTO);
         assertNotNull(resourceTO);
-        assertEquals(2, resourceTO.getRmapping().getItems().size());
+        assertEquals(2, resourceTO.getGmapping().getItems().size());
     }
 
     @Test

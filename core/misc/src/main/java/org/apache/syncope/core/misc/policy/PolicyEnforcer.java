@@ -18,13 +18,10 @@
  */
 package org.apache.syncope.core.misc.policy;
 
-import java.io.InvalidObjectException;
-
 import org.apache.syncope.common.lib.types.PolicySpec;
 import org.apache.syncope.common.lib.types.PolicyType;
 
 public interface PolicyEnforcer<T extends PolicySpec, E> {
 
-    void enforce(final T policy, final PolicyType type, final E object)
-            throws InvalidObjectException, PolicyException;
+    void enforce(final T policy, final PolicyType type, final E object);
 }

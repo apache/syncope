@@ -120,7 +120,7 @@ public class InvalidEntityException extends ValidationException {
         StringBuilder sb = new StringBuilder();
 
         for (Class<?> entity : violations.keySet()) {
-            sb.append(entity.getSimpleName()).append(" ").append(violations.get(entity).toString()).append(", ");
+            sb.append(entity.getSimpleName()).append(' ').append(violations.get(entity).toString()).append(", ");
         }
         sb.delete(sb.lastIndexOf(", "), sb.length());
 

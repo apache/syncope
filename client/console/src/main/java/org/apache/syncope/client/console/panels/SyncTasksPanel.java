@@ -21,7 +21,7 @@ package org.apache.syncope.client.console.panels;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.pages.RoleTemplateModalPage;
+import org.apache.syncope.client.console.pages.GroupTemplateModalPage;
 import org.apache.syncope.client.console.pages.SyncTaskModalPage;
 import org.apache.syncope.client.console.pages.UserTemplateModalPage;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
@@ -70,8 +70,7 @@ public class SyncTasksPanel extends AbstractProvisioningTasksPanel<SyncTaskTO> {
         syncTaskscolumns.add(new PropertyColumn<AbstractTaskTO, String>(
                 new StringResourceModel("latestExecStatus", this, null), "latestExecStatus", "latestExecStatus"));
 
-        syncTaskscolumns.add(
-                new ActionColumn<AbstractTaskTO, String>(new StringResourceModel("actions", this, null, "")) {
+        syncTaskscolumns.add(new ActionColumn<AbstractTaskTO, String>(new StringResourceModel("actions", this, null, "")) {
 
                     private static final long serialVersionUID = 2054811145491901166L;
 
@@ -137,13 +136,13 @@ public class SyncTasksPanel extends AbstractProvisioningTasksPanel<SyncTaskTO> {
 
                                     @Override
                                     public Page createPage() {
-                                        return new RoleTemplateModalPage(pageRef, window, taskTO);
+                                        return new GroupTemplateModalPage(pageRef, window, taskTO);
                                     }
                                 });
 
                                 window.show(target);
                             }
-                        }, ActionLink.ActionType.ROLE_TEMPLATE, TASKS);
+                        }, ActionLink.ActionType.GROUP_TEMPLATE, TASKS);
 
                         panel.add(new ActionLink() {
 

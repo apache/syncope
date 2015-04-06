@@ -32,13 +32,13 @@ import org.apache.syncope.core.persistence.api.entity.AttributableUtil;
 import org.apache.syncope.core.persistence.api.entity.DerAttr;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.membership.MDerSchema;
-import org.apache.syncope.core.persistence.api.entity.role.RDerSchema;
+import org.apache.syncope.core.persistence.api.entity.group.GDerSchema;
 import org.apache.syncope.core.persistence.api.entity.user.UDerAttr;
 import org.apache.syncope.core.persistence.api.entity.user.UDerSchema;
 import org.apache.syncope.core.persistence.api.entity.user.UMappingItem;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractDerSchema;
 import org.apache.syncope.core.persistence.jpa.entity.membership.JPAMDerSchema;
-import org.apache.syncope.core.persistence.jpa.entity.role.JPARDerSchema;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGDerSchema;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUDerSchema;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -56,8 +56,8 @@ public class JPADerSchemaDAO extends AbstractDAO<DerSchema, String> implements D
     private ExternalResourceDAO resourceDAO;
 
     private <T extends DerSchema> Class<? extends AbstractDerSchema> getJPAEntityReference(final Class<T> reference) {
-        return RDerSchema.class.isAssignableFrom(reference)
-                ? JPARDerSchema.class
+        return GDerSchema.class.isAssignableFrom(reference)
+                ? JPAGDerSchema.class
                 : MDerSchema.class.isAssignableFrom(reference)
                         ? JPAMDerSchema.class
                         : UDerSchema.class.isAssignableFrom(reference)

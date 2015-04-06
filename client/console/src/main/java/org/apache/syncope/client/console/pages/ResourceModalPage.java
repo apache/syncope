@@ -76,7 +76,7 @@ public class ResourceModalPage extends BaseModalPage {
         // Resource mapping panels
         //--------------------------------
         form.add(new ResourceMappingPanel("umapping", resourceTO, AttributableType.USER));
-        form.add(new ResourceMappingPanel("rmapping", resourceTO, AttributableType.ROLE));
+        form.add(new ResourceMappingPanel("gmapping", resourceTO, AttributableType.GROUP));
         //--------------------------------
 
         //--------------------------------
@@ -116,11 +116,11 @@ public class ResourceModalPage extends BaseModalPage {
                     accountIdError = uAccountIdCount != 1;
                 }
 
-                if (resourceTO.getRmapping() == null || resourceTO.getRmapping().getItems().isEmpty()) {
-                    resourceTO.setRmapping(null);
+                if (resourceTO.getGmapping() == null || resourceTO.getGmapping().getItems().isEmpty()) {
+                    resourceTO.setGmapping(null);
                 } else {
                     int rAccountIdCount = 0;
-                    for (MappingItemTO item : resourceTO.getRmapping().getItems()) {
+                    for (MappingItemTO item : resourceTO.getGmapping().getItems()) {
                         if (item.isAccountid()) {
                             rAccountIdCount++;
                         }

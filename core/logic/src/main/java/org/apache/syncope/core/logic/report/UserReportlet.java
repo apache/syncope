@@ -32,7 +32,7 @@ import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.SubjectType;
-import org.apache.syncope.core.persistence.api.RoleEntitlementUtil;
+import org.apache.syncope.core.persistence.api.GroupEntitlementUtil;
 import org.apache.syncope.core.persistence.api.dao.EntitlementDAO;
 import org.apache.syncope.core.persistence.api.dao.SubjectSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -41,7 +41,7 @@ import org.apache.syncope.core.persistence.api.entity.membership.Membership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.misc.search.SearchCondConverter;
 import org.apache.syncope.core.misc.DataFormat;
-import org.apache.syncope.core.provisioning.api.data.RoleDataBinder;
+import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.xml.sax.ContentHandler;
@@ -66,16 +66,16 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
     private UserDataBinder userDataBinder;
 
     @Autowired
-    private RoleDataBinder roleDataBinder;
+    private GroupDataBinder groupDataBinder;
 
     private List<User> getPagedUsers(final int page) {
-        final Set<Long> adminRoleIds = RoleEntitlementUtil.getRoleKeys(entitlementDAO.findAll());
+        final Set<Long> adminGroupIds = GroupEntitlementUtil.getGroupKeys(entitlementDAO.findAll());
 
         final List<User> result;
         if (StringUtils.isBlank(conf.getMatchingCond())) {
-            result = userDAO.findAll(adminRoleIds, page, PAGE_SIZE);
+            result = userDAO.findAll(adminGroupIds, page, PAGE_SIZE);
         } else {
-            result = searchDAO.search(adminRoleIds, SearchCondConverter.convert(conf.getMatchingCond()),
+            result = searchDAO.search(adminGroupIds, SearchCondConverter.convert(conf.getMatchingCond()),
                     page, PAGE_SIZE, Collections.<OrderByClause>emptyList(), SubjectType.USER);
         }
 
@@ -83,11 +83,11 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
     }
 
     private int count() {
-        Set<Long> adminRoleIds = RoleEntitlementUtil.getRoleKeys(entitlementDAO.findAll());
+        Set<Long> adminGroupIds = GroupEntitlementUtil.getGroupKeys(entitlementDAO.findAll());
 
         return StringUtils.isBlank(conf.getMatchingCond())
-                ? userDAO.count(adminRoleIds)
-                : searchDAO.count(adminRoleIds, SearchCondConverter.convert(conf.getMatchingCond()), SubjectType.USER);
+                ? userDAO.count(adminGroupIds)
+                : searchDAO.count(adminGroupIds, SearchCondConverter.convert(conf.getMatchingCond()), SubjectType.USER);
     }
 
     private void doExtractResources(final ContentHandler handler, final AbstractSubjectTO subjectTO)
@@ -280,20 +280,20 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
                     atts.clear();
 
                     atts.addAttribute("", "", "id", ReportXMLConst.XSD_LONG, String.valueOf(memb.getKey()));
-                    atts.addAttribute("", "", "roleId", ReportXMLConst.XSD_LONG, String.valueOf(memb.getRoleId()));
-                    atts.addAttribute("", "", "roleName", ReportXMLConst.XSD_STRING, String.valueOf(memb.getRoleName()));
+                    atts.addAttribute("", "", "groupId", ReportXMLConst.XSD_LONG, String.valueOf(memb.getGroupId()));
+                    atts.addAttribute("", "", "groupName", ReportXMLConst.XSD_STRING, String.valueOf(memb.getGroupName()));
                     handler.startElement("", "", "membership", atts);
 
                     doExtractAttributes(handler, memb, memb.getPlainAttrMap().keySet(), memb.getDerAttrMap()
                             .keySet(), memb.getVirAttrMap().keySet());
 
                     if (conf.getFeatures().contains(Feature.resources)) {
-                        Membership actualMemb = user.getMembership(memb.getRoleId());
+                        Membership actualMemb = user.getMembership(memb.getGroupId());
                         if (actualMemb == null) {
-                            LOG.warn("Unexpected: cannot find membership for role {} for user {}", memb.getRoleId(),
+                            LOG.warn("Unexpected: cannot find membership for group {} for user {}", memb.getGroupId(),
                                     user);
                         } else {
-                            doExtractResources(handler, roleDataBinder.getRoleTO(actualMemb.getRole()));
+                            doExtractResources(handler, groupDataBinder.getGroupTO(actualMemb.getGroup()));
                         }
                     }
 

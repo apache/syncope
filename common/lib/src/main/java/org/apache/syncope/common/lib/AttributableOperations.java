@@ -32,13 +32,13 @@ import org.apache.syncope.common.lib.mod.AbstractSubjectMod;
 import org.apache.syncope.common.lib.mod.AttrMod;
 import org.apache.syncope.common.lib.mod.MembershipMod;
 import org.apache.syncope.common.lib.mod.ReferenceMod;
-import org.apache.syncope.common.lib.mod.RoleMod;
+import org.apache.syncope.common.lib.mod.GroupMod;
 import org.apache.syncope.common.lib.mod.UserMod;
 import org.apache.syncope.common.lib.to.AbstractAttributableTO;
 import org.apache.syncope.common.lib.to.AbstractSubjectTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
-import org.apache.syncope.common.lib.to.RoleTO;
+import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 
 /**
@@ -67,16 +67,16 @@ public final class AttributableOperations {
             AttrMod mod = new AttrMod();
             mod.setSchema(entry.getKey());
 
-            Set<String> updatedValues = new HashSet<String>(entry.getValue().getValues());
+            Set<String> updatedValues = new HashSet<>(entry.getValue().getValues());
 
             Set<String> originalValues = originalAttrs.containsKey(entry.getKey())
-                    ? new HashSet<String>(originalAttrs.get(entry.getKey()).getValues())
+                    ? new HashSet<>(originalAttrs.get(entry.getKey()).getValues())
                     : Collections.<String>emptySet();
 
             if (!originalAttrs.containsKey(entry.getKey())) {
                 // SYNCOPE-459: take care of user virtual attributes without any value
                 updatedValues.remove("");
-                mod.getValuesToBeAdded().addAll(new ArrayList<String>(updatedValues));
+                mod.getValuesToBeAdded().addAll(new ArrayList<>(updatedValues));
 
                 if (virtuals) {
                     result.getVirAttrsToUpdate().add(mod);
@@ -253,12 +253,12 @@ public final class AttributableOperations {
 
         for (Map.Entry<Long, MembershipTO> entry : updatedMembs.entrySet()) {
             MembershipMod membMod = new MembershipMod();
-            membMod.setRole(entry.getValue().getRoleId());
+            membMod.setGroup(entry.getValue().getGroupId());
 
             if (originalMembs.containsKey(entry.getKey())) {
                 // if memberships are actually same, just make the isEmpty() call below succeed
                 if (entry.getValue().equals(originalMembs.get(entry.getKey()))) {
-                    membMod.setRole(0);
+                    membMod.setGroup(0);
                 } else {
                     diff(entry.getValue(), originalMembs.get(entry.getKey()), membMod, false);
                 }
@@ -294,10 +294,10 @@ public final class AttributableOperations {
         }
 
         if (!incremental) {
-            Set<Long> originalRoles = new HashSet<>(originalMembs.keySet());
-            originalRoles.removeAll(updatedMembs.keySet());
-            for (Long roleId : originalRoles) {
-                result.getMembershipsToRemove().add(originalMembs.get(roleId).getKey());
+            Set<Long> originalGroups = new HashSet<>(originalMembs.keySet());
+            originalGroups.removeAll(updatedMembs.keySet());
+            for (Long groupId : originalGroups) {
+                result.getMembershipsToRemove().add(originalMembs.get(groupId).getKey());
             }
         }
 
@@ -307,24 +307,24 @@ public final class AttributableOperations {
     /**
      * Calculate modifications needed by first in order to be equal to second.
      *
-     * @param updated updated RoleTO
-     * @param original original RoleTO
-     * @return RoleMod containing differences
+     * @param updated updated GroupTO
+     * @param original original GroupTO
+     * @return GroupMod containing differences
      */
-    public static RoleMod diff(final RoleTO updated, final RoleTO original) {
+    public static GroupMod diff(final GroupTO updated, final GroupTO original) {
         return diff(updated, original, false);
     }
 
     /**
      * Calculate modifications needed by first in order to be equal to second.
      *
-     * @param updated updated RoleTO
-     * @param original original RoleTO
+     * @param updated updated GroupTO
+     * @param original original GroupTO
      * @param incremental perform incremental diff (without removing existing info)
-     * @return RoleMod containing differences
+     * @return GroupMod containing differences
      */
-    public static RoleMod diff(final RoleTO updated, final RoleTO original, final boolean incremental) {
-        RoleMod result = new RoleMod();
+    public static GroupMod diff(final GroupTO updated, final GroupTO original, final boolean incremental) {
+        GroupMod result = new GroupMod();
 
         diff(updated, original, result, incremental);
 
@@ -358,32 +358,32 @@ public final class AttributableOperations {
         }
 
         // 5. templates
-        Set<String> updatedTemplates = new HashSet<>(updated.getRPlainAttrTemplates());
-        Set<String> originalTemplates = new HashSet<>(original.getRPlainAttrTemplates());
+        Set<String> updatedTemplates = new HashSet<>(updated.getGPlainAttrTemplates());
+        Set<String> originalTemplates = new HashSet<>(original.getGPlainAttrTemplates());
         if (updatedTemplates.equals(originalTemplates)) {
             result.setModRAttrTemplates(false);
             result.getRPlainAttrTemplates().clear();
         } else {
             result.setModRAttrTemplates(true);
-            result.getRPlainAttrTemplates().addAll(updated.getRPlainAttrTemplates());
+            result.getRPlainAttrTemplates().addAll(updated.getGPlainAttrTemplates());
         }
-        updatedTemplates = new HashSet<>(updated.getRDerAttrTemplates());
-        originalTemplates = new HashSet<>(original.getRDerAttrTemplates());
+        updatedTemplates = new HashSet<>(updated.getGDerAttrTemplates());
+        originalTemplates = new HashSet<>(original.getGDerAttrTemplates());
         if (updatedTemplates.equals(originalTemplates)) {
             result.setModRDerAttrTemplates(false);
             result.getRDerAttrTemplates().clear();
         } else {
             result.setModRDerAttrTemplates(true);
-            result.getRDerAttrTemplates().addAll(updated.getRDerAttrTemplates());
+            result.getRDerAttrTemplates().addAll(updated.getGDerAttrTemplates());
         }
-        updatedTemplates = new HashSet<>(updated.getRVirAttrTemplates());
-        originalTemplates = new HashSet<>(original.getRVirAttrTemplates());
+        updatedTemplates = new HashSet<>(updated.getGVirAttrTemplates());
+        originalTemplates = new HashSet<>(original.getGVirAttrTemplates());
         if (updatedTemplates.equals(originalTemplates)) {
             result.setModRVirAttrTemplates(false);
             result.getRVirAttrTemplates().clear();
         } else {
             result.setModRVirAttrTemplates(true);
-            result.getRVirAttrTemplates().addAll(updated.getRVirAttrTemplates());
+            result.getRVirAttrTemplates().addAll(updated.getGVirAttrTemplates());
         }
         updatedTemplates = new HashSet<>(updated.getMPlainAttrTemplates());
         originalTemplates = new HashSet<>(original.getMPlainAttrTemplates());
@@ -415,7 +415,7 @@ public final class AttributableOperations {
 
         // 6. owner
         result.setUserOwner(new ReferenceMod(updated.getUserOwner()));
-        result.setRoleOwner(new ReferenceMod(updated.getRoleOwner()));
+        result.setGroupOwner(new ReferenceMod(updated.getGroupOwner()));
 
         return result;
     }
@@ -498,7 +498,7 @@ public final class AttributableOperations {
         }
         for (MembershipMod membMod : userMod.getMembershipsToAdd()) {
             MembershipTO membTO = new MembershipTO();
-            membTO.setRoleId(membMod.getRole());
+            membTO.setGroupId(membMod.getGroup());
 
             apply(membTO, membMod, membTO);
         }

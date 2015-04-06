@@ -88,7 +88,7 @@ under the License.
 
       <subsection name="JPA persistence layer">
         <p>
-          All data in Apache Syncope (users, roles, attributes, resources, ...) is managed at a high level using a 
+          All data in Apache Syncope (users, groups, attributes, resources, ...) is managed at a high level using a 
           standard JPA 2.0 approach and persisted to an underlying database.
         </p>
         <p>

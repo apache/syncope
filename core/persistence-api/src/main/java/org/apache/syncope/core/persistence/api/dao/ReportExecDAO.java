@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.List;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
 
@@ -33,7 +32,7 @@ public interface ReportExecDAO extends DAO<ReportExec, Long> {
 
     List<ReportExec> findAll();
 
-    ReportExec save(ReportExec execution) throws InvalidEntityException;
+    ReportExec save(ReportExec execution);
 
     void delete(Long key);
 

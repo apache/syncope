@@ -35,7 +35,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 
 /**
- * Show user or role status after performing a successful operation.
+ * Show user or group status after performing a successful operation.
  */
 public class BulkActionResultModalPage<T, S> extends BaseModalPage {
 

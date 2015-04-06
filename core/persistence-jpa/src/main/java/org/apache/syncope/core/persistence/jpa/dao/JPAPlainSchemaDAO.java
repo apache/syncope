@@ -34,15 +34,15 @@ import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.conf.CPlainSchema;
 import org.apache.syncope.core.persistence.api.entity.membership.MPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.membership.MPlainSchema;
-import org.apache.syncope.core.persistence.api.entity.role.RMappingItem;
-import org.apache.syncope.core.persistence.api.entity.role.RPlainAttr;
-import org.apache.syncope.core.persistence.api.entity.role.RPlainSchema;
+import org.apache.syncope.core.persistence.api.entity.group.GMappingItem;
+import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
+import org.apache.syncope.core.persistence.api.entity.group.GPlainSchema;
 import org.apache.syncope.core.persistence.api.entity.user.UMappingItem;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainSchema;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractPlainSchema;
 import org.apache.syncope.core.persistence.jpa.entity.conf.JPACPlainSchema;
 import org.apache.syncope.core.persistence.jpa.entity.membership.JPAMPlainSchema;
-import org.apache.syncope.core.persistence.jpa.entity.role.JPARPlainSchema;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainSchema;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUPlainSchema;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -64,8 +64,8 @@ public class JPAPlainSchemaDAO extends AbstractDAO<PlainSchema, String> implemen
 
         return CPlainSchema.class.isAssignableFrom(reference)
                 ? JPACPlainSchema.class
-                : RPlainSchema.class.isAssignableFrom(reference)
-                        ? JPARPlainSchema.class
+                : GPlainSchema.class.isAssignableFrom(reference)
+                        ? JPAGPlainSchema.class
                         : MPlainSchema.class.isAssignableFrom(reference)
                                 ? JPAMPlainSchema.class
                                 : UPlainSchema.class.isAssignableFrom(reference)
@@ -90,7 +90,7 @@ public class JPAPlainSchemaDAO extends AbstractDAO<PlainSchema, String> implemen
         final StringBuilder queryString = new StringBuilder("SELECT e FROM ").
                 append(((JPAPlainAttrDAO) attrDAO).getJPAEntityReference(reference).getSimpleName()).
                 append(" e WHERE e.");
-        if (RPlainAttr.class.isAssignableFrom(reference) || MPlainAttr.class.isAssignableFrom(reference)) {
+        if (GPlainAttr.class.isAssignableFrom(reference) || MPlainAttr.class.isAssignableFrom(reference)) {
             queryString.append("template.");
         }
         queryString.append("schema=:schema");
@@ -122,7 +122,7 @@ public class JPAPlainSchemaDAO extends AbstractDAO<PlainSchema, String> implemen
             attrDAO.delete(attrId, attributableUtil.plainAttrClass());
         }
 
-        if (attributableUtil.getType() == AttributableType.ROLE
+        if (attributableUtil.getType() == AttributableType.GROUP
                 || attributableUtil.getType() == AttributableType.MEMBERSHIP) {
 
             for (Iterator<Number> it = attrTemplateDAO.
@@ -134,7 +134,7 @@ public class JPAPlainSchemaDAO extends AbstractDAO<PlainSchema, String> implemen
         }
 
         resourceDAO.deleteMapping(key, attributableUtil.plainIntMappingType(), UMappingItem.class);
-        resourceDAO.deleteMapping(key, attributableUtil.plainIntMappingType(), RMappingItem.class);
+        resourceDAO.deleteMapping(key, attributableUtil.plainIntMappingType(), GMappingItem.class);
 
         entityManager.remove(schema);
     }

@@ -157,7 +157,7 @@ under the License.
         <includes>
           <include>provisioning.properties</include>
           <include>userRoutes.xml</include>
-          <include>roleRoutes.xml</include>
+          <include>groupRoutes.xml</include>
         </includes>
         <targetPath>${project.build.directory}/etc</targetPath>
         <filtering>true</filtering>

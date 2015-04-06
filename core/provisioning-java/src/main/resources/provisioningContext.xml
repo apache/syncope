@@ -32,7 +32,7 @@ under the License.
   <task:executor id="connectorExecutor" pool-size="10"/>
   
   <bean class="${userProvisioningManager}"/>
-  <bean class="${roleProvisioningManager}"/>
+  <bean class="${groupProvisioningManager}"/>
 
   <bean id="scheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean"
         lazy-init="false" depends-on="nonJPAdbInitializer">
