@@ -29,7 +29,7 @@ public class WorkflowTasks {
     private List<String> tasks;
 
     public WorkflowTasks() {
-        this.tasks = new ArrayList<String>();
+        this.tasks = new ArrayList<>();
     }
 
     public WorkflowTasks(final Collection<String> tasks) {

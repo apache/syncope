@@ -664,9 +664,7 @@ abstract class AbstractAttributableDataBinder {
         }
 
         // 3. user and group virtual attributes will be evaluated by the propagation manager only (if needed).
-        if (AttributableType.USER == attrUtil.getType()
-                || AttributableType.GROUP == attrUtil.getType()) {
-
+        if (AttributableType.USER == attrUtil.getType() || AttributableType.GROUP == attrUtil.getType()) {
             for (AttrTO vattrTO : attributableTO.getVirAttrs()) {
                 VirSchema virSchema = virtAttrHander.getVirSchema(vattrTO.getSchema(), attrUtil.virSchemaClass());
 
