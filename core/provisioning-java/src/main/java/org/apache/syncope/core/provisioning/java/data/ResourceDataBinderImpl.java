@@ -211,7 +211,6 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
 
             SyncopeClientException invalidMandatoryCondition = SyncopeClientException.build(
                     ClientExceptionType.InvalidValues);
-
             invalidMandatoryCondition.getElements().add(itemTO.getMandatoryCondition());
 
             scce.addException(invalidMandatoryCondition);

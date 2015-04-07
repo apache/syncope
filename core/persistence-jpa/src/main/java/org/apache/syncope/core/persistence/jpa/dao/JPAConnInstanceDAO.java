@@ -18,10 +18,11 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 import javax.persistence.TypedQuery;
+import org.apache.commons.collections4.Closure;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.syncope.core.persistence.api.dao.ConnInstanceDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -75,13 +76,15 @@ public class JPAConnInstanceDAO extends AbstractDAO<ConnInstance, Long> implemen
             return;
         }
 
-        Set<String> resourceNames = new HashSet<>(connInstance.getResources().size());
-        for (ExternalResource resource : connInstance.getResources()) {
-            resourceNames.add(resource.getKey());
-        }
-        for (String resourceName : resourceNames) {
-            resourceDAO.delete(resourceName);
-        }
+        CollectionUtils.forAllDo(new CopyOnWriteArrayList<>(connInstance.getResources()),
+                new Closure<ExternalResource>() {
+
+                    @Override
+                    public void execute(final ExternalResource input) {
+                        resourceDAO.delete(input.getKey());
+                    }
+
+                });
 
         entityManager.remove(connInstance);
 

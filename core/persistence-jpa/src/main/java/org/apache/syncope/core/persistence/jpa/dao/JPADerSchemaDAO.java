@@ -18,11 +18,10 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import javax.persistence.TypedQuery;
+import org.apache.commons.collections4.Closure;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.core.persistence.api.dao.AttrTemplateDAO;
 import org.apache.syncope.core.persistence.api.dao.DerAttrDAO;
@@ -108,21 +107,26 @@ public class JPADerSchemaDAO extends AbstractDAO<DerSchema, String> implements D
             return;
         }
 
-        final Set<Long> attrIds = new HashSet<>();
-        for (DerAttr attr : findAttrs(schema, attributableUtil.derAttrClass())) {
-            attrIds.add(attr.getKey());
-        }
-        for (Long attrId : attrIds) {
-            derAttrDAO.delete(attrId, attributableUtil.derAttrClass());
-        }
+        CollectionUtils.forAllDo(findAttrs(schema, attributableUtil.derAttrClass()), new Closure<DerAttr>() {
+
+            @Override
+            public void execute(final DerAttr input) {
+                derAttrDAO.delete(input.getKey(), attributableUtil.derAttrClass());
+            }
+
+        });
 
         if (attributableUtil.getType() != AttributableType.USER) {
-            for (Iterator<Number> it = attrTemplateDAO.
-                    findBySchemaName(schema.getKey(), attributableUtil.derAttrTemplateClass()).iterator();
-                    it.hasNext();) {
+            CollectionUtils.forAllDo(attrTemplateDAO.
+                    findBySchemaName(schema.getKey(), attributableUtil.derAttrTemplateClass()).iterator(),
+                    new Closure<Number>() {
 
-                attrTemplateDAO.delete(it.next().longValue(), attributableUtil.derAttrTemplateClass());
-            }
+                        @Override
+                        public void execute(final Number input) {
+                            attrTemplateDAO.delete(input.longValue(), attributableUtil.derAttrTemplateClass());
+                        }
+
+                    });
         }
 
         resourceDAO.deleteMapping(key, attributableUtil.derIntMappingType(), UMappingItem.class);

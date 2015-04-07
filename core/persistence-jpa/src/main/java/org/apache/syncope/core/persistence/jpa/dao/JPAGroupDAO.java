@@ -102,7 +102,8 @@ public class JPAGroupDAO extends AbstractSubjectDAO<GPlainAttr, GDerAttr, GVirAt
 
     @Override
     public Group find(final Long key) {
-        TypedQuery<Group> query = entityManager.createQuery("SELECT e FROM " + JPAGroup.class.getSimpleName() + " e WHERE e.id = :id", Group.class);
+        TypedQuery<Group> query = entityManager.createQuery(
+                "SELECT e FROM " + JPAGroup.class.getSimpleName() + " e WHERE e.id = :id", Group.class);
         query.setParameter("id", key);
 
         Group result = null;
@@ -117,7 +118,8 @@ public class JPAGroupDAO extends AbstractSubjectDAO<GPlainAttr, GDerAttr, GVirAt
 
     @Override
     public List<Group> find(final String name) {
-        TypedQuery<Group> query = entityManager.createQuery("SELECT e FROM " + JPAGroup.class.getSimpleName() + " e WHERE e.name = :name", Group.class);
+        TypedQuery<Group> query = entityManager.createQuery(
+                "SELECT e FROM " + JPAGroup.class.getSimpleName() + " e WHERE e.name = :name", Group.class);
         query.setParameter("name", name);
 
         return query.getResultList();
@@ -196,7 +198,7 @@ public class JPAGroupDAO extends AbstractSubjectDAO<GPlainAttr, GDerAttr, GVirAt
         TypedQuery<Group> query = entityManager.createQuery(queryString.toString(), Group.class);
         query.setParameter("owner", owner);
 
-        List<Group> result = new ArrayList<Group>();
+        List<Group> result = new ArrayList<>();
         for (Group group : query.getResultList()) {
             findSameOwnerDescendants(result, group);
         }

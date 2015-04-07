@@ -18,11 +18,10 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import javax.persistence.TypedQuery;
+import org.apache.commons.collections4.Closure;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.core.persistence.api.dao.AttrTemplateDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
@@ -101,30 +100,35 @@ public class JPAVirSchemaDAO extends AbstractDAO<VirSchema, String> implements V
     }
 
     @Override
-    public void delete(final String name, final AttributableUtil attributableUtil) {
-        final VirSchema schema = find(name, attributableUtil.virSchemaClass());
+    public void delete(final String key, final AttributableUtil attributableUtil) {
+        final VirSchema schema = find(key, attributableUtil.virSchemaClass());
         if (schema == null) {
             return;
         }
 
-        final Set<Long> attrIds = new HashSet<>();
-        for (VirAttr attr : findAttrs(schema, attributableUtil.virAttrClass())) {
-            attrIds.add(attr.getKey());
-        }
-        for (Long attrId : attrIds) {
-            virAttrDAO.delete(attrId, attributableUtil.virAttrClass());
-        }
+        CollectionUtils.forAllDo(findAttrs(schema, attributableUtil.virAttrClass()), new Closure<VirAttr>() {
+
+            @Override
+            public void execute(final VirAttr input) {
+                virAttrDAO.delete(input.getKey(), attributableUtil.virAttrClass());
+            }
+
+        });
 
         if (attributableUtil.getType() != AttributableType.USER) {
-            for (Iterator<Number> it = attrTemplateDAO.
-                    findBySchemaName(schema.getKey(), attributableUtil.virAttrTemplateClass()).iterator();
-                    it.hasNext();) {
+            CollectionUtils.forAllDo(attrTemplateDAO.
+                    findBySchemaName(schema.getKey(), attributableUtil.virAttrTemplateClass()).iterator(),
+                    new Closure<Number>() {
 
-                attrTemplateDAO.delete(it.next().longValue(), attributableUtil.virAttrTemplateClass());
-            }
+                        @Override
+                        public void execute(final Number input) {
+                            attrTemplateDAO.delete(input.longValue(), attributableUtil.virAttrTemplateClass());
+                        }
+
+                    });
         }
 
-        resourceDAO.deleteMapping(name, attributableUtil.virIntMappingType(), UMappingItem.class);
+        resourceDAO.deleteMapping(key, attributableUtil.virIntMappingType(), UMappingItem.class);
 
         entityManager.remove(schema);
     }

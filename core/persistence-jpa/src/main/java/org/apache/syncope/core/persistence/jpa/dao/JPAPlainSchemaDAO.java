@@ -18,11 +18,10 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import javax.persistence.TypedQuery;
+import org.apache.commons.collections4.Closure;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.core.persistence.api.dao.AttrTemplateDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
@@ -51,7 +50,7 @@ import org.springframework.stereotype.Repository;
 public class JPAPlainSchemaDAO extends AbstractDAO<PlainSchema, String> implements PlainSchemaDAO {
 
     @Autowired
-    private PlainAttrDAO attrDAO;
+    private PlainAttrDAO plainAttrDAO;
 
     @Autowired
     private AttrTemplateDAO<PlainSchema> attrTemplateDAO;
@@ -88,7 +87,7 @@ public class JPAPlainSchemaDAO extends AbstractDAO<PlainSchema, String> implemen
     @Override
     public <T extends PlainAttr> List<T> findAttrs(final PlainSchema schema, final Class<T> reference) {
         final StringBuilder queryString = new StringBuilder("SELECT e FROM ").
-                append(((JPAPlainAttrDAO) attrDAO).getJPAEntityReference(reference).getSimpleName()).
+                append(((JPAPlainAttrDAO) plainAttrDAO).getJPAEntityReference(reference).getSimpleName()).
                 append(" e WHERE e.");
         if (GPlainAttr.class.isAssignableFrom(reference) || MPlainAttr.class.isAssignableFrom(reference)) {
             queryString.append("template.");
@@ -114,23 +113,28 @@ public class JPAPlainSchemaDAO extends AbstractDAO<PlainSchema, String> implemen
             return;
         }
 
-        final Set<Long> attrIds = new HashSet<>();
-        for (PlainAttr attr : findAttrs(schema, attributableUtil.plainAttrClass())) {
-            attrIds.add(attr.getKey());
-        }
-        for (Long attrId : attrIds) {
-            attrDAO.delete(attrId, attributableUtil.plainAttrClass());
-        }
+        CollectionUtils.forAllDo(findAttrs(schema, attributableUtil.plainAttrClass()), new Closure<PlainAttr>() {
+
+            @Override
+            public void execute(final PlainAttr input) {
+                plainAttrDAO.delete(input.getKey(), attributableUtil.plainAttrClass());
+            }
+
+        });
 
         if (attributableUtil.getType() == AttributableType.GROUP
                 || attributableUtil.getType() == AttributableType.MEMBERSHIP) {
 
-            for (Iterator<Number> it = attrTemplateDAO.
-                    findBySchemaName(schema.getKey(), attributableUtil.plainAttrTemplateClass()).iterator();
-                    it.hasNext();) {
+            CollectionUtils.forAllDo(attrTemplateDAO.
+                    findBySchemaName(schema.getKey(), attributableUtil.plainAttrTemplateClass()).iterator(),
+                    new Closure<Number>() {
 
-                attrTemplateDAO.delete(it.next().longValue(), attributableUtil.plainAttrTemplateClass());
-            }
+                        @Override
+                        public void execute(final Number input) {
+                            attrTemplateDAO.delete(input.longValue(), attributableUtil.plainAttrTemplateClass());
+                        }
+
+                    });
         }
 
         resourceDAO.deleteMapping(key, attributableUtil.plainIntMappingType(), UMappingItem.class);

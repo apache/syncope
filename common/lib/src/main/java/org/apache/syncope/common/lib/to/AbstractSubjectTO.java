@@ -26,8 +26,6 @@ import java.util.Set;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Predicate;
 
 @XmlType
 public abstract class AbstractSubjectTO extends AbstractAttributableTO {
@@ -43,19 +41,6 @@ public abstract class AbstractSubjectTO extends AbstractAttributableTO {
     @JsonProperty("resources")
     public Set<String> getResources() {
         return resources;
-    }
-
-    public boolean removePropagationTO(final String resource) {
-        if (resource != null && getPropagationStatusTOs().isEmpty()) {
-            return CollectionUtils.filterInverse(propagationStatusTOs, new Predicate<PropagationStatus>() {
-
-                @Override
-                public boolean evaluate(final PropagationStatus propagationStatus) {
-                    return resource.equals(propagationStatus.getResource());
-                }
-            });
-        }
-        return false;
     }
 
     @XmlElementWrapper(name = "propagationStatuses")

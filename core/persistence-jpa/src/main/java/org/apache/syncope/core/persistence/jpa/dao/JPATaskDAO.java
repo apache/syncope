@@ -18,10 +18,11 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import javax.persistence.Query;
+import org.apache.commons.collections4.Closure;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
@@ -171,15 +172,13 @@ public class JPATaskDAO extends AbstractDAO<Task, Long> implements TaskDAO {
 
     @Override
     public void deleteAll(final ExternalResource resource, final TaskType type) {
-        List<Task> tasks = findAll(resource, type);
-        if (tasks != null) {
-            List<Long> taskIds = new ArrayList<>(tasks.size());
-            for (Task task : tasks) {
-                taskIds.add(task.getKey());
+        CollectionUtils.forAllDo(findAll(resource, type), new Closure<Task>() {
+
+            @Override
+            public void execute(final Task input) {
+                delete(input.getKey());
             }
-            for (Long taskId : taskIds) {
-                delete(taskId);
-            }
-        }
+
+        });
     }
 }
