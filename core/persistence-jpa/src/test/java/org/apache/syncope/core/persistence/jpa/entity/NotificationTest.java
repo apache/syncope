@@ -58,7 +58,7 @@ public class NotificationTest extends AbstractTest {
     @Test
     public void save() {
         Notification notification = entityFactory.newEntity(Notification.class);
-        notification.addEvent("save");
+        notification.getEvents().add("save");
 
         notification.setUserAbout("fake search condition");
 
@@ -85,7 +85,7 @@ public class NotificationTest extends AbstractTest {
     @Test
     public void issueSYNCOPE445() {
         Notification notification = entityFactory.newEntity(Notification.class);
-        notification.addEvent("save");
+        notification.getEvents().add("save");
 
         notification.setUserAbout("fake search condition");
 
@@ -94,7 +94,7 @@ public class NotificationTest extends AbstractTest {
         notification.setRecipientAttrName("email");
         notification.setRecipientAttrType(IntMappingType.UserPlainSchema);
 
-        notification.addStaticRecipient("syncope445@syncope.apache.org");
+        notification.getStaticRecipients().add("syncope445@syncope.apache.org");
 
         notification.setSender("syncope@syncope.apache.org");
         notification.setSubject("Test notification");
@@ -110,14 +110,14 @@ public class NotificationTest extends AbstractTest {
     @Test
     public void issueSYNCOPE446() {
         Notification notification = entityFactory.newEntity(Notification.class);
-        notification.addEvent("[REST]:[GroupLogic]:[]:[create]:[SUCCESS]");
+        notification.getEvents().add("[REST]:[GroupLogic]:[]:[create]:[SUCCESS]");
 
         notification.setGroupAbout("fake search condition");
 
         notification.setRecipientAttrName("email");
         notification.setRecipientAttrType(IntMappingType.UserPlainSchema);
 
-        notification.addStaticRecipient("syncope446@syncope.apache.org");
+        notification.getStaticRecipients().add("syncope446@syncope.apache.org");
 
         notification.setSender("syncope@syncope.apache.org");
         notification.setSubject("Test notification");

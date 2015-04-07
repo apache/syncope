@@ -23,6 +23,8 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.persistence.MappedSuperclass;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidPlainAttrValueException;
 import org.apache.syncope.core.persistence.api.entity.AttributableUtil;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
@@ -67,10 +69,13 @@ public abstract class AbstractPlainAttr extends AbstractEntity<Long> implements 
     public List<String> getValuesAsStrings() {
         List<String> result;
         if (getUniqueValue() == null) {
-            result = new ArrayList<>(getValues().size());
-            for (PlainAttrValue attributeValue : getValues()) {
-                result.add(attributeValue.getValueAsString());
-            }
+            result = CollectionUtils.collect(getValues(), new Transformer<PlainAttrValue, String>() {
+
+                @Override
+                public String transform(final PlainAttrValue input) {
+                    return input.getValueAsString();
+                }
+            }, new ArrayList<String>());
         } else {
             result = Collections.singletonList(getUniqueValue().getValueAsString());
         }

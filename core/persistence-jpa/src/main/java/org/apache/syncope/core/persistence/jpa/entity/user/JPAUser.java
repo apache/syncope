@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import javax.persistence.Basic;
@@ -50,6 +49,9 @@ import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
+import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.membership.Membership;
@@ -212,15 +214,13 @@ public class JPAUser extends AbstractSubject<UPlainAttr, UDerAttr, UVirAttr> imp
 
     @Override
     public Membership getMembership(final Long groupKey) {
-        Membership result = null;
-        Membership membership;
-        for (Iterator<? extends Membership> itor = getMemberships().iterator(); result == null && itor.hasNext();) {
-            membership = itor.next();
-            if (membership.getGroup() != null && groupKey.equals(membership.getGroup().getKey())) {
-                result = membership;
+        return CollectionUtils.find(getMemberships(), new Predicate<Membership>() {
+
+            @Override
+            public boolean evaluate(final Membership membership) {
+                return membership.getGroup() != null && groupKey.equals(membership.getGroup().getKey());
             }
-        }
-        return result;
+        });
     }
 
     @Override
@@ -230,27 +230,24 @@ public class JPAUser extends AbstractSubject<UPlainAttr, UDerAttr, UVirAttr> imp
 
     @Override
     public List<Group> getGroups() {
-        List<Group> result = new ArrayList<>();
+        return CollectionUtils.collect(memberships, new Transformer<Membership, Group>() {
 
-        for (Membership membership : memberships) {
-            if (membership.getGroup() != null) {
-                result.add(membership.getGroup());
+            @Override
+            public Group transform(final Membership input) {
+                return input.getGroup();
             }
-        }
-
-        return result;
+        }, new ArrayList<Group>());
     }
 
     @Override
     public Set<Long> getGroupKeys() {
-        List<Group> groups = getGroups();
+        return CollectionUtils.collect(getGroups(), new Transformer<Group, Long>() {
 
-        Set<Long> result = new HashSet<>(groups.size());
-        for (Group group : groups) {
-            result.add(group.getKey());
-        }
-
-        return result;
+            @Override
+            public Long transform(final Group input) {
+                return input.getKey();
+            }
+        }, new HashSet<Long>());
     }
 
     @Override
@@ -417,7 +414,7 @@ public class JPAUser extends AbstractSubject<UPlainAttr, UDerAttr, UVirAttr> imp
 
     @Override
     public boolean checkToken(final String token) {
-        return this.token == null 
+        return this.token == null
                 ? token == null
                 : this.token.equals(token) && !hasTokenExpired();
     }

@@ -20,6 +20,8 @@ package org.apache.syncope.core.persistence.jpa.entity;
 
 import javax.persistence.Cacheable;
 import javax.persistence.MappedSuperclass;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.core.persistence.api.entity.Mapping;
 import org.apache.syncope.core.persistence.api.entity.MappingItem;
@@ -47,13 +49,13 @@ public abstract class AbstractMapping<T extends MappingItem> extends AbstractEnt
 
     @Override
     public T getAccountIdItem() {
-        T accountIdItem = null;
-        for (T item : getItems()) {
-            if (item.isAccountid()) {
-                accountIdItem = item;
+        return CollectionUtils.find(getItems(), new Predicate<T>() {
+
+            @Override
+            public boolean evaluate(final T item) {
+                return item.isAccountid();
             }
-        }
-        return accountIdItem;
+        });
     }
 
     protected boolean addAccountIdItem(final T accountIdItem) {

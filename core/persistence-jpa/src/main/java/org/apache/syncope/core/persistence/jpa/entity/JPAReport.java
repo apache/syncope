@@ -27,9 +27,13 @@ import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
+import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.common.lib.report.ReportletConf;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
+import org.apache.syncope.core.persistence.api.entity.ReportletConfInstance;
 import org.apache.syncope.core.persistence.jpa.validation.entity.ReportCheck;
 
 @Entity
@@ -109,31 +113,24 @@ public class JPAReport extends AbstractEntity<Long> implements Report {
 
     @Override
     public boolean removeReportletConf(final ReportletConf reportletConf) {
-        if (reportletConf == null) {
-            return false;
-        }
+        return CollectionUtils.filter(reportletConfs, new Predicate<JPAReportletConfInstance>() {
 
-        JPAReportletConfInstance found = null;
-        for (JPAReportletConfInstance instance : reportletConfs) {
-            if (reportletConf.equals(instance.getInstance())) {
-                found = instance;
+            @Override
+            public boolean evaluate(final JPAReportletConfInstance object) {
+                return reportletConf.equals(object.getInstance());
             }
-        }
-
-        return found == null
-                ? false
-                : reportletConfs.remove(found);
+        });
     }
 
     @Override
     public List<ReportletConf> getReportletConfs() {
-        List<ReportletConf> result = new ArrayList<>(reportletConfs.size());
+        return CollectionUtils.collect(reportletConfs, new Transformer<ReportletConfInstance, ReportletConf>() {
 
-        for (JPAReportletConfInstance instance : reportletConfs) {
-            result.add(instance.getInstance());
-        }
-
-        return result;
+            @Override
+            public ReportletConf transform(final ReportletConfInstance input) {
+                return input.getInstance();
+            }
+        }, new ArrayList<ReportletConf>());
     }
 
     @Override

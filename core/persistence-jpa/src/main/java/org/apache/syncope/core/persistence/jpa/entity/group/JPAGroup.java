@@ -41,6 +41,9 @@ import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
+import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.core.persistence.api.entity.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.AttrTemplate;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
@@ -338,26 +341,24 @@ public class JPAGroup extends AbstractSubject<GPlainAttr, GDerAttr, GVirAttr> im
     public <T extends AttrTemplate<K>, K extends Schema> T getAttrTemplate(
             final Class<T> reference, final String schemaName) {
 
-        T result = null;
+        return CollectionUtils.find(findInheritedTemplates(reference), new Predicate<T>() {
 
-        for (T template : findInheritedTemplates(reference)) {
-            if (schemaName.equals(template.getSchema().getKey())) {
-                result = template;
+            @Override
+            public boolean evaluate(final T template) {
+                return schemaName.equals(template.getSchema().getKey());
             }
-        }
-
-        return result;
+        });
     }
 
     @Override
     public <T extends AttrTemplate<K>, K extends Schema> List<K> getAttrTemplateSchemas(final Class<T> reference) {
-        final List<K> result = new ArrayList<>();
+        return CollectionUtils.collect(findInheritedTemplates(reference), new Transformer<T, K>() {
 
-        for (T template : findInheritedTemplates(reference)) {
-            result.add(template.getSchema());
-        }
-
-        return result;
+            @Override
+            public K transform(final T input) {
+                return input.getSchema();
+            }
+        }, new ArrayList<K>());
     }
 
     @Override
@@ -439,11 +440,11 @@ public class JPAGroup extends AbstractSubject<GPlainAttr, GDerAttr, GVirAttr> im
      */
     @Override
     public List<? extends GPlainAttr> findLastInheritedAncestorPlainAttrs() {
-        final Map<JPAGPlainSchema, GPlainAttr> result = new HashMap<>();
-
         if (!isInheritPlainAttrs()) {
             return plainAttrs;
         }
+
+        final Map<JPAGPlainSchema, GPlainAttr> result = new HashMap<>();
         if (isInheritPlainAttrs() && getParent() != null) {
             final Map<PlainSchema, GPlainAttr> attrMap = getPlainAttrMap();
 
@@ -476,11 +477,11 @@ public class JPAGroup extends AbstractSubject<GPlainAttr, GDerAttr, GVirAttr> im
      */
     @Override
     public List<? extends GDerAttr> findLastInheritedAncestorDerAttrs() {
-        final Map<GDerSchema, GDerAttr> result = new HashMap<>();
-
         if (!isInheritDerAttrs()) {
             return derAttrs;
         }
+
+        final Map<GDerSchema, GDerAttr> result = new HashMap<>();
         if (isInheritDerAttrs() && getParent() != null) {
             Map<DerSchema, GDerAttr> derAttrMap = getDerAttrMap();
 
@@ -513,12 +514,11 @@ public class JPAGroup extends AbstractSubject<GPlainAttr, GDerAttr, GVirAttr> im
      */
     @Override
     public List<? extends GVirAttr> findLastInheritedAncestorVirAttrs() {
-        final Map<GVirSchema, GVirAttr> result = new HashMap<>();
-
         if (!isInheritVirAttrs()) {
             return virAttrs;
         }
 
+        final Map<GVirSchema, GVirAttr> result = new HashMap<>();
         if (isInheritVirAttrs() && getParent() != null) {
             Map<VirSchema, GVirAttr> virAttrMap = getVirAttrMap();
 

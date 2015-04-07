@@ -174,29 +174,8 @@ public class JPANotification extends AbstractEntity<Long> implements Notificatio
     }
 
     @Override
-    public boolean addEvent(final String event) {
-        return event != null && !events.contains(event) && events.add(event);
-    }
-
-    @Override
-    public boolean removeEvent(final String event) {
-        return event != null && events.remove(event);
-    }
-
-    @Override
     public List<String> getStaticRecipients() {
         return staticRecipients;
-    }
-
-    @Override
-    public boolean addStaticRecipient(final String staticRecipient) {
-        return staticRecipient != null && !staticRecipients.contains(staticRecipient)
-                && staticRecipients.add(staticRecipient);
-    }
-
-    @Override
-    public boolean removeStaticRecipient(final String staticRecipient) {
-        return staticRecipient != null && staticRecipients.remove(staticRecipient);
     }
 
     @Override

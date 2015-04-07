@@ -20,6 +20,10 @@ package org.apache.syncope.core.persistence.jpa.entity;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.collections4.Predicate;
+import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.core.persistence.api.entity.Attributable;
 import org.apache.syncope.core.persistence.api.entity.DerAttr;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
@@ -35,72 +39,67 @@ public abstract class AbstractAttributable<P extends PlainAttr, D extends DerAtt
 
     @Override
     public P getPlainAttr(final String plainSchemaName) {
-        P result = null;
-        for (P plainAttr : getPlainAttrs()) {
-            if (plainAttr != null && plainAttr.getSchema() != null
-                    && plainSchemaName.equals(plainAttr.getSchema().getKey())) {
+        return CollectionUtils.find(getPlainAttrs(), new Predicate<P>() {
 
-                result = plainAttr;
+            @Override
+            public boolean evaluate(final P plainAttr) {
+                return plainAttr != null && plainAttr.getSchema() != null
+                        && plainSchemaName.equals(plainAttr.getSchema().getKey());
             }
-        }
-        return result;
+        });
     }
 
     @Override
     public D getDerAttr(final String derSchemaName) {
-        D result = null;
-        for (D derAttr : getDerAttrs()) {
-            if (derAttr != null && derAttr.getSchema() != null
-                    && derSchemaName.equals(derAttr.getSchema().getKey())) {
+        return CollectionUtils.find(getDerAttrs(), new Predicate<D>() {
 
-                result = derAttr;
+            @Override
+            public boolean evaluate(final D derAttr) {
+                return derAttr != null && derAttr.getSchema() != null
+                        && derSchemaName.equals(derAttr.getSchema().getKey());
             }
-        }
-
-        return result;
+        });
     }
 
     @Override
     public V getVirAttr(final String virSchemaName) {
-        V result = null;
-        for (V virAttr : getVirAttrs()) {
-            if (virAttr != null && virAttr.getSchema() != null
-                    && virSchemaName.equals(virAttr.getSchema().getKey())) {
+        return CollectionUtils.find(getVirAttrs(), new Predicate<V>() {
 
-                result = virAttr;
+            @Override
+            public boolean evaluate(final V virAttr) {
+                return virAttr != null && virAttr.getSchema() != null
+                        && virSchemaName.equals(virAttr.getSchema().getKey());
             }
-        }
-
-        return result;
+        });
     }
 
     protected Map<PlainSchema, P> getPlainAttrMap() {
-        final Map<PlainSchema, P> map = new HashMap<>();
+        return MapUtils.lazyMap(new HashMap<PlainSchema, P>(), new Transformer<PlainSchema, P>() {
 
-        for (P attr : getPlainAttrs()) {
-            map.put(attr.getSchema(), attr);
-        }
-
-        return map;
+            @Override
+            public P transform(final PlainSchema input) {
+                return getPlainAttr(input.getKey());
+            }
+        });
     }
 
     protected Map<DerSchema, D> getDerAttrMap() {
-        final Map<DerSchema, D> map = new HashMap<>();
+        return MapUtils.lazyMap(new HashMap<DerSchema, D>(), new Transformer<DerSchema, D>() {
 
-        for (D attr : getDerAttrs()) {
-            map.put(attr.getSchema(), attr);
-        }
-
-        return map;
+            @Override
+            public D transform(final DerSchema input) {
+                return getDerAttr(input.getKey());
+            }
+        });
     }
 
     protected Map<VirSchema, V> getVirAttrMap() {
-        final Map<VirSchema, V> map = new HashMap<>();
+        return MapUtils.lazyMap(new HashMap<VirSchema, V>(), new Transformer<VirSchema, V>() {
 
-        for (V attr : getVirAttrs()) {
-            map.put(attr.getSchema(), attr);
-        }
-
-        return map;
+            @Override
+            public V transform(final VirSchema input) {
+                return getVirAttr(input.getKey());
+            }
+        });
     }
 }

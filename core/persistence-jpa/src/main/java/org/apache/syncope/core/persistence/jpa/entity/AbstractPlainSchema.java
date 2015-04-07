@@ -143,7 +143,7 @@ public abstract class AbstractPlainSchema extends AbstractEntity<String> impleme
     }
 
     @Override
-    public void setMultivalue(boolean multivalue) {
+    public void setMultivalue(final boolean multivalue) {
         this.multivalue = getBooleanAsInteger(multivalue);
     }
 
@@ -217,7 +217,7 @@ public abstract class AbstractPlainSchema extends AbstractEntity<String> impleme
     }
 
     @Override
-    public void setEnumerationKeys(String enumerationKeys) {
+    public void setEnumerationKeys(final String enumerationKeys) {
         this.enumerationKeys = enumerationKeys;
     }
 

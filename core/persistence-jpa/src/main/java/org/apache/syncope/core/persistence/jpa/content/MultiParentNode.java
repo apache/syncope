@@ -35,14 +35,14 @@ class MultiParentNode<T> {
 
     public MultiParentNode(final T object) {
         this.object = object;
-        children = new HashSet<MultiParentNode<T>>();
+        children = new HashSet<>();
     }
 
     public int getLevel() {
         return level;
     }
 
-    public void setLevel(int level) {
+    public void setLevel(final int level) {
         this.level = level;
     }
 
@@ -50,7 +50,7 @@ class MultiParentNode<T> {
         return exploited;
     }
 
-    void setExploited(boolean exploited) {
+    void setExploited(final boolean exploited) {
         this.exploited = exploited;
     }
 

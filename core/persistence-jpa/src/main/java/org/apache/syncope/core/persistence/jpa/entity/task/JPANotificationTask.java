@@ -144,7 +144,7 @@ public class JPANotificationTask extends JPATask implements NotificationTask {
     }
 
     @Override
-    public void setExecuted(boolean executed) {
+    public void setExecuted(final boolean executed) {
         this.executed = getBooleanAsInteger(executed);
     }
 

@@ -47,8 +47,7 @@ public class JPAttributableUtilFactory implements AttributableUtilFactory {
         AttributableType type = null;
         if (ObjectClass.ACCOUNT.equals(objectClass)) {
             type = AttributableType.USER;
-        }
-        if (ObjectClass.GROUP.equals(objectClass)) {
+        } else if (ObjectClass.GROUP.equals(objectClass)) {
             type = AttributableType.GROUP;
         }
 
@@ -64,14 +63,11 @@ public class JPAttributableUtilFactory implements AttributableUtilFactory {
         AttributableType type = null;
         if (attributable instanceof User) {
             type = AttributableType.USER;
-        }
-        if (attributable instanceof Group) {
+        } else if (attributable instanceof Group) {
             type = AttributableType.GROUP;
-        }
-        if (attributable instanceof Membership) {
+        } else if (attributable instanceof Membership) {
             type = AttributableType.MEMBERSHIP;
-        }
-        if (attributable instanceof Conf) {
+        } else if (attributable instanceof Conf) {
             type = AttributableType.CONFIGURATION;
         }
 

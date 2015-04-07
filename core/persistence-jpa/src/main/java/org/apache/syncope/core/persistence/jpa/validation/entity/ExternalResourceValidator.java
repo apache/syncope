@@ -19,6 +19,8 @@
 package org.apache.syncope.core.persistence.jpa.validation.entity;
 
 import javax.validation.ConstraintValidatorContext;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.common.lib.types.EntityViolationType;
@@ -63,12 +65,13 @@ public class ExternalResourceValidator extends AbstractValidator<ExternalResourc
             return true;
         }
 
-        int accountIds = 0;
-        for (MappingItem item : mapping.getItems()) {
-            if (item.isAccountid()) {
-                accountIds++;
+        int accountIds = CollectionUtils.countMatches(mapping.getItems(), new Predicate<MappingItem>() {
+
+            @Override
+            public boolean evaluate(final MappingItem item) {
+                return item.isAccountid();
             }
-        }
+        });
         if (accountIds != 1) {
             context.buildConstraintViolationWithTemplate(
                     getTemplate(EntityViolationType.InvalidMapping, "One and only one accountId mapping is needed")).
@@ -79,6 +82,7 @@ public class ExternalResourceValidator extends AbstractValidator<ExternalResourc
         final MappingItem accountId = mapping.getAccountIdItem();
         if (mapping instanceof UMapping
                 && AttributableType.GROUP == accountId.getIntMappingType().getAttributableType()) {
+
             context.buildConstraintViolationWithTemplate(
                     getTemplate(EntityViolationType.InvalidMapping,
                             "Group attribute as accountId is not permitted")).

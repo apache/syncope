@@ -19,11 +19,12 @@
 package org.apache.syncope.core.persistence.jpa.validation.entity;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.validation.ConstraintValidatorContext;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.syncope.common.lib.types.EntityViolationType;
@@ -44,13 +45,13 @@ import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 
 public class SchemaNameValidator extends AbstractValidator<SchemaNameCheck, Object> {
 
-    private static final List<String> UNALLOWED_USCHEMA_NAMES = new ArrayList<>();
+    private static final Set<String> UNALLOWED_USCHEMA_NAMES = new HashSet<>();
 
-    private static final List<String> UNALLOWED_MSCHEMA_NAMES = new ArrayList<>();
+    private static final Set<String> UNALLOWED_MSCHEMA_NAMES = new HashSet<>();
 
-    private static final List<String> UNALLOWED_RSCHEMA_NAMES = new ArrayList<>();
+    private static final Set<String> UNALLOWED_RSCHEMA_NAMES = new HashSet<>();
 
-    private static final List<String> UNALLOWED_CSCHEMA_NAMES = new ArrayList<>();
+    private static final Set<String> UNALLOWED_CSCHEMA_NAMES = new HashSet<>();
 
     static {
         initUnallowedSchemaNames(JPAUser.class, UNALLOWED_USCHEMA_NAMES);
@@ -59,9 +60,11 @@ public class SchemaNameValidator extends AbstractValidator<SchemaNameCheck, Obje
         initUnallowedSchemaNames(JPAConf.class, UNALLOWED_CSCHEMA_NAMES);
     }
 
-    private static void initUnallowedSchemaNames(final Class<?> entityClass, final List<String> names) {
+    private static void initUnallowedSchemaNames(final Class<?> entityClass, final Set<String> names) {
         List<Class<?>> classes = ClassUtils.getAllSuperclasses(entityClass);
-        classes.add(JPAUser.class);
+        if (!classes.contains(JPAUser.class)) {
+            classes.add(JPAUser.class);
+        }
         for (Class<?> clazz : classes) {
             for (Field field : clazz.getDeclaredFields()) {
                 if (!Collection.class.isAssignableFrom(field.getType())
@@ -76,7 +79,7 @@ public class SchemaNameValidator extends AbstractValidator<SchemaNameCheck, Obje
     @Override
     public boolean isValid(final Object object, final ConstraintValidatorContext context) {
         final String schemaName;
-        final List<String> unallowedNames;
+        final Set<String> unallowedNames;
 
         if (object instanceof UPlainSchema) {
             schemaName = ((UPlainSchema) object).getKey();
@@ -110,7 +113,7 @@ public class SchemaNameValidator extends AbstractValidator<SchemaNameCheck, Obje
             unallowedNames = UNALLOWED_CSCHEMA_NAMES;
         } else {
             schemaName = null;
-            unallowedNames = Collections.emptyList();
+            unallowedNames = Collections.emptySet();
         }
 
         boolean isValid = NAME_PATTERN.matcher(schemaName).matches();

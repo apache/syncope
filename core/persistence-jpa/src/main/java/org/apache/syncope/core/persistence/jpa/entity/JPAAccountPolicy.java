@@ -27,6 +27,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.validation.Valid;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.core.persistence.api.entity.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
@@ -80,11 +82,12 @@ public class JPAAccountPolicy extends JPAPolicy implements AccountPolicy {
 
     @Override
     public Set<String> getResourceNames() {
-        Set<String> result = new HashSet<>(resources.size());
-        for (ExternalResource resource : resources) {
-            result.add(resource.getKey());
-        }
+        return CollectionUtils.collect(getResources(), new Transformer<ExternalResource, String>() {
 
-        return result;
+            @Override
+            public String transform(final ExternalResource input) {
+                return input.getKey();
+            }
+        }, new HashSet<String>());
     }
 }

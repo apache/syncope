@@ -20,6 +20,8 @@ package org.apache.syncope.core.persistence.jpa.entity;
 
 import java.util.HashSet;
 import java.util.Set;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.core.persistence.api.entity.DerAttr;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
@@ -51,14 +53,13 @@ public abstract class AbstractSubject<P extends PlainAttr, D extends DerAttr, V 
 
     @Override
     public Set<String> getResourceNames() {
-        Set<? extends ExternalResource> ownResources = getResources();
+        return CollectionUtils.collect(getResources(), new Transformer<ExternalResource, String>() {
 
-        Set<String> result = new HashSet<>(ownResources.size());
-        for (ExternalResource resource : ownResources) {
-            result.add(resource.getKey());
-        }
-
-        return result;
+            @Override
+            public String transform(final ExternalResource input) {
+                return input.getKey();
+            }
+        }, new HashSet<String>());
     }
 
 }

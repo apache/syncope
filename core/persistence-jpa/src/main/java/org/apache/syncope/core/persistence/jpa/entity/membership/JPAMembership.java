@@ -28,6 +28,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.Valid;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.core.persistence.api.entity.membership.MDerAttr;
 import org.apache.syncope.core.persistence.api.entity.membership.MDerAttrTemplate;
 import org.apache.syncope.core.persistence.api.entity.membership.MPlainAttr;
@@ -127,12 +129,15 @@ public class JPAMembership extends AbstractAttributable<MPlainAttr, MDerAttr, MV
         checkType(derAttr, JPAMDerAttr.class);
 
         if (getGroup() != null && derAttr.getSchema() != null) {
-            MDerAttrTemplate found = null;
-            for (MDerAttrTemplate template : getGroup().findInheritedTemplates(MDerAttrTemplate.class)) {
-                if (derAttr.getSchema().equals(template.getSchema())) {
-                    found = template;
-                }
-            }
+            MDerAttrTemplate found = CollectionUtils.find(getGroup().findInheritedTemplates(MDerAttrTemplate.class),
+                    new Predicate<MDerAttrTemplate>() {
+
+                        @Override
+                        public boolean evaluate(final MDerAttrTemplate template) {
+                            return derAttr.getSchema().equals(template.getSchema());
+                        }
+
+                    });
             if (found != null) {
                 derAttr.setTemplate(found);
                 return derAttrs.add((JPAMDerAttr) derAttr);

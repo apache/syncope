@@ -19,8 +19,6 @@
 package org.apache.syncope.core.persistence.jpa.entity;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -42,6 +40,7 @@ import javax.persistence.Table;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.PropagationMode;
@@ -253,7 +252,7 @@ public class JPAExternalResource extends AbstractAnnotatedEntity<String> impleme
     }
 
     @Override
-    public void setPropagationPrimary(boolean propagationPrimary) {
+    public void setPropagationPrimary(final boolean propagationPrimary) {
         this.propagationPrimary = getBooleanAsInteger(propagationPrimary);
     }
 
@@ -263,7 +262,7 @@ public class JPAExternalResource extends AbstractAnnotatedEntity<String> impleme
     }
 
     @Override
-    public void setPropagationPriority(Integer propagationPriority) {
+    public void setPropagationPriority(final Integer propagationPriority) {
         if (propagationPriority != null) {
             this.propagationPriority = propagationPriority;
         }
@@ -275,7 +274,7 @@ public class JPAExternalResource extends AbstractAnnotatedEntity<String> impleme
     }
 
     @Override
-    public void setRandomPwdIfNotProvided(boolean randomPwdIfNotProvided) {
+    public void setRandomPwdIfNotProvided(final boolean randomPwdIfNotProvided) {
         this.randomPwdIfNotProvided = getBooleanAsInteger(randomPwdIfNotProvided);
     }
 
@@ -285,7 +284,7 @@ public class JPAExternalResource extends AbstractAnnotatedEntity<String> impleme
     }
 
     @Override
-    public void setPropagationMode(PropagationMode propagationMode) {
+    public void setPropagationMode(final PropagationMode propagationMode) {
         this.propagationMode = propagationMode;
     }
 
@@ -375,9 +374,12 @@ public class JPAExternalResource extends AbstractAnnotatedEntity<String> impleme
 
     @Override
     public Set<ConnConfProperty> getConnInstanceConfiguration() {
-        return StringUtils.isBlank(jsonConf)
-                ? Collections.<ConnConfProperty>emptySet()
-                : new HashSet<>(Arrays.asList(POJOHelper.deserialize(jsonConf, ConnConfProperty[].class)));
+        Set<ConnConfProperty> configuration = new HashSet<>();
+        if (!StringUtils.isBlank(jsonConf)) {
+            CollectionUtils.addAll(configuration, POJOHelper.deserialize(jsonConf, ConnConfProperty[].class));
+        }
+
+        return configuration;
     }
 
     @Override

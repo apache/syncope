@@ -33,7 +33,6 @@ class MultiParentNodeOp {
     }
 
     public static <T> void traverseTree(final MultiParentNode<T> root, final Collection<T> objects) {
-
         root.setExploited(true);
 
         for (MultiParentNode<T> child : root.getChildren()) {

@@ -256,7 +256,7 @@ public abstract class AbstractPlainAttrValue extends AbstractEntity<Long> implem
                 break;
 
             case Binary:
-                result = new String(Base64.encodeBase64String(getBinaryValue()));
+                result = Base64.encodeBase64String(getBinaryValue());
                 break;
 
             case String:

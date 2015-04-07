@@ -24,10 +24,6 @@ import org.apache.syncope.common.lib.types.TraceLevel;
 
 public interface Notification extends Entity<Long> {
 
-    boolean addEvent(String event);
-
-    boolean addStaticRecipient(String staticRecipient);
-
     List<String> getEvents();
 
     String getRecipientAttrName();
@@ -53,10 +49,6 @@ public interface Notification extends Entity<Long> {
     boolean isActive();
 
     boolean isSelfAsRecipient();
-
-    boolean removeEvent(String event);
-
-    boolean removeStaticRecipient(String staticRecipient);
 
     void setActive(boolean active);
 
