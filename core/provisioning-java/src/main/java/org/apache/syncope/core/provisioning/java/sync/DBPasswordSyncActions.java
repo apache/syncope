@@ -18,7 +18,8 @@
  */
 package org.apache.syncope.core.provisioning.java.sync;
 
-import java.util.Iterator;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.mod.AbstractSubjectMod;
 import org.apache.syncope.common.lib.mod.UserMod;
 import org.apache.syncope.common.lib.to.AbstractSubjectTO;
@@ -105,18 +106,19 @@ public class DBPasswordSyncActions extends DefaultSyncActions {
     }
 
     private String getCipherAlgorithm(final ConnInstance connInstance) {
-        String cipherAlgorithm = CLEARTEXT;
-        for (Iterator<ConnConfProperty> propertyIterator = connInstance.getConfiguration().iterator();
-                propertyIterator.hasNext();) {
+        ConnConfProperty cipherAlgorithm =
+                CollectionUtils.find(connInstance.getConfiguration(), new Predicate<ConnConfProperty>() {
 
-            ConnConfProperty property = propertyIterator.next();
-            if ("cipherAlgorithm".equals(property.getSchema().getName())
-                    && property.getValues() != null && !property.getValues().isEmpty()) {
+                    @Override
+                    public boolean evaluate(final ConnConfProperty property) {
+                        return "cipherAlgorithm".equals(property.getSchema().getName())
+                        && property.getValues() != null && !property.getValues().isEmpty();
+                    }
+                });
 
-                return (String) property.getValues().get(0);
-            }
-        }
-        return cipherAlgorithm;
+        return cipherAlgorithm == null
+                ? CLEARTEXT
+                : (String) cipherAlgorithm.getValues().get(0);
     }
 
     @Transactional(readOnly = true)

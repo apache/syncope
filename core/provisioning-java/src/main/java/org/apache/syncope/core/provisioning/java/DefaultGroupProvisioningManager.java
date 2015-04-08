@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,7 +75,8 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
     public Map.Entry<Long, List<PropagationStatus>> create(final GroupTO subject, final Set<String> excludedResources) {
         WorkflowResult<Long> created = gwfAdapter.create(subject);
 
-        AuthContextUtil.extendAuthContext(created.getResult(), GroupEntitlementUtil.getEntitlementNameFromGroupKey(created.getResult()));
+        AuthContextUtil.extendAuthContext(created.getResult(), GroupEntitlementUtil.getEntitlementNameFromGroupKey(
+                created.getResult()));
 
         List<PropagationTask> tasks =
                 propagationManager.getGroupCreateTaskIds(created, subject.getVirAttrs(), excludedResources);
@@ -100,7 +102,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
             groupOwnerMap.put(created.getResult(), groupOwner.getValues().iterator().next());
         }
 
-        AuthContextUtil.extendAuthContext(created.getResult(), 
+        AuthContextUtil.extendAuthContext(created.getResult(),
                 GroupEntitlementUtil.getEntitlementNameFromGroupKey(created.getResult()));
 
         List<PropagationTask> tasks = propagationManager.getGroupCreateTaskIds(
@@ -198,8 +200,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
     public List<PropagationStatus> deprovision(final Long groupKey, final Collection<String> resources) {
         Group group = groupDAO.authFetch(groupKey);
 
-        Set<String> noPropResourceName = group.getResourceNames();
-        noPropResourceName.removeAll(resources);
+        Collection<String> noPropResourceName = CollectionUtils.removeAll(group.getResourceNames(), resources);
 
         List<PropagationTask> tasks = propagationManager.getGroupDeleteTaskIds(
                 groupKey, new HashSet<>(resources), noPropResourceName);

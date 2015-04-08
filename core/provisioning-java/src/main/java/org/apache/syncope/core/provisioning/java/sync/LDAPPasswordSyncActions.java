@@ -82,7 +82,7 @@ public class LDAPPasswordSyncActions extends DefaultSyncActions {
         return delta;
     }
 
-    private void parseEncodedPassword(String password) {
+    private void parseEncodedPassword(final String password) {
         if (password != null && password.startsWith("{")) {
             int closingBracketIndex = password.indexOf('}');
             String digest = password.substring(1, password.indexOf('}'));

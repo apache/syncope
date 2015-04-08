@@ -256,7 +256,7 @@ public class NotificationTest {
     public void notifyByMail() throws Exception {
         // 1. create suitable notification for subsequent tests
         Notification notification = entityFactory.newEntity(Notification.class);
-        notification.addEvent("[REST]:[UserLogic]:[]:[create]:[SUCCESS]");
+        notification.getEvents().add("[REST]:[UserLogic]:[]:[create]:[SUCCESS]");
         notification.setUserAbout(new UserFiqlSearchConditionBuilder().inGroups(7L).query());
         notification.setRecipients(new UserFiqlSearchConditionBuilder().inGroups(8L).query());
         notification.setSelfAsRecipient(true);
@@ -314,7 +314,7 @@ public class NotificationTest {
     public void issueSYNCOPE192() throws Exception {
         // 1. create suitable notification for subsequent tests
         Notification notification = entityFactory.newEntity(Notification.class);
-        notification.addEvent("[REST]:[UserLogic]:[]:[create]:[SUCCESS]");
+        notification.getEvents().add("[REST]:[UserLogic]:[]:[create]:[SUCCESS]");
         notification.setUserAbout(new UserFiqlSearchConditionBuilder().inGroups(7L).query());
         notification.setRecipients(new UserFiqlSearchConditionBuilder().inGroups(8L).query());
         notification.setSelfAsRecipient(true);
@@ -366,7 +366,7 @@ public class NotificationTest {
     public void notifyByMailEmptyAbout() throws Exception {
         // 1. create suitable notification for subsequent tests
         Notification notification = entityFactory.newEntity(Notification.class);
-        notification.addEvent("[REST]:[UserLogic]:[]:[create]:[SUCCESS]");
+        notification.getEvents().add("[REST]:[UserLogic]:[]:[create]:[SUCCESS]");
         notification.setUserAbout(null);
         notification.setRecipients(new UserFiqlSearchConditionBuilder().inGroups(8L).query());
         notification.setSelfAsRecipient(true);
@@ -416,7 +416,7 @@ public class NotificationTest {
     public void notifyByMailWithRetry() throws Exception {
         // 1. create suitable notification for subsequent tests
         Notification notification = entityFactory.newEntity(Notification.class);
-        notification.addEvent("[REST]:[UserLogic]:[]:[create]:[SUCCESS]");
+        notification.getEvents().add("[REST]:[UserLogic]:[]:[create]:[SUCCESS]");
         notification.setUserAbout(null);
         notification.setRecipients(new UserFiqlSearchConditionBuilder().inGroups(8L).query());
         notification.setSelfAsRecipient(true);
@@ -485,7 +485,7 @@ public class NotificationTest {
     public void issueSYNCOPE445() throws Exception {
         // 1. create suitable notification for subsequent tests
         Notification notification = entityFactory.newEntity(Notification.class);
-        notification.addEvent("[REST]:[UserLogic]:[]:[create]:[SUCCESS]");
+        notification.getEvents().add("[REST]:[UserLogic]:[]:[create]:[SUCCESS]");
         notification.setUserAbout(new UserFiqlSearchConditionBuilder().inGroups(7L).query());
         notification.setRecipients(new UserFiqlSearchConditionBuilder().inGroups(8L).query());
         notification.setSelfAsRecipient(true);
@@ -544,7 +544,7 @@ public class NotificationTest {
     public void issueSYNCOPE492() throws Exception {
         // 1. create suitable disabled notification for subsequent tests
         Notification notification = entityFactory.newEntity(Notification.class);
-        notification.addEvent("[REST]:[UserLogic]:[]:[create]:[SUCCESS]");
+        notification.getEvents().add("[REST]:[UserLogic]:[]:[create]:[SUCCESS]");
         notification.setUserAbout(new UserFiqlSearchConditionBuilder().inGroups(7L).query());
         notification.setSelfAsRecipient(true);
 
@@ -588,7 +588,7 @@ public class NotificationTest {
 
         // 1. create suitable notification for subsequent tests
         Notification notification = entityFactory.newEntity(Notification.class);
-        notification.addEvent("[REST]:[GroupLogic]:[]:[create]:[SUCCESS]");
+        notification.getEvents().add("[REST]:[GroupLogic]:[]:[create]:[SUCCESS]");
         notification.setGroupAbout(new GroupFiqlSearchConditionBuilder().is("name").equalTo("group446").query());
         notification.setSelfAsRecipient(false);
 

@@ -513,7 +513,7 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
 
         LOG.debug("Subject to ignore {}", delta.getObject().getUid().getUidValue());
 
-        final List<ProvisioningResult> ignoreResults = new ArrayList<ProvisioningResult>();
+        final List<ProvisioningResult> ignoreResults = new ArrayList<>();
         final ProvisioningResult result = new ProvisioningResult();
 
         result.setId(null);

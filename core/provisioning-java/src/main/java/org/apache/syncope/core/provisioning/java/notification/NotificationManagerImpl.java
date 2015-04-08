@@ -36,6 +36,7 @@ import org.apache.syncope.common.lib.types.AuditElements.Result;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.SubjectType;
+import org.apache.syncope.core.misc.CollectionUtils2;
 import org.apache.syncope.core.persistence.api.GroupEntitlementUtil;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.EntitlementDAO;
@@ -347,15 +348,8 @@ public class NotificationManagerImpl implements NotificationManager {
 
             case UserPlainSchema:
                 UPlainAttr attr = user.getPlainAttr(recipientAttrName);
-                if (attr != null && !attr.getValuesAsStrings().isEmpty()) {
-                    email = attr.getValuesAsStrings().get(0);
-                }
-                break;
-
-            case UserVirtualSchema:
-                UVirAttr virAttr = user.getVirAttr(recipientAttrName);
-                if (virAttr != null && !virAttr.getValues().isEmpty()) {
-                    email = virAttr.getValues().get(0);
+                if (attr != null) {
+                    email = CollectionUtils2.getFirstOrNull(attr.getValuesAsStrings());
                 }
                 break;
 
@@ -363,6 +357,13 @@ public class NotificationManagerImpl implements NotificationManager {
                 UDerAttr derAttr = user.getDerAttr(recipientAttrName);
                 if (derAttr != null) {
                     email = derAttr.getValue(user.getPlainAttrs());
+                }
+                break;
+
+            case UserVirtualSchema:
+                UVirAttr virAttr = user.getVirAttr(recipientAttrName);
+                if (virAttr != null) {
+                    email = CollectionUtils2.getFirstOrNull(virAttr.getValues());
                 }
                 break;
 

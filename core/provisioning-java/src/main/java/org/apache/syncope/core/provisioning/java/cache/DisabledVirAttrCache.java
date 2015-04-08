@@ -38,7 +38,7 @@ public class DisabledVirAttrCache implements VirAttrCache {
     }
 
     @Override
-    public boolean isValidEntry(VirAttrCacheValue value) {
+    public boolean isValidEntry(final VirAttrCacheValue value) {
         return false;
     }
 

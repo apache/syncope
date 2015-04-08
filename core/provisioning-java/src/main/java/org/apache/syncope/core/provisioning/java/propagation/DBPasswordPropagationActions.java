@@ -19,8 +19,9 @@
 package org.apache.syncope.core.provisioning.java.propagation;
 
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
@@ -85,22 +86,23 @@ public class DBPasswordPropagationActions extends DefaultPropagationActions {
         }
     }
 
-    private String getCipherAlgorithm(ConnInstance connInstance) {
-        String cipherAlgorithm = CLEARTEXT;
-        for (Iterator<ConnConfProperty> propertyIterator = connInstance.getConfiguration().iterator();
-                propertyIterator.hasNext();) {
+    private String getCipherAlgorithm(final ConnInstance connInstance) {
+        ConnConfProperty cipherAlgorithm =
+                CollectionUtils.find(connInstance.getConfiguration(), new Predicate<ConnConfProperty>() {
 
-            ConnConfProperty property = propertyIterator.next();
-            if ("cipherAlgorithm".equals(property.getSchema().getName())
-                    && property.getValues() != null && !property.getValues().isEmpty()) {
+                    @Override
+                    public boolean evaluate(final ConnConfProperty property) {
+                        return "cipherAlgorithm".equals(property.getSchema().getName())
+                        && property.getValues() != null && !property.getValues().isEmpty();
+                    }
+                });
 
-                return (String) property.getValues().get(0);
-            }
-        }
-        return cipherAlgorithm;
+        return cipherAlgorithm == null
+                ? CLEARTEXT
+                : (String) cipherAlgorithm.getValues().get(0);
     }
 
-    private boolean cipherAlgorithmMatches(String connectorAlgorithm, CipherAlgorithm userAlgorithm) {
+    private boolean cipherAlgorithmMatches(final String connectorAlgorithm, final CipherAlgorithm userAlgorithm) {
         if (userAlgorithm == null) {
             return false;
         }

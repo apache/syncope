@@ -92,9 +92,9 @@ public class LDAPMembershipPropagationActions extends DefaultPropagationActions 
                 }
                 LOG.debug("Group accountLinks to propagate for membership: {}", groupAccountLinks);
 
-                Set<Attribute> attributes = new HashSet<Attribute>(task.getAttributes());
+                Set<Attribute> attributes = new HashSet<>(task.getAttributes());
 
-                Set<String> groups = new HashSet<String>(groupAccountLinks);
+                Set<String> groups = new HashSet<>(groupAccountLinks);
                 Attribute ldapGroups = AttributeUtil.find(getGroupMembershipAttrName(), attributes);
 
                 if (ldapGroups != null) {

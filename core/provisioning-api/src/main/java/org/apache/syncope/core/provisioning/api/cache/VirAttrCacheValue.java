@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.api.cache;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -73,7 +74,7 @@ public class VirAttrCacheValue {
             res.addAll(value);
         }
 
-        return res;
+        return Collections.unmodifiableSet(res);
     }
 
     public Date getLastAccessDate() {

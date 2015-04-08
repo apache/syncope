@@ -22,6 +22,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.core.persistence.api.entity.Entitlement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,11 +75,13 @@ public final class GroupEntitlementUtil {
     }
 
     public static Set<Long> getGroupKeys(final List<Entitlement> entitlements) {
-        Set<String> names = new HashSet<>(entitlements.size());
-        for (Entitlement entitlement : entitlements) {
-            names.add(entitlement.getKey());
-        }
-        return GroupEntitlementUtil.getGroupKeys(names);
+        return getGroupKeys(CollectionUtils.collect(entitlements, new Transformer<Entitlement, String>() {
+
+            @Override
+            public String transform(final Entitlement entitlement) {
+                return entitlement.getKey();
+            }
+        }, new HashSet<String>()));
     }
 
     /**

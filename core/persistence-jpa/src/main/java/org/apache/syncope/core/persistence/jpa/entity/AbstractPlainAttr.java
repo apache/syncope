@@ -80,7 +80,7 @@ public abstract class AbstractPlainAttr extends AbstractEntity<Long> implements 
             result = Collections.singletonList(getUniqueValue().getValueAsString());
         }
 
-        return result;
+        return Collections.unmodifiableList(result);
     }
 
 }

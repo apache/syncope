@@ -207,6 +207,7 @@ public interface PropagationManager {
      * the creation fails onto a mandatory resource.
      *
      * @param userKey to be deleted
+     * @param resourceNames resources
      * @param noPropResourceNames name of external resources not to be considered for propagation
      * @return list of propagation tasks
      */
@@ -231,7 +232,7 @@ public interface PropagationManager {
      * @param noPropResourceNames external resource names not to be considered for propagation
      * @return list of propagation tasks
      */
-    List<PropagationTask> getUserUpdateTaskIds(User user, Boolean enable, Set<String> noPropResourceNames);
+    List<PropagationTask> getUserUpdateTaskIds(User user, Boolean enable, Collection<String> noPropResourceNames);
 
     /**
      * Performs update on each resource associated to the user.

@@ -20,9 +20,10 @@ package org.apache.syncope.core.provisioning.java.sync;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.mod.AbstractSubjectMod;
 import org.apache.syncope.common.lib.mod.MembershipMod;
 import org.apache.syncope.common.lib.mod.UserMod;
@@ -32,7 +33,6 @@ import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
-import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.membership.Membership;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
@@ -98,20 +98,19 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
      * @return the name of the attribute used to keep track of group memberships
      */
     protected String getGroupMembershipAttrName(final Connector connector) {
-        ConnInstance connInstance = connector.getActiveConnInstance();
-        Iterator<ConnConfProperty> propertyIterator = connInstance.getConfiguration().iterator();
-        String groupMembershipName = "uniquemember";
-        while (propertyIterator.hasNext()) {
-            ConnConfProperty property = propertyIterator.next();
-            if ("groupMemberAttribute".equals(property.getSchema().getName())
-                    && property.getValues() != null && !property.getValues().isEmpty()) {
+        ConnConfProperty groupMembership = CollectionUtils.find(connector.getActiveConnInstance().getConfiguration(),
+                new Predicate<ConnConfProperty>() {
 
-                groupMembershipName = (String) property.getValues().get(0);
-                break;
-            }
-        }
+                    @Override
+                    public boolean evaluate(final ConnConfProperty property) {
+                        return "groupMemberAttribute".equals(property.getSchema().getName())
+                        && property.getValues() != null && !property.getValues().isEmpty();
+                    }
+                });
 
-        return groupMembershipName;
+        return groupMembership == null
+                ? "uniquemember"
+                : (String) groupMembership.getValues().get(0);
     }
 
     /**

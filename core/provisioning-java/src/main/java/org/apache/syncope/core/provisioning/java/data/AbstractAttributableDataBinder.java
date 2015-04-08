@@ -166,7 +166,6 @@ abstract class AbstractAttributableDataBinder {
             schema = plainSchemaDAO.find(schemaName, reference);
 
             // safely ignore invalid schemas from AttrTO
-            // see http://code.google.com/p/syncope/issues/detail?id=17
             if (schema == null) {
                 LOG.debug("Ignoring invalid schema {}", schemaName);
             } else if (schema.isReadonly()) {
@@ -753,8 +752,7 @@ abstract class AbstractAttributableDataBinder {
             if ((type == AttributableType.USER && resource.getUmapping() != null)
                     || (type == AttributableType.GROUP && resource.getGmapping() != null)) {
 
-                MappingItem accountIdItem =
-                        attrUtilFactory.getInstance(type).getAccountIdItem(resource);
+                MappingItem accountIdItem = attrUtilFactory.getInstance(type).getAccountIdItem(resource);
                 if (accountIdItem == null) {
                     throw new NotFoundException(
                             "AccountId mapping for " + type + " " + subject.getKey()

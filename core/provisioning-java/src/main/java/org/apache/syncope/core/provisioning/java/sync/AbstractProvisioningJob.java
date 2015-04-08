@@ -22,6 +22,8 @@ import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.core.persistence.api.dao.EntitlementDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
@@ -315,11 +317,14 @@ public abstract class AbstractProvisioningJob<T extends ProvisioningTask, A exte
     @Override
     protected String doExecute(final boolean dryRun) throws JobExecutionException {
         // PRE: grant all authorities (i.e. setup the SecurityContextHolder)
-        final List<GrantedAuthority> authorities = new ArrayList<>();
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        CollectionUtils.collect(entitlementDAO.findAll(), new Transformer<Entitlement, GrantedAuthority>() {
 
-        for (Entitlement entitlement : entitlementDAO.findAll()) {
-            authorities.add(new SimpleGrantedAuthority(entitlement.getKey()));
-        }
+            @Override
+            public GrantedAuthority transform(final Entitlement entitlement) {
+                return new SimpleGrantedAuthority(entitlement.getKey());
+            }
+        }, authorities);
 
         final UserDetails userDetails = new User("admin", "FAKE_PASSWORD", true, true, true, true, authorities);
 

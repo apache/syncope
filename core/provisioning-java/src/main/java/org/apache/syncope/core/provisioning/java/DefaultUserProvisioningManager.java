@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.syncope.common.lib.mod.MembershipMod;
 import org.apache.syncope.common.lib.mod.StatusMod;
 import org.apache.syncope.common.lib.mod.UserMod;
@@ -234,11 +235,11 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
     }
 
     protected List<PropagationStatus> propagateStatus(final User user, final StatusMod statusMod) {
-        Set<String> resourcesToBeExcluded = new HashSet<>(user.getResourceNames());
-        resourcesToBeExcluded.removeAll(statusMod.getResourceNames());
+        Collection<String> noPropResourceNames =
+                CollectionUtils.removeAll(user.getResourceNames(), statusMod.getResourceNames());
 
         List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(
-                user, statusMod.getType() != StatusMod.ModType.SUSPEND, resourcesToBeExcluded);
+                user, statusMod.getType() != StatusMod.ModType.SUSPEND, noPropResourceNames);
         PropagationReporter propReporter =
                 ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
         try {
@@ -274,11 +275,10 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
     public List<PropagationStatus> deprovision(final Long userKey, final Collection<String> resources) {
         final User user = userDAO.authFetch(userKey);
 
-        final Set<String> noPropResourceName = user.getResourceNames();
-        noPropResourceName.removeAll(resources);
+        Collection<String> noPropResourceNames = CollectionUtils.removeAll(user.getResourceNames(), resources);
 
         final List<PropagationTask> tasks =
-                propagationManager.getUserDeleteTaskIds(userKey, new HashSet<>(resources), noPropResourceName);
+                propagationManager.getUserDeleteTaskIds(userKey, new HashSet<>(resources), noPropResourceNames);
         final PropagationReporter propagationReporter =
                 ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
         try {
@@ -330,12 +330,10 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
             }
         }
 
-        PropagationReporter propagationReporter = ApplicationContextProvider.getApplicationContext().
-                getBean(PropagationReporter.class);
-
         List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(
                 updated, updated.getResult().getKey().getPassword() != null, excludedResources);
-
+        PropagationReporter propagationReporter = ApplicationContextProvider.getApplicationContext().
+                getBean(PropagationReporter.class);
         try {
             taskExecutor.execute(tasks, propagationReporter);
         } catch (PropagationException e) {

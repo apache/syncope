@@ -26,6 +26,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.mod.AttrMod;
 import org.apache.syncope.common.lib.mod.MembershipMod;
 import org.apache.syncope.common.lib.mod.UserMod;
@@ -173,10 +175,15 @@ public class PropagationManagerImpl implements PropagationManager {
             virAttrHandler.fillVirtual(user, vAttrs, attrUtilFactory.getInstance(AttributableType.USER));
 
         }
-        for (Membership membership : user.getMemberships()) {
-            MembershipTO membershipTO;
+        for (final Membership membership : user.getMemberships()) {
             if (membership.getVirAttrs() != null && !membership.getVirAttrs().isEmpty()) {
-                membershipTO = findMembershipTO(membership, membershipTOs);
+                MembershipTO membershipTO = CollectionUtils.find(membershipTOs, new Predicate<MembershipTO>() {
+
+                    @Override
+                    public boolean evaluate(final MembershipTO membershipTO) {
+                        return membershipTO.getGroupId() == membership.getGroup().getKey();
+                    }
+                });
                 if (membershipTO != null) {
                     virAttrHandler.fillVirtual(membership,
                             membershipTO.getVirAttrs(), attrUtilFactory.getInstance(AttributableType.MEMBERSHIP));
@@ -276,7 +283,7 @@ public class PropagationManagerImpl implements PropagationManager {
      */
     @Override
     public List<PropagationTask> getUserUpdateTaskIds(final User user, final Boolean enable,
-            final Set<String> noPropResourceNames) throws NotFoundException {
+            final Collection<String> noPropResourceNames) throws NotFoundException {
 
         return getUpdateTaskIds(
                 user, // user to be updated on external resources
@@ -385,6 +392,7 @@ public class PropagationManagerImpl implements PropagationManager {
      * @throws NotFoundException if group is not found
      * @throws UnauthorizedGroupException if caller doesn't own enough entitlements to administer the given group
      */
+    @Override
     public List<PropagationTask> getGroupUpdateTaskIds(final WorkflowResult<Long> wfResult,
             final Set<String> vAttrsToBeRemoved, final Set<AttrMod> vAttrsToBeUpdated,
             final Set<String> noPropResourceNames)
@@ -413,9 +421,16 @@ public class PropagationManagerImpl implements PropagationManager {
         // SYNCOPE-458 fill membership virtual attributes
         if (subject instanceof User) {
             final User user = (User) subject;
-            for (Membership membership : user.getMemberships()) {
+            for (final Membership membership : user.getMemberships()) {
                 if (membership.getVirAttrs() != null && !membership.getVirAttrs().isEmpty()) {
-                    final MembershipMod membershipMod = findMembershipMod(membership, membershipsToAdd);
+                    final MembershipMod membershipMod = CollectionUtils.find(membershipsToAdd,
+                            new Predicate<MembershipMod>() {
+
+                                @Override
+                                public boolean evaluate(final MembershipMod membershipMod) {
+                                    return membershipMod.getGroup() == membership.getGroup().getKey();
+                                }
+                            });
                     if (membershipMod != null) {
                         virAttrHandler.fillVirtual(membership, membershipMod.getVirAttrsToRemove() == null
                                 ? Collections.<String>emptySet()
@@ -749,25 +764,5 @@ public class PropagationManagerImpl implements PropagationManager {
         }
 
         return tasks;
-    }
-
-    protected MembershipTO findMembershipTO(final Membership membership, final Collection<MembershipTO> memberships) {
-        for (MembershipTO membershipTO : memberships) {
-            if (membershipTO.getGroupId() == membership.getGroup().getKey()) {
-                return membershipTO;
-            }
-        }
-        LOG.error("No MembershipTO found for membership {}", membership);
-        return null;
-    }
-
-    protected MembershipMod findMembershipMod(final Membership membership, final Set<MembershipMod> membershipMods) {
-        for (MembershipMod membershipMod : membershipMods) {
-            if (membershipMod.getGroup() == membership.getGroup().getKey()) {
-                return membershipMod;
-            }
-        }
-        LOG.error("No MembershipMod found for membership {}", membership);
-        return null;
     }
 }

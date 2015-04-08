@@ -154,7 +154,7 @@ public class AsyncConnectorFacade {
 
     @Async
     public Future<Set<String>> getSchemaNames(final ConnectorFacade connector, final boolean includeSpecial) {
-        final Set<String> schemaNames = new HashSet<String>();
+        final Set<String> schemaNames = new HashSet<>();
 
         try {
             final Schema schema = connector.schema();
@@ -175,7 +175,7 @@ public class AsyncConnectorFacade {
 
     @Async
     public Future<Set<ObjectClass>> getSupportedObjectClasses(final ConnectorFacade connector) {
-        final Set<ObjectClass> objectClasses = new HashSet<ObjectClass>();
+        final Set<ObjectClass> objectClasses = new HashSet<>();
 
         try {
             final Schema schema = connector.schema();

@@ -116,10 +116,12 @@ public abstract class AbstractSyncopeResultHandler<T extends ProvisioningTask, A
      */
     protected ProvisioningProfile<T, A> profile;
 
+    @Override
     public void setProfile(final ProvisioningProfile<T, A> profile) {
         this.profile = profile;
     }
 
+    @Override
     public ProvisioningProfile<T, A> getProfile() {
         return profile;
     }
