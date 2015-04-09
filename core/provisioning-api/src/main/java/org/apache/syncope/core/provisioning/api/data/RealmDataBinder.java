@@ -18,18 +18,15 @@
  */
 package org.apache.syncope.core.provisioning.api.data;
 
-import org.apache.syncope.common.lib.to.ResourceTO;
-import org.apache.syncope.core.persistence.api.entity.ConnInstance;
-import org.apache.syncope.core.persistence.api.entity.ExternalResource;
+import org.apache.syncope.common.lib.to.RealmTO;
+import org.apache.syncope.core.persistence.api.entity.Realm;
 
-public interface ResourceDataBinder {
+public interface RealmDataBinder {
 
-    ExternalResource create(ResourceTO resourceTO);
+    Realm create(String parentPath, RealmTO realmTO);
 
-    ConnInstance getConnInstance(ResourceTO resourceTO);
+    void update(Realm realm, RealmTO realmTO);
 
-    ResourceTO getResourceTO(ExternalResource resource);
-
-    ExternalResource update(ExternalResource resource, ResourceTO resourceTO);
+    RealmTO getRealmTO(Realm realm);
 
 }

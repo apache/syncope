@@ -16,20 +16,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.api.data;
+package org.apache.syncope.core.persistence.jpa.validation.entity;
 
-import org.apache.syncope.common.lib.to.ResourceTO;
-import org.apache.syncope.core.persistence.api.entity.ConnInstance;
-import org.apache.syncope.core.persistence.api.entity.ExternalResource;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-public interface ResourceDataBinder {
+import javax.validation.Constraint;
+import javax.validation.Payload;
 
-    ExternalResource create(ResourceTO resourceTO);
+@Target({ ElementType.TYPE })
+@Retention(RetentionPolicy.RUNTIME)
+@Constraint(validatedBy = RealmValidator.class)
+@Documented
+public @interface RealmCheck {
 
-    ConnInstance getConnInstance(ResourceTO resourceTO);
+    String message() default "{org.apache.syncope.core.persistence.validation.realm}";
 
-    ResourceTO getResourceTO(ExternalResource resource);
+    Class<?>[] groups() default {};
 
-    ExternalResource update(ExternalResource resource, ResourceTO resourceTO);
-
+    Class<? extends Payload>[] payload() default {};
 }

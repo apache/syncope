@@ -18,6 +18,8 @@ specific language governing permissions and limitations
 under the License.
 -->
 <dataset>
+  <Realm id="1" name="/"/>
+
   <SyncopeConf id="1" 
                creator="admin" lastModifier="admin"
                creationDate="2014-06-20 11:00:00" lastChangeDate="2014-06-20 11:00:00"/>
@@ -109,6 +111,10 @@ under the License.
   <Notification_events Notification_id="2" events="[CUSTOM]:[]:[]:[confirmPasswordReset]:[SUCCESS]"/>  
   
   <!-- Authentication and authorization -->
+  <Entitlement name="REALM_LIST"/>
+  <Entitlement name="REALM_CREATE"/>
+  <Entitlement name="REALM_UPDATE"/>
+  <Entitlement name="REALM_DELETE"/>
   <Entitlement name="SCHEMA_LIST"/>
   <Entitlement name="SCHEMA_CREATE"/>
   <Entitlement name="SCHEMA_READ"/>

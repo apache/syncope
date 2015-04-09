@@ -26,17 +26,17 @@ public final class RESTHeaders {
     /**
      * UserId option key.
      */
-    public static final String USER_ID = "Syncope.UserId";
+    public static final String USER_ID = "X-Syncope-User-Id";
 
     /**
      * Username option key.
      */
-    public static final String USERNAME = "Syncope.Username";
+    public static final String USERNAME = "X-Syncope-Username";
 
     /**
      * HTTP header key for object ID assigned to an object after its creation.
      */
-    public static final String RESOURCE_ID = "Syncope.Id";
+    public static final String RESOURCE_ID = "X-Syncope-Id";
 
     /**
      * Declares the type of exception being raised.

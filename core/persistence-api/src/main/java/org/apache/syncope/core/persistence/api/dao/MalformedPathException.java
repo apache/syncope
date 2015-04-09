@@ -16,20 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.api.data;
+package org.apache.syncope.core.persistence.api.dao;
 
-import org.apache.syncope.common.lib.to.ResourceTO;
-import org.apache.syncope.core.persistence.api.entity.ConnInstance;
-import org.apache.syncope.core.persistence.api.entity.ExternalResource;
+/**
+ * Thrown when the realm path provided is not well formed.
+ */
+public class MalformedPathException extends RuntimeException {
 
-public interface ResourceDataBinder {
+    private static final long serialVersionUID = -164735562182120006L;
 
-    ExternalResource create(ResourceTO resourceTO);
-
-    ConnInstance getConnInstance(ResourceTO resourceTO);
-
-    ResourceTO getResourceTO(ExternalResource resource);
-
-    ExternalResource update(ExternalResource resource, ResourceTO resourceTO);
-
+    public MalformedPathException(final String path) {
+        super("Malformed path: " + path);
+    }
 }

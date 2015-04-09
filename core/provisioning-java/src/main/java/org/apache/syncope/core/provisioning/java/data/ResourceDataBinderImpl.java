@@ -19,10 +19,8 @@
 package org.apache.syncope.core.provisioning.java.data;
 
 import org.apache.syncope.core.provisioning.api.data.ResourceDataBinder;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
@@ -234,16 +232,6 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
 
         final ConnInstance connInstanceClone = SerializationUtils.clone(connInstance);
         return connRegistry.getOverriddenConnInstance(connInstanceClone, resourceTO.getConnConfProperties());
-    }
-
-    @Override
-    public List<ResourceTO> getResourceTOs(final Collection<? extends ExternalResource> resources) {
-        List<ResourceTO> resourceTOs = new ArrayList<>();
-        for (ExternalResource resource : resources) {
-            resourceTOs.add(getResourceTO(resource));
-        }
-
-        return resourceTOs;
     }
 
     @Override

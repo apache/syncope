@@ -22,6 +22,8 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
@@ -146,15 +148,16 @@ public class TaskLogic extends AbstractTransactionalLogic<AbstractTaskTO> {
     public <T extends AbstractTaskTO> List<T> list(final TaskType taskType,
             final int page, final int size, final List<OrderByClause> orderByClauses) {
 
-        TaskUtil taskUtil = taskUtilFactory.getInstance(taskType);
+        final TaskUtil taskUtil = taskUtilFactory.getInstance(taskType);
 
-        List<Task> tasks = taskDAO.findAll(page, size, orderByClauses, taskType);
-        List<T> taskTOs = new ArrayList<>(tasks.size());
-        for (Task task : tasks) {
-            taskTOs.add((T) binder.getTaskTO(task, taskUtil));
-        }
+        return CollectionUtils.collect(taskDAO.findAll(page, size, orderByClauses, taskType),
+                new Transformer<Task, T>() {
 
-        return taskTOs;
+                    @Override
+                    public T transform(final Task task) {
+                        return (T) binder.getTaskTO(task, taskUtil);
+                    }
+                }, new ArrayList<T>());
     }
 
     @PreAuthorize("hasRole('TASK_READ')")
@@ -236,8 +239,7 @@ public class TaskLogic extends AbstractTransactionalLogic<AbstractTaskTO> {
             throw new NotFoundException("Task execution " + executionId);
         }
 
-        SyncopeClientException sce = SyncopeClientException.build(
-                ClientExceptionType.InvalidPropagationTaskExecReport);
+        SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidPropagationTaskExecReport);
 
         TaskUtil taskUtil = taskUtilFactory.getInstance(exec.getTask());
         if (TaskType.PROPAGATION == taskUtil.getType()) {
@@ -372,7 +374,7 @@ public class TaskLogic extends AbstractTransactionalLogic<AbstractTaskTO> {
             }
         }
 
-        if ((key != null) && !key.equals(0l)) {
+        if ((key != null) && !key.equals(0L)) {
             try {
                 final Task task = taskDAO.find(key);
                 return binder.getTaskTO(task, taskUtilFactory.getInstance(task));

@@ -112,7 +112,7 @@ public class UserWorkflowLogic extends AbstractTransactionalLogic<WorkflowFormTO
 
             List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(
                     new WorkflowResult<Map.Entry<UserMod, Boolean>>(
-                            new AbstractMap.SimpleEntry<UserMod, Boolean>((UserMod) updated.getResult(), Boolean.TRUE),
+                            new AbstractMap.SimpleEntry<>((UserMod) updated.getResult(), Boolean.TRUE),
                             updated.getPropByRes(),
                             updated.getPerformedTasks()));
 

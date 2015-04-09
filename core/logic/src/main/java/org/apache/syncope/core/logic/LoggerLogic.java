@@ -18,12 +18,17 @@
  */
 package org.apache.syncope.core.logic;
 
+import static org.apache.syncope.core.logic.AbstractLogic.LOG;
+
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.PredicateUtils;
+import org.apache.commons.collections4.Transformer;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
@@ -42,6 +47,7 @@ import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
+import org.apache.syncope.common.lib.CollectionUtils2;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.LoggerDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -81,14 +87,15 @@ public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
     private EntityFactory entityFactory;
 
     private List<LoggerTO> list(final LoggerType type) {
-        List<LoggerTO> result = new ArrayList<>();
-        for (Logger logger : loggerDAO.findAll(type)) {
-            LoggerTO loggerTO = new LoggerTO();
-            BeanUtils.copyProperties(logger, loggerTO);
-            result.add(loggerTO);
-        }
+        return CollectionUtils.collect(loggerDAO.findAll(type), new Transformer<Logger, LoggerTO>() {
 
-        return result;
+            @Override
+            public LoggerTO transform(final Logger logger) {
+                LoggerTO loggerTO = new LoggerTO();
+                BeanUtils.copyProperties(logger, loggerTO);
+                return loggerTO;
+            }
+        }, new ArrayList<LoggerTO>());
     }
 
     @PreAuthorize("hasRole('LOG_LIST')")
@@ -100,17 +107,20 @@ public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
     @PreAuthorize("hasRole('AUDIT_LIST')")
     @Transactional(readOnly = true)
     public List<AuditLoggerName> listAudits() {
-        List<AuditLoggerName> result = new ArrayList<>();
+        return CollectionUtils2.collect(list(LoggerType.AUDIT), new Transformer<LoggerTO, AuditLoggerName>() {
 
-        for (LoggerTO logger : list(LoggerType.AUDIT)) {
-            try {
-                result.add(AuditLoggerName.fromLoggerName(logger.getKey()));
-            } catch (Exception e) {
-                LOG.warn("Unexpected audit logger name: {}", logger.getKey(), e);
+            @Override
+            public AuditLoggerName transform(final LoggerTO logger) {
+                AuditLoggerName result = null;
+                try {
+                    result = AuditLoggerName.fromLoggerName(logger.getKey());
+                } catch (Exception e) {
+                    LOG.warn("Unexpected audit logger name: {}", logger.getKey(), e);
+                }
+
+                return result;
             }
-        }
-
-        return result;
+        }, PredicateUtils.notNullPredicate(), new ArrayList<AuditLoggerName>());
     }
 
     private void throwInvalidLogger(final LoggerType type) {
@@ -213,7 +223,7 @@ public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
     @PreAuthorize("hasRole('AUDIT_LIST') or hasRole('NOTIFICATION_LIST')")
     public List<EventCategoryTO> listAuditEvents() {
         // use set to avoi duplications or null elements
-        final Set<EventCategoryTO> events = new HashSet<EventCategoryTO>();
+        final Set<EventCategoryTO> events = new HashSet<>();
 
         try {
             final ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();

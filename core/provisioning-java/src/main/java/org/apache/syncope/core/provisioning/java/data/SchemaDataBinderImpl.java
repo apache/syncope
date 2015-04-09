@@ -90,7 +90,7 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
     }
 
     @Override
-    public <T extends PlainSchema> PlainSchemaTO getSchemaTO(
+    public <T extends PlainSchema> PlainSchemaTO getPlainSchemaTO(
             final T schema, final AttributableUtil attributableUtil) {
 
         PlainSchemaTO schemaTO = new PlainSchemaTO();

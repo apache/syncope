@@ -30,6 +30,7 @@ import org.apache.syncope.core.persistence.api.entity.Notification;
 import org.apache.syncope.core.persistence.api.entity.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.Policy;
 import org.apache.syncope.core.persistence.api.entity.PushPolicy;
+import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
 import org.apache.syncope.core.persistence.api.entity.ReportletConfInstance;
@@ -141,7 +142,9 @@ public class JPAEntityFactory implements EntityFactory {
     public <KEY, T extends Entity<KEY>> T newEntity(final Class<T> reference) {
         T result;
 
-        if (reference.equals(User.class)) {
+        if (reference.equals(Realm.class)) {
+            result = (T) new JPARealm();
+        } else if (reference.equals(User.class)) {
             result = (T) new JPAUser();
         } else if (reference.equals(Group.class)) {
             result = (T) new JPAGroup();

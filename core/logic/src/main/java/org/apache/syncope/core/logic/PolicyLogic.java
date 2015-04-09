@@ -21,6 +21,8 @@ package org.apache.syncope.core.logic;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.to.AbstractPolicyTO;
 import org.apache.syncope.common.lib.to.AccountPolicyTO;
@@ -89,17 +91,14 @@ public class PolicyLogic extends AbstractTransactionalLogic<AbstractPolicyTO> {
     }
 
     @PreAuthorize("hasRole('POLICY_LIST')")
-    @SuppressWarnings("unchecked")
     public <T extends AbstractPolicyTO> List<T> list(final PolicyType type) {
+        return CollectionUtils.collect(policyDAO.find(type), new Transformer<Policy, T>() {
 
-        List<? extends Policy> policies = policyDAO.find(type);
-
-        final List<T> policyTOs = new ArrayList<T>();
-        for (Policy policy : policies) {
-            policyTOs.add((T) binder.getPolicyTO(policy));
-        }
-
-        return policyTOs;
+            @Override
+            public T transform(final Policy input) {
+                return binder.getPolicyTO(input);
+            }
+        }, new ArrayList<T>());
     }
 
     @PreAuthorize("hasRole('POLICY_READ')")
@@ -173,7 +172,7 @@ public class PolicyLogic extends AbstractTransactionalLogic<AbstractPolicyTO> {
             }
         }
 
-        if ((id != null) && !id.equals(0l)) {
+        if ((id != null) && !id.equals(0L)) {
             try {
                 return binder.getPolicyTO(policyDAO.find(id));
             } catch (Throwable ignore) {

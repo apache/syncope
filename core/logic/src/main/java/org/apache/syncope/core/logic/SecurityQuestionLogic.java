@@ -21,6 +21,8 @@ package org.apache.syncope.core.logic;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.to.SecurityQuestionTO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -47,12 +49,14 @@ public class SecurityQuestionLogic extends AbstractTransactionalLogic<SecurityQu
 
     @PreAuthorize("isAuthenticated()")
     public List<SecurityQuestionTO> list() {
-        List<SecurityQuestionTO> result = new ArrayList<>();
-        for (SecurityQuestion securityQuestion : securityQuestionDAO.findAll()) {
-            result.add(binder.getSecurityQuestionTO(securityQuestion));
-        }
+        return CollectionUtils.collect(securityQuestionDAO.findAll(),
+                new Transformer<SecurityQuestion, SecurityQuestionTO>() {
 
-        return result;
+                    @Override
+                    public SecurityQuestionTO transform(final SecurityQuestion input) {
+                        return binder.getSecurityQuestionTO(input);
+                    }
+                }, new ArrayList<SecurityQuestionTO>());
     }
 
     @PreAuthorize("isAuthenticated()")
@@ -136,7 +140,7 @@ public class SecurityQuestionLogic extends AbstractTransactionalLogic<SecurityQu
             }
         }
 
-        if ((key != null) && !key.equals(0l)) {
+        if ((key != null) && !key.equals(0L)) {
             try {
                 return binder.getSecurityQuestionTO(securityQuestionDAO.find(key));
             } catch (Throwable ignore) {

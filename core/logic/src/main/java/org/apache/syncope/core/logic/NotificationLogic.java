@@ -21,6 +21,8 @@ package org.apache.syncope.core.logic;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.to.NotificationTO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -54,14 +56,13 @@ public class NotificationLogic extends AbstractTransactionalLogic<NotificationTO
 
     @PreAuthorize("hasRole('NOTIFICATION_LIST')")
     public List<NotificationTO> list() {
-        List<Notification> notifications = notificationDAO.findAll();
+        return CollectionUtils.collect(notificationDAO.findAll(), new Transformer<Notification, NotificationTO>() {
 
-        List<NotificationTO> notificationTOs = new ArrayList<NotificationTO>();
-        for (Notification notification : notifications) {
-            notificationTOs.add(binder.getNotificationTO(notification));
-        }
-
-        return notificationTOs;
+            @Override
+            public NotificationTO transform(final Notification input) {
+                return binder.getNotificationTO(input);
+            }
+        }, new ArrayList<NotificationTO>());
     }
 
     @PreAuthorize("hasRole('NOTIFICATION_CREATE')")
@@ -113,7 +114,7 @@ public class NotificationLogic extends AbstractTransactionalLogic<NotificationTO
             }
         }
 
-        if ((key != null) && !key.equals(0l)) {
+        if ((key != null) && !key.equals(0L)) {
             try {
                 return binder.getNotificationTO(notificationDAO.find(key));
             } catch (Throwable ignore) {

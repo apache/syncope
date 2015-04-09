@@ -18,6 +18,11 @@ specific language governing permissions and limitations
 under the License.
 -->
 <dataset>
+  <Realm id="1" name="/"/>
+  <Realm id="2" name="odd" parent_id="1"/>
+  <Realm id="3" name="even" parent_id="1"/>
+  <Realm id="4" name="two" parent_id="3"/>
+  
   <SyncopeConf id="1" 
                creator="admin" lastModifier="admin"
                creationDate="2014-06-20 11:00:00" lastChangeDate="2014-06-20 11:00:00"/>
@@ -127,66 +132,66 @@ under the License.
                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00" suspended="0"/>
 
   <SyncopeGroup id="1" name="root"
-               creator="admin" lastModifier="admin" 
-               creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+                creator="admin" lastModifier="admin" 
+                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
   <SyncopeGroup id="2" name="child" parent_id="1"
-               creator="admin" lastModifier="admin" 
-               creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+                creator="admin" lastModifier="admin" 
+                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
   <SyncopeGroup id="3" name="citizen"
-               creator="admin" lastModifier="admin" 
-               creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+                creator="admin" lastModifier="admin" 
+                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
   <SyncopeGroup id="4" name="employee" parent_id="3"
-               creator="admin" lastModifier="admin" 
-               creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+                creator="admin" lastModifier="admin" 
+                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
   <SyncopeGroup id="5" name="secretary" parent_id="4"
-               creator="admin" lastModifier="admin" 
-               creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+                creator="admin" lastModifier="admin" 
+                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
   <SyncopeGroup id="6"
-               name="director" parent_id="4" userOwner_id="5"
-               inheritPlainAttrs="1" inheritDerAttrs="1" inheritVirAttrs="1"
-               inheritPasswordPolicy="0" inheritAccountPolicy="0"
-               passwordPolicy_id="4"
-               accountPolicy_id="6"
-               creator="admin" lastModifier="admin" 
-               creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+                name="director" parent_id="4" userOwner_id="5"
+                inheritPlainAttrs="1" inheritDerAttrs="1" inheritVirAttrs="1"
+                inheritPasswordPolicy="0" inheritAccountPolicy="0"
+                passwordPolicy_id="4"
+                accountPolicy_id="6"
+                creator="admin" lastModifier="admin" 
+                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
   <SyncopeGroup id="7"
-               name="managingDirector" parent_id="6"
-               inheritPlainAttrs="1" inheritDerAttrs="1" inheritVirAttrs="1"
-               inheritPasswordPolicy="1" inheritAccountPolicy="1" inheritOwner="1"
-               creator="admin" lastModifier="admin" 
-               creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+                name="managingDirector" parent_id="6"
+                inheritPlainAttrs="1" inheritDerAttrs="1" inheritVirAttrs="1"
+                inheritPasswordPolicy="1" inheritAccountPolicy="1" inheritOwner="1"
+                creator="admin" lastModifier="admin" 
+                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
   <SyncopeGroup id="8"
-               name="otherchild" parent_id="1"
-               inheritVirAttrs="1"
-               passwordPolicy_id="4"
-               creator="admin" lastModifier="admin" 
-               creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+                name="otherchild" parent_id="1"
+                inheritVirAttrs="1"
+                passwordPolicy_id="4"
+                creator="admin" lastModifier="admin" 
+                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
   <SyncopeGroup id="9" name="groupForWorkflowApproval" parent_id="1"
-               creator="admin" lastModifier="admin" 
-               creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+                creator="admin" lastModifier="admin" 
+                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
   <SyncopeGroup id="10"
-               name="managingConsultant" parent_id="6"
-               inheritPlainAttrs="1" inheritDerAttrs="1" inheritVirAttrs="1"
-               inheritPasswordPolicy="1" inheritAccountPolicy="1" inheritOwner="0"
-               creator="admin" lastModifier="admin" 
-               creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+                name="managingConsultant" parent_id="6"
+                inheritPlainAttrs="1" inheritDerAttrs="1" inheritVirAttrs="1"
+                inheritPasswordPolicy="1" inheritAccountPolicy="1" inheritOwner="0"
+                creator="admin" lastModifier="admin" 
+                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
   <SyncopeGroup id="11" name="groupForWorkflowOptIn" parent_id="1"
-               creator="admin" lastModifier="admin" 
-               creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+                creator="admin" lastModifier="admin" 
+                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
   <SyncopeGroup id="12" name="aGroupForPropagation" parent_id="1"
-               creator="admin" lastModifier="admin" 
-               creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+                creator="admin" lastModifier="admin" 
+                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
   <SyncopeGroup id="13" name="bGroupForPropagation" parent_id="1"
-               creator="admin" lastModifier="admin" 
-               creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+                creator="admin" lastModifier="admin" 
+                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
   <SyncopeGroup id="14"
-               name="artDirector" parent_id="4"
-               inheritPlainAttrs="1" inheritDerAttrs="1" inheritVirAttrs="1"
-               inheritPasswordPolicy="0" inheritAccountPolicy="0"
-               passwordPolicy_id="8"
-               accountPolicy_id="6"
-               creator="admin" lastModifier="admin" 
-               creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+                name="artDirector" parent_id="4"
+                inheritPlainAttrs="1" inheritDerAttrs="1" inheritVirAttrs="1"
+                inheritPasswordPolicy="0" inheritAccountPolicy="0"
+                passwordPolicy_id="8"
+                accountPolicy_id="6"
+                creator="admin" lastModifier="admin" 
+                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
 
   <Membership id="1" user_id="1" group_id="1"
               creator="admin" lastModifier="admin" 
@@ -1019,6 +1024,10 @@ under the License.
   <!-- Authentication and authorization -->
   <Entitlement name="base"/>
   <Entitlement name="advanced" description="Advanced entitlement"/>
+  <Entitlement name="REALM_LIST"/>
+  <Entitlement name="REALM_CREATE"/>
+  <Entitlement name="REALM_UPDATE"/>
+  <Entitlement name="REALM_DELETE"/>
   <Entitlement name="SCHEMA_LIST"/>
   <Entitlement name="SCHEMA_CREATE"/>
   <Entitlement name="SCHEMA_READ"/>

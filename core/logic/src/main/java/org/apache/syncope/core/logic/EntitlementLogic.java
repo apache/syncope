@@ -22,6 +22,8 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.common.lib.wrap.EntitlementTO;
 import org.apache.syncope.core.persistence.api.dao.EntitlementDAO;
 import org.apache.syncope.core.persistence.api.entity.Entitlement;
@@ -36,13 +38,13 @@ public class EntitlementLogic extends AbstractTransactionalLogic<EntitlementTO> 
     private EntitlementDAO entitlementDAO;
 
     public List<String> getAll() {
-        List<Entitlement> entitlements = entitlementDAO.findAll();
-        List<String> result = new ArrayList<>(entitlements.size());
-        for (Entitlement entitlement : entitlements) {
-            result.add(entitlement.getKey());
-        }
+        return CollectionUtils.collect(entitlementDAO.findAll(), new Transformer<Entitlement, String>() {
 
-        return result;
+            @Override
+            public String transform(final Entitlement entitlement) {
+                return entitlement.getKey();
+            }
+        }, new ArrayList<String>());
     }
 
     public Set<String> getOwn() {

@@ -29,6 +29,8 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.common.lib.AbstractBaseBean;
 
 @XmlRootElement(name = "bulkActionResult")
@@ -51,7 +53,7 @@ public class BulkActionResult extends AbstractBaseBean {
 
     }
 
-    private final List<Result> results = new ArrayList<Result>();
+    private final List<Result> results = new ArrayList<>();
 
     @XmlElementWrapper(name = "result")
     @XmlElement(name = "item")
@@ -76,7 +78,7 @@ public class BulkActionResult extends AbstractBaseBean {
 
     @JsonIgnore
     public Map<String, Status> getResultMap() {
-        final Map<String, Status> res = new HashMap<String, Status>();
+        final Map<String, Status> res = new HashMap<>();
 
         for (Result result : results) {
             res.put(result.getKey(), result.getValue());
@@ -87,7 +89,7 @@ public class BulkActionResult extends AbstractBaseBean {
 
     @JsonIgnore
     public List<String> getResultByStatus(final Status status) {
-        final List<String> res = new ArrayList<String>();
+        final List<String> res = new ArrayList<>();
 
         for (Result result : results) {
             if (result.getValue() == status) {

@@ -39,7 +39,7 @@ public class EntitlementTest extends AbstractTest {
     @Test
     public void findAll() {
         List<Entitlement> list = entitlementDAO.findAll();
-        assertEquals("did not get expected number of entitlements ", 86, list.size());
+        assertEquals("did not get expected number of entitlements ", 90, list.size());
     }
 
     @Test

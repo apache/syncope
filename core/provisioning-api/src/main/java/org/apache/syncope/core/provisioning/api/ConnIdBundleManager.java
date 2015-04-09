@@ -37,7 +37,7 @@ public interface ConnIdBundleManager {
     ConnectorInfo getConnectorInfo(final String location, final String bundleName, final String bundleVersion,
             final String connectorName);
 
-    Map<String, List<ConnectorInfo>> getConnectorInfos();
+    Map<URI, ConnectorInfoManager> getConnInfoManagers();
 
     void resetConnManagers();
 

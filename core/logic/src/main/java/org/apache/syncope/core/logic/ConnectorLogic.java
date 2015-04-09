@@ -19,11 +19,14 @@
 package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import org.apache.commons.collections4.PredicateUtils;
+import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -33,6 +36,7 @@ import org.apache.syncope.common.lib.to.ConnBundleTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
+import org.apache.syncope.common.lib.CollectionUtils2;
 import org.apache.syncope.core.persistence.api.dao.ConnInstanceDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -45,6 +49,7 @@ import org.apache.syncope.core.provisioning.api.data.ConnInstanceDataBinder;
 import org.identityconnectors.common.l10n.CurrentLocale;
 import org.identityconnectors.framework.api.ConfigurationProperties;
 import org.identityconnectors.framework.api.ConnectorInfo;
+import org.identityconnectors.framework.api.ConnectorInfoManager;
 import org.identityconnectors.framework.api.ConnectorKey;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -134,19 +139,20 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
             CurrentLocale.set(new Locale(lang));
         }
 
-        List<ConnInstance> connInstances = connInstanceDAO.findAll();
+        return CollectionUtils2.collect(connInstanceDAO.findAll(), new Transformer<ConnInstance, ConnInstanceTO>() {
 
-        final List<ConnInstanceTO> connInstanceTOs = new ArrayList<>();
+            @Override
+            public ConnInstanceTO transform(final ConnInstance input) {
+                ConnInstanceTO result = null;
+                try {
+                    result = binder.getConnInstanceTO(input);
+                } catch (NotFoundException e) {
+                    LOG.error("Connector '{}#{}' not found", input.getBundleName(), input.getVersion());
+                }
 
-        for (ConnInstance connector : connInstances) {
-            try {
-                connInstanceTOs.add(binder.getConnInstanceTO(connector));
-            } catch (NotFoundException e) {
-                LOG.error("Connector '{}#{}' not found", connector.getBundleName(), connector.getVersion());
+                return result;
             }
-        }
-
-        return connInstanceTOs;
+        }, PredicateUtils.notNullPredicate(), new ArrayList<ConnInstanceTO>());
     }
 
     @PreAuthorize("hasRole('CONNECTOR_READ')")
@@ -170,12 +176,12 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
         }
 
         List<ConnBundleTO> connectorBundleTOs = new ArrayList<>();
-        for (Map.Entry<String, List<ConnectorInfo>> entry : connIdBundleManager.getConnectorInfos().entrySet()) {
-            for (ConnectorInfo bundle : entry.getValue()) {
+        for (Map.Entry<URI, ConnectorInfoManager> entry : connIdBundleManager.getConnInfoManagers().entrySet()) {
+            for (ConnectorInfo bundle : entry.getValue().getConnectorInfos()) {
                 ConnBundleTO connBundleTO = new ConnBundleTO();
                 connBundleTO.setDisplayName(bundle.getConnectorDisplayName());
 
-                connBundleTO.setLocation(entry.getKey());
+                connBundleTO.setLocation(entry.getKey().toString());
 
                 ConnectorKey key = bundle.getConnectorKey();
                 connBundleTO.setBundleName(key.getBundleName());
@@ -187,8 +193,6 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
                 for (String propName : properties.getPropertyNames()) {
                     connBundleTO.getProperties().add(binder.buildConnConfPropSchema(properties.getProperty(propName)));
                 }
-
-                LOG.debug("Connector bundle: {}", connBundleTO);
 
                 connectorBundleTOs.add(connBundleTO);
             }

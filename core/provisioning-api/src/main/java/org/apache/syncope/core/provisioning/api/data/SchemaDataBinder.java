@@ -36,7 +36,7 @@ public interface SchemaDataBinder {
 
     <T extends DerSchema> DerSchemaTO getDerSchemaTO(T derSchema);
 
-    <T extends PlainSchema> PlainSchemaTO getSchemaTO(T schema, AttributableUtil attributableUtil);
+    <T extends PlainSchema> PlainSchemaTO getPlainSchemaTO(T schema, AttributableUtil attributableUtil);
 
     <T extends VirSchema> VirSchemaTO getVirSchemaTO(T virSchema);
 

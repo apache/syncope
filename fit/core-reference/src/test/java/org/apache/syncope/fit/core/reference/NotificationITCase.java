@@ -78,8 +78,7 @@ public class NotificationITCase extends AbstractITCase {
         notificationTO.setRecipients(SyncopeClient.getUserSearchConditionBuilder().inGroups(7L).query());
 
         Response response = notificationService.create(notificationTO);
-        NotificationTO actual = getObject(response.getLocation(), NotificationService.class,
-                NotificationTO.class);
+        NotificationTO actual = getObject(response.getLocation(), NotificationService.class, NotificationTO.class);
 
         assertNotNull(actual);
         assertNotNull(actual.getKey());

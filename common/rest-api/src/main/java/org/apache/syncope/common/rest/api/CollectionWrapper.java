@@ -68,7 +68,7 @@ public final class CollectionWrapper {
     }
 
     public static List<LoggerTO> unwrapLogger(final Collection<AuditLoggerName> auditNames) {
-        List<LoggerTO> respons = new ArrayList<LoggerTO>();
+        List<LoggerTO> respons = new ArrayList<>();
         for (AuditLoggerName l : auditNames) {
             LoggerTO loggerTO = new LoggerTO();
             loggerTO.setKey(l.toLoggerName());

@@ -256,12 +256,8 @@ public class ConnIdBundleManagerImpl implements ConnIdBundleManager {
     }
 
     @Override
-    public Map<String, List<ConnectorInfo>> getConnectorInfos() {
-        final Map<String, List<ConnectorInfo>> infos = new LinkedHashMap<>();
-        for (Map.Entry<URI, ConnectorInfoManager> entry : connInfoManagers.entrySet()) {
-            infos.put(entry.getKey().toString(), entry.getValue().getConnectorInfos());
-        }
-        return infos;
+    public Map<URI, ConnectorInfoManager> getConnInfoManagers() {
+        return connInfoManagers;
     }
 
     @Override

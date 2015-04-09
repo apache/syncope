@@ -26,6 +26,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.Resource;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
+import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.mod.GroupMod;
@@ -35,6 +38,7 @@ import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.SubjectType;
+import org.apache.syncope.common.lib.CollectionUtils2;
 import org.apache.syncope.core.persistence.api.GroupEntitlementUtil;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
@@ -158,18 +162,22 @@ public class GroupLogic extends AbstractSubjectLogic<GroupTO, GroupMod> {
     @Transactional(readOnly = true)
     public List<GroupTO> children(final Long groupKey) {
         Group group = groupDAO.authFetch(groupKey);
+        final Set<Long> allowedGroupKeys =
+                GroupEntitlementUtil.getGroupKeys(AuthContextUtil.getOwnedEntitlementNames());
 
-        Set<Long> allowedGroupIds = GroupEntitlementUtil.getGroupKeys(AuthContextUtil.getOwnedEntitlementNames());
+        return CollectionUtils2.collect(groupDAO.findChildren(group), new Transformer<Group, GroupTO>() {
 
-        List<Group> children = groupDAO.findChildren(group);
-        List<GroupTO> childrenTOs = new ArrayList<>(children.size());
-        for (Group child : children) {
-            if (allowedGroupIds.contains(child.getKey())) {
-                childrenTOs.add(binder.getGroupTO(child));
+            @Override
+            public GroupTO transform(final Group group) {
+                return binder.getGroupTO(group);
             }
-        }
+        }, new Predicate<Group>() {
 
-        return childrenTOs;
+            @Override
+            public boolean evaluate(final Group group) {
+                return allowedGroupKeys.contains(group.getKey());
+            }
+        }, new ArrayList<GroupTO>());
     }
 
     @PreAuthorize("isAuthenticated()")
@@ -183,14 +191,13 @@ public class GroupLogic extends AbstractSubjectLogic<GroupTO, GroupMod> {
     @Transactional(readOnly = true)
     @Override
     public List<GroupTO> list(final int page, final int size, final List<OrderByClause> orderBy) {
-        List<Group> groups = groupDAO.findAll(page, size, orderBy);
+        return CollectionUtils.collect(groupDAO.findAll(page, size, orderBy), new Transformer<Group, GroupTO>() {
 
-        List<GroupTO> groupTOs = new ArrayList<>(groups.size());
-        for (Group group : groups) {
-            groupTOs.add(binder.getGroupTO(group));
-        }
-
-        return groupTOs;
+            @Override
+            public GroupTO transform(final Group input) {
+                return binder.getGroupTO(input);
+            }
+        }, new ArrayList<GroupTO>());
     }
 
     @PreAuthorize("isAuthenticated()")
@@ -207,16 +214,16 @@ public class GroupLogic extends AbstractSubjectLogic<GroupTO, GroupMod> {
     public List<GroupTO> search(final SearchCond searchCondition, final int page, final int size,
             final List<OrderByClause> orderBy) {
 
-        final List<Group> matchingGroups = searchDAO.search(GroupEntitlementUtil.getGroupKeys(AuthContextUtil.
+        List<Group> matchingGroups = searchDAO.search(GroupEntitlementUtil.getGroupKeys(AuthContextUtil.
                 getOwnedEntitlementNames()),
                 searchCondition, page, size, orderBy, SubjectType.GROUP);
+        return CollectionUtils.collect(matchingGroups, new Transformer<Group, GroupTO>() {
 
-        final List<GroupTO> result = new ArrayList<>(matchingGroups.size());
-        for (Group group : matchingGroups) {
-            result.add(binder.getGroupTO(group));
-        }
-
-        return result;
+            @Override
+            public GroupTO transform(final Group input) {
+                return binder.getGroupTO(input);
+            }
+        }, new ArrayList<GroupTO>());
     }
 
     @PreAuthorize("hasRole('GROUP_CREATE')")
@@ -262,13 +269,14 @@ public class GroupLogic extends AbstractSubjectLogic<GroupTO, GroupMod> {
     public GroupTO delete(final Long groupKey) {
         List<Group> ownedGroups = groupDAO.findOwnedByGroup(groupKey);
         if (!ownedGroups.isEmpty()) {
-            List<String> owned = new ArrayList<>(ownedGroups.size());
-            for (Group group : ownedGroups) {
-                owned.add(group.getKey() + " " + group.getName());
-            }
-
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.GroupOwnership);
-            sce.getElements().addAll(owned);
+            sce.getElements().addAll(CollectionUtils.collect(ownedGroups, new Transformer<Group, String>() {
+
+                @Override
+                public String transform(final Group group) {
+                    return group.getKey() + " " + group.getName();
+                }
+            }, new ArrayList<String>()));
             throw sce;
         }
 

@@ -18,16 +18,16 @@
  */
 package org.apache.syncope.core.misc.security;
 
+import java.util.Collection;
 import java.util.Collections;
-import java.util.Set;
 
 public class UnauthorizedGroupException extends RuntimeException {
 
     private static final long serialVersionUID = 7540587364235915081L;
 
-    private final Set<Long> groupIds;
+    private final Collection<Long> groupIds;
 
-    public UnauthorizedGroupException(final Set<Long> groupIds) {
+    public UnauthorizedGroupException(final Collection<Long> groupIds) {
         super("Missing entitlement for group(s) " + groupIds);
         this.groupIds = groupIds;
     }
@@ -36,7 +36,7 @@ public class UnauthorizedGroupException extends RuntimeException {
         this(Collections.singleton(groupId));
     }
 
-    public Set<Long> getGroupIds() {
+    public Collection<Long> getGroupIds() {
         return groupIds;
     }
 }

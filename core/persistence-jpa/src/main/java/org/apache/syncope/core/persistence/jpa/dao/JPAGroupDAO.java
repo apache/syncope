@@ -28,6 +28,8 @@ import java.util.Set;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.lib.types.ResourceOperation;
@@ -422,15 +424,17 @@ public class JPAGroupDAO extends AbstractSubjectDAO<GPlainAttr, GDerAttr, GVirAt
             group.setPasswordPolicy(null);
         }
 
-        // remove attributes without a valid template
+        // remove plain attributes without a valid template
         List<GPlainAttr> rToBeDeleted = new ArrayList<>();
-        for (PlainAttr attr : group.getPlainAttrs()) {
-            boolean found = false;
-            for (GPlainAttrTemplate template : group.findInheritedTemplates(GPlainAttrTemplate.class)) {
-                if (template.getSchema().equals(attr.getSchema())) {
-                    found = true;
-                }
-            }
+        for (final PlainAttr attr : group.getPlainAttrs()) {
+            boolean found = CollectionUtils.exists(group.findInheritedTemplates(GPlainAttrTemplate.class),
+                    new Predicate<GPlainAttrTemplate>() {
+
+                        @Override
+                        public boolean evaluate(final GPlainAttrTemplate template) {
+                            return template.getSchema().equals(attr.getSchema());
+                        }
+                    });
             if (!found) {
                 rToBeDeleted.add((GPlainAttr) attr);
             }
@@ -441,14 +445,16 @@ public class JPAGroupDAO extends AbstractSubjectDAO<GPlainAttr, GDerAttr, GVirAt
         }
 
         // remove derived attributes without a valid template
-        List<GDerAttr> rDerToBeDeleted = new ArrayList<GDerAttr>();
-        for (DerAttr attr : group.getDerAttrs()) {
-            boolean found = false;
-            for (GDerAttrTemplate template : group.findInheritedTemplates(GDerAttrTemplate.class)) {
-                if (template.getSchema().equals(attr.getSchema())) {
-                    found = true;
-                }
-            }
+        List<GDerAttr> rDerToBeDeleted = new ArrayList<>();
+        for (final DerAttr attr : group.getDerAttrs()) {
+            boolean found = CollectionUtils.exists(group.findInheritedTemplates(GDerAttrTemplate.class),
+                    new Predicate<GDerAttrTemplate>() {
+
+                        @Override
+                        public boolean evaluate(final GDerAttrTemplate template) {
+                            return template.getSchema().equals(attr.getSchema());
+                        }
+                    });
             if (!found) {
                 rDerToBeDeleted.add((GDerAttr) attr);
             }
@@ -459,14 +465,16 @@ public class JPAGroupDAO extends AbstractSubjectDAO<GPlainAttr, GDerAttr, GVirAt
         }
 
         // remove virtual attributes without a valid template
-        List<GVirAttr> rVirToBeDeleted = new ArrayList<GVirAttr>();
-        for (VirAttr attr : group.getVirAttrs()) {
-            boolean found = false;
-            for (GVirAttrTemplate template : group.findInheritedTemplates(GVirAttrTemplate.class)) {
-                if (template.getSchema().equals(attr.getSchema())) {
-                    found = true;
-                }
-            }
+        List<GVirAttr> rVirToBeDeleted = new ArrayList<>();
+        for (final VirAttr attr : group.getVirAttrs()) {
+            boolean found = CollectionUtils.exists(group.findInheritedTemplates(GVirAttrTemplate.class),
+                    new Predicate<GVirAttrTemplate>() {
+
+                        @Override
+                        public boolean evaluate(final GVirAttrTemplate template) {
+                            return template.getSchema().equals(attr.getSchema());
+                        }
+                    });
             if (!found) {
                 LOG.debug("Removing {} from {} because no template is available for it", attr, group);
                 rVirToBeDeleted.add((GVirAttr) attr);

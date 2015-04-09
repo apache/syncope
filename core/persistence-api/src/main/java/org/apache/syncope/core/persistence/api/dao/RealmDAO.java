@@ -16,20 +16,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.api.data;
+package org.apache.syncope.core.persistence.api.dao;
 
-import org.apache.syncope.common.lib.to.ResourceTO;
-import org.apache.syncope.core.persistence.api.entity.ConnInstance;
-import org.apache.syncope.core.persistence.api.entity.ExternalResource;
+import java.util.List;
+import org.apache.syncope.core.persistence.api.entity.Realm;
 
-public interface ResourceDataBinder {
+public interface RealmDAO extends DAO<Realm, Long> {
 
-    ExternalResource create(ResourceTO resourceTO);
+    Realm getRoot();
 
-    ConnInstance getConnInstance(ResourceTO resourceTO);
+    Realm find(Long key);
 
-    ResourceTO getResourceTO(ExternalResource resource);
+    Realm find(String fullPath);
 
-    ExternalResource update(ExternalResource resource, ResourceTO resourceTO);
+    List<Realm> findChildren(Realm realm);
 
+    List<Realm> findDescendants(Realm realm);
+
+    List<Realm> findAll();
+
+    Realm save(Realm realm);
+
+    void delete(Realm realm);
+
+    void delete(Long key);
 }

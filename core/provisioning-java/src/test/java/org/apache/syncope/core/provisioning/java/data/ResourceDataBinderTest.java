@@ -21,15 +21,9 @@ package org.apache.syncope.core.provisioning.java.data;
 import org.apache.syncope.core.provisioning.java.AbstractTest;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import org.apache.syncope.common.lib.to.MappingItemTO;
 import org.apache.syncope.common.lib.to.MappingTO;
@@ -58,36 +52,6 @@ public class ResourceDataBinderTest extends AbstractTest {
 
     @Autowired
     private PlainSchemaDAO plainSchemaDAO;
-
-    @Test
-    public void databinding() throws IOException {
-        ExternalResource resource = resourceDAO.find("ws-target-resource-2");
-        assertNotNull(resource);
-
-        ResourceTO resourceTO = resourceDataBinder.getResourceTO(resource);
-        assertNotNull(resourceTO);
-
-        ExternalResource fromto = resourceDataBinder.update(resource, resourceTO);
-        assertNotNull(fromto);
-        assertEquals(resource, fromto);
-
-        ObjectMapper mapper = new ObjectMapper();
-
-        StringWriter writer = new StringWriter();
-        mapper.writeValue(writer, resourceTO);
-
-        assertEquals(resourceTO, mapper.readValue(writer.toString(), ResourceTO.class));
-
-        List<ResourceTO> resourceTOs = resourceDataBinder.getResourceTOs(resourceDAO.findAll());
-        assertNotNull(resourceTOs);
-        assertFalse(resourceTOs.isEmpty());
-
-        writer = new StringWriter();
-        mapper.writeValue(writer, resourceTOs);
-
-        ResourceTO[] actual = mapper.readValue(writer.toString(), ResourceTO[].class);
-        assertEquals(resourceTOs, Arrays.asList(actual));
-    }
 
     @Test
     public void issue42() {

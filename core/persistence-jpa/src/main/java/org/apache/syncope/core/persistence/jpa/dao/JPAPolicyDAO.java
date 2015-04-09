@@ -32,6 +32,7 @@ import org.apache.syncope.core.persistence.api.entity.Policy;
 import org.apache.syncope.core.persistence.api.entity.SyncPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.JPAPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAccountPolicy;
+import org.apache.syncope.core.persistence.jpa.entity.JPARealm;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -145,6 +146,15 @@ public class JPAPolicyDAO extends AbstractDAO<Policy, Long> implements PolicyDAO
 
     @Override
     public <T extends Policy> void delete(final T policy) {
+        if (policy instanceof AccountPolicy || policy instanceof PasswordPolicy) {
+            final String field = policy instanceof AccountPolicy ? "accountPolicy" : "passwordPolicy";
+            entityManager.createQuery(
+                    "UPDATE " + JPARealm.class.getSimpleName() + " e SET e." + field + " = NULL "
+                    + "WHERE e." + field + "=:policy").
+                    setParameter("policy", policy).
+                    executeUpdate();
+        }
+
         entityManager.remove(policy);
     }
 }

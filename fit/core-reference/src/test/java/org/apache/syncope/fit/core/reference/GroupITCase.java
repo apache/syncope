@@ -540,7 +540,7 @@ public class GroupITCase extends AbstractITCase {
 
     @Test
     public void provision() {
-        GroupTO groupTO = buildGroupTO("assign");
+        GroupTO groupTO = buildGroupTO("assign" + getUUIDString());
         groupTO.getResources().clear();
 
         GroupTO actual = createGroup(groupTO);
@@ -566,7 +566,7 @@ public class GroupITCase extends AbstractITCase {
 
     @Test
     public void deprovisionUnlinked() {
-        GroupTO groupTO = buildGroupTO("assign");
+        GroupTO groupTO = buildGroupTO("assign" + getUUIDString());
         groupTO.getResources().clear();
 
         GroupTO actual = createGroup(groupTO);
@@ -826,7 +826,7 @@ public class GroupITCase extends AbstractITCase {
             assertNotNull(newLDAP);
 
             // 2. create a group and give the resource created above
-            groupTO = buildGroupTO("lastGroup");
+            groupTO = buildGroupTO("lastGroup" + getUUIDString());
             groupTO.getGPlainAttrTemplates().add("icon");
             groupTO.getPlainAttrs().add(attrTO("icon", "anIcon"));
             groupTO.getGPlainAttrTemplates().add("show");

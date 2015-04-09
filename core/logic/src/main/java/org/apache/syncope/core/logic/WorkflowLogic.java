@@ -72,6 +72,7 @@ public class WorkflowLogic extends AbstractTransactionalLogic<AbstractBaseBean> 
 
     private void exportDiagram(final WorkflowAdapter adapter, final OutputStream os)
             throws WorkflowException {
+        
         adapter.exportDiagram(os);
     }
 

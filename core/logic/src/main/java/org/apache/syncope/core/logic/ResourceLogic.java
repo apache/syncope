@@ -19,8 +19,11 @@
 package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -157,7 +160,13 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     public List<ResourceTO> list() {
-        return binder.getResourceTOs(resourceDAO.findAll());
+        return CollectionUtils.collect(resourceDAO.findAll(), new Transformer<ExternalResource, ResourceTO>() {
+
+            @Override
+            public ResourceTO transform(final ExternalResource input) {
+                return binder.getResourceTO(input);
+            }
+        }, new ArrayList<ResourceTO>());
     }
 
     @PreAuthorize("hasRole('RESOURCE_GETCONNECTOROBJECT')")

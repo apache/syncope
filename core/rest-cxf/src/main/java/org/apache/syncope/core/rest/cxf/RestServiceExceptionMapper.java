@@ -46,6 +46,7 @@ import org.apache.syncope.core.misc.security.UnauthorizedGroupException;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValidationException;
 import org.apache.syncope.core.persistence.api.dao.DuplicateException;
+import org.apache.syncope.core.persistence.api.dao.MalformedPathException;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.workflow.api.WorkflowException;
 import org.identityconnectors.framework.common.exceptions.ConfigurationException;
@@ -89,11 +90,11 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
             builder = Response.status(Response.Status.UNAUTHORIZED).
                     header(HttpHeaders.WWW_AUTHENTICATE, BASIC_REALM_UNAUTHORIZED);
         } else if (ex instanceof UnauthorizedGroupException) {
-            builder = builder(Response.Status.UNAUTHORIZED, ClientExceptionType.UnauthorizedGroup, getExMessage(ex));
+            builder = builder(ClientExceptionType.UnauthorizedGroup, getExMessage(ex));
         } else if (ex instanceof EntityExistsException || ex instanceof DuplicateException) {
-            builder = builder(Response.Status.CONFLICT, ClientExceptionType.EntityExists, getExMessage(ex));
+            builder = builder(ClientExceptionType.EntityExists, getExMessage(ex));
         } else if (ex instanceof DataIntegrityViolationException) {
-            builder = builder(Response.Status.CONFLICT, ClientExceptionType.DataIntegrityViolation, getExMessage(ex));
+            builder = builder(ClientExceptionType.DataIntegrityViolation, getExMessage(ex));
         } else {
             builder = processNotFoundExceptions(ex);
             if (builder == null) {
@@ -161,7 +162,7 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
 
         ResponseBuilder builder = Response.status(Response.Status.BAD_REQUEST);
 
-        List<ErrorTO> errors = new ArrayList<ErrorTO>();
+        List<ErrorTO> errors = new ArrayList<>();
         for (SyncopeClientException sce : ex.getExceptions()) {
             builder.header(RESTHeaders.ERROR_CODE, sce.getType().getHeaderValue());
 
@@ -182,7 +183,7 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
 
     private ResponseBuilder processNotFoundExceptions(final Exception ex) {
         if (ex instanceof javax.ws.rs.NotFoundException || ex instanceof NotFoundException) {
-            return builder(Response.Status.NOT_FOUND, ClientExceptionType.NotFound, getExMessage(ex));
+            return builder(ClientExceptionType.NotFound, getExMessage(ex));
         }
 
         return null;
@@ -245,30 +246,32 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
                 return JAXRSUtils.fromResponse(((BadRequestException) ex).getResponse());
             }
         } else if (ex instanceof WorkflowException) {
-            return builder(Response.Status.BAD_REQUEST, ClientExceptionType.Workflow, getExMessage(ex));
+            return builder(ClientExceptionType.Workflow, getExMessage(ex));
         } else if (ex instanceof PersistenceException) {
-            return builder(Response.Status.BAD_REQUEST, ClientExceptionType.GenericPersistence, getExMessage(ex));
+            return builder(ClientExceptionType.GenericPersistence, getExMessage(ex));
         } else if (ibatisPersistenceException != null && ibatisPersistenceException.isAssignableFrom(ex.getClass())) {
-            return builder(Response.Status.BAD_REQUEST, ClientExceptionType.Workflow,
+            return builder(ClientExceptionType.Workflow,
                     getMessage(ex, "Currently unavailable. Please try later."));
         } else if (ex instanceof JpaSystemException) {
-            return builder(Response.Status.BAD_REQUEST, ClientExceptionType.DataIntegrityViolation, getExMessage(ex));
+            return builder(ClientExceptionType.DataIntegrityViolation, getExMessage(ex));
         } else if (ex instanceof ConfigurationException) {
-            return builder(Response.Status.BAD_REQUEST, ClientExceptionType.InvalidConnIdConf, getExMessage(ex));
+            return builder(ClientExceptionType.InvalidConnIdConf, getExMessage(ex));
         } else if (ex instanceof ParsingValidationException) {
-            return builder(Response.Status.BAD_REQUEST, ClientExceptionType.InvalidValues, getExMessage(ex));
+            return builder(ClientExceptionType.InvalidValues, getExMessage(ex));
+        } else if (ex instanceof MalformedPathException) {
+            return builder(ClientExceptionType.InvalidPath, getExMessage(ex));
         }
 
         return null;
     }
 
-    private ResponseBuilder builder(final Response.Status status, final ClientExceptionType hType, final String msg) {
-        ResponseBuilder builder = Response.status(status).
+    private ResponseBuilder builder(final ClientExceptionType hType, final String msg) {
+        ResponseBuilder builder = Response.status(hType.getResponseStatus()).
                 header(RESTHeaders.ERROR_CODE, hType.getHeaderValue()).
                 header(RESTHeaders.ERROR_INFO, hType.getInfoHeaderValue(msg));
 
         ErrorTO error = new ErrorTO();
-        error.setStatus(status.getStatusCode());
+        error.setStatus(hType.getResponseStatus().getStatusCode());
         error.setType(hType);
         error.getElements().add(msg);
 

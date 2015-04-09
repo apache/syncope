@@ -36,6 +36,9 @@ import org.apache.cocoon.sax.SAXPipelineComponent;
 import org.apache.cocoon.sax.component.XMLGenerator;
 import org.apache.cocoon.sax.component.XMLSerializer;
 import org.apache.cocoon.sax.component.XSLTTransformer;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.PredicateUtils;
+import org.apache.commons.collections4.Transformer;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -59,6 +62,7 @@ import org.apache.syncope.core.provisioning.api.job.JobInstanceLoader;
 import org.apache.syncope.core.logic.report.Reportlet;
 import org.apache.syncope.core.logic.report.ReportletConfClass;
 import org.apache.syncope.core.logic.report.TextSerializer;
+import org.apache.syncope.common.lib.CollectionUtils2;
 import org.apache.xmlgraphics.util.MimeConstants;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
@@ -142,12 +146,14 @@ public class ReportLogic extends AbstractTransactionalLogic<ReportTO> {
 
     @PreAuthorize("hasRole('REPORT_LIST')")
     public List<ReportTO> list(final int page, final int size, final List<OrderByClause> orderByClauses) {
-        List<Report> reports = reportDAO.findAll(page, size, orderByClauses);
-        List<ReportTO> result = new ArrayList<>(reports.size());
-        for (Report report : reports) {
-            result.add(binder.getReportTO(report));
-        }
-        return result;
+        return CollectionUtils.collect(reportDAO.findAll(page, size, orderByClauses),
+                new Transformer<Report, ReportTO>() {
+
+                    @Override
+                    public ReportTO transform(final Report input) {
+                        return binder.getReportTO(input);
+                    }
+                }, new ArrayList<ReportTO>());
     }
 
     private Class<? extends ReportletConf> getReportletConfClass(final Class<Reportlet> reportletClass) {
@@ -161,35 +167,41 @@ public class ReportLogic extends AbstractTransactionalLogic<ReportTO> {
         return result;
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({ "rawtypes" })
     private Set<Class<Reportlet>> getAllReportletClasses() {
-        Set<Class<Reportlet>> reportletClasses = new HashSet<>();
+        return CollectionUtils2.collect(classNamesLoader.getClassNames(ImplementationClassNamesLoader.Type.REPORTLET),
+                new Transformer<String, Class<Reportlet>>() {
 
-        for (String className : classNamesLoader.getClassNames(ImplementationClassNamesLoader.Type.REPORTLET)) {
-            try {
-                Class reportletClass = ClassUtils.forName(className, ClassUtils.getDefaultClassLoader());
-                reportletClasses.add(reportletClass);
-            } catch (ClassNotFoundException e) {
-                LOG.warn("Could not load class {}", className);
-            } catch (LinkageError e) {
-                LOG.warn("Could not link class {}", className);
-            }
-        }
-        return reportletClasses;
+                    @SuppressWarnings("unchecked")
+                    @Override
+                    public Class<Reportlet> transform(final String className) {
+                        Class<Reportlet> result = null;
+                        try {
+                            Class reportletClass = ClassUtils.forName(className, ClassUtils.getDefaultClassLoader());
+                            result = reportletClass;
+                        } catch (ClassNotFoundException e) {
+                            LOG.warn("Could not load class {}", className);
+                        } catch (LinkageError e) {
+                            LOG.warn("Could not link class {}", className);
+                        }
+
+                        return result;
+                    }
+                },
+                PredicateUtils.notNullPredicate(), new HashSet<Class<Reportlet>>());
     }
 
     @PreAuthorize("hasRole('REPORT_LIST')")
     public Set<String> getReportletConfClasses() {
-        Set<String> reportletConfClasses = new HashSet<>();
+        return CollectionUtils2.collect(getAllReportletClasses(),
+                new Transformer<Class<Reportlet>, String>() {
 
-        for (Class<Reportlet> reportletClass : getAllReportletClasses()) {
-            Class<? extends ReportletConf> reportletConfClass = getReportletConfClass(reportletClass);
-            if (reportletConfClass != null) {
-                reportletConfClasses.add(reportletConfClass.getName());
-            }
-        }
-
-        return reportletConfClasses;
+                    @Override
+                    public String transform(final Class<Reportlet> reportletClass) {
+                        Class<? extends ReportletConf> reportletConfClass = getReportletConfClass(reportletClass);
+                        return reportletConfClass == null ? null : reportletConfClass.getName();
+                    }
+                }, PredicateUtils.notNullPredicate(), new HashSet<String>());
     }
 
     public Class<Reportlet> findReportletClassHavingConfClass(final Class<? extends ReportletConf> reportletConfClass) {

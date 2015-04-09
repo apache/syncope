@@ -24,10 +24,11 @@ import java.security.AccessControlException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.mod.AttrMod;
@@ -129,15 +130,16 @@ public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
     @Transactional(readOnly = true, rollbackFor = { Throwable.class })
     @Override
     public List<UserTO> list(final int page, final int size, final List<OrderByClause> orderBy) {
-        Set<Long> adminGroupIds = GroupEntitlementUtil.getGroupKeys(AuthContextUtil.getOwnedEntitlementNames());
+        final Set<Long> adminGroupKeys = GroupEntitlementUtil.getGroupKeys(AuthContextUtil.getOwnedEntitlementNames());
 
-        List<User> users = userDAO.findAll(adminGroupIds, page, size, orderBy);
-        List<UserTO> userTOs = new ArrayList<>(users.size());
-        for (User user : users) {
-            userTOs.add(binder.getUserTO(user));
-        }
+        return CollectionUtils.collect(userDAO.findAll(adminGroupKeys, page, size, orderBy),
+                new Transformer<User, UserTO>() {
 
-        return userTOs;
+                    @Override
+                    public UserTO transform(final User input) {
+                        return binder.getUserTO(input);
+                    }
+                }, new ArrayList<UserTO>());
     }
 
     @PreAuthorize("isAuthenticated() "
@@ -160,15 +162,16 @@ public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
     public List<UserTO> search(final SearchCond searchCondition, final int page, final int size,
             final List<OrderByClause> orderBy) {
 
-        final List<User> matchingUsers = searchDAO.search(GroupEntitlementUtil.getGroupKeys(AuthContextUtil.getOwnedEntitlementNames()),
+        final List<User> matchingUsers = searchDAO.search(GroupEntitlementUtil.getGroupKeys(AuthContextUtil.
+                getOwnedEntitlementNames()),
                 searchCondition, page, size, orderBy, SubjectType.USER);
+        return CollectionUtils.collect(matchingUsers, new Transformer<User, UserTO>() {
 
-        final List<UserTO> result = new ArrayList<>(matchingUsers.size());
-        for (User user : matchingUsers) {
-            result.add(binder.getUserTO(user));
-        }
-
-        return result;
+            @Override
+            public UserTO transform(final User input) {
+                return binder.getUserTO(input);
+            }
+        }, new ArrayList<UserTO>());
     }
 
     @PreAuthorize("isAnonymous() or hasRole(T(org.apache.syncope.common.lib.SyncopeConstants).ANONYMOUS_ENTITLEMENT)")
@@ -178,12 +181,15 @@ public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
 
     @PreAuthorize("hasRole('USER_CREATE')")
     public UserTO create(final UserTO userTO, final boolean storePassword) {
-        Set<Long> requestGroupIds = new HashSet<>(userTO.getMemberships().size());
-        for (MembershipTO membership : userTO.getMemberships()) {
-            requestGroupIds.add(membership.getGroupId());
-        }
-        Set<Long> adminGroupIds = GroupEntitlementUtil.getGroupKeys(AuthContextUtil.getOwnedEntitlementNames());
-        requestGroupIds.removeAll(adminGroupIds);
+        Collection<Long> requestGroupIds = CollectionUtils.removeAll(
+                CollectionUtils.collect(userTO.getMemberships(), new Transformer<MembershipTO, Long>() {
+
+                    @Override
+                    public Long transform(final MembershipTO membership) {
+                        return membership.getGroupId();
+                    }
+                }, new ArrayList<Long>()),
+                GroupEntitlementUtil.getGroupKeys(AuthContextUtil.getOwnedEntitlementNames()));
         if (!requestGroupIds.isEmpty()) {
             throw new UnauthorizedGroupException(requestGroupIds);
         }
@@ -322,13 +328,14 @@ public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
     public UserTO delete(final Long key) {
         List<Group> ownedGroups = groupDAO.findOwnedByUser(key);
         if (!ownedGroups.isEmpty()) {
-            List<String> owned = new ArrayList<>(ownedGroups.size());
-            for (Group group : ownedGroups) {
-                owned.add(group.getKey() + " " + group.getName());
-            }
-
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.GroupOwnership);
-            sce.getElements().addAll(owned);
+            sce.getElements().addAll(CollectionUtils.collect(ownedGroups, new Transformer<Group, String>() {
+
+                @Override
+                public String transform(final Group group) {
+                    return group.getKey() + " " + group.getName();
+                }
+            }, new ArrayList<String>()));
             throw sce;
         }
 
@@ -507,7 +514,7 @@ public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
             }
         }
 
-        if ((key != null) && !key.equals(0l)) {
+        if ((key != null) && !key.equals(0L)) {
             try {
                 return key instanceof Long ? binder.getUserTO((Long) key) : binder.getUserTO((String) key);
             } catch (Throwable ignore) {

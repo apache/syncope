@@ -36,7 +36,7 @@ import org.apache.syncope.common.lib.types.AuditElements.Result;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.SubjectType;
-import org.apache.syncope.core.misc.CollectionUtils2;
+import org.apache.syncope.common.lib.CollectionUtils2;
 import org.apache.syncope.core.persistence.api.GroupEntitlementUtil;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.EntitlementDAO;

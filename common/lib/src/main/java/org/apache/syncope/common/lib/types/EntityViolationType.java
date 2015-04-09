@@ -41,6 +41,7 @@ public enum EntityViolationType {
     InvalidGPlainSchema("org.apache.syncope.core.persistence.validation.attrvalue.gPlainSchema"),
     InvalidGDerSchema("org.apache.syncope.core.persistence.validation.attrvalue.gDerSchema"),
     InvalidGVirSchema("org.apache.syncope.core.persistence.validation.attrvalue.gVirSchema"),
+    InvalidRealm("org.apache.syncope.core.persistence.validation.realm"),
     InvalidReport("org.apache.syncope.core.persistence.validation.report"),
     InvalidResource("org.apache.syncope.core.persistence.validation.externalresource"),
     InvalidGroupOwner("org.apache.syncope.core.persistence.validation.group.owner"),

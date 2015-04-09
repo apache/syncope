@@ -21,6 +21,8 @@ package org.apache.syncope.core.logic;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -126,7 +128,7 @@ public class SchemaLogic extends AbstractTransactionalLogic<AbstractSchemaTO> {
                 binder.create((PlainSchemaTO) schemaTO, normalSchema);
                 normalSchema = plainSchemaDAO.save(normalSchema);
 
-                created = (T) binder.getSchemaTO(normalSchema, attrUtil);
+                created = (T) binder.getPlainSchemaTO(normalSchema, attrUtil);
         }
         return created;
     }
@@ -162,28 +164,37 @@ public class SchemaLogic extends AbstractTransactionalLogic<AbstractSchemaTO> {
         List<T> result;
         switch (schemaType) {
             case VIRTUAL:
-                List<VirSchema> virSchemas = virSchemaDAO.findAll(attrUtil.virSchemaClass());
-                result = new ArrayList<>(virSchemas.size());
-                for (VirSchema derSchema : virSchemas) {
-                    result.add((T) binder.getVirSchemaTO(derSchema));
-                }
+                result = CollectionUtils.collect(virSchemaDAO.findAll(attrUtil.virSchemaClass()),
+                        new Transformer<VirSchema, T>() {
+
+                            @Override
+                            public T transform(final VirSchema input) {
+                                return (T) binder.getVirSchemaTO(input);
+                            }
+                        }, new ArrayList<T>());
                 break;
 
             case DERIVED:
-                List<DerSchema> derSchemas = derSchemaDAO.findAll(attrUtil.derSchemaClass());
-                result = new ArrayList<>(derSchemas.size());
-                for (DerSchema derSchema : derSchemas) {
-                    result.add((T) binder.getDerSchemaTO(derSchema));
-                }
+                result = CollectionUtils.collect(derSchemaDAO.findAll(attrUtil.derSchemaClass()),
+                        new Transformer<DerSchema, T>() {
+
+                            @Override
+                            public T transform(final DerSchema input) {
+                                return (T) binder.getDerSchemaTO(input);
+                            }
+                        }, new ArrayList<T>());
                 break;
 
             case PLAIN:
             default:
-                List<PlainSchema> schemas = plainSchemaDAO.findAll(attrUtil.plainSchemaClass());
-                result = new ArrayList<>(schemas.size());
-                for (PlainSchema schema : schemas) {
-                    result.add((T) binder.getSchemaTO(schema, attrUtil));
-                }
+                result = CollectionUtils.collect(plainSchemaDAO.findAll(attrUtil.plainSchemaClass()),
+                        new Transformer<PlainSchema, T>() {
+
+                            @Override
+                            public T transform(final PlainSchema input) {
+                                return (T) binder.getPlainSchemaTO(input, attrUtil);
+                            }
+                        }, new ArrayList<T>());
         }
 
         return result;
@@ -223,7 +234,7 @@ public class SchemaLogic extends AbstractTransactionalLogic<AbstractSchemaTO> {
                     throw new NotFoundException("Schema '" + schemaName + "'");
                 }
 
-                read = (T) binder.getSchemaTO(schema, attrUtil);
+                read = (T) binder.getPlainSchemaTO(schema, attrUtil);
         }
 
         return read;
@@ -310,7 +321,7 @@ public class SchemaLogic extends AbstractTransactionalLogic<AbstractSchemaTO> {
                         result = binder.getDerSchemaTO(derSchema);
                     }
                 } else {
-                    result = binder.getSchemaTO(plainSchema, attrUtil);
+                    result = binder.getPlainSchemaTO(plainSchema, attrUtil);
                 }
 
                 return result;

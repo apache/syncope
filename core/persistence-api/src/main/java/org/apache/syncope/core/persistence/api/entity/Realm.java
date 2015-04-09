@@ -16,20 +16,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.api.data;
+package org.apache.syncope.core.persistence.api.entity;
 
-import org.apache.syncope.common.lib.to.ResourceTO;
-import org.apache.syncope.core.persistence.api.entity.ConnInstance;
-import org.apache.syncope.core.persistence.api.entity.ExternalResource;
+public interface Realm extends Entity<Long> {
 
-public interface ResourceDataBinder {
+    String getName();
 
-    ExternalResource create(ResourceTO resourceTO);
+    Realm getParent();
 
-    ConnInstance getConnInstance(ResourceTO resourceTO);
+    String getFullPath();
+    
+    AccountPolicy getAccountPolicy();
 
-    ResourceTO getResourceTO(ExternalResource resource);
+    PasswordPolicy getPasswordPolicy();
 
-    ExternalResource update(ExternalResource resource, ResourceTO resourceTO);
+    void setName(String name);
+
+    void setParent(Realm parent);
+
+    void setAccountPolicy(AccountPolicy accountPolicy);
+
+    void setPasswordPolicy(PasswordPolicy passwordPolicy);
 
 }

@@ -39,6 +39,15 @@ under the License.
   <table-generator name="SEQ_MAttrPlainValue" pk-column-value="SEQ_MAttrPlainValue" initial-value="100"/>
   <table-generator name="SEQ_CAttrPlainValue" pk-column-value="SEQ_CAttrPlainValue" initial-value="100"/>
 
+  <entity class="org.apache.syncope.core.persistence.jpa.entity.JPARealm">
+    <attributes>
+      <id name="id">
+        <generated-value generator="SEQ_Realm" strategy="TABLE"/>
+        <table-generator name="SEQ_Realm" pk-column-value="SEQ_Realm" initial-value="100"/>
+      </id>
+    </attributes>
+  </entity>
+
   <entity class="org.apache.syncope.core.persistence.jpa.entity.user.JPAUser">
     <attributes>
       <id name="id">
