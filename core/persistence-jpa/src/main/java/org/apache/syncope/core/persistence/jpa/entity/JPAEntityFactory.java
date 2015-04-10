@@ -34,6 +34,7 @@ import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
 import org.apache.syncope.core.persistence.api.entity.ReportletConfInstance;
+import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.SyncPolicy;
 import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttrUniqueValue;
@@ -144,6 +145,8 @@ public class JPAEntityFactory implements EntityFactory {
 
         if (reference.equals(Realm.class)) {
             result = (T) new JPARealm();
+        } else if (reference.equals(Role.class)) {
+            result = (T) new JPARole();
         } else if (reference.equals(User.class)) {
             result = (T) new JPAUser();
         } else if (reference.equals(Group.class)) {

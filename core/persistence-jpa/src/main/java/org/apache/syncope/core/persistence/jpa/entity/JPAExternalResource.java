@@ -179,7 +179,7 @@ public class JPAExternalResource extends AbstractAnnotatedEntity<String> impleme
      * (Optional) classes for PropagationAction.
      */
     @ElementCollection(fetch = FetchType.EAGER)
-    @Column(name = "action")
+    @Column(name = "actionClassName")
     @CollectionTable(name = "ExternalResource_PropActions",
             joinColumns =
             @JoinColumn(name = "ExternalResource_name", referencedColumnName = "name"))

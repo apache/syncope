@@ -48,6 +48,15 @@ under the License.
     </attributes>
   </entity>
 
+  <entity class="org.apache.syncope.core.persistence.jpa.entity.JPARole">
+    <attributes>
+      <id name="id">
+        <generated-value generator="SEQ_Role" strategy="TABLE"/>
+        <table-generator name="SEQ_Role" pk-column-value="SEQ_Role" initial-value="100"/>
+      </id>
+    </attributes>
+  </entity>
+
   <entity class="org.apache.syncope.core.persistence.jpa.entity.user.JPAUser">
     <attributes>
       <id name="id">

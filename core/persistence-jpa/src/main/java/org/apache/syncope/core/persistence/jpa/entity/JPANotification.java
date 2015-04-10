@@ -53,10 +53,10 @@ public class JPANotification extends AbstractEntity<Long> implements Notificatio
     private Long id;
 
     @ElementCollection(fetch = FetchType.EAGER)
+    @Column(name = "event")
     @CollectionTable(name = "Notification_events",
             joinColumns =
             @JoinColumn(name = "Notification_id", referencedColumnName = "id"))
-    @Column(name = "events")
     private List<String> events;
 
     private String userAbout;

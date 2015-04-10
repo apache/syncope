@@ -103,18 +103,23 @@ under the License.
   <Notification id="1" active="1" recipientAttrName="email" recipientAttrType="UserPlainSchema" selfAsRecipient="1" 
                 sender="admin@syncope.apache.org" subject="Password Reset request" template="requestPasswordReset" 
                 traceLevel="FAILURES" userAbout="token!=$null"/> 
-  <Notification_events Notification_id="1" events="[CUSTOM]:[]:[]:[requestPasswordReset]:[SUCCESS]"/>
+  <Notification_events Notification_id="1" event="[CUSTOM]:[]:[]:[requestPasswordReset]:[SUCCESS]"/>
   
   <Notification id="2" active="1" recipientAttrName="email" recipientAttrType="UserPlainSchema" selfAsRecipient="1" 
                 sender="admin@syncope.apache.org" subject="Password Reset successful" template="confirmPasswordReset" 
                 traceLevel="FAILURES" userAbout="token!=$null"/> 
-  <Notification_events Notification_id="2" events="[CUSTOM]:[]:[]:[confirmPasswordReset]:[SUCCESS]"/>  
+  <Notification_events Notification_id="2" event="[CUSTOM]:[]:[]:[confirmPasswordReset]:[SUCCESS]"/>  
   
   <!-- Authentication and authorization -->
   <Entitlement name="REALM_LIST"/>
   <Entitlement name="REALM_CREATE"/>
   <Entitlement name="REALM_UPDATE"/>
   <Entitlement name="REALM_DELETE"/>
+  <Entitlement name="ROLE_LIST"/>
+  <Entitlement name="ROLE_CREATE"/>
+  <Entitlement name="ROLE_READ"/>
+  <Entitlement name="ROLE_UPDATE"/>
+  <Entitlement name="ROLE_DELETE"/>
   <Entitlement name="SCHEMA_LIST"/>
   <Entitlement name="SCHEMA_CREATE"/>
   <Entitlement name="SCHEMA_READ"/>

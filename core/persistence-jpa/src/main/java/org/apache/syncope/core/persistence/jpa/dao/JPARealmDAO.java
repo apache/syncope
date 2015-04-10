@@ -27,14 +27,20 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.core.persistence.api.dao.MalformedPathException;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.jpa.entity.JPARealm;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public class JPARealmDAO extends AbstractDAO<Realm, Long> implements RealmDAO {
 
     private static final Pattern PATH_PATTERN = Pattern.compile("^(/[A-Za-z0-9]+)+");
+
+    @Autowired
+    private RoleDAO roleDAO;
 
     @Override
     public Realm getRoot() {
@@ -128,7 +134,12 @@ public class JPARealmDAO extends AbstractDAO<Realm, Long> implements RealmDAO {
     @Override
     public void delete(final Realm realm) {
         for (Realm toBeDeleted : findDescendants(realm)) {
+            for (Role role : roleDAO.findByRealm(toBeDeleted)) {
+                role.getRealms().remove(toBeDeleted);
+            }
+
             toBeDeleted.setParent(null);
+
             entityManager.remove(toBeDeleted);
         }
     }

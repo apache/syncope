@@ -94,7 +94,7 @@ public class JPAConnInstance extends AbstractEntity<Long> implements ConnInstanc
      */
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
-    @Column(name = "capabilities")
+    @Column(name = "capability")
     @CollectionTable(name = "ConnInstance_capabilities",
             joinColumns =
             @JoinColumn(name = "ConnInstance_id", referencedColumnName = "id"))

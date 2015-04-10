@@ -59,6 +59,7 @@ import org.apache.syncope.common.rest.api.service.ReportService;
 import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.apache.syncope.common.rest.api.service.GroupService;
 import org.apache.syncope.common.rest.api.service.RealmService;
+import org.apache.syncope.common.rest.api.service.RoleService;
 import org.apache.syncope.common.rest.api.service.SchemaService;
 import org.apache.syncope.common.rest.api.service.SecurityQuestionService;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
@@ -149,6 +150,8 @@ public abstract class AbstractITCase {
 
     protected static RealmService realmService;
 
+    protected static RoleService roleService;
+
     protected static UserService userService;
 
     protected static UserSelfService userSelfService;
@@ -218,6 +221,7 @@ public abstract class AbstractITCase {
 
         syncopeService = adminClient.getService(SyncopeService.class);
         realmService = adminClient.getService(RealmService.class);
+        roleService = adminClient.getService(RoleService.class);
         userService = adminClient.getService(UserService.class);
         userSelfService = adminClient.getService(UserSelfService.class);
         userWorkflowService = adminClient.getService(UserWorkflowService.class);
