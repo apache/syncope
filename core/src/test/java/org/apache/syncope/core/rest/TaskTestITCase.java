@@ -383,7 +383,15 @@ public class TaskTestITCase extends AbstractTest {
             assertTrue(userTO.getMemberships().get(0).getAttrMap().containsKey("subscriptionDate"));
 
             // Unmatching --> Assign (link)
+            // SYNCOPE-658
             assertTrue(userTO.getResources().contains(RESOURCE_NAME_CSV));
+            int counter = 0;
+            for (AttributeTO attributeTO : userTO.getDerAttrs()) {
+                if ("csvuserid".equals(attributeTO.getSchema())) {
+                    counter++;
+                }
+            }
+            assertEquals(1, counter);
 
             userTO = readUser("test8");
             assertNotNull(userTO);
@@ -1425,7 +1433,7 @@ public class TaskTestITCase extends AbstractTest {
         assertNotNull(notification);
 
         execSyncTask(actual.getId(), 50, false);
-        
+
         NotificationTaskTO taskTO = findNotificationTaskBySender("syncope648@syncope.apache.org");
         assertNotNull(taskTO);
     }
