@@ -45,6 +45,9 @@ import org.apache.syncope.common.types.ReportExecExportFormat;
 import org.apache.syncope.common.types.ReportExecStatus;
 import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.SyncopeClientException;
+import org.apache.syncope.common.to.AbstractExecTO;
+import org.apache.syncope.common.types.JobAction;
+import org.apache.syncope.common.types.JobStatusType;
 import org.apache.syncope.core.init.JobInstanceLoader;
 import org.apache.syncope.core.persistence.beans.Report;
 import org.apache.syncope.core.persistence.beans.ReportExec;
@@ -59,13 +62,12 @@ import org.apache.xmlgraphics.util.MimeConstants;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
-public class ReportController extends AbstractTransactionalController<ReportTO> {
+public class ReportController extends AbstractJobController<ReportTO> {
 
     @Autowired
     private ReportDAO reportDAO;
@@ -75,9 +77,6 @@ public class ReportController extends AbstractTransactionalController<ReportTO> 
 
     @Autowired
     private JobInstanceLoader jobInstanceLoader;
-
-    @Autowired
-    private SchedulerFactoryBean scheduler;
 
     @Autowired
     private ReportDataBinder binder;
@@ -340,5 +339,26 @@ public class ReportController extends AbstractTransactionalController<ReportTO> 
         }
 
         throw new UnresolvedReferenceException();
+    }
+
+    @Override
+    @PreAuthorize("hasRole('REPORT_LIST')")
+    public <E extends AbstractExecTO> List<E> list(JobStatusType type, Class<E> reference) {
+        return super.list(type, reference);
+    }
+
+    @PreAuthorize("hasRole('REPORT_EXECUTE')")
+    public void process(JobAction action, Long reportId) {
+        Report report = reportDAO.find(reportId);
+        if (report == null) {
+            throw new NotFoundException("Report " + reportId);
+        }
+        String jobName = JobInstanceLoader.getJobName(report);
+        process(action, jobName);
+    }
+
+    @Override
+    protected Long getIdFromJobName(JobKey jobKey) {
+        return JobInstanceLoader.getReportIdFromJobName(jobKey.getName());
     }
 }

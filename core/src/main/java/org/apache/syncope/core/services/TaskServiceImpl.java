@@ -34,8 +34,10 @@ import org.apache.syncope.common.to.TaskExecTO;
 import org.apache.syncope.common.to.AbstractTaskTO;
 import org.apache.syncope.common.reqres.PagedResult;
 import org.apache.syncope.common.to.PushTaskTO;
+import org.apache.syncope.common.types.JobStatusType;
 import org.apache.syncope.common.types.RESTHeaders;
 import org.apache.syncope.common.types.PropagationTaskExecStatus;
+import org.apache.syncope.common.types.JobAction;
 import org.apache.syncope.common.types.TaskType;
 import org.apache.syncope.common.util.CollectionWrapper;
 import org.apache.syncope.common.wrap.PushActionClass;
@@ -154,5 +156,15 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService 
     @Override
     public BulkActionResult bulk(final BulkAction bulkAction) {
         return controller.bulk(bulkAction);
+    }
+
+    @Override
+    public List<TaskExecTO> list(JobStatusType type) {
+        return controller.list(type, TaskExecTO.class);
+    }
+
+    @Override
+    public void process(JobAction action, Long taskId) {
+        controller.process(action, taskId);
     }
 }
