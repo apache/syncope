@@ -18,7 +18,9 @@
  */
 package org.apache.syncope.core.rest.cxf;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -33,6 +35,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.cxf.jaxrs.client.ResponseExceptionMapper;
 import org.apache.cxf.jaxrs.utils.JAXRSUtils;
 import org.apache.cxf.jaxrs.validation.ValidationExceptionMapper;
@@ -51,11 +54,17 @@ import org.apache.syncope.core.workflow.api.WorkflowException;
 import org.identityconnectors.framework.common.exceptions.ConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.transaction.TransactionSystemException;
 
+@Configuration
+@PropertySource("classpath:errorMessages.properties")
 @Provider
 public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, ResponseExceptionMapper<Exception> {
 
@@ -64,6 +73,17 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
     private static final Logger LOG = LoggerFactory.getLogger(RestServiceExceptionMapper.class);
 
     private final ValidationExceptionMapper validationEM = new ValidationExceptionMapper();
+
+    @Autowired
+    private Environment env;
+
+    private static final Map<String, String> exceptionCodeMap;
+
+    static {
+        exceptionCodeMap = new HashMap<>();
+        exceptionCodeMap.put("23000", "UniqueConstraintViolation");
+        exceptionCodeMap.put("23505", "UniqueConstraintViolation");
+    }
 
     @Override
     public Response toResponse(final Exception ex) {
@@ -91,9 +111,9 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
         } else if (ex instanceof UnauthorizedRoleException) {
             builder = builder(Response.Status.UNAUTHORIZED, ClientExceptionType.UnauthorizedRole, getExMessage(ex));
         } else if (ex instanceof EntityExistsException || ex instanceof DuplicateException) {
-            builder = builder(Response.Status.CONFLICT, ClientExceptionType.EntityExists, getExMessage(ex));
-        } else if (ex instanceof DataIntegrityViolationException) {
-            builder = builder(Response.Status.CONFLICT, ClientExceptionType.DataIntegrityViolation, getExMessage(ex));
+            builder = builder(Response.Status.CONFLICT, ClientExceptionType.EntityExists, getJPAMessage(ex));
+        } else if (ex instanceof DataIntegrityViolationException || ex instanceof JpaSystemException) {
+            builder = builder(Response.Status.CONFLICT, ClientExceptionType.DataIntegrityViolation, getJPAMessage(ex));
         } else {
             builder = processNotFoundExceptions(ex);
             if (builder == null) {
@@ -170,7 +190,7 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
             error.setType(sce.getType());
 
             for (String element : sce.getElements()) {
-                builder.header(RESTHeaders.ERROR_INFO, ex.getType().getInfoHeaderValue(element));
+                builder.header(RESTHeaders.ERROR_INFO, sce.getType().getInfoHeaderValue(element));
                 error.getElements().add(element);
             }
 
@@ -201,10 +221,9 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
         }
 
         if (iee != null) {
-            ClientExceptionType exType =
-                    iee.getEntityClassSimpleName().endsWith("Policy")
-                            ? ClientExceptionType.InvalidPolicy
-                            : ClientExceptionType.valueOf("Invalid" + iee.getEntityClassSimpleName());
+            ClientExceptionType exType = iee.getEntityClassSimpleName().endsWith("Policy")
+                    ? ClientExceptionType.InvalidPolicy
+                    : ClientExceptionType.valueOf("Invalid" + iee.getEntityClassSimpleName());
 
             ResponseBuilder builder = Response.status(Response.Status.BAD_REQUEST);
             builder.header(RESTHeaders.ERROR_CODE, exType.getHeaderValue());
@@ -281,5 +300,19 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
 
     private String getExMessage(final Throwable ex) {
         return (ex.getCause() == null) ? ex.getMessage() : ex.getCause().getMessage();
+    }
+
+    private String getJPAMessage(final Throwable ex) {
+        Throwable throwable = ExceptionUtils.getRootCause(ex);
+        String message = null;
+        if (throwable instanceof SQLException) {
+            String SQLState = ((SQLException) throwable).getSQLState();
+            String messageKey = exceptionCodeMap.get(SQLState);
+            if (messageKey != null) {
+                message = env.getProperty("errMessage." + messageKey);
+            }
+        }
+
+        return message == null ? getExMessage(ex) : message;
     }
 }
