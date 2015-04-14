@@ -111,7 +111,7 @@ public class UserDAOImpl extends AbstractSubjectDAOImpl implements UserDAO {
     @Override
     public SyncopeUser findByToken(final String token) {
         TypedQuery<SyncopeUser> query = entityManager.createQuery("SELECT e FROM " + SyncopeUser.class.getSimpleName()
-                + " e WHERE e.token = :token", SyncopeUser.class);
+                + " e WHERE e.token LIKE :token", SyncopeUser.class);
         query.setParameter("token", token);
 
         SyncopeUser result = null;
