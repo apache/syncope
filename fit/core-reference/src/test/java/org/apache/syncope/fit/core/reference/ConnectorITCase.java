@@ -537,7 +537,7 @@ public class ConnectorITCase extends AbstractITCase {
         schemaNames = connectorService.getSchemaNames(conn.getKey(), conn, false);
 
         assertNotNull(schemaNames);
-        assertEquals(0, schemaNames.size());
+        assertEquals(1, schemaNames.size());
 
         conn = connectorService.read(104L);
 

@@ -179,7 +179,15 @@ public class SyncTaskITCase extends AbstractTaskITCase {
             assertTrue(userTO.getMemberships().get(0).getPlainAttrMap().containsKey("subscriptionDate"));
 
             // Unmatching --> Assign (link)
+            // SYNCOPE-658
             assertTrue(userTO.getResources().contains(RESOURCE_NAME_CSV));
+            int counter = 0;
+            for (AttrTO attributeTO : userTO.getDerAttrs()) {
+                if ("csvuserid".equals(attributeTO.getSchema())) {
+                    counter++;
+                }
+            }
+            assertEquals(1, counter);
 
             userTO = readUser("test8");
             assertNotNull(userTO);
