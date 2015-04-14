@@ -538,7 +538,7 @@ public class ConnectorTestITCase extends AbstractTest {
         schemaNames = connectorService.getSchemaNames(conn.getId(), conn, false);
 
         assertNotNull(schemaNames);
-        assertEquals(0, schemaNames.size());
+        assertEquals(1, schemaNames.size());
 
         conn = connectorService.read(104L);
 
