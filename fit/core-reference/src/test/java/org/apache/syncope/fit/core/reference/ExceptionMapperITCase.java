@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 import org.apache.commons.io.IOUtils;
+import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -114,4 +115,21 @@ public class ExceptionMapperITCase extends AbstractITCase {
         }
     }
 
+    @Test
+    public void headersMultiValue() {
+        UserTO userTO = new UserTO();
+        String userId = getUUIDString() + "issue654@syncope.apache.org";
+        userTO.setUsername(userId);
+        userTO.setPassword("password");
+
+        userTO.getPlainAttrs().add(attrTO("userId", "issue654"));
+        userTO.getPlainAttrs().add(attrTO("fullname", userId));
+        userTO.getPlainAttrs().add(attrTO("surname", userId));
+
+        try {
+            createUser(userTO);
+        } catch (SyncopeClientCompositeException e) {
+            Assert.assertEquals(2, e.getExceptions().size());
+        }
+    }
 }
