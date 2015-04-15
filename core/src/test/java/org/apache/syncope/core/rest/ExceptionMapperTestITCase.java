@@ -18,7 +18,9 @@
  */
 package org.apache.syncope.core.rest;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -131,7 +133,7 @@ public class ExceptionMapperTestITCase extends AbstractTest {
             createUser(userTO);
             fail();
         } catch (SyncopeClientCompositeException e) {
-            Assert.assertEquals(2, e.getExceptions().size());
+            assertEquals(2, e.getExceptions().size());
         }
     }
 
