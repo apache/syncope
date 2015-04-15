@@ -18,10 +18,12 @@
  */
 package org.apache.syncope.core.rest;
 
+import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 import org.apache.commons.io.IOUtils;
+import org.apache.syncope.common.SyncopeClientCompositeException;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.SchemaTO;
 import org.apache.syncope.common.to.UserTO;
@@ -111,6 +113,25 @@ public class ExceptionMapperTestITCase extends AbstractTest {
         } catch (Exception e) {
             String message = props.getProperty("errMessage.UniqueConstraintViolation");
             Assert.assertEquals(e.getMessage(), "DataIntegrityViolation [" + message + "]");
+        }
+    }
+
+    @Test
+    public void headersMultiValue() {
+        UserTO userTO = new UserTO();
+        String userId = getUUIDString() + "issue654@syncope.apache.org";
+        userTO.setUsername(userId);
+        userTO.setPassword("password");
+
+        userTO.getAttrs().add(attributeTO("userId", "issue654"));
+        userTO.getAttrs().add(attributeTO("fullname", userId));
+        userTO.getAttrs().add(attributeTO("surname", userId));
+
+        try {
+            createUser(userTO);
+            fail();
+        } catch (SyncopeClientCompositeException e) {
+            Assert.assertEquals(2, e.getExceptions().size());
         }
     }
 
