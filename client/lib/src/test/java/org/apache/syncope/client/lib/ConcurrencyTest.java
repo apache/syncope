@@ -54,7 +54,11 @@ public class ConcurrencyTest {
                     }
                 }
             };
-            execution.start();
+	    try {
+		execution.start();
+	    } catch(OutOfMemoryError e) {
+		// ignore
+	    }
         }
 
         Thread.sleep(THREAD_NUMBER);
