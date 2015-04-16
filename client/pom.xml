@@ -96,7 +96,7 @@ under the License.
               org.apache.syncope.client*;version=${project.version};-split-package:=merge-first
             </Export-Package>
             <Import-Package>
-              com.fasterxml.jackson*;version="[2.2.2,2.3)",
+              com.fasterxml.jackson*;version="[2.2.2,3)",
               org.slf4j;resolution:=optional,
               *
             </Import-Package>
