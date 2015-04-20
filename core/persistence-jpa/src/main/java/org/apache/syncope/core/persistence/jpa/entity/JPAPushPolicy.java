@@ -33,10 +33,7 @@ public class JPAPushPolicy extends JPAPolicy implements PushPolicy {
 
     public JPAPushPolicy(final boolean global) {
         super();
-
-        this.type = global
-                ? PolicyType.GLOBAL_PUSH
-                : PolicyType.PUSH;
+        this.type = PolicyType.PUSH;
     }
 
 }

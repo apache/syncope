@@ -130,7 +130,7 @@ public class NotificationTaskITCase extends AbstractTaskITCase {
         // 2. create user
         UserTO userTO = UserITCase.getUniqueSampleTO("syncope@syncope.apache.org");
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setGroupId(7);
+        membershipTO.setGroupKey(7);
         userTO.getMemberships().add(membershipTO);
 
         userTO = createUser(userTO);

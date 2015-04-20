@@ -27,11 +27,21 @@ public class SyncTaskTO extends AbstractProvisioningTaskTO {
 
     private static final long serialVersionUID = -2143537546915809017L;
 
+    private String destinationRealm;
+
     private UserTO userTemplate;
 
     private GroupTO groupTemplate;
 
     private boolean fullReconciliation;
+
+    public String getDestinationRealm() {
+        return destinationRealm;
+    }
+
+    public void setDestinationRealm(final String destinationRealm) {
+        this.destinationRealm = destinationRealm;
+    }
 
     public UserTO getUserTemplate() {
         return userTemplate;

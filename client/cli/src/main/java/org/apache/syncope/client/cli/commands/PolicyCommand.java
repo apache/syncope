@@ -79,7 +79,7 @@ public class PolicyCommand extends AbstractCommand {
             } catch (final IllegalArgumentException ex) {
                 System.out.println(" - Error: " + policyType + " isn't a valid policy type, try with:");
                 for (final PolicyType type : PolicyType.values()) {
-                    System.out.println("  *** " + type.name() + ": " + type.getDescription());
+                    System.out.println("  *** " + type.name());
                 }
             }
         } else if (policyIdToRead > -1L) {

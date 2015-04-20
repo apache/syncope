@@ -53,6 +53,8 @@ public class SyncopeTO extends AbstractBaseBean {
 
     private String groupProvisioningManager;
 
+    private String virAttrCache;
+
     private final List<String> reportlets = new ArrayList<>();
 
     private final List<String> taskJobs = new ArrayList<>();
@@ -112,6 +114,10 @@ public class SyncopeTO extends AbstractBaseBean {
 
     public String getGroupProvisioningManager() {
         return groupProvisioningManager;
+    }
+
+    public String getVirAttrCache() {
+        return virAttrCache;
     }
 
     @XmlElementWrapper(name = "reportlets")
@@ -213,4 +219,7 @@ public class SyncopeTO extends AbstractBaseBean {
         this.groupProvisioningManager = groupProvisioningManager;
     }
 
+    public void setVirAttrCache(final String virAttrCache) {
+        this.virAttrCache = virAttrCache;
+    }
 }

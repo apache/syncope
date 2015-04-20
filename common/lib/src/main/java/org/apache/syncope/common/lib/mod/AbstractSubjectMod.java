@@ -30,9 +30,19 @@ public abstract class AbstractSubjectMod extends AbstractAttributableMod {
 
     private static final long serialVersionUID = -6404459635536484024L;
 
+    private String realm;
+
     protected final Set<String> resourcesToAdd = new HashSet<>();
 
     protected final Set<String> resourcesToRemove = new HashSet<>();
+
+    public String getRealm() {
+        return realm;
+    }
+
+    public void setRealm(final String realm) {
+        this.realm = realm;
+    }
 
     @XmlElementWrapper(name = "resourcesToAdd")
     @XmlElement(name = "resource")

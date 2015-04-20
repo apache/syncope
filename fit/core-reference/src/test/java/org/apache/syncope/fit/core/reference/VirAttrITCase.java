@@ -59,7 +59,7 @@ public class VirAttrITCase extends AbstractITCase {
         UserTO userTO = UserITCase.getUniqueSampleTO("issue16@apache.org");
 
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setGroupId(8L);
+        membershipTO.setGroupKey(8L);
         userTO.getMemberships().add(membershipTO);
 
         // 1. create user
@@ -315,7 +315,7 @@ public class VirAttrITCase extends AbstractITCase {
             UserTO toBeUpdated = userService.read(created.getKey());
             UserMod userMod = new UserMod();
             userMod.setKey(toBeUpdated.getKey());
-            userMod.setPassword("password2");
+            userMod.setPassword("password234");
             // assign new resource to user
             userMod.getResourcesToAdd().add(RESOURCE_NAME_WS2);
             //modify virtual attribute
@@ -330,7 +330,7 @@ public class VirAttrITCase extends AbstractITCase {
 
             toBeUpdated = updateUser(userMod);
             assertNotNull(toBeUpdated);
-            assertEquals("test@testoneone.com", toBeUpdated.getVirAttrs().get(0).getValues().get(0));
+            assertEquals("test@testoneone.com", toBeUpdated.getVirAttrs().iterator().next().getValues().get(0));
             // check if propagates correctly with assertEquals on size of tasks list
             assertEquals(2, toBeUpdated.getPropagationStatusTOs().size());
         } finally {
@@ -486,13 +486,13 @@ public class VirAttrITCase extends AbstractITCase {
         // -------------------------------------------
         GroupTO groupTO = new GroupTO();
         groupTO.setName(groupName);
-        groupTO.setParent(8L);
+        groupTO.setRealm("/");
         groupTO.getGVirAttrTemplates().add("rvirtualdata");
         groupTO.getVirAttrs().add(attrTO("rvirtualdata", "ml@group.it"));
         groupTO.getResources().add(RESOURCE_NAME_LDAP);
         groupTO = createGroup(groupTO);
         assertEquals(1, groupTO.getVirAttrs().size());
-        assertEquals("ml@group.it", groupTO.getVirAttrs().get(0).getValues().get(0));
+        assertEquals("ml@group.it", groupTO.getVirAttrs().iterator().next().getValues().get(0));
         // -------------------------------------------
 
         // -------------------------------------------
@@ -506,8 +506,8 @@ public class VirAttrITCase extends AbstractITCase {
         userTO.getDerAttrs().clear();
         userTO.getMemberships().clear();
 
-        final MembershipTO membership = new MembershipTO();
-        membership.setGroupId(groupTO.getKey());
+        MembershipTO membership = new MembershipTO();
+        membership.setGroupKey(groupTO.getKey());
         membership.getVirAttrs().add(attrTO("mvirtualdata", "mvirtualvalue"));
         userTO.getMemberships().add(membership);
 
@@ -570,8 +570,8 @@ public class VirAttrITCase extends AbstractITCase {
         final String groupName = "issueSYNCOPE458-Group-" + getUUIDString();
         GroupTO groupTO = new GroupTO();
         groupTO.setName(groupName);
-        groupTO.setParent(2L);
-        groupTO.setInheritTemplates(true);
+        groupTO.setRealm("/");
+        groupTO.getMVirAttrTemplates().add("mvirtualdata");
         groupTO = createGroup(groupTO);
         // -------------------------------------------
 
@@ -608,11 +608,11 @@ public class VirAttrITCase extends AbstractITCase {
 
         // add membership, with virtual attribute populated, to user
         MembershipTO membership = new MembershipTO();
-        membership.setGroupId(groupTO.getKey());
+        membership.setGroupKey(groupTO.getKey());
         membership.getVirAttrs().add(attrTO("mvirtualdata", "syncope458@syncope.apache.org"));
         userTO.getMemberships().add(membership);
 
-        //propagate user
+        // propagate user
         userTO = createUser(userTO);
         assertEquals(1, userTO.getPropagationStatusTOs().size());
         assertTrue(userTO.getPropagationStatusTOs().get(0).getStatus().isSuccessful());
@@ -801,8 +801,8 @@ public class VirAttrITCase extends AbstractITCase {
         final String groupName = "issueSYNCOPE501-Group-" + getUUIDString();
         GroupTO groupTO = new GroupTO();
         groupTO.setName(groupName);
-        groupTO.setParent(2L);
-        groupTO.setInheritTemplates(true);
+        groupTO.setRealm("/");
+        groupTO.getMVirAttrTemplates().add("mvirtualdata");
         groupTO = createGroup(groupTO);
         // -------------------------------------------
 

@@ -26,14 +26,11 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
-import org.apache.syncope.core.persistence.api.dao.EntitlementDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrValueDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
-import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.entity.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainSchema;
@@ -62,15 +59,9 @@ public class GroupTest extends AbstractTest {
     @Autowired
     private PlainAttrValueDAO plainAttrValueDAO;
 
-    @Autowired
-    private EntitlementDAO entitlementDAO;
-
-    @Autowired
-    private PolicyDAO policyDAO;
-
     @Test(expected = InvalidEntityException.class)
     public void saveWithTwoOwners() {
-        Group root = groupDAO.find("root", null);
+        Group root = groupDAO.find("root");
         assertNotNull("did not find expected group", root);
 
         User user = userDAO.find(1L);
@@ -94,39 +85,10 @@ public class GroupTest extends AbstractTest {
 
         assertEquals(user, group.getUserOwner());
 
-        Group child1 = groupDAO.find(7L);
-        assertNotNull(child1);
-        assertEquals(group, child1.getParent());
-
-        Group child2 = groupDAO.find(10L);
-        assertNotNull(child2);
-        assertEquals(group, child2.getParent());
-
         List<Group> ownedGroups = groupDAO.findOwnedByUser(user.getKey());
         assertFalse(ownedGroups.isEmpty());
-        assertEquals(2, ownedGroups.size());
+        assertEquals(1, ownedGroups.size());
         assertTrue(ownedGroups.contains(group));
-        assertTrue(ownedGroups.contains(child1));
-        assertFalse(ownedGroups.contains(child2));
-    }
-
-    public void createWithPasswordPolicy() {
-        PasswordPolicy policy = (PasswordPolicy) policyDAO.find(4L);
-        Group group = entityFactory.newEntity(Group.class);
-        group.setName("groupWithPasswordPolicy");
-        group.setPasswordPolicy(policy);
-
-        Group actual = groupDAO.save(group);
-        assertNotNull(actual);
-
-        actual = groupDAO.find(actual.getKey());
-        assertNotNull(actual);
-        assertNotNull(actual.getPasswordPolicy());
-
-        groupDAO.delete(actual.getKey());
-        assertNull(groupDAO.find(actual.getKey()));
-
-        assertNotNull(policyDAO.find(4L));
     }
 
     @Test
@@ -136,7 +98,6 @@ public class GroupTest extends AbstractTest {
         groupDAO.flush();
 
         assertNull(groupDAO.find(2L));
-        assertEquals(1, groupDAO.findByEntitlement(entitlementDAO.find("base")).size());
         assertEquals(userDAO.find(2L).getGroups().size(), 2);
         assertNull(plainAttrDAO.find(700L, GPlainAttr.class));
         assertNull(plainAttrValueDAO.find(41L, GPlainAttrValue.class));

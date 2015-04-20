@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.fit.core.reference;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.syncope.common.lib.mod.AbstractSubjectMod;
 import org.apache.syncope.common.lib.mod.AttrMod;
 import org.apache.syncope.common.lib.to.AbstractSubjectTO;
@@ -42,8 +43,9 @@ public class TestSyncActions extends DefaultSyncActions {
 
         AttrTO attrTO = null;
         for (int i = 0; i < subject.getPlainAttrs().size(); i++) {
-            if ("fullname".equals(subject.getPlainAttrs().get(i).getSchema())) {
-                attrTO = subject.getPlainAttrs().get(i);
+            AttrTO _attrTO = CollectionUtils.get(subject.getPlainAttrs(), i);
+            if ("fullname".equals(_attrTO.getSchema())) {
+                attrTO = _attrTO;
             }
         }
         if (attrTO == null) {

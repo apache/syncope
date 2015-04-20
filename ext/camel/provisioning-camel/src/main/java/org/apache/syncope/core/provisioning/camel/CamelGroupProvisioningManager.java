@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.camel.Exchange;
 import org.apache.camel.PollingConsumer;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.mod.GroupMod;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.GroupTO;
@@ -36,13 +37,13 @@ public class CamelGroupProvisioningManager
         extends AbstractCamelProvisioningManager implements GroupProvisioningManager {
 
     @Override
-    public Map.Entry<Long, List<PropagationStatus>> create(final GroupTO subject) {
+    public Pair<Long, List<PropagationStatus>> create(final GroupTO subject) {
         return create(subject, Collections.<String>emptySet());
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public Map.Entry<Long, List<PropagationStatus>> create(final GroupTO groupTO, final Set<String> excludedResources) {
+    public Pair<Long, List<PropagationStatus>> create(final GroupTO groupTO, final Set<String> excludedResources) {
         PollingConsumer pollingConsumer = getConsumer("direct:createGroupPort");
 
         Map<String, Object> props = new HashMap<>();
@@ -56,12 +57,12 @@ public class CamelGroupProvisioningManager
             throw (RuntimeException) exchange.getProperty(Exchange.EXCEPTION_CAUGHT);
         }
 
-        return exchange.getIn().getBody(Map.Entry.class);
+        return exchange.getIn().getBody(Pair.class);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public Map.Entry<Long, List<PropagationStatus>> create(final GroupTO groupTO, final Map<Long, String> groupOwnerMap,
+    public Pair<Long, List<PropagationStatus>> create(final GroupTO groupTO, final Map<Long, String> groupOwnerMap,
             final Set<String> excludedResources) throws PropagationException {
 
         PollingConsumer pollingConsumer = getConsumer("direct:createGroupInSyncPort");
@@ -78,17 +79,17 @@ public class CamelGroupProvisioningManager
             throw (RuntimeException) exchange.getProperty(Exchange.EXCEPTION_CAUGHT);
         }
 
-        return exchange.getIn().getBody(Map.Entry.class);
+        return exchange.getIn().getBody(Pair.class);
     }
 
     @Override
-    public Map.Entry<Long, List<PropagationStatus>> update(final GroupMod subjectMod) {
+    public Pair<Long, List<PropagationStatus>> update(final GroupMod subjectMod) {
         return update(subjectMod, Collections.<String>emptySet());
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public Map.Entry<Long, List<PropagationStatus>> update(
+    public Pair<Long, List<PropagationStatus>> update(
             final GroupMod subjectMod, final Set<String> excludedResources) {
 
         PollingConsumer pollingConsumer = getConsumer("direct:updateGroupPort");
@@ -104,7 +105,7 @@ public class CamelGroupProvisioningManager
             throw (RuntimeException) exchange.getProperty(Exchange.EXCEPTION_CAUGHT);
         }
 
-        return exchange.getIn().getBody(Map.Entry.class);
+        return exchange.getIn().getBody(Pair.class);
     }
 
     @Override

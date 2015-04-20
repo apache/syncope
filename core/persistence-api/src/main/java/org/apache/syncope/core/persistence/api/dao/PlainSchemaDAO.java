@@ -19,7 +19,7 @@
 package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.List;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtil;
+import org.apache.syncope.core.persistence.api.entity.AttributableUtils;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 
@@ -33,5 +33,5 @@ public interface PlainSchemaDAO extends DAO<PlainSchema, String> {
 
     <T extends PlainSchema> T save(T schema);
 
-    void delete(String name, AttributableUtil attributableUtil);
+    void delete(String name, AttributableUtils attributableUtil);
 }

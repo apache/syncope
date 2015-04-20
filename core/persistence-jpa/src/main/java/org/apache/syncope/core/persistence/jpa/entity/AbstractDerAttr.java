@@ -25,7 +25,7 @@ import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import org.apache.syncope.core.persistence.api.entity.DerAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
-import org.apache.syncope.core.misc.jexl.JexlUtil;
+import org.apache.syncope.core.misc.jexl.JexlUtils;
 
 @MappedSuperclass
 public abstract class AbstractDerAttr extends AbstractEntity<Long> implements DerAttr {
@@ -47,6 +47,6 @@ public abstract class AbstractDerAttr extends AbstractEntity<Long> implements De
      */
     @Override
     public String getValue(final Collection<? extends PlainAttr> attributes) {
-        return JexlUtil.evaluate(getSchema().getExpression(), getOwner(), attributes);
+        return JexlUtils.evaluate(getSchema().getExpression(), getOwner(), attributes);
     }
 }

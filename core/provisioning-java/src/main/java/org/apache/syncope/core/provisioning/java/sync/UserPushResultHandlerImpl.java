@@ -27,7 +27,7 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtil;
+import org.apache.syncope.core.persistence.api.entity.AttributableUtils;
 import org.apache.syncope.core.persistence.api.entity.Mapping;
 import org.apache.syncope.core.persistence.api.entity.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.Subject;
@@ -41,18 +41,18 @@ import org.identityconnectors.framework.common.objects.Uid;
 public class UserPushResultHandlerImpl extends AbstractPushResultHandler implements UserPushResultHandler {
 
     @Override
-    protected AttributableUtil getAttributableUtil() {
-        return attrUtilFactory.getInstance(AttributableType.USER);
+    protected AttributableUtils getAttributableUtils() {
+        return attrUtilsFactory.getInstance(AttributableType.USER);
     }
 
     @Override
     protected Subject<?, ?, ?> deprovision(final Subject<?, ?, ?> sbj) {
-        final UserTO before = userTransfer.getUserTO(sbj.getKey());
+        final UserTO before = userDataBinder.getUserTO(sbj.getKey());
 
         final List<String> noPropResources = new ArrayList<>(before.getResources());
         noPropResources.remove(profile.getTask().getResource().getKey());
 
-        taskExecutor.execute(propagationManager.getUserDeleteTaskIds(before.getKey(),
+        taskExecutor.execute(propagationManager.getUserDeleteTasks(before.getKey(),
                 Collections.singleton(profile.getTask().getResource().getKey()), noPropResources));
 
         return userDAO.authFetch(before.getKey());
@@ -60,7 +60,7 @@ public class UserPushResultHandlerImpl extends AbstractPushResultHandler impleme
 
     @Override
     protected Subject<?, ?, ?> provision(final Subject<?, ?, ?> sbj, final Boolean enabled) {
-        final UserTO before = userTransfer.getUserTO(sbj.getKey());
+        final UserTO before = userDataBinder.getUserTO(sbj.getKey());
 
         final List<String> noPropResources = new ArrayList<>(before.getResources());
         noPropResources.remove(profile.getTask().getResource().getKey());
@@ -68,7 +68,7 @@ public class UserPushResultHandlerImpl extends AbstractPushResultHandler impleme
         final PropagationByResource propByRes = new PropagationByResource();
         propByRes.add(ResourceOperation.CREATE, profile.getTask().getResource().getKey());
 
-        taskExecutor.execute(propagationManager.getUserCreateTaskIds(
+        taskExecutor.execute(propagationManager.getUserCreateTasks(
                 before.getKey(),
                 enabled,
                 propByRes,
@@ -122,7 +122,7 @@ public class UserPushResultHandlerImpl extends AbstractPushResultHandler impleme
     @Override
     protected AbstractSubjectTO getSubjectTO(final long key) {
         try {
-            return userTransfer.getUserTO(key);
+            return userDataBinder.getUserTO(key);
         } catch (Exception e) {
             LOG.warn("Error retrieving user {}", key, e);
             return null;

@@ -139,11 +139,5 @@ under the License.
     SELECT st.group_id AS subject_id, st.resource_name AS resource_name
     FROM SyncopeGroup_ExternalResource st
   </entry>
-  <entry key="group_search_entitlements">
-    CREATE VIEW group_search_entitlements AS
-
-    SELECT st.group_id AS subject_id, st.entitlement_name AS entitlement_name
-    FROM SyncopeGroup_Entitlement st
-  </entry>
 
 </properties>

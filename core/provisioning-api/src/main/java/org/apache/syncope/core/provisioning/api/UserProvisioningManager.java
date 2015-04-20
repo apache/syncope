@@ -19,8 +19,8 @@
 package org.apache.syncope.core.provisioning.api;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.mod.StatusMod;
 import org.apache.syncope.common.lib.mod.UserMod;
 import org.apache.syncope.common.lib.to.PropagationStatus;
@@ -30,22 +30,22 @@ import org.apache.syncope.core.provisioning.api.sync.ProvisioningResult;
 
 public interface UserProvisioningManager extends ProvisioningManager<UserTO, UserMod> {
 
-    Map.Entry<Long, List<PropagationStatus>> activate(User user, StatusMod statusMod);
+    Pair<Long, List<PropagationStatus>> activate(User user, StatusMod statusMod);
 
-    Map.Entry<Long, List<PropagationStatus>> reactivate(User user, StatusMod statusMod);
+    Pair<Long, List<PropagationStatus>> reactivate(User user, StatusMod statusMod);
 
-    Map.Entry<Long, List<PropagationStatus>> suspend(User user, StatusMod statusMod);
+    Pair<Long, List<PropagationStatus>> suspend(User user, StatusMod statusMod);
 
     void innerSuspend(User user, boolean propagate);
 
-    Map.Entry<Long, List<PropagationStatus>> create(UserTO userTO, boolean storePassword);
+    Pair<Long, List<PropagationStatus>> create(UserTO userTO, boolean storePassword);
 
-    Map.Entry<Long, List<PropagationStatus>> create(UserTO userTO, boolean storePassword,
+    Pair<Long, List<PropagationStatus>> create(UserTO userTO, boolean storePassword,
             boolean disablePwdPolicyCheck, Boolean enabled, Set<String> excludedResources);
 
-    Map.Entry<Long, List<PropagationStatus>> update(UserMod userMod, boolean removeMemberships);
+    Pair<Long, List<PropagationStatus>> update(UserMod userMod, boolean removeMemberships);
 
-    Map.Entry<Long, List<PropagationStatus>> update(UserMod userMod, Long key,
+    Pair<Long, List<PropagationStatus>> update(UserMod userMod, Long key,
             ProvisioningResult result, Boolean enabled, Set<String> excludedResources);
 
     List<PropagationStatus> delete(Long subjectKey, Set<String> excludedResources);

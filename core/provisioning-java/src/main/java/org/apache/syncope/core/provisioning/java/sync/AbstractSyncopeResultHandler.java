@@ -20,7 +20,7 @@ package org.apache.syncope.core.provisioning.java.sync;
 
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtilFactory;
+import org.apache.syncope.core.persistence.api.entity.AttributableUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
 import org.apache.syncope.core.provisioning.api.GroupProvisioningManager;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
@@ -32,7 +32,7 @@ import org.apache.syncope.core.provisioning.api.sync.ProvisioningActions;
 import org.apache.syncope.core.provisioning.api.sync.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.api.sync.SyncopeResultHandler;
 import org.apache.syncope.core.misc.AuditManager;
-import org.apache.syncope.core.misc.ConnObjectUtil;
+import org.apache.syncope.core.misc.ConnObjectUtils;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.workflow.api.GroupWorkflowAdapter;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
@@ -55,10 +55,10 @@ public abstract class AbstractSyncopeResultHandler<T extends ProvisioningTask, A
     protected GroupDAO groupDAO;
 
     /**
-     * ConnectorObject util.
+     * ConnectorObject utils.
      */
     @Autowired
-    protected ConnObjectUtil connObjectUtil;
+    protected ConnObjectUtils connObjectUtils;
 
     /**
      * Notification Manager.
@@ -97,10 +97,10 @@ public abstract class AbstractSyncopeResultHandler<T extends ProvisioningTask, A
     protected GroupWorkflowAdapter gwfAdapter;
 
     @Autowired
-    protected UserDataBinder userTransfer;
+    protected UserDataBinder userDataBinder;
 
     @Autowired
-    protected GroupDataBinder groupTransfer;
+    protected GroupDataBinder groupDataBinder;
 
     @Autowired
     protected UserProvisioningManager userProvisioningManager;
@@ -109,7 +109,7 @@ public abstract class AbstractSyncopeResultHandler<T extends ProvisioningTask, A
     protected GroupProvisioningManager groupProvisioningManager;
 
     @Autowired
-    protected AttributableUtilFactory attrUtilFactory;
+    protected AttributableUtilsFactory attrUtilsFactory;
 
     /**
      * Sync profile.

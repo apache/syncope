@@ -20,16 +20,16 @@ package org.apache.syncope.core.provisioning.api;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.mod.AbstractAttributableMod;
 import org.apache.syncope.common.lib.to.AbstractAttributableTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 
 public interface ProvisioningManager<T extends AbstractAttributableTO, M extends AbstractAttributableMod> {
 
-    Map.Entry<Long, List<PropagationStatus>> create(T subject);
+    Pair<Long, List<PropagationStatus>> create(T subject);
 
-    Map.Entry<Long, List<PropagationStatus>> update(M subjectMod);
+    Pair<Long, List<PropagationStatus>> update(M subjectMod);
 
     List<PropagationStatus> delete(Long subjectId);
 

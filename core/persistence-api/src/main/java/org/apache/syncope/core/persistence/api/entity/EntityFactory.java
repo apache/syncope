@@ -22,7 +22,5 @@ public interface EntityFactory {
 
     <KEY, T extends Entity<KEY>> T newEntity(Class<T> reference);
 
-    <T extends Policy> T newPolicy(Class<T> reference, boolean global);
-
     ConnPoolConf newConnPoolConf();
 }

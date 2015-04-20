@@ -31,7 +31,7 @@ import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.misc.AuditManager;
-import org.apache.syncope.core.misc.ExceptionUtil;
+import org.apache.syncope.core.misc.ExceptionUtils2;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
@@ -186,7 +186,7 @@ public class NotificationJob implements Job {
 
                     execution.setStatus(Status.NOT_SENT.name());
                     if (task.getTraceLevel().ordinal() >= TraceLevel.FAILURES.ordinal()) {
-                        execution.setMessage(ExceptionUtil.getFullStackTrace(e));
+                        execution.setMessage(ExceptionUtils2.getFullStackTrace(e));
                     }
 
                     auditManager.audit(

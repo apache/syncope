@@ -47,7 +47,7 @@ public class DerSchemaTest extends AbstractTest {
     public void test() {
         UDerSchema schema = derSchemaDAO.find("cn", UDerSchema.class);
 
-        derSchemaDAO.delete(schema.getKey(), attrUtilFactory.getInstance(AttributableType.USER));
+        derSchemaDAO.delete(schema.getKey(), attrUtilsFactory.getInstance(AttributableType.USER));
 
         derSchemaDAO.flush();
 

@@ -27,7 +27,7 @@ import org.apache.syncope.core.persistence.api.dao.AttrTemplateDAO;
 import org.apache.syncope.core.persistence.api.dao.DerAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtil;
+import org.apache.syncope.core.persistence.api.entity.AttributableUtils;
 import org.apache.syncope.core.persistence.api.entity.DerAttr;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.membership.MDerSchema;
@@ -101,7 +101,7 @@ public class JPADerSchemaDAO extends AbstractDAO<DerSchema, String> implements D
 
     @Override
     @SuppressWarnings("unchecked")
-    public void delete(final String key, final AttributableUtil attributableUtil) {
+    public void delete(final String key, final AttributableUtils attributableUtil) {
         final DerSchema schema = find(key, attributableUtil.derSchemaClass());
         if (schema == null) {
             return;

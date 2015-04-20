@@ -35,7 +35,7 @@ import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.MappingItem;
 import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
-import org.apache.syncope.core.provisioning.api.ConnPoolConfUtil;
+import org.apache.syncope.core.provisioning.api.ConnPoolConfUtils;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.TimeoutException;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
@@ -99,8 +99,7 @@ public class ConnectorFacadeProxy implements Connector {
 
         ConnIdBundleManager connIdBundleManager =
                 ApplicationContextProvider.getApplicationContext().getBean(ConnIdBundleManager.class);
-        ConnectorInfo info = connIdBundleManager.getConnectorInfo(connInstance.getLocation(),
-                connInstance.getBundleName(), connInstance.getVersion(), connInstance.getConnectorName());
+        ConnectorInfo info = connIdBundleManager.getConnectorInfo(connInstance);
 
         // create default configuration
         APIConfiguration apiConfig = info.createDefaultAPIConfiguration();
@@ -117,7 +116,7 @@ public class ConnectorFacadeProxy implements Connector {
         // set pooling configuration (if supported) according to conninstance's
         if (connInstance.getPoolConf() != null) {
             if (apiConfig.isConnectorPoolingSupported()) {
-                ConnPoolConfUtil.updateObjectPoolConfiguration(
+                ConnPoolConfUtils.updateObjectPoolConfiguration(
                         apiConfig.getConnectorPoolConfiguration(), connInstance.getPoolConf());
             } else {
                 LOG.warn("Connector pooling not supported for {}", info);

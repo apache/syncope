@@ -38,8 +38,8 @@ import org.apache.syncope.core.persistence.api.dao.DuplicateException;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtil;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtilFactory;
+import org.apache.syncope.core.persistence.api.entity.AttributableUtils;
+import org.apache.syncope.core.persistence.api.entity.AttributableUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
@@ -64,22 +64,22 @@ public class SchemaLogic extends AbstractTransactionalLogic<AbstractSchemaTO> {
     private SchemaDataBinder binder;
 
     @Autowired
-    private AttributableUtilFactory attrUtilFactory;
+    private AttributableUtilsFactory attrUtilsFactory;
 
-    private boolean doesSchemaExist(final SchemaType schemaType, final String name, final AttributableUtil attrUtil) {
+    private boolean doesSchemaExist(final SchemaType schemaType, final String name, final AttributableUtils attrUtils) {
         boolean found;
 
         switch (schemaType) {
             case VIRTUAL:
-                found = virSchemaDAO.find(name, attrUtil.virSchemaClass()) != null;
+                found = virSchemaDAO.find(name, attrUtils.virSchemaClass()) != null;
                 break;
 
             case DERIVED:
-                found = derSchemaDAO.find(name, attrUtil.derSchemaClass()) != null;
+                found = derSchemaDAO.find(name, attrUtils.derSchemaClass()) != null;
                 break;
 
             case PLAIN:
-                found = plainSchemaDAO.find(name, attrUtil.plainSchemaClass()) != null;
+                found = plainSchemaDAO.find(name, attrUtils.plainSchemaClass()) != null;
                 break;
 
             default:
@@ -100,22 +100,21 @@ public class SchemaLogic extends AbstractTransactionalLogic<AbstractSchemaTO> {
             throw sce;
         }
 
-        final AttributableUtil attrUtil = attrUtilFactory.getInstance(attrType);
-
-        if (doesSchemaExist(schemaType, schemaTO.getKey(), attrUtil)) {
-            throw new DuplicateException(schemaType + "/" + attrType + "/" + schemaTO.getKey());
+        AttributableUtils attrUtils = attrUtilsFactory.getInstance(attrType);
+        if (doesSchemaExist(schemaType, schemaTO.getKey(), attrUtils)) {
+            throw new DuplicateException(attrType + "/" + schemaType + "/" + schemaTO.getKey());
         }
 
         T created;
         switch (schemaType) {
             case VIRTUAL:
-                VirSchema virSchema = attrUtil.newVirSchema();
+                VirSchema virSchema = attrUtils.newVirSchema();
                 binder.create((VirSchemaTO) schemaTO, virSchema);
                 virSchema = virSchemaDAO.save(virSchema);
                 created = (T) binder.getVirSchemaTO(virSchema);
                 break;
             case DERIVED:
-                DerSchema derSchema = attrUtil.newDerSchema();
+                DerSchema derSchema = attrUtils.newDerSchema();
                 binder.create((DerSchemaTO) schemaTO, derSchema);
                 derSchema = derSchemaDAO.save(derSchema);
 
@@ -124,47 +123,47 @@ public class SchemaLogic extends AbstractTransactionalLogic<AbstractSchemaTO> {
 
             case PLAIN:
             default:
-                PlainSchema normalSchema = attrUtil.newPlainSchema();
+                PlainSchema normalSchema = attrUtils.newPlainSchema();
                 binder.create((PlainSchemaTO) schemaTO, normalSchema);
                 normalSchema = plainSchemaDAO.save(normalSchema);
 
-                created = (T) binder.getPlainSchemaTO(normalSchema, attrUtil);
+                created = (T) binder.getPlainSchemaTO(normalSchema, attrUtils);
         }
         return created;
     }
 
     @PreAuthorize("hasRole('SCHEMA_DELETE')")
     public void delete(final AttributableType attrType, final SchemaType schemaType, final String schemaName) {
-        final AttributableUtil attrUtil = attrUtilFactory.getInstance(attrType);
+        final AttributableUtils attrUtils = attrUtilsFactory.getInstance(attrType);
 
-        if (!doesSchemaExist(schemaType, schemaName, attrUtil)) {
+        if (!doesSchemaExist(schemaType, schemaName, attrUtils)) {
             throw new NotFoundException(schemaType + "/" + attrType + "/" + schemaName);
         }
 
         switch (schemaType) {
             case VIRTUAL:
-                virSchemaDAO.delete(schemaName, attrUtil);
+                virSchemaDAO.delete(schemaName, attrUtils);
                 break;
 
             case DERIVED:
-                derSchemaDAO.delete(schemaName, attrUtil);
+                derSchemaDAO.delete(schemaName, attrUtils);
                 break;
 
             case PLAIN:
             default:
-                plainSchemaDAO.delete(schemaName, attrUtil);
+                plainSchemaDAO.delete(schemaName, attrUtils);
         }
     }
 
     @PreAuthorize("isAuthenticated()")
     @SuppressWarnings("unchecked")
     public <T extends AbstractSchemaTO> List<T> list(final AttributableType attrType, final SchemaType schemaType) {
-        final AttributableUtil attrUtil = attrUtilFactory.getInstance(attrType);
+        final AttributableUtils attrUtils = attrUtilsFactory.getInstance(attrType);
 
         List<T> result;
         switch (schemaType) {
             case VIRTUAL:
-                result = CollectionUtils.collect(virSchemaDAO.findAll(attrUtil.virSchemaClass()),
+                result = CollectionUtils.collect(virSchemaDAO.findAll(attrUtils.virSchemaClass()),
                         new Transformer<VirSchema, T>() {
 
                             @Override
@@ -175,7 +174,7 @@ public class SchemaLogic extends AbstractTransactionalLogic<AbstractSchemaTO> {
                 break;
 
             case DERIVED:
-                result = CollectionUtils.collect(derSchemaDAO.findAll(attrUtil.derSchemaClass()),
+                result = CollectionUtils.collect(derSchemaDAO.findAll(attrUtils.derSchemaClass()),
                         new Transformer<DerSchema, T>() {
 
                             @Override
@@ -187,12 +186,12 @@ public class SchemaLogic extends AbstractTransactionalLogic<AbstractSchemaTO> {
 
             case PLAIN:
             default:
-                result = CollectionUtils.collect(plainSchemaDAO.findAll(attrUtil.plainSchemaClass()),
+                result = CollectionUtils.collect(plainSchemaDAO.findAll(attrUtils.plainSchemaClass()),
                         new Transformer<PlainSchema, T>() {
 
                             @Override
                             public T transform(final PlainSchema input) {
-                                return (T) binder.getPlainSchemaTO(input, attrUtil);
+                                return (T) binder.getPlainSchemaTO(input, attrUtils);
                             }
                         }, new ArrayList<T>());
         }
@@ -205,12 +204,12 @@ public class SchemaLogic extends AbstractTransactionalLogic<AbstractSchemaTO> {
     public <T extends AbstractSchemaTO> T read(
             final AttributableType attrType, final SchemaType schemaType, final String schemaName) {
 
-        final AttributableUtil attrUtil = attrUtilFactory.getInstance(attrType);
+        final AttributableUtils attrUtils = attrUtilsFactory.getInstance(attrType);
 
         T read;
         switch (schemaType) {
             case VIRTUAL:
-                VirSchema virSchema = virSchemaDAO.find(schemaName, attrUtil.virSchemaClass());
+                VirSchema virSchema = virSchemaDAO.find(schemaName, attrUtils.virSchemaClass());
                 if (virSchema == null) {
                     throw new NotFoundException("Virtual Schema '" + schemaName + "'");
                 }
@@ -219,7 +218,7 @@ public class SchemaLogic extends AbstractTransactionalLogic<AbstractSchemaTO> {
                 break;
 
             case DERIVED:
-                DerSchema derSchema = derSchemaDAO.find(schemaName, attrUtil.derSchemaClass());
+                DerSchema derSchema = derSchemaDAO.find(schemaName, attrUtils.derSchemaClass());
                 if (derSchema == null) {
                     throw new NotFoundException("Derived schema '" + schemaName + "'");
                 }
@@ -229,12 +228,12 @@ public class SchemaLogic extends AbstractTransactionalLogic<AbstractSchemaTO> {
 
             case PLAIN:
             default:
-                PlainSchema schema = plainSchemaDAO.find(schemaName, attrUtil.plainSchemaClass());
+                PlainSchema schema = plainSchemaDAO.find(schemaName, attrUtils.plainSchemaClass());
                 if (schema == null) {
                     throw new NotFoundException("Schema '" + schemaName + "'");
                 }
 
-                read = (T) binder.getPlainSchemaTO(schema, attrUtil);
+                read = (T) binder.getPlainSchemaTO(schema, attrUtils);
         }
 
         return read;
@@ -244,15 +243,15 @@ public class SchemaLogic extends AbstractTransactionalLogic<AbstractSchemaTO> {
     public <T extends AbstractSchemaTO> void update(
             final AttributableType attrType, final SchemaType schemaType, final T schemaTO) {
 
-        final AttributableUtil attrUtil = attrUtilFactory.getInstance(attrType);
+        final AttributableUtils attrUtils = attrUtilsFactory.getInstance(attrType);
 
-        if (!doesSchemaExist(schemaType, schemaTO.getKey(), attrUtil)) {
+        if (!doesSchemaExist(schemaType, schemaTO.getKey(), attrUtils)) {
             throw new NotFoundException(schemaType + "/" + attrType + "/" + schemaTO.getKey());
         }
 
         switch (schemaType) {
             case VIRTUAL:
-                VirSchema virSchema = virSchemaDAO.find(schemaTO.getKey(), attrUtil.virSchemaClass());
+                VirSchema virSchema = virSchemaDAO.find(schemaTO.getKey(), attrUtils.virSchemaClass());
                 if (virSchema == null) {
                     throw new NotFoundException("Virtual Schema '" + schemaTO.getKey() + "'");
                 }
@@ -262,7 +261,7 @@ public class SchemaLogic extends AbstractTransactionalLogic<AbstractSchemaTO> {
                 break;
 
             case DERIVED:
-                DerSchema derSchema = derSchemaDAO.find(schemaTO.getKey(), attrUtil.derSchemaClass());
+                DerSchema derSchema = derSchemaDAO.find(schemaTO.getKey(), attrUtils.derSchemaClass());
                 if (derSchema == null) {
                     throw new NotFoundException("Derived schema '" + schemaTO.getKey() + "'");
                 }
@@ -273,12 +272,12 @@ public class SchemaLogic extends AbstractTransactionalLogic<AbstractSchemaTO> {
 
             case PLAIN:
             default:
-                PlainSchema schema = plainSchemaDAO.find(schemaTO.getKey(), attrUtil.plainSchemaClass());
+                PlainSchema schema = plainSchemaDAO.find(schemaTO.getKey(), attrUtils.plainSchemaClass());
                 if (schema == null) {
                     throw new NotFoundException("Schema '" + schemaTO.getKey() + "'");
                 }
 
-                binder.update((PlainSchemaTO) schemaTO, schema, attrUtil);
+                binder.update((PlainSchemaTO) schemaTO, schema, attrUtils);
                 plainSchemaDAO.save(schema);
         }
     }
@@ -305,15 +304,15 @@ public class SchemaLogic extends AbstractTransactionalLogic<AbstractSchemaTO> {
 
         if (key != null) {
             try {
-                final AttributableUtil attrUtil = attrUtilFactory.getInstance(kind);
+                final AttributableUtils attrUtils = attrUtilsFactory.getInstance(kind);
 
                 AbstractSchemaTO result = null;
 
-                PlainSchema plainSchema = plainSchemaDAO.find(key, attrUtil.plainSchemaClass());
+                PlainSchema plainSchema = plainSchemaDAO.find(key, attrUtils.plainSchemaClass());
                 if (plainSchema == null) {
-                    DerSchema derSchema = derSchemaDAO.find(key, attrUtil.derSchemaClass());
+                    DerSchema derSchema = derSchemaDAO.find(key, attrUtils.derSchemaClass());
                     if (derSchema == null) {
-                        VirSchema virSchema = virSchemaDAO.find(key, attrUtil.virSchemaClass());
+                        VirSchema virSchema = virSchemaDAO.find(key, attrUtils.virSchemaClass());
                         if (virSchema != null) {
                             result = binder.getVirSchemaTO(virSchema);
                         }
@@ -321,7 +320,7 @@ public class SchemaLogic extends AbstractTransactionalLogic<AbstractSchemaTO> {
                         result = binder.getDerSchemaTO(derSchema);
                     }
                 } else {
-                    result = binder.getPlainSchemaTO(plainSchema, attrUtil);
+                    result = binder.getPlainSchemaTO(plainSchema, attrUtils);
                 }
 
                 return result;

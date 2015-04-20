@@ -20,18 +20,37 @@ package org.apache.syncope.core.persistence.jpa.entity;
 
 import java.util.HashSet;
 import java.util.Set;
+import javax.persistence.FetchType;
+import javax.persistence.ManyToOne;
+import javax.persistence.MappedSuperclass;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.core.persistence.api.entity.DerAttr;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
+import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Subject;
 import org.apache.syncope.core.persistence.api.entity.VirAttr;
 
+@MappedSuperclass
 public abstract class AbstractSubject<P extends PlainAttr, D extends DerAttr, V extends VirAttr>
         extends AbstractAttributable<P, D, V> implements Subject<P, D, V> {
 
     private static final long serialVersionUID = -6876467491398928855L;
+
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    protected JPARealm realm;
+
+    @Override
+    public Realm getRealm() {
+        return realm;
+    }
+
+    @Override
+    public void setRealm(final Realm realm) {
+        checkType(realm, JPARealm.class);
+        this.realm = (JPARealm) realm;
+    }
 
     protected abstract Set<? extends ExternalResource> internalGetResources();
 

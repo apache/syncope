@@ -40,8 +40,6 @@ public class RoleTO extends AbstractBaseBean {
 
     private String name;
 
-    private String criteria;
-
     private final Set<Entitlement> entitlements = EnumSet.noneOf(Entitlement.class);
 
     private final List<String> realms = new ArrayList<>();
@@ -60,14 +58,6 @@ public class RoleTO extends AbstractBaseBean {
 
     public void setName(final String name) {
         this.name = name;
-    }
-
-    public String getCriteria() {
-        return criteria;
-    }
-
-    public void setCriteria(final String criteria) {
-        this.criteria = criteria;
     }
 
     @XmlElementWrapper(name = "entitlements")

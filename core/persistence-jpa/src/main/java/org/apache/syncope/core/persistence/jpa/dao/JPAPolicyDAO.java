@@ -21,22 +21,24 @@ package org.apache.syncope.core.persistence.jpa.dao;
 import java.util.List;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
-import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.common.lib.types.PolicyType;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.entity.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.Policy;
-import org.apache.syncope.core.persistence.api.entity.SyncPolicy;
+import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.jpa.entity.JPAPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAccountPolicy;
-import org.apache.syncope.core.persistence.jpa.entity.JPARealm;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public class JPAPolicyDAO extends AbstractDAO<Policy, Long> implements PolicyDAO {
+
+    @Autowired
+    private RealmDAO realmDAO;
 
     @Override
     @SuppressWarnings("unchecked")
@@ -72,30 +74,6 @@ public class JPAPolicyDAO extends AbstractDAO<Policy, Long> implements PolicyDAO
     }
 
     @Override
-    public PasswordPolicy getGlobalPasswordPolicy() {
-        List<? extends Policy> policies = find(PolicyType.GLOBAL_PASSWORD);
-        return policies == null || policies.isEmpty()
-                ? null
-                : (PasswordPolicy) policies.get(0);
-    }
-
-    @Override
-    public AccountPolicy getGlobalAccountPolicy() {
-        List<? extends Policy> policies = find(PolicyType.GLOBAL_ACCOUNT);
-        return policies == null || policies.isEmpty()
-                ? null
-                : (AccountPolicy) policies.get(0);
-    }
-
-    @Override
-    public SyncPolicy getGlobalSyncPolicy() {
-        List<? extends Policy> policies = find(PolicyType.GLOBAL_SYNC);
-        return policies == null || policies.isEmpty()
-                ? null
-                : (SyncPolicy) policies.get(0);
-    }
-
-    @Override
     public List<Policy> findAll() {
         TypedQuery<Policy> query = entityManager.createQuery(
                 "SELECT e FROM " + JPAPolicy.class.getSimpleName() + " e", Policy.class);
@@ -104,55 +82,17 @@ public class JPAPolicyDAO extends AbstractDAO<Policy, Long> implements PolicyDAO
 
     @Override
     public <T extends Policy> T save(final T policy) {
-        switch (policy.getType()) {
-            case GLOBAL_PASSWORD:
-                // just one GLOBAL_PASSWORD policy
-                final PasswordPolicy passwordPolicy = getGlobalPasswordPolicy();
-
-                if (passwordPolicy != null && !passwordPolicy.getKey().equals(policy.getKey())) {
-                    throw new InvalidEntityException(PasswordPolicy.class, EntityViolationType.InvalidPasswordPolicy,
-                            "Global Password policy already exists");
-                }
-                break;
-
-            case GLOBAL_ACCOUNT:
-                // just one GLOBAL_ACCOUNT policy
-                final AccountPolicy accountPolicy = getGlobalAccountPolicy();
-
-                if (accountPolicy != null && !accountPolicy.getKey().equals(policy.getKey())) {
-                    throw new InvalidEntityException(PasswordPolicy.class, EntityViolationType.InvalidAccountPolicy,
-                            "Global Account policy already exists");
-                }
-                break;
-
-            case GLOBAL_SYNC:
-                // just one GLOBAL_SYNC policy
-                final SyncPolicy syncPolicy = getGlobalSyncPolicy();
-
-                if (syncPolicy != null && !syncPolicy.getKey().equals(policy.getKey())) {
-                    throw new InvalidEntityException(PasswordPolicy.class, EntityViolationType.InvalidSyncPolicy,
-                            "Global Synchronization policy already exists");
-                }
-                break;
-
-            case PASSWORD:
-            case ACCOUNT:
-            case SYNC:
-            default:
-        }
-
         return entityManager.merge(policy);
     }
 
     @Override
     public <T extends Policy> void delete(final T policy) {
-        if (policy instanceof AccountPolicy || policy instanceof PasswordPolicy) {
-            final String field = policy instanceof AccountPolicy ? "accountPolicy" : "passwordPolicy";
-            entityManager.createQuery(
-                    "UPDATE " + JPARealm.class.getSimpleName() + " e SET e." + field + " = NULL "
-                    + "WHERE e." + field + "=:policy").
-                    setParameter("policy", policy).
-                    executeUpdate();
+        for (Realm realm : realmDAO.findByPolicy(policy)) {
+            if (policy instanceof AccountPolicy) {
+                realm.setAccountPolicy(null);
+            } else if (policy instanceof PasswordPolicy) {
+                realm.setPasswordPolicy(null);
+            }
         }
 
         entityManager.remove(policy);

@@ -18,15 +18,13 @@
  */
 package org.apache.syncope.core.provisioning.camel.processor;
 
-import java.util.AbstractMap;
 import java.util.List;
 import java.util.Set;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.syncope.common.lib.to.GroupTO;
-import org.apache.syncope.core.misc.security.AuthContextUtil;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
-import org.apache.syncope.core.persistence.api.GroupEntitlementUtil;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationException;
@@ -56,10 +54,8 @@ public class GroupCreateProcessor implements Processor {
         GroupTO subject = exchange.getProperty("subject", GroupTO.class);
         Set<String> excludedResource = exchange.getProperty("excludedResources", Set.class);
 
-        AuthContextUtil.extendAuthContext(created.getResult(), GroupEntitlementUtil.getEntitlementNameFromGroupKey(created.getResult()));
-
         List<PropagationTask> tasks =
-                propagationManager.getGroupCreateTaskIds(created, subject.getVirAttrs(), excludedResource);
+                propagationManager.getGroupCreateTasks(created, subject.getVirAttrs(), excludedResource);
         PropagationReporter propagationReporter =
                 ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
         try {
@@ -69,7 +65,7 @@ public class GroupCreateProcessor implements Processor {
             propagationReporter.onPrimaryResourceFailure(tasks);
         }
 
-        exchange.getOut().setBody(new AbstractMap.SimpleEntry<>(
+        exchange.getOut().setBody(new ImmutablePair<>(
                 created.getResult(), propagationReporter.getStatuses()));
     }
 

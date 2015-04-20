@@ -24,9 +24,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
-public final class URIUtil {
+public final class URIUtils {
 
-    private URIUtil() {
+    private URIUtils() {
         // empty constructor for static utility class
     }
 

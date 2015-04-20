@@ -20,7 +20,6 @@ package org.apache.syncope.common.lib.search;
 
 import java.util.Map;
 import org.apache.cxf.jaxrs.ext.search.client.CompleteCondition;
-import org.apache.cxf.jaxrs.ext.search.fiql.FiqlParser;
 
 /**
  * Extends <tt>SyncopeFiqlSearchConditionBuilder</tt> by providing some additional facilities for searching
@@ -46,16 +45,6 @@ public class GroupFiqlSearchConditionBuilder extends AbstractFiqlSearchCondition
         return newBuilderInstance().is(property);
     }
 
-    public CompleteCondition hasEntitlements(final String entitlement, final String... moreEntitlements) {
-        return newBuilderInstance().is(SpecialAttr.ENTITLEMENTS.toString()).
-                hasEntitlements(entitlement, moreEntitlements);
-    }
-
-    public CompleteCondition hasNotEntitlements(final String entitlement, final String... moreEntitlements) {
-        return newBuilderInstance().is(SpecialAttr.ENTITLEMENTS.toString()).
-                hasNotEntitlements(entitlement, moreEntitlements);
-    }
-
     protected static class Builder extends AbstractFiqlSearchConditionBuilder.Builder
             implements GroupProperty, CompleteCondition {
 
@@ -72,18 +61,6 @@ public class GroupFiqlSearchConditionBuilder extends AbstractFiqlSearchCondition
             Builder b = new Builder(this);
             b.result = property;
             return b;
-        }
-
-        @Override
-        public CompleteCondition hasEntitlements(final String entitlement, final String... moreEntitlements) {
-            this.result = SpecialAttr.ENTITLEMENTS.toString();
-            return condition(FiqlParser.EQ, entitlement, (Object[]) moreEntitlements);
-        }
-
-        @Override
-        public CompleteCondition hasNotEntitlements(final String entitlement, final String... moreEntitlements) {
-            this.result = SpecialAttr.ENTITLEMENTS.toString();
-            return condition(FiqlParser.NEQ, entitlement, (Object[]) moreEntitlements);
         }
 
     }

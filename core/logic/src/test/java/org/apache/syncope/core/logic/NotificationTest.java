@@ -26,6 +26,7 @@ import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.ServerSetup;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
@@ -37,6 +38,8 @@ import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.Session;
 import javax.mail.Store;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.search.GroupFiqlSearchConditionBuilder;
@@ -47,22 +50,23 @@ import org.apache.syncope.common.lib.to.NotificationTaskTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AttributableType;
+import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
-import org.apache.syncope.core.persistence.api.dao.EntitlementDAO;
 import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtilFactory;
-import org.apache.syncope.core.persistence.api.entity.Entitlement;
+import org.apache.syncope.core.persistence.api.entity.AttributableUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Notification;
 import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.conf.CPlainSchema;
 import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
 import org.apache.syncope.core.logic.notification.NotificationJob;
+import org.apache.syncope.core.misc.security.SyncopeGrantedAuthority;
+import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -77,7 +81,6 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -119,10 +122,10 @@ public class NotificationTest {
     private String adminUser;
 
     @Autowired
-    private EntitlementDAO entitlementDAO;
+    private NotificationDAO notificationDAO;
 
     @Autowired
-    private NotificationDAO notificationDAO;
+    private RealmDAO realmDAO;
 
     @Autowired
     private TaskDAO taskDAO;
@@ -155,7 +158,7 @@ public class NotificationTest {
     private EntityFactory entityFactory;
 
     @Autowired
-    private AttributableUtilFactory attrUtilFactory;
+    private AttributableUtilsFactory attrUtilsFactory;
 
     @BeforeClass
     public static void startGreenMail() {
@@ -190,6 +193,7 @@ public class NotificationTest {
         UserTO userTO = new UserTO();
         userTO.setPassword("password123");
         userTO.setUsername(uid);
+        userTO.setRealm("/even/two");
 
         userTO.getPlainAttrs().add(attributeTO("fullname", uid));
         userTO.getPlainAttrs().add(attributeTO("firstname", uid));
@@ -205,12 +209,16 @@ public class NotificationTest {
 
     @Before
     public void setupSecurity() {
-        List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
-        for (Entitlement entitlement : entitlementDAO.findAll()) {
-            authorities.add(new SimpleGrantedAuthority(entitlement.getKey()));
-        }
+        List<GrantedAuthority> authorities = CollectionUtils.collect(Arrays.asList(Entitlement.values()),
+                new Transformer<Entitlement, GrantedAuthority>() {
 
-        UserDetails userDetails = new User(adminUser, "FAKE_PASSWORD", true, true, true, true, authorities);
+                    @Override
+                    public GrantedAuthority transform(final Entitlement entitlement) {
+                        return new SyncopeGrantedAuthority(entitlement, SyncopeConstants.ROOT_REALM);
+                    }
+                }, new ArrayList<GrantedAuthority>());
+
+        UserDetails userDetails = new User(adminUser, "FAKE_PASSWORD", authorities);
         Authentication authentication = new TestingAuthenticationToken(userDetails, "FAKE_PASSWORD", authorities);
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
@@ -279,7 +287,7 @@ public class NotificationTest {
         // 2. create user
         UserTO userTO = getSampleTO(MAIL_ADDRESS);
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setGroupId(7);
+        membershipTO.setGroupKey(7);
         userTO.getMemberships().add(membershipTO);
 
         userLogic.create(userTO, true);
@@ -336,7 +344,7 @@ public class NotificationTest {
         // 2. create user
         UserTO userTO = getSampleTO(MAIL_ADDRESS);
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setGroupId(7);
+        membershipTO.setGroupKey(7);
         userTO.getMemberships().add(membershipTO);
 
         userLogic.create(userTO, true);
@@ -389,7 +397,7 @@ public class NotificationTest {
         // 2. create user
         UserTO userTO = getSampleTO(MAIL_ADDRESS);
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setGroupId(7);
+        membershipTO.setGroupKey(7);
         userTO.getMemberships().add(membershipTO);
 
         userLogic.create(userTO, true);
@@ -439,7 +447,7 @@ public class NotificationTest {
         // 2. create user
         UserTO userTO = getSampleTO(MAIL_ADDRESS);
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setGroupId(7);
+        membershipTO.setGroupKey(7);
         userTO.getMemberships().add(membershipTO);
 
         userLogic.create(userTO, true);
@@ -447,7 +455,7 @@ public class NotificationTest {
         // 3. Set number of retries
         CPlainAttr maxRetries = entityFactory.newEntity(CPlainAttr.class);
         maxRetries.setSchema(plainSchemaDAO.find("notification.maxRetries", CPlainSchema.class));
-        maxRetries.addValue("5", attrUtilFactory.getInstance(AttributableType.CONFIGURATION));
+        maxRetries.addValue("5", attrUtilsFactory.getInstance(AttributableType.CONFIGURATION));
         confDAO.save(maxRetries);
         confDAO.flush();
 
@@ -476,7 +484,7 @@ public class NotificationTest {
         // 8. reset number of retries
         maxRetries = entityFactory.newEntity(CPlainAttr.class);
         maxRetries.setSchema(plainSchemaDAO.find("notification.maxRetries", CPlainSchema.class));
-        maxRetries.addValue("0", attrUtilFactory.getInstance(AttributableType.CONFIGURATION));
+        maxRetries.addValue("0", attrUtilsFactory.getInstance(AttributableType.CONFIGURATION));
         confDAO.save(maxRetries);
         confDAO.flush();
     }
@@ -510,7 +518,7 @@ public class NotificationTest {
         // 2. create user
         UserTO userTO = getSampleTO(MAIL_ADDRESS);
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setGroupId(7);
+        membershipTO.setGroupKey(7);
         userTO.getMemberships().add(membershipTO);
 
         userLogic.create(userTO, true);
@@ -571,7 +579,7 @@ public class NotificationTest {
         // 2. create user
         UserTO userTO = getUniqueSampleTO(MAIL_ADDRESS);
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setGroupId(7);
+        membershipTO.setGroupKey(7);
         userTO.getMemberships().add(membershipTO);
 
         userLogic.create(userTO, true);
@@ -612,7 +620,7 @@ public class NotificationTest {
         // 2. create group
         GroupTO groupTO = new GroupTO();
         groupTO.setName("group446");
-        groupTO.setParent(1L);
+        groupTO.setRealm("/even/two");
 
         GroupTO createdGroup = groupLogic.create(groupTO);
         assertNotNull(createdGroup);

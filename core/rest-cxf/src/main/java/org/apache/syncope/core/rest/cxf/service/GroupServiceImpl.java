@@ -20,6 +20,10 @@ package org.apache.syncope.core.rest.cxf.service;
 
 import java.util.List;
 import javax.ws.rs.core.Response;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Transformer;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.mod.GroupMod;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
@@ -44,11 +48,6 @@ public class GroupServiceImpl extends AbstractServiceImpl implements GroupServic
     private GroupLogic logic;
 
     @Override
-    public List<GroupTO> children(final Long groupKey) {
-        return logic.children(groupKey);
-    }
-
-    @Override
     public Response create(final GroupTO groupTO) {
         GroupTO created = logic.create(groupTO);
         return createResponse(created.getKey(), created);
@@ -65,29 +64,36 @@ public class GroupServiceImpl extends AbstractServiceImpl implements GroupServic
     }
 
     @Override
-    public PagedResult<GroupTO> list() {
-        return list(DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE, null);
+    public PagedResult<GroupTO> list(final List<String> realms) {
+        return list(realms, DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE, null);
     }
 
     @Override
-    public PagedResult<GroupTO> list(final String orderBy) {
-        return list(DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE, orderBy);
+    public PagedResult<GroupTO> list(final List<String> realms, final String orderBy) {
+        return list(realms, DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE, orderBy);
     }
 
     @Override
-    public PagedResult<GroupTO> list(final Integer page, final Integer size) {
-        return list(page, size, null);
+    public PagedResult<GroupTO> list(final List<String> realms, final Integer page, final Integer size) {
+        return list(realms, page, size, null);
     }
 
     @Override
-    public PagedResult<GroupTO> list(final Integer page, final Integer size, final String orderBy) {
+    public PagedResult<GroupTO> list(
+            final List<String> realms, final Integer page, final Integer size, final String orderBy) {
+
+        CollectionUtils.transform(realms, new Transformer<String, String>() {
+
+            @Override
+            public String transform(final String input) {
+                return StringUtils.prependIfMissing(input, SyncopeConstants.ROOT_REALM);
+            }
+        });
+
         List<OrderByClause> orderByClauses = getOrderByClauses(orderBy);
-        return buildPagedResult(logic.list(page, size, orderByClauses), page, size, logic.count());
-    }
-
-    @Override
-    public GroupTO parent(final Long groupKey) {
-        return logic.parent(groupKey);
+        return buildPagedResult(
+                logic.list(page, size, orderByClauses, realms), page, size,
+                logic.count(realms));
     }
 
     @Override
@@ -96,31 +102,44 @@ public class GroupServiceImpl extends AbstractServiceImpl implements GroupServic
     }
 
     @Override
-    public PagedResult<GroupTO> search(final String fiql) {
-        return search(fiql, DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE, null);
+    public PagedResult<GroupTO> search(final List<String> realms, final String fiql) {
+        return search(realms, fiql, DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE, null);
     }
 
     @Override
-    public PagedResult<GroupTO> search(final String fiql, final String orderBy) {
-        return search(fiql, DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE, orderBy);
+    public PagedResult<GroupTO> search(final List<String> realms, final String fiql, final String orderBy) {
+        return search(realms, fiql, DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE, orderBy);
     }
 
     @Override
-    public PagedResult<GroupTO> search(final String fiql, final Integer page, final Integer size) {
-        return search(fiql, page, size, null);
+    public PagedResult<GroupTO> search(
+            final List<String> realms, final String fiql, final Integer page, final Integer size) {
+
+        return search(realms, fiql, page, size, null);
     }
 
     @Override
-    public PagedResult<GroupTO> search(final String fiql, final Integer page, final Integer size, final String orderBy) {
+    public PagedResult<GroupTO> search(final List<String> realms, final String fiql,
+            final Integer page, final Integer size, final String orderBy) {
+
+        CollectionUtils.transform(realms, new Transformer<String, String>() {
+
+            @Override
+            public String transform(final String input) {
+                return StringUtils.prependIfMissing(input, SyncopeConstants.ROOT_REALM);
+            }
+        });
+
         SearchCond cond = getSearchCond(fiql);
         List<OrderByClause> orderByClauses = getOrderByClauses(orderBy);
         return buildPagedResult(
-                logic.search(cond, page, size, orderByClauses), page, size, logic.searchCount(cond));
+                logic.search(cond, page, size, orderByClauses, realms), page, size,
+                logic.searchCount(cond, realms));
     }
 
     @Override
-    public GroupTO readSelf(final Long groupKey) {
-        return logic.readSelf(groupKey);
+    public List<GroupTO> own() {
+        return logic.own();
     }
 
     @Override
@@ -222,6 +241,21 @@ public class GroupServiceImpl extends AbstractServiceImpl implements GroupServic
 
     @Override
     public BulkActionResult bulk(final BulkAction bulkAction) {
-        return logic.bulk(bulkAction);
+        BulkActionResult result = new BulkActionResult();
+
+        if (bulkAction.getOperation() == BulkAction.Type.DELETE) {
+            for (String groupKey : bulkAction.getTargets()) {
+                try {
+                    result.add(logic.delete(Long.valueOf(groupKey)).getKey(), BulkActionResult.Status.SUCCESS);
+                } catch (Exception e) {
+                    LOG.error("Error performing delete for group {}", groupKey, e);
+                    result.add(groupKey, BulkActionResult.Status.FAILURE);
+                }
+            }
+        } else {
+            LOG.warn("Unsupported bulk action: {}", bulkAction.getOperation());
+        }
+
+        return result;
     }
 }

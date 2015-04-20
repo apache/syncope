@@ -31,7 +31,6 @@ import org.apache.syncope.common.lib.search.SpecialAttr;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
-import org.apache.syncope.core.persistence.api.dao.search.EntitlementCond;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
 import org.apache.syncope.core.persistence.api.dao.search.ResourceCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
@@ -106,12 +105,6 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
                             ResourceCond resourceCond = new ResourceCond();
                             resourceCond.setResourceName(value);
                             leaf = SearchCond.getLeafCond(resourceCond);
-                            break;
-
-                        case ENTITLEMENTS:
-                            EntitlementCond entitlementCond = new EntitlementCond();
-                            entitlementCond.setExpression(value);
-                            leaf = SearchCond.getLeafCond(entitlementCond);
                             break;
 
                         default:

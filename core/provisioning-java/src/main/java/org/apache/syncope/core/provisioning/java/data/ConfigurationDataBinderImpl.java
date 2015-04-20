@@ -40,7 +40,7 @@ public class ConfigurationDataBinderImpl extends AbstractAttributableDataBinder 
         final ConfTO confTO = new ConfTO();
         confTO.setKey(conf.getKey());
 
-        fillTO(confTO, conf.getPlainAttrs(),
+        fillTO(confTO, null, conf.getPlainAttrs(),
                 conf.getDerAttrs(), conf.getVirAttrs(), Collections.<ExternalResource>emptySet());
 
         return confTO;
@@ -66,7 +66,7 @@ public class ConfigurationDataBinderImpl extends AbstractAttributableDataBinder 
 
             CPlainAttr attr = entityFactory.newEntity(CPlainAttr.class);
             attr.setSchema(schema);
-            fillAttribute(attributeTO.getValues(), attrUtilFactory.getInstance(AttributableType.CONFIGURATION),
+            fillAttribute(attributeTO.getValues(), attrUtilsFactory.getInstance(AttributableType.CONFIGURATION),
                     schema, attr, invalidValues);
 
             if (!invalidValues.isEmpty()) {

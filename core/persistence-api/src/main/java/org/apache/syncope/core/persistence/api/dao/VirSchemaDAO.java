@@ -19,7 +19,7 @@
 package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.List;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtil;
+import org.apache.syncope.core.persistence.api.entity.AttributableUtils;
 import org.apache.syncope.core.persistence.api.entity.VirAttr;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 
@@ -33,5 +33,5 @@ public interface VirSchemaDAO extends DAO<VirSchema, String> {
 
     <T extends VirSchema> T save(T virSchema);
 
-    void delete(String key, AttributableUtil attributableUtil);
+    void delete(String key, AttributableUtils attributableUtil);
 }

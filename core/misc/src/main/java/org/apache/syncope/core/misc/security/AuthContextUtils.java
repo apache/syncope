@@ -18,57 +18,56 @@
  */
 package org.apache.syncope.core.misc.security;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
+import java.util.EnumMap;
+import java.util.Map;
 import java.util.Set;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.types.Entitlement;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 
-public final class AuthContextUtil {
+public final class AuthContextUtils {
 
     public static String getAuthenticatedUsername() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return authentication == null ? SyncopeConstants.UNAUTHENTICATED : authentication.getName();
     }
 
-    public static Set<String> getOwnedEntitlementNames() {
-        final Set<String> result = new HashSet<>();
+    public static void updateAuthenticatedUsername(final String newUsername) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        Authentication newAuth = new UsernamePasswordAuthenticationToken(
+                new User(newUsername, "FAKE_PASSWORD", auth.getAuthorities()),
+                auth.getCredentials(), auth.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(newAuth);
+    }
+
+    public static Map<Entitlement, Set<String>> getAuthorizations() {
+        Map<Entitlement, Set<String>> result = null;
 
         final SecurityContext ctx = SecurityContextHolder.getContext();
-
         if (ctx != null && ctx.getAuthentication() != null && ctx.getAuthentication().getAuthorities() != null) {
+            result = new EnumMap<>(Entitlement.class);
             for (GrantedAuthority authority : ctx.getAuthentication().getAuthorities()) {
-                result.add(authority.getAuthority());
+                if (authority instanceof SyncopeGrantedAuthority) {
+                    result.put(
+                            SyncopeGrantedAuthority.class.cast(authority).getEntitlement(),
+                            SyncopeGrantedAuthority.class.cast(authority).getRealms());
+                }
             }
         }
 
-        return result;
-    }
-
-    /**
-     * Extend the current authentication context to include the given group.
-     *
-     * @param groupKey group key
-     * @param groupEntitlement group entitlement
-     */
-    public static void extendAuthContext(final Long groupKey, final String groupEntitlement) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        List<GrantedAuthority> authorities = new ArrayList<>(auth.getAuthorities());
-        authorities.add(new SimpleGrantedAuthority(groupEntitlement));
-        Authentication newAuth = new UsernamePasswordAuthenticationToken(
-                auth.getPrincipal(), auth.getCredentials(), authorities);
-        SecurityContextHolder.getContext().setAuthentication(newAuth);
+        return MapUtils.emptyIfNull(result);
     }
 
     /**
      * Private default constructor, for static-only classes.
      */
-    private AuthContextUtil() {
+    private AuthContextUtils() {
     }
 }

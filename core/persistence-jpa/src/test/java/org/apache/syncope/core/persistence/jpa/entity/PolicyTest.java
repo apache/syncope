@@ -63,23 +63,13 @@ public class PolicyTest extends AbstractTest {
         assertFalse(policies.isEmpty());
     }
 
-    @Test
-    public void findGlobalPasswordPolicy() {
-        PasswordPolicy policy = policyDAO.getGlobalPasswordPolicy();
-        assertNotNull("findById did not work", policy);
-
-        assertEquals(PolicyType.GLOBAL_PASSWORD, policy.getType());
-
-        assertEquals("invalid policy values", 8, (policy.getSpecification(PasswordPolicySpec.class)).getMinLength());
-    }
-
     @Test(expected = InvalidEntityException.class)
     public void saveInvalidPolicy() {
         PasswordPolicySpec passwordPolicy = new PasswordPolicySpec();
         passwordPolicy.setMaxLength(8);
         passwordPolicy.setMinLength(6);
 
-        SyncPolicy policy = entityFactory.newPolicy(SyncPolicy.class, false);
+        SyncPolicy policy = entityFactory.newEntity(SyncPolicy.class);
         policy.setSpecification(passwordPolicy);
         policy.setDescription("sync policy");
 
@@ -92,7 +82,7 @@ public class PolicyTest extends AbstractTest {
         passwordPolicy.setMaxLength(8);
         passwordPolicy.setMinLength(6);
 
-        PasswordPolicy policy = entityFactory.newPolicy(PasswordPolicy.class, true);
+        PasswordPolicy policy = entityFactory.newEntity(PasswordPolicy.class);
         policy.setSpecification(passwordPolicy);
         policy.setDescription("global password policy");
 
@@ -101,7 +91,7 @@ public class PolicyTest extends AbstractTest {
 
     @Test
     public void create() {
-        SyncPolicy policy = entityFactory.newPolicy(SyncPolicy.class, false);
+        SyncPolicy policy = entityFactory.newEntity(SyncPolicy.class);
 
         final String syncURuleName = "net.tirasa.sync.correlation.TirasaURule";
         final String syncRRuleName = "net.tirasa.sync.correlation.TirasaRRule";
@@ -127,14 +117,14 @@ public class PolicyTest extends AbstractTest {
         specification.setMaxLength(8);
         specification.setMinLength(6);
 
-        Policy policy = policyDAO.getGlobalPasswordPolicy();
+        Policy policy = policyDAO.find(2L);
         assertNotNull(policy);
         policy.setSpecification(specification);
 
         policy = policyDAO.save(policy);
 
         assertNotNull(policy);
-        assertEquals(PolicyType.GLOBAL_PASSWORD, policy.getType());
+        assertEquals(PolicyType.PASSWORD, policy.getType());
         assertEquals((policy.getSpecification(PasswordPolicySpec.class)).getMaxLength(), 8);
         assertEquals((policy.getSpecification(PasswordPolicySpec.class)).getMinLength(), 6);
     }

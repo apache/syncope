@@ -22,7 +22,7 @@ import java.util.List;
 
 public interface PlainAttr extends Attr<PlainSchema> {
 
-    void addValue(String value, AttributableUtil attributableUtil);
+    void addValue(String value, AttributableUtils attributableUtil);
 
     boolean removeValue(PlainAttrValue attrValue);
 

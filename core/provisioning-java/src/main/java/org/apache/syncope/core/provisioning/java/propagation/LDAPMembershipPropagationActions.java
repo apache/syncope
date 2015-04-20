@@ -30,7 +30,7 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.apache.syncope.core.misc.jexl.JexlUtil;
+import org.apache.syncope.core.misc.jexl.JexlUtils;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
@@ -78,12 +78,12 @@ public class LDAPMembershipPropagationActions extends DefaultPropagationActions 
                         LOG.debug("Evaluating accountLink for {}", group);
 
                         final JexlContext jexlContext = new MapContext();
-                        JexlUtil.addFieldsToContext(group, jexlContext);
-                        JexlUtil.addAttrsToContext(group.getPlainAttrs(), jexlContext);
-                        JexlUtil.addDerAttrsToContext(group.getDerAttrs(), group.getPlainAttrs(), jexlContext);
+                        JexlUtils.addFieldsToContext(group, jexlContext);
+                        JexlUtils.addAttrsToContext(group.getPlainAttrs(), jexlContext);
+                        JexlUtils.addDerAttrsToContext(group.getDerAttrs(), group.getPlainAttrs(), jexlContext);
 
                         final String groupAccountLink =
-                                JexlUtil.evaluate(task.getResource().getGmapping().getAccountLink(), jexlContext);
+                                JexlUtils.evaluate(task.getResource().getGmapping().getAccountLink(), jexlContext);
                         LOG.debug("AccountLink for {} is '{}'", group, groupAccountLink);
                         if (StringUtils.isNotBlank(groupAccountLink)) {
                             groupAccountLinks.add(groupAccountLink);

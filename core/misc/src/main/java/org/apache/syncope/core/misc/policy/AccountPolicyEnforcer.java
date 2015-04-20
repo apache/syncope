@@ -91,8 +91,8 @@ public class AccountPolicyEnforcer implements PolicyEnforcer<AccountPolicySpec, 
 
         // check for subsequent failed logins
         if (userSuspender != null
-                && user.getFailedLogins() != null && policy.getPermittedLoginRetries() > 0
-                && user.getFailedLogins() > policy.getPermittedLoginRetries() && !user.isSuspended()) {
+                && user.getFailedLogins() != null && policy.getMaxAuthenticationAttempts() > 0
+                && user.getFailedLogins() > policy.getMaxAuthenticationAttempts() && !user.isSuspended()) {
 
             userSuspender.suspend(user, policy.isPropagateSuspension());
         }

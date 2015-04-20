@@ -19,7 +19,7 @@
 package org.apache.syncope.client.console.pages;
 
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.commons.JexlHelpUtil;
+import org.apache.syncope.client.console.commons.JexlHelpUtils;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.DerSchemaTO;
@@ -68,9 +68,9 @@ public class DerSchemaModalPage extends AbstractSchemaModalPage<DerSchemaTO> {
                 new PropertyModel<String>(schema, "expression"));
         expression.addRequiredLabel();
 
-        final WebMarkupContainer jexlHelp = JexlHelpUtil.getJexlHelpWebContainer("jexlHelp");
+        final WebMarkupContainer jexlHelp = JexlHelpUtils.getJexlHelpWebContainer("jexlHelp");
 
-        final AjaxLink<Void> questionMarkJexlHelp = JexlHelpUtil.getAjaxLink(jexlHelp, "questionMarkJexlHelp");
+        final AjaxLink<Void> questionMarkJexlHelp = JexlHelpUtils.getAjaxLink(jexlHelp, "questionMarkJexlHelp");
         schemaForm.add(questionMarkJexlHelp);
         questionMarkJexlHelp.add(jexlHelp);
 

@@ -72,7 +72,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 /**
  * Modal window with Resource form.
  */
-public class PolicyModalPage<T extends AbstractPolicyTO> extends BaseModalPage {
+public class PolicyModalPage<T extends AbstractPolicyTO<?>> extends BaseModalPage {
 
     private static final long serialVersionUID = -7325772767481076679L;
 

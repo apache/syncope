@@ -46,7 +46,7 @@ import org.apache.syncope.core.persistence.api.entity.group.GMappingItem;
 import org.apache.syncope.core.persistence.api.entity.user.UMapping;
 import org.apache.syncope.core.persistence.api.entity.user.UMappingItem;
 import org.apache.syncope.core.provisioning.api.ConnectorRegistry;
-import org.apache.syncope.core.misc.jexl.JexlUtil;
+import org.apache.syncope.core.misc.jexl.JexlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.syncope.core.misc.spring.BeanUtils;
@@ -204,13 +204,12 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         }
 
         // no mandatory condition implies mandatory condition false
-        if (!JexlUtil.isExpressionValid(itemTO.getMandatoryCondition() == null
+        if (!JexlUtils.isExpressionValid(itemTO.getMandatoryCondition() == null
                 ? "false" : itemTO.getMandatoryCondition())) {
 
             SyncopeClientException invalidMandatoryCondition = SyncopeClientException.build(
                     ClientExceptionType.InvalidValues);
             invalidMandatoryCondition.getElements().add(itemTO.getMandatoryCondition());
-
             scce.addException(invalidMandatoryCondition);
         }
 
@@ -232,6 +231,24 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
 
         final ConnInstance connInstanceClone = SerializationUtils.clone(connInstance);
         return connRegistry.getOverriddenConnInstance(connInstanceClone, resourceTO.getConnConfProperties());
+    }
+
+    private void populateMappingTO(final Mapping<?> mapping, final MappingTO mappingTO) {
+        mappingTO.setAccountLink(mapping.getAccountLink());
+
+        for (MappingItem item : mapping.getItems()) {
+            MappingItemTO itemTO = new MappingItemTO();
+            itemTO.setKey(item.getKey());
+            BeanUtils.copyProperties(item, itemTO, MAPPINGITEM_IGNORE_PROPERTIES);
+
+            if (itemTO.isAccountid()) {
+                mappingTO.setAccountIdItem(itemTO);
+            } else if (itemTO.isPassword()) {
+                mappingTO.setPasswordItem(itemTO);
+            } else {
+                mappingTO.addItem(itemTO);
+            }
+        }
     }
 
     @Override
@@ -301,49 +318,5 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         resourceTO.getPropagationActionsClassNames().addAll(resource.getPropagationActionsClassNames());
 
         return resourceTO;
-    }
-
-    private void populateMappingTO(final Mapping<?> mapping, final MappingTO mappingTO) {
-        mappingTO.setAccountLink(mapping.getAccountLink());
-
-        for (MappingItemTO itemTO : getMappingItemTOs(mapping.getItems())) {
-            if (itemTO.isAccountid()) {
-                mappingTO.setAccountIdItem(itemTO);
-            } else if (itemTO.isPassword()) {
-                mappingTO.setPasswordItem(itemTO);
-            } else {
-                mappingTO.addItem(itemTO);
-            }
-        }
-    }
-
-    private Set<MappingItemTO> getMappingItemTOs(final Collection<? extends MappingItem> items) {
-        Set<MappingItemTO> mappingTOs = new HashSet<>();
-        for (MappingItem item : items) {
-            LOG.debug("Asking for TO for {}", item);
-            mappingTOs.add(getMappingItemTO(item));
-        }
-
-        LOG.debug("Collected TOs: {}", mappingTOs);
-
-        return mappingTOs;
-    }
-
-    private MappingItemTO getMappingItemTO(final MappingItem item) {
-        if (item == null) {
-            LOG.error("Provided null mapping");
-
-            return null;
-        }
-
-        MappingItemTO itemTO = new MappingItemTO();
-
-        BeanUtils.copyProperties(item, itemTO, MAPPINGITEM_IGNORE_PROPERTIES);
-
-        itemTO.setKey(item.getKey());
-
-        LOG.debug("Obtained SchemaMappingTO {}", itemTO);
-
-        return itemTO;
     }
 }

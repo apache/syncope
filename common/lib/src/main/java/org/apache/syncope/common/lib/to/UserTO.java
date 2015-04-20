@@ -42,6 +42,8 @@ public class UserTO extends AbstractSubjectTO {
 
     private String password;
 
+    private final List<Long> roles = new ArrayList<>();
+
     private final List<MembershipTO> memberships = new ArrayList<>();
 
     private String status;
@@ -70,6 +72,13 @@ public class UserTO extends AbstractSubjectTO {
         this.password = password;
     }
 
+    @XmlElementWrapper(name = "roles")
+    @XmlElement(name = "role")
+    @JsonProperty("roles")
+    public List<Long> getRoles() {
+        return roles;
+    }
+
     @XmlElementWrapper(name = "memberships")
     @XmlElement(name = "membership")
     @JsonProperty("memberships")
@@ -86,7 +95,7 @@ public class UserTO extends AbstractSubjectTO {
         } else {
             result = new HashMap<>(getMemberships().size());
             for (MembershipTO membership : getMemberships()) {
-                result.put(membership.getGroupId(), membership);
+                result.put(membership.getGroupKey(), membership);
             }
             result = Collections.unmodifiableMap(result);
         }

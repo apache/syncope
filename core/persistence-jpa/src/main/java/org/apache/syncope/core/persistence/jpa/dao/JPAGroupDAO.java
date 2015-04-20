@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -31,11 +30,9 @@ import javax.persistence.TypedQuery;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.types.AttributableType;
-import org.apache.syncope.common.lib.types.PolicyType;
+import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.common.lib.types.ResourceOperation;
-import org.apache.syncope.core.persistence.api.GroupEntitlementUtil;
 import org.apache.syncope.core.persistence.api.dao.DerAttrDAO;
-import org.apache.syncope.core.persistence.api.dao.EntitlementDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
@@ -43,12 +40,10 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.VirAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.AttrTemplate;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtilFactory;
+import org.apache.syncope.core.persistence.api.entity.AttributableUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.DerAttr;
-import org.apache.syncope.core.persistence.api.entity.Entitlement;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
-import org.apache.syncope.core.persistence.api.entity.Policy;
 import org.apache.syncope.core.persistence.api.entity.Subject;
 import org.apache.syncope.core.persistence.api.entity.VirAttr;
 import org.apache.syncope.core.persistence.api.entity.membership.MDerAttr;
@@ -70,8 +65,10 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.membership.JPAMembership;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
 import org.apache.syncope.common.lib.types.PropagationByResource;
-import org.apache.syncope.core.misc.security.AuthContextUtil;
-import org.apache.syncope.core.misc.security.UnauthorizedGroupException;
+import org.apache.syncope.common.lib.types.SubjectType;
+import org.apache.syncope.core.misc.RealmUtils;
+import org.apache.syncope.core.misc.security.AuthContextUtils;
+import org.apache.syncope.core.misc.security.UnauthorizedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -92,10 +89,7 @@ public class JPAGroupDAO extends AbstractSubjectDAO<GPlainAttr, GDerAttr, GVirAt
     private VirAttrDAO virAttrDAO;
 
     @Autowired
-    private EntitlementDAO entitlementDAO;
-
-    @Autowired
-    private AttributableUtilFactory attrUtilFactory;
+    private AttributableUtilsFactory attrUtilsFactory;
 
     @Override
     protected Subject<GPlainAttr, GDerAttr, GVirAttr> findInternal(final Long key) {
@@ -119,46 +113,19 @@ public class JPAGroupDAO extends AbstractSubjectDAO<GPlainAttr, GDerAttr, GVirAt
     }
 
     @Override
-    public List<Group> find(final String name) {
+    public Group find(final String name) {
         TypedQuery<Group> query = entityManager.createQuery(
                 "SELECT e FROM " + JPAGroup.class.getSimpleName() + " e WHERE e.name = :name", Group.class);
         query.setParameter("name", name);
 
-        return query.getResultList();
-    }
-
-    @Override
-    public Group find(final String name, final Long parentId) {
-        TypedQuery<Group> query;
-        if (parentId == null) {
-            query = entityManager.createQuery("SELECT r FROM " + JPAGroup.class.getSimpleName() + " r WHERE "
-                    + "r.name=:name AND r.parent IS NULL", Group.class);
-        } else {
-            query = entityManager.createQuery("SELECT r FROM " + JPAGroup.class.getSimpleName() + " r WHERE "
-                    + "r.name=:name AND r.parent.id=:parentId", Group.class);
-            query.setParameter("parentId", parentId);
+        Group result = null;
+        try {
+            result = query.getSingleResult();
+        } catch (NoResultException e) {
+            LOG.debug("No group found with name {}", name, e);
         }
-        query.setParameter("name", name);
 
-        List<Group> result = query.getResultList();
-        return result.isEmpty()
-                ? null
-                : result.get(0);
-    }
-
-    private void findSameOwnerDescendants(final List<Group> result, final Group group) {
-        List<Group> children = findChildren(group);
-        if (children != null) {
-            for (Group child : children) {
-                if ((child.getUserOwner() == null && child.getGroupOwner() == null && child.isInheritOwner())
-                        || (child.getUserOwner() != null && child.getUserOwner().equals(group.getUserOwner()))
-                        || (child.getGroupOwner() != null && child.getGroupOwner().equals(group.getGroupOwner()))) {
-
-                    findDescendants(result, child);
-                }
-            }
-        }
-        result.add(group);
+        return result;
     }
 
     @Transactional(readOnly = true)
@@ -178,12 +145,7 @@ public class JPAGroupDAO extends AbstractSubjectDAO<GPlainAttr, GDerAttr, GVirAt
         TypedQuery<Group> query = entityManager.createQuery(queryString.toString(), Group.class);
         query.setParameter("owner", owner);
 
-        List<Group> result = new ArrayList<>();
-        for (Group group : query.getResultList()) {
-            findSameOwnerDescendants(result, group);
-        }
-
-        return result;
+        return query.getResultList();
     }
 
     @Transactional(readOnly = true)
@@ -200,187 +162,57 @@ public class JPAGroupDAO extends AbstractSubjectDAO<GPlainAttr, GDerAttr, GVirAt
         TypedQuery<Group> query = entityManager.createQuery(queryString.toString(), Group.class);
         query.setParameter("owner", owner);
 
-        List<Group> result = new ArrayList<>();
-        for (Group group : query.getResultList()) {
-            findSameOwnerDescendants(result, group);
-        }
-
-        return result;
-    }
-
-    @Override
-    public List<Group> findByEntitlement(final Entitlement entitlement) {
-        TypedQuery<Group> query = entityManager.createQuery("SELECT e FROM " + JPAGroup.class.getSimpleName() + " e "
-                + "WHERE :entitlement MEMBER OF e.entitlements", Group.class);
-        query.setParameter("entitlement", entitlement);
-
         return query.getResultList();
-    }
-
-    private Map.Entry<String, String> getPolicyFields(final PolicyType type) {
-        String policyField;
-        String inheritPolicyField;
-        if (type == PolicyType.GLOBAL_ACCOUNT || type == PolicyType.ACCOUNT) {
-            policyField = "accountPolicy";
-            inheritPolicyField = "inheritAccountPolicy";
-        } else {
-            policyField = "passwordPolicy";
-            inheritPolicyField = "inheritPasswordPolicy";
-        }
-
-        return new AbstractMap.SimpleEntry<>(policyField, inheritPolicyField);
-    }
-
-    private List<Group> findSamePolicyChildren(final Group group, final PolicyType type) {
-        List<Group> result = new ArrayList<>();
-
-        for (Group child : findChildren(group)) {
-            boolean inherit = type == PolicyType.GLOBAL_ACCOUNT || type == PolicyType.ACCOUNT
-                    ? child.isInheritAccountPolicy()
-                    : child.isInheritPasswordPolicy();
-            if (inherit) {
-                result.add(child);
-                result.addAll(findSamePolicyChildren(child, type));
-            }
-        }
-
-        return result;
-    }
-
-    @Override
-    public List<Group> findByPolicy(final Policy policy) {
-        if (policy.getType() == PolicyType.GLOBAL_SYNC || policy.getType() == PolicyType.SYNC) {
-            return Collections.<Group>emptyList();
-        }
-
-        Map.Entry<String, String> policyFields = getPolicyFields(policy.getType());
-        StringBuilder queryString = new StringBuilder("SELECT e FROM ").
-                append(JPAGroup.class.getSimpleName()).append(" e WHERE e.").
-                append(policyFields.getKey()).append(" = :policy AND (e.").
-                append(policyFields.getValue()).append(" IS NULL OR e.").
-                append(policyFields.getValue()).append(" = 0)");
-
-        TypedQuery<Group> query = entityManager.createQuery(queryString.toString(), Group.class);
-        query.setParameter("policy", policy);
-
-        List<Group> result = new ArrayList<>();
-        for (Group group : query.getResultList()) {
-            result.add(group);
-            result.addAll(findSamePolicyChildren(group, policy.getType()));
-        }
-        return result;
-    }
-
-    @Override
-    public List<Group> findWithoutPolicy(final PolicyType type) {
-        if (type == PolicyType.GLOBAL_SYNC || type == PolicyType.SYNC) {
-            return Collections.<Group>emptyList();
-        }
-
-        Map.Entry<String, String> policyFields = getPolicyFields(type);
-        StringBuilder queryString = new StringBuilder("SELECT e FROM ").
-                append(JPAGroup.class.getSimpleName()).append(" e WHERE e.").
-                append(policyFields.getKey()).append(" IS NULL AND (e.").
-                append(policyFields.getValue()).append(" IS NULL OR e.").
-                append(policyFields.getValue()).append(" = 0)");
-
-        TypedQuery<Group> query = entityManager.createQuery(queryString.toString(), Group.class);
-        return query.getResultList();
-    }
-
-    private void findAncestors(final List<Group> result, final Group group) {
-        if (group.getParent() != null && !result.contains(group.getParent())) {
-            result.add(group.getParent());
-            findAncestors(result, group.getParent());
-        }
-    }
-
-    @Override
-    public List<Group> findAncestors(final Group group) {
-        List<Group> result = new ArrayList<>();
-        findAncestors(result, group);
-        return result;
-    }
-
-    @Override
-    public List<Group> findChildren(final Group group) {
-        TypedQuery<Group> query = entityManager.createQuery(
-                "SELECT g FROM " + JPAGroup.class.getSimpleName() + " g WHERE g.parent=:group", Group.class);
-        query.setParameter("group", group);
-
-        return query.getResultList();
-    }
-
-    private void findDescendants(final List<Group> result, final Group group) {
-        List<Group> children = findChildren(group);
-        if (children != null) {
-            for (Group child : children) {
-                findDescendants(result, child);
-            }
-        }
-        result.add(group);
-    }
-
-    @Override
-    public List<Group> findDescendants(final Group group) {
-        List<Group> result = new ArrayList<>();
-        findDescendants(result, group);
-        return result;
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public List<Group> findByAttrValue(final String schemaName, final GPlainAttrValue attrValue) {
         return (List<Group>) findByAttrValue(
-                schemaName, attrValue, attrUtilFactory.getInstance(AttributableType.GROUP));
+                schemaName, attrValue, attrUtilsFactory.getInstance(AttributableType.GROUP));
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public Group findByAttrUniqueValue(final String schemaName, final GPlainAttrValue attrUniqueValue) {
-        return (Group) findByAttrUniqueValue(schemaName, attrUniqueValue,
-                attrUtilFactory.getInstance(AttributableType.GROUP));
+        return (Group) findByAttrUniqueValue(
+                schemaName, attrUniqueValue, attrUtilsFactory.getInstance(AttributableType.GROUP));
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public List<Group> findByDerAttrValue(final String schemaName, final String value) {
         return (List<Group>) findByDerAttrValue(
-                schemaName, value, attrUtilFactory.getInstance(AttributableType.GROUP));
+                schemaName, value, attrUtilsFactory.getInstance(AttributableType.GROUP));
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public List<Group> findByResource(final ExternalResource resource) {
-        return (List<Group>) findByResource(resource, attrUtilFactory.getInstance(AttributableType.GROUP));
+        return (List<Group>) findByResource(resource, attrUtilsFactory.getInstance(AttributableType.GROUP));
     }
 
     @Override
-    public List<Group> findAll() {
-        return findAll(-1, -1, Collections.<OrderByClause>emptyList());
+    public final List<Group> findAll(final Set<String> adminRealms, final int page, final int itemsPerPage) {
+        return findAll(adminRealms, page, itemsPerPage, Collections.<OrderByClause>emptyList());
     }
 
     @Override
-    public List<Group> findAll(final int page, final int itemsPerPage, final List<OrderByClause> orderBy) {
-        TypedQuery<Group> query = entityManager.createQuery("SELECT e FROM " + JPAGroup.class.getSimpleName() + " e "
-                + toOrderByStatement(Group.class, "e", orderBy), Group.class);
+    public List<Group> findAll(final Set<String> adminRealms,
+            final int page, final int itemsPerPage, final List<OrderByClause> orderBy) {
 
-        query.setFirstResult(itemsPerPage * (page <= 0
-                ? 0
-                : page - 1));
+        return searchDAO.search(adminRealms, getAllMatchingCond(), page, itemsPerPage, orderBy, SubjectType.GROUP);
+    }
 
-        if (itemsPerPage > 0) {
-            query.setMaxResults(itemsPerPage);
-        }
-
-        return query.getResultList();
+    @Override
+    public final int count(final Set<String> adminRealms) {
+        return searchDAO.count(adminRealms, getAllMatchingCond(), SubjectType.GROUP);
     }
 
     @Override
     public List<Membership> findMemberships(final Group group) {
         TypedQuery<Membership> query = entityManager.createQuery(
-                "SELECT e FROM " + JPAMembership.class.getSimpleName() + " e"
-                + " WHERE e.group=:group", Membership.class);
+                "SELECT e FROM " + JPAMembership.class.getSimpleName() + " e WHERE e.group=:group", Membership.class);
         query.setParameter("group", group);
 
         return query.getResultList();
@@ -406,28 +238,11 @@ public class JPAGroupDAO extends AbstractSubjectDAO<GPlainAttr, GDerAttr, GVirAt
     }
 
     @Override
-    public final int count() {
-        Query countQuery = entityManager.createNativeQuery("SELECT COUNT(e.id) FROM " + JPAGroup.TABLE + " e");
-
-        return ((Number) countQuery.getSingleResult()).intValue();
-    }
-
-    @Override
     public Group save(final Group group) {
-        // reset account policy in case of inheritance
-        if (group.isInheritAccountPolicy()) {
-            group.setAccountPolicy(null);
-        }
-
-        // reset password policy in case of inheritance
-        if (group.isInheritPasswordPolicy()) {
-            group.setPasswordPolicy(null);
-        }
-
         // remove plain attributes without a valid template
         List<GPlainAttr> rToBeDeleted = new ArrayList<>();
         for (final PlainAttr attr : group.getPlainAttrs()) {
-            boolean found = CollectionUtils.exists(group.findInheritedTemplates(GPlainAttrTemplate.class),
+            boolean found = CollectionUtils.exists(group.getAttrTemplates(GPlainAttrTemplate.class),
                     new Predicate<GPlainAttrTemplate>() {
 
                         @Override
@@ -447,7 +262,7 @@ public class JPAGroupDAO extends AbstractSubjectDAO<GPlainAttr, GDerAttr, GVirAt
         // remove derived attributes without a valid template
         List<GDerAttr> rDerToBeDeleted = new ArrayList<>();
         for (final DerAttr attr : group.getDerAttrs()) {
-            boolean found = CollectionUtils.exists(group.findInheritedTemplates(GDerAttrTemplate.class),
+            boolean found = CollectionUtils.exists(group.getAttrTemplates(GDerAttrTemplate.class),
                     new Predicate<GDerAttrTemplate>() {
 
                         @Override
@@ -467,7 +282,7 @@ public class JPAGroupDAO extends AbstractSubjectDAO<GPlainAttr, GDerAttr, GVirAt
         // remove virtual attributes without a valid template
         List<GVirAttr> rVirToBeDeleted = new ArrayList<>();
         for (final VirAttr attr : group.getVirAttrs()) {
-            boolean found = CollectionUtils.exists(group.findInheritedTemplates(GVirAttrTemplate.class),
+            boolean found = CollectionUtils.exists(group.getAttrTemplates(GVirAttrTemplate.class),
                     new Predicate<GVirAttrTemplate>() {
 
                         @Override
@@ -508,30 +323,19 @@ public class JPAGroupDAO extends AbstractSubjectDAO<GPlainAttr, GDerAttr, GVirAt
             attr.getValues().addAll(group.getVirAttr(attr.getSchema().getKey()).getValues());
         }
 
-        entitlementDAO.saveGroupEntitlement(merged);
-
         return merged;
     }
 
     @Override
     public void delete(final Group group) {
-        for (Group groupToBeDeleted : findDescendants(group)) {
-            for (Membership membership : findMemberships(groupToBeDeleted)) {
-                membership.getUser().removeMembership(membership);
-                userDAO.save(membership.getUser());
+        for (Membership membership : findMemberships(group)) {
+            membership.getUser().removeMembership(membership);
+            userDAO.save(membership.getUser());
 
-                entityManager.remove(membership);
-            }
-
-            groupToBeDeleted.getEntitlements().clear();
-
-            groupToBeDeleted.setParent(null);
-            groupToBeDeleted.setUserOwner(null);
-            groupToBeDeleted.setGroupOwner(null);
-            entityManager.remove(groupToBeDeleted);
-
-            entitlementDAO.delete(GroupEntitlementUtil.getEntitlementNameFromGroupKey(groupToBeDeleted.getKey()));
+            entityManager.remove(membership);
         }
+
+        entityManager.remove(group);
     }
 
     @Override
@@ -545,20 +349,29 @@ public class JPAGroupDAO extends AbstractSubjectDAO<GPlainAttr, GDerAttr, GVirAt
     }
 
     @Override
-    public Group authFetch(Long key) {
+    public Group authFetch(final Long key) {
         if (key == null) {
             throw new NotFoundException("Null group id");
         }
 
-        Group group = find(key);
+        final Group group = find(key);
         if (group == null) {
             throw new NotFoundException("Group " + key);
         }
 
-        Set<Long> allowedGroupKeys = GroupEntitlementUtil.getGroupKeys(AuthContextUtil.getOwnedEntitlementNames());
-        if (!allowedGroupKeys.contains(group.getKey())) {
-            throw new UnauthorizedGroupException(group.getKey());
+        Set<String> authRealms = AuthContextUtils.getAuthorizations().get(Entitlement.GROUP_READ);
+        boolean authorized = CollectionUtils.exists(authRealms, new Predicate<String>() {
+
+            @Override
+            public boolean evaluate(final String realm) {
+                return group.getRealm().getFullPath().startsWith(realm)
+                        || realm.equals(RealmUtils.getGroupOwnerRealm(group.getRealm().getFullPath(), group.getKey()));
+            }
+        });
+        if (authRealms == null || authRealms.isEmpty() || !authorized) {
+            throw new UnauthorizedException(SubjectType.GROUP, group.getKey());
         }
+
         return group;
     }
 

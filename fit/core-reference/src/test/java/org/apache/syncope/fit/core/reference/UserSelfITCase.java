@@ -29,8 +29,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.AccessControlException;
 import java.util.Map;
+import java.util.Set;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -43,6 +45,7 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.WorkflowFormPropertyTO;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.common.lib.types.SubjectType;
 import org.apache.syncope.common.rest.api.Preference;
 import org.apache.syncope.common.rest.api.RESTHeaders;
@@ -89,7 +92,7 @@ public class UserSelfITCase extends AbstractITCase {
         // self-create user with membership: goes 'createApproval' with resources and membership but no propagation
         UserTO userTO = UserITCase.getUniqueSampleTO("anonymous@syncope.apache.org");
         MembershipTO membership = new MembershipTO();
-        membership.setGroupId(3L);
+        membership.setGroupKey(3L);
         userTO.getMemberships().add(membership);
         userTO.getResources().add(RESOURCE_NAME_TESTDB);
 
@@ -133,9 +136,8 @@ public class UserSelfITCase extends AbstractITCase {
             assertNotNull(e);
         }
 
-        UserSelfService userSelfService2 = clientFactory.create("rossini", ADMIN_PWD).getService(UserSelfService.class);
-        UserTO userTO = userSelfService2.read();
-        assertEquals("rossini", userTO.getUsername());
+        Pair<Map<Entitlement, Set<String>>, UserTO> self = clientFactory.create("rossini", ADMIN_PWD).self();
+        assertEquals("rossini", self.getValue().getUsername());
     }
 
     @Test
@@ -234,7 +236,7 @@ public class UserSelfITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE373() {
-        UserTO userTO = userSelfService.read();
+        UserTO userTO = adminClient.self().getValue();
         assertEquals(ADMIN_UNAME, userTO.getUsername());
     }
 
@@ -255,6 +257,10 @@ public class UserSelfITCase extends AbstractITCase {
 
     @Test
     public void passwordReset() {
+        // 0. ensure that password request DOES require security question
+        configurationService.set("passwordReset.securityQuestion",
+                attrTO("passwordReset.securityQuestion", "true"));
+
         // 1. create an user with security question and answer
         UserTO user = UserITCase.getUniqueSampleTO("pwdReset@syncope.apache.org");
         user.setSecurityQuestion(1L);
@@ -263,7 +269,7 @@ public class UserSelfITCase extends AbstractITCase {
 
         // 2. verify that new user is able to authenticate
         SyncopeClient authClient = clientFactory.create(user.getUsername(), "password123");
-        UserTO read = authClient.getService(UserSelfService.class).read();
+        UserTO read = authClient.self().getValue();
         assertNotNull(read);
 
         // 3. request password reset (as anonymous) providing the expected security answer
@@ -288,11 +294,11 @@ public class UserSelfITCase extends AbstractITCase {
             assertEquals(ClientExceptionType.NotFound, e.getType());
             assertTrue(e.getMessage().contains("WRONG TOKEN"));
         }
-        anonClient.getService(UserSelfService.class).confirmPasswordReset(token, "newPassword");
+        anonClient.getService(UserSelfService.class).confirmPasswordReset(token, "newPassword123");
 
         // 6. verify that password was reset and token removed
-        authClient = clientFactory.create(user.getUsername(), "newPassword");
-        read = authClient.getService(UserSelfService.class).read();
+        authClient = clientFactory.create(user.getUsername(), "newPassword123");
+        read = authClient.self().getValue();
         assertNotNull(read);
         assertNull(read.getToken());
     }
@@ -309,7 +315,7 @@ public class UserSelfITCase extends AbstractITCase {
 
         // 2. verify that new user is able to authenticate
         SyncopeClient authClient = clientFactory.create(user.getUsername(), "password123");
-        UserTO read = authClient.getService(UserSelfService.class).read();
+        UserTO read = authClient.self().getValue();
         assertNotNull(read);
 
         // 3. request password reset (as anonymous) with no security answer
@@ -328,11 +334,11 @@ public class UserSelfITCase extends AbstractITCase {
             assertEquals(ClientExceptionType.NotFound, e.getType());
             assertTrue(e.getMessage().contains("WRONG TOKEN"));
         }
-        anonClient.getService(UserSelfService.class).confirmPasswordReset(token, "newPassword");
+        anonClient.getService(UserSelfService.class).confirmPasswordReset(token, "newPassword123");
 
         // 6. verify that password was reset and token removed
-        authClient = clientFactory.create(user.getUsername(), "newPassword");
-        read = authClient.getService(UserSelfService.class).read();
+        authClient = clientFactory.create(user.getUsername(), "newPassword123");
+        read = authClient.self().getValue();
         assertNotNull(read);
         assertNull(read.getToken());
 

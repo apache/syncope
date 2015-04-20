@@ -24,7 +24,7 @@ import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
-import org.apache.syncope.core.misc.ConnObjectUtil;
+import org.apache.syncope.core.misc.ConnObjectUtils;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +35,7 @@ public class DefaultPropagationReporter implements PropagationReporter {
     protected static final Logger LOG = LoggerFactory.getLogger(DefaultPropagationReporter.class);
 
     @Autowired
-    protected ConnObjectUtil connObjectUtil;
+    protected ConnObjectUtils connObjectUtils;
 
     protected final List<PropagationStatus> statuses = new ArrayList<>();
 
@@ -44,17 +44,17 @@ public class DefaultPropagationReporter implements PropagationReporter {
             final PropagationTaskExecStatus executionStatus,
             final String failureReason, final ConnectorObject beforeObj, final ConnectorObject afterObj) {
 
-        final PropagationStatus propagation = new PropagationStatus();
+        PropagationStatus propagation = new PropagationStatus();
         propagation.setResource(resource);
         propagation.setStatus(executionStatus);
         propagation.setFailureReason(failureReason);
 
         if (beforeObj != null) {
-            propagation.setBeforeObj(connObjectUtil.getConnObjectTO(beforeObj));
+            propagation.setBeforeObj(connObjectUtils.getConnObjectTO(beforeObj));
         }
 
         if (afterObj != null) {
-            propagation.setAfterObj(connObjectUtil.getConnObjectTO(afterObj));
+            propagation.setAfterObj(connObjectUtils.getConnObjectTO(afterObj));
         }
 
         statuses.add(propagation);

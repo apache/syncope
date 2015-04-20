@@ -27,16 +27,16 @@ public class MembershipTO extends AbstractAttributableTO {
 
     private static final long serialVersionUID = 5992828670273935861L;
 
-    private long groupId;
+    private long groupKey;
 
     private String groupName;
 
-    public long getGroupId() {
-        return groupId;
+    public long getGroupKey() {
+        return groupKey;
     }
 
-    public void setGroupId(final long groupId) {
-        this.groupId = groupId;
+    public void setGroupKey(final long groupId) {
+        this.groupKey = groupId;
     }
 
     public String getGroupName() {

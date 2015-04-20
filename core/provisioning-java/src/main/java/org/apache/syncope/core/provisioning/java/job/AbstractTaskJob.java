@@ -28,7 +28,7 @@ import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.provisioning.api.job.TaskJob;
 import org.apache.syncope.core.misc.AuditManager;
-import org.apache.syncope.core.misc.ExceptionUtil;
+import org.apache.syncope.core.misc.ExceptionUtils2;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
@@ -133,7 +133,7 @@ public abstract class AbstractTaskJob implements TaskJob {
             LOG.error("While executing task " + taskId, e);
             result = Result.FAILURE;
 
-            execution.setMessage(ExceptionUtil.getFullStackTrace(e));
+            execution.setMessage(ExceptionUtils2.getFullStackTrace(e));
             execution.setStatus(Status.FAILURE.name());
         }
         execution.setEndDate(new Date());

@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.logic;
 
-import org.apache.syncope.core.misc.security.UnauthorizedGroupException;
 import java.lang.reflect.Method;
 import java.security.AccessControlException;
 import java.util.ArrayList;
@@ -30,19 +29,17 @@ import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.mod.AttrMod;
 import org.apache.syncope.common.lib.mod.StatusMod;
 import org.apache.syncope.common.lib.mod.UserMod;
-import org.apache.syncope.common.lib.to.BulkAction;
-import org.apache.syncope.common.lib.to.BulkActionResult;
-import org.apache.syncope.common.lib.to.BulkActionResult.Status;
-import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.common.lib.types.SubjectType;
-import org.apache.syncope.core.persistence.api.GroupEntitlementUtil;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.SubjectSearchDAO;
@@ -57,7 +54,9 @@ import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.provisioning.java.VirAttrHandler;
-import org.apache.syncope.core.misc.security.AuthContextUtil;
+import org.apache.syncope.core.misc.security.AuthContextUtils;
+import org.apache.syncope.core.misc.security.UnauthorizedException;
+import org.apache.syncope.core.misc.serialization.POJOHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
@@ -114,25 +113,20 @@ public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
     @PreAuthorize("hasRole('USER_LIST')")
     @Transactional(readOnly = true, rollbackFor = { Throwable.class })
     @Override
-    public int count() {
-        return userDAO.count(GroupEntitlementUtil.getGroupKeys(AuthContextUtil.getOwnedEntitlementNames()));
+    public int count(final List<String> realms) {
+        return userDAO.count(
+                getEffectiveRealms(AuthContextUtils.getAuthorizations().get(Entitlement.USER_LIST), realms));
     }
 
     @PreAuthorize("hasRole('USER_LIST')")
     @Transactional(readOnly = true, rollbackFor = { Throwable.class })
     @Override
-    public int searchCount(final SearchCond searchCondition) {
-        return searchDAO.count(GroupEntitlementUtil.getGroupKeys(AuthContextUtil.getOwnedEntitlementNames()),
-                searchCondition, SubjectType.USER);
-    }
+    public List<UserTO> list(
+            final int page, final int size, final List<OrderByClause> orderBy, final List<String> realms) {
 
-    @PreAuthorize("hasRole('USER_LIST')")
-    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
-    @Override
-    public List<UserTO> list(final int page, final int size, final List<OrderByClause> orderBy) {
-        final Set<Long> adminGroupKeys = GroupEntitlementUtil.getGroupKeys(AuthContextUtil.getOwnedEntitlementNames());
-
-        return CollectionUtils.collect(userDAO.findAll(adminGroupKeys, page, size, orderBy),
+        return CollectionUtils.collect(userDAO.findAll(
+                getEffectiveRealms(AuthContextUtils.getAuthorizations().get(Entitlement.USER_LIST), realms),
+                page, size, orderBy),
                 new Transformer<User, UserTO>() {
 
                     @Override
@@ -142,11 +136,12 @@ public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
                 }, new ArrayList<UserTO>());
     }
 
-    @PreAuthorize("isAuthenticated() "
-            + "and not(hasRole(T(org.apache.syncope.common.lib.SyncopeConstants).ANONYMOUS_ENTITLEMENT))")
+    @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
-    public UserTO readSelf() {
-        return binder.getAuthenticatedUserTO();
+    public Pair<String, UserTO> readSelf() {
+        return ImmutablePair.of(
+                POJOHelper.serialize(AuthContextUtils.getAuthorizations()),
+                binder.getAuthenticatedUserTO());
     }
 
     @PreAuthorize("hasRole('USER_READ')")
@@ -156,14 +151,23 @@ public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
         return binder.getUserTO(key);
     }
 
-    @PreAuthorize("hasRole('USER_LIST')")
-    @Transactional(readOnly = true)
+    @PreAuthorize("hasRole('USER_SEARCH')")
+    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
+    @Override
+    public int searchCount(final SearchCond searchCondition, final List<String> realms) {
+        return searchDAO.count(
+                getEffectiveRealms(AuthContextUtils.getAuthorizations().get(Entitlement.USER_SEARCH), realms),
+                searchCondition, SubjectType.USER);
+    }
+
+    @PreAuthorize("hasRole('USER_SEARCH')")
+    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
     @Override
     public List<UserTO> search(final SearchCond searchCondition, final int page, final int size,
-            final List<OrderByClause> orderBy) {
+            final List<OrderByClause> orderBy, final List<String> realms) {
 
-        final List<User> matchingUsers = searchDAO.search(GroupEntitlementUtil.getGroupKeys(AuthContextUtil.
-                getOwnedEntitlementNames()),
+        final List<User> matchingUsers = searchDAO.search(
+                getEffectiveRealms(AuthContextUtils.getAuthorizations().get(Entitlement.USER_SEARCH), realms),
                 searchCondition, page, size, orderBy, SubjectType.USER);
         return CollectionUtils.collect(matchingUsers, new Transformer<User, UserTO>() {
 
@@ -174,24 +178,22 @@ public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
         }, new ArrayList<UserTO>());
     }
 
-    @PreAuthorize("isAnonymous() or hasRole(T(org.apache.syncope.common.lib.SyncopeConstants).ANONYMOUS_ENTITLEMENT)")
+    @PreAuthorize("isAnonymous() or hasRole('ANONYMOUS')")
     public UserTO createSelf(final UserTO userTO, final boolean storePassword) {
         return doCreate(userTO, storePassword);
     }
 
     @PreAuthorize("hasRole('USER_CREATE')")
     public UserTO create(final UserTO userTO, final boolean storePassword) {
-        Collection<Long> requestGroupIds = CollectionUtils.removeAll(
-                CollectionUtils.collect(userTO.getMemberships(), new Transformer<MembershipTO, Long>() {
-
-                    @Override
-                    public Long transform(final MembershipTO membership) {
-                        return membership.getGroupId();
-                    }
-                }, new ArrayList<Long>()),
-                GroupEntitlementUtil.getGroupKeys(AuthContextUtil.getOwnedEntitlementNames()));
-        if (!requestGroupIds.isEmpty()) {
-            throw new UnauthorizedGroupException(requestGroupIds);
+        if (userTO.getRealm() == null) {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
+            throw sce;
+        }
+        Set<String> effectiveRealms = getEffectiveRealms(
+                AuthContextUtils.getAuthorizations().get(Entitlement.USER_CREATE),
+                Collections.singleton(userTO.getRealm()));
+        if (effectiveRealms.isEmpty()) {
+            throw new UnauthorizedException(SubjectType.USER, null);
         }
 
         return doCreate(userTO, storePassword);
@@ -209,8 +211,7 @@ public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
         return savedTO;
     }
 
-    @PreAuthorize("isAuthenticated() "
-            + "and not(hasRole(T(org.apache.syncope.common.lib.SyncopeConstants).ANONYMOUS_ENTITLEMENT))")
+    @PreAuthorize("isAuthenticated() and not(hasRole('ANONYMOUS'))")
     public UserTO updateSelf(final UserMod userMod) {
         UserTO userTO = binder.getAuthenticatedUserTO();
 
@@ -284,7 +285,7 @@ public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
         return savedTO;
     }
 
-    @PreAuthorize("isAnonymous() or hasRole(T(org.apache.syncope.common.lib.SyncopeConstants).ANONYMOUS_ENTITLEMENT)")
+    @PreAuthorize("isAnonymous() or hasRole('ANONYMOUS')")
     @Transactional
     public void requestPasswordReset(final String username, final String securityAnswer) {
         if (username == null) {
@@ -305,7 +306,7 @@ public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
         provisioningManager.requestPasswordReset(user.getKey());
     }
 
-    @PreAuthorize("isAnonymous() or hasRole(T(org.apache.syncope.common.lib.SyncopeConstants).ANONYMOUS_ENTITLEMENT)")
+    @PreAuthorize("isAnonymous() or hasRole('ANONYMOUS')")
     @Transactional
     public void confirmPasswordReset(final String token, final String password) {
         User user = userDAO.findByToken(token);
@@ -315,8 +316,7 @@ public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
         provisioningManager.confirmPasswordReset(user, token, password);
     }
 
-    @PreAuthorize("isAuthenticated() "
-            + "and not(hasRole(T(org.apache.syncope.common.lib.SyncopeConstants).ANONYMOUS_ENTITLEMENT))")
+    @PreAuthorize("isAuthenticated() and not(hasRole('ANONYMOUS'))")
     public UserTO deleteSelf() {
         UserTO userTO = binder.getAuthenticatedUserTO();
 
@@ -352,59 +352,6 @@ public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
         deletedTO.getPropagationStatusTOs().addAll(statuses);
 
         return deletedTO;
-    }
-
-    @PreAuthorize("(hasRole('USER_DELETE') and #bulkAction.operation == #bulkAction.operation.DELETE) or "
-            + "(hasRole('USER_UPDATE') and "
-            + "(#bulkAction.operation == #bulkAction.operation.REACTIVATE or "
-            + "#bulkAction.operation == #bulkAction.operation.SUSPEND))")
-    public BulkActionResult bulk(final BulkAction bulkAction) {
-        BulkActionResult res = new BulkActionResult();
-
-        switch (bulkAction.getOperation()) {
-            case DELETE:
-                for (String key : bulkAction.getTargets()) {
-                    try {
-                        res.add(delete(Long.valueOf(key)).getKey(), Status.SUCCESS);
-                    } catch (Exception e) {
-                        LOG.error("Error performing delete for user {}", key, e);
-                        res.add(key, Status.FAILURE);
-                    }
-                }
-                break;
-
-            case SUSPEND:
-                for (String key : bulkAction.getTargets()) {
-                    StatusMod statusMod = new StatusMod();
-                    statusMod.setKey(Long.valueOf(key));
-                    statusMod.setType(StatusMod.ModType.SUSPEND);
-                    try {
-                        res.add(status(statusMod).getKey(), Status.SUCCESS);
-                    } catch (Exception e) {
-                        LOG.error("Error performing suspend for user {}", key, e);
-                        res.add(key, Status.FAILURE);
-                    }
-                }
-                break;
-
-            case REACTIVATE:
-                for (String key : bulkAction.getTargets()) {
-                    StatusMod statusMod = new StatusMod();
-                    statusMod.setKey(Long.valueOf(key));
-                    statusMod.setType(StatusMod.ModType.REACTIVATE);
-                    try {
-                        res.add(status(statusMod).getKey(), Status.SUCCESS);
-                    } catch (Exception e) {
-                        LOG.error("Error performing reactivate for user {}", key, e);
-                        res.add(key, Status.FAILURE);
-                    }
-                }
-                break;
-
-            default:
-        }
-
-        return res;
     }
 
     @PreAuthorize("hasRole('USER_UPDATE')")

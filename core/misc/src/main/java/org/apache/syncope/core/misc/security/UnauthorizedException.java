@@ -16,21 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.entity.task;
+package org.apache.syncope.core.misc.security;
 
-import org.apache.syncope.common.lib.to.AbstractTaskTO;
-import org.apache.syncope.common.lib.types.TaskType;
+import org.apache.syncope.common.lib.types.SubjectType;
 
-public interface TaskUtil {
+public class UnauthorizedException extends RuntimeException {
 
-    TaskType getType();
+    private static final long serialVersionUID = 7540587364235915081L;
 
-    <T extends Task> T newTask();
-
-    <T extends AbstractTaskTO> T newTaskTO();
-
-    <T extends Task> Class<T> taskClass();
-
-    <T extends AbstractTaskTO> Class<T> taskTOClass();
-
+    public UnauthorizedException(final SubjectType subject, final Long key) {
+        super("Missing entitlement or realm administration for " + subject + " " + key);
+    }
 }

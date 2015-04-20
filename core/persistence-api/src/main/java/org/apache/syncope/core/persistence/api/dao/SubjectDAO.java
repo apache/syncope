@@ -19,7 +19,7 @@
 package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.List;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtil;
+import org.apache.syncope.core.persistence.api.entity.AttributableUtils;
 import org.apache.syncope.core.persistence.api.entity.DerAttr;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
@@ -31,14 +31,14 @@ public interface SubjectDAO<P extends PlainAttr, D extends DerAttr, V extends Vi
         extends DAO<Subject<P, D, V>, Long> {
 
     List<? extends Subject<P, D, V>> findByAttrValue(
-            String schemaName, PlainAttrValue attrValue, AttributableUtil attrUtil);
+            String schemaName, PlainAttrValue attrValue, AttributableUtils attrUtils);
 
     Subject<P, D, V> findByAttrUniqueValue(
-            String schemaName, PlainAttrValue attrUniqueValue, AttributableUtil attrUtil);
+            String schemaName, PlainAttrValue attrUniqueValue, AttributableUtils attrUtils);
 
     List<? extends Subject<P, D, V>> findByDerAttrValue(
-            String schemaName, String value, AttributableUtil attrUtil);
+            String schemaName, String value, AttributableUtils attrUtils);
 
     List<? extends Subject<P, D, V>> findByResource(
-            ExternalResource resource, AttributableUtil attrUtil);
+            ExternalResource resource, AttributableUtils attrUtils);
 }

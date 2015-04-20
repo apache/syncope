@@ -67,7 +67,9 @@ import org.apache.syncope.core.persistence.jpa.entity.JPAExternalResource;
 import org.apache.syncope.core.persistence.jpa.entity.JPASecurityQuestion;
 import org.apache.syncope.core.persistence.jpa.entity.membership.JPAMembership;
 import org.apache.syncope.core.misc.security.Encryptor;
-import org.apache.syncope.core.misc.security.SecureRandomUtil;
+import org.apache.syncope.core.misc.security.SecureRandomUtils;
+import org.apache.syncope.core.persistence.api.entity.Role;
+import org.apache.syncope.core.persistence.jpa.entity.JPARole;
 
 /**
  * JPA user bean.
@@ -90,6 +92,13 @@ public class JPAUser extends AbstractSubject<UPlainAttr, UDerAttr, UVirAttr> imp
 
     @Transient
     private String clearPassword;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(joinColumns =
+            @JoinColumn(name = "user_id"),
+            inverseJoinColumns =
+            @JoinColumn(name = "role_id"))
+    private List<JPARole> roles;
 
     @OneToMany(cascade = CascadeType.MERGE, mappedBy = "user")
     @Valid
@@ -124,8 +133,7 @@ public class JPAUser extends AbstractSubject<UPlainAttr, UDerAttr, UVirAttr> imp
 
     @ElementCollection
     @Column(name = "passwordHistoryValue")
-    @CollectionTable(name = "SyncopeUser_passwordHistory",
-            joinColumns =
+    @CollectionTable(name = "SyncopeUser_passwordHistory", joinColumns =
             @JoinColumn(name = "SyncopeUser_id", referencedColumnName = "id"))
     private List<String> passwordHistory;
 
@@ -172,7 +180,7 @@ public class JPAUser extends AbstractSubject<UPlainAttr, UDerAttr, UVirAttr> imp
     @Valid
     private Set<JPAExternalResource> resources;
 
-    @ManyToOne(fetch = FetchType.EAGER, optional = true)
+    @ManyToOne(fetch = FetchType.EAGER)
     private JPASecurityQuestion securityQuestion;
 
     @Column(nullable = true)
@@ -181,6 +189,7 @@ public class JPAUser extends AbstractSubject<UPlainAttr, UDerAttr, UVirAttr> imp
     public JPAUser() {
         super();
 
+        roles = new ArrayList<>();
         memberships = new ArrayList<>();
         plainAttrs = new ArrayList<>();
         derAttrs = new ArrayList<>();
@@ -202,6 +211,23 @@ public class JPAUser extends AbstractSubject<UPlainAttr, UDerAttr, UVirAttr> imp
     }
 
     @Override
+    public boolean addRole(final Role role) {
+        checkType(role, JPARole.class);
+        return roles.contains((JPARole) role) || roles.add((JPARole) role);
+    }
+
+    @Override
+    public boolean removeRole(final Role role) {
+        checkType(role, JPARole.class);
+        return roles.remove((JPARole) role);
+    }
+
+    @Override
+    public List<? extends Role> getRoles() {
+        return roles;
+    }
+
+    @Override
     public boolean addMembership(final Membership membership) {
         checkType(membership, JPAMembership.class);
         return memberships.contains((JPAMembership) membership) || memberships.add((JPAMembership) membership);
@@ -209,7 +235,8 @@ public class JPAUser extends AbstractSubject<UPlainAttr, UDerAttr, UVirAttr> imp
 
     @Override
     public boolean removeMembership(final Membership membership) {
-        return memberships.remove(membership);
+        checkType(membership, JPAMembership.class);
+        return memberships.remove((JPAMembership) membership);
     }
 
     @Override
@@ -387,7 +414,7 @@ public class JPAUser extends AbstractSubject<UPlainAttr, UDerAttr, UVirAttr> imp
 
     @Override
     public void generateToken(final int tokenLength, final int tokenExpireTime) {
-        this.token = SecureRandomUtil.generateRandomPassword(tokenLength);
+        this.token = SecureRandomUtils.generateRandomPassword(tokenLength);
 
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.MINUTE, tokenExpireTime);

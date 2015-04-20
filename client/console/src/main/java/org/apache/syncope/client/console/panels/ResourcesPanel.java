@@ -153,7 +153,7 @@ public class ResourcesPanel extends Panel {
                                 if (!resourcesToRemove.isEmpty()) {
                                     Set<String> resourcesAssignedViaMembership = new HashSet<>();
                                     for (MembershipTO membTO : userTO.getMemberships()) {
-                                        GroupTO groupTO = groupTreeBuilder.findGroup(membTO.getGroupId());
+                                        GroupTO groupTO = groupTreeBuilder.findGroup(membTO.getGroupKey());
                                         if (groupTO != null) {
                                             resourcesAssignedViaMembership.addAll(groupTO.getResources());
                                         }

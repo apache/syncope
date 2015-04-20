@@ -20,11 +20,11 @@ package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -36,12 +36,12 @@ public class ConnObjectTO extends AbstractAnnotatedBean {
 
     private static final long serialVersionUID = 5139554911265442497L;
 
-    private final List<AttrTO> attrs = new ArrayList<>();
+    private final Set<AttrTO> attrs = new LinkedHashSet<>();
 
-    @XmlElementWrapper(name = "attributes")
+    @XmlElementWrapper(name = "plainAttrs")
     @XmlElement(name = "attribute")
-    @JsonProperty("attributes")
-    public List<AttrTO> getPlainAttrs() {
+    @JsonProperty("plainAttrs")
+    public Set<AttrTO> getPlainAttrs() {
         return attrs;
     }
 
@@ -51,8 +51,7 @@ public class ConnObjectTO extends AbstractAnnotatedBean {
         for (AttrTO attributeTO : attrs) {
             result.put(attributeTO.getSchema(), attributeTO);
         }
-        result = Collections.<String, AttrTO>unmodifiableMap(result);
 
-        return result;
+        return Collections.unmodifiableMap(result);
     }
 }

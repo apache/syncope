@@ -48,19 +48,11 @@ public class JPAAccountPolicy extends JPAPolicy implements AccountPolicy {
             inverseJoinColumns =
             @JoinColumn(name = "resource_name"))
     @Valid
-    private Set<JPAExternalResource> resources;
+    private Set<JPAExternalResource> resources = new HashSet<>();
 
     public JPAAccountPolicy() {
-        this(false);
-        this.resources = new HashSet<>();
-    }
-
-    public JPAAccountPolicy(final boolean global) {
         super();
-
-        this.type = global
-                ? PolicyType.GLOBAL_ACCOUNT
-                : PolicyType.ACCOUNT;
+        this.type = PolicyType.ACCOUNT;
     }
 
     @Override

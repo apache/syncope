@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
-import org.apache.commons.collections4.Closure;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.common.lib.to.RoleTO;
@@ -53,24 +52,19 @@ public class RoleDataBinderImpl implements RoleDataBinder {
     @Override
     public void update(final Role role, final RoleTO roleTO) {
         role.setName(roleTO.getName());
-        role.setCriteria(roleTO.getCriteria());
 
         role.getEntitlements().clear();
         role.getEntitlements().addAll(roleTO.getEntitlements());
 
         role.getRealms().clear();
-        CollectionUtils.forAllDo(roleTO.getRealms(), new Closure<String>() {
-
-            @Override
-            public void execute(final String realmFullPath) {
-                Realm realm = realmDAO.find(realmFullPath);
-                if (realm == null) {
-                    LOG.warn("Invalid realm full path {}, ignoring", realmFullPath);
-                } else {
-                    role.addRealm(realm);
-                }
+        for (String realmFullPath : roleTO.getRealms()) {
+            Realm realm = realmDAO.find(realmFullPath);
+            if (realm == null) {
+                LOG.warn("Invalid realm full path {}, ignoring", realmFullPath);
+            } else {
+                role.addRealm(realm);
             }
-        });
+        }
     }
 
     @Override
@@ -79,7 +73,6 @@ public class RoleDataBinderImpl implements RoleDataBinder {
 
         roleTO.setKey(role.getKey());
         roleTO.setName(role.getName());
-        roleTO.setCriteria(role.getCriteria());
         roleTO.getEntitlements().addAll(role.getEntitlements());
 
         CollectionUtils.collect(role.getRealms(), new Transformer<Realm, String>() {

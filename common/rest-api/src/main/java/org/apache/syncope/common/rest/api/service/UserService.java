@@ -36,6 +36,7 @@ import javax.ws.rs.core.Response;
 import org.apache.cxf.jaxrs.model.wadl.Description;
 import org.apache.cxf.jaxrs.model.wadl.Descriptions;
 import org.apache.cxf.jaxrs.model.wadl.DocTarget;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.mod.ResourceAssociationMod;
 import org.apache.syncope.common.lib.mod.StatusMod;
 import org.apache.syncope.common.lib.mod.UserMod;
@@ -95,25 +96,31 @@ public interface UserService extends JAXRSService {
     /**
      * Returns a paged list of existing users.
      *
+     * @param realms realms under which users are defined
      * @return paged list of all existing users
      */
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    PagedResult<UserTO> list();
+    PagedResult<UserTO> list(
+            @DefaultValue(SyncopeConstants.ROOT_REALM) @QueryParam("realm") List<String> realms);
 
     /**
      * Returns a paged list of existing users.
      *
+     * @param realms realms under which users are defined
      * @param orderBy list of ordering clauses, separated by comma
      * @return paged list of all existing users
      */
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    PagedResult<UserTO> list(@QueryParam(PARAM_ORDERBY) String orderBy);
+    PagedResult<UserTO> list(
+            @DefaultValue(SyncopeConstants.ROOT_REALM) @QueryParam("realm") List<String> realms,
+            @QueryParam(PARAM_ORDERBY) String orderBy);
 
     /**
      * Returns a paged list of existing users matching page/size conditions.
      *
+     * @param realms realms under which users are defined
      * @param page result page number
      * @param size number of entries per page
      * @return paged list of existing users matching page/size conditions
@@ -121,12 +128,14 @@ public interface UserService extends JAXRSService {
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     PagedResult<UserTO> list(
+            @DefaultValue(SyncopeConstants.ROOT_REALM) @QueryParam("realm") List<String> realms,
             @NotNull @Min(1) @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) Integer page,
             @NotNull @Min(1) @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) Integer size);
 
     /**
      * Returns a paged list of existing users matching page/size conditions.
      *
+     * @param realms realms under which users are defined
      * @param page result page number
      * @param size number of entries per page
      * @param orderBy list of ordering clauses, separated by comma
@@ -135,6 +144,7 @@ public interface UserService extends JAXRSService {
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     PagedResult<UserTO> list(
+            @DefaultValue(SyncopeConstants.ROOT_REALM) @QueryParam("realm") List<String> realms,
             @NotNull @Min(1) @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) Integer page,
             @NotNull @Min(1) @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) Integer size,
             @QueryParam(PARAM_ORDERBY) String orderBy);
@@ -142,17 +152,21 @@ public interface UserService extends JAXRSService {
     /**
      * Returns a paged list of users matching the provided FIQL search condition.
      *
+     * @param realms realms under which users are defined
      * @param fiql FIQL search expression
      * @return paged list of users matching the provided FIQL search condition
      */
     @GET
     @Path("search")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    PagedResult<UserTO> search(@NotNull @QueryParam(PARAM_FIQL) String fiql);
+    PagedResult<UserTO> search(
+            @DefaultValue(SyncopeConstants.ROOT_REALM) @QueryParam("realm") List<String> realms,
+            @NotNull @QueryParam(PARAM_FIQL) String fiql);
 
     /**
      * Returns a paged list of users matching the provided FIQL search condition.
      *
+     * @param realms realms under which users are defined
      * @param fiql FIQL search expression
      * @param orderBy list of ordering clauses, separated by comma
      * @return paged list of users matching the provided FIQL search condition
@@ -160,11 +174,15 @@ public interface UserService extends JAXRSService {
     @GET
     @Path("search")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    PagedResult<UserTO> search(@NotNull @QueryParam(PARAM_FIQL) String fiql, @QueryParam(PARAM_ORDERBY) String orderBy);
+    PagedResult<UserTO> search(
+            @DefaultValue(SyncopeConstants.ROOT_REALM) @QueryParam("realm") List<String> realms,
+            @NotNull @QueryParam(PARAM_FIQL) String fiql,
+            @QueryParam(PARAM_ORDERBY) String orderBy);
 
     /**
      * Returns a paged list of users matching the provided FIQL search condition.
      *
+     * @param realms realms under which users are defined
      * @param fiql FIQL search expression
      * @param page result page number
      * @param size number of entries per page
@@ -173,13 +191,16 @@ public interface UserService extends JAXRSService {
     @GET
     @Path("search")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    PagedResult<UserTO> search(@QueryParam(PARAM_FIQL) String fiql,
+    PagedResult<UserTO> search(
+            @DefaultValue(SyncopeConstants.ROOT_REALM) @QueryParam("realm") List<String> realms,
+            @QueryParam(PARAM_FIQL) String fiql,
             @NotNull @Min(1) @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) Integer page,
             @NotNull @Min(1) @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) Integer size);
 
     /**
      * Returns a paged list of users matching the provided FIQL search condition.
      *
+     * @param realms realms under which users are defined
      * @param fiql FIQL search expression
      * @param page result page number
      * @param size number of entries per page
@@ -189,7 +210,9 @@ public interface UserService extends JAXRSService {
     @GET
     @Path("search")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    PagedResult<UserTO> search(@QueryParam(PARAM_FIQL) String fiql,
+    PagedResult<UserTO> search(
+            @DefaultValue(SyncopeConstants.ROOT_REALM) @QueryParam("realm") List<String> realms,
+            @QueryParam(PARAM_FIQL) String fiql,
             @NotNull @Min(1) @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) Integer page,
             @NotNull @Min(1) @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) Integer size,
             @QueryParam(PARAM_ORDERBY) String orderBy);
@@ -210,7 +233,8 @@ public interface UserService extends JAXRSService {
     @POST
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    Response create(@NotNull UserTO userTO,
+    Response create(
+            @NotNull UserTO userTO,
             @DefaultValue("true") @QueryParam("storePassword") boolean storePassword);
 
     /**
@@ -284,7 +308,8 @@ public interface UserService extends JAXRSService {
     @Path("{userKey}/bulkDeassociation/{type}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    Response bulkDeassociation(@NotNull @PathParam("userKey") Long userKey,
+    Response bulkDeassociation(
+            @NotNull @PathParam("userKey") Long userKey,
             @NotNull @PathParam("type") ResourceDeassociationActionType type,
             @NotNull List<ResourceName> resourceNames);
 
@@ -303,7 +328,8 @@ public interface UserService extends JAXRSService {
     @Path("{userKey}/bulkAssociation/{type}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    Response bulkAssociation(@NotNull @PathParam("userKey") Long userKey,
+    Response bulkAssociation(
+            @NotNull @PathParam("userKey") Long userKey,
             @NotNull @PathParam("type") ResourceAssociationActionType type,
             @NotNull ResourceAssociationMod associationMod);
 

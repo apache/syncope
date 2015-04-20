@@ -102,36 +102,6 @@ public class PolicyLogic extends AbstractTransactionalLogic<AbstractPolicyTO> {
     }
 
     @PreAuthorize("hasRole('POLICY_READ')")
-    public PasswordPolicyTO getGlobalPasswordPolicy() {
-        PasswordPolicy policy = policyDAO.getGlobalPasswordPolicy();
-        if (policy == null) {
-            throw new NotFoundException("No password policy found");
-        }
-
-        return (PasswordPolicyTO) binder.getPolicyTO(policy);
-    }
-
-    @PreAuthorize("hasRole('POLICY_READ')")
-    public AccountPolicyTO getGlobalAccountPolicy() {
-        AccountPolicy policy = policyDAO.getGlobalAccountPolicy();
-        if (policy == null) {
-            throw new NotFoundException("No account policy found");
-        }
-
-        return (AccountPolicyTO) binder.getPolicyTO(policy);
-    }
-
-    @PreAuthorize("hasRole('POLICY_READ')")
-    public SyncPolicyTO getGlobalSyncPolicy() {
-        SyncPolicy policy = policyDAO.getGlobalSyncPolicy();
-        if (policy == null) {
-            throw new NotFoundException("No sync policy found");
-        }
-
-        return (SyncPolicyTO) binder.getPolicyTO(policy);
-    }
-
-    @PreAuthorize("hasRole('POLICY_READ')")
     public <T extends AbstractPolicyTO> T read(final Long id) {
         Policy policy = policyDAO.find(id);
         if (policy == null) {
@@ -154,12 +124,10 @@ public class PolicyLogic extends AbstractTransactionalLogic<AbstractPolicyTO> {
         return policyToDelete;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected AbstractPolicyTO resolveReference(final Method method, final Object... args)
             throws UnresolvedReferenceException {
+
         Long id = null;
 
         if (ArrayUtils.isNotEmpty(args)) {

@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.jpa.validation.entity;
 
 import java.util.regex.Pattern;
 import javax.validation.ConstraintValidatorContext;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 
@@ -33,7 +34,7 @@ public class RealmValidator extends AbstractValidator<RealmCheck, Realm> {
 
         boolean isValid = true;
 
-        if ("/".equals(object.getName())) {
+        if (SyncopeConstants.ROOT_REALM.equals(object.getName())) {
             if (object.getParent() != null) {
                 isValid = false;
 

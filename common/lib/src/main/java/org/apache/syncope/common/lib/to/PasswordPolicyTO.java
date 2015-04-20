@@ -32,23 +32,15 @@ public class PasswordPolicyTO extends AbstractPolicyTO {
     private PasswordPolicySpec specification;
 
     public PasswordPolicyTO() {
-        this(false);
-    }
-
-    public PasswordPolicyTO(final boolean global) {
-        super();
-
-        PolicyType type = global
-                ? PolicyType.GLOBAL_PASSWORD
-                : PolicyType.PASSWORD;
-        setType(type);
-    }
-
-    public void setSpecification(final PasswordPolicySpec specification) {
-        this.specification = specification;
+        super(PolicyType.PASSWORD);
     }
 
     public PasswordPolicySpec getSpecification() {
         return specification;
     }
+
+    public void setSpecification(PasswordPolicySpec specification) {
+        this.specification = specification;
+    }
+
 }

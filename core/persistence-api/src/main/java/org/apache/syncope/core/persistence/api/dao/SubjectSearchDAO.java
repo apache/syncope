@@ -28,25 +28,25 @@ import org.apache.syncope.core.persistence.api.entity.Subject;
 public interface SubjectSearchDAO extends DAO<Subject<?, ?, ?>, Long> {
 
     /**
-     * @param adminGroups the set of admin groups owned by the caller
+     * @param adminRealms realms for which the caller owns the proper entitlement(s)
      * @param searchCondition the search condition
      * @param type user or group
      * @return size of search result
      */
-    int count(Set<Long> adminGroups, SearchCond searchCondition, SubjectType type);
+    int count(Set<String> adminRealms, SearchCond searchCondition, SubjectType type);
 
     /**
-     * @param adminGroups the set of admin groups owned by the caller
+     * @param adminRealms realms for which the caller owns the proper entitlement(s)
      * @param searchCondition the search condition
      * @param type user or group
      * @param <T> user/group
      * @return the list of users/groups matching the given search condition
      */
     <T extends Subject<?, ?, ?>> List<T> search(
-            Set<Long> adminGroups, SearchCond searchCondition, SubjectType type);
+            Set<String> adminRealms, SearchCond searchCondition, SubjectType type);
 
     /**
-     * @param adminGroups the set of admin groups owned by the caller
+     * @param adminRealms the set of admin groups owned by the caller
      * @param searchCondition the search condition
      * @param orderBy list of ordering clauses
      * @param type user or group
@@ -54,10 +54,10 @@ public interface SubjectSearchDAO extends DAO<Subject<?, ?, ?>, Long> {
      * @return the list of users/groups matching the given search condition
      */
     <T extends Subject<?, ?, ?>> List<T> search(
-            Set<Long> adminGroups, SearchCond searchCondition, List<OrderByClause> orderBy, SubjectType type);
+            Set<String> adminRealms, SearchCond searchCondition, List<OrderByClause> orderBy, SubjectType type);
 
     /**
-     * @param adminGroups the set of admin groups owned by the caller
+     * @param adminRealms realms for which the caller owns the proper entitlement(s)
      * @param searchCondition the search condition
      * @param page position of the first result, start from 1
      * @param itemsPerPage number of results per page
@@ -67,7 +67,7 @@ public interface SubjectSearchDAO extends DAO<Subject<?, ?, ?>, Long> {
      * @return the list of users/groups matching the given search condition (in the given page)
      */
     <T extends Subject<?, ?, ?>> List<T> search(
-            Set<Long> adminGroups, SearchCond searchCondition, int page, int itemsPerPage,
+            Set<String> adminRealms, SearchCond searchCondition, int page, int itemsPerPage,
             List<OrderByClause> orderBy, SubjectType type);
 
     /**

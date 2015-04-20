@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa;
 
-import org.apache.syncope.core.persistence.api.entity.AttributableUtilFactory;
+import org.apache.syncope.core.persistence.api.entity.AttributableUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +33,6 @@ public abstract class AbstractTest {
     protected EntityFactory entityFactory;
 
     @Autowired
-    protected AttributableUtilFactory attrUtilFactory;
+    protected AttributableUtilsFactory attrUtilsFactory;
 
 }

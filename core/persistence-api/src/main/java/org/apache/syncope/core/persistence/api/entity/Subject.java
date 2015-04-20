@@ -22,6 +22,10 @@ import java.util.Set;
 
 public interface Subject<N extends PlainAttr, D extends DerAttr, V extends VirAttr> extends Attributable<N, D, V> {
 
+    Realm getRealm();
+
+    void setRealm(Realm realm);
+
     boolean addResource(ExternalResource resource);
 
     boolean removeResource(ExternalResource resource);

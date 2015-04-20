@@ -36,27 +36,22 @@ public class AccountPolicyTO extends AbstractPolicyTO {
 
     private AccountPolicySpec specification;
 
-    private final List<String> resources = new ArrayList<String>();
+    private final List<String> resources = new ArrayList<>();
 
     public AccountPolicyTO() {
         this(false);
     }
 
     public AccountPolicyTO(final boolean global) {
-        super();
-
-        PolicyType type = global
-                ? PolicyType.GLOBAL_ACCOUNT
-                : PolicyType.ACCOUNT;
-        setType(type);
-    }
-
-    public void setSpecification(final AccountPolicySpec specification) {
-        this.specification = specification;
+        super(PolicyType.ACCOUNT);
     }
 
     public AccountPolicySpec getSpecification() {
         return specification;
+    }
+
+    public void setSpecification(final AccountPolicySpec specification) {
+        this.specification = specification;
     }
 
     @XmlElementWrapper(name = "resources")

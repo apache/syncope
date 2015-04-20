@@ -21,17 +21,18 @@ package org.apache.syncope.core.provisioning.api;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.mod.GroupMod;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.GroupTO;
 
 public interface GroupProvisioningManager extends ProvisioningManager<GroupTO, GroupMod> {
 
-    Map.Entry<Long, List<PropagationStatus>> create(GroupTO groupTO, Set<String> excludedResources);
+    Pair<Long, List<PropagationStatus>> create(GroupTO groupTO, Set<String> excludedResources);
 
-    Map.Entry<Long, List<PropagationStatus>> create(
+    Pair<Long, List<PropagationStatus>> create(
             GroupTO groupTO, Map<Long, String> groupOwnerMap, Set<String> excludedResources);
 
-    Map.Entry<Long, List<PropagationStatus>> update(GroupMod subjectMod, Set<String> excludedResources);
+    Pair<Long, List<PropagationStatus>> update(GroupMod subjectMod, Set<String> excludedResources);
 
 }

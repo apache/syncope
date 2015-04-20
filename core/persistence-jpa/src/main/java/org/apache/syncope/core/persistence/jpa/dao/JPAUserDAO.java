@@ -24,18 +24,16 @@ import java.util.Set;
 import javax.annotation.Resource;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.types.AttributableType;
+import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.common.lib.types.SubjectType;
-import org.apache.syncope.core.persistence.api.GroupEntitlementUtil;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
-import org.apache.syncope.core.persistence.api.dao.SubjectSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
-import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
-import org.apache.syncope.core.persistence.api.dao.search.SubjectCond;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtilFactory;
+import org.apache.syncope.core.persistence.api.entity.AttributableUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Subject;
 import org.apache.syncope.core.persistence.api.entity.VirAttr;
@@ -47,8 +45,8 @@ import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.user.UVirAttr;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
-import org.apache.syncope.core.misc.security.AuthContextUtil;
-import org.apache.syncope.core.misc.security.UnauthorizedGroupException;
+import org.apache.syncope.core.misc.security.AuthContextUtils;
+import org.apache.syncope.core.misc.security.UnauthorizedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -57,16 +55,13 @@ import org.springframework.transaction.annotation.Transactional;
 public class JPAUserDAO extends AbstractSubjectDAO<UPlainAttr, UDerAttr, UVirAttr> implements UserDAO {
 
     @Autowired
-    private SubjectSearchDAO searchDAO;
-
-    @Autowired
     private GroupDAO groupDAO;
 
     @Resource(name = "anonymousUser")
     private String anonymousUser;
 
     @Autowired
-    private AttributableUtilFactory attrUtilFactory;
+    private AttributableUtilsFactory attrUtilsFactory;
 
     @Override
     protected Subject<UPlainAttr, UDerAttr, UVirAttr> findInternal(final Long key) {
@@ -150,51 +145,44 @@ public class JPAUserDAO extends AbstractSubjectDAO<UPlainAttr, UDerAttr, UVirAtt
     @Override
     public List<User> findByAttrValue(final String schemaName, final UPlainAttrValue attrValue) {
         return (List<User>) findByAttrValue(
-                schemaName, attrValue, attrUtilFactory.getInstance(AttributableType.USER));
+                schemaName, attrValue, attrUtilsFactory.getInstance(AttributableType.USER));
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public User findByAttrUniqueValue(final String schemaName, final UPlainAttrValue attrUniqueValue) {
         return (User) findByAttrUniqueValue(schemaName, attrUniqueValue,
-                attrUtilFactory.getInstance(AttributableType.USER));
+                attrUtilsFactory.getInstance(AttributableType.USER));
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public List<User> findByDerAttrValue(final String schemaName, final String value) {
         return (List<User>) findByDerAttrValue(
-                schemaName, value, attrUtilFactory.getInstance(AttributableType.USER));
+                schemaName, value, attrUtilsFactory.getInstance(AttributableType.USER));
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public List<User> findByResource(final ExternalResource resource) {
-        return (List<User>) findByResource(resource, attrUtilFactory.getInstance(AttributableType.USER));
+        return (List<User>) findByResource(resource, attrUtilsFactory.getInstance(AttributableType.USER));
     }
 
     @Override
-    public final List<User> findAll(final Set<Long> adminGroups, final int page, final int itemsPerPage) {
-        return findAll(adminGroups, page, itemsPerPage, Collections.<OrderByClause>emptyList());
-    }
-
-    private SearchCond getAllMatchingCond() {
-        SubjectCond idCond = new SubjectCond(AttributeCond.Type.ISNOTNULL);
-        idCond.setSchema("id");
-        return SearchCond.getLeafCond(idCond);
+    public final List<User> findAll(final Set<String> adminRealms, final int page, final int itemsPerPage) {
+        return findAll(adminRealms, page, itemsPerPage, Collections.<OrderByClause>emptyList());
     }
 
     @Override
-    public List<User> findAll(final Set<Long> adminGroups,
+    public List<User> findAll(final Set<String> adminRealms,
             final int page, final int itemsPerPage, final List<OrderByClause> orderBy) {
 
-        return searchDAO.search(
-                adminGroups, getAllMatchingCond(), page, itemsPerPage, orderBy, SubjectType.USER);
+        return searchDAO.search(adminRealms, getAllMatchingCond(), page, itemsPerPage, orderBy, SubjectType.USER);
     }
 
     @Override
-    public final int count(final Set<Long> adminGroups) {
-        return searchDAO.count(adminGroups, getAllMatchingCond(), SubjectType.USER);
+    public final int count(final Set<String> adminRealms) {
+        return searchDAO.count(adminRealms, getAllMatchingCond(), SubjectType.USER);
     }
 
     @Override
@@ -237,15 +225,20 @@ public class JPAUserDAO extends AbstractSubjectDAO<UPlainAttr, UDerAttr, UVirAtt
 
     private void securityChecks(final User user) {
         // Allows anonymous (during self-registration) and self (during self-update) to read own user,
-        // otherwise goes thorugh security checks to see if needed group entitlements are owned
-        if (!AuthContextUtil.getAuthenticatedUsername().equals(anonymousUser)
-                && !AuthContextUtil.getAuthenticatedUsername().equals(user.getUsername())) {
+        // otherwise goes through security checks to see if required entitlements are owned
+        if (!AuthContextUtils.getAuthenticatedUsername().equals(anonymousUser)
+                && !AuthContextUtils.getAuthenticatedUsername().equals(user.getUsername())) {
 
-            Set<Long> groupKeys = user.getGroupKeys();
-            Set<Long> adminGroupKeys = GroupEntitlementUtil.getGroupKeys(AuthContextUtil.getOwnedEntitlementNames());
-            groupKeys.removeAll(adminGroupKeys);
-            if (!groupKeys.isEmpty()) {
-                throw new UnauthorizedGroupException(groupKeys);
+            Set<String> authRealms = AuthContextUtils.getAuthorizations().get(Entitlement.USER_READ);
+            boolean authorized = CollectionUtils.exists(authRealms, new Predicate<String>() {
+
+                @Override
+                public boolean evaluate(final String realm) {
+                    return user.getRealm().getFullPath().startsWith(realm);
+                }
+            });
+            if (authRealms == null || authRealms.isEmpty() || !authorized) {
+                throw new UnauthorizedException(SubjectType.USER, user.getKey());
             }
         }
     }

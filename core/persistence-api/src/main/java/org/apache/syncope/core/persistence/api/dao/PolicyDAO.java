@@ -22,9 +22,7 @@ import java.util.List;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.core.persistence.api.entity.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.Policy;
-import org.apache.syncope.core.persistence.api.entity.SyncPolicy;
 
 public interface PolicyDAO extends DAO<Policy, Long> {
 
@@ -33,12 +31,6 @@ public interface PolicyDAO extends DAO<Policy, Long> {
     <T extends Policy> List<T> find(PolicyType type);
 
     List<AccountPolicy> findByResource(ExternalResource resource);
-
-    PasswordPolicy getGlobalPasswordPolicy();
-
-    AccountPolicy getGlobalAccountPolicy();
-
-    SyncPolicy getGlobalSyncPolicy();
 
     List<Policy> findAll();
 

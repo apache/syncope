@@ -32,23 +32,15 @@ public class SyncPolicyTO extends AbstractPolicyTO {
     private SyncPolicySpec specification;
 
     public SyncPolicyTO() {
-        this(false);
+        super(PolicyType.SYNC);
     }
 
-    public SyncPolicyTO(final boolean global) {
-        super();
-
-        PolicyType type = global
-                ? PolicyType.GLOBAL_SYNC
-                : PolicyType.SYNC;
-        setType(type);
+    public SyncPolicySpec getSpecification() {
+        return specification;
     }
 
     public void setSpecification(final SyncPolicySpec specification) {
         this.specification = specification;
     }
 
-    public SyncPolicySpec getSpecification() {
-        return specification;
-    }
 }

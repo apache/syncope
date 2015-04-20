@@ -124,7 +124,7 @@ public class AttrTest extends AbstractTest {
         MPlainAttr attr = entityFactory.newEntity(MPlainAttr.class);
         attr.setTemplate(template);
         attr.setOwner(membership);
-        attr.addValue("yellow", attrUtilFactory.getInstance(AttributableType.MEMBERSHIP));
+        attr.addValue("yellow", attrUtilsFactory.getInstance(AttributableType.MEMBERSHIP));
         membership.addPlainAttr(attr);
 
         MPlainAttr actualAttribute = userDAO.save(user).getMembership(1L).getPlainAttr("color");

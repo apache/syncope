@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.workflow.java;
 
-import java.util.Map;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.mod.UserMod;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
@@ -68,11 +68,11 @@ public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter
         return doActivate(userDAO.authFetch(userKey), token);
     }
 
-    protected abstract WorkflowResult<Map.Entry<UserMod, Boolean>> doUpdate(User user, UserMod userMod)
+    protected abstract WorkflowResult<Pair<UserMod, Boolean>> doUpdate(User user, UserMod userMod)
             throws WorkflowException;
 
     @Override
-    public WorkflowResult<Map.Entry<UserMod, Boolean>> update(final UserMod userMod)
+    public WorkflowResult<Pair<UserMod, Boolean>> update(final UserMod userMod)
             throws WorkflowException {
 
         return doUpdate(userDAO.authFetch(userMod.getKey()), userMod);

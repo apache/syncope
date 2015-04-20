@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.List;
+import org.apache.syncope.core.persistence.api.entity.Policy;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 
 public interface RealmDAO extends DAO<Realm, Long> {
@@ -28,6 +29,10 @@ public interface RealmDAO extends DAO<Realm, Long> {
     Realm find(Long key);
 
     Realm find(String fullPath);
+
+    <T extends Policy> List<Realm> findByPolicy(T policy);
+
+    List<Realm> findAncestors(Realm realm);
 
     List<Realm> findChildren(Realm realm);
 

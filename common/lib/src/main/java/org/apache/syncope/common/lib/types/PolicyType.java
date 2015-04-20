@@ -24,42 +24,20 @@ import javax.xml.bind.annotation.XmlEnum;
 public enum PolicyType {
 
     /**
-     * Account policy like:
-     * password expire time, change password at first access, ...
+     * How username values should look like.
      */
-    ACCOUNT("Account Policy"),
-    GLOBAL_ACCOUNT("Account Global Policy"),
+    ACCOUNT,
     /**
-     * Password policy regarding password syntax.
+     * How password values should look like.
      */
-    PASSWORD("Password Policy"),
-    GLOBAL_PASSWORD("Password Global Policy"),
+    PASSWORD,
     /**
-     * SYNC policy regarding account conflicts resolution.
+     * For handling conflicts resolution during synchronization.
      */
-    SYNC("Synchronization Policy"),
-    GLOBAL_SYNC("Synchronization Global Policy"),
+    SYNC,
     /**
-     * PUSH policy regarding account conflicts resolution.
+     * For handling conflicts resolution during push.
      */
-    PUSH("Push Policy"),
-    GLOBAL_PUSH("Push Global Policy");
+    PUSH;
 
-    private String description;
-
-    PolicyType(final String description) {
-        this.description = description;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public boolean isGlobal() {
-        return name().startsWith("GLOBAL");
-    }
-
-    public static PolicyType fromString(final String value) {
-        return PolicyType.valueOf(value.toUpperCase());
-    }
 }

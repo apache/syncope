@@ -22,13 +22,18 @@ import java.util.List;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
+import org.apache.syncope.core.persistence.api.dao.SubjectSearchDAO;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.jpa.entity.JPARole;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public class JPARoleDAO extends AbstractDAO<Role, Long> implements RoleDAO {
+
+    @Autowired
+    private SubjectSearchDAO searchDAO;
 
     @Override
     public Role find(final Long key) {

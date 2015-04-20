@@ -124,7 +124,7 @@ public class VirAttrsPanel extends Panel {
                 } else {
                     schemaTOs = schemaRestClient.getVirSchemas(AttributableType.MEMBERSHIP);
                     Set<String> allowed = new HashSet<String>(
-                            groupRestClient.read(((MembershipTO) entityTO).getGroupId()).getMVirAttrTemplates());
+                            groupRestClient.read(((MembershipTO) entityTO).getGroupKey()).getMVirAttrTemplates());
                     filter(schemaTOs, allowed);
                 }
 

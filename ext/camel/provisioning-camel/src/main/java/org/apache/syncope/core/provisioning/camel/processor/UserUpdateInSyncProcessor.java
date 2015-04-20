@@ -18,12 +18,12 @@
  */
 package org.apache.syncope.core.provisioning.camel.processor;
 
-import java.util.AbstractMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.mod.UserMod;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
@@ -51,14 +51,14 @@ public class UserUpdateInSyncProcessor implements Processor {
     @SuppressWarnings("unchecked")
     @Override
     public void process(final Exchange exchange) {
-        WorkflowResult<Map.Entry<UserMod, Boolean>> updated = (WorkflowResult) exchange.getIn().getBody();
-        Set<String> excludedResource = exchange.getProperty("excludedResources", Set.class);
+        WorkflowResult<Pair<UserMod, Boolean>> updated = (WorkflowResult) exchange.getIn().getBody();
+        Set<String> excludedResources = exchange.getProperty("excludedResources", Set.class);
 
         PropagationReporter propagationReporter =
                 ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
 
-        List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(updated, updated.getResult().getKey().
-                getPassword() != null, excludedResource);
+        List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(updated, updated.getResult().getKey().
+                getPassword() != null, excludedResources);
 
         try {
             taskExecutor.execute(tasks, propagationReporter);
@@ -67,7 +67,7 @@ public class UserUpdateInSyncProcessor implements Processor {
             propagationReporter.onPrimaryResourceFailure(tasks);
         }
 
-        exchange.getOut().setBody(new AbstractMap.SimpleEntry<>(
+        exchange.getOut().setBody(new ImmutablePair<>(
                 updated.getResult().getKey().getKey(), propagationReporter.getStatuses()));
     }
 }

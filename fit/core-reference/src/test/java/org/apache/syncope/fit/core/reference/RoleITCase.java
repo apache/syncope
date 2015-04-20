@@ -26,8 +26,8 @@ import static org.junit.Assert.fail;
 
 import java.util.List;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.Entitlement;
@@ -59,7 +59,6 @@ public class RoleITCase extends AbstractITCase {
     private RoleTO buildRoleTO(final String name) {
         RoleTO role = new RoleTO();
         role.setName(name + getUUIDString());
-        role.setCriteria(SyncopeClient.getUserSearchConditionBuilder().inGroups(2L).query());
         role.getRealms().add("/even");
         role.getEntitlements().add(Entitlement.LOG_SET_LEVEL);
 
@@ -70,8 +69,7 @@ public class RoleITCase extends AbstractITCase {
     public void create() {
         RoleTO role = new RoleTO();
         role.setName("new" + getUUIDString());
-        role.setCriteria(SyncopeClient.getUserSearchConditionBuilder().inGroups(2L).query());
-        role.getRealms().add("/");
+        role.getRealms().add(SyncopeConstants.ROOT_REALM);
         role.getRealms().add("/even/two");
         role.getEntitlements().add(Entitlement.LOG_LIST);
         role.getEntitlements().add(Entitlement.LOG_SET_LEVEL);

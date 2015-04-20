@@ -48,7 +48,7 @@ public class UserConfirmPwdResetProcessor implements Processor {
     public void process(final Exchange exchange) {
         User user = exchange.getProperty("user", User.class);
 
-        List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(user, null, null);
+        List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(user, null, null);
         PropagationReporter propReporter =
                 ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
         try {

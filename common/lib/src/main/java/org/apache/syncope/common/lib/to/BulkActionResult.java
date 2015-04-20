@@ -21,6 +21,7 @@ package org.apache.syncope.common.lib.to;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,8 +30,6 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.common.lib.AbstractBaseBean;
 
 @XmlRootElement(name = "bulkActionResult")
@@ -84,7 +83,7 @@ public class BulkActionResult extends AbstractBaseBean {
             res.put(result.getKey(), result.getValue());
         }
 
-        return res;
+        return Collections.unmodifiableMap(res);
     }
 
     @JsonIgnore
@@ -97,7 +96,7 @@ public class BulkActionResult extends AbstractBaseBean {
             }
         }
 
-        return res;
+        return Collections.unmodifiableList(res);
     }
 
     public static class Result extends AbstractBaseBean {

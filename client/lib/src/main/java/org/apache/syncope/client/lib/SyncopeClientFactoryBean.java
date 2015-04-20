@@ -89,7 +89,7 @@ public class SyncopeClientFactoryBean {
         marshallerProperties.put(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
         defaultJAXBProvider.setMarshallerProperties(marshallerProperties);
 
-        Map<String, String> collectionWrapperMap = new HashMap<String, String>();
+        Map<String, String> collectionWrapperMap = new HashMap<>();
         collectionWrapperMap.put(AbstractPolicyTO.class.getName(), "policies");
         defaultJAXBProvider.setCollectionWrapperMap(collectionWrapperMap);
 
@@ -111,11 +111,11 @@ public class SyncopeClientFactoryBean {
         defaultRestClientFactoryBean.setThreadSafe(true);
         defaultRestClientFactoryBean.setInheritHeaders(true);
 
-        List<Feature> features = new ArrayList<Feature>();
+        List<Feature> features = new ArrayList<>();
         features.add(new LoggingFeature());
         defaultRestClientFactoryBean.setFeatures(features);
 
-        List<Object> providers = new ArrayList<Object>(3);
+        List<Object> providers = new ArrayList<>(3);
         providers.add(getJaxbProvider());
         providers.add(getJsonProvider());
         providers.add(getExceptionMapper());
@@ -197,6 +197,11 @@ public class SyncopeClientFactoryBean {
     }
 
     public SyncopeClient create(final String username, final String password) {
-        return new SyncopeClient(getContentType().getMediaType(), getRestClientFactoryBean(), username, password);
+        return new SyncopeClient(
+                getContentType().getMediaType(),
+                getRestClientFactoryBean(),
+                getExceptionMapper(),
+                username,
+                password);
     }
 }

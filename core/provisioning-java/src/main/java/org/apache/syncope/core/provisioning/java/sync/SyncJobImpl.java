@@ -25,7 +25,6 @@ import org.apache.syncope.common.lib.mod.GroupMod;
 import org.apache.syncope.common.lib.types.SyncPolicySpec;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.SyncPolicy;
 import org.apache.syncope.core.persistence.api.entity.group.GMapping;
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
 import org.apache.syncope.core.persistence.api.entity.task.SyncTask;
@@ -33,7 +32,7 @@ import org.apache.syncope.core.persistence.api.entity.user.UMapping;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.sync.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.api.sync.SyncActions;
-import org.apache.syncope.core.misc.security.UnauthorizedGroupException;
+import org.apache.syncope.core.misc.security.UnauthorizedException;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.provisioning.api.job.SyncJob;
 import org.apache.syncope.core.provisioning.api.sync.GroupSyncResultHandler;
@@ -60,10 +59,10 @@ public class SyncJobImpl extends AbstractProvisioningJob<SyncTask, SyncActions> 
     private GroupWorkflowAdapter gwfAdapter;
 
     @Autowired
-    protected SyncUtilities syncUtilities;
+    protected SyncUtils syncUtilities;
 
     protected void setGroupOwners(final GroupSyncResultHandler rhandler)
-            throws UnauthorizedGroupException, NotFoundException {
+            throws UnauthorizedException, NotFoundException {
 
         for (Map.Entry<Long, String> entry : rhandler.getGroupOwnerMap().entrySet()) {
             GroupMod groupMod = new GroupMod();
@@ -193,7 +192,7 @@ public class SyncJobImpl extends AbstractProvisioningJob<SyncTask, SyncActions> 
             }
         }
 
-        final String result = createReport(profile.getResults(), syncTask.getResource().getSyncTraceLevel(), dryRun);
+        String result = createReport(profile.getResults(), syncTask.getResource().getSyncTraceLevel(), dryRun);
 
         LOG.debug("Sync result: {}", result);
 
@@ -204,11 +203,9 @@ public class SyncJobImpl extends AbstractProvisioningJob<SyncTask, SyncActions> 
         SyncPolicySpec syncPolicySpec;
 
         if (task instanceof SyncTask) {
-            final SyncPolicy syncPolicy = task.getResource().getSyncPolicy() == null
-                    ? policyDAO.getGlobalSyncPolicy()
-                    : task.getResource().getSyncPolicy();
-
-            syncPolicySpec = syncPolicy == null ? null : syncPolicy.getSpecification(SyncPolicySpec.class);
+            syncPolicySpec = task.getResource().getSyncPolicy() == null
+                    ? null
+                    : task.getResource().getSyncPolicy().getSpecification(SyncPolicySpec.class);
         } else {
             syncPolicySpec = null;
         }

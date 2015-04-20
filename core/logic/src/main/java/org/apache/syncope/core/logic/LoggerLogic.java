@@ -222,29 +222,26 @@ public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
 
     @PreAuthorize("hasRole('AUDIT_LIST') or hasRole('NOTIFICATION_LIST')")
     public List<EventCategoryTO> listAuditEvents() {
-        // use set to avoi duplications or null elements
-        final Set<EventCategoryTO> events = new HashSet<>();
+        // use set to avoid duplications or null elements
+        Set<EventCategoryTO> events = new HashSet<>();
 
         try {
-            final ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
-            final MetadataReaderFactory metadataReaderFactory =
-                    new CachingMetadataReaderFactory(resourcePatternResolver);
+            ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
+            MetadataReaderFactory metadataReaderFactory = new CachingMetadataReaderFactory(resourcePatternResolver);
 
-            final String packageSearchPath =
-                    ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX
+            String packageSearchPath = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX
                     + ClassUtils.convertClassNameToResourcePath(
                             SystemPropertyUtils.resolvePlaceholders(this.getClass().getPackage().getName()))
-                    + "/" + "**/*.class";
+                    + "/**/*.class";
 
-            final Resource[] resources = resourcePatternResolver.getResources(packageSearchPath);
+            Resource[] resources = resourcePatternResolver.getResources(packageSearchPath);
             for (Resource resource : resources) {
                 if (resource.isReadable()) {
                     final MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(resource);
                     final Class<?> clazz = Class.forName(metadataReader.getClassMetadata().getClassName());
 
-                    if (clazz.isAnnotationPresent(Component.class)
-                            && AbstractLogic.class.isAssignableFrom(clazz)) {
-                        final EventCategoryTO eventCategoryTO = new EventCategoryTO();
+                    if (clazz.isAnnotationPresent(Component.class) && AbstractLogic.class.isAssignableFrom(clazz)) {
+                        EventCategoryTO eventCategoryTO = new EventCategoryTO();
                         eventCategoryTO.setCategory(clazz.getSimpleName());
                         for (Method method : clazz.getDeclaredMethods()) {
                             if (Modifier.isPublic(method.getModifiers())) {
@@ -257,7 +254,7 @@ public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
             }
 
             //SYNCOPE-608
-            final EventCategoryTO authenticationControllerEvents = new EventCategoryTO();
+            EventCategoryTO authenticationControllerEvents = new EventCategoryTO();
             authenticationControllerEvents.setCategory("AuthenticationController");
             authenticationControllerEvents.getEvents().add("login");
             events.add(authenticationControllerEvents);
@@ -268,9 +265,9 @@ public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
 
             for (AttributableType attributableType : AttributableType.values()) {
                 for (ExternalResource resource : resourceDAO.findAll()) {
-                    final EventCategoryTO propEventCategoryTO = new EventCategoryTO(EventCategoryType.PROPAGATION);
-                    final EventCategoryTO syncEventCategoryTO = new EventCategoryTO(EventCategoryType.SYNCHRONIZATION);
-                    final EventCategoryTO pushEventCategoryTO = new EventCategoryTO(EventCategoryType.PUSH);
+                    EventCategoryTO propEventCategoryTO = new EventCategoryTO(EventCategoryType.PROPAGATION);
+                    EventCategoryTO syncEventCategoryTO = new EventCategoryTO(EventCategoryType.SYNCHRONIZATION);
+                    EventCategoryTO pushEventCategoryTO = new EventCategoryTO(EventCategoryType.PUSH);
 
                     propEventCategoryTO.setCategory(attributableType.name().toLowerCase());
                     propEventCategoryTO.setSubcategory(resource.getKey());
@@ -305,13 +302,13 @@ public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
             }
 
             for (SchedTask task : taskDAO.<SchedTask>findAll(TaskType.SCHEDULED)) {
-                final EventCategoryTO eventCategoryTO = new EventCategoryTO(EventCategoryType.TASK);
+                EventCategoryTO eventCategoryTO = new EventCategoryTO(EventCategoryType.TASK);
                 eventCategoryTO.setCategory(Class.forName(task.getJobClassName()).getSimpleName());
                 events.add(eventCategoryTO);
             }
 
             for (SyncTask task : taskDAO.<SyncTask>findAll(TaskType.SYNCHRONIZATION)) {
-                final EventCategoryTO eventCategoryTO = new EventCategoryTO(EventCategoryType.TASK);
+                EventCategoryTO eventCategoryTO = new EventCategoryTO(EventCategoryType.TASK);
                 eventCategoryTO.setCategory(Class.forName(task.getJobClassName()).getSimpleName());
                 events.add(eventCategoryTO);
             }

@@ -93,11 +93,6 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
     }
 
     @Override
-    public BulkActionResult bulk(final BulkAction bulkAction) {
-        return logic.bulk(bulkAction);
-    }
-
-    @Override
     public BulkActionResult bulkDeassociation(final String resourceKey, final SubjectType subjectType,
             final ResourceDeassociationActionType type, final List<SubjectKey> subjectKeys) {
 
@@ -136,4 +131,21 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
         return res;
     }
 
+    @Override
+    public BulkActionResult bulk(final BulkAction bulkAction) {
+        BulkActionResult result = new BulkActionResult();
+
+        if (bulkAction.getOperation() == BulkAction.Type.DELETE) {
+            for (String name : bulkAction.getTargets()) {
+                try {
+                    result.add(logic.delete(name).getKey(), BulkActionResult.Status.SUCCESS);
+                } catch (Exception e) {
+                    LOG.error("Error performing delete for resource {}", name, e);
+                    result.add(name, BulkActionResult.Status.FAILURE);
+                }
+            }
+        }
+
+        return result;
+    }
 }

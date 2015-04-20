@@ -30,6 +30,7 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AccountPolicyTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.AccountPolicySpec;
@@ -148,7 +149,7 @@ public class RealmITCase extends AbstractITCase {
         realm.setName("withppolicy");
         realm.setAccountPolicy(policy.getKey());
 
-        Response response = realmService.create("/", realm);
+        Response response = realmService.create(SyncopeConstants.ROOT_REALM, realm);
         RealmTO[] actuals = getObject(response.getLocation(), RealmService.class, RealmTO[].class);
         assertNotNull(actuals);
         assertTrue(actuals.length > 0);

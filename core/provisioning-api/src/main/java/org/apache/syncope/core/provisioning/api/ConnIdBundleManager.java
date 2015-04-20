@@ -21,6 +21,7 @@ package org.apache.syncope.core.provisioning.api;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
+import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.identityconnectors.framework.api.ConfigurationProperties;
 import org.identityconnectors.framework.api.ConnectorInfo;
 import org.identityconnectors.framework.api.ConnectorInfoManager;
@@ -34,8 +35,7 @@ public interface ConnIdBundleManager {
 
     Map<URI, ConnectorInfoManager> getConnManagers();
 
-    ConnectorInfo getConnectorInfo(final String location, final String bundleName, final String bundleVersion,
-            final String connectorName);
+    ConnectorInfo getConnectorInfo(ConnInstance connInstance);
 
     Map<URI, ConnectorInfoManager> getConnInfoManagers();
 
@@ -43,6 +43,6 @@ public interface ConnIdBundleManager {
 
     List<URI> getLocations();
 
-    void setStringLocations(final String stringLocations);
+    void setStringLocations(String stringLocations);
 
 }

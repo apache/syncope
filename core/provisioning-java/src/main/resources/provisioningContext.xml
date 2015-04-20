@@ -84,7 +84,7 @@ under the License.
   <context:component-scan base-package="org.apache.syncope.core.misc"/>  
   <context:component-scan base-package="org.apache.syncope.core.provisioning.java"/>
 
-  <bean id="virAttrCache" class="org.apache.syncope.core.provisioning.java.cache.MemoryVirAttrCache" scope="singleton">
+  <bean id="virAttrCache" class="${virAttrCache}" scope="singleton">
     <constructor-arg value="60"/>
     <constructor-arg value="5000"/>
   </bean>

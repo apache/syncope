@@ -32,7 +32,7 @@ import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.core.persistence.api.entity.AttrTemplate;
 import org.apache.syncope.core.persistence.api.entity.Attributable;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtil;
+import org.apache.syncope.core.persistence.api.entity.AttributableUtils;
 import org.apache.syncope.core.persistence.api.entity.DerAttr;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
@@ -87,16 +87,16 @@ import org.identityconnectors.framework.common.objects.Uid;
 import org.slf4j.LoggerFactory;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
-public class JPAAttributableUtil implements AttributableUtil {
+public class JPAAttributableUtils implements AttributableUtils {
 
     /**
      * Logger.
      */
-    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(AttributableUtil.class);
+    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(AttributableUtils.class);
 
     private final AttributableType type;
 
-    protected JPAAttributableUtil(final AttributableType type) {
+    protected JPAAttributableUtils(final AttributableType type) {
         this.type = type;
     }
 

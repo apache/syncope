@@ -20,6 +20,7 @@ package org.apache.syncope.common.lib.types;
 
 public enum Entitlement {
 
+    ANONYMOUS,
     REALM_LIST,
     REALM_CREATE,
     REALM_UPDATE,
@@ -34,13 +35,14 @@ public enum Entitlement {
     SCHEMA_READ,
     SCHEMA_UPDATE,
     SCHEMA_DELETE,
+    USER_SEARCH,
     USER_LIST,
     USER_CREATE,
     USER_READ,
     USER_UPDATE,
     USER_DELETE,
     USER_VIEW,
-    GROUP_LIST,
+    GROUP_SEARCH,
     GROUP_CREATE,
     GROUP_READ,
     GROUP_UPDATE,
@@ -98,6 +100,9 @@ public enum Entitlement {
     AUDIT_DISABLE,
     SECURITY_QUESTION_CREATE,
     SECURITY_QUESTION_UPDATE,
-    SECURITY_QUESTION_DELETE;
+    SECURITY_QUESTION_DELETE,
+    ROUTE_READ,
+    ROUTE_LIST,
+    ROUTE_UPDATE;
 
 }

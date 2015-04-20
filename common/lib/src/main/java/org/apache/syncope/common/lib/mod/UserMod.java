@@ -33,26 +33,23 @@ public class UserMod extends AbstractSubjectMod {
 
     private static final long serialVersionUID = 3081848906558106204L;
 
-    private String password;
-
     private String username;
 
-    private final Set<MembershipMod> membershipsToAdd;
+    private String password;
 
-    private final Set<Long> membershipsToRemove;
+    private final Set<Long> rolesToAdd = new HashSet<>();
+
+    private final Set<Long> rolesToRemove = new HashSet<>();
+
+    private final Set<MembershipMod> membershipsToAdd = new HashSet<>();
+
+    private final Set<Long> membershipsToRemove = new HashSet<>();
 
     private StatusMod pwdPropRequest;
 
     private Long securityQuestion;
 
     private String securityAnswer;
-
-    public UserMod() {
-        super();
-
-        membershipsToAdd = new HashSet<>();
-        membershipsToRemove = new HashSet<>();
-    }
 
     public String getUsername() {
         return username;
@@ -68,6 +65,20 @@ public class UserMod extends AbstractSubjectMod {
 
     public void setPassword(final String password) {
         this.password = password;
+    }
+
+    @XmlElementWrapper(name = "rolesToAdd")
+    @XmlElement(name = "role")
+    @JsonProperty("rolesToAdd")
+    public Set<Long> getRolesToAdd() {
+        return rolesToAdd;
+    }
+
+    @XmlElementWrapper(name = "rolesToRemove")
+    @XmlElement(name = "role")
+    @JsonProperty("rolesToRemove")
+    public Set<Long> getRolesToRemove() {
+        return rolesToRemove;
     }
 
     @XmlElementWrapper(name = "membershipsToAdd")

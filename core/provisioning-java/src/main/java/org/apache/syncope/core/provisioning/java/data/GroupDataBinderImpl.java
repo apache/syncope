@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
+import static org.apache.syncope.core.provisioning.java.data.AbstractAttributableDataBinder.LOG;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -28,11 +30,7 @@ import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ResourceOperation;
-import org.apache.syncope.core.persistence.api.dao.EntitlementDAO;
-import org.apache.syncope.core.persistence.api.entity.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.AttrTemplate;
-import org.apache.syncope.core.persistence.api.entity.Entitlement;
-import org.apache.syncope.core.persistence.api.entity.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.Schema;
 import org.apache.syncope.core.persistence.api.entity.membership.MDerAttrTemplate;
 import org.apache.syncope.core.persistence.api.entity.membership.MDerSchema;
@@ -40,20 +38,17 @@ import org.apache.syncope.core.persistence.api.entity.membership.MPlainAttrTempl
 import org.apache.syncope.core.persistence.api.entity.membership.MPlainSchema;
 import org.apache.syncope.core.persistence.api.entity.membership.MVirAttrTemplate;
 import org.apache.syncope.core.persistence.api.entity.membership.MVirSchema;
-import org.apache.syncope.core.persistence.api.entity.group.GDerAttr;
 import org.apache.syncope.core.persistence.api.entity.group.GDerAttrTemplate;
 import org.apache.syncope.core.persistence.api.entity.group.GDerSchema;
-import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrTemplate;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainSchema;
-import org.apache.syncope.core.persistence.api.entity.group.GVirAttr;
 import org.apache.syncope.core.persistence.api.entity.group.GVirAttrTemplate;
 import org.apache.syncope.core.persistence.api.entity.group.GVirSchema;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
-import org.apache.syncope.core.misc.ConnObjectUtil;
+import org.apache.syncope.core.misc.ConnObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -63,10 +58,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class GroupDataBinderImpl extends AbstractAttributableDataBinder implements GroupDataBinder {
 
     @Autowired
-    private ConnObjectUtil connObjectUtil;
-
-    @Autowired
-    private EntitlementDAO entitlementDAO;
+    private ConnObjectUtils connObjectUtils;
 
     private <T extends AttrTemplate<S>, S extends Schema> void setAttrTemplates(
             final Group group, final List<String> schemaNames,
@@ -99,20 +91,9 @@ public class GroupDataBinderImpl extends AbstractAttributableDataBinder implemen
 
     @Override
     public Group create(final Group group, final GroupTO groupTO) {
-        group.setInheritOwner(groupTO.isInheritOwner());
-
-        group.setInheritPlainAttrs(groupTO.isInheritPlainAttrs());
-        group.setInheritDerAttrs(groupTO.isInheritDerAttrs());
-        group.setInheritVirAttrs(groupTO.isInheritVirAttrs());
-
-        group.setInheritTemplates(groupTO.isInheritTemplates());
-
-        group.setInheritPasswordPolicy(groupTO.isInheritPasswordPolicy());
-        group.setInheritAccountPolicy(groupTO.isInheritAccountPolicy());
-
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
 
-        // name and parent
+        // name
         SyncopeClientException invalidGroups = SyncopeClientException.build(ClientExceptionType.InvalidGroups);
         if (groupTO.getName() == null) {
             LOG.error("No name specified for this group");
@@ -120,26 +101,6 @@ public class GroupDataBinderImpl extends AbstractAttributableDataBinder implemen
             invalidGroups.getElements().add("No name specified for this group");
         } else {
             group.setName(groupTO.getName());
-        }
-        Long parentGroupKey = null;
-        if (groupTO.getParent() != 0) {
-            Group parentGroup = groupDAO.find(groupTO.getParent());
-            if (parentGroup == null) {
-                LOG.error("Could not find group with id " + groupTO.getParent());
-
-                invalidGroups.getElements().add(String.valueOf(groupTO.getParent()));
-                scce.addException(invalidGroups);
-            } else {
-                group.setParent(parentGroup);
-                parentGroupKey = group.getParent().getKey();
-            }
-        }
-
-        Group otherGroup = groupDAO.find(groupTO.getName(), parentGroupKey);
-        if (otherGroup != null) {
-            LOG.error("Another group exists with the same name and the same parent group: " + otherGroup);
-
-            invalidGroups.getElements().add(groupTO.getName());
         }
 
         // attribute templates
@@ -151,17 +112,7 @@ public class GroupDataBinderImpl extends AbstractAttributableDataBinder implemen
         setAttrTemplates(group, groupTO.getMVirAttrTemplates(), MVirAttrTemplate.class, MVirSchema.class);
 
         // attributes, derived attributes, virtual attributes and resources
-        fill(group, groupTO, attrUtilFactory.getInstance(AttributableType.GROUP), scce);
-
-        // entitlements
-        for (String entitlementName : groupTO.getEntitlements()) {
-            Entitlement entitlement = entitlementDAO.find(entitlementName);
-            if (entitlement == null) {
-                LOG.warn("Ignoring invalid entitlement {}", entitlementName);
-            } else {
-                group.addEntitlement(entitlement);
-            }
-        }
+        fill(group, groupTO, attrUtilsFactory.getInstance(AttributableType.GROUP), scce);
 
         // owner
         if (groupTO.getUserOwner() != null) {
@@ -181,19 +132,14 @@ public class GroupDataBinderImpl extends AbstractAttributableDataBinder implemen
             }
         }
 
-        // policies
-        if (groupTO.getPasswordPolicy() != null) {
-            group.setPasswordPolicy((PasswordPolicy) policyDAO.find(groupTO.getPasswordPolicy()));
-        }
-        if (groupTO.getAccountPolicy() != null) {
-            group.setAccountPolicy((AccountPolicy) policyDAO.find(groupTO.getAccountPolicy()));
-        }
-
         return group;
     }
 
     @Override
-    public PropagationByResource update(final Group group, final GroupMod groupMod) {
+    public PropagationByResource update(final Group toBeUpdated, final GroupMod groupMod) {
+        // Re-merge any pending change from workflow tasks
+        Group group = groupDAO.save(toBeUpdated);
+
         PropagationByResource propByRes = new PropagationByResource();
 
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
@@ -201,72 +147,24 @@ public class GroupDataBinderImpl extends AbstractAttributableDataBinder implemen
         // fetch account ids before update
         Map<String, String> oldAccountIds = getAccountIds(group, AttributableType.GROUP);
 
+        // realm
+        setRealm(group, groupMod);
         // name
-        SyncopeClientException invalidGroups = SyncopeClientException.build(ClientExceptionType.InvalidGroups);
-        if (groupMod.getName() != null) {
-            Group otherGroup = groupDAO.find(groupMod.getName(),
-                    group.getParent() == null ? null : group.getParent().getKey());
-            if (otherGroup == null || group.equals(otherGroup)) {
-                if (!groupMod.getName().equals(group.getName())) {
-                    propByRes.addAll(ResourceOperation.UPDATE, group.getResourceNames());
+        if (groupMod.getName() != null && !groupMod.getName().equals(group.getName())) {
+            propByRes.addAll(ResourceOperation.UPDATE, group.getResourceNames());
 
-                    group.setName(groupMod.getName());
-                }
-            } else {
-                LOG.error("Another group exists with the same name and the same parent group: " + otherGroup);
-
-                invalidGroups.getElements().add(groupMod.getName());
-                scce.addException(invalidGroups);
-            }
-        }
-
-        if (groupMod.getInheritOwner() != null) {
-            group.setInheritOwner(groupMod.getInheritOwner());
-        }
-
-        if (groupMod.getInheritTemplates() != null) {
-            group.setInheritTemplates(groupMod.getInheritTemplates());
-        }
-
-        if (groupMod.getInheritPlainAttrs() != null) {
-            group.setInheritPlainAttrs(groupMod.getInheritPlainAttrs());
-        }
-        if (groupMod.getInheritDerAttrs() != null) {
-            group.setInheritDerAttrs(groupMod.getInheritDerAttrs());
-        }
-        if (groupMod.getInheritVirAttrs() != null) {
-            group.setInheritVirAttrs(groupMod.getInheritVirAttrs());
-        }
-
-        if (groupMod.getInheritPasswordPolicy() != null) {
-            group.setInheritPasswordPolicy(groupMod.getInheritPasswordPolicy());
-        }
-        if (groupMod.getInheritAccountPolicy() != null) {
-            group.setInheritAccountPolicy(groupMod.getInheritAccountPolicy());
-        }
-
-        // entitlements
-        if (groupMod.isModEntitlements()) {
-            group.getEntitlements().clear();
-            for (String entitlementName : groupMod.getEntitlements()) {
-                Entitlement entitlement = entitlementDAO.find(entitlementName);
-                if (entitlement == null) {
-                    LOG.warn("Ignoring invalid entitlement {}", entitlementName);
-                } else {
-                    group.addEntitlement(entitlement);
-                }
-            }
+            group.setName(groupMod.getName());
         }
 
         // attribute templates
-        if (groupMod.isModRAttrTemplates()) {
-            setAttrTemplates(group, groupMod.getRPlainAttrTemplates(), GPlainAttrTemplate.class, GPlainSchema.class);
+        if (groupMod.isModGAttrTemplates()) {
+            setAttrTemplates(group, groupMod.getGPlainAttrTemplates(), GPlainAttrTemplate.class, GPlainSchema.class);
         }
-        if (groupMod.isModRDerAttrTemplates()) {
-            setAttrTemplates(group, groupMod.getRDerAttrTemplates(), GDerAttrTemplate.class, GDerSchema.class);
+        if (groupMod.isModGDerAttrTemplates()) {
+            setAttrTemplates(group, groupMod.getGDerAttrTemplates(), GDerAttrTemplate.class, GDerSchema.class);
         }
-        if (groupMod.isModRVirAttrTemplates()) {
-            setAttrTemplates(group, groupMod.getRVirAttrTemplates(), GVirAttrTemplate.class, GVirSchema.class);
+        if (groupMod.isModGVirAttrTemplates()) {
+            setAttrTemplates(group, groupMod.getGVirAttrTemplates(), GVirAttrTemplate.class, GVirSchema.class);
         }
         if (groupMod.isModMAttrTemplates()) {
             setAttrTemplates(group, groupMod.getMPlainAttrTemplates(), MPlainAttrTemplate.class, MPlainSchema.class);
@@ -276,18 +174,6 @@ public class GroupDataBinderImpl extends AbstractAttributableDataBinder implemen
         }
         if (groupMod.isModMVirAttrTemplates()) {
             setAttrTemplates(group, groupMod.getMVirAttrTemplates(), MVirAttrTemplate.class, MVirSchema.class);
-        }
-
-        // policies
-        if (groupMod.getPasswordPolicy() != null) {
-            group.setPasswordPolicy(groupMod.getPasswordPolicy().getKey() == null
-                    ? null
-                    : (PasswordPolicy) policyDAO.find(groupMod.getPasswordPolicy().getKey()));
-        }
-        if (groupMod.getAccountPolicy() != null) {
-            group.setAccountPolicy(groupMod.getAccountPolicy().getKey() == null
-                    ? null
-                    : (AccountPolicy) policyDAO.find(groupMod.getAccountPolicy().getKey()));
         }
 
         // owner
@@ -303,7 +189,7 @@ public class GroupDataBinderImpl extends AbstractAttributableDataBinder implemen
         }
 
         // attributes, derived attributes, virtual attributes and resources
-        propByRes.merge(fill(group, groupMod, attrUtilFactory.getInstance(AttributableType.GROUP), scce));
+        propByRes.merge(fill(group, groupMod, attrUtilsFactory.getInstance(AttributableType.GROUP), scce));
 
         // check if some account id was changed by the update above
         Map<String, String> newAccountIds = getAccountIds(group, AttributableType.GROUP);
@@ -323,7 +209,7 @@ public class GroupDataBinderImpl extends AbstractAttributableDataBinder implemen
     @Transactional(readOnly = true)
     @Override
     public GroupTO getGroupTO(final Group group) {
-        connObjectUtil.retrieveVirAttrValues(group, attrUtilFactory.getInstance(AttributableType.GROUP));
+        connObjectUtils.retrieveVirAttrValues(group, attrUtilsFactory.getInstance(AttributableType.GROUP));
 
         GroupTO groupTO = new GroupTO();
 
@@ -336,21 +222,6 @@ public class GroupDataBinderImpl extends AbstractAttributableDataBinder implemen
         groupTO.setKey(group.getKey());
         groupTO.setName(group.getName());
 
-        groupTO.setInheritOwner(group.isInheritOwner());
-
-        groupTO.setInheritTemplates(group.isInheritTemplates());
-
-        groupTO.setInheritPlainAttrs(group.isInheritPlainAttrs());
-        groupTO.setInheritDerAttrs(group.isInheritDerAttrs());
-        groupTO.setInheritVirAttrs(group.isInheritVirAttrs());
-
-        groupTO.setInheritPasswordPolicy(group.isInheritPasswordPolicy());
-        groupTO.setInheritAccountPolicy(group.isInheritAccountPolicy());
-
-        if (group.getParent() != null) {
-            groupTO.setParent(group.getParent().getKey());
-        }
-
         if (group.getUserOwner() != null) {
             groupTO.setUserOwner(group.getUserOwner().getKey());
         }
@@ -358,47 +229,27 @@ public class GroupDataBinderImpl extends AbstractAttributableDataBinder implemen
             groupTO.setGroupOwner(group.getGroupOwner().getKey());
         }
 
-        // -------------------------
-        // Retrieve all [derived/virtual] attributes (inherited and not)
-        // -------------------------        
-        final List<? extends GPlainAttr> allAttributes = group.findLastInheritedAncestorPlainAttrs();
+        fillTO(groupTO, group.getRealm().getFullPath(),
+                group.getPlainAttrs(), group.getDerAttrs(), group.getVirAttrs(), group.getResources());
 
-        final List<? extends GDerAttr> allDerAttributes = group.findLastInheritedAncestorDerAttrs();
-
-        final List<? extends GVirAttr> allVirAttributes = group.findLastInheritedAncestorVirAttrs();
-        // -------------------------
-
-        fillTO(groupTO, allAttributes, allDerAttributes, allVirAttributes, group.getResources());
-
-        for (Entitlement entitlement : group.getEntitlements()) {
-            groupTO.getEntitlements().add(entitlement.getKey());
-        }
-
-        for (GPlainAttrTemplate template : group.findInheritedTemplates(GPlainAttrTemplate.class)) {
+        for (GPlainAttrTemplate template : group.getAttrTemplates(GPlainAttrTemplate.class)) {
             groupTO.getGPlainAttrTemplates().add(template.getSchema().getKey());
         }
-        for (GDerAttrTemplate template : group.findInheritedTemplates(GDerAttrTemplate.class)) {
+        for (GDerAttrTemplate template : group.getAttrTemplates(GDerAttrTemplate.class)) {
             groupTO.getGDerAttrTemplates().add(template.getSchema().getKey());
         }
-        for (GVirAttrTemplate template : group.findInheritedTemplates(GVirAttrTemplate.class)) {
+        for (GVirAttrTemplate template : group.getAttrTemplates(GVirAttrTemplate.class)) {
             groupTO.getGVirAttrTemplates().add(template.getSchema().getKey());
         }
-        for (MPlainAttrTemplate template : group.findInheritedTemplates(MPlainAttrTemplate.class)) {
+        for (MPlainAttrTemplate template : group.getAttrTemplates(MPlainAttrTemplate.class)) {
             groupTO.getMPlainAttrTemplates().add(template.getSchema().getKey());
         }
-        for (MDerAttrTemplate template : group.findInheritedTemplates(MDerAttrTemplate.class)) {
+        for (MDerAttrTemplate template : group.getAttrTemplates(MDerAttrTemplate.class)) {
             groupTO.getMDerAttrTemplates().add(template.getSchema().getKey());
         }
-        for (MVirAttrTemplate template : group.findInheritedTemplates(MVirAttrTemplate.class)) {
+        for (MVirAttrTemplate template : group.getAttrTemplates(MVirAttrTemplate.class)) {
             groupTO.getMVirAttrTemplates().add(template.getSchema().getKey());
         }
-
-        groupTO.setPasswordPolicy(group.getPasswordPolicy() == null
-                ? null
-                : group.getPasswordPolicy().getKey());
-        groupTO.setAccountPolicy(group.getAccountPolicy() == null
-                ? null
-                : group.getAccountPolicy().getKey());
 
         return groupTO;
     }

@@ -27,7 +27,7 @@ import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtil;
+import org.apache.syncope.core.persistence.api.entity.AttributableUtils;
 import org.apache.syncope.core.persistence.api.entity.Mapping;
 import org.apache.syncope.core.persistence.api.entity.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.Subject;
@@ -41,25 +41,25 @@ import org.identityconnectors.framework.common.objects.Uid;
 public class GroupPushResultHandlerImpl extends AbstractPushResultHandler implements GroupPushResultHandler {
 
     @Override
-    protected AttributableUtil getAttributableUtil() {
-        return attrUtilFactory.getInstance(AttributableType.GROUP);
+    protected AttributableUtils getAttributableUtils() {
+        return attrUtilsFactory.getInstance(AttributableType.GROUP);
     }
 
     @Override
     protected Subject<?, ?, ?> deprovision(final Subject<?, ?, ?> sbj) {
-        final GroupTO before = groupTransfer.getGroupTO(Group.class.cast(sbj));
+        final GroupTO before = groupDataBinder.getGroupTO(Group.class.cast(sbj));
 
         final List<String> noPropResources = new ArrayList<>(before.getResources());
         noPropResources.remove(profile.getTask().getResource().getKey());
 
-        taskExecutor.execute(propagationManager.getGroupDeleteTaskIds(before.getKey(), noPropResources));
+        taskExecutor.execute(propagationManager.getGroupDeleteTasks(before.getKey(), noPropResources));
 
         return groupDAO.authFetch(before.getKey());
     }
 
     @Override
     protected Subject<?, ?, ?> provision(final Subject<?, ?, ?> sbj, final Boolean enabled) {
-        final GroupTO before = groupTransfer.getGroupTO(Group.class.cast(sbj));
+        final GroupTO before = groupDataBinder.getGroupTO(Group.class.cast(sbj));
 
         final List<String> noPropResources = new ArrayList<>(before.getResources());
         noPropResources.remove(profile.getTask().getResource().getKey());
@@ -67,7 +67,7 @@ public class GroupPushResultHandlerImpl extends AbstractPushResultHandler implem
         final PropagationByResource propByRes = new PropagationByResource();
         propByRes.add(ResourceOperation.CREATE, profile.getTask().getResource().getKey());
 
-        taskExecutor.execute(propagationManager.getGroupCreateTaskIds(
+        taskExecutor.execute(propagationManager.getGroupCreateTasks(
                 before.getKey(),
                 Collections.unmodifiableCollection(before.getVirAttrs()),
                 propByRes,
@@ -118,7 +118,7 @@ public class GroupPushResultHandlerImpl extends AbstractPushResultHandler implem
     @Override
     protected AbstractSubjectTO getSubjectTO(final long key) {
         try {
-            return groupTransfer.getGroupTO(key);
+            return groupDataBinder.getGroupTO(key);
         } catch (Exception e) {
             LOG.warn("Error retrieving user {}", key, e);
             return null;

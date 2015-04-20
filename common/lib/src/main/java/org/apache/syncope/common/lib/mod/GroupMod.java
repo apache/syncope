@@ -53,21 +53,17 @@ public class GroupMod extends AbstractSubjectMod {
 
     private Boolean inheritPasswordPolicy;
 
-    private boolean modEntitlements;
+    private boolean modGAttrTemplates;
 
-    private final List<String> entitlements = new ArrayList<>();
+    private final List<String> gPlainAttrTemplates = new ArrayList<>();
 
-    private boolean modRAttrTemplates;
+    private boolean modGDerAttrTemplates;
 
-    private final List<String> rPlainAttrTemplates = new ArrayList<>();
+    private final List<String> gDerAttrTemplates = new ArrayList<>();
 
-    private boolean modRDerAttrTemplates;
+    private boolean modGVirAttrTemplates;
 
-    private final List<String> rDerAttrTemplates = new ArrayList<>();
-
-    private boolean modRVirAttrTemplates;
-
-    private final List<String> rVirAttrTemplates = new ArrayList<>();
+    private final List<String> gVirAttrTemplates = new ArrayList<>();
 
     private boolean modMAttrTemplates;
 
@@ -149,64 +145,49 @@ public class GroupMod extends AbstractSubjectMod {
         this.inheritVirAttrs = inheritVirAttrs;
     }
 
-    public boolean isModEntitlements() {
-        return modEntitlements;
+    public boolean isModGAttrTemplates() {
+        return modGAttrTemplates;
     }
 
-    public void setModEntitlements(final boolean modEntitlements) {
-        this.modEntitlements = modEntitlements;
+    public void setModGAttrTemplates(final boolean modGAttrTemplates) {
+        this.modGAttrTemplates = modGAttrTemplates;
     }
 
-    @XmlElementWrapper(name = "entitlements")
-    @XmlElement(name = "entitlement")
-    @JsonProperty("entitlements")
-    public List<String> getEntitlements() {
-        return entitlements;
+    @XmlElementWrapper(name = "gPlainAttrTemplates")
+    @XmlElement(name = "gAttrTemplate")
+    @JsonProperty("gPlainAttrTemplates")
+    public List<String> getGPlainAttrTemplates() {
+        return gPlainAttrTemplates;
     }
 
-    public boolean isModRAttrTemplates() {
-        return modRAttrTemplates;
+    public boolean isModGDerAttrTemplates() {
+        return modGDerAttrTemplates;
     }
 
-    public void setModRAttrTemplates(final boolean modRAttrTemplates) {
-        this.modRAttrTemplates = modRAttrTemplates;
+    public void setModGDerAttrTemplates(final boolean modGDerAttrTemplates) {
+        this.modGDerAttrTemplates = modGDerAttrTemplates;
     }
 
-    @XmlElementWrapper(name = "rPlainAttrTemplates")
-    @XmlElement(name = "rAttrTemplate")
-    @JsonProperty("rPlainAttrTemplates")
-    public List<String> getRPlainAttrTemplates() {
-        return rPlainAttrTemplates;
+    @XmlElementWrapper(name = "gDerAttrTemplates")
+    @XmlElement(name = "gDerAttrTemplate")
+    @JsonProperty("gDerAttrTemplates")
+    public List<String> getGDerAttrTemplates() {
+        return gDerAttrTemplates;
     }
 
-    public boolean isModRDerAttrTemplates() {
-        return modRDerAttrTemplates;
+    public boolean isModGVirAttrTemplates() {
+        return modGVirAttrTemplates;
     }
 
-    public void setModRDerAttrTemplates(final boolean modRDerAttrTemplates) {
-        this.modRDerAttrTemplates = modRDerAttrTemplates;
+    public void setModGVirAttrTemplates(final boolean modGVirAttrTemplates) {
+        this.modGVirAttrTemplates = modGVirAttrTemplates;
     }
 
-    @XmlElementWrapper(name = "rDerAttrTemplates")
-    @XmlElement(name = "rDerAttrTemplate")
-    @JsonProperty("rDerAttrTemplates")
-    public List<String> getRDerAttrTemplates() {
-        return rDerAttrTemplates;
-    }
-
-    public boolean isModRVirAttrTemplates() {
-        return modRVirAttrTemplates;
-    }
-
-    public void setModRVirAttrTemplates(final boolean modRVirAttrTemplates) {
-        this.modRVirAttrTemplates = modRVirAttrTemplates;
-    }
-
-    @XmlElementWrapper(name = "rVirAttrTemplates")
-    @XmlElement(name = "rVirAttrTemplate")
-    @JsonProperty("rVirAttrTemplates")
-    public List<String> getRVirAttrTemplates() {
-        return rVirAttrTemplates;
+    @XmlElementWrapper(name = "gVirAttrTemplates")
+    @XmlElement(name = "gVirAttrTemplate")
+    @JsonProperty("gVirAttrTemplates")
+    public List<String> getGVirAttrTemplates() {
+        return gVirAttrTemplates;
     }
 
     public boolean isModMAttrTemplates() {
@@ -293,8 +274,8 @@ public class GroupMod extends AbstractSubjectMod {
                 && inheritTemplates == null && inheritOwner == null
                 && inheritAccountPolicy == null && inheritPasswordPolicy == null
                 && inheritPlainAttrs == null && inheritDerAttrs == null && inheritVirAttrs == null
-                && accountPolicy == null && passwordPolicy == null && entitlements.isEmpty()
-                && rPlainAttrTemplates.isEmpty() && rDerAttrTemplates.isEmpty() && rVirAttrTemplates.isEmpty()
+                && accountPolicy == null && passwordPolicy == null
+                && gPlainAttrTemplates.isEmpty() && gDerAttrTemplates.isEmpty() && gVirAttrTemplates.isEmpty()
                 && mPlainAttrTemplates.isEmpty() && mDerAttrTemplates.isEmpty() && mVirAttrTemplates.isEmpty();
     }
 }

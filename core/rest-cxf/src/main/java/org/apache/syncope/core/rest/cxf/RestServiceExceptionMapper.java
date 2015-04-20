@@ -42,7 +42,7 @@ import org.apache.syncope.common.lib.to.ErrorTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
-import org.apache.syncope.core.misc.security.UnauthorizedGroupException;
+import org.apache.syncope.core.misc.security.UnauthorizedException;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValidationException;
 import org.apache.syncope.core.persistence.api.dao.DuplicateException;
@@ -50,6 +50,7 @@ import org.apache.syncope.core.persistence.api.dao.MalformedPathException;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.workflow.api.WorkflowException;
 import org.identityconnectors.framework.common.exceptions.ConfigurationException;
+import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -89,12 +90,14 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
         } else if (ex instanceof AccessDeniedException) {
             builder = Response.status(Response.Status.UNAUTHORIZED).
                     header(HttpHeaders.WWW_AUTHENTICATE, BASIC_REALM_UNAUTHORIZED);
-        } else if (ex instanceof UnauthorizedGroupException) {
-            builder = builder(ClientExceptionType.UnauthorizedGroup, getExMessage(ex));
+        } else if (ex instanceof UnauthorizedException) {
+            builder = builder(ClientExceptionType.Unauthorized, getExMessage(ex));
         } else if (ex instanceof EntityExistsException || ex instanceof DuplicateException) {
             builder = builder(ClientExceptionType.EntityExists, getExMessage(ex));
         } else if (ex instanceof DataIntegrityViolationException) {
             builder = builder(ClientExceptionType.DataIntegrityViolation, getExMessage(ex));
+        } else if (ex instanceof ConnectorException) {
+            builder = builder(ClientExceptionType.ConnectorException, getExMessage(ex));            
         } else {
             builder = processNotFoundExceptions(ex);
             if (builder == null) {

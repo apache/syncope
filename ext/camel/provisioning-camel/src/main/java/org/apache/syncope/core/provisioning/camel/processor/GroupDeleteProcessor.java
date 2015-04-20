@@ -59,23 +59,12 @@ public class GroupDeleteProcessor implements Processor {
 
     @Override
     public void process(final Exchange exchange) throws Exception {
-        final List<Group> toBeDeprovisioned = new ArrayList<>();
-
         Long subjectKey = exchange.getIn().getBody(Long.class);
-        final Group syncopeGroup = groupDAO.find(subjectKey);
-
-        if (syncopeGroup != null) {
-            toBeDeprovisioned.add(syncopeGroup);
-
-            final List<Group> descendants = groupDAO.findDescendants(toBeDeprovisioned.get(0));
-            if (descendants != null) {
-                toBeDeprovisioned.addAll(descendants);
-            }
-        }
+        Group group = groupDAO.find(subjectKey);
 
         final List<PropagationTask> tasks = new ArrayList<>();
 
-        for (Group group : toBeDeprovisioned) {
+        if (group != null) {
             // Generate propagation tasks for deleting users from group resources, if they are on those resources only
             // because of the reason being deleted (see SYNCOPE-357)
             for (Map.Entry<Long, PropagationByResource> entry
@@ -83,11 +72,11 @@ public class GroupDeleteProcessor implements Processor {
 
                 WorkflowResult<Long> wfResult =
                         new WorkflowResult<>(entry.getKey(), entry.getValue(), Collections.<String>emptySet());
-                tasks.addAll(propagationManager.getUserDeleteTaskIds(wfResult));
+                tasks.addAll(propagationManager.getUserDeleteTasks(wfResult));
             }
 
             // Generate propagation tasks for deleting this group from resources
-            tasks.addAll(propagationManager.getGroupDeleteTaskIds(group.getKey()));
+            tasks.addAll(propagationManager.getGroupDeleteTasks(group.getKey()));
         }
 
         PropagationReporter propagationReporter =

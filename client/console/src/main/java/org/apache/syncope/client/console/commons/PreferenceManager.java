@@ -27,7 +27,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.wicket.request.Request;
 import org.apache.wicket.request.Response;
@@ -130,15 +129,15 @@ public class PreferenceManager {
     }
 
     public void set(final Request request, final Response response, final Map<String, List<String>> prefs) {
-        String prefString = cookieUtils.load(PREFMAN_KEY);
+        Map<String, String> current = new HashMap<>();
 
-        final Map<String, String> current = new HashMap<String, String>();
+        String prefString = cookieUtils.load(PREFMAN_KEY);
         if (prefString != null) {
             current.putAll(getPrefs(new String(Base64.decodeBase64(prefString.getBytes()))));
         }
 
         // after retrieved previous setting in order to overwrite the key ...
-        for (Entry<String, List<String>> entry : prefs.entrySet()) {
+        for (Map.Entry<String, List<String>> entry : prefs.entrySet()) {
             current.put(entry.getKey(), StringUtils.collectionToDelimitedString(entry.getValue(), ";"));
         }
 
@@ -152,7 +151,7 @@ public class PreferenceManager {
     public void set(final Request request, final Response response, final String key, final String value) {
         String prefString = cookieUtils.load(PREFMAN_KEY);
 
-        final Map<String, String> current = new HashMap<String, String>();
+        final Map<String, String> current = new HashMap<>();
         if (prefString != null) {
             current.putAll(getPrefs(new String(Base64.decodeBase64(prefString.getBytes()))));
         }

@@ -25,7 +25,7 @@ import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 
-public interface AttributableUtil {
+public interface AttributableUtils {
 
     AttributableType getType();
 

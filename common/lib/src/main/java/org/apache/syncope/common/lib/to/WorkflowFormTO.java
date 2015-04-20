@@ -133,9 +133,8 @@ public class WorkflowFormTO extends AbstractBaseBean {
         for (WorkflowFormPropertyTO prop : getProperties()) {
             result.put(prop.getId(), prop);
         }
-        result = Collections.unmodifiableMap(result);
 
-        return result;
+        return Collections.unmodifiableMap(result);
     }
 
     @JsonIgnore
@@ -147,6 +146,6 @@ public class WorkflowFormTO extends AbstractBaseBean {
             }
         }
 
-        return props;
+        return Collections.unmodifiableMap(props);
     }
 }

@@ -24,6 +24,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.persistence.Entity;
@@ -32,12 +33,16 @@ import javax.persistence.TemporalType;
 import javax.validation.ValidationException;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.SubjectType;
+import org.apache.syncope.core.misc.RealmUtils;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.SubjectSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
@@ -47,10 +52,11 @@ import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.ResourceCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.dao.search.SubjectCond;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtil;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtilFactory;
+import org.apache.syncope.core.persistence.api.entity.AttributableUtils;
+import org.apache.syncope.core.persistence.api.entity.AttributableUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
+import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -62,6 +68,9 @@ public class JPASubjectSearchDAO extends AbstractDAO<Subject<?, ?, ?>, Long> imp
     private static final String EMPTY_ATTR_QUERY = "SELECT subject_id FROM user_search_attr WHERE 1=2";
 
     @Autowired
+    private RealmDAO realmDAO;
+
+    @Autowired
     private UserDAO userDAO;
 
     @Autowired
@@ -71,52 +80,57 @@ public class JPASubjectSearchDAO extends AbstractDAO<Subject<?, ?, ?>, Long> imp
     private PlainSchemaDAO schemaDAO;
 
     @Autowired
-    private AttributableUtilFactory attrUtilFactory;
+    private AttributableUtilsFactory attrUtilsFactory;
 
-    private String getAdminGroupsFilter(final Set<Long> adminGroups, final SubjectType type) {
-        final StringBuilder adminGroupFilter = new StringBuilder();
-
-        if (type == SubjectType.USER) {
-            adminGroupFilter.append("SELECT user_id AS subject_id FROM Membership M1 WHERE group_id IN (").
-                    append("SELECT group_id FROM Membership M2 WHERE M2.user_id=M1.user_id ").
-                    append("AND group_id NOT IN (");
-        }
-
-        adminGroupFilter.append("SELECT id AS ").
-                append(type == SubjectType.USER ? "group" : "subject").
-                append("_id FROM SyncopeGroup");
-
-        boolean firstGroup = true;
-
-        for (Long adminGroupId : adminGroups) {
-            if (firstGroup) {
-                adminGroupFilter.append(" WHERE");
-                firstGroup = false;
+    private String getAdminRealmsFilter(final Set<String> adminRealms, final SearchSupport svs) {
+        Set<Long> realmKeys = new HashSet<>();
+        for (String realmPath : RealmUtils.normalize(adminRealms)) {
+            Realm realm = realmDAO.find(realmPath);
+            if (realm == null) {
+                LOG.warn("Ignoring invalid realm {}", realmPath);
             } else {
-                adminGroupFilter.append(type == SubjectType.USER ? " OR" : " AND");
+                CollectionUtils.collect(realmDAO.findDescendants(realm), new Transformer<Realm, Long>() {
+
+                    @Override
+                    public Long transform(final Realm descendant) {
+                        return descendant.getKey();
+                    }
+                }, realmKeys);
             }
-            adminGroupFilter.append(type == SubjectType.USER ? " id = " : " id <> ").append(adminGroupId);
         }
 
-        if (type == SubjectType.USER) {
-            adminGroupFilter.append("))");
+        StringBuilder adminRealmFilter = new StringBuilder().
+                append("SELECT subject_id FROM ").append(svs.field().name).
+                append(" WHERE realm_id IN (SELECT id AS realm_id FROM Realm");
+
+        boolean firstRealm = true;
+        for (Long realmKey : realmKeys) {
+            if (firstRealm) {
+                adminRealmFilter.append(" WHERE");
+                firstRealm = false;
+            } else {
+                adminRealmFilter.append(" OR");
+            }
+            adminRealmFilter.append(" id = ").append(realmKey);
         }
 
-        return adminGroupFilter.toString();
+        adminRealmFilter.append(')');
+
+        return adminRealmFilter.toString();
     }
 
     @Override
-    public int count(final Set<Long> adminGroups, final SearchCond searchCondition, final SubjectType type) {
+    public int count(final Set<String> adminRealms, final SearchCond searchCondition, final SubjectType type) {
         List<Object> parameters = Collections.synchronizedList(new ArrayList<>());
 
         // 1. get the query string from the search condition
         SearchSupport svs = new SearchSupport(type);
         StringBuilder queryString = getQuery(searchCondition, parameters, type, svs);
 
-        // 2. take into account administrative groups
+        // 2. take into account administrative realms
         queryString.insert(0, "SELECT u.subject_id FROM (");
-        queryString.append(") u WHERE subject_id NOT IN (");
-        queryString.append(getAdminGroupsFilter(adminGroups, type)).append(')');
+        queryString.append(") u WHERE subject_id IN (");
+        queryString.append(getAdminRealmsFilter(adminRealms, svs)).append(')');
 
         // 3. prepare the COUNT query
         queryString.insert(0, "SELECT COUNT(subject_id) FROM (");
@@ -135,32 +149,32 @@ public class JPASubjectSearchDAO extends AbstractDAO<Subject<?, ?, ?>, Long> imp
 
     @Override
     public <T extends Subject<?, ?, ?>> List<T> search(
-            final Set<Long> adminGroups, final SearchCond searchCondition, final SubjectType type) {
+            final Set<String> adminRealms, final SearchCond searchCondition, final SubjectType type) {
 
-        return search(adminGroups, searchCondition, Collections.<OrderByClause>emptyList(), type);
+        return search(adminRealms, searchCondition, Collections.<OrderByClause>emptyList(), type);
     }
 
     @Override
     public <T extends Subject<?, ?, ?>> List<T> search(
-            final Set<Long> adminGroups, final SearchCond searchCondition, final List<OrderByClause> orderBy,
+            final Set<String> adminRealms, final SearchCond searchCondition, final List<OrderByClause> orderBy,
             final SubjectType type) {
 
-        return search(adminGroups, searchCondition, -1, -1, orderBy, type);
+        return search(adminRealms, searchCondition, -1, -1, orderBy, type);
     }
 
     @Override
     public <T extends Subject<?, ?, ?>> List<T> search(
-            final Set<Long> adminGroups, final SearchCond searchCondition, final int page, final int itemsPerPage,
+            final Set<String> adminRealms, final SearchCond searchCondition, final int page, final int itemsPerPage,
             final List<OrderByClause> orderBy, final SubjectType type) {
 
         List<T> result = Collections.<T>emptyList();
 
-        if (adminGroups != null && (!adminGroups.isEmpty() || groupDAO.findAll().isEmpty())) {
+        if (adminRealms != null && !adminRealms.isEmpty()) {
             LOG.debug("Search condition:\n{}", searchCondition);
 
             if (searchCondition != null && searchCondition.isValid()) {
                 try {
-                    result = doSearch(adminGroups, searchCondition, page, itemsPerPage, orderBy, type);
+                    result = doSearch(adminRealms, searchCondition, page, itemsPerPage, orderBy, type);
                 } catch (Exception e) {
                     LOG.error("While searching for {}", type, e);
                 }
@@ -239,7 +253,7 @@ public class JPASubjectSearchDAO extends AbstractDAO<Subject<?, ?, ?>, Long> imp
         return select;
     }
 
-    private StringBuilder buildWhere(final OrderBySupport orderBySupport, final SubjectType type) {
+    private StringBuilder buildWhere(final OrderBySupport orderBySupport) {
         final StringBuilder where = new StringBuilder(" u");
         for (SearchSupport.SearchView searchView : orderBySupport.views) {
             where.append(',').append(searchView.name).append(' ').append(searchView.alias);
@@ -254,7 +268,7 @@ public class JPASubjectSearchDAO extends AbstractDAO<Subject<?, ?, ?>, Long> imp
                 where.append(obs.where).append(" AND ");
             }
         }
-        where.append("u.subject_id NOT IN (");
+        where.append("u.subject_id IN (");
 
         return where;
     }
@@ -276,7 +290,7 @@ public class JPASubjectSearchDAO extends AbstractDAO<Subject<?, ?, ?>, Long> imp
     private OrderBySupport parseOrderBy(final SubjectType type, final SearchSupport svs,
             final List<OrderByClause> orderByClauses) {
 
-        final AttributableUtil attrUtil = attrUtilFactory.getInstance(type.asAttributableType());
+        final AttributableUtils attrUtils = attrUtilsFactory.getInstance(type.asAttributableType());
 
         OrderBySupport orderBySupport = new OrderBySupport();
 
@@ -286,9 +300,9 @@ public class JPASubjectSearchDAO extends AbstractDAO<Subject<?, ?, ?>, Long> imp
             // Manage difference among external key attribute and internal JPA @Id
             String fieldName = "key".equals(clause.getField()) ? "id" : clause.getField();
 
-            Field subjectField = ReflectionUtils.findField(attrUtil.attributableClass(), fieldName);
+            Field subjectField = ReflectionUtils.findField(attrUtils.attributableClass(), fieldName);
             if (subjectField == null) {
-                PlainSchema schema = schemaDAO.find(fieldName, attrUtil.plainSchemaClass());
+                PlainSchema schema = schemaDAO.find(fieldName, attrUtils.plainSchemaClass());
                 if (schema != null) {
                     if (schema.isUniqueConstraint()) {
                         orderBySupport.views.add(svs.uniqueAttr());
@@ -331,7 +345,7 @@ public class JPASubjectSearchDAO extends AbstractDAO<Subject<?, ?, ?>, Long> imp
     }
 
     @SuppressWarnings("unchecked")
-    private <T extends Subject<?, ?, ?>> List<T> doSearch(final Set<Long> adminGroups,
+    private <T extends Subject<?, ?, ?>> List<T> doSearch(final Set<String> adminRealms,
             final SearchCond nodeCond, final int page, final int itemsPerPage, final List<OrderByClause> orderBy,
             final SubjectType type) {
 
@@ -345,13 +359,13 @@ public class JPASubjectSearchDAO extends AbstractDAO<Subject<?, ?, ?>, Long> imp
         OrderBySupport orderBySupport = parseOrderBy(type, svs, orderBy);
         if (queryString.charAt(0) == '(') {
             queryString.insert(0, buildSelect(orderBySupport));
-            queryString.append(buildWhere(orderBySupport, type));
+            queryString.append(buildWhere(orderBySupport));
         } else {
             queryString.insert(0, buildSelect(orderBySupport).append('('));
-            queryString.append(')').append(buildWhere(orderBySupport, type));
+            queryString.append(')').append(buildWhere(orderBySupport));
         }
         queryString.
-                append(getAdminGroupsFilter(adminGroups, type)).append(')').
+                append(getAdminRealmsFilter(adminRealms, svs)).append(')').
                 append(buildOrderBy(orderBySupport));
 
         // 3. prepare the search query
@@ -605,15 +619,15 @@ public class JPASubjectSearchDAO extends AbstractDAO<Subject<?, ?, ?>, Long> imp
     private String getQuery(final AttributeCond cond, final boolean not, final List<Object> parameters,
             final SubjectType type, final SearchSupport svs) {
 
-        final AttributableUtil attrUtil = attrUtilFactory.getInstance(type.asAttributableType());
+        final AttributableUtils attrUtils = attrUtilsFactory.getInstance(type.asAttributableType());
 
-        PlainSchema schema = schemaDAO.find(cond.getSchema(), attrUtil.plainSchemaClass());
+        PlainSchema schema = schemaDAO.find(cond.getSchema(), attrUtils.plainSchemaClass());
         if (schema == null) {
             LOG.warn("Ignoring invalid schema '{}'", cond.getSchema());
             return EMPTY_ATTR_QUERY;
         }
 
-        PlainAttrValue attrValue = attrUtil.newPlainAttrValue();
+        PlainAttrValue attrValue = attrUtils.newPlainAttrValue();
         try {
             if (cond.getType() != AttributeCond.Type.LIKE && cond.getType() != AttributeCond.Type.ISNULL
                     && cond.getType() != AttributeCond.Type.ISNOTNULL) {
@@ -654,20 +668,20 @@ public class JPASubjectSearchDAO extends AbstractDAO<Subject<?, ?, ?>, Long> imp
     private String getQuery(final SubjectCond cond, final boolean not, final List<Object> parameters,
             final SubjectType type, final SearchSupport svs) {
 
-        final AttributableUtil attrUtil = attrUtilFactory.getInstance(type.asAttributableType());
+        final AttributableUtils attrUtils = attrUtilsFactory.getInstance(type.asAttributableType());
 
         // Keeps track of difference between entity's getKey() and JPA @Id fields
         if ("key".equals(cond.getSchema())) {
             cond.setSchema("id");
         }
 
-        Field subjectField = ReflectionUtils.findField(attrUtil.attributableClass(), cond.getSchema());
+        Field subjectField = ReflectionUtils.findField(attrUtils.attributableClass(), cond.getSchema());
         if (subjectField == null) {
             LOG.warn("Ignoring invalid schema '{}'", cond.getSchema());
             return EMPTY_ATTR_QUERY;
         }
 
-        PlainSchema schema = attrUtil.newPlainSchema();
+        PlainSchema schema = attrUtils.newPlainSchema();
         schema.setKey(subjectField.getName());
         for (AttrSchemaType attrSchemaType : AttrSchemaType.values()) {
             if (subjectField.getType().isAssignableFrom(attrSchemaType.getType())) {
@@ -713,7 +727,7 @@ public class JPASubjectSearchDAO extends AbstractDAO<Subject<?, ?, ?>, Long> imp
             }
         }
 
-        PlainAttrValue attrValue = attrUtil.newPlainAttrValue();
+        PlainAttrValue attrValue = attrUtils.newPlainAttrValue();
         if (cond.getType() != AttributeCond.Type.LIKE
                 && cond.getType() != AttributeCond.Type.ISNULL
                 && cond.getType() != AttributeCond.Type.ISNOTNULL) {

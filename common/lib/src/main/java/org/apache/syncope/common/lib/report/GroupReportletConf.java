@@ -41,7 +41,6 @@ public class GroupReportletConf extends AbstractSubjectReportletConf {
         name,
         groupOwner,
         userOwner,
-        entitlements,
         users,
         resources
 

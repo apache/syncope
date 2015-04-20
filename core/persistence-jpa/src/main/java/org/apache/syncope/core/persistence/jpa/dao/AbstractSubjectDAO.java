@@ -35,7 +35,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.SubjectDAO;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtil;
+import org.apache.syncope.core.persistence.api.dao.SubjectSearchDAO;
+import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
+import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
+import org.apache.syncope.core.persistence.api.dao.search.SubjectCond;
+import org.apache.syncope.core.persistence.api.entity.AttributableUtils;
 import org.apache.syncope.core.persistence.api.entity.DerAttr;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
@@ -55,6 +59,15 @@ abstract class AbstractSubjectDAO<P extends PlainAttr, D extends DerAttr, V exte
 
     @Autowired
     protected DerSchemaDAO derSchemaDAO;
+
+    @Autowired
+    protected SubjectSearchDAO searchDAO;
+
+    protected SearchCond getAllMatchingCond() {
+        SubjectCond idCond = new SubjectCond(AttributeCond.Type.ISNOTNULL);
+        idCond.setSchema("id");
+        return SearchCond.getLeafCond(idCond);
+    }
 
     /**
      * Split an attribute value recurring on provided literals/tokens.
@@ -82,10 +95,10 @@ abstract class AbstractSubjectDAO<P extends PlainAttr, D extends DerAttr, V exte
      *
      * @param expression derived schema expression
      * @param value derived attribute value
-     * @param attrUtil USER / GROUP
+     * @param attrUtils USER / GROUP
      * @return where clauses to use to build the query
      */
-    private Set<String> getWhereClause(final String expression, final String value, final AttributableUtil attrUtil) {
+    private Set<String> getWhereClause(final String expression, final String value, final AttributableUtils attrUtils) {
         final Parser parser = new Parser(new StringReader(expression));
 
         // Schema names
@@ -149,7 +162,7 @@ abstract class AbstractSubjectDAO<P extends PlainAttr, D extends DerAttr, V exte
             if (!used.contains(identifiers.get(i))) {
 
                 // verify schema existence and get schema type
-                PlainSchema schema = plainSchemaDAO.find(identifiers.get(i), attrUtil.plainSchemaClass());
+                PlainSchema schema = plainSchemaDAO.find(identifiers.get(i), attrUtils.plainSchemaClass());
                 if (schema == null) {
                     LOG.error("Invalid schema name '{}'", identifiers.get(i));
                     throw new IllegalArgumentException("Invalid schema name " + identifiers.get(i));
@@ -217,17 +230,17 @@ abstract class AbstractSubjectDAO<P extends PlainAttr, D extends DerAttr, V exte
     @Override
     @SuppressWarnings("unchecked")
     public List<? extends Subject<P, D, V>> findByAttrValue(
-            final String schemaName, final PlainAttrValue attrValue, final AttributableUtil attrUtil) {
+            final String schemaName, final PlainAttrValue attrValue, final AttributableUtils attrUtils) {
 
-        PlainSchema schema = plainSchemaDAO.find(schemaName, attrUtil.plainSchemaClass());
+        PlainSchema schema = plainSchemaDAO.find(schemaName, attrUtils.plainSchemaClass());
         if (schema == null) {
             LOG.error("Invalid schema name '{}'", schemaName);
             return Collections.<Subject<P, D, V>>emptyList();
         }
 
         final String entityName = schema.isUniqueConstraint()
-                ? attrUtil.plainAttrUniqueValueClass().getName()
-                : attrUtil.plainAttrValueClass().getName();
+                ? attrUtils.plainAttrUniqueValueClass().getName()
+                : attrUtils.plainAttrValueClass().getName();
 
         Query query = findByAttrValueQuery(entityName);
 
@@ -257,9 +270,9 @@ abstract class AbstractSubjectDAO<P extends PlainAttr, D extends DerAttr, V exte
 
     @Override
     public Subject<P, D, V> findByAttrUniqueValue(
-            final String schemaName, final PlainAttrValue attrUniqueValue, final AttributableUtil attrUtil) {
+            final String schemaName, final PlainAttrValue attrUniqueValue, final AttributableUtils attrUtils) {
 
-        PlainSchema schema = plainSchemaDAO.find(schemaName, attrUtil.plainSchemaClass());
+        PlainSchema schema = plainSchemaDAO.find(schemaName, attrUtils.plainSchemaClass());
         if (schema == null) {
             LOG.error("Invalid schema name '{}'", schemaName);
             return null;
@@ -269,7 +282,7 @@ abstract class AbstractSubjectDAO<P extends PlainAttr, D extends DerAttr, V exte
             return null;
         }
 
-        List<? extends Subject<P, D, V>> result = findByAttrValue(schemaName, attrUniqueValue, attrUtil);
+        List<? extends Subject<P, D, V>> result = findByAttrValue(schemaName, attrUniqueValue, attrUtils);
         return result.isEmpty()
                 ? null
                 : result.iterator().next();
@@ -283,14 +296,14 @@ abstract class AbstractSubjectDAO<P extends PlainAttr, D extends DerAttr, V exte
      *
      * @param schemaName derived schema name
      * @param value derived attribute value
-     * @param attrUtil AttributableUtil
+     * @param attrUtils AttributableUtil
      * @return list of users / groups
      */
     @Override
     public List<? extends Subject<P, D, V>> findByDerAttrValue(
-            final String schemaName, final String value, final AttributableUtil attrUtil) {
+            final String schemaName, final String value, final AttributableUtils attrUtils) {
 
-        DerSchema schema = derSchemaDAO.find(schemaName, attrUtil.derSchemaClass());
+        DerSchema schema = derSchemaDAO.find(schemaName, attrUtils.derSchemaClass());
         if (schema == null) {
             LOG.error("Invalid schema name '{}'", schemaName);
             return Collections.<Subject<P, D, V>>emptyList();
@@ -300,16 +313,16 @@ abstract class AbstractSubjectDAO<P extends PlainAttr, D extends DerAttr, V exte
         final StringBuilder querystring = new StringBuilder();
 
         boolean subquery = false;
-        for (String clause : getWhereClause(schema.getExpression(), value, attrUtil)) {
+        for (String clause : getWhereClause(schema.getExpression(), value, attrUtils)) {
             if (querystring.length() > 0) {
                 subquery = true;
                 querystring.append(" AND a.owner_id IN ( ");
             }
 
             querystring.append("SELECT a.owner_id ").
-                    append("FROM ").append(attrUtil.plainAttrClass().getSimpleName().substring(3)).append(" a, ").
-                    append(attrUtil.plainAttrValueClass().getSimpleName().substring(3)).append(" v, ").
-                    append(attrUtil.plainSchemaClass().getSimpleName().substring(3)).append(" s ").
+                    append("FROM ").append(attrUtils.plainAttrClass().getSimpleName().substring(3)).append(" a, ").
+                    append(attrUtils.plainAttrValueClass().getSimpleName().substring(3)).append(" v, ").
+                    append(attrUtils.plainSchemaClass().getSimpleName().substring(3)).append(" s ").
                     append("WHERE ").append(clause);
 
             if (subquery) {
@@ -335,10 +348,10 @@ abstract class AbstractSubjectDAO<P extends PlainAttr, D extends DerAttr, V exte
     @Override
     @SuppressWarnings("unchecked")
     public List<? extends Subject<P, D, V>> findByResource(
-            final ExternalResource resource, final AttributableUtil attrUtil) {
+            final ExternalResource resource, final AttributableUtils attrUtils) {
 
         Query query = entityManager.createQuery(
-                "SELECT e FROM " + attrUtil.attributableClass().getSimpleName() + " e "
+                "SELECT e FROM " + attrUtils.attributableClass().getSimpleName() + " e "
                 + "WHERE :resource MEMBER OF e.resources");
         query.setParameter("resource", resource);
 

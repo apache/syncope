@@ -16,15 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.wrap;
+package org.apache.syncope.core.persistence.api.entity;
 
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import org.apache.syncope.common.lib.types.AttributableType;
+import org.identityconnectors.framework.common.objects.ObjectClass;
 
-@XmlRootElement(name = "entitlement")
-@XmlType
-public class EntitlementTO extends AbstractWrappable<String> {
+public interface AttributableUtilsFactory {
 
-    private static final long serialVersionUID = 7133614577172038452L;
+    AttributableUtils getInstance(AttributableType type);
 
+    AttributableUtils getInstance(String attributableType);
+
+    AttributableUtils getInstance(ObjectClass objectClass);
+
+    AttributableUtils getInstance(Attributable<?, ?, ?> attributable);
 }

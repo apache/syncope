@@ -27,8 +27,6 @@ import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
-import org.apache.syncope.common.lib.to.BulkAction;
-import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.SyncTaskTO;
 import org.apache.syncope.common.lib.to.TaskExecTO;
@@ -45,8 +43,8 @@ import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
-import org.apache.syncope.core.persistence.api.entity.task.TaskUtil;
-import org.apache.syncope.core.persistence.api.entity.task.TaskUtilFactory;
+import org.apache.syncope.core.persistence.api.entity.task.TaskUtils;
+import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
 import org.apache.syncope.core.provisioning.api.data.TaskDataBinder;
 import org.apache.syncope.core.provisioning.api.job.JobNamer;
 import org.apache.syncope.core.provisioning.api.job.TaskJob;
@@ -86,13 +84,13 @@ public class TaskLogic extends AbstractTransactionalLogic<AbstractTaskTO> {
     private SchedulerFactoryBean scheduler;
 
     @Autowired
-    private TaskUtilFactory taskUtilFactory;
+    private TaskUtilsFactory taskUtilsFactory;
 
     @PreAuthorize("hasRole('TASK_CREATE')")
     public <T extends SchedTaskTO> T createSchedTask(final T taskTO) {
-        TaskUtil taskUtil = taskUtilFactory.getInstance(taskTO);
+        TaskUtils taskUtils = taskUtilsFactory.getInstance(taskTO);
 
-        SchedTask task = binder.createSchedTask(taskTO, taskUtil);
+        SchedTask task = binder.createSchedTask(taskTO, taskUtils);
         task = taskDAO.save(task);
 
         try {
@@ -105,7 +103,7 @@ public class TaskLogic extends AbstractTransactionalLogic<AbstractTaskTO> {
             throw sce;
         }
 
-        return binder.getTaskTO(task, taskUtil);
+        return binder.getTaskTO(task, taskUtils);
     }
 
     @PreAuthorize("hasRole('TASK_UPDATE')")
@@ -120,9 +118,9 @@ public class TaskLogic extends AbstractTransactionalLogic<AbstractTaskTO> {
             throw new NotFoundException("Task " + taskTO.getKey());
         }
 
-        TaskUtil taskUtil = taskUtilFactory.getInstance(task);
+        TaskUtils taskUtils = taskUtilsFactory.getInstance(task);
 
-        binder.updateSchedTask(task, taskTO, taskUtil);
+        binder.updateSchedTask(task, taskTO, taskUtils);
         task = taskDAO.save(task);
 
         try {
@@ -135,7 +133,7 @@ public class TaskLogic extends AbstractTransactionalLogic<AbstractTaskTO> {
             throw sce;
         }
 
-        return binder.getTaskTO(task, taskUtil);
+        return binder.getTaskTO(task, taskUtils);
     }
 
     @PreAuthorize("hasRole('TASK_LIST')")
@@ -148,14 +146,14 @@ public class TaskLogic extends AbstractTransactionalLogic<AbstractTaskTO> {
     public <T extends AbstractTaskTO> List<T> list(final TaskType taskType,
             final int page, final int size, final List<OrderByClause> orderByClauses) {
 
-        final TaskUtil taskUtil = taskUtilFactory.getInstance(taskType);
+        final TaskUtils taskUtilss = taskUtilsFactory.getInstance(taskType);
 
         return CollectionUtils.collect(taskDAO.findAll(page, size, orderByClauses, taskType),
                 new Transformer<Task, T>() {
 
                     @Override
                     public T transform(final Task task) {
-                        return (T) binder.getTaskTO(task, taskUtil);
+                        return (T) binder.getTaskTO(task, taskUtilss);
                     }
                 }, new ArrayList<T>());
     }
@@ -166,7 +164,7 @@ public class TaskLogic extends AbstractTransactionalLogic<AbstractTaskTO> {
         if (task == null) {
             throw new NotFoundException("Task " + taskId);
         }
-        return binder.getTaskTO(task, taskUtilFactory.getInstance(task));
+        return binder.getTaskTO(task, taskUtilsFactory.getInstance(task));
     }
 
     @PreAuthorize("hasRole('TASK_READ')")
@@ -184,10 +182,10 @@ public class TaskLogic extends AbstractTransactionalLogic<AbstractTaskTO> {
         if (task == null) {
             throw new NotFoundException("Task " + taskId);
         }
-        TaskUtil taskUtil = taskUtilFactory.getInstance(task);
+        TaskUtils taskUtils = taskUtilsFactory.getInstance(task);
 
         TaskExecTO result = null;
-        switch (taskUtil.getType()) {
+        switch (taskUtils.getType()) {
             case PROPAGATION:
                 final TaskExec propExec = taskExecutor.execute((PropagationTask) task);
                 result = binder.getTaskExecTO(propExec);
@@ -241,14 +239,14 @@ public class TaskLogic extends AbstractTransactionalLogic<AbstractTaskTO> {
 
         SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidPropagationTaskExecReport);
 
-        TaskUtil taskUtil = taskUtilFactory.getInstance(exec.getTask());
-        if (TaskType.PROPAGATION == taskUtil.getType()) {
+        TaskUtils taskUtils = taskUtilsFactory.getInstance(exec.getTask());
+        if (TaskType.PROPAGATION == taskUtils.getType()) {
             PropagationTask task = (PropagationTask) exec.getTask();
             if (task.getPropagationMode() != PropagationMode.TWO_PHASES) {
                 sce.getElements().add("Propagation mode: " + task.getPropagationMode());
             }
         } else {
-            sce.getElements().add("Task type: " + taskUtil);
+            sce.getElements().add("Task type: " + taskUtils);
         }
 
         switch (status) {
@@ -280,13 +278,13 @@ public class TaskLogic extends AbstractTransactionalLogic<AbstractTaskTO> {
         if (task == null) {
             throw new NotFoundException("Task " + taskId);
         }
-        TaskUtil taskUtil = taskUtilFactory.getInstance(task);
+        TaskUtils taskUtils = taskUtilsFactory.getInstance(task);
 
-        T taskToDelete = binder.getTaskTO(task, taskUtil);
+        T taskToDelete = binder.getTaskTO(task, taskUtils);
 
-        if (TaskType.SCHEDULED == taskUtil.getType()
-                || TaskType.SYNCHRONIZATION == taskUtil.getType()
-                || TaskType.PUSH == taskUtil.getType()) {
+        if (TaskType.SCHEDULED == taskUtils.getType()
+                || TaskType.SYNCHRONIZATION == taskUtils.getType()
+                || TaskType.PUSH == taskUtils.getType()) {
 
             jobInstanceLoader.unregisterJob(task);
         }
@@ -305,55 +303,6 @@ public class TaskLogic extends AbstractTransactionalLogic<AbstractTaskTO> {
         TaskExecTO taskExecutionToDelete = binder.getTaskExecTO(taskExec);
         taskExecDAO.delete(taskExec);
         return taskExecutionToDelete;
-    }
-
-    @PreAuthorize("(hasRole('TASK_DELETE') and #bulkAction.operation == #bulkAction.operation.DELETE) or "
-            + "(hasRole('TASK_EXECUTE') and "
-            + "(#bulkAction.operation == #bulkAction.operation.EXECUTE or "
-            + "#bulkAction.operation == #bulkAction.operation.DRYRUN))")
-    public BulkActionResult bulk(final BulkAction bulkAction) {
-        BulkActionResult res = new BulkActionResult();
-
-        switch (bulkAction.getOperation()) {
-            case DELETE:
-                for (String taskId : bulkAction.getTargets()) {
-                    try {
-                        res.add(delete(Long.valueOf(taskId)).getKey(), BulkActionResult.Status.SUCCESS);
-                    } catch (Exception e) {
-                        LOG.error("Error performing delete for task {}", taskId, e);
-                        res.add(taskId, BulkActionResult.Status.FAILURE);
-                    }
-                }
-                break;
-
-            case DRYRUN:
-                for (String taskId : bulkAction.getTargets()) {
-                    try {
-                        execute(Long.valueOf(taskId), true);
-                        res.add(taskId, BulkActionResult.Status.SUCCESS);
-                    } catch (Exception e) {
-                        LOG.error("Error performing dryrun for task {}", taskId, e);
-                        res.add(taskId, BulkActionResult.Status.FAILURE);
-                    }
-                }
-                break;
-
-            case EXECUTE:
-                for (String taskId : bulkAction.getTargets()) {
-                    try {
-                        execute(Long.valueOf(taskId), false);
-                        res.add(taskId, BulkActionResult.Status.SUCCESS);
-                    } catch (Exception e) {
-                        LOG.error("Error performing execute for task {}", taskId, e);
-                        res.add(taskId, BulkActionResult.Status.FAILURE);
-                    }
-                }
-                break;
-
-            default:
-        }
-
-        return res;
     }
 
     @Override
@@ -377,7 +326,7 @@ public class TaskLogic extends AbstractTransactionalLogic<AbstractTaskTO> {
         if ((key != null) && !key.equals(0L)) {
             try {
                 final Task task = taskDAO.find(key);
-                return binder.getTaskTO(task, taskUtilFactory.getInstance(task));
+                return binder.getTaskTO(task, taskUtilsFactory.getInstance(task));
             } catch (Throwable ignore) {
                 LOG.debug("Unresolved reference", ignore);
                 throw new UnresolvedReferenceException(ignore);

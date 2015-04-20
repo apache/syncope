@@ -29,6 +29,7 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import org.apache.syncope.common.lib.to.GroupTO;
@@ -37,12 +38,17 @@ import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.entity.task.SyncTask;
 import org.apache.syncope.core.provisioning.api.job.SyncJob;
 import org.apache.syncope.core.misc.serialization.POJOHelper;
+import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.persistence.jpa.entity.JPARealm;
 
 @Entity
 @DiscriminatorValue("SyncTask")
 public class JPASyncTask extends AbstractProvisioningTask implements SyncTask {
 
     private static final long serialVersionUID = -4141057723006682563L;
+
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    private JPARealm destinationRealm;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Column(name = "actionClassName")
@@ -67,6 +73,17 @@ public class JPASyncTask extends AbstractProvisioningTask implements SyncTask {
      */
     public JPASyncTask() {
         super(TaskType.SYNCHRONIZATION, SyncJob.class.getName());
+    }
+
+    @Override
+    public Realm getDestinatioRealm() {
+        return destinationRealm;
+    }
+
+    @Override
+    public void setDestinationRealm(final Realm destinationRealm) {
+        checkType(destinationRealm, JPARealm.class);
+        this.destinationRealm = (JPARealm) destinationRealm;
     }
 
     @Override

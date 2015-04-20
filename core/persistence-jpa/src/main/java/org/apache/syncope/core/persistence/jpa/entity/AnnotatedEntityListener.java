@@ -22,7 +22,7 @@ import java.util.Date;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import org.apache.syncope.core.persistence.api.entity.AnnotatedEntity;
-import org.apache.syncope.core.misc.security.AuthContextUtil;
+import org.apache.syncope.core.misc.security.AuthContextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +36,7 @@ public class AnnotatedEntityListener {
     @PrePersist
     @PreUpdate
     public void setSysInfo(final AnnotatedEntity<?> entity) {
-        final String username = AuthContextUtil.getAuthenticatedUsername();
+        final String username = AuthContextUtils.getAuthenticatedUsername();
         LOG.debug("Set system properties for '{}'", entity);
 
         final Date now = new Date();

@@ -35,6 +35,7 @@ import org.apache.cxf.jaxrs.model.wadl.Descriptions;
 import org.apache.cxf.jaxrs.model.wadl.DocTarget;
 import org.apache.syncope.common.lib.mod.UserMod;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.rest.api.RESTHeaders;
 
 /**
  * REST operations for user self-management.
@@ -45,11 +46,11 @@ public interface UserSelfService extends JAXRSService {
     /**
      * Returns the user making the service call.
      *
-     * @return calling user data
+     * @return calling user data, including owned entitlements as header value {@link RESTHeaders#OWNED_ENTITLEMENTS}
      */
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    UserTO read();
+    Response read();
 
     /**
      * Self-registration for new user.

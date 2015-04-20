@@ -30,12 +30,13 @@ import org.apache.syncope.core.persistence.api.entity.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.Policy;
-import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.misc.policy.AccountPolicyEnforcer;
 import org.apache.syncope.core.misc.policy.AccountPolicyException;
 import org.apache.syncope.core.misc.policy.PasswordPolicyEnforcer;
 import org.apache.syncope.core.misc.policy.PolicyEvaluator;
+import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class UserValidator extends AbstractValidator<UserCheck, User> {
@@ -50,6 +51,9 @@ public class UserValidator extends AbstractValidator<UserCheck, User> {
     private PolicyDAO policyDAO;
 
     @Autowired
+    private RealmDAO realmDAO;
+
+    @Autowired
     private PolicyEvaluator evaluator;
 
     @Autowired
@@ -62,6 +66,15 @@ public class UserValidator extends AbstractValidator<UserCheck, User> {
     public boolean isValid(final User user, final ConstraintValidatorContext context) {
         context.disableDefaultConstraintViolation();
 
+        // need to treat it explicitly, otherwise policy evaluation will silently fail
+        if (user.getRealm() == null) {
+            context.buildConstraintViolationWithTemplate(
+                    getTemplate(EntityViolationType.InvalidRealm, "realm not specified")).
+                    addPropertyNode("realm").addConstraintViolation();
+
+            return false;
+        }
+
         // ------------------------------
         // Verify password policies
         // ------------------------------
@@ -71,7 +84,7 @@ public class UserValidator extends AbstractValidator<UserCheck, User> {
             int maxPPSpecHistory = 0;
             for (Policy policy : getPasswordPolicies(user)) {
                 // evaluate policy
-                final PasswordPolicySpec ppSpec = evaluator.evaluate(policy, user);
+                PasswordPolicySpec ppSpec = evaluator.evaluate(policy, user);
                 // enforce policy
                 ppEnforcer.enforce(ppSpec, policy.getType(), user);
 
@@ -117,7 +130,7 @@ public class UserValidator extends AbstractValidator<UserCheck, User> {
             // invalid username
             for (Policy policy : getAccountPolicies(user)) {
                 // evaluate policy
-                final AccountPolicySpec accountPolicy = evaluator.evaluate(policy, user);
+                AccountPolicySpec accountPolicy = evaluator.evaluate(policy, user);
 
                 // enforce policy
                 apEnforcer.enforce(accountPolicy, policy.getType(), user);
@@ -137,13 +150,9 @@ public class UserValidator extends AbstractValidator<UserCheck, User> {
     }
 
     private List<PasswordPolicy> getPasswordPolicies(final User user) {
-        final List<PasswordPolicy> policies = new ArrayList<>();
+        List<PasswordPolicy> policies = new ArrayList<>();
 
-        // Add global policy
-        PasswordPolicy policy = policyDAO.getGlobalPasswordPolicy();
-        if (policy != null) {
-            policies.add(policy);
-        }
+        PasswordPolicy policy;
 
         // add resource policies
         for (ExternalResource resource : user.getResources()) {
@@ -153,9 +162,9 @@ public class UserValidator extends AbstractValidator<UserCheck, User> {
             }
         }
 
-        // add group policies
-        for (Group group : user.getGroups()) {
-            policy = group.getPasswordPolicy();
+        // add realm policies
+        for (Realm realm : realmDAO.findAncestors(user.getRealm())) {
+            policy = realm.getPasswordPolicy();
             if (policy != null) {
                 policies.add(policy);
             }
@@ -165,13 +174,9 @@ public class UserValidator extends AbstractValidator<UserCheck, User> {
     }
 
     private List<AccountPolicy> getAccountPolicies(final User user) {
-        final List<AccountPolicy> policies = new ArrayList<>();
+        List<AccountPolicy> policies = new ArrayList<>();
 
-        // add global policy
-        AccountPolicy policy = policyDAO.getGlobalAccountPolicy();
-        if (policy != null) {
-            policies.add(policy);
-        }
+        AccountPolicy policy;
 
         // add resource policies
         for (ExternalResource resource : user.getResources()) {
@@ -181,9 +186,9 @@ public class UserValidator extends AbstractValidator<UserCheck, User> {
             }
         }
 
-        // add group policies
-        for (Group group : user.getGroups()) {
-            policy = group.getAccountPolicy();
+        // add realm policies
+        for (Realm realm : realmDAO.findAncestors(user.getRealm())) {
+            policy = realm.getAccountPolicy();
             if (policy != null) {
                 policies.add(policy);
             }

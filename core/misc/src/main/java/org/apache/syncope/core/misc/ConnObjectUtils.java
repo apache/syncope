@@ -20,7 +20,7 @@ package org.apache.syncope.core.misc;
 
 import org.apache.syncope.core.misc.policy.InvalidPasswordPolicySpecException;
 import org.apache.syncope.core.misc.security.PasswordGenerator;
-import org.apache.syncope.core.misc.security.SecureRandomUtil;
+import org.apache.syncope.core.misc.security.SecureRandomUtils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -51,10 +51,9 @@ import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Attributable;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtil;
+import org.apache.syncope.core.persistence.api.entity.AttributableUtils;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.MappingItem;
-import org.apache.syncope.core.persistence.api.entity.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Subject;
@@ -69,7 +68,9 @@ import org.apache.syncope.core.provisioning.api.cache.VirAttrCache;
 import org.apache.syncope.core.provisioning.api.cache.VirAttrCacheValue;
 import org.apache.syncope.core.misc.security.Encryptor;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
-import org.apache.syncope.core.misc.jexl.JexlUtil;
+import org.apache.syncope.core.misc.jexl.JexlUtils;
+import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.identityconnectors.common.Base64;
 import org.identityconnectors.common.security.GuardedByteArray;
 import org.identityconnectors.common.security.GuardedString;
@@ -86,15 +87,18 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
-public class ConnObjectUtil {
+public class ConnObjectUtils {
 
     /**
      * Logger.
      */
-    private static final Logger LOG = LoggerFactory.getLogger(ConnObjectUtil.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ConnObjectUtils.class);
 
     @Autowired
     private PolicyDAO policyDAO;
+
+    @Autowired
+    private RealmDAO realmDAO;
 
     @Autowired
     private UserDAO userDAO;
@@ -140,15 +144,15 @@ public class ConnObjectUtil {
      *
      * @param obj connector object
      * @param syncTask synchronization task
-     * @param attrUtil AttributableUtil
+     * @param attrUtils AttributableUtils
      * @param <T> user/group
      * @return UserTO for the user to be created
      */
     @Transactional(readOnly = true)
     public <T extends AbstractSubjectTO> T getSubjectTO(final ConnectorObject obj, final SyncTask syncTask,
-            final AttributableUtil attrUtil) {
+            final AttributableUtils attrUtils) {
 
-        T subjectTO = getSubjectTOFromConnObject(obj, syncTask, attrUtil);
+        T subjectTO = getSubjectTOFromConnObject(obj, syncTask, attrUtils);
 
         // (for users) if password was not set above, generate
         if (subjectTO instanceof UserTO && StringUtils.isBlank(((UserTO) subjectTO).getPassword())) {
@@ -156,17 +160,14 @@ public class ConnObjectUtil {
 
             List<PasswordPolicySpec> ppSpecs = new ArrayList<>();
 
-            PasswordPolicy globalPP = policyDAO.getGlobalPasswordPolicy();
-            if (globalPP != null && globalPP.getSpecification(PasswordPolicySpec.class) != null) {
-                ppSpecs.add(globalPP.getSpecification(PasswordPolicySpec.class));
-            }
+            Realm realm = realmDAO.find(userTO.getRealm());
+            if (realm != null) {
+                for (Realm ancestor : realmDAO.findAncestors(realm)) {
+                    if (ancestor.getPasswordPolicy() != null
+                            && ancestor.getPasswordPolicy().getSpecification(PasswordPolicySpec.class) != null) {
 
-            for (MembershipTO memb : userTO.getMemberships()) {
-                Group group = groupDAO.find(memb.getGroupId());
-                if (group != null && group.getPasswordPolicy() != null
-                        && group.getPasswordPolicy().getSpecification(PasswordPolicySpec.class) != null) {
-
-                    ppSpecs.add(group.getPasswordPolicy().getSpecification(PasswordPolicySpec.class));
+                        ppSpecs.add(ancestor.getPasswordPolicy().getSpecification(PasswordPolicySpec.class));
+                    }
                 }
             }
 
@@ -185,7 +186,7 @@ public class ConnObjectUtil {
             } catch (InvalidPasswordPolicySpecException e) {
                 LOG.error("Could not generate policy-compliant random password for {}", userTO, e);
 
-                password = SecureRandomUtil.generateRandomPassword(16);
+                password = SecureRandomUtils.generateRandomPassword(16);
             }
             userTO.setPassword(password);
         }
@@ -200,19 +201,19 @@ public class ConnObjectUtil {
      * @param obj connector object
      * @param original subject to get diff from
      * @param syncTask synchronization task
-     * @param attrUtil AttributableUtil
+     * @param attrUtils AttributableUtil
      * @param <T> user/group
      * @return modifications for the user/group to be updated
      */
     @SuppressWarnings("unchecked")
     @Transactional(readOnly = true)
     public <T extends AbstractAttributableMod> T getAttributableMod(final Long key, final ConnectorObject obj,
-            final AbstractAttributableTO original, final SyncTask syncTask, final AttributableUtil attrUtil) {
+            final AbstractAttributableTO original, final SyncTask syncTask, final AttributableUtils attrUtils) {
 
-        final AbstractAttributableTO updated = getSubjectTOFromConnObject(obj, syncTask, attrUtil);
+        final AbstractAttributableTO updated = getSubjectTOFromConnObject(obj, syncTask, attrUtils);
         updated.setKey(key);
 
-        if (AttributableType.USER == attrUtil.getType()) {
+        if (AttributableType.USER == attrUtils.getType()) {
             // update password if and only if password is really changed
             final User user = userDAO.authFetch(key);
             if (StringUtils.isBlank(((UserTO) updated).getPassword())
@@ -223,7 +224,7 @@ public class ConnObjectUtil {
             }
 
             for (MembershipTO membTO : ((UserTO) updated).getMemberships()) {
-                Membership memb = user.getMembership(membTO.getGroupId());
+                Membership memb = user.getMembership(membTO.getGroupKey());
                 if (memb != null) {
                     membTO.setKey(memb.getKey());
                 }
@@ -231,9 +232,7 @@ public class ConnObjectUtil {
 
             return (T) AttributableOperations.diff(((UserTO) updated), ((UserTO) original), true);
         }
-        if (AttributableType.GROUP == attrUtil.getType()) {
-            // reading from connector object cannot change entitlements
-            ((GroupTO) updated).getEntitlements().addAll(((GroupTO) original).getEntitlements());
+        if (AttributableType.GROUP == attrUtils.getType()) {
             return (T) AttributableOperations.diff(((GroupTO) updated), ((GroupTO) original), true);
         }
 
@@ -241,12 +240,13 @@ public class ConnObjectUtil {
     }
 
     private <T extends AbstractSubjectTO> T getSubjectTOFromConnObject(final ConnectorObject obj,
-            final SyncTask syncTask, final AttributableUtil attrUtil) {
+            final SyncTask syncTask, final AttributableUtils attrUtils) {
 
-        final T subjectTO = attrUtil.newSubjectTO();
+        final T subjectTO = attrUtils.newSubjectTO();
 
         // 1. fill with data from connector object
-        for (MappingItem item : attrUtil.getUidToMappingItems(
+        subjectTO.setRealm(syncTask.getDestinatioRealm().getFullPath());
+        for (MappingItem item : attrUtils.getUidToMappingItems(
                 syncTask.getResource(), MappingPurpose.SYNCHRONIZATION)) {
 
             Attribute attribute = obj.getAttributeByName(item.getExtAttrName());
@@ -304,7 +304,7 @@ public class ConnObjectUtil {
                     attributeTO = new AttrTO();
                     attributeTO.setSchema(item.getIntAttrName());
 
-                    PlainSchema schema = plainSchemaDAO.find(item.getIntAttrName(), attrUtil.plainSchemaClass());
+                    PlainSchema schema = plainSchemaDAO.find(item.getIntAttrName(), attrUtils.plainSchemaClass());
 
                     for (Object value : attribute == null || attribute.getValue() == null
                             ? Collections.emptyList()
@@ -312,7 +312,7 @@ public class ConnObjectUtil {
 
                         AttrSchemaType schemaType = schema == null ? AttrSchemaType.String : schema.getType();
                         if (value != null) {
-                            final PlainAttrValue attrValue = attrUtil.newPlainAttrValue();
+                            final PlainAttrValue attrValue = attrUtils.newPlainAttrValue();
                             switch (schemaType) {
                                 case String:
                                     attrValue.setStringValue(value.toString());
@@ -368,20 +368,24 @@ public class ConnObjectUtil {
         }
 
         // 2. add data from defined template (if any)
-        AbstractSubjectTO template = AttributableType.USER == attrUtil.getType()
+        AbstractSubjectTO template = AttributableType.USER == attrUtils.getType()
                 ? syncTask.getUserTemplate() : syncTask.getGroupTemplate();
 
         if (template != null) {
+            if (template.getRealm() != null) {
+                subjectTO.setRealm(template.getRealm());
+            }
+
             if (template instanceof UserTO) {
                 if (StringUtils.isNotBlank(((UserTO) template).getUsername())) {
-                    String evaluated = JexlUtil.evaluate(((UserTO) template).getUsername(), subjectTO);
+                    String evaluated = JexlUtils.evaluate(((UserTO) template).getUsername(), subjectTO);
                     if (StringUtils.isNotBlank(evaluated)) {
                         ((UserTO) subjectTO).setUsername(evaluated);
                     }
                 }
 
                 if (StringUtils.isNotBlank(((UserTO) template).getPassword())) {
-                    String evaluated = JexlUtil.evaluate(((UserTO) template).getPassword(), subjectTO);
+                    String evaluated = JexlUtils.evaluate(((UserTO) template).getPassword(), subjectTO);
                     if (StringUtils.isNotBlank(evaluated)) {
                         ((UserTO) subjectTO).setPassword(evaluated);
                     }
@@ -390,11 +394,11 @@ public class ConnObjectUtil {
                 Map<Long, MembershipTO> currentMembs = ((UserTO) subjectTO).getMembershipMap();
                 for (MembershipTO membTO : ((UserTO) template).getMemberships()) {
                     MembershipTO membTBU;
-                    if (currentMembs.containsKey(membTO.getGroupId())) {
-                        membTBU = currentMembs.get(membTO.getGroupId());
+                    if (currentMembs.containsKey(membTO.getGroupKey())) {
+                        membTBU = currentMembs.get(membTO.getGroupKey());
                     } else {
                         membTBU = new MembershipTO();
-                        membTBU.setGroupId(membTO.getGroupId());
+                        membTBU.setGroupKey(membTO.getGroupKey());
                         ((UserTO) subjectTO).getMemberships().add(membTBU);
                     }
                     fillFromTemplate(membTBU, membTO);
@@ -402,16 +406,9 @@ public class ConnObjectUtil {
             }
             if (template instanceof GroupTO) {
                 if (StringUtils.isNotBlank(((GroupTO) template).getName())) {
-                    String evaluated = JexlUtil.evaluate(((GroupTO) template).getName(), subjectTO);
+                    String evaluated = JexlUtils.evaluate(((GroupTO) template).getName(), subjectTO);
                     if (StringUtils.isNotBlank(evaluated)) {
                         ((GroupTO) subjectTO).setName(evaluated);
-                    }
-                }
-
-                if (((GroupTO) template).getParent() != 0) {
-                    final Group parentGroup = groupDAO.find(((GroupTO) template).getParent());
-                    if (parentGroup != null) {
-                        ((GroupTO) subjectTO).setParent(parentGroup.getKey());
                     }
                 }
 
@@ -428,25 +425,12 @@ public class ConnObjectUtil {
                     }
                 }
 
-                ((GroupTO) subjectTO).getEntitlements().addAll(((GroupTO) template).getEntitlements());
-
                 ((GroupTO) subjectTO).getGPlainAttrTemplates().addAll(((GroupTO) template).getGPlainAttrTemplates());
                 ((GroupTO) subjectTO).getGDerAttrTemplates().addAll(((GroupTO) template).getGDerAttrTemplates());
                 ((GroupTO) subjectTO).getGVirAttrTemplates().addAll(((GroupTO) template).getGVirAttrTemplates());
                 ((GroupTO) subjectTO).getMPlainAttrTemplates().addAll(((GroupTO) template).getMPlainAttrTemplates());
                 ((GroupTO) subjectTO).getMDerAttrTemplates().addAll(((GroupTO) template).getMDerAttrTemplates());
                 ((GroupTO) subjectTO).getMVirAttrTemplates().addAll(((GroupTO) template).getMVirAttrTemplates());
-
-                ((GroupTO) subjectTO).setAccountPolicy(((GroupTO) template).getAccountPolicy());
-                ((GroupTO) subjectTO).setPasswordPolicy(((GroupTO) template).getPasswordPolicy());
-
-                ((GroupTO) subjectTO).setInheritOwner(((GroupTO) template).isInheritOwner());
-                ((GroupTO) subjectTO).setInheritTemplates(((GroupTO) template).isInheritTemplates());
-                ((GroupTO) subjectTO).setInheritPlainAttrs(((GroupTO) template).isInheritPlainAttrs());
-                ((GroupTO) subjectTO).setInheritDerAttrs(((GroupTO) template).isInheritDerAttrs());
-                ((GroupTO) subjectTO).setInheritVirAttrs(((GroupTO) template).isInheritVirAttrs());
-                ((GroupTO) subjectTO).setInheritPasswordPolicy(((GroupTO) template).isInheritPasswordPolicy());
-                ((GroupTO) subjectTO).setInheritAccountPolicy(((GroupTO) template).isInheritAccountPolicy());
             }
 
             fillFromTemplate(subjectTO, template);
@@ -530,14 +514,14 @@ public class ConnObjectUtil {
      * Query connected external resources for values to populated virtual attributes associated with the given owner.
      *
      * @param owner user or group
-     * @param attrUtil attributable util
+     * @param attrUtils attributable util
      */
-    public void retrieveVirAttrValues(final Attributable<?, ?, ?> owner, final AttributableUtil attrUtil) {
+    public void retrieveVirAttrValues(final Attributable<?, ?, ?> owner, final AttributableUtils attrUtils) {
         final ConfigurableApplicationContext context = ApplicationContextProvider.getApplicationContext();
         final ConnectorFactory connFactory = context.getBean(ConnectorFactory.class);
 
-        final IntMappingType type = attrUtil.getType() == AttributableType.USER
-                ? IntMappingType.UserVirtualSchema : attrUtil.getType() == AttributableType.GROUP
+        final IntMappingType type = attrUtils.getType() == AttributableType.USER
+                ? IntMappingType.UserVirtualSchema : attrUtils.getType() == AttributableType.GROUP
                         ? IntMappingType.GroupVirtualSchema : IntMappingType.MembershipVirtualSchema;
 
         final Map<String, ConnectorObject> externalResources = new HashMap<>();
@@ -548,7 +532,7 @@ public class ConnObjectUtil {
         for (VirAttr virAttr : owner.getVirAttrs()) {
             // reset value set
             if (virAttr.getValues().isEmpty()) {
-                retrieveVirAttrValue(owner, virAttr, attrUtil, type, externalResources, connFactory);
+                retrieveVirAttrValue(owner, virAttr, attrUtils, type, externalResources, connFactory);
             }
         }
         // -----------------------
@@ -557,13 +541,13 @@ public class ConnObjectUtil {
     private void retrieveVirAttrValue(
             final Attributable<?, ?, ?> owner,
             final VirAttr virAttr,
-            final AttributableUtil attrUtil,
+            final AttributableUtils attrUtils,
             final IntMappingType type,
             final Map<String, ConnectorObject> externalResources,
             final ConnectorFactory connFactory) {
 
         final String schemaName = virAttr.getSchema().getKey();
-        final VirAttrCacheValue virAttrCacheValue = virAttrCache.get(attrUtil.getType(), owner.getKey(), schemaName);
+        final VirAttrCacheValue virAttrCacheValue = virAttrCache.get(attrUtils.getType(), owner.getKey(), schemaName);
 
         LOG.debug("Retrieve values for virtual attribute {} ({})", schemaName, type);
 
@@ -585,33 +569,32 @@ public class ConnObjectUtil {
                     : (Subject) owner;
 
             final Set<ExternalResource> targetResources = owner instanceof Membership
-                    ? getTargetResource(virAttr, type, attrUtil, realOwner.getResources())
-                    : getTargetResource(virAttr, type, attrUtil);
+                    ? getTargetResources(virAttr, type, attrUtils, realOwner.getResources())
+                    : getTargetResources(virAttr, type, attrUtils);
 
             for (ExternalResource resource : targetResources) {
                 LOG.debug("Search values into {}", resource.getKey());
                 try {
-                    final List<MappingItem> mappings = attrUtil.getMappingItems(resource, MappingPurpose.BOTH);
+                    List<MappingItem> mappings = attrUtils.getMappingItems(resource, MappingPurpose.BOTH);
 
-                    final ConnectorObject connectorObject;
-
+                    ConnectorObject connectorObject;
                     if (externalResources.containsKey(resource.getKey())) {
                         connectorObject = externalResources.get(resource.getKey());
                     } else {
                         LOG.debug("Perform connection to {}", resource.getKey());
-                        final String accountId = attrUtil.getAccountIdItem(resource) == null
+                        final String accountId = attrUtils.getAccountIdItem(resource) == null
                                 ? null
-                                : MappingUtil.getAccountIdValue(
-                                        realOwner, resource, attrUtil.getAccountIdItem(resource));
+                                : MappingUtils.getAccountIdValue(
+                                        realOwner, resource, attrUtils.getAccountIdItem(resource));
 
                         if (StringUtils.isBlank(accountId)) {
                             throw new IllegalArgumentException("No AccountId found for " + resource.getKey());
                         }
 
-                        final Connector connector = connFactory.getConnector(resource);
+                        Connector connector = connFactory.getConnector(resource);
 
-                        final OperationOptions oo =
-                                connector.getOperationOptions(MappingUtil.getMatchingMappingItems(mappings, type));
+                        OperationOptions oo =
+                                connector.getOperationOptions(MappingUtils.getMatchingMappingItems(mappings, type));
 
                         connectorObject = connector.getObject(fromSubject(realOwner), new Uid(accountId), oo);
                         externalResources.put(resource.getKey(), connectorObject);
@@ -619,8 +602,8 @@ public class ConnObjectUtil {
 
                     if (connectorObject != null) {
                         // ask for searched virtual attribute value
-                        final List<MappingItem> virAttrMappings =
-                                MappingUtil.getMatchingMappingItems(mappings, schemaName, type);
+                        Collection<MappingItem> virAttrMappings =
+                                MappingUtils.getMatchingMappingItems(mappings, schemaName, type);
 
                         // the same virtual attribute could be mapped with one or more external attribute 
                         for (MappingItem mapping : virAttrMappings) {
@@ -635,7 +618,7 @@ public class ConnObjectUtil {
                             }
                         }
 
-                        toBeCached.setResourceValues(resource.getKey(), new HashSet<String>(virAttr.getValues()));
+                        toBeCached.setResourceValues(resource.getKey(), new HashSet<>(virAttr.getValues()));
 
                         LOG.debug("Retrieved values {}", virAttr.getValues());
                     }
@@ -655,19 +638,19 @@ public class ConnObjectUtil {
                 }
             }
 
-            virAttrCache.put(attrUtil.getType(), owner.getKey(), schemaName, toBeCached);
+            virAttrCache.put(attrUtils.getType(), owner.getKey(), schemaName, toBeCached);
         }
     }
 
-    private Set<ExternalResource> getTargetResource(
-            final VirAttr attr, final IntMappingType type, final AttributableUtil attrUtil) {
+    private Set<ExternalResource> getTargetResources(
+            final VirAttr attr, final IntMappingType type, final AttributableUtils attrUtils) {
 
         final Set<ExternalResource> resources = new HashSet<>();
 
         if (attr.getOwner() instanceof Subject) {
             for (ExternalResource res : ((Subject<?, ?, ?>) attr.getOwner()).getResources()) {
-                if (!MappingUtil.getMatchingMappingItems(
-                        attrUtil.getMappingItems(res, MappingPurpose.BOTH),
+                if (!MappingUtils.getMatchingMappingItems(
+                        attrUtils.getMappingItems(res, MappingPurpose.BOTH),
                         attr.getSchema().getKey(), type).isEmpty()) {
 
                     resources.add(res);
@@ -678,14 +661,14 @@ public class ConnObjectUtil {
         return resources;
     }
 
-    private Set<ExternalResource> getTargetResource(final VirAttr attr, final IntMappingType type,
-            final AttributableUtil attrUtil, final Set<? extends ExternalResource> ownerResources) {
+    private Set<ExternalResource> getTargetResources(final VirAttr attr, final IntMappingType type,
+            final AttributableUtils attrUtils, final Set<? extends ExternalResource> ownerResources) {
 
         final Set<ExternalResource> resources = new HashSet<>();
 
         for (ExternalResource res : ownerResources) {
-            if (!MappingUtil.getMatchingMappingItems(
-                    attrUtil.getMappingItems(res, MappingPurpose.BOTH),
+            if (!MappingUtils.getMatchingMappingItems(
+                    attrUtils.getMappingItems(res, MappingPurpose.BOTH),
                     attr.getSchema().getKey(), type).isEmpty()) {
 
                 resources.add(res);
@@ -730,7 +713,7 @@ public class ConnObjectUtil {
 
         if (template.getValues() != null && !template.getValues().isEmpty()) {
             for (String value : template.getValues()) {
-                String evaluated = JexlUtil.evaluate(value, attributableTO);
+                String evaluated = JexlUtils.evaluate(value, attributableTO);
                 if (StringUtils.isNotBlank(evaluated)) {
                     result.getValues().add(evaluated);
                 }

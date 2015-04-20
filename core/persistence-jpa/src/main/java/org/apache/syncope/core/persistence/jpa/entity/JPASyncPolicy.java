@@ -30,14 +30,7 @@ public class JPASyncPolicy extends JPAPolicy implements SyncPolicy {
     private static final long serialVersionUID = -6090413855809521279L;
 
     public JPASyncPolicy() {
-        this(false);
-    }
-
-    public JPASyncPolicy(final boolean global) {
         super();
-
-        this.type = global
-                ? PolicyType.GLOBAL_SYNC
-                : PolicyType.SYNC;
+        this.type = PolicyType.SYNC;
     }
 }

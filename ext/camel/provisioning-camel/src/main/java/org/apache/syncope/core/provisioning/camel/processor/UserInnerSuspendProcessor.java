@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.core.provisioning.camel.processor;
 
-import java.util.AbstractMap.SimpleEntry;
 import java.util.List;
-import java.util.Map;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.mod.UserMod;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
@@ -40,9 +40,9 @@ public class UserInnerSuspendProcessor implements Processor {
     @Autowired
     protected PropagationTaskExecutor taskExecutor;
 
-    @SuppressWarnings("unchecked")
     @Override
     public void process(final Exchange exchange) {
+        @SuppressWarnings("unchecked")
         WorkflowResult<Long> updated = (WorkflowResult) exchange.getIn().getBody();
         Boolean propagate = exchange.getProperty("propagate", Boolean.class);
 
@@ -50,9 +50,9 @@ public class UserInnerSuspendProcessor implements Processor {
             UserMod userMod = new UserMod();
             userMod.setKey(updated.getResult());
 
-            final List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(
-                    new WorkflowResult<Map.Entry<UserMod, Boolean>>(
-                            new SimpleEntry<>(userMod, Boolean.FALSE),
+            List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(
+                    new WorkflowResult<Pair<UserMod, Boolean>>(
+                            new ImmutablePair<>(userMod, Boolean.FALSE),
                             updated.getPropByRes(), updated.getPerformedTasks()));
             taskExecutor.execute(tasks);
         }

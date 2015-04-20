@@ -32,9 +32,19 @@ public abstract class AbstractSubjectTO extends AbstractAttributableTO {
 
     private static final long serialVersionUID = 114668706977919206L;
 
+    private String realm;
+
     private final Set<String> resources = new HashSet<>();
 
     private final List<PropagationStatus> propagationStatusTOs = new ArrayList<>();
+
+    public String getRealm() {
+        return realm;
+    }
+
+    public void setRealm(final String realm) {
+        this.realm = realm;
+    }
 
     @XmlElementWrapper(name = "resources")
     @XmlElement(name = "resource")

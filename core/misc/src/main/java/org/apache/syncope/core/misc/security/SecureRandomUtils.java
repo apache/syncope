@@ -22,7 +22,7 @@ import java.security.SecureRandom;
 
 import org.apache.commons.lang3.RandomStringUtils;
 
-public final class SecureRandomUtil {
+public final class SecureRandomUtils {
 
     private static final SecureRandom RANDOM = new SecureRandom();
 
@@ -42,7 +42,7 @@ public final class SecureRandomUtil {
         return RandomStringUtils.random(1, 0, 0, false, false, characters, RANDOM);
     }
 
-    private SecureRandomUtil() {
+    private SecureRandomUtils() {
         // private constructor for static utility class
     }
 }

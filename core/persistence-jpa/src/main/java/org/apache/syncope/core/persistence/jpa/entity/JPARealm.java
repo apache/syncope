@@ -27,6 +27,7 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.Size;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.entity.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.Realm;
@@ -49,13 +50,13 @@ public class JPARealm extends AbstractEntity<Long> implements Realm {
     @Size(min = 1)
     private String name;
 
-    @ManyToOne(optional = true)
+    @ManyToOne
     private JPARealm parent;
 
-    @ManyToOne(fetch = FetchType.EAGER, optional = true)
+    @ManyToOne(fetch = FetchType.EAGER)
     private JPAPasswordPolicy passwordPolicy;
 
-    @ManyToOne(fetch = FetchType.EAGER, optional = true)
+    @ManyToOne(fetch = FetchType.EAGER)
     private JPAAccountPolicy accountPolicy;
 
     @Override
@@ -76,8 +77,8 @@ public class JPARealm extends AbstractEntity<Long> implements Realm {
     @Override
     public String getFullPath() {
         return getParent() == null
-                ? StringUtils.EMPTY
-                : getParent().getFullPath() + "/" + getName();
+                ? SyncopeConstants.ROOT_REALM
+                : StringUtils.appendIfMissing(getParent().getFullPath(), "/") + getName();
     }
 
     @Override

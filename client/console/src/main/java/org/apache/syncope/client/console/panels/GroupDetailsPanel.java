@@ -19,7 +19,7 @@
 package org.apache.syncope.client.console.panels;
 
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.commons.JexlHelpUtil;
+import org.apache.syncope.client.console.commons.JexlHelpUtils;
 import org.apache.syncope.client.console.pages.GroupSelectModalPage;
 import org.apache.syncope.client.console.pages.UserOwnerSelectModalPage;
 import org.apache.syncope.client.console.panels.AttrTemplatesPanel.GroupAttrTemplatesChange;
@@ -142,9 +142,9 @@ public class GroupDetailsPanel extends Panel {
         final AjaxTextFieldPanel name =
                 new AjaxTextFieldPanel("name", "name", new PropertyModel<String>(groupTO, "key"));
 
-        final WebMarkupContainer jexlHelp = JexlHelpUtil.getJexlHelpWebContainer("jexlHelp");
+        final WebMarkupContainer jexlHelp = JexlHelpUtils.getJexlHelpWebContainer("jexlHelp");
 
-        final AjaxLink<Void> questionMarkJexlHelp = JexlHelpUtil.getAjaxLink(jexlHelp, "questionMarkJexlHelp");
+        final AjaxLink<Void> questionMarkJexlHelp = JexlHelpUtils.getAjaxLink(jexlHelp, "questionMarkJexlHelp");
         this.add(questionMarkJexlHelp);
         questionMarkJexlHelp.add(jexlHelp);
 

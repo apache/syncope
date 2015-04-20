@@ -23,11 +23,14 @@ import java.util.List;
 import java.util.Set;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.Subject;
 import org.apache.syncope.core.persistence.api.entity.membership.Membership;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 
 public interface User extends Subject<UPlainAttr, UDerAttr, UVirAttr> {
+
+    boolean addRole(Role role);
 
     boolean addMembership(Membership membership);
 
@@ -46,6 +49,8 @@ public interface User extends Subject<UPlainAttr, UDerAttr, UVirAttr> {
     Integer getFailedLogins();
 
     Date getLastLoginDate();
+
+    List<? extends Role> getRoles();
 
     Membership getMembership(Long groupKey);
 
@@ -80,6 +85,8 @@ public interface User extends Subject<UPlainAttr, UDerAttr, UVirAttr> {
     Boolean isSuspended();
 
     void removeClearPassword();
+
+    boolean removeRole(Role role);
 
     boolean removeMembership(Membership membership);
 

@@ -73,8 +73,6 @@ public class JPARole extends AbstractEntity<Long> implements Role {
     @Valid
     private List<JPARealm> realms = new ArrayList<>();
 
-    private String criteria;
-
     @Override
     public Long getKey() {
         return id;
@@ -88,16 +86,6 @@ public class JPARole extends AbstractEntity<Long> implements Role {
     @Override
     public void setName(final String name) {
         this.name = name;
-    }
-
-    @Override
-    public String getCriteria() {
-        return criteria;
-    }
-
-    @Override
-    public void setCriteria(final String criteria) {
-        this.criteria = criteria;
     }
 
     @Override

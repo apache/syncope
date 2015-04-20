@@ -31,14 +31,14 @@ import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.SyncTask;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
-import org.apache.syncope.core.persistence.api.entity.task.TaskUtil;
+import org.apache.syncope.core.persistence.api.entity.task.TaskUtils;
 
 @SuppressWarnings("unchecked")
-public final class JPATaskUtil implements TaskUtil {
+public final class JPATaskUtils implements TaskUtils {
 
     private final TaskType type;
 
-    protected JPATaskUtil(final TaskType type) {
+    protected JPATaskUtils(final TaskType type) {
         this.type = type;
     }
 

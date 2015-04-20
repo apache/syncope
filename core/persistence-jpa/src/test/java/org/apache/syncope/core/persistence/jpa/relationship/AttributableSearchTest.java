@@ -25,9 +25,8 @@ import static org.junit.Assert.assertTrue;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.SubjectType;
-import org.apache.syncope.core.persistence.api.GroupEntitlementUtil;
-import org.apache.syncope.core.persistence.api.dao.EntitlementDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.SubjectSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
@@ -48,12 +47,9 @@ public class AttributableSearchTest extends AbstractTest {
     @Autowired
     private SubjectSearchDAO searchDAO;
 
-    @Autowired
-    private EntitlementDAO entitlementDAO;
-
     @Test
     public void issueSYNCOPE95() {
-        Set<Group> groups = new HashSet<>(groupDAO.findAll());
+        Set<Group> groups = new HashSet<>(groupDAO.findAll(SyncopeConstants.FULL_ADMIN_REALMS, 1, 100));
         for (Group group : groups) {
             groupDAO.delete(group.getKey());
         }
@@ -67,7 +63,7 @@ public class AttributableSearchTest extends AbstractTest {
         assertTrue(cond.isValid());
 
         final List<User> users =
-                searchDAO.search(GroupEntitlementUtil.getGroupKeys(entitlementDAO.findAll()), cond, SubjectType.USER);
+                searchDAO.search(SyncopeConstants.FULL_ADMIN_REALMS, cond, SubjectType.USER);
         assertNotNull(users);
         assertEquals(1, users.size());
 

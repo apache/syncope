@@ -25,6 +25,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.types.IntMappingType;
 
@@ -47,13 +49,13 @@ public class MappingTO extends AbstractBaseBean {
     }
 
     public MappingItemTO getAccountIdItem() {
-        MappingItemTO accountIdItem = null;
-        for (MappingItemTO item : getItems()) {
-            if (item.isAccountid()) {
-                accountIdItem = item;
+        return CollectionUtils.find(getItems(), new Predicate<MappingItemTO>() {
+
+            @Override
+            public boolean evaluate(final MappingItemTO item) {
+                return item.isAccountid();
             }
-        }
-        return accountIdItem;
+        });
     }
 
     protected boolean addAccountIdItem(final MappingItemTO accountIdItem) {
@@ -81,13 +83,13 @@ public class MappingTO extends AbstractBaseBean {
     }
 
     public MappingItemTO getPasswordItem() {
-        MappingItemTO passwordItem = null;
-        for (MappingItemTO item : getItems()) {
-            if (item.isPassword()) {
-                passwordItem = item;
+        return CollectionUtils.find(getItems(), new Predicate<MappingItemTO>() {
+
+            @Override
+            public boolean evaluate(final MappingItemTO item) {
+                return item.isPassword();
             }
-        }
-        return passwordItem;
+        });
     }
 
     public boolean setPasswordItem(final MappingItemTO passwordItem) {

@@ -20,11 +20,9 @@ package org.apache.syncope.core.misc.search;
 
 import static org.junit.Assert.assertEquals;
 
-import org.apache.syncope.common.lib.search.GroupFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.search.SpecialAttr;
 import org.apache.syncope.common.lib.search.UserFiqlSearchConditionBuilder;
 import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
-import org.apache.syncope.core.persistence.api.dao.search.EntitlementCond;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
 import org.apache.syncope.core.persistence.api.dao.search.ResourceCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
@@ -103,18 +101,6 @@ public class SearchCondConverterTest {
         ResourceCond resCond = new ResourceCond();
         resCond.setResourceName("resource-ldap");
         SearchCond simpleCond = SearchCond.getLeafCond(resCond);
-
-        assertEquals(simpleCond, SearchCondConverter.convert(fiqlExpression));
-    }
-
-    @Test
-    public void entitlements() {
-        String fiqlExpression = new GroupFiqlSearchConditionBuilder().hasEntitlements("USER_LIST").query();
-        assertEquals(SpecialAttr.ENTITLEMENTS + "==USER_LIST", fiqlExpression);
-
-        EntitlementCond entCond = new EntitlementCond();
-        entCond.setExpression("USER_LIST");
-        SearchCond simpleCond = SearchCond.getLeafCond(entCond);
 
         assertEquals(simpleCond, SearchCondConverter.convert(fiqlExpression));
     }

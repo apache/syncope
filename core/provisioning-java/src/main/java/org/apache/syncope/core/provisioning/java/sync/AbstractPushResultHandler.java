@@ -33,7 +33,7 @@ import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtil;
+import org.apache.syncope.core.persistence.api.entity.AttributableUtils;
 import org.apache.syncope.core.persistence.api.entity.Mapping;
 import org.apache.syncope.core.persistence.api.entity.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.Subject;
@@ -43,7 +43,7 @@ import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.sync.ProvisioningResult;
 import org.apache.syncope.core.provisioning.api.sync.PushActions;
-import org.apache.syncope.core.misc.MappingUtil;
+import org.apache.syncope.core.misc.MappingUtils;
 import org.apache.syncope.core.provisioning.api.sync.SyncopePushResultHandler;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.quartz.JobExecutionException;
@@ -52,7 +52,7 @@ import org.springframework.transaction.annotation.Transactional;
 public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHandler<PushTask, PushActions>
         implements SyncopePushResultHandler {
 
-    protected abstract AttributableUtil getAttributableUtil();
+    protected abstract AttributableUtils getAttributableUtils();
 
     protected abstract String getName(final Subject<?, ?, ?> subject);
 
@@ -91,13 +91,13 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
 
         final Subject<?, ?, ?> subject = getSubject(subjectId);
 
-        final AttributableUtil attrUtil = attrUtilFactory.getInstance(subject);
+        final AttributableUtils attrUtils = attrUtilsFactory.getInstance(subject);
 
         final ProvisioningResult result = new ProvisioningResult();
         profile.getResults().add(result);
 
         result.setId(subject.getKey());
-        result.setSubjectType(attrUtil.getType());
+        result.setSubjectType(attrUtils.getType());
         result.setName(getName(subject));
 
         final Boolean enabled = subject instanceof User && profile.getTask().isSyncStatus()
@@ -105,7 +105,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                 : null;
 
         LOG.debug("Propagating {} with key {} towards {}",
-                attrUtil.getType(), subject.getKey(), profile.getTask().getResource());
+                attrUtils.getType(), subject.getKey(), profile.getTask().getResource());
 
         Object output = null;
         Result resultStatus = null;
@@ -113,7 +113,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         String operation = null;
 
         // Try to read remote object (user / group) BEFORE any actual operation
-        final String accountId = MappingUtil.getAccountIdValue(
+        final String accountId = MappingUtils.getAccountIdValue(
                 subject, profile.getTask().getResource(), getMapping().getAccountIdItem());
 
         beforeObj = getRemoteObject(accountId);
@@ -265,18 +265,16 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                 LOG.warn("Error pushing {} towards {}", subject, profile.getTask().getResource(), e);
                 throw new JobExecutionException(e);
             } finally {
-                notificationManager.createTasks(
-                        AuditElements.EventCategoryType.PUSH,
-                        getAttributableUtil().getType().name().toLowerCase(),
+                notificationManager.createTasks(AuditElements.EventCategoryType.PUSH,
+                        getAttributableUtils().getType().name().toLowerCase(),
                         profile.getTask().getResource().getKey(),
                         operation,
                         resultStatus,
                         beforeObj,
                         output,
                         subject);
-                auditManager.audit(
-                        AuditElements.EventCategoryType.PUSH,
-                        getAttributableUtil().getType().name().toLowerCase(),
+                auditManager.audit(AuditElements.EventCategoryType.PUSH,
+                        getAttributableUtils().getType().name().toLowerCase(),
                         profile.getTask().getResource().getKey(),
                         operation,
                         resultStatus,
@@ -372,7 +370,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         final PropagationByResource propByRes = new PropagationByResource();
         propByRes.add(ResourceOperation.CREATE, profile.getTask().getResource().getKey());
 
-        taskExecutor.execute(propagationManager.getUpdateTaskIds(
+        taskExecutor.execute(propagationManager.getUpdateTasks(
                 sbj, null, changepwd, enabled, vattrToBeRemoved, vattrToBeUpdated, propByRes, noPropResources,
                 membsToAdd));
 

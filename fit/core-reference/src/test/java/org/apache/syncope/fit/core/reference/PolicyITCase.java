@@ -68,7 +68,7 @@ public class PolicyITCase extends AbstractITCase {
 
         assertNotNull(policyTO);
         assertTrue(policyTO.getUsedByResources().isEmpty());
-        assertTrue(policyTO.getUsedByGroups().containsAll(Arrays.asList(6L, 7L, 10L, 14L)));
+        assertTrue(policyTO.getUsedByRealms().contains("/odd"));
     }
 
     @Test
@@ -77,7 +77,7 @@ public class PolicyITCase extends AbstractITCase {
 
         assertNotNull(policyTO);
         assertTrue(policyTO.getUsedByResources().contains(RESOURCE_NAME_NOPROPAGATION));
-        assertTrue(policyTO.getUsedByGroups().containsAll(Arrays.asList(6L, 7L, 10L, 8L)));
+        assertTrue(policyTO.getUsedByRealms().containsAll(Arrays.asList("/", "/odd", "/even")));
     }
 
     @Test
@@ -85,50 +85,7 @@ public class PolicyITCase extends AbstractITCase {
         SyncPolicyTO policyTO = policyService.read(1L);
 
         assertNotNull(policyTO);
-        assertTrue(policyTO.getUsedByGroups().isEmpty());
-    }
-
-    @Test
-    public void getGlobalAccountPolicy() {
-        AccountPolicyTO policyTO = policyService.readGlobal(PolicyType.ACCOUNT);
-
-        assertNotNull(policyTO);
-        assertEquals(PolicyType.GLOBAL_ACCOUNT, policyTO.getType());
-    }
-
-    @Test
-    public void getGlobalPasswordPolicy() {
-        PasswordPolicyTO policyTO = policyService.readGlobal(PolicyType.PASSWORD);
-
-        assertNotNull(policyTO);
-        assertEquals(PolicyType.GLOBAL_PASSWORD, policyTO.getType());
-        assertEquals(8, policyTO.getSpecification().getMinLength());
-        assertFalse(policyTO.getUsedByResources().contains(RESOURCE_NAME_NOPROPAGATION));
-    }
-
-    @Test
-    public void getGlobalSyncPolicy() {
-        SyncPolicyTO policyTO = policyService.readGlobal(PolicyType.SYNC);
-
-        assertNotNull(policyTO);
-        assertEquals(PolicyType.GLOBAL_SYNC, policyTO.getType());
-        assertFalse(policyTO.getUsedByResources().contains(RESOURCE_NAME_CSV));
-        assertFalse(policyTO.getUsedByResources().contains(RESOURCE_NAME_WS2));
-        assertTrue(policyTO.getUsedByGroups().isEmpty());
-    }
-
-    @Test
-    public void createWithException() {
-        PasswordPolicyTO policy = new PasswordPolicyTO(true);
-        policy.setSpecification(new PasswordPolicySpec());
-        policy.setDescription("global password policy");
-
-        try {
-            createPolicy(policy);
-            fail();
-        } catch (SyncopeClientException e) {
-            assertEquals(ClientExceptionType.InvalidPolicy, e.getType());
-        }
+        assertTrue(policyTO.getUsedByRealms().isEmpty());
     }
 
     @Test
@@ -206,20 +163,6 @@ public class PolicyITCase extends AbstractITCase {
     @Test
     public void getCorrelationRules() {
         assertEquals(1, syncopeService.info().getSyncCorrelationRules().size());
-    }
-
-    @Test
-    public void issueSYNCOPE466() {
-        PasswordPolicyTO policy = policyService.read(4L);
-        assertEquals(PolicyType.PASSWORD, policy.getType());
-
-        policy.setType(PolicyType.GLOBAL_PASSWORD);
-        try {
-            policyService.update(policy.getKey(), policy);
-            fail();
-        } catch (SyncopeClientException e) {
-            assertEquals(ClientExceptionType.InvalidPolicy, e.getType());
-        }
     }
 
     @Test

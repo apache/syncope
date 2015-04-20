@@ -28,6 +28,7 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.AccessControlException;
+import java.util.Collections;
 import java.util.List;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -62,7 +63,6 @@ import org.apache.syncope.common.rest.api.CollectionWrapper;
 import org.apache.syncope.common.rest.api.Preference;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.GroupService;
-import org.identityconnectors.framework.common.objects.Name;
 import org.junit.FixMethodOrder;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -73,41 +73,19 @@ public class GroupITCase extends AbstractITCase {
 
     private GroupTO buildBasicGroupTO(final String name) {
         GroupTO groupTO = new GroupTO();
+        groupTO.setRealm("/");
         groupTO.setName(name + getUUIDString());
-        groupTO.setParent(8L);
         return groupTO;
     }
 
     private GroupTO buildGroupTO(final String name) {
         GroupTO groupTO = buildBasicGroupTO(name);
 
-        // verify inheritance password and account policies
-        groupTO.setInheritAccountPolicy(false);
-        // not inherited so setter execution shouldn't be ignored
-        groupTO.setAccountPolicy(6L);
-
-        groupTO.setInheritPasswordPolicy(true);
-        // inherited so setter execution should be ignored
-        groupTO.setPasswordPolicy(2L);
-
         groupTO.getGPlainAttrTemplates().add("icon");
         groupTO.getPlainAttrs().add(attrTO("icon", "anIcon"));
 
         groupTO.getResources().add(RESOURCE_NAME_LDAP);
         return groupTO;
-    }
-
-    @Test
-    public void createWithException() {
-        GroupTO newGroupTO = new GroupTO();
-        newGroupTO.getPlainAttrs().add(attrTO("attr1", "value1"));
-
-        try {
-            createGroup(newGroupTO);
-            fail();
-        } catch (SyncopeClientException e) {
-            assertEquals(ClientExceptionType.InvalidGroup, e.getType());
-        }
     }
 
     @Test
@@ -126,12 +104,6 @@ public class GroupITCase extends AbstractITCase {
         assertFalse(groupTO.getVirAttrMap().get("rvirtualdata").getValues().isEmpty());
         assertEquals("rvirtualvalue", groupTO.getVirAttrMap().get("rvirtualdata").getValues().get(0));
 
-        assertNotNull(groupTO.getAccountPolicy());
-        assertEquals(6L, (long) groupTO.getAccountPolicy());
-
-        assertNotNull(groupTO.getPasswordPolicy());
-        assertEquals(4L, (long) groupTO.getPasswordPolicy());
-
         assertTrue(groupTO.getResources().contains(RESOURCE_NAME_LDAP));
 
         ConnObjectTO connObjectTO =
@@ -148,22 +120,6 @@ public class GroupITCase extends AbstractITCase {
     }
 
     @Test
-    public void createWithPasswordPolicy() {
-        GroupTO groupTO = new GroupTO();
-        groupTO.setName("groupWithPassword" + getUUIDString());
-        groupTO.setParent(8L);
-        groupTO.setPasswordPolicy(4L);
-
-        GroupTO actual = createGroup(groupTO);
-        assertNotNull(actual);
-
-        actual = groupService.read(actual.getKey());
-        assertNotNull(actual);
-        assertNotNull(actual.getPasswordPolicy());
-        assertEquals(4L, (long) actual.getPasswordPolicy());
-    }
-
-    @Test
     public void delete() {
         try {
             groupService.delete(0L);
@@ -173,7 +129,7 @@ public class GroupITCase extends AbstractITCase {
 
         GroupTO groupTO = new GroupTO();
         groupTO.setName("toBeDeleted" + getUUIDString());
-        groupTO.setParent(8L);
+        groupTO.setRealm("/even");
 
         groupTO.getResources().add(RESOURCE_NAME_LDAP);
 
@@ -192,20 +148,12 @@ public class GroupITCase extends AbstractITCase {
 
     @Test
     public void list() {
-        PagedResult<GroupTO> groupTOs = groupService.list();
+        PagedResult<GroupTO> groupTOs = groupService.list(Collections.singletonList("/"));
         assertNotNull(groupTOs);
         assertTrue(groupTOs.getResult().size() >= 8);
         for (GroupTO groupTO : groupTOs.getResult()) {
             assertNotNull(groupTO);
         }
-    }
-
-    @Test
-    public void parent() {
-        GroupTO groupTO = groupService.parent(7L);
-
-        assertNotNull(groupTO);
-        assertEquals(groupTO.getKey(), 6L);
     }
 
     @Test
@@ -228,16 +176,17 @@ public class GroupITCase extends AbstractITCase {
         GroupService groupService2 = clientFactory.create("rossini", ADMIN_PWD).getService(GroupService.class);
 
         try {
-            groupService2.readSelf(3L);
+            groupService2.read(3L);
             fail();
         } catch (SyncopeClientException e) {
-            assertEquals(ClientExceptionType.UnauthorizedGroup, e.getType());
+            assertEquals(ClientExceptionType.Unauthorized, e.getType());
         }
 
-        GroupTO groupTO = groupService2.readSelf(1L);
-        assertNotNull(groupTO);
-        assertNotNull(groupTO.getPlainAttrs());
-        assertFalse(groupTO.getPlainAttrs().isEmpty());
+        List<GroupTO> groups = groupService2.own();
+        assertNotNull(groups);
+        assertFalse(groups.isEmpty());
+        assertNotNull(groups.get(0).getPlainAttrs());
+        assertFalse(groups.get(0).getPlainAttrs().isEmpty());
     }
 
     @Test
@@ -247,12 +196,6 @@ public class GroupITCase extends AbstractITCase {
         groupTO = createGroup(groupTO);
 
         assertEquals(1, groupTO.getPlainAttrs().size());
-
-        assertNotNull(groupTO.getAccountPolicy());
-        assertEquals(6L, (long) groupTO.getAccountPolicy());
-
-        assertNotNull(groupTO.getPasswordPolicy());
-        assertEquals(4L, (long) groupTO.getPasswordPolicy());
 
         GroupMod groupMod = new GroupMod();
         groupMod.setKey(groupTO.getKey());
@@ -267,13 +210,6 @@ public class GroupITCase extends AbstractITCase {
 
         assertEquals(modName, groupTO.getName());
         assertEquals(2, groupTO.getPlainAttrs().size());
-
-        // changes ignored because not requested (null ReferenceMod)
-        assertNotNull(groupTO.getAccountPolicy());
-        assertEquals(6L, (long) groupTO.getAccountPolicy());
-
-        // password policy null because not inherited
-        assertNull(groupTO.getPasswordPolicy());
     }
 
     @Test
@@ -319,7 +255,7 @@ public class GroupITCase extends AbstractITCase {
     @Test
     public void updateAsGroupOwner() {
         // 1. read group as admin
-        GroupTO groupTO = groupService.read(7L);
+        GroupTO groupTO = groupService.read(6L);
 
         // issue SYNCOPE-15
         assertNotNull(groupTO.getCreationDate());
@@ -330,9 +266,9 @@ public class GroupITCase extends AbstractITCase {
         // 2. prepare update
         GroupMod groupMod = new GroupMod();
         groupMod.setKey(groupTO.getKey());
-        groupMod.setName("Managing Director");
+        groupMod.setName("Director");
 
-        // 3. try to update as verdi, not owner of group 7 - fail
+        // 3. try to update as verdi, not owner of group 6 - fail
         GroupService groupService2 = clientFactory.create("verdi", ADMIN_PWD).getService(GroupService.class);
 
         try {
@@ -344,11 +280,11 @@ public class GroupITCase extends AbstractITCase {
             assertNotNull(e);
         }
 
-        // 4. update as puccini, owner of group 7 because owner of group 6 with inheritance - success
+        // 4. update as puccini, owner of group 6 - success
         GroupService groupService3 = clientFactory.create("puccini", ADMIN_PWD).getService(GroupService.class);
 
         groupTO = groupService3.update(groupMod.getKey(), groupMod).readEntity(GroupTO.class);
-        assertEquals("Managing Director", groupTO.getName());
+        assertEquals("Director", groupTO.getName());
 
         // issue SYNCOPE-15
         assertNotNull(groupTO.getCreationDate());
@@ -358,20 +294,17 @@ public class GroupITCase extends AbstractITCase {
         assertTrue(groupTO.getCreationDate().before(groupTO.getLastChangeDate()));
     }
 
-    /**
-     * Group rename used to fail in case of parent null.
-     */
     @Test
     public void issue178() {
         GroupTO groupTO = new GroupTO();
         String groupName = "torename" + getUUIDString();
         groupTO.setName(groupName);
+        groupTO.setRealm("/");
 
         GroupTO actual = createGroup(groupTO);
 
         assertNotNull(actual);
         assertEquals(groupName, actual.getName());
-        assertEquals(0L, actual.getParent());
 
         GroupMod groupMod = new GroupMod();
         groupMod.setKey(actual.getKey());
@@ -381,38 +314,6 @@ public class GroupITCase extends AbstractITCase {
         actual = updateGroup(groupMod);
         assertNotNull(actual);
         assertEquals(renamedGroup, actual.getName());
-        assertEquals(0L, actual.getParent());
-    }
-
-    @Test
-    public void issueSYNCOPE228() {
-        GroupTO groupTO = buildGroupTO("issueSYNCOPE228");
-        groupTO.getEntitlements().add("USER_READ");
-        groupTO.getEntitlements().add("SCHEMA_READ");
-
-        groupTO = createGroup(groupTO);
-        assertNotNull(groupTO);
-        assertNotNull(groupTO.getEntitlements());
-        assertFalse(groupTO.getEntitlements().isEmpty());
-
-        List<String> entitlements = groupTO.getEntitlements();
-
-        GroupMod groupMod = new GroupMod();
-        groupMod.setKey(groupTO.getKey());
-        groupMod.setInheritDerAttrs(Boolean.TRUE);
-
-        groupTO = updateGroup(groupMod);
-        assertNotNull(groupTO);
-        assertEquals(entitlements, groupTO.getEntitlements());
-
-        groupMod = new GroupMod();
-        groupMod.setKey(groupTO.getKey());
-        groupMod.setModEntitlements(true);
-        groupMod.getEntitlements().clear();
-
-        groupTO = updateGroup(groupMod);
-        assertNotNull(groupTO);
-        assertTrue(groupTO.getEntitlements().isEmpty());
     }
 
     @Test
@@ -610,7 +511,7 @@ public class GroupITCase extends AbstractITCase {
     public void createWithMandatorySchemaNotTemplate() {
         // 1. create a group mandatory schema
         PlainSchemaTO badge = new PlainSchemaTO();
-        badge.setKey("badge");
+        badge.setKey("badge" + getUUIDString());
         badge.setMandatoryCondition("true");
         schemaService.create(AttributableType.GROUP, SchemaType.PLAIN, badge);
 
@@ -625,8 +526,8 @@ public class GroupITCase extends AbstractITCase {
         // failure since no values are provided and it is mandatory
         GroupMod groupMod = new GroupMod();
         groupMod.setKey(groupTO.getKey());
-        groupMod.setModRAttrTemplates(true);
-        groupMod.getRPlainAttrTemplates().add("badge");
+        groupMod.setModGAttrTemplates(true);
+        groupMod.getGPlainAttrTemplates().add(badge.getKey());
 
         try {
             updateGroup(groupMod);
@@ -647,14 +548,14 @@ public class GroupITCase extends AbstractITCase {
     public void anonymous() {
         GroupService unauthenticated = clientFactory.createAnonymous().getService(GroupService.class);
         try {
-            unauthenticated.list();
+            unauthenticated.list(Collections.singletonList("/"));
             fail();
         } catch (AccessControlException e) {
             assertNotNull(e);
         }
 
         GroupService anonymous = clientFactory.create(ANONYMOUS_UNAME, ANONYMOUS_KEY).getService(GroupService.class);
-        assertFalse(anonymous.list().getResult().isEmpty());
+        assertFalse(anonymous.list(Collections.singletonList("/")).getResult().isEmpty());
     }
 
     @Test
@@ -684,122 +585,6 @@ public class GroupITCase extends AbstractITCase {
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
         assertEquals(Preference.RETURN_NO_CONTENT.toString(), response.getHeaderString(RESTHeaders.PREFERENCE_APPLIED));
         assertEquals(StringUtils.EMPTY, IOUtils.toString((InputStream) response.getEntity()));
-    }
-
-    @Test
-    public void issueSYNCOPE455() {
-        final String parentName = "issueSYNCOPE455-PGroup";
-        final String childName = "issueSYNCOPE455-CGroup";
-
-        // 1. create parent group
-        GroupTO parent = buildBasicGroupTO(parentName);
-        parent.getResources().add(RESOURCE_NAME_LDAP);
-
-        parent = createGroup(parent);
-        assertTrue(parent.getResources().contains(RESOURCE_NAME_LDAP));
-
-        final ConnObjectTO parentRemoteObject =
-                resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.GROUP, parent.getKey());
-        assertNotNull(parentRemoteObject);
-        assertNotNull(getLdapRemoteObject(parentRemoteObject.getPlainAttrMap().get(Name.NAME).getValues().get(0)));
-
-        // 2. create child group
-        GroupTO child = buildBasicGroupTO(childName);
-        child.getResources().add(RESOURCE_NAME_LDAP);
-        child.setParent(parent.getKey());
-
-        child = createGroup(child);
-        assertTrue(child.getResources().contains(RESOURCE_NAME_LDAP));
-
-        final ConnObjectTO childRemoteObject =
-                resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.GROUP, child.getKey());
-        assertNotNull(childRemoteObject);
-        assertNotNull(getLdapRemoteObject(childRemoteObject.getPlainAttrMap().get(Name.NAME).getValues().get(0)));
-
-        // 3. remove parent group
-        groupService.delete(parent.getKey());
-
-        // 4. asserts for issue 455
-        try {
-            groupService.read(parent.getKey());
-            fail();
-        } catch (SyncopeClientException scce) {
-            assertNotNull(scce);
-        }
-
-        try {
-            groupService.read(child.getKey());
-            fail();
-        } catch (SyncopeClientException scce) {
-            assertNotNull(scce);
-        }
-
-        assertNull(getLdapRemoteObject(parentRemoteObject.getPlainAttrMap().get(Name.NAME).getValues().get(0)));
-        assertNull(getLdapRemoteObject(childRemoteObject.getPlainAttrMap().get(Name.NAME).getValues().get(0)));
-    }
-
-    @Test
-    public void issueSYNCOPE543() {
-        final String ancestorName = "issueSYNCOPE543-AGroup";
-        final String parentName = "issueSYNCOPE543-PGroup";
-        final String childName = "issueSYNCOPE543-CGroup";
-
-        // 1. create ancestor group
-        GroupTO ancestor = buildBasicGroupTO(ancestorName);
-        ancestor.setParent(0L);
-        ancestor.getGPlainAttrTemplates().add("icon");
-        ancestor.getPlainAttrs().add(attrTO("icon", "ancestorIcon"));
-        ancestor = createGroup(ancestor);
-        assertEquals("ancestorIcon", ancestor.getPlainAttrMap().get("icon").getValues().get(0));
-
-        // 2. create parent group
-        GroupTO parent = buildBasicGroupTO(parentName);
-        parent.setParent(ancestor.getKey());
-        parent.getGPlainAttrTemplates().add("icon");
-        parent.getPlainAttrs().add(attrTO("icon", "parentIcon"));
-        parent = createGroup(parent);
-        assertEquals("parentIcon", parent.getPlainAttrMap().get("icon").getValues().get(0));
-
-        // 3. create child group
-        GroupTO child = buildBasicGroupTO(childName);
-        child.setParent(parent.getKey());
-        child.getGPlainAttrTemplates().add("icon");
-        child.getPlainAttrs().add(attrTO("icon", "childIcon"));
-        child = createGroup(child);
-        assertEquals("childIcon", child.getPlainAttrMap().get("icon").getValues().get(0));
-
-        final GroupMod groupChildMod = new GroupMod();
-        groupChildMod.setKey(child.getKey());
-        groupChildMod.setInheritPlainAttrs(Boolean.TRUE);
-        updateGroup(groupChildMod);
-
-        child = groupService.read(child.getKey());
-        assertNotNull(child);
-        assertNotNull(child.getPlainAttrMap().get("icon").getValues());
-        assertEquals("parentIcon", child.getPlainAttrMap().get("icon").getValues().get(0));
-
-        final GroupMod groupParentMod = new GroupMod();
-        groupParentMod.setKey(parent.getKey());
-        groupParentMod.setInheritPlainAttrs(Boolean.TRUE);
-        updateGroup(groupParentMod);
-
-        child = groupService.read(child.getKey());
-        assertNotNull(child);
-        assertNotNull(child.getPlainAttrMap().get("icon").getValues());
-        assertEquals("ancestorIcon", child.getPlainAttrMap().get("icon").getValues().get(0));
-
-        parent = groupService.read(parent.getKey());
-        assertNotNull(parent);
-        assertNotNull(parent.getPlainAttrMap().get("icon").getValues());
-        assertEquals("ancestorIcon", parent.getPlainAttrMap().get("icon").getValues().get(0));
-
-        groupParentMod.setInheritPlainAttrs(Boolean.FALSE);
-        updateGroup(groupParentMod);
-
-        child = groupService.read(child.getKey());
-        assertNotNull(child);
-        assertNotNull(child.getPlainAttrMap().get("icon").getValues());
-        assertEquals("parentIcon", child.getPlainAttrMap().get("icon").getValues().get(0));
     }
 
     @Test

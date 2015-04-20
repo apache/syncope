@@ -30,14 +30,7 @@ public class JPAPasswordPolicy extends JPAPolicy implements PasswordPolicy {
     private static final long serialVersionUID = 9138550910385232849L;
 
     public JPAPasswordPolicy() {
-        this(false);
-    }
-
-    public JPAPasswordPolicy(final boolean global) {
         super();
-
-        this.type = global
-                ? PolicyType.GLOBAL_PASSWORD
-                : PolicyType.PASSWORD;
+        this.type = PolicyType.PASSWORD;
     }
 }

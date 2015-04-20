@@ -22,6 +22,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.util.List;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.CamelRouteTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -61,11 +63,11 @@ public class CamelRouteITCase extends AbstractITCase {
         }
     }
 
-    private CamelRouteTO doUpdate(final String key, String content) {
+    private CamelRouteTO doUpdate(final String key, final String content) {
         CamelRouteTO route = camelRouteService.read(key);
         route.setContent(content);
         camelRouteService.update(route.getKey(), route);
-        //getting new route definition
+        // getting new route definition
         return camelRouteService.read(key);
     }
 
@@ -108,45 +110,49 @@ public class CamelRouteITCase extends AbstractITCase {
         Assume.assumeTrue(CamelDetector.isCamelEnabledForUsers(syncopeService));
 
         CamelRouteTO oldRoute = camelRouteService.read("createUser");
-        //updating route content including new attribute management
-        String routeContent = "<route id=\"createUser\">\n"
-                + "  <from uri=\"direct:createUser\"/>\n"
-                + "  <setProperty propertyName=\"actual\">\n"
-                + "    <simple>${body}</simple>\n"
-                + "  </setProperty>\n"
-                + "  <setBody>\n"
-                + "   <groovy>\n"
-                + "       request.body.getPlainAttrs().get(3).getValues().set(0,\"true\")\n"
+        // updating route content including new attribute management
+
+        String routeContent = ""
+                + "  <route id=\"createUser\">\n"
+                + "    <from uri=\"direct:createUser\"/>\n"
+                + "    <setProperty propertyName=\"actual\">\n"
+                + "      <simple>${body}</simple>\n"
+                + "    </setProperty>\n"
+                + "    <setBody>\n"
+                + "     <groovy>\n"
+                + "       org.apache.commons.collections4."
+                + "CollectionUtils.get(request.body.getPlainAttrs(), 3).getValues().set(0,\"true\")\n"
                 + "       return request.body\n"
-                + "   </groovy>\n"
-                + "  </setBody>\n"
-                + "  <doTry>\n"
+                + "     </groovy>\n"
+                + "    </setBody>\n"
+                + "    <doTry>\n"
                 + "      <bean ref=\"uwfAdapter\" method=\"create(${body},${property.disablePwdPolicyCheck},\n"
-                + "                            ${property.enabled},${property.storePassword})\"/>\n"
-                + "      <process ref=\"userCreateProcessor\" />\n"
+                + "                                     ${property.enabled},${property.storePassword})\"/>\n"
+                + "      <process ref=\"userCreateProcessor\"/>\n"
                 + "      <to uri=\"direct:createPort\"/>\n"
                 + "      <doCatch>        \n"
-                + "      <exception>java.lang.RuntimeException</exception>\n"
-                + "          <handled>\n"
-                + "           <constant>false</constant>\n"
-                + "          </handled>\n"
-                + "      <to uri=\"direct:createPort\"/>\n"
+                + "        <exception>java.lang.RuntimeException</exception>\n"
+                + "        <handled>\n"
+                + "          <constant>false</constant>\n"
+                + "        </handled>\n"
+                + "        <to uri=\"direct:createPort\"/>\n"
                 + "      </doCatch>\n"
-                + "   </doTry>\n"
-                + "</route>";
+                + "    </doTry>\n"
+                + "  </route> ";
         try {
             doUpdate("createUser", routeContent);
 
-            //creating new schema attribute for user
+            // creating new schema attribute for user
             PlainSchemaTO schemaTO = new PlainSchemaTO();
             schemaTO.setKey("camelAttribute");
             schemaTO.setType(AttrSchemaType.String);
             createSchema(AttributableType.USER, SchemaType.PLAIN, schemaTO);
 
             UserTO userTO = new UserTO();
+            userTO.setRealm(SyncopeConstants.ROOT_REALM);
             String userId = getUUIDString() + "camelUser@syncope.apache.org";
             userTO.setUsername(userId);
-            userTO.setPassword("password");
+            userTO.setPassword("password123");
             userTO.getPlainAttrs().add(attrTO("userId", userId));
             userTO.getPlainAttrs().add(attrTO("fullname", userId));
             userTO.getPlainAttrs().add(attrTO("surname", userId));
@@ -154,7 +160,7 @@ public class CamelRouteITCase extends AbstractITCase {
 
             userTO = createUser(userTO);
             assertNotNull(userTO);
-            assertEquals("true", userTO.getPlainAttrs().get(3).getValues().get(0));
+            assertEquals("true", CollectionUtils.get(userTO.getPlainAttrs(), 3).getValues().get(0));
         } finally {
             doUpdate(oldRoute.getKey(), oldRoute.getContent());
         }

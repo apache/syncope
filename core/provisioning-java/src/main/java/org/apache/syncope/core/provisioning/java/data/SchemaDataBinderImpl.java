@@ -28,13 +28,13 @@ import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.VirSchemaTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtil;
+import org.apache.syncope.core.persistence.api.entity.AttributableUtils;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.misc.spring.BeanUtils;
-import org.apache.syncope.core.misc.jexl.JexlUtil;
+import org.apache.syncope.core.misc.jexl.JexlUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -46,7 +46,7 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
 
     // --------------- PLAIN -----------------
     private <T extends PlainSchema> void fill(final T schema, final PlainSchemaTO schemaTO) {
-        if (!JexlUtil.isExpressionValid(schemaTO.getMandatoryCondition())) {
+        if (!JexlUtils.isExpressionValid(schemaTO.getMandatoryCondition())) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidValues);
             sce.getElements().add(schemaTO.getMandatoryCondition());
             throw sce;
@@ -62,7 +62,7 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
 
     @Override
     public <T extends PlainSchema> void update(final PlainSchemaTO schemaTO, final T schema,
-            final AttributableUtil attributableUtil) {
+            final AttributableUtils attributableUtil) {
 
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
 
@@ -91,7 +91,7 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
 
     @Override
     public <T extends PlainSchema> PlainSchemaTO getPlainSchemaTO(
-            final T schema, final AttributableUtil attributableUtil) {
+            final T schema, final AttributableUtils attributableUtil) {
 
         PlainSchemaTO schemaTO = new PlainSchemaTO();
         BeanUtils.copyProperties(schema, schemaTO);
@@ -109,7 +109,7 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
             requiredValuesMissing.getElements().add("expression");
 
             scce.addException(requiredValuesMissing);
-        } else if (!JexlUtil.isExpressionValid(derSchemaTO.getExpression())) {
+        } else if (!JexlUtils.isExpressionValid(derSchemaTO.getExpression())) {
             SyncopeClientException e = SyncopeClientException.build(ClientExceptionType.InvalidValues);
             e.getElements().add(derSchemaTO.getExpression());
 

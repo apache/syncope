@@ -155,7 +155,7 @@ public class NotificationITCase extends AbstractITCase {
         NotificationTO notificationTO = buildNotificationTO();
         notificationTO.getStaticRecipients().add("syncope446@syncope.apache.org");
         notificationTO.setGroupAbout(
-                SyncopeClient.getGroupSearchConditionBuilder().hasEntitlements("GROUP_READ").query());
+                SyncopeClient.getGroupSearchConditionBuilder().is("name").equalTo("citizen").query());
 
         NotificationTO actual = null;
         try {

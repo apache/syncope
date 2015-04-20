@@ -37,9 +37,7 @@ import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.SubjectType;
 import org.apache.syncope.common.lib.CollectionUtils2;
-import org.apache.syncope.core.persistence.api.GroupEntitlementUtil;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
-import org.apache.syncope.core.persistence.api.dao.EntitlementDAO;
 import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.SubjectSearchDAO;
@@ -47,7 +45,7 @@ import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.Attributable;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtilFactory;
+import org.apache.syncope.core.persistence.api.entity.AttributableUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Notification;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
@@ -61,7 +59,7 @@ import org.apache.syncope.core.persistence.api.entity.user.UVirAttr;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
-import org.apache.syncope.core.misc.ConnObjectUtil;
+import org.apache.syncope.core.misc.ConnObjectUtils;
 import org.apache.syncope.core.misc.search.SearchCondConverter;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
@@ -138,10 +136,7 @@ public class NotificationManagerImpl implements NotificationManager {
     private ToolManager velocityToolManager;
 
     @Autowired
-    private EntitlementDAO entitlementDAO;
-
-    @Autowired
-    private ConnObjectUtil connObjectUtil;
+    private ConnObjectUtils connObjectUtils;
 
     @Autowired
     private UserDataBinder userDataBinder;
@@ -153,7 +148,7 @@ public class NotificationManagerImpl implements NotificationManager {
     private EntityFactory entityFactory;
 
     @Autowired
-    private AttributableUtilFactory attrUtilFactory;
+    private AttributableUtilsFactory attrUtilsFactory;
 
     @Transactional(readOnly = true)
     @Override
@@ -175,15 +170,15 @@ public class NotificationManagerImpl implements NotificationManager {
             final Map<String, Object> model) {
 
         if (attributable != null) {
-            connObjectUtil.retrieveVirAttrValues(attributable,
-                    attrUtilFactory.getInstance(
+            connObjectUtils.retrieveVirAttrValues(attributable,
+                    attrUtilsFactory.getInstance(
                             attributable instanceof User ? AttributableType.USER : AttributableType.GROUP));
         }
 
         final List<User> recipients = new ArrayList<>();
 
         if (notification.getRecipients() != null) {
-            recipients.addAll(searchDAO.<User>search(GroupEntitlementUtil.getGroupKeys(entitlementDAO.findAll()),
+            recipients.addAll(searchDAO.<User>search(SyncopeConstants.FULL_ADMIN_REALMS,
                     SearchCondConverter.convert(notification.getRecipients()),
                     Collections.<OrderByClause>emptyList(), SubjectType.USER));
         }
@@ -195,7 +190,7 @@ public class NotificationManagerImpl implements NotificationManager {
         final Set<String> recipientEmails = new HashSet<>();
         final List<UserTO> recipientTOs = new ArrayList<>(recipients.size());
         for (User recipient : recipients) {
-            connObjectUtil.retrieveVirAttrValues(recipient, attrUtilFactory.getInstance(AttributableType.USER));
+            connObjectUtils.retrieveVirAttrValues(recipient, attrUtilsFactory.getInstance(AttributableType.USER));
 
             String email = getRecipientEmail(notification.getRecipientAttrType(),
                     notification.getRecipientAttrName(), recipient);
@@ -293,13 +288,10 @@ public class NotificationManagerImpl implements NotificationManager {
         for (Notification notification : notificationDAO.findAll()) {
             LOG.debug("Notification available user about {}", notification.getUserAbout());
             LOG.debug("Notification available group about {}", notification.getGroupAbout());
+
             if (notification.isActive()) {
-
-                final Set<String> events = new HashSet<>(notification.getEvents());
-                events.retainAll(Collections.<String>singleton(AuditLoggerName.buildEvent(
-                        type, category, subcategory, event, condition)));
-
-                if (events.isEmpty()) {
+                String currentEvent = AuditLoggerName.buildEvent(type, category, subcategory, event, condition);
+                if (!notification.getEvents().contains(currentEvent)) {
                     LOG.debug("No events found about {}", subject);
                 } else if (subjectType == null || subject == null
                         || notification.getUserAbout() == null || notification.getGroupAbout() == null
@@ -308,7 +300,7 @@ public class NotificationManagerImpl implements NotificationManager {
                         || searchDAO.matches(subject,
                                 SearchCondConverter.convert(notification.getGroupAbout()), subjectType)) {
 
-                    LOG.debug("Creating notification task for events {} about {}", events, subject);
+                    LOG.debug("Creating notification task for event {} about {}", currentEvent, subject);
 
                     final Map<String, Object> model = new HashMap<>();
                     model.put("type", type);

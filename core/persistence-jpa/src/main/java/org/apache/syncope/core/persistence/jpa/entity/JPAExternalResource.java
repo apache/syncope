@@ -148,13 +148,13 @@ public class JPAExternalResource extends AbstractAnnotatedEntity<String> impleme
     @Column(nullable = false)
     private TraceLevel syncTraceLevel;
 
-    @ManyToOne(fetch = FetchType.EAGER, optional = true)
+    @ManyToOne(fetch = FetchType.EAGER)
     private JPAPasswordPolicy passwordPolicy;
 
-    @ManyToOne(fetch = FetchType.EAGER, optional = true)
+    @ManyToOne(fetch = FetchType.EAGER)
     private JPAAccountPolicy accountPolicy;
 
-    @ManyToOne(fetch = FetchType.EAGER, optional = true)
+    @ManyToOne(fetch = FetchType.EAGER)
     private JPASyncPolicy syncPolicy;
 
     /**

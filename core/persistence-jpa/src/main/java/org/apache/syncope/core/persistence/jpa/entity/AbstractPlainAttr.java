@@ -26,7 +26,7 @@ import javax.persistence.MappedSuperclass;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidPlainAttrValueException;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtil;
+import org.apache.syncope.core.persistence.api.entity.AttributableUtils;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
@@ -41,7 +41,7 @@ public abstract class AbstractPlainAttr extends AbstractEntity<Long> implements 
     protected abstract boolean addValue(PlainAttrValue attrValue);
 
     @Override
-    public void addValue(final String value, final AttributableUtil attributableUtil)
+    public void addValue(final String value, final AttributableUtils attributableUtil)
             throws InvalidPlainAttrValueException {
 
         PlainAttrValue attrValue;

@@ -22,7 +22,7 @@ import org.apache.syncope.common.lib.to.ConnPoolConfTO;
 import org.apache.syncope.core.persistence.api.entity.ConnPoolConf;
 import org.identityconnectors.common.pooling.ObjectPoolConfiguration;
 
-public final class ConnPoolConfUtil {
+public final class ConnPoolConfUtils {
 
     public static ConnPoolConf getConnPoolConf(final ConnPoolConfTO cpcto, final ConnPoolConf cpc) {
         ObjectPoolConfiguration opc = new ObjectPoolConfiguration();
@@ -63,7 +63,7 @@ public final class ConnPoolConfUtil {
         }
     }
 
-    private ConnPoolConfUtil() {
+    private ConnPoolConfUtils() {
         // empty constructor for static utility class
     }
 }

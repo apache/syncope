@@ -24,20 +24,12 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import java.util.Collections;
 import java.util.List;
-import org.apache.syncope.common.lib.search.UserFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.types.Entitlement;
-import org.apache.syncope.common.lib.types.SubjectType;
-import org.apache.syncope.core.misc.search.SearchCondConverter;
-import org.apache.syncope.core.persistence.api.GroupEntitlementUtil;
-import org.apache.syncope.core.persistence.api.dao.EntitlementDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.SubjectSearchDAO;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.Role;
-import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,9 +42,6 @@ public class RoleTest extends AbstractTest {
     private RoleDAO roleDAO;
 
     @Autowired
-    private EntitlementDAO entitlementDAO;
-
-    @Autowired
     private SubjectSearchDAO searchDAO;
 
     @Autowired
@@ -63,10 +52,6 @@ public class RoleTest extends AbstractTest {
         Role role1 = roleDAO.find(2L);
         assertNotNull(role1);
         assertNotNull(role1.getName());
-        assertFalse(searchDAO.<User>search(
-                GroupEntitlementUtil.getGroupKeys(entitlementDAO.findAll()),
-                SearchCondConverter.convert(role1.getCriteria()),
-                Collections.<OrderByClause>emptyList(), SubjectType.USER).isEmpty());
         assertFalse(role1.getRealms().isEmpty());
         assertFalse(role1.getEntitlements().isEmpty());
         assertTrue(role1.getEntitlements().contains(Entitlement.USER_LIST));
@@ -89,7 +74,6 @@ public class RoleTest extends AbstractTest {
     public void save() {
         Role role = entityFactory.newEntity(Role.class);
         role.setName("new");
-        role.setCriteria(new UserFiqlSearchConditionBuilder().inGroups(2L).query());
         role.addRealm(realmDAO.getRoot());
         role.addRealm(realmDAO.find("/even/two"));
         role.getEntitlements().add(Entitlement.LOG_LIST);

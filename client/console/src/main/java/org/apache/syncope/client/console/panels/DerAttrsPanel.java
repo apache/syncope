@@ -100,7 +100,7 @@ public class DerAttrsPanel extends Panel {
                 } else if (entityTO instanceof UserTO) {
                     derSchemaNames = schemaRestClient.getDerSchemaNames(AttributableType.USER);
                 } else {
-                    derSchemaNames = groupRestClient.read(((MembershipTO) entityTO).getGroupId()).getMDerAttrTemplates();
+                    derSchemaNames = groupRestClient.read(((MembershipTO) entityTO).getGroupKey()).getMDerAttrTemplates();
                 }
 
                 return derSchemaNames;

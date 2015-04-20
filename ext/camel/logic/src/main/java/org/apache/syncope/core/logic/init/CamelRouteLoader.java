@@ -75,7 +75,6 @@ public class CamelRouteLoader implements SyncopeLoader {
             if (!loaded) {
                 loadRoutes(userRoutesLoader.getResource(), SubjectType.USER);
                 loadRoutes(groupRoutesLoader.getResource(), SubjectType.GROUP);
-                loadEntitlements();
                 loaded = true;
             }
         }
@@ -134,33 +133,6 @@ public class CamelRouteLoader implements SyncopeLoader {
                 LOG.error("While trying to store queries {}", e);
             } catch (Exception e) {
                 LOG.error("Route load failed {}", e.getMessage());
-            }
-        }
-    }
-
-    private void loadEntitlements() {
-        final JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-
-        boolean existingData;
-        try {
-            existingData = jdbcTemplate.queryForObject(
-                    "SELECT COUNT(0) FROM Entitlement WHERE NAME LIKE 'ROUTE_%'", Integer.class) > 0;
-        } catch (DataAccessException e) {
-            LOG.error("Could not access to Entitlement table", e);
-            existingData = true;
-        }
-
-        if (existingData) {
-            LOG.info("Camel route entitlements found in the database, leaving untouched");
-        } else {
-            LOG.info("No Camel route entitlements found in the database, loading");
-
-            try {
-                jdbcTemplate.update("INSERT INTO Entitlement(NAME) VALUES('ROUTE_READ')");
-                jdbcTemplate.update("INSERT INTO Entitlement(NAME) VALUES('ROUTE_LIST')");
-                jdbcTemplate.update("INSERT INTO Entitlement(NAME) VALUES('ROUTE_UPDATE')");
-            } catch (Exception e) {
-                LOG.error("While adding additional entitlements", e);
             }
         }
     }

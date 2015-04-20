@@ -32,7 +32,6 @@ import org.activiti.engine.impl.persistence.entity.GroupEntity;
 import org.activiti.engine.impl.persistence.entity.IdentityInfoEntity;
 import org.activiti.engine.impl.persistence.entity.UserEntity;
 import org.activiti.engine.impl.persistence.entity.UserIdentityManager;
-import org.apache.syncope.core.persistence.api.dao.EntitlementDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,9 +43,6 @@ public class SyncopeUserManager implements UserIdentityManager, SyncopeSession {
 
     @Autowired
     private GroupDAO groupDAO;
-
-    @Autowired
-    private EntitlementDAO entitlementDAO;
 
     @Override
     public Class<?> getType() {
@@ -65,7 +61,7 @@ public class SyncopeUserManager implements UserIdentityManager, SyncopeSession {
 
     @Override
     public UserQuery createNewUserQuery() {
-        return new SyncopeUserQueryImpl(userDAO, groupDAO, entitlementDAO);
+        return new SyncopeUserQueryImpl(userDAO, groupDAO);
     }
 
     @Override

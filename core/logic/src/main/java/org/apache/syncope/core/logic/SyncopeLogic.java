@@ -34,6 +34,7 @@ import org.apache.syncope.core.provisioning.api.AttributableTransformer;
 import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
 import org.apache.syncope.core.provisioning.api.GroupProvisioningManager;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
+import org.apache.syncope.core.provisioning.api.cache.VirAttrCache;
 import org.apache.syncope.core.provisioning.java.notification.NotificationManagerImpl;
 import org.apache.syncope.core.workflow.api.GroupWorkflowAdapter;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
@@ -69,6 +70,9 @@ public class SyncopeLogic extends AbstractLogic<SyncopeTO> {
 
     @Autowired
     private GroupProvisioningManager gProvisioningManager;
+
+    @Autowired
+    private VirAttrCache virAttrCache;
 
     @Autowired
     private ImplementationClassNamesLoader classNamesLoader;
@@ -114,6 +118,7 @@ public class SyncopeLogic extends AbstractLogic<SyncopeTO> {
 
         syncopeTO.setUserProvisioningManager(uProvisioningManager.getClass().getName());
         syncopeTO.setGroupProvisioningManager(gProvisioningManager.getClass().getName());
+        syncopeTO.setVirAttrCache(virAttrCache.getClass().getName());
 
         syncopeTO.getReportlets().addAll(
                 classNamesLoader.getClassNames(ImplementationClassNamesLoader.Type.REPORTLET));

@@ -19,8 +19,11 @@
 package org.apache.syncope.common.lib;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 import org.apache.commons.collections4.Predicate;
+import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.collections4.Transformer;
 
 public final class CollectionUtils2 {
@@ -120,6 +123,28 @@ public final class CollectionUtils2 {
             }
         }
         return outputCollection;
+    }
+
+    /**
+     * Gets elements in the input collection that match the predicate.
+     * <p/>
+     * A <code>null</code> collection or predicate matches no elements.
+     *
+     * @param <C> the type of object the {@link Iterable} contains
+     * @param input the {@link Iterable} to get the input from, may be null
+     * @param predicate the predicate to use, may be null
+     * @return the matches for the predicate in the collection
+     */
+    public static <C> Collection<C> find(final Iterable<C> input, final Predicate<? super C> predicate) {
+        Set<C> result = SetUtils.predicatedSet(new HashSet<C>(), predicate);
+        if (input != null && predicate != null) {
+            for (final C o : input) {
+                if (predicate.evaluate(o)) {
+                    result.add(o);
+                }
+            }
+        }
+        return SetUtils.unmodifiableSet(result);
     }
 
     private CollectionUtils2() {

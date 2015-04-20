@@ -18,19 +18,12 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
-import java.util.HashMap;
-import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.collections4.Predicate;
-import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.core.persistence.api.entity.Attributable;
 import org.apache.syncope.core.persistence.api.entity.DerAttr;
-import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
-import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.VirAttr;
-import org.apache.syncope.core.persistence.api.entity.VirSchema;
 
 public abstract class AbstractAttributable<P extends PlainAttr, D extends DerAttr, V extends VirAttr>
         extends AbstractAnnotatedEntity<Long> implements Attributable<P, D, V> {
@@ -69,36 +62,6 @@ public abstract class AbstractAttributable<P extends PlainAttr, D extends DerAtt
             public boolean evaluate(final V virAttr) {
                 return virAttr != null && virAttr.getSchema() != null
                         && virSchemaName.equals(virAttr.getSchema().getKey());
-            }
-        });
-    }
-
-    protected Map<PlainSchema, P> getPlainAttrMap() {
-        return MapUtils.lazyMap(new HashMap<PlainSchema, P>(), new Transformer<PlainSchema, P>() {
-
-            @Override
-            public P transform(final PlainSchema input) {
-                return getPlainAttr(input.getKey());
-            }
-        });
-    }
-
-    protected Map<DerSchema, D> getDerAttrMap() {
-        return MapUtils.lazyMap(new HashMap<DerSchema, D>(), new Transformer<DerSchema, D>() {
-
-            @Override
-            public D transform(final DerSchema input) {
-                return getDerAttr(input.getKey());
-            }
-        });
-    }
-
-    protected Map<VirSchema, V> getVirAttrMap() {
-        return MapUtils.lazyMap(new HashMap<VirSchema, V>(), new Transformer<VirSchema, V>() {
-
-            @Override
-            public V transform(final VirSchema input) {
-                return getVirAttr(input.getKey());
             }
         });
     }

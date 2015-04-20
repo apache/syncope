@@ -38,9 +38,6 @@ import org.apache.syncope.core.persistence.api.entity.Mapping;
 import org.apache.syncope.core.persistence.api.entity.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.Policy;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
-import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
-import org.apache.syncope.core.persistence.api.entity.task.PushTask;
-import org.apache.syncope.core.persistence.api.entity.task.SyncTask;
 import org.apache.syncope.core.persistence.api.entity.user.UMappingItem;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractMappingItem;
@@ -92,17 +89,14 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource, String
                 append(" e WHERE e.");
         switch (type) {
             case ACCOUNT:
-            case GLOBAL_ACCOUNT:
                 query.append("accountPolicy");
                 break;
 
             case PASSWORD:
-            case GLOBAL_PASSWORD:
                 query.append("passwordPolicy");
                 break;
 
             case SYNC:
-            case GLOBAL_SYNC:
                 query.append("syncPolicy");
                 break;
 

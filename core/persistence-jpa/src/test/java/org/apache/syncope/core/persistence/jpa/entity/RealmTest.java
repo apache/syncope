@@ -27,6 +27,7 @@ import static org.junit.Assert.fail;
 
 import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.dao.MalformedPathException;
@@ -56,9 +57,15 @@ public class RealmTest extends AbstractTest {
 
     @Test
     public void find() {
-        Realm realm = realmDAO.find(3L);
+        Realm realm = realmDAO.find(1L);
+        assertNotNull(realm);
+        assertEquals(SyncopeConstants.ROOT_REALM, realm.getName());
+        assertEquals(SyncopeConstants.ROOT_REALM, realm.getFullPath());
+
+        realm = realmDAO.find(3L);
         assertNotNull(realm);
         assertEquals("even", realm.getName());
+        assertEquals("/even", realm.getFullPath());
         assertEquals(1, realm.getParent().getKey(), 0);
         assertEquals(realmDAO.getRoot(), realm.getParent());
 
@@ -76,7 +83,7 @@ public class RealmTest extends AbstractTest {
 
     @Test
     public void findChildren() {
-        List<Realm> children = realmDAO.findChildren(realmDAO.find("/"));
+        List<Realm> children = realmDAO.findChildren(realmDAO.find(SyncopeConstants.ROOT_REALM));
         assertEquals(2, children.size());
         assertTrue(children.contains(realmDAO.find("/odd")));
         assertTrue(children.contains(realmDAO.find("/even")));

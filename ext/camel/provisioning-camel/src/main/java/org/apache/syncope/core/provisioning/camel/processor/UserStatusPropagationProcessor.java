@@ -18,12 +18,12 @@
  */
 package org.apache.syncope.core.provisioning.camel.processor;
 
-import java.util.AbstractMap;
-import java.util.HashSet;
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.syncope.common.lib.mod.StatusMod;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
@@ -57,10 +57,10 @@ public class UserStatusPropagationProcessor implements Processor {
         User user = exchange.getProperty("user", User.class);
         StatusMod statusMod = exchange.getProperty("statusMod", StatusMod.class);
 
-        Set<String> resourcesToBeExcluded = new HashSet<>(user.getResourceNames());
-        resourcesToBeExcluded.removeAll(statusMod.getResourceNames());
+        Collection<String> resourcesToBeExcluded =
+                CollectionUtils.removeAll(user.getResourceNames(), statusMod.getResourceNames());
 
-        List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(
+        List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(
                 user, statusMod.getType() != StatusMod.ModType.SUSPEND, resourcesToBeExcluded);
         PropagationReporter propReporter =
                 ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
@@ -71,6 +71,6 @@ public class UserStatusPropagationProcessor implements Processor {
             propReporter.onPrimaryResourceFailure(tasks);
         }
 
-        exchange.getOut().setBody(new AbstractMap.SimpleEntry<>(updated.getResult(), propReporter.getStatuses()));
+        exchange.getOut().setBody(new ImmutablePair<>(updated.getResult(), propReporter.getStatuses()));
     }
 }

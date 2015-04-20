@@ -20,8 +20,8 @@ package org.apache.syncope.core.provisioning.api.propagation;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.mod.AttrMod;
 import org.apache.syncope.common.lib.mod.MembershipMod;
 import org.apache.syncope.common.lib.mod.UserMod;
@@ -38,21 +38,12 @@ public interface PropagationManager {
     /**
      * Create the group on every associated resource.
      *
-     * @param wfResult user to be propagated (and info associated), as per result from workflow
-     * @param vAttrs virtual attributes to be set
-     * @return list of propagation tasks
-     */
-    List<PropagationTask> getGroupCreateTaskIds(WorkflowResult<Long> wfResult, List<AttrTO> vAttrs);
-
-    /**
-     * Create the group on every associated resource.
-     *
      * @param wfResult group to be propagated (and info associated), as per result from workflow
      * @param vAttrs virtual attributes to be set
      * @param noPropResourceNames external resources performing not to be considered for propagation
      * @return list of propagation tasks
      */
-    List<PropagationTask> getGroupCreateTaskIds(
+    List<PropagationTask> getGroupCreateTasks(
             WorkflowResult<Long> wfResult, Collection<AttrTO> vAttrs, Collection<String> noPropResourceNames);
 
     /**
@@ -64,63 +55,8 @@ public interface PropagationManager {
      * @param noPropResourceNames external resources performing not to be considered for propagation
      * @return list of propagation tasks
      */
-    List<PropagationTask> getGroupCreateTaskIds(Long key, Collection<AttrTO> vAttrs, PropagationByResource propByRes,
+    List<PropagationTask> getGroupCreateTasks(Long key, Collection<AttrTO> vAttrs, PropagationByResource propByRes,
             Collection<String> noPropResourceNames);
-
-    /**
-     * Perform delete on each resource associated to the group. It is possible to ask for a mandatory provisioning for
-     * some resources specifying a set of resource names. Exceptions won't be ignored and the process will be stopped if
-     * the creation fails onto a mandatory resource.
-     *
-     * @param groupId to be deleted
-     * @return list of propagation tasks
-     */
-    List<PropagationTask> getGroupDeleteTaskIds(Long groupId);
-
-    /**
-     * Perform delete on each resource associated to the group. It is possible to ask for a mandatory provisioning for
-     * some resources specifying a set of resource names. Exceptions won't be ignored and the process will be stopped if
-     * the creation fails onto a mandatory resource.
-     *
-     * @param groupId to be deleted
-     * @param noPropResourceName name of external resource not to be considered for propagation
-     * @return list of propagation tasks
-     */
-    List<PropagationTask> getGroupDeleteTaskIds(Long groupId, String noPropResourceName);
-
-    /**
-     * Perform delete on each resource associated to the user. It is possible to ask for a mandatory provisioning for
-     * some resources specifying a set of resource names. Exceptions won't be ignored and the process will be stopped if
-     * the creation fails onto a mandatory resource.
-     *
-     * @param groupId to be deleted
-     * @param noPropResourceNames name of external resources not to be considered for propagation
-     * @return list of propagation tasks
-     */
-    List<PropagationTask> getGroupDeleteTaskIds(Long groupId, Collection<String> noPropResourceNames);
-
-    /**
-     * Perform delete on each resource associated to the user. It is possible to ask for a mandatory provisioning for
-     * some resources specifying a set of resource names. Exceptions won't be ignored and the process will be stopped if
-     * the creation fails onto a mandatory resource.
-     *
-     * @param groupId to be deleted
-     * @param noPropResourceNames name of external resources not to be considered for propagation
-     * @return list of propagation tasks
-     */
-    List<PropagationTask> getGroupDeleteTaskIds(
-            Long groupId, Set<String> resourceNames, Collection<String> noPropResourceNames);
-
-    /**
-     * Performs update on each resource associated to the group.
-     *
-     * @param wfResult group to be propagated (and info associated), as per result from workflow
-     * @param vAttrsToBeRemoved virtual attributes to be removed
-     * @param vAttrsToBeUpdated virtual attributes to be added
-     * @return list of propagation tasks
-     */
-    List<PropagationTask> getGroupUpdateTaskIds(WorkflowResult<Long> wfResult, Set<String> vAttrsToBeRemoved,
-            Set<AttrMod> vAttrsToBeUpdated);
 
     /**
      * Performs update on each resource associated to the group.
@@ -131,64 +67,97 @@ public interface PropagationManager {
      * @param noPropResourceNames external resource names not to be considered for propagation
      * @return list of propagation tasks
      */
-    List<PropagationTask> getGroupUpdateTaskIds(WorkflowResult<Long> wfResult, Set<String> vAttrsToBeRemoved,
+    List<PropagationTask> getGroupUpdateTasks(WorkflowResult<Long> wfResult, Set<String> vAttrsToBeRemoved,
             Set<AttrMod> vAttrsToBeUpdated, Set<String> noPropResourceNames);
 
-    List<PropagationTask> getUpdateTaskIds(Subject<?, ?, ?> subject, String password, boolean changePwd,
-            Boolean enable, Set<String> vAttrsToBeRemoved, Set<AttrMod> vAttrsToBeUpdated,
-            PropagationByResource propByRes, Collection<String> noPropResourceNames,
-            Set<MembershipMod> membershipsToAdd);
-
     /**
-     * Create the user on every associated resource.
+     * Perform delete on each resource associated to the group. It is possible to ask for a mandatory provisioning for
+     * some resources specifying a set of resource names. Exceptions won't be ignored and the process will be stopped if
+     * the creation fails onto a mandatory resource.
      *
-     * @param wfResult user to be propagated (and info associated), as per result from workflow
-     * @param password to be set
-     * @param vAttrs virtual attributes to be set
-     * @param membershipTOs user memberships
+     * @param groupKey to be deleted
      * @return list of propagation tasks
      */
-    List<PropagationTask> getUserCreateTaskIds(WorkflowResult<Map.Entry<Long, Boolean>> wfResult,
-            String password, List<AttrTO> vAttrs, List<MembershipTO> membershipTOs);
+    List<PropagationTask> getGroupDeleteTasks(Long groupKey);
+
+    /**
+     * Perform delete on each resource associated to the group. It is possible to ask for a mandatory provisioning for
+     * some resources specifying a set of resource names. Exceptions won't be ignored and the process will be stopped if
+     * the creation fails onto a mandatory resource.
+     *
+     * @param groupKey to be deleted
+     * @param noPropResourceName name of external resource not to be considered for propagation
+     * @return list of propagation tasks
+     */
+    List<PropagationTask> getGroupDeleteTasks(Long groupKey, String noPropResourceName);
+
+    /**
+     * Perform delete on each resource associated to the user. It is possible to ask for a mandatory provisioning for
+     * some resources specifying a set of resource names. Exceptions won't be ignored and the process will be stopped if
+     * the creation fails onto a mandatory resource.
+     *
+     * @param groupKey to be deleted
+     * @param noPropResourceNames name of external resources not to be considered for propagation
+     * @return list of propagation tasks
+     */
+    List<PropagationTask> getGroupDeleteTasks(Long groupKey, Collection<String> noPropResourceNames);
+
+    /**
+     * Perform delete on each resource associated to the user. It is possible to ask for a mandatory provisioning for
+     * some resources specifying a set of resource names. Exceptions won't be ignored and the process will be stopped if
+     * the creation fails onto a mandatory resource.
+     *
+     * @param groupKey to be deleted
+     * @param resourceNames resource from which group is to be deleted
+     * @param noPropResourceNames name of external resources not to be considered for propagation
+     * @return list of propagation tasks
+     */
+    List<PropagationTask> getGroupDeleteTasks(
+            Long groupKey, Set<String> resourceNames, Collection<String> noPropResourceNames);
 
     /**
      * Create the user on every associated resource.
      *
-     * @param wfResult user to be propagated (and info associated), as per result from workflow
+     * @param key to be propagated
+     * @param enable whether user must be enabled or not
+     * @param propByRes operation to be performed per resource
      * @param password to be set
      * @param vAttrs virtual attributes to be set
      * @param noPropResourceNames external resources not to be considered for propagation
      * @param membershipTOs user memberships
      * @return list of propagation tasks
      */
-    List<PropagationTask> getUserCreateTaskIds(WorkflowResult<Map.Entry<Long, Boolean>> wfResult,
-            String password, Collection<AttrTO> vAttrs, Set<String> noPropResourceNames,
-            List<MembershipTO> membershipTOs);
-
-    List<PropagationTask> getUserCreateTaskIds(Long key, Boolean enabled,
+    List<PropagationTask> getUserCreateTasks(Long key, Boolean enable,
             PropagationByResource propByRes, String password, Collection<AttrTO> vAttrs,
             Collection<MembershipTO> membershipTOs, Collection<String> noPropResourceNames);
 
     /**
-     * Perform delete on each resource associated to the user. It is possible to ask for a mandatory provisioning for
-     * some resources specifying a set of resource names. Exceptions won't be ignored and the process will be stopped if
-     * the creation fails onto a mandatory resource.
+     * Performs update on each resource associated to the user excluding the specified into 'resourceNames' parameter.
      *
-     * @param userKey to be deleted
+     * @param user to be propagated
+     * @param enable whether user must be enabled or not
+     * @param noPropResourceNames external resource names not to be considered for propagation
      * @return list of propagation tasks
      */
-    List<PropagationTask> getUserDeleteTaskIds(Long userKey);
+    List<PropagationTask> getUserUpdateTasks(User user, Boolean enable, Collection<String> noPropResourceNames);
 
     /**
-     * Perform delete on each resource associated to the user. It is possible to ask for a mandatory provisioning for
-     * some resources specifying a set of resource names. Exceptions won't be ignored and the process will be stopped if
-     * the creation fails onto a mandatory resource.
+     * Performs update on each resource associated to the user.
      *
-     * @param userKey to be deleted
-     * @param noPropResourceName name of external resource not to be considered for propagation
+     * @param wfResult user to be propagated (and info associated), as per result from workflow
+     * @param changePwd whether password should be included for propagation attributes or not
+     * @param noPropResourceNames external resources not to be considered for propagation
      * @return list of propagation tasks
      */
-    List<PropagationTask> getUserDeleteTaskIds(Long userKey, String noPropResourceName);
+    List<PropagationTask> getUserUpdateTasks(WorkflowResult<Pair<UserMod, Boolean>> wfResult,
+            boolean changePwd, Collection<String> noPropResourceNames);
+
+    List<PropagationTask> getUserUpdateTasks(WorkflowResult<Pair<UserMod, Boolean>> wfResult);
+
+    List<PropagationTask> getUpdateTasks(Subject<?, ?, ?> subject, String password, boolean changePwd,
+            Boolean enable, Set<String> vAttrsToBeRemoved, Set<AttrMod> vAttrsToBeUpdated,
+            PropagationByResource propByRes, Collection<String> noPropResourceNames,
+            Set<MembershipMod> membershipsToAdd);
 
     /**
      * Perform delete on each resource associated to the user. It is possible to ask for a mandatory provisioning for
@@ -199,7 +168,7 @@ public interface PropagationManager {
      * @param noPropResourceNames name of external resources not to be considered for propagation
      * @return list of propagation tasks
      */
-    List<PropagationTask> getUserDeleteTaskIds(Long userKey, Collection<String> noPropResourceNames);
+    List<PropagationTask> getUserDeleteTasks(Long userKey, Collection<String> noPropResourceNames);
 
     /**
      * Perform delete on each resource associated to the user. It is possible to ask for a mandatory provisioning for
@@ -211,7 +180,7 @@ public interface PropagationManager {
      * @param noPropResourceNames name of external resources not to be considered for propagation
      * @return list of propagation tasks
      */
-    List<PropagationTask> getUserDeleteTaskIds(
+    List<PropagationTask> getUserDeleteTasks(
             Long userKey, Set<String> resourceNames, Collection<String> noPropResourceNames);
 
     /**
@@ -222,29 +191,6 @@ public interface PropagationManager {
      * @param wfResult user to be propagated (and info associated), as per result from workflow
      * @return list of propagation tasks
      */
-    List<PropagationTask> getUserDeleteTaskIds(WorkflowResult<Long> wfResult);
-
-    /**
-     * Performs update on each resource associated to the user excluding the specified into 'resourceNames' parameter.
-     *
-     * @param user to be propagated
-     * @param enable whether user must be enabled or not
-     * @param noPropResourceNames external resource names not to be considered for propagation
-     * @return list of propagation tasks
-     */
-    List<PropagationTask> getUserUpdateTaskIds(User user, Boolean enable, Collection<String> noPropResourceNames);
-
-    /**
-     * Performs update on each resource associated to the user.
-     *
-     * @param wfResult user to be propagated (and info associated), as per result from workflow
-     * @param changePwd whether password should be included for propagation attributes or not
-     * @param noPropResourceNames external resources not to be considered for propagation
-     * @return list of propagation tasks
-     */
-    List<PropagationTask> getUserUpdateTaskIds(WorkflowResult<Map.Entry<UserMod, Boolean>> wfResult,
-            boolean changePwd, Collection<String> noPropResourceNames);
-
-    List<PropagationTask> getUserUpdateTaskIds(WorkflowResult<Map.Entry<UserMod, Boolean>> wfResult);
+    List<PropagationTask> getUserDeleteTasks(WorkflowResult<Long> wfResult);
 
 }

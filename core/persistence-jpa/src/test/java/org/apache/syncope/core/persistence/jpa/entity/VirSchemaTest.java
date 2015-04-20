@@ -72,7 +72,7 @@ public class VirSchemaTest extends AbstractTest {
     public void delete() {
         UVirSchema virtualdata = virSchemaDAO.find("virtualdata", UVirSchema.class);
 
-        virSchemaDAO.delete(virtualdata.getKey(), attrUtilFactory.getInstance(AttributableType.USER));
+        virSchemaDAO.delete(virtualdata.getKey(), attrUtilsFactory.getInstance(AttributableType.USER));
 
         VirSchema actual = virSchemaDAO.find("virtualdata", UVirSchema.class);
         assertNull("delete did not work", actual);
@@ -81,7 +81,7 @@ public class VirSchemaTest extends AbstractTest {
         GVirSchema rvirtualdata = virSchemaDAO.find("rvirtualdata", GVirSchema.class);
         assertNotNull(rvirtualdata);
 
-        virSchemaDAO.delete(rvirtualdata.getKey(), attrUtilFactory.getInstance(AttributableType.GROUP));
+        virSchemaDAO.delete(rvirtualdata.getKey(), attrUtilsFactory.getInstance(AttributableType.GROUP));
 
         actual = virSchemaDAO.find("rvirtualdata", GVirSchema.class);
         assertNull("delete did not work", actual);

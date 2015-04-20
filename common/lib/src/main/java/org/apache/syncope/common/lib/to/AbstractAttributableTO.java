@@ -20,11 +20,11 @@ package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlType;
@@ -36,16 +36,23 @@ public abstract class AbstractAttributableTO extends ConnObjectTO {
 
     private long key;
 
-    private final List<AttrTO> derAttrs = new ArrayList<>();
+    private final Set<AttrTO> derAttrs = new LinkedHashSet<>();
 
-    private final List<AttrTO> virAttrs = new ArrayList<>();
+    private final Set<AttrTO> virAttrs = new LinkedHashSet<>();
 
     public long getKey() {
         return key;
     }
 
-    public void setKey(final long id) {
-        this.key = id;
+    public void setKey(final long key) {
+        this.key = key;
+    }
+
+    @XmlElementWrapper(name = "derAttrs")
+    @XmlElement(name = "attribute")
+    @JsonProperty("derAttrs")
+    public Set<AttrTO> getDerAttrs() {
+        return derAttrs;
     }
 
     @JsonIgnore
@@ -54,9 +61,15 @@ public abstract class AbstractAttributableTO extends ConnObjectTO {
         for (AttrTO attributeTO : derAttrs) {
             result.put(attributeTO.getSchema(), attributeTO);
         }
-        result = Collections.unmodifiableMap(result);
 
-        return result;
+        return Collections.unmodifiableMap(result);
+    }
+
+    @XmlElementWrapper(name = "virAttrs")
+    @XmlElement(name = "attribute")
+    @JsonProperty("virAttrs")
+    public Set<AttrTO> getVirAttrs() {
+        return virAttrs;
     }
 
     @JsonIgnore
@@ -65,22 +78,8 @@ public abstract class AbstractAttributableTO extends ConnObjectTO {
         for (AttrTO attributeTO : virAttrs) {
             result.put(attributeTO.getSchema(), attributeTO);
         }
-        result = Collections.unmodifiableMap(result);
 
-        return result;
+        return Collections.unmodifiableMap(result);
     }
 
-    @XmlElementWrapper(name = "derivedAttributes")
-    @XmlElement(name = "attribute")
-    @JsonProperty("derivedAttributes")
-    public List<AttrTO> getDerAttrs() {
-        return derAttrs;
-    }
-
-    @XmlElementWrapper(name = "virtualAttributes")
-    @XmlElement(name = "attribute")
-    @JsonProperty("virtualAttributes")
-    public List<AttrTO> getVirAttrs() {
-        return virAttrs;
-    }
 }

@@ -18,30 +18,6 @@ specific language governing permissions and limitations
 under the License.
 -->
 <dataset>
-  <Realm id="1" name="/"/>
-  <Realm id="2" name="odd" parent_id="1"/>
-  <Realm id="3" name="even" parent_id="1"/>
-  <Realm id="4" name="two" parent_id="3"/>
-  
-  <SyncopeRole id="1" name="User reviewer" criteria="fullname==*o*;fullname==*i*"/>
-  <SyncopeRole_entitlements entitlement="USER_READ" role_id="1"/>
-  <SyncopeRole_entitlements entitlement="USER_LIST" role_id="1"/>
-  <SyncopeRole_Realm role_id="1" realm_id="2"/>
-  <SyncopeRole_Realm role_id="1" realm_id="3"/>
-  
-  <SyncopeRole id="2" name="User manager" criteria="username==rossini"/>
-  <SyncopeRole_entitlements entitlement="USER_READ" role_id="2"/>
-  <SyncopeRole_entitlements entitlement="USER_LIST" role_id="2"/>
-  <SyncopeRole_entitlements entitlement="WORKFLOW_FORM_CLAIM" role_id="2"/>
-  <SyncopeRole_entitlements entitlement="WORKFLOW_FORM_SUBMIT" role_id="2"/>
-  <SyncopeRole_Realm role_id="2" realm_id="4"/>
-
-  <SyncopeRole id="3" name="Other" criteria="id=gt=2;id=le=4"/>
-  <SyncopeRole_entitlements entitlement="SCHEMA_READ" role_id="3"/>
-  <SyncopeRole_entitlements entitlement="GROUP_READ" role_id="3"/>
-  <SyncopeRole_entitlements entitlement="WORKFLOW_FORM_CLAIM" role_id="3"/>
-  <SyncopeRole_Realm role_id="3" realm_id="2"/>
-
   <SyncopeConf id="1" 
                creator="admin" lastModifier="admin"
                creationDate="2014-06-20 11:00:00" lastChangeDate="2014-06-20 11:00:00"/>
@@ -115,18 +91,18 @@ under the License.
                 mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
   
   <!-- sample policies -->
-  <Policy DTYPE="SyncPolicy" id="1" description="global sync policy" type="GLOBAL_SYNC" 
+  <Policy DTYPE="SyncPolicy" id="1" description="a sync policy" type="SYNC" 
           specification='{"userJavaRule":null,"groupJavaRule":null,"conflictResolutionAction":"IGNORE","userAltSearchSchemas":[],"groupAltSearchSchemas":[]}'/>
-  <Policy DTYPE="PasswordPolicy" id="2" description="global password policy" type="GLOBAL_PASSWORD" 
+  <Policy DTYPE="PasswordPolicy" id="2" description="a password policy" type="PASSWORD" 
           specification='{"historyLength":1,"maxLength":0,"minLength":8,"nonAlphanumericRequired":false,"alphanumericRequired":false,"digitRequired":false,"lowercaseRequired":false,"uppercaseRequired":false,"mustStartWithDigit":false,"mustntStartWithDigit":false,"mustEndWithDigit":false,"mustntEndWithDigit":false,"mustStartWithNonAlpha":false,"mustStartWithAlpha":false,"mustntStartWithNonAlpha":false,"mustntStartWithAlpha":false,"mustEndWithNonAlpha":false,"mustEndWithAlpha":false,"mustntEndWithNonAlpha":false,"mustntEndWithAlpha":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[],"allowNullPassword":true}'/>
   <Policy DTYPE="SyncPolicy" id="3" description="sync policy 2" type="SYNC" 
           specification='{"userJavaRule":null,"groupJavaRule":null,"conflictResolutionAction":"ALL","userAltSearchSchemas":["username","firstname"],"groupAltSearchSchemas":[]}'/>
   <Policy DTYPE="PasswordPolicy" id="4" description="sample password policy" type="PASSWORD" 
-          specification='{"historyLength":0,"maxLength":0,"minLength":10,"nonAlphanumericRequired":false,"alphanumericRequired":false,"digitRequired":true,"lowercaseRequired":false,"uppercaseRequired":false,"mustStartWithDigit":false,"mustntStartWithDigit":false,"mustEndWithDigit":false,"mustntEndWithDigit":false,"mustStartWithNonAlpha":false,"mustStartWithAlpha":false,"mustntStartWithNonAlpha":false,"mustntStartWithAlpha":false,"mustEndWithNonAlpha":false,"mustEndWithAlpha":false,"mustntEndWithNonAlpha":false,"mustntEndWithAlpha":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[], "allowNullPassword":false}'/>
-  <Policy DTYPE="AccountPolicy" id="5" description="global account policy" type="GLOBAL_ACCOUNT" 
-          specification='{"maxLength":0,"minLength":0,"pattern":null,"allUpperCase":false,"allLowerCase":false,"propagateSuspension":false,"permittedLoginRetries":0,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":[],"suffixesNotPermitted":[]}'/>
+          specification='{"historyLength":0,"maxLength":0,"minLength":10,"nonAlphanumericRequired":false,"alphanumericRequired":false,"digitRequired":true,"lowercaseRequired":false,"uppercaseRequired":false,"mustStartWithDigit":false,"mustntStartWithDigit":false,"mustEndWithDigit":false,"mustntEndWithDigit":false,"mustStartWithNonAlpha":false,"mustStartWithAlpha":false,"mustntStartWithNonAlpha":false,"mustntStartWithAlpha":false,"mustEndWithNonAlpha":false,"mustEndWithAlpha":false,"mustntEndWithNonAlpha":false,"mustntEndWithAlpha":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[], "allowNullPassword":true}'/>
+  <Policy DTYPE="AccountPolicy" id="5" description="an account policy" type="ACCOUNT" 
+          specification='{"maxLength":0,"minLength":0,"pattern":null,"allUpperCase":false,"allLowerCase":false,"propagateSuspension":false,"maxAuthenticationAttempts":0,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":[],"suffixesNotPermitted":[]}'/>
   <Policy DTYPE="AccountPolicy" id="6" description="sample account policy" type="ACCOUNT" 
-          specification='{"maxLength":0,"minLength":4,"pattern":null,"allUpperCase":false,"allLowerCase":false,"propagateSuspension":false,"permittedLoginRetries":3,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[]}'/>
+          specification='{"maxLength":0,"minLength":4,"pattern":null,"allUpperCase":false,"allLowerCase":false,"propagateSuspension":false,"maxAuthenticationAttempts":3,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[]}'/>
   <Policy DTYPE="SyncPolicy" id="7" description="sync policy 1" type="SYNC" 
           specification='{"userJavaRule":null,"groupJavaRule":null,"conflictResolutionAction":"IGNORE","userAltSearchSchemas":[],"groupAltSearchSchemas":[]}'/>
   <Policy DTYPE="PasswordPolicy" id="8" description="sample password policy" type="PASSWORD" 
@@ -134,81 +110,110 @@ under the License.
   <Policy DTYPE="SyncPolicy" id="9" description="sync policy for java rule" type="SYNC" 
           specification='{"userJavaRule":null,"groupJavaRule":null,"conflictResolutionAction":"IGNORE","userAltSearchSchemas":[],"groupAltSearchSchemas":[]}'/>
     
+  <Realm id="1" name="/" passwordPolicy_id="4"/>
+  <Realm id="2" name="odd" parent_id="1" accountPolicy_id="6"/>
+  <Realm id="3" name="even" parent_id="1"/>
+  <Realm id="4" name="two" parent_id="3" accountPolicy_id="5" passwordPolicy_id="2"/>
+  
+  <SyncopeRole id="1" name="User reviewer"/>
+  <SyncopeRole_entitlements entitlement="USER_READ" role_id="1"/>
+  <SyncopeRole_entitlements entitlement="USER_LIST" role_id="1"/>
+  <SyncopeRole_entitlements entitlement="USER_SEARCH" role_id="1"/>
+  <SyncopeRole_Realm role_id="1" realm_id="2"/>
+  <SyncopeRole_Realm role_id="1" realm_id="3"/>
+  
+  <SyncopeRole id="2" name="User manager"/>
+  <SyncopeRole_entitlements entitlement="USER_READ" role_id="2"/>
+  <SyncopeRole_entitlements entitlement="USER_LIST" role_id="2"/>
+  <SyncopeRole_entitlements entitlement="USER_SEARCH" role_id="2"/>
+  <SyncopeRole_entitlements entitlement="WORKFLOW_FORM_CLAIM" role_id="2"/>
+  <SyncopeRole_entitlements entitlement="WORKFLOW_FORM_SUBMIT" role_id="2"/>
+  <SyncopeRole_Realm role_id="2" realm_id="1"/>
+
+  <SyncopeRole id="3" name="Other"/>
+  <SyncopeRole_entitlements entitlement="SCHEMA_READ" role_id="3"/>
+  <SyncopeRole_entitlements entitlement="GROUP_READ" role_id="3"/>
+  <SyncopeRole_entitlements entitlement="WORKFLOW_FORM_CLAIM" role_id="3"/>
+  <SyncopeRole_Realm role_id="3" realm_id="2"/>
+  
   <SyncopeUser id="1" workflowId="4" status="active" password="5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8" cipherAlgorithm="SHA1"
+               realm_id="1"
                username="rossini" creator="admin" lastModifier="admin"
                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00" suspended="0"/>
+  <SyncopeUser_SyncopeRole user_id="1" role_id="3"/>
   <SyncopeUser id="2" workflowId="6" status="active" password="5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8" cipherAlgorithm="SHA1"
+               realm_id="1"
                username="verdi" creator="admin" lastModifier="admin"
                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00" suspended="0"/>
+  <SyncopeUser_SyncopeRole user_id="2" role_id="1"/>
   <SyncopeUser id="3" workflowId="8" status="active" password="5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8" cipherAlgorithm="SHA1"
+               realm_id="1"
                username="vivaldi" creator="admin" lastModifier="admin"
                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00" suspended="0"/>
   <SyncopeUser id="4" workflowId="10" status="active" password="5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8" cipherAlgorithm="SHA1"
+               realm_id="1"
                username="bellini" creator="admin" lastModifier="admin"
                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00" suspended="0"/>
+  <SyncopeUser_SyncopeRole user_id="4" role_id="2"/>
   <SyncopeUser id="5" workflowId="12" status="active" password="5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8" cipherAlgorithm="SHA1"
+               realm_id="1"
                username="puccini" creator="admin" lastModifier="admin" 
                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00" suspended="0"/>
-
+  
   <SyncopeGroup id="1" name="root"
+                realm_id="1"
                 creator="admin" lastModifier="admin" 
                 creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <SyncopeGroup id="2" name="child" parent_id="1"
+  <SyncopeGroup id="2" name="child"
+                realm_id="1"
                 creator="admin" lastModifier="admin" 
                 creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
   <SyncopeGroup id="3" name="citizen"
+                realm_id="1"
                 creator="admin" lastModifier="admin" 
                 creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <SyncopeGroup id="4" name="employee" parent_id="3"
+  <SyncopeGroup id="4" name="employee"
+                realm_id="1"
                 creator="admin" lastModifier="admin" 
                 creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <SyncopeGroup id="5" name="secretary" parent_id="4"
+  <SyncopeGroup id="5" name="secretary"
+                realm_id="1"
                 creator="admin" lastModifier="admin" 
                 creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <SyncopeGroup id="6"
-                name="director" parent_id="4" userOwner_id="5"
-                inheritPlainAttrs="1" inheritDerAttrs="1" inheritVirAttrs="1"
-                inheritPasswordPolicy="0" inheritAccountPolicy="0"
-                passwordPolicy_id="4"
-                accountPolicy_id="6"
+  <SyncopeGroup id="6" name="director" userOwner_id="5"
+                realm_id="1"
                 creator="admin" lastModifier="admin" 
                 creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <SyncopeGroup id="7"
-                name="managingDirector" parent_id="6"
-                inheritPlainAttrs="1" inheritDerAttrs="1" inheritVirAttrs="1"
-                inheritPasswordPolicy="1" inheritAccountPolicy="1" inheritOwner="1"
+  <SyncopeGroup id="7" name="managingDirector"
+                realm_id="1"
                 creator="admin" lastModifier="admin" 
                 creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <SyncopeGroup id="8"
-                name="otherchild" parent_id="1"
-                inheritVirAttrs="1"
-                passwordPolicy_id="4"
+  <SyncopeGroup id="8" name="otherchild"
+                realm_id="1"
                 creator="admin" lastModifier="admin" 
                 creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <SyncopeGroup id="9" name="groupForWorkflowApproval" parent_id="1"
+  <SyncopeGroup id="9" name="groupForWorkflowApproval"
+                realm_id="1"
                 creator="admin" lastModifier="admin" 
                 creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <SyncopeGroup id="10"
-                name="managingConsultant" parent_id="6"
-                inheritPlainAttrs="1" inheritDerAttrs="1" inheritVirAttrs="1"
-                inheritPasswordPolicy="1" inheritAccountPolicy="1" inheritOwner="0"
+  <SyncopeGroup id="10" name="managingConsultant"
+                realm_id="1"
                 creator="admin" lastModifier="admin" 
                 creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <SyncopeGroup id="11" name="groupForWorkflowOptIn" parent_id="1"
+  <SyncopeGroup id="11" name="groupForWorkflowOptIn"
+                realm_id="1"
                 creator="admin" lastModifier="admin" 
                 creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <SyncopeGroup id="12" name="aGroupForPropagation" parent_id="1"
+  <SyncopeGroup id="12" name="aGroupForPropagation"
+                realm_id="1"
                 creator="admin" lastModifier="admin" 
                 creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <SyncopeGroup id="13" name="bGroupForPropagation" parent_id="1"
+  <SyncopeGroup id="13" name="bGroupForPropagation"
+                realm_id="1"
                 creator="admin" lastModifier="admin" 
                 creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <SyncopeGroup id="14"
-                name="artDirector" parent_id="4"
-                inheritPlainAttrs="1" inheritDerAttrs="1" inheritVirAttrs="1"
-                inheritPasswordPolicy="0" inheritAccountPolicy="0"
-                passwordPolicy_id="8"
-                accountPolicy_id="6"
+  <SyncopeGroup id="14" name="artDirector"
+                realm_id="1"
                 creator="admin" lastModifier="admin" 
                 creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
 
@@ -667,7 +672,7 @@ under the License.
                     creator="admin" lastModifier="admin" 
                     creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
 
-  <!-- Use resource-testdb for passthrough authentication (SYNCOPE-164) in the global account policy -->
+  <!-- Use resource-testdb for passthrough authentication (SYNCOPE-164) -->
   <Policy_ExternalResource account_policy_id="5" resource_name="resource-testdb"/>
     
   <SyncopeUser_ExternalResource user_id="1" resource_name="resource-testdb2"/>
@@ -926,36 +931,36 @@ under the License.
         objectClassName="__ACCOUNT__" resource_name="ws-target-resource-2" subjectType="USER" subjectId="1"
         xmlAttributes='[{"name":"__PASSWORD__","value":[{"readOnly":false,"disposed":false,"encryptedBytes":"m9nh2US0Sa6m+cXccCq0Xw==","base64SHA1Hash":"GFJ69qfjxEOdrmt+9q+0Cw2uz60="}]},{"name":"__NAME__","value":["userId"],"nameValue":"userId"},{"name":"type","value":["type"]}]'/>
   <Task DTYPE="SyncTask" type="SYNCHRONIZATION" id="4" name="CSV (update matching; assign unmatching)" resource_name="resource-csv"
-        performCreate="1" performUpdate="1" performDelete="1" syncStatus="1" fullReconciliation="0"
+        destinationRealm_id="1" performCreate="1" performUpdate="1" performDelete="1" syncStatus="1" fullReconciliation="0"
         jobClassName="org.apache.syncope.core.provisioning.api.job.SyncJob" unmatchingRule="ASSIGN" matchingRule="UPDATE"
-        userTemplate='{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"password":null,"status":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"attributes":[{"schema":"type","readonly":false,"values":["email == &apos;test8@syncope.apache.org&apos;? &apos;TYPE_8&apos;: &apos;TYPE_OTHER&apos;"]}],"derivedAttributes":[{"schema":"cn","readonly":false,"values":[null]}],"virtualAttributes":[],"resources":["resource-testdb"],"propagationStatuses":[],"memberships":[{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"groupId":8,"groupName":null,"attributes":[{"schema":"subscriptionDate","readonly":false,"values":["&apos;2009-08-18T16:33:12.203+0200&apos;"]}],"derivedAttributes":[],"virtualAttributes":[]}]}'
-        groupTemplate='{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"name":null,"parent":0,"userOwner":null,"groupOwner":null,"inheritOwner":false,"inheritTemplates":false,"inheritPlainAttrs":false,"inheritDerAttrs":false,"inheritVirAttrs":false,"inheritPasswordPolicy":false,"inheritAccountPolicy":false,"passwordPolicy":null,"accountPolicy":null,"attributes":[],"derivedAttributes":[],"virtualAttributes":[],"resources":[],"propagationStatuses":[],"entitlements":[],"gPlainAttrTemplates":[],"gDerAttrTemplates":[],"gVirAttrTemplates":[],"mPlainAttrTemplates":[],"mDerAttrTemplates":[],"mVirAttrTemplates":[]}'/>
+        userTemplate='{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"password":null,"status":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"plainAttrs":[{"schema":"type","readonly":false,"values":["email == &apos;test8@syncope.apache.org&apos;? &apos;TYPE_8&apos;: &apos;TYPE_OTHER&apos;"]}],"derAttrs":[{"schema":"cn","readonly":false,"values":[null]}],"virAttrs":[],"resources":["resource-testdb"],"propagationStatuses":[],"memberships":[{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"groupKey":8,"groupName":null,"plainAttrs":[{"schema":"subscriptionDate","readonly":false,"values":["&apos;2009-08-18T16:33:12.203+0200&apos;"]}],"derAttrs":[],"virAttrs":[]}]}'
+        groupTemplate='{"creator": null,"creationDate": null,"lastModifier": null,"lastChangeDate": null,"key": 0,"name": null,"userOwner": null,"groupOwner": null,"plainAttrs": [], "derAttrs": [],"virAttrs": [],"resources": [],"propagationStatuses": [],"gPlainAttrTemplates": [],"gDerAttrTemplates": [],"gVirAttrTemplates": [],"mPlainAttrTemplates": [],"mDerAttrTemplates": [],"mVirAttrTemplates": []}'/>
   <Task DTYPE="SchedTask" type="SCHEDULED" id="5" name="SampleJob Task" jobClassName="org.apache.syncope.core.provisioning.java.job.SampleJob" cronExpression="0 0 0 1 * ?"/>
   <Task DTYPE="PropagationTask" type="PROPAGATION" id="6" propagationMode="TWO_PHASES" propagationOperation="UPDATE"
         objectClassName="__ACCOUNT__" resource_name="ws-target-resource-nopropagation" subjectType="USER" subjectId="1"
         xmlAttributes='[{"name":"__PASSWORD__","value":[{"readOnly":false,"disposed":false,"encryptedBytes":"m9nh2US0Sa6m+cXccCq0Xw==","base64SHA1Hash":"GFJ69qfjxEOdrmt+9q+0Cw2uz60="}]},{"name":"__NAME__","value":["userId"],"nameValue":"userId"},{"name":"fullname","value":["fullname"]},{"name":"type","value":["type"]}]'/>
   <TaskExec id="6" task_id="6" status="SUCCESS"/>
   <Task DTYPE="SyncTask" type="SYNCHRONIZATION" id="7" name="TestDB Task" resource_name="resource-testdb"
-        performCreate="1" performUpdate="1" performDelete="0" syncStatus="1" fullReconciliation="1"
+        destinationRealm_id="1" performCreate="1" performUpdate="1" performDelete="0" syncStatus="1" fullReconciliation="1"
         jobClassName="org.apache.syncope.core.provisioning.api.job.SyncJob" unmatchingRule="PROVISION" matchingRule="UPDATE"
-        userTemplate='{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"password":null,"status":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"attributes":[{"schema":"type","readonly":false,"values":["&apos;type a&apos;"]},{"schema":"userId","readonly":false,"values":["&apos;reconciled@syncope.apache.org&apos;"]},{"schema":"fullname","readonly":false,"values":["&apos;reconciled fullname&apos;"]},{"schema":"surname","readonly":false,"values":["&apos;surname&apos;"]}],"derivedAttributes":[],"virtualAttributes":[],"resources":[],"propagationStatuses":[],"memberships":[]}'
-        groupTemplate='{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"name":null,"parent":0,"userOwner":null,"groupOwner":null,"inheritOwner":false,"inheritTemplates":false,"inheritPlainAttrs":false,"inheritDerAttrs":false,"inheritVirAttrs":false,"inheritPasswordPolicy":false,"inheritAccountPolicy":false,"passwordPolicy":null,"accountPolicy":null,"attributes":[],"derivedAttributes":[],"virtualAttributes":[],"resources":[],"propagationStatuses":[],"entitlements":[],"gPlainAttrTemplates":[],"gDerAttrTemplates":[],"gVirAttrTemplates":[],"mPlainAttrTemplates":[],"mDerAttrTemplates":[],"mVirAttrTemplates":[]}'/>
+        userTemplate='{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"password":null,"status":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"plainAttrs":[{"schema":"type","readonly":false,"values":["&apos;type a&apos;"]},{"schema":"userId","readonly":false,"values":["&apos;reconciled@syncope.apache.org&apos;"]},{"schema":"fullname","readonly":false,"values":["&apos;reconciled fullname&apos;"]},{"schema":"surname","readonly":false,"values":["&apos;surname&apos;"]}],"derAttrs":[],"virAttrs":[],"resources":[],"propagationStatuses":[],"memberships":[]}'
+        groupTemplate='{"creator": null,"creationDate": null,"lastModifier": null,"lastChangeDate": null,"key": 0,"name": null,"userOwner": null,"groupOwner": null,"plainAttrs": [], "derAttrs": [],"virAttrs": [],"resources": [],"propagationStatuses": [],"gPlainAttrTemplates": [],"gDerAttrTemplates": [],"gVirAttrTemplates": [],"mPlainAttrTemplates": [],"mDerAttrTemplates": [],"mVirAttrTemplates": []}'/>
   <Task DTYPE="NotificationTask" type="NOTIFICATION" id="8" sender="admin@prova.org" subject="Notification for SYNCOPE-81" 
         textBody="NOTIFICATION-81" htmlBody="NOTIFICATION-81" traceLevel="ALL"/>
   <Task DTYPE="SyncTask" type="SYNCHRONIZATION" id="9" name="TestDB2 Task" resource_name="resource-testdb2"
-        performCreate="1" performUpdate="1" performDelete="0" syncStatus="1" fullReconciliation="1"
+        destinationRealm_id="1" performCreate="1" performUpdate="1" performDelete="0" syncStatus="1" fullReconciliation="1"
         jobClassName="org.apache.syncope.core.provisioning.api.job.SyncJob" unmatchingRule="PROVISION" matchingRule="UPDATE"/>
   <Task DTYPE="SyncTask" type="SYNCHRONIZATION" id="10" name="TestDB Sync Task" resource_name="resource-db-sync"
-        fullReconciliation="1" performCreate="1" performDelete="1" performUpdate="1" syncStatus="0"
+        destinationRealm_id="1" fullReconciliation="1" performCreate="1" performDelete="1" performUpdate="1" syncStatus="0"
         jobClassName="org.apache.syncope.core.provisioning.api.job.SyncJob" unmatchingRule="PROVISION" matchingRule="UPDATE"/>
   <Task DTYPE="SyncTask" type="SYNCHRONIZATION" id="11" name="LDAP Sync Task" resource_name="resource-ldap"
-        fullReconciliation="1" performCreate="1" performDelete="1" performUpdate="1" syncStatus="0"
+        destinationRealm_id="1" fullReconciliation="1" performCreate="1" performDelete="1" performUpdate="1" syncStatus="0"
         jobClassName="org.apache.syncope.core.provisioning.api.job.SyncJob" unmatchingRule="PROVISION" matchingRule="UPDATE"
-        userTemplate='{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"password":null,"status":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"attributes":[],"derivedAttributes":[],"virtualAttributes":[{"schema":"virtualReadOnly","readonly":false,"values":[""]}],"resources":["resource-ldap"],"propagationStatuses":[],"memberships":[]}'
-        groupTemplate='{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"name":null,"parent":8,"userOwner":null,"groupOwner":null,"inheritOwner":false,"inheritTemplates":false,"inheritPlainAttrs":false,"inheritDerAttrs":false,"inheritVirAttrs":false,"inheritPasswordPolicy":false,"inheritAccountPolicy":false,"passwordPolicy":null,"accountPolicy":null,"attributes":[{"schema":"show","readonly":false,"values":["&apos;true&apos;"]}],"derivedAttributes":[],"virtualAttributes":[],"resources":[],"propagationStatuses":[],"entitlements":[],"gPlainAttrTemplates":["show"],"gDerAttrTemplates":[],"gVirAttrTemplates":[],"mPlainAttrTemplates":[],"mDerAttrTemplates":[],"mVirAttrTemplates":[]}'/>
+        userTemplate='{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"password":null,"status":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"plainAttrs":[],"derAttrs":[],"virAttrs":[{"schema":"virtualReadOnly","readonly":false,"values":[""]}],"resources":["resource-ldap"],"propagationStatuses":[],"memberships":[]}'
+        groupTemplate='{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"realm":null,"name":null,"userOwner":null,"groupOwner":null,"derAttrs":[],"virAttrs":[],"resources":[],"propagationStatuses":[],"gPlainAttrTemplates":["show"],"gDerAttrTemplates":[],"gVirAttrTemplates":[],"mPlainAttrTemplates":[],"mDerAttrTemplates":[],"mVirAttrTemplates":[],"plainAttrs":[{"schema":"show","readonly":false,"values":["true"]}]}'/>
   <SyncTask_actionsClassNames SyncTask_id="11" actionClassName="org.apache.syncope.core.provisioning.java.sync.LDAPMembershipSyncActions"/>
   <Task DTYPE="SyncTask" type="SYNCHRONIZATION" id="12" name="VirAttrCache test" resource_name="resource-csv"
-        performCreate="0" performUpdate="1" performDelete="0" syncStatus="0" fullReconciliation="1"
+        destinationRealm_id="1" performCreate="0" performUpdate="1" performDelete="0" syncStatus="0" fullReconciliation="1"
         jobClassName="org.apache.syncope.core.provisioning.api.job.SyncJob" unmatchingRule="PROVISION" matchingRule="UPDATE"/>
   <Task DTYPE="PushTask" type="PUSH" id="13" name="Export on resource-testdb2" resource_name="resource-testdb2"
         performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"
@@ -1002,15 +1007,15 @@ under the License.
         jobClassName="org.apache.syncope.core.provisioning.api.job.PushJob" unmatchingRule="ASSIGN" matchingRule="UNLINK" 
         userFilter="username==_NO_ONE_" groupFilter="name==citizen"/>
   <Task DTYPE="SyncTask" type="SYNCHRONIZATION" id="24" name="CSV Task (update matching; provision unmatching)" resource_name="resource-csv"
-        performCreate="1" performUpdate="1" performDelete="1" syncStatus="1" fullReconciliation="0"
+        destinationRealm_id="1" performCreate="1" performUpdate="1" performDelete="1" syncStatus="1" fullReconciliation="0"
         jobClassName="org.apache.syncope.core.provisioning.api.job.SyncJob" unmatchingRule="PROVISION" matchingRule="UPDATE"
-        userTemplate='{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"password":null,"status":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"attributes":[{"schema":"firstname","readonly":false,"values":[""]},{"schema":"userId","readonly":false,"values":["&apos;test&apos;"]},{"schema":"fullname","readonly":false,"values":["&apos;test&apos;"]},{"schema":"surname","readonly":false,"values":["&apos;test&apos;"]}],"derivedAttributes":[],"virtualAttributes":[],"resources":["resource-testdb"],"propagationStatuses":[],"memberships":[]}'
-        groupTemplate='{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"name":null,"parent":0,"userOwner":null,"groupOwner":null,"inheritOwner":false,"inheritTemplates":false,"inheritPlainAttrs":false,"inheritDerAttrs":false,"inheritVirAttrs":false,"inheritPasswordPolicy":false,"inheritAccountPolicy":false,"passwordPolicy":null,"accountPolicy":null,"attributes":[],"derivedAttributes":[],"virtualAttributes":[],"resources":[],"propagationStatuses":[],"entitlements":[],"gPlainAttrTemplates":[],"gDerAttrTemplates":[],"gVirAttrTemplates":[],"mPlainAttrTemplates":[],"mDerAttrTemplates":[],"mVirAttrTemplates":[]}'/>
+        userTemplate='{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"password":null,"status":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"plainAttrs":[{"schema":"firstname","readonly":false,"values":[""]},{"schema":"userId","readonly":false,"values":["&apos;test&apos;"]},{"schema":"fullname","readonly":false,"values":["&apos;test&apos;"]},{"schema":"surname","readonly":false,"values":["&apos;test&apos;"]}],"derAttrs":[],"virAttrs":[],"resources":["resource-testdb"],"propagationStatuses":[],"memberships":[]}'
+        groupTemplate='{"creator": null,"creationDate": null,"lastModifier": null,"lastChangeDate": null,"key": 0,"name": null,"userOwner": null,"groupOwner": null,"plainAttrs": [], "derAttrs": [],"virAttrs": [],"resources": [],"propagationStatuses": [],"gPlainAttrTemplates": [],"gDerAttrTemplates": [],"gVirAttrTemplates": [],"mPlainAttrTemplates": [],"mDerAttrTemplates": [],"mVirAttrTemplates": []}'/>
   <Task DTYPE="SyncTask" type="SYNCHRONIZATION" id="25" name="CSV (unlink matching; ignore unmatching)" resource_name="resource-csv"
-        performCreate="1" performUpdate="1" performDelete="1" syncStatus="1" fullReconciliation="0"
+        destinationRealm_id="1" performCreate="1" performUpdate="1" performDelete="1" syncStatus="1" fullReconciliation="0"
         jobClassName="org.apache.syncope.core.provisioning.api.job.SyncJob" unmatchingRule="IGNORE" matchingRule="UNLINK"/>
   <Task DTYPE="SyncTask" type="SYNCHRONIZATION" id="26" name="CSV (ignore matching; assign unmatching)" resource_name="resource-csv"
-        performCreate="1" performUpdate="1" performDelete="1" syncStatus="1" fullReconciliation="0"
+        destinationRealm_id="1" performCreate="1" performUpdate="1" performDelete="1" syncStatus="1" fullReconciliation="0"
         jobClassName="org.apache.syncope.core.provisioning.api.job.SyncJob" unmatchingRule="ASSIGN" matchingRule="IGNORE"/>
 
   <Notification id="1" active="1" recipientAttrName="email" recipientAttrType="UserPlainSchema" selfAsRecipient="1" 
@@ -1035,124 +1040,10 @@ under the License.
   
   <Report id="1" name="test"/>
   <ReportletConfInstance id="1" Report_id="1" 
-                         serializedInstance='{"@class":"org.apache.syncope.common.lib.report.UserReportletConf","name":"testUserReportlet","matchingCond":null,"plainAttributes":["fullname","gender"],"derivedAttributes":["cn"],"virtualAttributes":["virtualdata"],"features":["key","username","workflowId","status","creationDate","lastLoginDate","changePwdDate","passwordHistorySize","failedLoginCount","memberships","resources"]}'/>
+                         serializedInstance='{"@class":"org.apache.syncope.common.lib.report.UserReportletConf","name":"testUserReportlet","matchingCond":null,"plainAttrs":["fullname","gender"],"derAttrs":["cn"],"virAttrs":["virtualdata"],"features":["key","username","workflowId","status","creationDate","lastLoginDate","changePwdDate","passwordHistorySize","failedLoginCount","memberships","resources"]}'/>
   <ReportExec Report_id="1" id="1" status="SUCCESS" startDate="2012-02-26 15:40:04" endDate="2012-02-26 15:41:04"/>
   
   <SyncopeLogger logName="syncope.audit.[REST]:[EntitlementLogic]:[]:[getOwn]:[SUCCESS]" logLevel="DEBUG" logType="AUDIT"/>
-
-  <!-- Authentication and authorization -->
-  <Entitlement name="base"/>
-  <Entitlement name="advanced" description="Advanced entitlement"/>
-  <Entitlement name="REALM_LIST"/>
-  <Entitlement name="REALM_CREATE"/>
-  <Entitlement name="REALM_UPDATE"/>
-  <Entitlement name="REALM_DELETE"/>
-  <Entitlement name="ROLE_LIST"/>
-  <Entitlement name="ROLE_CREATE"/>
-  <Entitlement name="ROLE_READ"/>
-  <Entitlement name="ROLE_UPDATE"/>
-  <Entitlement name="ROLE_DELETE"/>
-  <Entitlement name="SCHEMA_LIST"/>
-  <Entitlement name="SCHEMA_CREATE"/>
-  <Entitlement name="SCHEMA_READ"/>
-  <Entitlement name="SCHEMA_UPDATE"/>
-  <Entitlement name="SCHEMA_DELETE"/>
-  <Entitlement name="USER_LIST"/>
-  <Entitlement name="USER_CREATE"/>
-  <Entitlement name="USER_READ"/>
-  <Entitlement name="USER_UPDATE"/>
-  <Entitlement name="USER_DELETE"/>
-  <Entitlement name="USER_VIEW"/>
-  <Entitlement name="GROUP_LIST"/>
-  <Entitlement name="GROUP_CREATE"/>
-  <Entitlement name="GROUP_READ"/>
-  <Entitlement name="GROUP_UPDATE"/>
-  <Entitlement name="GROUP_DELETE"/>
-  <Entitlement name="RESOURCE_LIST"/>
-  <Entitlement name="RESOURCE_CREATE"/>
-  <Entitlement name="RESOURCE_READ"/>
-  <Entitlement name="RESOURCE_UPDATE"/>
-  <Entitlement name="RESOURCE_DELETE"/>
-  <Entitlement name="RESOURCE_GETCONNECTOROBJECT"/>
-  <Entitlement name="CONNECTOR_LIST"/>
-  <Entitlement name="CONNECTOR_CREATE"/>
-  <Entitlement name="CONNECTOR_READ"/>
-  <Entitlement name="CONNECTOR_UPDATE"/>
-  <Entitlement name="CONNECTOR_DELETE"/>
-  <Entitlement name="CONNECTOR_RELOAD"/>
-  <Entitlement name="CONFIGURATION_EXPORT"/>
-  <Entitlement name="CONFIGURATION_LIST"/>
-  <Entitlement name="CONFIGURATION_SET"/>
-  <Entitlement name="CONFIGURATION_DELETE"/>
-  <Entitlement name="TASK_LIST"/>
-  <Entitlement name="TASK_CREATE"/>
-  <Entitlement name="TASK_READ"/>
-  <Entitlement name="TASK_UPDATE"/>
-  <Entitlement name="TASK_DELETE"/>
-  <Entitlement name="TASK_EXECUTE"/>
-  <Entitlement name="POLICY_LIST"/>
-  <Entitlement name="POLICY_CREATE"/>
-  <Entitlement name="POLICY_READ"/>
-  <Entitlement name="POLICY_UPDATE"/>
-  <Entitlement name="POLICY_DELETE"/>
-  <Entitlement name="WORKFLOW_DEF_READ"/>
-  <Entitlement name="WORKFLOW_DEF_UPDATE"/>
-  <Entitlement name="WORKFLOW_TASK_LIST"/> 
-  <Entitlement name="WORKFLOW_FORM_LIST"/>
-  <Entitlement name="WORKFLOW_FORM_READ"/>
-  <Entitlement name="WORKFLOW_FORM_CLAIM"/>
-  <Entitlement name="WORKFLOW_FORM_SUBMIT"/>
-  <Entitlement name="NOTIFICATION_LIST"/>
-  <Entitlement name="NOTIFICATION_CREATE"/>
-  <Entitlement name="NOTIFICATION_READ"/>
-  <Entitlement name="NOTIFICATION_UPDATE"/>
-  <Entitlement name="NOTIFICATION_DELETE"/>
-  <Entitlement name="REPORT_LIST"/>
-  <Entitlement name="REPORT_READ"/>
-  <Entitlement name="REPORT_CREATE"/>
-  <Entitlement name="REPORT_UPDATE"/>
-  <Entitlement name="REPORT_DELETE"/>
-  <Entitlement name="REPORT_EXECUTE"/>
-  <Entitlement name="LOG_LIST"/>
-  <Entitlement name="LOG_SET_LEVEL"/>
-  <Entitlement name="LOG_DELETE"/>
-  <Entitlement name="AUDIT_LIST"/>
-  <Entitlement name="AUDIT_ENABLE"/>
-  <Entitlement name="AUDIT_DISABLE"/>
-  <Entitlement name="SECURITY_QUESTION_CREATE"/>
-  <Entitlement name="SECURITY_QUESTION_UPDATE"/>
-  <Entitlement name="SECURITY_QUESTION_DELETE"/>
-  <Entitlement name="GROUP_1"/>
-  <Entitlement name="GROUP_2"/>
-  <Entitlement name="GROUP_3"/>
-  <Entitlement name="GROUP_4"/>
-  <Entitlement name="GROUP_5"/>
-  <Entitlement name="GROUP_6"/>
-  <Entitlement name="GROUP_7"/>
-  <Entitlement name="GROUP_8"/>
-  <Entitlement name="GROUP_9"/>
-  <Entitlement name="GROUP_10"/>
-  <Entitlement name="GROUP_11"/>
-  <Entitlement name="GROUP_12"/>
-  <Entitlement name="GROUP_13"/>
-  <Entitlement name="GROUP_14"/>
-
-  <SyncopeGroup_Entitlement entitlement_name="base" group_id="1"/>
-  <SyncopeGroup_Entitlement entitlement_name="advanced" group_id="1"/>
-  <SyncopeGroup_Entitlement entitlement_name="base" group_id="2"/>
-  <SyncopeGroup_Entitlement entitlement_name="USER_READ" group_id="2"/>
-  <SyncopeGroup_Entitlement entitlement_name="USER_LIST" group_id="2"/>
-  <SyncopeGroup_Entitlement entitlement_name="USER_READ" group_id="7"/>
-  <SyncopeGroup_Entitlement entitlement_name="USER_LIST" group_id="7"/>
-  <SyncopeGroup_Entitlement entitlement_name="GROUP_8" group_id="7"/>
-  <SyncopeGroup_Entitlement entitlement_name="GROUP_9" group_id="7"/>
-  <SyncopeGroup_Entitlement entitlement_name="GROUP_7" group_id="7"/>
-  <SyncopeGroup_Entitlement entitlement_name="GROUP_1" group_id="7"/>
-  <SyncopeGroup_Entitlement entitlement_name="WORKFLOW_FORM_CLAIM" group_id="7"/>
-  <SyncopeGroup_Entitlement entitlement_name="WORKFLOW_FORM_SUBMIT" group_id="7"/>
-  <SyncopeGroup_Entitlement entitlement_name="SCHEMA_READ" group_id="8"/>
-  <SyncopeGroup_Entitlement entitlement_name="GROUP_READ" group_id="8"/>
-  <SyncopeGroup_Entitlement entitlement_name="WORKFLOW_FORM_CLAIM" group_id="8"/>
   
   <SecurityQuestion id="1" content="What's your mother's maiden name?"/>
 </dataset>

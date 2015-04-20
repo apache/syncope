@@ -24,7 +24,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -58,6 +57,8 @@ import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.Task;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.mod.StatusMod;
 import org.apache.syncope.common.lib.mod.UserMod;
@@ -67,8 +68,8 @@ import org.apache.syncope.common.lib.to.WorkflowFormTO;
 import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.WorkflowFormPropertyType;
-import org.apache.syncope.core.misc.security.AuthContextUtil;
-import org.apache.syncope.core.misc.security.UnauthorizedGroupException;
+import org.apache.syncope.core.misc.security.AuthContextUtils;
+import org.apache.syncope.core.misc.security.UnauthorizedException;
 import org.apache.syncope.core.misc.spring.BeanUtils;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValidationException;
@@ -241,25 +242,25 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    public WorkflowResult<Map.Entry<Long, Boolean>> create(final UserTO userTO, final boolean disablePwdPolicyCheck,
+    public WorkflowResult<Pair<Long, Boolean>> create(final UserTO userTO, final boolean disablePwdPolicyCheck,
             final boolean storePassword) throws WorkflowException {
 
         return create(userTO, disablePwdPolicyCheck, null, storePassword);
     }
 
     @Override
-    public WorkflowResult<Map.Entry<Long, Boolean>> create(UserTO userTO, boolean storePassword) throws
-            UnauthorizedGroupException, WorkflowException {
+    public WorkflowResult<Pair<Long, Boolean>> create(UserTO userTO, boolean storePassword) throws
+            UnauthorizedException, WorkflowException {
 
         return create(userTO, false, storePassword);
     }
 
     @Override
-    public WorkflowResult<Map.Entry<Long, Boolean>> create(final UserTO userTO, final boolean disablePwdPolicyCheck,
+    public WorkflowResult<Pair<Long, Boolean>> create(final UserTO userTO, final boolean disablePwdPolicyCheck,
             final Boolean enabled, final boolean storePassword) throws WorkflowException {
 
         final Map<String, Object> variables = new HashMap<>();
-        variables.put(WF_EXECUTOR, AuthContextUtil.getAuthenticatedUsername());
+        variables.put(WF_EXECUTOR, AuthContextUtils.getAuthenticatedUsername());
         variables.put(USER_TO, userTO);
         variables.put(ENABLED, enabled);
         variables.put(STORE_PASSWORD, storePassword);
@@ -299,8 +300,8 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
         saveForFormSubmit(user, userTO.getPassword(), propByRes);
 
-        return new WorkflowResult<Map.Entry<Long, Boolean>>(
-                new SimpleEntry<>(user.getKey(), propagateEnable), propByRes, getPerformedTasks(user));
+        return new WorkflowResult<Pair<Long, Boolean>>(
+                new ImmutablePair<>(user.getKey(), propagateEnable), propByRes, getPerformedTasks(user));
     }
 
     private Set<String> doExecuteTask(final User user, final String task,
@@ -309,7 +310,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         Set<String> preTasks = getPerformedTasks(user);
 
         final Map<String, Object> variables = new HashMap<>();
-        variables.put(WF_EXECUTOR, AuthContextUtil.getAuthenticatedUsername());
+        variables.put(WF_EXECUTOR, AuthContextUtils.getAuthenticatedUsername());
         variables.put(TASK, task);
 
         // using BeanUtils to access all user's properties and trigger lazy loading - we are about to
@@ -355,7 +356,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    protected WorkflowResult<Map.Entry<UserMod, Boolean>> doUpdate(final User user, final UserMod userMod)
+    protected WorkflowResult<Pair<UserMod, Boolean>> doUpdate(final User user, final UserMod userMod)
             throws WorkflowException {
 
         Set<String> tasks = doExecuteTask(user, "update", Collections.singletonMap(USER_MOD, (Object) userMod));
@@ -370,8 +371,8 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
         Boolean propagateEnable = runtimeService.getVariable(user.getWorkflowId(), PROPAGATE_ENABLE, Boolean.class);
 
-        return new WorkflowResult<Map.Entry<UserMod, Boolean>>(
-                new SimpleEntry<>(userMod, propagateEnable), propByRes, tasks);
+        return new WorkflowResult<Pair<UserMod, Boolean>>(
+                new ImmutablePair<>(userMod, propagateEnable), propByRes, tasks);
     }
 
     @Override
@@ -445,7 +446,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
     @Override
     public WorkflowResult<Long> execute(final UserTO userTO, final String taskId)
-            throws UnauthorizedGroupException, WorkflowException {
+            throws UnauthorizedException, WorkflowException {
 
         User user = userDAO.authFetch(userTO.getKey());
 
@@ -694,7 +695,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     public List<WorkflowFormTO> getForms() {
         List<WorkflowFormTO> forms = new ArrayList<>();
 
-        final String authUser = AuthContextUtil.getAuthenticatedUsername();
+        final String authUser = AuthContextUtils.getAuthenticatedUsername();
         if (adminUser.equals(authUser)) {
             forms.addAll(getForms(taskService.createTaskQuery().
                     taskVariableValueEquals(TASK_IS_FORM, Boolean.TRUE)));
@@ -782,7 +783,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         return result;
     }
 
-    private Map.Entry<Task, TaskFormData> checkTask(final String taskId, final String authUser) {
+    private Pair<Task, TaskFormData> checkTask(final String taskId, final String authUser) {
         Task task;
         try {
             task = taskService.createTaskQuery().taskId(taskId).singleResult();
@@ -804,7 +805,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
             }
         }
 
-        return new SimpleEntry<>(task, formData);
+        return new ImmutablePair<>(task, formData);
     }
 
     @Transactional
@@ -812,8 +813,8 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     public WorkflowFormTO claimForm(final String taskId)
             throws WorkflowException {
 
-        final String authUser = AuthContextUtil.getAuthenticatedUsername();
-        Map.Entry<Task, TaskFormData> checked = checkTask(taskId, authUser);
+        final String authUser = AuthContextUtils.getAuthenticatedUsername();
+        Pair<Task, TaskFormData> checked = checkTask(taskId, authUser);
 
         if (!adminUser.equals(authUser)) {
             List<Task> tasksForUser = taskService.createTaskQuery().taskId(taskId).taskCandidateUser(authUser).list();
@@ -839,8 +840,8 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     public WorkflowResult<UserMod> submitForm(final WorkflowFormTO form)
             throws WorkflowException {
 
-        final String authUser = AuthContextUtil.getAuthenticatedUsername();
-        Map.Entry<Task, TaskFormData> checked = checkTask(form.getTaskId(), authUser);
+        final String authUser = AuthContextUtils.getAuthenticatedUsername();
+        Pair<Task, TaskFormData> checked = checkTask(form.getTaskId(), authUser);
 
         if (!checked.getKey().getOwner().equals(authUser)) {
             throw new WorkflowException(new IllegalArgumentException("Task " + form.getTaskId() + " assigned to "
@@ -886,8 +887,8 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
             userMod = new UserMod();
             userMod.setKey(updated.getKey());
             userMod.setPassword(clearPassword);
-            
-          if (propByRes != null) {
+
+            if (propByRes != null) {
                 final StatusMod st = new StatusMod();
                 userMod.setPwdPropRequest(st);
                 st.setOnSyncope(true);

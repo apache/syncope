@@ -20,12 +20,10 @@ package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.List;
 import java.util.Map;
-import org.apache.syncope.common.lib.types.PolicyType;
+import java.util.Set;
 import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
-import org.apache.syncope.core.persistence.api.entity.Entitlement;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.Policy;
 import org.apache.syncope.core.persistence.api.entity.membership.Membership;
 import org.apache.syncope.core.persistence.api.entity.group.GDerAttr;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
@@ -37,41 +35,27 @@ public interface GroupDAO extends SubjectDAO<GPlainAttr, GDerAttr, GVirAttr> {
 
     Group find(Long key);
 
-    List<Group> find(String name);
+    Group find(String name);
 
-    Group find(String name, Long parent);
+    List<Group> findOwnedByUser(Long userKey);
 
-    List<Group> findOwnedByUser(Long userId);
-
-    List<Group> findOwnedByGroup(Long groupId);
-
-    List<Group> findByEntitlement(Entitlement entitlement);
-
-    List<Group> findByPolicy(Policy policy);
-
-    List<Group> findWithoutPolicy(PolicyType type);
-
-    List<Group> findAncestors(Group group);
-
-    List<Group> findChildren(Group group);
-
-    List<Group> findDescendants(Group group);
-
-    List<Group> findByDerAttrValue(String schemaName, String value);
+    List<Group> findOwnedByGroup(Long groupKey);
 
     List<Group> findByAttrValue(String schemaName, GPlainAttrValue attrValue);
+
+    List<Group> findByDerAttrValue(String schemaName, String value);
 
     Group findByAttrUniqueValue(String schemaName, GPlainAttrValue attrUniqueValue);
 
     List<Group> findByResource(ExternalResource resource);
 
-    List<Group> findAll();
+    List<Group> findAll(Set<String> adminRealms, int page, int itemsPerPage);
 
-    List<Group> findAll(int page, int itemsPerPage, List<OrderByClause> orderBy);
+    List<Group> findAll(Set<String> adminRealms, int page, int itemsPerPage, List<OrderByClause> orderBy);
 
     List<Membership> findMemberships(Group group);
 
-    int count();
+    int count(Set<String> adminRealms);
 
     Group save(Group group);
 

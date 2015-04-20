@@ -126,12 +126,12 @@ public class MembershipsPanel extends Panel {
                                     PageReference pageRef = getPage().getPageReference();
 
                                     for (MembershipTO membTO : membView.getList()) {
-                                        if (membTO.getGroupId() == groupTO.getKey()) {
+                                        if (membTO.getGroupKey() == groupTO.getKey()) {
                                             return new MembershipModalPage(pageRef, membWin, membTO, mode);
                                         }
                                     }
                                     MembershipTO membTO = new MembershipTO();
-                                    membTO.setGroupId(groupTO.getKey());
+                                    membTO.setGroupKey(groupTO.getKey());
                                     membTO.setGroupName(groupTO.getName());
 
                                     return new MembershipModalPage(pageRef, membWin, membTO, mode);
@@ -159,7 +159,7 @@ public class MembershipsPanel extends Panel {
                     protected void populateItem(final ListItem<MembershipTO> item) {
                         final MembershipTO membershipTO = (MembershipTO) item.getDefaultModelObject();
 
-                        item.add(new Label("groupId", new Model<Long>(membershipTO.getGroupId())));
+                        item.add(new Label("groupId", new Model<Long>(membershipTO.getGroupKey())));
                         item.add(new Label("groupName", new Model<String>(membershipTO.getGroupName())));
 
                         AjaxLink editLink = new ClearIndicatingAjaxLink("editLink", pageRef) {
@@ -194,13 +194,13 @@ public class MembershipsPanel extends Panel {
                                 ((UserModalPage) getPage()).getUserTO().getMemberships().remove(membershipTO);
                                 target.add(membershipsContainer);
 
-                                GroupTO groupTO = groupTreeBuilder.findGroup(membershipTO.getGroupId());
+                                GroupTO groupTO = groupTreeBuilder.findGroup(membershipTO.getGroupKey());
                                 Set<String> resourcesToRemove = groupTO == null
                                         ? Collections.<String>emptySet() : groupTO.getResources();
                                 if (!resourcesToRemove.isEmpty()) {
                                     Set<String> resourcesAssignedViaMembership = new HashSet<>();
                                     for (MembershipTO membTO : userTO.getMemberships()) {
-                                        groupTO = groupTreeBuilder.findGroup(membTO.getGroupId());
+                                        groupTO = groupTreeBuilder.findGroup(membTO.getGroupKey());
                                         if (groupTO != null) {
                                             resourcesAssignedViaMembership.addAll(groupTO.getResources());
                                         }
@@ -237,7 +237,7 @@ public class MembershipsPanel extends Panel {
 
                         Set<String> resourcesToAdd = new HashSet<>();
                         for (Long diffMembId : diff) {
-                            long groupId = updatedUserTO.getMembershipMap().get(diffMembId).getGroupId();
+                            long groupId = updatedUserTO.getMembershipMap().get(diffMembId).getGroupKey();
                             GroupTO groupTO = groupTreeBuilder.findGroup(groupId);
                             resourcesToAdd.addAll(groupTO.getResources());
                             StatusUtils.update(

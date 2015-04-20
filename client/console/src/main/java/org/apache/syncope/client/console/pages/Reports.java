@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.PreferenceManager;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
@@ -328,7 +328,7 @@ public class Reports extends BasePage {
 
                             for (String toBeRemoved : eventSelectionChanged.getToBeRemoved()) {
                                 if (events.contains(toBeRemoved)) {
-                                    final Map.Entry<EventCategoryTO, Result> eventCategory =
+                                    Pair<EventCategoryTO, Result> eventCategory =
                                     AuditLoggerName.parseEventCategory(toBeRemoved);
 
                                     final AuditLoggerName auditLoggerName = new AuditLoggerName(
@@ -346,7 +346,7 @@ public class Reports extends BasePage {
 
                             for (String toBeAdded : eventSelectionChanged.getToBeAdded()) {
                                 if (!events.contains(toBeAdded)) {
-                                    final Map.Entry<EventCategoryTO, Result> eventCategory =
+                                    Pair<EventCategoryTO, Result> eventCategory =
                                     AuditLoggerName.parseEventCategory(toBeAdded);
 
                                     final AuditLoggerName auditLoggerName = new AuditLoggerName(

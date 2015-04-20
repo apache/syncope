@@ -105,7 +105,7 @@ public class SecurityQuestionLogic extends AbstractTransactionalLogic<SecurityQu
         return deleted;
     }
 
-    @PreAuthorize("isAnonymous() or hasRole(T(org.apache.syncope.common.lib.SyncopeConstants).ANONYMOUS_ENTITLEMENT)")
+    @PreAuthorize("isAnonymous() or hasRole('ANONYMOUS')")
     public SecurityQuestionTO read(final String username) {
         if (username == null) {
             throw new NotFoundException("Null username");

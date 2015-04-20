@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import org.apache.syncope.client.console.commons.JexlHelpUtil;
+import org.apache.syncope.client.console.commons.JexlHelpUtils;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPasswordFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
@@ -52,9 +52,9 @@ public class UserDetailsPanel extends Panel {
         final FieldPanel<String> username = new AjaxTextFieldPanel("username", "username",
                 new PropertyModel<String>(userTO, "username"));
 
-        final WebMarkupContainer jexlHelp = JexlHelpUtil.getJexlHelpWebContainer("usernameJexlHelp");
+        final WebMarkupContainer jexlHelp = JexlHelpUtils.getJexlHelpWebContainer("usernameJexlHelp");
 
-        final AjaxLink<?> questionMarkJexlHelp = JexlHelpUtil.getAjaxLink(jexlHelp, "usernameQuestionMarkJexlHelp");
+        final AjaxLink<?> questionMarkJexlHelp = JexlHelpUtils.getAjaxLink(jexlHelp, "usernameQuestionMarkJexlHelp");
         add(questionMarkJexlHelp);
         questionMarkJexlHelp.add(jexlHelp);
 
@@ -68,9 +68,9 @@ public class UserDetailsPanel extends Panel {
         // ------------------------
         // Password
         // ------------------------
-        final WebMarkupContainer pwdJexlHelp = JexlHelpUtil.getJexlHelpWebContainer("pwdJexlHelp");
+        final WebMarkupContainer pwdJexlHelp = JexlHelpUtils.getJexlHelpWebContainer("pwdJexlHelp");
 
-        final AjaxLink<?> pwdQuestionMarkJexlHelp = JexlHelpUtil.getAjaxLink(pwdJexlHelp, "pwdQuestionMarkJexlHelp");
+        final AjaxLink<?> pwdQuestionMarkJexlHelp = JexlHelpUtils.getAjaxLink(pwdJexlHelp, "pwdQuestionMarkJexlHelp");
         add(pwdQuestionMarkJexlHelp);
         pwdQuestionMarkJexlHelp.add(pwdJexlHelp);
 

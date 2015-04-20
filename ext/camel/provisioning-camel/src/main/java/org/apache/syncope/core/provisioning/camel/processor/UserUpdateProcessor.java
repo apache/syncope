@@ -18,12 +18,12 @@
  */
 package org.apache.syncope.core.provisioning.camel.processor;
 
-import java.util.AbstractMap;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.mod.MembershipMod;
 import org.apache.syncope.common.lib.mod.UserMod;
 import org.apache.syncope.common.lib.types.PropagationByResource;
@@ -57,11 +57,11 @@ public class UserUpdateProcessor implements Processor {
     @Override
     @SuppressWarnings("unchecked")
     public void process(final Exchange exchange) {
-        WorkflowResult<Map.Entry<UserMod, Boolean>> updated = (WorkflowResult) exchange.getIn().getBody();
+        WorkflowResult<Pair<UserMod, Boolean>> updated = (WorkflowResult) exchange.getIn().getBody();
         UserMod actual = exchange.getProperty("actual", UserMod.class);
         boolean removeMemberships = exchange.getProperty("removeMemberships", boolean.class);
 
-        List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(updated);
+        List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(updated);
         if (tasks.isEmpty()) {
             // SYNCOPE-459: take care of user virtual attributes ...
             final PropagationByResource propByResVirAttr = virtAttrHandler.fillVirtual(
@@ -84,7 +84,7 @@ public class UserUpdateProcessor implements Processor {
                 }
             }
             tasks.addAll(!propByResVirAttr.isEmpty() || addOrUpdateMemberships || removeMemberships
-                    ? propagationManager.getUserUpdateTaskIds(updated, false, null)
+                    ? propagationManager.getUserUpdateTasks(updated, false, null)
                     : Collections.<PropagationTask>emptyList());
         }
 
@@ -99,7 +99,7 @@ public class UserUpdateProcessor implements Processor {
             }
         }
 
-        exchange.getOut().setBody(new AbstractMap.SimpleEntry<>(
+        exchange.getOut().setBody(new ImmutablePair<>(
                 updated.getResult().getKey().getKey(), propagationReporter.getStatuses()));
     }
 }

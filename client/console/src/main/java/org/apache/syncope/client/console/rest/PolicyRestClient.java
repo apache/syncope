@@ -34,7 +34,7 @@ public class PolicyRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -1392090291817187902L;
 
-    public <T extends AbstractPolicyTO> T getGlobalPolicy(final PolicyType type) {
+    public <T extends AbstractPolicyTO<?>> T getGlobalPolicy(final PolicyType type) {
         T policy = null;
         try {
             policy = getService(PolicyService.class).readGlobal(type);
@@ -44,7 +44,7 @@ public class PolicyRestClient extends BaseRestClient {
         return policy;
     }
 
-    public <T extends AbstractPolicyTO> T getPolicy(final Long id) {
+    public <T extends AbstractPolicyTO<?>> T getPolicy(final Long id) {
         T policy = null;
         try {
             policy = getService(PolicyService.class).read(id);
@@ -55,7 +55,7 @@ public class PolicyRestClient extends BaseRestClient {
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends AbstractPolicyTO> List<T> getPolicies(final PolicyType type, final boolean includeGlobal) {
+    public <T extends AbstractPolicyTO<?>> List<T> getPolicies(final PolicyType type, final boolean includeGlobal) {
         final List<T> res = new ArrayList<>();
 
         try {
@@ -66,9 +66,9 @@ public class PolicyRestClient extends BaseRestClient {
 
         if (includeGlobal) {
             try {
-                AbstractPolicyTO globalPolicy = getGlobalPolicy(type);
+                T globalPolicy = getGlobalPolicy(type);
                 if (globalPolicy != null) {
-                    res.add(0, (T) globalPolicy);
+                    res.add(0, globalPolicy);
                 }
             } catch (Exception ignore) {
                 LOG.warn("No global policy found", ignore);
@@ -78,15 +78,15 @@ public class PolicyRestClient extends BaseRestClient {
         return res;
     }
 
-    public <T extends AbstractPolicyTO> void createPolicy(final T policy) {
+    public <T extends AbstractPolicyTO<?>> void createPolicy(final T policy) {
         getService(PolicyService.class).create(policy);
     }
 
-    public <T extends AbstractPolicyTO> void updatePolicy(final T policy) {
+    public <T extends AbstractPolicyTO<?>> void updatePolicy(final T policy) {
         getService(PolicyService.class).update(policy.getKey(), policy);
     }
 
-    public void delete(final Long id, final Class<? extends AbstractPolicyTO> policyClass) {
+    public void delete(final Long id, final Class<? extends AbstractPolicyTO<?>> policyClass) {
         getService(PolicyService.class).delete(id);
     }
 

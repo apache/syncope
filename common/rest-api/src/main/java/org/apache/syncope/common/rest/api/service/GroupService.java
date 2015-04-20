@@ -35,6 +35,7 @@ import javax.ws.rs.core.Response;
 import org.apache.cxf.jaxrs.model.wadl.Description;
 import org.apache.cxf.jaxrs.model.wadl.Descriptions;
 import org.apache.cxf.jaxrs.model.wadl.DocTarget;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.mod.GroupMod;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
@@ -51,28 +52,6 @@ import org.apache.syncope.common.lib.wrap.ResourceName;
 public interface GroupService extends JAXRSService {
 
     /**
-     * Returns children groups of given group.
-     *
-     * @param groupKey key of group to get children from
-     * @return children groups of given group
-     */
-    @GET
-    @Path("{groupKey}/children")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    List<GroupTO> children(@NotNull @PathParam("groupKey") Long groupKey);
-
-    /**
-     * Returns parent group of the given group (or null if no parent exists).
-     *
-     * @param groupKey key of group to get parent group from
-     * @return parent group of the given group (or null if no parent exists)
-     */
-    @GET
-    @Path("{groupKey}/parent")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    GroupTO parent(@NotNull @PathParam("groupKey") Long groupKey);
-
-    /**
      * Reads the group matching the provided groupKey.
      *
      * @param groupKey key of group to be read
@@ -87,8 +66,7 @@ public interface GroupService extends JAXRSService {
      * This method is similar to {@link #read(Long)}, but uses different authentication handling to ensure that a user
      * can read his own groups.
      *
-     * @param groupKey key of group to be read
-     * @return group with matching id
+     * @return own groups
      */
     @Descriptions({
         @Description(target = DocTarget.METHOD,
@@ -96,32 +74,38 @@ public interface GroupService extends JAXRSService {
                 + "ensure that a user can read his own groups.")
     })
     @GET
-    @Path("{groupKey}/own")
+    @Path("own")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    GroupTO readSelf(@NotNull @PathParam("groupKey") Long groupKey);
+    List<GroupTO> own();
 
     /**
      * Returns a paged list of existing groups.
      *
+     * @param realms realms under which groups are defined
      * @return paged list of all existing groups
      */
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    PagedResult<GroupTO> list();
+    PagedResult<GroupTO> list(
+            @DefaultValue(SyncopeConstants.ROOT_REALM) @QueryParam("realm") List<String> realms);
 
     /**
      * Returns a paged list of existing groups.
      *
+     * @param realms realms under which groups are defined
      * @param orderBy list of ordering clauses, separated by comma
      * @return paged list of all existing groups
      */
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    PagedResult<GroupTO> list(@QueryParam(PARAM_ORDERBY) String orderBy);
+    PagedResult<GroupTO> list(
+            @DefaultValue(SyncopeConstants.ROOT_REALM) @QueryParam("realm") List<String> realms,
+            @QueryParam(PARAM_ORDERBY) String orderBy);
 
     /**
      * Returns a paged list of existing groups matching page/size conditions.
      *
+     * @param realms realms under which groups are defined
      * @param page result page number
      * @param size number of entries per page
      * @return paged list of existing groups matching page/size conditions
@@ -129,12 +113,14 @@ public interface GroupService extends JAXRSService {
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     PagedResult<GroupTO> list(
+            @DefaultValue(SyncopeConstants.ROOT_REALM) @QueryParam("realm") List<String> realms,
             @NotNull @Min(1) @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) Integer page,
             @NotNull @Min(1) @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) Integer size);
 
     /**
      * Returns a paged list of existing groups matching page/size conditions.
      *
+     * @param realms realms under which groups are defined
      * @param page result page number
      * @param size number of entries per page
      * @param orderBy list of ordering clauses, separated by comma
@@ -143,6 +129,7 @@ public interface GroupService extends JAXRSService {
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     PagedResult<GroupTO> list(
+            @DefaultValue(SyncopeConstants.ROOT_REALM) @QueryParam("realm") List<String> realms,
             @NotNull @Min(1) @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) Integer page,
             @NotNull @Min(1) @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) Integer size,
             @QueryParam(PARAM_ORDERBY) String orderBy);
@@ -150,17 +137,21 @@ public interface GroupService extends JAXRSService {
     /**
      * Returns a paged list of groups matching the provided FIQL search condition.
      *
+     * @param realms realms under which groups are defined
      * @param fiql FIQL search expression
      * @return paged list of groups matching the provided FIQL search condition
      */
     @GET
     @Path("search")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    PagedResult<GroupTO> search(@NotNull @QueryParam(PARAM_FIQL) String fiql);
+    PagedResult<GroupTO> search(
+            @DefaultValue(SyncopeConstants.ROOT_REALM) @QueryParam("realm") List<String> realms,
+            @NotNull @QueryParam(PARAM_FIQL) String fiql);
 
     /**
      * Returns a paged list of groups matching the provided FIQL search condition.
      *
+     * @param realms realms under which groups are defined
      * @param fiql FIQL search expression
      * @param orderBy list of ordering clauses, separated by comma
      * @return paged list of groups matching the provided FIQL search condition
@@ -169,11 +160,14 @@ public interface GroupService extends JAXRSService {
     @Path("search")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     PagedResult<GroupTO> search(
-            @NotNull @QueryParam(PARAM_FIQL) String fiql, @QueryParam(PARAM_ORDERBY) String orderBy);
+            @DefaultValue(SyncopeConstants.ROOT_REALM) @QueryParam("realm") List<String> realms,
+            @NotNull @QueryParam(PARAM_FIQL) String fiql,
+            @QueryParam(PARAM_ORDERBY) String orderBy);
 
     /**
      * Returns a paged list of groups matching the provided FIQL search condition.
      *
+     * @param realms realms under which groups are defined
      * @param fiql FIQL search expression
      * @param page result page number
      * @param size number of entries per page
@@ -182,13 +176,16 @@ public interface GroupService extends JAXRSService {
     @GET
     @Path("search")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    PagedResult<GroupTO> search(@QueryParam(PARAM_FIQL) String fiql,
+    PagedResult<GroupTO> search(
+            @DefaultValue(SyncopeConstants.ROOT_REALM) @QueryParam("realm") List<String> realms,
+            @QueryParam(PARAM_FIQL) String fiql,
             @NotNull @Min(1) @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) Integer page,
             @NotNull @Min(1) @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) Integer size);
 
     /**
      * Returns a paged list of groups matching the provided FIQL search condition.
      *
+     * @param realms realms under which groups are defined
      * @param fiql FIQL search expression
      * @param page result page number
      * @param size number of entries per page
@@ -198,7 +195,9 @@ public interface GroupService extends JAXRSService {
     @GET
     @Path("search")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    PagedResult<GroupTO> search(@QueryParam(PARAM_FIQL) String fiql,
+    PagedResult<GroupTO> search(
+            @DefaultValue(SyncopeConstants.ROOT_REALM) @QueryParam("realm") List<String> realms,
+            @QueryParam(PARAM_FIQL) String fiql,
             @NotNull @Min(1) @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) Integer page,
             @NotNull @Min(1) @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) Integer size,
             @QueryParam(PARAM_ORDERBY) String orderBy);
@@ -274,7 +273,8 @@ public interface GroupService extends JAXRSService {
     @Path("{groupKey}/deassociate/{type}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    Response bulkDeassociation(@NotNull @PathParam("groupKey") Long groupKey,
+    Response bulkDeassociation(
+            @NotNull @PathParam("groupKey") Long groupKey,
             @NotNull @PathParam("type") ResourceDeassociationActionType type,
             @NotNull List<ResourceName> resourceNames);
 
@@ -294,7 +294,8 @@ public interface GroupService extends JAXRSService {
     @Path("{groupKey}/associate/{type}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    Response bulkAssociation(@NotNull @PathParam("groupKey") Long groupKey,
+    Response bulkAssociation(
+            @NotNull @PathParam("groupKey") Long groupKey,
             @NotNull @PathParam("type") ResourceAssociationActionType type,
             @NotNull List<ResourceName> resourceNames);
 

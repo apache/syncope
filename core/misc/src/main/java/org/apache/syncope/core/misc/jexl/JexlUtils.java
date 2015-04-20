@@ -46,9 +46,9 @@ import org.slf4j.LoggerFactory;
 /**
  * JEXL <a href="http://commons.apache.org/jexl/reference/index.html">reference</a> is available.
  */
-public final class JexlUtil {
+public final class JexlUtils {
 
-    private static final Logger LOG = LoggerFactory.getLogger(JexlUtil.class);
+    private static final Logger LOG = LoggerFactory.getLogger(JexlUtils.class);
 
     private static final String[] IGNORE_FIELDS = { "password", "clearPassword", "serialVersionUID", "class" };
 
@@ -230,8 +230,8 @@ public final class JexlUtil {
             final Attributable<?, ?, ?> attributable, final Collection<? extends PlainAttr> attributes) {
 
         final JexlContext jexlContext = new MapContext();
-        JexlUtil.addAttrsToContext(attributes, jexlContext);
-        JexlUtil.addFieldsToContext(attributable, jexlContext);
+        JexlUtils.addAttrsToContext(attributes, jexlContext);
+        JexlUtils.addFieldsToContext(attributable, jexlContext);
 
         // Evaluate expression using the context prepared before
         return evaluate(expression, jexlContext);
@@ -280,6 +280,6 @@ public final class JexlUtil {
     /**
      * Private default constructor, for static-only classes.
      */
-    private JexlUtil() {
+    private JexlUtils() {
     }
 }

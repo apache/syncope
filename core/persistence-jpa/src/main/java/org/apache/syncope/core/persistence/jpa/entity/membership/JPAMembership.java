@@ -37,6 +37,7 @@ import org.apache.syncope.core.persistence.api.entity.membership.MVirAttr;
 import org.apache.syncope.core.persistence.api.entity.membership.MVirAttrTemplate;
 import org.apache.syncope.core.persistence.api.entity.membership.Membership;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
+import org.apache.syncope.core.persistence.api.entity.membership.MPlainAttrTemplate;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractAttributable;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
@@ -108,9 +109,28 @@ public class JPAMembership extends AbstractAttributable<MPlainAttr, MDerAttr, MV
     }
 
     @Override
-    public boolean addPlainAttr(final MPlainAttr attr) {
-        checkType(attr, JPAMPlainAttr.class);
-        return plainAttrs.add((JPAMPlainAttr) attr);
+    public boolean addPlainAttr(final MPlainAttr plainAttr) {
+        checkType(plainAttr, JPAMPlainAttr.class);
+
+        if (getGroup() != null && plainAttr.getSchema() != null) {
+            MPlainAttrTemplate found = CollectionUtils.find(getGroup().getAttrTemplates(MPlainAttrTemplate.class),
+                    new Predicate<MPlainAttrTemplate>() {
+
+                        @Override
+                        public boolean evaluate(final MPlainAttrTemplate template) {
+                            return plainAttr.getSchema().equals(template.getSchema());
+                        }
+
+                    });
+            if (found != null) {
+                plainAttr.setTemplate(found);
+                return plainAttrs.add((JPAMPlainAttr) plainAttr);
+            }
+        }
+
+        LOG.warn("Attribute not added because either group was not yet set, "
+                + "schema was not specified or no template for that schema is available");
+        return false;
     }
 
     @Override
@@ -129,7 +149,7 @@ public class JPAMembership extends AbstractAttributable<MPlainAttr, MDerAttr, MV
         checkType(derAttr, JPAMDerAttr.class);
 
         if (getGroup() != null && derAttr.getSchema() != null) {
-            MDerAttrTemplate found = CollectionUtils.find(getGroup().findInheritedTemplates(MDerAttrTemplate.class),
+            MDerAttrTemplate found = CollectionUtils.find(getGroup().getAttrTemplates(MDerAttrTemplate.class),
                     new Predicate<MDerAttrTemplate>() {
 
                         @Override
@@ -166,7 +186,7 @@ public class JPAMembership extends AbstractAttributable<MPlainAttr, MDerAttr, MV
 
         if (getGroup() != null && virAttr.getSchema() != null) {
             MVirAttrTemplate found = null;
-            for (MVirAttrTemplate template : getGroup().findInheritedTemplates(MVirAttrTemplate.class)) {
+            for (MVirAttrTemplate template : getGroup().getAttrTemplates(MVirAttrTemplate.class)) {
                 if (virAttr.getSchema().equals(template.getSchema())) {
                     found = template;
                 }

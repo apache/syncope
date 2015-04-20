@@ -22,8 +22,9 @@ import org.apache.syncope.core.provisioning.api.data.ConnInstanceDataBinder;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ConnPoolConfTO;
@@ -34,7 +35,7 @@ import org.apache.syncope.core.persistence.api.dao.ConnInstanceDAO;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
-import org.apache.syncope.core.provisioning.api.ConnPoolConfUtil;
+import org.apache.syncope.core.provisioning.api.ConnPoolConfUtils;
 import org.identityconnectors.framework.api.ConfigurationProperties;
 import org.identityconnectors.framework.api.ConfigurationProperty;
 import org.identityconnectors.framework.impl.api.ConfigurationPropertyImpl;
@@ -116,7 +117,7 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
         }
         if (connInstanceTO.getPoolConf() != null) {
             connInstance.setPoolConf(
-                    ConnPoolConfUtil.getConnPoolConf(connInstanceTO.getPoolConf(), entityFactory.newConnPoolConf()));
+                    ConnPoolConfUtils.getConnPoolConf(connInstanceTO.getPoolConf(), entityFactory.newConnPoolConf()));
         }
 
         // Throw exception if there is at least one element set
@@ -171,7 +172,7 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
             connInstance.setPoolConf(null);
         } else {
             connInstance.setPoolConf(
-                    ConnPoolConfUtil.getConnPoolConf(connInstanceTO.getPoolConf(), entityFactory.newConnPoolConf()));
+                    ConnPoolConfUtils.getConnPoolConf(connInstanceTO.getPoolConf(), entityFactory.newConnPoolConf()));
         }
 
         if (!sce.isEmpty()) {
@@ -211,29 +212,31 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
         ConnInstanceTO connInstanceTO = new ConnInstanceTO();
         connInstanceTO.setKey(connInstance.getKey() == null ? 0L : connInstance.getKey());
 
-        // retrieve the ConfigurationProperties
-        ConfigurationProperties properties = connIdBundleManager.getConfigurationProperties(
-                connIdBundleManager.getConnectorInfo(connInstance.getLocation(),
-                        connInstance.getBundleName(), connInstance.getVersion(), connInstance.getConnectorName()));
-
         BeanUtils.copyProperties(connInstance, connInstanceTO, IGNORE_PROPERTIES);
 
-        final Map<String, ConnConfProperty> connInstanceToConfMap = connInstanceTO.getConfigurationMap();
-
-        for (String propName : properties.getPropertyNames()) {
+        // refresh stored properties in the given connInstance with direct information from underlying connector
+        ConfigurationProperties properties =
+                connIdBundleManager.getConfigurationProperties(connIdBundleManager.getConnectorInfo(connInstance));
+        for (final String propName : properties.getPropertyNames()) {
             ConnConfPropSchema schema = buildConnConfPropSchema(properties.getProperty(propName));
 
-            ConnConfProperty property;
-            if (connInstanceToConfMap.containsKey(propName)) {
-                property = connInstanceToConfMap.get(propName);
-            } else {
+            ConnConfProperty property = CollectionUtils.find(connInstanceTO.getConfiguration(),
+                    new Predicate<ConnConfProperty>() {
+
+                        @Override
+                        public boolean evaluate(final ConnConfProperty candidate) {
+                            return propName.equals(candidate.getSchema().getName());
+                        }
+                    });
+            if (property == null) {
                 property = new ConnConfProperty();
                 connInstanceTO.getConfiguration().add(property);
             }
-
+            
             property.setSchema(schema);
         }
 
+        // pool configuration
         if (connInstance.getPoolConf() != null) {
             ConnPoolConfTO poolConf = new ConnPoolConfTO();
             BeanUtils.copyProperties(connInstance.getPoolConf(), poolConf);

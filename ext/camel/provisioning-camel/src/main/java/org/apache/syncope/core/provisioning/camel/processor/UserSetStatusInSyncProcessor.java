@@ -26,15 +26,11 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class UserSetStatusInSyncProcessor implements Processor {
-
-    private static final Logger LOG = LoggerFactory.getLogger(UserSetStatusInSyncProcessor.class);
 
     @Autowired
     protected UserDAO userDAO;

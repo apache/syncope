@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.mod.AbstractSubjectMod;
 import org.apache.syncope.common.lib.mod.MembershipMod;
 import org.apache.syncope.common.lib.mod.UserMod;
@@ -87,7 +88,7 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
     private AuditManager auditManager;
 
     @Autowired
-    private SyncUtilities syncUtilities;
+    private SyncUtils syncUtilities;
 
     protected Map<Long, Long> membersBeforeGroupUpdate = Collections.<Long, Long>emptyMap();
 
@@ -205,12 +206,12 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
 
         Result result;
 
-        WorkflowResult<Map.Entry<UserMod, Boolean>> updated = null;
+        WorkflowResult<Pair<UserMod, Boolean>> updated = null;
 
         try {
             updated = uwfAdapter.update(userMod);
 
-            List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(
+            List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(
                     updated, false, Collections.singleton(resourceName));
 
             taskExecutor.execute(tasks);

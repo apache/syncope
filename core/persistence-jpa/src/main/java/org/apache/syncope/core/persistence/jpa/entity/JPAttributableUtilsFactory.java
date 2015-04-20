@@ -20,8 +20,8 @@ package org.apache.syncope.core.persistence.jpa.entity;
 
 import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.core.persistence.api.entity.Attributable;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtil;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtilFactory;
+import org.apache.syncope.core.persistence.api.entity.AttributableUtils;
+import org.apache.syncope.core.persistence.api.entity.AttributableUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.conf.Conf;
 import org.apache.syncope.core.persistence.api.entity.membership.Membership;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
@@ -30,20 +30,20 @@ import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.springframework.stereotype.Component;
 
 @Component
-public class JPAttributableUtilFactory implements AttributableUtilFactory {
+public class JPAttributableUtilsFactory implements AttributableUtilsFactory {
 
     @Override
-    public AttributableUtil getInstance(final AttributableType type) {
-        return new JPAAttributableUtil(type);
+    public AttributableUtils getInstance(final AttributableType type) {
+        return new JPAAttributableUtils(type);
     }
 
     @Override
-    public AttributableUtil getInstance(final String attributableType) {
-        return new JPAAttributableUtil(AttributableType.valueOf(attributableType));
+    public AttributableUtils getInstance(final String attributableType) {
+        return new JPAAttributableUtils(AttributableType.valueOf(attributableType));
     }
 
     @Override
-    public AttributableUtil getInstance(final ObjectClass objectClass) {
+    public AttributableUtils getInstance(final ObjectClass objectClass) {
         AttributableType type = null;
         if (ObjectClass.ACCOUNT.equals(objectClass)) {
             type = AttributableType.USER;
@@ -55,11 +55,11 @@ public class JPAttributableUtilFactory implements AttributableUtilFactory {
             throw new IllegalArgumentException("ObjectClass not supported: " + objectClass);
         }
 
-        return new JPAAttributableUtil(type);
+        return new JPAAttributableUtils(type);
     }
 
     @Override
-    public AttributableUtil getInstance(final Attributable<?, ?, ?> attributable) {
+    public AttributableUtils getInstance(final Attributable<?, ?, ?> attributable) {
         AttributableType type = null;
         if (attributable instanceof User) {
             type = AttributableType.USER;
@@ -75,7 +75,7 @@ public class JPAttributableUtilFactory implements AttributableUtilFactory {
             throw new IllegalArgumentException("Attributable type not supported: " + attributable.getClass().getName());
         }
 
-        return new JPAAttributableUtil(type);
+        return new JPAAttributableUtils(type);
     }
 
 }

@@ -24,13 +24,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.SubjectType;
 import org.apache.syncope.common.lib.types.SyncPolicySpec;
-import org.apache.syncope.core.persistence.api.GroupEntitlementUtil;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValidationException;
-import org.apache.syncope.core.persistence.api.dao.EntitlementDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
@@ -41,19 +40,15 @@ import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.dao.search.SubjectCond;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtil;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtilFactory;
+import org.apache.syncope.core.persistence.api.entity.AttributableUtils;
+import org.apache.syncope.core.persistence.api.entity.AttributableUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Subject;
-import org.apache.syncope.core.persistence.api.entity.SyncPolicy;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
-import org.apache.syncope.core.persistence.api.entity.user.UDerAttr;
-import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
-import org.apache.syncope.core.persistence.api.entity.user.UVirAttr;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.sync.SyncCorrelationRule;
@@ -70,24 +65,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SyncUtilities {
+public class SyncUtils {
 
     /**
      * Logger.
      */
-    protected static final Logger LOG = LoggerFactory.getLogger(SyncUtilities.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(SyncUtils.class);
 
     /**
      * Policy DAO.
      */
     @Autowired
     protected PolicyDAO policyDAO;
-
-    /**
-     * Entitlement DAO.
-     */
-    @Autowired
-    protected EntitlementDAO entitlementDAO;
 
     /**
      * Schema DAO.
@@ -114,7 +103,7 @@ public class SyncUtilities {
     protected SubjectSearchDAO searchDAO;
 
     @Autowired
-    protected AttributableUtilFactory attrUtilFactory;
+    protected AttributableUtilsFactory attrUtilsFactory;
 
     public Long findMatchingAttributableKey(
             final ObjectClass oclass,
@@ -124,11 +113,11 @@ public class SyncUtilities {
 
         Long result = null;
 
-        final AttributableUtil attrUtil = attrUtilFactory.getInstance(oclass);
+        final AttributableUtils attrUtils = attrUtilsFactory.getInstance(oclass);
 
         final List<ConnectorObject> found = connector.search(oclass,
                 new EqualsFilter(new Name(name)), connector.getOperationOptions(
-                        attrUtil.getMappingItems(resource, MappingPurpose.SYNCHRONIZATION)));
+                        attrUtils.getMappingItems(resource, MappingPurpose.SYNCHRONIZATION)));
 
         if (found.isEmpty()) {
             LOG.debug("No {} found on {} with __NAME__ {}", oclass, resource, name);
@@ -139,12 +128,12 @@ public class SyncUtilities {
 
             ConnectorObject connObj = found.iterator().next();
             try {
-                List<Long> subjectKeys = findExisting(connObj.getUid().getUidValue(), connObj, resource, attrUtil);
+                List<Long> subjectKeys = findExisting(connObj.getUid().getUidValue(), connObj, resource, attrUtils);
                 if (subjectKeys.isEmpty()) {
-                    LOG.debug("No matching {} found for {}, aborting", attrUtil.getType(), connObj);
+                    LOG.debug("No matching {} found for {}, aborting", attrUtils.getType(), connObj);
                 } else {
                     if (subjectKeys.size() > 1) {
-                        LOG.warn("More than one {} found {} - taking first only", attrUtil.getType(), subjectKeys);
+                        LOG.warn("More than one {} found {} - taking first only", attrUtils.getType(), subjectKeys);
                     }
 
                     result = subjectKeys.iterator().next();
@@ -162,16 +151,16 @@ public class SyncUtilities {
     }
 
     private List<Long> findByAccountIdItem(
-            final String uid, final ExternalResource resource, final AttributableUtil attrUtil) {
+            final String uid, final ExternalResource resource, final AttributableUtils attrUtils) {
         final List<Long> result = new ArrayList<>();
 
-        final MappingItem accountIdItem = attrUtil.getAccountIdItem(resource);
+        final MappingItem accountIdItem = attrUtils.getAccountIdItem(resource);
         switch (accountIdItem.getIntMappingType()) {
             case UserPlainSchema:
             case GroupPlainSchema:
-                final PlainAttrValue value = attrUtil.newPlainAttrValue();
+                final PlainAttrValue value = attrUtils.newPlainAttrValue();
 
-                PlainSchema schema = plainSchemaDAO.find(accountIdItem.getIntAttrName(), attrUtil.plainSchemaClass());
+                PlainSchema schema = plainSchemaDAO.find(accountIdItem.getIntAttrName(), attrUtils.plainSchemaClass());
                 if (schema == null) {
                     value.setStringValue(uid);
                 } else {
@@ -184,7 +173,7 @@ public class SyncUtilities {
                 }
 
                 List<? extends Subject<?, ?, ?>> subjects =
-                        getSubjectDAO(accountIdItem).findByAttrValue(accountIdItem.getIntAttrName(), value, attrUtil);
+                        getSubjectDAO(accountIdItem).findByAttrValue(accountIdItem.getIntAttrName(), value, attrUtils);
                 for (Subject<?, ?, ?> subject : subjects) {
                     result.add(subject.getKey());
                 }
@@ -193,7 +182,7 @@ public class SyncUtilities {
             case UserDerivedSchema:
             case GroupDerivedSchema:
                 subjects = getSubjectDAO(accountIdItem).
-                        findByDerAttrValue(accountIdItem.getIntAttrName(), uid, attrUtil);
+                        findByDerAttrValue(accountIdItem.getIntAttrName(), uid, attrUtils);
                 for (Subject<?, ?, ?> subject : subjects) {
                     result.add(subject.getKey());
                 }
@@ -214,14 +203,14 @@ public class SyncUtilities {
                 break;
 
             case GroupName:
-                List<Group> groups = groupDAO.find(uid);
-                for (Group group : groups) {
+                Group group = groupDAO.find(uid);
+                if (group != null) {
                     result.add(group.getKey());
                 }
                 break;
 
             case GroupId:
-                Group group = groupDAO.find(Long.parseLong(uid));
+                group = groupDAO.find(Long.parseLong(uid));
                 if (group != null) {
                     result.add(group.getKey());
                 }
@@ -237,8 +226,8 @@ public class SyncUtilities {
     private List<Long> search(final SearchCond searchCond, final SubjectType type) {
         final List<Long> result = new ArrayList<>();
 
-        List<Subject<?, ?, ?>> subjects = searchDAO.search(GroupEntitlementUtil.getGroupKeys(entitlementDAO.findAll()),
-                searchCond, Collections.<OrderByClause>emptyList(), type);
+        List<Subject<?, ?, ?>> subjects = searchDAO.search(
+                SyncopeConstants.FULL_ADMIN_REALMS, searchCond, Collections.<OrderByClause>emptyList(), type);
         for (Subject<?, ?, ?> subject : subjects) {
             result.add(subject.getKey());
         }
@@ -256,12 +245,12 @@ public class SyncUtilities {
             final ConnectorObject connObj,
             final List<String> altSearchSchemas,
             final ExternalResource resource,
-            final AttributableUtil attrUtil) {
+            final AttributableUtils attrUtils) {
 
         // search for external attribute's name/value of each specified name
         final Map<String, Attribute> extValues = new HashMap<>();
 
-        for (MappingItem item : attrUtil.getMappingItems(resource, MappingPurpose.SYNCHRONIZATION)) {
+        for (MappingItem item : attrUtils.getMappingItems(resource, MappingPurpose.SYNCHRONIZATION)) {
             extValues.put(item.getIntAttrName(), connObj.getAttributeByName(item.getExtAttrName()));
         }
 
@@ -316,7 +305,7 @@ public class SyncUtilities {
                     : SearchCond.getAndCond(searchCond, nodeCond);
         }
 
-        return search(searchCond, SubjectType.valueOf(attrUtil.getType().name()));
+        return search(searchCond, SubjectType.valueOf(attrUtils.getType().name()));
     }
 
     private SyncCorrelationRule getCorrelationRule(final AttributableType type, final SyncPolicySpec policySpec) {
@@ -372,22 +361,17 @@ public class SyncUtilities {
      * @param uid for finding by account id
      * @param connObj for finding by attribute value
      * @param resource external resource
-     * @param attrUtil attributable util
+     * @param attrUtils attributable util
      * @return list of matching users / groups
      */
     public List<Long> findExisting(
             final String uid,
             final ConnectorObject connObj,
             final ExternalResource resource,
-            final AttributableUtil attrUtil) {
+            final AttributableUtils attrUtils) {
 
         SyncPolicySpec syncPolicySpec = null;
-        if (resource.getSyncPolicy() == null) {
-            SyncPolicy globalSP = policyDAO.getGlobalSyncPolicy();
-            if (globalSP != null) {
-                syncPolicySpec = globalSP.getSpecification(SyncPolicySpec.class);
-            }
-        } else {
+        if (resource.getSyncPolicy() != null) {
             syncPolicySpec = resource.getSyncPolicy().getSpecification(SyncPolicySpec.class);
         }
 
@@ -395,14 +379,14 @@ public class SyncUtilities {
         List<String> altSearchSchemas = null;
 
         if (syncPolicySpec != null) {
-            syncRule = getCorrelationRule(attrUtil.getType(), syncPolicySpec);
-            altSearchSchemas = getAltSearchSchemas(attrUtil.getType(), syncPolicySpec);
+            syncRule = getCorrelationRule(attrUtils.getType(), syncPolicySpec);
+            altSearchSchemas = getAltSearchSchemas(attrUtils.getType(), syncPolicySpec);
         }
 
         return syncRule == null ? altSearchSchemas == null || altSearchSchemas.isEmpty()
-                ? findByAccountIdItem(uid, resource, attrUtil)
-                : findByAttributableSearch(connObj, altSearchSchemas, resource, attrUtil)
-                : findByCorrelationRule(connObj, syncRule, SubjectType.valueOf(attrUtil.getType().name()));
+                ? findByAccountIdItem(uid, resource, attrUtils)
+                : findByAttributableSearch(connObj, altSearchSchemas, resource, attrUtils)
+                : findByCorrelationRule(connObj, syncRule, SubjectType.valueOf(attrUtils.getType().name()));
     }
 
     public Boolean readEnabled(final ConnectorObject connectorObject, final ProvisioningTask task) {

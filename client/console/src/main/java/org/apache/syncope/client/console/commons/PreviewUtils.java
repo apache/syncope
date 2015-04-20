@@ -28,7 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ClassUtils;
 
 @org.springframework.stereotype.Component
-public class PreviewUtil {
+public class PreviewUtils {
 
     @Autowired
     private ImplementationClassNamesLoader implementationClassNamesLoader;

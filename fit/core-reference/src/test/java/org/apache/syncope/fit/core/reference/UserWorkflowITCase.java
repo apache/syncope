@@ -56,14 +56,14 @@ public class UserWorkflowITCase extends AbstractITCase {
 
         // User with group 9 are defined in workflow as subject to approval
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setGroupId(9L);
+        membershipTO.setGroupKey(9L);
         userTO.getMemberships().add(membershipTO);
 
         // 1. create user with group 9
         userTO = createUser(userTO);
         assertNotNull(userTO);
         assertEquals(1, userTO.getMemberships().size());
-        assertEquals(9, userTO.getMemberships().get(0).getGroupId());
+        assertEquals(9, userTO.getMemberships().get(0).getGroupKey());
         assertEquals("createApproval", userTO.getStatus());
 
         // 2. request if there is any pending task for user just created
@@ -130,14 +130,14 @@ public class UserWorkflowITCase extends AbstractITCase {
 
         // User with group 9 are defined in workflow as subject to approval
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setGroupId(9L);
+        membershipTO.setGroupKey(9L);
         userTO.getMemberships().add(membershipTO);
 
         // 1. create user with group 9 (and verify that no propagation occurred)
         userTO = createUser(userTO);
         assertNotNull(userTO);
         assertEquals(1, userTO.getMemberships().size());
-        assertEquals(9, userTO.getMemberships().get(0).getGroupId());
+        assertEquals(9, userTO.getMemberships().get(0).getGroupKey());
         assertEquals("createApproval", userTO.getStatus());
         assertEquals(Collections.singleton(RESOURCE_NAME_TESTDB), userTO.getResources());
 
@@ -216,7 +216,7 @@ public class UserWorkflowITCase extends AbstractITCase {
 
         // User with group 9 are defined in workflow as subject to approval
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setGroupId(9L);
+        membershipTO.setGroupKey(9L);
         userTO.getMemberships().add(membershipTO);
 
         // 1. create user with group 9 (and verify that no propagation occurred)

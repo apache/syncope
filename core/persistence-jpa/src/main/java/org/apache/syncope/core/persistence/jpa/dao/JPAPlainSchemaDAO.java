@@ -27,7 +27,7 @@ import org.apache.syncope.core.persistence.api.dao.AttrTemplateDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtil;
+import org.apache.syncope.core.persistence.api.entity.AttributableUtils;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.conf.CPlainSchema;
@@ -107,7 +107,7 @@ public class JPAPlainSchemaDAO extends AbstractDAO<PlainSchema, String> implemen
 
     @Override
     @SuppressWarnings("unchecked")
-    public void delete(final String key, final AttributableUtil attributableUtil) {
+    public void delete(final String key, final AttributableUtils attributableUtil) {
         PlainSchema schema = find(key, attributableUtil.plainSchemaClass());
         if (schema == null) {
             return;

@@ -20,15 +20,17 @@ package org.apache.syncope.core.provisioning.java.sync;
 
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
+import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.common.lib.types.TraceLevel;
-import org.apache.syncope.core.persistence.api.dao.EntitlementDAO;
+import org.apache.syncope.core.misc.security.SyncopeGrantedAuthority;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
-import org.apache.syncope.core.persistence.api.entity.Entitlement;
 import org.apache.syncope.core.persistence.api.entity.group.GMapping;
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
@@ -44,7 +46,6 @@ import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -70,12 +71,6 @@ public abstract class AbstractProvisioningJob<T extends ProvisioningTask, A exte
      */
     @Autowired
     protected ExternalResourceDAO resourceDAO;
-
-    /**
-     * Entitlement DAO.
-     */
-    @Autowired
-    protected EntitlementDAO entitlementDAO;
 
     /**
      * Policy DAO.
@@ -317,16 +312,16 @@ public abstract class AbstractProvisioningJob<T extends ProvisioningTask, A exte
     @Override
     protected String doExecute(final boolean dryRun) throws JobExecutionException {
         // PRE: grant all authorities (i.e. setup the SecurityContextHolder)
-        List<GrantedAuthority> authorities = new ArrayList<>();
-        CollectionUtils.collect(entitlementDAO.findAll(), new Transformer<Entitlement, GrantedAuthority>() {
+        List<GrantedAuthority> authorities = CollectionUtils.collect(Arrays.asList(Entitlement.values()),
+                new Transformer<Entitlement, GrantedAuthority>() {
 
-            @Override
-            public GrantedAuthority transform(final Entitlement entitlement) {
-                return new SimpleGrantedAuthority(entitlement.getKey());
-            }
-        }, authorities);
+                    @Override
+                    public GrantedAuthority transform(final Entitlement entitlement) {
+                        return new SyncopeGrantedAuthority(entitlement, SyncopeConstants.ROOT_REALM);
+                    }
+                }, new ArrayList<GrantedAuthority>());
 
-        final UserDetails userDetails = new User("admin", "FAKE_PASSWORD", true, true, true, true, authorities);
+        final UserDetails userDetails = new User("admin", "FAKE_PASSWORD", authorities);
 
         SecurityContextHolder.getContext().setAuthentication(
                 new UsernamePasswordAuthenticationToken(userDetails, "FAKE_PASSWORD", authorities));

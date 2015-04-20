@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.core.misc.security;
 
-import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Set;
 import javax.annotation.Resource;
+import org.apache.commons.collections4.SetUtils;
 import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
@@ -30,16 +30,16 @@ import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.entity.AccountPolicy;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtil;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtilFactory;
+import org.apache.syncope.core.persistence.api.entity.AttributableUtils;
+import org.apache.syncope.core.persistence.api.entity.AttributableUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttr;
-import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.ConnectorFactory;
 import org.apache.syncope.core.misc.AuditManager;
-import org.apache.syncope.core.misc.MappingUtil;
+import org.apache.syncope.core.misc.MappingUtils;
+import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,6 +68,9 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
     protected ConfDAO confDAO;
 
     @Autowired
+    protected RealmDAO realmDAO;
+
+    @Autowired
     protected UserDAO userDAO;
 
     @Autowired
@@ -77,7 +80,7 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
     protected ConnectorFactory connFactory;
 
     @Autowired
-    protected AttributableUtilFactory attrUtilFactory;
+    protected AttributableUtilsFactory attrUtilsFactory;
 
     @Resource(name = "adminUser")
     protected String adminUser;
@@ -232,46 +235,32 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
             }
         }
 
-        // 2. look for owned groups, pick the ones whose account policy has authentication resources
-        for (Group group : user.getGroups()) {
-            if (group.getAccountPolicy() != null && !group.getAccountPolicy().getResources().isEmpty()) {
+        // 2. look for realms, pick the ones whose account policy has authentication resources
+        for (Realm realm : realmDAO.findAncestors(user.getRealm())) {
+            if (realm.getAccountPolicy() != null && !realm.getAccountPolicy().getResources().isEmpty()) {
                 if (result == null) {
-                    result = group.getAccountPolicy().getResources();
+                    result = realm.getAccountPolicy().getResources();
                 } else {
-                    result.retainAll(group.getAccountPolicy().getResources());
+                    result.retainAll(realm.getAccountPolicy().getResources());
                 }
             }
         }
 
-        // 3. look for global account policy (if defined)
-        AccountPolicy global = policyDAO.getGlobalAccountPolicy();
-        if (global != null && !global.getResources().isEmpty()) {
-            if (result == null) {
-                result = global.getResources();
-            } else {
-                result.retainAll(global.getResources());
-            }
-        }
-
-        if (result == null) {
-            result = Collections.emptySet();
-        }
-
-        return result;
+        return SetUtils.emptyIfNull(result);
     }
 
     protected boolean authenticate(final User user, final String password) {
         boolean authenticated = encryptor.verify(password, user.getCipherAlgorithm(), user.getPassword());
         LOG.debug("{} authenticated on internal storage: {}", user.getUsername(), authenticated);
 
-        final AttributableUtil attrUtil = attrUtilFactory.getInstance(AttributableType.USER);
+        final AttributableUtils attrUtils = attrUtilsFactory.getInstance(AttributableType.USER);
         for (Iterator<? extends ExternalResource> itor = getPassthroughResources(user).iterator();
                 itor.hasNext() && !authenticated;) {
 
             ExternalResource resource = itor.next();
             String accountId = null;
             try {
-                accountId = MappingUtil.getAccountIdValue(user, resource, attrUtil.getAccountIdItem(resource));
+                accountId = MappingUtils.getAccountIdValue(user, resource, attrUtils.getAccountIdItem(resource));
                 Uid uid = connFactory.getConnector(resource).authenticate(accountId, password, null);
                 if (uid != null) {
                     authenticated = true;

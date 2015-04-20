@@ -33,6 +33,8 @@ public final class RESTHeaders {
      */
     public static final String USERNAME = "X-Syncope-Username";
 
+    public static final String OWNED_ENTITLEMENTS = "X-Syncope-Entitlements";
+
     /**
      * HTTP header key for object ID assigned to an object after its creation.
      */

@@ -20,8 +20,11 @@ package org.apache.syncope.core.persistence.api.entity.task;
 
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.core.persistence.api.entity.Realm;
 
 public interface SyncTask extends ProvisioningTask {
+
+    Realm getDestinatioRealm();
 
     GroupTO getGroupTemplate();
 
@@ -34,4 +37,6 @@ public interface SyncTask extends ProvisioningTask {
     void setGroupTemplate(GroupTO groupTemplate);
 
     void setUserTemplate(UserTO userTemplate);
+
+    void setDestinationRealm(Realm destinationRealm);
 }

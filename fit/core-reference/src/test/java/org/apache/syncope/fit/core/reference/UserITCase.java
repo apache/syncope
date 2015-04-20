@@ -34,15 +34,19 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import javax.naming.NamingException;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.common.util.Base64Utility;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.AttributableOperations;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.mod.AttrMod;
 import org.apache.syncope.common.lib.mod.MembershipMod;
 import org.apache.syncope.common.lib.mod.ResourceAssociationMod;
@@ -57,7 +61,6 @@ import org.apache.syncope.common.lib.to.MappingItemTO;
 import org.apache.syncope.common.lib.to.MappingTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PagedResult;
-import org.apache.syncope.common.lib.to.PasswordPolicyTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
@@ -65,8 +68,8 @@ import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.common.lib.types.MappingPurpose;
-import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.lib.types.ResourceAssociationActionType;
 import org.apache.syncope.common.lib.types.ResourceDeassociationActionType;
@@ -76,7 +79,6 @@ import org.apache.syncope.common.lib.wrap.ResourceName;
 import org.apache.syncope.common.rest.api.CollectionWrapper;
 import org.apache.syncope.common.rest.api.Preference;
 import org.apache.syncope.common.rest.api.RESTHeaders;
-import org.apache.syncope.common.rest.api.service.PolicyService;
 import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.syncope.common.rest.api.service.UserService;
@@ -110,6 +112,7 @@ public class UserITCase extends AbstractITCase {
     public static UserTO getSampleTO(final String email) {
         String uid = email;
         UserTO userTO = new UserTO();
+        userTO.setRealm(SyncopeConstants.ROOT_REALM);
         userTO.setPassword("password123");
         userTO.setUsername(uid);
 
@@ -160,32 +163,13 @@ public class UserITCase extends AbstractITCase {
     }
 
     @Test
-    public void issue172() {
-        List<PasswordPolicyTO> policies = policyService.list(PolicyType.GLOBAL_PASSWORD);
-        for (PasswordPolicyTO policyTO : policies) {
-            policyService.delete(policyTO.getKey());
-        }
-
-        try {
-            UserTO userTO = getUniqueSampleTO("issue172@syncope.apache.org");
-            createUser(userTO);
-        } finally {
-            for (PasswordPolicyTO policyTO : policies) {
-                Response response = policyService.create(policyTO);
-                PasswordPolicyTO cPolicyTO = getObject(
-                        response.getLocation(), PolicyService.class, PasswordPolicyTO.class);
-                assertNotNull(cPolicyTO);
-            }
-        }
-    }
-
-    @Test
     public void issue186() {
         // 1. create an user with strict mandatory attributes only
         UserTO userTO = new UserTO();
+        userTO.setRealm(SyncopeConstants.ROOT_REALM);
         String userId = getUUIDString() + "issue186@syncope.apache.org";
         userTO.setUsername(userId);
-        userTO.setPassword("password");
+        userTO.setPassword("password123");
 
         userTO.getPlainAttrs().add(attrTO("userId", userId));
         userTO.getPlainAttrs().add(attrTO("fullname", userId));
@@ -198,7 +182,7 @@ public class UserITCase extends AbstractITCase {
         // 2. update assigning a resource forcing mandatory constraints: must fail with RequiredValuesMissing
         UserMod userMod = new UserMod();
         userMod.setKey(userTO.getKey());
-        userMod.setPassword("newPassword");
+        userMod.setPassword("newPassword123");
         userMod.getResourcesToAdd().add(RESOURCE_NAME_WS2);
 
         try {
@@ -212,7 +196,7 @@ public class UserITCase extends AbstractITCase {
         // AND primary: must fail with PropagationException
         userMod = new UserMod();
         userMod.setKey(userTO.getKey());
-        userMod.setPassword("newPassword");
+        userMod.setPassword("newPassword123");
         userMod.getResourcesToAdd().add(RESOURCE_NAME_WS1);
 
         userTO = updateUser(userMod);
@@ -231,7 +215,7 @@ public class UserITCase extends AbstractITCase {
     public void enforceMandatoryCondition() {
         UserTO userTO = getUniqueSampleTO("enforce@apache.org");
         userTO.getResources().add(RESOURCE_NAME_WS2);
-        userTO.setPassword("newPassword");
+        userTO.setPassword("newPassword12");
 
         AttrTO type = null;
         for (AttrTO attr : userTO.getPlainAttrs()) {
@@ -267,7 +251,7 @@ public class UserITCase extends AbstractITCase {
 
         UserTO userTO = getUniqueSampleTO("syncope222@apache.org");
         userTO.getResources().add(resourceTO.getKey());
-        userTO.setPassword("newPassword");
+        userTO.setPassword("newPassword12");
 
         try {
             userTO = createUser(userTO);
@@ -304,11 +288,7 @@ public class UserITCase extends AbstractITCase {
     public void createWithInvalidUsername() {
         UserTO userTO = getSampleTO("invalidusername@syncope.apache.org");
         userTO.setUsername("us");
-
-        MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setGroupId(7L);
-
-        userTO.getMemberships().add(membershipTO);
+        userTO.setRealm("/odd");
 
         createUser(userTO);
     }
@@ -331,7 +311,7 @@ public class UserITCase extends AbstractITCase {
         userTO.setPassword("password1");
 
         final MembershipTO membership = new MembershipTO();
-        membership.setGroupId(8L);
+        membership.setGroupKey(8L);
 
         userTO.getMemberships().add(membership);
 
@@ -362,7 +342,7 @@ public class UserITCase extends AbstractITCase {
 
         // add a membership
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setGroupId(8L);
+        membershipTO.setGroupKey(8L);
         userTO.getMemberships().add(membershipTO);
 
         // add an attribute with no values: must be ignored
@@ -420,11 +400,10 @@ public class UserITCase extends AbstractITCase {
         assertEquals(maxTaskExecutions, taskTO.getExecutions().size());
 
         // 3. verify password
-        UserSelfService userSelfService1 = clientFactory.create(
-                newUserTO.getUsername(), "password123").getService(UserSelfService.class);
         try {
-            UserTO user = userSelfService1.read();
-            assertNotNull(user);
+            Pair<Map<Entitlement, Set<String>>, UserTO> self =
+                    clientFactory.create(newUserTO.getUsername(), "password123").self();
+            assertNotNull(self);
         } catch (AccessControlException e) {
             fail("Credentials should be valid and not cause AccessControlException");
         }
@@ -460,7 +439,7 @@ public class UserITCase extends AbstractITCase {
         userTO.getPlainAttrs().remove(type);
 
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setGroupId(8L);
+        membershipTO.setGroupKey(8L);
         userTO.getMemberships().add(membershipTO);
 
         // 1. create user without type (mandatory by UserSchema)
@@ -549,7 +528,7 @@ public class UserITCase extends AbstractITCase {
 
     @Test
     public void list() {
-        PagedResult<UserTO> users = userService.list();
+        PagedResult<UserTO> users = userService.list(Collections.singletonList("/"));
         assertNotNull(users);
         assertFalse(users.getResult().isEmpty());
 
@@ -560,7 +539,7 @@ public class UserITCase extends AbstractITCase {
 
     @Test
     public void paginatedList() {
-        PagedResult<UserTO> users = userService.list(1, 2);
+        PagedResult<UserTO> users = userService.list(Collections.singletonList("/"), 1, 2);
         assertNotNull(users);
         assertFalse(users.getResult().isEmpty());
         assertEquals(2, users.getResult().size());
@@ -569,12 +548,12 @@ public class UserITCase extends AbstractITCase {
             assertNotNull(user);
         }
 
-        users = userService.list(2, 2);
+        users = userService.list(Collections.singletonList("/"), 2, 2);
         assertNotNull(users);
         assertFalse(users.getResult().isEmpty());
         assertEquals(2, users.getResult().size());
 
-        users = userService.list(100, 2);
+        users = userService.list(Collections.singletonList("/"), 100, 2);
         assertNotNull(users);
         assertTrue(users.getResult().isEmpty());
     }
@@ -630,7 +609,8 @@ public class UserITCase extends AbstractITCase {
 
     @Test(expected = SyncopeClientException.class)
     public void updateSamePassword() {
-        UserTO userTO = getSampleTO("updatesame@password.com");
+        UserTO userTO = getUniqueSampleTO("updatesame@password.com");
+        userTO.setRealm("/even/two");
 
         userTO = createUser(userTO);
         assertNotNull(userTO);
@@ -647,7 +627,7 @@ public class UserITCase extends AbstractITCase {
         UserTO userTO = getUniqueSampleTO("g.h@t.com");
 
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setGroupId(8L);
+        membershipTO.setGroupKey(8L);
         membershipTO.getPlainAttrs().add(attrTO("subscriptionDate", "2009-08-18T16:33:12.203+0200"));
         userTO.getMemberships().add(membershipTO);
 
@@ -704,7 +684,7 @@ public class UserITCase extends AbstractITCase {
 
         UserTO userTO = getUniqueSampleTO("pwdonly@t.com");
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setGroupId(8L);
+        membershipTO.setGroupKey(8L);
         membershipTO.getPlainAttrs().add(attrTO("subscriptionDate", "2009-08-18T16:33:12.203+0200"));
         userTO.getMemberships().add(membershipTO);
 
@@ -742,7 +722,7 @@ public class UserITCase extends AbstractITCase {
 
         // add a membership
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setGroupId(8L);
+        membershipTO.setGroupKey(8L);
         userTO.getMemberships().add(membershipTO);
 
         // 1. create user
@@ -811,7 +791,7 @@ public class UserITCase extends AbstractITCase {
         UserTO userTO = getUniqueSampleTO("createActivate@syncope.apache.org");
 
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setGroupId(11L);
+        membershipTO.setGroupKey(11L);
         userTO.getMemberships().add(membershipTO);
 
         userTO = createUser(userTO);
@@ -838,7 +818,7 @@ public class UserITCase extends AbstractITCase {
         UserTO userTO = getUniqueSampleTO("suspendReactivate@syncope.apache.org");
 
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setGroupId(7L);
+        membershipTO.setGroupKey(7L);
         userTO.getMemberships().add(membershipTO);
 
         userTO = createUser(userTO);
@@ -1026,9 +1006,9 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(toBeUpdated);
 
         assertFalse(toBeUpdated.getVirAttrs().isEmpty());
-        assertNotNull(toBeUpdated.getVirAttrs().get(0));
+        assertNotNull(toBeUpdated.getVirAttrs().iterator().next());
 
-        assertEquals(virtual.getSchema(), toBeUpdated.getVirAttrs().get(0).getSchema());
+        assertEquals(virtual.getSchema(), toBeUpdated.getVirAttrs().iterator().next().getSchema());
     }
 
     @Test
@@ -1115,7 +1095,7 @@ public class UserITCase extends AbstractITCase {
         userTO.getDerAttrs().add(attrTO("csvuserid", null));
 
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setGroupId(1L);
+        membershipTO.setGroupKey(1L);
 
         userTO.getMemberships().add(membershipTO);
 
@@ -1141,7 +1121,7 @@ public class UserITCase extends AbstractITCase {
         userTO.getDerAttrs().add(attrTO("csvuserid", null));
 
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setGroupId(1L);
+        membershipTO.setGroupKey(1L);
         membershipTO.getPlainAttrs().add(attrTO("mderived_sx", "sx"));
         membershipTO.getPlainAttrs().add(attrTO("mderived_dx", "dx"));
         membershipTO.getDerAttrs().add(attrTO("mderToBePropagated", null));
@@ -1198,12 +1178,12 @@ public class UserITCase extends AbstractITCase {
         userTO.getDerAttrs().add(attrTO("csvuserid", null));
 
         MembershipTO memb12 = new MembershipTO();
-        memb12.setGroupId(12L);
+        memb12.setGroupKey(12L);
 
         userTO.getMemberships().add(memb12);
 
         MembershipTO memb13 = new MembershipTO();
-        memb13.setGroupId(13L);
+        memb13.setGroupKey(13L);
 
         userTO.getMemberships().add(memb13);
 
@@ -1282,12 +1262,12 @@ public class UserITCase extends AbstractITCase {
         userTO.getDerAttrs().add(attrTO("csvuserid", null));
 
         MembershipTO memb12 = new MembershipTO();
-        memb12.setGroupId(12L);
+        memb12.setGroupKey(12L);
         memb12.getPlainAttrs().add(attrTO("postalAddress", "postalAddress"));
         userTO.getMemberships().add(memb12);
 
         MembershipTO memb13 = new MembershipTO();
-        memb13.setGroupId(13L);
+        memb13.setGroupKey(13L);
         userTO.getMemberships().add(memb13);
 
         userTO.getResources().add(RESOURCE_NAME_LDAP);
@@ -1316,7 +1296,7 @@ public class UserITCase extends AbstractITCase {
         UserMod userMod = new UserMod();
         userMod.setKey(actual.getKey());
 
-        MembershipTO membershipTO = actual.getMemberships().get(0).getGroupId() == 12L
+        MembershipTO membershipTO = actual.getMemberships().get(0).getGroupKey() == 12L
                 ? actual.getMemberships().get(0)
                 : actual.getMemberships().get(1);
 
@@ -1418,7 +1398,7 @@ public class UserITCase extends AbstractITCase {
 
         assertNotNull(userTO);
         assertEquals(1, userTO.getVirAttrs().size());
-        assertEquals("virtualvalue", userTO.getVirAttrs().get(0).getValues().get(0));
+        assertEquals("virtualvalue", userTO.getVirAttrs().iterator().next().getValues().get(0));
     }
 
     @Test
@@ -1678,7 +1658,7 @@ public class UserITCase extends AbstractITCase {
         // 1. create group with LDAP resource
         GroupTO groupTO = new GroupTO();
         groupTO.setName("SYNCOPE354-" + getUUIDString());
-        groupTO.setParent(8L);
+        groupTO.setRealm("/");
         groupTO.getResources().add(RESOURCE_NAME_LDAP);
 
         groupTO = createGroup(groupTO);
@@ -1688,7 +1668,7 @@ public class UserITCase extends AbstractITCase {
         UserTO userTO = getUniqueSampleTO("syncope354@syncope.apache.org");
         userTO.getResources().add(RESOURCE_NAME_LDAP);
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setGroupId(groupTO.getKey());
+        membershipTO.setGroupKey(groupTO.getKey());
         userTO.getMemberships().add(membershipTO);
 
         userTO = createUser(userTO);
@@ -1729,7 +1709,7 @@ public class UserITCase extends AbstractITCase {
         // 1. create group with LDAP resource
         GroupTO groupTO = new GroupTO();
         groupTO.setName("SYNCOPE357-" + getUUIDString());
-        groupTO.setParent(8L);
+        groupTO.setRealm("/");
         groupTO.getResources().add(RESOURCE_NAME_LDAP);
 
         groupTO = createGroup(groupTO);
@@ -1741,7 +1721,7 @@ public class UserITCase extends AbstractITCase {
         userTO.getPlainAttrs().add(attrTO("photo",
                 Base64Utility.encode(IOUtils.readBytesFromStream(getClass().getResourceAsStream("/favicon.jpg")))));
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setGroupId(groupTO.getKey());
+        membershipTO.setGroupKey(groupTO.getKey());
         userTO.getMemberships().add(membershipTO);
 
         userTO = createUser(userTO);
@@ -1792,7 +1772,7 @@ public class UserITCase extends AbstractITCase {
         // 3. request to change password only on testdb
         userMod = new UserMod();
         userMod.setKey(userTO.getKey());
-        userMod.setPassword(getUUIDString());
+        userMod.setPassword(getUUIDString() + "abbcbcbddd123");
         StatusMod pwdPropRequest = new StatusMod();
         pwdPropRequest.getResourceNames().add(RESOURCE_NAME_TESTDB);
         userMod.setPwdPropRequest(pwdPropRequest);
@@ -1806,9 +1786,10 @@ public class UserITCase extends AbstractITCase {
     public void issueSYNCOPE402() {
         // 1. create an user with strict mandatory attributes only
         UserTO userTO = new UserTO();
+        userTO.setRealm(SyncopeConstants.ROOT_REALM);
         String userId = getUUIDString() + "syncope402@syncope.apache.org";
         userTO.setUsername(userId);
-        userTO.setPassword("password");
+        userTO.setPassword("password123");
 
         userTO.getPlainAttrs().add(attrTO("userId", userId));
         userTO.getPlainAttrs().add(attrTO("fullname", userId));
@@ -1818,11 +1799,11 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(userTO);
         assertTrue(userTO.getResources().isEmpty());
 
-        //2. update assigning a resource NOT forcing mandatory constraints
+        // 2. update assigning a resource NOT forcing mandatory constraints
         // AND primary: must fail with PropagationException
         UserMod userMod = new UserMod();
         userMod.setKey(userTO.getKey());
-        userMod.setPassword("newPassword");
+        userMod.setPassword("newPassword123");
 
         userMod.getResourcesToAdd().add(RESOURCE_NAME_WS1);
         userMod.getResourcesToAdd().add(RESOURCE_NAME_TESTDB);
@@ -2279,7 +2260,7 @@ public class UserITCase extends AbstractITCase {
     public void issueSYNCOPE505DB() throws Exception {
         // 1. create user
         UserTO user = UserITCase.getUniqueSampleTO("syncope505-db@syncope.apache.org");
-        user.setPassword("security");
+        user.setPassword("security123");
         user = createUser(user);
         assertNotNull(user);
         assertTrue(user.getResources().isEmpty());
@@ -2308,7 +2289,7 @@ public class UserITCase extends AbstractITCase {
         final JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
         String value = jdbcTemplate.queryForObject(
                 "SELECT PASSWORD FROM test WHERE ID=?", String.class, user.getUsername());
-        assertEquals(Encryptor.getInstance().encode("security", CipherAlgorithm.SHA1), value.toUpperCase());
+        assertEquals(Encryptor.getInstance().encode("security123", CipherAlgorithm.SHA1), value.toUpperCase());
 
         // 5. Remove DBPasswordPropagationActions
         resourceTO = resourceService.read(RESOURCE_NAME_TESTDB);
@@ -2321,7 +2302,7 @@ public class UserITCase extends AbstractITCase {
     public void issueSYNCOPE505LDAP() throws Exception {
         // 1. create user
         UserTO user = UserITCase.getUniqueSampleTO("syncope505-ldap@syncope.apache.org");
-        user.setPassword("security");
+        user.setPassword("security123");
         user = createUser(user);
         assertNotNull(user);
         assertTrue(user.getResources().isEmpty());
@@ -2353,7 +2334,7 @@ public class UserITCase extends AbstractITCase {
 
         assertNotNull(getLdapRemoteObject(
                 connObject.getPlainAttrMap().get(Name.NAME).getValues().get(0),
-                "security",
+                "security123",
                 connObject.getPlainAttrMap().get(Name.NAME).getValues().get(0)));
 
         // 5. Remove LDAPPasswordPropagationActions
@@ -2377,6 +2358,7 @@ public class UserITCase extends AbstractITCase {
         // 2. create existing user on csv and check that password on Syncope is null and that password on resource
         // doesn't change
         userTO = new UserTO();
+        userTO.setRealm(SyncopeConstants.ROOT_REALM);
         userTO.setPassword(null);
         userTO.setUsername("syncope391@syncope.apache.org");
         userTO.getPlainAttrs().add(attrTO("fullname", "fullname"));
@@ -2402,7 +2384,7 @@ public class UserITCase extends AbstractITCase {
         // 3. create user with not null password and propagate onto resource-csv, specify not to save password on
         // Syncope local storage
         userTO = getUniqueSampleTO("syncope391@syncope.apache.org");
-        userTO.setPassword("passwordTESTNULL");
+        userTO.setPassword("passwordTESTNULL1");
         userTO.getDerAttrs().clear();
         userTO.getVirAttrs().clear();
         userTO.getDerAttrs().add(attrTO("csvuserid", null));
@@ -2416,13 +2398,13 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(connObjectTO);
 
         // check if password has been propagated and that saved userTO's password is null
-        assertEquals("passwordTESTNULL", connObjectTO.getPlainAttrMap().
+        assertEquals("passwordTESTNULL1", connObjectTO.getPlainAttrMap().
                 get(OperationalAttributes.PASSWORD_NAME).getValues().get(0));
         assertNull(userTO.getPassword());
 
         // 4. create user and propagate password on resource-csv and on Syncope local storage
         userTO = getUniqueSampleTO("syncope391@syncope.apache.org");
-        userTO.setPassword("passwordTESTNULL");
+        userTO.setPassword("passwordTESTNULL1");
         userTO.getDerAttrs().clear();
         userTO.getVirAttrs().clear();
         userTO.getDerAttrs().add(attrTO("csvuserid", null));
@@ -2437,7 +2419,7 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(connObjectTO);
 
         // check if password has been correctly propagated on Syncope and resource-csv as usual
-        assertEquals("passwordTESTNULL", connObjectTO.getPlainAttrMap().
+        assertEquals("passwordTESTNULL1", connObjectTO.getPlainAttrMap().
                 get(OperationalAttributes.PASSWORD_NAME).getValues().get(0));
         assertNotNull(userTO.getPassword());
 
@@ -2445,7 +2427,7 @@ public class UserITCase extends AbstractITCase {
         ResourceTO csv = resourceService.read(RESOURCE_NAME_CSV);
         assertNotNull(csv);
         try {
-            csv.setPasswordPolicy(4L);
+            csv.setPasswordPolicy(8L);
             resourceService.update(RESOURCE_NAME_CSV, csv);
             csv = resourceService.read(RESOURCE_NAME_CSV);
 
@@ -2478,7 +2460,7 @@ public class UserITCase extends AbstractITCase {
         userTO.getDerAttrs().add(attrTO("csvuserid", null));
 
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setGroupId(12L);
+        membershipTO.setGroupKey(12L);
         membershipTO.getPlainAttrs().add(attrTO("postalAddress", "postalAddress"));
         userTO.getMemberships().add(membershipTO);
 

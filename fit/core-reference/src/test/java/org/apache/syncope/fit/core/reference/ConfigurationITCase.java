@@ -57,12 +57,12 @@ public class ConfigurationITCase extends AbstractITCase {
     @Test
     public void create() {
         PlainSchemaTO testKey = new PlainSchemaTO();
-        testKey.setKey("testKey");
+        testKey.setKey("testKey" + getUUIDString());
         testKey.setType(AttrSchemaType.String);
         createSchema(AttributableType.CONFIGURATION, SchemaType.PLAIN, testKey);
 
         AttrTO conf = new AttrTO();
-        conf.setSchema("testKey");
+        conf.setSchema(testKey.getKey());
         conf.getValues().add("testValue");
 
         configurationService.set(conf.getSchema(), conf);
@@ -201,6 +201,7 @@ public class ConfigurationITCase extends AbstractITCase {
         createSchema(AttributableType.GROUP, SchemaType.PLAIN, groupKey);
 
         GroupTO groupTO = new GroupTO();
+        groupTO.setRealm("/");
         groupTO.setName("aGroup" + getUUIDString());
         groupTO.getMPlainAttrTemplates().add(membershipKey.getKey());
         groupTO.getGPlainAttrTemplates().add(groupKey.getKey());

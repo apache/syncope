@@ -22,6 +22,8 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import javax.ws.rs.core.Response;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ConnBundleTO;
@@ -71,14 +73,16 @@ public class ConnectorServiceImpl extends AbstractServiceImpl implements Connect
 
         connInstanceTO.setKey(connInstanceKey);
 
-        List<String> schemaNames = logic.getSchemaNames(connInstanceTO, includeSpecial);
-        List<PlainSchemaTO> result = new ArrayList<>(schemaNames.size());
-        for (String name : schemaNames) {
-            PlainSchemaTO schemaTO = new PlainSchemaTO();
-            schemaTO.setKey(name);
-            result.add(schemaTO);
-        }
-        return result;
+        return CollectionUtils.collect(logic.getSchemaNames(connInstanceTO, includeSpecial),
+                new Transformer<String, PlainSchemaTO>() {
+
+                    @Override
+                    public PlainSchemaTO transform(final String name) {
+                        PlainSchemaTO schemaTO = new PlainSchemaTO();
+                        schemaTO.setKey(name);
+                        return schemaTO;
+                    }
+                }, new ArrayList<PlainSchemaTO>());
     }
 
     @Override
@@ -128,6 +132,19 @@ public class ConnectorServiceImpl extends AbstractServiceImpl implements Connect
 
     @Override
     public BulkActionResult bulk(final BulkAction bulkAction) {
-        return logic.bulk(bulkAction);
+        BulkActionResult result = new BulkActionResult();
+
+        if (bulkAction.getOperation() == BulkAction.Type.DELETE) {
+            for (String id : bulkAction.getTargets()) {
+                try {
+                    result.add(logic.delete(Long.valueOf(id)).getKey(), BulkActionResult.Status.SUCCESS);
+                } catch (Exception e) {
+                    LOG.error("Error performing delete for connector {}", id, e);
+                    result.add(id, BulkActionResult.Status.FAILURE);
+                }
+            }
+        }
+
+        return result;
     }
 }

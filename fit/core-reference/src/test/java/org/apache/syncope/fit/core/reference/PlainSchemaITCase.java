@@ -233,7 +233,7 @@ public class PlainSchemaITCase extends AbstractITCase {
 
         UserTO newUserTO = SerializationUtils.clone(userTO);
         MembershipTO membership = new MembershipTO();
-        membership.setGroupId(2L);
+        membership.setGroupKey(2L);
         newUserTO.getMemberships().add(membership);
 
         UserMod userMod = AttributableOperations.diff(newUserTO, userTO);

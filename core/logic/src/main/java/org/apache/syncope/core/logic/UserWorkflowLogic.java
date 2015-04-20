@@ -19,9 +19,9 @@
 package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
-import java.util.AbstractMap;
 import java.util.List;
-import java.util.Map;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.mod.AbstractAttributableMod;
 import org.apache.syncope.common.lib.mod.UserMod;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -70,9 +70,9 @@ public class UserWorkflowLogic extends AbstractTransactionalLogic<WorkflowFormTO
         UserMod userMod = new UserMod();
         userMod.setKey(userTO.getKey());
 
-        List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(
-                new WorkflowResult<Map.Entry<UserMod, Boolean>>(
-                        new AbstractMap.SimpleEntry<UserMod, Boolean>(userMod, null),
+        List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(
+                new WorkflowResult<Pair<UserMod, Boolean>>(
+                        new ImmutablePair<UserMod, Boolean>(userMod, null),
                         updated.getPropByRes(), updated.getPerformedTasks()));
 
         taskExecutor.execute(tasks);
@@ -110,9 +110,9 @@ public class UserWorkflowLogic extends AbstractTransactionalLogic<WorkflowFormTO
         if (updated.getResult() instanceof UserMod
                 && updated.getPropByRes() != null && !updated.getPropByRes().isEmpty()) {
 
-            List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(
-                    new WorkflowResult<Map.Entry<UserMod, Boolean>>(
-                            new AbstractMap.SimpleEntry<>((UserMod) updated.getResult(), Boolean.TRUE),
+            List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(
+                    new WorkflowResult<Pair<UserMod, Boolean>>(
+                            new ImmutablePair<>((UserMod) updated.getResult(), Boolean.TRUE),
                             updated.getPropByRes(),
                             updated.getPerformedTasks()));
 

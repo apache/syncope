@@ -19,15 +19,19 @@
 package org.apache.syncope.common.lib;
 
 import java.nio.charset.Charset;
+import java.util.Collections;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 public final class SyncopeConstants {
 
     public static final String NAMESPACE = "http://syncope.apache.org/2.0";
 
-    public static final String UNAUTHENTICATED = "unauthenticated";
+    public static final String ROOT_REALM = "/";
 
-    public static final String ANONYMOUS_ENTITLEMENT = "anonymous";
+    public static final Set<String> FULL_ADMIN_REALMS = Collections.singleton("/");
+
+    public static final String UNAUTHENTICATED = "unauthenticated";
 
     public static final String ENUM_VALUES_SEPARATOR = ";";
 

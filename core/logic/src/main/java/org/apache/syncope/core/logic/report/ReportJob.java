@@ -40,7 +40,7 @@ import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
 import org.apache.syncope.core.logic.ReportLogic;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
-import org.apache.syncope.core.misc.ExceptionUtil;
+import org.apache.syncope.core.misc.ExceptionUtils2;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
@@ -167,7 +167,7 @@ public class ReportJob implements Job {
                                 ? e.getCause()
                                 : e;
                         reportExecutionMessage.
-                                append(ExceptionUtil.getFullStackTrace(t)).
+                                append(ExceptionUtils2.getFullStackTrace(t)).
                                 append("\n==================\n");
                     }
                 }
@@ -182,7 +182,7 @@ public class ReportJob implements Job {
             }
         } catch (Exception e) {
             execution.setStatus(ReportExecStatus.FAILURE);
-            reportExecutionMessage.append(ExceptionUtil.getFullStackTrace(e));
+            reportExecutionMessage.append(ExceptionUtils2.getFullStackTrace(e));
 
             throw new JobExecutionException(e, true);
         } finally {

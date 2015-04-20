@@ -18,14 +18,26 @@
  */
 package org.apache.syncope.client.lib;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.common.lib.search.OrderByClauseBuilder;
 import org.apache.syncope.common.lib.search.GroupFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.search.UserFiqlSearchConditionBuilder;
+import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.common.rest.api.Preference;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.service.UserSelfService;
 
 /**
  * Entry point for client access to all REST services exposed by Syncope core; obtain instances via
@@ -37,15 +49,21 @@ public class SyncopeClient {
 
     private final RestClientFactoryBean restClientFactory;
 
+    private final RestClientExceptionMapper exceptionMapper;
+
     private final String username;
 
     private final String password;
 
-    public SyncopeClient(final MediaType mediaType, final RestClientFactoryBean restClientFactory,
+    public SyncopeClient(
+            final MediaType mediaType,
+            final RestClientFactoryBean restClientFactory,
+            final RestClientExceptionMapper exceptionMapper,
             final String username, final String password) {
 
         this.mediaType = mediaType;
         this.restClientFactory = restClientFactory;
+        this.exceptionMapper = exceptionMapper;
         this.username = username;
         this.password = password;
     }
@@ -87,6 +105,28 @@ public class SyncopeClient {
     public <T> T getService(final Class<T> serviceClass) {
         synchronized (restClientFactory) {
             return restClientFactory.createServiceInstance(serviceClass, mediaType, username, password);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public Pair<Map<Entitlement, Set<String>>, UserTO> self() {
+        Response response = getService(UserSelfService.class).read();
+        if (response.getStatusInfo().getStatusCode() != Response.Status.OK.getStatusCode()) {
+            Exception ex = exceptionMapper.fromResponse(response);
+            if (ex != null) {
+                throw (RuntimeException) ex;
+            }
+        }
+
+        try {
+            return new ImmutablePair<>(
+                    (Map<Entitlement, Set<String>>) new ObjectMapper().readValue(
+                            response.getHeaderString(RESTHeaders.OWNED_ENTITLEMENTS),
+                            new TypeReference<HashMap<Entitlement, Set<String>>>() {
+                            }),
+                    response.readEntity(UserTO.class));
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
         }
     }
 

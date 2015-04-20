@@ -21,14 +21,12 @@ package org.apache.syncope.core.persistence.jpa.entity;
 import org.apache.syncope.core.persistence.api.entity.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.ConnPoolConf;
-import org.apache.syncope.core.persistence.api.entity.Entitlement;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Logger;
 import org.apache.syncope.core.persistence.api.entity.Notification;
 import org.apache.syncope.core.persistence.api.entity.PasswordPolicy;
-import org.apache.syncope.core.persistence.api.entity.Policy;
 import org.apache.syncope.core.persistence.api.entity.PushPolicy;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Report;
@@ -145,6 +143,14 @@ public class JPAEntityFactory implements EntityFactory {
 
         if (reference.equals(Realm.class)) {
             result = (T) new JPARealm();
+        } else if (reference.equals(AccountPolicy.class)) {
+            result = (T) new JPAAccountPolicy();
+        } else if (reference.equals(PasswordPolicy.class)) {
+            result = (T) new JPAPasswordPolicy();
+        } else if (reference.equals(PushPolicy.class)) {
+            result = (T) new JPAPushPolicy();
+        } else if (reference.equals(SyncPolicy.class)) {
+            result = (T) new JPASyncPolicy();
         } else if (reference.equals(Role.class)) {
             result = (T) new JPARole();
         } else if (reference.equals(User.class)) {
@@ -157,8 +163,6 @@ public class JPAEntityFactory implements EntityFactory {
             result = (T) new JPAConf();
         } else if (reference.equals(Notification.class)) {
             result = (T) new JPANotification();
-        } else if (reference.equals(Entitlement.class)) {
-            result = (T) new JPAEntitlement();
         } else if (reference.equals(ExternalResource.class)) {
             result = (T) new JPAExternalResource();
         } else if (reference.equals(ConnInstance.class)) {
@@ -261,26 +265,6 @@ public class JPAEntityFactory implements EntityFactory {
             result = (T) new JPASecurityQuestion();
         } else if (reference.equals(Logger.class)) {
             result = (T) new JPALogger();
-        } else {
-            throw new IllegalArgumentException("Could not find a JPA implementation of " + reference.getName());
-        }
-
-        return result;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public <T extends Policy> T newPolicy(final Class<T> reference, final boolean global) {
-        T result;
-
-        if (reference.equals(AccountPolicy.class)) {
-            result = (T) new JPAAccountPolicy(global);
-        } else if (reference.equals(PasswordPolicy.class)) {
-            result = (T) new JPAPasswordPolicy(global);
-        } else if (reference.equals(PushPolicy.class)) {
-            result = (T) new JPAPushPolicy(global);
-        } else if (reference.equals(SyncPolicy.class)) {
-            result = (T) new JPASyncPolicy(global);
         } else {
             throw new IllegalArgumentException("Could not find a JPA implementation of " + reference.getName());
         }

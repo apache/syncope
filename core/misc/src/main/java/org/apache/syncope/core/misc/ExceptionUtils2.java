@@ -20,7 +20,7 @@ package org.apache.syncope.core.misc;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
-public final class ExceptionUtil {
+public final class ExceptionUtils2 {
 
     /**
      * Uses commons lang's ExceptionUtils to provide a representation of the full stack trace of the given throwable.
@@ -42,6 +42,6 @@ public final class ExceptionUtil {
     /**
      * Private default constructor, for static-only classes.
      */
-    private ExceptionUtil() {
+    private ExceptionUtils2() {
     }
 }

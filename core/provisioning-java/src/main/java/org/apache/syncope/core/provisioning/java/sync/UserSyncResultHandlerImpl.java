@@ -27,7 +27,7 @@ import org.apache.syncope.common.lib.to.AbstractSubjectTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AttributableType;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtil;
+import org.apache.syncope.core.persistence.api.entity.AttributableUtils;
 import org.apache.syncope.core.provisioning.api.sync.ProvisioningResult;
 import org.apache.syncope.core.provisioning.api.sync.UserSyncResultHandler;
 import org.identityconnectors.framework.common.objects.SyncDelta;
@@ -35,8 +35,8 @@ import org.identityconnectors.framework.common.objects.SyncDelta;
 public class UserSyncResultHandlerImpl extends AbstractSyncResultHandler implements UserSyncResultHandler {
 
     @Override
-    protected AttributableUtil getAttributableUtil() {
-        return attrUtilFactory.getInstance(AttributableType.USER);
+    protected AttributableUtils getAttributableUtils() {
+        return attrUtilsFactory.getInstance(AttributableType.USER);
     }
 
     @Override
@@ -47,7 +47,7 @@ public class UserSyncResultHandlerImpl extends AbstractSyncResultHandler impleme
     @Override
     protected AbstractSubjectTO getSubjectTO(final long key) {
         try {
-            return userTransfer.getUserTO(key);
+            return userDataBinder.getUserTO(key);
         } catch (Exception e) {
             LOG.warn("Error retrieving user {}", key, e);
             return null;
@@ -58,12 +58,11 @@ public class UserSyncResultHandlerImpl extends AbstractSyncResultHandler impleme
     protected AbstractSubjectMod getSubjectMod(
             final AbstractSubjectTO subjectTO, final SyncDelta delta) {
 
-        return connObjectUtil.getAttributableMod(
-                subjectTO.getKey(),
+        return connObjectUtils.getAttributableMod(subjectTO.getKey(),
                 delta.getObject(),
                 subjectTO,
                 profile.getTask(),
-                getAttributableUtil());
+                getAttributableUtils());
     }
 
     @Override
@@ -76,11 +75,9 @@ public class UserSyncResultHandlerImpl extends AbstractSyncResultHandler impleme
         Map.Entry<Long, List<PropagationStatus>> created = userProvisioningManager.create(userTO, true, true, enabled,
                 Collections.singleton(profile.getTask().getResource().getKey()));
 
-        userTO = userTransfer.getUserTO(created.getKey());
-
         result.setId(created.getKey());
 
-        return userTO;
+        return userDataBinder.getUserTO(created.getKey());
     }
 
     @Override
@@ -98,7 +95,7 @@ public class UserSyncResultHandlerImpl extends AbstractSyncResultHandler impleme
             userMod.getResourcesToAdd().add(profile.getTask().getResource().getKey());
         }
 
-        return userTransfer.getUserTO(uwfAdapter.update(userMod).getResult().getKey().getKey());
+        return userDataBinder.getUserTO(uwfAdapter.update(userMod).getResult().getKey().getKey());
     }
 
     @Override
@@ -114,7 +111,7 @@ public class UserSyncResultHandlerImpl extends AbstractSyncResultHandler impleme
         Map.Entry<Long, List<PropagationStatus>> updated = userProvisioningManager.update(userMod, before.getKey(),
                 result, enabled, Collections.singleton(profile.getTask().getResource().getKey()));
 
-        return userTransfer.getUserTO(updated.getKey());
+        return userDataBinder.getUserTO(updated.getKey());
     }
 
     @Override
@@ -123,7 +120,8 @@ public class UserSyncResultHandlerImpl extends AbstractSyncResultHandler impleme
             final boolean unlink) {
 
         taskExecutor.execute(
-                propagationManager.getUserDeleteTaskIds(key, profile.getTask().getResource().getKey()));
+                propagationManager.getUserDeleteTasks(
+                        key, Collections.singleton(profile.getTask().getResource().getKey())));
 
         if (unlink) {
             final UserMod userMod = new UserMod();

@@ -27,34 +27,31 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.mod.GroupMod;
-import org.apache.syncope.common.lib.to.BulkAction;
-import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.SubjectType;
-import org.apache.syncope.common.lib.CollectionUtils2;
-import org.apache.syncope.core.persistence.api.GroupEntitlementUtil;
-import org.apache.syncope.core.persistence.api.dao.NotFoundException;
+import org.apache.syncope.common.lib.types.Entitlement;
+import org.apache.syncope.core.misc.RealmUtils;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.SubjectSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
-import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.AttributableTransformer;
 import org.apache.syncope.core.provisioning.api.GroupProvisioningManager;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
-import org.apache.syncope.core.misc.security.AuthContextUtil;
-import org.apache.syncope.core.misc.security.UnauthorizedGroupException;
+import org.apache.syncope.core.misc.security.AuthContextUtils;
+import org.apache.syncope.core.misc.security.UnauthorizedException;
+import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
@@ -95,127 +92,69 @@ public class GroupLogic extends AbstractSubjectLogic<GroupTO, GroupMod> {
     @Autowired
     protected GroupProvisioningManager provisioningManager;
 
-    @PreAuthorize("hasAnyRole('GROUP_READ', T(org.apache.syncope.common.lib.SyncopeConstants).ANONYMOUS_ENTITLEMENT)")
+    @PreAuthorize("hasRole('GROUP_READ')")
     @Transactional(readOnly = true)
     @Override
     public GroupTO read(final Long groupKey) {
-        Group group;
-        // bypass group entitlements check
-        if (anonymousUser.equals(AuthContextUtil.getAuthenticatedUsername())) {
-            group = groupDAO.find(groupKey);
-        } else {
-            group = groupDAO.authFetch(groupKey);
-        }
-
-        if (group == null) {
-            throw new NotFoundException("Group " + groupKey);
-        }
-
-        return binder.getGroupTO(group);
+        return binder.getGroupTO(groupKey);
     }
 
-    @PreAuthorize("isAuthenticated() "
-            + "and not(hasRole(T(org.apache.syncope.common.lib.SyncopeConstants).ANONYMOUS_ENTITLEMENT))")
+    @PreAuthorize("isAuthenticated() and not(hasRole('ANONYMOUS'))")
     @Transactional(readOnly = true)
-    public GroupTO readSelf(final Long groupKey) {
-        // Explicit search instead of using binder.getGroupFromId() in order to bypass auth checks - will do here
-        Group group = groupDAO.find(groupKey);
-        if (group == null) {
-            throw new NotFoundException("Group " + groupKey);
-        }
+    public List<GroupTO> own() {
+        return CollectionUtils.collect(
+                userDAO.find(AuthContextUtils.getAuthenticatedUsername()).getGroups(),
+                new Transformer<Group, GroupTO>() {
 
-        Set<Long> ownedGroupIds;
-        User authUser = userDAO.find(AuthContextUtil.getAuthenticatedUsername());
-        if (authUser == null) {
-            ownedGroupIds = Collections.<Long>emptySet();
-        } else {
-            ownedGroupIds = authUser.getGroupKeys();
-        }
-
-        Set<Long> allowedGroupIds = GroupEntitlementUtil.getGroupKeys(AuthContextUtil.getOwnedEntitlementNames());
-        allowedGroupIds.addAll(ownedGroupIds);
-        if (!allowedGroupIds.contains(group.getKey())) {
-            throw new UnauthorizedGroupException(group.getKey());
-        }
-
-        return binder.getGroupTO(group);
-    }
-
-    @PreAuthorize("hasRole('GROUP_READ')")
-    @Transactional(readOnly = true)
-    public GroupTO parent(final Long groupKey) {
-        Group group = groupDAO.authFetch(groupKey);
-
-        Set<Long> allowedGroupIds = GroupEntitlementUtil.getGroupKeys(AuthContextUtil.getOwnedEntitlementNames());
-        if (group.getParent() != null && !allowedGroupIds.contains(group.getParent().getKey())) {
-            throw new UnauthorizedGroupException(group.getParent().getKey());
-        }
-
-        GroupTO result = group.getParent() == null
-                ? null
-                : binder.getGroupTO(group.getParent());
-
-        return result;
-    }
-
-    @PreAuthorize("hasRole('GROUP_READ')")
-    @Transactional(readOnly = true)
-    public List<GroupTO> children(final Long groupKey) {
-        Group group = groupDAO.authFetch(groupKey);
-        final Set<Long> allowedGroupKeys =
-                GroupEntitlementUtil.getGroupKeys(AuthContextUtil.getOwnedEntitlementNames());
-
-        return CollectionUtils2.collect(groupDAO.findChildren(group), new Transformer<Group, GroupTO>() {
-
-            @Override
-            public GroupTO transform(final Group group) {
-                return binder.getGroupTO(group);
-            }
-        }, new Predicate<Group>() {
-
-            @Override
-            public boolean evaluate(final Group group) {
-                return allowedGroupKeys.contains(group.getKey());
-            }
-        }, new ArrayList<GroupTO>());
+                    @Override
+                    public GroupTO transform(final Group input) {
+                        return binder.getGroupTO(input);
+                    }
+                }, new ArrayList<GroupTO>());
     }
 
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true, rollbackFor = { Throwable.class })
     @Override
-    public int count() {
-        return groupDAO.count();
+    public int count(final List<String> realms) {
+        return groupDAO.count(getEffectiveRealms(SyncopeConstants.FULL_ADMIN_REALMS, realms));
     }
 
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     @Override
-    public List<GroupTO> list(final int page, final int size, final List<OrderByClause> orderBy) {
-        return CollectionUtils.collect(groupDAO.findAll(page, size, orderBy), new Transformer<Group, GroupTO>() {
+    public List<GroupTO> list(
+            final int page, final int size, final List<OrderByClause> orderBy, final List<String> realms) {
 
-            @Override
-            public GroupTO transform(final Group input) {
-                return binder.getGroupTO(input);
-            }
-        }, new ArrayList<GroupTO>());
+        return CollectionUtils.collect(groupDAO.findAll(
+                getEffectiveRealms(SyncopeConstants.FULL_ADMIN_REALMS, realms),
+                page, size, orderBy),
+                new Transformer<Group, GroupTO>() {
+
+                    @Override
+                    public GroupTO transform(final Group input) {
+                        return binder.getGroupTO(input);
+                    }
+                }, new ArrayList<GroupTO>());
     }
 
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasRole('GROUP_SEARCH')")
     @Transactional(readOnly = true, rollbackFor = { Throwable.class })
     @Override
-    public int searchCount(final SearchCond searchCondition) {
-        final Set<Long> adminGroupIds = GroupEntitlementUtil.getGroupKeys(AuthContextUtil.getOwnedEntitlementNames());
-        return searchDAO.count(adminGroupIds, searchCondition, SubjectType.GROUP);
+    public int searchCount(final SearchCond searchCondition, final List<String> realms) {
+        return searchDAO.count(
+                getEffectiveRealms(AuthContextUtils.getAuthorizations().get(Entitlement.GROUP_SEARCH), realms),
+                searchCondition, SubjectType.GROUP);
     }
 
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasRole('GROUP_SEARCH')")
     @Transactional(readOnly = true, rollbackFor = { Throwable.class })
     @Override
     public List<GroupTO> search(final SearchCond searchCondition, final int page, final int size,
-            final List<OrderByClause> orderBy) {
+            final List<OrderByClause> orderBy, final List<String> realms) {
 
-        List<Group> matchingGroups = searchDAO.search(GroupEntitlementUtil.getGroupKeys(AuthContextUtil.
-                getOwnedEntitlementNames()),
+        final List<Group> matchingGroups = searchDAO.search(
+                getEffectiveRealms(AuthContextUtils.getAuthorizations().get(Entitlement.GROUP_SEARCH), realms),
                 searchCondition, page, size, orderBy, SubjectType.GROUP);
         return CollectionUtils.collect(matchingGroups, new Transformer<Group, GroupTO>() {
 
@@ -228,10 +167,15 @@ public class GroupLogic extends AbstractSubjectLogic<GroupTO, GroupMod> {
 
     @PreAuthorize("hasRole('GROUP_CREATE')")
     public GroupTO create(final GroupTO groupTO) {
-        // Check that this operation is allowed to be performed by caller
-        Set<Long> allowedGroupIds = GroupEntitlementUtil.getGroupKeys(AuthContextUtil.getOwnedEntitlementNames());
-        if (groupTO.getParent() != 0 && !allowedGroupIds.contains(groupTO.getParent())) {
-            throw new UnauthorizedGroupException(groupTO.getParent());
+        if (groupTO.getRealm() == null) {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
+            throw sce;
+        }
+        Set<String> effectiveRealms = getEffectiveRealms(
+                AuthContextUtils.getAuthorizations().get(Entitlement.GROUP_CREATE),
+                Collections.singleton(groupTO.getRealm()));
+        if (effectiveRealms.isEmpty()) {
+            throw new UnauthorizedException(SubjectType.GROUP, null);
         }
 
         // Attributable transformation (if configured)
@@ -242,7 +186,7 @@ public class GroupLogic extends AbstractSubjectLogic<GroupTO, GroupMod> {
          * Actual operations: workflow, propagation
          */
         Map.Entry<Long, List<PropagationStatus>> created = provisioningManager.create(groupTO);
-        final GroupTO savedTO = binder.getGroupTO(created.getKey());
+        GroupTO savedTO = binder.getGroupTO(created.getKey());
         savedTO.getPropagationStatusTOs().addAll(created.getValue());
         return savedTO;
     }
@@ -250,8 +194,16 @@ public class GroupLogic extends AbstractSubjectLogic<GroupTO, GroupMod> {
     @PreAuthorize("hasRole('GROUP_UPDATE')")
     @Override
     public GroupTO update(final GroupMod groupMod) {
-        // Check that this operation is allowed to be performed by caller
-        groupDAO.authFetch(groupMod.getKey());
+        Group group = groupDAO.authFetch(groupMod.getKey());
+        if (group == null) {
+            throw new NotFoundException("Group with key " + groupMod.getKey());
+        }
+        Set<String> effectiveRealms = getEffectiveRealms(
+                AuthContextUtils.getAuthorizations().get(Entitlement.GROUP_UPDATE),
+                Collections.singleton(RealmUtils.getGroupOwnerRealm(group.getRealm().getFullPath(), group.getKey())));
+        if (effectiveRealms.isEmpty()) {
+            throw new UnauthorizedException(SubjectType.GROUP, group.getKey());
+        }
 
         // Attribute value transformation (if configured)
         GroupMod actual = attrTransformer.transform(groupMod);
@@ -259,7 +211,7 @@ public class GroupLogic extends AbstractSubjectLogic<GroupTO, GroupMod> {
 
         Map.Entry<Long, List<PropagationStatus>> updated = provisioningManager.update(groupMod);
 
-        final GroupTO updatedTO = binder.getGroupTO(updated.getKey());
+        GroupTO updatedTO = binder.getGroupTO(updated.getKey());
         updatedTO.getPropagationStatusTOs().addAll(updated.getValue());
         return updatedTO;
     }
@@ -267,6 +219,17 @@ public class GroupLogic extends AbstractSubjectLogic<GroupTO, GroupMod> {
     @PreAuthorize("hasRole('GROUP_DELETE')")
     @Override
     public GroupTO delete(final Long groupKey) {
+        Group group = groupDAO.authFetch(groupKey);
+        if (group == null) {
+            throw new NotFoundException("Group with key " + groupKey);
+        }
+        Set<String> effectiveRealms = getEffectiveRealms(
+                AuthContextUtils.getAuthorizations().get(Entitlement.GROUP_DELETE),
+                Collections.singleton(RealmUtils.getGroupOwnerRealm(group.getRealm().getFullPath(), group.getKey())));
+        if (effectiveRealms.isEmpty()) {
+            throw new UnauthorizedException(SubjectType.GROUP, group.getKey());
+        }
+
         List<Group> ownedGroups = groupDAO.findOwnedByGroup(groupKey);
         if (!ownedGroups.isEmpty()) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.GroupOwnership);
@@ -288,26 +251,6 @@ public class GroupLogic extends AbstractSubjectLogic<GroupTO, GroupMod> {
         groupTO.getPropagationStatusTOs().addAll(statuses);
 
         return groupTO;
-    }
-
-    @PreAuthorize("(hasRole('GROUP_DELETE') and #bulkAction.operation == #bulkAction.operation.DELETE)")
-    public BulkActionResult bulk(final BulkAction bulkAction) {
-        BulkActionResult res = new BulkActionResult();
-
-        if (bulkAction.getOperation() == BulkAction.Type.DELETE) {
-            for (String groupKey : bulkAction.getTargets()) {
-                try {
-                    res.add(delete(Long.valueOf(groupKey)).getKey(), BulkActionResult.Status.SUCCESS);
-                } catch (Exception e) {
-                    LOG.error("Error performing delete for group {}", groupKey, e);
-                    res.add(groupKey, BulkActionResult.Status.FAILURE);
-                }
-            }
-        } else {
-            LOG.warn("Unsupported bulk action: {}", bulkAction.getOperation());
-        }
-
-        return res;
     }
 
     @PreAuthorize("hasRole('GROUP_UPDATE')")
@@ -362,7 +305,7 @@ public class GroupLogic extends AbstractSubjectLogic<GroupTO, GroupMod> {
 
         List<PropagationStatus> statuses = provisioningManager.deprovision(groupKey, resources);
 
-        final GroupTO updatedTO = binder.getGroupTO(group);
+        GroupTO updatedTO = binder.getGroupTO(group);
         updatedTO.getPropagationStatusTOs().addAll(statuses);
         return updatedTO;
     }
@@ -372,7 +315,7 @@ public class GroupLogic extends AbstractSubjectLogic<GroupTO, GroupMod> {
     @Override
     public GroupTO provision(
             final Long groupKey, final Collection<String> resources, final boolean changePwd, final String password) {
-        final GroupTO original = binder.getGroupTO(groupKey);
+        GroupTO original = binder.getGroupTO(groupKey);
 
         //trick: assign and retrieve propagation statuses ...
         original.getPropagationStatusTOs().addAll(

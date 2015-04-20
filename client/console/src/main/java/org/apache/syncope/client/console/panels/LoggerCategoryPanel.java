@@ -24,9 +24,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.SelectedEventsPanel.EventSelectionChanged;
 import org.apache.syncope.client.console.panels.SelectedEventsPanel.InspectSelectedEvent;
@@ -52,15 +52,8 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public abstract class LoggerCategoryPanel extends Panel {
-
-    /**
-     * Logger.
-     */
-    private static final Logger LOG = LoggerFactory.getLogger(LoggerCategoryPanel.class);
 
     private static final long serialVersionUID = 6429053774964787734L;
 
@@ -207,7 +200,7 @@ public abstract class LoggerCategoryPanel extends Panel {
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 if (StringUtils.isNotBlank(custom.getModelObject())) {
-                    final Map.Entry<EventCategoryTO, AuditElements.Result> parsed =
+                    final Pair<EventCategoryTO, AuditElements.Result> parsed =
                             AuditLoggerName.parseEventCategory(custom.getModelObject());
 
                     final String eventString = AuditLoggerName.buildEvent(
@@ -233,12 +226,12 @@ public abstract class LoggerCategoryPanel extends Panel {
             private static final long serialVersionUID = -3722207913631435502L;
 
             @Override
-            public void onClick(AjaxRequestTarget target) {
+            public void onClick(final AjaxRequestTarget target) {
                 if (StringUtils.isNotBlank(custom.getModelObject())) {
-                    final Map.Entry<EventCategoryTO, AuditElements.Result> parsed =
+                    Pair<EventCategoryTO, AuditElements.Result> parsed =
                             AuditLoggerName.parseEventCategory(custom.getModelObject());
 
-                    final String eventString = AuditLoggerName.buildEvent(
+                    String eventString = AuditLoggerName.buildEvent(
                             parsed.getKey().getType(),
                             null,
                             null,
@@ -351,9 +344,9 @@ public abstract class LoggerCategoryPanel extends Panel {
             // update objects ....
             eventCategoryTO.getEvents().clear();
 
-            final InspectSelectedEvent inspectSelectedEvent = (InspectSelectedEvent) event.getPayload();
+            InspectSelectedEvent inspectSelectedEvent = (InspectSelectedEvent) event.getPayload();
 
-            final Map.Entry<EventCategoryTO, AuditElements.Result> categoryEvent =
+            Pair<EventCategoryTO, AuditElements.Result> categoryEvent =
                     AuditLoggerName.parseEventCategory(inspectSelectedEvent.getEvent());
 
             eventCategoryTO.setType(categoryEvent.getKey().getType());

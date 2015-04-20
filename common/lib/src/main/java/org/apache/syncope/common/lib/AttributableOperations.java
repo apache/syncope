@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.mod.AbstractAttributableMod;
@@ -224,6 +225,13 @@ public final class AttributableOperations {
 
         diff(updated, original, result, incremental);
 
+        // 0. realm
+        if (updated.getRealm() != null && (original.getRealm() == null
+                || !original.getRealm().equals(updated.getRealm()))) {
+
+            result.setRealm(updated.getRealm());
+        }
+
         // 1. password
         if (updated.getPassword() != null && (original.getPassword() == null
                 || !original.getPassword().equals(updated.getPassword()))) {
@@ -247,13 +255,17 @@ public final class AttributableOperations {
             result.setSecurityAnswer(updated.getSecurityAnswer());
         }
 
-        // 4. memberships
+        // 4. roles
+        result.getRolesToRemove().addAll(CollectionUtils.subtract(original.getRoles(), updated.getRoles()));
+        result.getRolesToAdd().addAll(CollectionUtils.subtract(updated.getRoles(), original.getRoles()));
+
+        // 5. memberships
         Map<Long, MembershipTO> updatedMembs = updated.getMembershipMap();
         Map<Long, MembershipTO> originalMembs = original.getMembershipMap();
 
         for (Map.Entry<Long, MembershipTO> entry : updatedMembs.entrySet()) {
             MembershipMod membMod = new MembershipMod();
-            membMod.setGroup(entry.getValue().getGroupId());
+            membMod.setGroup(entry.getValue().getGroupKey());
 
             if (originalMembs.containsKey(entry.getKey())) {
                 // if memberships are actually same, just make the isEmpty() call below succeed
@@ -328,62 +340,38 @@ public final class AttributableOperations {
 
         diff(updated, original, result, incremental);
 
-        // 1. inheritance
-        result.setInheritOwner(updated.isInheritOwner());
-        result.setInheritTemplates(updated.isInheritTemplates());
-        result.setInheritAccountPolicy(updated.isInheritAccountPolicy());
-        result.setInheritPasswordPolicy(updated.isInheritPasswordPolicy());
-        result.setInheritPlainAttrs(updated.isInheritPlainAttrs());
-        result.setInheritDerAttrs(updated.isInheritDerAttrs());
-        result.setInheritVirAttrs(updated.isInheritVirAttrs());
-
-        // 2. policies
-        result.setAccountPolicy(new ReferenceMod(updated.getAccountPolicy()));
-        result.setPasswordPolicy(new ReferenceMod(updated.getPasswordPolicy()));
-
-        // 3. name
+        // 1. name
         if (!original.getName().equals(updated.getName())) {
             result.setName(updated.getName());
         }
 
-        // 4. entitlements
-        Set<String> updatedEnts = new HashSet<>(updated.getEntitlements());
-        Set<String> originalEnts = new HashSet<>(original.getEntitlements());
-        if (updatedEnts.equals(originalEnts)) {
-            result.setModEntitlements(false);
-            result.getEntitlements().clear();
-        } else {
-            result.setModEntitlements(true);
-            result.getEntitlements().addAll(updated.getEntitlements());
-        }
-
-        // 5. templates
+        // 2. templates
         Set<String> updatedTemplates = new HashSet<>(updated.getGPlainAttrTemplates());
         Set<String> originalTemplates = new HashSet<>(original.getGPlainAttrTemplates());
         if (updatedTemplates.equals(originalTemplates)) {
-            result.setModRAttrTemplates(false);
-            result.getRPlainAttrTemplates().clear();
+            result.setModGAttrTemplates(false);
+            result.getGPlainAttrTemplates().clear();
         } else {
-            result.setModRAttrTemplates(true);
-            result.getRPlainAttrTemplates().addAll(updated.getGPlainAttrTemplates());
+            result.setModGAttrTemplates(true);
+            result.getGPlainAttrTemplates().addAll(updated.getGPlainAttrTemplates());
         }
         updatedTemplates = new HashSet<>(updated.getGDerAttrTemplates());
         originalTemplates = new HashSet<>(original.getGDerAttrTemplates());
         if (updatedTemplates.equals(originalTemplates)) {
-            result.setModRDerAttrTemplates(false);
-            result.getRDerAttrTemplates().clear();
+            result.setModGDerAttrTemplates(false);
+            result.getGDerAttrTemplates().clear();
         } else {
-            result.setModRDerAttrTemplates(true);
-            result.getRDerAttrTemplates().addAll(updated.getGDerAttrTemplates());
+            result.setModGDerAttrTemplates(true);
+            result.getGDerAttrTemplates().addAll(updated.getGDerAttrTemplates());
         }
         updatedTemplates = new HashSet<>(updated.getGVirAttrTemplates());
         originalTemplates = new HashSet<>(original.getGVirAttrTemplates());
         if (updatedTemplates.equals(originalTemplates)) {
-            result.setModRVirAttrTemplates(false);
-            result.getRVirAttrTemplates().clear();
+            result.setModGVirAttrTemplates(false);
+            result.getGVirAttrTemplates().clear();
         } else {
-            result.setModRVirAttrTemplates(true);
-            result.getRVirAttrTemplates().addAll(updated.getGVirAttrTemplates());
+            result.setModGVirAttrTemplates(true);
+            result.getGVirAttrTemplates().addAll(updated.getGVirAttrTemplates());
         }
         updatedTemplates = new HashSet<>(updated.getMPlainAttrTemplates());
         originalTemplates = new HashSet<>(original.getMPlainAttrTemplates());
@@ -413,7 +401,7 @@ public final class AttributableOperations {
             result.getMVirAttrTemplates().addAll(updated.getMVirAttrTemplates());
         }
 
-        // 6. owner
+        // 3. owner
         result.setUserOwner(new ReferenceMod(updated.getUserOwner()));
         result.setGroupOwner(new ReferenceMod(updated.getGroupOwner()));
 
@@ -484,6 +472,11 @@ public final class AttributableOperations {
         UserTO result = SerializationUtils.clone(userTO);
         apply(userTO, userMod, result);
 
+        // 0. realm
+        if (userMod.getRealm() != null) {
+            result.setRealm(userMod.getRealm());
+        }
+
         // 1. password
         result.setPassword(userMod.getPassword());
 
@@ -491,14 +484,19 @@ public final class AttributableOperations {
         if (userMod.getUsername() != null) {
             result.setUsername(userMod.getUsername());
         }
-        // 3. memberships
+
+        // 3. roles
+        result.getRoles().removeAll(userMod.getRolesToRemove());
+        result.getRoles().addAll(userMod.getRolesToAdd());
+
+        // 4. memberships
         Map<Long, MembershipTO> membs = result.getMembershipMap();
-        for (Long membId : userMod.getMembershipsToRemove()) {
-            result.getMemberships().remove(membs.get(membId));
+        for (Long membKey : userMod.getMembershipsToRemove()) {
+            result.getMemberships().remove(membs.get(membKey));
         }
         for (MembershipMod membMod : userMod.getMembershipsToAdd()) {
             MembershipTO membTO = new MembershipTO();
-            membTO.setGroupId(membMod.getGroup());
+            membTO.setGroupKey(membMod.getGroup());
 
             apply(membTO, membMod, membTO);
         }

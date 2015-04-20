@@ -27,7 +27,7 @@ import org.apache.syncope.core.persistence.api.dao.AttrTemplateDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.VirAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtil;
+import org.apache.syncope.core.persistence.api.entity.AttributableUtils;
 import org.apache.syncope.core.persistence.api.entity.VirAttr;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.membership.MVirSchema;
@@ -100,7 +100,7 @@ public class JPAVirSchemaDAO extends AbstractDAO<VirSchema, String> implements V
     }
 
     @Override
-    public void delete(final String key, final AttributableUtil attributableUtil) {
+    public void delete(final String key, final AttributableUtils attributableUtil) {
         final VirSchema schema = find(key, attributableUtil.virSchemaClass());
         if (schema == null) {
             return;

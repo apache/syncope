@@ -42,11 +42,15 @@ public abstract class AbstractPolicyTO extends AbstractBaseBean {
 
     private String description;
 
-    private PolicyType type;
+    private final PolicyType type;
 
     private final List<String> usedByResources = new ArrayList<>();
 
-    private final List<Long> usedByGroups = new ArrayList<>();
+    private final List<String> usedByRealms = new ArrayList<>();
+
+    protected AbstractPolicyTO(final PolicyType type) {
+        this.type = type;
+    }
 
     public long getKey() {
         return key;
@@ -68,10 +72,6 @@ public abstract class AbstractPolicyTO extends AbstractBaseBean {
         return type;
     }
 
-    public void setType(final PolicyType type) {
-        this.type = type;
-    }
-
     @XmlElementWrapper(name = "usedByResources")
     @XmlElement(name = "resource")
     @JsonProperty("usedByResources")
@@ -79,11 +79,11 @@ public abstract class AbstractPolicyTO extends AbstractBaseBean {
         return usedByResources;
     }
 
-    @XmlElementWrapper(name = "usedByGroups")
+    @XmlElementWrapper(name = "usedByRealms")
     @XmlElement(name = "group")
-    @JsonProperty("usedByGroups")
-    public List<Long> getUsedByGroups() {
-        return usedByGroups;
+    @JsonProperty("usedByRealms")
+    public List<String> getUsedByRealms() {
+        return usedByRealms;
     }
 
 }

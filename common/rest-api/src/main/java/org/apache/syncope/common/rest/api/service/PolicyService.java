@@ -56,18 +56,6 @@ public interface PolicyService extends JAXRSService {
     <T extends AbstractPolicyTO> T read(@NotNull @PathParam("policyKey") Long policyKey);
 
     /**
-     * Returns the global policy for the given type.
-     *
-     * @param type PolicyType to read global policy from
-     * @param <T> response type (extending PolicyTO)
-     * @return global policy for matching type
-     */
-    @GET
-    @Path("global")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    <T extends AbstractPolicyTO> T readGlobal(@NotNull @MatrixParam("type") PolicyType type);
-
-    /**
      * Returns a list of policies of the matching type.
      *
      * @param type Type selector for requested policies

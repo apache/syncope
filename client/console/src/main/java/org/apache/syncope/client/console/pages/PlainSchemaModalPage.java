@@ -25,7 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.commons.JexlHelpUtil;
+import org.apache.syncope.client.console.commons.JexlHelpUtils;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
@@ -218,9 +218,9 @@ public class PlainSchemaModalPage extends AbstractSchemaModalPage<PlainSchemaTO>
         });
         schemaForm.add(mandatoryCondition);
 
-        final WebMarkupContainer pwdJexlHelp = JexlHelpUtil.getJexlHelpWebContainer("jexlHelp");
+        final WebMarkupContainer pwdJexlHelp = JexlHelpUtils.getJexlHelpWebContainer("jexlHelp");
 
-        final AjaxLink<Void> pwdQuestionMarkJexlHelp = JexlHelpUtil.getAjaxLink(pwdJexlHelp, "questionMarkJexlHelp");
+        final AjaxLink<Void> pwdQuestionMarkJexlHelp = JexlHelpUtils.getAjaxLink(pwdJexlHelp, "questionMarkJexlHelp");
         schemaForm.add(pwdQuestionMarkJexlHelp);
         pwdQuestionMarkJexlHelp.add(pwdJexlHelp);
 

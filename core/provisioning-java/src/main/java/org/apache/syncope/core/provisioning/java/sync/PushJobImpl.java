@@ -20,10 +20,9 @@ package org.apache.syncope.core.provisioning.java.sync;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.SubjectType;
-import org.apache.syncope.core.persistence.api.GroupEntitlementUtil;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.SubjectSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -83,8 +82,6 @@ public class PushJobImpl extends AbstractProvisioningJob<PushTask, PushActions> 
             final boolean dryRun) throws JobExecutionException {
         LOG.debug("Execute synchronization (push) with resource {}", pushTask.getResource());
 
-        final Set<Long> authorizations = GroupEntitlementUtil.getGroupKeys(entitlementDAO.findAll());
-
         final ProvisioningProfile<PushTask, PushActions> profile = new ProvisioningProfile<>(connector, pushTask);
         if (actions != null) {
             profile.getActions().addAll(actions);
@@ -109,9 +106,13 @@ public class PushJobImpl extends AbstractProvisioningJob<PushTask, PushActions> 
         }
 
         if (uMapping != null) {
-            final int count = userDAO.count(authorizations);
+            final int count = userDAO.count(SyncopeConstants.FULL_ADMIN_REALMS);
             for (int page = 1; page <= (count / PAGE_SIZE) + 1; page++) {
-                final List<User> localUsers = getUsers(authorizations, pushTask, page);
+                final List<User> localUsers = StringUtils.isBlank(pushTask.getUserFilter())
+                        ? userDAO.findAll(SyncopeConstants.FULL_ADMIN_REALMS, page, PAGE_SIZE)
+                        : searchDAO.<User>search(SyncopeConstants.FULL_ADMIN_REALMS,
+                                SearchCondConverter.convert(pushTask.getUserFilter()),
+                                Collections.<OrderByClause>emptyList(), SubjectType.USER);
 
                 for (User localUser : localUsers) {
                     try {
@@ -126,15 +127,22 @@ public class PushJobImpl extends AbstractProvisioningJob<PushTask, PushActions> 
         }
 
         if (rMapping != null) {
-            final List<Group> localGroups = geGroups(authorizations, pushTask);
+            final int count = groupDAO.count(SyncopeConstants.FULL_ADMIN_REALMS);
+            for (int page = 1; page <= (count / PAGE_SIZE) + 1; page++) {
+                final List<Group> localGroups = StringUtils.isBlank(pushTask.getGroupFilter())
+                        ? groupDAO.findAll(SyncopeConstants.FULL_ADMIN_REALMS, page, PAGE_SIZE)
+                        : searchDAO.<Group>search(SyncopeConstants.FULL_ADMIN_REALMS,
+                                SearchCondConverter.convert(pushTask.getGroupFilter()),
+                                Collections.<OrderByClause>emptyList(), SubjectType.GROUP);
 
-            for (Group localGroup : localGroups) {
-                try {
-                    // group propagation
-                    rhandler.handle(localGroup.getKey());
-                } catch (Exception e) {
-                    LOG.warn("Failure pushing group '{}' on '{}'", localGroup, pushTask.getResource(), e);
-                    throw new JobExecutionException("While pushing groups on connector", e);
+                for (Group localGroup : localGroups) {
+                    try {
+                        // group propagation
+                        rhandler.handle(localGroup.getKey());
+                    } catch (Exception e) {
+                        LOG.warn("Failure pushing group '{}' on '{}'", localGroup, pushTask.getResource(), e);
+                        throw new JobExecutionException("While pushing groups on connector", e);
+                    }
                 }
             }
         }
@@ -150,26 +158,5 @@ public class PushJobImpl extends AbstractProvisioningJob<PushTask, PushActions> 
         LOG.debug("Sync result: {}", result);
 
         return result;
-    }
-
-    private List<User> getUsers(final Set<Long> authorizations, final PushTask pushTask, final int page) {
-        final String filter = pushTask.getUserFilter();
-        if (StringUtils.isBlank(filter)) {
-            return userDAO.findAll(authorizations, page, PAGE_SIZE);
-        } else {
-            return searchDAO.<User>search(
-                    authorizations, SearchCondConverter.convert(filter),
-                    Collections.<OrderByClause>emptyList(), SubjectType.USER);
-        }
-    }
-
-    private List<Group> geGroups(final Set<Long> authorizations, final PushTask pushTask) {
-        final String filter = pushTask.getGroupFilter();
-        if (StringUtils.isBlank(filter)) {
-            return groupDAO.findAll();
-        } else {
-            return searchDAO.<Group>search(authorizations, SearchCondConverter.convert(filter),
-                    Collections.<OrderByClause>emptyList(), SubjectType.GROUP);
-        }
     }
 }

@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.camel;
 
-import java.util.AbstractMap;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -28,6 +27,8 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.camel.Exchange;
 import org.apache.camel.PollingConsumer;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.mod.StatusMod;
 import org.apache.syncope.common.lib.mod.UserMod;
 import org.apache.syncope.common.lib.to.PropagationStatus;
@@ -45,18 +46,18 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
     private static final Logger LOG = LoggerFactory.getLogger(CamelUserProvisioningManager.class);
 
     @Override
-    public Map.Entry<Long, List<PropagationStatus>> create(final UserTO userTO) {
+    public Pair<Long, List<PropagationStatus>> create(final UserTO userTO) {
         return create(userTO, true, false, null, Collections.<String>emptySet());
     }
 
     @Override
-    public Map.Entry<Long, List<PropagationStatus>> create(final UserTO userTO, boolean storePassword) {
+    public Pair<Long, List<PropagationStatus>> create(final UserTO userTO, boolean storePassword) {
         return create(userTO, storePassword, false, null, Collections.<String>emptySet());
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public Map.Entry<Long, List<PropagationStatus>> create(final UserTO userTO, final boolean storePassword,
+    public Pair<Long, List<PropagationStatus>> create(final UserTO userTO, final boolean storePassword,
             boolean disablePwdPolicyCheck, Boolean enabled, Set<String> excludedResources) {
 
         PollingConsumer pollingConsumer = getConsumer("direct:createPort");
@@ -75,17 +76,17 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
             throw (RuntimeException) exchange.getProperty(Exchange.EXCEPTION_CAUGHT);
         }
 
-        return exchange.getIn().getBody(Map.Entry.class);
+        return exchange.getIn().getBody(Pair.class);
     }
 
     @Override
-    public Map.Entry<Long, List<PropagationStatus>> update(final UserMod userMod) {
+    public Pair<Long, List<PropagationStatus>> update(final UserMod userMod) {
         return update(userMod, false);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public Map.Entry<Long, List<PropagationStatus>> update(UserMod userMod, boolean removeMemberships) {
+    public Pair<Long, List<PropagationStatus>> update(UserMod userMod, boolean removeMemberships) {
         PollingConsumer pollingConsumer = getConsumer("direct:updatePort");
 
         Map<String, Object> props = new HashMap<>();
@@ -99,7 +100,7 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
             throw (RuntimeException) exchange.getProperty(Exchange.EXCEPTION_CAUGHT);
         }
 
-        return exchange.getIn().getBody(Map.Entry.class);
+        return exchange.getIn().getBody(Pair.class);
     }
 
     @Override
@@ -144,7 +145,7 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
 
     @Override
     @SuppressWarnings("unchecked")
-    public Map.Entry<Long, List<PropagationStatus>> activate(final User user, final StatusMod statusMod) {
+    public Pair<Long, List<PropagationStatus>> activate(final User user, final StatusMod statusMod) {
         PollingConsumer pollingConsumer = getConsumer("direct:statusPort");
 
         Map<String, Object> props = new HashMap<>();
@@ -166,12 +167,12 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
             throw (RuntimeException) exchange.getProperty(Exchange.EXCEPTION_CAUGHT);
         }
 
-        return exchange.getIn().getBody(Map.Entry.class);
+        return exchange.getIn().getBody(Pair.class);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public Map.Entry<Long, List<PropagationStatus>> reactivate(final User user, final StatusMod statusMod) {
+    public Pair<Long, List<PropagationStatus>> reactivate(final User user, final StatusMod statusMod) {
         PollingConsumer pollingConsumer = getConsumer("direct:statusPort");
 
         Map<String, Object> props = new HashMap<>();
@@ -192,12 +193,12 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
             throw (RuntimeException) exchange.getProperty(Exchange.EXCEPTION_CAUGHT);
         }
 
-        return exchange.getIn().getBody(Map.Entry.class);
+        return exchange.getIn().getBody(Pair.class);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public Map.Entry<Long, List<PropagationStatus>> suspend(final User user, final StatusMod statusMod) {
+    public Pair<Long, List<PropagationStatus>> suspend(final User user, final StatusMod statusMod) {
         PollingConsumer pollingConsumer = getConsumer("direct:statusPort");
 
         Map<String, Object> props = new HashMap<>();
@@ -218,7 +219,7 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
             throw (RuntimeException) exchange.getProperty(Exchange.EXCEPTION_CAUGHT);
         }
 
-        return exchange.getIn().getBody(Map.Entry.class);
+        return exchange.getIn().getBody(Pair.class);
     }
 
     @Override
@@ -258,7 +259,7 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
 
     @Override
     @SuppressWarnings("unchecked")
-    public Map.Entry<Long, List<PropagationStatus>> update(
+    public Pair<Long, List<PropagationStatus>> update(
             final UserMod userMod, final Long key, final ProvisioningResult result,
             final Boolean enabled, final Set<String> excludedResources) {
 
@@ -281,14 +282,14 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
             result.setStatus(ProvisioningResult.Status.FAILURE);
             result.setMessage("Update failed, trying to sync status anyway (if configured)\n" + e.getMessage());
 
-            WorkflowResult<Map.Entry<UserMod, Boolean>> updated = new WorkflowResult<Map.Entry<UserMod, Boolean>>(
-                    new AbstractMap.SimpleEntry<>(userMod, false), new PropagationByResource(),
+            WorkflowResult<Pair<UserMod, Boolean>> updated = new WorkflowResult<Pair<UserMod, Boolean>>(
+                    new ImmutablePair<>(userMod, false), new PropagationByResource(),
                     new HashSet<String>());
             sendMessage("direct:userInSync", updated, props);
             exchange = pollingConsumer.receive();
         }
 
-        return exchange.getIn().getBody(Map.Entry.class);
+        return exchange.getIn().getBody(Pair.class);
     }
 
     @Override

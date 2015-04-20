@@ -60,23 +60,23 @@ public abstract class AbstractSubjectReportletConf extends AbstractReportletConf
         this.matchingCond = matchingCond;
     }
 
-    @XmlElementWrapper(name = "plainAttributes")
-    @XmlElement(name = "plainAttribute")
-    @JsonProperty("plainAttributes")
+    @XmlElementWrapper(name = "plainAttrs")
+    @XmlElement(name = "attribute")
+    @JsonProperty("plainAttrs")
     public List<String> getPlainAttrs() {
         return plainAttrs;
     }
 
-    @XmlElementWrapper(name = "derivedAttributes")
+    @XmlElementWrapper(name = "derAttrs")
     @XmlElement(name = "attribute")
-    @JsonProperty("derivedAttributes")
+    @JsonProperty("derAttrs")
     public List<String> getDerAttrs() {
         return derAttrs;
     }
 
-    @XmlElementWrapper(name = "virtualAttributes")
+    @XmlElementWrapper(name = "virAttrs")
     @XmlElement(name = "attribute")
-    @JsonProperty("virtualAttributes")
+    @JsonProperty("virAttrs")
     public List<String> getVirAttrs() {
         return virAttrs;
     }

@@ -23,11 +23,11 @@ import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.link.ExternalLink;
 
-public final class JexlHelpUtil {
+public final class JexlHelpUtils {
 
     private static final String JEXL_SYNTAX_URL = "http://commons.apache.org/jexl/reference/syntax.html";
 
-    private JexlHelpUtil() {
+    private JexlHelpUtils() {
         // private constructor for static utility class
     }
 

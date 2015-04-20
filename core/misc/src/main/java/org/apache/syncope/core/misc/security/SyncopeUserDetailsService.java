@@ -18,20 +18,27 @@
  */
 package org.apache.syncope.core.misc.security;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.Resource;
+import org.apache.commons.collections4.Closure;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.PredicateUtils;
+import org.apache.commons.collections4.Transformer;
+import org.apache.syncope.common.lib.CollectionUtils2;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.core.persistence.api.GroupEntitlementUtil;
-import org.apache.syncope.core.persistence.api.dao.EntitlementDAO;
+import org.apache.syncope.common.lib.types.Entitlement;
+import org.apache.syncope.core.misc.RealmUtils;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.entity.Entitlement;
+import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -46,9 +53,6 @@ public class SyncopeUserDetailsService implements UserDetailsService {
     @Autowired
     protected GroupDAO groupDAO;
 
-    @Autowired
-    protected EntitlementDAO entitlementDAO;
-
     @Resource(name = "adminUser")
     protected String adminUser;
 
@@ -57,45 +61,60 @@ public class SyncopeUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(final String username) {
-        final Set<SimpleGrantedAuthority> authorities = new HashSet<>();
+        final Set<SyncopeGrantedAuthority> authorities = new HashSet<>();
         if (anonymousUser.equals(username)) {
-            authorities.add(new SimpleGrantedAuthority(SyncopeConstants.ANONYMOUS_ENTITLEMENT));
+            authorities.add(new SyncopeGrantedAuthority(Entitlement.ANONYMOUS));
         } else if (adminUser.equals(username)) {
-            for (Entitlement entitlement : entitlementDAO.findAll()) {
-                authorities.add(new SimpleGrantedAuthority(entitlement.getKey()));
-            }
+            CollectionUtils2.collect(Arrays.asList(Entitlement.values()),
+                    new Transformer<Entitlement, SyncopeGrantedAuthority>() {
+
+                        @Override
+                        public SyncopeGrantedAuthority transform(final Entitlement entitlement) {
+                            return new SyncopeGrantedAuthority(entitlement, SyncopeConstants.ROOT_REALM);
+                        }
+                    },
+                    PredicateUtils.notPredicate(PredicateUtils.equalPredicate(Entitlement.ANONYMOUS)),
+                    authorities);
         } else {
             org.apache.syncope.core.persistence.api.entity.user.User user = userDAO.find(username);
-
             if (user == null) {
                 throw new UsernameNotFoundException("Could not find any user with id " + username);
             }
 
-            // Give entitlements based on groups assigned to user (and their ancestors)
-            final Set<Group> groups = new HashSet<>(user.getGroups());
-            for (Group group : user.getGroups()) {
-                groups.addAll(groupDAO.findAncestors(group));
-            }
-            for (Group group : groups) {
-                for (Entitlement entitlement : group.getEntitlements()) {
-                    authorities.add(new SimpleGrantedAuthority(entitlement.getKey()));
-                }
-            }
-            // Give group operational entitlements for owned groups
-            List<Group> ownedGroups = groupDAO.findOwnedByUser(user.getKey());
-            if (!ownedGroups.isEmpty()) {
-                authorities.add(new SimpleGrantedAuthority("GROUP_CREATE"));
-                authorities.add(new SimpleGrantedAuthority("GROUP_READ"));
-                authorities.add(new SimpleGrantedAuthority("GROUP_UPDATE"));
-                authorities.add(new SimpleGrantedAuthority("GROUP_DELETE"));
+            // Give entitlements as assigned by roles (with realms, where applicable)
+            for (final Role role : user.getRoles()) {
+                CollectionUtils.forAllDo(role.getEntitlements(), new Closure<Entitlement>() {
 
-                for (Group group : ownedGroups) {
-                    authorities.add(new SimpleGrantedAuthority(
-                            GroupEntitlementUtil.getEntitlementNameFromGroupKey(group.getKey())));
+                    @Override
+                    public void execute(final Entitlement entitlement) {
+                        SyncopeGrantedAuthority authority = new SyncopeGrantedAuthority(entitlement);
+                        authorities.add(authority);
+
+                        List<String> realmFullPahs = new ArrayList<>();
+                        CollectionUtils.collect(role.getRealms(), new Transformer<Realm, String>() {
+
+                            @Override
+                            public String transform(final Realm realm) {
+                                return realm.getFullPath();
+                            }
+                        }, realmFullPahs);
+                        authority.addRealms(realmFullPahs);
+                    }
+                });
+            }
+
+            // Give group entitlements for owned groups
+            for (Group group : groupDAO.findOwnedByUser(user.getKey())) {
+                for (Entitlement entitlement : Arrays.asList(
+                        Entitlement.GROUP_READ, Entitlement.GROUP_UPDATE, Entitlement.GROUP_DELETE)) {
+
+                    SyncopeGrantedAuthority authority = new SyncopeGrantedAuthority(entitlement);
+                    authority.addRealm(RealmUtils.getGroupOwnerRealm(group.getRealm().getFullPath(), group.getKey()));
+                    authorities.add(authority);
                 }
             }
         }
 
-        return new User(username, "<PASSWORD_PLACEHOLDER>", true, true, true, true, authorities);
+        return new User(username, "<PASSWORD_PLACEHOLDER>", authorities);
     }
 }

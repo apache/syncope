@@ -34,7 +34,7 @@ import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtilFactory;
+import org.apache.syncope.core.persistence.api.entity.AttributableUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Subject;
@@ -48,8 +48,8 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.misc.AuditManager;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
-import org.apache.syncope.core.misc.ConnObjectUtil;
-import org.apache.syncope.core.misc.ExceptionUtil;
+import org.apache.syncope.core.misc.ConnObjectUtils;
+import org.apache.syncope.core.misc.ExceptionUtils2;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.identityconnectors.framework.common.objects.Attribute;
@@ -79,10 +79,10 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
     protected ConnectorFactory connFactory;
 
     /**
-     * ConnObjectUtil.
+     * ConnObjectUtils.
      */
     @Autowired
-    protected ConnObjectUtil connObjectUtil;
+    protected ConnObjectUtils connObjectUtils;
 
     /**
      * User DAO.
@@ -115,7 +115,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
     protected AuditManager auditManager;
 
     @Autowired
-    protected AttributableUtilFactory attrUtilFactory;
+    protected AttributableUtilsFactory attrUtilsFactory;
 
     @Autowired
     protected EntityFactory entityFactory;
@@ -196,8 +196,8 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
             // 2. check wether anything is actually needing to be propagated, i.e. if there is attribute
             // difference between beforeObj - just read above from the connector - and the values to be propagated
-            Map<String, Attribute> originalAttrMap = connObjectUtil.toMap(beforeObj.getAttributes());
-            Map<String, Attribute> updateAttrMap = connObjectUtil.toMap(attributes);
+            Map<String, Attribute> originalAttrMap = connObjectUtils.toMap(beforeObj.getAttributes());
+            Map<String, Attribute> updateAttrMap = connObjectUtils.toMap(attributes);
 
             // Only compare attribute from beforeObj that are also being updated
             Set<String> skipAttrNames = originalAttrMap.keySet();
@@ -356,7 +356,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                     failureReason = e.getMessage() + "\n\n Cause: " + e.getCause().getMessage().split("\n")[0];
                 }
             } else {
-                taskExecutionMessage = ExceptionUtil.getFullStackTrace(e);
+                taskExecutionMessage = ExceptionUtils2.getFullStackTrace(e);
                 if (e.getCause() == null) {
                     failureReason = e.getMessage();
                 } else {
@@ -508,7 +508,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                     task.getPropagationOperation(),
                     new ObjectClass(task.getObjectClassName()),
                     new Uid(accountId),
-                    connector.getOperationOptions(attrUtilFactory.getInstance(task.getSubjectType()).
+                    connector.getOperationOptions(attrUtilsFactory.getInstance(task.getSubjectType()).
                             getMappingItems(task.getResource(), MappingPurpose.PROPAGATION)));
         } catch (TimeoutException toe) {
             LOG.debug("Request timeout", toe);

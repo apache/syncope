@@ -20,7 +20,6 @@ package org.apache.syncope.core.rest.cxf.service;
 
 import java.net.URI;
 import java.util.List;
-import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.AbstractPolicyTO;
 import org.apache.syncope.common.lib.to.AccountPolicyTO;
@@ -41,7 +40,7 @@ public class PolicyServiceImpl extends AbstractServiceImpl implements PolicyServ
 
     @Override
     public <T extends AbstractPolicyTO> Response create(final T policyTO) {
-        AbstractPolicyTO policy = logic.create(policyTO);
+        T policy = logic.create(policyTO);
         URI location = uriInfo.getAbsolutePathBuilder().path(String.valueOf(policy.getKey())).build();
         return Response.created(location).
                 header(RESTHeaders.RESOURCE_ID, policy.getKey()).
@@ -63,51 +62,20 @@ public class PolicyServiceImpl extends AbstractServiceImpl implements PolicyServ
         return logic.read(policyKey);
     }
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public <T extends AbstractPolicyTO> T readGlobal(final PolicyType type) {
-        T result = null;
-
-        switch (type) {
-            case ACCOUNT:
-            case GLOBAL_ACCOUNT:
-                result = (T) logic.getGlobalAccountPolicy();
-                break;
-
-            case PASSWORD:
-            case GLOBAL_PASSWORD:
-                result = (T) logic.getGlobalPasswordPolicy();
-                break;
-
-            case SYNC:
-            case GLOBAL_SYNC:
-                result = (T) logic.getGlobalSyncPolicy();
-                break;
-
-            default:
-                throw new BadRequestException();
-        }
-
-        return result;
-    }
-
     @Override
     public <T extends AbstractPolicyTO> void update(final Long policyKey, final T policyTO) {
         policyTO.setKey(policyKey);
 
         switch (policyTO.getType()) {
             case ACCOUNT:
-            case GLOBAL_ACCOUNT:
                 logic.update((AccountPolicyTO) policyTO);
                 break;
 
             case PASSWORD:
-            case GLOBAL_PASSWORD:
                 logic.update((PasswordPolicyTO) policyTO);
                 break;
 
             case SYNC:
-            case GLOBAL_SYNC:
                 logic.update((SyncPolicyTO) policyTO);
                 break;
 

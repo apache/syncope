@@ -31,20 +31,20 @@ import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.SyncTask;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
-import org.apache.syncope.core.persistence.api.entity.task.TaskUtil;
-import org.apache.syncope.core.persistence.api.entity.task.TaskUtilFactory;
+import org.apache.syncope.core.persistence.api.entity.task.TaskUtils;
+import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
 import org.springframework.stereotype.Component;
 
 @Component
-public class JPATaskUtilFactory implements TaskUtilFactory {
+public class JPATaskUtilsFactory implements TaskUtilsFactory {
 
     @Override
-    public TaskUtil getInstance(final TaskType type) {
-        return new JPATaskUtil(type);
+    public TaskUtils getInstance(final TaskType type) {
+        return new JPATaskUtils(type);
     }
 
     @Override
-    public TaskUtil getInstance(final Task task) {
+    public TaskUtils getInstance(final Task task) {
         TaskType type;
         if (task instanceof SyncTask) {
             type = TaskType.SYNCHRONIZATION;
@@ -64,7 +64,7 @@ public class JPATaskUtilFactory implements TaskUtilFactory {
     }
 
     @Override
-    public TaskUtil getInstance(final Class<? extends AbstractTaskTO> taskClass) {
+    public TaskUtils getInstance(final Class<? extends AbstractTaskTO> taskClass) {
         TaskType type;
         if (taskClass == PropagationTaskTO.class) {
             type = TaskType.PROPAGATION;
@@ -84,7 +84,7 @@ public class JPATaskUtilFactory implements TaskUtilFactory {
     }
 
     @Override
-    public TaskUtil getInstance(final AbstractTaskTO taskTO) {
+    public TaskUtils getInstance(final AbstractTaskTO taskTO) {
         return getInstance(taskTO.getClass());
     }
 

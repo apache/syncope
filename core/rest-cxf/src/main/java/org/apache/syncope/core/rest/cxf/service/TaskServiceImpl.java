@@ -134,6 +134,47 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService 
 
     @Override
     public BulkActionResult bulk(final BulkAction bulkAction) {
-        return logic.bulk(bulkAction);
+        BulkActionResult result = new BulkActionResult();
+
+        switch (bulkAction.getOperation()) {
+            case DELETE:
+                for (String taskKey : bulkAction.getTargets()) {
+                    try {
+                        result.add(logic.delete(Long.valueOf(taskKey)).getKey(), BulkActionResult.Status.SUCCESS);
+                    } catch (Exception e) {
+                        LOG.error("Error performing delete for task {}", taskKey, e);
+                        result.add(taskKey, BulkActionResult.Status.FAILURE);
+                    }
+                }
+                break;
+
+            case DRYRUN:
+                for (String taskKey : bulkAction.getTargets()) {
+                    try {
+                        logic.execute(Long.valueOf(taskKey), true);
+                        result.add(taskKey, BulkActionResult.Status.SUCCESS);
+                    } catch (Exception e) {
+                        LOG.error("Error performing dryrun for task {}", taskKey, e);
+                        result.add(taskKey, BulkActionResult.Status.FAILURE);
+                    }
+                }
+                break;
+
+            case EXECUTE:
+                for (String taskKey : bulkAction.getTargets()) {
+                    try {
+                        logic.execute(Long.valueOf(taskKey), false);
+                        result.add(taskKey, BulkActionResult.Status.SUCCESS);
+                    } catch (Exception e) {
+                        LOG.error("Error performing execute for task {}", taskKey, e);
+                        result.add(taskKey, BulkActionResult.Status.FAILURE);
+                    }
+                }
+                break;
+
+            default:
+        }
+
+        return result;
     }
 }

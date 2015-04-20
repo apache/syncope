@@ -20,7 +20,6 @@ package org.apache.syncope.core.misc;
 
 import org.apache.syncope.core.misc.policy.InvalidPasswordPolicySpecException;
 import org.apache.syncope.core.misc.security.PasswordGenerator;
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -28,9 +27,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.commons.collections4.Predicate;
 import org.apache.commons.jexl2.JexlContext;
 import org.apache.commons.jexl2.MapContext;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.CollectionUtils2;
 import org.apache.syncope.common.lib.mod.AttrMod;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.AttributableType;
@@ -39,8 +42,8 @@ import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.Attributable;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtil;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtilFactory;
+import org.apache.syncope.core.persistence.api.entity.AttributableUtils;
+import org.apache.syncope.core.persistence.api.entity.AttributableUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.DerAttr;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
@@ -68,7 +71,7 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.cache.VirAttrCache;
 import org.apache.syncope.core.misc.security.Encryptor;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
-import org.apache.syncope.core.misc.jexl.JexlUtil;
+import org.apache.syncope.core.misc.jexl.JexlUtils;
 import org.identityconnectors.framework.common.FrameworkUtil;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
@@ -79,61 +82,55 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 
-public final class MappingUtil {
+public final class MappingUtils {
 
     /**
      * Logger.
      */
-    private static final Logger LOG = LoggerFactory.getLogger(MappingUtil.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MappingUtils.class);
 
     private static final Encryptor ENCRYPTOR = Encryptor.getInstance();
 
-    public static <T extends MappingItem> List<T> getMatchingMappingItems(
+    public static <T extends MappingItem> Collection<T> getMatchingMappingItems(
             final Collection<T> items, final IntMappingType type) {
 
-        final List<T> result = new ArrayList<>();
+        return CollectionUtils2.find(items, new Predicate<T>() {
 
-        for (T mapItem : items) {
-            if (mapItem.getIntMappingType() == type) {
-                result.add(mapItem);
+            @Override
+            public boolean evaluate(final T item) {
+                return item.getIntMappingType() == type;
             }
-        }
-
-        return result;
+        });
     }
 
-    public static <T extends MappingItem> List<T> getMatchingMappingItems(final Collection<T> items,
-            final String intAttrName, final IntMappingType type) {
+    public static <T extends MappingItem> Collection<T> getMatchingMappingItems(
+            final Collection<T> items, final String intAttrName, final IntMappingType type) {
 
-        final List<T> result = new ArrayList<>();
+        return CollectionUtils2.find(items, new Predicate<T>() {
 
-        for (T mapItem : items) {
-            if (mapItem.getIntMappingType() == type && intAttrName.equals(mapItem.getIntAttrName())) {
-                result.add(mapItem);
+            @Override
+            public boolean evaluate(final T item) {
+                return item.getIntMappingType() == type && intAttrName.equals(item.getIntAttrName());
             }
-        }
-
-        return result;
+        });
     }
 
-    public static <T extends MappingItem> Set<T> getMatchingMappingItems(final Collection<T> mapItems,
-            final String intAttrName) {
+    public static <T extends MappingItem> Collection<T> getMatchingMappingItems(
+            final Collection<T> items, final String intAttrName) {
 
-        final Set<T> result = new HashSet<>();
+        return CollectionUtils2.find(items, new Predicate<T>() {
 
-        for (T mapItem : mapItems) {
-            if (intAttrName.equals(mapItem.getIntAttrName())) {
-                result.add(mapItem);
+            @Override
+            public boolean evaluate(final T item) {
+                return intAttrName.equals(item.getIntAttrName());
             }
-        }
-
-        return result;
+        });
     }
 
     /**
      * Prepare attributes for sending to a connector instance.
      *
-     * @param attrUtil user / group
+     * @param attrUtils user / group
      * @param subject given user / group
      * @param password clear-text password
      * @param changePwd whether password should be included for propagation attributes or not
@@ -145,8 +142,8 @@ public final class MappingUtil {
      * @param resource target resource
      * @return account link + prepared attributes
      */
-    public static Map.Entry<String, Set<Attribute>> prepareAttributes(
-            final AttributableUtil attrUtil, final Subject<?, ?, ?> subject,
+    public static Pair<String, Set<Attribute>> prepareAttributes(
+            final AttributableUtils attrUtils, final Subject<?, ?, ?> subject,
             final String password,
             final boolean changePwd,
             final Set<String> vAttrsToBeRemoved,
@@ -166,21 +163,21 @@ public final class MappingUtil {
         Set<Attribute> attributes = new HashSet<>();
         String accountId = null;
 
-        for (MappingItem mapping : attrUtil.getMappingItems(resource, MappingPurpose.PROPAGATION)) {
+        for (MappingItem mapping : attrUtils.getMappingItems(resource, MappingPurpose.PROPAGATION)) {
             LOG.debug("Processing schema {}", mapping.getIntAttrName());
 
             try {
-                if ((attrUtil.getType() == AttributableType.USER
+                if ((attrUtils.getType() == AttributableType.USER
                         && mapping.getIntMappingType() == IntMappingType.UserVirtualSchema)
-                        || (attrUtil.getType() == AttributableType.GROUP
+                        || (attrUtils.getType() == AttributableType.GROUP
                         && mapping.getIntMappingType() == IntMappingType.GroupVirtualSchema)) {
 
                     LOG.debug("Expire entry cache {}-{}", subject.getKey(), mapping.getIntAttrName());
-                    virAttrCache.expire(attrUtil.getType(), subject.getKey(), mapping.getIntAttrName());
+                    virAttrCache.expire(attrUtils.getType(), subject.getKey(), mapping.getIntAttrName());
                 }
 
                 // SYNCOPE-458 expire cache also for membership virtual schemas
-                if (attrUtil.getType() == AttributableType.USER && mapping.getIntMappingType()
+                if (attrUtils.getType() == AttributableType.USER && mapping.getIntMappingType()
                         == IntMappingType.MembershipVirtualSchema && (subject instanceof User)) {
 
                     final User user = (User) subject;
@@ -192,7 +189,7 @@ public final class MappingUtil {
                     }
                 }
 
-                Map.Entry<String, Attribute> preparedAttr = prepareAttr(
+                Pair<String, Attribute> preparedAttr = prepareAttr(
                         resource, mapping, subject, password, passwordGenerator, vAttrsToBeRemoved, vAttrsToBeUpdated,
                         membVAttrsToBeRemoved, membVAttrsToBeUpdated);
 
@@ -220,12 +217,12 @@ public final class MappingUtil {
         }
 
         final Attribute accountIdExtAttr =
-                AttributeUtil.find(attrUtil.getAccountIdItem(resource).getExtAttrName(), attributes);
+                AttributeUtil.find(attrUtils.getAccountIdItem(resource).getExtAttrName(), attributes);
         if (accountIdExtAttr != null) {
             attributes.remove(accountIdExtAttr);
-            attributes.add(AttributeBuilder.build(attrUtil.getAccountIdItem(resource).getExtAttrName(), accountId));
+            attributes.add(AttributeBuilder.build(attrUtils.getAccountIdItem(resource).getExtAttrName(), accountId));
         }
-        attributes.add(MappingUtil.evaluateNAME(subject, resource, accountId));
+        attributes.add(MappingUtils.evaluateNAME(subject, resource, accountId));
 
         if (enable != null) {
             attributes.add(AttributeBuilder.buildEnabled(enable));
@@ -237,7 +234,7 @@ public final class MappingUtil {
             }
         }
 
-        return new AbstractMap.SimpleEntry<>(accountId, attributes);
+        return new ImmutablePair<>(accountId, attributes);
     }
 
     /**
@@ -253,17 +250,17 @@ public final class MappingUtil {
      * @return account link + prepared attribute
      */
     @SuppressWarnings("unchecked")
-    private static Map.Entry<String, Attribute> prepareAttr(
+    private static Pair<String, Attribute> prepareAttr(
             final ExternalResource resource, final MappingItem mapItem,
             final Subject<?, ?, ?> subject, final String password, final PasswordGenerator passwordGenerator,
             final Set<String> vAttrsToBeRemoved, final Map<String, AttrMod> vAttrsToBeUpdated,
             final Set<String> membVAttrsToBeRemoved, final Map<String, AttrMod> membVAttrsToBeUpdated) {
 
-        final List<Attributable<?, ?, ?>> attributables = new ArrayList<>();
+        List<Attributable<?, ?, ?>> attributables = new ArrayList<>();
 
-        final ConfigurableApplicationContext context = ApplicationContextProvider.getApplicationContext();
-        final AttributableUtilFactory attrUtilFactory = context.getBean(AttributableUtilFactory.class);
-        final ConnObjectUtil connObjectUtil = context.getBean(ConnObjectUtil.class);
+        ConfigurableApplicationContext context = ApplicationContextProvider.getApplicationContext();
+        AttributableUtilsFactory attrUtilsFactory = context.getBean(AttributableUtilsFactory.class);
+        ConnObjectUtils connObjectUtils = context.getBean(ConnObjectUtils.class);
 
         switch (mapItem.getIntMappingType().getAttributableType()) {
             case USER:
@@ -275,7 +272,7 @@ public final class MappingUtil {
             case GROUP:
                 if (subject instanceof User) {
                     for (Group group : ((User) subject).getGroups()) {
-                        connObjectUtil.retrieveVirAttrValues(group, attrUtilFactory.getInstance(group));
+                        connObjectUtils.retrieveVirAttrValues(group, attrUtilsFactory.getInstance(group));
                         attributables.add(group);
                     }
                 }
@@ -300,7 +297,7 @@ public final class MappingUtil {
         PlainSchema schema = null;
         boolean readOnlyVirSchema = false;
         AttrSchemaType schemaType;
-        final Map.Entry<String, Attribute> result;
+        final Pair<String, Attribute> result;
 
         switch (mapItem.getIntMappingType()) {
             case UserPlainSchema:
@@ -308,7 +305,7 @@ public final class MappingUtil {
             case MembershipPlainSchema:
                 final PlainSchemaDAO plainSchemaDAO = context.getBean(PlainSchemaDAO.class);
                 schema = plainSchemaDAO.find(mapItem.getIntAttrName(),
-                        MappingUtil.getIntMappingTypeClass(mapItem.getIntMappingType()));
+                        MappingUtils.getIntMappingTypeClass(mapItem.getIntMappingType()));
                 schemaType = schema == null ? AttrSchemaType.String : schema.getType();
                 break;
 
@@ -317,7 +314,7 @@ public final class MappingUtil {
             case MembershipVirtualSchema:
                 VirSchemaDAO virSchemaDAO = context.getBean(VirSchemaDAO.class);
                 VirSchema virSchema = virSchemaDAO.find(mapItem.getIntAttrName(),
-                        MappingUtil.getIntMappingTypeClass(mapItem.getIntMappingType()));
+                        MappingUtils.getIntMappingTypeClass(mapItem.getIntMappingType()));
                 readOnlyVirSchema = (virSchema != null && virSchema.isReadonly());
                 schemaType = AttrSchemaType.String;
                 break;
@@ -352,7 +349,7 @@ public final class MappingUtil {
             }
 
             if (mapItem.isAccountid()) {
-                result = new AbstractMap.SimpleEntry<>(objValues.iterator().next().toString(), null);
+                result = new ImmutablePair<>(objValues.iterator().next().toString(), null);
             } else if (mapItem.isPassword() && subject instanceof User) {
                 String passwordAttrValue = password;
                 if (StringUtils.isBlank(passwordAttrValue)) {
@@ -375,19 +372,19 @@ public final class MappingUtil {
                 if (passwordAttrValue == null) {
                     result = null;
                 } else {
-                    result = new AbstractMap.SimpleEntry<>(
+                    result = new ImmutablePair<>(
                             null,
                             AttributeBuilder.buildPassword(passwordAttrValue.toCharArray()));
                 }
             } else {
-                if ((schema != null && schema.isMultivalue()) || attrUtilFactory.getInstance(subject).getType()
+                if ((schema != null && schema.isMultivalue()) || attrUtilsFactory.getInstance(subject).getType()
                         != mapItem.getIntMappingType().getAttributableType()) {
 
-                    result = new AbstractMap.SimpleEntry<>(
+                    result = new ImmutablePair<>(
                             null,
                             AttributeBuilder.build(extAttrName, objValues));
                 } else {
-                    result = new AbstractMap.SimpleEntry<>(
+                    result = new ImmutablePair<>(
                             null, objValues.isEmpty()
                                     ? AttributeBuilder.build(extAttrName)
                                     : AttributeBuilder.build(extAttrName, objValues.iterator().next()));
@@ -410,9 +407,9 @@ public final class MappingUtil {
     public static Name evaluateNAME(final Subject<?, ?, ?> subject,
             final ExternalResource resource, final String accountId) {
 
-        final AttributableUtilFactory attrUtilFactory =
-                ApplicationContextProvider.getApplicationContext().getBean(AttributableUtilFactory.class);
-        final AttributableUtil attrUtil = attrUtilFactory.getInstance(subject);
+        final AttributableUtilsFactory attrUtilsFactory =
+                ApplicationContextProvider.getApplicationContext().getBean(AttributableUtilsFactory.class);
+        final AttributableUtils attrUtils = attrUtilsFactory.getInstance(subject);
 
         if (StringUtils.isBlank(accountId)) {
             // LOG error but avoid to throw exception: leave it to the external resource
@@ -421,12 +418,12 @@ public final class MappingUtil {
 
         // Evaluate AccountLink expression
         String evalAccountLink = null;
-        if (StringUtils.isNotBlank(attrUtil.getAccountLink(resource))) {
+        if (StringUtils.isNotBlank(attrUtils.getAccountLink(resource))) {
             final JexlContext jexlContext = new MapContext();
-            JexlUtil.addFieldsToContext(subject, jexlContext);
-            JexlUtil.addAttrsToContext(subject.getPlainAttrs(), jexlContext);
-            JexlUtil.addDerAttrsToContext(subject.getDerAttrs(), subject.getPlainAttrs(), jexlContext);
-            evalAccountLink = JexlUtil.evaluate(attrUtil.getAccountLink(resource), jexlContext);
+            JexlUtils.addFieldsToContext(subject, jexlContext);
+            JexlUtils.addAttrsToContext(subject.getPlainAttrs(), jexlContext);
+            JexlUtils.addDerAttrsToContext(subject.getDerAttrs(), subject.getPlainAttrs(), jexlContext);
+            evalAccountLink = JexlUtils.evaluate(attrUtils.getAccountLink(resource), jexlContext);
         }
 
         // If AccountLink evaluates to an empty string, just use the provided AccountId as Name(),
@@ -450,11 +447,11 @@ public final class MappingUtil {
     private static String getGroupOwnerValue(
             final ExternalResource resource, final Subject<?, ?, ?> subject) {
 
-        AttributableUtilFactory attrUtilFactory =
-                ApplicationContextProvider.getApplicationContext().getBean(AttributableUtilFactory.class);
+        AttributableUtilsFactory attrUtilsFactory =
+                ApplicationContextProvider.getApplicationContext().getBean(AttributableUtilsFactory.class);
 
-        Map.Entry<String, Attribute> preparedAttr = prepareAttr(
-                resource, attrUtilFactory.getInstance(subject).getAccountIdItem(resource), subject, null, null,
+        Pair<String, Attribute> preparedAttr = prepareAttr(
+                resource, attrUtilsFactory.getInstance(subject).getAccountIdItem(resource), subject, null, null,
                 Collections.<String>emptySet(), Collections.<String, AttrMod>emptyMap(),
                 Collections.<String>emptySet(), Collections.<String, AttrMod>emptyMap());
         String accountId = preparedAttr.getKey();
@@ -733,6 +730,6 @@ public final class MappingUtil {
     /**
      * Private default constructor, for static-only classes.
      */
-    private MappingUtil() {
+    private MappingUtils() {
     }
 }

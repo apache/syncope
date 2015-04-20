@@ -26,10 +26,11 @@ import org.apache.syncope.common.lib.types.PasswordPolicySpec;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.PasswordPolicy;
-import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.misc.policy.InvalidPasswordPolicySpecException;
 import org.apache.syncope.core.misc.policy.PolicyPattern;
+import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -46,6 +47,9 @@ public class PasswordGenerator {
     @Autowired
     private PolicyDAO policyDAO;
 
+    @Autowired
+    private RealmDAO realmDAO;
+
     public String generate(final List<PasswordPolicySpec> ppSpecs)
             throws InvalidPasswordPolicySpecException {
 
@@ -59,18 +63,13 @@ public class PasswordGenerator {
     public String generate(final User user)
             throws InvalidPasswordPolicySpecException {
 
-        List<PasswordPolicySpec> ppSpecs = new ArrayList<PasswordPolicySpec>();
+        List<PasswordPolicySpec> ppSpecs = new ArrayList<>();
 
-        PasswordPolicy globalPP = policyDAO.getGlobalPasswordPolicy();
-        if (globalPP != null && globalPP.getSpecification(PasswordPolicySpec.class) != null) {
-            ppSpecs.add(globalPP.getSpecification(PasswordPolicySpec.class));
-        }
+        for (Realm ancestor : realmDAO.findAncestors(user.getRealm())) {
+            if (ancestor.getPasswordPolicy() != null
+                    && ancestor.getPasswordPolicy().getSpecification(PasswordPolicySpec.class) != null) {
 
-        for (Group group : user.getGroups()) {
-            if (group.getPasswordPolicy() != null
-                    && group.getPasswordPolicy().getSpecification(PasswordPolicySpec.class) != null) {
-
-                ppSpecs.add(group.getPasswordPolicy().getSpecification(PasswordPolicySpec.class));
+                ppSpecs.add(ancestor.getPasswordPolicy().getSpecification(PasswordPolicySpec.class));
             }
         }
 
@@ -220,7 +219,8 @@ public class PasswordGenerator {
         //filled empty chars
         for (int firstEmptyChar = firstEmptyChar(generatedPassword);
                 firstEmptyChar < generatedPassword.length - 1; firstEmptyChar++) {
-            generatedPassword[firstEmptyChar] = SecureRandomUtil.generateRandomLetter();
+
+            generatedPassword[firstEmptyChar] = SecureRandomUtils.generateRandomLetter();
         }
 
         checkPrefixAndSuffix(generatedPassword, policySpec);
@@ -230,42 +230,38 @@ public class PasswordGenerator {
 
     private void checkStartChar(final String[] generatedPassword, final PasswordPolicySpec policySpec) {
         if (policySpec.isMustStartWithAlpha()) {
-            generatedPassword[0] = SecureRandomUtil.generateRandomLetter();
+            generatedPassword[0] = SecureRandomUtils.generateRandomLetter();
         }
         if (policySpec.isMustStartWithNonAlpha() || policySpec.isMustStartWithDigit()) {
-            generatedPassword[0] = SecureRandomUtil.generateRandomNumber();
+            generatedPassword[0] = SecureRandomUtils.generateRandomNumber();
         }
         if (policySpec.isMustntStartWithAlpha()) {
-            generatedPassword[0] = SecureRandomUtil.generateRandomNumber();
-
+            generatedPassword[0] = SecureRandomUtils.generateRandomNumber();
         }
         if (policySpec.isMustntStartWithDigit()) {
-            generatedPassword[0] = SecureRandomUtil.generateRandomLetter();
-
+            generatedPassword[0] = SecureRandomUtils.generateRandomLetter();
         }
         if (policySpec.isMustntStartWithNonAlpha()) {
-            generatedPassword[0] = SecureRandomUtil.generateRandomLetter();
-
+            generatedPassword[0] = SecureRandomUtils.generateRandomLetter();
         }
     }
 
     private void checkEndChar(final String[] generatedPassword, final PasswordPolicySpec policySpec) {
         if (policySpec.isMustEndWithAlpha()) {
-            generatedPassword[policySpec.getMinLength() - 1] = SecureRandomUtil.generateRandomLetter();
+            generatedPassword[policySpec.getMinLength() - 1] = SecureRandomUtils.generateRandomLetter();
         }
         if (policySpec.isMustEndWithNonAlpha() || policySpec.isMustEndWithDigit()) {
-            generatedPassword[policySpec.getMinLength() - 1] = SecureRandomUtil.generateRandomNumber();
+            generatedPassword[policySpec.getMinLength() - 1] = SecureRandomUtils.generateRandomNumber();
         }
 
         if (policySpec.isMustntEndWithAlpha()) {
-            generatedPassword[policySpec.getMinLength() - 1] = SecureRandomUtil.generateRandomNumber();
+            generatedPassword[policySpec.getMinLength() - 1] = SecureRandomUtils.generateRandomNumber();
         }
         if (policySpec.isMustntEndWithDigit()) {
-            generatedPassword[policySpec.getMinLength() - 1] = SecureRandomUtil.generateRandomLetter();
+            generatedPassword[policySpec.getMinLength() - 1] = SecureRandomUtils.generateRandomLetter();
         }
         if (policySpec.isMustntEndWithNonAlpha()) {
-            generatedPassword[policySpec.getMinLength() - 1] = SecureRandomUtil.generateRandomLetter();
-
+            generatedPassword[policySpec.getMinLength() - 1] = SecureRandomUtils.generateRandomLetter();
         }
     }
 
@@ -281,28 +277,28 @@ public class PasswordGenerator {
         if (policySpec.isDigitRequired()
                 && !PolicyPattern.DIGIT.matcher(StringUtils.join(generatedPassword)).matches()) {
 
-            generatedPassword[firstEmptyChar(generatedPassword)] = SecureRandomUtil.generateRandomNumber();
+            generatedPassword[firstEmptyChar(generatedPassword)] = SecureRandomUtils.generateRandomNumber();
         }
 
         if (policySpec.isUppercaseRequired()
                 && !PolicyPattern.ALPHA_UPPERCASE.matcher(StringUtils.join(generatedPassword)).matches()) {
 
             generatedPassword[firstEmptyChar(generatedPassword)] =
-                    SecureRandomUtil.generateRandomLetter().toUpperCase();
+                    SecureRandomUtils.generateRandomLetter().toUpperCase();
         }
 
         if (policySpec.isLowercaseRequired()
                 && !PolicyPattern.ALPHA_LOWERCASE.matcher(StringUtils.join(generatedPassword)).matches()) {
 
             generatedPassword[firstEmptyChar(generatedPassword)] =
-                    SecureRandomUtil.generateRandomLetter().toLowerCase();
+                    SecureRandomUtils.generateRandomLetter().toLowerCase();
         }
 
         if (policySpec.isNonAlphanumericRequired()
                 && !PolicyPattern.NON_ALPHANUMERIC.matcher(StringUtils.join(generatedPassword)).matches()) {
 
             generatedPassword[firstEmptyChar(generatedPassword)] =
-                    SecureRandomUtil.generateRandomSpecialCharacter(SPECIAL_CHARS);
+                    SecureRandomUtils.generateRandomSpecialCharacter(SPECIAL_CHARS);
         }
     }
 

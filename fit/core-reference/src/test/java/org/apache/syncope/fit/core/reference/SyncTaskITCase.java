@@ -25,11 +25,13 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.mod.StatusMod;
 import org.apache.syncope.common.lib.mod.UserMod;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
@@ -96,13 +98,14 @@ public class SyncTaskITCase extends AbstractTaskITCase {
     public void create() {
         SyncTaskTO task = new SyncTaskTO();
         task.setName("Test create Sync");
+        task.setDestinationRealm("/");
         task.setResource(RESOURCE_NAME_WS2);
 
         UserTO userTemplate = new UserTO();
         userTemplate.getResources().add(RESOURCE_NAME_WS2);
 
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setGroupId(8L);
+        membershipTO.setGroupKey(8L);
         userTemplate.getMemberships().add(membershipTO);
         task.setUserTemplate(userTemplate);
 
@@ -130,6 +133,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         // Create a new user ... it should be updated applying sync policy
         // -----------------------------
         UserTO inUserTO = new UserTO();
+        inUserTO.setRealm(SyncopeConstants.ROOT_REALM);
         inUserTO.setPassword("password123");
         String userName = "test9";
         inUserTO.setUsername(userName);
@@ -147,13 +151,13 @@ public class SyncTaskITCase extends AbstractTaskITCase {
 
         // -----------------------------
         try {
-            int usersPre = userService.list(1, 1).getTotalCount();
+            int usersPre = userService.list(Collections.singletonList("/"), 1, 1).getTotalCount();
             assertNotNull(usersPre);
 
             execSyncTask(SYNC_TASK_ID, 50, false);
 
-            // after execution of the sync task the user data should be synced from
-            // csv datasource and processed by user template
+            // after execution of the sync task the user data should have been synced from CSV
+            // and processed by user template
             UserTO userTO = userService.read(inUserTO.getKey());
             assertNotNull(userTO);
             assertEquals(userName, userTO.getUsername());
@@ -186,7 +190,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
             assertEquals("TYPE_8", userTO.getPlainAttrMap().get("type").getValues().get(0));
 
             // check for sync results
-            int usersPost = userService.list(1, 1).getTotalCount();
+            int usersPost = userService.list(Collections.singletonList("/"), 1, 1).getTotalCount();
             assertNotNull(usersPost);
             assertEquals(usersPre + 9, usersPost);
 
@@ -255,6 +259,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
      */
     private void ldapCleanup() {
         PagedResult<GroupTO> matchingGroups = groupService.search(
+                Collections.singletonList("/"),
                 SyncopeClient.getGroupSearchConditionBuilder().is("name").equalTo("testLDAPGroup").query());
         if (matchingGroups.getSize() > 0) {
             for (GroupTO group : matchingGroups.getResult()) {
@@ -265,6 +270,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
             }
         }
         PagedResult<UserTO> matchingUsers = userService.search(
+                Collections.singletonList("/"),
                 SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("syncFromLDAP").query());
         if (matchingUsers.getSize() > 0) {
             for (UserTO user : matchingUsers.getResult()) {
@@ -291,11 +297,13 @@ public class SyncTaskITCase extends AbstractTaskITCase {
 
         // 2. verify that synchronized group is found, with expected attributes
         final PagedResult<GroupTO> matchingGroups = groupService.search(
+                Collections.singletonList("/"),
                 SyncopeClient.getGroupSearchConditionBuilder().is("name").equalTo("testLDAPGroup").query());
         assertNotNull(matchingGroups);
         assertEquals(1, matchingGroups.getResult().size());
 
         final PagedResult<UserTO> matchingUsers = userService.search(
+                Collections.singletonList("/"),
                 SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("syncFromLDAP").query());
         assertNotNull(matchingUsers);
         assertEquals(1, matchingUsers.getResult().size());
@@ -311,13 +319,13 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         final GroupTO groupTO = matchingGroups.getResult().iterator().next();
         assertNotNull(groupTO);
         assertEquals("testLDAPGroup", groupTO.getName());
-        assertEquals(8L, groupTO.getParent());
         assertEquals("true", groupTO.getPlainAttrMap().get("show").getValues().get(0));
-        assertEquals(matchingUsers.getResult().iterator().next().getKey(), (long) groupTO.getUserOwner());
+        assertEquals(matchingUsers.getResult().iterator().next().getKey(), groupTO.getUserOwner(), 0);
         assertNull(groupTO.getGroupOwner());
 
         // 3. verify that LDAP group membership is propagated as Syncope group membership
         final PagedResult<UserTO> members = userService.search(
+                Collections.singletonList("/"),
                 SyncopeClient.getUserSearchConditionBuilder().inGroups(groupTO.getKey()).query());
         assertNotNull(members);
         assertEquals(1, members.getResult().size());
@@ -329,6 +337,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         // Create a new user ... it should be updated applying sync policy
         //-----------------------------
         UserTO userTO = new UserTO();
+        userTO.setRealm(SyncopeConstants.ROOT_REALM);
         userTO.setPassword("password123");
         userTO.setUsername("testuser2");
 
@@ -343,7 +352,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         userTO.getResources().add(RESOURCE_NAME_NOPROPAGATION4);
 
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setGroupId(7L);
+        membershipTO.setGroupKey(7L);
 
         userTO.getMemberships().add(membershipTO);
 
@@ -361,7 +370,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
             UserTO template = new UserTO();
 
             membershipTO = new MembershipTO();
-            membershipTO.setGroupId(10L);
+            membershipTO.setGroupKey(10L);
 
             template.getMemberships().add(membershipTO);
 
@@ -435,6 +444,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         // -----------------------------
 
         SyncTaskTO task = new SyncTaskTO();
+        task.setDestinationRealm(SyncopeConstants.ROOT_REALM);
         task.setName("Test Sync Rule");
         task.setResource(RESOURCE_NAME_WS2);
         task.setFullReconciliation(true);
@@ -551,7 +561,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
                     "SELECT USERNAME FROM testsync WHERE ID=?", String.class, userTO.getKey());
             assertEquals("virtualvalue", value);
         } catch (EmptyResultDataAccessException e) {
-            assertTrue(false);
+            fail();
         }
     }
 
@@ -559,7 +569,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
     public void issueSYNCOPE313DB() throws Exception {
         // 1. create user in DB
         UserTO user = UserITCase.getUniqueSampleTO("syncope313-db@syncope.apache.org");
-        user.setPassword("security");
+        user.setPassword("security123");
         user.getResources().add(RESOURCE_NAME_TESTDB);
         user = createUser(user);
         assertNotNull(user);
@@ -569,7 +579,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         final JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
         String value = jdbcTemplate.queryForObject(
                 "SELECT PASSWORD FROM test WHERE ID=?", String.class, user.getUsername());
-        assertEquals(Encryptor.getInstance().encode("security", CipherAlgorithm.SHA1), value.toUpperCase());
+        assertEquals(Encryptor.getInstance().encode("security123", CipherAlgorithm.SHA1), value.toUpperCase());
 
         // 3. Update the password in the DB
         String newPassword = Encryptor.getInstance().encode("new-security", CipherAlgorithm.SHA1);
@@ -578,6 +588,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
 
         // 4. Sync the user from the resource
         SyncTaskTO syncTask = new SyncTaskTO();
+        syncTask.setDestinationRealm(SyncopeConstants.ROOT_REALM);
         syncTask.setName("DB Sync Task");
         syncTask.setPerformCreate(true);
         syncTask.setPerformUpdate(true);
@@ -615,7 +626,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
 
         // 1. create user in LDAP
         UserTO user = UserITCase.getUniqueSampleTO("syncope313-ldap@syncope.apache.org");
-        user.setPassword("security");
+        user.setPassword("security123");
         user.getResources().add(RESOURCE_NAME_LDAP);
         user = createUser(user);
         assertNotNull(user);
@@ -624,7 +635,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         // 2. request to change password only on Syncope and not on LDAP
         UserMod userMod = new UserMod();
         userMod.setKey(user.getKey());
-        userMod.setPassword("new-security");
+        userMod.setPassword("new-security123");
         StatusMod pwdPropRequest = new StatusMod();
         pwdPropRequest.setOnSyncope(true);
         pwdPropRequest.getResourceNames().clear();
@@ -633,7 +644,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
 
         // 3. Check that the Syncope user now has the changed password
         UserTO updatedUser = userService.read(user.getKey());
-        String encodedNewPassword = Encryptor.getInstance().encode("new-security", CipherAlgorithm.SHA1);
+        String encodedNewPassword = Encryptor.getInstance().encode("new-security123", CipherAlgorithm.SHA1);
         assertEquals(encodedNewPassword, updatedUser.getPassword());
 
         // 4. Check that the LDAP resource has the old password
@@ -641,7 +652,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
                 resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.USER, user.getKey());
         assertNotNull(getLdapRemoteObject(
                 connObject.getPlainAttrMap().get(Name.NAME).getValues().get(0),
-                "security",
+                "security123",
                 connObject.getPlainAttrMap().get(Name.NAME).getValues().get(0)));
 
         // 5. Update the LDAP Connector to retrieve passwords
@@ -654,6 +665,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
 
         // 6. Sync the user from the resource
         SyncTaskTO syncTask = new SyncTaskTO();
+        syncTask.setDestinationRealm(SyncopeConstants.ROOT_REALM);
         syncTask.setName("LDAP Sync Task");
         syncTask.setPerformCreate(true);
         syncTask.setPerformUpdate(true);
@@ -676,7 +688,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         assertTrue(PropagationTaskExecStatus.valueOf(status).isSuccessful());
 
         // 7. Test the sync'd user
-        String syncedPassword = Encryptor.getInstance().encode("security", CipherAlgorithm.SHA1);
+        String syncedPassword = Encryptor.getInstance().encode("security123", CipherAlgorithm.SHA1);
         updatedUser = userService.read(user.getKey());
         assertEquals(syncedPassword, updatedUser.getPassword());
 

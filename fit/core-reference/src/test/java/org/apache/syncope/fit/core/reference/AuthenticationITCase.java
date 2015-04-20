@@ -25,22 +25,22 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.security.AccessControlException;
-import java.util.HashSet;
-import java.util.List;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import javax.ws.rs.core.Response;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.mod.StatusMod;
 import org.apache.syncope.common.lib.mod.UserMod;
-import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
-import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.WorkflowFormPropertyTO;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
@@ -48,14 +48,12 @@ import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.common.lib.types.ResourceDeassociationActionType;
 import org.apache.syncope.common.lib.types.SchemaType;
-import org.apache.syncope.common.lib.wrap.EntitlementTO;
 import org.apache.syncope.common.lib.wrap.ResourceName;
 import org.apache.syncope.common.rest.api.CollectionWrapper;
-import org.apache.syncope.common.rest.api.service.EntitlementService;
 import org.apache.syncope.common.rest.api.service.SchemaService;
-import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.syncope.core.misc.security.Encryptor;
 import org.junit.Assume;
@@ -67,16 +65,16 @@ import org.springframework.jdbc.core.JdbcTemplate;
 @FixMethodOrder(MethodSorters.JVM)
 public class AuthenticationITCase extends AbstractITCase {
 
-    private int getFailedLogins(UserService testUserService, long userId) {
-        UserTO readUserTO = testUserService.read(userId);
+    private int getFailedLogins(final UserService userService, final long userId) {
+        UserTO readUserTO = userService.read(userId);
         assertNotNull(readUserTO);
         assertNotNull(readUserTO.getFailedLogins());
         return readUserTO.getFailedLogins();
     }
 
-    private void assertReadFails(UserService userService, long id) {
+    private void assertReadFails(final SyncopeClient client) {
         try {
-            userService.read(id);
+            client.self();
             fail("access should not work");
         } catch (Exception e) {
             assertNotNull(e);
@@ -84,29 +82,44 @@ public class AuthenticationITCase extends AbstractITCase {
     }
 
     @Test
-    public void testAdminEntitlements() {
-        // 1. as anonymous, read all available entitlements
-        List<EntitlementTO> allEntitlements = entitlementService.getAllEntitlements();
-        assertNotNull(allEntitlements);
-        assertFalse(allEntitlements.isEmpty());
+    public void testReadEntitlements() {
+        // 1. as anonymous (not allowed)
+        try {
+            clientFactory.createAnonymous().self();
+            fail();
+        } catch (AccessControlException e) {
+            assertNotNull(e);
+        }
 
-        // 2. as admin, read own entitlements
-        List<EntitlementTO> adminEntitlements = entitlementService.getOwnEntitlements();
+        // 2. as authenticated anonymous (used by admin console)
+        Pair<Map<Entitlement, Set<String>>, UserTO> self = clientFactory.create(ANONYMOUS_UNAME, ANONYMOUS_KEY).self();
+        assertEquals(1, self.getKey().size());
+        assertTrue(self.getKey().keySet().contains(Entitlement.ANONYMOUS));
+        assertEquals(ANONYMOUS_UNAME, self.getValue().getUsername());
 
-        assertEquals(new HashSet<String>(CollectionWrapper.unwrap(allEntitlements)),
-                new HashSet<String>(CollectionWrapper.unwrap(adminEntitlements)));
+        // 3. as admin
+        self = adminClient.self();
+        assertEquals(Entitlement.values().length - 1, self.getKey().size());
+        assertFalse(self.getKey().keySet().contains(Entitlement.ANONYMOUS));
+        assertEquals(ADMIN_UNAME, self.getValue().getUsername());
+
+        // 4. as user
+        self = clientFactory.create("verdi", ADMIN_PWD).self();
+        assertFalse(self.getKey().isEmpty());
+        assertFalse(self.getKey().keySet().contains(Entitlement.ANONYMOUS));
+        assertEquals("verdi", self.getValue().getUsername());
     }
 
     @Test
     public void testUserSchemaAuthorization() {
-        // 0. create a group that can only read schemas
-        GroupTO authGroupTO = new GroupTO();
-        authGroupTO.setName("authGroup" + getUUIDString());
-        authGroupTO.setParent(8L);
-        authGroupTO.getEntitlements().add("SCHEMA_READ");
+        // 0. create a role that can only read schemas
+        RoleTO roleTO = new RoleTO();
+        roleTO.setName("authRole" + getUUIDString());
+        roleTO.getEntitlements().add(Entitlement.SCHEMA_READ);
+        roleTO.getRealms().add("/odd");
 
-        authGroupTO = createGroup(authGroupTO);
-        assertNotNull(authGroupTO);
+        roleTO = createRole(roleTO);
+        assertNotNull(roleTO);
 
         String schemaName = "authTestSchema" + getUUIDString();
 
@@ -119,16 +132,9 @@ public class AuthenticationITCase extends AbstractITCase {
         PlainSchemaTO newPlainSchemaTO = createSchema(AttributableType.USER, SchemaType.PLAIN, schemaTO);
         assertEquals(schemaTO, newPlainSchemaTO);
 
-        // 2. create an user with the group created above (as admin)
+        // 2. create an user with the role created above (as admin)
         UserTO userTO = UserITCase.getUniqueSampleTO("auth@test.org");
-
-        MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setGroupId(authGroupTO.getKey());
-        AttrTO testAttrTO = new AttrTO();
-        testAttrTO.setSchema("testAttribute");
-        testAttrTO.getValues().add("a value");
-        membershipTO.getPlainAttrs().add(testAttrTO);
-        userTO.getMemberships().add(membershipTO);
+        userTO.getRoles().add(roleTO.getKey());
 
         userTO = createUser(userTO);
         assertNotNull(userTO);
@@ -138,19 +144,15 @@ public class AuthenticationITCase extends AbstractITCase {
         assertNotNull(schemaTO);
 
         // 4. read the schema created above (as user) - success
-        SchemaService schemaService2 = clientFactory.create(userTO.getUsername(), "password123").getService(
-                SchemaService.class);
-
+        SchemaService schemaService2 = clientFactory.create(userTO.getUsername(), "password123").
+                getService(SchemaService.class);
         schemaTO = schemaService2.read(AttributableType.USER, SchemaType.PLAIN, schemaName);
         assertNotNull(schemaTO);
 
         // 5. update the schema create above (as user) - failure
         try {
             schemaService2.update(AttributableType.GROUP, SchemaType.PLAIN, schemaName, schemaTO);
-            fail("Schemaupdate as user schould not work");
-        } catch (SyncopeClientException e) {
-            assertNotNull(e);
-            assertEquals(Response.Status.UNAUTHORIZED, e.getType().getResponseStatus());
+            fail("Schemaupdate as user should not work");
         } catch (AccessControlException e) {
             // CXF Service will throw this exception
             assertNotNull(e);
@@ -162,14 +164,7 @@ public class AuthenticationITCase extends AbstractITCase {
     @Test
     public void testUserRead() {
         UserTO userTO = UserITCase.getUniqueSampleTO("testuserread@test.org");
-
-        MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setGroupId(7L);
-        AttrTO testAttrTO = new AttrTO();
-        testAttrTO.setSchema("testAttribute");
-        testAttrTO.getValues().add("a value");
-        membershipTO.getPlainAttrs().add(testAttrTO);
-        userTO.getMemberships().add(membershipTO);
+        userTO.getRoles().add(2L);
 
         userTO = createUser(userTO);
         assertNotNull(userTO);
@@ -190,20 +185,13 @@ public class AuthenticationITCase extends AbstractITCase {
             exception = e;
         }
         assertNotNull(exception);
-        assertEquals(ClientExceptionType.UnauthorizedGroup, exception.getType());
+        assertEquals(ClientExceptionType.Unauthorized, exception.getType());
     }
 
     @Test
     public void testUserSearch() {
         UserTO userTO = UserITCase.getUniqueSampleTO("testusersearch@test.org");
-
-        MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setGroupId(7L);
-        AttrTO testAttrTO = new AttrTO();
-        testAttrTO.setSchema("testAttribute");
-        testAttrTO.getValues().add("a value");
-        membershipTO.getPlainAttrs().add(testAttrTO);
-        userTO.getMemberships().add(membershipTO);
+        userTO.getRoles().add(2L);
 
         userTO = createUser(userTO);
         assertNotNull(userTO);
@@ -212,93 +200,80 @@ public class AuthenticationITCase extends AbstractITCase {
                 getService(UserService.class);
 
         PagedResult<UserTO> matchedUsers = userService2.search(
+                Collections.singletonList("/"),
                 SyncopeClient.getUserSearchConditionBuilder().isNotNull("loginDate").query());
         assertNotNull(matchedUsers);
         assertFalse(matchedUsers.getResult().isEmpty());
-        Set<Long> userIds = new HashSet<Long>(matchedUsers.getResult().size());
-        for (UserTO user : matchedUsers.getResult()) {
-            userIds.add(user.getKey());
-        }
-        assertTrue(userIds.contains(1L));
+        assertTrue(CollectionUtils.exists(matchedUsers.getResult(), new Predicate<UserTO>() {
+
+            @Override
+            public boolean evaluate(final UserTO user) {
+                return user.getKey() == 1;
+            }
+        }));
 
         UserService userService3 = clientFactory.create("verdi", "password").getService(UserService.class);
 
         matchedUsers = userService3.search(
+                Collections.singletonList("/even/two"),
                 SyncopeClient.getUserSearchConditionBuilder().isNotNull("loginDate").query());
         assertNotNull(matchedUsers);
+        assertFalse(CollectionUtils.exists(matchedUsers.getResult(), new Predicate<UserTO>() {
 
-        userIds = new HashSet<>(matchedUsers.getResult().size());
-
-        for (UserTO user : matchedUsers.getResult()) {
-            userIds.add(user.getKey());
-        }
-        assertFalse(userIds.contains(1L));
+            @Override
+            public boolean evaluate(final UserTO user) {
+                return user.getKey() == 1;
+            }
+        }));
     }
 
     @Test
     public void checkFailedLogins() {
         UserTO userTO = UserITCase.getUniqueSampleTO("checkFailedLogin@syncope.apache.org");
-
-        MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setGroupId(7L);
-        AttrTO testAttrTO = new AttrTO();
-        testAttrTO.setSchema("testAttribute");
-        testAttrTO.getValues().add("a value");
-        membershipTO.getPlainAttrs().add(testAttrTO);
-        userTO.getMemberships().add(membershipTO);
+        userTO.getRoles().add(2L);
 
         userTO = createUser(userTO);
         assertNotNull(userTO);
         long userId = userTO.getKey();
-
-        UserService userService2 = clientFactory.create(userTO.getUsername(), "password123").getService(
-                UserService.class);
-        assertEquals(0, getFailedLogins(userService2, userId));
-
-        // authentications failed ...
-        UserService userService3 = clientFactory.create(userTO.getUsername(), "wrongpwd1").getService(
-                UserService.class);
-        assertReadFails(userService3, userId);
-        assertReadFails(userService3, userId);
-
-        assertEquals(2, getFailedLogins(userService, userId));
-
-        UserService userService4 = clientFactory.create(userTO.getUsername(), "password123").getService(
-                UserService.class);
-        assertEquals(0, getFailedLogins(userService4, userId));
-    }
-
-    @Test
-    public void checkUserSuspension() {
-        UserTO userTO = UserITCase.getUniqueSampleTO("checkSuspension@syncope.apache.org");
-
-        MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setGroupId(7L);
-        AttrTO testAttrTO = new AttrTO();
-        testAttrTO.setSchema("testAttribute");
-        testAttrTO.getValues().add("a value");
-        membershipTO.getPlainAttrs().add(testAttrTO);
-        userTO.getMemberships().add(membershipTO);
-
-        userTO = createUser(userTO);
-        long userId = userTO.getKey();
-        assertNotNull(userTO);
 
         UserService userService2 = clientFactory.create(userTO.getUsername(), "password123").
                 getService(UserService.class);
         assertEquals(0, getFailedLogins(userService2, userId));
 
         // authentications failed ...
-        UserService userService3 = clientFactory.create(userTO.getUsername(), "wrongpwd1").
+        SyncopeClient badPwdClient = clientFactory.create(userTO.getUsername(), "wrongpwd1");
+        assertReadFails(badPwdClient);
+        assertReadFails(badPwdClient);
+
+        assertEquals(2, getFailedLogins(userService, userId));
+
+        UserService userService4 = clientFactory.create(userTO.getUsername(), "password123").
                 getService(UserService.class);
-        assertReadFails(userService3, userId);
-        assertReadFails(userService3, userId);
-        assertReadFails(userService3, userId);
+        assertEquals(0, getFailedLogins(userService4, userId));
+    }
+
+    @Test
+    public void checkUserSuspension() {
+        UserTO userTO = UserITCase.getUniqueSampleTO("checkSuspension@syncope.apache.org");
+        userTO.setRealm("/odd");
+        userTO.getRoles().add(2L);
+
+        userTO = createUser(userTO);
+        long userId = userTO.getKey();
+        assertNotNull(userTO);
+
+        assertEquals(0, getFailedLogins(userService, userId));
+
+        // authentications failed ...
+        SyncopeClient badPwdClient = clientFactory.create(userTO.getUsername(), "wrongpwd1");
+        assertReadFails(badPwdClient);
+        assertReadFails(badPwdClient);
+        assertReadFails(badPwdClient);
 
         assertEquals(3, getFailedLogins(userService, userId));
 
         // last authentication before suspension
-        assertReadFails(userService3, userId);
+        assertReadFails(badPwdClient);
 
         userTO = userService.read(userTO.getKey());
         assertNotNull(userTO);
@@ -307,8 +282,8 @@ public class AuthenticationITCase extends AbstractITCase {
         assertEquals("suspended", userTO.getStatus());
 
         // Access with correct credentials should fail as user is suspended
-        userService2 = clientFactory.create(userTO.getUsername(), "password123").getService(UserService.class);
-        assertReadFails(userService2, userId);
+        SyncopeClient goodPwdClient = clientFactory.create(userTO.getUsername(), "password123");
+        assertReadFails(goodPwdClient);
 
         StatusMod reactivate = new StatusMod();
         reactivate.setType(StatusMod.ModType.REACTIVATE);
@@ -316,52 +291,7 @@ public class AuthenticationITCase extends AbstractITCase {
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());
 
-        userService2 = clientFactory.create(userTO.getUsername(), "password123").getService(UserService.class);
-        assertEquals(0, getFailedLogins(userService2, userId));
-    }
-
-    @Test
-    public void issueSYNCOPE48() {
-        // Parent group, able to create users with group 1
-        GroupTO parentGroup = new GroupTO();
-        parentGroup.setName("parentAdminGroup" + getUUIDString());
-        parentGroup.getEntitlements().add("USER_CREATE");
-        parentGroup.getEntitlements().add("GROUP_1");
-        parentGroup.setParent(1L);
-        parentGroup = createGroup(parentGroup);
-        assertNotNull(parentGroup);
-
-        // Child group, with no entitlements
-        GroupTO childGroup = new GroupTO();
-        childGroup.setName("childAdminGroup");
-        childGroup.setParent(parentGroup.getKey());
-
-        childGroup = createGroup(childGroup);
-        assertNotNull(childGroup);
-
-        // User with child group, created by admin
-        UserTO group1Admin = UserITCase.getUniqueSampleTO("syncope48admin@apache.org");
-        group1Admin.setPassword("password");
-        MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setGroupId(childGroup.getKey());
-        group1Admin.getMemberships().add(membershipTO);
-
-        group1Admin = createUser(group1Admin);
-        assertNotNull(group1Admin);
-
-        UserService userService2 = clientFactory.create(group1Admin.getUsername(), "password").getService(
-                UserService.class);
-
-        // User with group 1, created by user with child group created above
-        UserTO group1User = UserITCase.getUniqueSampleTO("syncope48user@apache.org");
-        membershipTO = new MembershipTO();
-        membershipTO.setGroupId(1L);
-        group1User.getMemberships().add(membershipTO);
-
-        Response response = userService2.create(group1User, true);
-        assertNotNull(response);
-        group1User = response.readEntity(UserTO.class);
-        assertNotNull(group1User);
+        assertEquals(0, goodPwdClient.self().getValue().getFailedLogins(), 0);
     }
 
     @Test
@@ -371,7 +301,7 @@ public class AuthenticationITCase extends AbstractITCase {
         // 1. create user with group 9 (users with group 9 are defined in workflow as subject to approval)
         UserTO userTO = UserITCase.getUniqueSampleTO("createWithReject@syncope.apache.org");
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setGroupId(9L);
+        membershipTO.setGroupKey(9L);
         userTO.getMemberships().add(membershipTO);
 
         userTO = createUser(userTO);
@@ -379,10 +309,8 @@ public class AuthenticationITCase extends AbstractITCase {
         assertEquals("createApproval", userTO.getStatus());
 
         // 2. try to authenticate: fail
-        EntitlementService myEntitlementService = clientFactory.create(userTO.getUsername(), "password123").
-                getService(EntitlementService.class);
         try {
-            myEntitlementService.getOwnEntitlements();
+            clientFactory.create(userTO.getUsername(), "password123").self();
             fail();
         } catch (AccessControlException e) {
             assertNotNull(e);
@@ -400,14 +328,19 @@ public class AuthenticationITCase extends AbstractITCase {
         assertEquals("active", userTO.getStatus());
 
         // 4. try to authenticate again: success
-        assertNotNull(myEntitlementService.getOwnEntitlements());
+        Pair<Map<Entitlement, Set<String>>, UserTO> self =
+                clientFactory.create(userTO.getUsername(), "password123").self();
+        assertNotNull(self);
+        assertNotNull(self.getKey());
+        assertNotNull(self.getValue());
     }
 
     @Test
     public void issueSYNCOPE164() throws Exception {
         // 1. create user with db resource
         UserTO user = UserITCase.getUniqueSampleTO("syncope164@syncope.apache.org");
-        user.setPassword("password1");
+        user.setRealm("/even/two");
+        user.setPassword("password123");
         user.getResources().add(RESOURCE_NAME_TESTDB);
         user = createUser(user);
         assertNotNull(user);
@@ -421,7 +354,7 @@ public class AuthenticationITCase extends AbstractITCase {
         // 3. change password on Syncope
         UserMod userMod = new UserMod();
         userMod.setKey(user.getKey());
-        userMod.setPassword("password2");
+        userMod.setPassword("password234");
         user = updateUser(userMod);
         assertNotNull(user);
 
@@ -429,12 +362,13 @@ public class AuthenticationITCase extends AbstractITCase {
         final JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
         String value = jdbcTemplate.queryForObject(
                 "SELECT PASSWORD FROM test WHERE ID=?", String.class, user.getUsername());
-        assertEquals(Encryptor.getInstance().encode("password1", CipherAlgorithm.SHA1), value.toUpperCase());
+        assertEquals(Encryptor.getInstance().encode("password123", CipherAlgorithm.SHA1), value.toUpperCase());
 
         // 5. successfully authenticate with old (on db resource) and new (on internal storage) password values
-        user = clientFactory.create(user.getUsername(), "password1").getService(UserSelfService.class).read();
-        assertNotNull(user);
-        user = clientFactory.create(user.getUsername(), "password2").getService(UserSelfService.class).read();
-        assertNotNull(user);
+        Pair<Map<Entitlement, Set<String>>, UserTO> self =
+                clientFactory.create(user.getUsername(), "password123").self();
+        assertNotNull(self);
+        self = clientFactory.create(user.getUsername(), "password234").self();
+        assertNotNull(self);
     }
 }

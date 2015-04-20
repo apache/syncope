@@ -295,7 +295,7 @@ public class ConnectorITCase extends AbstractITCase {
         ResourceTO resourceTO = resources.get(0);
 
         // Make it new.
-        resourceTO.setKey("newAbout103");
+        resourceTO.setKey("newAbout103" + getUUIDString());
 
         // Make it new.
         connInstanceTO.setKey(0);

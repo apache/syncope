@@ -26,7 +26,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.commons.JexlHelpUtil;
+import org.apache.syncope.client.console.commons.JexlHelpUtils;
 import org.apache.syncope.client.console.panels.ResourceConnConfPanel.ConnConfModEvent;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
@@ -185,9 +185,9 @@ public class ResourceMappingPanel extends Panel {
             schemaNames = Collections.<String>emptyList();
         }
 
-        final WebMarkupContainer jexlHelp = JexlHelpUtil.getJexlHelpWebContainer("jexlHelp");
+        final WebMarkupContainer jexlHelp = JexlHelpUtils.getJexlHelpWebContainer("jexlHelp");
 
-        AjaxLink<Void> questionMarkJexlHelp = JexlHelpUtil.getAjaxLink(jexlHelp, "questionMarkJexlHelp");
+        AjaxLink<Void> questionMarkJexlHelp = JexlHelpUtils.getAjaxLink(jexlHelp, "questionMarkJexlHelp");
         mappingContainer.add(questionMarkJexlHelp);
         questionMarkJexlHelp.add(jexlHelp);
 

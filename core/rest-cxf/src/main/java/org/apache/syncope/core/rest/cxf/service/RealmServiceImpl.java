@@ -22,6 +22,7 @@ import java.net.URI;
 import java.util.List;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.RealmService;
@@ -42,12 +43,12 @@ public class RealmServiceImpl extends AbstractServiceImpl implements RealmServic
 
     @Override
     public List<RealmTO> list(final String fullPath) {
-        return logic.list(StringUtils.prependIfMissing(fullPath, "/"));
+        return logic.list(StringUtils.prependIfMissing(fullPath, SyncopeConstants.ROOT_REALM));
     }
 
     @Override
     public Response create(final String parentPath, final RealmTO realmTO) {
-        RealmTO created = logic.create(StringUtils.prependIfMissing(parentPath, "/"), realmTO);
+        RealmTO created = logic.create(StringUtils.prependIfMissing(parentPath, SyncopeConstants.ROOT_REALM), realmTO);
         URI location = uriInfo.getAbsolutePathBuilder().path(created.getName()).build();
         return Response.created(location).
                 header(RESTHeaders.RESOURCE_ID, created.getFullPath()).
@@ -56,13 +57,13 @@ public class RealmServiceImpl extends AbstractServiceImpl implements RealmServic
 
     @Override
     public void update(final String fullPath, final RealmTO realmTO) {
-        realmTO.setFullPath(StringUtils.prependIfMissing(fullPath, "/"));
+        realmTO.setFullPath(StringUtils.prependIfMissing(fullPath, SyncopeConstants.ROOT_REALM));
         logic.update(realmTO);
     }
 
     @Override
     public void delete(final String fullPath) {
-        logic.delete(StringUtils.prependIfMissing(fullPath, "/"));
+        logic.delete(StringUtils.prependIfMissing(fullPath, SyncopeConstants.ROOT_REALM));
     }
 
 }

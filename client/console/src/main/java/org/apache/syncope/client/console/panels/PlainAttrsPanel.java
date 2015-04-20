@@ -32,7 +32,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.AttrLayoutType;
-import org.apache.syncope.client.console.commons.JexlHelpUtil;
+import org.apache.syncope.client.console.commons.JexlHelpUtils;
 import org.apache.syncope.client.console.commons.Mode;
 import org.apache.syncope.client.console.panels.AttrTemplatesPanel.GroupAttrTemplatesChange;
 import org.apache.syncope.client.console.rest.ConfigurationRestClient;
@@ -118,9 +118,9 @@ public class PlainAttrsPanel extends Panel {
             protected void populateItem(final ListItem<AttrTO> item) {
                 final AttrTO attributeTO = (AttrTO) item.getDefaultModelObject();
 
-                final WebMarkupContainer jexlHelp = JexlHelpUtil.getJexlHelpWebContainer("jexlHelp");
+                final WebMarkupContainer jexlHelp = JexlHelpUtils.getJexlHelpWebContainer("jexlHelp");
 
-                final AjaxLink<Void> questionMarkJexlHelp = JexlHelpUtil.getAjaxLink(jexlHelp, "questionMarkJexlHelp");
+                final AjaxLink<Void> questionMarkJexlHelp = JexlHelpUtils.getAjaxLink(jexlHelp, "questionMarkJexlHelp");
                 item.add(questionMarkJexlHelp);
                 questionMarkJexlHelp.add(jexlHelp);
 
@@ -169,7 +169,7 @@ public class PlainAttrsPanel extends Panel {
             attrLayout = confRestClient.readAttrLayout(AttrLayoutType.valueOf(mode, AttributableType.MEMBERSHIP));
             schemaTOs = schemaRestClient.getSchemas(AttributableType.MEMBERSHIP);
             Set<String> allowed = new HashSet<>(
-                    groupRestClient.read(((MembershipTO) entityTO).getGroupId()).getMPlainAttrTemplates());
+                    groupRestClient.read(((MembershipTO) entityTO).getGroupKey()).getMPlainAttrTemplates());
             schemaRestClient.filter(schemaTOs, allowed, true);
         } else {
             schemas = new TreeMap<>();

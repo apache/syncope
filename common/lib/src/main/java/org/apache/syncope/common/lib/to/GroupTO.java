@@ -37,27 +37,9 @@ public class GroupTO extends AbstractSubjectTO {
 
     private String name;
 
-    private long parent;
-
     private Long userOwner;
 
     private Long groupOwner;
-
-    private boolean inheritOwner;
-
-    private boolean inheritTemplates;
-
-    private boolean inheritPlainAttrs;
-
-    private boolean inheritDerAttrs;
-
-    private boolean inheritVirAttrs;
-
-    private boolean inheritPasswordPolicy;
-
-    private boolean inheritAccountPolicy;
-
-    private final List<String> entitlements = new ArrayList<>();
 
     private final List<String> gPlainAttrTemplates = new ArrayList<>();
 
@@ -71,24 +53,12 @@ public class GroupTO extends AbstractSubjectTO {
 
     private final List<String> mVirAttrTemplates = new ArrayList<>();
 
-    private Long passwordPolicy;
-
-    private Long accountPolicy;
-
     public String getName() {
         return name;
     }
 
     public void setName(final String name) {
         this.name = name;
-    }
-
-    public long getParent() {
-        return parent;
-    }
-
-    public void setParent(final long parent) {
-        this.parent = parent;
     }
 
     public Long getUserOwner() {
@@ -105,53 +75,6 @@ public class GroupTO extends AbstractSubjectTO {
 
     public void setGroupOwner(final Long groupOwner) {
         this.groupOwner = groupOwner;
-    }
-
-    public boolean isInheritOwner() {
-        return inheritOwner;
-    }
-
-    public void setInheritOwner(final boolean inheritOwner) {
-        this.inheritOwner = inheritOwner;
-    }
-
-    public boolean isInheritTemplates() {
-        return inheritTemplates;
-    }
-
-    public void setInheritTemplates(final boolean inheritTemplates) {
-        this.inheritTemplates = inheritTemplates;
-    }
-
-    public boolean isInheritPlainAttrs() {
-        return inheritPlainAttrs;
-    }
-
-    public void setInheritPlainAttrs(final boolean inheritPlainAttrs) {
-        this.inheritPlainAttrs = inheritPlainAttrs;
-    }
-
-    public boolean isInheritDerAttrs() {
-        return inheritDerAttrs;
-    }
-
-    public void setInheritDerAttrs(final boolean inheritDerAttrs) {
-        this.inheritDerAttrs = inheritDerAttrs;
-    }
-
-    public boolean isInheritVirAttrs() {
-        return inheritVirAttrs;
-    }
-
-    public void setInheritVirAttrs(final boolean inheritVirAttrs) {
-        this.inheritVirAttrs = inheritVirAttrs;
-    }
-
-    @XmlElementWrapper(name = "entitlements")
-    @XmlElement(name = "entitlement")
-    @JsonProperty("entitlements")
-    public List<String> getEntitlements() {
-        return entitlements;
     }
 
     @XmlElementWrapper(name = "gPlainAttrTemplates")
@@ -196,63 +119,4 @@ public class GroupTO extends AbstractSubjectTO {
         return mVirAttrTemplates;
     }
 
-    public Long getPasswordPolicy() {
-        return passwordPolicy;
-    }
-
-    public void setPasswordPolicy(final Long passwordPolicy) {
-        this.passwordPolicy = passwordPolicy;
-    }
-
-    public boolean isInheritPasswordPolicy() {
-        return inheritPasswordPolicy;
-    }
-
-    /**
-     * Specify if password policy must be inherited. In this case eventual passwordPolicy occurrence will be ignored.
-     *
-     * @param inheritPasswordPolicy 'true' to inherit policy, false otherwise.
-     */
-    public void setInheritPasswordPolicy(final boolean inheritPasswordPolicy) {
-        this.inheritPasswordPolicy = inheritPasswordPolicy;
-    }
-
-    public Long getAccountPolicy() {
-        return accountPolicy;
-    }
-
-    public void setAccountPolicy(final Long accountPolicy) {
-        this.accountPolicy = accountPolicy;
-    }
-
-    public boolean isInheritAccountPolicy() {
-        return inheritAccountPolicy;
-    }
-
-    /**
-     * Specify if account policy must be inherited. In this case eventual accountPolicy occurrence will be ignored.
-     *
-     * @param inheritAccountPolicy 'true' to inherit policy, false otherwise.
-     */
-    public void setInheritAccountPolicy(final boolean inheritAccountPolicy) {
-        this.inheritAccountPolicy = inheritAccountPolicy;
-    }
-
-    public String getDisplayName() {
-        return getKey() + " " + getName();
-    }
-
-    public static long fromDisplayName(final String displayName) {
-        long result = 0;
-        if (displayName != null && !displayName.isEmpty() && displayName.indexOf(' ') != -1) {
-            try {
-                result = Long.valueOf(displayName.split(" ")[0]);
-            } catch (NumberFormatException e) {
-                // just to avoid PMD warning about "empty catch block"
-                result = 0;
-            }
-        }
-
-        return result;
-    }
 }

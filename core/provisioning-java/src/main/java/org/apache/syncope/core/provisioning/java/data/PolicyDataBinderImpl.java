@@ -29,14 +29,14 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PasswordPolicySpec;
 import org.apache.syncope.common.lib.types.SyncPolicySpec;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
-import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.entity.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.Policy;
+import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.SyncPolicy;
-import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,40 +54,31 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
     private ExternalResourceDAO resourceDAO;
 
     @Autowired
-    private GroupDAO groupDAO;
+    private RealmDAO realmDAO;
 
     @Autowired
     private EntityFactory entityFactory;
 
-    /**
-     * Get policy TO from policy bean.
-     *
-     * @param policy bean.
-     * @return policy TO.
-     */
     @SuppressWarnings("unchecked")
     @Override
     public <T extends AbstractPolicyTO> T getPolicyTO(final Policy policy) {
         final T policyTO;
 
         switch (policy.getType()) {
-            case GLOBAL_PASSWORD:
             case PASSWORD:
-                policyTO = (T) new PasswordPolicyTO(policy.getType().isGlobal());
+                policyTO = (T) new PasswordPolicyTO();
                 ((PasswordPolicyTO) policyTO).setSpecification(policy.getSpecification(PasswordPolicySpec.class));
                 break;
 
-            case GLOBAL_ACCOUNT:
             case ACCOUNT:
-                policyTO = (T) new AccountPolicyTO(policy.getType().isGlobal());
+                policyTO = (T) new AccountPolicyTO();
                 ((AccountPolicyTO) policyTO).setSpecification(policy.getSpecification(AccountPolicySpec.class));
                 ((AccountPolicyTO) policyTO).getResources().addAll(((AccountPolicy) policy).getResourceNames());
                 break;
 
-            case GLOBAL_SYNC:
             case SYNC:
             default:
-                policyTO = (T) new SyncPolicyTO(policy.getType().isGlobal());
+                policyTO = (T) new SyncPolicyTO();
                 ((SyncPolicyTO) policyTO).setSpecification(policy.getSpecification(SyncPolicySpec.class));
         }
 
@@ -97,18 +88,8 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
         for (ExternalResource resource : resourceDAO.findByPolicy(policy)) {
             policyTO.getUsedByResources().add(resource.getKey());
         }
-        if (policy.getType().isGlobal()) {
-            for (ExternalResource resource : resourceDAO.findWithoutPolicy(policy.getType())) {
-                policyTO.getUsedByResources().add(resource.getKey());
-            }
-        }
-        for (Group group : groupDAO.findByPolicy(policy)) {
-            policyTO.getUsedByGroups().add(group.getKey());
-        }
-        if (policy.getType().isGlobal()) {
-            for (Group group : groupDAO.findWithoutPolicy(policy.getType())) {
-                policyTO.getUsedByGroups().add(group.getKey());
-            }
+        for (Realm realm : realmDAO.findByPolicy(policy)) {
+            policyTO.getUsedByRealms().add(realm.getFullPath());
         }
 
         return policyTO;
@@ -133,26 +114,24 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
         }
 
         switch (policyTO.getType()) {
-            case GLOBAL_PASSWORD:
             case PASSWORD:
                 if (!(policyTO instanceof PasswordPolicyTO)) {
                     throw new ClassCastException("Expected " + PasswordPolicyTO.class.getName()
                             + ", found " + policyTO.getClass().getName());
                 }
                 if (policy == null) {
-                    policy = (T) entityFactory.newPolicy(PasswordPolicy.class, policyTO.getType().isGlobal());
+                    policy = (T) entityFactory.newEntity(PasswordPolicy.class);
                 }
                 policy.setSpecification(((PasswordPolicyTO) policyTO).getSpecification());
                 break;
 
-            case GLOBAL_ACCOUNT:
             case ACCOUNT:
                 if (!(policyTO instanceof AccountPolicyTO)) {
                     throw new ClassCastException("Expected " + AccountPolicyTO.class.getName()
                             + ", found " + policyTO.getClass().getName());
                 }
                 if (policy == null) {
-                    policy = (T) entityFactory.newPolicy(AccountPolicy.class, policyTO.getType().isGlobal());
+                    policy = (T) entityFactory.newEntity(AccountPolicy.class);
                 }
                 policy.setSpecification(((AccountPolicyTO) policyTO).getSpecification());
 
@@ -169,7 +148,6 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
                 }
                 break;
 
-            case GLOBAL_SYNC:
             case SYNC:
             default:
                 if (!(policyTO instanceof SyncPolicyTO)) {
@@ -177,7 +155,7 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
                             + ", found " + policyTO.getClass().getName());
                 }
                 if (policy == null) {
-                    policy = (T) entityFactory.newPolicy(SyncPolicy.class, policyTO.getType().isGlobal());
+                    policy = (T) entityFactory.newEntity(SyncPolicy.class);
                 }
                 policy.setSpecification(((SyncPolicyTO) policyTO).getSpecification());
         }

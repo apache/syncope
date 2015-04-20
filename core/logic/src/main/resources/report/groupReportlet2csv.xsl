@@ -62,18 +62,6 @@ under the License.
           <xsl:value-of select="$groupAttr/."/>
           <xsl:text>"</xsl:text>
         </xsl:when>
-        <xsl:when test="name($attrs/*[name(.)=$nameAttr]/*[name(.)='entitlement']) 
-                        and count($attrs/*[name(.)=$nameAttr]/node()) &gt; 0">
-          <xsl:text>"</xsl:text>       
-          <xsl:for-each select="$attrs/*/entitlement">
-            <xsl:variable name="value" select="@id"/>
-            <xsl:value-of select="$value"/>
-            <xsl:if test="position() != last()">
-              <xsl:value-of select="$delimiter"/>
-            </xsl:if>
-          </xsl:for-each>
-          <xsl:text>"</xsl:text>
-        </xsl:when>
         <xsl:when test="name($attrs/*[name(.)=$nameAttr]/*[name(.)='resource']) 
                         and count($attrs/*[name(.)=$nameAttr]/node()) &gt; 0">
           <xsl:text>"</xsl:text>       

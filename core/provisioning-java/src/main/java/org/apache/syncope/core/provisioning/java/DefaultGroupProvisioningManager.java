@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.java;
 
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -31,12 +30,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.mod.GroupMod;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.types.PropagationByResource;
-import org.apache.syncope.core.persistence.api.GroupEntitlementUtil;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
@@ -46,7 +46,6 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationException
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
-import org.apache.syncope.core.misc.security.AuthContextUtil;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.workflow.api.GroupWorkflowAdapter;
 
@@ -67,19 +66,16 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
     protected GroupDAO groupDAO;
 
     @Override
-    public Map.Entry<Long, List<PropagationStatus>> create(final GroupTO subject) {
+    public Pair<Long, List<PropagationStatus>> create(final GroupTO subject) {
         return create(subject, Collections.<String>emptySet());
     }
 
     @Override
-    public Map.Entry<Long, List<PropagationStatus>> create(final GroupTO subject, final Set<String> excludedResources) {
+    public Pair<Long, List<PropagationStatus>> create(final GroupTO subject, final Set<String> excludedResources) {
         WorkflowResult<Long> created = gwfAdapter.create(subject);
 
-        AuthContextUtil.extendAuthContext(created.getResult(), GroupEntitlementUtil.getEntitlementNameFromGroupKey(
-                created.getResult()));
-
         List<PropagationTask> tasks =
-                propagationManager.getGroupCreateTaskIds(created, subject.getVirAttrs(), excludedResources);
+                propagationManager.getGroupCreateTasks(created, subject.getVirAttrs(), excludedResources);
         PropagationReporter propagationReporter = ApplicationContextProvider.getApplicationContext().getBean(
                 PropagationReporter.class);
         try {
@@ -89,11 +85,11 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
             propagationReporter.onPrimaryResourceFailure(tasks);
         }
 
-        return new AbstractMap.SimpleEntry<>(created.getResult(), propagationReporter.getStatuses());
+        return new ImmutablePair<>(created.getResult(), propagationReporter.getStatuses());
     }
 
     @Override
-    public Map.Entry<Long, List<PropagationStatus>> create(
+    public Pair<Long, List<PropagationStatus>> create(
             final GroupTO groupTO, final Map<Long, String> groupOwnerMap, final Set<String> excludedResources) {
 
         WorkflowResult<Long> created = gwfAdapter.create(groupTO);
@@ -102,30 +98,27 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
             groupOwnerMap.put(created.getResult(), groupOwner.getValues().iterator().next());
         }
 
-        AuthContextUtil.extendAuthContext(created.getResult(),
-                GroupEntitlementUtil.getEntitlementNameFromGroupKey(created.getResult()));
-
-        List<PropagationTask> tasks = propagationManager.getGroupCreateTaskIds(
+        List<PropagationTask> tasks = propagationManager.getGroupCreateTasks(
                 created, groupTO.getVirAttrs(), excludedResources);
 
         taskExecutor.execute(tasks);
 
-        return new AbstractMap.SimpleEntry<>(created.getResult(), null);
+        return new ImmutablePair<>(created.getResult(), null);
     }
 
     @Override
-    public Map.Entry<Long, List<PropagationStatus>> update(final GroupMod subjectMod) {
+    public Pair<Long, List<PropagationStatus>> update(final GroupMod subjectMod) {
         return update(subjectMod, Collections.<String>emptySet());
     }
 
     @Override
-    public Map.Entry<Long, List<PropagationStatus>> update(
+    public Pair<Long, List<PropagationStatus>> update(
             final GroupMod subjectMod, final Set<String> excludedResources) {
 
         WorkflowResult<Long> updated = gwfAdapter.update(subjectMod);
 
-        List<PropagationTask> tasks = propagationManager.getGroupUpdateTaskIds(updated,
-                subjectMod.getVirAttrsToRemove(), subjectMod.getVirAttrsToUpdate());
+        List<PropagationTask> tasks = propagationManager.getGroupUpdateTasks(updated,
+                subjectMod.getVirAttrsToRemove(), subjectMod.getVirAttrsToUpdate(), null);
         PropagationReporter propagationReporter =
                 ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
         try {
@@ -135,41 +128,29 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
             propagationReporter.onPrimaryResourceFailure(tasks);
         }
 
-        Map.Entry<Long, List<PropagationStatus>> result = new AbstractMap.SimpleEntry<>(
+        Pair<Long, List<PropagationStatus>> result = new ImmutablePair<>(
                 updated.getResult(), propagationReporter.getStatuses());
         return result;
     }
 
     @Override
     public List<PropagationStatus> delete(final Long subjectKey) {
-        final List<Group> toBeDeprovisioned = new ArrayList<>();
-
-        final Group syncopeGroup = groupDAO.find(subjectKey);
-
-        if (syncopeGroup != null) {
-            toBeDeprovisioned.add(syncopeGroup);
-
-            final List<Group> descendants = groupDAO.findDescendants(toBeDeprovisioned.get(0));
-            if (descendants != null) {
-                toBeDeprovisioned.addAll(descendants);
-            }
-        }
-
         final List<PropagationTask> tasks = new ArrayList<>();
 
-        for (Group group : toBeDeprovisioned) {
+        Group group = groupDAO.authFetch(subjectKey);
+        if (group != null) {
             // Generate propagation tasks for deleting users from group resources, if they are on those resources only
             // because of the reason being deleted (see SYNCOPE-357)
-            for (Map.Entry<Long, PropagationByResource> entry : groupDAO.findUsersWithIndirectResources(group.
-                    getKey()).entrySet()) {
+            for (Map.Entry<Long, PropagationByResource> entry
+                    : groupDAO.findUsersWithIndirectResources(group.getKey()).entrySet()) {
 
                 WorkflowResult<Long> wfResult =
                         new WorkflowResult<>(entry.getKey(), entry.getValue(), Collections.<String>emptySet());
-                tasks.addAll(propagationManager.getUserDeleteTaskIds(wfResult));
+                tasks.addAll(propagationManager.getUserDeleteTasks(wfResult));
             }
 
             // Generate propagation tasks for deleting this group from resources
-            tasks.addAll(propagationManager.getGroupDeleteTaskIds(group.getKey()));
+            tasks.addAll(propagationManager.getGroupDeleteTasks(group.getKey()));
         }
 
         PropagationReporter propagationReporter = ApplicationContextProvider.getApplicationContext().
@@ -202,7 +183,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
 
         Collection<String> noPropResourceName = CollectionUtils.removeAll(group.getResourceNames(), resources);
 
-        List<PropagationTask> tasks = propagationManager.getGroupDeleteTaskIds(
+        List<PropagationTask> tasks = propagationManager.getGroupDeleteTasks(
                 groupKey, new HashSet<>(resources), noPropResourceName);
         PropagationReporter propagationReporter =
                 ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);

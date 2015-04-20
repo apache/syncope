@@ -49,11 +49,11 @@ public interface UserDAO extends SubjectDAO<UPlainAttr, UDerAttr, UVirAttr> {
 
     List<User> findByResource(ExternalResource resource);
 
-    List<User> findAll(Set<Long> adminGroups, int page, int itemsPerPage);
+    List<User> findAll(Set<String> adminRealms, int page, int itemsPerPage);
 
-    List<User> findAll(Set<Long> adminGroups, int page, int itemsPerPage, List<OrderByClause> orderBy);
+    List<User> findAll(Set<String> adminRealms, int page, int itemsPerPage, List<OrderByClause> orderBy);
 
-    int count(Set<Long> adminGroups);
+    int count(Set<String> adminRealms);
 
     User save(User user);
 

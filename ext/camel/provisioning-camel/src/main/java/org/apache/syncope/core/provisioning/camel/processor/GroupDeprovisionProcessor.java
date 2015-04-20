@@ -18,11 +18,12 @@
  */
 package org.apache.syncope.core.provisioning.camel.processor;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
@@ -58,11 +59,10 @@ public class GroupDeprovisionProcessor implements Processor {
 
         Group group = groupDAO.authFetch(groupKey);
 
-        Set<String> noPropResourceName = group.getResourceNames();
-        noPropResourceName.removeAll(resources);
+        Collection<String> noPropResourceNames = CollectionUtils.removeAll(group.getResourceNames(), resources);
 
         List<PropagationTask> tasks =
-                propagationManager.getGroupDeleteTaskIds(groupKey, new HashSet<>(resources), noPropResourceName);
+                propagationManager.getGroupDeleteTasks(groupKey, new HashSet<>(resources), noPropResourceNames);
         PropagationReporter propagationReporter =
                 ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
         try {

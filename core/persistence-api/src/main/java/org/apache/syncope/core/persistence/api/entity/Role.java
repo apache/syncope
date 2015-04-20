@@ -28,10 +28,6 @@ public interface Role extends Entity<Long> {
 
     void setName(String name);
 
-    String getCriteria();
-
-    void setCriteria(String criteria);
-
     Set<Entitlement> getEntitlements();
 
     boolean addRealm(Realm realm);

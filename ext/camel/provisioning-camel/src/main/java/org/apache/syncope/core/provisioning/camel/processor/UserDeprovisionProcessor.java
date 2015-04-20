@@ -18,11 +18,12 @@
  */
 package org.apache.syncope.core.provisioning.camel.processor;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
@@ -56,14 +57,13 @@ public class UserDeprovisionProcessor implements Processor {
         @SuppressWarnings("unchecked")
         List<String> resources = exchange.getProperty("resources", List.class);
 
-        final User user = userDAO.authFetch(userKey);
+        User user = userDAO.authFetch(userKey);
 
-        final Set<String> noPropResourceName = user.getResourceNames();
-        noPropResourceName.removeAll(resources);
+        Collection<String> noPropResourceNames = CollectionUtils.removeAll(user.getResourceNames(), resources);
 
-        final List<PropagationTask> tasks =
-                propagationManager.getUserDeleteTaskIds(userKey, new HashSet<>(resources), noPropResourceName);
-        final PropagationReporter propagationReporter =
+        List<PropagationTask> tasks =
+                propagationManager.getUserDeleteTasks(userKey, new HashSet<>(resources), noPropResourceNames);
+        PropagationReporter propagationReporter =
                 ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
         try {
             taskExecutor.execute(tasks, propagationReporter);

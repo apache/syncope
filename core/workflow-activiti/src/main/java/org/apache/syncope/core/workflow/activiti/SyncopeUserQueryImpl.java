@@ -25,8 +25,9 @@ import org.activiti.engine.ActivitiException;
 import org.activiti.engine.identity.User;
 import org.activiti.engine.identity.UserQuery;
 import org.activiti.engine.impl.persistence.entity.UserEntity;
-import org.apache.syncope.core.persistence.api.GroupEntitlementUtil;
-import org.apache.syncope.core.persistence.api.dao.EntitlementDAO;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Transformer;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.membership.Membership;
@@ -38,18 +39,15 @@ public class SyncopeUserQueryImpl implements UserQuery {
 
     private GroupDAO groupDAO;
 
-    private EntitlementDAO entitlementDAO;
-
     private String username;
 
     private Long memberOf;
 
     private List<User> result;
 
-    public SyncopeUserQueryImpl(final UserDAO userDAO, final GroupDAO groupDAO, final EntitlementDAO entitlementDAO) {
+    public SyncopeUserQueryImpl(final UserDAO userDAO, final GroupDAO groupDAO) {
         this.userDAO = userDAO;
         this.groupDAO = groupDAO;
-        this.entitlementDAO = entitlementDAO;
     }
 
     @Override
@@ -165,13 +163,17 @@ public class SyncopeUserQueryImpl implements UserQuery {
         }
         // THIS CAN BE *VERY* DANGEROUS
         if (result == null) {
-            result = new ArrayList<>();
+            result = CollectionUtils.collect(
+                    userDAO.findAll(SyncopeConstants.FULL_ADMIN_REALMS, page, itemsPerPage),
+                    new Transformer<org.apache.syncope.core.persistence.api.entity.user.User, User>() {
 
-            List<org.apache.syncope.core.persistence.api.entity.user.User> users =
-                    userDAO.findAll(GroupEntitlementUtil.getGroupKeys(entitlementDAO.findAll()), page, itemsPerPage);
-            for (org.apache.syncope.core.persistence.api.entity.user.User user : users) {
-                result.add(fromSyncopeUser(user));
-            }
+                        @Override
+                        public User transform(final org.apache.syncope.core.persistence.api.entity.user.User user) {
+                            return fromSyncopeUser(user);
+                        }
+
+                    },
+                    new ArrayList<User>());
         }
     }
 

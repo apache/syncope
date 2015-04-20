@@ -85,7 +85,7 @@ public class PlainSchemaTest extends AbstractTest {
         assertFalse(mapItems.isEmpty());
 
         // delete user schema fullname
-        plainSchemaDAO.delete("fullname", attrUtilFactory.getInstance(AttributableType.USER));
+        plainSchemaDAO.delete("fullname", attrUtilsFactory.getInstance(AttributableType.USER));
 
         plainSchemaDAO.flush();
 
@@ -134,7 +134,7 @@ public class PlainSchemaTest extends AbstractTest {
         assertFalse(mappings.isEmpty());
 
         // delete user schema fullname
-        plainSchemaDAO.delete("surname", attrUtilFactory.getInstance(AttributableType.USER));
+        plainSchemaDAO.delete("surname", attrUtilsFactory.getInstance(AttributableType.USER));
 
         plainSchemaDAO.flush();
 
@@ -147,7 +147,7 @@ public class PlainSchemaTest extends AbstractTest {
     public void deleteALong() {
         assertEquals(6, resourceDAO.find("resource-db-sync").getUmapping().getItems().size());
 
-        plainSchemaDAO.delete("aLong", attrUtilFactory.getInstance(AttributableType.USER));
+        plainSchemaDAO.delete("aLong", attrUtilsFactory.getInstance(AttributableType.USER));
         assertNull(plainSchemaDAO.find("aLong", UPlainSchema.class));
 
         plainSchemaDAO.flush();

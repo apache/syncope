@@ -21,9 +21,10 @@ package org.apache.syncope.common.lib.types;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.text.ParseException;
-import java.util.AbstractMap;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.to.EventCategoryTO;
 import org.apache.syncope.common.lib.types.AuditElements.EventCategoryType;
@@ -109,8 +110,8 @@ public class AuditLoggerName extends AbstractBaseBean {
                 eventCategory.getValue());
     }
 
-    public static Map.Entry<EventCategoryTO, Result> parseEventCategory(final String event) {
-        final EventCategoryTO eventCategoryTO = new EventCategoryTO();
+    public static Pair<EventCategoryTO, Result> parseEventCategory(final String event) {
+        EventCategoryTO eventCategoryTO = new EventCategoryTO();
 
         Result condition = null;
 
@@ -154,7 +155,7 @@ public class AuditLoggerName extends AbstractBaseBean {
             }
         }
 
-        return new AbstractMap.SimpleEntry<>(eventCategoryTO, condition);
+        return new ImmutablePair<>(eventCategoryTO, condition);
     }
 
     /**

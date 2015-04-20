@@ -21,6 +21,10 @@ package org.apache.syncope.core.rest.cxf.service;
 import java.util.List;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Transformer;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.mod.ResourceAssociationMod;
 import org.apache.syncope.common.lib.mod.StatusMod;
 import org.apache.syncope.common.lib.mod.UserMod;
@@ -78,24 +82,36 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService 
     }
 
     @Override
-    public PagedResult<UserTO> list() {
-        return list(DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE, null);
+    public PagedResult<UserTO> list(final List<String> realms) {
+        return list(realms, DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE, null);
     }
 
     @Override
-    public PagedResult<UserTO> list(final String orderBy) {
-        return list(DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE, orderBy);
+    public PagedResult<UserTO> list(final List<String> realms, final String orderBy) {
+        return list(realms, DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE, orderBy);
     }
 
     @Override
-    public PagedResult<UserTO> list(final Integer page, final Integer size) {
-        return list(page, size, null);
+    public PagedResult<UserTO> list(final List<String> realms, final Integer page, final Integer size) {
+        return list(realms, page, size, null);
     }
 
     @Override
-    public PagedResult<UserTO> list(final Integer page, final Integer size, final String orderBy) {
+    public PagedResult<UserTO> list(
+            final List<String> realms, final Integer page, final Integer size, final String orderBy) {
+
+        CollectionUtils.transform(realms, new Transformer<String, String>() {
+
+            @Override
+            public String transform(final String input) {
+                return StringUtils.prependIfMissing(input, SyncopeConstants.ROOT_REALM);
+            }
+        });
+
         List<OrderByClause> orderByClauses = getOrderByClauses(orderBy);
-        return buildPagedResult(logic.list(page, size, orderByClauses), page, size, logic.count());
+        return buildPagedResult(
+                logic.list(page, size, orderByClauses, realms), page, size,
+                logic.count(realms));
     }
 
     @Override
@@ -104,26 +120,39 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService 
     }
 
     @Override
-    public PagedResult<UserTO> search(final String fiql) {
-        return search(fiql, DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE, null);
+    public PagedResult<UserTO> search(final List<String> realms, final String fiql) {
+        return search(realms, fiql, DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE, null);
     }
 
     @Override
-    public PagedResult<UserTO> search(final String fiql, final String orderBy) {
-        return search(fiql, DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE, orderBy);
+    public PagedResult<UserTO> search(final List<String> realms, final String fiql, final String orderBy) {
+        return search(realms, fiql, DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE, orderBy);
     }
 
     @Override
-    public PagedResult<UserTO> search(final String fiql, final Integer page, final Integer size) {
-        return search(fiql, page, size, null);
+    public PagedResult<UserTO> search(
+            final List<String> realms, final String fiql, final Integer page, final Integer size) {
+
+        return search(realms, fiql, page, size, null);
     }
 
     @Override
-    public PagedResult<UserTO> search(final String fiql, final Integer page, final Integer size, final String orderBy) {
+    public PagedResult<UserTO> search(final List<String> realms, final String fiql,
+            final Integer page, final Integer size, final String orderBy) {
+
+        CollectionUtils.transform(realms, new Transformer<String, String>() {
+
+            @Override
+            public String transform(final String input) {
+                return StringUtils.prependIfMissing(input, SyncopeConstants.ROOT_REALM);
+            }
+        });
+
         SearchCond cond = getSearchCond(fiql);
         List<OrderByClause> orderByClauses = getOrderByClauses(orderBy);
         return buildPagedResult(
-                logic.search(cond, page, size, orderByClauses), page, size, logic.searchCount(cond));
+                logic.search(cond, page, size, orderByClauses, realms), page, size,
+                logic.searchCount(cond, realms));
     }
 
     @Override
@@ -246,6 +275,51 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService 
 
     @Override
     public BulkActionResult bulk(final BulkAction bulkAction) {
-        return logic.bulk(bulkAction);
+        BulkActionResult result = new BulkActionResult();
+
+        switch (bulkAction.getOperation()) {
+            case DELETE:
+                for (String key : bulkAction.getTargets()) {
+                    try {
+                        result.add(logic.delete(Long.valueOf(key)).getKey(), BulkActionResult.Status.SUCCESS);
+                    } catch (Exception e) {
+                        LOG.error("Error performing delete for user {}", key, e);
+                        result.add(key, BulkActionResult.Status.FAILURE);
+                    }
+                }
+                break;
+
+            case SUSPEND:
+                for (String key : bulkAction.getTargets()) {
+                    StatusMod statusMod = new StatusMod();
+                    statusMod.setKey(Long.valueOf(key));
+                    statusMod.setType(StatusMod.ModType.SUSPEND);
+                    try {
+                        result.add(logic.status(statusMod).getKey(), BulkActionResult.Status.SUCCESS);
+                    } catch (Exception e) {
+                        LOG.error("Error performing suspend for user {}", key, e);
+                        result.add(key, BulkActionResult.Status.FAILURE);
+                    }
+                }
+                break;
+
+            case REACTIVATE:
+                for (String key : bulkAction.getTargets()) {
+                    StatusMod statusMod = new StatusMod();
+                    statusMod.setKey(Long.valueOf(key));
+                    statusMod.setType(StatusMod.ModType.REACTIVATE);
+                    try {
+                        result.add(logic.status(statusMod).getKey(), BulkActionResult.Status.SUCCESS);
+                    } catch (Exception e) {
+                        LOG.error("Error performing reactivate for user {}", key, e);
+                        result.add(key, BulkActionResult.Status.FAILURE);
+                    }
+                }
+                break;
+
+            default:
+        }
+
+        return result;
     }
 }

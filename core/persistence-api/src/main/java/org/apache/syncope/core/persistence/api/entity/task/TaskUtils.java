@@ -16,23 +16,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.dao;
+package org.apache.syncope.core.persistence.api.entity.task;
 
-import java.util.List;
-import org.apache.syncope.core.persistence.api.entity.Entitlement;
-import org.apache.syncope.core.persistence.api.entity.group.Group;
+import org.apache.syncope.common.lib.to.AbstractTaskTO;
+import org.apache.syncope.common.lib.types.TaskType;
 
-public interface EntitlementDAO extends DAO<Entitlement, String> {
+public interface TaskUtils {
 
-    Entitlement find(String key);
+    TaskType getType();
 
-    List<Entitlement> findAll();
+    <T extends Task> T newTask();
 
-    Entitlement save(Entitlement entitlement);
+    <T extends AbstractTaskTO> T newTaskTO();
 
-    Entitlement saveGroupEntitlement(Group group);
+    <T extends Task> Class<T> taskClass();
 
-    void delete(String key);
+    <T extends AbstractTaskTO> Class<T> taskTOClass();
 
-    void delete(Entitlement entitlement);
 }

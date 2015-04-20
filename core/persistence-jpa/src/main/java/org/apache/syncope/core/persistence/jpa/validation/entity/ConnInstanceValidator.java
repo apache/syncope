@@ -21,8 +21,8 @@ package org.apache.syncope.core.persistence.jpa.validation.entity;
 import javax.validation.ConstraintValidatorContext;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
-import org.apache.syncope.core.provisioning.api.URIUtil;
-import org.apache.syncope.core.provisioning.api.ConnPoolConfUtil;
+import org.apache.syncope.core.provisioning.api.URIUtils;
+import org.apache.syncope.core.provisioning.api.ConnPoolConfUtils;
 
 public class ConnInstanceValidator extends AbstractValidator<ConnInstanceCheck, ConnInstance> {
 
@@ -31,7 +31,7 @@ public class ConnInstanceValidator extends AbstractValidator<ConnInstanceCheck, 
         boolean isValid = true;
 
         try {
-            URIUtil.buildForConnId(connInstance.getLocation());
+            URIUtils.buildForConnId(connInstance.getLocation());
         } catch (Exception e) {
             LOG.error("While validating {}", connInstance.getLocation(), e);
 
@@ -45,7 +45,7 @@ public class ConnInstanceValidator extends AbstractValidator<ConnInstanceCheck, 
 
         if (isValid && connInstance.getPoolConf() != null) {
             try {
-                ConnPoolConfUtil.getObjectPoolConfiguration(connInstance.getPoolConf()).validate();
+                ConnPoolConfUtils.getObjectPoolConfiguration(connInstance.getPoolConf()).validate();
             } catch (Exception e) {
                 LOG.error("Invalid pool configuration", e);
 

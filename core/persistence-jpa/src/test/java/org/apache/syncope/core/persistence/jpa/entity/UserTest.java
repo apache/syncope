@@ -25,17 +25,16 @@ import static org.junit.Assert.fail;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
-import org.apache.syncope.core.persistence.api.GroupEntitlementUtil;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
-import org.apache.syncope.core.persistence.api.dao.EntitlementDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.apache.syncope.core.misc.policy.InvalidPasswordPolicySpecException;
 import org.apache.syncope.core.misc.security.PasswordGenerator;
+import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,39 +49,37 @@ public class UserTest extends AbstractTest {
     private UserDAO userDAO;
 
     @Autowired
-    private EntitlementDAO entitlementDAO;
+    private RealmDAO realmDAO;
 
     @Test
     public void findAll() {
-        List<User> list = userDAO.findAll(GroupEntitlementUtil.getGroupKeys(entitlementDAO.findAll()), 1, 100);
+        List<User> list = userDAO.findAll(SyncopeConstants.FULL_ADMIN_REALMS, 1, 100);
         assertEquals("did not get expected number of users ", 5, list.size());
     }
 
     @Test
     public void count() {
-        Integer count = userDAO.count(GroupEntitlementUtil.getGroupKeys(entitlementDAO.findAll()));
+        Integer count = userDAO.count(SyncopeConstants.FULL_ADMIN_REALMS);
         assertNotNull(count);
-        assertEquals(5, count.intValue());
+        assertEquals(5, count, 0);
     }
 
     @Test
     public void findAllByPageAndSize() {
-        Set<Long> allGroupKeys = GroupEntitlementUtil.getGroupKeys(entitlementDAO.findAll());
-
         // get first page
-        List<User> list = userDAO.findAll(allGroupKeys, 1, 2);
+        List<User> list = userDAO.findAll(SyncopeConstants.FULL_ADMIN_REALMS, 1, 2);
         assertEquals("did not get expected number of users ", 2, list.size());
 
         // get second page
-        list = userDAO.findAll(allGroupKeys, 2, 2);
+        list = userDAO.findAll(SyncopeConstants.FULL_ADMIN_REALMS, 2, 2);
         assertEquals("did not get expected number of users ", 2, list.size());
 
         // get second page with uncomplete set
-        list = userDAO.findAll(allGroupKeys, 2, 3);
+        list = userDAO.findAll(SyncopeConstants.FULL_ADMIN_REALMS, 2, 3);
         assertEquals("did not get expected number of users ", 2, list.size());
 
         // get unexistent page
-        list = userDAO.findAll(allGroupKeys, 3, 2);
+        list = userDAO.findAll(SyncopeConstants.FULL_ADMIN_REALMS, 3, 2);
         assertEquals("did not get expected number of users ", 1, list.size());
     }
 
@@ -144,29 +141,28 @@ public class UserTest extends AbstractTest {
     public void save() {
         User user = entityFactory.newEntity(User.class);
         user.setUsername("username");
+        user.setRealm(realmDAO.find("/even/two"));
         user.setCreationDate(new Date());
 
         user.setPassword("pass", CipherAlgorithm.SHA256);
 
-        Throwable t = null;
         try {
             userDAO.save(user);
+            fail();
         } catch (InvalidEntityException e) {
-            t = e;
+            assertNotNull(e);
         }
-        assertNotNull(t);
 
         user.setPassword("password", CipherAlgorithm.SHA256);
 
         user.setUsername("username!");
 
-        t = null;
         try {
             userDAO.save(user);
+            fail();
         } catch (InvalidEntityException e) {
-            t = e;
+            assertNotNull(e);
         }
-        assertNotNull(t);
 
         user.setUsername("username");
 
@@ -189,6 +185,7 @@ public class UserTest extends AbstractTest {
     public void issue237() {
         User user = entityFactory.newEntity(User.class);
         user.setUsername("username");
+        user.setRealm(realmDAO.find("/even/two"));
         user.setCreationDate(new Date());
 
         user.setPassword("password", CipherAlgorithm.AES);
@@ -202,15 +199,9 @@ public class UserTest extends AbstractTest {
         User user = entityFactory.newEntity(User.class);
         user.setUsername("username");
         user.setPassword(null, CipherAlgorithm.AES);
+        user.setRealm(realmDAO.find("/even/two"));
 
-        User actual = null;
-        Throwable t = null;
-        try {
-            actual = userDAO.save(user);
-        } catch (InvalidEntityException e) {
-            t = e;
-        }
-        assertNull(t);
+        User actual = userDAO.save(user);
         assertNull(user.getPassword());
         assertNotNull(actual);
     }

@@ -56,12 +56,12 @@ public class AccountPolicySpec extends AbstractPolicySpec {
     private boolean propagateSuspension;
 
     /**
-     * Number of permitted login retries.
+     * Maximum number of (failing) authentication attempts.
      * 0 disabled; &gt;0 enabled.
      * If the number of subsequent failed logins will be greater then this value
      * the account will be suspended (lock-out).
      */
-    private int permittedLoginRetries;
+    private int maxAuthenticationAttempts;
 
     public boolean isAllLowerCase() {
         return allLowerCase;
@@ -111,11 +111,11 @@ public class AccountPolicySpec extends AbstractPolicySpec {
         this.propagateSuspension = propagateSuspension;
     }
 
-    public int getPermittedLoginRetries() {
-        return permittedLoginRetries;
+    public int getMaxAuthenticationAttempts() {
+        return maxAuthenticationAttempts;
     }
 
-    public void setPermittedLoginRetries(final int permittedLoginRetries) {
-        this.permittedLoginRetries = permittedLoginRetries;
+    public void setMaxAuthenticationAttempts(final int maxAuthenticationAttempts) {
+        this.maxAuthenticationAttempts = maxAuthenticationAttempts;
     }
 }

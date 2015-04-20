@@ -18,7 +18,6 @@ package org.apache.syncope.core.provisioning.camel.processor;
  * specific language governing permissions and limitations
  * under the License.
  */
-import java.util.AbstractMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -26,10 +25,9 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.GroupTO;
-import org.apache.syncope.core.misc.security.AuthContextUtil;
-import org.apache.syncope.core.persistence.api.GroupEntitlementUtil;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
@@ -52,21 +50,18 @@ public class GroupCreateInSyncProcessor implements Processor {
 
         GroupTO actual = exchange.getProperty("subject", GroupTO.class);
         Map<Long, String> groupOwnerMap = exchange.getProperty("groupOwnerMap", Map.class);
-        Set<String> excludedResource = exchange.getProperty("excludedResources", Set.class);
+        Set<String> excludedResources = exchange.getProperty("excludedResources", Set.class);
 
         AttrTO groupOwner = actual.getPlainAttrMap().get(StringUtils.EMPTY);
         if (groupOwner != null) {
             groupOwnerMap.put(created.getResult(), groupOwner.getValues().iterator().next());
         }
 
-        AuthContextUtil.extendAuthContext(
-                created.getResult(), GroupEntitlementUtil.getEntitlementNameFromGroupKey(created.getResult()));
-
-        List<PropagationTask> tasks = propagationManager.getGroupCreateTaskIds(
-                created, actual.getVirAttrs(), excludedResource);
+        List<PropagationTask> tasks = propagationManager.getGroupCreateTasks(
+                created, actual.getVirAttrs(), excludedResources);
 
         taskExecutor.execute(tasks);
 
-        exchange.getOut().setBody(new AbstractMap.SimpleEntry<>(created.getResult(), null));
+        exchange.getOut().setBody(new ImmutablePair<>(created.getResult(), null));
     }
 }

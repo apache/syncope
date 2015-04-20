@@ -55,7 +55,7 @@ public class UserDeleteProcessor implements Processor {
         // information could only be available after uwfAdapter.delete(), which
         // will also effectively remove user from db, thus making virtually
         // impossible by NotificationManager to fetch required user information
-        List<PropagationTask> tasks = propagationManager.getUserDeleteTaskIds(userKey, excludedResource);
+        List<PropagationTask> tasks = propagationManager.getUserDeleteTasks(userKey, excludedResource);
 
         PropagationReporter propagationReporter =
                 ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);

@@ -22,7 +22,7 @@ import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtilFactory;
+import org.apache.syncope.core.persistence.api.entity.AttributableUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.conf.CPlainSchema;
 import org.apache.syncope.core.persistence.api.entity.conf.Conf;
@@ -42,7 +42,7 @@ public class JPAConfDAO extends AbstractDAO<Conf, Long> implements ConfDAO {
     private PlainAttrDAO attrDAO;
 
     @Autowired
-    private AttributableUtilFactory attrUtilFactory;
+    private AttributableUtilsFactory attrUtilsFactory;
 
     @Override
     public Conf get() {
@@ -71,7 +71,7 @@ public class JPAConfDAO extends AbstractDAO<Conf, Long> implements ConfDAO {
             result = new JPACPlainAttr();
             result.setSchema(schemaDAO.find(key, CPlainSchema.class));
 
-            result.addValue(defaultValue, attrUtilFactory.getInstance(AttributableType.CONFIGURATION));
+            result.addValue(defaultValue, attrUtilsFactory.getInstance(AttributableType.CONFIGURATION));
         }
 
         return result;

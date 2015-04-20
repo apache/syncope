@@ -49,10 +49,11 @@ import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.SyncTask;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
-import org.apache.syncope.core.persistence.api.entity.task.TaskUtil;
+import org.apache.syncope.core.persistence.api.entity.task.TaskUtils;
 import org.apache.syncope.core.provisioning.api.job.JobNamer;
 import org.apache.syncope.core.misc.spring.BeanUtils;
-import org.apache.syncope.core.misc.jexl.JexlUtil;
+import org.apache.syncope.core.misc.jexl.JexlUtils;
+import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
@@ -72,9 +73,12 @@ public class TaskDataBinderImpl implements TaskDataBinder {
     private static final Logger LOG = LoggerFactory.getLogger(TaskDataBinder.class);
 
     private static final String[] IGNORE_TASK_PROPERTIES = {
-        "executions", "resource", "matchingRule", "unmatchingRule" };
+        "destinationRealm", "executions", "resource", "matchingRule", "unmatchingRule" };
 
     private static final String[] IGNORE_TASK_EXECUTION_PROPERTIES = { "key", "task" };
+
+    @Autowired
+    private RealmDAO realmDAO;
 
     @Autowired
     private ExternalResourceDAO resourceDAO;
@@ -87,21 +91,19 @@ public class TaskDataBinderImpl implements TaskDataBinder {
 
     private void checkJexl(final AbstractAttributableTO attributableTO, final SyncopeClientException sce) {
         for (AttrTO attrTO : attributableTO.getPlainAttrs()) {
-            if (!attrTO.getValues().isEmpty() && !JexlUtil.isExpressionValid(attrTO.getValues().get(0))) {
+            if (!attrTO.getValues().isEmpty() && !JexlUtils.isExpressionValid(attrTO.getValues().get(0))) {
                 sce.getElements().add("Invalid JEXL: " + attrTO.getValues().get(0));
             }
         }
 
         for (AttrTO attrTO : attributableTO.getVirAttrs()) {
-            if (!attrTO.getValues().isEmpty() && !JexlUtil.isExpressionValid(attrTO.getValues().get(0))) {
+            if (!attrTO.getValues().isEmpty() && !JexlUtils.isExpressionValid(attrTO.getValues().get(0))) {
                 sce.getElements().add("Invalid JEXL: " + attrTO.getValues().get(0));
             }
         }
     }
 
     private void fill(final ProvisioningTask task, final AbstractProvisioningTaskTO taskTO) {
-        SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSyncTask);
-
         if (task instanceof PushTask && taskTO instanceof PushTaskTO) {
             final PushTask pushTask = (PushTask) task;
             final PushTaskTO pushTaskTO = (PushTaskTO) taskTO;
@@ -119,23 +121,26 @@ public class TaskDataBinderImpl implements TaskDataBinder {
             final SyncTask syncTask = (SyncTask) task;
             final SyncTaskTO syncTaskTO = (SyncTaskTO) taskTO;
 
+            syncTask.setDestinationRealm(realmDAO.find(syncTaskTO.getDestinationRealm()));
+
             syncTask.setMatchingRule(syncTaskTO.getMatchingRule() == null
                     ? MatchingRule.UPDATE : syncTaskTO.getMatchingRule());
 
             syncTask.setUnmatchingRule(syncTaskTO.getUnmatchingRule() == null
                     ? UnmatchingRule.PROVISION : syncTaskTO.getUnmatchingRule());
 
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSyncTask);
             // 1. validate JEXL expressions in user and group templates
             if (syncTaskTO.getUserTemplate() != null) {
                 UserTO template = syncTaskTO.getUserTemplate();
 
                 if (StringUtils.isNotBlank(template.getUsername())
-                        && !JexlUtil.isExpressionValid(template.getUsername())) {
+                        && !JexlUtils.isExpressionValid(template.getUsername())) {
 
                     sce.getElements().add("Invalid JEXL: " + template.getUsername());
                 }
                 if (StringUtils.isNotBlank(template.getPassword())
-                        && !JexlUtil.isExpressionValid(template.getPassword())) {
+                        && !JexlUtils.isExpressionValid(template.getPassword())) {
 
                     sce.getElements().add("Invalid JEXL: " + template.getPassword());
                 }
@@ -149,7 +154,7 @@ public class TaskDataBinderImpl implements TaskDataBinder {
             if (syncTaskTO.getGroupTemplate() != null) {
                 GroupTO template = syncTaskTO.getGroupTemplate();
 
-                if (StringUtils.isNotBlank(template.getName()) && !JexlUtil.isExpressionValid(template.getName())) {
+                if (StringUtils.isNotBlank(template.getName()) && !JexlUtils.isExpressionValid(template.getName())) {
                     sce.getElements().add("Invalid JEXL: " + template.getName());
                 }
 
@@ -176,20 +181,20 @@ public class TaskDataBinderImpl implements TaskDataBinder {
     }
 
     @Override
-    public SchedTask createSchedTask(final SchedTaskTO taskTO, final TaskUtil taskUtil) {
-        final Class<? extends AbstractTaskTO> taskTOClass = taskUtil.taskTOClass();
+    public SchedTask createSchedTask(final SchedTaskTO taskTO, final TaskUtils taskUtils) {
+        final Class<? extends AbstractTaskTO> taskTOClass = taskUtils.taskTOClass();
 
         if (taskTOClass == null || !taskTOClass.equals(taskTO.getClass())) {
             throw new IllegalArgumentException(
-                    String.format("taskUtil is type %s but task is not: %s", taskTOClass, taskTO.getClass()));
+                    String.format("taskUtils is type %s but task is not: %s", taskTOClass, taskTO.getClass()));
         }
 
-        SchedTask task = taskUtil.newTask();
+        SchedTask task = taskUtils.newTask();
         task.setCronExpression(taskTO.getCronExpression());
         task.setName(taskTO.getName());
         task.setDescription(taskTO.getDescription());
 
-        if (taskUtil.getType() == TaskType.SCHEDULED) {
+        if (taskUtils.getType() == TaskType.SCHEDULED) {
             task.setJobClassName(taskTO.getJobClassName());
         } else if (taskTO instanceof AbstractProvisioningTaskTO) {
             final AbstractProvisioningTaskTO provisioningTaskTO = (AbstractProvisioningTaskTO) taskTO;
@@ -207,18 +212,18 @@ public class TaskDataBinderImpl implements TaskDataBinder {
     }
 
     @Override
-    public void updateSchedTask(final SchedTask task, final SchedTaskTO taskTO, final TaskUtil taskUtil) {
-        Class<? extends Task> taskClass = taskUtil.taskClass();
-        Class<? extends AbstractTaskTO> taskTOClass = taskUtil.taskTOClass();
+    public void updateSchedTask(final SchedTask task, final SchedTaskTO taskTO, final TaskUtils taskUtils) {
+        Class<? extends Task> taskClass = taskUtils.taskClass();
+        Class<? extends AbstractTaskTO> taskTOClass = taskUtils.taskTOClass();
 
         if (taskClass == null || !taskClass.isAssignableFrom(task.getClass())) {
             throw new IllegalArgumentException(
-                    String.format("taskUtil is type %s but task is not: %s", taskClass, task.getClass()));
+                    String.format("taskUtils is type %s but task is not: %s", taskClass, task.getClass()));
         }
 
         if (taskTOClass == null || !taskTOClass.equals(taskTO.getClass())) {
             throw new IllegalArgumentException(
-                    String.format("taskUtil is type %s but task is not: %s", taskTOClass, taskTO.getClass()));
+                    String.format("taskUtils is type %s but task is not: %s", taskTOClass, taskTO.getClass()));
         }
 
         task.setCronExpression(taskTO.getCronExpression());
@@ -267,12 +272,12 @@ public class TaskDataBinderImpl implements TaskDataBinder {
     }
 
     @Override
-    public <T extends AbstractTaskTO> T getTaskTO(final Task task, final TaskUtil taskUtil) {
-        T taskTO = taskUtil.newTaskTO();
+    public <T extends AbstractTaskTO> T getTaskTO(final Task task, final TaskUtils taskUtils) {
+        T taskTO = taskUtils.newTaskTO();
         BeanUtils.copyProperties(task, taskTO, IGNORE_TASK_PROPERTIES);
 
         TaskExec latestExec = taskExecDAO.findLatestStarted(task);
-        taskTO.setLatestExecStatus(latestExec == null ? "" : latestExec.getStatus());
+        taskTO.setLatestExecStatus(latestExec == null ? StringUtils.EMPTY : latestExec.getStatus());
         taskTO.setStartDate(latestExec == null ? null : latestExec.getStartDate());
         taskTO.setEndDate(latestExec == null ? null : latestExec.getEndDate());
 
@@ -280,10 +285,10 @@ public class TaskDataBinderImpl implements TaskDataBinder {
             taskTO.getExecutions().add(getTaskExecTO(execution));
         }
 
-        switch (taskUtil.getType()) {
+        switch (taskUtils.getType()) {
             case PROPAGATION:
                 if (!(task instanceof PropagationTask)) {
-                    throw new IllegalArgumentException("taskUtil is type Propagation but task is not PropagationTask: "
+                    throw new IllegalArgumentException("taskUtils is type Propagation but task is not PropagationTask: "
                             + task.getClass().getName());
                 }
                 ((PropagationTaskTO) taskTO).setResource(((PropagationTask) task).getResource().getKey());
@@ -291,7 +296,7 @@ public class TaskDataBinderImpl implements TaskDataBinder {
 
             case SCHEDULED:
                 if (!(task instanceof SchedTask)) {
-                    throw new IllegalArgumentException("taskUtil is type Sched but task is not SchedTask: "
+                    throw new IllegalArgumentException("taskUtils is type Sched but task is not SchedTask: "
                             + task.getClass().getName());
                 }
                 setExecTime((SchedTaskTO) taskTO, task);
@@ -301,12 +306,13 @@ public class TaskDataBinderImpl implements TaskDataBinder {
 
             case SYNCHRONIZATION:
                 if (!(task instanceof SyncTask)) {
-                    throw new IllegalArgumentException("taskUtil is type Sync but task is not SyncTask: "
+                    throw new IllegalArgumentException("taskUtils is type Sync but task is not SyncTask: "
                             + task.getClass().getName());
                 }
                 setExecTime((SchedTaskTO) taskTO, task);
                 ((SyncTaskTO) taskTO).setName(((SyncTask) task).getName());
                 ((SyncTaskTO) taskTO).setDescription(((SyncTask) task).getDescription());
+                ((SyncTaskTO) taskTO).setDestinationRealm(((SyncTask) task).getDestinatioRealm().getFullPath());
                 ((SyncTaskTO) taskTO).setResource(((SyncTask) task).getResource().getKey());
                 ((SyncTaskTO) taskTO).setMatchingRule(((SyncTask) task).getMatchingRule() == null
                         ? MatchingRule.UPDATE : ((SyncTask) task).getMatchingRule());
@@ -316,7 +322,7 @@ public class TaskDataBinderImpl implements TaskDataBinder {
 
             case PUSH:
                 if (!(task instanceof PushTask)) {
-                    throw new IllegalArgumentException("taskUtil is type Push but task is not PushTask: "
+                    throw new IllegalArgumentException("taskUtils is type Push but task is not PushTask: "
                             + task.getClass().getName());
                 }
                 setExecTime((SchedTaskTO) taskTO, task);

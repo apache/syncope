@@ -33,8 +33,9 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
+import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
-import org.apache.syncope.core.provisioning.api.URIUtil;
+import org.apache.syncope.core.provisioning.api.URIUtils;
 import org.identityconnectors.common.IOUtil;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.api.APIConfiguration;
@@ -81,7 +82,7 @@ public class ConnIdBundleManagerImpl implements ConnIdBundleManager {
             locations = new ArrayList<>();
             for (String location : StringUtils.isBlank(stringLocations) ? new String[0] : stringLocations.split(",")) {
                 try {
-                    locations.add(URIUtil.buildForConnId(location));
+                    locations.add(URIUtils.buildForConnId(location));
                     LOG.info("Valid ConnId location: {}", location.trim());
                 } catch (Exception e) {
                     LOG.error("Invalid ConnId location: {}", location.trim(), e);
@@ -223,19 +224,18 @@ public class ConnIdBundleManagerImpl implements ConnIdBundleManager {
     }
 
     @Override
-    public ConnectorInfo getConnectorInfo(
-            final String location, final String bundleName, final String bundleVersion, final String connectorName) {
-
+    public ConnectorInfo getConnectorInfo(final ConnInstance connInstance) {
         // check ConnIdLocation
         URI uriLocation = null;
         try {
-            uriLocation = URIUtil.buildForConnId(location);
+            uriLocation = URIUtils.buildForConnId(connInstance.getLocation());
         } catch (Exception e) {
-            throw new IllegalArgumentException("Invalid ConnId location " + location, e);
+            throw new IllegalArgumentException("Invalid ConnId location " + connInstance.getLocation(), e);
         }
 
         // create key for search all properties
-        final ConnectorKey key = new ConnectorKey(bundleName, bundleVersion, connectorName);
+        ConnectorKey key = new ConnectorKey(
+                connInstance.getBundleName(), connInstance.getVersion(), connInstance.getConnectorName());
 
         if (LOG.isDebugEnabled()) {
             LOG.debug("\nBundle name: " + key.getBundleName()
@@ -249,7 +249,7 @@ public class ConnIdBundleManagerImpl implements ConnIdBundleManager {
             info = getConnManagers().get(uriLocation).findConnectorInfo(key);
         }
         if (info == null) {
-            throw new NotFoundException("Connector Info for location " + location + " and key " + key);
+            throw new NotFoundException("ConnectorInfo for location " + connInstance.getLocation() + " and key " + key);
         }
 
         return info;

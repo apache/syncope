@@ -30,8 +30,6 @@ import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.BulkAction;
-import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ConnBundleTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -204,28 +202,25 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
     @PreAuthorize("hasRole('CONNECTOR_READ')")
     @Transactional(readOnly = true)
     public List<String> getSchemaNames(final ConnInstanceTO connInstanceTO, final boolean includeSpecial) {
-        final ConnInstance connInstance = connInstanceDAO.find(connInstanceTO.getKey());
+        ConnInstance connInstance = connInstanceDAO.find(connInstanceTO.getKey());
         if (connInstance == null) {
             throw new NotFoundException("Connector '" + connInstanceTO.getKey() + "'");
         }
 
         // consider the possibility to receive overridden properties only
-        final Set<ConnConfProperty> conf = binder.mergeConnConfProperties(connInstanceTO.getConfiguration(),
-                connInstance.getConfiguration());
+        Set<ConnConfProperty> conf =
+                binder.mergeConnConfProperties(connInstanceTO.getConfiguration(), connInstance.getConfiguration());
 
         // We cannot use Spring bean because this method could be used during resource definition or modification:
         // bean couldn't exist or couldn't be updated.
         // This is the reason why we should take a "not mature" connector facade proxy to ask for schema names.
-        final List<String> result = new ArrayList<>(connFactory.createConnector(connInstance, conf).
-                getSchemaNames(includeSpecial));
-
-        return result;
+        return new ArrayList<>(connFactory.createConnector(connInstance, conf).getSchemaNames(includeSpecial));
     }
 
     @PreAuthorize("hasRole('CONNECTOR_READ')")
     @Transactional(readOnly = true)
     public List<String> getSupportedObjectClasses(final ConnInstanceTO connInstanceTO) {
-        final ConnInstance connInstance = connInstanceDAO.find(connInstanceTO.getKey());
+        ConnInstance connInstance = connInstanceDAO.find(connInstanceTO.getKey());
         if (connInstance == null) {
             throw new NotFoundException("Connector '" + connInstanceTO.getKey() + "'");
         }
@@ -251,7 +246,7 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
     @Transactional(readOnly = true)
     public List<ConnConfProperty> getConfigurationProperties(final Long connInstanceId) {
 
-        final ConnInstance connInstance = connInstanceDAO.find(connInstanceId);
+        ConnInstance connInstance = connInstanceDAO.find(connInstanceId);
         if (connInstance == null) {
             throw new NotFoundException("Connector '" + connInstanceId + "'");
         }
@@ -294,27 +289,6 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
         connFactory.load();
     }
 
-    @PreAuthorize("hasRole('CONNECTOR_DELETE') and #bulkAction.operation == #bulkAction.operation.DELETE")
-    public BulkActionResult bulk(final BulkAction bulkAction) {
-        BulkActionResult res = new BulkActionResult();
-
-        if (bulkAction.getOperation() == BulkAction.Type.DELETE) {
-            for (String id : bulkAction.getTargets()) {
-                try {
-                    res.add(delete(Long.valueOf(id)).getKey(), BulkActionResult.Status.SUCCESS);
-                } catch (Exception e) {
-                    LOG.error("Error performing delete for connector {}", id, e);
-                    res.add(id, BulkActionResult.Status.FAILURE);
-                }
-            }
-        }
-
-        return res;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected ConnInstanceTO resolveReference(final Method method, final Object... args)
             throws UnresolvedReferenceException {

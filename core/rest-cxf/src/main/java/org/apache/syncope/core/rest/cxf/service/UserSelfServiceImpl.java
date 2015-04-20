@@ -19,10 +19,12 @@
 package org.apache.syncope.core.rest.cxf.service;
 
 import javax.ws.rs.core.Response;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.mod.UserMod;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.syncope.core.logic.SyncopeLogic;
 import org.apache.syncope.core.logic.UserLogic;
@@ -51,8 +53,13 @@ public class UserSelfServiceImpl extends AbstractServiceImpl implements UserSelf
     }
 
     @Override
-    public UserTO read() {
-        return logic.readSelf();
+    public Response read() {
+        Pair<String, UserTO> self = logic.readSelf();
+        return Response.ok().
+                header(RESTHeaders.RESOURCE_ID, self.getValue().getKey()).
+                header(RESTHeaders.OWNED_ENTITLEMENTS, self.getKey()).
+                entity(self.getValue()).
+                build();
     }
 
     @Override

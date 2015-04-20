@@ -30,7 +30,7 @@ import org.apache.syncope.common.lib.to.AbstractSubjectTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.types.AttributableType;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtil;
+import org.apache.syncope.core.persistence.api.entity.AttributableUtils;
 import org.apache.syncope.core.provisioning.api.sync.ProvisioningResult;
 import org.apache.syncope.core.provisioning.api.sync.GroupSyncResultHandler;
 import org.identityconnectors.framework.common.objects.SyncDelta;
@@ -45,8 +45,8 @@ public class GroupSyncResultHandlerImpl extends AbstractSyncResultHandler implem
     }
 
     @Override
-    protected AttributableUtil getAttributableUtil() {
-        return attrUtilFactory.getInstance(AttributableType.GROUP);
+    protected AttributableUtils getAttributableUtils() {
+        return attrUtilsFactory.getInstance(AttributableType.GROUP);
     }
 
     @Override
@@ -57,7 +57,7 @@ public class GroupSyncResultHandlerImpl extends AbstractSyncResultHandler implem
     @Override
     protected AbstractSubjectTO getSubjectTO(final long key) {
         try {
-            return groupTransfer.getGroupTO(key);
+            return groupDataBinder.getGroupTO(key);
         } catch (Exception e) {
             LOG.warn("Error retrieving group {}", key, e);
             return null;
@@ -68,12 +68,12 @@ public class GroupSyncResultHandlerImpl extends AbstractSyncResultHandler implem
     protected AbstractSubjectMod getSubjectMod(
             final AbstractSubjectTO subjectTO, final SyncDelta delta) {
 
-        return connObjectUtil.getAttributableMod(
+        return connObjectUtils.getAttributableMod(
                 subjectTO.getKey(),
                 delta.getObject(),
                 subjectTO,
                 profile.getTask(),
-                attrUtilFactory.getInstance(AttributableType.GROUP));
+                attrUtilsFactory.getInstance(AttributableType.GROUP));
     }
 
     @Override
@@ -85,7 +85,7 @@ public class GroupSyncResultHandlerImpl extends AbstractSyncResultHandler implem
         Map.Entry<Long, List<PropagationStatus>> created = groupProvisioningManager.create(groupTO, groupOwnerMap,
                 Collections.singleton(profile.getTask().getResource().getKey()));
 
-        groupTO = groupTransfer.getGroupTO(created.getKey());
+        groupTO = groupDataBinder.getGroupTO(created.getKey());
 
         result.setId(created.getKey());
         result.setName(getName(subjectTO));
@@ -108,7 +108,7 @@ public class GroupSyncResultHandlerImpl extends AbstractSyncResultHandler implem
             groupMod.getResourcesToAdd().add(profile.getTask().getResource().getKey());
         }
 
-        return groupTransfer.getGroupTO(gwfAdapter.update(groupMod).getResult());
+        return groupDataBinder.getGroupTO(gwfAdapter.update(groupMod).getResult());
     }
 
     @Override
@@ -133,7 +133,7 @@ public class GroupSyncResultHandlerImpl extends AbstractSyncResultHandler implem
             groupOwnerMap.put(updated.getKey(), groupOwner);
         }
 
-        final GroupTO after = groupTransfer.getGroupTO(updated.getKey());
+        final GroupTO after = groupDataBinder.getGroupTO(updated.getKey());
 
         result.setName(getName(after));
 
@@ -143,7 +143,7 @@ public class GroupSyncResultHandlerImpl extends AbstractSyncResultHandler implem
     @Override
     protected void deprovision(final Long id, final boolean unlink) {
         taskExecutor.execute(
-                propagationManager.getGroupDeleteTaskIds(id, profile.getTask().getResource().getKey()));
+                propagationManager.getGroupDeleteTasks(id, profile.getTask().getResource().getKey()));
 
         if (unlink) {
             final UserMod userMod = new UserMod();
@@ -156,7 +156,7 @@ public class GroupSyncResultHandlerImpl extends AbstractSyncResultHandler implem
     protected void delete(final Long id) {
         try {
             taskExecutor.execute(
-                    propagationManager.getGroupDeleteTaskIds(id, profile.getTask().getResource().getKey()));
+                    propagationManager.getGroupDeleteTasks(id, profile.getTask().getResource().getKey()));
         } catch (Exception e) {
             // A propagation failure doesn't imply a synchronization failure.
             // The propagation exception status will be reported into the propagation task execution.

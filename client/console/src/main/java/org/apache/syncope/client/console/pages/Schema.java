@@ -19,7 +19,6 @@
 package org.apache.syncope.client.console.pages;
 
 import java.lang.reflect.Field;
-import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -29,6 +28,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.PreferenceManager;
 import org.apache.syncope.client.console.commons.SchemaModalPageFactory;
@@ -95,31 +96,31 @@ public class Schema extends BasePage {
         }
     };
 
-    private static final Map<Map.Entry<AttributableType, SchemaType>, String> PAGINATOR_ROWS_KEYS =
-            new HashMap<Map.Entry<AttributableType, SchemaType>, String>() {
+    private static final Map<Pair<AttributableType, SchemaType>, String> PAGINATOR_ROWS_KEYS =
+            new HashMap<Pair<AttributableType, SchemaType>, String>() {
 
                 private static final long serialVersionUID = 3109256773218160485L;
 
                 {
-                    put(new SimpleEntry<>(AttributableType.CONFIGURATION, SchemaType.PLAIN),
+                    put(new ImmutablePair<>(AttributableType.CONFIGURATION, SchemaType.PLAIN),
                             Constants.PREF_CONF_SCHEMA_PAGINATOR_ROWS);
-                    put(new SimpleEntry<>(AttributableType.USER, SchemaType.PLAIN),
+                    put(new ImmutablePair<>(AttributableType.USER, SchemaType.PLAIN),
                             Constants.PREF_USER_PLAIN_SCHEMA_PAGINATOR_ROWS);
-                    put(new SimpleEntry<>(AttributableType.USER, SchemaType.DERIVED),
+                    put(new ImmutablePair<>(AttributableType.USER, SchemaType.DERIVED),
                             Constants.PREF_USER_DER_SCHEMA_PAGINATOR_ROWS);
-                    put(new SimpleEntry<>(AttributableType.USER, SchemaType.VIRTUAL),
+                    put(new ImmutablePair<>(AttributableType.USER, SchemaType.VIRTUAL),
                             Constants.PREF_USER_VIR_SCHEMA_PAGINATOR_ROWS);
-                    put(new SimpleEntry<>(AttributableType.MEMBERSHIP, SchemaType.PLAIN),
+                    put(new ImmutablePair<>(AttributableType.MEMBERSHIP, SchemaType.PLAIN),
                             Constants.PREF_MEMBERSHIP_PLAIN_SCHEMA_PAGINATOR_ROWS);
-                    put(new SimpleEntry<>(AttributableType.MEMBERSHIP, SchemaType.DERIVED),
+                    put(new ImmutablePair<>(AttributableType.MEMBERSHIP, SchemaType.DERIVED),
                             Constants.PREF_MEMBERSHIP_DER_SCHEMA_PAGINATOR_ROWS);
-                    put(new SimpleEntry<>(AttributableType.MEMBERSHIP, SchemaType.VIRTUAL),
+                    put(new ImmutablePair<>(AttributableType.MEMBERSHIP, SchemaType.VIRTUAL),
                             Constants.PREF_MEMBERSHIP_VIR_SCHEMA_PAGINATOR_ROWS);
-                    put(new SimpleEntry<>(AttributableType.GROUP, SchemaType.PLAIN),
+                    put(new ImmutablePair<>(AttributableType.GROUP, SchemaType.PLAIN),
                             Constants.PREF_GROUP_PLAIN_SCHEMA_PAGINATOR_ROWS);
-                    put(new SimpleEntry<>(AttributableType.GROUP, SchemaType.DERIVED),
+                    put(new ImmutablePair<>(AttributableType.GROUP, SchemaType.DERIVED),
                             Constants.PREF_GROUP_DER_SCHEMA_PAGINATOR_ROWS);
-                    put(new SimpleEntry<>(AttributableType.GROUP, SchemaType.VIRTUAL),
+                    put(new ImmutablePair<>(AttributableType.GROUP, SchemaType.VIRTUAL),
                             Constants.PREF_GROUP_VIR_SCHEMA_PAGINATOR_ROWS);
                 }
             };
@@ -304,7 +305,7 @@ public class Schema extends BasePage {
             final AjaxFallbackDefaultDataTable dataTable,
             final String formname, final SchemaTypePanel schemaTypePanel, final String rowsPerPagePrefName) {
 
-        Form<Void> form = new Form<Void>(formname);
+        Form<Void> form = new Form<>(formname);
 
         final DropDownChoice<Integer> rowChooser = new DropDownChoice<Integer>("rowsChooser",
                 new PropertyModel<Integer>(schemaTypePanel, "pageRows"), prefMan.getPaginatorChoices(),
@@ -449,7 +450,7 @@ public class Schema extends BasePage {
             setWindowClosedCallback(editSchemaWin, schemaContainer);
 
             final String paginatorRowsKey = PAGINATOR_ROWS_KEYS.get(
-                    new SimpleEntry<AttributableType, SchemaType>(attrType, schemaType));
+                    new ImmutablePair<AttributableType, SchemaType>(attrType, schemaType));
             pageRows = prefMan.getPaginatorRows(getRequest(), paginatorRowsKey);
 
             List<IColumn> tableCols = getColumns(schemaContainer, editSchemaWin, attrType,

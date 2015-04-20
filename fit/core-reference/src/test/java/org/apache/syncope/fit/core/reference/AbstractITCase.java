@@ -43,6 +43,7 @@ import org.apache.syncope.common.lib.to.AbstractSchemaTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
@@ -51,7 +52,6 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.CamelRouteService;
 import org.apache.syncope.common.rest.api.service.ConfigurationService;
 import org.apache.syncope.common.rest.api.service.ConnectorService;
-import org.apache.syncope.common.rest.api.service.EntitlementService;
 import org.apache.syncope.common.rest.api.service.LoggerService;
 import org.apache.syncope.common.rest.api.service.NotificationService;
 import org.apache.syncope.common.rest.api.service.PolicyService;
@@ -162,8 +162,6 @@ public abstract class AbstractITCase {
 
     protected static ResourceService resourceService;
 
-    protected static EntitlementService entitlementService;
-
     protected static ConfigurationService configurationService;
 
     protected static ConnectorService connectorService;
@@ -227,7 +225,6 @@ public abstract class AbstractITCase {
         userWorkflowService = adminClient.getService(UserWorkflowService.class);
         groupService = adminClient.getService(GroupService.class);
         resourceService = adminClient.getService(ResourceService.class);
-        entitlementService = adminClient.getService(EntitlementService.class);
         configurationService = adminClient.getService(ConfigurationService.class);
         connectorService = adminClient.getService(ConnectorService.class);
         loggerService = adminClient.getService(LoggerService.class);
@@ -309,8 +306,19 @@ public abstract class AbstractITCase {
         return (T) getObject(response.getLocation(), SchemaService.class, schemaTO.getClass());
     }
 
-    protected GroupTO createGroup(final GroupTO newGroupTO) {
-        Response response = groupService.create(newGroupTO);
+    protected RoleTO createRole(final RoleTO roleTO) {
+        Response response = roleService.create(roleTO);
+        if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
+            Exception ex = clientFactory.getExceptionMapper().fromResponse(response);
+            if (ex != null) {
+                throw (RuntimeException) ex;
+            }
+        }
+        return getObject(response.getLocation(), RoleService.class, RoleTO.class);
+    }
+
+    protected GroupTO createGroup(final GroupTO groupTO) {
+        Response response = groupService.create(groupTO);
         if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
             Exception ex = clientFactory.getExceptionMapper().fromResponse(response);
             if (ex != null) {

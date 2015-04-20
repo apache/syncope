@@ -259,7 +259,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
         // create a new sample group
         GroupTO groupTO = new GroupTO();
         groupTO.setName("all" + getUUIDString());
-        groupTO.setParent(8L);
+        groupTO.setRealm("/even");
 
         groupTO.getGPlainAttrTemplates().add(newPlainSchemaTO.getKey());
         groupTO.getPlainAttrs().add(attrTO(newPlainSchemaTO.getKey(), "all"));

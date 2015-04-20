@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.mod.AttrMod;
 import org.apache.syncope.common.lib.mod.MembershipMod;
 import org.apache.syncope.common.lib.mod.UserMod;
@@ -41,8 +42,8 @@ import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtil;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtilFactory;
+import org.apache.syncope.core.persistence.api.entity.AttributableUtils;
+import org.apache.syncope.core.persistence.api.entity.AttributableUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.MappingItem;
@@ -56,10 +57,10 @@ import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.provisioning.java.VirAttrHandler;
-import org.apache.syncope.core.misc.security.UnauthorizedGroupException;
-import org.apache.syncope.core.misc.ConnObjectUtil;
-import org.apache.syncope.core.misc.MappingUtil;
-import org.apache.syncope.core.misc.jexl.JexlUtil;
+import org.apache.syncope.core.misc.security.UnauthorizedException;
+import org.apache.syncope.core.misc.ConnObjectUtils;
+import org.apache.syncope.core.misc.MappingUtils;
+import org.apache.syncope.core.misc.jexl.JexlUtils;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
@@ -101,79 +102,31 @@ public class PropagationManagerImpl implements PropagationManager {
     protected EntityFactory entityFactory;
 
     /**
-     * ConnObjectUtil.
+     * ConnObjectUtils.
      */
     @Autowired
-    protected ConnObjectUtil connObjectUtil;
+    protected ConnObjectUtils connObjectUtils;
 
     @Autowired
-    protected AttributableUtilFactory attrUtilFactory;
+    protected AttributableUtilsFactory attrUtilsFactory;
 
     @Autowired
     protected VirAttrHandler virAttrHandler;
 
-    /**
-     * Create the user on every associated resource.
-     *
-     * @param wfResult user to be propagated (and info associated), as per result from workflow
-     * @param password to be set
-     * @param vAttrs virtual attributes to be set
-     * @param membershipTOs user memberships
-     * @return list of propagation tasks
-     * @throws NotFoundException if user is not found
-     * @throws UnauthorizedGroupException if caller doesn't own enough entitlements to administer the given user
-     */
     @Override
-    public List<PropagationTask> getUserCreateTaskIds(final WorkflowResult<Map.Entry<Long, Boolean>> wfResult,
-            final String password, final List<AttrTO> vAttrs, final List<MembershipTO> membershipTOs)
-            throws NotFoundException, UnauthorizedGroupException {
-
-        return getUserCreateTaskIds(wfResult, password, vAttrs, null, membershipTOs);
-    }
-
-    /**
-     * Create the user on every associated resource.
-     *
-     * @param wfResult user to be propagated (and info associated), as per result from workflow
-     * @param password to be set
-     * @param vAttrs virtual attributes to be set
-     * @param noPropResourceNames external resources not to be considered for propagation
-     * @param membershipTOs user memberships
-     * @return list of propagation tasks
-     * @throws NotFoundException if user is not found
-     * @throws UnauthorizedGroupException if caller doesn't own enough entitlements to administer the given user
-     */
-    @Override
-    public List<PropagationTask> getUserCreateTaskIds(final WorkflowResult<Map.Entry<Long, Boolean>> wfResult,
-            final String password, final Collection<AttrTO> vAttrs,
-            final Set<String> noPropResourceNames, final List<MembershipTO> membershipTOs)
-            throws NotFoundException, UnauthorizedGroupException {
-
-        return getUserCreateTaskIds(
-                wfResult.getResult().getKey(),
-                wfResult.getResult().getValue(),
-                wfResult.getPropByRes(),
-                password,
-                vAttrs,
-                membershipTOs,
-                noPropResourceNames);
-    }
-
-    @Override
-    public List<PropagationTask> getUserCreateTaskIds(
+    public List<PropagationTask> getUserCreateTasks(
             final Long key,
-            final Boolean enabled,
+            final Boolean enable,
             final PropagationByResource propByRes,
             final String password,
             final Collection<AttrTO> vAttrs,
             final Collection<MembershipTO> membershipTOs,
             final Collection<String> noPropResourceNames)
-            throws NotFoundException, UnauthorizedGroupException {
+            throws NotFoundException, UnauthorizedException {
 
         User user = userDAO.authFetch(key);
         if (vAttrs != null && !vAttrs.isEmpty()) {
-            virAttrHandler.fillVirtual(user, vAttrs, attrUtilFactory.getInstance(AttributableType.USER));
-
+            virAttrHandler.fillVirtual(user, vAttrs, attrUtilsFactory.getInstance(AttributableType.USER));
         }
         for (final Membership membership : user.getMemberships()) {
             if (membership.getVirAttrs() != null && !membership.getVirAttrs().isEmpty()) {
@@ -181,32 +134,16 @@ public class PropagationManagerImpl implements PropagationManager {
 
                     @Override
                     public boolean evaluate(final MembershipTO membershipTO) {
-                        return membershipTO.getGroupId() == membership.getGroup().getKey();
+                        return membershipTO.getGroupKey() == membership.getGroup().getKey();
                     }
                 });
                 if (membershipTO != null) {
                     virAttrHandler.fillVirtual(membership,
-                            membershipTO.getVirAttrs(), attrUtilFactory.getInstance(AttributableType.MEMBERSHIP));
+                            membershipTO.getVirAttrs(), attrUtilsFactory.getInstance(AttributableType.MEMBERSHIP));
                 }
             }
         }
-        return getCreateTaskIds(user, password, enabled, propByRes, noPropResourceNames);
-    }
-
-    /**
-     * Create the group on every associated resource.
-     *
-     * @param wfResult user to be propagated (and info associated), as per result from workflow
-     * @param vAttrs virtual attributes to be set
-     * @return list of propagation tasks
-     * @throws NotFoundException if group is not found
-     * @throws UnauthorizedGroupException if caller doesn't own enough entitlements to administer the given group
-     */
-    @Override
-    public List<PropagationTask> getGroupCreateTaskIds(final WorkflowResult<Long> wfResult, final List<AttrTO> vAttrs)
-            throws NotFoundException, UnauthorizedGroupException {
-
-        return getGroupCreateTaskIds(wfResult, vAttrs, null);
+        return getCreateTaskIds(user, password, enable, propByRes, noPropResourceNames);
     }
 
     /**
@@ -217,16 +154,16 @@ public class PropagationManagerImpl implements PropagationManager {
      * @param noPropResourceNames external resources performing not to be considered for propagation
      * @return list of propagation tasks
      * @throws NotFoundException if group is not found
-     * @throws UnauthorizedGroupException if caller doesn't own enough entitlements to administer the given group
+     * @throws UnauthorizedException if caller doesn't own enough entitlements to administer the given group
      */
     @Override
-    public List<PropagationTask> getGroupCreateTaskIds(
+    public List<PropagationTask> getGroupCreateTasks(
             final WorkflowResult<Long> wfResult,
             final Collection<AttrTO> vAttrs,
             final Collection<String> noPropResourceNames)
-            throws NotFoundException, UnauthorizedGroupException {
+            throws NotFoundException, UnauthorizedException {
 
-        return getGroupCreateTaskIds(wfResult.getResult(), vAttrs, wfResult.getPropByRes(), noPropResourceNames);
+        return getGroupCreateTasks(wfResult.getResult(), vAttrs, wfResult.getPropByRes(), noPropResourceNames);
     }
 
     /**
@@ -238,19 +175,19 @@ public class PropagationManagerImpl implements PropagationManager {
      * @param noPropResourceNames external resources performing not to be considered for propagation
      * @return list of propagation tasks
      * @throws NotFoundException if group is not found
-     * @throws UnauthorizedGroupException if caller doesn't own enough entitlements to administer the given group
+     * @throws UnauthorizedException if caller doesn't own enough entitlements to administer the given group
      */
     @Override
-    public List<PropagationTask> getGroupCreateTaskIds(
+    public List<PropagationTask> getGroupCreateTasks(
             final Long key,
             final Collection<AttrTO> vAttrs,
             final PropagationByResource propByRes,
             final Collection<String> noPropResourceNames)
-            throws NotFoundException, UnauthorizedGroupException {
+            throws NotFoundException, UnauthorizedException {
 
         Group group = groupDAO.authFetch(key);
         if (vAttrs != null && !vAttrs.isEmpty()) {
-            virAttrHandler.fillVirtual(group, vAttrs, attrUtilFactory.getInstance(AttributableType.GROUP));
+            virAttrHandler.fillVirtual(group, vAttrs, attrUtilsFactory.getInstance(AttributableType.GROUP));
         }
 
         return getCreateTaskIds(group, null, null, propByRes, noPropResourceNames);
@@ -282,10 +219,10 @@ public class PropagationManagerImpl implements PropagationManager {
      * @throws NotFoundException if user is not found
      */
     @Override
-    public List<PropagationTask> getUserUpdateTaskIds(final User user, final Boolean enable,
+    public List<PropagationTask> getUserUpdateTasks(final User user, final Boolean enable,
             final Collection<String> noPropResourceNames) throws NotFoundException {
 
-        return getUpdateTaskIds(
+        return getUpdateTasks(
                 user, // user to be updated on external resources
                 null, // no password
                 false,
@@ -305,15 +242,15 @@ public class PropagationManagerImpl implements PropagationManager {
      * @param noPropResourceNames external resources not to be considered for propagation
      * @return list of propagation tasks
      * @throws NotFoundException if user is not found
-     * @throws UnauthorizedGroupException if caller doesn't own enough entitlements to administer the given user
+     * @throws UnauthorizedException if caller doesn't own enough entitlements to administer the given user
      */
     @Override
-    public List<PropagationTask> getUserUpdateTaskIds(final WorkflowResult<Map.Entry<UserMod, Boolean>> wfResult,
+    public List<PropagationTask> getUserUpdateTasks(final WorkflowResult<Pair<UserMod, Boolean>> wfResult,
             final boolean changePwd, final Collection<String> noPropResourceNames)
-            throws NotFoundException, UnauthorizedGroupException {
+            throws NotFoundException, UnauthorizedException {
 
         User user = userDAO.authFetch(wfResult.getResult().getKey().getKey());
-        return getUpdateTaskIds(user,
+        return getUpdateTasks(user,
                 wfResult.getResult().getKey().getPassword(),
                 changePwd,
                 wfResult.getResult().getValue(),
@@ -325,14 +262,14 @@ public class PropagationManagerImpl implements PropagationManager {
     }
 
     @Override
-    public List<PropagationTask> getUserUpdateTaskIds(final WorkflowResult<Map.Entry<UserMod, Boolean>> wfResult) {
+    public List<PropagationTask> getUserUpdateTasks(final WorkflowResult<Pair<UserMod, Boolean>> wfResult) {
         UserMod userMod = wfResult.getResult().getKey();
 
         // Propagate password update only to requested resources
         List<PropagationTask> tasks = new ArrayList<>();
         if (userMod.getPwdPropRequest() == null) {
             // a. no specific password propagation request: generate propagation tasks for any resource associated
-            tasks = getUserUpdateTaskIds(wfResult, false, null);
+            tasks = getUserUpdateTasks(wfResult, false, null);
         } else {
             // b. generate the propagation task list in two phases: first the ones containing password,
             // the the rest (with no password)
@@ -348,7 +285,7 @@ public class PropagationManagerImpl implements PropagationManager {
                 Set<String> toBeExcluded = new HashSet<>(currentResourceNames);
                 toBeExcluded.addAll(userMod.getResourcesToAdd());
                 toBeExcluded.removeAll(pwdResourceNames);
-                tasks.addAll(getUserUpdateTaskIds(wfResult, true, toBeExcluded));
+                tasks.addAll(getUserUpdateTasks(wfResult, true, toBeExcluded));
             }
 
             final PropagationByResource nonPwdPropByRes = new PropagationByResource();
@@ -356,56 +293,27 @@ public class PropagationManagerImpl implements PropagationManager {
             nonPwdPropByRes.removeAll(pwdResourceNames);
             nonPwdPropByRes.purge();
             if (!nonPwdPropByRes.isEmpty()) {
-                tasks.addAll(getUserUpdateTaskIds(wfResult, false, pwdResourceNames));
+                tasks.addAll(getUserUpdateTasks(wfResult, false, pwdResourceNames));
             }
         }
 
         return tasks;
     }
 
-    /**
-     * Performs update on each resource associated to the group.
-     *
-     * @param wfResult group to be propagated (and info associated), as per result from workflow
-     * @param vAttrsToBeRemoved virtual attributes to be removed
-     * @param vAttrsToBeUpdated virtual attributes to be added
-     * @return list of propagation tasks
-     * @throws NotFoundException if group is not found
-     * @throws UnauthorizedGroupException if caller doesn't own enough entitlements to administer the given group
-     */
     @Override
-    public List<PropagationTask> getGroupUpdateTaskIds(final WorkflowResult<Long> wfResult,
-            final Set<String> vAttrsToBeRemoved, final Set<AttrMod> vAttrsToBeUpdated)
-            throws NotFoundException, UnauthorizedGroupException {
-
-        return getGroupUpdateTaskIds(wfResult, vAttrsToBeRemoved, vAttrsToBeUpdated, null);
-    }
-
-    /**
-     * Performs update on each resource associated to the group.
-     *
-     * @param wfResult group to be propagated (and info associated), as per result from workflow
-     * @param vAttrsToBeRemoved virtual attributes to be removed
-     * @param vAttrsToBeUpdated virtual attributes to be added
-     * @param noPropResourceNames external resource names not to be considered for propagation
-     * @return list of propagation tasks
-     * @throws NotFoundException if group is not found
-     * @throws UnauthorizedGroupException if caller doesn't own enough entitlements to administer the given group
-     */
-    @Override
-    public List<PropagationTask> getGroupUpdateTaskIds(final WorkflowResult<Long> wfResult,
+    public List<PropagationTask> getGroupUpdateTasks(final WorkflowResult<Long> wfResult,
             final Set<String> vAttrsToBeRemoved, final Set<AttrMod> vAttrsToBeUpdated,
             final Set<String> noPropResourceNames)
-            throws NotFoundException, UnauthorizedGroupException {
+            throws NotFoundException, UnauthorizedException {
 
         Group group = groupDAO.authFetch(wfResult.getResult());
-        return getUpdateTaskIds(group, null, false, null,
+        return getUpdateTasks(group, null, false, null,
                 vAttrsToBeRemoved, vAttrsToBeUpdated, wfResult.getPropByRes(), noPropResourceNames,
                 Collections.<MembershipMod>emptySet());
     }
 
     @Override
-    public List<PropagationTask> getUpdateTaskIds(final Subject<?, ?, ?> subject,
+    public List<PropagationTask> getUpdateTasks(final Subject<?, ?, ?> subject,
             final String password, final boolean changePwd, final Boolean enable,
             final Set<String> vAttrsToBeRemoved, final Set<AttrMod> vAttrsToBeUpdated,
             final PropagationByResource propByRes, final Collection<String> noPropResourceNames,
@@ -416,7 +324,7 @@ public class PropagationManagerImpl implements PropagationManager {
                 ? Collections.<String>emptySet()
                 : vAttrsToBeRemoved, vAttrsToBeUpdated == null
                         ? Collections.<AttrMod>emptySet()
-                        : vAttrsToBeUpdated, attrUtilFactory.getInstance(subject));
+                        : vAttrsToBeUpdated, attrUtilsFactory.getInstance(subject));
 
         // SYNCOPE-458 fill membership virtual attributes
         if (subject instanceof User) {
@@ -436,7 +344,7 @@ public class PropagationManagerImpl implements PropagationManager {
                                 ? Collections.<String>emptySet()
                                 : membershipMod.getVirAttrsToRemove(),
                                 membershipMod.getVirAttrsToUpdate() == null ? Collections.<AttrMod>emptySet()
-                                        : membershipMod.getVirAttrsToUpdate(), attrUtilFactory.getInstance(
+                                        : membershipMod.getVirAttrsToUpdate(), attrUtilsFactory.getInstance(
                                         AttributableType.MEMBERSHIP));
                     }
                 }
@@ -480,165 +388,56 @@ public class PropagationManagerImpl implements PropagationManager {
                 localPropByRes);
     }
 
-    /**
-     * Perform delete on each resource associated to the user. It is possible to ask for a mandatory provisioning for
-     * some resources specifying a set of resource names. Exceptions won't be ignored and the process will be stopped if
-     * the creation fails onto a mandatory resource.
-     *
-     * @param userKey to be deleted
-     * @return list of propagation tasks
-     * @throws NotFoundException if user is not found
-     * @throws UnauthorizedGroupException if caller doesn't own enough entitlements to administer the given user
-     */
     @Override
-    public List<PropagationTask> getUserDeleteTaskIds(final Long userKey)
-            throws NotFoundException, UnauthorizedGroupException {
-
-        return getUserDeleteTaskIds(userKey, Collections.<String>emptySet());
-    }
-
-    /**
-     * Perform delete on each resource associated to the user. It is possible to ask for a mandatory provisioning for
-     * some resources specifying a set of resource names. Exceptions won't be ignored and the process will be stopped if
-     * the creation fails onto a mandatory resource.
-     *
-     * @param userKey to be deleted
-     * @param noPropResourceName name of external resource not to be considered for propagation
-     * @return list of propagation tasks
-     * @throws NotFoundException if user is not found
-     * @throws UnauthorizedGroupException if caller doesn't own enough entitlements to administer the given user
-     */
-    @Override
-    public List<PropagationTask> getUserDeleteTaskIds(final Long userKey, final String noPropResourceName)
-            throws NotFoundException, UnauthorizedGroupException {
-        return getUserDeleteTaskIds(userKey, Collections.<String>singleton(noPropResourceName));
-    }
-
-    /**
-     * Perform delete on each resource associated to the user. It is possible to ask for a mandatory provisioning for
-     * some resources specifying a set of resource names. Exceptions won't be ignored and the process will be stopped if
-     * the creation fails onto a mandatory resource.
-     *
-     * @param userKey to be deleted
-     * @param noPropResourceNames name of external resources not to be considered for propagation
-     * @return list of propagation tasks
-     * @throws NotFoundException if user is not found
-     * @throws UnauthorizedGroupException if caller doesn't own enough entitlements to administer the given user
-     */
-    @Override
-    public List<PropagationTask> getUserDeleteTaskIds(final Long userKey, final Collection<String> noPropResourceNames)
-            throws NotFoundException, UnauthorizedGroupException {
+    public List<PropagationTask> getUserDeleteTasks(final Long userKey, final Collection<String> noPropResourceNames)
+            throws NotFoundException, UnauthorizedException {
 
         User user = userDAO.authFetch(userKey);
         return getDeleteTaskIds(user, user.getResourceNames(), noPropResourceNames);
     }
 
-    /**
-     * Perform delete on each resource associated to the user. It is possible to ask for a mandatory provisioning for
-     * some resources specifying a set of resource names. Exceptions won't be ignored and the process will be stopped if
-     * the creation fails onto a mandatory resource.
-     *
-     * @param userKey to be deleted
-     * @param resourceNames resource from which user is to be deleted
-     * @param noPropResourceNames name of external resources not to be considered for propagation
-     * @return list of propagation tasks
-     * @throws NotFoundException if user is not found
-     * @throws UnauthorizedGroupException if caller doesn't own enough entitlements to administer the given user
-     */
     @Override
-    public List<PropagationTask> getUserDeleteTaskIds(
+    public List<PropagationTask> getUserDeleteTasks(
             final Long userKey, final Set<String> resourceNames, final Collection<String> noPropResourceNames)
-            throws NotFoundException, UnauthorizedGroupException {
+            throws NotFoundException, UnauthorizedException {
 
         User user = userDAO.authFetch(userKey);
         return getDeleteTaskIds(user, resourceNames, noPropResourceNames);
     }
 
-    /**
-     * Perform delete on each resource associated to the user. It is possible to ask for a mandatory provisioning for
-     * some resources specifying a set of resource names. Exceptions won't be ignored and the process will be stopped if
-     * the creation fails onto a mandatory resource.
-     *
-     * @param wfResult user to be propagated (and info associated), as per result from workflow
-     * @return list of propagation tasks
-     */
     @Override
-    public List<PropagationTask> getUserDeleteTaskIds(final WorkflowResult<Long> wfResult) {
+    public List<PropagationTask> getUserDeleteTasks(final WorkflowResult<Long> wfResult) {
         User user = userDAO.authFetch(wfResult.getResult());
         return createTasks(user, null, false, null, null, null, null, false, true, wfResult.getPropByRes());
     }
 
-    /**
-     * Perform delete on each resource associated to the group. It is possible to ask for a mandatory provisioning for
-     * some resources specifying a set of resource names. Exceptions won't be ignored and the process will be stopped if
-     * the creation fails onto a mandatory resource.
-     *
-     * @param groupKey to be deleted
-     * @return list of propagation tasks
-     * @throws NotFoundException if group is not found
-     * @throws UnauthorizedGroupException if caller doesn't own enough entitlements to administer the given group
-     */
     @Override
-    public List<PropagationTask> getGroupDeleteTaskIds(final Long groupKey)
-            throws NotFoundException, UnauthorizedGroupException {
+    public List<PropagationTask> getGroupDeleteTasks(final Long groupKey)
+            throws NotFoundException, UnauthorizedException {
 
-        return getGroupDeleteTaskIds(groupKey, Collections.<String>emptySet());
+        return getGroupDeleteTasks(groupKey, Collections.<String>emptySet());
     }
 
-    /**
-     * Perform delete on each resource associated to the group. It is possible to ask for a mandatory provisioning for
-     * some resources specifying a set of resource names. Exceptions won't be ignored and the process will be stopped if
-     * the creation fails onto a mandatory resource.
-     *
-     * @param groupKey to be deleted
-     * @param noPropResourceName name of external resource not to be considered for propagation
-     * @return list of propagation tasks
-     * @throws NotFoundException if group is not found
-     * @throws UnauthorizedGroupException if caller doesn't own enough entitlements to administer the given group
-     */
     @Override
-    public List<PropagationTask> getGroupDeleteTaskIds(final Long groupKey, final String noPropResourceName)
-            throws NotFoundException, UnauthorizedGroupException {
+    public List<PropagationTask> getGroupDeleteTasks(final Long groupKey, final String noPropResourceName)
+            throws NotFoundException, UnauthorizedException {
 
-        return getGroupDeleteTaskIds(groupKey, Collections.<String>singleton(noPropResourceName));
+        return getGroupDeleteTasks(groupKey, Collections.<String>singleton(noPropResourceName));
     }
 
-    /**
-     * Perform delete on each resource associated to the user. It is possible to ask for a mandatory provisioning for
-     * some resources specifying a set of resource names. Exceptions won't be ignored and the process will be stopped if
-     * the creation fails onto a mandatory resource.
-     *
-     * @param groupKey to be deleted
-     * @param noPropResourceNames name of external resources not to be considered for propagation
-     * @return list of propagation tasks
-     * @throws NotFoundException if group is not found
-     * @throws UnauthorizedGroupException if caller doesn't own enough entitlements to administer the given group
-     */
     @Override
-    public List<PropagationTask> getGroupDeleteTaskIds(
+    public List<PropagationTask> getGroupDeleteTasks(
             final Long groupKey, final Collection<String> noPropResourceNames)
-            throws NotFoundException, UnauthorizedGroupException {
+            throws NotFoundException, UnauthorizedException {
 
         Group group = groupDAO.authFetch(groupKey);
         return getDeleteTaskIds(group, group.getResourceNames(), noPropResourceNames);
     }
 
-    /**
-     * Perform delete on each resource associated to the user. It is possible to ask for a mandatory provisioning for
-     * some resources specifying a set of resource names. Exceptions won't be ignored and the process will be stopped if
-     * the creation fails onto a mandatory resource.
-     *
-     * @param groupKey to be deleted
-     * @param resourceNames resource from which group is to be deleted
-     * @param noPropResourceNames name of external resources not to be considered for propagation
-     * @return list of propagation tasks
-     * @throws NotFoundException if group is not found
-     * @throws UnauthorizedGroupException if caller doesn't own enough entitlements to administer the given group
-     */
     @Override
-    public List<PropagationTask> getGroupDeleteTaskIds(
+    public List<PropagationTask> getGroupDeleteTasks(
             final Long groupKey, final Set<String> resourceNames, final Collection<String> noPropResourceNames)
-            throws NotFoundException, UnauthorizedGroupException {
+            throws NotFoundException, UnauthorizedException {
 
         Group group = groupDAO.authFetch(groupKey);
         return getDeleteTaskIds(group, resourceNames, noPropResourceNames);
@@ -680,12 +479,12 @@ public class PropagationManagerImpl implements PropagationManager {
 
         LOG.debug("Provisioning subject {}:\n{}", subject, propByRes);
 
-        final AttributableUtil attrUtil = attrUtilFactory.getInstance(subject);
+        final AttributableUtils attrUtils = attrUtilsFactory.getInstance(subject);
 
         if (!propByRes.get(ResourceOperation.CREATE).isEmpty()
                 && vAttrsToBeRemoved != null && vAttrsToBeUpdated != null) {
 
-            connObjectUtil.retrieveVirAttrValues(subject, attrUtil);
+            connObjectUtils.retrieveVirAttrValues(subject, attrUtils);
 
             // update vAttrsToBeUpdated as well
             for (VirAttr virAttr : subject.getVirAttrs()) {
@@ -710,14 +509,14 @@ public class PropagationManagerImpl implements PropagationManager {
                 final ExternalResource resource = resourceDAO.find(resourceName);
                 if (resource == null) {
                     LOG.error("Invalid resource name specified: {}, ignoring...", resourceName);
-                } else if (attrUtil.getMappingItems(resource, MappingPurpose.PROPAGATION).isEmpty()) {
+                } else if (attrUtils.getMappingItems(resource, MappingPurpose.PROPAGATION).isEmpty()) {
                     LOG.warn("Requesting propagation for {} but no propagation mapping provided for {}",
-                            attrUtil.getType(), resource);
+                            attrUtils.getType(), resource);
                 } else {
                     PropagationTask task = entityFactory.newEntity(PropagationTask.class);
                     task.setResource(resource);
-                    task.setObjectClassName(connObjectUtil.fromSubject(subject).getObjectClassValue());
-                    task.setSubjectType(attrUtil.getType());
+                    task.setObjectClassName(connObjectUtils.fromSubject(subject).getObjectClassValue());
+                    task.setSubjectType(attrUtils.getType());
                     if (!deleteOnResource) {
                         task.setSubjectKey(subject.getKey());
                     }
@@ -725,7 +524,7 @@ public class PropagationManagerImpl implements PropagationManager {
                     task.setPropagationMode(resource.getPropagationMode());
                     task.setOldAccountId(propByRes.getOldAccountId(resource.getKey()));
 
-                    Map.Entry<String, Set<Attribute>> preparedAttrs = MappingUtil.prepareAttributes(attrUtil, subject,
+                    Pair<String, Set<Attribute>> preparedAttrs = MappingUtils.prepareAttributes(attrUtils, subject,
                             password, changePwd, vAttrsToBeRemoved, vAttrsToBeUpdated, membVAttrsToBeRemoved,
                             membVAttrsToBeUpdatedMap, enable, resource);
                     task.setAccountId(preparedAttrs.getKey());
@@ -734,9 +533,9 @@ public class PropagationManagerImpl implements PropagationManager {
                     // if so, add special attributes that will be evaluated by PropagationTaskExecutor
                     List<String> mandatoryMissing = new ArrayList<>();
                     List<String> mandatoryNullOrEmpty = new ArrayList<>();
-                    for (MappingItem item : attrUtil.getMappingItems(resource, MappingPurpose.PROPAGATION)) {
+                    for (MappingItem item : attrUtils.getMappingItems(resource, MappingPurpose.PROPAGATION)) {
                         if (!item.isAccountid()
-                                && JexlUtil.evaluateMandatoryCondition(item.getMandatoryCondition(), subject)) {
+                                && JexlUtils.evaluateMandatoryCondition(item.getMandatoryCondition(), subject)) {
 
                             Attribute attr = AttributeUtil.find(item.getExtAttrName(), preparedAttrs.getValue());
                             if (attr == null) {

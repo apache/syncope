@@ -22,7 +22,7 @@ import java.io.ByteArrayInputStream;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.console.commons.PreviewUtil;
+import org.apache.syncope.client.console.commons.PreviewUtils;
 import org.apache.syncope.client.console.commons.HttpResourceStream;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.BaseModalPage;
@@ -63,7 +63,7 @@ public class BinaryFieldPanel extends FieldPanel<String> {
     private final Fragment emptyFragment;
 
     @SpringBean
-    private PreviewUtil previewUtil;
+    private PreviewUtils previewUtil;
 
     public BinaryFieldPanel(final String id, final String name, final IModel<String> model, final String mimeType) {
         super(id, model);

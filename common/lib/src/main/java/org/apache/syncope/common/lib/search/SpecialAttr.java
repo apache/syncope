@@ -18,12 +18,15 @@
  */
 package org.apache.syncope.common.lib.search;
 
+import java.util.Arrays;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
+
 public enum SpecialAttr {
 
     NULL("$null"),
     RESOURCES("$resources"),
-    GROUPS("$groups"),
-    ENTITLEMENTS("$entitlements");
+    GROUPS("$groups");
 
     private final String literal;
 
@@ -31,20 +34,19 @@ public enum SpecialAttr {
         this.literal = literal;
     }
 
-    public static SpecialAttr fromString(final String value) {
-        SpecialAttr result = null;
-        for (SpecialAttr specialAttr : values()) {
-            if (specialAttr.literal.equals(value)) {
-                result = specialAttr;
-            }
-        }
-
-        return result;
-    }
-
     @Override
     public String toString() {
         return literal;
+    }
+
+    public static SpecialAttr fromString(final String value) {
+        return CollectionUtils.find(Arrays.asList(values()), new Predicate<SpecialAttr>() {
+
+            @Override
+            public boolean evaluate(final SpecialAttr specialAttr) {
+                return specialAttr.literal.equals(value);
+            }
+        });
     }
 
 }

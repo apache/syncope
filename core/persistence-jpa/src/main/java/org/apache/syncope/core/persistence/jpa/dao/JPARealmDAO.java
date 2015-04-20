@@ -19,15 +19,21 @@
 package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.core.persistence.api.dao.MalformedPathException;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
+import org.apache.syncope.core.persistence.api.entity.AccountPolicy;
+import org.apache.syncope.core.persistence.api.entity.Policy;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.jpa.entity.JPARealm;
@@ -64,11 +70,11 @@ public class JPARealmDAO extends AbstractDAO<Realm, Long> implements RealmDAO {
 
     @Override
     public Realm find(final String fullPath) {
-        if ("/".equals(fullPath)) {
+        if (SyncopeConstants.ROOT_REALM.equals(fullPath)) {
             return getRoot();
         }
 
-        if (!PATH_PATTERN.matcher(fullPath).matches()) {
+        if (StringUtils.isBlank(fullPath) || !PATH_PATTERN.matcher(fullPath).matches()) {
             throw new MalformedPathException(fullPath);
         }
 
@@ -91,6 +97,59 @@ public class JPARealmDAO extends AbstractDAO<Realm, Long> implements RealmDAO {
             }
         }
         return current;
+    }
+
+    private <T extends Policy> List<Realm> findSamePolicyChildren(final Realm realm, final T policy) {
+        List<Realm> result = new ArrayList<>();
+
+        for (Realm child : findChildren(realm)) {
+            if ((policy.getType() == PolicyType.ACCOUNT
+                    && child.getAccountPolicy() == null || policy.equals(child.getAccountPolicy()))
+                    || (policy.getType() == PolicyType.PASSWORD
+                    && child.getPasswordPolicy() == null || policy.equals(child.getPasswordPolicy()))) {
+
+                result.add(child);
+                result.addAll(findSamePolicyChildren(child, policy));
+            }
+        }
+
+        return result;
+    }
+
+    @Override
+    public <T extends Policy> List<Realm> findByPolicy(final T policy) {
+        if (policy.getType() == PolicyType.SYNC) {
+            return Collections.<Realm>emptyList();
+        }
+
+        StringBuilder queryString = new StringBuilder("SELECT e FROM ").
+                append(JPARealm.class.getSimpleName()).append(" e WHERE e.").
+                append(policy instanceof AccountPolicy ? "accountPolicy" : "passwordPolicy").append("=:policy");
+
+        TypedQuery<Realm> query = entityManager.createQuery(queryString.toString(), Realm.class);
+        query.setParameter("policy", policy);
+
+        List<Realm> result = new ArrayList<>();
+        for (Realm realm : query.getResultList()) {
+            result.add(realm);
+            result.addAll(findSamePolicyChildren(realm, policy));
+        }
+        return result;
+    }
+
+    private void findAncestors(final List<Realm> result, final Realm realm) {
+        if (realm.getParent() != null && !result.contains(realm.getParent())) {
+            result.add(realm.getParent());
+            findAncestors(result, realm.getParent());
+        }
+    }
+
+    @Override
+    public List<Realm> findAncestors(final Realm realm) {
+        List<Realm> result = new ArrayList<>();
+        result.add(realm);
+        findAncestors(result, realm);
+        return result;
     }
 
     @Override

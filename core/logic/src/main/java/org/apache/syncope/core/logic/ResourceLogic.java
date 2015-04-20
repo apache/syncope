@@ -27,8 +27,6 @@ import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.BulkAction;
-import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -39,8 +37,8 @@ import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtil;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtilFactory;
+import org.apache.syncope.core.persistence.api.entity.AttributableUtils;
+import org.apache.syncope.core.persistence.api.entity.AttributableUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.MappingItem;
@@ -48,8 +46,8 @@ import org.apache.syncope.core.persistence.api.entity.Subject;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.ConnectorFactory;
 import org.apache.syncope.core.provisioning.api.data.ResourceDataBinder;
-import org.apache.syncope.core.misc.ConnObjectUtil;
-import org.apache.syncope.core.misc.MappingUtil;
+import org.apache.syncope.core.misc.ConnObjectUtils;
+import org.apache.syncope.core.misc.MappingUtils;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
@@ -77,13 +75,13 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
     private ResourceDataBinder binder;
 
     @Autowired
-    private ConnObjectUtil connObjectUtil;
+    private ConnObjectUtils connObjectUtils;
 
     @Autowired
     private ConnectorFactory connFactory;
 
     @Autowired
-    private AttributableUtilFactory attrUtilFactory;
+    private AttributableUtilsFactory attrUtilsFactory;
 
     @PreAuthorize("hasRole('RESOURCE_CREATE')")
     public ResourceTO create(final ResourceTO resourceTO) {
@@ -184,21 +182,21 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
             throw new NotFoundException(type + " " + id);
         }
 
-        final AttributableUtil attrUtil = attrUtilFactory.getInstance(type.asAttributableType());
+        final AttributableUtils attrUtils = attrUtilsFactory.getInstance(type.asAttributableType());
 
-        MappingItem accountIdItem = attrUtil.getAccountIdItem(resource);
+        MappingItem accountIdItem = attrUtils.getAccountIdItem(resource);
         if (accountIdItem == null) {
             throw new NotFoundException(
                     "AccountId mapping for " + type + " " + id + " on resource '" + resourceName + "'");
         }
-        final String accountIdValue = MappingUtil.getAccountIdValue(
-                subject, resource, attrUtil.getAccountIdItem(resource));
+        final String accountIdValue = MappingUtils.getAccountIdValue(
+                subject, resource, attrUtils.getAccountIdItem(resource));
 
         final ObjectClass objectClass = SubjectType.USER == type ? ObjectClass.ACCOUNT : ObjectClass.GROUP;
 
         final Connector connector = connFactory.getConnector(resource);
         final ConnectorObject connectorObject = connector.getObject(objectClass, new Uid(accountIdValue),
-                connector.getOperationOptions(attrUtil.getMappingItems(resource, MappingPurpose.BOTH)));
+                connector.getOperationOptions(attrUtils.getMappingItems(resource, MappingPurpose.BOTH)));
         if (connectorObject == null) {
             throw new NotFoundException("Object " + accountIdValue + " with class " + objectClass
                     + "not found on resource " + resourceName);
@@ -212,7 +210,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
             attributes.add(connectorObject.getName());
         }
 
-        return connObjectUtil.getConnObjectTO(connectorObject);
+        return connObjectUtils.getConnObjectTO(connectorObject);
     }
 
     @PreAuthorize("hasRole('CONNECTOR_READ')")
@@ -232,24 +230,6 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         }
 
         return result;
-    }
-
-    @PreAuthorize("hasRole('RESOURCE_DELETE') and #bulkAction.operation == #bulkAction.operation.DELETE")
-    public BulkActionResult bulk(final BulkAction bulkAction) {
-        BulkActionResult res = new BulkActionResult();
-
-        if (bulkAction.getOperation() == BulkAction.Type.DELETE) {
-            for (String name : bulkAction.getTargets()) {
-                try {
-                    res.add(delete(name).getKey(), BulkActionResult.Status.SUCCESS);
-                } catch (Exception e) {
-                    LOG.error("Error performing delete for resource {}", name, e);
-                    res.add(name, BulkActionResult.Status.FAILURE);
-                }
-            }
-        }
-
-        return res;
     }
 
     @Override

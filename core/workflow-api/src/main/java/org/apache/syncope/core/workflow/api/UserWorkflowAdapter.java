@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.core.workflow.api;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
-import java.util.Map;
 import org.apache.syncope.common.lib.mod.UserMod;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -36,7 +36,7 @@ public interface UserWorkflowAdapter extends WorkflowAdapter {
      * @param storePassword whether password shall be stored into the internal storage
      * @return user just created
      */
-    WorkflowResult<Map.Entry<Long, Boolean>> create(UserTO userTO, boolean storePassword);
+    WorkflowResult<Pair<Long, Boolean>> create(UserTO userTO, boolean storePassword);
 
     /**
      * Create an user, optionally disabling password policy check.
@@ -46,7 +46,7 @@ public interface UserWorkflowAdapter extends WorkflowAdapter {
      * @param storePassword whether password shall be stored into the internal storage
      * @return user just created
      */
-    WorkflowResult<Map.Entry<Long, Boolean>> create(
+    WorkflowResult<Pair<Long, Boolean>> create(
             UserTO userTO, boolean disablePwdPolicyCheck, boolean storePassword);
 
     /**
@@ -58,7 +58,7 @@ public interface UserWorkflowAdapter extends WorkflowAdapter {
      * @param storePassword whether password shall be stored into the internal storage
      * @return user just created
      */
-    WorkflowResult<Map.Entry<Long, Boolean>> create(
+    WorkflowResult<Pair<Long, Boolean>> create(
             UserTO userTO, boolean disablePwdPolicyCheck, final Boolean enabled, boolean storePassword);
 
     /**
@@ -85,7 +85,7 @@ public interface UserWorkflowAdapter extends WorkflowAdapter {
      * @param userMod modification set to be performed
      * @return user just updated and propagations to be performed
      */
-    WorkflowResult<Map.Entry<UserMod, Boolean>> update(UserMod userMod);
+    WorkflowResult<Pair<UserMod, Boolean>> update(UserMod userMod);
 
     /**
      * Suspend an user.

@@ -19,12 +19,11 @@
 package org.apache.syncope.core.workflow.java;
 
 import java.io.OutputStream;
-import java.util.AbstractMap;
-import java.util.AbstractMap.SimpleEntry;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import org.apache.commons.lang3.SerializationUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.mod.UserMod;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
@@ -49,21 +48,21 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     private ConfDAO confDAO;
 
     @Override
-    public WorkflowResult<Map.Entry<Long, Boolean>> create(UserTO userTO, boolean storePassword)
+    public WorkflowResult<Pair<Long, Boolean>> create(UserTO userTO, boolean storePassword)
             throws WorkflowException {
 
         return create(userTO, false, true);
     }
 
     @Override
-    public WorkflowResult<Map.Entry<Long, Boolean>> create(final UserTO userTO, final boolean disablePwdPolicyCheck,
+    public WorkflowResult<Pair<Long, Boolean>> create(final UserTO userTO, final boolean disablePwdPolicyCheck,
             final boolean storePassword) throws WorkflowException {
 
         return create(userTO, disablePwdPolicyCheck, null, storePassword);
     }
 
     @Override
-    public WorkflowResult<Map.Entry<Long, Boolean>> create(final UserTO userTO, final boolean disablePwdPolicyCheck,
+    public WorkflowResult<Pair<Long, Boolean>> create(final UserTO userTO, final boolean disablePwdPolicyCheck,
             final Boolean enabled, final boolean storePassword) throws WorkflowException {
 
         User user = entityFactory.newEntity(User.class);
@@ -93,8 +92,8 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         final PropagationByResource propByRes = new PropagationByResource();
         propByRes.set(ResourceOperation.CREATE, user.getResourceNames());
 
-        return new WorkflowResult<Map.Entry<Long, Boolean>>(
-                new SimpleEntry<>(user.getKey(), propagateEnable), propByRes, "create");
+        return new WorkflowResult<Pair<Long, Boolean>>(
+                new ImmutablePair<>(user.getKey(), propagateEnable), propByRes, "create");
     }
 
     @Override
@@ -113,7 +112,7 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    protected WorkflowResult<Map.Entry<UserMod, Boolean>> doUpdate(final User user, final UserMod userMod)
+    protected WorkflowResult<Pair<UserMod, Boolean>> doUpdate(final User user, final UserMod userMod)
             throws WorkflowException {
 
         // update password internally only if required
@@ -127,8 +126,8 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         User updated = userDAO.save(user);
 
         userMod.setKey(updated.getKey());
-        return new WorkflowResult<Map.Entry<UserMod, Boolean>>(
-                new AbstractMap.SimpleEntry<>(userMod, !user.isSuspended()), propByRes, "update");
+        return new WorkflowResult<Pair<UserMod, Boolean>>(
+                new ImmutablePair<>(userMod, !user.isSuspended()), propByRes, "update");
     }
 
     @Override

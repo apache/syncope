@@ -102,19 +102,6 @@ under the License.
         </xsl:otherwise>
       </xsl:choose>
       
-      <!--entitlements-->
-      <xsl:choose>
-        <xsl:when test="entitlements/entitlement">
-          <xsl:call-template name="entitlements">
-            <xsl:with-param name="label">Entitlements</xsl:with-param>
-            <xsl:with-param name="node" select="entitlements/entitlement"/>
-          </xsl:call-template>
-        </xsl:when>
-        <xsl:otherwise>
-          <fo:block color="red" font-size="9pt" space-after="3mm">THIS GROUP HASN'T ANY ENTITLEMENT</fo:block>
-        </xsl:otherwise>
-      </xsl:choose>
-      
       <xsl:choose>
         <xsl:when test="users/user">
           <fo:block font-size="11pt" font-weight="bold">Users</fo:block>
@@ -178,36 +165,6 @@ under the License.
             </fo:table-cell>
             <fo:table-cell>
               <fo:block></fo:block>
-            </fo:table-cell>
-          </fo:table-row>
-        </xsl:for-each>
-      </fo:table-body>
-    </fo:table>
-  </xsl:template>
-  <!--entitlements template-->
-  <xsl:template name="entitlements">
-    <xsl:param name="label"/>
-    <xsl:param name="node"/>
-    <fo:block font-size="11pt" font-weight="bold" space-after="2mm" space-before="5mm">
-      <xsl:value-of select="$label"/>
-    </fo:block>
-    <fo:table table-layout="fixed" space-after="7mm">
-      <fo:table-column/>
-      <!--<fo:table-column/>-->
-      <fo:table-header>
-        <fo:table-row height="7mm" background-color="(#ccccba)">
-          <fo:table-cell>
-            <fo:block font-weight="bold">Name</fo:block>
-          </fo:table-cell>
-        </fo:table-row>
-      </fo:table-header>
-      <fo:table-body>
-        <xsl:for-each select="$node">
-          <fo:table-row height="4mm" background-color="(#ccccff)">
-            <fo:table-cell>
-              <fo:block>
-                <xsl:value-of select="@id"/>
-              </fo:block>
             </fo:table-cell>
           </fo:table-row>
         </xsl:for-each>

@@ -65,7 +65,8 @@ class ContentLoaderHandler extends DefaultHandler {
 
                         Map<String, Integer> colTypes = new HashMap<>();
                         for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
-                            colTypes.put(rs.getMetaData().getColumnName(i).toUpperCase(),
+                            colTypes.put(
+                                    rs.getMetaData().getColumnName(i).toUpperCase(),
                                     rs.getMetaData().getColumnType(i));
                         }
                         return colTypes;
@@ -191,7 +192,6 @@ class ContentLoaderHandler extends DefaultHandler {
         query.append(") VALUES (").append(values).append(')');
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-
         try {
             jdbcTemplate.update(query.toString(), getParameters(qName, atts));
         } catch (DataAccessException e) {

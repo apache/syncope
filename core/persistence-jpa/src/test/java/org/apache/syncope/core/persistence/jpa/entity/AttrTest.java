@@ -87,15 +87,15 @@ public class AttrTest extends AbstractTest {
 
         Exception thrown = null;
         try {
-            attribute.addValue("john.doe@gmail.com", attrUtilFactory.getInstance(AttributableType.USER));
-            attribute.addValue("mario.rossi@gmail.com", attrUtilFactory.getInstance(AttributableType.USER));
+            attribute.addValue("john.doe@gmail.com", attrUtilsFactory.getInstance(AttributableType.USER));
+            attribute.addValue("mario.rossi@gmail.com", attrUtilsFactory.getInstance(AttributableType.USER));
         } catch (ValidationException e) {
             thrown = e;
         }
         assertNull("no validation exception expected here ", thrown);
 
         try {
-            attribute.addValue("http://www.apache.org", attrUtilFactory.getInstance(AttributableType.USER));
+            attribute.addValue("http://www.apache.org", attrUtilsFactory.getInstance(AttributableType.USER));
         } catch (ValidationException e) {
             thrown = e;
         }
@@ -119,13 +119,13 @@ public class AttrTest extends AbstractTest {
         Exception thrown = null;
 
         try {
-            attribute.addValue("A", attrUtilFactory.getInstance(AttributableType.USER));
+            attribute.addValue("A", attrUtilsFactory.getInstance(AttributableType.USER));
         } catch (ValidationException e) {
             thrown = e;
         }
         assertNotNull("validation exception expected here ", thrown);
 
-        attribute.addValue("M", attrUtilFactory.getInstance(AttributableType.USER));
+        attribute.addValue("M", attrUtilsFactory.getInstance(AttributableType.USER));
 
         InvalidEntityException iee = null;
         try {
@@ -183,7 +183,7 @@ public class AttrTest extends AbstractTest {
 
         UPlainAttr attribute = entityFactory.newEntity(UPlainAttr.class);
         attribute.setSchema(obscureSchema);
-        attribute.addValue("testvalue", attrUtilFactory.getInstance(AttributableType.USER));
+        attribute.addValue("testvalue", attrUtilsFactory.getInstance(AttributableType.USER));
         attribute.setOwner(user);
         user.addPlainAttr(attribute);
 
@@ -210,7 +210,7 @@ public class AttrTest extends AbstractTest {
 
         UPlainAttr attribute = entityFactory.newEntity(UPlainAttr.class);
         attribute.setSchema(photoSchema);
-        attribute.addValue(photoB64Value, attrUtilFactory.getInstance(AttributableType.USER));
+        attribute.addValue(photoB64Value, attrUtilsFactory.getInstance(AttributableType.USER));
         attribute.setOwner(user);
         user.addPlainAttr(attribute);
 

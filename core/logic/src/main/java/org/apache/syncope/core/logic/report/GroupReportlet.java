@@ -22,8 +22,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.report.GroupReportletConf;
 import org.apache.syncope.common.lib.report.GroupReportletConf.Feature;
 import org.apache.syncope.common.lib.to.AbstractAttributableTO;
@@ -31,8 +31,6 @@ import org.apache.syncope.common.lib.to.AbstractSubjectTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.types.SubjectType;
-import org.apache.syncope.core.persistence.api.GroupEntitlementUtil;
-import org.apache.syncope.core.persistence.api.dao.EntitlementDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.SubjectSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
@@ -51,9 +49,6 @@ public class GroupReportlet extends AbstractReportlet<GroupReportletConf> {
     private static final int PAGE_SIZE = 10;
 
     @Autowired
-    private EntitlementDAO entitlementDAO;
-
-    @Autowired
     private GroupDAO groupDAO;
 
     @Autowired
@@ -62,13 +57,14 @@ public class GroupReportlet extends AbstractReportlet<GroupReportletConf> {
     @Autowired
     private GroupDataBinder groupDataBinder;
 
-    private List<Group> getPagedgroups(final int page) {
-        final Set<Long> adminGroupIds = GroupEntitlementUtil.getGroupKeys(entitlementDAO.findAll());
-        final List<Group> result;
+    private List<Group> getPagedGroups(final int page) {
+        List<Group> result;
+
         if (StringUtils.isBlank(conf.getMatchingCond())) {
-            result = groupDAO.findAll();
+            result = groupDAO.findAll(SyncopeConstants.FULL_ADMIN_REALMS, page, PAGE_SIZE);
         } else {
-            result = searchDAO.search(adminGroupIds, SearchCondConverter.convert(conf.getMatchingCond()),
+            result = searchDAO.search(SyncopeConstants.FULL_ADMIN_REALMS,
+                    SearchCondConverter.convert(conf.getMatchingCond()),
                     page, PAGE_SIZE, Collections.<OrderByClause>emptyList(), SubjectType.GROUP);
         }
 
@@ -76,11 +72,9 @@ public class GroupReportlet extends AbstractReportlet<GroupReportletConf> {
     }
 
     private int count() {
-        Set<Long> adminGroupIds = GroupEntitlementUtil.getGroupKeys(entitlementDAO.findAll());
-
         return StringUtils.isBlank(conf.getMatchingCond())
-                ? groupDAO.findAll().size()
-                : searchDAO.count(adminGroupIds,
+                ? groupDAO.count(SyncopeConstants.FULL_ADMIN_REALMS)
+                : searchDAO.count(SyncopeConstants.FULL_ADMIN_REALMS,
                         SearchCondConverter.convert(conf.getMatchingCond()), SubjectType.GROUP);
     }
 
@@ -236,20 +230,6 @@ public class GroupReportlet extends AbstractReportlet<GroupReportletConf> {
 
             doExtractAttributes(handler, groupTO, conf.getPlainAttrs(), conf.getDerAttrs(), conf.getVirAttrs());
 
-            if (conf.getFeatures().contains(Feature.entitlements)) {
-                handler.startElement("", "", "entitlements", null);
-
-                for (String ent : groupTO.getEntitlements()) {
-                    atts.clear();
-
-                    atts.addAttribute("", "", "id", ReportXMLConst.XSD_STRING, String.valueOf(ent));
-
-                    handler.startElement("", "", "entitlement", atts);
-                    handler.endElement("", "", "entitlement");
-                }
-
-                handler.endElement("", "", "entitlements");
-            }
             // to get resources associated to a group
             if (conf.getFeatures().contains(Feature.resources)) {
                 doExtractResources(handler, groupTO);
@@ -322,7 +302,7 @@ public class GroupReportlet extends AbstractReportlet<GroupReportletConf> {
     protected void doExtract(final ContentHandler handler) throws SAXException, ReportException {
         doExtractConf(handler);
         for (int i = 1; i <= (count() / PAGE_SIZE) + 1; i++) {
-            doExtract(handler, getPagedgroups(i));
+            doExtract(handler, getPagedGroups(i));
         }
     }
 }

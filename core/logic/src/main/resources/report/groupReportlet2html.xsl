@@ -88,18 +88,6 @@ under the License.
       </xsl:choose>
       
       <xsl:choose>
-        <xsl:when test="entitlements/entitlement">
-          <xsl:call-template name="entitlements">
-            <xsl:with-param name="label">Entitlements: </xsl:with-param>
-            <xsl:with-param name="node" select="entitlements/entitlement"/>
-          </xsl:call-template>
-        </xsl:when>
-        <xsl:otherwise>
-          <h5>THIS GROUP HASN'T ANY ENTITLEMENT</h5>
-        </xsl:otherwise>
-      </xsl:choose>
-      
-      <xsl:choose>
         <xsl:when test="users/user">
           <h4>Users</h4>
           <xsl:for-each select="users/user">
@@ -118,30 +106,6 @@ under the License.
       
     </xsl:for-each>
   </xsl:template>
- 
-  <!--entitlement template-->
-  <xsl:template name="entitlements">
-    <xsl:param name="label"/>
-    <xsl:param name="node"/>
-
-    <h4>
-      <xsl:value-of select="$label"/>
-    </h4>
-    
-    <table>
-      
-      <tbody>
-        <xsl:for-each select="$node">
-          <tr>
-            <td>
-              <xsl:value-of select="@id"/>
-            </td>
-          </tr>
-        </xsl:for-each>
-      </tbody>
-    </table>
-  </xsl:template>
-
 
   <xsl:template name="attributes">
     <xsl:param name="label"/>
