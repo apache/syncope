@@ -140,7 +140,7 @@ public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
     @Transactional(readOnly = true)
     public Pair<String, UserTO> readSelf() {
         return ImmutablePair.of(
-                POJOHelper.serialize(AuthContextUtils.getAuthorizations()),
+                POJOHelper.serialize(AuthContextUtils.getAuthorizations()).replaceAll(",", "%2C"),
                 binder.getAuthenticatedUserTO());
     }
 

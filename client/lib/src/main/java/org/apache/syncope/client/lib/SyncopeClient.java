@@ -121,7 +121,7 @@ public class SyncopeClient {
         try {
             return new ImmutablePair<>(
                     (Map<Entitlement, Set<String>>) new ObjectMapper().readValue(
-                            response.getHeaderString(RESTHeaders.OWNED_ENTITLEMENTS),
+                            response.getHeaderString(RESTHeaders.OWNED_ENTITLEMENTS).replaceAll("%2C", ","),
                             new TypeReference<HashMap<Entitlement, Set<String>>>() {
                             }),
                     response.readEntity(UserTO.class));

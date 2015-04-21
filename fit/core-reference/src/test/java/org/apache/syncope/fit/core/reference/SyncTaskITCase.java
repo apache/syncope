@@ -30,6 +30,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.ws.rs.core.Response;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.mod.StatusMod;
@@ -183,7 +185,15 @@ public class SyncTaskITCase extends AbstractTaskITCase {
             assertTrue(userTO.getMemberships().get(0).getPlainAttrMap().containsKey("subscriptionDate"));
 
             // Unmatching --> Assign (link)
+            // SYNCOPE-658
             assertTrue(userTO.getResources().contains(RESOURCE_NAME_CSV));
+            assertEquals(1, CollectionUtils.countMatches(userTO.getDerAttrs(), new Predicate<AttrTO>() {
+
+                @Override
+                public boolean evaluate(final AttrTO attributeTO) {
+                    return "csvuserid".equals(attributeTO.getSchema());
+                }
+            }));
 
             userTO = readUser("test8");
             assertNotNull(userTO);

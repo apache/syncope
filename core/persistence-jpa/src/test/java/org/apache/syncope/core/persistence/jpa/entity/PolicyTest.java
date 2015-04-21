@@ -29,7 +29,6 @@ import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.lib.types.SyncPolicySpec;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
-import org.apache.syncope.core.persistence.api.entity.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.Policy;
 import org.apache.syncope.core.persistence.api.entity.SyncPolicy;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
@@ -72,19 +71,6 @@ public class PolicyTest extends AbstractTest {
         SyncPolicy policy = entityFactory.newEntity(SyncPolicy.class);
         policy.setSpecification(passwordPolicy);
         policy.setDescription("sync policy");
-
-        policyDAO.save(policy);
-    }
-
-    @Test(expected = InvalidEntityException.class)
-    public void saveSecondPasswordPolicy() {
-        PasswordPolicySpec passwordPolicy = new PasswordPolicySpec();
-        passwordPolicy.setMaxLength(8);
-        passwordPolicy.setMinLength(6);
-
-        PasswordPolicy policy = entityFactory.newEntity(PasswordPolicy.class);
-        policy.setSpecification(passwordPolicy);
-        policy.setDescription("global password policy");
 
         policyDAO.save(policy);
     }

@@ -76,17 +76,17 @@ public class RestClientExceptionMapper implements ExceptionMapper<Exception>, Re
     }
 
     private SyncopeClientCompositeException checkSyncopeClientCompositeException(final Response response) {
-        List<Object> exTypesInHeaders = response.getHeaders().get(RESTHeaders.ERROR_CODE);
+        List<String> exTypesInHeaders = response.getStringHeaders().get(RESTHeaders.ERROR_CODE);
         if (exTypesInHeaders == null) {
             LOG.debug("No " + RESTHeaders.ERROR_CODE + " provided");
             return null;
         }
+        List<String> exInfos = response.getStringHeaders().get(RESTHeaders.ERROR_INFO);
 
         final SyncopeClientCompositeException compException = SyncopeClientException.buildComposite();
 
-        final Set<String> handledExceptions = new HashSet<String>();
-        for (Object exceptionTypeValue : exTypesInHeaders) {
-            final String exTypeAsString = (String) exceptionTypeValue;
+        Set<String> handledExceptions = new HashSet<>();
+        for (String exTypeAsString : exTypesInHeaders) {
             ClientExceptionType exceptionType = null;
             try {
                 exceptionType = ClientExceptionType.fromHeaderValue(exTypeAsString);
@@ -98,13 +98,10 @@ public class RestClientExceptionMapper implements ExceptionMapper<Exception>, Re
 
                 final SyncopeClientException clientException = SyncopeClientException.build(exceptionType);
 
-                if (response.getHeaders().get(RESTHeaders.ERROR_INFO) != null
-                        && !response.getHeaders().get(RESTHeaders.ERROR_INFO).isEmpty()) {
-
-                    for (Object value : response.getHeaders().get(RESTHeaders.ERROR_INFO)) {
-                        final String element = value.toString();
+                if (exInfos != null && !exInfos.isEmpty()) {
+                    for (String element : exInfos) {
                         if (element.startsWith(exceptionType.getHeaderValue())) {
-                            clientException.getElements().add(StringUtils.substringAfter(value.toString(), ":"));
+                            clientException.getElements().add(StringUtils.substringAfter(element, ":"));
                         }
                     }
                 }

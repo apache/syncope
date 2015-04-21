@@ -95,9 +95,6 @@ public class ConnObjectUtils {
     private static final Logger LOG = LoggerFactory.getLogger(ConnObjectUtils.class);
 
     @Autowired
-    private PolicyDAO policyDAO;
-
-    @Autowired
     private RealmDAO realmDAO;
 
     @Autowired
@@ -246,69 +243,67 @@ public class ConnObjectUtils {
 
         // 1. fill with data from connector object
         subjectTO.setRealm(syncTask.getDestinatioRealm().getFullPath());
-        for (MappingItem item : attrUtils.getUidToMappingItems(
-                syncTask.getResource(), MappingPurpose.SYNCHRONIZATION)) {
+        for (MappingItem item : attrUtils.getMappingItems(syncTask.getResource(), MappingPurpose.SYNCHRONIZATION)) {
+            Attribute attr = obj.getAttributeByName(item.getExtAttrName());
 
-            Attribute attribute = obj.getAttributeByName(item.getExtAttrName());
-
-            AttrTO attributeTO;
+            AttrTO attrTO;
             switch (item.getIntMappingType()) {
                 case UserId:
                 case GroupId:
                     break;
 
                 case Password:
-                    if (subjectTO instanceof UserTO && attribute != null && attribute.getValue() != null
-                            && !attribute.getValue().isEmpty()) {
+                    if (subjectTO instanceof UserTO && attr != null && attr.getValue() != null
+                            && !attr.getValue().isEmpty()) {
 
-                        ((UserTO) subjectTO).setPassword(getPassword(attribute.getValue().get(0)));
+                        ((UserTO) subjectTO).setPassword(getPassword(attr.getValue().get(0)));
                     }
                     break;
 
                 case Username:
                     if (subjectTO instanceof UserTO) {
-                        ((UserTO) subjectTO).setUsername(attribute == null || attribute.getValue().isEmpty()
-                                || attribute.getValue().get(0) == null
+                        ((UserTO) subjectTO).setUsername(attr == null || attr.getValue().isEmpty()
+                                || attr.getValue().get(0) == null
                                         ? null
-                                        : attribute.getValue().get(0).toString());
+                                        : attr.getValue().get(0).toString());
                     }
                     break;
 
                 case GroupName:
                     if (subjectTO instanceof GroupTO) {
-                        ((GroupTO) subjectTO).setName(attribute == null || attribute.getValue().isEmpty()
-                                || attribute.getValue().get(0) == null
+                        ((GroupTO) subjectTO).setName(attr == null || attr.getValue().isEmpty()
+                                || attr.getValue().get(0) == null
                                         ? null
-                                        : attribute.getValue().get(0).toString());
+                                        : attr.getValue().get(0).toString());
                     }
                     break;
 
                 case GroupOwnerSchema:
-                    if (subjectTO instanceof GroupTO && attribute != null) {
+                    if (subjectTO instanceof GroupTO && attr != null) {
                         // using a special attribute (with schema "", that will be ignored) for carrying the
                         // GroupOwnerSchema value
-                        attributeTO = new AttrTO();
-                        attributeTO.setSchema(StringUtils.EMPTY);
-                        if (attribute.getValue().isEmpty() || attribute.getValue().get(0) == null) {
-                            attributeTO.getValues().add(StringUtils.EMPTY);
+                        attrTO = new AttrTO();
+                        attrTO.setSchema(StringUtils.EMPTY);
+                        if (attr.getValue().isEmpty() || attr.getValue().get(0) == null) {
+                            attrTO.getValues().add(StringUtils.EMPTY);
                         } else {
-                            attributeTO.getValues().add(attribute.getValue().get(0).toString());
+                            attrTO.getValues().add(attr.getValue().get(0).toString());
                         }
 
-                        ((GroupTO) subjectTO).getPlainAttrs().add(attributeTO);
+                        ((GroupTO) subjectTO).getPlainAttrs().add(attrTO);
                     }
                     break;
 
                 case UserPlainSchema:
                 case GroupPlainSchema:
-                    attributeTO = new AttrTO();
-                    attributeTO.setSchema(item.getIntAttrName());
+                    attrTO = new AttrTO();
+                    attrTO.setSchema(item.getIntAttrName());
 
                     PlainSchema schema = plainSchemaDAO.find(item.getIntAttrName(), attrUtils.plainSchemaClass());
 
-                    for (Object value : attribute == null || attribute.getValue() == null
+                    for (Object value : attr == null || attr.getValue() == null
                             ? Collections.emptyList()
-                            : attribute.getValue()) {
+                            : attr.getValue()) {
 
                         AttrSchemaType schemaType = schema == null ? AttrSchemaType.String : schema.getType();
                         if (value != null) {
@@ -332,35 +327,35 @@ public class ConnObjectUtils {
                                     }
                                     break;
                             }
-                            attributeTO.getValues().add(attrValue.getValueAsString(schemaType));
+                            attrTO.getValues().add(attrValue.getValueAsString(schemaType));
                         }
                     }
 
-                    subjectTO.getPlainAttrs().add(attributeTO);
+                    subjectTO.getPlainAttrs().add(attrTO);
                     break;
 
                 case UserDerivedSchema:
                 case GroupDerivedSchema:
-                    attributeTO = new AttrTO();
-                    attributeTO.setSchema(item.getIntAttrName());
-                    subjectTO.getDerAttrs().add(attributeTO);
+                    attrTO = new AttrTO();
+                    attrTO.setSchema(item.getIntAttrName());
+                    subjectTO.getDerAttrs().add(attrTO);
                     break;
 
                 case UserVirtualSchema:
                 case GroupVirtualSchema:
-                    attributeTO = new AttrTO();
-                    attributeTO.setSchema(item.getIntAttrName());
+                    attrTO = new AttrTO();
+                    attrTO.setSchema(item.getIntAttrName());
 
-                    for (Object value : attribute == null || attribute.getValue() == null
+                    for (Object value : attr == null || attr.getValue() == null
                             ? Collections.emptyList()
-                            : attribute.getValue()) {
+                            : attr.getValue()) {
 
                         if (value != null) {
-                            attributeTO.getValues().add(value.toString());
+                            attrTO.getValues().add(value.toString());
                         }
                     }
 
-                    subjectTO.getVirAttrs().add(attributeTO);
+                    subjectTO.getVirAttrs().add(attrTO);
                     break;
 
                 default:

@@ -120,16 +120,16 @@ public class RealmTest extends AbstractTest {
         assertEquals("last", actual.getName());
         assertEquals("/even/two/last", actual.getFullPath());
         assertEquals(realmDAO.find("/even/two"), actual.getParent());
-        assertNull(realm.getAccountPolicy());
-        assertNull(realm.getPasswordPolicy());
+        assertEquals(5L, realm.getAccountPolicy().getKey(), 0);
+        assertEquals(2L, realm.getPasswordPolicy().getKey(), 0);
 
         realm = actual;
         realm.setAccountPolicy((AccountPolicy) policyDAO.find(6L));
         realm.setPasswordPolicy((PasswordPolicy) policyDAO.find(4L));
 
         actual = realmDAO.save(realm);
-        assertNotNull(actual.getAccountPolicy());
-        assertNotNull(actual.getPasswordPolicy());
+        assertEquals(6L, actual.getAccountPolicy().getKey(), 0);
+        assertEquals(4L, actual.getPasswordPolicy().getKey(), 0);
     }
 
     @Test

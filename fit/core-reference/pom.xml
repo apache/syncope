@@ -344,6 +344,13 @@ under the License.
         <directory>src/test/resources</directory>
         <filtering>true</filtering>
       </testResource>
+      <testResource>
+        <directory>${basedir}/../../core/rest-cxf/src/main/resources</directory>
+        <includes>
+          <include>errorMessages.properties</include>
+        </includes>
+        <filtering>true</filtering>
+      </testResource>
     </testResources>
   </build>
   

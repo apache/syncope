@@ -84,9 +84,6 @@ import org.springframework.context.ConfigurableApplicationContext;
 
 public final class MappingUtils {
 
-    /**
-     * Logger.
-     */
     private static final Logger LOG = LoggerFactory.getLogger(MappingUtils.class);
 
     private static final Encryptor ENCRYPTOR = Encryptor.getInstance();
@@ -222,7 +219,7 @@ public final class MappingUtils {
             attributes.remove(accountIdExtAttr);
             attributes.add(AttributeBuilder.build(attrUtils.getAccountIdItem(resource).getExtAttrName(), accountId));
         }
-        attributes.add(MappingUtils.evaluateNAME(subject, resource, accountId));
+        attributes.add(evaluateNAME(subject, resource, accountId));
 
         if (enable != null) {
             attributes.add(AttributeBuilder.buildEnabled(enable));
@@ -304,8 +301,8 @@ public final class MappingUtils {
             case GroupPlainSchema:
             case MembershipPlainSchema:
                 final PlainSchemaDAO plainSchemaDAO = context.getBean(PlainSchemaDAO.class);
-                schema = plainSchemaDAO.find(mapItem.getIntAttrName(),
-                        MappingUtils.getIntMappingTypeClass(mapItem.getIntMappingType()));
+                schema = plainSchemaDAO.find(
+                        mapItem.getIntAttrName(), getIntMappingTypeClass(mapItem.getIntMappingType()));
                 schemaType = schema == null ? AttrSchemaType.String : schema.getType();
                 break;
 
@@ -313,8 +310,8 @@ public final class MappingUtils {
             case GroupVirtualSchema:
             case MembershipVirtualSchema:
                 VirSchemaDAO virSchemaDAO = context.getBean(VirSchemaDAO.class);
-                VirSchema virSchema = virSchemaDAO.find(mapItem.getIntAttrName(),
-                        MappingUtils.getIntMappingTypeClass(mapItem.getIntMappingType()));
+                VirSchema virSchema = virSchemaDAO.find(
+                        mapItem.getIntAttrName(), getIntMappingTypeClass(mapItem.getIntMappingType()));
                 readOnlyVirSchema = (virSchema != null && virSchema.isReadonly());
                 schemaType = AttrSchemaType.String;
                 break;

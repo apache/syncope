@@ -46,7 +46,7 @@ public final class Encryptor {
 
     private static final Logger LOG = LoggerFactory.getLogger(Encryptor.class);
 
-    private static final Map<String, Encryptor> INSTANCES = new ConcurrentHashMap<String, Encryptor>();
+    private static final Map<String, Encryptor> INSTANCES = new ConcurrentHashMap<>();
 
     private static final String DEFAULT_SECRET_KEY = "1abcdefghilmnopqrstuvz2!";
 

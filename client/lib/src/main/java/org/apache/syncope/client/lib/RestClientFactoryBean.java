@@ -62,6 +62,8 @@ public class RestClientFactoryBean extends JAXRSClientFactoryBean {
         setServiceClass(serviceClass);
         final T serviceInstance = create(serviceClass);
         WebClient.client(serviceInstance).type(mediaType).accept(mediaType);
+        WebClient.getConfig(WebClient.client(serviceInstance)).
+                getRequestContext().put("org.apache.cxf.http.header.split", true);
         return serviceInstance;
     }
 }

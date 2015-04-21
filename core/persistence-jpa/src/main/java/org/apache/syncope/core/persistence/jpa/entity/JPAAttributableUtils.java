@@ -82,8 +82,6 @@ import org.apache.syncope.core.persistence.jpa.entity.user.JPAUPlainSchema;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUVirAttr;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUVirSchema;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
-import org.apache.syncope.core.misc.spring.BeanUtils;
-import org.identityconnectors.framework.common.objects.Uid;
 import org.slf4j.LoggerFactory;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -721,21 +719,6 @@ public class JPAAttributableUtils implements AttributableUtils {
         }
 
         return result;
-    }
-
-    @Override
-    public <T extends MappingItem> List<T> getUidToMappingItems(
-            final ExternalResource resource, final MappingPurpose purpose) {
-
-        List<T> items = getMappingItems(resource, purpose);
-
-        MappingItem uidItem = type == AttributableType.USER ? new JPAUMappingItem() : new JPAGMappingItem();
-        BeanUtils.copyProperties(getAccountIdItem(resource), uidItem);
-        uidItem.setExtAttrName(Uid.NAME);
-        uidItem.setAccountid(false);
-        items.add((T) uidItem);
-
-        return items;
     }
 
     @Override

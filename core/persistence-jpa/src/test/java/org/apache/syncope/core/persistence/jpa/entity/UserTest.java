@@ -188,7 +188,7 @@ public class UserTest extends AbstractTest {
         user.setRealm(realmDAO.find("/even/two"));
         user.setCreationDate(new Date());
 
-        user.setPassword("password", CipherAlgorithm.AES);
+        user.setPassword("password123", CipherAlgorithm.AES);
 
         User actual = userDAO.save(user);
         assertNotNull(actual);
