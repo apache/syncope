@@ -25,6 +25,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.to.RealmTO;
+import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.entity.Realm;
@@ -42,7 +43,7 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
     @Autowired
     private RealmDataBinder binder;
 
-    @PreAuthorize("hasRole('REALM_LIST')")
+    @PreAuthorize("hasRole('" + Entitlement.REALM_LIST + "')")
     public List<RealmTO> list(final String fullPath) {
         Realm realm = realmDAO.find(fullPath);
         if (realm == null) {
@@ -60,12 +61,12 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
         }, new ArrayList<RealmTO>());
     }
 
-    @PreAuthorize("hasRole('REALM_CREATE')")
+    @PreAuthorize("hasRole('" + Entitlement.REALM_CREATE + "')")
     public RealmTO create(final String parentPath, final RealmTO realmTO) {
         return binder.getRealmTO(realmDAO.save(binder.create(parentPath, realmTO)));
     }
 
-    @PreAuthorize("hasRole('REALM_UPDATE')")
+    @PreAuthorize("hasRole('" + Entitlement.REALM_UPDATE + "')")
     public RealmTO update(final RealmTO realmTO) {
         Realm realm = realmDAO.find(realmTO.getFullPath());
         if (realm == null) {
@@ -80,7 +81,7 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
         return binder.getRealmTO(realm);
     }
 
-    @PreAuthorize("hasRole('REALM_DELETE')")
+    @PreAuthorize("hasRole('" + Entitlement.REALM_DELETE + "')")
     public RealmTO delete(final String fullPath) {
         Realm realm = realmDAO.find(fullPath);
         if (realm == null) {

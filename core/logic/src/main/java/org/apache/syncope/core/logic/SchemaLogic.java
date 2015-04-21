@@ -32,6 +32,7 @@ import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.VirSchemaTO;
 import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.DuplicateException;
@@ -89,7 +90,7 @@ public class SchemaLogic extends AbstractTransactionalLogic<AbstractSchemaTO> {
         return found;
     }
 
-    @PreAuthorize("hasRole('SCHEMA_CREATE')")
+    @PreAuthorize("hasRole('" + Entitlement.SCHEMA_CREATE + "')")
     @SuppressWarnings("unchecked")
     public <T extends AbstractSchemaTO> T create(
             final AttributableType attrType, final SchemaType schemaType, final T schemaTO) {
@@ -132,7 +133,7 @@ public class SchemaLogic extends AbstractTransactionalLogic<AbstractSchemaTO> {
         return created;
     }
 
-    @PreAuthorize("hasRole('SCHEMA_DELETE')")
+    @PreAuthorize("hasRole('" + Entitlement.SCHEMA_DELETE + "')")
     public void delete(final AttributableType attrType, final SchemaType schemaType, final String schemaName) {
         final AttributableUtils attrUtils = attrUtilsFactory.getInstance(attrType);
 
@@ -199,7 +200,7 @@ public class SchemaLogic extends AbstractTransactionalLogic<AbstractSchemaTO> {
         return result;
     }
 
-    @PreAuthorize("hasRole('SCHEMA_READ')")
+    @PreAuthorize("hasRole('" + Entitlement.SCHEMA_READ + "')")
     @SuppressWarnings("unchecked")
     public <T extends AbstractSchemaTO> T read(
             final AttributableType attrType, final SchemaType schemaType, final String schemaName) {
@@ -239,7 +240,7 @@ public class SchemaLogic extends AbstractTransactionalLogic<AbstractSchemaTO> {
         return read;
     }
 
-    @PreAuthorize("hasRole('SCHEMA_UPDATE')")
+    @PreAuthorize("hasRole('" + Entitlement.SCHEMA_UPDATE + "')")
     public <T extends AbstractSchemaTO> void update(
             final AttributableType attrType, final SchemaType schemaType, final T schemaTO) {
 

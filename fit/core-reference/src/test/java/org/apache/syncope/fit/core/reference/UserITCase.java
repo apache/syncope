@@ -68,7 +68,6 @@ import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.lib.types.ResourceAssociationActionType;
@@ -401,7 +400,7 @@ public class UserITCase extends AbstractITCase {
 
         // 3. verify password
         try {
-            Pair<Map<Entitlement, Set<String>>, UserTO> self =
+            Pair<Map<String, Set<String>>, UserTO> self =
                     clientFactory.create(newUserTO.getUsername(), "password123").self();
             assertNotNull(self);
         } catch (AccessControlException e) {

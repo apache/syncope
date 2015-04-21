@@ -34,7 +34,6 @@ import org.apache.syncope.common.lib.search.OrderByClauseBuilder;
 import org.apache.syncope.common.lib.search.GroupFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.search.UserFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.common.rest.api.Preference;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
@@ -109,7 +108,7 @@ public class SyncopeClient {
     }
 
     @SuppressWarnings("unchecked")
-    public Pair<Map<Entitlement, Set<String>>, UserTO> self() {
+    public Pair<Map<String, Set<String>>, UserTO> self() {
         // Explicitly disable header value split because it interferes with JSON deserialization below
         UserSelfService serviceInstance = getService(UserSelfService.class);
         WebClient.getConfig(WebClient.client(serviceInstance)).
@@ -125,9 +124,9 @@ public class SyncopeClient {
 
         try {
             return new ImmutablePair<>(
-                    (Map<Entitlement, Set<String>>) new ObjectMapper().readValue(
+                    (Map<String, Set<String>>) new ObjectMapper().readValue(
                             response.getHeaderString(RESTHeaders.OWNED_ENTITLEMENTS),
-                            new TypeReference<HashMap<Entitlement, Set<String>>>() {
+                            new TypeReference<HashMap<String, Set<String>>>() {
                             }),
                     response.readEntity(UserTO.class));
         } catch (IOException e) {

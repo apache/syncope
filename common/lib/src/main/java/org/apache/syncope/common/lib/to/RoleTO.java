@@ -20,7 +20,7 @@ package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
-import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.xml.bind.annotation.XmlElement;
@@ -28,7 +28,6 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.lib.AbstractBaseBean;
-import org.apache.syncope.common.lib.types.Entitlement;
 
 @XmlRootElement(name = "role")
 @XmlType
@@ -40,7 +39,7 @@ public class RoleTO extends AbstractBaseBean {
 
     private String name;
 
-    private final Set<Entitlement> entitlements = EnumSet.noneOf(Entitlement.class);
+    private final Set<String> entitlements = new HashSet<>();
 
     private final List<String> realms = new ArrayList<>();
 
@@ -63,7 +62,7 @@ public class RoleTO extends AbstractBaseBean {
     @XmlElementWrapper(name = "entitlements")
     @XmlElement(name = "entitlement")
     @JsonProperty("entitlements")
-    public Set<Entitlement> getEntitlements() {
+    public Set<String> getEntitlements() {
         return entitlements;
     }
 

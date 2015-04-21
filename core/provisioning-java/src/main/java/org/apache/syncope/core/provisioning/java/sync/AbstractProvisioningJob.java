@@ -20,7 +20,6 @@ package org.apache.syncope.core.provisioning.java.sync;
 
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
@@ -312,11 +311,11 @@ public abstract class AbstractProvisioningJob<T extends ProvisioningTask, A exte
     @Override
     protected String doExecute(final boolean dryRun) throws JobExecutionException {
         // PRE: grant all authorities (i.e. setup the SecurityContextHolder)
-        List<GrantedAuthority> authorities = CollectionUtils.collect(Arrays.asList(Entitlement.values()),
-                new Transformer<Entitlement, GrantedAuthority>() {
+        List<GrantedAuthority> authorities = CollectionUtils.collect(Entitlement.values(),
+                new Transformer<String, GrantedAuthority>() {
 
                     @Override
-                    public GrantedAuthority transform(final Entitlement entitlement) {
+                    public GrantedAuthority transform(final String entitlement) {
                         return new SyncopeGrantedAuthority(entitlement, SyncopeConstants.ROOT_REALM);
                     }
                 }, new ArrayList<GrantedAuthority>());

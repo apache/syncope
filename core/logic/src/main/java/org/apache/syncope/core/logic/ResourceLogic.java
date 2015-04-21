@@ -30,6 +30,7 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.SubjectType;
 import org.apache.syncope.core.persistence.api.dao.DuplicateException;
@@ -83,7 +84,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
     @Autowired
     private AttributableUtilsFactory attrUtilsFactory;
 
-    @PreAuthorize("hasRole('RESOURCE_CREATE')")
+    @PreAuthorize("hasRole('" + Entitlement.RESOURCE_CREATE + "')")
     public ResourceTO create(final ResourceTO resourceTO) {
         if (StringUtils.isBlank(resourceTO.getKey())) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
@@ -109,7 +110,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         return binder.getResourceTO(resource);
     }
 
-    @PreAuthorize("hasRole('RESOURCE_UPDATE')")
+    @PreAuthorize("hasRole('" + Entitlement.RESOURCE_UPDATE + "')")
     public ResourceTO update(final ResourceTO resourceTO) {
         ExternalResource resource = resourceDAO.find(resourceTO.getKey());
         if (resource == null) {
@@ -130,7 +131,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         return binder.getResourceTO(resource);
     }
 
-    @PreAuthorize("hasRole('RESOURCE_DELETE')")
+    @PreAuthorize("hasRole('" + Entitlement.RESOURCE_DELETE + "')")
     public ResourceTO delete(final String resourceName) {
         ExternalResource resource = resourceDAO.find(resourceName);
         if (resource == null) {
@@ -144,7 +145,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         return resourceToDelete;
     }
 
-    @PreAuthorize("hasRole('RESOURCE_READ')")
+    @PreAuthorize("hasRole('" + Entitlement.RESOURCE_READ + "')")
     @Transactional(readOnly = true)
     public ResourceTO read(final String resourceName) {
         ExternalResource resource = resourceDAO.find(resourceName);
@@ -167,7 +168,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         }, new ArrayList<ResourceTO>());
     }
 
-    @PreAuthorize("hasRole('RESOURCE_GETCONNECTOROBJECT')")
+    @PreAuthorize("hasRole('" + Entitlement.RESOURCE_GETCONNECTOROBJECT + "')")
     @Transactional(readOnly = true)
     public ConnObjectTO getConnectorObject(final String resourceName, final SubjectType type, final Long id) {
         ExternalResource resource = resourceDAO.find(resourceName);
@@ -213,7 +214,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         return connObjectUtils.getConnObjectTO(connectorObject);
     }
 
-    @PreAuthorize("hasRole('CONNECTOR_READ')")
+    @PreAuthorize("hasRole('" + Entitlement.CONNECTOR_READ + "')")
     @Transactional(readOnly = true)
     public boolean check(final ResourceTO resourceTO) {
         final ConnInstance connInstance = binder.getConnInstance(resourceTO);

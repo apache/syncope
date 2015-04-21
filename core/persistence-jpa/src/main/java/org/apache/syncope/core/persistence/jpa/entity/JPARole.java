@@ -27,8 +27,6 @@ import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -37,7 +35,6 @@ import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Role;
 
@@ -58,12 +55,11 @@ public class JPARole extends AbstractEntity<Long> implements Role {
     private String name;
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @Enumerated(EnumType.STRING)
     @Column(name = "entitlement")
     @CollectionTable(name = "SyncopeRole_entitlements",
             joinColumns =
             @JoinColumn(name = "role_id", referencedColumnName = "id"))
-    private Set<Entitlement> entitlements = new HashSet<>();
+    private Set<String> entitlements = new HashSet<>();
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(joinColumns =
@@ -89,7 +85,7 @@ public class JPARole extends AbstractEntity<Long> implements Role {
     }
 
     @Override
-    public Set<Entitlement> getEntitlements() {
+    public Set<String> getEntitlements() {
         return entitlements;
     }
 

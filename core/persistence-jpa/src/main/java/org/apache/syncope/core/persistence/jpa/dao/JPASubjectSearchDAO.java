@@ -46,7 +46,6 @@ import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.SubjectSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
-import org.apache.syncope.core.persistence.api.dao.search.EntitlementCond;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.ResourceCond;
@@ -427,10 +426,6 @@ public class JPASubjectSearchDAO extends AbstractDAO<Subject<?, ?, ?>, Long> imp
                     query.append(getQuery(nodeCond.getResourceCond(),
                             nodeCond.getType() == SearchCond.Type.NOT_LEAF, parameters, type, svs));
                 }
-                if (nodeCond.getEntitlementCond() != null) {
-                    query.append(getQuery(nodeCond.getEntitlementCond(),
-                            nodeCond.getType() == SearchCond.Type.NOT_LEAF, parameters, svs));
-                }
                 if (nodeCond.getAttributeCond() != null) {
                     query.append(getQuery(nodeCond.getAttributeCond(),
                             nodeCond.getType() == SearchCond.Type.NOT_LEAF, parameters, type, svs));
@@ -506,20 +501,6 @@ public class JPASubjectSearchDAO extends AbstractDAO<Subject<?, ?, ?>, Long> imp
         }
 
         query.append(')');
-
-        return query.toString();
-    }
-
-    private String getQuery(final EntitlementCond cond, final boolean not, final List<Object> parameters,
-            final SearchSupport svs) {
-
-        final StringBuilder query = new StringBuilder("SELECT DISTINCT subject_id FROM ").
-                append(svs.entitlements().name).
-                append(" WHERE entitlement_name ");
-        if (not) {
-            query.append(" NOT ");
-        }
-        query.append(" LIKE ?").append(setParameter(parameters, cond.getExpression()));
 
         return query.toString();
     }

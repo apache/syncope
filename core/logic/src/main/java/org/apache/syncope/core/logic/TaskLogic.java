@@ -31,6 +31,7 @@ import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.SyncTaskTO;
 import org.apache.syncope.common.lib.to.TaskExecTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.common.lib.types.PropagationMode;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.lib.types.TaskType;
@@ -86,7 +87,7 @@ public class TaskLogic extends AbstractTransactionalLogic<AbstractTaskTO> {
     @Autowired
     private TaskUtilsFactory taskUtilsFactory;
 
-    @PreAuthorize("hasRole('TASK_CREATE')")
+    @PreAuthorize("hasRole('" + Entitlement.TASK_CREATE + "')")
     public <T extends SchedTaskTO> T createSchedTask(final T taskTO) {
         TaskUtils taskUtils = taskUtilsFactory.getInstance(taskTO);
 
@@ -106,12 +107,12 @@ public class TaskLogic extends AbstractTransactionalLogic<AbstractTaskTO> {
         return binder.getTaskTO(task, taskUtils);
     }
 
-    @PreAuthorize("hasRole('TASK_UPDATE')")
+    @PreAuthorize("hasRole('" + Entitlement.TASK_UPDATE + "')")
     public SyncTaskTO updateSync(final SyncTaskTO taskTO) {
         return updateSched(taskTO);
     }
 
-    @PreAuthorize("hasRole('TASK_UPDATE')")
+    @PreAuthorize("hasRole('" + Entitlement.TASK_UPDATE + "')")
     public <T extends SchedTaskTO> T updateSched(final SchedTaskTO taskTO) {
         SchedTask task = taskDAO.find(taskTO.getKey());
         if (task == null) {
@@ -136,12 +137,12 @@ public class TaskLogic extends AbstractTransactionalLogic<AbstractTaskTO> {
         return binder.getTaskTO(task, taskUtils);
     }
 
-    @PreAuthorize("hasRole('TASK_LIST')")
+    @PreAuthorize("hasRole('" + Entitlement.TASK_LIST + "')")
     public int count(final TaskType taskType) {
         return taskDAO.count(taskType);
     }
 
-    @PreAuthorize("hasRole('TASK_LIST')")
+    @PreAuthorize("hasRole('" + Entitlement.TASK_LIST + "')")
     @SuppressWarnings("unchecked")
     public <T extends AbstractTaskTO> List<T> list(final TaskType taskType,
             final int page, final int size, final List<OrderByClause> orderByClauses) {
@@ -158,7 +159,7 @@ public class TaskLogic extends AbstractTransactionalLogic<AbstractTaskTO> {
                 }, new ArrayList<T>());
     }
 
-    @PreAuthorize("hasRole('TASK_READ')")
+    @PreAuthorize("hasRole('" + Entitlement.TASK_READ + "')")
     public <T extends AbstractTaskTO> T read(final Long taskId) {
         Task task = taskDAO.find(taskId);
         if (task == null) {
@@ -167,7 +168,7 @@ public class TaskLogic extends AbstractTransactionalLogic<AbstractTaskTO> {
         return binder.getTaskTO(task, taskUtilsFactory.getInstance(task));
     }
 
-    @PreAuthorize("hasRole('TASK_READ')")
+    @PreAuthorize("hasRole('" + Entitlement.TASK_READ + "')")
     public TaskExecTO readExecution(final Long executionId) {
         TaskExec taskExec = taskExecDAO.find(executionId);
         if (taskExec == null) {
@@ -176,7 +177,7 @@ public class TaskLogic extends AbstractTransactionalLogic<AbstractTaskTO> {
         return binder.getTaskExecTO(taskExec);
     }
 
-    @PreAuthorize("hasRole('TASK_EXECUTE')")
+    @PreAuthorize("hasRole('" + Entitlement.TASK_EXECUTE + "')")
     public TaskExecTO execute(final Long taskId, final boolean dryRun) {
         Task task = taskDAO.find(taskId);
         if (task == null) {
@@ -230,7 +231,7 @@ public class TaskLogic extends AbstractTransactionalLogic<AbstractTaskTO> {
         return result;
     }
 
-    @PreAuthorize("hasRole('TASK_READ')")
+    @PreAuthorize("hasRole('" + Entitlement.TASK_READ + "')")
     public TaskExecTO report(final Long executionId, final PropagationTaskExecStatus status, final String message) {
         TaskExec exec = taskExecDAO.find(executionId);
         if (exec == null) {
@@ -272,7 +273,7 @@ public class TaskLogic extends AbstractTransactionalLogic<AbstractTaskTO> {
         return binder.getTaskExecTO(taskExecDAO.save(exec));
     }
 
-    @PreAuthorize("hasRole('TASK_DELETE')")
+    @PreAuthorize("hasRole('" + Entitlement.TASK_DELETE + "')")
     public <T extends AbstractTaskTO> T delete(final Long taskId) {
         Task task = taskDAO.find(taskId);
         if (task == null) {
@@ -293,7 +294,7 @@ public class TaskLogic extends AbstractTransactionalLogic<AbstractTaskTO> {
         return taskToDelete;
     }
 
-    @PreAuthorize("hasRole('TASK_DELETE')")
+    @PreAuthorize("hasRole('" + Entitlement.TASK_DELETE + "')")
     public TaskExecTO deleteExecution(final Long executionId) {
         TaskExec taskExec = taskExecDAO.find(executionId);
         if (taskExec == null) {

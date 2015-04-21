@@ -92,14 +92,14 @@ public class GroupLogic extends AbstractSubjectLogic<GroupTO, GroupMod> {
     @Autowired
     protected GroupProvisioningManager provisioningManager;
 
-    @PreAuthorize("hasRole('GROUP_READ')")
+    @PreAuthorize("hasRole('" + Entitlement.GROUP_READ + "')")
     @Transactional(readOnly = true)
     @Override
     public GroupTO read(final Long groupKey) {
         return binder.getGroupTO(groupKey);
     }
 
-    @PreAuthorize("isAuthenticated() and not(hasRole('ANONYMOUS'))")
+    @PreAuthorize("isAuthenticated() and not(hasRole('" + Entitlement.ANONYMOUS + "'))")
     @Transactional(readOnly = true)
     public List<GroupTO> own() {
         return CollectionUtils.collect(
@@ -138,7 +138,7 @@ public class GroupLogic extends AbstractSubjectLogic<GroupTO, GroupMod> {
                 }, new ArrayList<GroupTO>());
     }
 
-    @PreAuthorize("hasRole('GROUP_SEARCH')")
+    @PreAuthorize("hasRole('" + Entitlement.GROUP_SEARCH + "')")
     @Transactional(readOnly = true, rollbackFor = { Throwable.class })
     @Override
     public int searchCount(final SearchCond searchCondition, final List<String> realms) {
@@ -147,7 +147,7 @@ public class GroupLogic extends AbstractSubjectLogic<GroupTO, GroupMod> {
                 searchCondition, SubjectType.GROUP);
     }
 
-    @PreAuthorize("hasRole('GROUP_SEARCH')")
+    @PreAuthorize("hasRole('" + Entitlement.GROUP_SEARCH + "')")
     @Transactional(readOnly = true, rollbackFor = { Throwable.class })
     @Override
     public List<GroupTO> search(final SearchCond searchCondition, final int page, final int size,
@@ -165,7 +165,7 @@ public class GroupLogic extends AbstractSubjectLogic<GroupTO, GroupMod> {
         }, new ArrayList<GroupTO>());
     }
 
-    @PreAuthorize("hasRole('GROUP_CREATE')")
+    @PreAuthorize("hasRole('" + Entitlement.GROUP_CREATE + "')")
     public GroupTO create(final GroupTO groupTO) {
         if (groupTO.getRealm() == null) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
@@ -191,7 +191,7 @@ public class GroupLogic extends AbstractSubjectLogic<GroupTO, GroupMod> {
         return savedTO;
     }
 
-    @PreAuthorize("hasRole('GROUP_UPDATE')")
+    @PreAuthorize("hasRole('" + Entitlement.GROUP_UPDATE + "')")
     @Override
     public GroupTO update(final GroupMod groupMod) {
         Group group = groupDAO.authFetch(groupMod.getKey());
@@ -216,7 +216,7 @@ public class GroupLogic extends AbstractSubjectLogic<GroupTO, GroupMod> {
         return updatedTO;
     }
 
-    @PreAuthorize("hasRole('GROUP_DELETE')")
+    @PreAuthorize("hasRole('" + Entitlement.GROUP_DELETE + "')")
     @Override
     public GroupTO delete(final Long groupKey) {
         Group group = groupDAO.authFetch(groupKey);
@@ -253,7 +253,7 @@ public class GroupLogic extends AbstractSubjectLogic<GroupTO, GroupMod> {
         return groupTO;
     }
 
-    @PreAuthorize("hasRole('GROUP_UPDATE')")
+    @PreAuthorize("hasRole('" + Entitlement.GROUP_UPDATE + "')")
     @Transactional(rollbackFor = { Throwable.class })
     @Override
     public GroupTO unlink(final Long groupKey, final Collection<String> resources) {
@@ -265,7 +265,7 @@ public class GroupLogic extends AbstractSubjectLogic<GroupTO, GroupMod> {
         return binder.getGroupTO(updatedResult);
     }
 
-    @PreAuthorize("hasRole('GROUP_UPDATE')")
+    @PreAuthorize("hasRole('" + Entitlement.GROUP_UPDATE + "')")
     @Transactional(rollbackFor = { Throwable.class })
     @Override
     public GroupTO link(final Long groupKey, final Collection<String> resources) {
@@ -275,7 +275,7 @@ public class GroupLogic extends AbstractSubjectLogic<GroupTO, GroupMod> {
         return binder.getGroupTO(provisioningManager.link(groupMod));
     }
 
-    @PreAuthorize("hasRole('GROUP_UPDATE')")
+    @PreAuthorize("hasRole('" + Entitlement.GROUP_UPDATE + "')")
     @Transactional(rollbackFor = { Throwable.class })
     @Override
     public GroupTO unassign(final Long groupKey, final Collection<String> resources) {
@@ -285,7 +285,7 @@ public class GroupLogic extends AbstractSubjectLogic<GroupTO, GroupMod> {
         return update(groupMod);
     }
 
-    @PreAuthorize("hasRole('GROUP_UPDATE')")
+    @PreAuthorize("hasRole('" + Entitlement.GROUP_UPDATE + "')")
     @Transactional(rollbackFor = { Throwable.class })
     @Override
     public GroupTO assign(
@@ -297,7 +297,7 @@ public class GroupLogic extends AbstractSubjectLogic<GroupTO, GroupMod> {
         return update(userMod);
     }
 
-    @PreAuthorize("hasRole('GROUP_UPDATE')")
+    @PreAuthorize("hasRole('" + Entitlement.GROUP_UPDATE + "')")
     @Transactional(rollbackFor = { Throwable.class })
     @Override
     public GroupTO deprovision(final Long groupKey, final Collection<String> resources) {
@@ -310,7 +310,7 @@ public class GroupLogic extends AbstractSubjectLogic<GroupTO, GroupMod> {
         return updatedTO;
     }
 
-    @PreAuthorize("hasRole('GROUP_UPDATE')")
+    @PreAuthorize("hasRole('" + Entitlement.GROUP_UPDATE + "')")
     @Transactional(rollbackFor = { Throwable.class })
     @Override
     public GroupTO provision(

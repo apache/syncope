@@ -25,6 +25,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.to.SecurityQuestionTO;
+import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.SecurityQuestionDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -71,12 +72,12 @@ public class SecurityQuestionLogic extends AbstractTransactionalLogic<SecurityQu
         return binder.getSecurityQuestionTO(securityQuestion);
     }
 
-    @PreAuthorize("hasRole('SECURITY_QUESTION_CREATE')")
+    @PreAuthorize("hasRole('" + Entitlement.SECURITY_QUESTION_CREATE + "')")
     public SecurityQuestionTO create(final SecurityQuestionTO securityQuestionTO) {
         return binder.getSecurityQuestionTO(securityQuestionDAO.save(binder.create(securityQuestionTO)));
     }
 
-    @PreAuthorize("hasRole('SECURITY_QUESTION_UPDATE')")
+    @PreAuthorize("hasRole('" + Entitlement.SECURITY_QUESTION_UPDATE + "')")
     public SecurityQuestionTO update(final SecurityQuestionTO securityQuestionTO) {
         SecurityQuestion securityQuestion = securityQuestionDAO.find(securityQuestionTO.getKey());
         if (securityQuestion == null) {
@@ -91,7 +92,7 @@ public class SecurityQuestionLogic extends AbstractTransactionalLogic<SecurityQu
         return binder.getSecurityQuestionTO(securityQuestion);
     }
 
-    @PreAuthorize("hasRole('SECURITY_QUESTION_DELETE')")
+    @PreAuthorize("hasRole('" + Entitlement.SECURITY_QUESTION_DELETE + "')")
     public SecurityQuestionTO delete(final Long securityQuestionId) {
         SecurityQuestion securityQuestion = securityQuestionDAO.find(securityQuestionId);
         if (securityQuestion == null) {
@@ -105,7 +106,7 @@ public class SecurityQuestionLogic extends AbstractTransactionalLogic<SecurityQu
         return deleted;
     }
 
-    @PreAuthorize("isAnonymous() or hasRole('ANONYMOUS')")
+    @PreAuthorize("isAnonymous() or hasRole('" + Entitlement.ANONYMOUS + "')")
     public SecurityQuestionTO read(final String username) {
         if (username == null) {
             throw new NotFoundException("Null username");

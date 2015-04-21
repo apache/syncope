@@ -63,6 +63,7 @@ import org.apache.syncope.core.logic.report.Reportlet;
 import org.apache.syncope.core.logic.report.ReportletConfClass;
 import org.apache.syncope.core.logic.report.TextSerializer;
 import org.apache.syncope.common.lib.CollectionUtils2;
+import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.xmlgraphics.util.MimeConstants;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
@@ -97,7 +98,7 @@ public class ReportLogic extends AbstractTransactionalLogic<ReportTO> {
     @Autowired
     private ImplementationClassNamesLoader classNamesLoader;
 
-    @PreAuthorize("hasRole('REPORT_CREATE')")
+    @PreAuthorize("hasRole('" + Entitlement.REPORT_CREATE + "')")
     public ReportTO create(final ReportTO reportTO) {
         Report report = entityFactory.newEntity(Report.class);
         binder.getReport(report, reportTO);
@@ -116,7 +117,7 @@ public class ReportLogic extends AbstractTransactionalLogic<ReportTO> {
         return binder.getReportTO(report);
     }
 
-    @PreAuthorize("hasRole('REPORT_UPDATE')")
+    @PreAuthorize("hasRole('" + Entitlement.REPORT_UPDATE + "')")
     public ReportTO update(final ReportTO reportTO) {
         Report report = reportDAO.find(reportTO.getKey());
         if (report == null) {
@@ -139,12 +140,12 @@ public class ReportLogic extends AbstractTransactionalLogic<ReportTO> {
         return binder.getReportTO(report);
     }
 
-    @PreAuthorize("hasRole('REPORT_LIST')")
+    @PreAuthorize("hasRole('" + Entitlement.REPORT_LIST + "')")
     public int count() {
         return reportDAO.count();
     }
 
-    @PreAuthorize("hasRole('REPORT_LIST')")
+    @PreAuthorize("hasRole('" + Entitlement.REPORT_LIST + "')")
     public List<ReportTO> list(final int page, final int size, final List<OrderByClause> orderByClauses) {
         return CollectionUtils.collect(reportDAO.findAll(page, size, orderByClauses),
                 new Transformer<Report, ReportTO>() {
@@ -191,7 +192,7 @@ public class ReportLogic extends AbstractTransactionalLogic<ReportTO> {
                 PredicateUtils.notNullPredicate(), new HashSet<Class<Reportlet>>());
     }
 
-    @PreAuthorize("hasRole('REPORT_LIST')")
+    @PreAuthorize("hasRole('" + Entitlement.REPORT_LIST + "')")
     public Set<String> getReportletConfClasses() {
         return CollectionUtils2.collect(getAllReportletClasses(),
                 new Transformer<Class<Reportlet>, String>() {
@@ -216,7 +217,7 @@ public class ReportLogic extends AbstractTransactionalLogic<ReportTO> {
         return result;
     }
 
-    @PreAuthorize("hasRole('REPORT_READ')")
+    @PreAuthorize("hasRole('" + Entitlement.REPORT_READ + "')")
     public ReportTO read(final Long reportKey) {
         Report report = reportDAO.find(reportKey);
         if (report == null) {
@@ -225,7 +226,7 @@ public class ReportLogic extends AbstractTransactionalLogic<ReportTO> {
         return binder.getReportTO(report);
     }
 
-    @PreAuthorize("hasRole('REPORT_READ')")
+    @PreAuthorize("hasRole('" + Entitlement.REPORT_READ + "')")
     @Transactional(readOnly = true)
     public ReportExecTO readExecution(final Long executionKey) {
         ReportExec reportExec = reportExecDAO.find(executionKey);
@@ -235,7 +236,7 @@ public class ReportLogic extends AbstractTransactionalLogic<ReportTO> {
         return binder.getReportExecTO(reportExec);
     }
 
-    @PreAuthorize("hasRole('REPORT_READ')")
+    @PreAuthorize("hasRole('" + Entitlement.REPORT_READ + "')")
     public void exportExecutionResult(final OutputStream os, final ReportExec reportExec,
             final ReportExecExportFormat format) {
 
@@ -301,7 +302,7 @@ public class ReportLogic extends AbstractTransactionalLogic<ReportTO> {
         }
     }
 
-    @PreAuthorize("hasRole('REPORT_READ')")
+    @PreAuthorize("hasRole('" + Entitlement.REPORT_READ + "')")
     public ReportExec getAndCheckReportExec(final Long executionKey) {
         ReportExec reportExec = reportExecDAO.find(executionKey);
         if (reportExec == null) {
@@ -317,7 +318,7 @@ public class ReportLogic extends AbstractTransactionalLogic<ReportTO> {
         return reportExec;
     }
 
-    @PreAuthorize("hasRole('REPORT_EXECUTE')")
+    @PreAuthorize("hasRole('" + Entitlement.REPORT_EXECUTE + "')")
     public ReportExecTO execute(final Long reportKey) {
         Report report = reportDAO.find(reportKey);
         if (report == null) {
@@ -346,7 +347,7 @@ public class ReportLogic extends AbstractTransactionalLogic<ReportTO> {
         return result;
     }
 
-    @PreAuthorize("hasRole('REPORT_DELETE')")
+    @PreAuthorize("hasRole('" + Entitlement.REPORT_DELETE + "')")
     public ReportTO delete(final Long reportKey) {
         Report report = reportDAO.find(reportKey);
         if (report == null) {
@@ -359,7 +360,7 @@ public class ReportLogic extends AbstractTransactionalLogic<ReportTO> {
         return deletedReport;
     }
 
-    @PreAuthorize("hasRole('REPORT_DELETE')")
+    @PreAuthorize("hasRole('" + Entitlement.REPORT_DELETE + "')")
     public ReportExecTO deleteExecution(final Long executionKey) {
         ReportExec reportExec = reportExecDAO.find(executionKey);
         if (reportExec == null) {

@@ -25,7 +25,6 @@ import java.util.Set;
 import org.apache.commons.collections4.Closure;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.SetUtils;
-import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.core.misc.RealmUtils;
 import org.springframework.security.core.GrantedAuthority;
 
@@ -33,15 +32,15 @@ public class SyncopeGrantedAuthority implements GrantedAuthority {
 
     private static final long serialVersionUID = -5647624636011919735L;
 
-    private final Entitlement entitlement;
+    private final String entitlement;
 
     private final Set<String> realms = SetUtils.orderedSet(new HashSet<String>());
 
-    public SyncopeGrantedAuthority(final Entitlement entitlement) {
+    public SyncopeGrantedAuthority(final String entitlement) {
         this.entitlement = entitlement;
     }
 
-    public SyncopeGrantedAuthority(final Entitlement entitlement, final String realm) {
+    public SyncopeGrantedAuthority(final String entitlement, final String realm) {
         this.entitlement = entitlement;
         this.realms.add(realm);
     }
@@ -60,17 +59,13 @@ public class SyncopeGrantedAuthority implements GrantedAuthority {
         });
     }
 
-    public Entitlement getEntitlement() {
-        return entitlement;
-    }
-
     public Set<String> getRealms() {
         return Collections.unmodifiableSet(realms);
     }
 
     @Override
     public String getAuthority() {
-        return entitlement.name();
+        return entitlement;
     }
 
 }

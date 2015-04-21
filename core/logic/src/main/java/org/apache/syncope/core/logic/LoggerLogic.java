@@ -48,6 +48,7 @@ import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.common.lib.CollectionUtils2;
+import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.LoggerDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -98,13 +99,13 @@ public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
         }, new ArrayList<LoggerTO>());
     }
 
-    @PreAuthorize("hasRole('LOG_LIST')")
+    @PreAuthorize("hasRole('" + Entitlement.LOG_LIST + "')")
     @Transactional(readOnly = true)
     public List<LoggerTO> listLogs() {
         return list(LoggerType.LOG);
     }
 
-    @PreAuthorize("hasRole('AUDIT_LIST')")
+    @PreAuthorize("hasRole('" + Entitlement.AUDIT_LIST + "')")
     @Transactional(readOnly = true)
     public List<AuditLoggerName> listAudits() {
         return CollectionUtils2.collect(list(LoggerType.AUDIT), new Transformer<LoggerTO, AuditLoggerName>() {
@@ -162,12 +163,12 @@ public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
         return result;
     }
 
-    @PreAuthorize("hasRole('LOG_SET_LEVEL')")
+    @PreAuthorize("hasRole('" + Entitlement.LOG_SET_LEVEL + "')")
     public LoggerTO setLogLevel(final String name, final Level level) {
         return setLevel(name, level, LoggerType.LOG);
     }
 
-    @PreAuthorize("hasRole('AUDIT_ENABLE')")
+    @PreAuthorize("hasRole('" + Entitlement.AUDIT_ENABLE + "')")
     public void enableAudit(final AuditLoggerName auditLoggerName) {
         try {
             setLevel(auditLoggerName.toLoggerName(), Level.DEBUG, LoggerType.AUDIT);
@@ -202,12 +203,12 @@ public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
         return loggerToDelete;
     }
 
-    @PreAuthorize("hasRole('LOG_DELETE')")
+    @PreAuthorize("hasRole('" + Entitlement.LOG_DELETE + "')")
     public LoggerTO deleteLog(final String name) throws NotFoundException {
         return delete(name, LoggerType.LOG);
     }
 
-    @PreAuthorize("hasRole('AUDIT_DISABLE')")
+    @PreAuthorize("hasRole('" + Entitlement.AUDIT_DISABLE + "')")
     public void disableAudit(final AuditLoggerName auditLoggerName) {
         try {
             delete(auditLoggerName.toLoggerName(), LoggerType.AUDIT);
@@ -220,7 +221,7 @@ public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
         }
     }
 
-    @PreAuthorize("hasRole('AUDIT_LIST') or hasRole('NOTIFICATION_LIST')")
+    @PreAuthorize("hasRole('" + Entitlement.AUDIT_LIST + "') or hasRole('" + Entitlement.NOTIFICATION_LIST + "')")
     public List<EventCategoryTO> listAuditEvents() {
         // use set to avoid duplications or null elements
         Set<EventCategoryTO> events = new HashSet<>();

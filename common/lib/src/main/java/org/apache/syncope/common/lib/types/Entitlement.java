@@ -18,91 +18,198 @@
  */
 package org.apache.syncope.common.lib.types;
 
-public enum Entitlement {
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
-    ANONYMOUS,
-    REALM_LIST,
-    REALM_CREATE,
-    REALM_UPDATE,
-    REALM_DELETE,
-    ROLE_LIST,
-    ROLE_CREATE,
-    ROLE_READ,
-    ROLE_UPDATE,
-    ROLE_DELETE,
-    SCHEMA_LIST,
-    SCHEMA_CREATE,
-    SCHEMA_READ,
-    SCHEMA_UPDATE,
-    SCHEMA_DELETE,
-    USER_SEARCH,
-    USER_LIST,
-    USER_CREATE,
-    USER_READ,
-    USER_UPDATE,
-    USER_DELETE,
-    USER_VIEW,
-    GROUP_SEARCH,
-    GROUP_CREATE,
-    GROUP_READ,
-    GROUP_UPDATE,
-    GROUP_DELETE,
-    RESOURCE_LIST,
-    RESOURCE_CREATE,
-    RESOURCE_READ,
-    RESOURCE_UPDATE,
-    RESOURCE_DELETE,
-    RESOURCE_GETCONNECTOROBJECT,
-    CONNECTOR_LIST,
-    CONNECTOR_CREATE,
-    CONNECTOR_READ,
-    CONNECTOR_UPDATE,
-    CONNECTOR_DELETE,
-    CONNECTOR_RELOAD,
-    CONFIGURATION_EXPORT,
-    CONFIGURATION_LIST,
-    CONFIGURATION_SET,
-    CONFIGURATION_DELETE,
-    TASK_LIST,
-    TASK_CREATE,
-    TASK_READ,
-    TASK_UPDATE,
-    TASK_DELETE,
-    TASK_EXECUTE,
-    POLICY_LIST,
-    POLICY_CREATE,
-    POLICY_READ,
-    POLICY_UPDATE,
-    POLICY_DELETE,
-    WORKFLOW_DEF_READ,
-    WORKFLOW_DEF_UPDATE,
-    WORKFLOW_TASK_LIST,
-    WORKFLOW_FORM_LIST,
-    WORKFLOW_FORM_READ,
-    WORKFLOW_FORM_CLAIM,
-    WORKFLOW_FORM_SUBMIT,
-    NOTIFICATION_LIST,
-    NOTIFICATION_CREATE,
-    NOTIFICATION_READ,
-    NOTIFICATION_UPDATE,
-    NOTIFICATION_DELETE,
-    REPORT_LIST,
-    REPORT_READ,
-    REPORT_CREATE,
-    REPORT_UPDATE,
-    REPORT_DELETE,
-    REPORT_EXECUTE,
-    LOG_LIST,
-    LOG_SET_LEVEL,
-    LOG_DELETE,
-    AUDIT_LIST,
-    AUDIT_ENABLE,
-    AUDIT_DISABLE,
-    SECURITY_QUESTION_CREATE,
-    SECURITY_QUESTION_UPDATE,
-    SECURITY_QUESTION_DELETE,
-    ROUTE_READ,
-    ROUTE_LIST,
-    ROUTE_UPDATE;
+public final class Entitlement {
 
+    public static final String ANONYMOUS = "ANONYMOUS";
+
+    public static final String REALM_LIST = "REALM_LIST";
+
+    public static final String REALM_CREATE = "REALM_CREATE";
+
+    public static final String REALM_UPDATE = "REALM_UPDATE";
+
+    public static final String REALM_DELETE = "REALM_DELETE";
+
+    public static final String ROLE_LIST = "ROLE_LIST";
+
+    public static final String ROLE_CREATE = "ROLE_CREATE";
+
+    public static final String ROLE_READ = "ROLE_READ";
+
+    public static final String ROLE_UPDATE = "ROLE_UPDATE";
+
+    public static final String ROLE_DELETE = "ROLE_DELETE";
+
+    public static final String SCHEMA_LIST = "SCHEMA_LIST";
+
+    public static final String SCHEMA_CREATE = "SCHEMA_CREATE";
+
+    public static final String SCHEMA_READ = "SCHEMA_READ";
+
+    public static final String SCHEMA_UPDATE = "SCHEMA_UPDATE";
+
+    public static final String SCHEMA_DELETE = "SCHEMA_DELETE";
+
+    public static final String USER_SEARCH = "USER_SEARCH";
+
+    public static final String USER_LIST = "USER_LIST";
+
+    public static final String USER_CREATE = "USER_CREATE";
+
+    public static final String USER_READ = "USER_READ";
+
+    public static final String USER_UPDATE = "USER_UPDATE";
+
+    public static final String USER_DELETE = "USER_DELETE";
+
+    public static final String USER_VIEW = "USER_VIEW";
+
+    public static final String GROUP_SEARCH = "GROUP_SEARCH";
+
+    public static final String GROUP_CREATE = "GROUP_CREATE";
+
+    public static final String GROUP_READ = "GROUP_READ";
+
+    public static final String GROUP_UPDATE = "GROUP_UPDATE";
+
+    public static final String GROUP_DELETE = "GROUP_DELETE";
+
+    public static final String RESOURCE_LIST = "RESOURCE_LIST";
+
+    public static final String RESOURCE_CREATE = "RESOURCE_CREATE";
+
+    public static final String RESOURCE_READ = "RESOURCE_READ";
+
+    public static final String RESOURCE_UPDATE = "RESOURCE_UPDATE";
+
+    public static final String RESOURCE_DELETE = "RESOURCE_DELETE";
+
+    public static final String RESOURCE_GETCONNECTOROBJECT = "RESOURCE_GETCONNECTOROBJECT";
+
+    public static final String CONNECTOR_LIST = "CONNECTOR_LIST";
+
+    public static final String CONNECTOR_CREATE = "CONNECTOR_CREATE";
+
+    public static final String CONNECTOR_READ = "CONNECTOR_READ";
+
+    public static final String CONNECTOR_UPDATE = "CONNECTOR_UPDATE";
+
+    public static final String CONNECTOR_DELETE = "CONNECTOR_DELETE";
+
+    public static final String CONNECTOR_RELOAD = "CONNECTOR_RELOAD";
+
+    public static final String CONFIGURATION_EXPORT = "CONFIGURATION_EXPORT";
+
+    public static final String CONFIGURATION_LIST = "CONFIGURATION_LIST";
+
+    public static final String CONFIGURATION_SET = "CONFIGURATION_SET";
+
+    public static final String CONFIGURATION_DELETE = "CONFIGURATION_DELETE";
+
+    public static final String TASK_LIST = "TASK_LIST";
+
+    public static final String TASK_CREATE = "TASK_CREATE";
+
+    public static final String TASK_READ = "TASK_READ";
+
+    public static final String TASK_UPDATE = "TASK_UPDATE";
+
+    public static final String TASK_DELETE = "TASK_DELETE";
+
+    public static final String TASK_EXECUTE = "TASK_EXECUTE";
+
+    public static final String POLICY_LIST = "POLICY_LIST";
+
+    public static final String POLICY_CREATE = "POLICY_CREATE";
+
+    public static final String POLICY_READ = "POLICY_READ";
+
+    public static final String POLICY_UPDATE = "POLICY_UPDATE";
+
+    public static final String POLICY_DELETE = "POLICY_DELETE";
+
+    public static final String WORKFLOW_DEF_READ = "WORKFLOW_DEF_READ";
+
+    public static final String WORKFLOW_DEF_UPDATE = "WORKFLOW_DEF_UPDATE";
+
+    public static final String WORKFLOW_TASK_LIST = "WORKFLOW_TASK_LIST";
+
+    public static final String WORKFLOW_FORM_LIST = "WORKFLOW_FORM_LIST";
+
+    public static final String WORKFLOW_FORM_READ = "WORKFLOW_FORM_READ";
+
+    public static final String WORKFLOW_FORM_CLAIM = "WORKFLOW_FORM_CLAIM";
+
+    public static final String WORKFLOW_FORM_SUBMIT = "WORKFLOW_FORM_SUBMIT";
+
+    public static final String NOTIFICATION_LIST = "NOTIFICATION_LIST";
+
+    public static final String NOTIFICATION_CREATE = "NOTIFICATION_CREATE";
+
+    public static final String NOTIFICATION_READ = "NOTIFICATION_READ";
+
+    public static final String NOTIFICATION_UPDATE = "NOTIFICATION_UPDATE";
+
+    public static final String NOTIFICATION_DELETE = "NOTIFICATION_DELETE";
+
+    public static final String REPORT_LIST = "REPORT_LIST";
+
+    public static final String REPORT_READ = "REPORT_READ";
+
+    public static final String REPORT_CREATE = "REPORT_CREATE";
+
+    public static final String REPORT_UPDATE = "REPORT_UPDATE";
+
+    public static final String REPORT_DELETE = "REPORT_DELETE";
+
+    public static final String REPORT_EXECUTE = "REPORT_EXECUTE";
+
+    public static final String LOG_LIST = "LOG_LIST";
+
+    public static final String LOG_SET_LEVEL = "LOG_SET_LEVEL";
+
+    public static final String LOG_DELETE = "LOG_DELETE";
+
+    public static final String AUDIT_LIST = "AUDIT_LIST";
+
+    public static final String AUDIT_ENABLE = "AUDIT_ENABLE";
+
+    public static final String AUDIT_DISABLE = "AUDIT_DISABLE";
+
+    public static final String SECURITY_QUESTION_CREATE = "SECURITY_QUESTION_CREATE";
+
+    public static final String SECURITY_QUESTION_UPDATE = "SECURITY_QUESTION_UPDATE";
+
+    public static final String SECURITY_QUESTION_DELETE = "SECURITY_QUESTION_DELETE";
+
+    public static final String ROUTE_READ = "ROUTE_READ";
+
+    public static final String ROUTE_LIST = "ROUTE_LIST";
+
+    public static final String ROUTE_UPDATE = "ROUTE_UPDATE";
+
+    private static Set<String> VALUES = new HashSet<>();
+
+    static {
+        for (Field field : Entitlement.class.getDeclaredFields()) {
+            if (Modifier.isStatic(field.getModifiers()) && String.class.equals(field.getType())) {
+                VALUES.add(field.getName());
+            }
+        }
+        VALUES = Collections.unmodifiableSet(VALUES);
+    }
+
+    public static Set<String> values() {
+        return VALUES;
+    }
+
+    private Entitlement() {
+        // private constructor for static utility class
+    }
 }

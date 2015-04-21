@@ -26,7 +26,6 @@ import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.ServerSetup;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
@@ -209,11 +208,11 @@ public class NotificationTest {
 
     @Before
     public void setupSecurity() {
-        List<GrantedAuthority> authorities = CollectionUtils.collect(Arrays.asList(Entitlement.values()),
-                new Transformer<Entitlement, GrantedAuthority>() {
+        List<GrantedAuthority> authorities = CollectionUtils.collect(Entitlement.values(),
+                new Transformer<String, GrantedAuthority>() {
 
                     @Override
-                    public GrantedAuthority transform(final Entitlement entitlement) {
+                    public GrantedAuthority transform(final String entitlement) {
                         return new SyncopeGrantedAuthority(entitlement, SyncopeConstants.ROOT_REALM);
                     }
                 }, new ArrayList<GrantedAuthority>());

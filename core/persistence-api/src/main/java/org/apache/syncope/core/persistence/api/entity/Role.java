@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.api.entity;
 
 import java.util.List;
 import java.util.Set;
-import org.apache.syncope.common.lib.types.Entitlement;
 
 public interface Role extends Entity<Long> {
 
@@ -28,7 +27,7 @@ public interface Role extends Entity<Long> {
 
     void setName(String name);
 
-    Set<Entitlement> getEntitlements();
+    Set<String> getEntitlements();
 
     boolean addRealm(Realm realm);
 

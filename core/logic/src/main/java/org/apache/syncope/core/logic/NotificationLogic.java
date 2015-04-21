@@ -25,6 +25,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.to.NotificationTO;
+import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
 import org.apache.syncope.core.persistence.api.entity.Notification;
@@ -42,7 +43,7 @@ public class NotificationLogic extends AbstractTransactionalLogic<NotificationTO
     @Autowired
     private NotificationDataBinder binder;
 
-    @PreAuthorize("hasRole('NOTIFICATION_READ')")
+    @PreAuthorize("hasRole('" + Entitlement.NOTIFICATION_READ + "')")
     public NotificationTO read(final Long notificationKey) {
         Notification notification = notificationDAO.find(notificationKey);
         if (notification == null) {
@@ -54,7 +55,7 @@ public class NotificationLogic extends AbstractTransactionalLogic<NotificationTO
         return binder.getNotificationTO(notification);
     }
 
-    @PreAuthorize("hasRole('NOTIFICATION_LIST')")
+    @PreAuthorize("hasRole('" + Entitlement.NOTIFICATION_LIST + "')")
     public List<NotificationTO> list() {
         return CollectionUtils.collect(notificationDAO.findAll(), new Transformer<Notification, NotificationTO>() {
 
@@ -65,12 +66,12 @@ public class NotificationLogic extends AbstractTransactionalLogic<NotificationTO
         }, new ArrayList<NotificationTO>());
     }
 
-    @PreAuthorize("hasRole('NOTIFICATION_CREATE')")
+    @PreAuthorize("hasRole('" + Entitlement.NOTIFICATION_CREATE + "')")
     public NotificationTO create(final NotificationTO notificationTO) {
         return binder.getNotificationTO(notificationDAO.save(binder.create(notificationTO)));
     }
 
-    @PreAuthorize("hasRole('NOTIFICATION_UPDATE')")
+    @PreAuthorize("hasRole('" + Entitlement.NOTIFICATION_UPDATE + "')")
     public NotificationTO update(final NotificationTO notificationTO) {
         Notification notification = notificationDAO.find(notificationTO.getKey());
         if (notification == null) {
@@ -84,7 +85,7 @@ public class NotificationLogic extends AbstractTransactionalLogic<NotificationTO
         return binder.getNotificationTO(notification);
     }
 
-    @PreAuthorize("hasRole('NOTIFICATION_DELETE')")
+    @PreAuthorize("hasRole('" + Entitlement.NOTIFICATION_DELETE + "')")
     public NotificationTO delete(final Long notificationKey) {
         Notification notification = notificationDAO.find(notificationKey);
         if (notification == null) {

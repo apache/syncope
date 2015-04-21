@@ -43,8 +43,6 @@ public class SearchCond extends AbstractSearchCond {
 
     private ResourceCond resourceCond;
 
-    private EntitlementCond entitlementCond;
-
     private SearchCond leftNodeCond;
 
     private SearchCond rightNodeCond;
@@ -80,15 +78,6 @@ public class SearchCond extends AbstractSearchCond {
         return nodeCond;
     }
 
-    public static SearchCond getLeafCond(final EntitlementCond entitlementCond) {
-        SearchCond nodeCond = new SearchCond();
-
-        nodeCond.type = Type.LEAF;
-        nodeCond.entitlementCond = entitlementCond;
-
-        return nodeCond;
-    }
-
     public static SearchCond getNotLeafCond(final AttributeCond attributeCond) {
         SearchCond nodeCond = getLeafCond(attributeCond);
         nodeCond.type = Type.NOT_LEAF;
@@ -103,12 +92,6 @@ public class SearchCond extends AbstractSearchCond {
 
     public static SearchCond getNotLeafCond(final ResourceCond resourceCond) {
         SearchCond nodeCond = getLeafCond(resourceCond);
-        nodeCond.type = Type.NOT_LEAF;
-        return nodeCond;
-    }
-
-    public static SearchCond getNotLeafCond(final EntitlementCond entitlementCond) {
-        SearchCond nodeCond = getLeafCond(entitlementCond);
         nodeCond.type = Type.NOT_LEAF;
         return nodeCond;
     }
@@ -188,14 +171,6 @@ public class SearchCond extends AbstractSearchCond {
         this.resourceCond = resourceCond;
     }
 
-    public EntitlementCond getEntitlementCond() {
-        return entitlementCond;
-    }
-
-    public void setEntitlementCond(final EntitlementCond entitlementCond) {
-        this.entitlementCond = entitlementCond;
-    }
-
     public SearchCond getLeftNodeCond() {
         return leftNodeCond;
     }
@@ -220,6 +195,7 @@ public class SearchCond extends AbstractSearchCond {
         this.type = type;
     }
 
+    @Override
     public boolean isValid() {
         boolean isValid = false;
 
@@ -230,13 +206,12 @@ public class SearchCond extends AbstractSearchCond {
         switch (type) {
             case LEAF:
             case NOT_LEAF:
-                isValid = (subjectCond != null || attributeCond != null || membershipCond != null
-                        || resourceCond != null || entitlementCond != null)
+                isValid = (subjectCond != null || attributeCond != null
+                        || membershipCond != null || resourceCond != null)
                         && (subjectCond == null || subjectCond.isValid())
                         && (attributeCond == null || attributeCond.isValid())
                         && (membershipCond == null || membershipCond.isValid())
-                        && (resourceCond == null || resourceCond.isValid())
-                        && (entitlementCond == null || entitlementCond.isValid());
+                        && (resourceCond == null || resourceCond.isValid());
                 break;
 
             case AND:

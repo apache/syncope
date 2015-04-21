@@ -25,6 +25,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.to.RoleTO;
+import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.entity.Role;
@@ -42,7 +43,7 @@ public class RoleLogic extends AbstractTransactionalLogic<RoleTO> {
     @Autowired
     private RoleDAO roleDAO;
 
-    @PreAuthorize("hasRole('ROLE_READ')")
+    @PreAuthorize("hasRole('" + Entitlement.ROLE_READ + "')")
     public RoleTO read(final Long roleKey) {
         Role role = roleDAO.find(roleKey);
         if (role == null) {
@@ -54,7 +55,7 @@ public class RoleLogic extends AbstractTransactionalLogic<RoleTO> {
         return binder.getRoleTO(role);
     }
 
-    @PreAuthorize("hasRole('ROLE_LIST')")
+    @PreAuthorize("hasRole('" + Entitlement.ROLE_LIST + "')")
     public List<RoleTO> list() {
         return CollectionUtils.collect(roleDAO.findAll(), new Transformer<Role, RoleTO>() {
 
@@ -65,12 +66,12 @@ public class RoleLogic extends AbstractTransactionalLogic<RoleTO> {
         }, new ArrayList<RoleTO>());
     }
 
-    @PreAuthorize("hasRole('ROLE_CREATE')")
+    @PreAuthorize("hasRole('" + Entitlement.ROLE_CREATE + "')")
     public RoleTO create(final RoleTO roleTO) {
         return binder.getRoleTO(roleDAO.save(binder.create(roleTO)));
     }
 
-    @PreAuthorize("hasRole('ROLE_UPDATE')")
+    @PreAuthorize("hasRole('" + Entitlement.ROLE_UPDATE + "')")
     public RoleTO update(final RoleTO roleTO) {
         Role role = roleDAO.find(roleTO.getKey());
         if (role == null) {
@@ -84,7 +85,7 @@ public class RoleLogic extends AbstractTransactionalLogic<RoleTO> {
         return binder.getRoleTO(role);
     }
 
-    @PreAuthorize("hasRole('ROLE_DELETE')")
+    @PreAuthorize("hasRole('" + Entitlement.ROLE_DELETE + "')")
     public RoleTO delete(final Long roleKey) {
         Role role = roleDAO.find(roleKey);
         if (role == null) {

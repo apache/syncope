@@ -18,12 +18,11 @@
  */
 package org.apache.syncope.core.misc.security;
 
-import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.types.Entitlement;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -47,16 +46,16 @@ public final class AuthContextUtils {
         SecurityContextHolder.getContext().setAuthentication(newAuth);
     }
 
-    public static Map<Entitlement, Set<String>> getAuthorizations() {
-        Map<Entitlement, Set<String>> result = null;
+    public static Map<String, Set<String>> getAuthorizations() {
+        Map<String, Set<String>> result = null;
 
         final SecurityContext ctx = SecurityContextHolder.getContext();
         if (ctx != null && ctx.getAuthentication() != null && ctx.getAuthentication().getAuthorities() != null) {
-            result = new EnumMap<>(Entitlement.class);
+            result = new HashMap<>();
             for (GrantedAuthority authority : ctx.getAuthentication().getAuthorities()) {
                 if (authority instanceof SyncopeGrantedAuthority) {
                     result.put(
-                            SyncopeGrantedAuthority.class.cast(authority).getEntitlement(),
+                            SyncopeGrantedAuthority.class.cast(authority).getAuthority(),
                             SyncopeGrantedAuthority.class.cast(authority).getRealms());
                 }
             }

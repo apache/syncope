@@ -28,6 +28,7 @@ import org.apache.syncope.common.lib.to.AbstractPolicyTO;
 import org.apache.syncope.common.lib.to.AccountPolicyTO;
 import org.apache.syncope.common.lib.to.PasswordPolicyTO;
 import org.apache.syncope.common.lib.to.SyncPolicyTO;
+import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
@@ -49,7 +50,7 @@ public class PolicyLogic extends AbstractTransactionalLogic<AbstractPolicyTO> {
     @Autowired
     private PolicyDataBinder binder;
 
-    @PreAuthorize("hasRole('POLICY_CREATE')")
+    @PreAuthorize("hasRole('" + Entitlement.POLICY_CREATE + "')")
     public <T extends AbstractPolicyTO> T create(final T policyTO) {
         return binder.getPolicyTO(policyDAO.save(binder.getPolicy(null, policyTO)));
     }
@@ -60,7 +61,7 @@ public class PolicyLogic extends AbstractTransactionalLogic<AbstractPolicyTO> {
         return binder.getPolicyTO(savedPolicy);
     }
 
-    @PreAuthorize("hasRole('POLICY_UPDATE')")
+    @PreAuthorize("hasRole('" + Entitlement.POLICY_UPDATE + "')")
     public PasswordPolicyTO update(final PasswordPolicyTO policyTO) {
         Policy policy = policyDAO.find(policyTO.getKey());
         if (!(policy instanceof PasswordPolicy)) {
@@ -70,7 +71,7 @@ public class PolicyLogic extends AbstractTransactionalLogic<AbstractPolicyTO> {
         return update(policyTO, policy);
     }
 
-    @PreAuthorize("hasRole('POLICY_UPDATE')")
+    @PreAuthorize("hasRole('" + Entitlement.POLICY_UPDATE + "')")
     public AccountPolicyTO update(final AccountPolicyTO policyTO) {
         Policy policy = policyDAO.find(policyTO.getKey());
         if (!(policy instanceof AccountPolicy)) {
@@ -80,7 +81,7 @@ public class PolicyLogic extends AbstractTransactionalLogic<AbstractPolicyTO> {
         return update(policyTO, policy);
     }
 
-    @PreAuthorize("hasRole('POLICY_UPDATE')")
+    @PreAuthorize("hasRole('" + Entitlement.POLICY_UPDATE + "')")
     public SyncPolicyTO update(final SyncPolicyTO policyTO) {
         Policy policy = policyDAO.find(policyTO.getKey());
         if (!(policy instanceof SyncPolicy)) {
@@ -90,7 +91,7 @@ public class PolicyLogic extends AbstractTransactionalLogic<AbstractPolicyTO> {
         return update(policyTO, policy);
     }
 
-    @PreAuthorize("hasRole('POLICY_LIST')")
+    @PreAuthorize("hasRole('" + Entitlement.POLICY_LIST + "')")
     public <T extends AbstractPolicyTO> List<T> list(final PolicyType type) {
         return CollectionUtils.collect(policyDAO.find(type), new Transformer<Policy, T>() {
 
@@ -101,7 +102,7 @@ public class PolicyLogic extends AbstractTransactionalLogic<AbstractPolicyTO> {
         }, new ArrayList<T>());
     }
 
-    @PreAuthorize("hasRole('POLICY_READ')")
+    @PreAuthorize("hasRole('" + Entitlement.POLICY_READ + "')")
     public <T extends AbstractPolicyTO> T read(final Long id) {
         Policy policy = policyDAO.find(id);
         if (policy == null) {
@@ -111,7 +112,7 @@ public class PolicyLogic extends AbstractTransactionalLogic<AbstractPolicyTO> {
         return binder.getPolicyTO(policy);
     }
 
-    @PreAuthorize("hasRole('POLICY_DELETE')")
+    @PreAuthorize("hasRole('" + Entitlement.POLICY_DELETE + "')")
     public <T extends AbstractPolicyTO> T delete(final Long id) {
         Policy policy = policyDAO.find(id);
         if (policy == null) {

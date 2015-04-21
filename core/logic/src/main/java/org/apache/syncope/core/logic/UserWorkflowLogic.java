@@ -26,6 +26,7 @@ import org.apache.syncope.common.lib.mod.AbstractAttributableMod;
 import org.apache.syncope.common.lib.mod.UserMod;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
+import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -57,13 +58,13 @@ public class UserWorkflowLogic extends AbstractTransactionalLogic<WorkflowFormTO
     @Autowired
     private UserDAO userDAO;
 
-    @PreAuthorize("hasRole('WORKFLOW_FORM_CLAIM')")
+    @PreAuthorize("hasRole('" + Entitlement.WORKFLOW_FORM_CLAIM + "')")
     @Transactional(rollbackFor = { Throwable.class })
     public WorkflowFormTO claimForm(final String taskId) {
         return uwfAdapter.claimForm(taskId);
     }
 
-    @PreAuthorize("hasRole('USER_UPDATE')")
+    @PreAuthorize("hasRole('" + Entitlement.USER_UPDATE + "')")
     public UserTO executeWorkflowTask(final UserTO userTO, final String taskId) {
         WorkflowResult<Long> updated = uwfAdapter.execute(userTO, taskId);
 
@@ -80,27 +81,27 @@ public class UserWorkflowLogic extends AbstractTransactionalLogic<WorkflowFormTO
         return binder.getUserTO(updated.getResult());
     }
 
-    @PreAuthorize("hasRole('WORKFLOW_FORM_READ') and hasRole('USER_READ')")
+    @PreAuthorize("hasRole('" + Entitlement.WORKFLOW_FORM_READ + "') and hasRole('" + Entitlement.USER_READ + "')")
     @Transactional(rollbackFor = { Throwable.class })
     public WorkflowFormTO getFormForUser(final Long key) {
         User user = userDAO.authFetch(key);
         return uwfAdapter.getForm(user.getWorkflowId());
     }
 
-    @PreAuthorize("hasRole('WORKFLOW_FORM_LIST')")
+    @PreAuthorize("hasRole('" + Entitlement.WORKFLOW_FORM_LIST + "')")
     @Transactional(rollbackFor = { Throwable.class })
     public List<WorkflowFormTO> getForms() {
         return uwfAdapter.getForms();
     }
 
-    @PreAuthorize("hasRole('WORKFLOW_FORM_READ') and hasRole('USER_READ')")
+    @PreAuthorize("hasRole('" + Entitlement.WORKFLOW_FORM_READ + "') and hasRole('" + Entitlement.USER_READ + "')")
     @Transactional(rollbackFor = { Throwable.class })
     public List<WorkflowFormTO> getForms(final Long key, final String formName) {
         User user = userDAO.authFetch(key);
         return uwfAdapter.getForms(user.getWorkflowId(), formName);
     }
 
-    @PreAuthorize("hasRole('WORKFLOW_FORM_SUBMIT')")
+    @PreAuthorize("hasRole('" + Entitlement.WORKFLOW_FORM_SUBMIT + "')")
     @Transactional(rollbackFor = { Throwable.class })
     public UserTO submitForm(final WorkflowFormTO form) {
         WorkflowResult<? extends AbstractAttributableMod> updated = uwfAdapter.submitForm(form);

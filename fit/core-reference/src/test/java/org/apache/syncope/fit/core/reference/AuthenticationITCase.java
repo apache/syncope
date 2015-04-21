@@ -92,14 +92,14 @@ public class AuthenticationITCase extends AbstractITCase {
         }
 
         // 2. as authenticated anonymous (used by admin console)
-        Pair<Map<Entitlement, Set<String>>, UserTO> self = clientFactory.create(ANONYMOUS_UNAME, ANONYMOUS_KEY).self();
+        Pair<Map<String, Set<String>>, UserTO> self = clientFactory.create(ANONYMOUS_UNAME, ANONYMOUS_KEY).self();
         assertEquals(1, self.getKey().size());
         assertTrue(self.getKey().keySet().contains(Entitlement.ANONYMOUS));
         assertEquals(ANONYMOUS_UNAME, self.getValue().getUsername());
 
         // 3. as admin
         self = adminClient.self();
-        assertEquals(Entitlement.values().length - 1, self.getKey().size());
+        assertEquals(Entitlement.values().size() - 1, self.getKey().size());
         assertFalse(self.getKey().keySet().contains(Entitlement.ANONYMOUS));
         assertEquals(ADMIN_UNAME, self.getValue().getUsername());
 
@@ -328,7 +328,7 @@ public class AuthenticationITCase extends AbstractITCase {
         assertEquals("active", userTO.getStatus());
 
         // 4. try to authenticate again: success
-        Pair<Map<Entitlement, Set<String>>, UserTO> self =
+        Pair<Map<String, Set<String>>, UserTO> self =
                 clientFactory.create(userTO.getUsername(), "password123").self();
         assertNotNull(self);
         assertNotNull(self.getKey());
@@ -365,7 +365,7 @@ public class AuthenticationITCase extends AbstractITCase {
         assertEquals(Encryptor.getInstance().encode("password123", CipherAlgorithm.SHA1), value.toUpperCase());
 
         // 5. successfully authenticate with old (on db resource) and new (on internal storage) password values
-        Pair<Map<Entitlement, Set<String>>, UserTO> self =
+        Pair<Map<String, Set<String>>, UserTO> self =
                 clientFactory.create(user.getUsername(), "password123").self();
         assertNotNull(self);
         self = clientFactory.create(user.getUsername(), "password234").self();

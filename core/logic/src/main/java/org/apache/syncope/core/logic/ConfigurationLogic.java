@@ -22,6 +22,7 @@ import java.io.OutputStream;
 import java.lang.reflect.Method;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.ConfTO;
+import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.core.persistence.api.content.ContentExporter;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -57,12 +58,12 @@ public class ConfigurationLogic extends AbstractTransactionalLogic<ConfTO> {
     @Autowired
     private GroupWorkflowAdapter gwfAdapter;
 
-    @PreAuthorize("hasRole('CONFIGURATION_DELETE')")
+    @PreAuthorize("hasRole('" + Entitlement.CONFIGURATION_DELETE + "')")
     public void delete(final String key) {
         confDAO.delete(key);
     }
 
-    @PreAuthorize("hasRole('CONFIGURATION_LIST')")
+    @PreAuthorize("hasRole('" + Entitlement.CONFIGURATION_LIST + "')")
     public ConfTO list() {
         return binder.getConfTO(confDAO.get());
     }
@@ -87,12 +88,12 @@ public class ConfigurationLogic extends AbstractTransactionalLogic<ConfTO> {
         return result;
     }
 
-    @PreAuthorize("hasRole('CONFIGURATION_SET')")
+    @PreAuthorize("hasRole('" + Entitlement.CONFIGURATION_SET + "')")
     public void set(final AttrTO value) {
         confDAO.save(binder.getAttribute(value));
     }
 
-    @PreAuthorize("hasRole('CONFIGURATION_EXPORT')")
+    @PreAuthorize("hasRole('" + Entitlement.CONFIGURATION_EXPORT + "')")
     @Transactional(readOnly = true)
     public void export(final OutputStream os) {
         try {

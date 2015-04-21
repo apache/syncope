@@ -22,6 +22,7 @@ import java.io.OutputStream;
 import java.lang.reflect.Method;
 import javax.ws.rs.core.MediaType;
 import org.apache.syncope.common.lib.AbstractBaseBean;
+import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.core.workflow.api.GroupWorkflowAdapter;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
 import org.apache.syncope.core.workflow.api.WorkflowAdapter;
@@ -54,7 +55,7 @@ public class WorkflowLogic extends AbstractTransactionalLogic<AbstractBaseBean> 
                 : WorkflowDefinitionFormat.XML;
     }
 
-    @PreAuthorize("hasRole('WORKFLOW_DEF_READ')")
+    @PreAuthorize("hasRole('" + Entitlement.WORKFLOW_DEF_READ + "')")
     @Transactional(readOnly = true)
     public void exportUserDefinition(final MediaType format, final OutputStream os)
             throws WorkflowException {
@@ -62,7 +63,7 @@ public class WorkflowLogic extends AbstractTransactionalLogic<AbstractBaseBean> 
         exportDefinition(uwfAdapter, getFormat(format), os);
     }
 
-    @PreAuthorize("hasRole('WORKFLOW_DEF_READ')")
+    @PreAuthorize("hasRole('" + Entitlement.WORKFLOW_DEF_READ + "')")
     @Transactional(readOnly = true)
     public void exportGroupDefinition(final MediaType format, final OutputStream os)
             throws WorkflowException {
@@ -72,11 +73,11 @@ public class WorkflowLogic extends AbstractTransactionalLogic<AbstractBaseBean> 
 
     private void exportDiagram(final WorkflowAdapter adapter, final OutputStream os)
             throws WorkflowException {
-        
+
         adapter.exportDiagram(os);
     }
 
-    @PreAuthorize("hasRole('WORKFLOW_DEF_READ')")
+    @PreAuthorize("hasRole('" + Entitlement.WORKFLOW_DEF_READ + "')")
     @Transactional(readOnly = true)
     public void exportUserDiagram(final OutputStream os)
             throws WorkflowException {
@@ -84,7 +85,7 @@ public class WorkflowLogic extends AbstractTransactionalLogic<AbstractBaseBean> 
         exportDiagram(uwfAdapter, os);
     }
 
-    @PreAuthorize("hasRole('WORKFLOW_DEF_READ')")
+    @PreAuthorize("hasRole('" + Entitlement.WORKFLOW_DEF_READ + "')")
     @Transactional(readOnly = true)
     public void exportGroupDiagram(final OutputStream os)
             throws WorkflowException {
@@ -98,12 +99,12 @@ public class WorkflowLogic extends AbstractTransactionalLogic<AbstractBaseBean> 
         adapter.importDefinition(format, definition);
     }
 
-    @PreAuthorize("hasRole('WORKFLOW_DEF_UPDATE')")
+    @PreAuthorize("hasRole('" + Entitlement.WORKFLOW_DEF_UPDATE + "')")
     public void importUserDefinition(final MediaType format, final String definition) {
         importDefinition(uwfAdapter, getFormat(format), definition);
     }
 
-    @PreAuthorize("hasRole('WORKFLOW_DEF_UPDATE')")
+    @PreAuthorize("hasRole('" + Entitlement.WORKFLOW_DEF_UPDATE + "')")
     public void importGroupDefinition(final MediaType format, final String definition) {
         importDefinition(gwfAdapter, getFormat(format), definition);
     }

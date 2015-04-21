@@ -100,17 +100,17 @@ public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
     @Autowired
     protected SyncopeLogic syncopeLogic;
 
-    @PreAuthorize("hasRole('USER_READ')")
+    @PreAuthorize("hasRole('" + Entitlement.USER_READ + "')")
     public String getUsername(final Long key) {
         return binder.getUserTO(key).getUsername();
     }
 
-    @PreAuthorize("hasRole('USER_READ')")
+    @PreAuthorize("hasRole('" + Entitlement.USER_READ + "')")
     public Long getKey(final String username) {
         return binder.getUserTO(username).getKey();
     }
 
-    @PreAuthorize("hasRole('USER_LIST')")
+    @PreAuthorize("hasRole('" + Entitlement.USER_LIST + "')")
     @Transactional(readOnly = true, rollbackFor = { Throwable.class })
     @Override
     public int count(final List<String> realms) {
@@ -118,7 +118,7 @@ public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
                 getEffectiveRealms(AuthContextUtils.getAuthorizations().get(Entitlement.USER_LIST), realms));
     }
 
-    @PreAuthorize("hasRole('USER_LIST')")
+    @PreAuthorize("hasRole('" + Entitlement.USER_LIST + "')")
     @Transactional(readOnly = true, rollbackFor = { Throwable.class })
     @Override
     public List<UserTO> list(
@@ -144,14 +144,14 @@ public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
                 binder.getAuthenticatedUserTO());
     }
 
-    @PreAuthorize("hasRole('USER_READ')")
+    @PreAuthorize("hasRole('" + Entitlement.USER_READ + "')")
     @Transactional(readOnly = true)
     @Override
     public UserTO read(final Long key) {
         return binder.getUserTO(key);
     }
 
-    @PreAuthorize("hasRole('USER_SEARCH')")
+    @PreAuthorize("hasRole('" + Entitlement.USER_SEARCH + "')")
     @Transactional(readOnly = true, rollbackFor = { Throwable.class })
     @Override
     public int searchCount(final SearchCond searchCondition, final List<String> realms) {
@@ -160,7 +160,7 @@ public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
                 searchCondition, SubjectType.USER);
     }
 
-    @PreAuthorize("hasRole('USER_SEARCH')")
+    @PreAuthorize("hasRole('" + Entitlement.USER_SEARCH + "')")
     @Transactional(readOnly = true, rollbackFor = { Throwable.class })
     @Override
     public List<UserTO> search(final SearchCond searchCondition, final int page, final int size,
@@ -178,12 +178,12 @@ public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
         }, new ArrayList<UserTO>());
     }
 
-    @PreAuthorize("isAnonymous() or hasRole('ANONYMOUS')")
+    @PreAuthorize("isAnonymous() or hasRole('" + Entitlement.ANONYMOUS + "')")
     public UserTO createSelf(final UserTO userTO, final boolean storePassword) {
         return doCreate(userTO, storePassword);
     }
 
-    @PreAuthorize("hasRole('USER_CREATE')")
+    @PreAuthorize("hasRole('" + Entitlement.USER_CREATE + "')")
     public UserTO create(final UserTO userTO, final boolean storePassword) {
         if (userTO.getRealm() == null) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
@@ -211,7 +211,7 @@ public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
         return savedTO;
     }
 
-    @PreAuthorize("isAuthenticated() and not(hasRole('ANONYMOUS'))")
+    @PreAuthorize("isAuthenticated() and not(hasRole('" + Entitlement.ANONYMOUS + "'))")
     public UserTO updateSelf(final UserMod userMod) {
         UserTO userTO = binder.getAuthenticatedUserTO();
 
@@ -222,7 +222,7 @@ public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
         return update(userMod);
     }
 
-    @PreAuthorize("hasRole('USER_UPDATE')")
+    @PreAuthorize("hasRole('" + Entitlement.USER_UPDATE + "')")
     @Override
     public UserTO update(final UserMod userMod) {
         // AttributableMod transformation (if configured)
@@ -274,7 +274,7 @@ public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
         return updated;
     }
 
-    @PreAuthorize("hasRole('USER_UPDATE')")
+    @PreAuthorize("hasRole('" + Entitlement.USER_UPDATE + "')")
     @Transactional(rollbackFor = { Throwable.class })
     public UserTO status(final StatusMod statusMod) {
         User user = userDAO.authFetch(statusMod.getKey());
@@ -285,7 +285,7 @@ public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
         return savedTO;
     }
 
-    @PreAuthorize("isAnonymous() or hasRole('ANONYMOUS')")
+    @PreAuthorize("isAnonymous() or hasRole('" + Entitlement.ANONYMOUS + "')")
     @Transactional
     public void requestPasswordReset(final String username, final String securityAnswer) {
         if (username == null) {
@@ -306,7 +306,7 @@ public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
         provisioningManager.requestPasswordReset(user.getKey());
     }
 
-    @PreAuthorize("isAnonymous() or hasRole('ANONYMOUS')")
+    @PreAuthorize("isAnonymous() or hasRole('" + Entitlement.ANONYMOUS + "')")
     @Transactional
     public void confirmPasswordReset(final String token, final String password) {
         User user = userDAO.findByToken(token);
@@ -316,14 +316,14 @@ public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
         provisioningManager.confirmPasswordReset(user, token, password);
     }
 
-    @PreAuthorize("isAuthenticated() and not(hasRole('ANONYMOUS'))")
+    @PreAuthorize("isAuthenticated() and not(hasRole('" + Entitlement.ANONYMOUS + "'))")
     public UserTO deleteSelf() {
         UserTO userTO = binder.getAuthenticatedUserTO();
 
         return delete(userTO.getKey());
     }
 
-    @PreAuthorize("hasRole('USER_DELETE')")
+    @PreAuthorize("hasRole('" + Entitlement.USER_DELETE + "')")
     @Override
     public UserTO delete(final Long key) {
         List<Group> ownedGroups = groupDAO.findOwnedByUser(key);
@@ -354,7 +354,7 @@ public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
         return deletedTO;
     }
 
-    @PreAuthorize("hasRole('USER_UPDATE')")
+    @PreAuthorize("hasRole('" + Entitlement.USER_UPDATE + "')")
     @Transactional(rollbackFor = { Throwable.class })
     @Override
     public UserTO unlink(final Long key, final Collection<String> resources) {
@@ -366,7 +366,7 @@ public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
         return binder.getUserTO(updatedId);
     }
 
-    @PreAuthorize("hasRole('USER_UPDATE')")
+    @PreAuthorize("hasRole('" + Entitlement.USER_UPDATE + "')")
     @Transactional(rollbackFor = { Throwable.class })
     @Override
     public UserTO link(final Long key, final Collection<String> resources) {
@@ -376,7 +376,7 @@ public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
         return binder.getUserTO(provisioningManager.link(userMod));
     }
 
-    @PreAuthorize("hasRole('USER_UPDATE')")
+    @PreAuthorize("hasRole('" + Entitlement.USER_UPDATE + "')")
     @Transactional(rollbackFor = { Throwable.class })
     @Override
     public UserTO unassign(final Long key, final Collection<String> resources) {
@@ -386,7 +386,7 @@ public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
         return update(userMod);
     }
 
-    @PreAuthorize("hasRole('USER_UPDATE')")
+    @PreAuthorize("hasRole('" + Entitlement.USER_UPDATE + "')")
     @Transactional(rollbackFor = { Throwable.class })
     @Override
     public UserTO assign(
@@ -410,7 +410,7 @@ public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
         return update(userMod);
     }
 
-    @PreAuthorize("hasRole('USER_UPDATE')")
+    @PreAuthorize("hasRole('" + Entitlement.USER_UPDATE + "')")
     @Transactional(rollbackFor = { Throwable.class })
     @Override
     public UserTO deprovision(final Long key, final Collection<String> resources) {
@@ -423,7 +423,7 @@ public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
         return updatedUserTO;
     }
 
-    @PreAuthorize("hasRole('USER_UPDATE')")
+    @PreAuthorize("hasRole('" + Entitlement.USER_UPDATE + "')")
     @Transactional(readOnly = true)
     @Override
     public UserTO provision(

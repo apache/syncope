@@ -65,11 +65,11 @@ public class SyncopeUserDetailsService implements UserDetailsService {
         if (anonymousUser.equals(username)) {
             authorities.add(new SyncopeGrantedAuthority(Entitlement.ANONYMOUS));
         } else if (adminUser.equals(username)) {
-            CollectionUtils2.collect(Arrays.asList(Entitlement.values()),
-                    new Transformer<Entitlement, SyncopeGrantedAuthority>() {
+            CollectionUtils2.collect(Entitlement.values(),
+                    new Transformer<String, SyncopeGrantedAuthority>() {
 
                         @Override
-                        public SyncopeGrantedAuthority transform(final Entitlement entitlement) {
+                        public SyncopeGrantedAuthority transform(final String entitlement) {
                             return new SyncopeGrantedAuthority(entitlement, SyncopeConstants.ROOT_REALM);
                         }
                     },
@@ -83,10 +83,10 @@ public class SyncopeUserDetailsService implements UserDetailsService {
 
             // Give entitlements as assigned by roles (with realms, where applicable)
             for (final Role role : user.getRoles()) {
-                CollectionUtils.forAllDo(role.getEntitlements(), new Closure<Entitlement>() {
+                CollectionUtils.forAllDo(role.getEntitlements(), new Closure<String>() {
 
                     @Override
-                    public void execute(final Entitlement entitlement) {
+                    public void execute(final String entitlement) {
                         SyncopeGrantedAuthority authority = new SyncopeGrantedAuthority(entitlement);
                         authorities.add(authority);
 
@@ -105,7 +105,7 @@ public class SyncopeUserDetailsService implements UserDetailsService {
 
             // Give group entitlements for owned groups
             for (Group group : groupDAO.findOwnedByUser(user.getKey())) {
-                for (Entitlement entitlement : Arrays.asList(
+                for (String entitlement : Arrays.asList(
                         Entitlement.GROUP_READ, Entitlement.GROUP_UPDATE, Entitlement.GROUP_DELETE)) {
 
                     SyncopeGrantedAuthority authority = new SyncopeGrantedAuthority(entitlement);

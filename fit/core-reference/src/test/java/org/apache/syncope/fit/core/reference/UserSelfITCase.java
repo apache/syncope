@@ -45,7 +45,6 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.WorkflowFormPropertyTO;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.common.lib.types.SubjectType;
 import org.apache.syncope.common.rest.api.Preference;
 import org.apache.syncope.common.rest.api.RESTHeaders;
@@ -136,7 +135,7 @@ public class UserSelfITCase extends AbstractITCase {
             assertNotNull(e);
         }
 
-        Pair<Map<Entitlement, Set<String>>, UserTO> self = clientFactory.create("rossini", ADMIN_PWD).self();
+        Pair<Map<String, Set<String>>, UserTO> self = clientFactory.create("rossini", ADMIN_PWD).self();
         assertEquals("rossini", self.getValue().getUsername());
     }
 
