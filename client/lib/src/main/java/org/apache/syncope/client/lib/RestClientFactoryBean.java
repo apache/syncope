@@ -28,6 +28,8 @@ import org.apache.cxf.jaxrs.client.WebClient;
  */
 public class RestClientFactoryBean extends JAXRSClientFactoryBean {
 
+    public static final String HEADER_SPLIT_PROPERTY = "org.apache.cxf.http.header.split";
+
     /**
      * Creates an anonymous instance of the given service class, for the given content type.
      *
@@ -63,7 +65,7 @@ public class RestClientFactoryBean extends JAXRSClientFactoryBean {
         final T serviceInstance = create(serviceClass);
         WebClient.client(serviceInstance).type(mediaType).accept(mediaType);
         WebClient.getConfig(WebClient.client(serviceInstance)).
-                getRequestContext().put("org.apache.cxf.http.header.split", true);
+                getRequestContext().put(HEADER_SPLIT_PROPERTY, true);
         return serviceInstance;
     }
 }

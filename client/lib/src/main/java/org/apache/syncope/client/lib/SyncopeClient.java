@@ -110,7 +110,12 @@ public class SyncopeClient {
 
     @SuppressWarnings("unchecked")
     public Pair<Map<Entitlement, Set<String>>, UserTO> self() {
-        Response response = getService(UserSelfService.class).read();
+        // Explicitly disable header value split because it interferes with JSON deserialization below
+        UserSelfService serviceInstance = getService(UserSelfService.class);
+        WebClient.getConfig(WebClient.client(serviceInstance)).
+                getRequestContext().put(RestClientFactoryBean.HEADER_SPLIT_PROPERTY, false);
+
+        Response response = serviceInstance.read();
         if (response.getStatusInfo().getStatusCode() != Response.Status.OK.getStatusCode()) {
             Exception ex = exceptionMapper.fromResponse(response);
             if (ex != null) {
@@ -121,7 +126,7 @@ public class SyncopeClient {
         try {
             return new ImmutablePair<>(
                     (Map<Entitlement, Set<String>>) new ObjectMapper().readValue(
-                            response.getHeaderString(RESTHeaders.OWNED_ENTITLEMENTS).replaceAll("%2C", ","),
+                            response.getHeaderString(RESTHeaders.OWNED_ENTITLEMENTS),
                             new TypeReference<HashMap<Entitlement, Set<String>>>() {
                             }),
                     response.readEntity(UserTO.class));
