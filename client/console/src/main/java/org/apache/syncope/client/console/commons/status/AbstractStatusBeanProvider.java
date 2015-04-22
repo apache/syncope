@@ -36,7 +36,7 @@ public abstract class AbstractStatusBeanProvider extends SortableDataProvider<St
     public AbstractStatusBeanProvider(final String sort) {
         //Default sorting
         setSort(sort, SortOrder.ASCENDING);
-        comparator = new SortableDataProviderComparator<StatusBean>(this);
+        comparator = new SortableDataProviderComparator<>(this);
     }
 
     @Override

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.rest;
 
+import java.util.Collections;
 import java.util.List;
 
 import javax.ws.rs.core.Response;
@@ -47,27 +48,31 @@ public class GroupRestClient extends AbstractSubjectRestClient {
     private static final long serialVersionUID = -8549081557283519638L;
 
     @Override
-    public int count() {
-        return getService(GroupService.class).list(1, 1).getTotalCount();
+    public int count(final String realm) {
+        return getService(GroupService.class).list(Collections.singletonList(realm), 1, 1).getTotalCount();
     }
 
-    public List<GroupTO> list() {
-        return getService(GroupService.class).list(1, 1000).getResult();
-    }
-
-    @Override
-    public List<GroupTO> list(final int page, final int size, final SortParam<String> sort) {
-        return getService(GroupService.class).list(page, size, toOrderBy(sort)).getResult();
+    public List<GroupTO> list(final String realm) {
+        return getService(GroupService.class).list(Collections.singletonList(realm), 1, 1000).getResult();
     }
 
     @Override
-    public int searchCount(final String fiql) {
-        return getService(GroupService.class).search(fiql, 1, 1).getTotalCount();
+    public List<GroupTO> list(final String realm, final int page, final int size, final SortParam<String> sort) {
+        return getService(GroupService.class).
+                list(Collections.singletonList(realm), page, size, toOrderBy(sort)).getResult();
     }
 
     @Override
-    public List<GroupTO> search(final String fiql, final int page, final int size, final SortParam<String> sort) {
-        return getService(GroupService.class).search(fiql, page, size, toOrderBy(sort)).getResult();
+    public int searchCount(final String realm, final String fiql) {
+        return getService(GroupService.class).search(Collections.singletonList(realm), fiql, 1, 1).getTotalCount();
+    }
+
+    @Override
+    public List<GroupTO> search(
+            final String realm, final String fiql, final int page, final int size, final SortParam<String> sort) {
+
+        return getService(GroupService.class).
+                search(Collections.singletonList(realm), fiql, page, size, toOrderBy(sort)).getResult();
     }
 
     @Override
@@ -80,8 +85,8 @@ public class GroupRestClient extends AbstractSubjectRestClient {
         return response.readEntity(GroupTO.class);
     }
 
-    public GroupTO read(final Long id) {
-        return getAnonymousService(GroupService.class).read(id);
+    public GroupTO read(final Long key) {
+        return getService(GroupService.class).read(key);
     }
 
     public GroupTO update(final String etag, final GroupMod groupMod) {
@@ -95,11 +100,11 @@ public class GroupRestClient extends AbstractSubjectRestClient {
     }
 
     @Override
-    public GroupTO delete(final String etag, final Long id) {
+    public GroupTO delete(final String etag, final Long key) {
         GroupTO result;
         synchronized (this) {
             GroupService service = getService(etag, GroupService.class);
-            result = service.delete(id).readEntity(GroupTO.class);
+            result = service.delete(key).readEntity(GroupTO.class);
             resetClient(GroupService.class);
         }
         return result;

@@ -20,7 +20,6 @@ package org.apache.syncope.client.console.wicket.markup.html.form;
 
 import java.util.Collection;
 import java.util.List;
-import org.apache.syncope.client.console.commons.SelectChoiceRenderer;
 import org.apache.wicket.extensions.markup.html.form.palette.Palette;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.model.IModel;
@@ -55,7 +54,7 @@ public class AjaxPalettePanel<T> extends AbstractFieldPanel<List<T>> {
     protected Palette<T> createPalette(final IModel<List<T>> model, final ListModel<T> choices,
             final IChoiceRenderer<T> renderer, final boolean allowOrder, final boolean allowMoveAll) {
 
-        return new NonI18nPalette<T>("paletteField", model, choices, renderer, 8, allowOrder, allowMoveAll);
+        return new NonI18nPalette<>("paletteField", model, choices, renderer, 8, allowOrder, allowMoveAll);
     }
 
     @Override

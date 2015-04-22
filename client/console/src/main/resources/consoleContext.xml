@@ -60,17 +60,11 @@ under the License.
     <constructor-arg value="${activitiModelerDirectory}"/>
   </bean>
 
-  <bean id="syncopeApplication" class="org.apache.syncope.client.console.SyncopeApplication"/>
+  <bean class="org.apache.syncope.client.console.SyncopeConsoleApplication"/>
 
-  <bean id="preferenceManager" class="org.apache.syncope.client.console.commons.PreferenceManager"/>
+  <bean class="org.apache.syncope.client.console.PreferenceManager"/>
 
-  <bean id="xmlRolesReader" class="org.apache.syncope.client.console.commons.XMLRolesReader" scope="singleton">
-    <property name="authorizations" value="authorizations.xml"/>
-  </bean>
-
-  <bean id="groupTreeBuilder" class="org.apache.syncope.client.console.commons.GroupTreeBuilder"/>
-
-  <bean id="syncopeClientFactory" class="org.apache.syncope.client.lib.SyncopeClientFactoryBean">
+  <bean class="org.apache.syncope.client.lib.SyncopeClientFactoryBean">
     <property name="address" value="${scheme}://${host}:${port}/${rootPath}"/>
   </bean>
 

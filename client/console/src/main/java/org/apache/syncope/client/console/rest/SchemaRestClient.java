@@ -23,7 +23,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
-import org.apache.syncope.client.console.SyncopeSession;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Transformer;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.AttrLayoutType;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AbstractSchemaTO;
@@ -89,13 +91,16 @@ public class SchemaRestClient extends BaseRestClient {
     }
 
     public List<String> getSchemaNames(final AttributableType attrType, final SchemaType schemaType) {
-        final List<String> schemaNames = new ArrayList<>();
+        List<String> schemaNames = new ArrayList<>();
 
         try {
-            final List<? extends AbstractSchemaTO> schemas = getSchemas(attrType, schemaType);
-            for (AbstractSchemaTO schemaTO : schemas) {
-                schemaNames.add(schemaTO.getKey());
-            }
+            CollectionUtils.collect(getSchemas(attrType, schemaType), new Transformer<AbstractSchemaTO, String>() {
+
+                @Override
+                public String transform(final AbstractSchemaTO schemaTO) {
+                    return schemaTO.getKey();
+                }
+            }, schemaNames);
         } catch (SyncopeClientException e) {
             LOG.error("While getting all user schema names", e);
         }
@@ -104,18 +109,7 @@ public class SchemaRestClient extends BaseRestClient {
     }
 
     public List<String> getPlainSchemaNames(final AttributableType type) {
-        final List<String> schemaNames = new ArrayList<>();
-
-        try {
-            final List<PlainSchemaTO> schemas = getSchemas(type);
-            for (PlainSchemaTO schemaTO : schemas) {
-                schemaNames.add(schemaTO.getKey());
-            }
-        } catch (SyncopeClientException e) {
-            LOG.error("While getting all user schema names", e);
-        }
-
-        return schemaNames;
+        return getSchemaNames(type, SchemaType.PLAIN);
     }
 
     public List<DerSchemaTO> getDerSchemas(final AttributableType type) {
@@ -131,19 +125,7 @@ public class SchemaRestClient extends BaseRestClient {
     }
 
     public List<String> getDerSchemaNames(final AttributableType type) {
-        final List<String> userDerSchemasNames = new ArrayList<>();
-
-        try {
-            final List<DerSchemaTO> userDerSchemas = getService(SchemaService.class).list(type, SchemaType.DERIVED);
-
-            for (DerSchemaTO schemaTO : userDerSchemas) {
-                userDerSchemasNames.add(schemaTO.getKey());
-            }
-        } catch (SyncopeClientException e) {
-            LOG.error("While getting all {} derived schema names", type, e);
-        }
-
-        return userDerSchemasNames;
+        return getSchemaNames(type, SchemaType.DERIVED);
     }
 
     public List<VirSchemaTO> getVirSchemas(final AttributableType type) {
@@ -159,19 +141,7 @@ public class SchemaRestClient extends BaseRestClient {
     }
 
     public List<String> getVirSchemaNames(final AttributableType type) {
-        final List<String> userVirSchemasNames = new ArrayList<String>();
-
-        try {
-            @SuppressWarnings("unchecked")
-            final List<VirSchemaTO> userVirSchemas = getService(SchemaService.class).list(type, SchemaType.VIRTUAL);
-            for (VirSchemaTO schemaTO : userVirSchemas) {
-                userVirSchemasNames.add(schemaTO.getKey());
-            }
-        } catch (SyncopeClientException e) {
-            LOG.error("While getting all user derived schema names", e);
-        }
-
-        return userVirSchemasNames;
+        return getSchemaNames(type, SchemaType.VIRTUAL);
     }
 
     public void createPlainSchema(final AttributableType type, final PlainSchemaTO schemaTO) {
@@ -241,7 +211,7 @@ public class SchemaRestClient extends BaseRestClient {
         List<String> response = null;
 
         try {
-            response = SyncopeSession.get().getSyncopeTO().getValidators();
+            response = SyncopeConsoleSession.get().getSyncopeTO().getValidators();
         } catch (SyncopeClientException e) {
             LOG.error("While getting all validators", e);
         }

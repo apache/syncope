@@ -67,8 +67,8 @@ public class NotificationPanel extends FeedbackPanel {
         setOutputMarkupId(true);
 
         // Add the additional cssClass and hide the element by default
-        add(new AttributeModifier("class", new Model<String>(CSS_CLASS + " " + this.additionalCSSClass)));
-        add(new AttributeModifier("style", new Model<String>("opacity: 0;")));
+        add(new AttributeModifier("class", new Model<>(CSS_CLASS + " " + this.additionalCSSClass)));
+        add(new AttributeModifier("style", new Model<>("opacity: 0;")));
     }
 
     /**
@@ -95,7 +95,7 @@ public class NotificationPanel extends FeedbackPanel {
             // add the css classes to the notification panel, 
             // including the border css which represents the highest level of feedback
             add(new AttributeModifier("class",
-                    new Model<String>(CSS_CLASS
+                    new Model<>(CSS_CLASS
                             + " " + additionalCSSClass
                             + " notificationpanel_border_" + highestFeedbackLevel)));
 

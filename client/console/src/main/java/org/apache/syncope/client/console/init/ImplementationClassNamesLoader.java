@@ -25,7 +25,7 @@ import java.util.List;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.panels.AbstractExtensionPanel;
-import org.apache.syncope.client.console.BinaryPreview;
+import org.apache.syncope.client.console.annotations.BinaryPreview;
 import org.apache.syncope.client.console.wicket.markup.html.form.preview.AbstractBinaryPreviewer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

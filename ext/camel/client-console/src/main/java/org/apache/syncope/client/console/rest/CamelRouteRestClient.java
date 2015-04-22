@@ -19,7 +19,7 @@
 package org.apache.syncope.client.console.rest;
 
 import java.util.List;
-import org.apache.syncope.client.console.SyncopeSession;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.common.lib.to.CamelRouteTO;
 import org.apache.syncope.common.lib.types.SubjectType;
 import org.apache.syncope.common.rest.api.service.CamelRouteService;
@@ -46,8 +46,8 @@ public class CamelRouteRestClient extends BaseRestClient {
 
     public boolean isCamelEnabledFor(final SubjectType subjectType) {
         return subjectType == SubjectType.USER
-                ? SyncopeSession.get().getSyncopeTO().getUserProvisioningManager().indexOf("Camel") != -1
-                : SyncopeSession.get().getSyncopeTO().getGroupProvisioningManager().indexOf("Camel") != -1;
+                ? SyncopeConsoleSession.get().getSyncopeTO().getUserProvisioningManager().contains("Camel")
+                : SyncopeConsoleSession.get().getSyncopeTO().getGroupProvisioningManager().contains("Camel");
 
     }
 }

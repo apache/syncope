@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.rest;
 
+import java.util.Collections;
 import java.util.List;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.console.commons.status.StatusBean;
@@ -49,13 +50,14 @@ public class UserRestClient extends AbstractSubjectRestClient {
     private static final long serialVersionUID = -1575748964398293968L;
 
     @Override
-    public int count() {
-        return getService(UserService.class).list(1, 1).getTotalCount();
+    public int count(final String realm) {
+        return getService(UserService.class).list(Collections.singletonList(realm), 1, 1).getTotalCount();
     }
 
     @Override
-    public List<UserTO> list(final int page, final int size, final SortParam<String> sort) {
-        return getService(UserService.class).list(page, size, toOrderBy(sort)).getResult();
+    public List<UserTO> list(final String realm, final int page, final int size, final SortParam<String> sort) {
+        return getService(UserService.class).
+                list(Collections.singletonList(realm), page, size, toOrderBy(sort)).getResult();
     }
 
     public UserTO create(final UserTO userTO, final boolean storePassword) {
@@ -95,13 +97,16 @@ public class UserRestClient extends AbstractSubjectRestClient {
     }
 
     @Override
-    public int searchCount(final String fiql) {
-        return getService(UserService.class).search(fiql, 1, 1).getTotalCount();
+    public int searchCount(final String realm, final String fiql) {
+        return getService(UserService.class).search(Collections.singletonList(realm), fiql, 1, 1).getTotalCount();
     }
 
     @Override
-    public List<UserTO> search(final String fiql, final int page, final int size, final SortParam<String> sort) {
-        return getService(UserService.class).search(fiql, page, size, toOrderBy(sort)).getResult();
+    public List<UserTO> search(
+            final String realm, final String fiql, final int page, final int size, final SortParam<String> sort) {
+        
+        return getService(UserService.class).
+                search(Collections.singletonList(realm), fiql, page, size, toOrderBy(sort)).getResult();
     }
 
     @Override

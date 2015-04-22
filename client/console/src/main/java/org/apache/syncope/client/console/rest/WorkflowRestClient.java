@@ -23,7 +23,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
-import org.apache.syncope.client.console.SyncopeSession;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.common.lib.types.SubjectType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.WorkflowService;
@@ -35,7 +35,7 @@ public class WorkflowRestClient extends BaseRestClient {
     private static final long serialVersionUID = 5049285686167071017L;
 
     private WorkflowService getService(final MediaType mediaType) {
-        return SyncopeSession.get().getService(mediaType, WorkflowService.class);
+        return SyncopeConsoleSession.get().getService(mediaType, WorkflowService.class);
     }
 
     public InputStream getDefinition(final MediaType mediaType) {
@@ -60,7 +60,7 @@ public class WorkflowRestClient extends BaseRestClient {
     }
 
     public boolean isActivitiEnabledForUsers() {
-        return SyncopeSession.get().getSyncopeTO().getUserWorkflowAdapter().indexOf("Activiti") != -1;
+        return SyncopeConsoleSession.get().getSyncopeTO().getUserWorkflowAdapter().contains("Activiti");
     }
 
     public void updateDefinition(final MediaType mediaType, final String definition) {

@@ -35,7 +35,7 @@ public class ReportRestClient extends BaseRestClient implements ExecutionRestCli
     private static final long serialVersionUID = 1644689667998953604L;
 
     public List<String> getReportletConfClasses() {
-        List<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<>();
 
         try {
             List<ReportletConfClass> reportletConfClasses = getService(ReportService.class).getReportletConfClasses();

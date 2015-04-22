@@ -22,6 +22,7 @@ import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.rest.CamelRouteRestClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.CamelRouteTO;
+import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -53,35 +54,34 @@ public class CamelRouteModalPage extends BaseModalPage {
         routeForm.add(routeDefArea);
         routeForm.setModel(new CompoundPropertyModel<>(routeTO));
 
-        AjaxButton submit =
-                new IndicatingAjaxButton(APPLY, new Model<>(getString(SUBMIT)), routeForm) {
+        AjaxButton submit = new IndicatingAjaxButton(APPLY, new Model<>(getString(SUBMIT)), routeForm) {
 
-                    private static final long serialVersionUID = -958724007591692537L;
+            private static final long serialVersionUID = -958724007591692537L;
 
-                    @Override
-                    protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-                        try {
-                            restClient.update(routeTO.getKey(), ((CamelRouteTO) form.getModelObject()).getContent());
-                            info(getString(Constants.OPERATION_SUCCEEDED));
+            @Override
+            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+                try {
+                    restClient.update(routeTO.getKey(), ((CamelRouteTO) form.getModelObject()).getContent());
+                    info(getString(Constants.OPERATION_SUCCEEDED));
 
-                            Configuration callerPage = (Configuration) pageRef.getPage();
-                            callerPage.setModalResult(true);
-                            window.close(target);
-                        } catch (SyncopeClientException scee) {
-                            error(getString(Constants.ERROR) + ": " + scee.getMessage());
-                        }
-                        target.add(feedbackPanel);
-                    }
+                    // TODO: SYNCOPE-120
+                    // Configuration callerPage = (Configuration) pageRef.getPage();
+                    // callerPage.setModalResult(true);
+                    window.close(target);
+                } catch (SyncopeClientException scee) {
+                    error(getString(Constants.ERROR) + ": " + scee.getMessage());
+                }
+                target.add(feedbackPanel);
+            }
 
-                    @Override
-                    protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-                        target.add(feedbackPanel);
-                    }
+            @Override
+            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
+                target.add(feedbackPanel);
+            }
 
-                };
+        };
 
-        MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE,
-                xmlRolesReader.getEntitlement("CamelRoutes", "update"));
+        MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE, Entitlement.ROUTE_UPDATE);
         routeForm.add(submit);
 
         this.add(routeForm);

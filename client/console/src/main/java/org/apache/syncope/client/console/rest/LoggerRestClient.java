@@ -47,7 +47,7 @@ public class LoggerRestClient extends BaseRestClient {
     }
 
     public Map<String, Set<AuditLoggerName>> listAuditsByCategory() {
-        Map<String, Set<AuditLoggerName>> result = new HashMap<String, Set<AuditLoggerName>>();
+        Map<String, Set<AuditLoggerName>> result = new HashMap<>();
         for (AuditLoggerName auditLoggerName : listAudits()) {
             if (!result.containsKey(auditLoggerName.getCategory())) {
                 result.put(auditLoggerName.getCategory(), new HashSet<AuditLoggerName>());

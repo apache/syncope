@@ -22,13 +22,11 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.syncope.client.console.commons.ConnIdSpecialAttributeName;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.ImagePanel;
-import org.apache.syncope.client.console.panels.StatusPanel;
 import org.apache.syncope.client.console.rest.AbstractSubjectRestClient;
 import org.apache.syncope.common.lib.mod.StatusMod;
 import org.apache.syncope.common.lib.to.AbstractAttributableTO;
@@ -36,7 +34,6 @@ import org.apache.syncope.common.lib.to.AbstractSubjectTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.wicket.Component;
-import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.image.Image;
@@ -48,9 +45,6 @@ public class StatusUtils implements Serializable {
 
     private static final long serialVersionUID = 7238009174387184309L;
 
-    /**
-     * Logger.
-     */
     private static final Logger LOG = LoggerFactory.getLogger(StatusUtils.class);
 
     private static final String IMG_PREFIX = "/img/statuses/";
@@ -168,42 +162,6 @@ public class StatusUtils implements Serializable {
         }
 
         return statusMod;
-    }
-
-    public static void update(
-            final AbstractAttributableTO attributable,
-            final StatusPanel statusPanel,
-            final AjaxRequestTarget target,
-            final Collection<String> resourcesToAdd,
-            final Collection<String> resourcesToRemove) {
-
-        if (statusPanel != null) {
-            Map<String, StatusBean> statusMap = new LinkedHashMap<>();
-            for (StatusBean statusBean : statusPanel.getStatusBeans()) {
-                statusMap.put(statusBean.getResourceName(), statusBean);
-            }
-
-            for (String resourceName : resourcesToAdd) {
-                if (!statusMap.keySet().contains(resourceName)) {
-                    StatusBean statusBean;
-                    if (statusPanel.getInitialStatusBeanMap().containsKey(resourceName)) {
-                        statusBean = statusPanel.getInitialStatusBeanMap().get(resourceName);
-                    } else {
-                        statusBean = new StatusBean(attributable, resourceName);
-                        statusBean.setStatus(Status.NOT_YET_SUBMITTED);
-                    }
-
-                    statusMap.put(statusBean.getResourceName(), statusBean);
-                }
-            }
-
-            for (String resource : resourcesToRemove) {
-                statusMap.remove(resource);
-            }
-
-            statusPanel.updateStatusBeans(new ArrayList<>(statusMap.values()));
-            target.add(statusPanel);
-        }
     }
 
     public ConnObjectTO getConnObjectTO(

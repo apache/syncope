@@ -22,17 +22,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.syncope.client.console.ExtensionPanel;
+import org.apache.syncope.client.console.annotations.ExtensionPanel;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
-import org.apache.syncope.client.console.pages.CamelRouteModalPage;
 import org.apache.syncope.client.console.rest.CamelRouteRestClient;
-import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
-import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.common.lib.to.CamelRouteTO;
+import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.common.lib.types.SubjectType;
-import org.apache.wicket.Page;
 import org.apache.wicket.PageReference;
-import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
@@ -88,7 +84,8 @@ public class CamelRoutePanel extends AbstractExtensionPanel {
             public void populateItem(final Item<ICellPopulator<CamelRouteTO>> cellItem, final String componentId,
                     final IModel<CamelRouteTO> model) {
 
-                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model, pageref);
+                // TODO: SYNCOPE-120
+                /*final ActionLinksPanel panel = new ActionLinksPanel(componentId, model, pageref);
 
                 panel.add(new ActionLink() {
 
@@ -113,7 +110,7 @@ public class CamelRoutePanel extends AbstractExtensionPanel {
                     }
                 }, ActionLink.ActionType.EDIT, "CamelRoutes");
 
-                cellItem.add(panel);
+                cellItem.add(panel);*/
             }
         });
 
@@ -123,8 +120,7 @@ public class CamelRoutePanel extends AbstractExtensionPanel {
         WebMarkupContainer routeContainer = new WebMarkupContainer("camelRoutesContainer");
         routeContainer.add(routeTable);
         routeContainer.setOutputMarkupId(true);
-        MetaDataRoleAuthorizationStrategy.authorize(
-                routeContainer, ENABLE, xmlRolesReader.getEntitlement("CamelRoutes", "list"));
+        MetaDataRoleAuthorizationStrategy.authorize(routeContainer, ENABLE, Entitlement.ROUTE_LIST);
         add(routeContainer);
     }
 

@@ -20,7 +20,7 @@ package org.apache.syncope.client.console.rest;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.syncope.client.console.SyncopeSession;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.common.lib.to.AbstractPolicyTO;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.rest.api.service.PolicyService;
@@ -34,28 +34,18 @@ public class PolicyRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -1392090291817187902L;
 
-    public <T extends AbstractPolicyTO<?>> T getGlobalPolicy(final PolicyType type) {
+    public <T extends AbstractPolicyTO> T getPolicy(final Long key) {
         T policy = null;
         try {
-            policy = getService(PolicyService.class).readGlobal(type);
+            policy = getService(PolicyService.class).read(key);
         } catch (Exception e) {
-            LOG.warn("No global " + type + " policy found", e);
-        }
-        return policy;
-    }
-
-    public <T extends AbstractPolicyTO<?>> T getPolicy(final Long id) {
-        T policy = null;
-        try {
-            policy = getService(PolicyService.class).read(id);
-        } catch (Exception e) {
-            LOG.warn("No policy found for id {}", id, e);
+            LOG.warn("No policy found for id {}", key, e);
         }
         return policy;
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends AbstractPolicyTO<?>> List<T> getPolicies(final PolicyType type, final boolean includeGlobal) {
+    public <T extends AbstractPolicyTO> List<T> getPolicies(final PolicyType type) {
         final List<T> res = new ArrayList<>();
 
         try {
@@ -64,29 +54,18 @@ public class PolicyRestClient extends BaseRestClient {
             LOG.debug("No policy found", ignore);
         }
 
-        if (includeGlobal) {
-            try {
-                T globalPolicy = getGlobalPolicy(type);
-                if (globalPolicy != null) {
-                    res.add(0, globalPolicy);
-                }
-            } catch (Exception ignore) {
-                LOG.warn("No global policy found", ignore);
-            }
-        }
-
         return res;
     }
 
-    public <T extends AbstractPolicyTO<?>> void createPolicy(final T policy) {
+    public <T extends AbstractPolicyTO> void createPolicy(final T policy) {
         getService(PolicyService.class).create(policy);
     }
 
-    public <T extends AbstractPolicyTO<?>> void updatePolicy(final T policy) {
+    public <T extends AbstractPolicyTO> void updatePolicy(final T policy) {
         getService(PolicyService.class).update(policy.getKey(), policy);
     }
 
-    public void delete(final Long id, final Class<? extends AbstractPolicyTO<?>> policyClass) {
+    public void delete(final Long id, final Class<? extends AbstractPolicyTO> policyClass) {
         getService(PolicyService.class).delete(id);
     }
 
@@ -94,7 +73,7 @@ public class PolicyRestClient extends BaseRestClient {
         List<String> rules = null;
 
         try {
-            rules = SyncopeSession.get().getSyncopeTO().getSyncCorrelationRules();
+            rules = SyncopeConsoleSession.get().getSyncopeTO().getSyncCorrelationRules();
         } catch (Exception e) {
             LOG.error("While getting all correlation rule classes", e);
         }

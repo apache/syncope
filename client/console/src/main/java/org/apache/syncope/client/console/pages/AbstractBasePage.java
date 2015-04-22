@@ -19,7 +19,6 @@
 package org.apache.syncope.client.console.pages;
 
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.commons.XMLRolesReader;
 import org.apache.syncope.client.console.init.MIMETypesLoader;
 import org.apache.syncope.client.console.panels.NotificationPanel;
 import org.apache.syncope.client.console.rest.ConfigurationRestClient;
@@ -44,9 +43,6 @@ public class AbstractBasePage extends WebPage {
 
     private static final long serialVersionUID = 8611724965544132636L;
 
-    /**
-     * Logger.
-     */
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractBasePage.class);
 
     protected static final String TASKS = "Tasks";
@@ -60,9 +56,6 @@ public class AbstractBasePage extends WebPage {
     protected static final String APPLY = "apply";
 
     protected final HeaderItem meta = new MetaHeaderItem("X-UA-Compatible", "IE=edge");
-
-    @SpringBean
-    protected XMLRolesReader xmlRolesReader;
 
     @SpringBean
     protected UserRestClient userRestClient;
@@ -118,8 +111,8 @@ public class AbstractBasePage extends WebPage {
         return modalResult;
     }
 
-    public void setModalResult(final boolean operationResult) {
-        this.modalResult = operationResult;
+    public void setModalResult(final boolean modalResult) {
+        this.modalResult = modalResult;
     }
 
     @Override

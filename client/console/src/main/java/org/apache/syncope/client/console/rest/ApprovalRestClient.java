@@ -35,8 +35,8 @@ public class ApprovalRestClient extends BaseRestClient {
         return getService(UserWorkflowService.class).getForms();
     }
 
-    public WorkflowFormTO claimForm(final String taskId) {
-        return getService(UserWorkflowService.class).claimForm(taskId);
+    public WorkflowFormTO claimForm(final String taskKey) {
+        return getService(UserWorkflowService.class).claimForm(taskKey);
     }
 
     public void submitForm(final WorkflowFormTO form) {

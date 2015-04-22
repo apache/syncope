@@ -21,7 +21,7 @@ package org.apache.syncope.client.console.rest;
 import java.util.Iterator;
 import java.util.List;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.client.console.SyncopeSession;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.AttrLayoutType;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AttrTO;
@@ -88,7 +88,7 @@ public class ConfigurationRestClient extends BaseRestClient {
     }
 
     public List<String> getMailTemplates() {
-        return SyncopeSession.get().getSyncopeTO().getMailTemplates();
+        return SyncopeConsoleSession.get().getSyncopeTO().getMailTemplates();
     }
 
     public Response dbExport() {

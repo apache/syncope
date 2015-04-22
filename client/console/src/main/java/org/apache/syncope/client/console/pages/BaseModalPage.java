@@ -18,7 +18,12 @@
  */
 package org.apache.syncope.client.console.pages;
 
-import org.apache.syncope.client.console.commons.CloseOnESCBehavior;
+import org.apache.wicket.Component;
+import org.apache.wicket.ajax.AjaxEventBehavior;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.attributes.AjaxCallListener;
+import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
+import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 
 /**
  * Syncope Modal Window.
@@ -30,6 +35,29 @@ public abstract class BaseModalPage extends AbstractBasePage {
     public BaseModalPage() {
         super();
 
-        add(new CloseOnESCBehavior("keyup"));
+        add(new AjaxEventBehavior("keyup") {
+
+            private static final long serialVersionUID = -7133385027739964990L;
+
+            @Override
+            protected void onEvent(final AjaxRequestTarget target) {
+                ModalWindow.closeCurrent(target);
+            }
+
+            @Override
+            protected void updateAjaxAttributes(final AjaxRequestAttributes attributes) {
+                super.updateAjaxAttributes(attributes);
+
+                attributes.getAjaxCallListeners().add(new AjaxCallListener() {
+
+                    private static final long serialVersionUID = 7160235486520935153L;
+
+                    @Override
+                    public CharSequence getPrecondition(final Component aComponent) {
+                        return " if(Wicket.Event.keyCode(attrs.event) != 27){return false;}";
+                    }
+                });
+            }
+        });
     }
 }

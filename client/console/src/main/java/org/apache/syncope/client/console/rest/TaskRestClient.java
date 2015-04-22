@@ -19,7 +19,7 @@
 package org.apache.syncope.client.console.rest;
 
 import java.util.List;
-import org.apache.syncope.client.console.SyncopeSession;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
@@ -42,15 +42,15 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
     private static final long serialVersionUID = 6284485820911028843L;
 
     public List<String> getJobClasses() {
-        return SyncopeSession.get().getSyncopeTO().getTaskJobs();
+        return SyncopeConsoleSession.get().getSyncopeTO().getTaskJobs();
     }
 
     public List<String> getSyncActionsClasses() {
-        return SyncopeSession.get().getSyncopeTO().getSyncActions();
+        return SyncopeConsoleSession.get().getSyncopeTO().getSyncActions();
     }
 
     public List<String> getPushActionsClasses() {
-        return SyncopeSession.get().getSyncopeTO().getPushActions();
+        return SyncopeConsoleSession.get().getSyncopeTO().getPushActions();
     }
 
     /**

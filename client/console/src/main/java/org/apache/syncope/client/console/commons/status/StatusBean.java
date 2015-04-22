@@ -43,7 +43,7 @@ public class StatusBean implements Serializable {
 
     private boolean linked = true;
 
-    public StatusBean(final AbstractAttributableTO attributable, String resourceName) {
+    public StatusBean(final AbstractAttributableTO attributable, final String resourceName) {
         this.attributableKey = attributable.getKey();
         this.attributableName = attributable instanceof UserTO
                 ? ((UserTO) attributable).getUsername() : ((GroupTO) attributable).getName();

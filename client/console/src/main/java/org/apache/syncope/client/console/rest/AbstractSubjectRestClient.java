@@ -29,18 +29,19 @@ public abstract class AbstractSubjectRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = 1962529678091410544L;
 
-    public abstract int count();
+    public abstract int count(String realm);
 
-    public abstract List<? extends AbstractAttributableTO> list(int page, int size, final SortParam<String> sort);
+    public abstract List<? extends AbstractAttributableTO> list(
+            String realm, int page, int size, final SortParam<String> sort);
 
-    public abstract int searchCount(String fiql);
+    public abstract int searchCount(String realm, String fiql);
 
-    public abstract List<? extends AbstractAttributableTO> search(String fiql,
-            int page, int size, final SortParam<String> sort);
+    public abstract List<? extends AbstractAttributableTO> search(
+            String realm, String fiql,            int page, int size, final SortParam<String> sort);
 
-    public abstract ConnObjectTO getConnectorObject(String resourceName, Long id);
+    public abstract ConnObjectTO getConnectorObject(String resourceName, Long key);
 
-    public abstract AbstractAttributableTO delete(String etag, Long id);
+    public abstract AbstractAttributableTO delete(String etag, Long key);
 
     public abstract BulkActionResult bulkAction(BulkAction action);
 }

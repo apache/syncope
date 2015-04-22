@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.client.console.rest;
 
-import org.apache.syncope.client.console.SyncopeSession;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.mod.UserMod;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -33,7 +33,7 @@ public class UserSelfRestClient extends BaseRestClient {
     public boolean isSelfRegistrationAllowed() {
         Boolean result = null;
         try {
-            result = SyncopeSession.get().getSyncopeTO().isSelfRegAllowed();
+            result = SyncopeConsoleSession.get().getSyncopeTO().isSelfRegAllowed();
         } catch (SyncopeClientException e) {
             LOG.error("While seeking if self registration is allowed", e);
         }
@@ -44,7 +44,7 @@ public class UserSelfRestClient extends BaseRestClient {
     }
 
     public UserTO read() {
-        return getService(UserSelfService.class).read();
+        return SyncopeConsoleSession.get().getSelfTO();
     }
 
     public void create(final UserTO userTO, final boolean storePassword) {
@@ -62,7 +62,7 @@ public class UserSelfRestClient extends BaseRestClient {
     public boolean isPasswordResetAllowed() {
         Boolean result = null;
         try {
-            result = SyncopeSession.get().getSyncopeTO().isPwdResetAllowed();
+            result = SyncopeConsoleSession.get().getSyncopeTO().isPwdResetAllowed();
         } catch (SyncopeClientException e) {
             LOG.error("While seeking if password reset is allowed", e);
         }
@@ -75,7 +75,7 @@ public class UserSelfRestClient extends BaseRestClient {
     public boolean isPwdResetRequiringSecurityQuestions() {
         Boolean result = null;
         try {
-            result = SyncopeSession.get().getSyncopeTO().isPwdResetRequiringSecurityQuestions();
+            result = SyncopeConsoleSession.get().getSyncopeTO().isPwdResetRequiringSecurityQuestions();
         } catch (SyncopeClientException e) {
             LOG.error("While seeking if password reset requires security question", e);
         }

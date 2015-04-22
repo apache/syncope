@@ -23,7 +23,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.apache.syncope.client.console.SyncopeSession;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
@@ -49,7 +49,7 @@ public class ConnectorRestClient extends BaseRestClient {
     public List<ConnInstanceTO> getAllConnectors() {
         List<ConnInstanceTO> connectors = Collections.<ConnInstanceTO>emptyList();
         try {
-            connectors = getService(ConnectorService.class).list(SyncopeSession.get().getLocale().toString());
+            connectors = getService(ConnectorService.class).list(SyncopeConsoleSession.get().getLocale().toString());
         } catch (Exception e) {
             LOG.error("While reading connectors", e);
         }
@@ -98,7 +98,7 @@ public class ConnectorRestClient extends BaseRestClient {
         List<ConnBundleTO> bundles = Collections.<ConnBundleTO>emptyList();
 
         try {
-            bundles = getService(ConnectorService.class).getBundles(SyncopeSession.get().getLocale().toString());
+            bundles = getService(ConnectorService.class).getBundles(SyncopeConsoleSession.get().getLocale().toString());
         } catch (SyncopeClientException e) {
             LOG.error("While getting connector bundles", e);
         }

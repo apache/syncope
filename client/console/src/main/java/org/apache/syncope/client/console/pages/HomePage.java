@@ -18,16 +18,17 @@
  */
 package org.apache.syncope.client.console.pages;
 
+import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
-/**
- * Syncope Home-Page.
- */
 public class HomePage extends BasePage {
 
-    private static final long serialVersionUID = -6712990478380766293L;
+    private static final long serialVersionUID = -1100228004207271270L;
 
     public HomePage(final PageParameters parameters) {
         super(parameters);
+
+        add(new Label("username", SyncopeConsoleSession.get().getSelfTO().getUsername()));
     }
 }

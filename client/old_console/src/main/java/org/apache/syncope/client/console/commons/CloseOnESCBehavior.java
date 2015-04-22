@@ -29,7 +29,7 @@ public class CloseOnESCBehavior extends AjaxEventBehavior {
 
     private static final long serialVersionUID = 5826308247642534260L;
 
-    public CloseOnESCBehavior(String event) {
+    public CloseOnESCBehavior(final String event) {
         super(event);
     }
 

@@ -19,7 +19,7 @@
 package org.apache.syncope.client.console.rest;
 
 import java.util.List;
-import org.apache.syncope.client.console.SyncopeSession;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AbstractAttributableTO;
 import org.apache.syncope.common.lib.to.BulkAction;
@@ -41,7 +41,7 @@ public class ResourceRestClient extends BaseRestClient {
     private static final long serialVersionUID = -6898907679835668987L;
 
     public List<String> getPropagationActionsClasses() {
-        return SyncopeSession.get().getSyncopeTO().getPropagationActions();
+        return SyncopeConsoleSession.get().getSyncopeTO().getPropagationActions();
     }
 
     public List<ResourceTO> getAll() {

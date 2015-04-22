@@ -18,17 +18,12 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import org.apache.syncope.client.console.commons.XMLRolesReader;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public abstract class AbstractExtensionPanel extends Panel {
 
     private static final long serialVersionUID = 4627828052717627159L;
-
-    @SpringBean
-    protected XMLRolesReader xmlRolesReader;
 
     protected PageReference pageref;
 

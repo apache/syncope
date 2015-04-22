@@ -33,7 +33,7 @@ public class AjaxPasswordFieldPanel extends FieldPanel<String> {
         super(id, model);
 
         field = new PasswordTextField("passwordField", model);
-        add(field.setLabel(new Model<String>(name)).setRequired(false).setOutputMarkupId(true));
+        add(field.setLabel(new Model<>(name)).setRequired(false).setOutputMarkupId(true));
 
         if (!isReadOnly()) {
             field.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {

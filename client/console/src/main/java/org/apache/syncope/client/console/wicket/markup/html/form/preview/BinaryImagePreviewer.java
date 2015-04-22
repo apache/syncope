@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.client.console.wicket.markup.html.form.preview;
 
-import org.apache.syncope.client.console.BinaryPreview;
+import org.apache.syncope.client.console.annotations.BinaryPreview;
 import org.apache.wicket.Component;
 import org.apache.wicket.extensions.markup.html.image.resource.ThumbnailImageResource;
 import org.apache.wicket.markup.html.image.NonCachingImage;

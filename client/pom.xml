@@ -35,8 +35,7 @@ under the License.
 
   <modules>
     <module>lib</module>
-    <!-- THIS UNTIL SYNCOPE-611 gets completely resolved -->
-    <!--<module>console</module>-->
+    <module>console</module>
     <module>cli</module>
   </modules>
 
