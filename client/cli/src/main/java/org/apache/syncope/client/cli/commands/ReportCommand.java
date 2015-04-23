@@ -28,6 +28,7 @@ import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import org.apache.syncope.client.cli.SyncopeServices;
 import org.apache.syncope.client.cli.util.XmlUtils;
+import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ReportExecTO;
 import org.apache.syncope.common.lib.to.ReportTO;
@@ -97,7 +98,7 @@ public class ReportCommand extends AbstractCommand {
         } else if (list) {
             LOG.debug("- report list command");
             try {
-                for (final ReportTO reportTO : reportService.list().getResult()) {
+                for (ReportTO reportTO : reportService.list(SyncopeClient.getListQueryBuilder().build()).getResult()) {
                     System.out.println(reportTO);
                 }
             } catch (final SyncopeClientException ex) {

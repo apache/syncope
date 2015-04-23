@@ -16,16 +16,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.rest.api.service;
+package org.apache.syncope.common.rest.api.beans;
 
-public interface JAXRSService {
+import javax.ws.rs.QueryParam;
+import org.apache.syncope.common.rest.api.service.JAXRSService;
 
-    String PARAM_FIQL = "fiql";
+public class SubjectSearchQuery extends SubjectListQuery {
 
-    String PARAM_PAGE = "page";
+    private static final long serialVersionUID = -6736562952418964707L;
 
-    String PARAM_SIZE = "size";
+    private String fiql;
 
-    String PARAM_ORDERBY = "orderby";
+    public String getFiql() {
+        return fiql;
+    }
+
+    @QueryParam(JAXRSService.PARAM_FIQL)
+    public void setFiql(final String fiql) {
+        this.fiql = fiql;
+    }
 
 }

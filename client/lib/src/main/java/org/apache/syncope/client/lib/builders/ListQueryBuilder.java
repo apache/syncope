@@ -16,16 +16,33 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.rest.api.service;
+package org.apache.syncope.client.lib.builders;
 
-public interface JAXRSService {
+import org.apache.syncope.common.rest.api.beans.ListQuery;
 
-    String PARAM_FIQL = "fiql";
+public class ListQueryBuilder {
 
-    String PARAM_PAGE = "page";
+    private final ListQuery instance = new ListQuery();
 
-    String PARAM_SIZE = "size";
+    public ListQueryBuilder page(final Integer page) {
+        instance.setPage(page);
 
-    String PARAM_ORDERBY = "orderby";
+        return this;
+    }
 
+    public ListQueryBuilder size(final Integer size) {
+        instance.setSize(size);
+
+        return this;
+    }
+
+    public ListQueryBuilder orderBy(final String orderBy) {
+        instance.setOrderBy(orderBy);
+
+        return this;
+    }
+
+    public ListQuery build() {
+        return instance;
+    }
 }

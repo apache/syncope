@@ -18,12 +18,12 @@
  */
 package org.apache.syncope.client.console.rest;
 
-import java.util.Collections;
 import java.util.List;
 
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.syncope.client.console.commons.status.StatusUtils;
+import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.mod.GroupMod;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
@@ -49,22 +49,24 @@ public class GroupRestClient extends AbstractSubjectRestClient {
 
     @Override
     public int count(final String realm) {
-        return getService(GroupService.class).list(Collections.singletonList(realm), 1, 1).getTotalCount();
-    }
-
-    public List<GroupTO> list(final String realm) {
-        return getService(GroupService.class).list(Collections.singletonList(realm), 1, 1000).getResult();
+        return getService(GroupService.class).
+                list(SyncopeClient.getSubjectListQueryBuilder().realm(realm).page(1).size(1).build()).
+                getTotalCount();
     }
 
     @Override
     public List<GroupTO> list(final String realm, final int page, final int size, final SortParam<String> sort) {
         return getService(GroupService.class).
-                list(Collections.singletonList(realm), page, size, toOrderBy(sort)).getResult();
+                list(SyncopeClient.getSubjectListQueryBuilder().realm(realm).page(page).size(size).
+                        orderBy(toOrderBy(sort)).build()).
+                getResult();
     }
 
     @Override
     public int searchCount(final String realm, final String fiql) {
-        return getService(GroupService.class).search(Collections.singletonList(realm), fiql, 1, 1).getTotalCount();
+        return getService(GroupService.class).
+                search(SyncopeClient.getSubjectSearchQueryBuilder().realm(realm).fiql(fiql).page(1).size(1).build()).
+                getTotalCount();
     }
 
     @Override
@@ -72,7 +74,9 @@ public class GroupRestClient extends AbstractSubjectRestClient {
             final String realm, final String fiql, final int page, final int size, final SortParam<String> sort) {
 
         return getService(GroupService.class).
-                search(Collections.singletonList(realm), fiql, page, size, toOrderBy(sort)).getResult();
+                search(SyncopeClient.getSubjectSearchQueryBuilder().realm(realm).fiql(fiql).page(page).size(size).
+                        orderBy(toOrderBy(sort)).build()).
+                getResult();
     }
 
     @Override

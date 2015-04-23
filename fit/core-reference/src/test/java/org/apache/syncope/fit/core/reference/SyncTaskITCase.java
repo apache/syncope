@@ -25,7 +25,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -87,7 +86,8 @@ public class SyncTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void list() {
-        final PagedResult<SyncTaskTO> tasks = taskService.list(TaskType.SYNCHRONIZATION);
+        PagedResult<SyncTaskTO> tasks =
+                taskService.list(TaskType.SYNCHRONIZATION, SyncopeClient.getListQueryBuilder().build());
         assertFalse(tasks.getResult().isEmpty());
         for (AbstractTaskTO task : tasks.getResult()) {
             if (!(task instanceof SyncTaskTO)) {
@@ -153,7 +153,9 @@ public class SyncTaskITCase extends AbstractTaskITCase {
 
         // -----------------------------
         try {
-            int usersPre = userService.list(Collections.singletonList("/"), 1, 1).getTotalCount();
+            int usersPre = userService.list(
+                    SyncopeClient.getSubjectListQueryBuilder().realm(SyncopeConstants.ROOT_REALM).
+                    page(1).size(1).build()).getTotalCount();
             assertNotNull(usersPre);
 
             execSyncTask(SYNC_TASK_ID, 50, false);
@@ -200,7 +202,9 @@ public class SyncTaskITCase extends AbstractTaskITCase {
             assertEquals("TYPE_8", userTO.getPlainAttrMap().get("type").getValues().get(0));
 
             // check for sync results
-            int usersPost = userService.list(Collections.singletonList("/"), 1, 1).getTotalCount();
+            int usersPost = userService.list(
+                    SyncopeClient.getSubjectListQueryBuilder().realm(SyncopeConstants.ROOT_REALM).
+                    page(1).size(1).build()).getTotalCount();
             assertNotNull(usersPost);
             assertEquals(usersPre + 9, usersPost);
 
@@ -269,8 +273,9 @@ public class SyncTaskITCase extends AbstractTaskITCase {
      */
     private void ldapCleanup() {
         PagedResult<GroupTO> matchingGroups = groupService.search(
-                Collections.singletonList("/"),
-                SyncopeClient.getGroupSearchConditionBuilder().is("name").equalTo("testLDAPGroup").query());
+                SyncopeClient.getSubjectSearchQueryBuilder().realm(SyncopeConstants.ROOT_REALM).
+                fiql(SyncopeClient.getGroupSearchConditionBuilder().is("name").equalTo("testLDAPGroup").query()).
+                build());
         if (matchingGroups.getSize() > 0) {
             for (GroupTO group : matchingGroups.getResult()) {
                 groupService.bulkDeassociation(group.getKey(),
@@ -280,8 +285,9 @@ public class SyncTaskITCase extends AbstractTaskITCase {
             }
         }
         PagedResult<UserTO> matchingUsers = userService.search(
-                Collections.singletonList("/"),
-                SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("syncFromLDAP").query());
+                SyncopeClient.getSubjectSearchQueryBuilder().realm(SyncopeConstants.ROOT_REALM).
+                fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("syncFromLDAP").query()).
+                build());
         if (matchingUsers.getSize() > 0) {
             for (UserTO user : matchingUsers.getResult()) {
                 userService.bulkDeassociation(user.getKey(),
@@ -301,20 +307,22 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         TaskExecTO execution = execSyncTask(11L, 50, false);
 
         // 1. verify execution status
-        final String status = execution.getStatus();
+        String status = execution.getStatus();
         assertNotNull(status);
         assertTrue(PropagationTaskExecStatus.valueOf(status).isSuccessful());
 
         // 2. verify that synchronized group is found, with expected attributes
-        final PagedResult<GroupTO> matchingGroups = groupService.search(
-                Collections.singletonList("/"),
-                SyncopeClient.getGroupSearchConditionBuilder().is("name").equalTo("testLDAPGroup").query());
+        PagedResult<GroupTO> matchingGroups = groupService.search(
+                SyncopeClient.getSubjectSearchQueryBuilder().realm(SyncopeConstants.ROOT_REALM).
+                fiql(SyncopeClient.getGroupSearchConditionBuilder().is("name").equalTo("testLDAPGroup").query()).
+                build());
         assertNotNull(matchingGroups);
         assertEquals(1, matchingGroups.getResult().size());
 
-        final PagedResult<UserTO> matchingUsers = userService.search(
-                Collections.singletonList("/"),
-                SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("syncFromLDAP").query());
+        PagedResult<UserTO> matchingUsers = userService.search(
+                SyncopeClient.getSubjectSearchQueryBuilder().realm(SyncopeConstants.ROOT_REALM).
+                fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("syncFromLDAP").query()).
+                build());
         assertNotNull(matchingUsers);
         assertEquals(1, matchingUsers.getResult().size());
 
@@ -334,9 +342,9 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         assertNull(groupTO.getGroupOwner());
 
         // 3. verify that LDAP group membership is propagated as Syncope group membership
-        final PagedResult<UserTO> members = userService.search(
-                Collections.singletonList("/"),
-                SyncopeClient.getUserSearchConditionBuilder().inGroups(groupTO.getKey()).query());
+        PagedResult<UserTO> members = userService.search(
+                SyncopeClient.getSubjectSearchQueryBuilder().realm(SyncopeConstants.ROOT_REALM).
+                fiql(SyncopeClient.getUserSearchConditionBuilder().inGroups(groupTO.getKey()).query()).build());
         assertNotNull(members);
         assertEquals(1, members.getResult().size());
     }

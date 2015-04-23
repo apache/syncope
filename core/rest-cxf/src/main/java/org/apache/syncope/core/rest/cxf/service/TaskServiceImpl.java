@@ -19,7 +19,6 @@
 package org.apache.syncope.core.rest.cxf.service;
 
 import java.net.URI;
-import java.util.List;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
@@ -34,9 +33,9 @@ import org.apache.syncope.common.lib.to.TaskExecTO;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.beans.ListQuery;
 import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.syncope.core.logic.TaskLogic;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -76,31 +75,18 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService 
         return logic.execute(taskKey, dryRun);
     }
 
-    @Override
-    public <T extends AbstractTaskTO> PagedResult<T> list(final TaskType taskType) {
-        return list(taskType, DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE, null);
-    }
-
-    @Override
-    public <T extends AbstractTaskTO> PagedResult<T> list(final TaskType taskType, final String orderBy) {
-        return list(taskType, DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE, orderBy);
-    }
-
-    @Override
-    public <T extends AbstractTaskTO> PagedResult<T> list(
-            final TaskType taskType, final Integer page, final Integer size) {
-
-        return list(taskType, page, size, null);
-    }
-
-    @Override
     @SuppressWarnings("unchecked")
-    public <T extends AbstractTaskTO> PagedResult<T> list(final TaskType taskType,
-            final Integer page, final Integer size, final String orderBy) {
-
-        List<OrderByClause> orderByClauses = getOrderByClauses(orderBy);
+    @Override
+    public <T extends AbstractTaskTO> PagedResult<T> list(final TaskType taskType, final ListQuery listQuery) {
         return (PagedResult<T>) buildPagedResult(
-                logic.list(taskType, page, size, orderByClauses), page, size, logic.count(taskType));
+                logic.list(
+                        taskType,
+                        listQuery.getPage(),
+                        listQuery.getSize(),
+                        getOrderByClauses(listQuery.getOrderBy())),
+                listQuery.getPage(),
+                listQuery.getSize(),
+                logic.count(taskType));
     }
 
     @Override

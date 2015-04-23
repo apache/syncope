@@ -32,9 +32,9 @@ import org.apache.syncope.common.lib.types.ReportExecExportFormat;
 import org.apache.syncope.common.lib.wrap.ReportletConfClass;
 import org.apache.syncope.common.rest.api.CollectionWrapper;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.beans.ListQuery;
 import org.apache.syncope.common.rest.api.service.ReportService;
 import org.apache.syncope.core.logic.ReportLogic;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -50,7 +50,7 @@ public class ReportServiceImpl extends AbstractServiceImpl implements ReportServ
         ReportTO createdReportTO = logic.create(reportTO);
         URI location = uriInfo.getAbsolutePathBuilder().path(String.valueOf(createdReportTO.getKey())).build();
         return Response.created(location).
-                header(RESTHeaders.RESOURCE_ID.toString(), createdReportTO.getKey()).
+                header(RESTHeaders.RESOURCE_ID, createdReportTO.getKey()).
                 build();
     }
 
@@ -61,24 +61,15 @@ public class ReportServiceImpl extends AbstractServiceImpl implements ReportServ
     }
 
     @Override
-    public PagedResult<ReportTO> list() {
-        return list(DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE, null);
-    }
-
-    @Override
-    public PagedResult<ReportTO> list(final String orderBy) {
-        return list(DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE, orderBy);
-    }
-
-    @Override
-    public PagedResult<ReportTO> list(final Integer page, final Integer size) {
-        return list(page, size, null);
-    }
-
-    @Override
-    public PagedResult<ReportTO> list(final Integer page, final Integer size, final String orderBy) {
-        List<OrderByClause> orderByClauses = getOrderByClauses(orderBy);
-        return buildPagedResult(logic.list(page, size, orderByClauses), page, size, logic.count());
+    public PagedResult<ReportTO> list(final ListQuery listQuery) {
+        return buildPagedResult(
+                logic.list(
+                        listQuery.getPage(),
+                        listQuery.getSize(),
+                        getOrderByClauses(listQuery.getOrderBy())),
+                listQuery.getPage(),
+                listQuery.getSize(),
+                logic.count());
     }
 
     @Override

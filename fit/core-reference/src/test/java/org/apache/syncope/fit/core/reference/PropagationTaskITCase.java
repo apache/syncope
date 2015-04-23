@@ -26,6 +26,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.List;
 import javax.ws.rs.core.Response;
+import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
 import org.apache.syncope.common.lib.to.BulkAction;
@@ -45,27 +46,30 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void paginatedList() {
-        PagedResult<PropagationTaskTO> tasks = taskService.list(TaskType.PROPAGATION, 1, 2);
-
+        PagedResult<PropagationTaskTO> tasks = taskService.list(
+                TaskType.PROPAGATION,
+                SyncopeClient.getListQueryBuilder().page(1).size(2).build());
         assertNotNull(tasks);
-        assertFalse(tasks.getResult().isEmpty());
         assertEquals(2, tasks.getResult().size());
 
         for (AbstractTaskTO task : tasks.getResult()) {
             assertNotNull(task);
         }
 
-        tasks = taskService.list(TaskType.PROPAGATION, 2, 2);
-
+        tasks = taskService.list(
+                TaskType.PROPAGATION,
+                SyncopeClient.getListQueryBuilder().page(2).size(2).build());
         assertNotNull(tasks);
-        assertFalse(tasks.getResult().isEmpty());
+        assertEquals(2, tasks.getPage());
+        assertEquals(2, tasks.getResult().size());
 
         for (AbstractTaskTO task : tasks.getResult()) {
             assertNotNull(task);
         }
 
-        tasks = taskService.list(TaskType.PROPAGATION, 1000, 2);
-
+        tasks = taskService.list(
+                TaskType.PROPAGATION,
+                SyncopeClient.getListQueryBuilder().page(1000).size(2).build());
         assertNotNull(tasks);
         assertTrue(tasks.getResult().isEmpty());
     }
@@ -122,29 +126,30 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void bulkAction() {
-        final PagedResult<PropagationTaskTO> before = taskService.list(TaskType.PROPAGATION);
+        PagedResult<PropagationTaskTO> before = taskService.list(
+                TaskType.PROPAGATION, SyncopeClient.getListQueryBuilder().build());
 
         // create user with testdb resource
-        final UserTO userTO = UserITCase.getUniqueSampleTO("taskBulk@apache.org");
+        UserTO userTO = UserITCase.getUniqueSampleTO("taskBulk@apache.org");
         userTO.getResources().add(RESOURCE_NAME_TESTDB);
         createUser(userTO);
 
-        final List<PropagationTaskTO> after = new ArrayList<>(
-                taskService.<PropagationTaskTO>list(TaskType.PROPAGATION).getResult());
-
+        List<PropagationTaskTO> after = new ArrayList<>(
+                taskService.<PropagationTaskTO>list(TaskType.PROPAGATION, SyncopeClient.getListQueryBuilder().build()).
+                getResult());
         after.removeAll(before.getResult());
-
         assertFalse(after.isEmpty());
 
-        final BulkAction bulkAction = new BulkAction();
+        BulkAction bulkAction = new BulkAction();
         bulkAction.setOperation(BulkAction.Type.DELETE);
 
-        for (AbstractTaskTO taskTO : after) {
+        for (PropagationTaskTO taskTO : after) {
             bulkAction.getTargets().add(String.valueOf(taskTO.getKey()));
         }
 
         taskService.bulk(bulkAction);
 
-        assertFalse(taskService.list(TaskType.PROPAGATION).getResult().containsAll(after));
+        assertFalse(taskService.list(TaskType.PROPAGATION, SyncopeClient.getListQueryBuilder().build()).getResult().
+                containsAll(after));
     }
 }

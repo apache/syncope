@@ -34,6 +34,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
 import org.apache.syncope.common.lib.to.NotificationTaskTO;
 import org.apache.syncope.common.lib.to.PagedResult;
@@ -140,7 +141,8 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
     }
 
     protected NotificationTaskTO findNotificationTaskBySender(final String sender) {
-        PagedResult<NotificationTaskTO> tasks = taskService.list(TaskType.NOTIFICATION);
+        PagedResult<NotificationTaskTO> tasks =
+                taskService.list(TaskType.NOTIFICATION, SyncopeClient.getListQueryBuilder().build());
         assertNotNull(tasks);
         assertFalse(tasks.getResult().isEmpty());
         NotificationTaskTO taskTO = null;

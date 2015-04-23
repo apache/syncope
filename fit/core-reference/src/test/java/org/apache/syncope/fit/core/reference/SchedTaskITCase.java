@@ -26,6 +26,7 @@ import static org.junit.Assert.fail;
 
 import java.util.List;
 import javax.ws.rs.core.Response;
+import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.PushTaskTO;
@@ -50,7 +51,8 @@ public class SchedTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void list() {
-        final PagedResult<SchedTaskTO> tasks = taskService.list(TaskType.SCHEDULED);
+        PagedResult<SchedTaskTO> tasks =
+                taskService.list(TaskType.SCHEDULED, SyncopeClient.getListQueryBuilder().build());
         assertFalse(tasks.getResult().isEmpty());
         for (AbstractTaskTO task : tasks.getResult()) {
             if (!(task instanceof SchedTaskTO) || task instanceof SyncTaskTO || task instanceof PushTaskTO) {
@@ -64,7 +66,7 @@ public class SchedTaskITCase extends AbstractTaskITCase {
         SchedTaskTO task = taskService.read(SCHED_TASK_ID);
         assertNotNull(task);
 
-        final SchedTaskTO taskMod = new SchedTaskTO();
+        SchedTaskTO taskMod = new SchedTaskTO();
         taskMod.setKey(5);
         taskMod.setCronExpression(null);
 

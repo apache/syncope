@@ -30,7 +30,7 @@ public enum Preference {
     RETURN_CONTENT("return-content"),
     RETURN_NO_CONTENT("return-no-content");
 
-    private String literal;
+    private final String literal;
 
     private Preference(final String literal) {
         this.literal = literal;

@@ -16,16 +16,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.rest.api.service;
+package org.apache.syncope.common.rest.api.beans;
 
-public interface JAXRSService {
+import java.util.List;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.MatrixParam;
+import org.apache.syncope.common.lib.SyncopeConstants;
 
-    String PARAM_FIQL = "fiql";
+public class SubjectListQuery extends ListQuery {
 
-    String PARAM_PAGE = "page";
+    private static final long serialVersionUID = -5197167078435619636L;
 
-    String PARAM_SIZE = "size";
+    private List<String> realms;
 
-    String PARAM_ORDERBY = "orderby";
+    public List<String> getRealms() {
+        return realms;
+    }
 
+    @DefaultValue(SyncopeConstants.ROOT_REALM)
+    @MatrixParam("realm")
+    public void setRealms(final List<String> realms) {
+        this.realms = realms;
+    }
 }

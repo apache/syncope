@@ -19,23 +19,20 @@
 package org.apache.syncope.common.rest.api.service;
 
 import java.util.List;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
-import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.cxf.jaxrs.model.wadl.Description;
 import org.apache.cxf.jaxrs.model.wadl.Descriptions;
 import org.apache.cxf.jaxrs.model.wadl.DocTarget;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.mod.GroupMod;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
@@ -44,6 +41,8 @@ import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.types.ResourceAssociationActionType;
 import org.apache.syncope.common.lib.types.ResourceDeassociationActionType;
 import org.apache.syncope.common.lib.wrap.ResourceName;
+import org.apache.syncope.common.rest.api.beans.SubjectListQuery;
+import org.apache.syncope.common.rest.api.beans.SubjectSearchQuery;
 
 /**
  * REST operations for groups.
@@ -79,128 +78,25 @@ public interface GroupService extends JAXRSService {
     List<GroupTO> own();
 
     /**
-     * Returns a paged list of existing groups.
+     * Returns a paged list of existing groups matching the given query.
      *
-     * @param realms realms under which groups are defined
-     * @return paged list of all existing groups
+     * @param listQuery query conditions
+     * @return paged list of existing groups matching the given query
      */
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    PagedResult<GroupTO> list(
-            @DefaultValue(SyncopeConstants.ROOT_REALM) @QueryParam("realm") List<String> realms);
+    PagedResult<GroupTO> list(@BeanParam SubjectListQuery listQuery);
 
     /**
-     * Returns a paged list of existing groups.
+     * Returns a paged list of groups matching the given query.
      *
-     * @param realms realms under which groups are defined
-     * @param orderBy list of ordering clauses, separated by comma
-     * @return paged list of all existing groups
-     */
-    @GET
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    PagedResult<GroupTO> list(
-            @DefaultValue(SyncopeConstants.ROOT_REALM) @QueryParam("realm") List<String> realms,
-            @QueryParam(PARAM_ORDERBY) String orderBy);
-
-    /**
-     * Returns a paged list of existing groups matching page/size conditions.
-     *
-     * @param realms realms under which groups are defined
-     * @param page result page number
-     * @param size number of entries per page
-     * @return paged list of existing groups matching page/size conditions
-     */
-    @GET
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    PagedResult<GroupTO> list(
-            @DefaultValue(SyncopeConstants.ROOT_REALM) @QueryParam("realm") List<String> realms,
-            @NotNull @Min(1) @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) Integer page,
-            @NotNull @Min(1) @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) Integer size);
-
-    /**
-     * Returns a paged list of existing groups matching page/size conditions.
-     *
-     * @param realms realms under which groups are defined
-     * @param page result page number
-     * @param size number of entries per page
-     * @param orderBy list of ordering clauses, separated by comma
-     * @return paged list of existing groups matching page/size conditions
-     */
-    @GET
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    PagedResult<GroupTO> list(
-            @DefaultValue(SyncopeConstants.ROOT_REALM) @QueryParam("realm") List<String> realms,
-            @NotNull @Min(1) @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) Integer page,
-            @NotNull @Min(1) @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) Integer size,
-            @QueryParam(PARAM_ORDERBY) String orderBy);
-
-    /**
-     * Returns a paged list of groups matching the provided FIQL search condition.
-     *
-     * @param realms realms under which groups are defined
-     * @param fiql FIQL search expression
-     * @return paged list of groups matching the provided FIQL search condition
+     * @param searchQuery query conditions
+     * @return paged list of groups matching the given query
      */
     @GET
     @Path("search")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    PagedResult<GroupTO> search(
-            @DefaultValue(SyncopeConstants.ROOT_REALM) @QueryParam("realm") List<String> realms,
-            @NotNull @QueryParam(PARAM_FIQL) String fiql);
-
-    /**
-     * Returns a paged list of groups matching the provided FIQL search condition.
-     *
-     * @param realms realms under which groups are defined
-     * @param fiql FIQL search expression
-     * @param orderBy list of ordering clauses, separated by comma
-     * @return paged list of groups matching the provided FIQL search condition
-     */
-    @GET
-    @Path("search")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    PagedResult<GroupTO> search(
-            @DefaultValue(SyncopeConstants.ROOT_REALM) @QueryParam("realm") List<String> realms,
-            @NotNull @QueryParam(PARAM_FIQL) String fiql,
-            @QueryParam(PARAM_ORDERBY) String orderBy);
-
-    /**
-     * Returns a paged list of groups matching the provided FIQL search condition.
-     *
-     * @param realms realms under which groups are defined
-     * @param fiql FIQL search expression
-     * @param page result page number
-     * @param size number of entries per page
-     * @return paged list of groups matching the provided FIQL search condition
-     */
-    @GET
-    @Path("search")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    PagedResult<GroupTO> search(
-            @DefaultValue(SyncopeConstants.ROOT_REALM) @QueryParam("realm") List<String> realms,
-            @QueryParam(PARAM_FIQL) String fiql,
-            @NotNull @Min(1) @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) Integer page,
-            @NotNull @Min(1) @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) Integer size);
-
-    /**
-     * Returns a paged list of groups matching the provided FIQL search condition.
-     *
-     * @param realms realms under which groups are defined
-     * @param fiql FIQL search expression
-     * @param page result page number
-     * @param size number of entries per page
-     * @param orderBy list of ordering clauses, separated by comma
-     * @return paged list of groups matching the provided FIQL search condition
-     */
-    @GET
-    @Path("search")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    PagedResult<GroupTO> search(
-            @DefaultValue(SyncopeConstants.ROOT_REALM) @QueryParam("realm") List<String> realms,
-            @QueryParam(PARAM_FIQL) String fiql,
-            @NotNull @Min(1) @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) Integer page,
-            @NotNull @Min(1) @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) Integer size,
-            @QueryParam(PARAM_ORDERBY) String orderBy);
+    PagedResult<GroupTO> search(@BeanParam SubjectSearchQuery searchQuery);
 
     /**
      * Creates a new group.

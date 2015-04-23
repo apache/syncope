@@ -128,10 +128,11 @@ public class UserITCase extends AbstractITCase {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
     public void createUserWithNoPropagation() {
         // get task list
-        PagedResult<PropagationTaskTO> tasks = taskService.list(TaskType.PROPAGATION, 1, 1);
+        PagedResult<PropagationTaskTO> tasks = taskService.list(
+                TaskType.PROPAGATION,
+                SyncopeClient.getListQueryBuilder().page(1).size(1).build());
         assertNotNull(tasks);
         assertFalse(tasks.getResult().isEmpty());
 
@@ -146,7 +147,9 @@ public class UserITCase extends AbstractITCase {
         createUser(userTO);
 
         // get the new task list
-        tasks = taskService.list(TaskType.PROPAGATION, 1, 1);
+        tasks = taskService.list(
+                TaskType.PROPAGATION,
+                SyncopeClient.getListQueryBuilder().page(1).size(1).build());
         assertNotNull(tasks);
         assertFalse(tasks.getResult().isEmpty());
 
@@ -327,7 +330,9 @@ public class UserITCase extends AbstractITCase {
     @Test
     public void create() {
         // get task list
-        PagedResult<PropagationTaskTO> tasks = taskService.list(TaskType.PROPAGATION, 1, 1);
+        PagedResult<PropagationTaskTO> tasks = taskService.list(
+                TaskType.PROPAGATION,
+                SyncopeClient.getListQueryBuilder().page(1).size(1).build());
         assertNotNull(tasks);
         assertFalse(tasks.getResult().isEmpty());
 
@@ -381,7 +386,9 @@ public class UserITCase extends AbstractITCase {
         assertEquals("virtualvalue", newUserTO.getVirAttrMap().get("virtualdata").getValues().get(0));
 
         // get the new task list
-        tasks = taskService.list(TaskType.PROPAGATION, 1, 1);
+        tasks = taskService.list(
+                TaskType.PROPAGATION,
+                SyncopeClient.getListQueryBuilder().page(1).size(1).build());
         assertNotNull(tasks);
         assertFalse(tasks.getResult().isEmpty());
 
@@ -527,7 +534,8 @@ public class UserITCase extends AbstractITCase {
 
     @Test
     public void list() {
-        PagedResult<UserTO> users = userService.list(Collections.singletonList("/"));
+        PagedResult<UserTO> users = userService.list(
+                SyncopeClient.getSubjectListQueryBuilder().realm(SyncopeConstants.ROOT_REALM).build());
         assertNotNull(users);
         assertFalse(users.getResult().isEmpty());
 
@@ -538,7 +546,8 @@ public class UserITCase extends AbstractITCase {
 
     @Test
     public void paginatedList() {
-        PagedResult<UserTO> users = userService.list(Collections.singletonList("/"), 1, 2);
+        PagedResult<UserTO> users = userService.list(
+                SyncopeClient.getSubjectListQueryBuilder().realm(SyncopeConstants.ROOT_REALM).page(1).size(2).build());
         assertNotNull(users);
         assertFalse(users.getResult().isEmpty());
         assertEquals(2, users.getResult().size());
@@ -547,12 +556,14 @@ public class UserITCase extends AbstractITCase {
             assertNotNull(user);
         }
 
-        users = userService.list(Collections.singletonList("/"), 2, 2);
+        users = userService.list(SyncopeClient.getSubjectListQueryBuilder().realm(SyncopeConstants.ROOT_REALM).
+                page(2).size(2).build());
         assertNotNull(users);
-        assertFalse(users.getResult().isEmpty());
+        assertEquals(2, users.getPage());
         assertEquals(2, users.getResult().size());
 
-        users = userService.list(Collections.singletonList("/"), 100, 2);
+        users = userService.list(SyncopeClient.getSubjectListQueryBuilder().realm(SyncopeConstants.ROOT_REALM).
+                page(100).size(2).build());
         assertNotNull(users);
         assertTrue(users.getResult().isEmpty());
     }
@@ -678,7 +689,8 @@ public class UserITCase extends AbstractITCase {
 
     @Test
     public void updatePasswordOnly() {
-        int beforeTasks = taskService.list(TaskType.PROPAGATION, 1, 1).getTotalCount();
+        int beforeTasks = taskService.list(TaskType.PROPAGATION,
+                SyncopeClient.getListQueryBuilder().page(1).size(1).build()).getTotalCount();
         assertFalse(beforeTasks <= 0);
 
         UserTO userTO = getUniqueSampleTO("pwdonly@t.com");
@@ -698,7 +710,8 @@ public class UserITCase extends AbstractITCase {
         // check for changePwdDate
         assertNotNull(userTO.getChangePwdDate());
 
-        int afterTasks = taskService.list(TaskType.PROPAGATION, 1, 1).getTotalCount();
+        int afterTasks = taskService.list(TaskType.PROPAGATION,
+                SyncopeClient.getListQueryBuilder().page(1).size(1).build()).getTotalCount();
         assertFalse(beforeTasks <= 0);
 
         assertTrue(beforeTasks < afterTasks);
@@ -708,7 +721,9 @@ public class UserITCase extends AbstractITCase {
     @Test
     public void verifyTaskRegistration() {
         // get task list
-        PagedResult<PropagationTaskTO> tasks = taskService.list(TaskType.PROPAGATION, 1, 1);
+        PagedResult<PropagationTaskTO> tasks = taskService.list(
+                TaskType.PROPAGATION,
+                SyncopeClient.getListQueryBuilder().page(1).size(1).build());
         assertNotNull(tasks);
         assertFalse(tasks.getResult().isEmpty());
 
@@ -729,7 +744,9 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(userTO);
 
         // get the new task list
-        tasks = taskService.list(TaskType.PROPAGATION, 1, 1);
+        tasks = taskService.list(
+                TaskType.PROPAGATION,
+                SyncopeClient.getListQueryBuilder().page(1).size(1).build());
         assertNotNull(tasks);
         assertFalse(tasks.getResult().isEmpty());
 
@@ -753,7 +770,9 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(userTO);
 
         // get the new task list
-        tasks = taskService.list(TaskType.PROPAGATION, 1, 1);
+        tasks = taskService.list(
+                TaskType.PROPAGATION,
+                SyncopeClient.getListQueryBuilder().page(1).size(1).build());
 
         maxKey = newMaxKey;
         newMaxKey = tasks.getResult().iterator().next().getKey();
@@ -773,7 +792,9 @@ public class UserITCase extends AbstractITCase {
         userService.delete(userTO.getKey());
 
         // get the new task list
-        tasks = taskService.list(TaskType.PROPAGATION, 1, 1);
+        tasks = taskService.list(
+                TaskType.PROPAGATION,
+                SyncopeClient.getListQueryBuilder().page(1).size(1).build());
 
         maxKey = newMaxKey;
         newMaxKey = tasks.getResult().iterator().next().getKey();

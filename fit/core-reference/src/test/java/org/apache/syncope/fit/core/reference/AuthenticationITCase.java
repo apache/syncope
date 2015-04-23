@@ -25,7 +25,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.security.AccessControlException;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
@@ -34,6 +33,7 @@ import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.mod.StatusMod;
 import org.apache.syncope.common.lib.mod.UserMod;
 import org.apache.syncope.common.lib.to.BulkActionResult;
@@ -200,8 +200,8 @@ public class AuthenticationITCase extends AbstractITCase {
                 getService(UserService.class);
 
         PagedResult<UserTO> matchedUsers = userService2.search(
-                Collections.singletonList("/"),
-                SyncopeClient.getUserSearchConditionBuilder().isNotNull("loginDate").query());
+                SyncopeClient.getSubjectSearchQueryBuilder().realm(SyncopeConstants.ROOT_REALM).
+                fiql(SyncopeClient.getUserSearchConditionBuilder().isNotNull("loginDate").query()).build());
         assertNotNull(matchedUsers);
         assertFalse(matchedUsers.getResult().isEmpty());
         assertTrue(CollectionUtils.exists(matchedUsers.getResult(), new Predicate<UserTO>() {
@@ -215,8 +215,8 @@ public class AuthenticationITCase extends AbstractITCase {
         UserService userService3 = clientFactory.create("verdi", "password").getService(UserService.class);
 
         matchedUsers = userService3.search(
-                Collections.singletonList("/even/two"),
-                SyncopeClient.getUserSearchConditionBuilder().isNotNull("loginDate").query());
+                SyncopeClient.getSubjectSearchQueryBuilder().realm("/even/two").
+                fiql(SyncopeClient.getUserSearchConditionBuilder().isNotNull("loginDate").query()).build());
         assertNotNull(matchedUsers);
         assertFalse(CollectionUtils.exists(matchedUsers.getResult(), new Predicate<UserTO>() {
 

@@ -39,7 +39,7 @@ public class PagedResult<T extends AbstractBaseBean> extends AbstractBaseBean {
 
     private URI next;
 
-    private final List<T> result = new ArrayList<T>();
+    private final List<T> result = new ArrayList<>();
 
     private int page;
 

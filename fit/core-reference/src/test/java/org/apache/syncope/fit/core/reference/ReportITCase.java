@@ -30,6 +30,7 @@ import java.util.List;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
+import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.report.UserReportletConf;
@@ -62,7 +63,7 @@ public class ReportITCase extends AbstractITCase {
 
     @Test
     public void list() {
-        PagedResult<ReportTO> reports = reportService.list();
+        PagedResult<ReportTO> reports = reportService.list(SyncopeClient.getListQueryBuilder().build());
         assertNotNull(reports);
         assertFalse(reports.getResult().isEmpty());
         for (ReportTO report : reports.getResult()) {

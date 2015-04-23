@@ -38,9 +38,10 @@ import org.apache.syncope.common.lib.types.ResourceDeassociationActionType;
 import org.apache.syncope.common.lib.wrap.ResourceName;
 import org.apache.syncope.common.rest.api.CollectionWrapper;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.beans.SubjectListQuery;
+import org.apache.syncope.common.rest.api.beans.SubjectSearchQuery;
 import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.syncope.core.logic.UserLogic;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -82,25 +83,8 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService 
     }
 
     @Override
-    public PagedResult<UserTO> list(final List<String> realms) {
-        return list(realms, DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE, null);
-    }
-
-    @Override
-    public PagedResult<UserTO> list(final List<String> realms, final String orderBy) {
-        return list(realms, DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE, orderBy);
-    }
-
-    @Override
-    public PagedResult<UserTO> list(final List<String> realms, final Integer page, final Integer size) {
-        return list(realms, page, size, null);
-    }
-
-    @Override
-    public PagedResult<UserTO> list(
-            final List<String> realms, final Integer page, final Integer size, final String orderBy) {
-
-        CollectionUtils.transform(realms, new Transformer<String, String>() {
+    public PagedResult<UserTO> list(final SubjectListQuery listQuery) {
+        CollectionUtils.transform(listQuery.getRealms(), new Transformer<String, String>() {
 
             @Override
             public String transform(final String input) {
@@ -108,10 +92,15 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService 
             }
         });
 
-        List<OrderByClause> orderByClauses = getOrderByClauses(orderBy);
         return buildPagedResult(
-                logic.list(page, size, orderByClauses, realms), page, size,
-                logic.count(realms));
+                logic.list(
+                        listQuery.getPage(),
+                        listQuery.getSize(),
+                        getOrderByClauses(listQuery.getOrderBy()),
+                        listQuery.getRealms()),
+                listQuery.getPage(),
+                listQuery.getSize(),
+                logic.count(listQuery.getRealms()));
     }
 
     @Override
@@ -120,27 +109,8 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService 
     }
 
     @Override
-    public PagedResult<UserTO> search(final List<String> realms, final String fiql) {
-        return search(realms, fiql, DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE, null);
-    }
-
-    @Override
-    public PagedResult<UserTO> search(final List<String> realms, final String fiql, final String orderBy) {
-        return search(realms, fiql, DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE, orderBy);
-    }
-
-    @Override
-    public PagedResult<UserTO> search(
-            final List<String> realms, final String fiql, final Integer page, final Integer size) {
-
-        return search(realms, fiql, page, size, null);
-    }
-
-    @Override
-    public PagedResult<UserTO> search(final List<String> realms, final String fiql,
-            final Integer page, final Integer size, final String orderBy) {
-
-        CollectionUtils.transform(realms, new Transformer<String, String>() {
+    public PagedResult<UserTO> search(final SubjectSearchQuery searchQuery) {
+        CollectionUtils.transform(searchQuery.getRealms(), new Transformer<String, String>() {
 
             @Override
             public String transform(final String input) {
@@ -148,11 +118,17 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService 
             }
         });
 
-        SearchCond cond = getSearchCond(fiql);
-        List<OrderByClause> orderByClauses = getOrderByClauses(orderBy);
+        SearchCond cond = getSearchCond(searchQuery.getFiql());
         return buildPagedResult(
-                logic.search(cond, page, size, orderByClauses, realms), page, size,
-                logic.searchCount(cond, realms));
+                logic.search(
+                        cond,
+                        searchQuery.getPage(),
+                        searchQuery.getSize(),
+                        getOrderByClauses(searchQuery.getOrderBy()),
+                        searchQuery.getRealms()),
+                searchQuery.getPage(),
+                searchQuery.getSize(),
+                logic.searchCount(cond, searchQuery.getRealms()));
     }
 
     @Override

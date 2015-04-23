@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.rest;
 
 import java.util.List;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
@@ -60,14 +61,18 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
      * @return number of stored tasks.
      */
     public int count(final String kind) {
-        return getService(TaskService.class).list(TaskType.fromString(kind), 1, 1).getTotalCount();
+        return getService(TaskService.class).
+                list(TaskType.fromString(kind), SyncopeClient.getListQueryBuilder().page(1).size(1).build()).
+                getTotalCount();
     }
 
     @SuppressWarnings("unchecked")
     public <T extends AbstractTaskTO> List<T> list(final Class<T> reference,
             final int page, final int size, final SortParam<String> sort) {
 
-        return (List<T>) getService(TaskService.class).list(getTaskType(reference), page, size, toOrderBy(sort)).
+        return (List<T>) getService(TaskService.class).
+                list(getTaskType(reference), SyncopeClient.getListQueryBuilder().page(page).size(size).
+                        orderBy(toOrderBy(sort)).build()).
                 getResult();
     }
 

@@ -30,6 +30,9 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.syncope.client.lib.builders.ListQueryBuilder;
+import org.apache.syncope.client.lib.builders.SubjectListQueryBuilder;
+import org.apache.syncope.client.lib.builders.SubjectSearchQueryBuilder;
 import org.apache.syncope.common.lib.search.OrderByClauseBuilder;
 import org.apache.syncope.common.lib.search.GroupFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.search.UserFiqlSearchConditionBuilder;
@@ -68,30 +71,61 @@ public class SyncopeClient {
     }
 
     /**
-     * Returns a new instance of <tt>UserFiqlSearchConditionBuilder</tt>, for assisted building of FIQL queries.
+     * Returns a new instance of {@link UserFiqlSearchConditionBuilder}, for assisted building of FIQL queries.
      *
-     * @return default instance of <tt>UserFiqlSearchConditionBuilder</tt>
+     * @return default instance of {@link UserFiqlSearchConditionBuilder}
      */
     public static UserFiqlSearchConditionBuilder getUserSearchConditionBuilder() {
         return new UserFiqlSearchConditionBuilder();
     }
 
     /**
-     * Returns a new instance of <tt>GroupFiqlSearchConditionBuilder</tt>, for assisted building of FIQL queries.
+     * Returns a new instance of {@link GroupFiqlSearchConditionBuilder}, for assisted building of FIQL queries.
      *
-     * @return default instance of <tt>GroupFiqlSearchConditionBuilder</tt>
+     * @return default instance of {@link GroupFiqlSearchConditionBuilder}
      */
     public static GroupFiqlSearchConditionBuilder getGroupSearchConditionBuilder() {
         return new GroupFiqlSearchConditionBuilder();
     }
 
     /**
-     * Returns a new instance of <tt>OrderByClauseBuilder</tt>, for assisted building of <tt>orderby</tt> clauses.
+     * Returns a new instance of {@link OrderByClauseBuilder}, for assisted building of {@link orderby} clauses.
      *
-     * @return default instance of <tt>OrderByClauseBuilder</tt>
+     * @return default instance of {@link OrderByClauseBuilder}
      */
     public static OrderByClauseBuilder getOrderByClauseBuilder() {
         return new OrderByClauseBuilder();
+    }
+
+    /**
+     * Returns a new instance of {@link ListQueryBuilder}, for assisted building of some service's {@code list()}
+     * arguments.
+     *
+     * @return default instance of {@link ListQueryBuilder}
+     */
+    public static ListQueryBuilder getListQueryBuilder() {
+        return new ListQueryBuilder();
+    }
+
+    /**
+     * Returns a new instance of {@link SubjectListQueryBuilder}, for assisted building of some service's {@code list()}
+     * arguments.
+     *
+     * @return default instance of {@link SubjectListQueryBuilder}
+     */
+    public static SubjectListQueryBuilder getSubjectListQueryBuilder() {
+        return new SubjectListQueryBuilder();
+    }
+
+    /**
+     * Returns a new instance of {@link SubjectSearchQueryBuilder}, for assisted building of some service's
+     * {@code search()}
+     * arguments.
+     *
+     * @return default instance of {@link SubjectSearchQueryBuilder}
+     */
+    public static SubjectSearchQueryBuilder getSubjectSearchQueryBuilder() {
+        return new SubjectSearchQueryBuilder();
     }
 
     /**
@@ -162,37 +196,37 @@ public class SyncopeClient {
     }
 
     /**
-     * Sets the <tt>Prefer</tt> header on the give service instance.
+     * Sets the {@code Prefer} header on the give service instance.
      *
      * @param <T> any service class
      * @param service service class instance
-     * @param preference preference to be set via <tt>Prefer</tt> header
-     * @return given service instance, with <tt>Prefer</tt> header set
+     * @param preference preference to be set via {@code Prefer} header
+     * @return given service instance, with {@code Prefer} header set
      */
     public <T> T prefer(final T service, final Preference preference) {
         return header(service, RESTHeaders.PREFER, preference.toString());
     }
 
     /**
-     * Creates an instance of the given service class, with <tt>Prefer</tt> header set.
+     * Creates an instance of the given service class, with {@code Prefer} header set.
      *
      * @param <T> any service class
      * @param serviceClass service class reference
-     * @param preference preference to be set via <tt>Prefer</tt> header
-     * @return service instance of the given reference class, with <tt>Prefer</tt> header set
+     * @param preference preference to be set via {@code Prefer} header
+     * @return service instance of the given reference class, with {@code Prefer} header set
      */
     public <T> T prefer(final Class<T> serviceClass, final Preference preference) {
         return header(serviceClass, RESTHeaders.PREFER, preference.toString());
     }
 
     /**
-     * Sets the <tt>If-Match</tt> or <tt>If-None-Match</tt> header on the given service instance.
+     * Sets the {@code If-Match} or {@code If-None-Match} header on the given service instance.
      *
      * @param <T> any service class
      * @param service service class instance
      * @param etag ETag value
-     * @param ifNot if true then <tt>If-None-Match</tt> is set, <tt>If-Match</tt> otherwise
-     * @return given service instance, with <tt>If-Match</tt> or <tt>If-None-Match</tt> set
+     * @param ifNot if true then {@code If-None-Match} is set, {@code If-Match} otherwise
+     * @return given service instance, with {@code If-Match} or {@code If-None-Match} set
      */
     private <T> T match(final T service, final EntityTag etag, final boolean ifNot) {
         WebClient.client(service).match(etag, ifNot);
@@ -200,59 +234,59 @@ public class SyncopeClient {
     }
 
     /**
-     * Sets the <tt>If-Match</tt> header on the given service instance.
+     * Sets the {@code If-Match} header on the given service instance.
      *
      * @param <T> any service class
      * @param service service class instance
      * @param etag ETag value
-     * @return given service instance, with <tt>If-Match</tt> set
+     * @return given service instance, with {@code If-Match} set
      */
     public <T> T ifMatch(final T service, final EntityTag etag) {
         return match(service, etag, false);
     }
 
     /**
-     * Creates an instance of the given service class, with <tt>If-Match</tt> header set.
+     * Creates an instance of the given service class, with {@code If-Match} header set.
      *
      * @param <T> any service class
      * @param serviceClass service class reference
      * @param etag ETag value
-     * @return given service instance, with <tt>If-Match</tt> set
+     * @return given service instance, with {@code If-Match} set
      */
     public <T> T ifMatch(final Class<T> serviceClass, final EntityTag etag) {
         return match(getService(serviceClass), etag, false);
     }
 
     /**
-     * Sets the <tt>If-None-Match</tt> header on the given service instance.
+     * Sets the {@code If-None-Match} header on the given service instance.
      *
      * @param <T> any service class
      * @param service service class instance
      * @param etag ETag value
-     * @return given service instance, with <tt>If-None-Match</tt> set
+     * @return given service instance, with {@code If-None-Match} set
      */
     public <T> T ifNoneMatch(final T service, final EntityTag etag) {
         return match(service, etag, true);
     }
 
     /**
-     * Creates an instance of the given service class, with <tt>If-None-Match</tt> header set.
+     * Creates an instance of the given service class, with {@code If-None-Match} header set.
      *
      * @param <T> any service class
      * @param serviceClass service class reference
      * @param etag ETag value
-     * @return given service instance, with <tt>If-None-Match</tt> set
+     * @return given service instance, with {@code If-None-Match} set
      */
     public <T> T ifNoneMatch(final Class<T> serviceClass, final EntityTag etag) {
         return match(getService(serviceClass), etag, true);
     }
 
     /**
-     * Fetches <tt>ETag</tt> header value from latest service run (if available).
+     * Fetches {@code ETag} header value from latest service run (if available).
      *
      * @param <T> any service class
      * @param service service class instance
-     * @return <tt>ETag</tt> header value from latest service run (if available)
+     * @return {@code ETag} header value from latest service run (if available)
      */
     public <T> EntityTag getLatestEntityTag(final T service) {
         return WebClient.client(service).getResponse().getEntityTag();

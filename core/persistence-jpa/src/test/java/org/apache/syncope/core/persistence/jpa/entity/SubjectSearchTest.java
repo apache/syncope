@@ -49,7 +49,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class AttributableSearchTest extends AbstractTest {
+public class SubjectSearchTest extends AbstractTest {
 
     @Autowired
     private UserDAO userDAO;

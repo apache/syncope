@@ -28,7 +28,6 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.AccessControlException;
-import java.util.Collections;
 import java.util.List;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -40,6 +39,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.mod.ReferenceMod;
 import org.apache.syncope.common.lib.mod.GroupMod;
 import org.apache.syncope.common.lib.to.BulkActionResult;
@@ -148,7 +148,8 @@ public class GroupITCase extends AbstractITCase {
 
     @Test
     public void list() {
-        PagedResult<GroupTO> groupTOs = groupService.list(Collections.singletonList("/"));
+        PagedResult<GroupTO> groupTOs =
+                groupService.list(SyncopeClient.getSubjectListQueryBuilder().realm(SyncopeConstants.ROOT_REALM).build());
         assertNotNull(groupTOs);
         assertTrue(groupTOs.getResult().size() >= 8);
         for (GroupTO groupTO : groupTOs.getResult()) {
@@ -548,14 +549,15 @@ public class GroupITCase extends AbstractITCase {
     public void anonymous() {
         GroupService unauthenticated = clientFactory.createAnonymous().getService(GroupService.class);
         try {
-            unauthenticated.list(Collections.singletonList("/"));
+            unauthenticated.list(SyncopeClient.getSubjectSearchQueryBuilder().realm(SyncopeConstants.ROOT_REALM).build());
             fail();
         } catch (AccessControlException e) {
             assertNotNull(e);
         }
 
         GroupService anonymous = clientFactory.create(ANONYMOUS_UNAME, ANONYMOUS_KEY).getService(GroupService.class);
-        assertFalse(anonymous.list(Collections.singletonList("/")).getResult().isEmpty());
+        assertFalse(anonymous.list(SyncopeClient.getSubjectSearchQueryBuilder().realm(SyncopeConstants.ROOT_REALM).build()).
+                getResult().isEmpty());
     }
 
     @Test

@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.client.console.rest;
 
-import java.util.Collections;
 import java.util.List;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.syncope.client.console.commons.status.StatusUtils;
+import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.mod.ResourceAssociationMod;
 import org.apache.syncope.common.lib.mod.StatusMod;
@@ -51,13 +51,17 @@ public class UserRestClient extends AbstractSubjectRestClient {
 
     @Override
     public int count(final String realm) {
-        return getService(UserService.class).list(Collections.singletonList(realm), 1, 1).getTotalCount();
+        return getService(UserService.class).
+                list(SyncopeClient.getSubjectListQueryBuilder().realm(realm).page(1).size(1).build()).
+                getTotalCount();
     }
 
     @Override
     public List<UserTO> list(final String realm, final int page, final int size, final SortParam<String> sort) {
         return getService(UserService.class).
-                list(Collections.singletonList(realm), page, size, toOrderBy(sort)).getResult();
+                list(SyncopeClient.getSubjectListQueryBuilder().realm(realm).page(page).size(size).
+                        orderBy(toOrderBy(sort)).build()).
+                getResult();
     }
 
     public UserTO create(final UserTO userTO, final boolean storePassword) {
@@ -98,15 +102,19 @@ public class UserRestClient extends AbstractSubjectRestClient {
 
     @Override
     public int searchCount(final String realm, final String fiql) {
-        return getService(UserService.class).search(Collections.singletonList(realm), fiql, 1, 1).getTotalCount();
+        return getService(UserService.class).
+                search(SyncopeClient.getSubjectSearchQueryBuilder().realm(realm).fiql(fiql).page(1).size(1).build()).
+                getTotalCount();
     }
 
     @Override
     public List<UserTO> search(
             final String realm, final String fiql, final int page, final int size, final SortParam<String> sort) {
-        
+
         return getService(UserService.class).
-                search(Collections.singletonList(realm), fiql, page, size, toOrderBy(sort)).getResult();
+                search(SyncopeClient.getSubjectSearchQueryBuilder().realm(realm).fiql(fiql).page(page).size(size).
+                        orderBy(toOrderBy(sort)).build()).
+                getResult();
     }
 
     @Override

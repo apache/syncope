@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.common.rest.api.service;
 
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
@@ -44,6 +44,7 @@ import org.apache.syncope.common.lib.to.ReportExecTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.TaskExecTO;
 import org.apache.syncope.common.lib.types.TaskType;
+import org.apache.syncope.common.rest.api.beans.ListQuery;
 
 /**
  * REST operations for tasks.
@@ -75,60 +76,18 @@ public interface TaskService extends JAXRSService {
     TaskExecTO readExecution(@NotNull @PathParam("executionKey") Long executionKey);
 
     /**
-     * Returns a list of tasks with matching type.
+     * Returns a paged list of existing tasks matching type and the given query.
      *
      * @param taskType type of tasks to be listed
+     * @param listQuery query conditions
      * @param <T> type of taskTO
-     * @return list of tasks with matching type
+     * @return paged list of existing tasks matching type and the given query
      */
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    <T extends AbstractTaskTO> PagedResult<T> list(@NotNull @MatrixParam("type") TaskType taskType);
-
-    /**
-     * Returns a list of tasks with matching type.
-     *
-     * @param taskType type of tasks to be listed
-     * @param orderBy list of ordering clauses, separated by comma
-     * @param <T> type of taskTO
-     * @return list of tasks with matching type
-     */
-    @GET
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    <T extends AbstractTaskTO> PagedResult<T> list(@NotNull @MatrixParam("type") TaskType taskType,
-            @QueryParam(PARAM_ORDERBY) String orderBy);
-
-    /**
-     * Returns a paged list of existing tasks matching type and page/size conditions.
-     *
-     * @param taskType type of tasks to be listed
-     * @param page page number of tasks in relation to page size
-     * @param size number of tasks listed per page
-     * @param orderBy list of ordering clauses, separated by comma
-     * @param <T> type of taskTO
-     * @return paged list of existing tasks matching type and page/size conditions
-     */
-    @GET
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    <T extends AbstractTaskTO> PagedResult<T> list(@NotNull @MatrixParam("type") TaskType taskType,
-            @NotNull @Min(1) @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) Integer page,
-            @NotNull @Min(1) @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) Integer size,
-            @QueryParam(PARAM_ORDERBY) String orderBy);
-
-    /**
-     * Returns a paged list of existing tasks matching type and page/size conditions.
-     *
-     * @param taskType type of tasks to be listed
-     * @param page page number of tasks in relation to page size
-     * @param size number of tasks listed per page
-     * @param <T> type of taskTO
-     * @return paged list of existing tasks matching type and page/size conditions
-     */
-    @GET
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    <T extends AbstractTaskTO> PagedResult<T> list(@MatrixParam("type") TaskType taskType,
-            @NotNull @Min(1) @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) Integer page,
-            @NotNull @Min(1) @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) Integer size);
+    <T extends AbstractTaskTO> PagedResult<T> list(
+            @NotNull @MatrixParam("type") TaskType taskType,
+            @BeanParam ListQuery listQuery);
 
     /**
      * Creates a new task.

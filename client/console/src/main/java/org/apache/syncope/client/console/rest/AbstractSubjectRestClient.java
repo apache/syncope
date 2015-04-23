@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.rest;
 
 import java.util.List;
 import org.apache.syncope.common.lib.to.AbstractAttributableTO;
+import org.apache.syncope.common.lib.to.AbstractSubjectTO;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
@@ -36,12 +37,12 @@ public abstract class AbstractSubjectRestClient extends BaseRestClient {
 
     public abstract int searchCount(String realm, String fiql);
 
-    public abstract List<? extends AbstractAttributableTO> search(
-            String realm, String fiql,            int page, int size, final SortParam<String> sort);
+    public abstract List<? extends AbstractSubjectTO> search(
+            String realm, String fiql, int page, int size, final SortParam<String> sort);
 
     public abstract ConnObjectTO getConnectorObject(String resourceName, Long key);
 
-    public abstract AbstractAttributableTO delete(String etag, Long key);
+    public abstract AbstractSubjectTO delete(String etag, Long key);
 
     public abstract BulkActionResult bulkAction(BulkAction action);
 }

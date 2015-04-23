@@ -19,11 +19,10 @@
 package org.apache.syncope.common.rest.api.service;
 
 import java.util.List;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
-import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -41,6 +40,7 @@ import org.apache.syncope.common.lib.to.ReportExecTO;
 import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.types.ReportExecExportFormat;
 import org.apache.syncope.common.lib.wrap.ReportletConfClass;
+import org.apache.syncope.common.rest.api.beans.ListQuery;
 
 /**
  * REST operations for reports.
@@ -81,51 +81,14 @@ public interface ReportService extends JAXRSService {
     ReportExecTO readExecution(@NotNull @PathParam("executionKey") Long executionKey);
 
     /**
-     * Returns a paged list of all existing reports.
+     * Returns a paged list of all existing reports matching the given query;
      *
-     * @return paged list of all existing reports
+     * @param listQuery query conditions
+     * @return paged list of existing reports matching the given query
      */
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    PagedResult<ReportTO> list();
-
-    /**
-     * Returns a paged list of all existing reports.
-     *
-     * @param orderBy list of ordering clauses, separated by comma
-     * @return paged list of all existing reports
-     */
-    @GET
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    PagedResult<ReportTO> list(@QueryParam(PARAM_ORDERBY) String orderBy);
-
-    /**
-     * Returns a paged list of all existing reports matching page/size conditions.
-     *
-     * @param page selected page in relation to size
-     * @param size number of entries per page
-     * @return paged list of existing reports matching page/size conditions
-     */
-    @GET
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    PagedResult<ReportTO> list(
-            @NotNull @Min(1) @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) Integer page,
-            @NotNull @Min(1) @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) Integer size);
-
-    /**
-     * Returns a paged list of all existing reports matching page/size conditions.
-     *
-     * @param page selected page in relation to size
-     * @param size number of entries per page
-     * @param orderBy list of ordering clauses, separated by comma
-     * @return paged list of existing reports matching page/size conditions
-     */
-    @GET
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    PagedResult<ReportTO> list(
-            @NotNull @Min(1) @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) Integer page,
-            @NotNull @Min(1) @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) Integer size,
-            @QueryParam(PARAM_ORDERBY) String orderBy);
+    PagedResult<ReportTO> list(@BeanParam ListQuery listQuery);
 
     /**
      * Creates a new report.
