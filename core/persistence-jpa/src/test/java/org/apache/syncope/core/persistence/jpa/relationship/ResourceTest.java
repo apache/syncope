@@ -166,9 +166,7 @@ public class ResourceTest extends AbstractTest {
         // check connector
         connector = connInstanceDAO.find(100L);
         assertNotNull(connector);
-
         assertNotNull(connector.getResources());
-        assertTrue(connector.getResources().contains(resource));
 
         assertNotNull(resource.getConnector());
         assertTrue(resource.getConnector().equals(connector));
@@ -187,7 +185,7 @@ public class ResourceTest extends AbstractTest {
 
     @Test
     public void delete() {
-        ExternalResource resource = resourceDAO.find("ws-target-resource-2");
+        ExternalResource resource = resourceDAO.find("resource-testdb");
         assertNotNull("find to delete did not work", resource);
 
         // -------------------------------------
@@ -195,8 +193,6 @@ public class ResourceTest extends AbstractTest {
         // -------------------------------------
         ConnInstance connector = resource.getConnector();
         assertNotNull(connector);
-
-        Long connectorId = connector.getKey();
         // -------------------------------------
 
         // -------------------------------------
@@ -205,7 +201,7 @@ public class ResourceTest extends AbstractTest {
         List<User> users = userDAO.findByResource(resource);
         assertNotNull(users);
 
-        Set<Long> userIds = new HashSet<Long>();
+        Set<Long> userIds = new HashSet<>();
         for (User user : users) {
             userIds.add(user.getKey());
         }
@@ -222,7 +218,7 @@ public class ResourceTest extends AbstractTest {
         resourceDAO.flush();
 
         // resource must be removed
-        ExternalResource actual = resourceDAO.find("ws-target-resource-2");
+        ExternalResource actual = resourceDAO.find("resource-testdb");
         assertNull("delete did not work", actual);
 
         // resource must be not referenced any more from users
@@ -235,7 +231,7 @@ public class ResourceTest extends AbstractTest {
         }
 
         // resource must be not referenced any more from the connector
-        ConnInstance actualConnector = connInstanceDAO.find(connectorId);
+        ConnInstance actualConnector = connInstanceDAO.find(connector.getKey());
         assertNotNull(actualConnector);
         for (ExternalResource res : actualConnector.getResources()) {
             assertFalse(res.getKey().equalsIgnoreCase(resource.getKey()));
@@ -266,7 +262,7 @@ public class ResourceTest extends AbstractTest {
 
         // need to avoid any class not defined in this Maven module
         ldap.getPropagationActionsClassNames().clear();
-        
+
         resourceDAO.save(ldap);
         resourceDAO.flush();
 

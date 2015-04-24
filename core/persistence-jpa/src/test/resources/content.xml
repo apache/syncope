@@ -1017,6 +1017,9 @@ under the License.
   <Task DTYPE="SyncTask" type="SYNCHRONIZATION" id="26" name="CSV (ignore matching; assign unmatching)" resource_name="resource-csv"
         destinationRealm_id="1" performCreate="1" performUpdate="1" performDelete="1" syncStatus="1" fullReconciliation="0"
         jobClassName="org.apache.syncope.core.provisioning.api.job.SyncJob" unmatchingRule="ASSIGN" matchingRule="IGNORE"/>
+  <Task DTYPE="PropagationTask" type="PROPAGATION" id="27" propagationMode="ONE_PHASE" propagationOperation="CREATE"
+        objectClassName="__ACCOUNT__" resource_name="resource-testdb" subjectType="USER" subjectId="1"
+        xmlAttributes='[{"name":"__PASSWORD__","value":[{"readOnly":false,"disposed":false,"encryptedBytes":"m9nh2US0Sa6m+cXccCq0Xw==","base64SHA1Hash":"GFJ69qfjxEOdrmt+9q+0Cw2uz60="}]},{"name":"__NAME__","value":["userId"],"nameValue":"userId"},{"name":"fullname","value":["fullname"]},{"name":"type","value":["type"]}]'/>
 
   <Notification id="1" active="1" recipientAttrName="email" recipientAttrType="UserPlainSchema" selfAsRecipient="1" 
                 sender="admin@syncope.apache.org" subject="Password Reset request" template="requestPasswordReset" 

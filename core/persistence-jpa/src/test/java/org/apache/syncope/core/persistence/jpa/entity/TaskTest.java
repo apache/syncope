@@ -59,12 +59,12 @@ public class TaskTest extends AbstractTest {
     public void findWithoutExecs() {
         List<PropagationTask> tasks = taskDAO.findToExec(TaskType.PROPAGATION);
         assertNotNull(tasks);
-        assertEquals(2, tasks.size());
+        assertEquals(3, tasks.size());
     }
 
     @Test
     public void findAll() {
-        assertEquals(4, taskDAO.findAll(TaskType.PROPAGATION).size());
+        assertEquals(5, taskDAO.findAll(TaskType.PROPAGATION).size());
         assertEquals(1, taskDAO.findAll(TaskType.NOTIFICATION).size());
         assertEquals(1, taskDAO.findAll(TaskType.SCHEDULED).size());
         assertEquals(9, taskDAO.findAll(TaskType.SYNCHRONIZATION).size());
