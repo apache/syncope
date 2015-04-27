@@ -330,7 +330,7 @@ under the License.
 
     <camel.version>2.15.1</camel.version>	
 
-    <jackson.version>2.5.2</jackson.version>
+    <jackson.version>2.5.3</jackson.version>
 
     <spring.version>4.1.6.RELEASE</spring.version>
     <spring-security.version>3.2.7.RELEASE</spring-security.version>
@@ -1139,7 +1139,7 @@ under the License.
         <plugin>
           <groupId>org.codehaus.cargo</groupId>
           <artifactId>cargo-maven2-plugin</artifactId>
-          <version>1.4.13</version>
+          <version>1.4.14</version>
           <configuration>
             <container>
               <containerId>tomcat8x</containerId>
