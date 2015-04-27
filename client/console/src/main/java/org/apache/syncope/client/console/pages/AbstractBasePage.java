@@ -45,10 +45,6 @@ public class AbstractBasePage extends WebPage {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractBasePage.class);
 
-    protected static final String TASKS = "Tasks";
-
-    protected static final String FORM = "form";
-
     protected static final String CANCEL = "cancel";
 
     protected static final String SUBMIT = "submit";

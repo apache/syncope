@@ -65,19 +65,16 @@ under the License.
     <dependency>
       <groupId>org.apache.wicket</groupId>
       <artifactId>wicket-spring</artifactId>
-      <!-- exclude spring framework that wicket pulls in -->
-      <exclusions>
-        <exclusion>
-          <groupId>org.springframework</groupId>
-          <artifactId>spring</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apache.wicket</groupId>
       <artifactId>wicket-auth-roles</artifactId>
     </dependency>
-    
+    <dependency>
+      <groupId>com.googlecode.wicket-jquery-ui</groupId>
+      <artifactId>wicket-jquery-ui</artifactId>
+    </dependency>
+      
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-core</artifactId>
@@ -87,6 +84,31 @@ under the License.
       <groupId>org.apache.syncope.client</groupId>
       <artifactId>syncope-client-lib</artifactId>
       <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.webjars</groupId>
+      <artifactId>bootstrap</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.webjars</groupId>
+      <artifactId>bootstrap-select</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.webjars</groupId>
+      <artifactId>font-awesome</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.webjars</groupId>
+      <artifactId>ionicons</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.webjars</groupId>
+      <artifactId>highlightjs</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.webjars</groupId>
+      <artifactId>codemirror</artifactId>
     </dependency>
   </dependencies>
   

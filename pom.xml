@@ -371,12 +371,15 @@ under the License.
     <log.directory>${project.build.directory}/log</log.directory>
     <activiti-modeler.directory>${project.build.directory}/activiti-modeler</activiti-modeler.directory>
     
-    <jquery.version>1.11.1</jquery.version>
-    <jquery-ui.version>1.10.4</jquery-ui.version>
-    <highlightjs.version>8.0</highlightjs.version>
-    <codemirror.version>3.23</codemirror.version>
+    <bootstrap.version>3.3.4</bootstrap.version>
+    <bootstrap-select.version>1.6.3</bootstrap-select.version>
+    <font-awesome.version>4.3.0</font-awesome.version>
+    <ionicons.version>2.0.1</ionicons.version>
+    <highlightjs.version>8.4-4</highlightjs.version>
+    <codemirror.version>5.1</codemirror.version>
     
     <wicket.version>6.19.0</wicket.version>
+    <wicket-jqueryui.version>6.19.1</wicket-jqueryui.version>
 
     <izpack.version>5.0.0-rc4</izpack.version>
     <httpclient.version>4.3.6</httpclient.version>
@@ -857,11 +860,22 @@ under the License.
         <groupId>org.apache.wicket</groupId>
         <artifactId>wicket-spring</artifactId>
         <version>${wicket.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.apache.wicket</groupId>
         <artifactId>wicket-auth-roles</artifactId>
         <version>${wicket.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.googlecode.wicket-jquery-ui</groupId>
+        <artifactId>wicket-jquery-ui</artifactId>
+        <version>${wicket-jqueryui.version}</version>
       </dependency>
       <!-- /Wicket -->
       
@@ -904,18 +918,33 @@ under the License.
       
       <dependency>
         <groupId>org.webjars</groupId>
-        <artifactId>jquery</artifactId>
-        <version>${jquery.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.webjars</groupId>
         <artifactId>jquery-ui</artifactId>
         <version>${jquery-ui.version}</version>
       </dependency>
       <dependency>
         <groupId>org.webjars</groupId>
+        <artifactId>bootstrap</artifactId>
+        <version>${bootstrap.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.webjars</groupId>
+        <artifactId>bootstrap-select</artifactId>
+        <version>${bootstrap-select.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.webjars</groupId>
+        <artifactId>font-awesome</artifactId>
+        <version>${font-awesome.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.webjars</groupId>
+        <artifactId>ionicons</artifactId>
+        <version>${ionicons.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.webjars</groupId>
         <artifactId>highlightjs</artifactId>
-        <version>${highlightjs.version}-3</version>
+        <version>${highlightjs.version}</version>
       </dependency>
       <dependency>
         <groupId>org.webjars</groupId>
@@ -1316,6 +1345,7 @@ under the License.
             <exclude>**/META-INF/MANIFEST.MF</exclude>            
             <exclude>**/*.csv</exclude>
             <exclude>**/archetype-resources/**</exclude>
+            <exclude>**/AdminLTE*/**</exclude>
             <exclude>**/goal.txt</exclude>
             <exclude>**/rat.txt</exclude>
             <exclude>**/build-copy-javadoc-files.xml</exclude>

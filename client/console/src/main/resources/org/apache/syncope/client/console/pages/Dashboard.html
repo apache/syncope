@@ -1,4 +1,4 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!DOCTYPE html>
 <!--
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
@@ -18,16 +18,18 @@ specific language governing permissions and limitations
 under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <meta http-equiv="Content-Style-Type" content="text/css"/>
-    <meta http-equiv="Content-Script-Type" content="text/javascript"/>
+  <wicket:extend>
 
-    <title>Apache Syncope</title>
-  </head>
-  <body>
-    <h1>Goodbye!</h1>
-    
-    <wicket:link><a href="HomePage.html">Home</a></wicket:link>
-  </body>
+    <section class="content-header">
+      <h1>
+        Page Header
+        <small>Optional description</small>
+      </h1>
+    </section>
+
+    <section class="content">
+      Page Content.
+    </section>
+
+  </wicket:extend>
 </html>

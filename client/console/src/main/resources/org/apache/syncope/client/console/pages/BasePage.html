@@ -1,4 +1,4 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!DOCTYPE html>
 <!--
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
@@ -19,42 +19,26 @@ under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <meta http-equiv="Content-Style-Type" content="text/css"/>
-    <meta http-equiv="Content-Script-Type" content="text/javascript"/>
+    <meta charset="UTF-8"/>
+    <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'/>
 
     <title>Apache Syncope</title>
 
     <link rel="shortcut icon" href="img/favicon.png" type="image/png"/>
 
-    <style type="text/css">
-      div.wicket-modal div.w_caption {
-        height: 16px !important;
-      }
-    </style>
-    <link rel="stylesheet" type="text/css" href="webjars/jquery-ui/${jquery-ui.version}/themes/base/minified/jquery-ui.min.css" media="all"/>
-    <link rel="stylesheet" type="text/css" href="css/style.css" media="all"/>
-    <link rel="stylesheet" type="text/css" href="css/fieldstyle.css" />
+    <link href="webjars/bootstrap/${bootstrap.version}/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="webjars/bootstrap-select/${bootstrap-select.version}/dist/css/bootstrap-select.min.css" rel="stylesheet" type="text/css" />
+    <link href="webjars/font-awesome/${font-awesome.version}/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+    <link href="webjars/ionicons/${ionicons.version}/css/ionicons.min.css" rel="stylesheet" type="text/css" />
+    <link href="css/AdminLTE.css" rel="stylesheet" type="text/css" />
+    <link href="css/AdminLTE_skins/skin-green.css" rel="stylesheet" type="text/css" />
+    <link href="css/syncopeConsole.css" rel="stylesheet" type="text/css" />
 
-    <script type="text/javascript" src="webjars/jquery-ui/${jquery-ui.version}/ui/minified/jquery-ui.min.js"></script>
-
+    <script type="text/javascript" src="webjars/bootstrap/${bootstrap.version}/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="webjars/bootstrap-select/${bootstrap-select.version}/dist/js/bootstrap-select.min.js"></script>
+    <script type="text/javascript" src="js/AdminLTE-app.min.js"></script>
     <script type="text/javascript">
-      $(document).ready(function() {
-        $("#tabs").tabs();
-      });
-
-      /** Add rollover effect to tables supporting Ajax events */
-      $(document).on('mouseover mouseout', 'table.ui-widget.ui-widget-content.table-hover tbody tr',
-              function(event) {
-                if (event.type == 'mouseover') {
-                  $(this).addClass('selectedRow');
-                } else if (event.type == 'mouseout') {
-                  $(this).removeClass('selectedRow');
-                }
-              });
-
       var notificationShownTimes = 0;
-
       function showNotification(componentId, messagecount) {
         notificationShownTimes++;
         timeout = 1700 + (messagecount * 500) + notificationShownTimes * 200;
@@ -63,83 +47,95 @@ under the License.
       }
     </script>
   </head>
-  <body>
-    <div id="navigationPane">
-      <ul>
-        <li style="position: absolute; left: 0px; top: 10px;width:240px;">
-          <img src="img/logo.png" alt="logo"/><br />
-        </li>
-        <li><span>
-            <a href="#" wicket:id="todo"><img wicket:id="todoIcon" alt="TODO" width="80" height="80" /><br />
-              <wicket:message key="todo"/>
-            </a>
-          </span>
-        </li>
-        <li><span>
-            <a href="#" wicket:id="schema"><img wicket:id="schemaIcon" alt="Schema" width="80" height="80" /><br />
-              <wicket:message key="schema"/>
-            </a>
-          </span>
-        </li>
-        <li><span>
-            <a href="#" wicket:id="users"><img wicket:id="usersIcon" alt="Users" width="80" height="80" /><br />
-              <wicket:message key="users"/>
-            </a>
-          </span>
-        </li>
-        <li><span>
-            <a href="#" wicket:id="groups"><img wicket:id="groupsIcon" alt="Groups" width="80" height="80" /><br />
-              <wicket:message key="groups"/>
-            </a>
-          </span>
-        </li>
-        <li><span>
-            <a href="#" wicket:id="resources"><img wicket:id="resourcesIcon" alt="Resources" width="80" height="80" /><br />
-              <wicket:message key="resources"/>
-            </a>
-          </span>
-        </li>
-        <li><span>
-            <a href="#" wicket:id="tasks"><img wicket:id="tasksIcon" alt="Tasks" width="80" height="80" /><br />
-              <wicket:message key="tasks"/>
-            </a>
-          </span>
-        </li>
-        <li><span>
-            <a href="#" wicket:id="reports"><img wicket:id="reportsIcon" alt="Reports" width="80" height="80" /><br />
-              <wicket:message key="reports"/>
-            </a>
-          </span>
-        </li>
-        <li><span>
-            <a href="#" wicket:id="configuration"><img wicket:id="configurationIcon" alt="Configuration" width="80" height="80" /><br />
-              <wicket:message key="configuration"/>
-            </a></span>
-        </li>
-        <li style="float:right;width:auto;text-align:right;">
-          <a href="#" wicket:id="logout"><img src="img/menu/logout.png" alt="Logout" width="80" height="80" /><br /></a>
-          <div style="display: table-row;">
-            <div id="username" style="padding-right: 5px;width: 100px;cursor: pointer;display: table-cell;">
-              <a href="#" wicket:id="editProfileLink">
-                <span wicket:id="username" style="color: #B9CFB3;font-family: monospace;"/>
-              </a>
-            </div>
-            <div>
-              <div wicket:id="infoModal"/>
-              <a wicket:id="infoLink" style="vertical-align: middle;"><img src="img/info.png" alt="info" style="padding-right: 10px;"/></a>
-            </div>
+  <body class="skin-green">
+
+    <div class="wrapper">
+
+      <header class="main-header">
+        <div class="logo">
+          <img src="img/logo.png"/>
+        </div>
+
+        <nav class="navbar navbar-static-top" role="navigation">
+          <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
+            <span class="sr-only">Toggle navigation</span>
+          </a>
+          <div class="navbar-custom-menu">
+            <ul class="nav navbar-nav">
+              <li class="dropdown user user-menu">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                  <!-- hidden-xs hides the username on small devices so only the image appears. -->
+                  <span class="hidden-xs"><label wicket:id="username"/></span>
+                </a>
+                <ul class="dropdown-menu">
+                  <li class="user-footer">
+                    <div class="pull-left">
+                      <a href="#" class="btn btn-default btn-flat">Profile</a>
+                    </div>
+                    <div class="pull-right">
+                      <a href="#" class="btn btn-default btn-flat" wicket:id="logout"><wicket:message key="logout"/></a>
+                    </div>
+                  </li>
+                </ul>
+              </li>
+            </ul>
           </div>
-        </li>
-      </ul>
-      <div wicket:id="editProfileModal"></div>
+        </nav>
+      </header>
+
+      <aside class="main-sidebar">
+        <section class="sidebar">
+          <ul class="sidebar-menu">
+            <li class="header">&nbsp;</li>
+            <li class="active"><a href="#"><i class="fa fa-dashboard"></i><span>Dashboard</span></a></li>
+            <li><a href="#"><i class="fa fa-users"></i><span>Realms</span></a></li>
+            <li><a href="#"><i class="fa fa-th"></i><span>Resources</span></a></li>
+            <li><a href="#"><i class="fa fa-pie-chart"></i><span>Reports</span></a></li>
+            <li class="treeview">
+              <a href="#"><i class="fa fa-edit"></i><span>Configuration</span> <i class="fa fa-angle-left pull-right"></i></a>
+              <ul class="treeview-menu">
+                <li><a href="#"><i class="fa fa-circle-o"></i>Policies</a></li>
+                <li><a href="#"><i class="fa fa-circle-o"></i>Security Questions</a></li>
+                <li><a href="#"><i class="fa fa-circle-o"></i>Workflow</a></li>
+                <li><a href="#"><i class="fa fa-circle-o"></i>Logs</a></li>
+                <li><a href="#"><i class="fa fa-circle-o"></i>Layouts</a></li>
+                <li><a href="#"><i class="fa fa-circle-o"></i>Schemas</a></li>
+                <li><a href="#"><i class="fa fa-circle-o"></i>Notifications</a></li>
+              </ul>
+            </li>
+            <li class="treeview">
+              <a href="#"><i class="fa fa-laptop"></i><span>Extensions</span> <i class="fa fa-angle-left pull-right"></i></a>
+              <ul class="treeview-menu">
+                <li><a href="#"><i class="fa fa-circle-o"></i>Camel Routes</a></li>
+              </ul>
+            </li>
+          </ul>
+        </section>
+      </aside>
+
+      <div class="content-wrapper">
+        <div wicket:id="feedback" role="alert"/>
+
+        <wicket:child />
+      </div>
+
+      <footer class="main-footer">
+        <div class="pull-right hidden-xs">
+          Version <label wicket:id="version"/>
+        </div>
+        <strong>Copyright &copy; 2010–<span id="spanYear"></span> 
+          <a href="http://www.apache.org/" target="_blank">The Apache Software Foundation</a>.</strong>
+        All rights reserved.
+      </footer>
+
     </div>
 
-    <div wicket:id="feedback"/>
-
-    <wicket:child />
-
-    <div id="veil" style="display:none;position:absolute;top:0;left:0;z-index:99999;background-color:black;width:100%;height:20000px;color:white;opacity:0.3;filter:alpha(opacity=30);">
-      <img src="img/busy.gif" style="position:absolute;top:300px;left:50%;margin-left:-75px;width:150px;"/>
+    <div id="veil">
+      <img src="img/busy.gif"/>
     </div>
+
+    <script type="text/javascript">
+      $('#spanYear').html(new Date().getFullYear());
+    </script>
   </body>
 </html>

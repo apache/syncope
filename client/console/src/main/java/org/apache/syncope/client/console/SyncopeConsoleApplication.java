@@ -18,28 +18,38 @@
  */
 package org.apache.syncope.client.console;
 
-import org.apache.syncope.client.console.pages.HomePage;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import org.apache.syncope.client.console.pages.Dashboard;
+import org.apache.syncope.client.console.pages.Login;
 import org.apache.wicket.Page;
 import org.apache.wicket.authroles.authentication.AbstractAuthenticatedWebSession;
 import org.apache.wicket.authroles.authentication.AuthenticatedWebApplication;
-import org.apache.wicket.authroles.authentication.pages.SignInPage;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.markup.html.WebPage;
+import org.apache.wicket.resource.DynamicJQueryResourceReference;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
 
 public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
+
+    public static final List<Locale> SUPPORTED_LOCALES = Collections.unmodifiableList(Arrays.asList(
+            new Locale[] {
+                Locale.ENGLISH, Locale.ITALIAN, new Locale("pt", "BR")
+            }));
 
     @Override
     protected void init() {
         super.init();
 
         getComponentInstantiationListeners().add(new SpringComponentInjector(this));
-        getSecuritySettings().setAuthorizationStrategy(new MetaDataRoleAuthorizationStrategy(this));
+        getJavaScriptLibrarySettings().setJQueryReference(new DynamicJQueryResourceReference());
 
+        getSecuritySettings().setAuthorizationStrategy(new MetaDataRoleAuthorizationStrategy(this));
         MetaDataRoleAuthorizationStrategy.authorize(getHomePage(), SyncopeConsoleSession.AUTHENTICATED);
 
-        mountPage("/home", HomePage.class);
-        mountPage("/login", SignInPage.class);
+        mountPage("/login", getSignInPageClass());
     }
 
     @Override
@@ -49,12 +59,12 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
 
     @Override
     protected Class<? extends WebPage> getSignInPageClass() {
-        return SignInPage.class;
+        return Login.class;
     }
 
     @Override
     public Class<? extends Page> getHomePage() {
-        return HomePage.class;
+        return Dashboard.class;
     }
 
 }

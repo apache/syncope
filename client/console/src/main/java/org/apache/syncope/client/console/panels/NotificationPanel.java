@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxEventBehavior;
@@ -31,12 +30,6 @@ import org.apache.wicket.model.Model;
 public class NotificationPanel extends FeedbackPanel {
 
     private static final long serialVersionUID = 5895940553202128621L;
-
-    private static final String CSS_CLASS = "notificationpanel";
-
-    private static final String DEFAULT_ADDITIONAL_CSS_CLASS = "notificationpanel_top_right";
-
-    private final String additionalCSSClass;
 
     public NotificationPanel(final String id) {
         this(id, null, null);
@@ -58,17 +51,22 @@ public class NotificationPanel extends FeedbackPanel {
             }
         });
 
-        this.additionalCSSClass = StringUtils.isBlank(additionalCSSClass)
-                ? DEFAULT_ADDITIONAL_CSS_CLASS
-                : additionalCSSClass;
-
         // set custom markup id and ouput it, to find the component later on in the js function
         setMarkupId(id);
         setOutputMarkupId(true);
 
-        // Add the additional cssClass and hide the element by default
-        add(new AttributeModifier("class", new Model<>(CSS_CLASS + " " + this.additionalCSSClass)));
+        add(new AttributeModifier("class", new Model<>("alert")));
         add(new AttributeModifier("style", new Model<>("opacity: 0;")));
+    }
+
+    private String getCSSClass(final int level) {
+        return level == FeedbackMessage.SUCCESS
+                ? "alert alert-success"
+                : level == FeedbackMessage.INFO
+                        ? "alert alert-info"
+                        : level == FeedbackMessage.WARNING
+                                ? "alert alert-warning"
+                                : "alert alert-danger";
     }
 
     /**
@@ -92,12 +90,8 @@ public class NotificationPanel extends FeedbackPanel {
                 highestFeedbackLevel = FeedbackMessage.ERROR;
             }
 
-            // add the css classes to the notification panel, 
-            // including the border css which represents the highest level of feedback
-            add(new AttributeModifier("class",
-                    new Model<>(CSS_CLASS
-                            + " " + additionalCSSClass
-                            + " notificationpanel_border_" + highestFeedbackLevel)));
+            // add the css classes to the notification panel,
+            add(new AttributeModifier("class", new Model<>(getCSSClass(highestFeedbackLevel))));
 
             // refresh the panel and call the js function with the panel markup id 
             // and the total count of messages
@@ -114,6 +108,6 @@ public class NotificationPanel extends FeedbackPanel {
 
     @Override
     protected String getCSSClass(final FeedbackMessage message) {
-        return "notificationpanel_row_" + message.getLevelAsString();
+        return "notificationpanel_row";
     }
 }

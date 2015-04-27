@@ -19,10 +19,8 @@
 package org.apache.syncope.client.console;
 
 import java.text.DateFormat;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -48,11 +46,6 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 public class SyncopeConsoleSession extends AuthenticatedWebSession {
 
     private static final long serialVersionUID = 747562246415852166L;
-
-    public static final List<Locale> SUPPORTED_LOCALES = Collections.unmodifiableList(Arrays.asList(
-            new Locale[] {
-                Locale.ENGLISH, Locale.ITALIAN, new Locale("pt", "BR")
-            }));
 
     public static final String AUTHENTICATED = "AUTHENTICATED";
 

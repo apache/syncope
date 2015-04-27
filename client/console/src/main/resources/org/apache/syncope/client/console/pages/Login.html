@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta charset="UTF-8"/>
+    <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'/>
+
+    <title>Apache Syncope - Login</title>
+
+    <link rel="shortcut icon" href="img/favicon.png" type="image/png"/>
+
+    <link href="webjars/bootstrap/${bootstrap.version}/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="webjars/bootstrap-select/${bootstrap-select.version}/dist/css/bootstrap-select.min.css" rel="stylesheet" type="text/css" />
+    <link href="webjars/font-awesome/${font-awesome.version}/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+    <link href="webjars/ionicons/${ionicons.version}/css/ionicons.min.css" rel="stylesheet" type="text/css" />
+    <link href="css/AdminLTE.css" rel="stylesheet" type="text/css" />
+    <link href="css/login.css" rel="stylesheet" type="text/css" />
+    <link href="css/syncopeConsole.css" rel="stylesheet" type="text/css" />
+
+    <script type="text/javascript" src="webjars/bootstrap/${bootstrap.version}/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="webjars/bootstrap-select/${bootstrap-select.version}/dist/js/bootstrap-select.min.js"></script>
+  </head>
+  <body class="skin-green">
+    <div class="container">
+      <div class="card card-container">
+        <img class="login-logo" src="img/logo-green.png" />
+
+        <div wicket:id="feedback" role="alert"/>
+
+        <form class="form-signin" wicket:id="login">
+          <input type="text" wicket:id="username" id="username" class="form-control" 
+                 wicket:message="placeholder:username" required="required" autofocus="autofocus" />
+          <input type="password" wicket:id="password" id="password" class="form-control" 
+                 wicket:message="placeholder:password" required="required" />
+          <select wicket:id="language" id="language" class="selectpicker"/>
+          <button wicket:id="submit" type="submit" 
+                  class="btn btn-lg btn-primary btn-block btn-signin"><wicket:message key="submit"/></button>
+        </form>
+      </div>
+    </div>
+
+    <script type="text/javascript">
+      $('.selectpicker').selectpicker({
+        width: '100%'
+      });
+    </script>
+
+  </body>
+</html>

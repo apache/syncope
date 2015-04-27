@@ -18,18 +18,13 @@
  */
 package org.apache.syncope.client.console.pages;
 
-import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
-public class SignOut extends WebPage {
+public class Dashboard extends BasePage {
 
-    private static final long serialVersionUID = -6497270741904509673L;
+    private static final long serialVersionUID = -1100228004207271270L;
 
-    public SignOut(final PageParameters parameters) {
+    public Dashboard(final PageParameters parameters) {
         super(parameters);
-
-        SyncopeConsoleSession.get().invalidate();
     }
-
 }
