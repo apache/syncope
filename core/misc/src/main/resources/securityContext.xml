@@ -32,10 +32,12 @@ under the License.
     <constructor-arg value="${anonymousUser}"/>
   </bean>
   
+  <bean class="org.apache.syncope.core.misc.spring.DefaultRolesPrefixPostProcessor"/>
+  
   <security:global-method-security pre-post-annotations="enabled"/>
   
   <bean id="filterChainProxy" class="org.springframework.security.web.FilterChainProxy">
-    <security:filter-chain-map path-type="ant">
+    <security:filter-chain-map request-matcher="ant">
       <security:filter-chain pattern="/**" filters="securityContextPersistenceFilter"/>
     </security:filter-chain-map>
   </bean>
@@ -44,13 +46,17 @@ under the License.
 
   <bean id="securityContextPersistenceFilter"
         class="org.springframework.security.web.context.SecurityContextPersistenceFilter">
-    <property name="securityContextRepository" ref="securityContextRepository"/>
+    <constructor-arg ref="securityContextRepository"/>
   </bean>
 
-  <security:http security-context-repository-ref="securityContextRepository" realm="Apache Syncope authentication">
+  <security:http security-context-repository-ref="securityContextRepository" realm="Apache Syncope authentication" 
+                 use-expressions="false" disable-url-rewriting="false">
     <security:http-basic/>
     <security:anonymous username="${anonymousUser}"/>
     <security:intercept-url pattern="/**"/>
+    
+    <security:headers disabled="true"/>
+    <security:csrf disabled="true"/>
   </security:http>
 
   <bean id="syncopeUserDetailsService" class="org.apache.syncope.core.misc.security.SyncopeUserDetailsService"/>
