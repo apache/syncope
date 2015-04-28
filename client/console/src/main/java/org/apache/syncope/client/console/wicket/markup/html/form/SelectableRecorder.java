@@ -74,7 +74,7 @@ public class SelectableRecorder<T> extends Recorder<T> {
      */
     private void initIds() {
         // construct the model string based on selection collection
-        IChoiceRenderer<T> renderer = getPalette().getChoiceRenderer();
+        IChoiceRenderer<? super T> renderer = getPalette().getChoiceRenderer();
         StringBuilder modelStringBuffer = new StringBuilder();
         Collection<T> modelCollection = getPalette().getModelCollection();
         if (modelCollection == null) {
@@ -93,7 +93,7 @@ public class SelectableRecorder<T> extends Recorder<T> {
 
         // set model and update ids array
         String modelString = modelStringBuffer.toString();
-        setDefaultModel(new Model<String>(modelString));
+        setDefaultModel(new Model<>(modelString));
         updateIds(modelString);
     }
 
@@ -102,7 +102,7 @@ public class SelectableRecorder<T> extends Recorder<T> {
             return null;
         }
 
-        IChoiceRenderer<T> renderer = getPalette().getChoiceRenderer();
+        IChoiceRenderer<? super T> renderer = getPalette().getChoiceRenderer();
 
         T selected = null;
         for (T choice : getPalette().getChoices()) {
@@ -115,17 +115,14 @@ public class SelectableRecorder<T> extends Recorder<T> {
         return selected;
     }
 
-    /**
-     * @return iterator over selected choices
-     */
     @Override
-    public Iterator<T> getSelectedChoices() {
-        IChoiceRenderer<T> renderer = getPalette().getChoiceRenderer();
+    public List<T> getSelectedList() {
+        IChoiceRenderer<? super T> renderer = getPalette().getChoiceRenderer();
         if (ids.length == 0) {
-            return Collections.<T>emptyList().iterator();
+            return Collections.<T>emptyList();
         }
 
-        List<T> selected = new ArrayList<T>(ids.length);
+        List<T> selected = new ArrayList<>(ids.length);
         for (String id : ids) {
             for (T choice : getPalette().getChoices()) {
                 if (renderer.getIdValue(choice, 0).equals(id)) {
@@ -134,22 +131,19 @@ public class SelectableRecorder<T> extends Recorder<T> {
                 }
             }
         }
-        return selected.iterator();
+        return selected;
     }
 
-    /**
-     * @return iterator over unselected choices
-     */
     @Override
-    public Iterator<T> getUnselectedChoices() {
-        IChoiceRenderer<T> renderer = getPalette().getChoiceRenderer();
+    public List<T> getUnselectedList() {
+        IChoiceRenderer<? super T> renderer = getPalette().getChoiceRenderer();
         Collection<? extends T> choices = getPalette().getChoices();
 
         if (choices.size() - ids.length == 0) {
-            return Collections.<T>emptyList().iterator();
+            return Collections.<T>emptyList();
         }
 
-        List<T> unselected = new ArrayList<T>(Math.max(1, choices.size() - ids.length));
+        List<T> unselected = new ArrayList<>(Math.max(1, choices.size() - ids.length));
         for (T choice : choices) {
             final String choiceId = renderer.getIdValue(choice, 0);
             boolean selected = false;
@@ -163,7 +157,7 @@ public class SelectableRecorder<T> extends Recorder<T> {
                 unselected.add(choice);
             }
         }
-        return unselected.iterator();
+        return unselected;
     }
 
     @Override
@@ -186,8 +180,7 @@ public class SelectableRecorder<T> extends Recorder<T> {
         updateIds(getValue());
     }
 
-    @Override
-    protected void updateIds(final String value) {
+    private void updateIds(final String value) {
         if (Strings.isEmpty(value)) {
             ids = EMPTY_IDS;
         } else {

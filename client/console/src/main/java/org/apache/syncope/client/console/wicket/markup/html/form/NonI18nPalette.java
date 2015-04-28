@@ -19,7 +19,6 @@
 package org.apache.syncope.client.console.wicket.markup.html.form;
 
 import java.util.Collection;
-import java.util.List;
 import org.apache.wicket.extensions.markup.html.form.palette.Palette;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.model.IModel;
@@ -29,9 +28,9 @@ public class NonI18nPalette<T> extends Palette<T> {
     private static final long serialVersionUID = 2659070187837941889L;
 
     public NonI18nPalette(final String id,
-            final IModel<? extends List<? extends T>> model,
+            final IModel<? extends Collection<T>> model,
             final IModel<? extends Collection<? extends T>> choicesModel,
-            final IChoiceRenderer<T> choiceRenderer, final int rows,
+            final IChoiceRenderer<? super T> choiceRenderer, final int rows,
             final boolean allowOrder, final boolean allowMoveAll) {
 
         super(id, model, choicesModel, choiceRenderer, rows, allowOrder, allowMoveAll);
