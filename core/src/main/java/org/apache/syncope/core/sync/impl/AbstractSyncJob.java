@@ -313,9 +313,9 @@ public abstract class AbstractSyncJob<T extends AbstractSyncTask, A extends Abst
                     append(SyncResult.produceReport(uSuccUpdate, syncTraceLevel)).
                     append("\nUsers deleted:\n").
                     append(SyncResult.produceReport(uSuccDelete, syncTraceLevel)).
-                    append("\nUsers no CRUD:\n").
-                    append(SyncResult.produceReport(uSuccNone, syncTraceLevel)).
                     append("\nUsers no operation:\n").
+                    append(SyncResult.produceReport(uSuccNone, syncTraceLevel)).
+                    append("\nUsers ignored:\n").
                     append(SyncResult.produceReport(uIgnore, syncTraceLevel));
             report.append("\n\nRoles created:\n").
                     append(SyncResult.produceReport(rSuccCreate, syncTraceLevel)).
