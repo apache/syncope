@@ -83,6 +83,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
             result.setSubjectType(getAttributableUtils().getType());
             result.setStatus(ProvisioningResult.Status.IGNORE);
             result.setKey(subjectKey);
+            profile.getResults().add(result);
 
             LOG.warn("Ignoring during push", e);
             return true;
@@ -262,6 +263,8 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                 result.setStatus(ProvisioningResult.Status.SUCCESS);
                 resultStatus = AuditElements.Result.SUCCESS;
                 output = getRemoteObject(accountId);
+            } catch (IgnoreProvisionException e) {
+                throw e;
             } catch (Exception e) {
                 result.setStatus(ProvisioningResult.Status.FAILURE);
                 result.setMessage(ExceptionUtils.getRootCauseMessage(e));
