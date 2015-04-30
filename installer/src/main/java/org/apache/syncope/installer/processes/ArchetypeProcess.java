@@ -51,7 +51,7 @@ public class ArchetypeProcess extends BaseProcess {
         final String proxyUser = args[15];
         final String proxyPwd = args[16];
         final boolean mavenProxyAutoconf = Boolean.valueOf(args[17]);
-        
+
         setSyncopeInstallDir(installPath, artifactId);
 
         final FileSystemUtils fileSystemUtils = new FileSystemUtils(handler);
@@ -110,15 +110,20 @@ public class ArchetypeProcess extends BaseProcess {
         fileSystemUtils.createDirectory(logsDirectory);
         fileSystemUtils.createDirectory(bundlesDirectory);
         fileSystemUtils.createDirectory(modelerDirectory);
-        
+
         fileSystemUtils.copyFileFromResources("/" + properties.getProperty("modelerPomFile"),
                 modelerDirectory + "/" + properties.getProperty("pomFile"), handler);
 
         fileSystemUtils.copyFile(
                 syncopeInstallDir
                 + properties.getProperty("consoleResDirectory")
-                + "/" + properties.getProperty("tokenValueMapFile"),
-                modelerDirectory + "/" + properties.getProperty("tokenValueMapFile"));
+                + "/" + properties.getProperty("urlConfig"),
+                modelerDirectory + "/" + properties.getProperty("urlConfig"));
+        fileSystemUtils.copyFile(
+                syncopeInstallDir
+                + properties.getProperty("consoleResDirectory")
+                + "/" + properties.getProperty("saveModel"),
+                modelerDirectory + "/" + properties.getProperty("saveModel"));
 
         final Properties modelerProperties = new Properties();
         modelerProperties.setProperty("modeler.directory", modelerDirectory);

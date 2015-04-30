@@ -22,34 +22,102 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.pages.Dashboard;
 import org.apache.syncope.client.console.pages.Login;
+import org.apache.syncope.client.console.resources.FilesystemResource;
+import org.apache.syncope.client.console.resources.WorkflowDefGETResource;
+import org.apache.syncope.client.console.resources.WorkflowDefPUTResource;
 import org.apache.wicket.Page;
 import org.apache.wicket.authroles.authentication.AbstractAuthenticatedWebSession;
 import org.apache.wicket.authroles.authentication.AuthenticatedWebApplication;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.markup.html.WebPage;
+import org.apache.wicket.protocol.http.WebApplication;
+import org.apache.wicket.request.resource.IResource;
+import org.apache.wicket.request.resource.ResourceReference;
 import org.apache.wicket.resource.DynamicJQueryResourceReference;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
+import org.springframework.core.type.filter.AssignableTypeFilter;
+import org.springframework.util.ClassUtils;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 
 public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
+
+    private static final Logger LOG = LoggerFactory.getLogger(SyncopeConsoleApplication.class);
 
     public static final List<Locale> SUPPORTED_LOCALES = Collections.unmodifiableList(Arrays.asList(
             new Locale[] {
                 Locale.ENGLISH, Locale.ITALIAN, new Locale("pt", "BR")
             }));
 
+    private static final String ACTIVITI_MODELER_CONTEXT = "activiti-modeler";
+
     @Override
     protected void init() {
         super.init();
 
         getComponentInstantiationListeners().add(new SpringComponentInjector(this));
+        getResourceSettings().setThrowExceptionOnMissingResource(true);
         getJavaScriptLibrarySettings().setJQueryReference(new DynamicJQueryResourceReference());
 
         getSecuritySettings().setAuthorizationStrategy(new MetaDataRoleAuthorizationStrategy(this));
-        MetaDataRoleAuthorizationStrategy.authorize(getHomePage(), SyncopeConsoleSession.AUTHENTICATED);
+        ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(false);
+        scanner.addIncludeFilter(new AssignableTypeFilter(BasePage.class));
+
+        for (BeanDefinition bd : scanner.findCandidateComponents(StringUtils.EMPTY)) {
+            try {
+                @SuppressWarnings("unchecked")
+                Class<? extends BasePage> clazz = (Class<? extends BasePage>) ClassUtils.resolveClassName(
+                        bd.getBeanClassName(), ClassUtils.getDefaultClassLoader());
+                MetaDataRoleAuthorizationStrategy.authorize(clazz, SyncopeConsoleSession.AUTHENTICATED);
+            } catch (Throwable t) {
+                LOG.warn("Could not inspect class {}", bd.getBeanClassName(), t);
+            }
+        }
+
+        getMarkupSettings().setStripWicketTags(true);
+        getMarkupSettings().setCompressWhitespace(true);
+
+        getRequestCycleListeners().add(new SyncopeConsoleRequestCycleListener());
 
         mountPage("/login", getSignInPageClass());
+
+        final String activitiModelerDirectory = WebApplicationContextUtils.getWebApplicationContext(
+                WebApplication.get().getServletContext()).getBean("activitiModelerDirectory", String.class);
+        mountResource("/" + ACTIVITI_MODELER_CONTEXT, new ResourceReference(ACTIVITI_MODELER_CONTEXT) {
+
+            private static final long serialVersionUID = -128426276529456602L;
+
+            @Override
+            public IResource getResource() {
+                return new FilesystemResource(ACTIVITI_MODELER_CONTEXT, activitiModelerDirectory);
+            }
+
+        });
+        mountResource("/workflowDefGET", new ResourceReference("workflowDefGET") {
+
+            private static final long serialVersionUID = -128426276529456602L;
+
+            @Override
+            public IResource getResource() {
+                return new WorkflowDefGETResource();
+            }
+        });
+        mountResource("/workflowDefPUT", new ResourceReference("workflowDefPUT") {
+
+            private static final long serialVersionUID = -128426276529456602L;
+
+            @Override
+            public IResource getResource() {
+                return new WorkflowDefPUTResource();
+            }
+        });
     }
 
     @Override

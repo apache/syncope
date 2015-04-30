@@ -87,16 +87,16 @@ under the License.
         <section class="sidebar">
           <ul class="sidebar-menu">
             <li class="header">&nbsp;</li>
-            <li class="active"><a href="#"><i class="fa fa-dashboard"></i><span>Dashboard</span></a></li>
+            <li wicket:id="dashboardLI"><a href="#" wicket:id="dashboard"><i class="fa fa-dashboard"></i><span>Dashboard</span></a></li>
             <li><a href="#"><i class="fa fa-users"></i><span>Realms</span></a></li>
             <li><a href="#"><i class="fa fa-th"></i><span>Resources</span></a></li>
             <li><a href="#"><i class="fa fa-pie-chart"></i><span>Reports</span></a></li>
-            <li class="treeview">
+            <li wicket:id="configurationLI" class="treeview">
               <a href="#"><i class="fa fa-edit"></i><span>Configuration</span> <i class="fa fa-angle-left pull-right"></i></a>
-              <ul class="treeview-menu">
+              <ul wicket:id="configurationUL" class="treeview-menu">
                 <li><a href="#"><i class="fa fa-circle-o"></i>Policies</a></li>
                 <li><a href="#"><i class="fa fa-circle-o"></i>Security Questions</a></li>
-                <li><a href="#"><i class="fa fa-circle-o"></i>Workflow</a></li>
+                <li wicket:id="workflowLI"><a href="#" wicket:id="workflow"><i class="fa fa-circle-o"></i>Workflow</a></li>
                 <li><a href="#"><i class="fa fa-circle-o"></i>Logs</a></li>
                 <li><a href="#"><i class="fa fa-circle-o"></i>Layouts</a></li>
                 <li><a href="#"><i class="fa fa-circle-o"></i>Schemas</a></li>

@@ -61,6 +61,10 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
 
     private SyncopeClient client;
 
+    private String username;
+
+    private String password;
+
     private UserTO selfTO;
 
     private Map<String, Set<String>> auth;
@@ -106,6 +110,8 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
             auth = self.getKey();
             selfTO = self.getValue();
 
+            this.username = username;
+            this.password = password;
             authenticated = true;
         } catch (Exception e) {
             LOG.error("Authentication failed", e);
@@ -153,8 +159,15 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
     }
 
     public <T> T getService(final MediaType mediaType, final Class<T> serviceClass) {
-        T service = client.getService(serviceClass);
-        WebClient.client(service).type(mediaType).accept(mediaType);
+        T service;
+
+        synchronized (clientFactory) {
+            SyncopeClientFactoryBean.ContentType preType = clientFactory.getContentType();
+
+            clientFactory.setContentType(SyncopeClientFactoryBean.ContentType.fromString(mediaType.toString()));
+            service = clientFactory.create(username, password).getService(serviceClass);
+            clientFactory.setContentType(preType);
+        }
 
         return service;
     }

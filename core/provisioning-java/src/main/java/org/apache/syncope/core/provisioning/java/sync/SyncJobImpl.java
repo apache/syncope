@@ -107,7 +107,7 @@ public class SyncJobImpl extends AbstractProvisioningJob<SyncTask, SyncActions> 
 
         LOG.debug("Execute synchronization with token {}", syncTask.getResource().getUsyncToken());
 
-        final ProvisioningProfile<SyncTask, SyncActions> profile = new ProvisioningProfile<>(connector, syncTask);
+        ProvisioningProfile<SyncTask, SyncActions> profile = new ProvisioningProfile<>(connector, syncTask);
         if (actions != null) {
             profile.getActions().addAll(actions);
         }
@@ -115,13 +115,13 @@ public class SyncJobImpl extends AbstractProvisioningJob<SyncTask, SyncActions> 
         profile.setResAct(getSyncPolicySpec(syncTask).getConflictResolutionAction());
 
         // Prepare handler for SyncDelta objects (users)
-        final UserSyncResultHandler uhandler =
+        UserSyncResultHandler uhandler =
                 (UserSyncResultHandler) ApplicationContextProvider.getApplicationContext().getBeanFactory().
                 createBean(UserSyncResultHandlerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
         uhandler.setProfile(profile);
 
         // Prepare handler for SyncDelta objects (groups)
-        final GroupSyncResultHandler rhandler =
+        GroupSyncResultHandler rhandler =
                 (GroupSyncResultHandler) ApplicationContextProvider.getApplicationContext().getBeanFactory().
                 createBean(GroupSyncResultHandlerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
         rhandler.setProfile(profile);

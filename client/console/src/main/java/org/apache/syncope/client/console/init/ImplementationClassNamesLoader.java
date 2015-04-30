@@ -38,9 +38,6 @@ import org.springframework.util.ClassUtils;
 @Component
 public class ImplementationClassNamesLoader implements SyncopeConsoleLoader {
 
-    /**
-     * Logger.
-     */
     private static final Logger LOG = LoggerFactory.getLogger(ImplementationClassNamesLoader.class);
 
     private List<Class<? extends AbstractBinaryPreviewer>> previewers;
@@ -73,7 +70,6 @@ public class ImplementationClassNamesLoader implements SyncopeConsoleLoader {
                 } else if (AbstractExtensionPanel.class.isAssignableFrom(clazz) && !isAbsractClazz) {
                     extPanels.add((Class<? extends AbstractExtensionPanel>) clazz);
                 }
-
             } catch (Throwable t) {
                 LOG.warn("Could not inspect class {}", bd.getBeanClassName(), t);
             }

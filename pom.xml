@@ -347,7 +347,7 @@ under the License.
 
     <groovy.version>2.4.3</groovy.version>
 
-    <activiti.version>5.16.4</activiti.version>
+    <activiti.version>5.17.0</activiti.version>
 
     <slf4j.version>1.7.12</slf4j.version>
     <log4j.version>2.2</log4j.version>
@@ -782,17 +782,6 @@ under the License.
         <artifactId>avalon-framework-impl</artifactId>
         <version>4.3.1</version>
       </dependency>
-
-      <dependency>
-        <groupId>xalan</groupId>
-        <artifactId>xalan</artifactId>
-        <version>2.7.1</version>
-      </dependency>
-      <dependency>
-        <groupId>xerces</groupId>
-        <artifactId>xercesImpl</artifactId>
-        <version>2.11.0</version>
-      </dependency>
       
       <!-- Activiti -->
       <dependency>
@@ -1151,12 +1140,6 @@ under the License.
               <version>2.7.1</version>
             </dependency>
           </dependencies>
-        </plugin>
-        
-        <plugin>
-          <groupId>com.google.code.maven-replacer-plugin</groupId>
-          <artifactId>replacer</artifactId>
-          <version>1.5.3</version>
         </plugin>
         
         <plugin>
@@ -1543,9 +1526,9 @@ under the License.
                       <link>http://connid.tirasa.net/apidocs/1.4/</link>
                       <link>http://camel.apache.org/maven/current/camel-core/apidocs/</link>
                       <link>http://camel.apache.org/maven/current/camel-spring/apidocs/</link>
-                      <link>http://ci.apache.org/projects/wicket/apidocs/6.x/</link>
+                      <link>http://ci.apache.org/projects/wicket/apidocs/7.x/</link>
                       <link>http://docs.spring.io/spring/docs/4.1.x/javadoc-api/</link>
-                      <link>http://docs.spring.io/spring-security/site/docs/3.2.x/apidocs/</link>
+                      <link>http://docs.spring.io/spring-security/site/docs/4.0.x/apidocs/</link>
                       <link>http://activiti.org/javadocs/</link>
                     </links>
                   </configuration>
