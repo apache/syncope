@@ -44,6 +44,7 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.sync.ProvisioningResult;
 import org.apache.syncope.core.provisioning.api.sync.PushActions;
 import org.apache.syncope.core.misc.MappingUtils;
+import org.apache.syncope.core.provisioning.api.sync.IgnoreProvisionException;
 import org.apache.syncope.core.provisioning.api.sync.SyncopePushResultHandler;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.quartz.JobExecutionException;
@@ -52,36 +53,41 @@ import org.springframework.transaction.annotation.Transactional;
 public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHandler<PushTask, PushActions>
         implements SyncopePushResultHandler {
 
-    protected abstract AttributableUtils getAttributableUtils();
-
-    protected abstract String getName(final Subject<?, ?, ?> subject);
+    protected abstract String getName(Subject<?, ?, ?> subject);
 
     protected abstract Mapping<?> getMapping();
 
-    protected abstract AbstractSubjectTO getSubjectTO(final long key);
+    protected abstract Subject<?, ?, ?> getSubject(long key);
 
-    protected abstract Subject<?, ?, ?> getSubject(final long key);
+    protected abstract Subject<?, ?, ?> deprovision(Subject<?, ?, ?> sbj);
 
-    protected abstract Subject<?, ?, ?> deprovision(final Subject<?, ?, ?> sbj);
+    protected abstract Subject<?, ?, ?> provision(Subject<?, ?, ?> sbj, Boolean enabled);
 
-    protected abstract Subject<?, ?, ?> provision(final Subject<?, ?, ?> sbj, final Boolean enabled);
+    protected abstract Subject<?, ?, ?> link(Subject<?, ?, ?> sbj, Boolean unlink);
 
-    protected abstract Subject<?, ?, ?> link(final Subject<?, ?, ?> sbj, final Boolean unlink);
+    protected abstract Subject<?, ?, ?> unassign(Subject<?, ?, ?> sbj);
 
-    protected abstract Subject<?, ?, ?> unassign(final Subject<?, ?, ?> sbj);
+    protected abstract Subject<?, ?, ?> assign(Subject<?, ?, ?> sbj, Boolean enabled);
 
-    protected abstract Subject<?, ?, ?> assign(final Subject<?, ?, ?> sbj, Boolean enabled);
-
-    protected abstract ConnectorObject getRemoteObject(final String accountId);
+    protected abstract ConnectorObject getRemoteObject(String accountId);
 
     @Transactional
     @Override
-    public boolean handle(final long subjectId) {
+    public boolean handle(final long subjectKey) {
         try {
-            doHandle(subjectId);
+            doHandle(subjectKey);
+            return true;
+        } catch (IgnoreProvisionException e) {
+            ProvisioningResult result = new ProvisioningResult();
+            result.setOperation(ResourceOperation.NONE);
+            result.setSubjectType(getAttributableUtils().getType());
+            result.setStatus(ProvisioningResult.Status.IGNORE);
+            result.setKey(subjectKey);
+
+            LOG.warn("Ignoring during push", e);
             return true;
         } catch (JobExecutionException e) {
-            LOG.error("Synchronization failed", e);
+            LOG.error("Push failed", e);
             return false;
         }
     }
@@ -89,18 +95,18 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
     protected final void doHandle(final long subjectId)
             throws JobExecutionException {
 
-        final Subject<?, ?, ?> subject = getSubject(subjectId);
+        Subject<?, ?, ?> subject = getSubject(subjectId);
 
-        final AttributableUtils attrUtils = attrUtilsFactory.getInstance(subject);
+        AttributableUtils attrUtils = attrUtilsFactory.getInstance(subject);
 
-        final ProvisioningResult result = new ProvisioningResult();
+        ProvisioningResult result = new ProvisioningResult();
         profile.getResults().add(result);
 
-        result.setId(subject.getKey());
+        result.setKey(subject.getKey());
         result.setSubjectType(attrUtils.getType());
         result.setName(getName(subject));
 
-        final Boolean enabled = subject instanceof User && profile.getTask().isSyncStatus()
+        Boolean enabled = subject instanceof User && profile.getTask().isSyncStatus()
                 ? ((User) subject).isSuspended() ? Boolean.FALSE : Boolean.TRUE
                 : null;
 
@@ -113,7 +119,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         String operation = null;
 
         // Try to read remote object (user / group) BEFORE any actual operation
-        final String accountId = MappingUtils.getAccountIdValue(
+        String accountId = MappingUtils.getAccountIdValue(
                 subject, profile.getTask().getResource(), getMapping().getAccountIdItem());
 
         beforeObj = getRemoteObject(accountId);
@@ -308,7 +314,6 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
     }
 
     protected Subject<?, ?, ?> update(final Subject<?, ?, ?> sbj, final Boolean enabled) {
-
         final Set<MembershipMod> membsToAdd = new HashSet<>();
         final Set<String> vattrToBeRemoved = new HashSet<>();
         final Set<String> membVattrToBeRemoved = new HashSet<>();

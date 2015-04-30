@@ -114,13 +114,15 @@ public abstract class AbstractProvisioningJob<T extends ProvisioningTask, A exte
         List<ProvisioningResult> uSuccDelete = new ArrayList<>();
         List<ProvisioningResult> uFailDelete = new ArrayList<>();
         List<ProvisioningResult> uSuccNone = new ArrayList<>();
-        List<ProvisioningResult> rSuccCreate = new ArrayList<>();
-        List<ProvisioningResult> rFailCreate = new ArrayList<>();
-        List<ProvisioningResult> rSuccUpdate = new ArrayList<>();
-        List<ProvisioningResult> rFailUpdate = new ArrayList<>();
-        List<ProvisioningResult> rSuccDelete = new ArrayList<>();
-        List<ProvisioningResult> rFailDelete = new ArrayList<>();
-        List<ProvisioningResult> rSuccNone = new ArrayList<>();
+        List<ProvisioningResult> uIgnore = new ArrayList<>();
+        List<ProvisioningResult> gSuccCreate = new ArrayList<>();
+        List<ProvisioningResult> gFailCreate = new ArrayList<>();
+        List<ProvisioningResult> gSuccUpdate = new ArrayList<>();
+        List<ProvisioningResult> gFailUpdate = new ArrayList<>();
+        List<ProvisioningResult> gSuccDelete = new ArrayList<>();
+        List<ProvisioningResult> gFailDelete = new ArrayList<>();
+        List<ProvisioningResult> gSuccNone = new ArrayList<>();
+        List<ProvisioningResult> gIgnore = new ArrayList<>();
 
         for (ProvisioningResult provResult : provResults) {
             switch (provResult.getStatus()) {
@@ -133,7 +135,7 @@ public abstract class AbstractProvisioningJob<T extends ProvisioningTask, A exte
                                     break;
 
                                 case GROUP:
-                                    rSuccCreate.add(provResult);
+                                    gSuccCreate.add(provResult);
                                     break;
 
                                 default:
@@ -147,7 +149,7 @@ public abstract class AbstractProvisioningJob<T extends ProvisioningTask, A exte
                                     break;
 
                                 case GROUP:
-                                    rSuccUpdate.add(provResult);
+                                    gSuccUpdate.add(provResult);
                                     break;
 
                                 default:
@@ -161,7 +163,7 @@ public abstract class AbstractProvisioningJob<T extends ProvisioningTask, A exte
                                     break;
 
                                 case GROUP:
-                                    rSuccDelete.add(provResult);
+                                    gSuccDelete.add(provResult);
                                     break;
 
                                 default:
@@ -175,7 +177,7 @@ public abstract class AbstractProvisioningJob<T extends ProvisioningTask, A exte
                                     break;
 
                                 case GROUP:
-                                    rSuccNone.add(provResult);
+                                    gSuccNone.add(provResult);
                                     break;
 
                                 default:
@@ -195,7 +197,7 @@ public abstract class AbstractProvisioningJob<T extends ProvisioningTask, A exte
                                     break;
 
                                 case GROUP:
-                                    rFailCreate.add(provResult);
+                                    gFailCreate.add(provResult);
                                     break;
 
                                 default:
@@ -209,7 +211,7 @@ public abstract class AbstractProvisioningJob<T extends ProvisioningTask, A exte
                                     break;
 
                                 case GROUP:
-                                    rFailUpdate.add(provResult);
+                                    gFailUpdate.add(provResult);
                                     break;
 
                                 default:
@@ -223,11 +225,25 @@ public abstract class AbstractProvisioningJob<T extends ProvisioningTask, A exte
                                     break;
 
                                 case GROUP:
-                                    rFailDelete.add(provResult);
+                                    gFailDelete.add(provResult);
                                     break;
 
                                 default:
                             }
+                            break;
+
+                        default:
+                    }
+                    break;
+
+                case IGNORE:
+                    switch (provResult.getSubjectType()) {
+                        case USER:
+                            uIgnore.add(provResult);
+                            break;
+
+                        case GROUP:
+                            gIgnore.add(provResult);
                             break;
 
                         default:
@@ -246,15 +262,16 @@ public abstract class AbstractProvisioningJob<T extends ProvisioningTask, A exte
                 append(' ').
                 append("[deleted/failures]: ").append(uSuccDelete.size()).append('/').append(uFailDelete.size()).
                 append(' ').
-                append("[ignored]: ").append(uSuccNone.size()).append('\n');
+                append("[no operation/ignored]: ").append(uSuccNone.size()).append('/').append(uIgnore.size()).
+                append('\n');
         report.append("Groups ").
-                append("[created/failures]: ").append(rSuccCreate.size()).append('/').append(rFailCreate.size()).
+                append("[created/failures]: ").append(gSuccCreate.size()).append('/').append(gFailCreate.size()).
                 append(' ').
-                append("[updated/failures]: ").append(rSuccUpdate.size()).append('/').append(rFailUpdate.size()).
+                append("[updated/failures]: ").append(gSuccUpdate.size()).append('/').append(gFailUpdate.size()).
                 append(' ').
-                append("[deleted/failures]: ").append(rSuccDelete.size()).append('/').append(rFailDelete.size()).
+                append("[deleted/failures]: ").append(gSuccDelete.size()).append('/').append(gFailDelete.size()).
                 append(' ').
-                append("[ignored]: ").append(rSuccNone.size());
+                append("[no operation/ignored]: ").append(gSuccNone.size()).append('/').append(gIgnore.size());
 
         // Failures
         if (syncTraceLevel == TraceLevel.FAILURES || syncTraceLevel == TraceLevel.ALL) {
@@ -271,38 +288,42 @@ public abstract class AbstractProvisioningJob<T extends ProvisioningTask, A exte
                 report.append(ProvisioningResult.produceReport(uFailDelete, syncTraceLevel));
             }
 
-            if (!rFailCreate.isEmpty()) {
+            if (!gFailCreate.isEmpty()) {
                 report.append("\n\nGroups failed to create: ");
-                report.append(ProvisioningResult.produceReport(rFailCreate, syncTraceLevel));
+                report.append(ProvisioningResult.produceReport(gFailCreate, syncTraceLevel));
             }
-            if (!rFailUpdate.isEmpty()) {
+            if (!gFailUpdate.isEmpty()) {
                 report.append("\nGroups failed to update: ");
-                report.append(ProvisioningResult.produceReport(rFailUpdate, syncTraceLevel));
+                report.append(ProvisioningResult.produceReport(gFailUpdate, syncTraceLevel));
             }
-            if (!rFailDelete.isEmpty()) {
+            if (!gFailDelete.isEmpty()) {
                 report.append("\nGroups failed to delete: ");
-                report.append(ProvisioningResult.produceReport(rFailDelete, syncTraceLevel));
+                report.append(ProvisioningResult.produceReport(gFailDelete, syncTraceLevel));
             }
         }
 
         // Succeeded, only if on 'ALL' level
         if (syncTraceLevel == TraceLevel.ALL) {
-            report.append("\n\nUsers created:\n")
-                    .append(ProvisioningResult.produceReport(uSuccCreate, syncTraceLevel))
-                    .append("\nUsers updated:\n")
-                    .append(ProvisioningResult.produceReport(uSuccUpdate, syncTraceLevel))
-                    .append("\nUsers deleted:\n")
-                    .append(ProvisioningResult.produceReport(uSuccDelete, syncTraceLevel))
-                    .append("\nUsers ignored:\n")
-                    .append(ProvisioningResult.produceReport(uSuccNone, syncTraceLevel));
-            report.append("\n\nGroups created:\n")
-                    .append(ProvisioningResult.produceReport(rSuccCreate, syncTraceLevel))
-                    .append("\nGroups updated:\n")
-                    .append(ProvisioningResult.produceReport(rSuccUpdate, syncTraceLevel))
-                    .append("\nGroups deleted:\n")
-                    .append(ProvisioningResult.produceReport(rSuccDelete, syncTraceLevel))
-                    .append("\nGroups ignored:\n")
-                    .append(ProvisioningResult.produceReport(rSuccNone, syncTraceLevel));
+            report.append("\n\nUsers created:\n").
+                    append(ProvisioningResult.produceReport(uSuccCreate, syncTraceLevel)).
+                    append("\nUsers updated:\n").
+                    append(ProvisioningResult.produceReport(uSuccUpdate, syncTraceLevel)).
+                    append("\nUsers deleted:\n").
+                    append(ProvisioningResult.produceReport(uSuccDelete, syncTraceLevel)).
+                    append("\nUsers no operation:\n").
+                    append(ProvisioningResult.produceReport(uSuccNone, syncTraceLevel)).
+                    append("\nUsers ignored:\n").
+                    append(ProvisioningResult.produceReport(uIgnore, syncTraceLevel));
+            report.append("\n\nGroups created:\n").
+                    append(ProvisioningResult.produceReport(gSuccCreate, syncTraceLevel)).
+                    append("\nGroups updated:\n").
+                    append(ProvisioningResult.produceReport(gSuccUpdate, syncTraceLevel)).
+                    append("\nGroups deleted:\n").
+                    append(ProvisioningResult.produceReport(gSuccDelete, syncTraceLevel)).
+                    append("\nGroups no operation:\n").
+                    append(ProvisioningResult.produceReport(gSuccNone, syncTraceLevel)).
+                    append("\nGroups ignored:\n").
+                    append(ProvisioningResult.produceReport(gSuccNone, syncTraceLevel));
         }
 
         return report.toString();

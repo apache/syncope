@@ -66,7 +66,7 @@ public class UserSyncResultHandlerImpl extends AbstractSyncResultHandler impleme
     }
 
     @Override
-    protected AbstractSubjectTO create(
+    protected AbstractSubjectTO doCreate(
             final AbstractSubjectTO subjectTO, final SyncDelta delta, final ProvisioningResult result) {
 
         UserTO userTO = UserTO.class.cast(subjectTO);
@@ -75,13 +75,13 @@ public class UserSyncResultHandlerImpl extends AbstractSyncResultHandler impleme
         Map.Entry<Long, List<PropagationStatus>> created = userProvisioningManager.create(userTO, true, true, enabled,
                 Collections.singleton(profile.getTask().getResource().getKey()));
 
-        result.setId(created.getKey());
+        result.setKey(created.getKey());
 
         return userDataBinder.getUserTO(created.getKey());
     }
 
     @Override
-    protected AbstractSubjectTO link(
+    protected AbstractSubjectTO doLink(
             final AbstractSubjectTO before,
             final ProvisioningResult result,
             final boolean unlink) {
@@ -99,7 +99,7 @@ public class UserSyncResultHandlerImpl extends AbstractSyncResultHandler impleme
     }
 
     @Override
-    protected AbstractSubjectTO update(
+    protected AbstractSubjectTO doUpdate(
             final AbstractSubjectTO before,
             final AbstractSubjectMod subjectMod,
             final SyncDelta delta,
@@ -115,7 +115,7 @@ public class UserSyncResultHandlerImpl extends AbstractSyncResultHandler impleme
     }
 
     @Override
-    protected void deprovision(
+    protected void doDeprovision(
             final Long key,
             final boolean unlink) {
 
@@ -131,7 +131,7 @@ public class UserSyncResultHandlerImpl extends AbstractSyncResultHandler impleme
     }
 
     @Override
-    protected void delete(final Long key) {
+    protected void doDelete(final Long key) {
         try {
             userProvisioningManager.
                     delete(key, Collections.<String>singleton(profile.getTask().getResource().getKey()));

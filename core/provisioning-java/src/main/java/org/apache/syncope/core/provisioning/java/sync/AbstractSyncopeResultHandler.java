@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java.sync;
 
+import org.apache.syncope.common.lib.to.AbstractSubjectTO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AttributableUtilsFactory;
@@ -33,6 +34,7 @@ import org.apache.syncope.core.provisioning.api.sync.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.api.sync.SyncopeResultHandler;
 import org.apache.syncope.core.misc.AuditManager;
 import org.apache.syncope.core.misc.ConnObjectUtils;
+import org.apache.syncope.core.persistence.api.entity.AttributableUtils;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.workflow.api.GroupWorkflowAdapter;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
@@ -115,6 +117,10 @@ public abstract class AbstractSyncopeResultHandler<T extends ProvisioningTask, A
      * Sync profile.
      */
     protected ProvisioningProfile<T, A> profile;
+
+    protected abstract AttributableUtils getAttributableUtils();
+
+    protected abstract AbstractSubjectTO getSubjectTO(long key);
 
     @Override
     public void setProfile(final ProvisioningProfile<T, A> profile) {

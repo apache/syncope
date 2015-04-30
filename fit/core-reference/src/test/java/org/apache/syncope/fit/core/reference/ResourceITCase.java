@@ -296,8 +296,9 @@ public class ResourceITCase extends AbstractITCase {
         try {
             ResourceTO resourceTO = new ResourceTO();
             resourceTO.setKey("resourcenotfound");
-
             resourceService.update(resourceTO.getKey(), resourceTO);
+
+            fail();
         } catch (SyncopeClientException e) {
             assertEquals(Response.Status.NOT_FOUND, e.getType().getResponseStatus());
         }
@@ -354,6 +355,7 @@ public class ResourceITCase extends AbstractITCase {
     public void deleteWithException() {
         try {
             resourceService.delete("resourcenotfound");
+            fail();
         } catch (SyncopeClientException e) {
             assertEquals(Response.Status.NOT_FOUND, e.getType().getResponseStatus());
         }
@@ -387,6 +389,7 @@ public class ResourceITCase extends AbstractITCase {
 
         try {
             resourceService.read(resourceName);
+            fail();
         } catch (SyncopeClientException e) {
             assertEquals(Response.Status.NOT_FOUND, e.getType().getResponseStatus());
         }

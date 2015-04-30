@@ -77,7 +77,7 @@ public class GroupSyncResultHandlerImpl extends AbstractSyncResultHandler implem
     }
 
     @Override
-    protected AbstractSubjectTO create(
+    protected AbstractSubjectTO doCreate(
             final AbstractSubjectTO subjectTO, final SyncDelta _delta, final ProvisioningResult result) {
 
         GroupTO groupTO = GroupTO.class.cast(subjectTO);
@@ -87,14 +87,14 @@ public class GroupSyncResultHandlerImpl extends AbstractSyncResultHandler implem
 
         groupTO = groupDataBinder.getGroupTO(created.getKey());
 
-        result.setId(created.getKey());
+        result.setKey(created.getKey());
         result.setName(getName(subjectTO));
 
         return groupTO;
     }
 
     @Override
-    protected AbstractSubjectTO link(
+    protected AbstractSubjectTO doLink(
             final AbstractSubjectTO before,
             final ProvisioningResult result,
             final boolean unlink) {
@@ -112,7 +112,7 @@ public class GroupSyncResultHandlerImpl extends AbstractSyncResultHandler implem
     }
 
     @Override
-    protected AbstractSubjectTO update(
+    protected AbstractSubjectTO doUpdate(
             final AbstractSubjectTO before,
             final AbstractSubjectMod subjectMod,
             final SyncDelta delta,
@@ -141,7 +141,7 @@ public class GroupSyncResultHandlerImpl extends AbstractSyncResultHandler implem
     }
 
     @Override
-    protected void deprovision(final Long id, final boolean unlink) {
+    protected void doDeprovision(final Long id, final boolean unlink) {
         taskExecutor.execute(
                 propagationManager.getGroupDeleteTasks(id, profile.getTask().getResource().getKey()));
 
@@ -153,7 +153,7 @@ public class GroupSyncResultHandlerImpl extends AbstractSyncResultHandler implem
     }
 
     @Override
-    protected void delete(final Long id) {
+    protected void doDelete(final Long id) {
         try {
             taskExecutor.execute(
                     propagationManager.getGroupDeleteTasks(id, profile.getTask().getResource().getKey()));

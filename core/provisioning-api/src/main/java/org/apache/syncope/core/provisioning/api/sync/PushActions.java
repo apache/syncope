@@ -23,6 +23,8 @@ import org.quartz.JobExecutionException;
 
 /**
  * Interface for actions to be performed during PushJob execution.
+ * <br/>
+ * All methods can throw {@link IgnoreProvisionException} to make the current subject ignored by the push process.
  */
 public interface PushActions extends ProvisioningActions {
 

@@ -25,6 +25,9 @@ import org.quartz.JobExecutionException;
 
 /**
  * Interface for actions to be performed during SyncJob execution.
+ * <br/>
+ * All methods can throw {@link IgnoreProvisionException} to make the current subject ignored by the synchronization
+ * process.
  */
 public interface SyncActions extends ProvisioningActions {
 
@@ -40,9 +43,9 @@ public interface SyncActions extends ProvisioningActions {
      * @throws JobExecutionException in case of generic failure
      */
     <T extends AbstractSubjectTO> SyncDelta beforeProvision(
-            final ProvisioningProfile<?, ?> profile,
-            final SyncDelta delta,
-            final T subject) throws JobExecutionException;
+            ProvisioningProfile<?, ?> profile,
+            SyncDelta delta,
+            T subject) throws JobExecutionException;
 
     /**
      * Action to be executed before creating (and linking to the resource) a synchronized user / group locally.
@@ -56,9 +59,9 @@ public interface SyncActions extends ProvisioningActions {
      * @throws JobExecutionException in case of generic failure
      */
     <T extends AbstractSubjectTO> SyncDelta beforeAssign(
-            final ProvisioningProfile<?, ?> profile,
-            final SyncDelta delta,
-            final T subject) throws JobExecutionException;
+            ProvisioningProfile<?, ?> profile,
+            SyncDelta delta,
+            T subject) throws JobExecutionException;
 
     /**
      * Action to be executed before unlinking resource from the synchronized user / group and de-provisioning.
@@ -72,9 +75,9 @@ public interface SyncActions extends ProvisioningActions {
      * @throws JobExecutionException in case of generic failure
      */
     <T extends AbstractSubjectTO> SyncDelta beforeUnassign(
-            final ProvisioningProfile<?, ?> profile,
-            final SyncDelta delta,
-            final T subject) throws JobExecutionException;
+            ProvisioningProfile<?, ?> profile,
+            SyncDelta delta,
+            T subject) throws JobExecutionException;
 
     /**
      * Action to be executed before de-provisioning action only.
@@ -88,9 +91,9 @@ public interface SyncActions extends ProvisioningActions {
      * @throws JobExecutionException in case of generic failure
      */
     <T extends AbstractSubjectTO> SyncDelta beforeDeprovision(
-            final ProvisioningProfile<?, ?> profile,
-            final SyncDelta delta,
-            final T subject) throws JobExecutionException;
+            ProvisioningProfile<?, ?> profile,
+            SyncDelta delta,
+            T subject) throws JobExecutionException;
 
     /**
      * Action to be executed before unlinking resource from the synchronized user / group.
@@ -104,9 +107,9 @@ public interface SyncActions extends ProvisioningActions {
      * @throws JobExecutionException in case of generic failure
      */
     <T extends AbstractSubjectTO> SyncDelta beforeUnlink(
-            final ProvisioningProfile<?, ?> profile,
-            final SyncDelta delta,
-            final T subject) throws JobExecutionException;
+            ProvisioningProfile<?, ?> profile,
+            SyncDelta delta,
+            T subject) throws JobExecutionException;
 
     /**
      * Action to be executed before linking resource to the synchronized user / group.
@@ -120,9 +123,9 @@ public interface SyncActions extends ProvisioningActions {
      * @throws JobExecutionException in case of generic failure
      */
     <T extends AbstractSubjectTO> SyncDelta beforeLink(
-            final ProvisioningProfile<?, ?> profile,
-            final SyncDelta delta,
-            final T subject) throws JobExecutionException;
+            ProvisioningProfile<?, ?> profile,
+            SyncDelta delta,
+            T subject) throws JobExecutionException;
 
     /**
      * Action to be executed before to update a synchronized user / group locally.
@@ -137,10 +140,10 @@ public interface SyncActions extends ProvisioningActions {
      * @throws JobExecutionException in case of generic failure.
      */
     <T extends AbstractSubjectTO, K extends AbstractSubjectMod> SyncDelta beforeUpdate(
-            final ProvisioningProfile<?, ?> profile,
-            final SyncDelta delta,
-            final T subject,
-            final K subjectMod)
+            ProvisioningProfile<?, ?> profile,
+            SyncDelta delta,
+            T subject,
+            K subjectMod)
             throws JobExecutionException;
 
     /**
@@ -153,9 +156,9 @@ public interface SyncActions extends ProvisioningActions {
      * @throws JobExecutionException in case of generic failure
      */
     <T extends AbstractSubjectTO> SyncDelta beforeDelete(
-            final ProvisioningProfile<?, ?> profile,
-            final SyncDelta delta,
-            final T subject) throws JobExecutionException;
+            ProvisioningProfile<?, ?> profile,
+            SyncDelta delta,
+            T subject) throws JobExecutionException;
 
     /**
      * Action to be executed after each local user / group synchronization.
@@ -168,8 +171,8 @@ public interface SyncActions extends ProvisioningActions {
      * @throws JobExecutionException in case of generic failure
      */
     <T extends AbstractSubjectTO> void after(
-            final ProvisioningProfile<?, ?> profile,
-            final SyncDelta delta,
-            final T subject,
-            final ProvisioningResult result) throws JobExecutionException;
+            ProvisioningProfile<?, ?> profile,
+            SyncDelta delta,
+            T subject,
+            ProvisioningResult result) throws JobExecutionException;
 }

@@ -23,6 +23,8 @@ import org.apache.syncope.common.lib.mod.AbstractSubjectMod;
 import org.apache.syncope.common.lib.mod.AttrMod;
 import org.apache.syncope.common.lib.to.AbstractSubjectTO;
 import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.core.provisioning.api.sync.IgnoreProvisionException;
 import org.apache.syncope.core.provisioning.api.sync.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.java.sync.DefaultSyncActions;
 import org.identityconnectors.framework.common.objects.SyncDelta;
@@ -37,9 +39,8 @@ public class TestSyncActions extends DefaultSyncActions {
 
     @Override
     public <T extends AbstractSubjectTO> SyncDelta beforeProvision(
-            final ProvisioningProfile<?, ?> profile,
-            final SyncDelta delta,
-            final T subject) throws JobExecutionException {
+            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final T subject)
+            throws JobExecutionException {
 
         AttrTO attrTO = null;
         for (int i = 0; i < subject.getPlainAttrs().size(); i++) {
@@ -55,6 +56,18 @@ public class TestSyncActions extends DefaultSyncActions {
         }
         attrTO.getValues().clear();
         attrTO.getValues().add(String.valueOf(counter++));
+
+        return delta;
+    }
+
+    @Override
+    public <T extends AbstractSubjectTO> SyncDelta beforeAssign(
+            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final T subject)
+            throws JobExecutionException {
+
+        if (subject instanceof UserTO && "test2".equals(UserTO.class.cast(subject).getUsername())) {
+            throw new IgnoreProvisionException();
+        }
 
         return delta;
     }

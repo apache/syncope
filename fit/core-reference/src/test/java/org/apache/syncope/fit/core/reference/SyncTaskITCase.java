@@ -32,6 +32,7 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.mod.StatusMod;
 import org.apache.syncope.common.lib.mod.UserMod;
@@ -186,8 +187,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
             assertEquals(1, userTO.getMemberships().size());
             assertTrue(userTO.getMemberships().get(0).getPlainAttrMap().containsKey("subscriptionDate"));
 
-            // Unmatching --> Assign (link)
-            // SYNCOPE-658
+            // Unmatching --> Assign (link) - SYNCOPE-658
             assertTrue(userTO.getResources().contains(RESOURCE_NAME_CSV));
             assertEquals(1, CollectionUtils.countMatches(userTO.getDerAttrs(), new Predicate<AttrTO>() {
 
@@ -201,12 +201,20 @@ public class SyncTaskITCase extends AbstractTaskITCase {
             assertNotNull(userTO);
             assertEquals("TYPE_8", userTO.getPlainAttrMap().get("type").getValues().get(0));
 
+            // Check for ignored user - SYNCOPE-663
+            try {
+                readUser("test2");
+                fail();
+            } catch (SyncopeClientException e) {
+                assertEquals(Response.Status.NOT_FOUND, e.getType().getResponseStatus());
+            }
+
             // check for sync results
             int usersPost = userService.list(
                     SyncopeClient.getSubjectListQueryBuilder().realm(SyncopeConstants.ROOT_REALM).
                     page(1).size(1).build()).getTotalCount();
             assertNotNull(usersPost);
-            assertEquals(usersPre + 9, usersPost);
+            assertEquals(usersPre + 8, usersPost);
 
             // Check for issue 215:
             // * expected disabled user test1

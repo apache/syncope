@@ -32,6 +32,7 @@ public class ProvisioningResult {
     public enum Status {
 
         SUCCESS,
+        IGNORE,
         FAILURE
 
     }
@@ -44,7 +45,7 @@ public class ProvisioningResult {
 
     private ResourceOperation operation;
 
-    private Long id;
+    private Long key;
 
     private String name;
 
@@ -64,12 +65,12 @@ public class ProvisioningResult {
         this.name = name;
     }
 
-    public Long getId() {
-        return id;
+    public Long getKey() {
+        return key;
     }
 
-    public void setId(final Long id) {
-        this.id = id;
+    public void setKey(final Long key) {
+        this.key = key;
     }
 
     public Status getStatus() {
@@ -113,10 +114,10 @@ public class ProvisioningResult {
             return null;
         } else if (level == TraceLevel.FAILURES && status == Status.FAILURE) {
             // only report failures
-            return String.format("Failed %s (id/name): %d/%s with message: %s", operation, id, name, message);
+            return String.format("Failed %s (id/name): %d/%s with message: %s", operation, key, name, message);
         } else {
             // All
-            return String.format("%s %s (id/name): %d/%s %s", operation, status, id, name,
+            return String.format("%s %s (id/name): %d/%s %s", operation, status, key, name,
                     StringUtils.isBlank(message)
                             ? ""
                             : "with message: " + message);
