@@ -19,7 +19,6 @@
 package org.apache.syncope.console;
 
 import java.util.concurrent.TimeUnit;
-import static org.apache.syncope.console.AbstractTest.ADMIN;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,21 +35,21 @@ public class EditProfileTestITCase extends AbstractTest {
     public void setUp() throws Exception {
         seleniumDriver = new FirefoxDriver();
         //selenium = new WebDriverBackedSelenium(seleniumDriver, BASE_URL);
-        seleniumDriver.get(BASE_URL);        
+        seleniumDriver.get(BASE_URL);
         wait = new WebDriverWait(seleniumDriver, 6);
-        
+
     }
 
     @Test
     public void selfRegistration() {
         seleniumDriver.findElement(By.xpath("//div/div[2]/div[1]/span/a/span")).click();
-        
+
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//iframe")));
         seleniumDriver.switchTo().frame(0);
 
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//span[contains(text(),'Attributes')]")));
         seleniumDriver.switchTo().defaultContent();
-        seleniumDriver.findElement(By.xpath("//a[@class='w_close']")).click();               
+        seleniumDriver.findElement(By.xpath("//a[@class='w_close']")).click();
 
         // only to have some "Logout" available for @After
         seleniumDriver.get(BASE_URL);
@@ -62,7 +61,7 @@ public class EditProfileTestITCase extends AbstractTest {
         seleniumDriver.findElement(By.name("p::submit")).click();
         seleniumDriver.manage().timeouts().pageLoadTimeout(30, TimeUnit.SECONDS);
     }
-    
+
     @Test
     public void editUserProfile() {
         WebElement element = seleniumDriver.findElement(By.name("userId"));
@@ -75,7 +74,7 @@ public class EditProfileTestITCase extends AbstractTest {
         seleniumDriver.findElement(By.xpath("//div[@id='username']/a")).click();
 
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//iframe")));
-        seleniumDriver.switchTo().frame(0);        
+        seleniumDriver.switchTo().frame(0);
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//span[contains(text(),'Attributes')]")));
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//input[@value='rossini']")));
         seleniumDriver.switchTo().defaultContent();

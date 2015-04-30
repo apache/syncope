@@ -299,8 +299,9 @@ public class ResourceTestITCase extends AbstractTest {
         try {
             ResourceTO resourceTO = new ResourceTO();
             resourceTO.setName("resourcenotfound");
-
             resourceService.update(resourceTO.getName(), resourceTO);
+
+            fail();
         } catch (SyncopeClientException e) {
             assertEquals(Response.Status.NOT_FOUND, e.getType().getResponseStatus());
         }
@@ -357,6 +358,7 @@ public class ResourceTestITCase extends AbstractTest {
     public void deleteWithException() {
         try {
             resourceService.delete("resourcenotfound");
+            fail();
         } catch (SyncopeClientException e) {
             assertEquals(Response.Status.NOT_FOUND, e.getType().getResponseStatus());
         }
@@ -390,6 +392,7 @@ public class ResourceTestITCase extends AbstractTest {
 
         try {
             resourceService.read(resourceName);
+            fail();
         } catch (SyncopeClientException e) {
             assertEquals(Response.Status.NOT_FOUND, e.getType().getResponseStatus());
         }

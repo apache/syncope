@@ -19,6 +19,7 @@
 package org.apache.syncope.core.sync.impl;
 
 import static org.apache.syncope.core.sync.impl.AbstractSyncopeResultHandler.LOG;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -26,8 +27,6 @@ import java.util.Set;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.mod.AttributeMod;
 import org.apache.syncope.common.mod.MembershipMod;
-import org.apache.syncope.common.to.AbstractSubjectTO;
-import org.apache.syncope.common.types.AttributableType;
 import org.apache.syncope.common.types.AuditElements;
 import org.apache.syncope.common.types.AuditElements.Result;
 import org.apache.syncope.common.types.IntMappingType;
@@ -42,6 +41,7 @@ import org.apache.syncope.core.persistence.beans.PushTask;
 import org.apache.syncope.core.persistence.beans.membership.Membership;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.propagation.PropagationByResource;
+import org.apache.syncope.core.sync.IgnoreProvisionException;
 import org.apache.syncope.core.sync.PushActions;
 import org.apache.syncope.core.sync.SyncResult;
 import org.apache.syncope.core.util.AttributableUtil;
@@ -52,32 +52,37 @@ import org.springframework.transaction.annotation.Transactional;
 
 public abstract class AbstractSubjectPushResultHandler extends AbstractSyncopeResultHandler<PushTask, PushActions> {
 
-    protected abstract AttributableUtil getAttributableUtil();
-
-    protected abstract String getName(final AbstractSubject subject);
+    protected abstract String getName(AbstractSubject subject);
 
     protected abstract AbstractMapping getMapping();
 
-    protected abstract AbstractSubjectTO getSubjectTO(final long id);
+    protected abstract AbstractSubject getSubject(long id);
 
-    protected abstract AbstractSubject getSubject(final long id);
+    protected abstract AbstractSubject deprovision(AbstractSubject sbj);
 
-    protected abstract AbstractSubject deprovision(final AbstractSubject sbj);
+    protected abstract AbstractSubject provision(AbstractSubject sbj, Boolean enabled);
 
-    protected abstract AbstractSubject provision(final AbstractSubject sbj, final Boolean enabled);
+    protected abstract AbstractSubject link(AbstractSubject sbj, Boolean unlink);
 
-    protected abstract AbstractSubject link(final AbstractSubject sbj, final Boolean unlink);
+    protected abstract AbstractSubject unassign(AbstractSubject sbj);
 
-    protected abstract AbstractSubject unassign(final AbstractSubject sbj);
+    protected abstract AbstractSubject assign(AbstractSubject sbj, Boolean enabled);
 
-    protected abstract AbstractSubject assign(final AbstractSubject sbj, Boolean enabled);
-
-    protected abstract ConnectorObject getRemoteObject(final String accountId);
+    protected abstract ConnectorObject getRemoteObject(String accountId);
 
     @Transactional
     public boolean handle(final long subjectId) {
         try {
             doHandle(subjectId);
+            return true;
+        } catch (IgnoreProvisionException e) {
+            SyncResult result = new SyncResult();
+            result.setOperation(ResourceOperation.NONE);
+            result.setSubjectType(getAttributableUtil().getType());
+            result.setStatus(SyncResult.Status.IGNORE);
+            result.setId(subjectId);
+
+            LOG.warn("Ignoring during synchronization", e);
             return true;
         } catch (JobExecutionException e) {
             LOG.error("Synchronization failed", e);

@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.sync.impl;
 
-import static org.apache.syncope.core.sync.impl.AbstractSyncopeResultHandler.LOG;
-
 import java.util.AbstractMap;
 import java.util.Collections;
 import java.util.HashSet;
@@ -74,7 +72,7 @@ public class UserSyncResultHandler extends AbstractSubjectSyncResultHandler {
     }
 
     @Override
-    protected AbstractSubjectTO create(
+    protected AbstractSubjectTO doCreate(
             final AbstractSubjectTO subjectTO, final SyncDelta delta, final SyncResult result) {
 
         UserTO userTO = UserTO.class.cast(subjectTO);
@@ -98,7 +96,7 @@ public class UserSyncResultHandler extends AbstractSubjectSyncResultHandler {
     }
 
     @Override
-    protected AbstractSubjectTO link(
+    protected AbstractSubjectTO doLink(
             final AbstractSubjectTO before,
             final SyncResult result,
             final boolean unlink)
@@ -117,7 +115,7 @@ public class UserSyncResultHandler extends AbstractSubjectSyncResultHandler {
     }
 
     @Override
-    protected AbstractSubjectTO update(
+    protected AbstractSubjectTO doUpdate(
             final AbstractSubjectTO before,
             final AbstractSubjectMod subjectMod,
             final SyncDelta delta,
@@ -174,7 +172,7 @@ public class UserSyncResultHandler extends AbstractSubjectSyncResultHandler {
     }
 
     @Override
-    protected void deprovision(
+    protected void doDeprovision(
             final Long id,
             final boolean unlink) {
 
@@ -189,7 +187,7 @@ public class UserSyncResultHandler extends AbstractSubjectSyncResultHandler {
     }
 
     @Override
-    protected void delete(final Long id) {
+    protected void doDelete(final Long id) {
         try {
             taskExecutor.execute(
                     propagationManager.getUserDeleteTaskIds(id, profile.getSyncTask().getResource().getName()));

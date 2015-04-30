@@ -26,6 +26,9 @@ import org.quartz.JobExecutionException;
 
 /**
  * Interface for actions to be performed during SyncJob execution.
+ * <br/>
+ * All methods can throw {@link IgnoreProvisionException} to make the current subject ignored by the synchronization
+ * process.
  */
 public interface SyncActions extends AbstractSyncActions<AbstractSyncopeResultHandler<?, ?>> {
 
@@ -41,9 +44,9 @@ public interface SyncActions extends AbstractSyncActions<AbstractSyncopeResultHa
      * @throws JobExecutionException in case of generic failure
      */
     <T extends AbstractAttributableTO> SyncDelta beforeProvision(
-            final SyncProfile<?, ?> profile,
-            final SyncDelta delta,
-            final T subject) throws JobExecutionException;
+            SyncProfile<?, ?> profile,
+            SyncDelta delta,
+            T subject) throws JobExecutionException;
 
     /**
      * Action to be executed before creating (and linking to the resource) a synchronized user / role locally.
@@ -57,9 +60,9 @@ public interface SyncActions extends AbstractSyncActions<AbstractSyncopeResultHa
      * @throws JobExecutionException in case of generic failure
      */
     <T extends AbstractAttributableTO> SyncDelta beforeAssign(
-            final SyncProfile<?, ?> profile,
-            final SyncDelta delta,
-            final T subject) throws JobExecutionException;
+            SyncProfile<?, ?> profile,
+            SyncDelta delta,
+            T subject) throws JobExecutionException;
 
     /**
      * Action to be executed before unlinking resource from the synchronized user / role and de-provisioning.
@@ -73,9 +76,9 @@ public interface SyncActions extends AbstractSyncActions<AbstractSyncopeResultHa
      * @throws JobExecutionException in case of generic failure
      */
     <T extends AbstractAttributableTO> SyncDelta beforeUnassign(
-            final SyncProfile<?, ?> profile,
-            final SyncDelta delta,
-            final T subject) throws JobExecutionException;
+            SyncProfile<?, ?> profile,
+            SyncDelta delta,
+            T subject) throws JobExecutionException;
 
     /**
      * Action to be executed before de-provisioning action only.
@@ -89,9 +92,9 @@ public interface SyncActions extends AbstractSyncActions<AbstractSyncopeResultHa
      * @throws JobExecutionException in case of generic failure
      */
     <T extends AbstractAttributableTO> SyncDelta beforeDeprovision(
-            final SyncProfile<?, ?> profile,
-            final SyncDelta delta,
-            final T subject) throws JobExecutionException;
+            SyncProfile<?, ?> profile,
+            SyncDelta delta,
+            T subject) throws JobExecutionException;
 
     /**
      * Action to be executed before unlinking resource from the synchronized user / role.
@@ -105,9 +108,9 @@ public interface SyncActions extends AbstractSyncActions<AbstractSyncopeResultHa
      * @throws JobExecutionException in case of generic failure
      */
     <T extends AbstractAttributableTO> SyncDelta beforeUnlink(
-            final SyncProfile<?, ?> profile,
-            final SyncDelta delta,
-            final T subject) throws JobExecutionException;
+            SyncProfile<?, ?> profile,
+            SyncDelta delta,
+            T subject) throws JobExecutionException;
 
     /**
      * Action to be executed before linking resource to the synchronized user / role.
@@ -121,9 +124,9 @@ public interface SyncActions extends AbstractSyncActions<AbstractSyncopeResultHa
      * @throws JobExecutionException in case of generic failure
      */
     <T extends AbstractAttributableTO> SyncDelta beforeLink(
-            final SyncProfile<?, ?> profile,
-            final SyncDelta delta,
-            final T subject) throws JobExecutionException;
+            SyncProfile<?, ?> profile,
+            SyncDelta delta,
+            T subject) throws JobExecutionException;
 
     /**
      * Action to be executed before to update a synchronized user / role locally.
@@ -138,10 +141,10 @@ public interface SyncActions extends AbstractSyncActions<AbstractSyncopeResultHa
      * @throws JobExecutionException in case of generic failure.
      */
     <T extends AbstractAttributableTO, K extends AbstractAttributableMod> SyncDelta beforeUpdate(
-            final SyncProfile<?, ?> profile,
-            final SyncDelta delta,
-            final T subject,
-            final K subjectMod)
+            SyncProfile<?, ?> profile,
+            SyncDelta delta,
+            T subject,
+            K subjectMod)
             throws JobExecutionException;
 
     /**
@@ -154,22 +157,23 @@ public interface SyncActions extends AbstractSyncActions<AbstractSyncopeResultHa
      * @throws JobExecutionException in case of generic failure
      */
     <T extends AbstractAttributableTO> SyncDelta beforeDelete(
-            final SyncProfile<?, ?> profile,
-            final SyncDelta delta,
-            final T subject) throws JobExecutionException;
+            SyncProfile<?, ?> profile,
+            SyncDelta delta,
+            T subject) throws JobExecutionException;
 
     /**
      * Action to be executed after each local user / role synchronization.
      *
      * @param profile profile of the synchronization being executed.
-     * @param delta retrieved synchronization information (may be modified by 'beforeProvision/beforeUpdate/beforeDelete')
+     * @param delta retrieved synchronization information (may be modified by
+     * 'beforeProvision/beforeUpdate/beforeDelete')
      * @param subject synchronized local user / role
      * @param result global synchronization results at the current synchronization step
      * @throws JobExecutionException in case of generic failure
      */
     <T extends AbstractAttributableTO> void after(
-            final SyncProfile<?, ?> profile,
-            final SyncDelta delta,
-            final T subject,
-            final SyncResult result) throws JobExecutionException;
+            SyncProfile<?, ?> profile,
+            SyncDelta delta,
+            T subject,
+            SyncResult result) throws JobExecutionException;
 }

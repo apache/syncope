@@ -18,15 +18,14 @@
  */
 package org.apache.syncope.core.sync;
 
-import java.util.Map;
-import java.util.Set;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.sync.impl.AbstractSyncopeResultHandler;
-import org.identityconnectors.framework.common.objects.Attribute;
 import org.quartz.JobExecutionException;
 
 /**
  * Interface for actions to be performed during PushJob execution.
+ * <br/>
+ * All methods can throw {@link IgnoreProvisionException} to make the current subject ignored by the push process.
  */
 public interface PushActions extends AbstractSyncActions<AbstractSyncopeResultHandler<?, ?>> {
 

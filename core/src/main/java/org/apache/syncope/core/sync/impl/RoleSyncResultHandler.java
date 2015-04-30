@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.sync.impl;
 
-import static org.apache.syncope.core.sync.impl.AbstractSyncopeResultHandler.LOG;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -80,7 +79,7 @@ public class RoleSyncResultHandler extends AbstractSubjectSyncResultHandler {
     }
 
     @Override
-    protected AbstractSubjectTO create(
+    protected AbstractSubjectTO doCreate(
             final AbstractSubjectTO subjectTO, final SyncDelta _delta, final SyncResult result) {
 
         RoleTO roleTO = RoleTO.class.cast(subjectTO);
@@ -107,7 +106,7 @@ public class RoleSyncResultHandler extends AbstractSubjectSyncResultHandler {
     }
 
     @Override
-    protected AbstractSubjectTO link(
+    protected AbstractSubjectTO doLink(
             final AbstractSubjectTO before,
             final SyncResult result,
             final boolean unlink)
@@ -126,7 +125,7 @@ public class RoleSyncResultHandler extends AbstractSubjectSyncResultHandler {
     }
 
     @Override
-    protected AbstractSubjectTO update(
+    protected AbstractSubjectTO doUpdate(
             final AbstractSubjectTO before,
             final AbstractSubjectMod subjectMod,
             final SyncDelta delta,
@@ -160,7 +159,7 @@ public class RoleSyncResultHandler extends AbstractSubjectSyncResultHandler {
     }
 
     @Override
-    protected void deprovision(final Long id, final boolean unlink) {
+    protected void doDeprovision(final Long id, final boolean unlink) {
 
         taskExecutor.execute(
                 propagationManager.getRoleDeleteTaskIds(id, profile.getSyncTask().getResource().getName()));
@@ -173,7 +172,7 @@ public class RoleSyncResultHandler extends AbstractSubjectSyncResultHandler {
     }
 
     @Override
-    protected void delete(final Long id) {
+    protected void doDelete(final Long id) {
         try {
             taskExecutor.execute(
                     propagationManager.getRoleDeleteTaskIds(id, profile.getSyncTask().getResource().getName()));

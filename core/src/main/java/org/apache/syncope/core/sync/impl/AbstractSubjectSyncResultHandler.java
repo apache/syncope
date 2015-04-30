@@ -20,8 +20,6 @@ package org.apache.syncope.core.sync.impl;
 
 import org.apache.syncope.core.sync.SyncUtilities;
 
-import static org.apache.syncope.core.sync.impl.AbstractSyncopeResultHandler.LOG;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -40,6 +38,7 @@ import org.apache.syncope.core.persistence.dao.UserDAO;
 import org.apache.syncope.core.propagation.PropagationException;
 import org.apache.syncope.core.rest.controller.UnauthorizedRoleException;
 import org.apache.syncope.core.rest.data.AttributableTransformer;
+import org.apache.syncope.core.sync.IgnoreProvisionException;
 import org.apache.syncope.core.sync.SyncActions;
 import org.apache.syncope.core.sync.SyncResult;
 import org.apache.syncope.core.util.AttributableUtil;
@@ -61,26 +60,22 @@ public abstract class AbstractSubjectSyncResultHandler extends AbstractSyncopeRe
     @Autowired
     protected UserDAO userDAO;
 
-    protected abstract AttributableUtil getAttributableUtil();
-
     protected abstract String getName(AbstractSubjectTO subjectTO);
-
-    protected abstract AbstractSubjectTO getSubjectTO(long id);
 
     protected abstract AbstractSubjectMod getSubjectMod(AbstractSubjectTO subjectTO, SyncDelta delta);
 
-    protected abstract AbstractSubjectTO create(AbstractSubjectTO subjectTO, SyncDelta _delta, SyncResult result);
+    protected abstract AbstractSubjectTO doCreate(AbstractSubjectTO subjectTO, SyncDelta _delta, SyncResult result);
 
-    protected abstract AbstractSubjectTO link(AbstractSubjectTO before, SyncResult result, boolean unlink)
+    protected abstract AbstractSubjectTO doLink(AbstractSubjectTO before, SyncResult result, boolean unlink)
             throws Exception;
 
-    protected abstract AbstractSubjectTO update(AbstractSubjectTO before, AbstractSubjectMod subjectMod,
+    protected abstract AbstractSubjectTO doUpdate(AbstractSubjectTO before, AbstractSubjectMod subjectMod,
             SyncDelta delta, SyncResult result)
             throws Exception;
 
-    protected abstract void deprovision(Long id, boolean unlink) throws Exception;
+    protected abstract void doDeprovision(Long id, boolean unlink) throws Exception;
 
-    protected abstract void delete(Long id);
+    protected abstract void doDelete(Long id);
 
     @Override
     public boolean handle(final SyncDelta delta) {
@@ -91,6 +86,16 @@ public abstract class AbstractSubjectSyncResultHandler extends AbstractSyncopeRe
 
             doHandle(delta, profile.getResults());
             return true;
+        } catch (IgnoreProvisionException e) {
+            SyncResult result = new SyncResult();
+            result.setOperation(ResourceOperation.NONE);
+            result.setSubjectType(getAttributableUtil().getType());
+            result.setStatus(SyncResult.Status.IGNORE);
+            result.setId(0L);
+            result.setName(delta.getObject().getName().getNameValue());
+
+            LOG.warn("Ignoring during synchronization", e);
+            return true;
         } catch (JobExecutionException e) {
             LOG.error("Synchronization failed", e);
             return false;
@@ -99,6 +104,7 @@ public abstract class AbstractSubjectSyncResultHandler extends AbstractSyncopeRe
 
     protected List<SyncResult> assign(final SyncDelta delta, final AttributableUtil attrUtil)
             throws JobExecutionException {
+
         if (!profile.getSyncTask().isPerformCreate()) {
             LOG.debug("SyncTask not configured for create");
             return Collections.<SyncResult>emptyList();
@@ -134,8 +140,9 @@ public abstract class AbstractSubjectSyncResultHandler extends AbstractSyncopeRe
         return Collections.singletonList(result);
     }
 
-    protected List<SyncResult> create(final SyncDelta delta, final AttributableUtil attrUtil)
+    protected List<SyncResult> provision(final SyncDelta delta, final AttributableUtil attrUtil)
             throws JobExecutionException {
+
         if (!profile.getSyncTask().isPerformCreate()) {
             LOG.debug("SyncTask not configured for create");
             return Collections.<SyncResult>emptyList();
@@ -181,7 +188,7 @@ public abstract class AbstractSubjectSyncResultHandler extends AbstractSyncopeRe
         Result resultStatus;
 
         try {
-            AbstractSubjectTO actual = create(subjectTO, delta, result);
+            AbstractSubjectTO actual = doCreate(subjectTO, delta, result);
             result.setName(getName(actual));
             output = actual;
             resultStatus = Result.SUCCESS;
@@ -256,7 +263,7 @@ public abstract class AbstractSubjectSyncResultHandler extends AbstractSyncopeRe
                             delta = action.beforeUpdate(this.getProfile(), delta, before, attributableMod);
                         }
 
-                        final AbstractSubjectTO updated = update(before, attributableMod, delta, result);
+                        final AbstractSubjectTO updated = doUpdate(before, attributableMod, delta, result);
 
                         for (SyncActions action : profile.getActions()) {
                             action.after(this.getProfile(), delta, updated, result);
@@ -340,7 +347,7 @@ public abstract class AbstractSubjectSyncResultHandler extends AbstractSyncopeRe
                             }
                         }
 
-                        deprovision(id, unlink);
+                        doDeprovision(id, unlink);
                         output = getSubjectTO(id);
 
                         for (SyncActions action : profile.getActions()) {
@@ -426,7 +433,7 @@ public abstract class AbstractSubjectSyncResultHandler extends AbstractSyncopeRe
                             }
                         }
 
-                        output = link(before, result, unlink);
+                        output = doLink(before, result, unlink);
 
                         for (SyncActions action : profile.getActions()) {
                             action.after(this.getProfile(), delta, AbstractSubjectTO.class.cast(output), result);
@@ -491,7 +498,7 @@ public abstract class AbstractSubjectSyncResultHandler extends AbstractSyncopeRe
                     }
 
                     try {
-                        delete(id);
+                        doDelete(id);
                         output = null;
                         resultStatus = Result.SUCCESS;
                     } catch (Exception e) {
@@ -552,7 +559,7 @@ public abstract class AbstractSubjectSyncResultHandler extends AbstractSyncopeRe
      * @param delta returned by the underlying profile.getConnector()
      * @throws JobExecutionException in case of synchronization failure.
      */
-    protected final void doHandle(final SyncDelta delta, final Collection<SyncResult> syncResults)
+    protected void doHandle(final SyncDelta delta, final Collection<SyncResult> syncResults)
             throws JobExecutionException {
 
         final AttributableUtil attrUtil = getAttributableUtil();
@@ -593,7 +600,7 @@ public abstract class AbstractSubjectSyncResultHandler extends AbstractSyncopeRe
                             profile.getResults().addAll(assign(delta, attrUtil));
                             break;
                         case PROVISION:
-                            profile.getResults().addAll(create(delta, attrUtil));
+                            profile.getResults().addAll(provision(delta, attrUtil));
                             break;
                         case IGNORE:
                             profile.getResults().addAll(ignore(delta, attrUtil, false));

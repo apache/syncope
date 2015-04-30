@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.sync.impl;
 
+import org.apache.syncope.common.to.AbstractSubjectTO;
 import org.apache.syncope.core.sync.SyncProfile;
 import org.apache.syncope.core.audit.AuditManager;
 import org.apache.syncope.core.connid.ConnObjectUtil;
@@ -28,6 +29,7 @@ import org.apache.syncope.core.propagation.impl.PropagationManager;
 import org.apache.syncope.core.rest.data.RoleDataBinder;
 import org.apache.syncope.core.rest.data.UserDataBinder;
 import org.apache.syncope.core.sync.AbstractSyncActions;
+import org.apache.syncope.core.util.AttributableUtil;
 import org.apache.syncope.core.workflow.role.RoleWorkflowAdapter;
 import org.apache.syncope.core.workflow.user.UserWorkflowAdapter;
 import org.slf4j.Logger;
@@ -40,7 +42,7 @@ public abstract class AbstractSyncopeResultHandler<T extends AbstractSyncTask, A
      * Logger.
      */
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractSyncopeResultHandler.class);
-    
+
     /**
      * User data binder.
      */
@@ -100,6 +102,10 @@ public abstract class AbstractSyncopeResultHandler<T extends AbstractSyncTask, A
      */
     protected SyncProfile<T, A> profile;
 
+    protected abstract AttributableUtil getAttributableUtil();
+
+    protected abstract AbstractSubjectTO getSubjectTO(long id);
+
     public void setProfile(final SyncProfile<T, A> profile) {
         this.profile = profile;
     }
@@ -107,4 +113,5 @@ public abstract class AbstractSyncopeResultHandler<T extends AbstractSyncTask, A
     public SyncProfile<T, A> getProfile() {
         return profile;
     }
+
 }

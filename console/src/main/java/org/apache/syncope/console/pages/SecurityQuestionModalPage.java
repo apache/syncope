@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.console.pages;
 
-import static org.apache.syncope.console.pages.AbstractBasePage.FORM;
-
 import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.common.to.SecurityQuestionTO;
 import org.apache.syncope.console.commons.Constants;

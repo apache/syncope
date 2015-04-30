@@ -22,6 +22,7 @@ import org.apache.syncope.common.mod.AbstractAttributableMod;
 import org.apache.syncope.common.mod.AttributeMod;
 import org.apache.syncope.common.to.AbstractAttributableTO;
 import org.apache.syncope.common.to.AttributeTO;
+import org.apache.syncope.common.to.UserTO;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.quartz.JobExecutionException;
 
@@ -31,9 +32,7 @@ public class TestSyncActions extends DefaultSyncActions {
 
     @Override
     public <T extends AbstractAttributableTO> SyncDelta beforeProvision(
-            final SyncProfile<?, ?> profile,
-            final SyncDelta delta,
-            final T subject) throws JobExecutionException {
+            final SyncProfile<?, ?> profile, final SyncDelta delta, final T subject) throws JobExecutionException {
 
         AttributeTO attrTO = null;
         for (int i = 0; i < subject.getAttrs().size(); i++) {
@@ -48,6 +47,17 @@ public class TestSyncActions extends DefaultSyncActions {
         }
         attrTO.getValues().clear();
         attrTO.getValues().add(String.valueOf(counter++));
+
+        return delta;
+    }
+
+    @Override
+    public <T extends AbstractAttributableTO> SyncDelta beforeAssign(
+            final SyncProfile<?, ?> profile, final SyncDelta delta, final T subject) throws JobExecutionException {
+
+        if (subject instanceof UserTO && "test2".equals(UserTO.class.cast(subject).getUsername())) {
+            throw new IgnoreProvisionException();
+        }
 
         return delta;
     }

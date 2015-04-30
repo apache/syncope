@@ -382,8 +382,7 @@ public class TaskTestITCase extends AbstractTest {
             assertEquals(1, userTO.getMemberships().size());
             assertTrue(userTO.getMemberships().get(0).getAttrMap().containsKey("subscriptionDate"));
 
-            // Unmatching --> Assign (link)
-            // SYNCOPE-658
+            // Unmatching --> Assign (link) - SYNCOPE-658
             assertTrue(userTO.getResources().contains(RESOURCE_NAME_CSV));
             int counter = 0;
             for (AttributeTO attributeTO : userTO.getDerAttrs()) {
@@ -397,10 +396,18 @@ public class TaskTestITCase extends AbstractTest {
             assertNotNull(userTO);
             assertEquals("TYPE_8", userTO.getAttrMap().get("type").getValues().get(0));
 
+            // Check for ignored user - SYNCOPE-663
+            try {
+                readUser("test2");
+                fail();
+            } catch (SyncopeClientException e) {
+                assertEquals(Response.Status.NOT_FOUND, e.getType().getResponseStatus());
+            }
+
             // check for sync results
             int usersPost = userService.list(1, 1).getTotalCount();
             assertNotNull(usersPost);
-            assertEquals(usersPre + 9, usersPost);
+            assertEquals(usersPre + 8, usersPost);
 
             // Check for issue 215:
             // * expected disabled user test1
