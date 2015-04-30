@@ -93,6 +93,7 @@ public abstract class AbstractSubjectSyncResultHandler extends AbstractSyncopeRe
             result.setStatus(SyncResult.Status.IGNORE);
             result.setId(0L);
             result.setName(delta.getObject().getName().getNameValue());
+            profile.getResults().add(result);
 
             LOG.warn("Ignoring during synchronization", e);
             return true;
@@ -202,6 +203,8 @@ public abstract class AbstractSubjectSyncResultHandler extends AbstractSyncopeRe
             LOG.error("Could not propagate {} {}", attrUtil.getType(), delta.getUid().getUidValue(), e);
             output = e;
             resultStatus = Result.FAILURE;
+        } catch (IgnoreProvisionException e) {
+            throw e;
         } catch (Exception e) {
             result.setStatus(SyncResult.Status.FAILURE);
             result.setMessage(ExceptionUtils.getRootCauseMessage(e));
@@ -279,6 +282,8 @@ public abstract class AbstractSubjectSyncResultHandler extends AbstractSyncopeRe
                         LOG.error("Could not propagate {} {}", attrUtil.getType(), delta.getUid().getUidValue(), e);
                         output = e;
                         resultStatus = Result.FAILURE;
+                    } catch (IgnoreProvisionException e) {
+                        throw e;
                     } catch (Exception e) {
                         result.setStatus(SyncResult.Status.FAILURE);
                         result.setMessage(ExceptionUtils.getRootCauseMessage(e));
@@ -362,6 +367,8 @@ public abstract class AbstractSubjectSyncResultHandler extends AbstractSyncopeRe
                         LOG.error("Could not propagate {} {}", attrUtil.getType(), delta.getUid().getUidValue(), e);
                         output = e;
                         resultStatus = Result.FAILURE;
+                    } catch (IgnoreProvisionException e) {
+                        throw e;
                     } catch (Exception e) {
                         result.setStatus(SyncResult.Status.FAILURE);
                         result.setMessage(ExceptionUtils.getRootCauseMessage(e));
@@ -447,6 +454,8 @@ public abstract class AbstractSubjectSyncResultHandler extends AbstractSyncopeRe
                         LOG.error("Could not propagate {} {}", attrUtil.getType(), delta.getUid().getUidValue(), e);
                         output = e;
                         resultStatus = Result.FAILURE;
+                    } catch (IgnoreProvisionException e) {
+                        throw e;
                     } catch (Exception e) {
                         result.setStatus(SyncResult.Status.FAILURE);
                         result.setMessage(ExceptionUtils.getRootCauseMessage(e));
@@ -501,6 +510,8 @@ public abstract class AbstractSubjectSyncResultHandler extends AbstractSyncopeRe
                         doDelete(id);
                         output = null;
                         resultStatus = Result.SUCCESS;
+                    } catch (IgnoreProvisionException e) {
+                        throw e;
                     } catch (Exception e) {
                         result.setStatus(SyncResult.Status.FAILURE);
                         result.setMessage(ExceptionUtils.getRootCauseMessage(e));
