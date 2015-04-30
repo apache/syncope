@@ -324,7 +324,7 @@ under the License.
     <connid.db.table.version>2.2.2</connid.db.table.version>
     <connid.csvdir.version>0.8.2</connid.csvdir.version>
     <connid.ldap.version>1.4.0</connid.ldap.version>
-    <connid.ad.version>1.2.2</connid.ad.version>
+    <connid.ad.version>1.2.3</connid.ad.version>
 
     <cxf.version>3.0.5-SNAPSHOT</cxf.version>
 
