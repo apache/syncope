@@ -167,7 +167,7 @@ public class PolicyITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE553() {
-        AccountPolicyTO policy = new AccountPolicyTO(false);
+        AccountPolicyTO policy = new AccountPolicyTO();
         policy.setDescription("SYNCOPE553");
 
         final AccountPolicySpec accountPolicySpec = new AccountPolicySpec();

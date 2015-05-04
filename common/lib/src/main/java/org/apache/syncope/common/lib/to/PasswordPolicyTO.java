@@ -39,7 +39,7 @@ public class PasswordPolicyTO extends AbstractPolicyTO {
         return specification;
     }
 
-    public void setSpecification(PasswordPolicySpec specification) {
+    public void setSpecification(final PasswordPolicySpec specification) {
         this.specification = specification;
     }
 

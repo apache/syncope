@@ -38,7 +38,7 @@ public class ErrorTO extends AbstractBaseBean {
 
     private ClientExceptionType type;
 
-    private final List<Object> elements = new ArrayList<>();
+    private final List<String> elements = new ArrayList<>();
 
     public int getStatus() {
         return status;
@@ -59,7 +59,7 @@ public class ErrorTO extends AbstractBaseBean {
     @XmlElementWrapper(name = "elements")
     @XmlElement(name = "element")
     @JsonProperty("elements")
-    public List<Object> getElements() {
+    public List<String> getElements() {
         return elements;
     }
 

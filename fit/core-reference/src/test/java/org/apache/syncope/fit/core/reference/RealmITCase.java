@@ -133,7 +133,7 @@ public class RealmITCase extends AbstractITCase {
     @Test
     public void deletingAccountPolicy() {
         // 1. create account policy
-        AccountPolicyTO policy = new AccountPolicyTO(false);
+        AccountPolicyTO policy = new AccountPolicyTO();
         policy.setDescription("deletingAccountPolicy");
 
         final AccountPolicySpec accountPolicySpec = new AccountPolicySpec();

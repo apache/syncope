@@ -39,10 +39,6 @@ public class AccountPolicyTO extends AbstractPolicyTO {
     private final List<String> resources = new ArrayList<>();
 
     public AccountPolicyTO() {
-        this(false);
-    }
-
-    public AccountPolicyTO(final boolean global) {
         super(PolicyType.ACCOUNT);
     }
 
