@@ -28,6 +28,7 @@ import javax.persistence.TemporalType;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.syncope.common.SyncopeConstants;
@@ -105,7 +106,15 @@ public abstract class AbstractAttrValue extends AbstractBaseBean {
     }
 
     public String getStringValue() {
-        return stringValue;
+        // workaround for Oracle DB considering empty string values as NULL (SYNCOPE-664)
+        return dateValue == null
+                && booleanValue == null
+                && longValue == null
+                && doubleValue == null
+                && binaryValue == null
+                && stringValue == null
+                        ? StringUtils.EMPTY
+                        : stringValue;
     }
 
     public void setStringValue(final String stringValue) {
@@ -195,21 +204,21 @@ public abstract class AbstractAttrValue extends AbstractBaseBean {
         return (T) (booleanValue != null
                 ? getBooleanValue()
                 : dateValue != null
-                ? getDateValue()
-                : doubleValue != null
-                ? getDoubleValue()
-                : longValue != null
-                ? getLongValue()
-                : binaryValue != null
-                ? getBinaryValue()
-                : stringValue);
+                        ? getDateValue()
+                        : doubleValue != null
+                                ? getDoubleValue()
+                                : longValue != null
+                                        ? getLongValue()
+                                        : binaryValue != null
+                                                ? getBinaryValue()
+                                                : getStringValue());
     }
 
     public String getValueAsString() {
         final AttributeSchemaType type = getAttribute() == null || getAttribute().getSchema() == null
                 || getAttribute().getSchema().getType() == null
-                ? AttributeSchemaType.String
-                : getAttribute().getSchema().getType();
+                        ? AttributeSchemaType.String
+                        : getAttribute().getSchema().getType();
 
         return getValueAsString(type);
     }
@@ -228,22 +237,25 @@ public abstract class AbstractAttrValue extends AbstractBaseBean {
             case Long:
                 result = getAttribute() == null || getAttribute().getSchema() == null
                         || getAttribute().getSchema().getConversionPattern() == null
-                        ? getLongValue().toString()
-                        : DataFormat.format(getLongValue(), getAttribute().getSchema().getConversionPattern());
+                                ? getLongValue().toString()
+                                : DataFormat.format(getLongValue(),
+                                        getAttribute().getSchema().getConversionPattern());
                 break;
 
             case Double:
                 result = getAttribute() == null || getAttribute().getSchema() == null
                         || getAttribute().getSchema().getConversionPattern() == null
-                        ? getDoubleValue().toString()
-                        : DataFormat.format(getDoubleValue(), getAttribute().getSchema().getConversionPattern());
+                                ? getDoubleValue().toString()
+                                : DataFormat.format(getDoubleValue(),
+                                        getAttribute().getSchema().getConversionPattern());
                 break;
 
             case Date:
                 result = getAttribute() == null || getAttribute().getSchema() == null
                         || getAttribute().getSchema().getConversionPattern() == null
-                        ? DataFormat.format(getDateValue())
-                        : DataFormat.format(getDateValue(), false, getAttribute().getSchema().getConversionPattern());
+                                ? DataFormat.format(getDateValue())
+                                : DataFormat.format(getDateValue(), false, getAttribute().getSchema().
+                                        getConversionPattern());
                 break;
 
             case Binary:
