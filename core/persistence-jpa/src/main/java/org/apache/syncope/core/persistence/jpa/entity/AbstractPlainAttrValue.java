@@ -28,6 +28,7 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
@@ -112,7 +113,15 @@ public abstract class AbstractPlainAttrValue extends AbstractEntity<Long> implem
 
     @Override
     public String getStringValue() {
-        return stringValue;
+        // workaround for Oracle DB considering empty string values as NULL (SYNCOPE-664)
+        return dateValue == null
+                && booleanValue == null
+                && longValue == null
+                && doubleValue == null
+                && binaryValue == null
+                && stringValue == null
+                        ? StringUtils.EMPTY
+                        : stringValue;
     }
 
     @Override
@@ -208,7 +217,7 @@ public abstract class AbstractPlainAttrValue extends AbstractEntity<Long> implem
                                         ? getLongValue()
                                         : binaryValue != null
                                                 ? getBinaryValue()
-                                                : stringValue);
+                                                : getStringValue());
     }
 
     @Override

@@ -33,7 +33,9 @@ under the License.
   + provided as non-empty string: NotificationJob runs according to the given value -->
   <CPlainSchema name="notificationjob.cronExpression" type="String"
                 mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
-
+  <CPlainAttr id="2" owner_id="1" schema_name="notificationjob.cronExpression"/>
+  <CPlainAttrValue id="2" attribute_id="2" stringValue=""/>
+  
   <CPlainSchema name="notification.maxRetries" type="Long"
                 mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
   <CPlainAttr id="3" owner_id="1" schema_name="notification.maxRetries"/>
