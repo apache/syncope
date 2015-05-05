@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.pages;
 
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.rest.UserWorkflowRestClient;
 import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
@@ -34,10 +35,14 @@ import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class BasePage extends AbstractBasePage implements IAjaxIndicatorAware {
 
     private static final long serialVersionUID = 1571997737305598502L;
+
+    @SpringBean
+    private UserWorkflowRestClient userWorkflowRestClient;
 
     public BasePage() {
         this(null);
@@ -54,8 +59,18 @@ public class BasePage extends AbstractBasePage implements IAjaxIndicatorAware {
     public BasePage(final PageParameters parameters) {
         super(parameters);
 
+        // header, footer
         add(new Label("version", SyncopeConsoleSession.get().getVersion()));
         add(new Label("username", SyncopeConsoleSession.get().getSelfTO().getUsername()));
+
+        WebMarkupContainer todosContainer = new WebMarkupContainer("todosContainer");
+        add(todosContainer);
+        Label todos = new Label("todos", "0");
+        todosContainer.add(todos);
+        if (SyncopeConsoleSession.get().owns(Entitlement.WORKFLOW_FORM_LIST)) {
+            todos.setDefaultModelObject(userWorkflowRestClient.getForms().size());
+        }
+        MetaDataRoleAuthorizationStrategy.authorize(todosContainer, WebPage.RENDER, Entitlement.WORKFLOW_FORM_LIST);
 
         // menu
         WebMarkupContainer liContainer = new WebMarkupContainer(getLIContainerId("dashboard"));

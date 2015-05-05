@@ -124,6 +124,10 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
         return selfTO;
     }
 
+    public boolean owns(final String entitlement) {
+        return auth.containsKey(entitlement);
+    }
+
     @Override
     public Roles getRoles() {
         if (isSignedIn() && roles == null && auth != null) {

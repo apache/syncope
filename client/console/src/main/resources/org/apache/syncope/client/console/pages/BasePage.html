@@ -62,6 +62,19 @@ under the License.
           </a>
           <div class="navbar-custom-menu">
             <ul class="nav navbar-nav">
+
+              <li class="dropdown tasks-menu" wicket:id="todosContainer">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                  <i class="fa fa-flag-o"></i>
+                  <span class="label label-danger" wicket:id="todos"></span>
+                </a>
+                <ul class="dropdown-menu">
+                  <li class="footer">
+                    <a href="#">View all TODOs</a>
+                  </li>
+                </ul>
+              </li>
+
               <li class="dropdown user user-menu">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                   <!-- hidden-xs hides the username on small devices so only the image appears. -->
