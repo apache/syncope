@@ -2,6 +2,20 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 1.2.4
+================================================================================
+
+** Bug
+    * [SYNCOPE-654] - Some generic and uninformative error messages
+    * [SYNCOPE-655] - Files under /etc/apache-syncope ignored
+    * [SYNCOPE-656] - Debian configuration files overwrittern
+    * [SYNCOPE-658] - Duplicate derived attribute after sync task when it is configured as accountid for the synched resource
+    * [SYNCOPE-659] - Wrong fasterxml.jackson, common-lang3 version in the Import-Package in the syncope-common, syncope-client
+    * [SYNCOPE-664] - Empty string values not allowed with Oracle DB
+
+** Improvement
+    * [SYNCOPE-663] - Option to ignore users / roles during synchronization or push
+
 Release Notes - Syncope - Version 1.2.3
 ================================================================================
 
