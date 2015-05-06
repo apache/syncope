@@ -64,7 +64,7 @@ public class CamelRouteModalPage extends BaseModalPage {
                     restClient.update(routeTO.getKey(), ((CamelRouteTO) form.getModelObject()).getContent());
                     info(getString(Constants.OPERATION_SUCCEEDED));
 
-                    // TODO: SYNCOPE-120
+                    // Uncomment with something similar once SYNCOPE-156 is completed
                     // Configuration callerPage = (Configuration) pageRef.getPage();
                     // callerPage.setModalResult(true);
                     window.close(target);

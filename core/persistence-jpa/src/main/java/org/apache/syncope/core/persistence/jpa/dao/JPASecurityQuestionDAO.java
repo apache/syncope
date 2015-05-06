@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.util.List;
 import javax.persistence.TypedQuery;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.dao.SecurityQuestionDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
@@ -48,7 +47,7 @@ public class JPASecurityQuestionDAO extends AbstractDAO<SecurityQuestion, Long> 
     }
 
     @Override
-    public SecurityQuestion save(final SecurityQuestion securityQuestion) throws InvalidEntityException {
+    public SecurityQuestion save(final SecurityQuestion securityQuestion) {
         return entityManager.merge(securityQuestion);
     }
 

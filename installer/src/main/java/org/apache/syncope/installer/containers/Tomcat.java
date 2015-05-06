@@ -74,7 +74,9 @@ public class Tomcat extends AbstractContainer {
         try {
             path = URLEncoder.encode(what, "UTF-8");
         } catch (UnsupportedEncodingException uee) {
+            // ignore
         }
+
         return path;
     }
 

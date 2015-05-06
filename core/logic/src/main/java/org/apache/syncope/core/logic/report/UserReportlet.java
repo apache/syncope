@@ -189,9 +189,7 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
         }
     }
 
-    private void doExtract(final ContentHandler handler, final List<User> users)
-            throws SAXException, ReportException {
-
+    private void doExtract(final ContentHandler handler, final List<User> users) throws SAXException {
         AttributesImpl atts = new AttributesImpl();
         for (User user : users) {
             atts.clear();
@@ -345,7 +343,7 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
     }
 
     @Override
-    protected void doExtract(final ContentHandler handler) throws SAXException, ReportException {
+    protected void doExtract(final ContentHandler handler) throws SAXException {
         doExtractConf(handler);
         for (int i = 1; i <= (count() / PAGE_SIZE) + 1; i++) {
             doExtract(handler, getPagedUsers(i));

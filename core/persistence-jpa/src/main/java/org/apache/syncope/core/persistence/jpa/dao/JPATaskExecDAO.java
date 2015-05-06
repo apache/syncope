@@ -23,7 +23,6 @@ import javax.persistence.TypedQuery;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskExecDAO;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPATaskExec;
@@ -83,15 +82,14 @@ public class JPATaskExecDAO extends AbstractDAO<TaskExec, Long> implements TaskE
 
     /**
      * This method has an explicit Transactional annotation because it is called by
-     * {@link org.apache.syncope.core.quartz.AbstractTaskJob#execute(org.quartz.JobExecutionContext) }.
+     * {@link org.apache.syncope.core.provisioning.java.job.AbstractTaskJob#execute(org.quartz.JobExecutionContext)}.
      *
      * @param taskId task id
      * @param execution task execution
-     * @throws InvalidEntityException if any bean validation fails
      */
     @Override
     @Transactional(rollbackFor = { Throwable.class })
-    public void saveAndAdd(final Long taskId, final TaskExec execution) throws InvalidEntityException {
+    public void saveAndAdd(final Long taskId, final TaskExec execution) {
         Task task = taskDAO.find(taskId);
         task.addExec(execution);
         taskDAO.save(task);

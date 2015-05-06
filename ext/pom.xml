@@ -33,6 +33,10 @@ under the License.
   <artifactId>syncope-ext</artifactId>
   <packaging>pom</packaging>
 
+  <properties>
+    <rootpom.basedir>${basedir}/..</rootpom.basedir>
+  </properties>
+
   <modules>
     <module>camel</module>
   </modules>

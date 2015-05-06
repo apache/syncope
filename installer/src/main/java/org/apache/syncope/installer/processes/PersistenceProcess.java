@@ -66,6 +66,7 @@ public class PersistenceProcess extends BaseProcess {
                 persistenceProperties.append(String.format(
                         PersistenceProperties.POSTGRES, persistenceUrl, persistenceUser, persistencePassword));
                 break;
+
             case MYSQL:
                 persistenceProperties.append(String.format(
                         PersistenceProperties.MYSQL, persistenceUrl, persistenceUser, persistencePassword));
@@ -75,23 +76,28 @@ public class PersistenceProcess extends BaseProcess {
                     persistenceProperties.append(PersistenceProperties.MYSQL_QUARTZ);
                 }
                 break;
+
             case MARIADB:
                 persistenceProperties.append(String.format(
                         PersistenceProperties.MARIADB, persistenceUrl, persistenceUser, persistencePassword));
                 break;
+
             case ORACLE:
                 persistenceProperties.append(String.format(
                         PersistenceProperties.ORACLE, persistenceUrl, persistenceUser, persistencePassword,
                         oracleTableSpace));
                 break;
+
             case SQLSERVER:
                 persistenceProperties.append(String.format(
                         PersistenceProperties.SQLSERVER, persistenceUrl, persistenceUser, persistencePassword));
                 break;
+
+            default:
         }
 
         fileSystemUtils.writeToFile(new File(
-                syncopeInstallDir + properties.getProperty("persistencePropertiesFile")),
+                syncopeInstallDir + PROPERTIES.getProperty("persistencePropertiesFile")),
                 persistenceProperties.toString());
     }
 }

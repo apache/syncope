@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.jpa.dao;
 import java.util.List;
 import javax.persistence.TypedQuery;
 import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.entity.Notification;
 import org.apache.syncope.core.persistence.jpa.entity.JPANotification;
 import org.springframework.stereotype.Repository;
@@ -42,7 +41,7 @@ public class JPANotificationDAO extends AbstractDAO<Notification, Long> implemen
     }
 
     @Override
-    public Notification save(final Notification notification) throws InvalidEntityException {
+    public Notification save(final Notification notification) {
         return entityManager.merge(notification);
     }
 

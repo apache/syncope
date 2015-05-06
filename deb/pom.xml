@@ -34,6 +34,8 @@ under the License.
   <packaging>pom</packaging>
 
   <properties>
+    <rootpom.basedir>${basedir}/..</rootpom.basedir>
+
     <debian.dependencies>tomcat8</debian.dependencies>
 
     <conf.directory>/etc/apache-syncope</conf.directory>

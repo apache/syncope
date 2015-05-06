@@ -53,6 +53,8 @@ import org.springframework.beans.factory.support.AbstractBeanDefinition;
  */
 public class PushJobImpl extends AbstractProvisioningJob<PushTask, PushActions> implements PushJob {
 
+    private static final int PAGE_SIZE = 1000;
+
     /**
      * User DAO.
      */
@@ -70,8 +72,6 @@ public class PushJobImpl extends AbstractProvisioningJob<PushTask, PushActions> 
      */
     @Autowired
     private GroupDAO groupDAO;
-
-    private final int PAGE_SIZE = 1000;
 
     @Override
     protected String executeWithSecurityContext(

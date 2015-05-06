@@ -250,7 +250,7 @@ public class NotificationManagerImpl implements NotificationManager {
      * @param model Velocity model
      * @return Velocity context
      */
-    protected Context createVelocityContext(Map<String, Object> model) {
+    protected Context createVelocityContext(final Map<String, Object> model) {
         Context toolContext = velocityToolManager.createContext();
         return new VelocityContext(model, toolContext);
     }

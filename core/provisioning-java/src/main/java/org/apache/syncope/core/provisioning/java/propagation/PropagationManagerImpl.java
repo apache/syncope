@@ -39,7 +39,6 @@ import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
-import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AttributableUtils;
@@ -57,7 +56,6 @@ import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.provisioning.java.VirAttrHandler;
-import org.apache.syncope.core.misc.security.UnauthorizedException;
 import org.apache.syncope.core.misc.ConnObjectUtils;
 import org.apache.syncope.core.misc.MappingUtils;
 import org.apache.syncope.core.misc.jexl.JexlUtils;
@@ -121,8 +119,7 @@ public class PropagationManagerImpl implements PropagationManager {
             final String password,
             final Collection<AttrTO> vAttrs,
             final Collection<MembershipTO> membershipTOs,
-            final Collection<String> noPropResourceNames)
-            throws NotFoundException, UnauthorizedException {
+            final Collection<String> noPropResourceNames) {
 
         User user = userDAO.authFetch(key);
         if (vAttrs != null && !vAttrs.isEmpty()) {
@@ -153,15 +150,12 @@ public class PropagationManagerImpl implements PropagationManager {
      * @param vAttrs virtual attributes to be set
      * @param noPropResourceNames external resources performing not to be considered for propagation
      * @return list of propagation tasks
-     * @throws NotFoundException if group is not found
-     * @throws UnauthorizedException if caller doesn't own enough entitlements to administer the given group
      */
     @Override
     public List<PropagationTask> getGroupCreateTasks(
             final WorkflowResult<Long> wfResult,
             final Collection<AttrTO> vAttrs,
-            final Collection<String> noPropResourceNames)
-            throws NotFoundException, UnauthorizedException {
+            final Collection<String> noPropResourceNames) {
 
         return getGroupCreateTasks(wfResult.getResult(), vAttrs, wfResult.getPropByRes(), noPropResourceNames);
     }
@@ -174,16 +168,13 @@ public class PropagationManagerImpl implements PropagationManager {
      * @param propByRes operation to be performed per resource
      * @param noPropResourceNames external resources performing not to be considered for propagation
      * @return list of propagation tasks
-     * @throws NotFoundException if group is not found
-     * @throws UnauthorizedException if caller doesn't own enough entitlements to administer the given group
      */
     @Override
     public List<PropagationTask> getGroupCreateTasks(
             final Long key,
             final Collection<AttrTO> vAttrs,
             final PropagationByResource propByRes,
-            final Collection<String> noPropResourceNames)
-            throws NotFoundException, UnauthorizedException {
+            final Collection<String> noPropResourceNames) {
 
         Group group = groupDAO.authFetch(key);
         if (vAttrs != null && !vAttrs.isEmpty()) {
@@ -216,11 +207,10 @@ public class PropagationManagerImpl implements PropagationManager {
      * @param enable whether user must be enabled or not
      * @param noPropResourceNames external resource names not to be considered for propagation
      * @return list of propagation tasks
-     * @throws NotFoundException if user is not found
      */
     @Override
     public List<PropagationTask> getUserUpdateTasks(final User user, final Boolean enable,
-            final Collection<String> noPropResourceNames) throws NotFoundException {
+            final Collection<String> noPropResourceNames) {
 
         return getUpdateTasks(
                 user, // user to be updated on external resources
@@ -241,13 +231,10 @@ public class PropagationManagerImpl implements PropagationManager {
      * @param changePwd whether password should be included for propagation attributes or not
      * @param noPropResourceNames external resources not to be considered for propagation
      * @return list of propagation tasks
-     * @throws NotFoundException if user is not found
-     * @throws UnauthorizedException if caller doesn't own enough entitlements to administer the given user
      */
     @Override
     public List<PropagationTask> getUserUpdateTasks(final WorkflowResult<Pair<UserMod, Boolean>> wfResult,
-            final boolean changePwd, final Collection<String> noPropResourceNames)
-            throws NotFoundException, UnauthorizedException {
+            final boolean changePwd, final Collection<String> noPropResourceNames) {
 
         User user = userDAO.authFetch(wfResult.getResult().getKey().getKey());
         return getUpdateTasks(user,
@@ -303,8 +290,7 @@ public class PropagationManagerImpl implements PropagationManager {
     @Override
     public List<PropagationTask> getGroupUpdateTasks(final WorkflowResult<Long> wfResult,
             final Set<String> vAttrsToBeRemoved, final Set<AttrMod> vAttrsToBeUpdated,
-            final Set<String> noPropResourceNames)
-            throws NotFoundException, UnauthorizedException {
+            final Set<String> noPropResourceNames) {
 
         Group group = groupDAO.authFetch(wfResult.getResult());
         return getUpdateTasks(group, null, false, null,
@@ -317,8 +303,7 @@ public class PropagationManagerImpl implements PropagationManager {
             final String password, final boolean changePwd, final Boolean enable,
             final Set<String> vAttrsToBeRemoved, final Set<AttrMod> vAttrsToBeUpdated,
             final PropagationByResource propByRes, final Collection<String> noPropResourceNames,
-            final Set<MembershipMod> membershipsToAdd)
-            throws NotFoundException {
+            final Set<MembershipMod> membershipsToAdd) {
 
         PropagationByResource localPropByRes = virAttrHandler.fillVirtual(subject, vAttrsToBeRemoved == null
                 ? Collections.<String>emptySet()
@@ -389,8 +374,7 @@ public class PropagationManagerImpl implements PropagationManager {
     }
 
     @Override
-    public List<PropagationTask> getUserDeleteTasks(final Long userKey, final Collection<String> noPropResourceNames)
-            throws NotFoundException, UnauthorizedException {
+    public List<PropagationTask> getUserDeleteTasks(final Long userKey, final Collection<String> noPropResourceNames) {
 
         User user = userDAO.authFetch(userKey);
         return getDeleteTaskIds(user, user.getResourceNames(), noPropResourceNames);
@@ -398,8 +382,7 @@ public class PropagationManagerImpl implements PropagationManager {
 
     @Override
     public List<PropagationTask> getUserDeleteTasks(
-            final Long userKey, final Set<String> resourceNames, final Collection<String> noPropResourceNames)
-            throws NotFoundException, UnauthorizedException {
+            final Long userKey, final Set<String> resourceNames, final Collection<String> noPropResourceNames) {
 
         User user = userDAO.authFetch(userKey);
         return getDeleteTaskIds(user, resourceNames, noPropResourceNames);
@@ -412,23 +395,20 @@ public class PropagationManagerImpl implements PropagationManager {
     }
 
     @Override
-    public List<PropagationTask> getGroupDeleteTasks(final Long groupKey)
-            throws NotFoundException, UnauthorizedException {
+    public List<PropagationTask> getGroupDeleteTasks(final Long groupKey) {
 
         return getGroupDeleteTasks(groupKey, Collections.<String>emptySet());
     }
 
     @Override
-    public List<PropagationTask> getGroupDeleteTasks(final Long groupKey, final String noPropResourceName)
-            throws NotFoundException, UnauthorizedException {
+    public List<PropagationTask> getGroupDeleteTasks(final Long groupKey, final String noPropResourceName) {
 
         return getGroupDeleteTasks(groupKey, Collections.<String>singleton(noPropResourceName));
     }
 
     @Override
     public List<PropagationTask> getGroupDeleteTasks(
-            final Long groupKey, final Collection<String> noPropResourceNames)
-            throws NotFoundException, UnauthorizedException {
+            final Long groupKey, final Collection<String> noPropResourceNames) {
 
         Group group = groupDAO.authFetch(groupKey);
         return getDeleteTaskIds(group, group.getResourceNames(), noPropResourceNames);
@@ -436,8 +416,7 @@ public class PropagationManagerImpl implements PropagationManager {
 
     @Override
     public List<PropagationTask> getGroupDeleteTasks(
-            final Long groupKey, final Set<String> resourceNames, final Collection<String> noPropResourceNames)
-            throws NotFoundException, UnauthorizedException {
+            final Long groupKey, final Set<String> resourceNames, final Collection<String> noPropResourceNames) {
 
         Group group = groupDAO.authFetch(groupKey);
         return getDeleteTaskIds(group, resourceNames, noPropResourceNames);

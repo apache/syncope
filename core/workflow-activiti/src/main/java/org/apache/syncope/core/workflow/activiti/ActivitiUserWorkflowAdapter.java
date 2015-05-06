@@ -69,7 +69,6 @@ import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.WorkflowFormPropertyType;
 import org.apache.syncope.core.misc.security.AuthContextUtils;
-import org.apache.syncope.core.misc.security.UnauthorizedException;
 import org.apache.syncope.core.misc.spring.BeanUtils;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValidationException;
@@ -85,7 +84,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Activiti (http://www.activiti.org/) based implementation.
+ * Activiti {
+ *
+ * @see http://www.activiti.org/} based implementation.
  */
 public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
@@ -243,21 +244,19 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
     @Override
     public WorkflowResult<Pair<Long, Boolean>> create(final UserTO userTO, final boolean disablePwdPolicyCheck,
-            final boolean storePassword) throws WorkflowException {
+            final boolean storePassword) {
 
         return create(userTO, disablePwdPolicyCheck, null, storePassword);
     }
 
     @Override
-    public WorkflowResult<Pair<Long, Boolean>> create(UserTO userTO, boolean storePassword) throws
-            UnauthorizedException, WorkflowException {
-
+    public WorkflowResult<Pair<Long, Boolean>> create(final UserTO userTO, final boolean storePassword) {
         return create(userTO, false, storePassword);
     }
 
     @Override
     public WorkflowResult<Pair<Long, Boolean>> create(final UserTO userTO, final boolean disablePwdPolicyCheck,
-            final Boolean enabled, final boolean storePassword) throws WorkflowException {
+            final Boolean enabled, final boolean storePassword) {
 
         final Map<String, Object> variables = new HashMap<>();
         variables.put(WF_EXECUTOR, AuthContextUtils.getAuthenticatedUsername());
@@ -304,9 +303,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
                 new ImmutablePair<>(user.getKey(), propagateEnable), propByRes, getPerformedTasks(user));
     }
 
-    private Set<String> doExecuteTask(final User user, final String task,
-            final Map<String, Object> moreVariables) throws WorkflowException {
-
+    private Set<String> doExecuteTask(final User user, final String task, final Map<String, Object> moreVariables) {
         Set<String> preTasks = getPerformedTasks(user);
 
         final Map<String, Object> variables = new HashMap<>();
@@ -344,9 +341,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    protected WorkflowResult<Long> doActivate(final User user, final String token)
-            throws WorkflowException {
-
+    protected WorkflowResult<Long> doActivate(final User user, final String token) {
         Set<String> tasks = doExecuteTask(user, "activate", Collections.singletonMap(TOKEN, (Object) token));
 
         updateStatus(user);
@@ -356,9 +351,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    protected WorkflowResult<Pair<UserMod, Boolean>> doUpdate(final User user, final UserMod userMod)
-            throws WorkflowException {
-
+    protected WorkflowResult<Pair<UserMod, Boolean>> doUpdate(final User user, final UserMod userMod) {
         Set<String> tasks = doExecuteTask(user, "update", Collections.singletonMap(USER_MOD, (Object) userMod));
 
         updateStatus(user);
@@ -377,7 +370,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
     @Override
     @Transactional(rollbackFor = { Throwable.class })
-    protected WorkflowResult<Long> doSuspend(final User user) throws WorkflowException {
+    protected WorkflowResult<Long> doSuspend(final User user) {
         Set<String> performedTasks = doExecuteTask(user, "suspend", null);
         updateStatus(user);
         User updated = userDAO.save(user);
@@ -386,7 +379,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    protected WorkflowResult<Long> doReactivate(final User user) throws WorkflowException {
+    protected WorkflowResult<Long> doReactivate(final User user) {
         Set<String> performedTasks = doExecuteTask(user, "reactivate", null);
         updateStatus(user);
 
@@ -396,7 +389,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    protected void doRequestPasswordReset(final User user) throws WorkflowException {
+    protected void doRequestPasswordReset(final User user) {
         Map<String, Object> variables = new HashMap<>(2);
         variables.put(USER_TO, userDataBinder.getUserTO(user));
         variables.put(EVENT, "requestPasswordReset");
@@ -406,9 +399,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    protected void doConfirmPasswordReset(final User user, final String token, final String password)
-            throws WorkflowException {
-
+    protected void doConfirmPasswordReset(final User user, final String token, final String password) {
         Map<String, Object> variables = new HashMap<>(4);
         variables.put(TOKEN, token);
         variables.put(PASSWORD, password);
@@ -420,7 +411,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    protected void doDelete(final User user) throws WorkflowException {
+    protected void doDelete(final User user) {
         doExecuteTask(user, "delete", null);
 
         PropagationByResource propByRes = new PropagationByResource();
@@ -445,9 +436,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    public WorkflowResult<Long> execute(final UserTO userTO, final String taskId)
-            throws UnauthorizedException, WorkflowException {
-
+    public WorkflowResult<Long> execute(final UserTO userTO, final String taskId) {
         User user = userDAO.authFetch(userTO.getKey());
 
         final Map<String, Object> variables = new HashMap<>();
@@ -512,9 +501,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    public void exportDefinition(final WorkflowDefinitionFormat format, final OutputStream os)
-            throws WorkflowException {
-
+    public void exportDefinition(final WorkflowDefinitionFormat format, final OutputStream os) {
         switch (format) {
             case JSON:
                 exportProcessModel(os);
@@ -527,14 +514,12 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    public void exportDiagram(final OutputStream os) throws WorkflowException {
+    public void exportDiagram(final OutputStream os) {
         exportProcessResource(WF_DGRM_RESOURCE, os);
     }
 
     @Override
-    public void importDefinition(final WorkflowDefinitionFormat format, final String definition)
-            throws WorkflowException {
-
+    public void importDefinition(final WorkflowDefinitionFormat format, final String definition) {
         Model model = getModel(getProcessDefinition());
         switch (format) {
             case JSON:
@@ -757,9 +742,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    public WorkflowFormTO getForm(final String workflowId)
-            throws NotFoundException, WorkflowException {
-
+    public WorkflowFormTO getForm(final String workflowId) {
         Task task;
         try {
             task = taskService.createTaskQuery().processInstanceId(workflowId).singleResult();
@@ -810,9 +793,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
     @Transactional
     @Override
-    public WorkflowFormTO claimForm(final String taskId)
-            throws WorkflowException {
-
+    public WorkflowFormTO claimForm(final String taskId) {
         final String authUser = AuthContextUtils.getAuthenticatedUsername();
         Pair<Task, TaskFormData> checked = checkTask(taskId, authUser);
 
@@ -837,9 +818,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
     @Transactional
     @Override
-    public WorkflowResult<UserMod> submitForm(final WorkflowFormTO form)
-            throws WorkflowException {
-
+    public WorkflowResult<UserMod> submitForm(final WorkflowFormTO form) {
         final String authUser = AuthContextUtils.getAuthenticatedUsername();
         Pair<Task, TaskFormData> checked = checkTask(form.getTaskId(), authUser);
 

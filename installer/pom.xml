@@ -35,6 +35,8 @@ under the License.
   <packaging>jar</packaging>
   
   <properties>
+    <rootpom.basedir>${basedir}/..</rootpom.basedir>
+
     <staging.dir>${project.build.directory}/staging</staging.dir>
   </properties>
 
@@ -165,10 +167,9 @@ under the License.
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-pmd-plugin</artifactId>
+        <configuration>
+          <includeResources>false</includeResources>
+        </configuration>
       </plugin>
     </plugins>
 

@@ -33,7 +33,7 @@ public class EmailAddressValidator extends AbstractValidator {
     }
 
     @Override
-    protected void doValidate(final PlainAttrValue attrValue) throws InvalidPlainAttrValueException {
+    protected void doValidate(final PlainAttrValue attrValue) {
         Matcher matcher = SyncopeConstants.EMAIL_PATTERN.matcher(attrValue.<CharSequence>getValue());
         if (!matcher.matches()) {
             throw new InvalidPlainAttrValueException("\"" + attrValue.getValue() + "\" is not a valid email address");

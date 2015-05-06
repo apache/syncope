@@ -38,12 +38,14 @@ public class AjaxDropDownChoicePanel<T extends Serializable> extends FieldPanel<
         this(id, name, model, true);
     }
 
-    public AjaxDropDownChoicePanel(final String id, final String name, final IModel<T> model, boolean enableOnBlur) {
+    public AjaxDropDownChoicePanel(
+            final String id, final String name, final IModel<T> model, final boolean enableOnBlur) {
+
         super(id, model);
 
-        field = new DropDownChoice<T>(
+        field = new DropDownChoice<>(
                 "dropDownChoiceField", model, Collections.<T>emptyList(), new ChoiceRenderer<T>());
-        add(field.setLabel(new Model<String>(name)).setOutputMarkupId(true));
+        add(field.setLabel(new Model<>(name)).setOutputMarkupId(true));
 
         if (enableOnBlur) {
             field.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_BLUR) {

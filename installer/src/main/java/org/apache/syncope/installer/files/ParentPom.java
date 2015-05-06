@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.installer.files;
 
-public class ParentPom {
-    
+public final class ParentPom {
+
     public static final String PLACEHOLDER = "</project>";
 
     public static final String REPOSITORY =
@@ -34,4 +34,7 @@ public class ParentPom {
             + "</repositories>\n"
             + "</project>\n";
 
+    private ParentPom() {
+        // private constructor for static utility class
+    }
 }

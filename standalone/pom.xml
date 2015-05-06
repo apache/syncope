@@ -34,6 +34,8 @@ under the License.
   <packaging>jar</packaging>
   
   <properties>
+    <rootpom.basedir>${basedir}/..</rootpom.basedir>
+
     <connid.location>connid://${testconnectorserver.key}@localhost:${testconnectorserver.port}</connid.location>
     <log.directory>./logs</log.directory>
     <test.csvdir.path>./test-csvdir</test.csvdir.path>
@@ -199,6 +201,14 @@ under the License.
             </goals>
           </execution>
         </executions>
+      </plugin>
+      
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <configuration>
+          <resourceIncludes>src/main/resources/**/*.properties</resourceIncludes>
+        </configuration>
       </plugin>
     </plugins>
 

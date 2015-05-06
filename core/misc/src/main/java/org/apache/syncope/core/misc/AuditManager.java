@@ -34,9 +34,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class AuditManager {
 
-    /**
-     * Logger.
-     */
     private static final Logger LOG = LoggerFactory.getLogger(AuditManager.class);
 
     @Autowired
@@ -52,7 +49,7 @@ public class AuditManager {
             final Object output,
             final Object... input) {
 
-        final StringBuilder message = new StringBuilder(32);
+        StringBuilder message = new StringBuilder(32);
 
         message.append("BEFORE:\n").
                 append('\t').append(before == null ? "unknown" : before).append('\n');

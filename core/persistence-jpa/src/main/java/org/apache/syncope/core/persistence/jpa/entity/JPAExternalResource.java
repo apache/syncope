@@ -209,7 +209,7 @@ public class JPAExternalResource extends AbstractAnnotatedEntity<String> impleme
     }
 
     @Override
-    public void setEnforceMandatoryCondition(boolean enforceMandatoryCondition) {
+    public void setEnforceMandatoryCondition(final boolean enforceMandatoryCondition) {
         this.enforceMandatoryCondition = getBooleanAsInteger(enforceMandatoryCondition);
     }
 

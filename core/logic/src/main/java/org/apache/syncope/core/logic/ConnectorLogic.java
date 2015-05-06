@@ -306,7 +306,7 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
             }
         }
 
-        if ((id != null) && !id.equals(0l)) {
+        if ((id != null) && !id.equals(0L)) {
             try {
                 return binder.getConnInstanceTO(connInstanceDAO.find(id));
             } catch (Throwable ignore) {

@@ -132,7 +132,7 @@ public abstract class AbstractProvisioningTask extends JPASchedTask implements P
     }
 
     @Override
-    public void setPerformDelete(boolean performDelete) {
+    public void setPerformDelete(final boolean performDelete) {
         this.performDelete = getBooleanAsInteger(performDelete);
     }
 

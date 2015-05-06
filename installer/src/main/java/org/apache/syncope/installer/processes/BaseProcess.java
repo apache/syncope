@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.installer.processes;
 
-import static org.apache.syncope.installer.processes.ArchetypeProcess.properties;
+import static org.apache.syncope.installer.processes.ArchetypeProcess.PROPERTIES;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,28 +27,31 @@ import org.apache.commons.io.IOUtils;
 
 public class BaseProcess {
 
-    protected final static Properties properties = new Properties();
+    protected static final Properties PROPERTIES = new Properties();
 
     protected String syncopeInstallDir;
 
-    private static InputStream is = null;
-
     static {
+        InputStream input = null;
         try {
-            is = BaseProcess.class.getResourceAsStream("/installer.properties");
-            properties.load(is);
-        } catch (final IOException e) {
+            input = BaseProcess.class.getResourceAsStream("/installer.properties");
+            PROPERTIES.load(input);
+        } catch (IOException e) {
+            // ignore
         } finally {
-            IOUtils.closeQuietly(is);
+            IOUtils.closeQuietly(input);
         }
     }
 
     protected void setSyncopeInstallDir(final String installPath, final String artifactId) {
-        final StringBuilder path = new StringBuilder();
-        path.append(installPath);
-        path.append("/");
-        path.append(artifactId);
-        path.append("/");
-        syncopeInstallDir = path.toString();
+        syncopeInstallDir = new StringBuilder().
+                append(installPath).
+                append("/").
+                append(artifactId).
+                append("/").toString();
+    }
+
+    protected BaseProcess() {
+        // protected constructor for static utility class
     }
 }

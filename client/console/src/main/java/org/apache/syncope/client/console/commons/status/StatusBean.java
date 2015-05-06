@@ -82,7 +82,7 @@ public class StatusBean implements Serializable {
         return linked;
     }
 
-    public void setLinked(boolean linked) {
+    public void setLinked(final boolean linked) {
         this.linked = linked;
     }
 

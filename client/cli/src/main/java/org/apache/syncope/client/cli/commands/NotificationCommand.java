@@ -46,10 +46,10 @@ public class NotificationCommand extends AbstractCommand {
             + "       Syntax: -d={NOTIFICATION-ID}";
 
     @Parameter(names = { "-r", "--read" })
-    public Long notificationIdToRead = -1L;
+    private Long notificationIdToRead = -1L;
 
     @Parameter(names = { "-d", "--delete" })
-    public Long notificationIdToDelete = -1L;
+    private Long notificationIdToDelete = -1L;
 
     @Override
     public void execute() {

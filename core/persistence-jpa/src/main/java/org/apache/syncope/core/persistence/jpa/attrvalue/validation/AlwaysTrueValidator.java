@@ -31,7 +31,7 @@ public class AlwaysTrueValidator extends AbstractValidator {
     }
 
     @Override
-    protected void doValidate(final PlainAttrValue attrValue) throws InvalidPlainAttrValueException {
+    protected void doValidate(final PlainAttrValue attrValue) {
         Boolean value = attrValue.getValue();
         if (!value) {
             throw new InvalidPlainAttrValueException("This attribute must be set to \"true\"");

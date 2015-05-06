@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.List;
 import org.apache.syncope.common.lib.types.SubjectType;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.entity.CamelRoute;
 
 public interface CamelRouteDAO extends DAO<CamelRoute, String> {
@@ -31,7 +30,7 @@ public interface CamelRouteDAO extends DAO<CamelRoute, String> {
 
     List<CamelRoute> findAll();
 
-    CamelRoute save(CamelRoute route) throws InvalidEntityException;
+    CamelRoute save(CamelRoute route);
 
     void delete(String key);
 }

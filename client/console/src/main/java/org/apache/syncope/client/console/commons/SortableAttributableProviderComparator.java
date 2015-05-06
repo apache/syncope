@@ -41,7 +41,7 @@ public class SortableAttributableProviderComparator extends SortableDataProvider
     }
 
     @Override
-    public int compare(final AbstractAttributableTO attributable1, AbstractAttributableTO attributable2) {
+    public int compare(final AbstractAttributableTO attributable1, final AbstractAttributableTO attributable2) {
         if (INLINE_PROPS.contains(provider.getSort().getProperty())) {
             return super.compare(attributable1, attributable2);
         }

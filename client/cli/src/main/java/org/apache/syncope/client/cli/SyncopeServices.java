@@ -28,7 +28,7 @@ public final class SyncopeServices {
 
     private static final Logger LOG = LoggerFactory.getLogger(SyncopeServices.class);
 
-    private final static ResourceBundle SYNCOPE_PROPS = ResourceBundle.getBundle("syncope");
+    private static final ResourceBundle SYNCOPE_PROPS = ResourceBundle.getBundle("syncope");
 
     private static final SyncopeClient CLIENT = new SyncopeClientFactoryBean()
             .setAddress(SYNCOPE_PROPS.getString("syncope.rest.services"))

@@ -68,17 +68,9 @@ public abstract class AbstractExec extends AbstractEntity<Long> implements Exec 
         return message;
     }
 
-    /**
-     * Set a message for this execution, taking care of replacing every null character with newline.
-     *
-     * @param message the message to set for this execution
-     */
     @Override
-    public void setMessage(String message) {
-        if (message != null) {
-            message = message.replace('\0', '\n');
-        }
-        this.message = message;
+    public void setMessage(final String message) {
+        this.message = message == null ? null : message.replace('\0', '\n');
     }
 
     @Override

@@ -26,7 +26,6 @@ import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
 import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
-import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.workflow.api.WorkflowDefinitionFormat;
@@ -40,7 +39,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class DefaultGroupWorkflowAdapter extends AbstractGroupWorkflowAdapter {
 
     @Override
-    public WorkflowResult<Long> create(final GroupTO groupTO) throws WorkflowException {
+    public WorkflowResult<Long> create(final GroupTO groupTO) {
         Group group = entityFactory.newEntity(Group.class);
         dataBinder.create(group, groupTO);
         group = groupDAO.save(group);
@@ -52,9 +51,7 @@ public class DefaultGroupWorkflowAdapter extends AbstractGroupWorkflowAdapter {
     }
 
     @Override
-    protected WorkflowResult<Long> doUpdate(final Group group, final GroupMod groupMod)
-            throws WorkflowException {
-
+    protected WorkflowResult<Long> doUpdate(final Group group, final GroupMod groupMod) {
         PropagationByResource propByRes = dataBinder.update(group, groupMod);
 
         Group updated = groupDAO.save(group);
@@ -63,35 +60,27 @@ public class DefaultGroupWorkflowAdapter extends AbstractGroupWorkflowAdapter {
     }
 
     @Override
-    protected void doDelete(final Group group)
-            throws WorkflowException {
-
+    protected void doDelete(final Group group) {
         groupDAO.delete(group);
     }
 
     @Override
-    public WorkflowResult<Long> execute(final GroupTO group, final String taskId)
-            throws NotFoundException, WorkflowException {
-
+    public WorkflowResult<Long> execute(final GroupTO group, final String taskId) {
         throw new WorkflowException(new UnsupportedOperationException("Not supported."));
     }
 
     @Override
-    public void exportDefinition(final WorkflowDefinitionFormat format, final OutputStream os)
-            throws WorkflowException {
-
+    public void exportDefinition(final WorkflowDefinitionFormat format, final OutputStream os) {
         throw new WorkflowException(new UnsupportedOperationException("Not supported."));
     }
 
     @Override
-    public void exportDiagram(final OutputStream os) throws WorkflowException {
+    public void exportDiagram(final OutputStream os) {
         throw new WorkflowException(new UnsupportedOperationException("Not supported."));
     }
 
     @Override
-    public void importDefinition(final WorkflowDefinitionFormat format, final String definition)
-            throws NotFoundException, WorkflowException {
-
+    public void importDefinition(final WorkflowDefinitionFormat format, final String definition) {
         throw new WorkflowException(new UnsupportedOperationException("Not supported."));
     }
 
@@ -106,23 +95,17 @@ public class DefaultGroupWorkflowAdapter extends AbstractGroupWorkflowAdapter {
     }
 
     @Override
-    public WorkflowFormTO getForm(final String workflowId)
-            throws NotFoundException, WorkflowException {
-
+    public WorkflowFormTO getForm(final String workflowId) {
         return null;
     }
 
     @Override
-    public WorkflowFormTO claimForm(final String taskId)
-            throws NotFoundException, WorkflowException {
-
+    public WorkflowFormTO claimForm(final String taskId) {
         throw new WorkflowException(new UnsupportedOperationException("Not supported."));
     }
 
     @Override
-    public WorkflowResult<GroupMod> submitForm(final WorkflowFormTO form)
-            throws NotFoundException, WorkflowException {
-
+    public WorkflowResult<GroupMod> submitForm(final WorkflowFormTO form) {
         throw new WorkflowException(new UnsupportedOperationException("Not supported."));
     }
 

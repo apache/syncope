@@ -44,12 +44,14 @@ public class JBoss extends AbstractContainer {
     public JBoss(final boolean jbossSsl, final String jbossHost, final String jbossManagementPort,
             final String jbossAdminUsername, final String jbossAdminPassword,
             final String installPath, final String artifactId, final AbstractUIProcessHandler handler) {
+
         this.jbossSsl = jbossSsl;
         this.jbossHost = jbossHost;
         this.jbossManagementPort = jbossManagementPort;
         this.installPath = installPath;
         this.artifactId = artifactId;
-        httpUtils = new HttpUtils(jbossSsl, jbossHost, jbossManagementPort, jbossAdminUsername, jbossAdminPassword, handler);
+        this.httpUtils = new HttpUtils(
+                jbossSsl, jbossHost, jbossManagementPort, jbossAdminUsername, jbossAdminPassword, handler);
 
     }
 
@@ -69,7 +71,7 @@ public class JBoss extends AbstractContainer {
         final JBossAddResponse jBossAddResponse = JsonUtils.jBossAddResponse(responseBodyAsString);
 
         final JBossDeployRequestContent jBossDeployRequestContent = new JBossDeployRequestContent(
-                jBossAddResponse.getResult().getBYTES_VALUE(), warName);
+                jBossAddResponse.getResult().getBytesValue(), warName);
 
         int status = httpUtils.
                 postWithStringEntity(String.format(enableUrl, jbossHost, jbossManagementPort),

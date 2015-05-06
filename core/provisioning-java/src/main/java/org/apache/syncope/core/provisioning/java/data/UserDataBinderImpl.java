@@ -438,7 +438,8 @@ public class UserDataBinderImpl extends AbstractAttributableDataBinder implement
             membershipTO.setGroupName(membership.getGroup().getName());
 
             // SYNCOPE-458 retrieve also membership virtual attributes
-            connObjectUtils.retrieveVirAttrValues(membership, attrUtilsFactory.getInstance(AttributableType.MEMBERSHIP));
+            connObjectUtils.retrieveVirAttrValues(
+                    membership, attrUtilsFactory.getInstance(AttributableType.MEMBERSHIP));
             fillTO(membershipTO, null,
                     membership.getPlainAttrs(), membership.getDerAttrs(), membership.getVirAttrs(),
                     Collections.<ExternalResource>emptyList());

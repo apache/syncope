@@ -106,23 +106,24 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T extends Policy> T getPolicy(T policy, final AbstractPolicyTO policyTO) {
+    public <T extends Policy> T getPolicy(final T policy, final AbstractPolicyTO policyTO) {
         if (policy != null && policy.getType() != policyTO.getType()) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidPolicy);
             sce.getElements().add(String.format("Cannot update %s from %s", policy.getType(), policyTO.getType()));
             throw sce;
         }
 
+        T result = policy;
         switch (policyTO.getType()) {
             case PASSWORD:
                 if (!(policyTO instanceof PasswordPolicyTO)) {
                     throw new ClassCastException("Expected " + PasswordPolicyTO.class.getName()
                             + ", found " + policyTO.getClass().getName());
                 }
-                if (policy == null) {
-                    policy = (T) entityFactory.newEntity(PasswordPolicy.class);
+                if (result == null) {
+                    result = (T) entityFactory.newEntity(PasswordPolicy.class);
                 }
-                policy.setSpecification(((PasswordPolicyTO) policyTO).getSpecification());
+                result.setSpecification(((PasswordPolicyTO) policyTO).getSpecification());
                 break;
 
             case ACCOUNT:
@@ -130,20 +131,20 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
                     throw new ClassCastException("Expected " + AccountPolicyTO.class.getName()
                             + ", found " + policyTO.getClass().getName());
                 }
-                if (policy == null) {
-                    policy = (T) entityFactory.newEntity(AccountPolicy.class);
+                if (result == null) {
+                    result = (T) entityFactory.newEntity(AccountPolicy.class);
                 }
-                policy.setSpecification(((AccountPolicyTO) policyTO).getSpecification());
+                result.setSpecification(((AccountPolicyTO) policyTO).getSpecification());
 
-                if (((AccountPolicy) policy).getResources() != null
-                        && !((AccountPolicy) policy).getResources().isEmpty()) {
-                    ((AccountPolicy) policy).getResources().clear();
+                if (((AccountPolicy) result).getResources() != null
+                        && !((AccountPolicy) result).getResources().isEmpty()) {
+                    ((AccountPolicy) result).getResources().clear();
                 }
                 for (String resourceName : ((AccountPolicyTO) policyTO).getResources()) {
                     ExternalResource resource = getResource(resourceName);
 
                     if (resource != null) {
-                        ((AccountPolicy) policy).addResource(resource);
+                        ((AccountPolicy) result).addResource(resource);
                     }
                 }
                 break;
@@ -154,14 +155,14 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
                     throw new ClassCastException("Expected " + SyncPolicyTO.class.getName()
                             + ", found " + policyTO.getClass().getName());
                 }
-                if (policy == null) {
-                    policy = (T) entityFactory.newEntity(SyncPolicy.class);
+                if (result == null) {
+                    result = (T) entityFactory.newEntity(SyncPolicy.class);
                 }
-                policy.setSpecification(((SyncPolicyTO) policyTO).getSpecification());
+                result.setSpecification(((SyncPolicyTO) policyTO).getSpecification());
         }
 
-        policy.setDescription(policyTO.getDescription());
+        result.setDescription(policyTO.getDescription());
 
-        return policy;
+        return result;
     }
 }

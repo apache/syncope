@@ -179,11 +179,12 @@ public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
         }
     }
 
-    private LoggerTO delete(final String name, final LoggerType expectedType) throws NotFoundException {
+    private LoggerTO delete(final String name, final LoggerType expectedType) {
         Logger syncopeLogger = loggerDAO.find(name);
         if (syncopeLogger == null) {
             throw new NotFoundException("Logger " + name);
-        } else if (expectedType != syncopeLogger.getType()) {
+        }
+        if (expectedType != syncopeLogger.getType()) {
             throwInvalidLogger(expectedType);
         }
 
@@ -204,7 +205,7 @@ public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
     }
 
     @PreAuthorize("hasRole('" + Entitlement.LOG_DELETE + "')")
-    public LoggerTO deleteLog(final String name) throws NotFoundException {
+    public LoggerTO deleteLog(final String name) {
         return delete(name, LoggerType.LOG);
     }
 

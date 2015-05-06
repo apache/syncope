@@ -24,7 +24,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.codec.binary.Hex;
 
-public class PasswordGenerator {
+public final class PasswordGenerator {
 
     public static String password(final String password, final String digest) {
         String pwd = "";
@@ -38,4 +38,7 @@ public class PasswordGenerator {
         return pwd;
     }
 
+    private PasswordGenerator() {
+        // private constructor for static utility class
+    }
 }

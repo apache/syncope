@@ -51,7 +51,7 @@ import org.w3c.dom.ls.LSParser;
  */
 public final class AuditConnectionFactory {
 
-    private static DataSource datasource;
+    private static DataSource DATASOURCE;
 
     private static final String PERSISTENCE_CONTEXT = "/persistenceContext.xml";
 
@@ -84,7 +84,7 @@ public final class AuditConnectionFactory {
             Context ctx = new InitialContext();
             Object obj = ctx.lookup(jndiName);
 
-            datasource = (DataSource) PortableRemoteObject.narrow(obj, DataSource.class);
+            DATASOURCE = (DataSource) PortableRemoteObject.narrow(obj, DataSource.class);
         } catch (Exception e) {
             // ignore
         } finally {
@@ -115,7 +115,7 @@ public final class AuditConnectionFactory {
 
             initSQLScript = persistence.getProperty("audit.sql");
 
-            if (datasource == null) {
+            if (DATASOURCE == null) {
                 BasicDataSource bds = new BasicDataSource();
                 bds.setDriverClassName(persistence.getProperty("jpa.driverClassName"));
                 bds.setUrl(persistence.getProperty("jpa.url"));
@@ -126,7 +126,7 @@ public final class AuditConnectionFactory {
                 bds.setRemoveAbandonedOnBorrow(true);
                 bds.setRemoveAbandonedOnMaintenance(true);
 
-                datasource = bds;
+                DATASOURCE = bds;
             }
         } catch (Exception e) {
             throw new IllegalStateException("Audit datasource configuration failed", e);
@@ -137,17 +137,17 @@ public final class AuditConnectionFactory {
         populator.setScripts(new Resource[] { new ClassPathResource("/audit/" + initSQLScript) });
         // forces no statement separation
         populator.setSeparator(ScriptUtils.EOF_STATEMENT_SEPARATOR);
-        Connection conn = DataSourceUtils.getConnection(datasource);
+        Connection conn = DataSourceUtils.getConnection(DATASOURCE);
         try {
             populator.populate(conn);
         } finally {
-            DataSourceUtils.releaseConnection(conn, datasource);
+            DataSourceUtils.releaseConnection(conn, DATASOURCE);
         }
     }
 
     public static Connection getConnection() {
-        if (datasource != null) {
-            return DataSourceUtils.getConnection(datasource);
+        if (DATASOURCE != null) {
+            return DataSourceUtils.getConnection(DATASOURCE);
         }
 
         throw new IllegalStateException("Audit dataSource init failed: check logs");

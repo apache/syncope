@@ -48,8 +48,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 @DisallowConcurrentExecution
 public abstract class AbstractTaskJob implements TaskJob {
 
-    public static final String DRY_RUN_JOBDETAIL_KEY = "dryRun";
-
     /**
      * Task execution status.
      */

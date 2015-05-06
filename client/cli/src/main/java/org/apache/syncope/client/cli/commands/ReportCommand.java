@@ -27,7 +27,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import org.apache.syncope.client.cli.SyncopeServices;
-import org.apache.syncope.client.cli.util.XmlUtils;
+import org.apache.syncope.client.cli.util.XMLUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ReportExecTO;
@@ -67,25 +67,25 @@ public class ReportCommand extends AbstractCommand {
             + "    -rc, --reportlet-class";
 
     @Parameter(names = { "-r", "--read" })
-    public Long reportIdToRead = -1L;
+    private Long reportIdToRead = -1L;
 
     @Parameter(names = { "-d", "--delete" })
-    public Long reportIdToDelete = -1L;
+    private Long reportIdToDelete = -1L;
 
     @Parameter(names = { "-e", "--execute" })
-    public Long reportIdToExecute = -1L;
+    private Long reportIdToExecute = -1L;
 
     @Parameter(names = { "-re", "--read-execution" })
-    public Long executionIdToRead = -1L;
+    private Long executionIdToRead = -1L;
 
     @Parameter(names = { "-de", "--delete-execution" })
-    public Long executionIdToDelete = -1L;
+    private Long executionIdToDelete = -1L;
 
     @Parameter(names = { "-eer", "--export-execution-result" })
-    public Long exportId = -1L;
+    private Long exportId = -1L;
 
     @Parameter(names = { "-rc", "--reportlet-class" })
-    public boolean reportletClass = false;
+    private boolean reportletClass = false;
 
     @Override
     public void execute() {
@@ -154,7 +154,7 @@ public class ReportCommand extends AbstractCommand {
             LOG.debug("- report export command for report: {}", exportId);
 
             try {
-                XmlUtils.createXMLFile((SequenceInputStream) reportService.exportExecutionResult(exportId,
+                XMLUtils.createXMLFile((SequenceInputStream) reportService.exportExecutionResult(exportId,
                         ReportExecExportFormat.XML).getEntity(), "export_" + exportId + ".xml");
                 System.out.println(" - " + "export_" + exportId + " successfully created");
             } catch (final IOException ex) {

@@ -326,7 +326,7 @@ under the License.
     <connid.ldap.version>1.4.0</connid.ldap.version>
     <connid.ad.version>1.2.3</connid.ad.version>
 
-    <cxf.version>3.1.0-SNAPSHOT</cxf.version>
+    <cxf.version>3.1.0</cxf.version>
 
     <camel.version>2.15.2</camel.version>	
 
@@ -1213,18 +1213,6 @@ under the License.
             <targetJdk>${targetJdk}</targetJdk>
           </configuration>
         </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-pmd-plugin</artifactId>
-          <version>3.4</version>
-          <configuration>
-            <rulesets>
-              <rulesets>${rootpom.basedir}/src/main/resources/org/apache/syncope/pmd.xml</rulesets>
-            </rulesets>
-            <linkXRef>false</linkXRef>
-            <targetJdk>${targetJdk}</targetJdk>
-          </configuration>
-        </plugin>
         
         <plugin>
           <groupId>org.vafer</groupId>
@@ -1265,7 +1253,7 @@ under the License.
         </configuration>
         <executions>
           <execution>
-            <id>modernizer</id>
+            <id>modernizer-check</id>
             <phase>verify</phase>
             <goals>
               <goal>modernizer</goal>
@@ -1274,7 +1262,6 @@ under the License.
         </executions>
       </plugin>
 
-      <!-- Enable with SYNCOPE-657
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
@@ -1288,20 +1275,6 @@ under the License.
           </execution>
         </executions>
       </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-pmd-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>pmd-check</id>
-            <phase>verify</phase>
-            <goals>
-              <goal>check</goal>
-              <goal>cpd-check</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>-->
 
       <plugin>
         <groupId>org.codehaus.gmaven</groupId>
@@ -1359,6 +1332,7 @@ under the License.
         </configuration>
         <executions>
           <execution>
+            <id>rat-check</id>
             <phase>verify</phase>
             <goals>
               <goal>check</goal>
@@ -1559,6 +1533,41 @@ under the License.
 
       <build>
         <defaultGoal>clean install</defaultGoal>
+        
+        <plugins>
+          <plugin>
+            <groupId>org.gaul</groupId>
+            <artifactId>modernizer-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>modernizer-check</id>
+                <phase>none</phase>
+              </execution>
+            </executions>
+          </plugin>
+
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-checkstyle-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>checkstyle-check</id>
+                <phase>none</phase>
+              </execution>
+            </executions>
+          </plugin>
+      
+          <plugin>
+            <groupId>org.apache.rat</groupId>
+            <artifactId>apache-rat-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>rat-check</id>
+                <phase>none</phase>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
       </build>
     </profile>
 

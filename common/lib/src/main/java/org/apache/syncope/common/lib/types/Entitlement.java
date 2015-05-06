@@ -194,19 +194,20 @@ public final class Entitlement {
 
     public static final String ROUTE_UPDATE = "ROUTE_UPDATE";
 
-    private static Set<String> VALUES = new HashSet<>();
+    private static final Set<String> ENTITLEMENTS;
 
     static {
+        Set<String> values = new HashSet<>();
         for (Field field : Entitlement.class.getDeclaredFields()) {
             if (Modifier.isStatic(field.getModifiers()) && String.class.equals(field.getType())) {
-                VALUES.add(field.getName());
+                values.add(field.getName());
             }
         }
-        VALUES = Collections.unmodifiableSet(VALUES);
+        ENTITLEMENTS = Collections.unmodifiableSet(values);
     }
 
     public static Set<String> values() {
-        return VALUES;
+        return ENTITLEMENTS;
     }
 
     private Entitlement() {

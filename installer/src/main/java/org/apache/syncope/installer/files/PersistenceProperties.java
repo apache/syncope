@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.installer.files;
 
-public class PersistenceProperties {
+public final class PersistenceProperties {
 
     public static final String HEADER = "# Licensed to the Apache Software Foundation (ASF) under one\n"
             + "# or more contributor license agreements.  See the NOTICE file\n"
@@ -70,7 +70,7 @@ public class PersistenceProperties {
             + "quartz.sql=tables_mariadb.sql\n"
             + "audit.sql=audit.sql\n"
             + "database.schema=\n";
-    
+
     public static final String ORACLE = ""
             + "jpa.driverClassName=oracle.jdbc.OracleDriver\n"
             + "jpa.url=%s\n"
@@ -90,18 +90,21 @@ public class PersistenceProperties {
             + "jpa.url=%s\n"
             + "jpa.username=%s\n"
             + "jpa.password=%s\n"
-            + "jpa.dialect=org.apache.openjpa.jdbc.sql.SQLServerDictionary\n" 
+            + "jpa.dialect=org.apache.openjpa.jdbc.sql.SQLServerDictionary\n"
             + "jpa.pool.validationQuery=SELECT 1\n"
             + "jpa.orm=META-INF/spring-orm-sqlserver.xml\n"
             + "#note: other connection pool settings can also be configured here, see persistenceContext.xml\n"
-            + "quartz.jobstore=org.quartz.impl.jdbcjobstore.MSSQLDelegate\n" 
+            + "quartz.jobstore=org.quartz.impl.jdbcjobstore.MSSQLDelegate\n"
             + "quartz.scheduler.idleWaitTime=5000\n"
-            + "quartz.sql=tables_sqlServer.sql\n" 
-            + "audit.sql=audit_sqlserver.sql\n" 
+            + "quartz.sql=tables_sqlServer.sql\n"
+            + "audit.sql=audit_sqlserver.sql\n"
             + "database.schema=";
 
     public static final String MYSQL_QUARTZ_INNO_DB = "quartz.sql=tables_mysql_innodb.sql";
 
     public static final String MYSQL_QUARTZ = "quartz.sql=tables_mysql.sql";
 
+    private PersistenceProperties() {
+        // private constructor for static utility class
+    }
 }

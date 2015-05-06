@@ -33,6 +33,10 @@ under the License.
   <artifactId>syncope-deb-console</artifactId>
   <packaging>war</packaging>
 
+  <properties>
+    <rootpom.basedir>${basedir}/../..</rootpom.basedir>
+  </properties>
+  
   <dependencies>
     <dependency>
       <groupId>org.apache.syncope.ext.camel</groupId>
@@ -236,6 +240,17 @@ under the License.
                 </data>                
               </dataSet>
             </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>checkstyle-check</id>
+            <phase>none</phase>
           </execution>
         </executions>
       </plugin>

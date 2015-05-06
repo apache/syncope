@@ -83,7 +83,7 @@ abstract class AbstractCamelProvisioningManager {
         template.send(uri, exchange);
     }
 
-    protected PollingConsumer getConsumer(String uri) {
+    protected PollingConsumer getConsumer(final String uri) {
         if (!knownURIs.contains(uri)) {
             knownURIs.add(uri);
             Endpoint endpoint = getContext().getEndpoint(uri);

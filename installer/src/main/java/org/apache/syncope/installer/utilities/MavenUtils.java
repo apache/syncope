@@ -82,7 +82,8 @@ public class MavenUtils {
         properties.setProperty("archetypeGroupId", "org.apache.syncope");
         properties.setProperty("archetypeArtifactId", "syncope-archetype");
         if (archetypeVersion.contains("SNAPSHOT")) {
-            properties.setProperty("archetypeRepository", "http://repository.apache.org/content/repositories/snapshots");
+            properties.setProperty("archetypeRepository",
+                    "http://repository.apache.org/content/repositories/snapshots");
         } else {
             properties.setProperty("archetypeRepository", "http://repo1.maven.org/maven2");
         }
@@ -94,7 +95,9 @@ public class MavenUtils {
         return properties;
     }
 
-    public void mvnCleanPackageWithProperties(final String path, final Properties properties, final File customSettingsFile) {
+    public void mvnCleanPackageWithProperties(
+            final String path, final Properties properties, final File customSettingsFile) {
+
         final InvocationRequest request = new DefaultInvocationRequest();
         request.setProperties(properties);
         if (customSettingsFile != null && FileUtils.sizeOf(customSettingsFile) > 0) {

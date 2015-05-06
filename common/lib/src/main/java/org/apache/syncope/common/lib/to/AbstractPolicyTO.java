@@ -49,10 +49,12 @@ public abstract class AbstractPolicyTO extends AbstractBaseBean {
     private final List<String> usedByRealms = new ArrayList<>();
 
     private AbstractPolicyTO() {
+        super();
         throw new UnsupportedOperationException("No-arg constructor is just to keep JAXB from complaining");
     }
 
     protected AbstractPolicyTO(final PolicyType type) {
+        super();
         this.type = type;
     }
 

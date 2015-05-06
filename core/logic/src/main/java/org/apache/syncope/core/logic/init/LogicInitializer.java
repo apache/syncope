@@ -27,7 +27,6 @@ import org.apache.syncope.core.persistence.api.SyncopeLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.support.AopUtils;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.InitializingBean;
@@ -45,7 +44,7 @@ public class LogicInitializer implements InitializingBean, BeanFactoryAware {
     private DefaultListableBeanFactory beanFactory;
 
     @Override
-    public void setBeanFactory(final BeanFactory beanFactory) throws BeansException {
+    public void setBeanFactory(final BeanFactory beanFactory) {
         this.beanFactory = (DefaultListableBeanFactory) beanFactory;
     }
 

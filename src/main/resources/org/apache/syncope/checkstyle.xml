@@ -191,6 +191,7 @@ under the License.
     <module name="HiddenField">
       <property name="ignoreSetter" value="true"/>
       <property name="ignoreConstructorParameter" value="true"/>
+      <property name="tokens" value="VARIABLE_DEF"/>
     </module>
     <module name="IllegalInstantiation"/>
     <module name="InnerAssignment"/>

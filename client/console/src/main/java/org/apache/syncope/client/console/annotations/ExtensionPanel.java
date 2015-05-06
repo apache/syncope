@@ -29,6 +29,6 @@ import java.lang.annotation.Target;
 @Documented
 public @interface ExtensionPanel {
 
-    public String value();
+    String value();
 
 }

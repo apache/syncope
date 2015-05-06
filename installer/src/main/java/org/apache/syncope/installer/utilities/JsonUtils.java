@@ -24,25 +24,33 @@ import java.io.IOException;
 import org.apache.syncope.installer.containers.jboss.JBossAddResponse;
 import org.apache.syncope.installer.containers.jboss.JBossDeployRequestContent;
 
-public class JsonUtils {
+public final class JsonUtils {
 
-    private final static ObjectMapper objectMapper = new ObjectMapper();
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     public static JBossAddResponse jBossAddResponse(final String responseBodyAsString) {
         JBossAddResponse jBossAddResponse = null;
         try {
-            jBossAddResponse = objectMapper.readValue(responseBodyAsString, JBossAddResponse.class);
+            jBossAddResponse = OBJECT_MAPPER.readValue(responseBodyAsString, JBossAddResponse.class);
         } catch (IOException ioe) {
+            // ignore
         }
+
         return jBossAddResponse;
     }
 
     public static String jBossDeployRequestContent(final JBossDeployRequestContent jBossDeployRequestContent) {
         String jBossDeployRequestContentString = "";
         try {
-            jBossDeployRequestContentString = objectMapper.writeValueAsString(jBossDeployRequestContent);
+            jBossDeployRequestContentString = OBJECT_MAPPER.writeValueAsString(jBossDeployRequestContent);
         } catch (JsonProcessingException ioe) {
+            // ignore
         }
+
         return jBossDeployRequestContentString;
+    }
+
+    private JsonUtils() {
+        // private constructor for static utility class
     }
 }

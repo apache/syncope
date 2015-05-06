@@ -21,6 +21,7 @@ package org.apache.syncope.core.logic;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.to.CamelRouteTO;
 import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.common.lib.types.SubjectType;
@@ -87,7 +88,30 @@ public class CamelRouteLogic extends AbstractTransactionalLogic<CamelRouteTO> {
     }
 
     @Override
-    protected CamelRouteTO resolveReference(Method method, Object... args) throws UnresolvedReferenceException {
+    protected CamelRouteTO resolveReference(final Method method, final Object... args)
+            throws UnresolvedReferenceException {
+
+        String key = null;
+
+        if (ArrayUtils.isNotEmpty(args)) {
+            for (int i = 0; key == null && i < args.length; i++) {
+                if (args[i] instanceof String) {
+                    key = (String) args[i];
+                } else if (args[i] instanceof CamelRouteTO) {
+                    key = ((CamelRouteTO) args[i]).getKey();
+                }
+            }
+        }
+
+        if (key != null) {
+            try {
+                return binder.getRouteTO(routeDAO.find(key));
+            } catch (Throwable ignore) {
+                LOG.debug("Unresolved reference", ignore);
+                throw new UnresolvedReferenceException(ignore);
+            }
+        }
+
         throw new UnresolvedReferenceException();
     }
 

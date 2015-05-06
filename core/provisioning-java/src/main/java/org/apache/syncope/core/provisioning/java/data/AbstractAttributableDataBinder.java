@@ -253,12 +253,13 @@ abstract class AbstractAttributableDataBinder {
         boolean result = false;
 
         if (attributable instanceof Subject) {
-            for (Iterator<? extends ExternalResource> itor = ((Subject<?, ?, ?>) attributable).getResources().iterator();
-                    itor.hasNext() && !result;) {
+            for (Iterator<? extends ExternalResource> itor =
+                    ((Subject<?, ?, ?>) attributable).getResources().iterator(); itor.hasNext() && !result;) {
 
                 final ExternalResource resource = itor.next();
                 if (resource.isEnforceMandatoryCondition()) {
-                    result |= evaluateMandatoryCondition(attrUtils, resource, attributable, intAttrName, intMappingType);
+                    result |= evaluateMandatoryCondition(
+                            attrUtils, resource, attributable, intAttrName, intMappingType);
                 }
             }
         }

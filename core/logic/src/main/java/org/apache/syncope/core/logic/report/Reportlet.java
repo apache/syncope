@@ -41,7 +41,6 @@ public interface Reportlet<T extends ReportletConf> {
      *
      * @param handler SAX content handler for streaming result
      * @throws SAXException if there is any problem in SAX handling
-     * @throws ReportException if anything goes wrong
      */
-    void extract(ContentHandler handler) throws SAXException, ReportException;
+    void extract(ContentHandler handler) throws SAXException;
 }

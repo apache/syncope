@@ -22,42 +22,44 @@ public class JBossAddResponse {
 
     public class JBossBytesValue {
 
-        public String BYTES_VALUE;
+        private String bytesValue;
 
         public JBossBytesValue() {
+            // default
         }
 
-        public JBossBytesValue(String BYTES_VALUE) {
-            this.BYTES_VALUE = BYTES_VALUE;
+        public JBossBytesValue(final String bytesValue) {
+            this.bytesValue = bytesValue;
         }
 
-        public String getBYTES_VALUE() {
-            return BYTES_VALUE;
+        public String getBytesValue() {
+            return bytesValue;
         }
 
-        public void setBYTES_VALUE(String BYTES_VALUE) {
-            this.BYTES_VALUE = BYTES_VALUE;
+        public void setBytesValue(final String bytesValue) {
+            this.bytesValue = bytesValue;
         }
 
     }
 
-    public String outcome;
+    private String outcome;
 
-    public JBossBytesValue result;
+    private JBossBytesValue result;
 
     public JBossAddResponse() {
+        // default
     }
 
-    public JBossAddResponse(String outcome, JBossBytesValue result) {
+    public JBossAddResponse(final String outcome, final JBossBytesValue result) {
         this.outcome = outcome;
         this.result = result;
     }
 
-    public void setOutcome(String outcome) {
+    public void setOutcome(final String outcome) {
         this.outcome = outcome;
     }
 
-    public void setResult(JBossBytesValue result) {
+    public void setResult(final JBossBytesValue result) {
         this.result = result;
     }
 

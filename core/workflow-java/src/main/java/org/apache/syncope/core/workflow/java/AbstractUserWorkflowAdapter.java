@@ -26,7 +26,6 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
-import org.apache.syncope.core.workflow.api.WorkflowException;
 import org.identityconnectors.common.Base64;
 import org.identityconnectors.common.security.EncryptorFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,46 +58,39 @@ public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter
         return null;
     }
 
-    protected abstract WorkflowResult<Long> doActivate(User user, String token) throws WorkflowException;
+    protected abstract WorkflowResult<Long> doActivate(User user, String token);
 
     @Override
-    public WorkflowResult<Long> activate(final Long userKey, final String token)
-            throws WorkflowException {
-
+    public WorkflowResult<Long> activate(final Long userKey, final String token) {
         return doActivate(userDAO.authFetch(userKey), token);
     }
 
-    protected abstract WorkflowResult<Pair<UserMod, Boolean>> doUpdate(User user, UserMod userMod)
-            throws WorkflowException;
+    protected abstract WorkflowResult<Pair<UserMod, Boolean>> doUpdate(User user, UserMod userMod);
 
     @Override
-    public WorkflowResult<Pair<UserMod, Boolean>> update(final UserMod userMod)
-            throws WorkflowException {
-
+    public WorkflowResult<Pair<UserMod, Boolean>> update(final UserMod userMod) {
         return doUpdate(userDAO.authFetch(userMod.getKey()), userMod);
     }
 
-    protected abstract WorkflowResult<Long> doSuspend(User user) throws WorkflowException;
+    protected abstract WorkflowResult<Long> doSuspend(User user);
 
     @Override
-    public WorkflowResult<Long> suspend(final Long userKey)
-            throws WorkflowException {
-
+    public WorkflowResult<Long> suspend(final Long userKey) {
         return suspend(userDAO.authFetch(userKey));
     }
 
     @Override
-    public WorkflowResult<Long> suspend(final User user) throws WorkflowException {
+    public WorkflowResult<Long> suspend(final User user) {
         // set suspended flag
         user.setSuspended(Boolean.TRUE);
 
         return doSuspend(user);
     }
 
-    protected abstract WorkflowResult<Long> doReactivate(User user) throws WorkflowException;
+    protected abstract WorkflowResult<Long> doReactivate(User user);
 
     @Override
-    public WorkflowResult<Long> reactivate(final Long userKey) throws WorkflowException {
+    public WorkflowResult<Long> reactivate(final Long userKey) {
         final User user = userDAO.authFetch(userKey);
 
         // reset failed logins
@@ -110,27 +102,24 @@ public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter
         return doReactivate(user);
     }
 
-    protected abstract void doRequestPasswordReset(User user) throws WorkflowException;
+    protected abstract void doRequestPasswordReset(User user);
 
     @Override
-    public void requestPasswordReset(final Long userKey) throws WorkflowException {
+    public void requestPasswordReset(final Long userKey) {
         doRequestPasswordReset(userDAO.authFetch(userKey));
     }
 
-    protected abstract void doConfirmPasswordReset(User user, String token, String password)
-            throws WorkflowException;
+    protected abstract void doConfirmPasswordReset(User user, String token, String password);
 
     @Override
-    public void confirmPasswordReset(final Long userKey, final String token, final String password)
-            throws WorkflowException {
-
+    public void confirmPasswordReset(final Long userKey, final String token, final String password) {
         doConfirmPasswordReset(userDAO.authFetch(userKey), token, password);
     }
 
-    protected abstract void doDelete(User user) throws WorkflowException;
+    protected abstract void doDelete(User user);
 
     @Override
-    public void delete(final Long userKey) throws WorkflowException {
+    public void delete(final Long userKey) {
         doDelete(userDAO.authFetch(userKey));
     }
 }

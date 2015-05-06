@@ -96,6 +96,7 @@ public class SyncopeUserQueryImpl implements UserQuery {
         try {
             memberOf = Long.valueOf(groupId);
         } catch (NumberFormatException e) {
+            // ignore
         }
         return this;
     }

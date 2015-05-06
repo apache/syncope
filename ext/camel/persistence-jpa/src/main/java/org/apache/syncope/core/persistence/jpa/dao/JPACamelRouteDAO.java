@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.jpa.dao;
 import java.util.List;
 import javax.persistence.TypedQuery;
 import org.apache.syncope.common.lib.types.SubjectType;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.dao.CamelRouteDAO;
 import org.apache.syncope.core.persistence.api.entity.CamelRoute;
 import org.apache.syncope.core.persistence.jpa.entity.JPACamelRoute;
@@ -56,7 +55,7 @@ public class JPACamelRouteDAO extends AbstractDAO<CamelRoute, String> implements
     }
 
     @Override
-    public CamelRoute save(final CamelRoute route) throws InvalidEntityException {
+    public CamelRoute save(final CamelRoute route) {
         return entityManager.merge(route);
     }
 

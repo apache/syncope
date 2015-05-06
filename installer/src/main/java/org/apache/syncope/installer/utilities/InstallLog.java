@@ -22,9 +22,9 @@ import com.izforge.izpack.panels.process.AbstractUIProcessHandler;
 import java.io.File;
 import java.util.Date;
 
-public class InstallLog {
+public final class InstallLog {
 
-    private static InstallLog installLog = null;
+    private static InstallLog INSTANCE = null;
 
     private final File log;
 
@@ -40,15 +40,15 @@ public class InstallLog {
 
     public static InstallLog initialize(final String installPath, final AbstractUIProcessHandler handler) {
         synchronized (InstallLog.class) {
-            if (installLog == null) {
-                installLog = new InstallLog(installPath, handler);
+            if (INSTANCE == null) {
+                INSTANCE = new InstallLog(installPath, handler);
             }
         }
-        return installLog;
+        return INSTANCE;
     }
 
     public static InstallLog getInstance() {
-        return installLog;
+        return INSTANCE;
     }
 
     public void error(final String msg) {

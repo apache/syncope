@@ -29,6 +29,6 @@ import java.lang.annotation.Target;
 @Documented
 public @interface BinaryPreview {
 
-    public String[] mimeTypes() default {};
+    String[] mimeTypes() default {};
 
 }

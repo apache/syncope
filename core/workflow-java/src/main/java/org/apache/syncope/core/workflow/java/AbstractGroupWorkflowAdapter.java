@@ -19,14 +19,12 @@
 package org.apache.syncope.core.workflow.java;
 
 import org.apache.syncope.common.lib.mod.GroupMod;
-import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.workflow.api.GroupWorkflowAdapter;
-import org.apache.syncope.core.workflow.api.WorkflowException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,20 +45,17 @@ public abstract class AbstractGroupWorkflowAdapter implements GroupWorkflowAdapt
         return null;
     }
 
-    protected abstract WorkflowResult<Long> doUpdate(Group group, GroupMod groupMod)
-            throws WorkflowException;
+    protected abstract WorkflowResult<Long> doUpdate(Group group, GroupMod groupMod);
 
     @Override
-    public WorkflowResult<Long> update(final GroupMod groupMod)
-            throws NotFoundException, WorkflowException {
-
+    public WorkflowResult<Long> update(final GroupMod groupMod) {
         return doUpdate(groupDAO.authFetch(groupMod.getKey()), groupMod);
     }
 
-    protected abstract void doDelete(Group group) throws WorkflowException;
+    protected abstract void doDelete(Group group);
 
     @Override
-    public void delete(final Long groupKey) throws NotFoundException, WorkflowException {
+    public void delete(final Long groupKey) {
         doDelete(groupDAO.authFetch(groupKey));
     }
 }

@@ -28,11 +28,11 @@ import org.apache.syncope.client.cli.commands.ReportCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SyncopeAdm {
+public final class SyncopeAdm {
 
     private static final Logger LOG = LoggerFactory.getLogger(SyncopeAdm.class);
 
-    private static final String helpMessage = "Usage: Main [options]\n"
+    private static final String HELP_MESSAGE = "Usage: Main [options]\n"
             + "  Options:\n"
             + "    logger --help \n"
             + "    config --help \n"
@@ -41,17 +41,17 @@ public class SyncopeAdm {
             + "    policy --help \n"
             + "    entitlement --help \n";
 
-    private static final JCommander jcommander = new JCommander();
+    private static final JCommander JCOMMANDER = new JCommander();
 
-    private static LoggerCommand loggerCommand;
+    private static LoggerCommand LOGGER_COMMAND;
 
-    private static ConfigurationCommand configurationCommand;
+    private static ConfigurationCommand CONFIGURATION_COMMAND;
 
-    private static NotificationCommand notificationCommand;
+    private static NotificationCommand NOTIFICATION_COMMAND;
 
-    private static ReportCommand reportCommand;
+    private static ReportCommand REPORT_COMMAND;
 
-    private static PolicyCommand policyCommand;
+    private static PolicyCommand POLICY_COMMAND;
 
     public static void main(final String[] args) {
         LOG.debug("Starting with args \n");
@@ -63,12 +63,12 @@ public class SyncopeAdm {
         instantiateCommands();
 
         if (args.length == 0) {
-            System.out.println(helpMessage);
+            System.out.println(HELP_MESSAGE);
         } else {
             try {
-                jcommander.parse(args);
+                JCOMMANDER.parse(args);
             } catch (final ParameterException ioe) {
-                System.out.println(helpMessage);
+                System.out.println(HELP_MESSAGE);
                 LOG.error("Parameter exception", ioe);
             }
             executeCommand();
@@ -78,38 +78,42 @@ public class SyncopeAdm {
 
     private static void instantiateCommands() {
         LOG.debug("Init JCommander");
-        loggerCommand = new LoggerCommand();
-        jcommander.addCommand(loggerCommand);
+        LOGGER_COMMAND = new LoggerCommand();
+        JCOMMANDER.addCommand(LOGGER_COMMAND);
         LOG.debug("Added LoggerCommand");
-        configurationCommand = new ConfigurationCommand();
-        jcommander.addCommand(configurationCommand);
+        CONFIGURATION_COMMAND = new ConfigurationCommand();
+        JCOMMANDER.addCommand(CONFIGURATION_COMMAND);
         LOG.debug("Added ConfigurationCommand");
-        notificationCommand = new NotificationCommand();
-        jcommander.addCommand(notificationCommand);
+        NOTIFICATION_COMMAND = new NotificationCommand();
+        JCOMMANDER.addCommand(NOTIFICATION_COMMAND);
         LOG.debug("Added NotificationCommand");
-        reportCommand = new ReportCommand();
-        jcommander.addCommand(reportCommand);
+        REPORT_COMMAND = new ReportCommand();
+        JCOMMANDER.addCommand(REPORT_COMMAND);
         LOG.debug("Added ReportCommand");
-        policyCommand = new PolicyCommand();
-        jcommander.addCommand(policyCommand);
+        POLICY_COMMAND = new PolicyCommand();
+        JCOMMANDER.addCommand(POLICY_COMMAND);
         LOG.debug("Added PolicyCommand");
     }
 
     private static void executeCommand() {
-        final String command = jcommander.getParsedCommand();
+        final String command = JCOMMANDER.getParsedCommand();
 
         LOG.debug("Called command {}", command);
 
         if ("logger".equalsIgnoreCase(command)) {
-            loggerCommand.execute();
+            LOGGER_COMMAND.execute();
         } else if ("config".equalsIgnoreCase(command)) {
-            configurationCommand.execute();
+            CONFIGURATION_COMMAND.execute();
         } else if ("notification".equalsIgnoreCase(command)) {
-            notificationCommand.execute();
+            NOTIFICATION_COMMAND.execute();
         } else if ("report".equalsIgnoreCase(command)) {
-            reportCommand.execute();
+            REPORT_COMMAND.execute();
         } else if ("policy".equalsIgnoreCase(command)) {
-            policyCommand.execute();
+            POLICY_COMMAND.execute();
         }
+    }
+
+    private SyncopeAdm() {
+        // private constructor for static utility class
     }
 }

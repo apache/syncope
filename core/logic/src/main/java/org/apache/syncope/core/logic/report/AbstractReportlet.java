@@ -28,9 +28,6 @@ import org.xml.sax.helpers.AttributesImpl;
 
 public abstract class AbstractReportlet<T extends AbstractReportletConf> implements Reportlet<T> {
 
-    /**
-     * Logger.
-     */
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractReportlet.class);
 
     protected T conf;
@@ -44,12 +41,11 @@ public abstract class AbstractReportlet<T extends AbstractReportletConf> impleme
         this.conf = conf;
     }
 
-    protected abstract void doExtract(ContentHandler handler) throws SAXException, ReportException;
+    protected abstract void doExtract(ContentHandler handler) throws SAXException;
 
     @Override
     @Transactional(readOnly = true)
-    public void extract(final ContentHandler handler) throws SAXException, ReportException {
-
+    public void extract(final ContentHandler handler) throws SAXException {
         if (conf == null) {
             throw new ReportException(new IllegalArgumentException("No configuration provided"));
         }

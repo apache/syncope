@@ -50,13 +50,13 @@ public class PolicyCommand extends AbstractCommand {
             + "       Syntax: -d={POLICY-ID}";
 
     @Parameter(names = { "-ll", "--list-policy" })
-    public String policyType;
+    private String policyType;
 
     @Parameter(names = { "-r", "--read" })
-    public Long policyIdToRead = -1L;
+    private Long policyIdToRead = -1L;
 
     @Parameter(names = { "-d", "--delete" })
-    public Long policyIdToDelete = -1L;
+    private Long policyIdToDelete = -1L;
 
     @Override
     public void execute() {
@@ -67,7 +67,7 @@ public class PolicyCommand extends AbstractCommand {
             LOG.debug("- policy help command");
             System.out.println(helpMessage);
         } else if (list) {
-
+            // do nothing for the moment...
         } else if (StringUtils.isNotBlank(policyType)) {
             LOG.debug("- policy list command for type {}", policyType);
             try {

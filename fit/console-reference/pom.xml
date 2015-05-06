@@ -277,10 +277,9 @@ ORYX.Editor.createByUrl = function(modelUrl){"/>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-pmd-plugin</artifactId>
+        <configuration>
+          <resourceIncludes>src/main/resources/**/*.properties</resourceIncludes>
+        </configuration>
       </plugin>
       
       <plugin>

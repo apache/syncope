@@ -28,7 +28,7 @@ public class ImagePanel extends Panel {
 
     private static final long serialVersionUID = 5564818820574092960L;
 
-    final Image img;
+    private final Image img;
 
     public ImagePanel(final String id, final ContextRelativeResource img) {
         super(id);

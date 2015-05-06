@@ -58,7 +58,7 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
     protected abstract AbstractSubjectMod getSubjectMod(AbstractSubjectTO subjectTO, SyncDelta delta);
 
     protected abstract AbstractSubjectTO doCreate(
-            AbstractSubjectTO subjectTO, SyncDelta _delta, ProvisioningResult result);
+            AbstractSubjectTO subjectTO, SyncDelta delta, ProvisioningResult result);
 
     protected abstract AbstractSubjectTO doLink(AbstractSubjectTO before, ProvisioningResult result, boolean unlink);
 
@@ -118,12 +118,12 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
         if (profile.isDryRun()) {
             result.setKey(0L);
         } else {
-            SyncDelta _delta = delta;
+            SyncDelta actionedDelta = delta;
             for (SyncActions action : profile.getActions()) {
-                _delta = action.beforeAssign(this.getProfile(), _delta, transformed);
+                actionedDelta = action.beforeAssign(this.getProfile(), actionedDelta, transformed);
             }
 
-            create(transformed, _delta, attrUtils, UnmatchingRule.toEventName(UnmatchingRule.ASSIGN), result);
+            create(transformed, actionedDelta, attrUtils, UnmatchingRule.toEventName(UnmatchingRule.ASSIGN), result);
         }
 
         return Collections.singletonList(result);
@@ -154,12 +154,12 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
         if (profile.isDryRun()) {
             result.setKey(0L);
         } else {
-            SyncDelta _delta = delta;
+            SyncDelta actionedDelta = delta;
             for (SyncActions action : profile.getActions()) {
-                _delta = action.beforeProvision(this.getProfile(), _delta, transformed);
+                actionedDelta = action.beforeProvision(this.getProfile(), actionedDelta, transformed);
             }
 
-            create(transformed, _delta, attrUtils, UnmatchingRule.toEventName(UnmatchingRule.PROVISION), result);
+            create(transformed, actionedDelta, attrUtils, UnmatchingRule.toEventName(UnmatchingRule.PROVISION), result);
         }
 
         return Collections.<ProvisioningResult>singletonList(result);
@@ -204,9 +204,8 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
         audit(operation, resultStatus, null, output, delta);
     }
 
-    protected List<ProvisioningResult> update(SyncDelta delta, final List<Long> subjects,
-            final AttributableUtils attrUtils)
-            throws JobExecutionException {
+    protected List<ProvisioningResult> update(final SyncDelta delta, final List<Long> subjects,
+            final AttributableUtils attrUtils) throws JobExecutionException {
 
         if (!profile.getTask().isPerformUpdate()) {
             LOG.debug("SyncTask not configured for update");
@@ -217,6 +216,7 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
 
         List<ProvisioningResult> results = new ArrayList<>();
 
+        SyncDelta workingDelta = delta;
         for (Long key : subjects) {
             LOG.debug("About to update {}", key);
 
@@ -242,20 +242,20 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
                     output = null;
                 } else {
                     try {
-                        final AbstractSubjectMod attributableMod = getSubjectMod(before, delta);
+                        AbstractSubjectMod subjectMod = getSubjectMod(before, workingDelta);
 
                         // Attribute value transformation (if configured)
-                        final AbstractSubjectMod actual = attrTransformer.transform(attributableMod);
+                        AbstractSubjectMod actual = attrTransformer.transform(subjectMod);
                         LOG.debug("Transformed: {}", actual);
 
                         for (SyncActions action : profile.getActions()) {
-                            delta = action.beforeUpdate(this.getProfile(), delta, before, attributableMod);
+                            workingDelta = action.beforeUpdate(this.getProfile(), workingDelta, before, subjectMod);
                         }
 
-                        final AbstractSubjectTO updated = doUpdate(before, attributableMod, delta, result);
+                        final AbstractSubjectTO updated = doUpdate(before, subjectMod, workingDelta, result);
 
                         for (SyncActions action : profile.getActions()) {
-                            action.after(this.getProfile(), delta, updated, result);
+                            action.after(this.getProfile(), workingDelta, updated, result);
                         }
 
                         output = updated;
@@ -265,7 +265,8 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
                     } catch (PropagationException e) {
                         // A propagation failure doesn't imply a synchronization failure.
                         // The propagation exception status will be reported into the propagation task execution.
-                        LOG.error("Could not propagate {} {}", attrUtils.getType(), delta.getUid().getUidValue(), e);
+                        LOG.error("Could not propagate {} {}", 
+                                attrUtils.getType(), workingDelta.getUid().getUidValue(), e);
                         output = e;
                         resultStatus = Result.FAILURE;
                     } catch (IgnoreProvisionException e) {
@@ -273,12 +274,13 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
                     } catch (Exception e) {
                         result.setStatus(ProvisioningResult.Status.FAILURE);
                         result.setMessage(ExceptionUtils.getRootCauseMessage(e));
-                        LOG.error("Could not update {} {}", attrUtils.getType(), delta.getUid().getUidValue(), e);
+                        LOG.error("Could not update {} {}", 
+                                attrUtils.getType(), workingDelta.getUid().getUidValue(), e);
                         output = e;
                         resultStatus = Result.FAILURE;
                     }
                 }
-                audit(MatchingRule.toEventName(MatchingRule.UPDATE), resultStatus, before, output, delta);
+                audit(MatchingRule.toEventName(MatchingRule.UPDATE), resultStatus, before, output, workingDelta);
             }
             results.add(result);
         }
@@ -286,7 +288,7 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
     }
 
     protected List<ProvisioningResult> deprovision(
-            SyncDelta delta,
+            final SyncDelta delta,
             final List<Long> subjects,
             final AttributableUtils attrUtils,
             final boolean unlink)
@@ -374,7 +376,7 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
     }
 
     protected List<ProvisioningResult> link(
-            SyncDelta delta,
+            final SyncDelta delta,
             final List<Long> subjects,
             final AttributableUtils attrUtils,
             final boolean unlink)
@@ -460,7 +462,7 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
     }
 
     protected List<ProvisioningResult> delete(
-            SyncDelta delta, final List<Long> subjects, final AttributableUtils attrUtils)
+            final SyncDelta delta, final List<Long> subjects, final AttributableUtils attrUtils)
             throws JobExecutionException {
 
         if (!profile.getTask().isPerformDelete()) {
@@ -472,6 +474,7 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
 
         List<ProvisioningResult> delResults = new ArrayList<>();
 
+        SyncDelta workingDelta = delta;
         for (Long id : subjects) {
             Object output;
             Result resultStatus = Result.FAILURE;
@@ -490,7 +493,7 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
 
                 if (!profile.isDryRun()) {
                     for (SyncActions action : profile.getActions()) {
-                        delta = action.beforeDelete(this.getProfile(), delta, before);
+                        workingDelta = action.beforeDelete(this.getProfile(), workingDelta, before);
                     }
 
                     try {
@@ -507,10 +510,10 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
                     }
 
                     for (SyncActions action : profile.getActions()) {
-                        action.after(this.getProfile(), delta, before, result);
+                        action.after(this.getProfile(), workingDelta, before, result);
                     }
 
-                    audit(ResourceOperation.DELETE.name().toLowerCase(), resultStatus, before, output, delta);
+                    audit(ResourceOperation.DELETE.name().toLowerCase(), resultStatus, before, output, workingDelta);
                 }
 
                 delResults.add(result);
@@ -527,8 +530,8 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
         return delResults;
     }
 
-    private List<ProvisioningResult> ignore(SyncDelta delta, final AttributableUtils attrUtils, final boolean matching)
-            throws JobExecutionException {
+    private List<ProvisioningResult> ignore(final SyncDelta delta, final AttributableUtils attrUtils,
+            final boolean matching) throws JobExecutionException {
 
         LOG.debug("Subject to ignore {}", delta.getObject().getUid().getUidValue());
 

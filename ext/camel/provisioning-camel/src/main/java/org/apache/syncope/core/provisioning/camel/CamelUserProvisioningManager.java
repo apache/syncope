@@ -51,14 +51,14 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
     }
 
     @Override
-    public Pair<Long, List<PropagationStatus>> create(final UserTO userTO, boolean storePassword) {
+    public Pair<Long, List<PropagationStatus>> create(final UserTO userTO, final boolean storePassword) {
         return create(userTO, storePassword, false, null, Collections.<String>emptySet());
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public Pair<Long, List<PropagationStatus>> create(final UserTO userTO, final boolean storePassword,
-            boolean disablePwdPolicyCheck, Boolean enabled, Set<String> excludedResources) {
+            final boolean disablePwdPolicyCheck, final Boolean enabled, final Set<String> excludedResources) {
 
         PollingConsumer pollingConsumer = getConsumer("direct:createPort");
 
@@ -86,7 +86,7 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
 
     @Override
     @SuppressWarnings("unchecked")
-    public Pair<Long, List<PropagationStatus>> update(UserMod userMod, boolean removeMemberships) {
+    public Pair<Long, List<PropagationStatus>> update(final UserMod userMod, final boolean removeMemberships) {
         PollingConsumer pollingConsumer = getConsumer("direct:updatePort");
 
         Map<String, Object> props = new HashMap<>();
@@ -275,12 +275,12 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
 
         Exchange exchange = pollingConsumer.receive();
 
-        Exception e;
-        if ((e = (Exception) exchange.getProperty(Exchange.EXCEPTION_CAUGHT)) != null) {
-            LOG.error("Update of user {} failed, trying to sync its status anyway (if configured)", key, e);
+        Exception ex = (Exception) exchange.getProperty(Exchange.EXCEPTION_CAUGHT);
+        if (ex != null) {
+            LOG.error("Update of user {} failed, trying to sync its status anyway (if configured)", key, ex);
 
             result.setStatus(ProvisioningResult.Status.FAILURE);
-            result.setMessage("Update failed, trying to sync status anyway (if configured)\n" + e.getMessage());
+            result.setMessage("Update failed, trying to sync status anyway (if configured)\n" + ex.getMessage());
 
             WorkflowResult<Pair<UserMod, Boolean>> updated = new WorkflowResult<Pair<UserMod, Boolean>>(
                     new ImmutablePair<>(userMod, false), new PropagationByResource(),

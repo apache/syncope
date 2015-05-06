@@ -48,6 +48,7 @@ public class SyncopeGroupQueryImpl implements GroupQuery {
         try {
             this.groupId = Long.valueOf(groupId);
         } catch (NumberFormatException e) {
+            // ignore
         }
 
         return this;

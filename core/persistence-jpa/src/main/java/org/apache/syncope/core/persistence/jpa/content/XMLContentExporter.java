@@ -77,7 +77,7 @@ import org.xml.sax.helpers.AttributesImpl;
 @Component
 public class XMLContentExporter extends AbstractContentDealer implements ContentExporter {
 
-    protected final static Set<String> TABLE_PREFIXES_TO_BE_EXCLUDED =
+    protected static final Set<String> TABLE_PREFIXES_TO_BE_EXCLUDED =
             new HashSet<>(Arrays.asList(new String[] {
                 "QRTZ_", "LOGGING", JPAReportExec.TABLE, JPATaskExec.TABLE,
                 JPAUser.TABLE, JPAUPlainAttr.TABLE, JPAUPlainAttrValue.TABLE, JPAUPlainAttrUniqueValue.TABLE,
@@ -86,7 +86,7 @@ public class XMLContentExporter extends AbstractContentDealer implements Content
                 JPAMDerAttr.TABLE, JPAMVirAttr.TABLE
             }));
 
-    protected final static Set<String> TABLE_SUFFIXES_TO_BE_INCLUDED =
+    protected static final Set<String> TABLE_SUFFIXES_TO_BE_INCLUDED =
             new HashSet<>(Arrays.asList(new String[] { "TEMPLATE" }));
 
     protected static final Map<String, String> TABLES_TO_BE_FILTERED =
@@ -320,7 +320,7 @@ public class XMLContentExporter extends AbstractContentDealer implements Content
     }
 
     @Override
-    public void export(final OutputStream os, final String uwfPrefix, String rwfPrefix)
+    public void export(final OutputStream os, final String uwfPrefix, final String rwfPrefix)
             throws SAXException, TransformerConfigurationException {
 
         if (StringUtils.isNotBlank(uwfPrefix)) {

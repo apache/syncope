@@ -87,7 +87,7 @@ public class ImplementationClassNamesLoader implements SyncopeLoader {
         scanner.addIncludeFilter(new AssignableTypeFilter(SyncActions.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(PushActions.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(SyncCorrelationRule.class));
-        // TODO: SYNCOPE-631
+        // Remove once SYNCOPE-631 is done
         //scanner.addIncludeFilter(new AssignableTypeFilter(PushCorrelationRule.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(PropagationActions.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(Validator.class));
@@ -121,7 +121,7 @@ public class ImplementationClassNamesLoader implements SyncopeLoader {
                     classNames.get(Type.SYNC_CORRELATION_RULE).add(bd.getBeanClassName());
                 }
 
-                // TODO: SYNCOPE-631
+                // Uncomment when SYNCOPE-631 is done
                 /* if (PushCorrelationRule.class.isAssignableFrom(clazz) && !isAbsractClazz) {
                  * classNames.get(Type.PUSH_CORRELATION_RULES).add(metadata.getClassName());
                  * } */

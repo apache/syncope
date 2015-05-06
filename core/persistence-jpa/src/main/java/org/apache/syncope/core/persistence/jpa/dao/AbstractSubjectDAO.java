@@ -108,8 +108,9 @@ abstract class AbstractSubjectDAO<P extends PlainAttr, D extends DerAttr, V exte
         final List<String> literals = new ArrayList<>();
 
         // Get schema names and literals
-        Token token;
-        while ((token = parser.getNextToken()) != null && StringUtils.isNotBlank(token.toString())) {
+        for (Token token = parser.getNextToken(); token != null && StringUtils.isNotBlank(token.toString());
+                token = parser.getNextToken()) {
+
             if (token.kind == ParserConstants.STRING_LITERAL) {
                 literals.add(token.toString().substring(1, token.toString().length() - 1));
             }

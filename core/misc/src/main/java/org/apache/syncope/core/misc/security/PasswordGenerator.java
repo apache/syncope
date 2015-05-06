@@ -23,9 +23,7 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.PasswordPolicySpec;
-import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.misc.policy.InvalidPasswordPolicySpecException;
 import org.apache.syncope.core.misc.policy.PolicyPattern;
@@ -37,15 +35,12 @@ import org.springframework.stereotype.Component;
 /**
  * Generate random passwords according to given policies.
  *
- * @see PasswordPolicy
+ * @see org.apache.syncope.core.persistence.api.entity.PasswordPolicy
  */
 @Component
 public class PasswordGenerator {
 
     private static final char[] SPECIAL_CHARS = { '!', '£', '%', '&', '(', ')', '?', '#', '$' };
-
-    @Autowired
-    private PolicyDAO policyDAO;
 
     @Autowired
     private RealmDAO realmDAO;

@@ -31,7 +31,6 @@ import org.apache.syncope.common.lib.mod.GroupMod;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.core.provisioning.api.GroupProvisioningManager;
-import org.apache.syncope.core.provisioning.api.propagation.PropagationException;
 
 public class CamelGroupProvisioningManager
         extends AbstractCamelProvisioningManager implements GroupProvisioningManager {
@@ -63,7 +62,7 @@ public class CamelGroupProvisioningManager
     @Override
     @SuppressWarnings("unchecked")
     public Pair<Long, List<PropagationStatus>> create(final GroupTO groupTO, final Map<Long, String> groupOwnerMap,
-            final Set<String> excludedResources) throws PropagationException {
+            final Set<String> excludedResources) {
 
         PollingConsumer pollingConsumer = getConsumer("direct:createGroupInSyncPort");
 
@@ -156,7 +155,7 @@ public class CamelGroupProvisioningManager
 
     @Override
     @SuppressWarnings("unchecked")
-    public List<PropagationStatus> deprovision(final Long groupKey, Collection<String> resources) {
+    public List<PropagationStatus> deprovision(final Long groupKey, final Collection<String> resources) {
         PollingConsumer pollingConsumer = getConsumer("direct:deprovisionGroupPort");
 
         Map<String, Object> props = new HashMap<>();

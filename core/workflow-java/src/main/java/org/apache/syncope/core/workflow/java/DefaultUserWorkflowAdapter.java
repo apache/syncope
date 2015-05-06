@@ -30,7 +30,6 @@ import org.apache.syncope.common.lib.to.WorkflowFormTO;
 import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
-import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.workflow.api.WorkflowDefinitionFormat;
@@ -48,22 +47,20 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     private ConfDAO confDAO;
 
     @Override
-    public WorkflowResult<Pair<Long, Boolean>> create(UserTO userTO, boolean storePassword)
-            throws WorkflowException {
-
+    public WorkflowResult<Pair<Long, Boolean>> create(final UserTO userTO, final boolean storePassword) {
         return create(userTO, false, true);
     }
 
     @Override
     public WorkflowResult<Pair<Long, Boolean>> create(final UserTO userTO, final boolean disablePwdPolicyCheck,
-            final boolean storePassword) throws WorkflowException {
+            final boolean storePassword) {
 
         return create(userTO, disablePwdPolicyCheck, null, storePassword);
     }
 
     @Override
     public WorkflowResult<Pair<Long, Boolean>> create(final UserTO userTO, final boolean disablePwdPolicyCheck,
-            final Boolean enabled, final boolean storePassword) throws WorkflowException {
+            final Boolean enabled, final boolean storePassword) {
 
         User user = entityFactory.newEntity(User.class);
         dataBinder.create(user, userTO, storePassword);
@@ -97,9 +94,7 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    protected WorkflowResult<Long> doActivate(final User user, final String token)
-            throws WorkflowException {
-
+    protected WorkflowResult<Long> doActivate(final User user, final String token) {
         if (!user.checkToken(token)) {
             throw new WorkflowException(new IllegalArgumentException("Wrong token: " + token + " for " + user));
         }
@@ -112,9 +107,7 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    protected WorkflowResult<Pair<UserMod, Boolean>> doUpdate(final User user, final UserMod userMod)
-            throws WorkflowException {
-
+    protected WorkflowResult<Pair<UserMod, Boolean>> doUpdate(final User user, final UserMod userMod) {
         // update password internally only if required
         UserMod actualMod = SerializationUtils.clone(userMod);
         if (actualMod.getPwdPropRequest() != null && !actualMod.getPwdPropRequest().isOnSyncope()) {
@@ -131,7 +124,7 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    protected WorkflowResult<Long> doSuspend(final User user) throws WorkflowException {
+    protected WorkflowResult<Long> doSuspend(final User user) {
         user.setStatus("suspended");
         User updated = userDAO.save(user);
 
@@ -139,7 +132,7 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    protected WorkflowResult<Long> doReactivate(final User user) throws WorkflowException {
+    protected WorkflowResult<Long> doReactivate(final User user) {
         user.setStatus("active");
         User updated = userDAO.save(user);
 
@@ -147,7 +140,7 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    protected void doRequestPasswordReset(final User user) throws WorkflowException {
+    protected void doRequestPasswordReset(final User user) {
         user.generateToken(
                 confDAO.find("token.length", "256").getValues().get(0).getLongValue().intValue(),
                 confDAO.find("token.expireTime", "60").getValues().get(0).getLongValue().intValue());
@@ -155,9 +148,7 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    protected void doConfirmPasswordReset(final User user, final String token, final String password)
-            throws WorkflowException {
-
+    protected void doConfirmPasswordReset(final User user, final String token, final String password) {
         if (!user.checkToken(token)) {
             throw new WorkflowException(new IllegalArgumentException("Wrong token: " + token + " for " + user));
         }
@@ -168,33 +159,27 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    protected void doDelete(final User user) throws WorkflowException {
+    protected void doDelete(final User user) {
         userDAO.delete(user);
     }
 
     @Override
-    public WorkflowResult<Long> execute(final UserTO userTO, final String taskId)
-            throws NotFoundException, WorkflowException {
-
+    public WorkflowResult<Long> execute(final UserTO userTO, final String taskId) {
         throw new WorkflowException(new UnsupportedOperationException("Not supported."));
     }
 
     @Override
-    public void exportDefinition(final WorkflowDefinitionFormat format, final OutputStream os)
-            throws WorkflowException {
-
+    public void exportDefinition(final WorkflowDefinitionFormat format, final OutputStream os) {
         throw new WorkflowException(new UnsupportedOperationException("Not supported."));
     }
 
     @Override
-    public void exportDiagram(final OutputStream os) throws WorkflowException {
+    public void exportDiagram(final OutputStream os) {
         throw new WorkflowException(new UnsupportedOperationException("Not supported."));
     }
 
     @Override
-    public void importDefinition(final WorkflowDefinitionFormat format, final String definition)
-            throws NotFoundException, WorkflowException {
-
+    public void importDefinition(final WorkflowDefinitionFormat format, final String definition) {
         throw new WorkflowException(new UnsupportedOperationException("Not supported."));
     }
 
@@ -209,23 +194,17 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    public WorkflowFormTO getForm(final String workflowId)
-            throws NotFoundException, WorkflowException {
-
+    public WorkflowFormTO getForm(final String workflowId) {
         return null;
     }
 
     @Override
-    public WorkflowFormTO claimForm(final String taskId)
-            throws NotFoundException, WorkflowException {
-
+    public WorkflowFormTO claimForm(final String taskId) {
         throw new WorkflowException(new UnsupportedOperationException("Not supported."));
     }
 
     @Override
-    public WorkflowResult<UserMod> submitForm(final WorkflowFormTO form)
-            throws NotFoundException, WorkflowException {
-
+    public WorkflowResult<UserMod> submitForm(final WorkflowFormTO form) {
         throw new WorkflowException(new UnsupportedOperationException("Not supported."));
     }
 

@@ -342,7 +342,7 @@ public class GroupLogic extends AbstractSubjectLogic<GroupTO, GroupMod> {
             }
         }
 
-        if ((key != null) && !key.equals(0l)) {
+        if ((key != null) && !key.equals(0L)) {
             try {
                 return binder.getGroupTO(key);
             } catch (Throwable ignore) {

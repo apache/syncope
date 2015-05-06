@@ -33,6 +33,10 @@ under the License.
   <artifactId>syncope-archetype</artifactId>
   <packaging>maven-archetype</packaging>
 
+  <properties>
+    <rootpom.basedir>${basedir}/..</rootpom.basedir>
+  </properties>
+
   <build>
     <extensions>
       <extension>
@@ -102,10 +106,9 @@ under the License.
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-pmd-plugin</artifactId>
+        <configuration>
+          <resourceIncludes>src/main/resources/**/*.properties</resourceIncludes>
+        </configuration>
       </plugin>
     </plugins>
 

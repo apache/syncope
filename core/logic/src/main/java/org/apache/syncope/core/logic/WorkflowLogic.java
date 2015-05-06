@@ -27,7 +27,6 @@ import org.apache.syncope.core.workflow.api.GroupWorkflowAdapter;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
 import org.apache.syncope.core.workflow.api.WorkflowAdapter;
 import org.apache.syncope.core.workflow.api.WorkflowDefinitionFormat;
-import org.apache.syncope.core.workflow.api.WorkflowException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
@@ -43,8 +42,7 @@ public class WorkflowLogic extends AbstractTransactionalLogic<AbstractBaseBean> 
     private GroupWorkflowAdapter gwfAdapter;
 
     private void exportDefinition(
-            final WorkflowAdapter adapter, final WorkflowDefinitionFormat format, final OutputStream os)
-            throws WorkflowException {
+            final WorkflowAdapter adapter, final WorkflowDefinitionFormat format, final OutputStream os) {
 
         adapter.exportDefinition(format, os);
     }
@@ -57,39 +55,29 @@ public class WorkflowLogic extends AbstractTransactionalLogic<AbstractBaseBean> 
 
     @PreAuthorize("hasRole('" + Entitlement.WORKFLOW_DEF_READ + "')")
     @Transactional(readOnly = true)
-    public void exportUserDefinition(final MediaType format, final OutputStream os)
-            throws WorkflowException {
-
+    public void exportUserDefinition(final MediaType format, final OutputStream os) {
         exportDefinition(uwfAdapter, getFormat(format), os);
     }
 
     @PreAuthorize("hasRole('" + Entitlement.WORKFLOW_DEF_READ + "')")
     @Transactional(readOnly = true)
-    public void exportGroupDefinition(final MediaType format, final OutputStream os)
-            throws WorkflowException {
-
+    public void exportGroupDefinition(final MediaType format, final OutputStream os) {
         exportDefinition(gwfAdapter, getFormat(format), os);
     }
 
-    private void exportDiagram(final WorkflowAdapter adapter, final OutputStream os)
-            throws WorkflowException {
-
+    private void exportDiagram(final WorkflowAdapter adapter, final OutputStream os) {
         adapter.exportDiagram(os);
     }
 
     @PreAuthorize("hasRole('" + Entitlement.WORKFLOW_DEF_READ + "')")
     @Transactional(readOnly = true)
-    public void exportUserDiagram(final OutputStream os)
-            throws WorkflowException {
-
+    public void exportUserDiagram(final OutputStream os) {
         exportDiagram(uwfAdapter, os);
     }
 
     @PreAuthorize("hasRole('" + Entitlement.WORKFLOW_DEF_READ + "')")
     @Transactional(readOnly = true)
-    public void exportGroupDiagram(final OutputStream os)
-            throws WorkflowException {
-
+    public void exportGroupDiagram(final OutputStream os) {
         exportDiagram(gwfAdapter, os);
     }
 

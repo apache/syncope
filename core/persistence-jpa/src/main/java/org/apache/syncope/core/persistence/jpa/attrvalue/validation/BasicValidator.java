@@ -33,7 +33,7 @@ public class BasicValidator extends AbstractValidator {
     }
 
     @Override
-    protected void doValidate(final PlainAttrValue attrValue) throws InvalidPlainAttrValueException {
+    protected void doValidate(final PlainAttrValue attrValue) {
         if (AttrSchemaType.Enum == schema.getType()) {
             final String[] enumeration = schema.getEnumerationValues().split(SyncopeConstants.ENUM_VALUES_SEPARATOR);
             final String value = attrValue.getStringValue();

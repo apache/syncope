@@ -21,9 +21,6 @@ package org.apache.syncope.installer.utilities;
 import com.izforge.izpack.panels.process.AbstractUIProcessHandler;
 import java.io.File;
 import java.io.IOException;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
@@ -190,6 +187,7 @@ public class HttpUtils {
                         new HttpGet(String.format(HTTP_URL_TEMPLATE, host, port))).getStatusLine().getStatusCode();
             }
         } catch (IOException ex) {
+            // ignore
         }
 
         return status;
@@ -203,10 +201,10 @@ public class HttpUtils {
             chc = HttpClients.custom().setSSLSocketFactory(
                     new SSLConnectionSocketFactory(builder.build(),
                             SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER)).build();
-        } catch (KeyManagementException ex) {
-        } catch (NoSuchAlgorithmException ex) {
-        } catch (KeyStoreException ex) {
+        } catch (Exception ex) {
+            // ignore
         }
+
         return chc;
     }
 }

@@ -27,7 +27,6 @@ public class ArchetypeValidator extends AbstractValidator {
 
     @Override
     public Status validateData(final InstallData installData) {
-
         final String mavenDir = installData.getVariable("mvn.directory");
         final String mavenGroupId = installData.getVariable("mvn.groupid");
         final String mavenArtifactId = installData.getVariable("mvn.artifactid");
@@ -41,7 +40,7 @@ public class ArchetypeValidator extends AbstractValidator {
         if (isEmpty(mavenDir)) {
             error.append("Maven home directory\n");
             verified = false;
-        } else if (!new File(mavenDir + "/bin/mvn").exists()){
+        } else if (!new File(mavenDir + "/bin/mvn").exists()) {
             error.append("Maven home directory not valid, check it please...\n");
             verified = false;
         }

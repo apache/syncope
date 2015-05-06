@@ -24,7 +24,6 @@ import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import org.apache.syncope.core.persistence.api.dao.ReportDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.jpa.entity.JPAReport;
 import org.springframework.stereotype.Repository;
@@ -69,7 +68,7 @@ public class JPAReportDAO extends AbstractDAO<Report, Long> implements ReportDAO
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
-    public Report save(final Report report) throws InvalidEntityException {
+    public Report save(final Report report) {
         return entityManager.merge(report);
     }
 

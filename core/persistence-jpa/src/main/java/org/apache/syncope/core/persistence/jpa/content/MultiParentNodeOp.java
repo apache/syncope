@@ -21,7 +21,7 @@ package org.apache.syncope.core.persistence.jpa.content;
 import java.util.Collection;
 import java.util.Set;
 
-class MultiParentNodeOp {
+final class MultiParentNodeOp {
 
     private MultiParentNodeOp() {
     }

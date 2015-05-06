@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.installer.files;
 
-public class ConsoleProperties {
+public final class ConsoleProperties {
 
     public static final String PLACEHOLDER = "scheme=http\n"
             + "host=localhost\n"
@@ -28,4 +28,7 @@ public class ConsoleProperties {
             + "host=%s\n"
             + "port=%s";
 
+    private ConsoleProperties() {
+            // private constructor for static utility class
+    }
 }

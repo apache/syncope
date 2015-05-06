@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.installer.files;
 
-public class PersistenceContextEMFactoryXml {
+public final class PersistenceContextEMFactoryXml {
 
     public static final String PLACEHOLDER = "<entry key=\"openjpa.MetaDataFactory\"\n"
             + "               value=\"jpa(URLs=vfs:${project.build.directory}/cargo/configurations/wildfly8x/"
@@ -28,4 +28,7 @@ public class PersistenceContextEMFactoryXml {
             "<entry key=\"openjpa.MetaDataFactory\" value=\"jpa(URLs=vfs:/content/${project.build.finalName}.war/"
             + "WEB-INF/classes/, Resources=META-INF/orm.xml)\"/>";
 
+    private PersistenceContextEMFactoryXml() {
+        // private constructor for static utility class
+    }
 }

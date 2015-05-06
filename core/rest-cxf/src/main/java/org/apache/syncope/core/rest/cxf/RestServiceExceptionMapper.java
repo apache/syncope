@@ -328,8 +328,7 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
         Throwable throwable = ExceptionUtils.getRootCause(ex);
         String message = null;
         if (throwable instanceof SQLException) {
-            String SQLState = ((SQLException) throwable).getSQLState();
-            String messageKey = EXCEPTION_CODE_MAP.get(SQLState);
+            String messageKey = EXCEPTION_CODE_MAP.get(((SQLException) throwable).getSQLState());
             if (messageKey != null) {
                 message = env.getProperty("errMessage." + messageKey);
             }

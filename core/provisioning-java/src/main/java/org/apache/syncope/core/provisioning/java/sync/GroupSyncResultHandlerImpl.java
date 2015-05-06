@@ -65,9 +65,7 @@ public class GroupSyncResultHandlerImpl extends AbstractSyncResultHandler implem
     }
 
     @Override
-    protected AbstractSubjectMod getSubjectMod(
-            final AbstractSubjectTO subjectTO, final SyncDelta delta) {
-
+    protected AbstractSubjectMod getSubjectMod(final AbstractSubjectTO subjectTO, final SyncDelta delta) {
         return connObjectUtils.getAttributableMod(
                 subjectTO.getKey(),
                 delta.getObject(),
@@ -78,7 +76,7 @@ public class GroupSyncResultHandlerImpl extends AbstractSyncResultHandler implem
 
     @Override
     protected AbstractSubjectTO doCreate(
-            final AbstractSubjectTO subjectTO, final SyncDelta _delta, final ProvisioningResult result) {
+            final AbstractSubjectTO subjectTO, final SyncDelta delta, final ProvisioningResult result) {
 
         GroupTO groupTO = GroupTO.class.cast(subjectTO);
 

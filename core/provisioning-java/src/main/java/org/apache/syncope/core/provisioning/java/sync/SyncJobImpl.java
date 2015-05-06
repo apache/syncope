@@ -23,7 +23,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.mod.ReferenceMod;
 import org.apache.syncope.common.lib.mod.GroupMod;
 import org.apache.syncope.common.lib.types.SyncPolicySpec;
-import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.group.GMapping;
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
@@ -32,7 +31,6 @@ import org.apache.syncope.core.persistence.api.entity.user.UMapping;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.sync.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.api.sync.SyncActions;
-import org.apache.syncope.core.misc.security.UnauthorizedException;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.provisioning.api.job.SyncJob;
 import org.apache.syncope.core.provisioning.api.sync.GroupSyncResultHandler;
@@ -61,9 +59,7 @@ public class SyncJobImpl extends AbstractProvisioningJob<SyncTask, SyncActions> 
     @Autowired
     protected SyncUtils syncUtilities;
 
-    protected void setGroupOwners(final GroupSyncResultHandler rhandler)
-            throws UnauthorizedException, NotFoundException {
-
+    protected void setGroupOwners(final GroupSyncResultHandler rhandler) {
         for (Map.Entry<Long, String> entry : rhandler.getGroupOwnerMap().entrySet()) {
             GroupMod groupMod = new GroupMod();
             groupMod.setKey(entry.getKey());

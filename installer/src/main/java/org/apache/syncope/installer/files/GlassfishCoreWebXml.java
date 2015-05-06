@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.installer.files;
 
-public class GlassfishCoreWebXml {
+public final class GlassfishCoreWebXml {
 
     public static final String PLACEHOLDER = "  <!--<resource-ref>\n"
             + "    <res-ref-name>jdbc/syncopeDataSource</res-ref-name>\n"
@@ -27,7 +27,10 @@ public class GlassfishCoreWebXml {
 
     public static final String DATA_SOURCE = "  <resource-ref>\n"
             + "    <res-ref-name>jdbc/syncopeDataSource</res-ref-name>\n"
-            + "    <jndi-name>jdbc/syncopeDataSource</jndi-name>\n" 
+            + "    <jndi-name>jdbc/syncopeDataSource</jndi-name>\n"
             + "  </resource-ref>";
 
+    private GlassfishCoreWebXml() {
+        // private constructor for static utility class
+    }
 }

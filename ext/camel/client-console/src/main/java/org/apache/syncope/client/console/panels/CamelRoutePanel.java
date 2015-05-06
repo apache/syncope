@@ -84,7 +84,7 @@ public class CamelRoutePanel extends AbstractExtensionPanel {
             public void populateItem(final Item<ICellPopulator<CamelRouteTO>> cellItem, final String componentId,
                     final IModel<CamelRouteTO> model) {
 
-                // TODO: SYNCOPE-120
+                // Uncomment with something similar once SYNCOPE-156 is completed
                 /*final ActionLinksPanel panel = new ActionLinksPanel(componentId, model, pageref);
 
                 panel.add(new ActionLink() {

@@ -58,19 +58,19 @@ public class LoggerCommand extends AbstractCommand {
             + "       Syntax: -d={LOG-NAME}";
 
     @Parameter(names = { "-r", "--read" })
-    public String logNameToRead;
+    private String logNameToRead;
 
     @DynamicParameter(names = { "-u", "--update" })
     private final Map<String, String> updateLogs = new HashMap<String, String>();
 
     @Parameter(names = { "-ua", "--update-all" })
-    public String logLevel;
+    private String logLevel;
 
     @DynamicParameter(names = { "-c", "--create" })
     private final Map<String, String> createLogs = new HashMap<String, String>();
 
     @Parameter(names = { "-d", "--delete" })
-    public String logNameToDelete;
+    private String logNameToDelete;
 
     @Override
     public void execute() {

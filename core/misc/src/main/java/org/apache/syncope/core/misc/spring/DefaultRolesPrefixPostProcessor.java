@@ -20,7 +20,6 @@ package org.apache.syncope.core.misc.spring;
 
 import javax.servlet.ServletException;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.FatalBeanException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.core.PriorityOrdered;
@@ -34,7 +33,7 @@ import org.springframework.security.web.servletapi.SecurityContextHolderAwareReq
 public class DefaultRolesPrefixPostProcessor implements BeanPostProcessor, PriorityOrdered {
 
     @Override
-    public Object postProcessAfterInitialization(final Object bean, final String beanName) throws BeansException {
+    public Object postProcessAfterInitialization(final Object bean, final String beanName) {
         if (bean instanceof DefaultMethodSecurityExpressionHandler) {
             ((DefaultMethodSecurityExpressionHandler) bean).setDefaultRolePrefix(null);
         }
@@ -55,7 +54,7 @@ public class DefaultRolesPrefixPostProcessor implements BeanPostProcessor, Prior
     }
 
     @Override
-    public Object postProcessBeforeInitialization(final Object bean, final String beanName) throws BeansException {
+    public Object postProcessBeforeInitialization(final Object bean, final String beanName) {
         return bean;
     }
 

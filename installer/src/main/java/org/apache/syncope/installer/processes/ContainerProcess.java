@@ -36,15 +36,15 @@ import org.apache.syncope.installer.utilities.InstallLog;
 import org.apache.syncope.installer.utilities.MavenUtils;
 import org.xml.sax.SAXException;
 
-public class ContainerProcess extends BaseProcess {
+public final class ContainerProcess extends BaseProcess {
 
-    private final static String HTTP = "http";
+    private static final String HTTP = "http";
 
-    private final static String HTTPS = "https";
+    private static final String HTTPS = "https";
 
-    private final static String DEFAULT_HOST = "localhost";
+    private static final String DEFAULT_HOST = "localhost";
 
-    private final static String DEFAULT_PORT = "8080";
+    private static final String DEFAULT_PORT = "8080";
 
     private String installPath;
 
@@ -148,7 +148,7 @@ public class ContainerProcess extends BaseProcess {
             switch (selectedContainer) {
                 case GLASSFISH:
                     final File glassfishCoreWebXmlFile =
-                            new File(syncopeInstallDir + properties.getProperty("glassfishCoreWebXmlFile"));
+                            new File(syncopeInstallDir + PROPERTIES.getProperty("glassfishCoreWebXmlFile"));
                     final String contentGlassfishWebXmlFile = fileSystemUtils.readFile(glassfishCoreWebXmlFile);
                     fileSystemUtils.writeToFile(glassfishCoreWebXmlFile,
                             contentGlassfishWebXmlFile.replace(GlassfishCoreWebXml.PLACEHOLDER,
@@ -160,8 +160,8 @@ public class ContainerProcess extends BaseProcess {
         }
 
         final File consolePropertiesFile = new File(syncopeInstallDir
-                + properties.getProperty("consoleResDirectory")
-                + File.separator + properties.getProperty("consolePropertiesFile"));
+                + PROPERTIES.getProperty("consoleResDirectory")
+                + File.separator + PROPERTIES.getProperty("consolePropertiesFile"));
         final String contentConsolePropertiesFile = fileSystemUtils.readFile(consolePropertiesFile);
 
         final String scheme;
@@ -267,6 +267,7 @@ public class ContainerProcess extends BaseProcess {
                     InstallLog.getInstance().error(messageError);
                 }
                 break;
+
             case JBOSS:
                 final JBoss jBoss = new JBoss(
                         jbossSsl, jbossHost, jbossManagementPort, jbossAdminUsername,
@@ -292,6 +293,7 @@ public class ContainerProcess extends BaseProcess {
                     InstallLog.getInstance().error(messageError);
                 }
                 break;
+
             case GLASSFISH:
                 final String createJavaOptCommand = "sh " + glassfishDir + Glassfish.CREATE_JAVA_OPT_COMMAND;
                 fileSystemUtils.exec(createJavaOptCommand, null);
@@ -303,6 +305,8 @@ public class ContainerProcess extends BaseProcess {
                 fileSystemUtils.exec("sh " + glassfishDir
                         + Glassfish.DEPLOY_COMMAND + glassfish.deployConsole(), null);
                 break;
+
+            default:
         }
     }
 
@@ -310,13 +314,18 @@ public class ContainerProcess extends BaseProcess {
             final FileSystemUtils fileSystemUtils, final AbstractUIProcessHandler handler) {
         fileSystemUtils.copyFileFromResources("/jboss/persistenceContextEMFactory.xml",
                 syncopeInstallDir
-                + properties.getProperty("persistenceContextEMFactoryFile"), handler);
+                + PROPERTIES.getProperty("persistenceContextEMFactoryFile"), handler);
         final File persistenceContextEMFactoryFile = new File(
-                syncopeInstallDir + properties.getProperty("persistenceContextEMFactoryFile"));
+                syncopeInstallDir + PROPERTIES.getProperty("persistenceContextEMFactoryFile"));
         final String contentPersistenceContextEMFactory = fileSystemUtils.readFile(persistenceContextEMFactoryFile);
         fileSystemUtils.writeToFile(
                 persistenceContextEMFactoryFile,
                 contentPersistenceContextEMFactory.replace(PersistenceContextEMFactoryXml.PLACEHOLDER,
                         PersistenceContextEMFactoryXml.JBOSS));
+    }
+
+    private ContainerProcess() {
+        super();
+        // private constructor for static utility class
     }
 }

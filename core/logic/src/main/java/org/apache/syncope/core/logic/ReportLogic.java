@@ -390,7 +390,7 @@ public class ReportLogic extends AbstractTransactionalLogic<ReportTO> {
             }
         }
 
-        if ((key != null) && !key.equals(0l)) {
+        if ((key != null) && !key.equals(0L)) {
             try {
                 return binder.getReportTO(reportDAO.find(key));
             } catch (Throwable ignore) {

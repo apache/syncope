@@ -108,7 +108,7 @@ public class LDAPPasswordPropagationActions extends DefaultPropagationActions {
                 : (String) cipherAlgorithm.getValues().get(0);
     }
 
-    private boolean cipherAlgorithmMatches(String connectorAlgorithm, CipherAlgorithm userAlgorithm) {
+    private boolean cipherAlgorithmMatches(final String connectorAlgorithm, final CipherAlgorithm userAlgorithm) {
         if (userAlgorithm == null) {
             return false;
         }

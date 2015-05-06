@@ -47,16 +47,16 @@ class SearchSupport {
         }
     }
 
-    private final SubjectType type;
+    private final SubjectType subjectType;
 
-    public SearchSupport(final SubjectType type) {
-        this.type = type;
+    public SearchSupport(final SubjectType subjectType) {
+        this.subjectType = subjectType;
     }
 
-    public String fieldName(final AttrSchemaType type) {
+    public String fieldName(final AttrSchemaType attrSchemaType) {
         String result;
 
-        switch (type) {
+        switch (attrSchemaType) {
             case Boolean:
                 result = "booleanvalue";
                 break;
@@ -88,7 +88,7 @@ class SearchSupport {
     public SearchView field() {
         String result = "";
 
-        switch (type) {
+        switch (subjectType) {
             case USER:
             default:
                 result = "user_search";

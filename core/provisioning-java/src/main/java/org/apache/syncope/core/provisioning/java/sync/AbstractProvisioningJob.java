@@ -32,8 +32,6 @@ import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.entity.group.GMapping;
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
-import org.apache.syncope.core.persistence.api.entity.task.PushTask;
-import org.apache.syncope.core.persistence.api.entity.task.SyncTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.persistence.api.entity.user.UMapping;
 import org.apache.syncope.core.provisioning.api.Connector;
@@ -53,8 +51,8 @@ import org.springframework.security.core.userdetails.UserDetails;
  * Job for executing synchronization tasks.
  *
  * @see AbstractTaskJob
- * @see SyncTask
- * @see PushTask
+ * @see org.apache.syncope.core.persistence.api.entity.task.SyncTask
+ * @see org.apache.syncope.core.persistence.api.entity.task.PushTask
  */
 public abstract class AbstractProvisioningJob<T extends ProvisioningTask, A extends ProvisioningActions>
         extends AbstractTaskJob {

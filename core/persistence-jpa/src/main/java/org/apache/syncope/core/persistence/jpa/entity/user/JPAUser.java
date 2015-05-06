@@ -310,7 +310,6 @@ public class JPAUser extends AbstractSubject<UPlainAttr, UDerAttr, UVirAttr> imp
 
     @Override
     public void setEncodedPassword(final String password, final CipherAlgorithm cipherAlgoritm) {
-        // clear password
         this.clearPassword = null;
 
         this.password = password;
@@ -319,7 +318,6 @@ public class JPAUser extends AbstractSubject<UPlainAttr, UDerAttr, UVirAttr> imp
 
     @Override
     public void setPassword(final String password, final CipherAlgorithm cipherAlgoritm) {
-        // clear password
         this.clearPassword = password;
 
         try {

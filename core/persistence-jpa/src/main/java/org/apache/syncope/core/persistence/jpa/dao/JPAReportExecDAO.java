@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.jpa.dao;
 import java.util.List;
 import javax.persistence.TypedQuery;
 import org.apache.syncope.core.persistence.api.dao.ReportExecDAO;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
 import org.apache.syncope.core.persistence.jpa.entity.JPAReportExec;
@@ -72,11 +71,10 @@ public class JPAReportExecDAO extends AbstractDAO<ReportExec, Long> implements R
      * @see org.apache.syncope.core.report.ReportJob
      * @param execution to be merged
      * @return merged execution
-     * @throws InvalidEntityException if any validation error occurs
      */
     @Override
     @Transactional(rollbackFor = Throwable.class)
-    public ReportExec save(final ReportExec execution) throws InvalidEntityException {
+    public ReportExec save(final ReportExec execution) {
         return entityManager.merge(execution);
     }
 

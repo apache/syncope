@@ -21,11 +21,9 @@ package org.apache.syncope.core.persistence.jpa.entity;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 import javax.persistence.MappedSuperclass;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidPlainAttrValueException;
 import org.apache.syncope.core.persistence.api.entity.AttributableUtils;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
@@ -41,9 +39,7 @@ public abstract class AbstractPlainAttr extends AbstractEntity<Long> implements 
     protected abstract boolean addValue(PlainAttrValue attrValue);
 
     @Override
-    public void addValue(final String value, final AttributableUtils attributableUtil)
-            throws InvalidPlainAttrValueException {
-
+    public void addValue(final String value, final AttributableUtils attributableUtil) {
         PlainAttrValue attrValue;
         if (getSchema().isUniqueConstraint()) {
             attrValue = attributableUtil.newPlainAttrUniqueValue();

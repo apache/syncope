@@ -20,13 +20,13 @@ package org.apache.syncope.installer.containers.jboss;
 
 public class JBossDeployRequestContent {
 
-    public final JBossDeployRequest[] content = new JBossDeployRequest[1];
+    private final JBossDeployRequest[] content = new JBossDeployRequest[1];
 
-    public final JBossDeployment[] address = new JBossDeployment[1];
+    private final JBossDeployment[] address = new JBossDeployment[1];
 
-    public final String operation = "add";
+    private final String operation = "add";
 
-    public final String enabled = "true";
+    private final String enabled = "true";
 
     public JBossDeployRequestContent(final String hash, final String address) {
         this.content[0] = new JBossDeployRequest(hash);
@@ -35,7 +35,7 @@ public class JBossDeployRequestContent {
 
     public class JBossDeployRequest {
 
-        public JBossBytesValue hash;
+        private JBossBytesValue hash;
 
         public JBossBytesValue getHash() {
             return hash;
@@ -48,18 +48,18 @@ public class JBossDeployRequestContent {
 
     public class JBossBytesValue {
 
-        public String BYTES_VALUE;
+        private String bytesValue;
 
-        public JBossBytesValue(final String BYTES_VALUE) {
-            this.BYTES_VALUE = BYTES_VALUE;
+        public JBossBytesValue(final String bytesValue) {
+            this.bytesValue = bytesValue;
         }
     }
 
     public class JBossDeployment {
 
-        public String deployment;
+        private String deployment;
 
-        public JBossDeployment(String deployment) {
+        public JBossDeployment(final String deployment) {
             this.deployment = deployment;
         }
 

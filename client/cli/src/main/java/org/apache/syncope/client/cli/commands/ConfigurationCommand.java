@@ -30,7 +30,7 @@ import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.cli.SyncopeServices;
-import org.apache.syncope.client.cli.util.XmlUtils;
+import org.apache.syncope.client.cli.util.XMLUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.ConfTO;
@@ -69,25 +69,25 @@ public class ConfigurationCommand extends AbstractCommand {
             + "       Syntax: -e={WHERE-DIR} \n";
 
     @Parameter(names = { "-r", "--read" })
-    public String confNameToRead;
+    private String confNameToRead;
 
     @DynamicParameter(names = { "-u", "--update" })
-    private final Map<String, String> updateConf = new HashMap<String, String>();
+    private final Map<String, String> updateConf = new HashMap<>();
 
     @DynamicParameter(names = { "-c", "--create" })
-    private final Map<String, String> createConf = new HashMap<String, String>();
+    private final Map<String, String> createConf = new HashMap<>();
 
     @Parameter(names = { "-d", "--delete" })
-    public String confNameToDelete;
+    private String confNameToDelete;
 
     @Parameter(names = { "-v", "--validators" })
-    public boolean validators = false;
+    private boolean validators = false;
 
     @Parameter(names = { "-mt", "--mail-templates" })
-    public boolean mailTemplates = false;
+    private boolean mailTemplates = false;
 
     @Parameter(names = { "-e", "--export" })
-    public String export;
+    private String export;
 
     @Override
     public void execute() {
@@ -179,7 +179,7 @@ public class ConfigurationCommand extends AbstractCommand {
             LOG.debug("- configuration export command, directory where xml will be export: {}", export);
 
             try {
-                XmlUtils.createXMLFile((SequenceInputStream) configurationService.export().getEntity(), export
+                XMLUtils.createXMLFile((SequenceInputStream) configurationService.export().getEntity(), export
                         + EXPORT_FILE_NAME);
                 System.out.println(" - " + export + EXPORT_FILE_NAME + " successfully created");
             } catch (final IOException ex) {

@@ -49,8 +49,6 @@ public final class JexlHelpUtils {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                // using bitwise inversion as suggested by 
-                // http://pmd.sourceforge.net/pmd-4.2.5/rules/controversial.html#BooleanInversion
                 toogle ^= true;
                 wmc.setVisible(toogle);
                 target.add(wmc);

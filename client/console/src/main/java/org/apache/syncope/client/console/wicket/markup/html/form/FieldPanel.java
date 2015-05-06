@@ -69,15 +69,13 @@ public abstract class FieldPanel<T> extends AbstractFieldPanel<T> implements Clo
         return this;
     }
 
-    public FieldPanel<T> setRequired(boolean required) {
+    public FieldPanel<T> setRequired(final boolean required) {
         field.setRequired(required);
-
         return this;
     }
 
-    public FieldPanel<T> setReadOnly(boolean readOnly) {
+    public FieldPanel<T> setReadOnly(final boolean readOnly) {
         field.setEnabled(!readOnly);
-
         return this;
     }
 

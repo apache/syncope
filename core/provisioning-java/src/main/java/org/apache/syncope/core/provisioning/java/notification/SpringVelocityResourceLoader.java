@@ -47,7 +47,7 @@ public class SpringVelocityResourceLoader extends ResourceLoader {
     private org.springframework.core.io.ResourceLoader resourceLoader;
 
     @Override
-    public void init(ExtendedProperties configuration) {
+    public void init(final ExtendedProperties configuration) {
         this.resourceLoader =
                 (org.springframework.core.io.ResourceLoader) this.rsvc.getApplicationAttribute(SPRING_RESOURCE_LOADER);
         if (this.resourceLoader == null) {
@@ -59,7 +59,7 @@ public class SpringVelocityResourceLoader extends ResourceLoader {
     }
 
     @Override
-    public InputStream getResourceStream(final String source) throws ResourceNotFoundException {
+    public InputStream getResourceStream(final String source) {
         LOG.debug("Looking for Velocity resource with name [{}]", source);
 
         org.springframework.core.io.Resource resource = this.resourceLoader.getResource(source);

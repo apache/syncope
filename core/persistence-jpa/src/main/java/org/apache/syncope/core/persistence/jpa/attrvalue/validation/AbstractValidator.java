@@ -19,8 +19,6 @@
 package org.apache.syncope.core.persistence.jpa.attrvalue.validation;
 
 import java.io.Serializable;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidPlainAttrValueException;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValidationException;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.Validator;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
@@ -31,9 +29,6 @@ public abstract class AbstractValidator implements Validator, Serializable {
 
     private static final long serialVersionUID = -5439345166669502493L;
 
-    /*
-     * Logger
-     */
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractValidator.class);
 
     protected final PlainSchema schema;
@@ -43,12 +38,10 @@ public abstract class AbstractValidator implements Validator, Serializable {
     }
 
     @Override
-    public void validate(String value, PlainAttrValue attrValue)
-            throws ParsingValidationException, InvalidPlainAttrValueException {
-
+    public void validate(final String value, final PlainAttrValue attrValue) {
         attrValue.parseValue(schema, value);
         doValidate(attrValue);
     }
 
-    protected abstract void doValidate(PlainAttrValue attrValue) throws InvalidPlainAttrValueException;
+    protected abstract void doValidate(PlainAttrValue attrValue);
 }

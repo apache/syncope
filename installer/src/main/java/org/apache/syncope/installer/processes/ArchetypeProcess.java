@@ -101,7 +101,7 @@ public class ArchetypeProcess extends BaseProcess {
 
         if (syncopeVersion.contains("SNAPSHOT")) {
             final File pomFile =
-                    new File(syncopeInstallDir + properties.getProperty("pomFile"));
+                    new File(syncopeInstallDir + PROPERTIES.getProperty("pomFile"));
             String contentPomFile = fileSystemUtils.readFile(pomFile);
             fileSystemUtils.writeToFile(pomFile, contentPomFile.replace(ParentPom.PLACEHOLDER, ParentPom.REPOSITORY));
         }
@@ -111,19 +111,19 @@ public class ArchetypeProcess extends BaseProcess {
         fileSystemUtils.createDirectory(bundlesDirectory);
         fileSystemUtils.createDirectory(modelerDirectory);
 
-        fileSystemUtils.copyFileFromResources("/" + properties.getProperty("modelerPomFile"),
-                modelerDirectory + "/" + properties.getProperty("pomFile"), handler);
+        fileSystemUtils.copyFileFromResources("/" + PROPERTIES.getProperty("modelerPomFile"),
+                modelerDirectory + "/" + PROPERTIES.getProperty("pomFile"), handler);
 
         fileSystemUtils.copyFile(
                 syncopeInstallDir
-                + properties.getProperty("consoleResDirectory")
-                + "/" + properties.getProperty("urlConfig"),
-                modelerDirectory + "/" + properties.getProperty("urlConfig"));
+                + PROPERTIES.getProperty("consoleResDirectory")
+                + "/" + PROPERTIES.getProperty("urlConfig"),
+                modelerDirectory + "/" + PROPERTIES.getProperty("urlConfig"));
         fileSystemUtils.copyFile(
                 syncopeInstallDir
-                + properties.getProperty("consoleResDirectory")
-                + "/" + properties.getProperty("saveModel"),
-                modelerDirectory + "/" + properties.getProperty("saveModel"));
+                + PROPERTIES.getProperty("consoleResDirectory")
+                + "/" + PROPERTIES.getProperty("saveModel"),
+                modelerDirectory + "/" + PROPERTIES.getProperty("saveModel"));
 
         final Properties modelerProperties = new Properties();
         modelerProperties.setProperty("modeler.directory", modelerDirectory);

@@ -67,8 +67,7 @@ public class StaticReportlet extends AbstractReportlet<StaticReportletConf> {
     }
 
     @Override
-    public void doExtract(final ContentHandler handler) throws SAXException, ReportException {
-
+    public void doExtract(final ContentHandler handler) throws SAXException {
         doExtractConf(handler);
 
         if (StringUtils.hasText(conf.getStringField())) {

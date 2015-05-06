@@ -60,9 +60,7 @@ class ContentLoaderHandler extends DefaultHandler {
                 new ResultSetExtractor<Map<String, Integer>>() {
 
                     @Override
-                    public Map<String, Integer> extractData(final ResultSet rs)
-                    throws SQLException, DataAccessException {
-
+                    public Map<String, Integer> extractData(final ResultSet rs) throws SQLException {
                         Map<String, Integer> colTypes = new HashMap<>();
                         for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
                             colTypes.put(

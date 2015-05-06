@@ -19,12 +19,11 @@
 package org.apache.syncope.client.cli.validators;
 
 import com.beust.jcommander.IParameterValidator;
-import com.beust.jcommander.ParameterException;
 
 public class DebugLevelValidator implements IParameterValidator {
 
     @Override
-    public void validate(final String name, final String value) throws ParameterException {
+    public void validate(final String name, final String value) {
         if (!Levels.contains(value)) {
             final StringBuilder exceptionMessage = new StringBuilder();
             exceptionMessage.append("Parameter ")

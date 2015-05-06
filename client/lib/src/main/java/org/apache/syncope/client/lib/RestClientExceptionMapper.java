@@ -52,22 +52,22 @@ public class RestClientExceptionMapper implements ExceptionMapper<Exception>, Re
         final int statusCode = response.getStatus();
         Exception ex;
 
-        // 1. Check for client (possibly composite) exception in HTTP header
         SyncopeClientCompositeException scce = checkSyncopeClientCompositeException(response);
         if (scce != null) {
+            // 1. Check for client (possibly composite) exception in HTTP header
             if (scce.getExceptions().size() == 1) {
                 ex = scce.getExceptions().iterator().next();
             } else {
                 ex = scce;
             }
-        } // 2. Map SC_UNAUTHORIZED
-        else if (statusCode == Response.Status.UNAUTHORIZED.getStatusCode()) {
+        } else if (statusCode == Response.Status.UNAUTHORIZED.getStatusCode()) {
+            // 2. Map SC_UNAUTHORIZED
             ex = new AccessControlException("Remote unauthorized exception");
-        } // 3. Map SC_BAD_REQUEST
-        else if (statusCode == Response.Status.BAD_REQUEST.getStatusCode()) {
+        } else if (statusCode == Response.Status.BAD_REQUEST.getStatusCode()) {
+            // 3. Map SC_BAD_REQUEST
             ex = new BadRequestException();
-        } // 4. All other codes are mapped to runtime exception with HTTP code information
-        else {
+        } else {
+            // 4. All other codes are mapped to runtime exception with HTTP code information
             ex = new WebServiceException(String.format("Remote exception with status code: %s",
                     Response.Status.fromStatusCode(statusCode).name()));
         }

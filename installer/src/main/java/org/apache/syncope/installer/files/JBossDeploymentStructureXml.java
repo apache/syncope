@@ -18,11 +18,14 @@
  */
 package org.apache.syncope.installer.files;
 
-public class JBossDeploymentStructureXml {
-    
+public final class JBossDeploymentStructureXml {
+
     public static final String PLACEHOLDER = "<module name=\"org.apache.xalan\"/>";
 
     public static final String JBOSSMODULE = "<module name=\"org.apache.xalan\"/>\n"
             + "<module name=\"%s\"/>";
 
+    private JBossDeploymentStructureXml() {
+        // private constructor for static utility class
+    }
 }

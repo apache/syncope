@@ -73,24 +73,6 @@ public class TextSerializer extends XMLSerializer {
         // nothing
     }
 
-    @Override
-    public void endDocument() throws SAXException {
-        super.endDocument();
-    }
-
-    /**
-     * @throws SAXException if text is encountered before root element.
-     */
-    @Override
-    public void characters(final char buffer[], final int start, final int len) throws SAXException {
-        super.characters(buffer, start, len);
-    }
-
-    @Override
-    public void recycle() {
-        super.recycle();
-    }
-
     public static TextSerializer createPlainSerializer() {
         final TextSerializer serializer = new TextSerializer();
         serializer.setContentType("text/plain; charset=" + UTF_8);

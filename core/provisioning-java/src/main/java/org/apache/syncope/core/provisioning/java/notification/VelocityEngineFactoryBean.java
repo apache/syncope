@@ -21,7 +21,6 @@ package org.apache.syncope.core.provisioning.java.notification;
 import java.io.IOException;
 
 import org.apache.velocity.app.VelocityEngine;
-import org.apache.velocity.exception.VelocityException;
 import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.runtime.log.CommonsLogLogChute;
 import org.springframework.beans.factory.FactoryBean;
@@ -62,7 +61,7 @@ public class VelocityEngineFactoryBean implements FactoryBean<VelocityEngine>, I
         this.overrideLogging = overrideLogging;
     }
 
-    private void createVelocityEngine() throws IOException, VelocityException {
+    private void createVelocityEngine() throws IOException {
         velocityEngine = new VelocityEngine();
 
         velocityEngine.setProperty(
@@ -83,7 +82,7 @@ public class VelocityEngineFactoryBean implements FactoryBean<VelocityEngine>, I
     }
 
     @Override
-    public void afterPropertiesSet() throws IOException, VelocityException {
+    public void afterPropertiesSet() throws IOException {
         createVelocityEngine();
     }
 

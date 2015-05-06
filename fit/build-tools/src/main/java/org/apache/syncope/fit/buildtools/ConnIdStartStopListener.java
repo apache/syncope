@@ -35,9 +35,6 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 
 public class ConnIdStartStopListener implements ServletContextListener {
 
-    /**
-     * Logger.
-     */
     private static final Logger LOG = LoggerFactory.getLogger(ConnIdStartStopListener.class);
 
     private static final String SERVER = "ConnIdConnectorServer";
@@ -75,30 +72,30 @@ public class ConnIdStartStopListener implements ServletContextListener {
 
     @Override
     public void contextInitialized(final ServletContextEvent sce) {
-        ConnectorServer _server = ConnectorServer.newInstance();
+        ConnectorServer server = ConnectorServer.newInstance();
         WebApplicationContext ctx = WebApplicationContextUtils.getWebApplicationContext(sce.getServletContext());
         try {
-            _server.setPort(Integer.parseInt(ctx.getBean("testconnectorserver.port", String.class)));
+            server.setPort(Integer.parseInt(ctx.getBean("testconnectorserver.port", String.class)));
 
-            _server.setBundleURLs(getBundleURLs(sce.getServletContext()));
+            server.setBundleURLs(getBundleURLs(sce.getServletContext()));
 
-            _server.setKeyHash(SecurityUtil.computeBase64SHA1Hash(
+            server.setKeyHash(SecurityUtil.computeBase64SHA1Hash(
                     ctx.getBean("testconnectorserver.key", String.class).toCharArray()));
 
-            _server.start();
-            LOG.info("ConnId connector server listening on port " + _server.getPort());
+            server.start();
+            LOG.info("ConnId connector server listening on port " + server.getPort());
         } catch (Exception e) {
             LOG.error("Could not start ConnId connector server", e);
         }
 
-        sce.getServletContext().setAttribute(SERVER, _server);
+        sce.getServletContext().setAttribute(SERVER, server);
     }
 
     @Override
     public void contextDestroyed(final ServletContextEvent sce) {
-        final ConnectorServer _server = (ConnectorServer) sce.getServletContext().getAttribute(SERVER);
-        if (_server != null && _server.isStarted()) {
-            _server.stop();
+        final ConnectorServer server = (ConnectorServer) sce.getServletContext().getAttribute(SERVER);
+        if (server != null && server.isStarted()) {
+            server.stop();
         }
         ThreadClassLoaderManager.clearInstance();
     }

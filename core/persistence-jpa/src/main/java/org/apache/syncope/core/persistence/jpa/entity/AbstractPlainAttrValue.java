@@ -140,7 +140,7 @@ public abstract class AbstractPlainAttrValue extends AbstractEntity<Long> implem
     }
 
     @Override
-    public void parseValue(final PlainSchema schema, final String value) throws ParsingValidationException {
+    public void parseValue(final PlainSchema schema, final String value) {
         Exception exception = null;
 
         switch (schema.getType()) {

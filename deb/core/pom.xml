@@ -33,6 +33,10 @@ under the License.
   <artifactId>syncope-deb-core</artifactId>
   <packaging>war</packaging>
 
+  <properties>
+    <rootpom.basedir>${basedir}/../..</rootpom.basedir>
+  </properties>
+  
   <dependencies>
     <dependency>
       <groupId>org.apache.syncope.core</groupId>
@@ -349,7 +353,18 @@ under the License.
             </configuration>
           </execution>
         </executions>
-      </plugin>       
+      </plugin> 
+      
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>checkstyle-check</id>
+            <phase>none</phase>
+          </execution>
+        </executions>
+      </plugin>      
     </plugins>
   </build>
 
