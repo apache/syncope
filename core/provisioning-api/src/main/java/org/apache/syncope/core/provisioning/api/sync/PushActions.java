@@ -31,109 +31,124 @@ public interface PushActions extends ProvisioningActions {
     /**
      * Action to be executed before to assign (link & provision) a synchronized user / group to the resource.
      *
-     * @param profile profile of the synchronization being executed.
+     * @param profile profile of the push being executed.
      * @param subject user / group to be created.
      * @return subject.
      * @throws JobExecutionException in case of generic failure
      */
     <T extends Subject<?, ?, ?>> T beforeAssign(
-            final ProvisioningProfile<?, ?> profile,
-            final T subject) throws JobExecutionException;
+            ProvisioningProfile<?, ?> profile,
+            T subject) throws JobExecutionException;
 
     /**
      * Action to be executed before to provision a synchronized user / group to the resource.
      *
-     * @param profile profile of the synchronization being executed.
+     * @param profile profile of the push being executed.
      * @param subject user / group to be created.
      * @return subject.
      * @throws JobExecutionException in case of generic failure
      */
     <T extends Subject<?, ?, ?>> T beforeProvision(
-            final ProvisioningProfile<?, ?> profile,
-            final T subject) throws JobExecutionException;
+            ProvisioningProfile<?, ?> profile,
+            T subject) throws JobExecutionException;
 
     /**
      * Action to be executed before to update a synchronized user / group on the resource.
      *
-     * @param profile profile of the synchronization being executed.
+     * @param profile profile of the push being executed.
      * @param subject user / group to be updated.
      * @return subject.
      * @throws JobExecutionException in case of generic failure
      */
     <T extends Subject<?, ?, ?>> T beforeUpdate(
-            final ProvisioningProfile<?, ?> profile,
-            final T subject) throws JobExecutionException;
+            ProvisioningProfile<?, ?> profile,
+            T subject) throws JobExecutionException;
 
     /**
      * Action to be executed before to link a synchronized user / group to the resource.
      *
-     * @param profile profile of the synchronization being executed.
+     * @param profile profile of the push being executed.
      * @param subject user / group to be created.
      * @return subject.
      * @throws JobExecutionException in case of generic failure
      */
     <T extends Subject<?, ?, ?>> T beforeLink(
-            final ProvisioningProfile<?, ?> profile,
-            final T subject) throws JobExecutionException;
+            ProvisioningProfile<?, ?> profile,
+            T subject) throws JobExecutionException;
 
     /**
      * Action to be executed before to unlink a synchronized user / group from the resource.
      *
-     * @param profile profile of the synchronization being executed.
+     * @param profile profile of the push being executed.
      * @param subject user / group to be created.
      * @return subject.
      * @throws JobExecutionException in case of generic failure
      */
     <T extends Subject<?, ?, ?>> T beforeUnlink(
-            final ProvisioningProfile<?, ?> profile,
-            final T subject) throws JobExecutionException;
+            ProvisioningProfile<?, ?> profile,
+            T subject) throws JobExecutionException;
 
     /**
      * Action to be executed before to unassign a synchronized user / group from the resource.
      *
-     * @param profile profile of the synchronization being executed.
+     * @param profile profile of the push being executed.
      * @param subject user / group to be created.
      * @return subject.
      * @throws JobExecutionException in case of generic failure
      */
     <T extends Subject<?, ?, ?>> T beforeUnassign(
-            final ProvisioningProfile<?, ?> profile,
-            final T subject) throws JobExecutionException;
+            ProvisioningProfile<?, ?> profile,
+            T subject) throws JobExecutionException;
 
     /**
      * Action to be executed before to unassign a synchronized user / group from the resource.
      *
-     * @param profile profile of the synchronization being executed.
+     * @param profile profile of the push being executed.
      * @param subject user / group to be created.
      * @return subject.
      * @throws JobExecutionException in case of generic failure
      */
     <T extends Subject<?, ?, ?>> T beforeDeprovision(
-            final ProvisioningProfile<?, ?> profile,
-            final T subject) throws JobExecutionException;
+            ProvisioningProfile<?, ?> profile,
+            T subject) throws JobExecutionException;
 
     /**
      * Action to be executed before delete a synchronized user / group locally and from the resource.
      *
-     * @param profile profile of the synchronization being executed.
+     * @param profile profile of the push being executed.
      * @param subject user / group to be created.
      * @return subject.
      * @throws JobExecutionException in case of generic failure
      */
     <T extends Subject<?, ?, ?>> T beforeDelete(
-            final ProvisioningProfile<?, ?> profile,
-            final T subject) throws JobExecutionException;
+            ProvisioningProfile<?, ?> profile,
+            T subject) throws JobExecutionException;
 
     /**
-     * Action to be executed after each local user / group synchronization.
+     * Action to be executed after user / group push goes on error.
      *
-     * @param profile profile of the synchronization being executed.
+     * @param profile profile of the push being executed.
+     * @param subject synchronized user / group.
+     * @param result operation result.
+     * @param error error being reported
+     * @throws JobExecutionException in case of generic failure
+     */
+    <T extends Subject<?, ?, ?>> void onError(
+            ProvisioningProfile<?, ?> profile,
+            T subject,
+            ProvisioningResult result,
+            Exception error) throws JobExecutionException;
+
+    /**
+     * Action to be executed after each local user / group push.
+     *
+     * @param profile profile of the push being executed.
      * @param subject synchronized user / group.
      * @param result operation result.
      * @throws JobExecutionException in case of generic failure
      */
     <T extends Subject<?, ?, ?>> void after(
-            final ProvisioningProfile<?, ?> profile,
-            final T subject,
-            final ProvisioningResult result) throws JobExecutionException;
+            ProvisioningProfile<?, ?> profile,
+            T subject,
+            ProvisioningResult result) throws JobExecutionException;
 }

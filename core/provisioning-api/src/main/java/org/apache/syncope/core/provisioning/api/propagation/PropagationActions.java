@@ -26,5 +26,7 @@ public interface PropagationActions {
 
     void before(PropagationTask task, ConnectorObject beforeObj);
 
+    void onError(PropagationTask task, TaskExec execution, Exception error);
+
     void after(PropagationTask task, TaskExec execution, ConnectorObject afterObj);
 }

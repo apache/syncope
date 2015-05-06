@@ -185,20 +185,28 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
             for (SyncActions action : profile.getActions()) {
                 action.after(this.getProfile(), delta, actual, result);
             }
+        } catch (IgnoreProvisionException e) {
+            throw e;
         } catch (PropagationException e) {
             // A propagation failure doesn't imply a synchronization failure.
             // The propagation exception status will be reported into the propagation task execution.
             LOG.error("Could not propagate {} {}", attrUtils.getType(), delta.getUid().getUidValue(), e);
             output = e;
             resultStatus = Result.FAILURE;
-        } catch (IgnoreProvisionException e) {
-            throw e;
+
+            for (SyncActions action : profile.getActions()) {
+                action.onError(this.getProfile(), delta, result, e);
+            }
         } catch (Exception e) {
             result.setStatus(ProvisioningResult.Status.FAILURE);
             result.setMessage(ExceptionUtils.getRootCauseMessage(e));
             LOG.error("Could not create {} {} ", attrUtils.getType(), delta.getUid().getUidValue(), e);
             output = e;
             resultStatus = Result.FAILURE;
+
+            for (SyncActions action : profile.getActions()) {
+                action.onError(this.getProfile(), delta, result, e);
+            }
         }
 
         audit(operation, resultStatus, null, output, delta);
@@ -262,22 +270,30 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
                         resultStatus = Result.SUCCESS;
                         result.setName(getName(updated));
                         LOG.debug("{} {} successfully updated", attrUtils.getType(), key);
+                    } catch (IgnoreProvisionException e) {
+                        throw e;
                     } catch (PropagationException e) {
                         // A propagation failure doesn't imply a synchronization failure.
                         // The propagation exception status will be reported into the propagation task execution.
-                        LOG.error("Could not propagate {} {}", 
+                        LOG.error("Could not propagate {} {}",
                                 attrUtils.getType(), workingDelta.getUid().getUidValue(), e);
                         output = e;
                         resultStatus = Result.FAILURE;
-                    } catch (IgnoreProvisionException e) {
-                        throw e;
+
+                        for (SyncActions action : profile.getActions()) {
+                            action.onError(this.getProfile(), workingDelta, result, e);
+                        }
                     } catch (Exception e) {
                         result.setStatus(ProvisioningResult.Status.FAILURE);
                         result.setMessage(ExceptionUtils.getRootCauseMessage(e));
-                        LOG.error("Could not update {} {}", 
+                        LOG.error("Could not update {} {}",
                                 attrUtils.getType(), workingDelta.getUid().getUidValue(), e);
                         output = e;
                         resultStatus = Result.FAILURE;
+
+                        for (SyncActions action : profile.getActions()) {
+                            action.onError(this.getProfile(), workingDelta, result, e);
+                        }
                     }
                 }
                 audit(MatchingRule.toEventName(MatchingRule.UPDATE), resultStatus, before, output, workingDelta);
@@ -349,20 +365,28 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
 
                         resultStatus = Result.SUCCESS;
                         LOG.debug("{} {} successfully updated", attrUtils.getType(), id);
+                    } catch (IgnoreProvisionException e) {
+                        throw e;
                     } catch (PropagationException e) {
                         // A propagation failure doesn't imply a synchronization failure.
                         // The propagation exception status will be reported into the propagation task execution.
                         LOG.error("Could not propagate {} {}", attrUtils.getType(), delta.getUid().getUidValue(), e);
                         output = e;
                         resultStatus = Result.FAILURE;
-                    } catch (IgnoreProvisionException e) {
-                        throw e;
+
+                        for (SyncActions action : profile.getActions()) {
+                            action.onError(this.getProfile(), delta, result, e);
+                        }
                     } catch (Exception e) {
                         result.setStatus(ProvisioningResult.Status.FAILURE);
                         result.setMessage(ExceptionUtils.getRootCauseMessage(e));
                         LOG.error("Could not update {} {}", attrUtils.getType(), delta.getUid().getUidValue(), e);
                         output = e;
                         resultStatus = Result.FAILURE;
+
+                        for (SyncActions action : profile.getActions()) {
+                            action.onError(this.getProfile(), delta, result, e);
+                        }
                     }
                 }
                 audit(unlink
@@ -436,20 +460,28 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
 
                         resultStatus = Result.SUCCESS;
                         LOG.debug("{} {} successfully updated", attrUtils.getType(), id);
+                    } catch (IgnoreProvisionException e) {
+                        throw e;
                     } catch (PropagationException e) {
                         // A propagation failure doesn't imply a synchronization failure.
                         // The propagation exception status will be reported into the propagation task execution.
                         LOG.error("Could not propagate {} {}", attrUtils.getType(), delta.getUid().getUidValue(), e);
                         output = e;
                         resultStatus = Result.FAILURE;
-                    } catch (IgnoreProvisionException e) {
-                        throw e;
+
+                        for (SyncActions action : profile.getActions()) {
+                            action.onError(this.getProfile(), delta, result, e);
+                        }
                     } catch (Exception e) {
                         result.setStatus(ProvisioningResult.Status.FAILURE);
                         result.setMessage(ExceptionUtils.getRootCauseMessage(e));
                         LOG.error("Could not update {} {}", attrUtils.getType(), delta.getUid().getUidValue(), e);
                         output = e;
                         resultStatus = Result.FAILURE;
+
+                        for (SyncActions action : profile.getActions()) {
+                            action.onError(this.getProfile(), delta, result, e);
+                        }
                     }
                 }
                 audit(unlink ? MatchingRule.toEventName(MatchingRule.UNLINK)
@@ -500,6 +532,10 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
                         doDelete(id);
                         output = null;
                         resultStatus = Result.SUCCESS;
+
+                        for (SyncActions action : profile.getActions()) {
+                            action.after(this.getProfile(), workingDelta, before, result);
+                        }
                     } catch (IgnoreProvisionException e) {
                         throw e;
                     } catch (Exception e) {
@@ -507,17 +543,16 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
                         result.setMessage(ExceptionUtils.getRootCauseMessage(e));
                         LOG.error("Could not delete {} {}", attrUtils.getType(), id, e);
                         output = e;
-                    }
 
-                    for (SyncActions action : profile.getActions()) {
-                        action.after(this.getProfile(), workingDelta, before, result);
+                        for (SyncActions action : profile.getActions()) {
+                            action.onError(this.getProfile(), workingDelta, result, e);
+                        }
                     }
 
                     audit(ResourceOperation.DELETE.name().toLowerCase(), resultStatus, before, output, workingDelta);
                 }
 
                 delResults.add(result);
-
             } catch (NotFoundException e) {
                 LOG.error("Could not find {} {}", attrUtils.getType(), id, e);
             } catch (UnauthorizedException e) {

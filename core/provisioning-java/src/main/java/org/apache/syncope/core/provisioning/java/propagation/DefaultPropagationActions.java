@@ -30,9 +30,16 @@ public abstract class DefaultPropagationActions implements PropagationActions {
 
     @Override
     public void before(final PropagationTask task, final ConnectorObject beforeObj) {
+        // do nothing
+    }
+
+    @Override
+    public void onError(final PropagationTask task, final TaskExec execution, final Exception error) {
+        // do nothing
     }
 
     @Override
     public void after(final PropagationTask task, final TaskExec execution, final ConnectorObject afterObj) {
+        // do nothing
     }
 }

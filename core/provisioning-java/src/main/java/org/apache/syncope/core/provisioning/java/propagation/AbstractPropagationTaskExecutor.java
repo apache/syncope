@@ -342,6 +342,10 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                     ? PropagationTaskExecStatus.SUCCESS.name()
                     : PropagationTaskExecStatus.SUBMITTED.name());
 
+            for (PropagationActions action : actions) {
+                action.after(task, execution, afterObj);
+            }
+
             LOG.debug("Successfully propagated to {}", task.getResource());
             result = Result.SUCCESS;
         } catch (Exception e) {
@@ -373,6 +377,10 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             }
 
             propagationAttempted.add(task.getPropagationOperation().name().toLowerCase());
+
+            for (PropagationActions action : actions) {
+                action.onError(task, execution, e);
+            }
         } finally {
             // Try to read remote object (user / group) AFTER any actual operation
             if (connector != null) {
@@ -414,10 +422,6 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                         beforeObj,
                         afterObj);
             }
-        }
-
-        for (PropagationActions action : actions) {
-            action.after(task, execution, afterObj);
         }
 
         notificationManager.createTasks(

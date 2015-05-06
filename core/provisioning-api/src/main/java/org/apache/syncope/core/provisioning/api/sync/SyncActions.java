@@ -161,6 +161,22 @@ public interface SyncActions extends ProvisioningActions {
             T subject) throws JobExecutionException;
 
     /**
+     * Action to be executed when user / group synchronization goes on error.
+     *
+     * @param profile profile of the synchronization being executed.
+     * @param delta retrieved synchronization information (may be modified by
+     * 'beforeProvision/beforeUpdate/beforeDelete')
+     * @param result global synchronization results at the current synchronization step
+     * @param error error being reported
+     * @throws JobExecutionException in case of generic failure
+     */
+    void onError(
+            ProvisioningProfile<?, ?> profile,
+            SyncDelta delta,
+            ProvisioningResult result,
+            Exception error) throws JobExecutionException;
+
+    /**
      * Action to be executed after each local user / group synchronization.
      *
      * @param profile profile of the synchronization being executed.

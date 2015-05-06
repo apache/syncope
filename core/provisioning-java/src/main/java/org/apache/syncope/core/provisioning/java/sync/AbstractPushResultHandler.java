@@ -271,6 +271,11 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                 output = e;
 
                 LOG.warn("Error pushing {} towards {}", subject, profile.getTask().getResource(), e);
+
+                for (PushActions action : profile.getActions()) {
+                    action.onError(this.getProfile(), subject, result, e);
+                }
+
                 throw new JobExecutionException(e);
             } finally {
                 notificationManager.createTasks(AuditElements.EventCategoryType.PUSH,

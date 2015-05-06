@@ -102,6 +102,12 @@ public abstract class DefaultSyncActions implements SyncActions {
     }
 
     @Override
+    public void onError(
+            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final ProvisioningResult result,
+            final Exception error) throws JobExecutionException {
+    }
+
+    @Override
     public <T extends AbstractSubjectTO> void after(
             final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final T subject,
             final ProvisioningResult result)

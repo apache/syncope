@@ -76,13 +76,25 @@ public abstract class DefaultPushActions implements PushActions {
     }
 
     @Override
+    public <T extends Subject<?, ?, ?>> void onError(
+            final ProvisioningProfile<?, ?> profile, final T subject, final ProvisioningResult result,
+            final Exception error) throws JobExecutionException {
+
+        // do nothing
+    }
+
+    @Override
     public <T extends Subject<?, ?, ?>> void after(
             final ProvisioningProfile<?, ?> profile, final T subject, final ProvisioningResult result)
             throws JobExecutionException {
+
+        // do nothing
     }
 
     @Override
     public void afterAll(final ProvisioningProfile<?, ?> profile)
             throws JobExecutionException {
+
+        // do nothing
     }
 }
