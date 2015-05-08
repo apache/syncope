@@ -23,8 +23,9 @@ import static org.junit.Assert.assertEquals;
 import org.apache.syncope.common.lib.search.SpecialAttr;
 import org.apache.syncope.common.lib.search.UserFiqlSearchConditionBuilder;
 import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
-import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
+import org.apache.syncope.core.persistence.api.dao.search.GroupCond;
 import org.apache.syncope.core.persistence.api.dao.search.ResourceCond;
+import org.apache.syncope.core.persistence.api.dao.search.RoleCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.dao.search.SubjectCond;
 import org.junit.Test;
@@ -86,9 +87,21 @@ public class SearchCondConverterTest {
         String fiqlExpression = new UserFiqlSearchConditionBuilder().inGroups(1L).query();
         assertEquals(SpecialAttr.GROUPS + "==1", fiqlExpression);
 
-        MembershipCond membCond = new MembershipCond();
-        membCond.setGroupId(1L);
-        SearchCond simpleCond = SearchCond.getLeafCond(membCond);
+        GroupCond groupCond = new GroupCond();
+        groupCond.setGroupKey(1L);
+        SearchCond simpleCond = SearchCond.getLeafCond(groupCond);
+
+        assertEquals(simpleCond, SearchCondConverter.convert(fiqlExpression));
+    }
+
+    @Test
+    public void roles() {
+        String fiqlExpression = new UserFiqlSearchConditionBuilder().inRoles(1L).query();
+        assertEquals(SpecialAttr.ROLES + "==1", fiqlExpression);
+
+        RoleCond roleCond = new RoleCond();
+        roleCond.setRoleKey(1L);
+        SearchCond simpleCond = SearchCond.getLeafCond(roleCond);
 
         assertEquals(simpleCond, SearchCondConverter.convert(fiqlExpression));
     }

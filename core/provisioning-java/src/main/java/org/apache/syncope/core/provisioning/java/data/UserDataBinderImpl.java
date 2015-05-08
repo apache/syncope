@@ -18,8 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
-import static org.apache.syncope.core.provisioning.java.data.AbstractAttributableDataBinder.LOG;
-
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -226,7 +225,7 @@ public class UserDataBinderImpl extends AbstractAttributableDataBinder implement
 
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
 
-        Set<String> currentResources = user.getResourceNames();
+        Collection<String> currentResources = userDAO.findAllResourceNames(user);
 
         // fetch account ids before update
         Map<String, String> oldAccountIds = getAccountIds(user, AttributableType.USER);
@@ -421,11 +420,10 @@ public class UserDataBinderImpl extends AbstractAttributableDataBinder implement
 
         connObjectUtils.retrieveVirAttrValues(user, attrUtilsFactory.getInstance(AttributableType.USER));
         fillTO(userTO, user.getRealm().getFullPath(),
-                user.getPlainAttrs(), user.getDerAttrs(), user.getVirAttrs(), user.getResources());
+                user.getPlainAttrs(), user.getDerAttrs(), user.getVirAttrs(), userDAO.findAllResources(user));
 
-        MembershipTO membershipTO;
         for (Membership membership : user.getMemberships()) {
-            membershipTO = new MembershipTO();
+            MembershipTO membershipTO = new MembershipTO();
 
             // set sys info
             membershipTO.setCreator(membership.getCreator());
@@ -446,6 +444,22 @@ public class UserDataBinderImpl extends AbstractAttributableDataBinder implement
 
             userTO.getMemberships().add(membershipTO);
         }
+
+        // dynamic memberships
+        CollectionUtils.collect(userDAO.findDynRoleMemberships(user), new Transformer<Role, Long>() {
+
+            @Override
+            public Long transform(final Role role) {
+                return role.getKey();
+            }
+        }, userTO.getDynRoles());
+        CollectionUtils.collect(userDAO.findDynGroupMemberships(user), new Transformer<Group, Long>() {
+
+            @Override
+            public Long transform(final Group group) {
+                return group.getKey();
+            }
+        }, userTO.getDynGroups());
 
         return userTO;
     }

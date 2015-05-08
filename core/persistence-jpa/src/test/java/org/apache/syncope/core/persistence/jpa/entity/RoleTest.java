@@ -28,7 +28,6 @@ import java.util.List;
 import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
-import org.apache.syncope.core.persistence.api.dao.SubjectSearchDAO;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.junit.Test;
@@ -40,9 +39,6 @@ public class RoleTest extends AbstractTest {
 
     @Autowired
     private RoleDAO roleDAO;
-
-    @Autowired
-    private SubjectSearchDAO searchDAO;
 
     @Autowired
     private RealmDAO realmDAO;

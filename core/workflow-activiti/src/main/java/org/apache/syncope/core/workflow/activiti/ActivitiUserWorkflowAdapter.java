@@ -295,7 +295,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         }
 
         PropagationByResource propByRes = new PropagationByResource();
-        propByRes.set(ResourceOperation.CREATE, user.getResourceNames());
+        propByRes.set(ResourceOperation.CREATE, userDAO.findAllResourceNames(user));
 
         saveForFormSubmit(user, userTO.getPassword(), propByRes);
 
@@ -415,7 +415,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         doExecuteTask(user, "delete", null);
 
         PropagationByResource propByRes = new PropagationByResource();
-        propByRes.set(ResourceOperation.DELETE, user.getResourceNames());
+        propByRes.set(ResourceOperation.DELETE, userDAO.findAllResourceNames(user));
 
         saveForFormSubmit(user, null, propByRes);
 
@@ -695,7 +695,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
                     taskCandidateOrAssigned(user.getKey().toString())));
 
             List<String> candidateGroups = new ArrayList<>();
-            for (Long groupId : user.getGroupKeys()) {
+            for (Long groupId : userDAO.findAllGroupKeys(user)) {
                 candidateGroups.add(groupId.toString());
             }
             if (!candidateGroups.isEmpty()) {

@@ -31,8 +31,9 @@ import org.apache.syncope.common.lib.search.SpecialAttr;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
-import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
+import org.apache.syncope.core.persistence.api.dao.search.GroupCond;
 import org.apache.syncope.core.persistence.api.dao.search.ResourceCond;
+import org.apache.syncope.core.persistence.api.dao.search.RoleCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.dao.search.SubjectCond;
 
@@ -96,9 +97,15 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
                 } else {
                     switch (specialAttrName) {
                         case GROUPS:
-                            MembershipCond membershipCond = new MembershipCond();
-                            membershipCond.setGroupId(Long.valueOf(value));
-                            leaf = SearchCond.getLeafCond(membershipCond);
+                            GroupCond groupCond = new GroupCond();
+                            groupCond.setGroupKey(Long.valueOf(value));
+                            leaf = SearchCond.getLeafCond(groupCond);
+                            break;
+
+                        case ROLES:
+                            RoleCond roleCond = new RoleCond();
+                            roleCond.setRoleKey(Long.valueOf(value));
+                            leaf = SearchCond.getLeafCond(roleCond);
                             break;
 
                         case RESOURCES:
@@ -156,7 +163,7 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
     }
 
     private SearchCond visitCompount(final SearchCondition<SearchBean> sc) {
-        List<SearchCond> searchConds = new ArrayList<SearchCond>();
+        List<SearchCond> searchConds = new ArrayList<>();
         for (SearchCondition<SearchBean> searchCondition : sc.getSearchConditions()) {
             searchConds.add(searchCondition.getStatement() == null
                     ? visitCompount(searchCondition)

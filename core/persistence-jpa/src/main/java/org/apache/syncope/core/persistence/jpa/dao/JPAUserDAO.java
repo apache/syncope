@@ -18,7 +18,10 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.Resource;
@@ -26,6 +29,7 @@ import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
+import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.common.lib.types.SubjectType;
@@ -47,8 +51,14 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 import org.apache.syncope.core.misc.security.AuthContextUtils;
 import org.apache.syncope.core.misc.security.UnauthorizedException;
+import org.apache.syncope.core.persistence.api.dao.RoleDAO;
+import org.apache.syncope.core.persistence.api.entity.Role;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
+import org.apache.syncope.core.persistence.jpa.entity.JPADynGroupMembership;
+import org.apache.syncope.core.persistence.jpa.entity.JPADynRoleMembership;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
@@ -56,6 +66,9 @@ public class JPAUserDAO extends AbstractSubjectDAO<UPlainAttr, UDerAttr, UVirAtt
 
     @Autowired
     private GroupDAO groupDAO;
+
+    @Autowired
+    private RoleDAO roleDAO;
 
     @Resource(name = "anonymousUser")
     private String anonymousUser;
@@ -187,11 +200,14 @@ public class JPAUserDAO extends AbstractSubjectDAO<UPlainAttr, UDerAttr, UVirAtt
 
     @Override
     public User save(final User user) {
-        final User merged = entityManager.merge(user);
+        User merged = entityManager.merge(user);
         for (VirAttr virAttr : merged.getVirAttrs()) {
             virAttr.getValues().clear();
             virAttr.getValues().addAll(user.getVirAttr(virAttr.getSchema().getKey()).getValues());
         }
+
+        roleDAO.refreshDynMemberships(merged);
+        groupDAO.refreshDynMemberships(merged);
 
         return merged;
     }
@@ -219,6 +235,13 @@ public class JPAUserDAO extends AbstractSubjectDAO<UPlainAttr, UDerAttr, UVirAtt
             entityManager.remove(membership);
         }
         user.getMemberships().clear();
+
+        for (Role role : findDynRoleMemberships(user)) {
+            role.getDynMembership().removeUser(user);
+        }
+        for (Group group : findDynGroupMemberships(user)) {
+            group.getDynMembership().removeUser(user);
+        }
 
         entityManager.remove(user);
     }
@@ -275,6 +298,84 @@ public class JPAUserDAO extends AbstractSubjectDAO<UPlainAttr, UDerAttr, UVirAtt
         securityChecks(user);
 
         return user;
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
+    @Override
+    public List<Role> findDynRoleMemberships(final User user) {
+        TypedQuery<Role> query = entityManager.createQuery(
+                "SELECT e.role FROM " + JPADynRoleMembership.class.getSimpleName()
+                + " e WHERE :user MEMBER OF e.users", Role.class);
+        query.setParameter("user", user);
+
+        return query.getResultList();
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
+    @Override
+    public List<Group> findDynGroupMemberships(final User user) {
+        TypedQuery<Group> query = entityManager.createQuery(
+                "SELECT e.group FROM " + JPADynGroupMembership.class.getSimpleName()
+                + " e WHERE :user MEMBER OF e.users", Group.class);
+        query.setParameter("user", user);
+
+        return query.getResultList();
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
+    @Override
+    public Collection<Role> findAllRoles(final User user) {
+        return CollectionUtils.union(user.getRoles(), findDynRoleMemberships(user));
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
+    @Override
+    public Collection<Group> findAllGroups(final User user) {
+        return CollectionUtils.union(
+                CollectionUtils.collect(user.getMemberships(), new Transformer<Membership, Group>() {
+
+                    @Override
+                    public Group transform(final Membership input) {
+                        return input.getGroup();
+                    }
+                }, new ArrayList<Group>()),
+                findDynGroupMemberships(user));
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
+    @Override
+    public Collection<Long> findAllGroupKeys(final User user) {
+        return CollectionUtils.collect(findAllGroups(user), new Transformer<Group, Long>() {
+
+            @Override
+            public Long transform(final Group input) {
+                return input.getKey();
+            }
+        });
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
+    @Override
+    public Collection<ExternalResource> findAllResources(final User user) {
+        Set<ExternalResource> result = new HashSet<>();
+        result.addAll(user.getResources());
+        for (Group group : findAllGroups(user)) {
+            result.addAll(group.getResources());
+        }
+
+        return result;
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
+    @Override
+    public Collection<String> findAllResourceNames(final User user) {
+        return CollectionUtils.collect(findAllResources(user), new Transformer<ExternalResource, String>() {
+
+            @Override
+            public String transform(final ExternalResource input) {
+                return input.getKey();
+            }
+        });
     }
 
 }

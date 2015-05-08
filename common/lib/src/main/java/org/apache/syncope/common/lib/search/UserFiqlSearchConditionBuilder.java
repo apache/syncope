@@ -23,7 +23,7 @@ import org.apache.cxf.jaxrs.ext.search.client.CompleteCondition;
 import org.apache.cxf.jaxrs.ext.search.fiql.FiqlParser;
 
 /**
- * Extends <tt>SyncopeFiqlSearchConditionBuilder</tt> by providing some additional facilities for searching
+ * Extends {@link AbstractFiqlSearchConditionBuilder} by providing some additional facilities for searching
  * users in Syncope.
  */
 public class UserFiqlSearchConditionBuilder extends AbstractFiqlSearchConditionBuilder {
@@ -50,14 +50,20 @@ public class UserFiqlSearchConditionBuilder extends AbstractFiqlSearchConditionB
         return newBuilderInstance().is(SpecialAttr.GROUPS.toString()).inGroups(group, moreGroups);
     }
 
+    public CompleteCondition inRoles(final Long role, final Long... moreRoles) {
+        return newBuilderInstance().is(SpecialAttr.ROLES.toString()).inRoles(role, moreRoles);
+    }
+
     public CompleteCondition notInGroups(final Long group, final Long... moreGroups) {
         return newBuilderInstance().is(SpecialAttr.GROUPS.toString()).notInGroups(group, moreGroups);
     }
 
+    @Override
     public CompleteCondition hasResources(final String resource, final String... moreResources) {
         return newBuilderInstance().is(SpecialAttr.RESOURCES.toString()).hasResources(resource, moreResources);
     }
 
+    @Override
     public CompleteCondition hasNotResources(final String resource, final String... moreResources) {
         return newBuilderInstance().is(SpecialAttr.RESOURCES.toString()).hasNotResources(resource, moreResources);
     }
@@ -75,9 +81,9 @@ public class UserFiqlSearchConditionBuilder extends AbstractFiqlSearchConditionB
 
         @Override
         public UserProperty is(final String property) {
-            Builder b = new Builder(this);
-            b.result = property;
-            return b;
+            Builder builder = new Builder(this);
+            builder.result = property;
+            return builder;
         }
 
         @Override
@@ -90,6 +96,18 @@ public class UserFiqlSearchConditionBuilder extends AbstractFiqlSearchConditionB
         public CompleteCondition notInGroups(final Long group, final Long... moreGroups) {
             this.result = SpecialAttr.GROUPS.toString();
             return condition(FiqlParser.NEQ, group, (Object[]) moreGroups);
+        }
+
+        @Override
+        public CompleteCondition inRoles(final Long role, final Long... moreRoles) {
+            this.result = SpecialAttr.ROLES.toString();
+            return condition(FiqlParser.EQ, role, (Object[]) moreRoles);
+        }
+
+        @Override
+        public CompleteCondition notInRoles(final Long role, final Long... moreRoles) {
+            this.result = SpecialAttr.ROLES.toString();
+            return condition(FiqlParser.NEQ, role, (Object[]) moreRoles);
         }
     }
 }

@@ -25,7 +25,6 @@ import javax.validation.ConstraintValidatorContext;
 import org.apache.syncope.common.lib.types.AccountPolicySpec;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.common.lib.types.PasswordPolicySpec;
-import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.entity.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.PasswordPolicy;
@@ -36,6 +35,7 @@ import org.apache.syncope.core.misc.policy.AccountPolicyException;
 import org.apache.syncope.core.misc.policy.PasswordPolicyEnforcer;
 import org.apache.syncope.core.misc.policy.PolicyEvaluator;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -48,7 +48,7 @@ public class UserValidator extends AbstractValidator<UserCheck, User> {
     private String anonymousUser;
 
     @Autowired
-    private PolicyDAO policyDAO;
+    private UserDAO userDAO;
 
     @Autowired
     private RealmDAO realmDAO;
@@ -155,7 +155,7 @@ public class UserValidator extends AbstractValidator<UserCheck, User> {
         PasswordPolicy policy;
 
         // add resource policies
-        for (ExternalResource resource : user.getResources()) {
+        for (ExternalResource resource : userDAO.findAllResources(user)) {
             policy = resource.getPasswordPolicy();
             if (policy != null) {
                 policies.add(policy);
@@ -179,7 +179,7 @@ public class UserValidator extends AbstractValidator<UserCheck, User> {
         AccountPolicy policy;
 
         // add resource policies
-        for (ExternalResource resource : user.getResources()) {
+        for (ExternalResource resource : userDAO.findAllResources(user)) {
             policy = resource.getAccountPolicy();
             if (policy != null) {
                 policies.add(policy);

@@ -33,6 +33,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -40,7 +41,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.core.persistence.api.entity.AttrTemplate;
-import org.apache.syncope.core.persistence.api.entity.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.DynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.Schema;
 import org.apache.syncope.core.persistence.api.entity.membership.MDerAttrTemplate;
 import org.apache.syncope.core.persistence.api.entity.membership.MPlainAttrTemplate;
@@ -55,6 +56,7 @@ import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.validation.entity.GroupCheck;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractSubject;
+import org.apache.syncope.core.persistence.jpa.entity.JPADynGroupMembership;
 import org.apache.syncope.core.persistence.jpa.entity.JPAExternalResource;
 import org.apache.syncope.core.persistence.jpa.entity.membership.JPAMPlainAttrTemplate;
 import org.apache.syncope.core.persistence.jpa.entity.membership.JPAMDerAttrTemplate;
@@ -131,6 +133,10 @@ public class JPAGroup extends AbstractSubject<GPlainAttr, GDerAttr, GVirAttr> im
     @Valid
     private Set<JPAExternalResource> resources;
 
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "group")
+    @Valid
+    private JPADynGroupMembership dynMembership;
+
     public JPAGroup() {
         super();
 
@@ -154,7 +160,7 @@ public class JPAGroup extends AbstractSubject<GPlainAttr, GDerAttr, GVirAttr> im
     }
 
     @Override
-    protected Set<? extends ExternalResource> internalGetResources() {
+    protected Set<JPAExternalResource> internalGetResources() {
         return resources;
     }
 
@@ -286,4 +292,16 @@ public class JPAGroup extends AbstractSubject<GPlainAttr, GDerAttr, GVirAttr> im
     public List<? extends GVirAttr> getVirAttrs() {
         return virAttrs;
     }
+
+    @Override
+    public DynGroupMembership getDynMembership() {
+        return dynMembership;
+    }
+
+    @Override
+    public void setDynMembership(final DynGroupMembership dynMembership) {
+        checkType(dynMembership, JPADynGroupMembership.class);
+        this.dynMembership = (JPADynGroupMembership) dynMembership;
+    }
+
 }

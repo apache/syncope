@@ -18,9 +18,12 @@
  */
 package org.apache.syncope.core.misc.search;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.cxf.jaxrs.ext.search.SearchBean;
 import org.apache.cxf.jaxrs.ext.search.fiql.FiqlParser;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.search.AbstractFiqlSearchConditionBuilder;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 
 /**
@@ -32,16 +35,23 @@ public final class SearchCondConverter {
      * Parses a FIQL expression into Syncope's <tt>SearchCond</tt>, using CXF's <tt>FiqlParser</tt>.
      *
      * @param fiqlExpression FIQL string
-     * @return <tt>SearchCond</tt> instance for given FIQL expression
+     * @return {@link SearchCond} instance for given FIQL expression
      * @see FiqlParser
      */
     public static SearchCond convert(final String fiqlExpression) {
         FiqlParser<SearchBean> fiqlParser = new FiqlParser<>(
                 SearchBean.class, AbstractFiqlSearchConditionBuilder.CONTEXTUAL_PROPERTIES);
 
-        SearchCondVisitor searchCondVisitor = new SearchCondVisitor();
-        searchCondVisitor.visit(fiqlParser.parse(fiqlExpression));
-        return searchCondVisitor.getQuery();
+        try {
+            SearchCondVisitor searchCondVisitor = new SearchCondVisitor();
+            searchCondVisitor.visit(fiqlParser.parse(fiqlExpression));
+            return searchCondVisitor.getQuery();
+        } catch (Exception e) {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSearchExpression);
+            sce.getElements().add(fiqlExpression);
+            sce.getElements().add(ExceptionUtils.getRootCauseMessage(e));
+            throw sce;
+        }
     }
 
     private SearchCondConverter() {

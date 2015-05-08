@@ -28,9 +28,6 @@ import org.slf4j.LoggerFactory;
 
 public class AnnotatedEntityListener {
 
-    /**
-     * Logger.
-     */
     private static final Logger LOG = LoggerFactory.getLogger(AnnotatedEntityListener.class);
 
     @PrePersist

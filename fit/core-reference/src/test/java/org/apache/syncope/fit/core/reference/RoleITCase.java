@@ -39,6 +39,15 @@ import org.junit.runners.MethodSorters;
 @FixMethodOrder(MethodSorters.JVM)
 public class RoleITCase extends AbstractITCase {
 
+    public static RoleTO getSampleRoleTO(final String name) {
+        RoleTO role = new RoleTO();
+        role.setName(name + getUUIDString());
+        role.getRealms().add("/even");
+        role.getEntitlements().add(Entitlement.LOG_SET_LEVEL);
+
+        return role;
+    }
+
     @Test
     public void list() {
         List<RoleTO> roleTOs = roleService.list();
@@ -54,15 +63,6 @@ public class RoleITCase extends AbstractITCase {
         RoleTO roleTO = roleService.read(3L);
         assertNotNull(roleTO);
         assertTrue(roleTO.getEntitlements().contains(Entitlement.GROUP_READ));
-    }
-
-    private RoleTO buildRoleTO(final String name) {
-        RoleTO role = new RoleTO();
-        role.setName(name + getUUIDString());
-        role.getRealms().add("/even");
-        role.getEntitlements().add(Entitlement.LOG_SET_LEVEL);
-
-        return role;
     }
 
     @Test
@@ -82,7 +82,7 @@ public class RoleITCase extends AbstractITCase {
 
     @Test
     public void update() {
-        RoleTO role = buildRoleTO("update");
+        RoleTO role = getSampleRoleTO("update");
         Response response = roleService.create(role);
 
         RoleTO actual = getObject(response.getLocation(), RoleService.class, RoleTO.class);
@@ -104,7 +104,7 @@ public class RoleITCase extends AbstractITCase {
 
     @Test
     public void delete() {
-        RoleTO role = buildRoleTO("delete");
+        RoleTO role = getSampleRoleTO("delete");
         Response response = roleService.create(role);
 
         RoleTO actual = getObject(response.getLocation(), RoleService.class, RoleTO.class);
@@ -118,5 +118,23 @@ public class RoleITCase extends AbstractITCase {
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
         }
+    }
+
+    @Test
+    public void dynMembership() {
+        assertTrue(userService.read(4L).getDynRoles().isEmpty());
+
+        RoleTO role = getSampleRoleTO("dynMembership");
+        role.setDynMembershipCond("cool==true");
+        Response response = roleService.create(role);
+        role = getObject(response.getLocation(), RoleService.class, RoleTO.class);
+        assertNotNull(role);
+
+        assertTrue(userService.read(4L).getDynRoles().contains(role.getKey()));
+
+        role.setDynMembershipCond("cool==false");
+        roleService.update(role.getKey(), role);
+
+        assertTrue(userService.read(4L).getDynGroups().isEmpty());
     }
 }

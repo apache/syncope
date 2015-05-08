@@ -46,9 +46,10 @@ import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.SubjectSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
-import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
+import org.apache.syncope.core.persistence.api.dao.search.GroupCond;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.ResourceCond;
+import org.apache.syncope.core.persistence.api.dao.search.RoleCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.dao.search.SubjectCond;
 import org.apache.syncope.core.persistence.api.entity.AttributableUtils;
@@ -418,8 +419,12 @@ public class JPASubjectSearchDAO extends AbstractDAO<Subject<?, ?, ?>, Long> imp
 
             case LEAF:
             case NOT_LEAF:
-                if (nodeCond.getMembershipCond() != null && SubjectType.USER == type) {
-                    query.append(getQuery(nodeCond.getMembershipCond(),
+                if (nodeCond.getGroupCond() != null && SubjectType.USER == type) {
+                    query.append(getQuery(nodeCond.getGroupCond(),
+                            nodeCond.getType() == SearchCond.Type.NOT_LEAF, parameters, svs));
+                }
+                if (nodeCond.getRoleCond() != null && SubjectType.USER == type) {
+                    query.append(getQuery(nodeCond.getRoleCond(),
                             nodeCond.getType() == SearchCond.Type.NOT_LEAF, parameters, svs));
                 }
                 if (nodeCond.getResourceCond() != null) {
@@ -456,7 +461,7 @@ public class JPASubjectSearchDAO extends AbstractDAO<Subject<?, ?, ?>, Long> imp
         return query;
     }
 
-    private String getQuery(final MembershipCond cond, final boolean not, final List<Object> parameters,
+    private String getQuery(final GroupCond cond, final boolean not, final List<Object> parameters,
             final SearchSupport svs) {
 
         StringBuilder query = new StringBuilder("SELECT DISTINCT subject_id FROM ").
@@ -470,7 +475,49 @@ public class JPASubjectSearchDAO extends AbstractDAO<Subject<?, ?, ?>, Long> imp
 
         query.append("SELECT DISTINCT subject_id ").append("FROM ").
                 append(svs.membership().name).append(" WHERE ").
-                append("group_id=?").append(setParameter(parameters, cond.getGroupId())).
+                append("group_id=?").append(setParameter(parameters, cond.getGroupKey())).
+                append(')');
+
+        if (not) {
+            query.append("AND subject_id NOT IN (");
+        } else {
+            query.append("OR subject_id IN (");
+        }
+
+        query.append("SELECT DISTINCT subject_id ").append("FROM ").
+                append(svs.dyngroupmembership().name).append(" WHERE ").
+                append("group_id=?").append(setParameter(parameters, cond.getGroupKey())).
+                append(')');
+
+        return query.toString();
+    }
+
+    private String getQuery(final RoleCond cond, final boolean not, final List<Object> parameters,
+            final SearchSupport svs) {
+
+        StringBuilder query = new StringBuilder("SELECT DISTINCT subject_id FROM ").
+                append(svs.field().name).append(" WHERE ");
+
+        if (not) {
+            query.append("subject_id NOT IN (");
+        } else {
+            query.append("subject_id IN (");
+        }
+
+        query.append("SELECT DISTINCT subject_id ").append("FROM ").
+                append(svs.role().name).append(" WHERE ").
+                append("role_id=?").append(setParameter(parameters, cond.getRoleKey())).
+                append(')');
+
+        if (not) {
+            query.append("AND subject_id NOT IN (");
+        } else {
+            query.append("OR subject_id IN (");
+        }
+
+        query.append("SELECT DISTINCT subject_id ").append("FROM ").
+                append(svs.dynrolemembership().name).append(" WHERE ").
+                append("role_id=?").append(setParameter(parameters, cond.getRoleKey())).
                 append(')');
 
         return query.toString();

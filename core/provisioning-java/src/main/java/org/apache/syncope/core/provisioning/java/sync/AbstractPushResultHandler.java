@@ -19,6 +19,7 @@
 package org.apache.syncope.core.provisioning.java.sync;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -43,6 +44,7 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.sync.ProvisioningResult;
 import org.apache.syncope.core.provisioning.api.sync.PushActions;
 import org.apache.syncope.core.misc.MappingUtils;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.provisioning.api.sync.IgnoreProvisionException;
 import org.apache.syncope.core.provisioning.api.sync.SyncopePushResultHandler;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
@@ -347,20 +349,21 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
             vattrToBeUpdated.add(mod);
         }
 
-        final boolean changepwd;
-
+        boolean changepwd;
+        Collection<String> resourceNames;
         if (sbj instanceof User) {
             changepwd = true;
+            resourceNames = userDAO.findAllResourceNames((User) sbj);
 
             // Search for memberships
             for (Membership membership : User.class.cast(sbj).getMemberships()) {
-                final MembershipMod membershipMod = new MembershipMod();
+                MembershipMod membershipMod = new MembershipMod();
                 membershipMod.setKey(membership.getKey());
                 membershipMod.setGroup(membership.getGroup().getKey());
 
                 for (VirAttr vattr : membership.getVirAttrs()) {
                     membVattrToBeRemoved.remove(vattr.getSchema().getKey());
-                    final AttrMod mod = new AttrMod();
+                    AttrMod mod = new AttrMod();
                     mod.setSchema(vattr.getSchema().getKey());
                     mod.getValuesToBeAdded().addAll(vattr.getValues());
                     membershipMod.getVirAttrsToUpdate().add(mod);
@@ -374,9 +377,10 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
             }
         } else {
             changepwd = false;
+            resourceNames = ((Group) sbj).getResourceNames();
         }
 
-        final List<String> noPropResources = new ArrayList<>(sbj.getResourceNames());
+        List<String> noPropResources = new ArrayList<>(resourceNames);
         noPropResources.remove(profile.getTask().getResource().getKey());
 
         final PropagationByResource propByRes = new PropagationByResource();

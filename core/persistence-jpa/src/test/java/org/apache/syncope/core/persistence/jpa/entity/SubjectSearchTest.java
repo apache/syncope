@@ -36,9 +36,10 @@ import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.SubjectSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
-import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
+import org.apache.syncope.core.persistence.api.dao.search.GroupCond;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.ResourceCond;
+import org.apache.syncope.core.persistence.api.dao.search.RoleCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.dao.search.SubjectCond;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
@@ -65,14 +66,16 @@ public class SubjectSearchTest extends AbstractTest {
         User user = userDAO.find(1L);
         assertNotNull(user);
 
-        MembershipCond membershipCond = new MembershipCond();
-        membershipCond.setGroupId(5L);
+        GroupCond groupCond = new GroupCond();
+        groupCond.setGroupKey(5L);
+        assertFalse(searchDAO.matches(user, SearchCond.getLeafCond(groupCond), SubjectType.USER));
 
-        assertFalse(searchDAO.matches(user, SearchCond.getLeafCond(membershipCond), SubjectType.USER));
+        groupCond.setGroupKey(1L);
+        assertTrue(searchDAO.matches(user, SearchCond.getLeafCond(groupCond), SubjectType.USER));
 
-        membershipCond.setGroupId(1L);
-
-        assertTrue(searchDAO.matches(user, SearchCond.getLeafCond(membershipCond), SubjectType.USER));
+        RoleCond roleCond = new RoleCond();
+        roleCond.setRoleKey(3L);
+        assertTrue(searchDAO.matches(user, SearchCond.getLeafCond(roleCond), SubjectType.USER));
     }
 
     @Test
@@ -93,15 +96,15 @@ public class SubjectSearchTest extends AbstractTest {
         fullnameLeafCond.setSchema("fullname");
         fullnameLeafCond.setExpression("%o%");
 
-        MembershipCond membershipCond = new MembershipCond();
-        membershipCond.setGroupId(1L);
+        GroupCond groupCond = new GroupCond();
+        groupCond.setGroupKey(1L);
 
         AttributeCond loginDateCond = new AttributeCond(AttributeCond.Type.EQ);
         loginDateCond.setSchema("loginDate");
         loginDateCond.setExpression("2009-05-26");
 
         SearchCond subCond = SearchCond.getAndCond(SearchCond.getLeafCond(fullnameLeafCond), SearchCond.getLeafCond(
-                membershipCond));
+                groupCond));
 
         assertTrue(subCond.isValid());
 
@@ -157,15 +160,15 @@ public class SubjectSearchTest extends AbstractTest {
         fullnameLeafCond.setSchema("fullname");
         fullnameLeafCond.setExpression("%o%");
 
-        MembershipCond membershipCond = new MembershipCond();
-        membershipCond.setGroupId(1L);
+        GroupCond groupCond = new GroupCond();
+        groupCond.setGroupKey(1L);
 
         AttributeCond loginDateCond = new AttributeCond(AttributeCond.Type.EQ);
         loginDateCond.setSchema("loginDate");
         loginDateCond.setExpression("2009-05-26");
 
         SearchCond subCond = SearchCond.getAndCond(
-                SearchCond.getLeafCond(fullnameLeafCond), SearchCond.getLeafCond(membershipCond));
+                SearchCond.getLeafCond(fullnameLeafCond), SearchCond.getLeafCond(groupCond));
 
         assertTrue(subCond.isValid());
 
@@ -187,22 +190,33 @@ public class SubjectSearchTest extends AbstractTest {
     }
 
     @Test
-    public void searchByMembership() {
-        MembershipCond membershipCond = new MembershipCond();
-        membershipCond.setGroupId(1L);
+    public void searchByGroup() {
+        GroupCond groupCond = new GroupCond();
+        groupCond.setGroupKey(1L);
 
         List<User> users = searchDAO.search(SyncopeConstants.FULL_ADMIN_REALMS,
-                SearchCond.getLeafCond(membershipCond), SubjectType.USER);
+                SearchCond.getLeafCond(groupCond), SubjectType.USER);
         assertNotNull(users);
         assertEquals(2, users.size());
 
-        membershipCond = new MembershipCond();
-        membershipCond.setGroupId(5L);
+        groupCond = new GroupCond();
+        groupCond.setGroupKey(5L);
 
         users = searchDAO.search(SyncopeConstants.FULL_ADMIN_REALMS,
-                SearchCond.getNotLeafCond(membershipCond), SubjectType.USER);
+                SearchCond.getNotLeafCond(groupCond), SubjectType.USER);
         assertNotNull(users);
         assertEquals(5, users.size());
+    }
+
+    @Test
+    public void searchByRole() {
+        RoleCond roleCond = new RoleCond();
+        roleCond.setRoleKey(3L);
+
+        List<User> users = searchDAO.search(SyncopeConstants.FULL_ADMIN_REALMS,
+                SearchCond.getLeafCond(roleCond), SubjectType.USER);
+        assertNotNull(users);
+        assertEquals(1, users.size());
     }
 
     @Test
@@ -233,11 +247,9 @@ public class SubjectSearchTest extends AbstractTest {
         ws1.setResourceName("ws-target-resource-list-mappings-2");
 
         SearchCond searchCondition = SearchCond.getAndCond(SearchCond.getNotLeafCond(ws2), SearchCond.getLeafCond(ws1));
-
         assertTrue(searchCondition.isValid());
 
         List<User> users = searchDAO.search(SyncopeConstants.FULL_ADMIN_REALMS, searchCondition, SubjectType.USER);
-
         assertNotNull(users);
         assertEquals(1, users.size());
     }

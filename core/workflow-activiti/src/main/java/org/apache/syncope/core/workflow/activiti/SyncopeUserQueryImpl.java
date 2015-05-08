@@ -141,7 +141,7 @@ public class SyncopeUserQueryImpl implements UserQuery {
             if (user == null) {
                 result = Collections.<User>emptyList();
             } else {
-                if (memberOf == null || user.getGroupKeys().contains(memberOf)) {
+                if (memberOf == null || userDAO.findAllGroupKeys(user).contains(memberOf)) {
                     result = Collections.singletonList(fromSyncopeUser(user));
                 }
             }

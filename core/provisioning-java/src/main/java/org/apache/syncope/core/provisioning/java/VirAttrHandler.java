@@ -51,6 +51,7 @@ import org.apache.syncope.core.persistence.api.entity.group.GVirAttrTemplate;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.UVirAttr;
 import org.apache.syncope.core.persistence.api.entity.user.UVirSchema;
+import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -132,11 +133,13 @@ public class VirAttrHandler {
 
         PropagationByResource propByRes = new PropagationByResource();
 
-        final Set<ExternalResource> externalResources = new HashSet<>();
-        if (attributable instanceof Subject) {
-            externalResources.addAll(((Subject<?, ?, ?>) attributable).getResources());
+        Set<ExternalResource> externalResources = new HashSet<>();
+        if (attributable instanceof User) {
+            externalResources.addAll(userDAO.findAllResources((User) attributable));
+        } else if (attributable instanceof Group) {
+            externalResources.addAll(((Group) attributable).getResources());
         } else if (attributable instanceof Membership) {
-            externalResources.addAll(((Membership) attributable).getUser().getResources());
+            externalResources.addAll(userDAO.findAllResources(((Membership) attributable).getUser()));
             externalResources.addAll(((Membership) attributable).getGroup().getResources());
         }
 

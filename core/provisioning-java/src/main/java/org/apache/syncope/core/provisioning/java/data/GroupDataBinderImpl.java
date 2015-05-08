@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
-import static org.apache.syncope.core.provisioning.java.data.AbstractAttributableDataBinder.LOG;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -49,6 +47,9 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.misc.ConnObjectUtils;
+import org.apache.syncope.core.misc.search.SearchCondConverter;
+import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
+import org.apache.syncope.core.persistence.api.entity.DynGroupMembership;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -87,6 +88,25 @@ public class GroupDataBinderImpl extends AbstractAttributableDataBinder implemen
                 }
             }
         }
+    }
+
+    private void setDynMembership(final Group group, final String dynMembershipFIQL) {
+        SearchCond dynMembershipCond = SearchCondConverter.convert(dynMembershipFIQL);
+        if (!dynMembershipCond.isValid()) {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSearchExpression);
+            sce.getElements().add(dynMembershipFIQL);
+            throw sce;
+        }
+
+        DynGroupMembership dynMembership;
+        if (group.getDynMembership() == null) {
+            dynMembership = entityFactory.newEntity(DynGroupMembership.class);
+            dynMembership.setGroup(group);
+            group.setDynMembership(dynMembership);
+        } else {
+            dynMembership = group.getDynMembership();
+        }
+        dynMembership.setFIQLCond(dynMembershipFIQL);
     }
 
     @Override
@@ -130,6 +150,10 @@ public class GroupDataBinderImpl extends AbstractAttributableDataBinder implemen
             } else {
                 group.setGroupOwner(owner);
             }
+        }
+
+        if (groupTO.getDynMembershipCond() != null) {
+            setDynMembership(group, groupTO.getDynMembershipCond());
         }
 
         return group;
@@ -202,6 +226,18 @@ public class GroupDataBinderImpl extends AbstractAttributableDataBinder implemen
             }
         }
 
+        // dynamic membership
+        if (group.getDynMembership() != null && groupMod.getDynMembershipCond() == null) {
+            group.setDynMembership(null);
+        } else if (group.getDynMembership() == null && groupMod.getDynMembershipCond() != null) {
+            setDynMembership(group, groupMod.getDynMembershipCond());
+        } else if (group.getDynMembership() != null && groupMod.getDynMembershipCond() != null
+                && !group.getDynMembership().getFIQLCond().equals(groupMod.getDynMembershipCond())) {
+
+            group.getDynMembership().getUsers().clear();
+            setDynMembership(group, groupMod.getDynMembershipCond());
+        }
+
         return propByRes;
     }
 
@@ -249,6 +285,10 @@ public class GroupDataBinderImpl extends AbstractAttributableDataBinder implemen
         }
         for (MVirAttrTemplate template : group.getAttrTemplates(MVirAttrTemplate.class)) {
             groupTO.getMVirAttrTemplates().add(template.getSchema().getKey());
+        }
+
+        if (group.getDynMembership() != null) {
+            groupTO.setDynMembershipCond(group.getDynMembership().getFIQLCond());
         }
 
         return groupTO;

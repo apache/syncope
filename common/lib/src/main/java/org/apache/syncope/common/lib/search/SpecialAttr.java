@@ -26,7 +26,8 @@ public enum SpecialAttr {
 
     NULL("$null"),
     RESOURCES("$resources"),
-    GROUPS("$groups");
+    GROUPS("$groups"),
+    ROLES("$roles");
 
     private final String literal;
 

@@ -16,18 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.search;
+package org.apache.syncope.core.persistence.api.entity;
 
-import org.apache.cxf.jaxrs.ext.search.client.CompleteCondition;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 
-public interface UserProperty extends SyncopeProperty {
+public interface DynGroupMembership extends DynMembership {
 
-    CompleteCondition inGroups(Long group, Long... moreGroups);
+    Group getGroup();
 
-    CompleteCondition notInGroups(Long group, Long... moreGroups);
-
-    CompleteCondition inRoles(Long role, Long... moreRoles);
-
-    CompleteCondition notInRoles(Long role, Long... moreRoles);
-
+    void setGroup(Group role);
 }

@@ -230,7 +230,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
 
     protected List<PropagationStatus> propagateStatus(final User user, final StatusMod statusMod) {
         Collection<String> noPropResourceNames =
-                CollectionUtils.removeAll(user.getResourceNames(), statusMod.getResourceNames());
+                CollectionUtils.removeAll(userDAO.findAllResourceNames(user), statusMod.getResourceNames());
 
         List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(
                 user, statusMod.getType() != StatusMod.ModType.SUSPEND, noPropResourceNames);
@@ -269,11 +269,11 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
     public List<PropagationStatus> deprovision(final Long userKey, final Collection<String> resources) {
         final User user = userDAO.authFetch(userKey);
 
-        Collection<String> noPropResourceNames = CollectionUtils.removeAll(user.getResourceNames(), resources);
-
-        final List<PropagationTask> tasks =
-                propagationManager.getUserDeleteTasks(userKey, new HashSet<>(resources), noPropResourceNames);
-        final PropagationReporter propagationReporter =
+        List<PropagationTask> tasks = propagationManager.getUserDeleteTasks(
+                userKey,
+                new HashSet<>(resources),
+                CollectionUtils.removeAll(userDAO.findAllResourceNames(user), resources));
+        PropagationReporter propagationReporter =
                 ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
         try {
             taskExecutor.execute(tasks, propagationReporter);

@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.api.entity.group;
 
 import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.AttrTemplate;
+import org.apache.syncope.core.persistence.api.entity.DynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.Schema;
 import org.apache.syncope.core.persistence.api.entity.Subject;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -80,4 +81,7 @@ public interface Group extends Subject<GPlainAttr, GDerAttr, GVirAttr> {
     @Override
     List<? extends GVirAttr> getVirAttrs();
 
+    DynGroupMembership getDynMembership();
+
+    void setDynMembership(DynGroupMembership dynMembership);
 }

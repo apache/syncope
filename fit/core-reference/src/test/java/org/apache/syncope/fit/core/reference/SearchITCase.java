@@ -18,12 +18,14 @@
  */
 package org.apache.syncope.fit.core.reference;
 
+import static org.apache.syncope.fit.core.reference.AbstractITCase.userService;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Collection;
+import javax.ws.rs.core.Response;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.client.lib.SyncopeClient;
@@ -31,7 +33,9 @@ import org.apache.syncope.common.lib.CollectionUtils2;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.rest.api.service.RoleService;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -92,6 +96,89 @@ public class SearchITCase extends AbstractITCase {
         assertEquals(1, matchingGroups.getResult().size());
         assertEquals("root", matchingGroups.getResult().iterator().next().getName());
         assertEquals(1L, matchingGroups.getResult().iterator().next().getKey());
+    }
+
+    @Test
+    public void searchByGroup() {
+        PagedResult<UserTO> matchedUsers = userService.search(
+                SyncopeClient.getSubjectSearchQueryBuilder().realm(SyncopeConstants.ROOT_REALM).
+                fiql(SyncopeClient.getUserSearchConditionBuilder().inGroups(1L).query()).
+                build());
+        assertNotNull(matchedUsers);
+        assertFalse(matchedUsers.getResult().isEmpty());
+
+        assertTrue(CollectionUtils.exists(matchedUsers.getResult(), new Predicate<UserTO>() {
+
+            @Override
+            public boolean evaluate(final UserTO user) {
+                return user.getKey() == 1;
+            }
+        }));
+    }
+
+    @Test
+    public void searchByDynGroup() {
+        GroupTO group = GroupITCase.getBasicSampleTO("dynMembership");
+        group.setDynMembershipCond("cool==true");
+        group = createGroup(group);
+        assertNotNull(group);
+
+        PagedResult<UserTO> matchedUsers = userService.search(
+                SyncopeClient.getSubjectSearchQueryBuilder().realm(SyncopeConstants.ROOT_REALM).
+                fiql(SyncopeClient.getUserSearchConditionBuilder().inGroups(group.getKey()).query()).
+                build());
+        assertNotNull(matchedUsers);
+        assertFalse(matchedUsers.getResult().isEmpty());
+
+        assertTrue(CollectionUtils.exists(matchedUsers.getResult(), new Predicate<UserTO>() {
+
+            @Override
+            public boolean evaluate(final UserTO user) {
+                return user.getKey() == 4;
+            }
+        }));
+    }
+
+    @Test
+    public void searchByRole() {
+        PagedResult<UserTO> matchedUsers = userService.search(
+                SyncopeClient.getSubjectSearchQueryBuilder().realm(SyncopeConstants.ROOT_REALM).
+                fiql(SyncopeClient.getUserSearchConditionBuilder().inRoles(3L).query()).
+                build());
+        assertNotNull(matchedUsers);
+        assertFalse(matchedUsers.getResult().isEmpty());
+
+        assertTrue(CollectionUtils.exists(matchedUsers.getResult(), new Predicate<UserTO>() {
+
+            @Override
+            public boolean evaluate(final UserTO user) {
+                return user.getKey() == 1;
+            }
+        }));
+    }
+
+    @Test
+    public void searchByDynRole() {
+        RoleTO role = RoleITCase.getSampleRoleTO("dynMembership");
+        role.setDynMembershipCond("cool==true");
+        Response response = roleService.create(role);
+        role = getObject(response.getLocation(), RoleService.class, RoleTO.class);
+        assertNotNull(role);
+
+        PagedResult<UserTO> matchedUsers = userService.search(
+                SyncopeClient.getSubjectSearchQueryBuilder().realm(SyncopeConstants.ROOT_REALM).
+                fiql(SyncopeClient.getUserSearchConditionBuilder().inRoles(role.getKey()).query()).
+                build());
+        assertNotNull(matchedUsers);
+        assertFalse(matchedUsers.getResult().isEmpty());
+
+        assertTrue(CollectionUtils.exists(matchedUsers.getResult(), new Predicate<UserTO>() {
+
+            @Override
+            public boolean evaluate(final UserTO user) {
+                return user.getKey() == 4;
+            }
+        }));
     }
 
     @Test

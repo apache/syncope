@@ -72,6 +72,7 @@ import org.apache.syncope.core.provisioning.api.cache.VirAttrCache;
 import org.apache.syncope.core.misc.security.Encryptor;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.misc.jexl.JexlUtils;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.identityconnectors.framework.common.FrameworkUtil;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
@@ -268,7 +269,8 @@ public final class MappingUtils {
 
             case GROUP:
                 if (subject instanceof User) {
-                    for (Group group : ((User) subject).getGroups()) {
+                    UserDAO userDAO = context.getBean(UserDAO.class);
+                    for (Group group : userDAO.findAllGroups((User) subject)) {
                         connObjectUtils.retrieveVirAttrValues(group, attrUtilsFactory.getInstance(group));
                         attributables.add(group);
                     }
@@ -655,16 +657,16 @@ public final class MappingUtils {
     /**
      * Get accountId internal value.
      *
-     * @param attributable attributable
+     * @param subject subject
      * @param accountIdItem accountId mapping item
      * @param resource external resource
      * @return accountId internal value
      */
-    public static String getAccountIdValue(final Attributable<?, ?, ?> attributable,
+    public static String getAccountIdValue(final Subject<?, ?, ?> subject,
             final ExternalResource resource, final MappingItem accountIdItem) {
 
         List<PlainAttrValue> values = getIntValues(resource, accountIdItem,
-                Collections.<Attributable<?, ?, ?>>singletonList(attributable), null, null, null, null);
+                Collections.<Attributable<?, ?, ?>>singletonList(subject), null, null, null, null);
         return values == null || values.isEmpty()
                 ? null
                 : values.get(0).getValueAsString();

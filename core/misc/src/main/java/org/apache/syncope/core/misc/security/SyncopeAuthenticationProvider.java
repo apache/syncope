@@ -224,8 +224,8 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
     protected Set<? extends ExternalResource> getPassthroughResources(final User user) {
         Set<? extends ExternalResource> result = null;
 
-        // 1. look for directly assigned resources, pick the ones whose account policy has authentication resources
-        for (ExternalResource resource : user.getOwnResources()) {
+        // 1. look for assigned resources, pick the ones whose account policy has authentication resources
+        for (ExternalResource resource : userDAO.findAllResources(user)) {
             if (resource.getAccountPolicy() != null && !resource.getAccountPolicy().getResources().isEmpty()) {
                 if (result == null) {
                     result = resource.getAccountPolicy().getResources();
@@ -253,7 +253,7 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
         boolean authenticated = encryptor.verify(password, user.getCipherAlgorithm(), user.getPassword());
         LOG.debug("{} authenticated on internal storage: {}", user.getUsername(), authenticated);
 
-        final AttributableUtils attrUtils = attrUtilsFactory.getInstance(AttributableType.USER);
+        AttributableUtils attrUtils = attrUtilsFactory.getInstance(AttributableType.USER);
         for (Iterator<? extends ExternalResource> itor = getPassthroughResources(user).iterator();
                 itor.hasNext() && !authenticated;) {
 

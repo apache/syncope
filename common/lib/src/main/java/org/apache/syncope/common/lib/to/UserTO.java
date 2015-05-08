@@ -44,7 +44,11 @@ public class UserTO extends AbstractSubjectTO {
 
     private final List<Long> roles = new ArrayList<>();
 
+    private final List<Long> dynRoles = new ArrayList<>();
+
     private final List<MembershipTO> memberships = new ArrayList<>();
+
+    private final List<Long> dynGroups = new ArrayList<>();
 
     private String status;
 
@@ -79,6 +83,13 @@ public class UserTO extends AbstractSubjectTO {
         return roles;
     }
 
+    @XmlElementWrapper(name = "dynRoles")
+    @XmlElement(name = "role")
+    @JsonProperty("dynRoles")
+    public List<Long> getDynRoles() {
+        return dynRoles;
+    }
+
     @XmlElementWrapper(name = "memberships")
     @XmlElement(name = "membership")
     @JsonProperty("memberships")
@@ -101,6 +112,13 @@ public class UserTO extends AbstractSubjectTO {
         }
 
         return result;
+    }
+
+    @XmlElementWrapper(name = "dynGroups")
+    @XmlElement(name = "role")
+    @JsonProperty("dynGroups")
+    public List<Long> getDynGroups() {
+        return dynGroups;
     }
 
     public String getStatus() {

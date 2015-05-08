@@ -20,8 +20,13 @@ package org.apache.syncope.core.provisioning.java.data;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.RoleTO;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.core.misc.search.SearchCondConverter;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
+import org.apache.syncope.core.persistence.api.entity.DynRoleMembership;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Role;
@@ -41,6 +46,25 @@ public class RoleDataBinderImpl implements RoleDataBinder {
 
     @Autowired
     private EntityFactory entityFactory;
+
+    private void setDynMembership(final Role role, final String dynMembershipFIQL) {
+        SearchCond dynMembershipCond = SearchCondConverter.convert(dynMembershipFIQL);
+        if (!dynMembershipCond.isValid()) {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSearchExpression);
+            sce.getElements().add(dynMembershipFIQL);
+            throw sce;
+        }
+
+        DynRoleMembership dynMembership;
+        if (role.getDynMembership() == null) {
+            dynMembership = entityFactory.newEntity(DynRoleMembership.class);
+            dynMembership.setRole(role);
+            role.setDynMembership(dynMembership);
+        } else {
+            dynMembership = role.getDynMembership();
+        }
+        dynMembership.setFIQLCond(dynMembershipFIQL);
+    }
 
     @Override
     public Role create(final RoleTO roleTO) {
@@ -65,6 +89,22 @@ public class RoleDataBinderImpl implements RoleDataBinder {
                 role.addRealm(realm);
             }
         }
+
+        // dynamic membership
+        if (role.getKey() == null && roleTO.getDynMembershipCond() != null) {
+            setDynMembership(role, roleTO.getDynMembershipCond());
+        } else {
+            if (role.getDynMembership() != null && roleTO.getDynMembershipCond() == null) {
+                role.setDynMembership(null);
+            } else if (role.getDynMembership() == null && roleTO.getDynMembershipCond() != null) {
+                setDynMembership(role, roleTO.getDynMembershipCond());
+            } else if (role.getDynMembership() != null && roleTO.getDynMembershipCond() != null
+                    && !role.getDynMembership().getFIQLCond().equals(roleTO.getDynMembershipCond())) {
+
+                role.getDynMembership().getUsers().clear();
+                setDynMembership(role, roleTO.getDynMembershipCond());
+            }
+        }
     }
 
     @Override
@@ -82,6 +122,10 @@ public class RoleDataBinderImpl implements RoleDataBinder {
                 return input.getFullPath();
             }
         }, roleTO.getRealms());
+
+        if (role.getDynMembership() != null) {
+            roleTO.setDynMembershipCond(role.getDynMembership().getFIQLCond());
+        }
 
         return roleTO;
     }

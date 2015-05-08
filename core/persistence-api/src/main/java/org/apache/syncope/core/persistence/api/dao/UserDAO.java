@@ -18,10 +18,13 @@
  */
 package org.apache.syncope.core.persistence.api.dao;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.Role;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
 import org.apache.syncope.core.persistence.api.entity.user.UDerAttr;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
@@ -64,4 +67,18 @@ public interface UserDAO extends SubjectDAO<UPlainAttr, UDerAttr, UVirAttr> {
     User authFetch(Long key);
 
     User authFetch(String username);
+
+    List<Role> findDynRoleMemberships(User user);
+
+    List<Group> findDynGroupMemberships(User user);
+
+    Collection<Role> findAllRoles(User user);
+
+    Collection<Group> findAllGroups(User user);
+
+    Collection<Long> findAllGroupKeys(User user);
+
+    Collection<ExternalResource> findAllResources(User user);
+
+    Collection<String> findAllResourceNames(User user);
 }

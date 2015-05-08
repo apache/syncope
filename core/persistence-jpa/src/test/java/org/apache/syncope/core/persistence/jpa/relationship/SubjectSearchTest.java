@@ -26,11 +26,17 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.common.lib.types.SubjectType;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.SubjectSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
+import org.apache.syncope.core.persistence.api.dao.search.RoleCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
+import org.apache.syncope.core.persistence.api.entity.DynRoleMembership;
+import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
@@ -47,6 +53,12 @@ public class SubjectSearchTest extends AbstractTest {
     @Autowired
     private SubjectSearchDAO searchDAO;
 
+    @Autowired
+    private RealmDAO realmDAO;
+
+    @Autowired
+    private RoleDAO roleDAO;
+
     @Test
     public void issueSYNCOPE95() {
         Set<Group> groups = new HashSet<>(groupDAO.findAll(SyncopeConstants.FULL_ADMIN_REALMS, 1, 100));
@@ -55,18 +67,49 @@ public class SubjectSearchTest extends AbstractTest {
         }
         groupDAO.flush();
 
-        final AttributeCond coolLeafCond = new AttributeCond(AttributeCond.Type.EQ);
+        AttributeCond coolLeafCond = new AttributeCond(AttributeCond.Type.EQ);
         coolLeafCond.setSchema("cool");
         coolLeafCond.setExpression("true");
 
-        final SearchCond cond = SearchCond.getLeafCond(coolLeafCond);
+        SearchCond cond = SearchCond.getLeafCond(coolLeafCond);
         assertTrue(cond.isValid());
 
-        final List<User> users =
-                searchDAO.search(SyncopeConstants.FULL_ADMIN_REALMS, cond, SubjectType.USER);
+        List<User> users = searchDAO.search(SyncopeConstants.FULL_ADMIN_REALMS, cond, SubjectType.USER);
         assertNotNull(users);
         assertEquals(1, users.size());
 
-        assertEquals(Long.valueOf(4L), users.get(0).getKey());
+        assertEquals(4L, users.get(0).getKey(), 0);
+    }
+
+    @Test
+    public void searchByDynMembership() {
+        // 1. create role with dynamic membership
+        Role role = entityFactory.newEntity(Role.class);
+        role.setName("new");
+        role.addRealm(realmDAO.getRoot());
+        role.addRealm(realmDAO.find("/even/two"));
+        role.getEntitlements().add(Entitlement.LOG_LIST);
+        role.getEntitlements().add(Entitlement.LOG_SET_LEVEL);
+
+        DynRoleMembership dynMembership = entityFactory.newEntity(DynRoleMembership.class);
+        dynMembership.setFIQLCond("cool==true");
+        dynMembership.setRole(role);
+
+        role.setDynMembership(dynMembership);
+
+        role = roleDAO.save(role);
+        assertNotNull(role);
+
+        roleDAO.flush();
+
+        // 2. search user by this dynamic role
+        RoleCond roleCond = new RoleCond();
+        roleCond.setRoleKey(role.getKey());
+
+        List<User> users = searchDAO.search(SyncopeConstants.FULL_ADMIN_REALMS,
+                SearchCond.getLeafCond(roleCond), SubjectType.USER);
+        assertNotNull(users);
+        assertEquals(1, users.size());
+        assertEquals(4L, users.get(0).getKey(), 0);
     }
 }

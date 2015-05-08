@@ -71,7 +71,7 @@ public class LDAPMembershipPropagationActions extends DefaultPropagationActions 
             User user = userDAO.find(task.getSubjectKey());
             if (user != null) {
                 List<String> groupAccountLinks = new ArrayList<>();
-                for (Group group : user.getGroups()) {
+                for (Group group : userDAO.findAllGroups(user)) {
                     if (group.getResourceNames().contains(task.getResource().getKey())
                             && StringUtils.isNotBlank(task.getResource().getGmapping().getAccountLink())) {
 

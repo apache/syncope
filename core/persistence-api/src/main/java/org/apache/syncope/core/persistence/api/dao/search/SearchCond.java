@@ -39,7 +39,9 @@ public class SearchCond extends AbstractSearchCond {
 
     private AttributeCond attributeCond;
 
-    private MembershipCond membershipCond;
+    private GroupCond groupCond;
+
+    private RoleCond roleCond;
 
     private ResourceCond resourceCond;
 
@@ -60,11 +62,20 @@ public class SearchCond extends AbstractSearchCond {
         return nodeCond;
     }
 
-    public static SearchCond getLeafCond(final MembershipCond membershipCond) {
+    public static SearchCond getLeafCond(final GroupCond groupCond) {
         SearchCond nodeCond = new SearchCond();
 
         nodeCond.type = Type.LEAF;
-        nodeCond.membershipCond = membershipCond;
+        nodeCond.groupCond = groupCond;
+
+        return nodeCond;
+    }
+
+    public static SearchCond getLeafCond(final RoleCond roleCond) {
+        SearchCond nodeCond = new SearchCond();
+
+        nodeCond.type = Type.LEAF;
+        nodeCond.roleCond = roleCond;
 
         return nodeCond;
     }
@@ -84,8 +95,14 @@ public class SearchCond extends AbstractSearchCond {
         return nodeCond;
     }
 
-    public static SearchCond getNotLeafCond(final MembershipCond membershipCond) {
-        SearchCond nodeCond = getLeafCond(membershipCond);
+    public static SearchCond getNotLeafCond(final GroupCond groupCond) {
+        SearchCond nodeCond = getLeafCond(groupCond);
+        nodeCond.type = Type.NOT_LEAF;
+        return nodeCond;
+    }
+
+    public static SearchCond getNotLeafCond(final RoleCond roleCond) {
+        SearchCond nodeCond = getLeafCond(roleCond);
         nodeCond.type = Type.NOT_LEAF;
         return nodeCond;
     }
@@ -155,12 +172,20 @@ public class SearchCond extends AbstractSearchCond {
         this.attributeCond = attributeCond;
     }
 
-    public MembershipCond getMembershipCond() {
-        return membershipCond;
+    public GroupCond getGroupCond() {
+        return groupCond;
     }
 
-    public void setMembershipCond(final MembershipCond membershipCond) {
-        this.membershipCond = membershipCond;
+    public void setGroupCond(final GroupCond groupCond) {
+        this.groupCond = groupCond;
+    }
+
+    public RoleCond getRoleCond() {
+        return roleCond;
+    }
+
+    public void setRoleCond(final RoleCond roleCond) {
+        this.roleCond = roleCond;
     }
 
     public ResourceCond getResourceCond() {
@@ -207,10 +232,11 @@ public class SearchCond extends AbstractSearchCond {
             case LEAF:
             case NOT_LEAF:
                 isValid = (subjectCond != null || attributeCond != null
-                        || membershipCond != null || resourceCond != null)
+                        || groupCond != null || roleCond != null || resourceCond != null)
                         && (subjectCond == null || subjectCond.isValid())
                         && (attributeCond == null || attributeCond.isValid())
-                        && (membershipCond == null || membershipCond.isValid())
+                        && (groupCond == null || groupCond.isValid())
+                        && (roleCond == null || roleCond.isValid())
                         && (resourceCond == null || resourceCond.isValid());
                 break;
 

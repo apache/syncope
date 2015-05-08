@@ -43,6 +43,8 @@ public class RoleTO extends AbstractBaseBean {
 
     private final List<String> realms = new ArrayList<>();
 
+    private String dynMembershipCond;
+
     public long getKey() {
         return key;
     }
@@ -71,6 +73,14 @@ public class RoleTO extends AbstractBaseBean {
     @JsonProperty("realms")
     public List<String> getRealms() {
         return realms;
+    }
+
+    public String getDynMembershipCond() {
+        return dynMembershipCond;
+    }
+
+    public void setDynMembershipCond(final String dynMembershipCond) {
+        this.dynMembershipCond = dynMembershipCond;
     }
 
 }

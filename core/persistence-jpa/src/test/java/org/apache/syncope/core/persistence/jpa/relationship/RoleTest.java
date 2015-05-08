@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.jpa.relationship;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -27,44 +26,35 @@ import static org.junit.Assert.assertTrue;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.common.lib.types.AttributableType;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
-import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
-import org.apache.syncope.core.persistence.api.dao.PlainAttrValueDAO;
+import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
-import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.entity.DynGroupMembership;
-import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
-import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrValue;
-import org.apache.syncope.core.persistence.api.entity.group.GPlainSchema;
-import org.apache.syncope.core.persistence.api.entity.group.Group;
+import org.apache.syncope.core.persistence.api.entity.DynRoleMembership;
+import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainSchema;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
-import org.apache.syncope.core.persistence.jpa.entity.JPADynGroupMembership;
+import org.apache.syncope.core.persistence.jpa.entity.JPADynRoleMembership;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class GroupTest extends AbstractTest {
+public class RoleTest extends AbstractTest {
 
     @Autowired
     private EntityManager entityManager;
 
     @Autowired
-    private UserDAO userDAO;
-
-    @Autowired
-    private GroupDAO groupDAO;
+    private RoleDAO roleDAO;
 
     @Autowired
     private RealmDAO realmDAO;
@@ -73,66 +63,17 @@ public class GroupTest extends AbstractTest {
     private PlainSchemaDAO plainSchemaDAO;
 
     @Autowired
-    private PlainAttrDAO plainAttrDAO;
-
-    @Autowired
-    private PlainAttrValueDAO plainAttrValueDAO;
-
-    @Test(expected = InvalidEntityException.class)
-    public void saveWithTwoOwners() {
-        Group root = groupDAO.find("root");
-        assertNotNull("did not find expected group", root);
-
-        User user = userDAO.find(1L);
-        assertNotNull("did not find expected user", user);
-
-        Group group = entityFactory.newEntity(Group.class);
-        group.setRealm(realmDAO.getRoot());
-        group.setName("error");
-        group.setUserOwner(user);
-        group.setGroupOwner(root);
-
-        groupDAO.save(group);
-    }
-
-    @Test
-    public void findByOwner() {
-        Group group = groupDAO.find(6L);
-        assertNotNull("did not find expected group", group);
-
-        User user = userDAO.find(5L);
-        assertNotNull("did not find expected user", user);
-
-        assertEquals(user, group.getUserOwner());
-
-        List<Group> ownedGroups = groupDAO.findOwnedByUser(user.getKey());
-        assertFalse(ownedGroups.isEmpty());
-        assertEquals(1, ownedGroups.size());
-        assertTrue(ownedGroups.contains(group));
-    }
-
-    @Test
-    public void delete() {
-        groupDAO.delete(2L);
-
-        groupDAO.flush();
-
-        assertNull(groupDAO.find(2L));
-        assertEquals(userDAO.findAllGroups(userDAO.find(2L)).size(), 2);
-        assertNull(plainAttrDAO.find(700L, GPlainAttr.class));
-        assertNull(plainAttrValueDAO.find(41L, GPlainAttrValue.class));
-        assertNotNull(plainSchemaDAO.find("icon", GPlainSchema.class));
-    }
+    private UserDAO userDAO;
 
     /**
      * Static copy of {@link org.apache.syncope.core.persistence.jpa.dao.JPAUserDAO} method with same signature:
-     * required for avoiding creating of a new transaction - good for general use case but bad for the way how
+     * required for avoiding creating new transaction - good for general use case but bad for the way how
      * this test class is architected.
      */
-    private Collection<Group> findDynGroupMemberships(final User user) {
-        TypedQuery<Group> query = entityManager.createQuery(
-                "SELECT e.group FROM " + JPADynGroupMembership.class.getSimpleName()
-                + " e WHERE :user MEMBER OF e.users", Group.class);
+    private Collection<Role> findDynRoleMemberships(final User user) {
+        TypedQuery<Role> query = entityManager.createQuery(
+                "SELECT e.role FROM " + JPADynRoleMembership.class.getSimpleName()
+                + " e WHERE :user MEMBER OF e.users", Role.class);
         query.setParameter("user", user);
 
         return query.getResultList();
@@ -155,30 +96,33 @@ public class GroupTest extends AbstractTest {
         Long newUserKey = user.getKey();
         assertNotNull(newUserKey);
 
-        // 1. create group with dynamic membership
-        Group group = entityFactory.newEntity(Group.class);
-        group.setRealm(realmDAO.getRoot());
-        group.setName("new");
+        // 1. create role with dynamic membership
+        Role role = entityFactory.newEntity(Role.class);
+        role.setName("new");
+        role.addRealm(realmDAO.getRoot());
+        role.addRealm(realmDAO.find("/even/two"));
+        role.getEntitlements().add(Entitlement.LOG_LIST);
+        role.getEntitlements().add(Entitlement.LOG_SET_LEVEL);
 
-        DynGroupMembership dynMembership = entityFactory.newEntity(DynGroupMembership.class);
+        DynRoleMembership dynMembership = entityFactory.newEntity(DynRoleMembership.class);
         dynMembership.setFIQLCond("cool==true");
-        dynMembership.setGroup(group);
+        dynMembership.setRole(role);
 
-        group.setDynMembership(dynMembership);
+        role.setDynMembership(dynMembership);
 
-        Group actual = groupDAO.save(group);
+        Role actual = roleDAO.save(role);
         assertNotNull(actual);
 
-        groupDAO.flush();
+        roleDAO.flush();
 
         // 2. verify that dynamic membership is there
-        actual = groupDAO.find(actual.getKey());
+        actual = roleDAO.find(actual.getKey());
         assertNotNull(actual);
         assertNotNull(actual.getDynMembership());
         assertNotNull(actual.getDynMembership().getKey());
-        assertEquals(actual, actual.getDynMembership().getGroup());
+        assertEquals(actual, actual.getDynMembership().getRole());
 
-        // 3. verify that expected users have the created group dynamically assigned
+        // 3. verify that expected users have the created role dynamically assigned
         assertEquals(2, actual.getDynMembership().getUsers().size());
         assertEquals(new HashSet<>(Arrays.asList(4L, newUserKey)),
                 CollectionUtils.collect(actual.getDynMembership().getUsers(), new Transformer<User, Long>() {
@@ -191,30 +135,29 @@ public class GroupTest extends AbstractTest {
 
         user = userDAO.find(4L);
         assertNotNull(user);
-        Collection<Group> dynGroupMemberships = findDynGroupMemberships(user);
-        assertEquals(1, dynGroupMemberships.size());
-        assertTrue(dynGroupMemberships.contains(actual.getDynMembership().getGroup()));
+        Collection<Role> dynRoleMemberships = findDynRoleMemberships(user);
+        assertEquals(1, dynRoleMemberships.size());
+        assertTrue(dynRoleMemberships.contains(actual.getDynMembership().getRole()));
 
         // 4. delete the new user and verify that dynamic membership was updated
         userDAO.delete(newUserKey);
 
         userDAO.flush();
 
-        actual = groupDAO.find(actual.getKey());
+        actual = roleDAO.find(actual.getKey());
         assertEquals(1, actual.getDynMembership().getUsers().size());
         assertEquals(4L, actual.getDynMembership().getUsers().get(0).getKey(), 0);
 
-        // 5. delete group and verify that dynamic membership was also removed
+        // 5. delete role and verify that dynamic membership was also removed
         Long dynMembershipKey = actual.getDynMembership().getKey();
 
-        groupDAO.delete(actual);
+        roleDAO.delete(actual);
 
-        groupDAO.flush();
+        roleDAO.flush();
 
-        assertNull(entityManager.find(JPADynGroupMembership.class, dynMembershipKey));
+        assertNull(entityManager.find(JPADynRoleMembership.class, dynMembershipKey));
 
-        dynGroupMemberships = findDynGroupMemberships(user);
-        assertTrue(dynGroupMemberships.isEmpty());
+        dynRoleMemberships = findDynRoleMemberships(user);
+        assertTrue(dynRoleMemberships.isEmpty());
     }
-
 }

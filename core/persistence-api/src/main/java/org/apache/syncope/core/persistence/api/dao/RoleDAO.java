@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.api.dao;
 import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Role;
+import org.apache.syncope.core.persistence.api.entity.user.User;
 
 public interface RoleDAO extends DAO<Role, Long> {
 
@@ -37,4 +38,6 @@ public interface RoleDAO extends DAO<Role, Long> {
     void delete(Role role);
 
     void delete(Long key);
+
+    void refreshDynMemberships(User user);
 }

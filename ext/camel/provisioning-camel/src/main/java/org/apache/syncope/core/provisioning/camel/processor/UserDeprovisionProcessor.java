@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.camel.processor;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import org.apache.camel.Exchange;
@@ -59,10 +58,10 @@ public class UserDeprovisionProcessor implements Processor {
 
         User user = userDAO.authFetch(userKey);
 
-        Collection<String> noPropResourceNames = CollectionUtils.removeAll(user.getResourceNames(), resources);
-
-        List<PropagationTask> tasks =
-                propagationManager.getUserDeleteTasks(userKey, new HashSet<>(resources), noPropResourceNames);
+        List<PropagationTask> tasks = propagationManager.getUserDeleteTasks(
+                userKey,
+                new HashSet<>(resources),
+                CollectionUtils.removeAll(userDAO.findAllResourceNames(user), resources));
         PropagationReporter propagationReporter =
                 ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
         try {

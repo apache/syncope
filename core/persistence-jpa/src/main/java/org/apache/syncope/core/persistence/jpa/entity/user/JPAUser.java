@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.jpa.entity.user;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -53,9 +54,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
-import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.membership.Membership;
-import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
 import org.apache.syncope.core.persistence.api.entity.user.UDerAttr;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
@@ -71,9 +70,6 @@ import org.apache.syncope.core.misc.security.SecureRandomUtils;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.jpa.entity.JPARole;
 
-/**
- * JPA user bean.
- */
 @Entity
 @Table(name = JPAUser.TABLE)
 @Cacheable
@@ -206,7 +202,7 @@ public class JPAUser extends AbstractSubject<UPlainAttr, UDerAttr, UVirAttr> imp
     }
 
     @Override
-    protected Set<? extends ExternalResource> internalGetResources() {
+    protected Set<JPAExternalResource> internalGetResources() {
         return resources;
     }
 
@@ -256,41 +252,14 @@ public class JPAUser extends AbstractSubject<UPlainAttr, UDerAttr, UVirAttr> imp
     }
 
     @Override
-    public List<Group> getGroups() {
-        return CollectionUtils.collect(memberships, new Transformer<Membership, Group>() {
+    public Collection<Long> getStaticGroupKeys() {
+        return CollectionUtils.collect(memberships, new Transformer<Membership, Long>() {
 
             @Override
-            public Group transform(final Membership input) {
-                return input.getGroup();
-            }
-        }, new ArrayList<Group>());
-    }
-
-    @Override
-    public Set<Long> getGroupKeys() {
-        return CollectionUtils.collect(getGroups(), new Transformer<Group, Long>() {
-
-            @Override
-            public Long transform(final Group input) {
-                return input.getKey();
+            public Long transform(final Membership membership) {
+                return membership.getGroup().getKey();
             }
         }, new HashSet<Long>());
-    }
-
-    @Override
-    public Set<ExternalResource> getResources() {
-        Set<ExternalResource> result = new HashSet<>();
-        result.addAll(super.getResources());
-        for (Group group : getGroups()) {
-            result.addAll(group.getResources());
-        }
-
-        return result;
-    }
-
-    @Override
-    public Set<? extends ExternalResource> getOwnResources() {
-        return super.getResources();
     }
 
     @Override

@@ -225,7 +225,7 @@ public class ResourceTest extends AbstractTest {
         for (Long id : userIds) {
             User actualUser = userDAO.find(id);
             assertNotNull(actualUser);
-            for (ExternalResource res : actualUser.getResources()) {
+            for (ExternalResource res : userDAO.findAllResources(actualUser)) {
                 assertFalse(res.getKey().equalsIgnoreCase(resource.getKey()));
             }
         }

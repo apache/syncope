@@ -361,9 +361,9 @@ public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
         final UserMod userMod = new UserMod();
         userMod.setKey(key);
         userMod.getResourcesToRemove().addAll(resources);
-        Long updatedId = provisioningManager.unlink(userMod);
+        Long updatedKey = provisioningManager.unlink(userMod);
 
-        return binder.getUserTO(updatedId);
+        return binder.getUserTO(updatedKey);
     }
 
     @PreAuthorize("hasRole('" + Entitlement.USER_UPDATE + "')")

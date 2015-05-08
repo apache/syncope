@@ -28,6 +28,7 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.misc.policy.InvalidPasswordPolicySpecException;
 import org.apache.syncope.core.misc.policy.PolicyPattern;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -41,6 +42,9 @@ import org.springframework.stereotype.Component;
 public class PasswordGenerator {
 
     private static final char[] SPECIAL_CHARS = { '!', '£', '%', '&', '(', ')', '?', '#', '$' };
+
+    @Autowired
+    private UserDAO userDAO;
 
     @Autowired
     private RealmDAO realmDAO;
@@ -68,7 +72,7 @@ public class PasswordGenerator {
             }
         }
 
-        for (ExternalResource resource : user.getResources()) {
+        for (ExternalResource resource : userDAO.findAllResources(user)) {
             if (resource.getPasswordPolicy() != null
                     && resource.getPasswordPolicy().getSpecification(PasswordPolicySpec.class) != null) {
 

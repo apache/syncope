@@ -178,7 +178,6 @@ public class JPATaskDAO extends AbstractDAO<Task, Long> implements TaskDAO {
             public void execute(final Task input) {
                 delete(input.getKey());
             }
-
         });
     }
 }

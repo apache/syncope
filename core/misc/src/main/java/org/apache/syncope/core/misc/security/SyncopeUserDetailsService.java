@@ -81,8 +81,9 @@ public class SyncopeUserDetailsService implements UserDetailsService {
                 throw new UsernameNotFoundException("Could not find any user with id " + username);
             }
 
-            // Give entitlements as assigned by roles (with realms, where applicable)
-            for (final Role role : user.getRoles()) {
+            // Give entitlements as assigned by roles (with realms, where applicable) - assigned either
+            // statically and dynamically
+            for (final Role role : userDAO.findAllRoles(user)) {
                 CollectionUtils.forAllDo(role.getEntitlements(), new Closure<String>() {
 
                     @Override

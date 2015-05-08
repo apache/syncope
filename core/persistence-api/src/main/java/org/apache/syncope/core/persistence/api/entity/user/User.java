@@ -18,15 +18,13 @@
  */
 package org.apache.syncope.core.persistence.api.entity.user;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
-import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.Subject;
 import org.apache.syncope.core.persistence.api.entity.membership.Membership;
-import org.apache.syncope.core.persistence.api.entity.group.Group;
 
 public interface User extends Subject<UPlainAttr, UDerAttr, UVirAttr> {
 
@@ -56,15 +54,11 @@ public interface User extends Subject<UPlainAttr, UDerAttr, UVirAttr> {
 
     List<? extends Membership> getMemberships();
 
-    Set<? extends ExternalResource> getOwnResources();
+    Collection<Long> getStaticGroupKeys();
 
     String getPassword();
 
     List<String> getPasswordHistory();
-
-    Set<Long> getGroupKeys();
-
-    List<Group> getGroups();
 
     String getSecurityAnswer();
 

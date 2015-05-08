@@ -25,6 +25,8 @@ import java.util.Set;
 import org.apache.commons.collections4.Closure;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.SetUtils;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.core.misc.RealmUtils;
 import org.springframework.security.core.GrantedAuthority;
 
@@ -66,6 +68,16 @@ public class SyncopeGrantedAuthority implements GrantedAuthority {
     @Override
     public String getAuthority() {
         return entitlement;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        return EqualsBuilder.reflectionEquals(this, obj);
+    }
+
+    @Override
+    public int hashCode() {
+        return HashCodeBuilder.reflectionHashCode(this);
     }
 
 }

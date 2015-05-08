@@ -56,7 +56,7 @@ public class AttrTest extends AbstractTest {
     private PlainAttrDAO plainAttrDAO;
 
     @Autowired
-    private PlainSchemaDAO userSchemaDAO;
+    private PlainSchemaDAO plainSchemaDAO;
 
     @Test
     public void findById() {
@@ -78,7 +78,7 @@ public class AttrTest extends AbstractTest {
     public void save() throws ClassNotFoundException {
         User user = userDAO.find(1L);
 
-        UPlainSchema emailSchema = userSchemaDAO.find("email", UPlainSchema.class);
+        UPlainSchema emailSchema = plainSchemaDAO.find("email", UPlainSchema.class);
         assertNotNull(emailSchema);
 
         UPlainAttr attribute = entityFactory.newEntity(UPlainAttr.class);
@@ -106,7 +106,7 @@ public class AttrTest extends AbstractTest {
     public void saveWithEnum() throws ClassNotFoundException {
         User user = userDAO.find(1L);
 
-        UPlainSchema gender = userSchemaDAO.find("gender", UPlainSchema.class);
+        UPlainSchema gender = plainSchemaDAO.find("gender", UPlainSchema.class);
         assertNotNull(gender);
         assertNotNull(gender.getType());
         assertNotNull(gender.getEnumerationValues());
@@ -140,10 +140,10 @@ public class AttrTest extends AbstractTest {
     public void validateAndSave() {
         User user = userDAO.find(1L);
 
-        final UPlainSchema emailSchema = userSchemaDAO.find("email", UPlainSchema.class);
+        final UPlainSchema emailSchema = plainSchemaDAO.find("email", UPlainSchema.class);
         assertNotNull(emailSchema);
 
-        final UPlainSchema fullnameSchema = userSchemaDAO.find("fullname", UPlainSchema.class);
+        final UPlainSchema fullnameSchema = plainSchemaDAO.find("fullname", UPlainSchema.class);
         assertNotNull(fullnameSchema);
 
         UPlainAttr attribute = entityFactory.newEntity(UPlainAttr.class);
@@ -176,7 +176,7 @@ public class AttrTest extends AbstractTest {
     public void saveWithEncrypted() throws Exception {
         User user = userDAO.find(1L);
 
-        final UPlainSchema obscureSchema = userSchemaDAO.find("obscure", UPlainSchema.class);
+        final UPlainSchema obscureSchema = plainSchemaDAO.find("obscure", UPlainSchema.class);
         assertNotNull(obscureSchema);
         assertNotNull(obscureSchema.getSecretKey());
         assertNotNull(obscureSchema.getCipherAlgorithm());
@@ -200,7 +200,7 @@ public class AttrTest extends AbstractTest {
     public void saveWithBinary() throws UnsupportedEncodingException {
         User user = userDAO.find(1L);
 
-        final UPlainSchema photoSchema = userSchemaDAO.find("photo", UPlainSchema.class);
+        final UPlainSchema photoSchema = plainSchemaDAO.find("photo", UPlainSchema.class);
         assertNotNull(photoSchema);
         assertNotNull(photoSchema.getMimeType());
 
@@ -229,7 +229,7 @@ public class AttrTest extends AbstractTest {
 
         plainAttrDAO.delete(attribute.getKey(), UPlainAttr.class);
 
-        UPlainSchema schema = userSchemaDAO.find(attrSchemaName, UPlainSchema.class);
+        UPlainSchema schema = plainSchemaDAO.find(attrSchemaName, UPlainSchema.class);
         assertNotNull("user attribute schema deleted when deleting values", schema);
     }
 }

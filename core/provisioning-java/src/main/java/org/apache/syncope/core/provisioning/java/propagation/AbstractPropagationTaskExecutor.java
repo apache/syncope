@@ -20,6 +20,7 @@ package org.apache.syncope.core.provisioning.java.propagation;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -50,6 +51,8 @@ import org.apache.syncope.core.misc.AuditManager;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.misc.ConnObjectUtils;
 import org.apache.syncope.core.misc.ExceptionUtils2;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
+import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.identityconnectors.framework.common.objects.Attribute;
@@ -280,7 +283,12 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
              * two different memberships with the same resource).
              */
             Subject<?, ?, ?> subject = getSubject(task);
-            if (subject == null || !subject.getResourceNames().contains(task.getResource().getKey())) {
+            Collection<String> resources = subject instanceof User
+                    ? userDAO.findAllResourceNames((User) subject)
+                    : subject instanceof Group
+                            ? ((Group) subject).getResourceNames()
+                            : Collections.<String>emptySet();
+            if (!resources.contains(task.getResource().getKey())) {
                 LOG.debug("Delete {} on {}", beforeObj.getUid(), task.getResource().getKey());
 
                 connector.delete(

@@ -22,7 +22,7 @@ import java.util.Map;
 import org.apache.cxf.jaxrs.ext.search.client.CompleteCondition;
 
 /**
- * Extends <tt>SyncopeFiqlSearchConditionBuilder</tt> by providing some additional facilities for searching
+ * Extends {@link AbstractFiqlSearchConditionBuilder} by providing some additional facilities for searching
  * groups in Syncope.
  */
 public class GroupFiqlSearchConditionBuilder extends AbstractFiqlSearchConditionBuilder {

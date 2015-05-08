@@ -405,6 +405,9 @@ public final class AttributableOperations {
         result.setUserOwner(new ReferenceMod(updated.getUserOwner()));
         result.setGroupOwner(new ReferenceMod(updated.getGroupOwner()));
 
+        // 4. dynMembershipCond
+        result.setDynMembershipCond(updated.getDynMembershipCond());
+
         return result;
     }
 

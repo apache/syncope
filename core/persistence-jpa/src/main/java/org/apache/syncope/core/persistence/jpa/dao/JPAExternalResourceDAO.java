@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.jpa.dao;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.PolicyType;
@@ -69,18 +68,7 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource, String
 
     @Override
     public ExternalResource find(final String name) {
-        TypedQuery<ExternalResource> query = entityManager.createQuery("SELECT e FROM "
-                + JPAExternalResource.class.getSimpleName() + " e WHERE e.name = :name", ExternalResource.class);
-        query.setParameter("name", name);
-
-        ExternalResource result = null;
-        try {
-            result = query.getSingleResult();
-        } catch (NoResultException e) {
-            LOG.debug("No resource found with name {}", name, e);
-        }
-
-        return result;
+        return entityManager.find(JPAExternalResource.class, name);
     }
 
     private StringBuilder getByPolicyQuery(final PolicyType type) {

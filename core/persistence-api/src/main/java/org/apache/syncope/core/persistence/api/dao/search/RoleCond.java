@@ -16,18 +16,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.search;
+package org.apache.syncope.core.persistence.api.dao.search;
 
-import org.apache.cxf.jaxrs.ext.search.client.CompleteCondition;
+public class RoleCond extends AbstractSearchCond {
 
-public interface UserProperty extends SyncopeProperty {
+    private static final long serialVersionUID = 3581958527829522490L;
 
-    CompleteCondition inGroups(Long group, Long... moreGroups);
+    private Long roleKey;
 
-    CompleteCondition notInGroups(Long group, Long... moreGroups);
+    public Long getRoleKey() {
+        return roleKey;
+    }
 
-    CompleteCondition inRoles(Long role, Long... moreRoles);
+    public void setRoleKey(final Long roleKey) {
+        this.roleKey = roleKey;
+    }
 
-    CompleteCondition notInRoles(Long role, Long... moreRoles);
-
+    @Override
+    public final boolean isValid() {
+        return roleKey != null;
+    }
 }

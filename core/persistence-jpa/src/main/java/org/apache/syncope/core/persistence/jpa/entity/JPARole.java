@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.persistence.Cacheable;
+import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -32,9 +33,11 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import org.apache.syncope.core.persistence.api.entity.DynRoleMembership;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Role;
 
@@ -68,6 +71,10 @@ public class JPARole extends AbstractEntity<Long> implements Role {
             @JoinColumn(name = "realm_id"))
     @Valid
     private List<JPARealm> realms = new ArrayList<>();
+
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "role")
+    @Valid
+    private JPADynRoleMembership dynMembership;
 
     @Override
     public Long getKey() {
@@ -106,4 +113,14 @@ public class JPARole extends AbstractEntity<Long> implements Role {
         return realms;
     }
 
+    @Override
+    public DynRoleMembership getDynMembership() {
+        return dynMembership;
+    }
+
+    @Override
+    public void setDynMembership(final DynRoleMembership dynMembership) {
+        checkType(dynMembership, JPADynRoleMembership.class);
+        this.dynMembership = (JPADynRoleMembership) dynMembership;
+    }
 }

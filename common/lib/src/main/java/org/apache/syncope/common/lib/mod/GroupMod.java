@@ -39,20 +39,6 @@ public class GroupMod extends AbstractSubjectMod {
 
     private ReferenceMod groupOwner;
 
-    private Boolean inheritOwner;
-
-    private Boolean inheritTemplates;
-
-    private Boolean inheritPlainAttrs;
-
-    private Boolean inheritDerAttrs;
-
-    private Boolean inheritVirAttrs;
-
-    private Boolean inheritAccountPolicy;
-
-    private Boolean inheritPasswordPolicy;
-
     private boolean modGAttrTemplates;
 
     private final List<String> gPlainAttrTemplates = new ArrayList<>();
@@ -77,9 +63,7 @@ public class GroupMod extends AbstractSubjectMod {
 
     private final List<String> mVirAttrTemplates = new ArrayList<>();
 
-    private ReferenceMod passwordPolicy;
-
-    private ReferenceMod accountPolicy;
+    private String dynMembershipCond;
 
     public String getName() {
         return name;
@@ -103,46 +87,6 @@ public class GroupMod extends AbstractSubjectMod {
 
     public void setGroupOwner(final ReferenceMod groupOwner) {
         this.groupOwner = groupOwner;
-    }
-
-    public Boolean getInheritOwner() {
-        return inheritOwner;
-    }
-
-    public void setInheritOwner(final Boolean inheritOwner) {
-        this.inheritOwner = inheritOwner;
-    }
-
-    public Boolean getInheritTemplates() {
-        return inheritTemplates;
-    }
-
-    public void setInheritTemplates(final Boolean inheritTemplates) {
-        this.inheritTemplates = inheritTemplates;
-    }
-
-    public Boolean getInheritPlainAttrs() {
-        return inheritPlainAttrs;
-    }
-
-    public void setInheritPlainAttrs(final Boolean inheritAttrs) {
-        this.inheritPlainAttrs = inheritAttrs;
-    }
-
-    public Boolean getInheritDerAttrs() {
-        return inheritDerAttrs;
-    }
-
-    public void setInheritDerAttrs(final Boolean inheritDerAttrs) {
-        this.inheritDerAttrs = inheritDerAttrs;
-    }
-
-    public Boolean getInheritVirAttrs() {
-        return inheritVirAttrs;
-    }
-
-    public void setInheritVirAttrs(final Boolean inheritVirAttrs) {
-        this.inheritVirAttrs = inheritVirAttrs;
     }
 
     public boolean isModGAttrTemplates() {
@@ -235,47 +179,20 @@ public class GroupMod extends AbstractSubjectMod {
         return mVirAttrTemplates;
     }
 
-    public ReferenceMod getPasswordPolicy() {
-        return passwordPolicy;
+    public String getDynMembershipCond() {
+        return dynMembershipCond;
     }
 
-    public void setPasswordPolicy(final ReferenceMod passwordPolicy) {
-        this.passwordPolicy = passwordPolicy;
-    }
-
-    public Boolean getInheritPasswordPolicy() {
-        return inheritPasswordPolicy;
-    }
-
-    public void setInheritPasswordPolicy(final Boolean inheritPasswordPolicy) {
-        this.inheritPasswordPolicy = inheritPasswordPolicy;
-    }
-
-    public ReferenceMod getAccountPolicy() {
-        return accountPolicy;
-    }
-
-    public void setAccountPolicy(final ReferenceMod accountPolicy) {
-        this.accountPolicy = accountPolicy;
-    }
-
-    public Boolean getInheritAccountPolicy() {
-        return inheritAccountPolicy;
-    }
-
-    public void setInheritAccountPolicy(final Boolean inheritAccountPolicy) {
-        this.inheritAccountPolicy = inheritAccountPolicy;
+    public void setDynMembershipCond(final String dynMembershipCond) {
+        this.dynMembershipCond = dynMembershipCond;
     }
 
     @JsonIgnore
     @Override
     public boolean isEmpty() {
         return super.isEmpty() && name == null && userOwner == null && groupOwner == null
-                && inheritTemplates == null && inheritOwner == null
-                && inheritAccountPolicy == null && inheritPasswordPolicy == null
-                && inheritPlainAttrs == null && inheritDerAttrs == null && inheritVirAttrs == null
-                && accountPolicy == null && passwordPolicy == null
                 && gPlainAttrTemplates.isEmpty() && gDerAttrTemplates.isEmpty() && gVirAttrTemplates.isEmpty()
-                && mPlainAttrTemplates.isEmpty() && mDerAttrTemplates.isEmpty() && mVirAttrTemplates.isEmpty();
+                && mPlainAttrTemplates.isEmpty() && mDerAttrTemplates.isEmpty() && mVirAttrTemplates.isEmpty()
+                && dynMembershipCond == null;
     }
 }

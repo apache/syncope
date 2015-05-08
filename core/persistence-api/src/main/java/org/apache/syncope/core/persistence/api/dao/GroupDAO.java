@@ -30,6 +30,7 @@ import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.group.GVirAttr;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
+import org.apache.syncope.core.persistence.api.entity.user.User;
 
 public interface GroupDAO extends SubjectDAO<GPlainAttr, GDerAttr, GVirAttr> {
 
@@ -72,4 +73,7 @@ public interface GroupDAO extends SubjectDAO<GPlainAttr, GDerAttr, GVirAttr> {
      * @return map containing pairs with user key and operations to be performed on those resources (DELETE, typically).
      */
     Map<Long, PropagationByResource> findUsersWithIndirectResources(Long groupKey);
+
+    void refreshDynMemberships(User user);
+
 }

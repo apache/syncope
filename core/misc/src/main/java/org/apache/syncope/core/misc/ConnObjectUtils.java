@@ -29,6 +29,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.AttributableOperations;
 import org.apache.syncope.common.lib.mod.AbstractAttributableMod;
@@ -554,16 +556,16 @@ public class ConnObjectUtils {
             // not cached ...
             LOG.debug("Need one or more remote connections");
 
-            final VirAttrCacheValue toBeCached = new VirAttrCacheValue();
+            VirAttrCacheValue toBeCached = new VirAttrCacheValue();
 
             // SYNCOPE-458 if virattr owner is a Membership, owner must become user involved in membership because 
             // membership mapping is contained in user mapping
-            final Subject<?, ?, ?> realOwner = owner instanceof Membership
+            Subject<?, ?, ?> realOwner = owner instanceof Membership
                     ? ((Membership) owner).getUser()
                     : (Subject) owner;
 
-            final Set<ExternalResource> targetResources = owner instanceof Membership
-                    ? getTargetResources(virAttr, type, attrUtils, realOwner.getResources())
+            Collection<ExternalResource> targetResources = owner instanceof Membership
+                    ? getTargetResources(virAttr, type, attrUtils, userDAO.findAllResources((User) realOwner))
                     : getTargetResources(virAttr, type, attrUtils);
 
             for (ExternalResource resource : targetResources) {
@@ -636,40 +638,29 @@ public class ConnObjectUtils {
         }
     }
 
-    private Set<ExternalResource> getTargetResources(
+    private Collection<ExternalResource> getTargetResources(
             final VirAttr attr, final IntMappingType type, final AttributableUtils attrUtils) {
 
-        final Set<ExternalResource> resources = new HashSet<>();
-
-        if (attr.getOwner() instanceof Subject) {
-            for (ExternalResource res : ((Subject<?, ?, ?>) attr.getOwner()).getResources()) {
-                if (!MappingUtils.getMatchingMappingItems(
-                        attrUtils.getMappingItems(res, MappingPurpose.BOTH),
-                        attr.getSchema().getKey(), type).isEmpty()) {
-
-                    resources.add(res);
-                }
-            }
-        }
-
-        return resources;
+        Iterable<? extends ExternalResource> iterable = attr.getOwner() instanceof User
+                ? userDAO.findAllResources((User) attr.getOwner())
+                : attr.getOwner() instanceof Group
+                        ? ((Group) attr.getOwner()).getResources()
+                        : Collections.<ExternalResource>emptySet();
+        return getTargetResources(attr, type, attrUtils, iterable);
     }
 
-    private Set<ExternalResource> getTargetResources(final VirAttr attr, final IntMappingType type,
-            final AttributableUtils attrUtils, final Set<? extends ExternalResource> ownerResources) {
+    private Collection<ExternalResource> getTargetResources(final VirAttr attr, final IntMappingType type,
+            final AttributableUtils attrUtils, final Iterable<? extends ExternalResource> ownerResources) {
 
-        final Set<ExternalResource> resources = new HashSet<>();
+        return CollectionUtils.select(ownerResources, new Predicate<ExternalResource>() {
 
-        for (ExternalResource res : ownerResources) {
-            if (!MappingUtils.getMatchingMappingItems(
-                    attrUtils.getMappingItems(res, MappingPurpose.BOTH),
-                    attr.getSchema().getKey(), type).isEmpty()) {
-
-                resources.add(res);
+            @Override
+            public boolean evaluate(final ExternalResource resource) {
+                return !MappingUtils.getMatchingMappingItems(
+                        attrUtils.getMappingItems(resource, MappingPurpose.BOTH),
+                        attr.getSchema().getKey(), type).isEmpty();
             }
-        }
-
-        return resources;
+        });
     }
 
     private void fillFromTemplate(final AbstractAttributableTO attributableTO, final AbstractAttributableTO template) {

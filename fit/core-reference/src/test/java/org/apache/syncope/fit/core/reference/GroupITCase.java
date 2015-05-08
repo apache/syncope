@@ -35,6 +35,8 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.ws.rs.core.Response;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
@@ -71,15 +73,15 @@ import org.junit.runners.MethodSorters;
 @FixMethodOrder(MethodSorters.JVM)
 public class GroupITCase extends AbstractITCase {
 
-    private GroupTO buildBasicGroupTO(final String name) {
+    public static GroupTO getBasicSampleTO(final String name) {
         GroupTO groupTO = new GroupTO();
         groupTO.setRealm("/");
         groupTO.setName(name + getUUIDString());
         return groupTO;
     }
 
-    private GroupTO buildGroupTO(final String name) {
-        GroupTO groupTO = buildBasicGroupTO(name);
+    public static GroupTO getSampleTO(final String name) {
+        GroupTO groupTO = getBasicSampleTO(name);
 
         groupTO.getGPlainAttrTemplates().add("icon");
         groupTO.getPlainAttrs().add(attrTO("icon", "anIcon"));
@@ -91,7 +93,7 @@ public class GroupITCase extends AbstractITCase {
     @Test
     @Ignore
     public void create() {
-        GroupTO groupTO = buildGroupTO("lastGroup");
+        GroupTO groupTO = getSampleTO("lastGroup");
         groupTO.getGVirAttrTemplates().add("rvirtualdata");
         groupTO.getVirAttrs().add(attrTO("rvirtualdata", "rvirtualvalue"));
         groupTO.setGroupOwner(8L);
@@ -185,14 +187,18 @@ public class GroupITCase extends AbstractITCase {
 
         List<GroupTO> groups = groupService2.own();
         assertNotNull(groups);
-        assertFalse(groups.isEmpty());
-        assertNotNull(groups.get(0).getPlainAttrs());
-        assertFalse(groups.get(0).getPlainAttrs().isEmpty());
+        assertTrue(CollectionUtils.exists(groups, new Predicate<GroupTO>() {
+
+            @Override
+            public boolean evaluate(final GroupTO group) {
+                return 1L == group.getKey();
+            }
+        }));
     }
 
     @Test
     public void update() {
-        GroupTO groupTO = buildGroupTO("latestGroup" + getUUIDString());
+        GroupTO groupTO = getSampleTO("latestGroup" + getUUIDString());
         groupTO.getGPlainAttrTemplates().add("show");
         groupTO = createGroup(groupTO);
 
@@ -204,9 +210,6 @@ public class GroupITCase extends AbstractITCase {
         groupMod.setName(modName);
         groupMod.getPlainAttrsToUpdate().add(attrMod("show", "FALSE"));
 
-        // change password policy inheritance
-        groupMod.setInheritPasswordPolicy(Boolean.FALSE);
-
         groupTO = updateGroup(groupMod);
 
         assertEquals(modName, groupTO.getName());
@@ -215,7 +218,7 @@ public class GroupITCase extends AbstractITCase {
 
     @Test
     public void updateRemovingVirAttribute() {
-        GroupTO groupTO = buildBasicGroupTO("withvirtual" + getUUIDString());
+        GroupTO groupTO = getBasicSampleTO("withvirtual" + getUUIDString());
         groupTO.getGVirAttrTemplates().add("rvirtualdata");
         groupTO.getVirAttrs().add(attrTO("rvirtualdata", null));
 
@@ -235,7 +238,7 @@ public class GroupITCase extends AbstractITCase {
 
     @Test
     public void updateRemovingDerAttribute() {
-        GroupTO groupTO = buildBasicGroupTO("withderived" + getUUIDString());
+        GroupTO groupTO = getBasicSampleTO("withderived" + getUUIDString());
         groupTO.getGDerAttrTemplates().add("rderivedschema");
         groupTO.getDerAttrs().add(attrTO("rderivedschema", null));
 
@@ -319,7 +322,7 @@ public class GroupITCase extends AbstractITCase {
 
     @Test
     public void unlink() {
-        GroupTO actual = createGroup(buildGroupTO("unlink"));
+        GroupTO actual = createGroup(getSampleTO("unlink"));
         assertNotNull(actual);
 
         assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.GROUP, actual.getKey()));
@@ -338,7 +341,7 @@ public class GroupITCase extends AbstractITCase {
 
     @Test
     public void link() {
-        GroupTO groupTO = buildGroupTO("link");
+        GroupTO groupTO = getSampleTO("link");
         groupTO.getResources().clear();
 
         GroupTO actual = createGroup(groupTO);
@@ -369,7 +372,7 @@ public class GroupITCase extends AbstractITCase {
 
     @Test
     public void unassign() {
-        GroupTO actual = createGroup(buildGroupTO("unassign"));
+        GroupTO actual = createGroup(getSampleTO("unassign"));
         assertNotNull(actual);
 
         assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.GROUP, actual.getKey()));
@@ -393,7 +396,7 @@ public class GroupITCase extends AbstractITCase {
 
     @Test
     public void assign() {
-        GroupTO groupTO = buildGroupTO("assign");
+        GroupTO groupTO = getSampleTO("assign");
         groupTO.getResources().clear();
 
         GroupTO actual = createGroup(groupTO);
@@ -418,7 +421,7 @@ public class GroupITCase extends AbstractITCase {
 
     @Test
     public void deprovision() {
-        GroupTO actual = createGroup(buildGroupTO("deprovision"));
+        GroupTO actual = createGroup(getSampleTO("deprovision"));
         assertNotNull(actual);
 
         assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.GROUP, actual.getKey()));
@@ -442,7 +445,7 @@ public class GroupITCase extends AbstractITCase {
 
     @Test
     public void provision() {
-        GroupTO groupTO = buildGroupTO("assign" + getUUIDString());
+        GroupTO groupTO = getSampleTO("assign" + getUUIDString());
         groupTO.getResources().clear();
 
         GroupTO actual = createGroup(groupTO);
@@ -468,7 +471,7 @@ public class GroupITCase extends AbstractITCase {
 
     @Test
     public void deprovisionUnlinked() {
-        GroupTO groupTO = buildGroupTO("assign" + getUUIDString());
+        GroupTO groupTO = getSampleTO("assign" + getUUIDString());
         groupTO.getResources().clear();
 
         GroupTO actual = createGroup(groupTO);
@@ -517,7 +520,7 @@ public class GroupITCase extends AbstractITCase {
         schemaService.create(AttributableType.GROUP, SchemaType.PLAIN, badge);
 
         // 2. create a group *without* an attribute for that schema: it works
-        GroupTO groupTO = buildGroupTO("lastGroup");
+        GroupTO groupTO = getSampleTO("lastGroup");
         assertFalse(groupTO.getPlainAttrMap().containsKey(badge.getKey()));
         groupTO = createGroup(groupTO);
         assertNotNull(groupTO);
@@ -549,14 +552,16 @@ public class GroupITCase extends AbstractITCase {
     public void anonymous() {
         GroupService unauthenticated = clientFactory.createAnonymous().getService(GroupService.class);
         try {
-            unauthenticated.list(SyncopeClient.getSubjectSearchQueryBuilder().realm(SyncopeConstants.ROOT_REALM).build());
+            unauthenticated.
+                    list(SyncopeClient.getSubjectSearchQueryBuilder().realm(SyncopeConstants.ROOT_REALM).build());
             fail();
         } catch (AccessControlException e) {
             assertNotNull(e);
         }
 
         GroupService anonymous = clientFactory.create(ANONYMOUS_UNAME, ANONYMOUS_KEY).getService(GroupService.class);
-        assertFalse(anonymous.list(SyncopeClient.getSubjectSearchQueryBuilder().realm(SyncopeConstants.ROOT_REALM).build()).
+        assertFalse(anonymous.list(SyncopeClient.getSubjectSearchQueryBuilder().realm(SyncopeConstants.ROOT_REALM).
+                build()).
                 getResult().isEmpty());
     }
 
@@ -565,7 +570,7 @@ public class GroupITCase extends AbstractITCase {
         SyncopeClient noContentclient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
         GroupService noContentService = noContentclient.prefer(GroupService.class, Preference.RETURN_NO_CONTENT);
 
-        GroupTO group = buildGroupTO("noContent");
+        GroupTO group = getSampleTO("noContent");
 
         Response response = noContentService.create(group);
         assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
@@ -613,7 +618,7 @@ public class GroupITCase extends AbstractITCase {
             assertNotNull(newLDAP);
 
             // 2. create a group and give the resource created above
-            groupTO = buildGroupTO("lastGroup" + getUUIDString());
+            groupTO = getSampleTO("lastGroup" + getUUIDString());
             groupTO.getGPlainAttrTemplates().add("icon");
             groupTO.getPlainAttrs().add(attrTO("icon", "anIcon"));
             groupTO.getGPlainAttrTemplates().add("show");
@@ -670,5 +675,24 @@ public class GroupITCase extends AbstractITCase {
             }
             resourceService.delete("new-ldap");
         }
+    }
+
+    @Test
+    public void dynMembership() {
+        assertTrue(userService.read(4L).getDynGroups().isEmpty());
+
+        GroupTO group = getBasicSampleTO("dynMembership");
+        group.setDynMembershipCond("cool==true");
+        group = createGroup(group);
+        assertNotNull(group);
+
+        assertTrue(userService.read(4L).getDynGroups().contains(group.getKey()));
+
+        GroupMod mod = new GroupMod();
+        mod.setKey(group.getKey());
+        mod.setDynMembershipCond("cool==false");
+        groupService.update(mod.getKey(), mod);
+
+        assertTrue(userService.read(4L).getDynGroups().isEmpty());
     }
 }

@@ -91,6 +91,7 @@ import org.apache.syncope.core.misc.jexl.JexlUtils;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -240,7 +241,7 @@ abstract class AbstractAttributableDataBinder {
         Collection<MappingItem> mappings = MappingUtils.getMatchingMappingItems(
                 attrUtils.getMappingItems(resource, MappingPurpose.PROPAGATION), intAttrName, intMappingType);
         for (Iterator<MappingItem> itor = mappings.iterator(); itor.hasNext() && !result;) {
-            final MappingItem mapping = itor.next();
+            MappingItem mapping = itor.next();
             result |= JexlUtils.evaluateMandatoryCondition(mapping.getMandatoryCondition(), attributable);
         }
 
@@ -252,15 +253,17 @@ abstract class AbstractAttributableDataBinder {
 
         boolean result = false;
 
-        if (attributable instanceof Subject) {
-            for (Iterator<? extends ExternalResource> itor =
-                    ((Subject<?, ?, ?>) attributable).getResources().iterator(); itor.hasNext() && !result;) {
+        Iterable<? extends ExternalResource> iterable = attributable instanceof User
+                ? userDAO.findAllResources((User) attributable)
+                : attributable instanceof Group
+                        ? ((Group) attributable).getResources()
+                        : Collections.<ExternalResource>emptySet();
 
-                final ExternalResource resource = itor.next();
-                if (resource.isEnforceMandatoryCondition()) {
-                    result |= evaluateMandatoryCondition(
-                            attrUtils, resource, attributable, intAttrName, intMappingType);
-                }
+        for (Iterator<? extends ExternalResource> itor = iterable.iterator(); itor.hasNext() && !result;) {
+            ExternalResource resource = itor.next();
+            if (resource.isEnforceMandatoryCondition()) {
+                result |= evaluateMandatoryCondition(
+                        attrUtils, resource, attributable, intAttrName, intMappingType);
             }
         }
 
@@ -427,11 +430,13 @@ abstract class AbstractAttributableDataBinder {
             LOG.debug("Resources to be added:\n{}", propByRes);
         }
 
-        final Set<ExternalResource> externalResources = new HashSet<>();
-        if (attributable instanceof Subject) {
-            externalResources.addAll(((Subject<?, ?, ?>) attributable).getResources());
+        Set<ExternalResource> externalResources = new HashSet<>();
+        if (attributable instanceof User) {
+            externalResources.addAll(userDAO.findAllResources((User) attributable));
+        } else if (attributable instanceof Group) {
+            externalResources.addAll(((Group) attributable).getResources());
         } else if (attributable instanceof Membership) {
-            externalResources.addAll(((Membership) attributable).getUser().getResources());
+            externalResources.addAll(userDAO.findAllResources(((Membership) attributable).getUser()));
             externalResources.addAll(((Membership) attributable).getGroup().getResources());
         }
 
@@ -777,7 +782,10 @@ abstract class AbstractAttributableDataBinder {
     protected Map<String, String> getAccountIds(final Subject<?, ?, ?> subject, final AttributableType type) {
         Map<String, String> accountIds = new HashMap<>();
 
-        for (ExternalResource resource : subject.getResources()) {
+        Iterable<? extends ExternalResource> iterable = subject instanceof User
+                ? userDAO.findAllResources((User) subject)
+                : ((Group) subject).getResources();
+        for (ExternalResource resource : iterable) {
             if ((type == AttributableType.USER && resource.getUmapping() != null)
                     || (type == AttributableType.GROUP && resource.getGmapping() != null)) {
 

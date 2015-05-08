@@ -264,7 +264,7 @@ public class PropagationManagerImpl implements PropagationManager {
             origPropByRes.merge(wfResult.getPropByRes());
 
             Set<String> pwdResourceNames = new HashSet<>(userMod.getPwdPropRequest().getResourceNames());
-            Set<String> currentResourceNames = userDAO.authFetch(userMod.getKey()).getResourceNames();
+            Collection<String> currentResourceNames = userDAO.findAllResourceNames(userDAO.authFetch(userMod.getKey()));
             pwdResourceNames.retainAll(currentResourceNames);
             PropagationByResource pwdPropByRes = new PropagationByResource();
             pwdPropByRes.addAll(ResourceOperation.UPDATE, pwdResourceNames);
@@ -312,8 +312,10 @@ public class PropagationManagerImpl implements PropagationManager {
                         : vAttrsToBeUpdated, attrUtilsFactory.getInstance(subject));
 
         // SYNCOPE-458 fill membership virtual attributes
+        Collection<String> resourceNames;
         if (subject instanceof User) {
-            final User user = (User) subject;
+            User user = (User) subject;
+            resourceNames = userDAO.findAllResourceNames(user);
             for (final Membership membership : user.getMemberships()) {
                 if (membership.getVirAttrs() != null && !membership.getVirAttrs().isEmpty()) {
                     final MembershipMod membershipMod = CollectionUtils.find(membershipsToAdd,
@@ -334,10 +336,12 @@ public class PropagationManagerImpl implements PropagationManager {
                     }
                 }
             }
+        } else {
+            resourceNames = subject.getResourceNames();
         }
 
         if (propByRes == null || propByRes.isEmpty()) {
-            localPropByRes.addAll(ResourceOperation.UPDATE, subject.getResourceNames());
+            localPropByRes.addAll(ResourceOperation.UPDATE, resourceNames);
         } else {
             localPropByRes.merge(propByRes);
         }
@@ -377,7 +381,7 @@ public class PropagationManagerImpl implements PropagationManager {
     public List<PropagationTask> getUserDeleteTasks(final Long userKey, final Collection<String> noPropResourceNames) {
 
         User user = userDAO.authFetch(userKey);
-        return getDeleteTaskIds(user, user.getResourceNames(), noPropResourceNames);
+        return getDeleteTaskIds(user, userDAO.findAllResourceNames(user), noPropResourceNames);
     }
 
     @Override
@@ -424,7 +428,7 @@ public class PropagationManagerImpl implements PropagationManager {
 
     protected List<PropagationTask> getDeleteTaskIds(
             final Subject<?, ?, ?> subject,
-            final Set<String> resourceNames,
+            final Collection<String> resourceNames,
             final Collection<String> noPropResourceNames) {
 
         final PropagationByResource propByRes = new PropagationByResource();

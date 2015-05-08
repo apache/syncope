@@ -16,27 +16,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.dao.search;
+package org.apache.syncope.core.persistence.api.entity;
 
-/**
- * Search condition to be applied when searching for memberships.
- */
-public class MembershipCond extends AbstractSearchCond {
+import java.util.List;
+import org.apache.syncope.core.persistence.api.entity.user.User;
 
-    private static final long serialVersionUID = -728155256293925989L;
+public interface DynMembership extends Entity<Long> {
 
-    private Long groupId;
+    String getFIQLCond();
 
-    public Long getGroupId() {
-        return groupId;
-    }
+    void setFIQLCond(String fiql);
 
-    public void setGroupId(final Long groupId) {
-        this.groupId = groupId;
-    }
+    boolean addUser(User user);
 
-    @Override
-    public final boolean isValid() {
-        return groupId != null;
-    }
+    boolean removeUser(User user);
+
+    List<? extends User> getUsers();
 }

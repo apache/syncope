@@ -53,6 +53,8 @@ public class GroupTO extends AbstractSubjectTO {
 
     private final List<String> mVirAttrTemplates = new ArrayList<>();
 
+    private String dynMembershipCond;
+
     public String getName() {
         return name;
     }
@@ -117,6 +119,14 @@ public class GroupTO extends AbstractSubjectTO {
     @JsonProperty("mVirAttrTemplates")
     public List<String> getMVirAttrTemplates() {
         return mVirAttrTemplates;
+    }
+
+    public String getDynMembershipCond() {
+        return dynMembershipCond;
+    }
+
+    public void setDynMembershipCond(final String dynMembershipCond) {
+        this.dynMembershipCond = dynMembershipCond;
     }
 
 }

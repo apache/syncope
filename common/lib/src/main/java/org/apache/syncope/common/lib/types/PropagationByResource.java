@@ -269,7 +269,7 @@ public class PropagationByResource implements Serializable {
      * @param type resource operation type
      * @param resourceNames to be set
      */
-    public final void set(final ResourceOperation type, final Set<String> resourceNames) {
+    public final void set(final ResourceOperation type, final Collection<String> resourceNames) {
 
         switch (type) {
             case CREATE:

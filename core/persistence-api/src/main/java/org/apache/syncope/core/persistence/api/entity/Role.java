@@ -35,4 +35,7 @@ public interface Role extends Entity<Long> {
 
     List<? extends Realm> getRealms();
 
+    DynRoleMembership getDynMembership();
+
+    void setDynMembership(DynRoleMembership dynMembership);
 }

@@ -110,6 +110,18 @@ class SearchSupport {
         return new SearchView("svm", field().name + "_membership");
     }
 
+    public SearchView dyngroupmembership() {
+        return new SearchView("svdg", field().name + "_dyngroupmembership");
+    }
+
+    public SearchView role() {
+        return new SearchView("svr", field().name + "_role");
+    }
+
+    public SearchView dynrolemembership() {
+        return new SearchView("svdr", field().name + "_dynrolemembership");
+    }
+
     public SearchView nullAttr() {
         return new SearchView("svna", field().name + "_null_attr");
     }

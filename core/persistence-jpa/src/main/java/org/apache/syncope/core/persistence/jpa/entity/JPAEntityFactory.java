@@ -21,6 +21,8 @@ package org.apache.syncope.core.persistence.jpa.entity;
 import org.apache.syncope.core.persistence.api.entity.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.ConnPoolConf;
+import org.apache.syncope.core.persistence.api.entity.DynGroupMembership;
+import org.apache.syncope.core.persistence.api.entity.DynRoleMembership;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
@@ -265,6 +267,10 @@ public class JPAEntityFactory implements EntityFactory {
             result = (T) new JPASecurityQuestion();
         } else if (reference.equals(Logger.class)) {
             result = (T) new JPALogger();
+        } else if (reference.equals(DynRoleMembership.class)) {
+            result = (T) new JPADynRoleMembership();
+        } else if (reference.equals(DynGroupMembership.class)) {
+            result = (T) new JPADynGroupMembership();
         } else {
             throw new IllegalArgumentException("Could not find a JPA implementation of " + reference.getName());
         }

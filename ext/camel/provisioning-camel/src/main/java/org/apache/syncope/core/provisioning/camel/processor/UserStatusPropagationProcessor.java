@@ -26,6 +26,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.syncope.common.lib.mod.StatusMod;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
@@ -49,6 +50,9 @@ public class UserStatusPropagationProcessor implements Processor {
     @Autowired
     protected PropagationTaskExecutor taskExecutor;
 
+    @Autowired
+    protected UserDAO userDAO;
+    
     @SuppressWarnings("unchecked")
     @Override
     public void process(final Exchange exchange) {
@@ -58,7 +62,7 @@ public class UserStatusPropagationProcessor implements Processor {
         StatusMod statusMod = exchange.getProperty("statusMod", StatusMod.class);
 
         Collection<String> resourcesToBeExcluded =
-                CollectionUtils.removeAll(user.getResourceNames(), statusMod.getResourceNames());
+                CollectionUtils.removeAll(userDAO.findAllResourceNames(user), statusMod.getResourceNames());
 
         List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(
                 user, statusMod.getType() != StatusMod.ModType.SUSPEND, resourcesToBeExcluded);

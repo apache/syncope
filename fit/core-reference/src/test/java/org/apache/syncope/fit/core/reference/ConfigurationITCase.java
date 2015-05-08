@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.fit.core.reference;
 
-import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -157,7 +156,7 @@ public class ConfigurationITCase extends AbstractITCase {
     }
 
     private static String[] substringsBetween(final String str, final String open, final String close) {
-        if (str == null || isEmpty(open) || isEmpty(close)) {
+        if (str == null || StringUtils.isEmpty(open) || StringUtils.isEmpty(close)) {
             return null;
         }
         final int strLen = str.length();

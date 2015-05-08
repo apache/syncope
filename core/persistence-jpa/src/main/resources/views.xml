@@ -68,9 +68,29 @@ under the License.
   <entry key="user_search_membership">
     CREATE VIEW user_search_membership AS
 
-    SELECT m.user_id AS subject_id, r.id AS group_id, r.name AS group_name
-    FROM Membership m, SyncopeGroup r
-    WHERE m.group_id = r.id
+    SELECT m.user_id AS subject_id, g.id AS group_id, g.name AS group_name
+    FROM Membership m, SyncopeGroup g
+    WHERE m.group_id = g.id
+  </entry>
+  <entry key="user_search_dyngroupmembership">
+    CREATE VIEW user_search_dyngroupmembership AS
+
+    SELECT ds.user_id AS subject_id, d.group_id AS group_id
+    FROM DynGroupMembership d, DynGroupMembership_SyncopeUser ds
+    WHERE d.id = ds.dynGroupMembership_id
+  </entry>
+  <entry key="user_search_role">
+    CREATE VIEW user_search_role AS
+
+    SELECT ss.user_id AS subject_id, ss.role_id AS role_id
+    FROM SyncopeUser_SyncopeRole ss
+  </entry>
+  <entry key="user_search_dynrolemembership">
+    CREATE VIEW user_search_dynrolemembership AS
+
+    SELECT ds.user_id AS subject_id, d.role_id AS role_id
+    FROM DynRoleMembership d, DynRoleMembership_SyncopeUser ds
+    WHERE d.id = ds.dynRoleMembership_id
   </entry>
   <entry key="user_search_resource">
     CREATE VIEW user_search_resource AS

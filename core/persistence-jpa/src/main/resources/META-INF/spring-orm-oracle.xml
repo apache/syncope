@@ -57,6 +57,15 @@ under the License.
     </attributes>
   </entity>
 
+  <entity class="org.apache.syncope.core.persistence.jpa.entity.JPADynRoleMembership">
+    <attributes>
+      <id name="id">
+        <generated-value generator="SEQ_DynRoleMembership" strategy="TABLE"/>
+        <table-generator name="SEQ_DynRoleMembership" pk-column-value="SEQ_DynRoleMembership" initial-value="100"/>
+      </id>
+    </attributes>
+  </entity>
+
   <entity class="org.apache.syncope.core.persistence.jpa.entity.user.JPAUser">
     <attributes>
       <id name="id">
@@ -75,6 +84,15 @@ under the License.
     </attributes>
   </entity>
 
+  <entity class="org.apache.syncope.core.persistence.jpa.entity.JPADynGroupMembership">
+    <attributes>
+      <id name="id">
+        <generated-value generator="SEQ_DynGroupMembership" strategy="TABLE"/>
+        <table-generator name="SEQ_DynGroupMembership" pk-column-value="SEQ_DynGroupMembership" initial-value="100"/>
+      </id>
+    </attributes>
+  </entity>
+  
   <entity class="org.apache.syncope.core.persistence.jpa.entity.membership.JPAMembership">
     <attributes>
       <id name="id">

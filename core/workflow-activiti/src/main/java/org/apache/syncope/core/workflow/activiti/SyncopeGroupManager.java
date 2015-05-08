@@ -67,7 +67,7 @@ public class SyncopeGroupManager implements GroupIdentityManager, SyncopeSession
         User user = userDAO.find(userId);
         if (user != null) {
             result = new ArrayList<>();
-            for (Long groupId : user.getGroupKeys()) {
+            for (Long groupId : userDAO.findAllGroupKeys(user)) {
                 result.add(new GroupEntity(groupId.toString()));
             }
         }

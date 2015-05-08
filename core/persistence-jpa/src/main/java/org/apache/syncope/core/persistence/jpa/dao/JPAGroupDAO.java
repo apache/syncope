@@ -29,6 +29,7 @@ import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.common.lib.types.ResourceOperation;
@@ -67,10 +68,12 @@ import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
 import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.common.lib.types.SubjectType;
 import org.apache.syncope.core.misc.RealmUtils;
+import org.apache.syncope.core.misc.search.SearchCondConverter;
 import org.apache.syncope.core.misc.security.AuthContextUtils;
 import org.apache.syncope.core.misc.security.UnauthorizedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
@@ -138,7 +141,7 @@ public class JPAGroupDAO extends AbstractSubjectDAO<GPlainAttr, GDerAttr, GVirAt
 
         StringBuilder queryString = new StringBuilder("SELECT e FROM ").append(JPAGroup.class.getSimpleName()).
                 append(" e WHERE e.userOwner=:owner ");
-        for (Long groupKey : owner.getGroupKeys()) {
+        for (Long groupKey : userDAO.findAllGroupKeys(owner)) {
             queryString.append("OR e.groupOwner.id=").append(groupKey).append(' ');
         }
 
@@ -239,6 +242,17 @@ public class JPAGroupDAO extends AbstractSubjectDAO<GPlainAttr, GDerAttr, GVirAt
 
     @Override
     public Group save(final Group group) {
+        // refresh dynaminc memberships
+        if (group.getDynMembership() != null) {
+            List<User> matchingUsers = searchDAO.search(SyncopeConstants.FULL_ADMIN_REALMS,
+                    SearchCondConverter.convert(group.getDynMembership().getFIQLCond()), SubjectType.USER);
+
+            group.getDynMembership().getUsers().clear();
+            for (User user : matchingUsers) {
+                group.getDynMembership().addUser(user);
+            }
+        }
+
         // remove plain attributes without a valid template
         List<GPlainAttr> rToBeDeleted = new ArrayList<>();
         for (final PlainAttr attr : group.getPlainAttrs()) {
@@ -387,7 +401,7 @@ public class JPAGroupDAO extends AbstractSubjectDAO<GPlainAttr, GDerAttr, GVirAt
 
             PropagationByResource propByRes = new PropagationByResource();
             for (ExternalResource resource : group.getResources()) {
-                if (!user.getOwnResources().contains(resource)) {
+                if (!user.getResources().contains(resource)) {
                     propByRes.add(ResourceOperation.DELETE, resource.getKey());
                 }
 
@@ -398,5 +412,17 @@ public class JPAGroupDAO extends AbstractSubjectDAO<GPlainAttr, GDerAttr, GVirAt
         }
 
         return result;
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
+    @Override
+    public void refreshDynMemberships(final User user) {
+        for (Group role : findAll(SyncopeConstants.FULL_ADMIN_REALMS, -1, -1)) {
+            if (role.getDynMembership() != null && !searchDAO.matches(user,
+                    SearchCondConverter.convert(role.getDynMembership().getFIQLCond()), SubjectType.USER)) {
+
+                role.getDynMembership().removeUser(user);
+            }
+        }
     }
 }

@@ -75,7 +75,7 @@ public class SyncopeUserManager implements UserIdentityManager, SyncopeSession {
         org.apache.syncope.core.persistence.api.entity.user.User user = userDAO.find(userKey);
         if (user != null) {
             result = new ArrayList<>();
-            for (Long groupId : user.getGroupKeys()) {
+            for (Long groupId : userDAO.findAllGroupKeys(user)) {
                 result.add(new GroupEntity(groupId.toString()));
             }
         }

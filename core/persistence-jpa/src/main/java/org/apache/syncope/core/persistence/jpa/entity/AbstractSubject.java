@@ -52,17 +52,18 @@ public abstract class AbstractSubject<P extends PlainAttr, D extends DerAttr, V 
         this.realm = (JPARealm) realm;
     }
 
-    protected abstract Set<? extends ExternalResource> internalGetResources();
+    protected abstract Set<JPAExternalResource> internalGetResources();
 
     @Override
-    @SuppressWarnings("unchecked")
     public boolean addResource(final ExternalResource resource) {
-        return ((Set<ExternalResource>) internalGetResources()).add(resource);
+        checkType(resource, JPAExternalResource.class);
+        return internalGetResources().add((JPAExternalResource) resource);
     }
 
     @Override
     public boolean removeResource(final ExternalResource resource) {
-        return internalGetResources().remove(resource);
+        checkType(resource, JPAExternalResource.class);
+        return internalGetResources().remove((JPAExternalResource) resource);
     }
 
     @Override

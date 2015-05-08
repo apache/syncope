@@ -87,7 +87,7 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         user = userDAO.save(user);
 
         final PropagationByResource propByRes = new PropagationByResource();
-        propByRes.set(ResourceOperation.CREATE, user.getResourceNames());
+        propByRes.set(ResourceOperation.CREATE, userDAO.findAllResourceNames(user));
 
         return new WorkflowResult<Pair<Long, Boolean>>(
                 new ImmutablePair<>(user.getKey(), propagateEnable), propByRes, "create");

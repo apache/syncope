@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.logic;
 
-import static org.apache.syncope.core.logic.AbstractLogic.LOG;
-
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URI;

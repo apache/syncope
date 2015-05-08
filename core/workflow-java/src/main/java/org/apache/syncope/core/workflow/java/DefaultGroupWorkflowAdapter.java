@@ -44,7 +44,7 @@ public class DefaultGroupWorkflowAdapter extends AbstractGroupWorkflowAdapter {
         dataBinder.create(group, groupTO);
         group = groupDAO.save(group);
 
-        final PropagationByResource propByRes = new PropagationByResource();
+        PropagationByResource propByRes = new PropagationByResource();
         propByRes.set(ResourceOperation.CREATE, group.getResourceNames());
 
         return new WorkflowResult<>(group.getKey(), propByRes, "create");
