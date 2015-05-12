@@ -72,9 +72,7 @@ public class SubjectSearchDAOImpl extends AbstractDAOImpl implements SubjectSear
         final StringBuilder adminRolesFilter = new StringBuilder();
 
         if (type == SubjectType.USER) {
-            adminRolesFilter.append("SELECT syncopeUser_id AS subject_id FROM Membership M1 WHERE syncopeRole_id IN (").
-                    append("SELECT syncopeRole_id FROM Membership M2 WHERE M2.syncopeUser_id=M1.syncopeUser_id ").
-                    append("AND syncopeRole_id NOT IN (");
+            adminRolesFilter.append("SELECT syncopeUser_id AS subject_id FROM Membership WHERE syncopeRole_id NOT IN (");
         }
 
         adminRolesFilter.append("SELECT id AS ").
@@ -94,7 +92,7 @@ public class SubjectSearchDAOImpl extends AbstractDAOImpl implements SubjectSear
         }
 
         if (type == SubjectType.USER) {
-            adminRolesFilter.append("))");
+            adminRolesFilter.append(")");
         }
 
         return adminRolesFilter.toString();
