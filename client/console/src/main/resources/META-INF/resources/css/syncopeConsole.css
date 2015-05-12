@@ -57,3 +57,50 @@ pre {
   margin-left:-75px;
   width:150px;
 }
+
+.block-sidebar {
+  max-height: 100%; 
+  overflow: auto; 
+  padding-top: 90px; 
+  padding-bottom: 50px; 
+  position: fixed;
+}
+
+.inner-control-sidebar {
+  position: fixed; 
+  height: auto;
+}
+
+.content-margin-layout {
+  margin: 0px 230px 0px 0px !important;
+  padding: 20px !important;
+}
+
+.admin-content-page {
+  padding: 20px;
+  background: #ecf0f5
+}
+
+.realms {
+  min-height: 554px
+}
+
+.actions > li > a {
+  padding-top: 5px !important;
+  padding-bottom: 5px !important;
+}
+
+.block-header {
+  position: fixed;
+}
+
+.logo-pos {
+  padding-top: 4px !important;
+  overflow: visible !important;
+}
+
+@media (min-width: 768px) {
+  .main-header .logo {
+    height: 54px;
+  }
+}

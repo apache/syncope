@@ -88,6 +88,10 @@ public class BasePage extends AbstractBasePage implements IAjaxIndicatorAware {
         MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.ENABLE, Entitlement.WORKFLOW_DEF_READ);
         liContainer.add(link);
 
+        liContainer = new WebMarkupContainer(getLIContainerId("realms"));
+        add(liContainer);
+        liContainer.add(new BookmarkablePageLink<>("realms", Realms.class));
+        
         add(new BookmarkablePageLink<Page>("logout", Logout.class));
 
         // set 'active' menu item

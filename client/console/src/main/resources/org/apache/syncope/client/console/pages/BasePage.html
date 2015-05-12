@@ -51,8 +51,8 @@ under the License.
 
     <div class="wrapper">
 
-      <header class="main-header">
-        <div class="logo">
+      <header class="main-header block-pos">
+        <div class="logo logo-pos">
           <img src="img/logo.png"/>
         </div>
 
@@ -96,12 +96,11 @@ under the License.
         </nav>
       </header>
 
-      <aside class="main-sidebar">
+      <aside class="main-sidebar block-sidebar">
         <section class="sidebar">
           <ul class="sidebar-menu">
-            <li class="header">&nbsp;</li>
             <li wicket:id="dashboardLI"><a href="#" wicket:id="dashboard"><i class="fa fa-dashboard"></i><span>Dashboard</span></a></li>
-            <li><a href="#"><i class="fa fa-users"></i><span>Realms</span></a></li>
+            <li wicket:id="realmsLI"><a href="#" wicket:id="realms"><i class="fa fa-users"></i><span>Realms</span></a></li>
             <li><a href="#"><i class="fa fa-th"></i><span>Resources</span></a></li>
             <li><a href="#"><i class="fa fa-pie-chart"></i><span>Reports</span></a></li>
             <li wicket:id="configurationLI" class="treeview">
