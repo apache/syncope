@@ -230,13 +230,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         matchedUsers = userService3.search(
                 SyncopeClient.getUserSearchConditionBuilder().isNotNull("loginDate").query());
         assertNotNull(matchedUsers);
-
-        userIds = new HashSet<Long>(matchedUsers.getResult().size());
-
-        for (UserTO user : matchedUsers.getResult()) {
-            userIds.add(user.getId());
-        }
-        assertFalse(userIds.contains(1L));
+        assertTrue(matchedUsers.getResult().isEmpty());
     }
 
     @Test

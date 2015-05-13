@@ -1034,7 +1034,7 @@ under the License.
       </dependencies>
       
       <build>
-        <defaultGoal>clean verify cargo:run</defaultGoal>
+        <defaultGoal>clean verify</defaultGoal>
 
         <plugins>
           <plugin>
