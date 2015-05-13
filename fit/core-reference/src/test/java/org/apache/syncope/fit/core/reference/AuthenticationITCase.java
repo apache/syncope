@@ -25,11 +25,12 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.security.AccessControlException;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Predicate;
+import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -201,16 +202,20 @@ public class AuthenticationITCase extends AbstractITCase {
 
         PagedResult<UserTO> matchedUsers = userService2.search(
                 SyncopeClient.getSubjectSearchQueryBuilder().realm(SyncopeConstants.ROOT_REALM).
-                fiql(SyncopeClient.getUserSearchConditionBuilder().isNotNull("loginDate").query()).build());
+                fiql(SyncopeClient.getUserSearchConditionBuilder().isNotNull("key").query()).build());
         assertNotNull(matchedUsers);
         assertFalse(matchedUsers.getResult().isEmpty());
-        assertTrue(CollectionUtils.exists(matchedUsers.getResult(), new Predicate<UserTO>() {
+        Set<Long> matchedUserKeys = CollectionUtils.collect(matchedUsers.getResult(),
+                new Transformer<UserTO, Long>() {
 
-            @Override
-            public boolean evaluate(final UserTO user) {
-                return user.getKey() == 1;
-            }
-        }));
+                    @Override
+                    public Long transform(final UserTO input) {
+                        return input.getKey();
+                    }
+                }, new HashSet<Long>());
+        assertTrue(matchedUserKeys.contains(1L));
+        assertTrue(matchedUserKeys.contains(2L));
+        assertTrue(matchedUserKeys.contains(5L));
 
         UserService userService3 = clientFactory.create("verdi", "password").getService(UserService.class);
 
@@ -218,13 +223,7 @@ public class AuthenticationITCase extends AbstractITCase {
                 SyncopeClient.getSubjectSearchQueryBuilder().realm("/even/two").
                 fiql(SyncopeClient.getUserSearchConditionBuilder().isNotNull("loginDate").query()).build());
         assertNotNull(matchedUsers);
-        assertFalse(CollectionUtils.exists(matchedUsers.getResult(), new Predicate<UserTO>() {
-
-            @Override
-            public boolean evaluate(final UserTO user) {
-                return user.getKey() == 1;
-            }
-        }));
+        assertTrue(matchedUsers.getResult().isEmpty());
     }
 
     @Test
