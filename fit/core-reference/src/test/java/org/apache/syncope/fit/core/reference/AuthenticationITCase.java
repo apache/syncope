@@ -105,10 +105,10 @@ public class AuthenticationITCase extends AbstractITCase {
         assertEquals(ADMIN_UNAME, self.getValue().getUsername());
 
         // 4. as user
-        self = clientFactory.create("verdi", ADMIN_PWD).self();
+        self = clientFactory.create("bellini", ADMIN_PWD).self();
         assertFalse(self.getKey().isEmpty());
         assertFalse(self.getKey().keySet().contains(Entitlement.ANONYMOUS));
-        assertEquals("verdi", self.getValue().getUsername());
+        assertEquals("bellini", self.getValue().getUsername());
     }
 
     @Test
@@ -176,23 +176,21 @@ public class AuthenticationITCase extends AbstractITCase {
         UserTO readUserTO = userService2.read(1L);
         assertNotNull(readUserTO);
 
-        UserService userService3 = clientFactory.create("verdi", ADMIN_PWD).getService(UserService.class);
+        UserService userService3 = clientFactory.create("puccini", ADMIN_PWD).getService(UserService.class);
 
-        SyncopeClientException exception = null;
         try {
-            userService3.read(1L);
+            userService3.read(3L);
             fail();
         } catch (SyncopeClientException e) {
-            exception = e;
+            assertNotNull(e);
+            assertEquals(ClientExceptionType.Unauthorized, e.getType());
         }
-        assertNotNull(exception);
-        assertEquals(ClientExceptionType.Unauthorized, exception.getType());
     }
 
     @Test
     public void testUserSearch() {
         UserTO userTO = UserITCase.getUniqueSampleTO("testusersearch@test.org");
-        userTO.getRoles().add(2L);
+        userTO.getRoles().add(1L);
 
         userTO = createUser(userTO);
         assertNotNull(userTO);
@@ -214,10 +212,10 @@ public class AuthenticationITCase extends AbstractITCase {
                     }
                 }, new HashSet<Long>());
         assertTrue(matchedUserKeys.contains(1L));
-        assertTrue(matchedUserKeys.contains(2L));
-        assertTrue(matchedUserKeys.contains(5L));
+        assertFalse(matchedUserKeys.contains(2L));
+        assertFalse(matchedUserKeys.contains(5L));
 
-        UserService userService3 = clientFactory.create("verdi", "password").getService(UserService.class);
+        UserService userService3 = clientFactory.create("puccini", ADMIN_PWD).getService(UserService.class);
 
         matchedUsers = userService3.search(
                 SyncopeClient.getSubjectSearchQueryBuilder().realm("/even/two").

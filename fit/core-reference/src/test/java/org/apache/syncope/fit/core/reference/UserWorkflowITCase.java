@@ -85,7 +85,7 @@ public class UserWorkflowITCase extends AbstractITCase {
             assertEquals(ClientExceptionType.Workflow, e.getType());
         }
 
-        // 4. claim task from bellini, in group 7
+        // 4. claim task from bellini, in role 2
         UserWorkflowService userService3 = clientFactory.create(
                 "bellini", ADMIN_PWD).getService(UserWorkflowService.class);
 

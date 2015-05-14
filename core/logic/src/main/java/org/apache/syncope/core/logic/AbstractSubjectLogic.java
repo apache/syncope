@@ -19,6 +19,7 @@
 package org.apache.syncope.core.logic;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
@@ -32,23 +33,36 @@ import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 public abstract class AbstractSubjectLogic<T extends AbstractSubjectTO, V extends AbstractSubjectMod>
         extends AbstractResourceAssociator<T> {
 
+    private static class StartsWithPredicate implements Predicate<String> {
+
+        private final Collection<String> targets;
+
+        public StartsWithPredicate(final Collection<String> targets) {
+            this.targets = targets;
+        }
+
+        @Override
+        public boolean evaluate(final String realm) {
+            return CollectionUtils.exists(targets, new Predicate<String>() {
+
+                @Override
+                public boolean evaluate(final String target) {
+                    return realm.startsWith(target);
+                }
+            });
+        }
+
+    }
+
     protected Set<String> getEffectiveRealms(
             final Set<String> allowedRealms, final Collection<String> requestedRealms) {
 
-        Set<String> effective = RealmUtils.normalize(requestedRealms);
-        CollectionUtils.filter(effective, new Predicate<String>() {
+        final Set<String> allowed = RealmUtils.normalize(allowedRealms);
+        final Set<String> requested = RealmUtils.normalize(requestedRealms);
 
-            @Override
-            public boolean evaluate(final String requestedRealm) {
-                return CollectionUtils.exists(allowedRealms, new Predicate<String>() {
-
-                    @Override
-                    public boolean evaluate(final String allowedRealm) {
-                        return requestedRealm.startsWith(allowedRealm);
-                    }
-                });
-            }
-        });
+        Set<String> effective = new HashSet<>();
+        CollectionUtils.select(requested, new StartsWithPredicate(allowed), effective);
+        CollectionUtils.select(allowed, new StartsWithPredicate(requested), effective);
 
         return effective;
     }

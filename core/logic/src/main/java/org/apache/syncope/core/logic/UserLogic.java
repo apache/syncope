@@ -166,7 +166,7 @@ public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
     public List<UserTO> search(final SearchCond searchCondition, final int page, final int size,
             final List<OrderByClause> orderBy, final List<String> realms) {
 
-        final List<User> matchingUsers = searchDAO.search(
+        List<User> matchingUsers = searchDAO.search(
                 getEffectiveRealms(AuthContextUtils.getAuthorizations().get(Entitlement.USER_SEARCH), realms),
                 searchCondition, page, size, orderBy, SubjectType.USER);
         return CollectionUtils.collect(matchingUsers, new Transformer<User, UserTO>() {
