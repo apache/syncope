@@ -111,26 +111,30 @@ public class Roles extends BasePage {
         final RoleSearchPanel searchPanel = new RoleSearchPanel.Builder("searchPanel").build();
         searchForm.add(searchPanel);
 
-        searchForm.add(new ClearIndicatingAjaxButton("search", new ResourceModel("search"), getPageReference()) {
+        final ClearIndicatingAjaxButton searchButton =
+                new ClearIndicatingAjaxButton("search", new ResourceModel("search"), getPageReference()) {
 
-            private static final long serialVersionUID = -958724007591692537L;
+                private static final long serialVersionUID = -958724007591692537L;
 
-            @Override
-            protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
-                final String fiql = searchPanel.buildFIQL();
-                LOG.debug("Node condition {}", fiql);
+                @Override
+                protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
+                    final String fiql = searchPanel.buildFIQL();
+                    LOG.debug("Node condition {}", fiql);
 
-                doSearch(target, fiql, searchResult);
+                    doSearch(target, fiql, searchResult);
 
-                Session.get().getFeedbackMessages().clear();
-                searchPanel.getSearchFeedback().refresh(target);
-            }
-
-            @Override
-            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-                searchPanel.getSearchFeedback().refresh(target);
-            }
-        });
+                    Session.get().getFeedbackMessages().clear();
+                    searchPanel.getSearchFeedback().refresh(target);
+                }
+  
+                @Override
+                protected void onError(final AjaxRequestTarget target, final Form<?> form) {
+                    searchPanel.getSearchFeedback().refresh(target);
+                }
+        };
+        
+        searchForm.add(searchButton);
+        searchForm.setDefaultButton(searchButton);
     }
 
     private void doSearch(final AjaxRequestTarget target, final String fiql,
