@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.java.job;
 
-import org.apache.syncope.core.provisioning.api.job.JobNamer;
-import org.apache.syncope.core.provisioning.api.job.JobInstanceLoader;
 import org.quartz.SchedulerContext;
 import org.quartz.spi.TriggerFiredBundle;
 import org.springframework.beans.BeanWrapper;
@@ -56,21 +54,6 @@ public class SpringBeanJobFactory extends org.springframework.scheduling.quartz.
     @Override
     protected Object createJobInstance(final TriggerFiredBundle bundle) throws Exception {
         final ApplicationContext ctx = ((ConfigurableApplicationContext) schedulerContext.get("applicationContext"));
-
-        // Try to re-create job bean from underlying task (useful for managing failover scenarios)
-        if (!ctx.containsBean(bundle.getJobDetail().getKey().getName())) {
-            Long taskId = JobNamer.getTaskIdFromJobName(bundle.getJobDetail().getKey().getName());
-            if (taskId != null) {
-                JobInstanceLoader jobInstanceLoader = ctx.getBean(JobInstanceLoader.class);
-                jobInstanceLoader.registerTaskJob(taskId);
-            }
-
-            Long reportId = JobNamer.getReportIdFromJobName(bundle.getJobDetail().getKey().getName());
-            if (reportId != null) {
-                JobInstanceLoader jobInstanceLoader = ctx.getBean(JobInstanceLoader.class);
-                jobInstanceLoader.registerReportJob(reportId);
-            }
-        }
 
         final Object job = ctx.getBean(bundle.getJobDetail().getKey().getName());
         final BeanWrapper wrapper = PropertyAccessorFactory.forBeanPropertyAccess(job);
