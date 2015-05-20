@@ -56,21 +56,6 @@ public class SpringBeanJobFactory extends org.springframework.scheduling.quartz.
     protected Object createJobInstance(final TriggerFiredBundle bundle) throws Exception {
         final ApplicationContext ctx = ((ConfigurableApplicationContext) schedulerContext.get("applicationContext"));
 
-        // Try to re-create job bean from underlying task (useful for managing failover scenarios)
-        if (!ctx.containsBean(bundle.getJobDetail().getKey().getName())) {
-            Long taskId = JobInstanceLoader.getTaskIdFromJobName(bundle.getJobDetail().getKey().getName());
-            if (taskId != null) {
-                JobInstanceLoader jobInstanceLoader = ctx.getBean(JobInstanceLoader.class);
-                jobInstanceLoader.registerTaskJob(taskId);
-            }
-
-            Long reportId = JobInstanceLoader.getReportIdFromJobName(bundle.getJobDetail().getKey().getName());
-            if (reportId != null) {
-                JobInstanceLoader jobInstanceLoader = ctx.getBean(JobInstanceLoader.class);
-                jobInstanceLoader.registerReportJob(reportId);
-            }
-        }
-
         final Object job = ctx.getBean(bundle.getJobDetail().getKey().getName());
         final BeanWrapper wrapper = PropertyAccessorFactory.forBeanPropertyAccess(job);
         if (isEligibleForPropertyPopulation(wrapper.getWrappedInstance())) {
