@@ -25,11 +25,12 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.security.AccessControlException;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Predicate;
+import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -104,10 +105,10 @@ public class AuthenticationITCase extends AbstractITCase {
         assertEquals(ADMIN_UNAME, self.getValue().getUsername());
 
         // 4. as user
-        self = clientFactory.create("verdi", ADMIN_PWD).self();
+        self = clientFactory.create("bellini", ADMIN_PWD).self();
         assertFalse(self.getKey().isEmpty());
         assertFalse(self.getKey().keySet().contains(Entitlement.ANONYMOUS));
-        assertEquals("verdi", self.getValue().getUsername());
+        assertEquals("bellini", self.getValue().getUsername());
     }
 
     @Test
@@ -175,23 +176,21 @@ public class AuthenticationITCase extends AbstractITCase {
         UserTO readUserTO = userService2.read(1L);
         assertNotNull(readUserTO);
 
-        UserService userService3 = clientFactory.create("verdi", ADMIN_PWD).getService(UserService.class);
+        UserService userService3 = clientFactory.create("puccini", ADMIN_PWD).getService(UserService.class);
 
-        SyncopeClientException exception = null;
         try {
-            userService3.read(1L);
+            userService3.read(3L);
             fail();
         } catch (SyncopeClientException e) {
-            exception = e;
+            assertNotNull(e);
+            assertEquals(ClientExceptionType.Unauthorized, e.getType());
         }
-        assertNotNull(exception);
-        assertEquals(ClientExceptionType.Unauthorized, exception.getType());
     }
 
     @Test
     public void testUserSearch() {
         UserTO userTO = UserITCase.getUniqueSampleTO("testusersearch@test.org");
-        userTO.getRoles().add(2L);
+        userTO.getRoles().add(1L);
 
         userTO = createUser(userTO);
         assertNotNull(userTO);
@@ -201,30 +200,28 @@ public class AuthenticationITCase extends AbstractITCase {
 
         PagedResult<UserTO> matchedUsers = userService2.search(
                 SyncopeClient.getSubjectSearchQueryBuilder().realm(SyncopeConstants.ROOT_REALM).
-                fiql(SyncopeClient.getUserSearchConditionBuilder().isNotNull("loginDate").query()).build());
+                fiql(SyncopeClient.getUserSearchConditionBuilder().isNotNull("key").query()).build());
         assertNotNull(matchedUsers);
         assertFalse(matchedUsers.getResult().isEmpty());
-        assertTrue(CollectionUtils.exists(matchedUsers.getResult(), new Predicate<UserTO>() {
+        Set<Long> matchedUserKeys = CollectionUtils.collect(matchedUsers.getResult(),
+                new Transformer<UserTO, Long>() {
 
-            @Override
-            public boolean evaluate(final UserTO user) {
-                return user.getKey() == 1;
-            }
-        }));
+                    @Override
+                    public Long transform(final UserTO input) {
+                        return input.getKey();
+                    }
+                }, new HashSet<Long>());
+        assertTrue(matchedUserKeys.contains(1L));
+        assertFalse(matchedUserKeys.contains(2L));
+        assertFalse(matchedUserKeys.contains(5L));
 
-        UserService userService3 = clientFactory.create("verdi", "password").getService(UserService.class);
+        UserService userService3 = clientFactory.create("puccini", ADMIN_PWD).getService(UserService.class);
 
         matchedUsers = userService3.search(
                 SyncopeClient.getSubjectSearchQueryBuilder().realm("/even/two").
                 fiql(SyncopeClient.getUserSearchConditionBuilder().isNotNull("loginDate").query()).build());
         assertNotNull(matchedUsers);
-        assertFalse(CollectionUtils.exists(matchedUsers.getResult(), new Predicate<UserTO>() {
-
-            @Override
-            public boolean evaluate(final UserTO user) {
-                return user.getKey() == 1;
-            }
-        }));
+        assertTrue(matchedUsers.getResult().isEmpty());
     }
 
     @Test
