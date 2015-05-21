@@ -303,11 +303,12 @@ public class NotificationManager {
                 if (events.isEmpty()) {
                     LOG.debug("No events found about {}", subject);
                 } else if (subjectType == null || subject == null
-                        || notification.getUserAbout() == null || notification.getRoleAbout() == null
+                        || (subjectType == SubjectType.USER && (notification.getUserAbout() == null
                         || searchDAO.matches(subject,
-                                SearchCondConverter.convert(notification.getUserAbout()), subjectType)
+                                SearchCondConverter.convert(notification.getUserAbout()), subjectType)))
+                        || subjectType == SubjectType.ROLE && (notification.getRoleAbout() == null
                         || searchDAO.matches(subject,
-                                SearchCondConverter.convert(notification.getRoleAbout()), subjectType)) {
+                                SearchCondConverter.convert(notification.getRoleAbout()), subjectType))) {
 
                     LOG.debug("Creating notification task for events {} about {}", events, subject);
 
