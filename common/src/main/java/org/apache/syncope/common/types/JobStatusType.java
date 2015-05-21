@@ -16,14 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.quartz;
+package org.apache.syncope.common.types;
 
-import org.quartz.InterruptableJob;
+import javax.xml.bind.annotation.XmlEnum;
 
-/**
- * Interface for Quartz jobs bound to a given Task.
- */
-public interface TaskJob extends InterruptableJob {
+@XmlEnum
+public enum JobStatusType {
 
-    void setTaskId(Long taskId);
+    ALL,
+    RUNNING,
+    SCHEDULED;
+
 }

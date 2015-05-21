@@ -25,6 +25,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
+import javax.ws.rs.MatrixParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -39,6 +40,8 @@ import org.apache.cxf.jaxrs.model.wadl.DocTarget;
 import org.apache.syncope.common.reqres.PagedResult;
 import org.apache.syncope.common.to.ReportExecTO;
 import org.apache.syncope.common.to.ReportTO;
+import org.apache.syncope.common.types.JobAction;
+import org.apache.syncope.common.types.JobStatusType;
 import org.apache.syncope.common.types.ReportExecExportFormat;
 import org.apache.syncope.common.wrap.ReportletConfClass;
 
@@ -192,4 +195,25 @@ public interface ReportService extends JAXRSService {
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     Response exportExecutionResult(@NotNull @PathParam("executionId") Long executionId,
             @QueryParam("format") ReportExecExportFormat fmt);
+
+    /**
+     * List report jobs of the given type
+     *
+     * @param type of report job
+     * @return List of ReportExecTO
+     */
+    @GET
+    @Path("jobs")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    List<ReportExecTO> list(@MatrixParam("type") JobStatusType type);
+
+    /**
+     * Execute a control action on an existing report
+     *
+     * @param action
+     * @param reportId id of report
+     */
+    @POST
+    @Path("{reportId}")
+    void process(@QueryParam("action") JobAction action, @PathParam("reportId") Long reportId);
 }

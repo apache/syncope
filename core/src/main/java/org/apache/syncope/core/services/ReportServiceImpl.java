@@ -29,6 +29,8 @@ import org.apache.syncope.common.services.ReportService;
 import org.apache.syncope.common.reqres.PagedResult;
 import org.apache.syncope.common.to.ReportExecTO;
 import org.apache.syncope.common.to.ReportTO;
+import org.apache.syncope.common.types.JobAction;
+import org.apache.syncope.common.types.JobStatusType;
 import org.apache.syncope.common.types.RESTHeaders;
 import org.apache.syncope.common.types.ReportExecExportFormat;
 import org.apache.syncope.common.util.CollectionWrapper;
@@ -41,10 +43,10 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ReportServiceImpl extends AbstractServiceImpl implements ReportService {
-
+    
     @Autowired
     private ReportController controller;
-
+    
     @Override
     public Response create(final ReportTO reportTO) {
         ReportTO createdReportTO = controller.create(reportTO);
@@ -53,55 +55,55 @@ public class ReportServiceImpl extends AbstractServiceImpl implements ReportServ
                 header(RESTHeaders.RESOURCE_ID.toString(), createdReportTO.getId()).
                 build();
     }
-
+    
     @Override
     public void update(final Long reportId, final ReportTO reportTO) {
         reportTO.setId(reportId);
         controller.update(reportTO);
     }
-
+    
     @Override
     public PagedResult<ReportTO> list() {
         return list(DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE, null);
     }
-
+    
     @Override
     public PagedResult<ReportTO> list(final String orderBy) {
         return list(DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE, orderBy);
     }
-
+    
     @Override
     public PagedResult<ReportTO> list(final Integer page, final Integer size) {
         return list(page, size, null);
     }
-
+    
     @Override
     public PagedResult<ReportTO> list(final Integer page, final Integer size, final String orderBy) {
         List<OrderByClause> orderByClauses = getOrderByClauses(orderBy);
         return buildPagedResult(controller.list(page, size, orderByClauses), page, size, controller.count());
     }
-
+    
     @Override
     public List<ReportletConfClass> getReportletConfClasses() {
         return CollectionWrapper.wrap(controller.getReportletConfClasses(), ReportletConfClass.class);
     }
-
+    
     @Override
     public ReportTO read(final Long reportId) {
         return controller.read(reportId);
     }
-
+    
     @Override
     public ReportExecTO readExecution(final Long executionId) {
         return controller.readExecution(executionId);
     }
-
+    
     @Override
     public Response exportExecutionResult(final Long executionId, final ReportExecExportFormat fmt) {
         final ReportExecExportFormat format = (fmt == null) ? ReportExecExportFormat.XML : fmt;
         final ReportExec reportExec = controller.getAndCheckReportExec(executionId);
         StreamingOutput sout = new StreamingOutput() {
-
+            
             @Override
             public void write(final OutputStream os) throws IOException {
                 controller.exportExecutionResult(os, reportExec, format);
@@ -113,19 +115,29 @@ public class ReportServiceImpl extends AbstractServiceImpl implements ReportServ
                 header(HttpHeaders.CONTENT_DISPOSITION, disposition).
                 build();
     }
-
+    
     @Override
     public ReportExecTO execute(final Long reportId) {
         return controller.execute(reportId);
     }
-
+    
     @Override
     public void delete(final Long reportId) {
         controller.delete(reportId);
     }
-
+    
     @Override
     public void deleteExecution(final Long executionId) {
         controller.deleteExecution(executionId);
+    }
+    
+    @Override
+    public List<ReportExecTO> list(JobStatusType type) {
+        return controller.list(type, ReportExecTO.class);
+    }
+    
+    @Override
+    public void process(JobAction action, Long reportId) {
+        controller.process(action, reportId);
     }
 }

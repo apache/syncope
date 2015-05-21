@@ -35,6 +35,9 @@ import org.apache.syncope.common.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.types.TaskType;
 import org.apache.syncope.common.SyncopeClientException;
+import org.apache.syncope.common.to.AbstractExecTO;
+import org.apache.syncope.common.types.JobAction;
+import org.apache.syncope.common.types.JobStatusType;
 import org.apache.syncope.core.init.ImplementationClassNamesLoader;
 import org.apache.syncope.core.init.JobInstanceLoader;
 import org.apache.syncope.core.notification.NotificationJob;
@@ -60,7 +63,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
 @Component
-public class TaskController extends AbstractTransactionalController<AbstractTaskTO> {
+public class TaskController extends AbstractJobController<AbstractTaskTO> {
 
     @Autowired
     private TaskDAO taskDAO;
@@ -400,5 +403,26 @@ public class TaskController extends AbstractTransactionalController<AbstractTask
         }
 
         throw new UnresolvedReferenceException();
+    }
+
+    @Override
+    @PreAuthorize("hasRole('TASK_LIST')")
+    public <E extends AbstractExecTO> List<E> list(JobStatusType type, Class<E> reference) {
+        return super.list(type, reference);
+    }
+
+    @PreAuthorize("hasRole('TASK_EXECUTE')")
+    public void process(JobAction action, Long taskId) {
+        Task task = taskDAO.find(taskId);
+        if (task == null) {
+            throw new NotFoundException("Task " + taskId);
+        }
+        String jobName = JobInstanceLoader.getJobName(task);
+        process(action, jobName);
+    }
+
+    @Override
+    protected Long getIdFromJobName(JobKey jobKey) {
+        return JobInstanceLoader.getTaskIdFromJobName(jobKey.getName());
     }
 }

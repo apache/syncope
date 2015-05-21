@@ -44,6 +44,8 @@ import org.apache.syncope.common.to.ReportExecTO;
 import org.apache.syncope.common.to.TaskExecTO;
 import org.apache.syncope.common.to.AbstractTaskTO;
 import org.apache.syncope.common.to.SchedTaskTO;
+import org.apache.syncope.common.types.JobAction;
+import org.apache.syncope.common.types.JobStatusType;
 import org.apache.syncope.common.types.TaskType;
 import org.apache.syncope.common.wrap.JobClass;
 import org.apache.syncope.common.wrap.PushActionClass;
@@ -242,4 +244,25 @@ public interface TaskService extends JAXRSService {
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     BulkActionResult bulk(@NotNull BulkAction bulkAction);
+
+    /**
+     * List task jobs of the given type
+     *
+     * @param type of task job
+     * @return List of TaskExecTO
+     */
+    @GET
+    @Path("jobs")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    List<TaskExecTO> list(@MatrixParam("type") JobStatusType type);
+
+    /**
+     * Execute a control action on an existing task
+     *
+     * @param action
+     * @param taskId id of task
+     */
+    @POST
+    @Path("{taskId}")
+    void process(@QueryParam("action") JobAction action, @PathParam("taskId") Long taskId);
 }

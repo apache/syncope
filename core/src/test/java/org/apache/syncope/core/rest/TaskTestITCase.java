@@ -73,6 +73,8 @@ import org.apache.syncope.common.types.AttributeSchemaType;
 import org.apache.syncope.common.types.CipherAlgorithm;
 import org.apache.syncope.common.types.ConnConfProperty;
 import org.apache.syncope.common.types.IntMappingType;
+import org.apache.syncope.common.types.JobAction;
+import org.apache.syncope.common.types.JobStatusType;
 import org.apache.syncope.common.types.MappingPurpose;
 import org.apache.syncope.common.types.MatchingRule;
 import org.apache.syncope.common.types.PropagationTaskExecStatus;
@@ -85,6 +87,7 @@ import org.apache.syncope.common.types.UnmatchingRule;
 import org.apache.syncope.common.util.CollectionWrapper;
 import org.apache.syncope.common.wrap.PushActionClass;
 import org.apache.syncope.common.wrap.ResourceName;
+import org.apache.syncope.core.quartz.TestSampleJob;
 import org.apache.syncope.core.sync.TestSyncActions;
 import org.apache.syncope.core.sync.TestSyncRule;
 import org.apache.syncope.core.sync.impl.DBPasswordSyncActions;
@@ -1443,5 +1446,62 @@ public class TaskTestITCase extends AbstractTest {
 
         NotificationTaskTO taskTO = findNotificationTaskBySender("syncope648@syncope.apache.org");
         assertNotNull(taskTO);
+    }
+
+    @Test
+    public void issueSYNCOPE660() {
+        List<TaskExecTO> list = taskService.list(JobStatusType.ALL);
+        int old_size = list.size();
+
+        list = taskService.list(JobStatusType.SCHEDULED);
+
+        SchedTaskTO task = new SchedTaskTO();
+        task.setName("issueSYNCOPE660");
+        task.setDescription("issueSYNCOPE660 Description");
+        task.setJobClassName(TestSampleJob.class.getName());
+
+        Response response = taskService.create(task);
+        SchedTaskTO actual = getObject(response.getLocation(), TaskService.class, SchedTaskTO.class);
+
+        list = taskService.list(JobStatusType.ALL);
+        assertEquals(list.size(), old_size + 1);
+
+        taskService.process(JobAction.START, actual.getId());
+
+        int i = 0, maxit = 50;
+
+        // wait for task exec completion (executions incremented)
+        do {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+            }
+
+            list = taskService.list(JobStatusType.RUNNING);
+
+            assertNotNull(list);
+            i++;
+        } while (list.size() < 1 && i < maxit);
+
+        assertEquals(list.size(), 1);
+
+        taskService.process(JobAction.STOP, actual.getId());
+
+        i = 0;
+
+        // wait for task exec completion (executions incremented)
+        do {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+            }
+
+            list = taskService.list(JobStatusType.RUNNING);
+
+            assertNotNull(list);
+            i++;
+        } while (list.size() >= 1 && i < maxit);
+
+        assertEquals(list.size(), 0);
     }
 }
