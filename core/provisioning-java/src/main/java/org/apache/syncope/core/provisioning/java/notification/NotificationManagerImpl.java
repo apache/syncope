@@ -294,11 +294,12 @@ public class NotificationManagerImpl implements NotificationManager {
                 if (!notification.getEvents().contains(currentEvent)) {
                     LOG.debug("No events found about {}", subject);
                 } else if (subjectType == null || subject == null
-                        || notification.getUserAbout() == null || notification.getGroupAbout() == null
+                        || (subjectType == SubjectType.USER && (notification.getUserAbout() == null
                         || searchDAO.matches(subject,
-                                SearchCondConverter.convert(notification.getUserAbout()), subjectType)
+                                SearchCondConverter.convert(notification.getUserAbout()), subjectType)))
+                        || subjectType == SubjectType.GROUP && (notification.getGroupAbout() == null
                         || searchDAO.matches(subject,
-                                SearchCondConverter.convert(notification.getGroupAbout()), subjectType)) {
+                                SearchCondConverter.convert(notification.getGroupAbout()), subjectType))) {
 
                     LOG.debug("Creating notification task for event {} about {}", currentEvent, subject);
 
