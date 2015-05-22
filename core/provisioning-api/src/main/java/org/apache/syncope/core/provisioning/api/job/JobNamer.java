@@ -44,11 +44,11 @@ public final class JobNamer {
         return result;
     }
 
-    public static Long getTaskIdFromJobName(final String name) {
+    public static Long getTaskKeyFromJobName(final String name) {
         return getIdFromJobName(name, "taskJob[0-9]+", 7);
     }
 
-    public static Long getReportIdFromJobName(final String name) {
+    public static Long getReportKeyFromJobName(final String name) {
         return getIdFromJobName(name, "reportJob[0-9]+", 9);
     }
 

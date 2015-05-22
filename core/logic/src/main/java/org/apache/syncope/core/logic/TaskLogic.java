@@ -26,12 +26,15 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.to.AbstractExecTO;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.SyncTaskTO;
 import org.apache.syncope.common.lib.to.TaskExecTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.Entitlement;
+import org.apache.syncope.common.lib.types.JobAction;
+import org.apache.syncope.common.lib.types.JobStatusType;
 import org.apache.syncope.common.lib.types.PropagationMode;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.lib.types.TaskType;
@@ -61,7 +64,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
 @Component
-public class TaskLogic extends AbstractTransactionalLogic<AbstractTaskTO> {
+public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
 
     @Autowired
     private TaskDAO taskDAO;
@@ -335,5 +338,26 @@ public class TaskLogic extends AbstractTransactionalLogic<AbstractTaskTO> {
         }
 
         throw new UnresolvedReferenceException();
+    }
+
+    @Override
+    @PreAuthorize("hasRole('" + Entitlement.TASK_LIST + "')")
+    public <E extends AbstractExecTO> List<E> list(final JobStatusType type, final Class<E> reference) {
+        return super.list(type, reference);
+    }
+
+    @PreAuthorize("hasRole('" + Entitlement.TASK_EXECUTE + "')")
+    public void process(final JobAction action, final Long taskId) {
+        Task task = taskDAO.find(taskId);
+        if (task == null) {
+            throw new NotFoundException("Task " + taskId);
+        }
+        String jobName = JobNamer.getJobName(task);
+        process(action, jobName);
+    }
+
+    @Override
+    protected Long getKeyFromJobName(final JobKey jobKey) {
+        return JobNamer.getTaskKeyFromJobName(jobKey.getName());
     }
 }

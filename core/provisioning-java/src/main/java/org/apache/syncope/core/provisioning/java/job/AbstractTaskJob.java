@@ -18,7 +18,11 @@
  */
 package org.apache.syncope.core.provisioning.java.job;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
+import java.util.concurrent.atomic.AtomicReference;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
@@ -33,6 +37,7 @@ import org.apache.syncope.core.provisioning.api.notification.NotificationManager
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.quartz.UnableToInterruptJobException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -101,6 +106,11 @@ public abstract class AbstractTaskJob implements TaskJob {
     protected Task task;
 
     /**
+     * The current running thread containing the task to be executed.
+     */
+    protected AtomicReference<Thread> runningThread = new AtomicReference<Thread>();
+
+    /**
      * Task id setter.
      *
      * @param taskId to be set
@@ -112,6 +122,7 @@ public abstract class AbstractTaskJob implements TaskJob {
 
     @Override
     public void execute(final JobExecutionContext context) throws JobExecutionException {
+        this.runningThread.set(Thread.currentThread());
         task = taskDAO.find(taskId);
         if (task == null) {
             throw new JobExecutionException("Task " + taskId + " not found");
@@ -177,5 +188,17 @@ public abstract class AbstractTaskJob implements TaskJob {
      */
     protected boolean hasToBeRegistered(final TaskExec execution) {
         return false;
+    }
+
+    @Override
+    public void interrupt() throws UnableToInterruptJobException {
+        Thread thread = this.runningThread.getAndSet(null);
+        if (thread != null) {
+            LOG.info("Interrupting job time {} ", (new SimpleDateFormat(SyncopeConstants.DEFAULT_DATE_PATTERN, Locale.
+                    getDefault())).format(new Date()));
+            thread.interrupt();
+        } else {
+            LOG.warn("Unable to retrieve the right thread related to the current job execution");
+        }
     }
 }

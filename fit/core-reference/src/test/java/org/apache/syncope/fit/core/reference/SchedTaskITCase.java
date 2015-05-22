@@ -32,6 +32,9 @@ import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.SyncTaskTO;
+import org.apache.syncope.common.lib.to.TaskExecTO;
+import org.apache.syncope.common.lib.types.JobAction;
+import org.apache.syncope.common.lib.types.JobStatusType;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.syncope.core.provisioning.api.job.SyncJob;
@@ -103,5 +106,62 @@ public class SchedTaskITCase extends AbstractTaskITCase {
         assertNotNull(actual);
         assertEquals("issueSYNCOPE144_2", actual.getName());
         assertEquals("issueSYNCOPE144 Description_2", actual.getDescription());
+    }
+
+    @Test
+    public void issueSYNCOPE660() {
+        List<TaskExecTO> list = taskService.list(JobStatusType.ALL);
+        int old_size = list.size();
+
+        list = taskService.list(JobStatusType.SCHEDULED);
+
+        SchedTaskTO task = new SchedTaskTO();
+        task.setName("issueSYNCOPE660");
+        task.setDescription("issueSYNCOPE660 Description");
+        task.setJobClassName(TestSampleJob.class.getName());
+
+        Response response = taskService.create(task);
+        SchedTaskTO actual = getObject(response.getLocation(), TaskService.class, SchedTaskTO.class);
+
+        list = taskService.list(JobStatusType.ALL);
+        assertEquals(list.size(), old_size + 1);
+
+        taskService.process(JobAction.START, actual.getKey());
+
+        int i = 0, maxit = 50;
+
+        // wait for task exec completion (executions incremented)
+        do {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+            }
+
+            list = taskService.list(JobStatusType.RUNNING);
+
+            assertNotNull(list);
+            i++;
+        } while (list.size() < 1 && i < maxit);
+
+        assertEquals(list.size(), 1);
+
+        taskService.process(JobAction.STOP, actual.getKey());
+
+        i = 0;
+
+        // wait for task exec completion (executions incremented)
+        do {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+            }
+
+            list = taskService.list(JobStatusType.RUNNING);
+
+            assertNotNull(list);
+            i++;
+        } while (list.size() >= 1 && i < maxit);
+
+        assertEquals(list.size(), 0);
     }
 }

@@ -63,19 +63,21 @@ import org.apache.syncope.core.logic.report.Reportlet;
 import org.apache.syncope.core.logic.report.ReportletConfClass;
 import org.apache.syncope.core.logic.report.TextSerializer;
 import org.apache.syncope.common.lib.CollectionUtils2;
+import org.apache.syncope.common.lib.to.AbstractExecTO;
 import org.apache.syncope.common.lib.types.Entitlement;
+import org.apache.syncope.common.lib.types.JobAction;
+import org.apache.syncope.common.lib.types.JobStatusType;
 import org.apache.xmlgraphics.util.MimeConstants;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ClassUtils;
 
 @Component
-public class ReportLogic extends AbstractTransactionalLogic<ReportTO> {
+public class ReportLogic extends AbstractJobLogic<ReportTO> {
 
     @Autowired
     private ReportDAO reportDAO;
@@ -85,9 +87,6 @@ public class ReportLogic extends AbstractTransactionalLogic<ReportTO> {
 
     @Autowired
     private JobInstanceLoader jobInstanceLoader;
-
-    @Autowired
-    private SchedulerFactoryBean scheduler;
 
     @Autowired
     private ReportDataBinder binder;
@@ -400,5 +399,26 @@ public class ReportLogic extends AbstractTransactionalLogic<ReportTO> {
         }
 
         throw new UnresolvedReferenceException();
+    }
+
+    @Override
+    @PreAuthorize("hasRole('" + Entitlement.REPORT_LIST + "')")
+    public <E extends AbstractExecTO> List<E> list(final JobStatusType type, final Class<E> reference) {
+        return super.list(type, reference);
+    }
+
+    @PreAuthorize("hasRole('" + Entitlement.REPORT_EXECUTE + "')")
+    public void process(final JobAction action, final Long reportKey) {
+        Report report = reportDAO.find(reportKey);
+        if (report == null) {
+            throw new NotFoundException("Report " + reportKey);
+        }
+        String jobName = JobNamer.getJobName(report);
+        process(action, jobName);
+    }
+
+    @Override
+    protected Long getKeyFromJobName(final JobKey jobKey) {
+        return JobNamer.getReportKeyFromJobName(jobKey.getName());
     }
 }
