@@ -342,18 +342,18 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
 
     @Override
     @PreAuthorize("hasRole('" + Entitlement.TASK_LIST + "')")
-    public <E extends AbstractExecTO> List<E> list(final JobStatusType type, final Class<E> reference) {
-        return super.list(type, reference);
+    public <E extends AbstractExecTO> List<E> listJobs(final JobStatusType type, final Class<E> reference) {
+        return super.listJobs(type, reference);
     }
 
     @PreAuthorize("hasRole('" + Entitlement.TASK_EXECUTE + "')")
-    public void process(final JobAction action, final Long taskId) {
-        Task task = taskDAO.find(taskId);
+    public void actionJob(final Long taskKey, final JobAction action) {
+        Task task = taskDAO.find(taskKey);
         if (task == null) {
-            throw new NotFoundException("Task " + taskId);
+            throw new NotFoundException("Task " + taskKey);
         }
         String jobName = JobNamer.getJobName(task);
-        process(action, jobName);
+        actionJob(jobName, action);
     }
 
     @Override

@@ -275,7 +275,7 @@ public class PropagationManagerImpl implements PropagationManager {
                 tasks.addAll(getUserUpdateTasks(wfResult, true, toBeExcluded));
             }
 
-            final PropagationByResource nonPwdPropByRes = new PropagationByResource();
+            PropagationByResource nonPwdPropByRes = new PropagationByResource();
             nonPwdPropByRes.merge(origPropByRes);
             nonPwdPropByRes.removeAll(pwdResourceNames);
             nonPwdPropByRes.purge();
@@ -318,20 +318,19 @@ public class PropagationManagerImpl implements PropagationManager {
             resourceNames = userDAO.findAllResourceNames(user);
             for (final Membership membership : user.getMemberships()) {
                 if (membership.getVirAttrs() != null && !membership.getVirAttrs().isEmpty()) {
-                    final MembershipMod membershipMod = CollectionUtils.find(membershipsToAdd,
-                            new Predicate<MembershipMod>() {
+                    MembershipMod membMod = CollectionUtils.find(membershipsToAdd, new Predicate<MembershipMod>() {
 
-                                @Override
-                                public boolean evaluate(final MembershipMod membershipMod) {
-                                    return membershipMod.getGroup() == membership.getGroup().getKey();
-                                }
-                            });
-                    if (membershipMod != null) {
-                        virAttrHandler.fillVirtual(membership, membershipMod.getVirAttrsToRemove() == null
+                        @Override
+                        public boolean evaluate(final MembershipMod membershipMod) {
+                            return membershipMod.getGroup() == membership.getGroup().getKey();
+                        }
+                    });
+                    if (membMod != null) {
+                        virAttrHandler.fillVirtual(membership, membMod.getVirAttrsToRemove() == null
                                 ? Collections.<String>emptySet()
-                                : membershipMod.getVirAttrsToRemove(),
-                                membershipMod.getVirAttrsToUpdate() == null ? Collections.<AttrMod>emptySet()
-                                        : membershipMod.getVirAttrsToUpdate(), attrUtilsFactory.getInstance(
+                                : membMod.getVirAttrsToRemove(),
+                                membMod.getVirAttrsToUpdate() == null ? Collections.<AttrMod>emptySet()
+                                        : membMod.getVirAttrsToUpdate(), attrUtilsFactory.getInstance(
                                         AttributableType.MEMBERSHIP));
                     }
                 }
@@ -431,7 +430,7 @@ public class PropagationManagerImpl implements PropagationManager {
             final Collection<String> resourceNames,
             final Collection<String> noPropResourceNames) {
 
-        final PropagationByResource propByRes = new PropagationByResource();
+        PropagationByResource propByRes = new PropagationByResource();
         propByRes.set(ResourceOperation.DELETE, resourceNames);
         if (noPropResourceNames != null && !noPropResourceNames.isEmpty()) {
             propByRes.get(ResourceOperation.DELETE).removeAll(noPropResourceNames);
@@ -485,7 +484,7 @@ public class PropagationManagerImpl implements PropagationManager {
         propByRes.purge();
         LOG.debug("After purge: {}", propByRes);
 
-        final List<PropagationTask> tasks = new ArrayList<>();
+        List<PropagationTask> tasks = new ArrayList<>();
 
         for (ResourceOperation operation : ResourceOperation.values()) {
             for (String resourceName : propByRes.get(operation)) {

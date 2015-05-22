@@ -22,6 +22,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.List;
@@ -110,10 +111,8 @@ public class SchedTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void issueSYNCOPE660() {
-        List<TaskExecTO> list = taskService.list(JobStatusType.ALL);
+        List<TaskExecTO> list = taskService.listJobs(JobStatusType.ALL);
         int old_size = list.size();
-
-        list = taskService.list(JobStatusType.SCHEDULED);
 
         SchedTaskTO task = new SchedTaskTO();
         task.setName("issueSYNCOPE660");
@@ -121,47 +120,48 @@ public class SchedTaskITCase extends AbstractTaskITCase {
         task.setJobClassName(TestSampleJob.class.getName());
 
         Response response = taskService.create(task);
-        SchedTaskTO actual = getObject(response.getLocation(), TaskService.class, SchedTaskTO.class);
+        task = getObject(response.getLocation(), TaskService.class, SchedTaskTO.class);
 
-        list = taskService.list(JobStatusType.ALL);
-        assertEquals(list.size(), old_size + 1);
+        list = taskService.listJobs(JobStatusType.ALL);
+        assertEquals(old_size + 1, list.size());
 
-        taskService.process(JobAction.START, actual.getKey());
+        taskService.actionJob(task.getKey(), JobAction.START);
 
         int i = 0, maxit = 50;
 
-        // wait for task exec completion (executions incremented)
         do {
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
+                // ignore
             }
 
-            list = taskService.list(JobStatusType.RUNNING);
+            list = taskService.listJobs(JobStatusType.RUNNING);
 
             assertNotNull(list);
             i++;
         } while (list.size() < 1 && i < maxit);
 
-        assertEquals(list.size(), 1);
+        assertEquals(1, list.size());
+        assertEquals(task.getKey(), list.get(0).getTask());
 
-        taskService.process(JobAction.STOP, actual.getKey());
+        taskService.actionJob(task.getKey(), JobAction.STOP);
 
         i = 0;
 
-        // wait for task exec completion (executions incremented)
         do {
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
+                // ignore
             }
 
-            list = taskService.list(JobStatusType.RUNNING);
+            list = taskService.listJobs(JobStatusType.RUNNING);
 
             assertNotNull(list);
             i++;
         } while (list.size() >= 1 && i < maxit);
 
-        assertEquals(list.size(), 0);
+        assertTrue(list.isEmpty());
     }
 }

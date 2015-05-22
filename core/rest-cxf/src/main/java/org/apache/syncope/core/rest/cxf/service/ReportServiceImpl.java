@@ -123,12 +123,12 @@ public class ReportServiceImpl extends AbstractServiceImpl implements ReportServ
     }
 
     @Override
-    public List<ReportExecTO> list(final JobStatusType type) {
-        return logic.list(type, ReportExecTO.class);
+    public List<ReportExecTO> listJobs(final JobStatusType type) {
+        return logic.listJobs(type, ReportExecTO.class);
     }
 
     @Override
-    public void process(final JobAction action, final Long reportId) {
-        logic.process(action, reportId);
+    public void actionJob(final Long reportKey, final JobAction action) {
+        logic.actionJob(reportKey, action);
     }
 }

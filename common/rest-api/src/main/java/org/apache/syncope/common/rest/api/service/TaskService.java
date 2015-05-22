@@ -172,23 +172,23 @@ public interface TaskService extends JAXRSService {
     BulkActionResult bulk(@NotNull BulkAction bulkAction);
 
     /**
-     * List task jobs of the given type
+     * List task jobs of the given type.
      *
      * @param type of task job
-     * @return List of TaskExecTO
+     * @return list task jobs of the given type
      */
     @GET
     @Path("jobs")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    List<TaskExecTO> list(@MatrixParam("type") JobStatusType type);
+    List<TaskExecTO> listJobs(@MatrixParam("type") JobStatusType type);
 
     /**
-     * Execute a control action on an existing task
+     * Executes an action on an existing task's job.
      *
+     * @param taskKey task key
      * @param action
-     * @param taskId id of task
      */
     @POST
-    @Path("{taskId}")
-    void process(@QueryParam("action") JobAction action, @PathParam("taskId") Long taskId);
+    @Path("{taskKey}")
+    void actionJob(@PathParam("taskKey") Long taskKey, @QueryParam("action") JobAction action);
 }

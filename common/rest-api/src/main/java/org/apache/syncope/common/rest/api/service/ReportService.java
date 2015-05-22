@@ -160,23 +160,23 @@ public interface ReportService extends JAXRSService {
             @QueryParam("format") ReportExecExportFormat fmt);
 
     /**
-     * List report jobs of the given type
+     * List report jobs of the given type.
      *
      * @param type of report job
-     * @return List of ReportExecTO
+     * @return list of report jobs of the given type
      */
     @GET
     @Path("jobs")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    List<ReportExecTO> list(@MatrixParam("type") JobStatusType type);
+    List<ReportExecTO> listJobs(@MatrixParam("type") JobStatusType type);
 
     /**
-     * Execute a control action on an existing report
+     * Executes an action on an existing report's job.
      *
+     * @param reportKey report key
      * @param action
-     * @param reportId id of report
      */
     @POST
-    @Path("{reportId}")
-    void process(@QueryParam("action") JobAction action, @PathParam("reportId") Long reportId);
+    @Path("{reportKey}")
+    void actionJob(@PathParam("reportKey") Long reportKey, @QueryParam("action") JobAction action);
 }

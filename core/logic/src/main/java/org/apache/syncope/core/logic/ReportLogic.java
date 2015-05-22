@@ -403,18 +403,18 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
 
     @Override
     @PreAuthorize("hasRole('" + Entitlement.REPORT_LIST + "')")
-    public <E extends AbstractExecTO> List<E> list(final JobStatusType type, final Class<E> reference) {
-        return super.list(type, reference);
+    public <E extends AbstractExecTO> List<E> listJobs(final JobStatusType type, final Class<E> reference) {
+        return super.listJobs(type, reference);
     }
 
     @PreAuthorize("hasRole('" + Entitlement.REPORT_EXECUTE + "')")
-    public void process(final JobAction action, final Long reportKey) {
+    public void actionJob(final Long reportKey, final JobAction action) {
         Report report = reportDAO.find(reportKey);
         if (report == null) {
             throw new NotFoundException("Report " + reportKey);
         }
         String jobName = JobNamer.getJobName(report);
-        process(action, jobName);
+        actionJob(jobName, action);
     }
 
     @Override
