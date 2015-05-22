@@ -407,18 +407,18 @@ public class TaskController extends AbstractJobController<AbstractTaskTO> {
 
     @Override
     @PreAuthorize("hasRole('TASK_LIST')")
-    public <E extends AbstractExecTO> List<E> list(JobStatusType type, Class<E> reference) {
-        return super.list(type, reference);
+    public <E extends AbstractExecTO> List<E> listJobs(final JobStatusType type, final Class<E> reference) {
+        return super.listJobs(type, reference);
     }
 
     @PreAuthorize("hasRole('TASK_EXECUTE')")
-    public void process(JobAction action, Long taskId) {
+    public void actionJob(final Long taskId, final JobAction action) {
         Task task = taskDAO.find(taskId);
         if (task == null) {
             throw new NotFoundException("Task " + taskId);
         }
         String jobName = JobInstanceLoader.getJobName(task);
-        process(action, jobName);
+        actionJob(jobName, action);
     }
 
     @Override

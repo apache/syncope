@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.common.AbstractBaseBean;
 import org.apache.syncope.common.to.AbstractExecTO;
+import org.apache.syncope.common.to.ReportExecTO;
+import org.apache.syncope.common.to.TaskExecTO;
 import org.apache.syncope.common.types.JobAction;
 import org.apache.syncope.common.types.JobStatusType;
 import org.quartz.JobExecutionContext;
@@ -42,97 +44,114 @@ abstract class AbstractJobController<T extends AbstractBaseBean> extends Abstrac
 
     protected abstract Long getIdFromJobName(JobKey jobKey);
 
-    public <E extends AbstractExecTO> List<E> list(final JobStatusType type, final Class<E> reference) {
+    private <E extends AbstractExecTO> void setTaskOrReportId(final E jobExecTO, final Long taskOrReportId) {
+        if (jobExecTO instanceof TaskExecTO) {
+            ((TaskExecTO) jobExecTO).setTask(taskOrReportId);
+        } else if (jobExecTO instanceof ReportExecTO) {
+            ((ReportExecTO) jobExecTO).setReport(taskOrReportId);
+        }
+    }
+
+    public <E extends AbstractExecTO> List<E> listJobs(final JobStatusType type, final Class<E> reference) {
         List<E> jobExecTOs = new ArrayList<E>();
 
         switch (type) {
             case ALL:
                 try {
                     for (String groupName : scheduler.getScheduler().getJobGroupNames()) {
-                        for (JobKey jobKey : scheduler.getScheduler().getJobKeys(GroupMatcher.jobGroupEquals(groupName))) {
+                        for (JobKey jobKey
+                                : scheduler.getScheduler().getJobKeys(GroupMatcher.jobGroupEquals(groupName))) {
 
                             Long jobId = getIdFromJobName(jobKey);
                             if (jobId != null) {
                                 List<? extends Trigger> jobTriggers = scheduler.getScheduler().getTriggersOfJob(jobKey);
-                                if (jobTriggers.size() > 0) {
+                                if (jobTriggers.isEmpty()) {
+                                    E jobExecTO = reference.newInstance();
+                                    setTaskOrReportId(jobExecTO, jobId);
+                                    jobExecTO.setStatus("Not Scheduled");
+
+                                    jobExecTOs.add(jobExecTO);
+                                } else {
                                     for (Trigger t : jobTriggers) {
                                         E jobExecTO = reference.newInstance();
-                                        jobExecTO.setId(jobId);
-                                        jobExecTO.
-                                                setStatus(scheduler.getScheduler().getTriggerState(t.getKey()).name());
+                                        setTaskOrReportId(jobExecTO, jobId);
+                                        jobExecTO.setStatus(
+                                                scheduler.getScheduler().getTriggerState(t.getKey()).name());
                                         jobExecTO.setStartDate(t.getStartTime());
+
                                         jobExecTOs.add(jobExecTO);
                                     }
-                                } else {
-                                    E jobExecTO = reference.newInstance();
-                                    jobExecTO.setId(jobId);
-                                    jobExecTO.setStatus("Not Scheduled");
-                                    jobExecTOs.add(jobExecTO);
                                 }
                             }
                         }
                     }
-                } catch (SchedulerException ex) {
-                    LOG.debug("Problems during retrieving all scheduled jobs {}", ex);
-                } catch (InstantiationException ex) {
-                    LOG.debug("Problems during instantiating {}  {}", reference, ex);
-                } catch (IllegalAccessException ex) {
-                    LOG.debug("Problems during accessing {}  {}", reference, ex);
+                } catch (SchedulerException e) {
+                    LOG.debug("Problems while retrieving all scheduled jobs", e);
+                } catch (InstantiationException e) {
+                    LOG.debug("Problems while instantiating {}", reference, e);
+                } catch (IllegalAccessException e) {
+                    LOG.debug("Problems while accessing {}", reference, e);
                 }
                 break;
+
             case RUNNING:
                 try {
                     for (JobExecutionContext jec : scheduler.getScheduler().getCurrentlyExecutingJobs()) {
                         Long jobId = getIdFromJobName(jec.getJobDetail().getKey());
                         if (jobId != null) {
                             E jobExecTO = reference.newInstance();
-                            jobExecTO.setId(jobId);
-                            jobExecTO.setStatus(scheduler.getScheduler().getTriggerState(jec.getTrigger().getKey()).
-                                    name());
+                            setTaskOrReportId(jobExecTO, jobId);
+                            jobExecTO.setStatus(
+                                    scheduler.getScheduler().getTriggerState(jec.getTrigger().getKey()).name());
                             jobExecTO.setStartDate(jec.getFireTime());
+
                             jobExecTOs.add(jobExecTO);
                         }
                     }
-                } catch (SchedulerException ex) {
-                    LOG.debug("Problems during retrieving all currently executing jobs {}", ex);
-                } catch (InstantiationException ex) {
-                    LOG.debug("Problems during instantiating {}  {}", reference, ex);
-                } catch (IllegalAccessException ex) {
-                    LOG.debug("Problems during accessing {}  {}", reference, ex);
+                } catch (SchedulerException e) {
+                    LOG.debug("Problems while retrieving all currently executing jobs", e);
+                } catch (InstantiationException e) {
+                    LOG.debug("Problems while instantiating {}", reference, e);
+                } catch (IllegalAccessException e) {
+                    LOG.debug("Problems while accessing {}", reference, e);
                 }
                 break;
+
             case SCHEDULED:
                 try {
                     for (String groupName : scheduler.getScheduler().getJobGroupNames()) {
-                        for (JobKey jobKey : scheduler.getScheduler().getJobKeys(GroupMatcher.jobGroupEquals(groupName))) {
+                        for (JobKey jobKey
+                                : scheduler.getScheduler().getJobKeys(GroupMatcher.jobGroupEquals(groupName))) {
+
                             Long jobId = getIdFromJobName(jobKey);
                             if (jobId != null) {
                                 List<? extends Trigger> jobTriggers = scheduler.getScheduler().getTriggersOfJob(jobKey);
                                 for (Trigger t : jobTriggers) {
                                     E jobExecTO = reference.newInstance();
-                                    jobExecTO.setId(jobId);
+                                    setTaskOrReportId(jobExecTO, jobId);
                                     jobExecTO.setStatus(scheduler.getScheduler().getTriggerState(t.getKey()).name());
                                     jobExecTO.setStartDate(t.getStartTime());
+
                                     jobExecTOs.add(jobExecTO);
                                 }
                             }
                         }
                     }
-                } catch (SchedulerException ex) {
-                    LOG.debug("Problems during retrieving all scheduled jobs {}", ex);
-                } catch (InstantiationException ex) {
-                    LOG.debug("Problems during instantiating {}  {}", reference, ex);
-                } catch (IllegalAccessException ex) {
-                    LOG.debug("Problems during accessing {}  {}", reference, ex);
+                } catch (SchedulerException e) {
+                    LOG.debug("Problems while retrieving all scheduled jobs", e);
+                } catch (InstantiationException e) {
+                    LOG.debug("Problems while instantiating {}", reference, e);
+                } catch (IllegalAccessException e) {
+                    LOG.debug("Problems while accessing {}", reference, e);
                 }
                 break;
+
             default:
         }
         return jobExecTOs;
     }
 
-    protected void process(JobAction action, String jobName) {
-
+    protected void actionJob(final String jobName, final JobAction action) {
         if (jobName != null) {
             JobKey jobKey = new JobKey(jobName, Scheduler.DEFAULT_GROUP);
             try {
@@ -141,14 +160,16 @@ abstract class AbstractJobController<T extends AbstractBaseBean> extends Abstrac
                         case START:
                             scheduler.getScheduler().triggerJob(jobKey);
                             break;
+
                         case STOP:
                             scheduler.getScheduler().interrupt(jobKey);
                             break;
+
                         default:
                     }
                 }
-            } catch (SchedulerException ex) {
-                LOG.debug("Problems during {} operation on job with id {}", action.toString(), ex);
+            } catch (SchedulerException e) {
+                LOG.debug("Problems during {} operation on job with id {}", action.toString(), jobName, e);
             }
         }
     }

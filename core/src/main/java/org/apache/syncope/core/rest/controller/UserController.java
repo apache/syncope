@@ -275,7 +275,7 @@ public class UserController extends AbstractSubjectController<UserTO, UserMod> {
         List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(updated);
         if (tasks.isEmpty()) {
             // SYNCOPE-459: take care of user virtual attributes ...
-            final PropagationByResource propByResVirAttr = binder.fillVirtual(
+            PropagationByResource propByResVirAttr = binder.fillVirtual(
                     updated.getResult().getKey().getId(),
                     actual.getVirAttrsToRemove(),
                     actual.getVirAttrsToUpdate());
@@ -311,7 +311,7 @@ public class UserController extends AbstractSubjectController<UserTO, UserMod> {
             }
         }
 
-        final UserTO updatedTO = binder.getUserTO(updated.getResult().getKey().getId());
+        UserTO updatedTO = binder.getUserTO(updated.getResult().getKey().getId());
         updatedTO.getPropagationStatusTOs().addAll(propagationReporter.getStatuses());
         return updatedTO;
     }

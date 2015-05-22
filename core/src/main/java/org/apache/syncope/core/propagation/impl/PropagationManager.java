@@ -309,7 +309,7 @@ public class PropagationManager {
         } else {
             // b. generate the propagation task list in two phases: first the ones containing password,
             // the the rest (with no password)
-            final PropagationByResource origPropByRes = new PropagationByResource();
+            PropagationByResource origPropByRes = new PropagationByResource();
             origPropByRes.merge(wfResult.getPropByRes());
 
             Set<String> pwdResourceNames = new HashSet<String>(userMod.getPwdPropRequest().getResourceNames());
@@ -644,9 +644,9 @@ public class PropagationManager {
 
             // update vAttrsToBeUpdated as well
             for (AbstractVirAttr virAttr : subject.getVirAttrs()) {
-                final String schema = virAttr.getSchema().getName();
+                String schema = virAttr.getSchema().getName();
 
-                final AttributeMod attributeMod = new AttributeMod();
+                AttributeMod attributeMod = new AttributeMod();
                 attributeMod.setSchema(schema);
                 attributeMod.getValuesToBeAdded().addAll(virAttr.getValues());
 

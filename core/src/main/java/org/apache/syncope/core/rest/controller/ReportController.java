@@ -343,18 +343,18 @@ public class ReportController extends AbstractJobController<ReportTO> {
 
     @Override
     @PreAuthorize("hasRole('REPORT_LIST')")
-    public <E extends AbstractExecTO> List<E> list(JobStatusType type, Class<E> reference) {
-        return super.list(type, reference);
+    public <E extends AbstractExecTO> List<E> listJobs(final JobStatusType type, Class<E> reference) {
+        return super.listJobs(type, reference);
     }
 
     @PreAuthorize("hasRole('REPORT_EXECUTE')")
-    public void process(JobAction action, Long reportId) {
+    public void actionJob(final Long reportId, final JobAction action) {
         Report report = reportDAO.find(reportId);
         if (report == null) {
             throw new NotFoundException("Report " + reportId);
         }
         String jobName = JobInstanceLoader.getJobName(report);
-        process(action, jobName);
+        actionJob(jobName, action);
     }
 
     @Override

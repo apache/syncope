@@ -159,12 +159,12 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService 
     }
 
     @Override
-    public List<TaskExecTO> list(JobStatusType type) {
-        return controller.list(type, TaskExecTO.class);
+    public List<TaskExecTO> listJobs(final JobStatusType type) {
+        return controller.listJobs(type, TaskExecTO.class);
     }
 
     @Override
-    public void process(JobAction action, Long taskId) {
-        controller.process(action, taskId);
+    public void actionJob(final Long taskId, final JobAction action) {
+        controller.actionJob(taskId, action);
     }
 }

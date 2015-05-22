@@ -1450,10 +1450,8 @@ public class TaskTestITCase extends AbstractTest {
 
     @Test
     public void issueSYNCOPE660() {
-        List<TaskExecTO> list = taskService.list(JobStatusType.ALL);
+        List<TaskExecTO> list = taskService.listJobs(JobStatusType.ALL);
         int old_size = list.size();
-
-        list = taskService.list(JobStatusType.SCHEDULED);
 
         SchedTaskTO task = new SchedTaskTO();
         task.setName("issueSYNCOPE660");
@@ -1461,47 +1459,46 @@ public class TaskTestITCase extends AbstractTest {
         task.setJobClassName(TestSampleJob.class.getName());
 
         Response response = taskService.create(task);
-        SchedTaskTO actual = getObject(response.getLocation(), TaskService.class, SchedTaskTO.class);
+        task = getObject(response.getLocation(), TaskService.class, SchedTaskTO.class);
 
-        list = taskService.list(JobStatusType.ALL);
-        assertEquals(list.size(), old_size + 1);
+        list = taskService.listJobs(JobStatusType.ALL);
+        assertEquals(old_size + 1, list.size());
 
-        taskService.process(JobAction.START, actual.getId());
+        taskService.actionJob(task.getId(), JobAction.START);
 
         int i = 0, maxit = 50;
 
-        // wait for task exec completion (executions incremented)
         do {
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
+                // ignore
             }
 
-            list = taskService.list(JobStatusType.RUNNING);
-
+            list = taskService.listJobs(JobStatusType.RUNNING);
             assertNotNull(list);
             i++;
         } while (list.size() < 1 && i < maxit);
 
-        assertEquals(list.size(), 1);
+        assertEquals(1, list.size());
+        assertEquals(task.getId(), list.get(0).getTask());
 
-        taskService.process(JobAction.STOP, actual.getId());
+        taskService.actionJob(task.getId(), JobAction.STOP);
 
         i = 0;
 
-        // wait for task exec completion (executions incremented)
         do {
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
+                // ignore
             }
 
-            list = taskService.list(JobStatusType.RUNNING);
-
+            list = taskService.listJobs(JobStatusType.RUNNING);
             assertNotNull(list);
             i++;
         } while (list.size() >= 1 && i < maxit);
 
-        assertEquals(list.size(), 0);
+        assertTrue(list.isEmpty());
     }
 }

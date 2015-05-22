@@ -41,15 +41,18 @@ public class Update extends AbstractActivitiServiceTask {
                 runtimeService.getVariable(executionId, ActivitiUserWorkflowAdapter.USER_MOD, UserMod.class);
 
         // update password internally only if required
-        UserMod actualMod = SerializationUtils.clone(userMod);
-        if (actualMod.getPwdPropRequest() != null && !actualMod.getPwdPropRequest().isOnSyncope()) {
-            actualMod.setPassword(null);
+        UserMod updatedMod = SerializationUtils.clone(userMod);
+        String updatedPwd = updatedMod.getPassword();
+        if (updatedMod.getPwdPropRequest() != null && !updatedMod.getPwdPropRequest().isOnSyncope()) {
+            updatedMod.setPassword(null);
         }
         // update SyncopeUser
-        PropagationByResource propByRes = dataBinder.update(user, actualMod);
+        PropagationByResource propByRes = dataBinder.update(user, updatedMod);
+        updatedMod.setPassword(updatedPwd);
 
         // report updated user and propagation by resource as result
         runtimeService.setVariable(executionId, ActivitiUserWorkflowAdapter.SYNCOPE_USER, user);
+        runtimeService.setVariable(executionId, ActivitiUserWorkflowAdapter.USER_MOD, updatedMod);
         runtimeService.setVariable(executionId, ActivitiUserWorkflowAdapter.PROP_BY_RESOURCE, propByRes);
     }
 }

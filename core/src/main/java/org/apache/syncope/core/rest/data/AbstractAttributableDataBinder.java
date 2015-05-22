@@ -503,7 +503,7 @@ public abstract class AbstractAttributableDataBinder {
                             externalResources, IntMappingType.MembershipVirtualSchema, propByRes);
                 }
 
-                final List<String> values = new ArrayList<String>(virAttr.getValues());
+                List<String> values = new ArrayList<String>(virAttr.getValues());
                 values.removeAll(vAttrToBeUpdated.getValuesToBeRemoved());
                 values.addAll(vAttrToBeUpdated.getValuesToBeAdded());
 

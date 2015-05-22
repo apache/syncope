@@ -359,13 +359,15 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
         PropagationByResource propByRes =
                 runtimeService.getVariable(user.getWorkflowId(), PROP_BY_RESOURCE, PropagationByResource.class);
+        UserMod updatedMod =
+                runtimeService.getVariable(user.getWorkflowId(), USER_MOD, UserMod.class);
 
-        saveForFormSubmit(updated, userMod.getPassword(), propByRes);
+        saveForFormSubmit(updated, updatedMod.getPassword(), propByRes);
 
         Boolean propagateEnable = runtimeService.getVariable(user.getWorkflowId(), PROPAGATE_ENABLE, Boolean.class);
 
         return new WorkflowResult<Map.Entry<UserMod, Boolean>>(
-                new SimpleEntry<UserMod, Boolean>(userMod, propagateEnable), propByRes, tasks);
+                new SimpleEntry<UserMod, Boolean>(updatedMod, propagateEnable), propByRes, tasks);
     }
 
     @Override

@@ -205,15 +205,15 @@ public interface ReportService extends JAXRSService {
     @GET
     @Path("jobs")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    List<ReportExecTO> list(@MatrixParam("type") JobStatusType type);
+    List<ReportExecTO> listJobs(@MatrixParam("type") JobStatusType type);
 
     /**
      * Execute a control action on an existing report
      *
-     * @param action
      * @param reportId id of report
+     * @param action
      */
     @POST
     @Path("{reportId}")
-    void process(@QueryParam("action") JobAction action, @PathParam("reportId") Long reportId);
+    void actionJob(@PathParam("reportId") Long reportId, @QueryParam("action") JobAction action);
 }
