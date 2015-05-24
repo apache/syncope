@@ -20,6 +20,7 @@ package org.apache.syncope.core.rest.controller;
 
 import java.lang.reflect.Method;
 import java.security.AccessControlException;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -401,7 +402,14 @@ public class UserController extends AbstractSubjectController<UserTO, UserMod> {
 
         uwfAdapter.confirmPasswordReset(user.getId(), token, password);
 
-        List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(user, null, null);
+        UserMod userMod = new UserMod();
+        userMod.setId(user.getId());
+        userMod.setPassword(password);
+
+        List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(
+                new WorkflowResult<Map.Entry<UserMod, Boolean>>(
+                        new AbstractMap.SimpleEntry<UserMod, Boolean>(userMod, null), null, "confirmPasswordReset"),
+                true, null);
         PropagationReporter propReporter =
                 ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
         try {
