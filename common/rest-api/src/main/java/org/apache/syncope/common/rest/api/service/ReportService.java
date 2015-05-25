@@ -24,6 +24,7 @@ import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.MatrixParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -38,6 +39,8 @@ import org.apache.cxf.jaxrs.model.wadl.DocTarget;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.ReportExecTO;
 import org.apache.syncope.common.lib.to.ReportTO;
+import org.apache.syncope.common.lib.types.JobAction;
+import org.apache.syncope.common.lib.types.JobStatusType;
 import org.apache.syncope.common.lib.types.ReportExecExportFormat;
 import org.apache.syncope.common.lib.wrap.ReportletConfClass;
 import org.apache.syncope.common.rest.api.beans.ListQuery;
@@ -155,4 +158,25 @@ public interface ReportService extends JAXRSService {
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     Response exportExecutionResult(@NotNull @PathParam("executionKey") Long executionKey,
             @QueryParam("format") ReportExecExportFormat fmt);
+
+    /**
+     * List report jobs of the given type.
+     *
+     * @param type of report job
+     * @return list of report jobs of the given type
+     */
+    @GET
+    @Path("jobs")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    List<ReportExecTO> listJobs(@MatrixParam("type") JobStatusType type);
+
+    /**
+     * Executes an action on an existing report's job.
+     *
+     * @param reportKey report key
+     * @param action
+     */
+    @POST
+    @Path("{reportKey}")
+    void actionJob(@PathParam("reportKey") Long reportKey, @QueryParam("action") JobAction action);
 }

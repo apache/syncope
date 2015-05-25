@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.common.rest.api.service;
 
+import java.util.List;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -43,6 +44,8 @@ import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.ReportExecTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.TaskExecTO;
+import org.apache.syncope.common.lib.types.JobAction;
+import org.apache.syncope.common.lib.types.JobStatusType;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.beans.ListQuery;
 
@@ -167,4 +170,25 @@ public interface TaskService extends JAXRSService {
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     BulkActionResult bulk(@NotNull BulkAction bulkAction);
+
+    /**
+     * List task jobs of the given type.
+     *
+     * @param type of task job
+     * @return list task jobs of the given type
+     */
+    @GET
+    @Path("jobs")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    List<TaskExecTO> listJobs(@MatrixParam("type") JobStatusType type);
+
+    /**
+     * Executes an action on an existing task's job.
+     *
+     * @param taskKey task key
+     * @param action
+     */
+    @POST
+    @Path("{taskKey}")
+    void actionJob(@PathParam("taskKey") Long taskKey, @QueryParam("action") JobAction action);
 }

@@ -22,6 +22,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.List;
@@ -32,6 +33,9 @@ import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.SyncTaskTO;
+import org.apache.syncope.common.lib.to.TaskExecTO;
+import org.apache.syncope.common.lib.types.JobAction;
+import org.apache.syncope.common.lib.types.JobStatusType;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.syncope.core.provisioning.api.job.SyncJob;
@@ -103,5 +107,61 @@ public class SchedTaskITCase extends AbstractTaskITCase {
         assertNotNull(actual);
         assertEquals("issueSYNCOPE144_2", actual.getName());
         assertEquals("issueSYNCOPE144 Description_2", actual.getDescription());
+    }
+
+    @Test
+    public void issueSYNCOPE660() {
+        List<TaskExecTO> list = taskService.listJobs(JobStatusType.ALL);
+        int old_size = list.size();
+
+        SchedTaskTO task = new SchedTaskTO();
+        task.setName("issueSYNCOPE660");
+        task.setDescription("issueSYNCOPE660 Description");
+        task.setJobClassName(TestSampleJob.class.getName());
+
+        Response response = taskService.create(task);
+        task = getObject(response.getLocation(), TaskService.class, SchedTaskTO.class);
+
+        list = taskService.listJobs(JobStatusType.ALL);
+        assertEquals(old_size + 1, list.size());
+
+        taskService.actionJob(task.getKey(), JobAction.START);
+
+        int i = 0, maxit = 50;
+
+        do {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                // ignore
+            }
+
+            list = taskService.listJobs(JobStatusType.RUNNING);
+
+            assertNotNull(list);
+            i++;
+        } while (list.size() < 1 && i < maxit);
+
+        assertEquals(1, list.size());
+        assertEquals(task.getKey(), list.get(0).getTask());
+
+        taskService.actionJob(task.getKey(), JobAction.STOP);
+
+        i = 0;
+
+        do {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                // ignore
+            }
+
+            list = taskService.listJobs(JobStatusType.RUNNING);
+
+            assertNotNull(list);
+            i++;
+        } while (list.size() >= 1 && i < maxit);
+
+        assertTrue(list.isEmpty());
     }
 }

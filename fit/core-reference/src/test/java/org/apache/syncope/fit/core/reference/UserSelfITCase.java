@@ -20,6 +20,7 @@ package org.apache.syncope.fit.core.reference;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -54,6 +55,7 @@ import org.junit.Assume;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 @FixMethodOrder(MethodSorters.JVM)
 public class UserSelfITCase extends AbstractITCase {
@@ -264,7 +266,14 @@ public class UserSelfITCase extends AbstractITCase {
         UserTO user = UserITCase.getUniqueSampleTO("pwdReset@syncope.apache.org");
         user.setSecurityQuestion(1L);
         user.setSecurityAnswer("Rossi");
+        user.getResources().add(RESOURCE_NAME_TESTDB);
         createUser(user);
+
+        // verify propagation (including password) on external db
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
+        String pwdOnResource = jdbcTemplate.queryForObject("SELECT password FROM test WHERE id=?", String.class,
+                user.getUsername());
+        assertTrue(StringUtils.isNotBlank(pwdOnResource));
 
         // 2. verify that new user is able to authenticate
         SyncopeClient authClient = clientFactory.create(user.getUsername(), "password123");
@@ -300,6 +309,12 @@ public class UserSelfITCase extends AbstractITCase {
         read = authClient.self().getValue();
         assertNotNull(read);
         assertNull(read.getToken());
+
+        // 7. verify that password was changed on external resource
+        String newPwdOnResource = jdbcTemplate.queryForObject("SELECT password FROM test WHERE id=?", String.class,
+                user.getUsername());
+        assertTrue(StringUtils.isNotBlank(newPwdOnResource));
+        assertNotEquals(pwdOnResource, newPwdOnResource);
     }
 
     @Test

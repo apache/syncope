@@ -246,7 +246,7 @@ public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
 
         Map.Entry<Long, List<PropagationStatus>> updated = provisioningManager.update(actual, removeMemberships);
 
-        final UserTO updatedTO = binder.getUserTO(updated.getKey());
+        UserTO updatedTO = binder.getUserTO(updated.getKey());
         updatedTO.getPropagationStatusTOs().addAll(updated.getValue());
         return updatedTO;
     }

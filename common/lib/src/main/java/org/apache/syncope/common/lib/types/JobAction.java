@@ -16,28 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.api.job;
+package org.apache.syncope.common.lib.types;
 
-import org.quartz.DisallowConcurrentExecution;
-import org.quartz.InterruptableJob;
+import javax.xml.bind.annotation.XmlEnum;
 
-/**
- * Interface for Quartz jobs bound to a given Task.
- */
-@DisallowConcurrentExecution
-public interface TaskJob extends InterruptableJob {
+@XmlEnum
+public enum JobAction {
 
-    String DRY_RUN_JOBDETAIL_KEY = "dryRun";
+    START,
+    STOP;
 
-    /**
-     * Task execution status.
-     */
-    public enum Status {
-
-        SUCCESS,
-        FAILURE
-
-    }
-
-    void setTaskId(Long taskId);
 }

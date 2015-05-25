@@ -19,6 +19,7 @@
 package org.apache.syncope.core.rest.cxf.service;
 
 import java.net.URI;
+import java.util.List;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
@@ -30,6 +31,8 @@ import org.apache.syncope.common.lib.to.ReportExecTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.SyncTaskTO;
 import org.apache.syncope.common.lib.to.TaskExecTO;
+import org.apache.syncope.common.lib.types.JobAction;
+import org.apache.syncope.common.lib.types.JobStatusType;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
@@ -162,5 +165,15 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService 
         }
 
         return result;
+    }
+
+    @Override
+    public List<TaskExecTO> listJobs(final JobStatusType type) {
+        return logic.listJobs(type, TaskExecTO.class);
+    }
+
+    @Override
+    public void actionJob(final Long taskKey, final JobAction action) {
+        logic.actionJob(taskKey, action);
     }
 }

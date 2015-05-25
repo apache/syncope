@@ -292,7 +292,7 @@ public class VirAttrHandler {
             final Long key, final Long groupKey, final Long membershipKey, final Set<String> vAttrsToBeRemoved,
             final Set<AttrMod> vAttrsToBeUpdated, final boolean isRemoval) {
 
-        final Membership membership = membershipKey == null
+        Membership membership = membershipKey == null
                 ? userDAO.authFetch(key).getMembership(groupKey)
                 : membershipDAO.authFetch(membershipKey);
 

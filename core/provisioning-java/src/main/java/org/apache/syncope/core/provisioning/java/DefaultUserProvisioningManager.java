@@ -349,7 +349,14 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
     public void confirmPasswordReset(final User user, final String token, final String password) {
         uwfAdapter.confirmPasswordReset(user.getKey(), token, password);
 
-        List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(user, null, null);
+        UserMod userMod = new UserMod();
+        userMod.setKey(user.getKey());
+        userMod.setPassword(password);
+
+        List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(
+                new WorkflowResult<Pair<UserMod, Boolean>>(
+                        new ImmutablePair<UserMod, Boolean>(userMod, null), null, "confirmPasswordReset"),
+                true, null);
         PropagationReporter propReporter =
                 ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
         try {
