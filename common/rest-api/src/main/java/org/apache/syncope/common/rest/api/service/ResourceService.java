@@ -38,8 +38,7 @@ import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.ResourceDeassociationActionType;
-import org.apache.syncope.common.lib.types.SubjectType;
-import org.apache.syncope.common.lib.wrap.SubjectKey;
+import org.apache.syncope.common.lib.wrap.AnyKey;
 
 /**
  * REST operations for external resources.
@@ -51,15 +50,15 @@ public interface ResourceService extends JAXRSService {
      * Returns connector object from the external resource, for the given type and key.
      *
      * @param resourceKey Name of resource to read connector object from
-     * @param type user /group
-     * @param key user key / group key
+     * @param anyTypeKey any object type
+     * @param key any object key
      * @return connector object from the external resource, for the given type and key
      */
     @GET
-    @Path("{resourceKey}/{type}/{key}")
+    @Path("{resourceKey}/{anyTypeKey}/{key}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    ConnObjectTO getConnectorObject(@NotNull @PathParam("resourceKey") String resourceKey,
-            @NotNull @PathParam("type") SubjectType type, @NotNull @PathParam("key") Long key);
+    ConnObjectTO readConnObject(@NotNull @PathParam("resourceKey") String resourceKey,
+            @NotNull @PathParam("anyTypeKey") String anyTypeKey, @NotNull @PathParam("key") Long key);
 
     /**
      * Returns the resource with matching name.
@@ -117,7 +116,7 @@ public interface ResourceService extends JAXRSService {
     void delete(@NotNull @PathParam("resourceKey") String resourceKey);
 
     /**
-     * Checks wether the connection to resource could be established.
+     * Checks whether the connection to resource could be established.
      *
      * @param resourceTO resource to be checked
      * @return true if connection to resource could be established
@@ -128,12 +127,12 @@ public interface ResourceService extends JAXRSService {
     boolean check(@NotNull ResourceTO resourceTO);
 
     /**
-     * De-associate users or groups (depending on the provided subject type) from the given resource.
+     * De-associate any objects from the given resource.
      *
      * @param resourceKey name of resource
-     * @param subjectType subject type (user or group)
+     * @param anyTypeKey any object kind
      * @param type resource de-association action type
-     * @param subjectKeys users or groups against which the bulk action will be performed
+     * @param keys any object keys against which the bulk action will be performed
      * @return <tt>Response</tt> object featuring {@link BulkActionResult} as <tt>Entity</tt>
      */
     @Descriptions({
@@ -141,12 +140,12 @@ public interface ResourceService extends JAXRSService {
                 value = "Featuring <tt>BulkActionResult</tt> as <tt>Entity</tt>")
     })
     @POST
-    @Path("{resourceKey}/bulkDeassociation/{subjType}/{type}")
+    @Path("{resourceKey}/bulkDeassociation/{anyTypeKey}/{type}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     BulkActionResult bulkDeassociation(@NotNull @PathParam("resourceKey") String resourceKey,
-            @NotNull @PathParam("subjType") SubjectType subjectType,
-            @NotNull @PathParam("type") ResourceDeassociationActionType type, @NotNull List<SubjectKey> subjectKeys);
+            @NotNull @PathParam("anyTypeKey") String anyTypeKey,
+            @NotNull @PathParam("type") ResourceDeassociationActionType type, @NotNull List<AnyKey> keys);
 
     /**
      * Executes the provided bulk action.

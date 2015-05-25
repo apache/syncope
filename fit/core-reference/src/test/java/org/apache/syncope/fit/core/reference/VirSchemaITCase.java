@@ -28,7 +28,6 @@ import java.util.List;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.VirSchemaTO;
-import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.common.lib.types.SchemaType;
@@ -41,7 +40,7 @@ public class VirSchemaITCase extends AbstractITCase {
 
     @Test
     public void list() {
-        List<VirSchemaTO> vSchemas = schemaService.list(AttributableType.USER, SchemaType.VIRTUAL);
+        List<VirSchemaTO> vSchemas = schemaService.list(SchemaType.VIRTUAL);
         assertFalse(vSchemas.isEmpty());
         for (VirSchemaTO vSchemaTO : vSchemas) {
             assertNotNull(vSchemaTO);
@@ -50,8 +49,7 @@ public class VirSchemaITCase extends AbstractITCase {
 
     @Test
     public void read() {
-        VirSchemaTO vSchemaTO = schemaService.read(AttributableType.MEMBERSHIP, SchemaType.VIRTUAL,
-                "mvirtualdata");
+        VirSchemaTO vSchemaTO = schemaService.read(SchemaType.VIRTUAL, "mvirtualdata");
         assertNotNull(vSchemaTO);
     }
 
@@ -60,22 +58,22 @@ public class VirSchemaITCase extends AbstractITCase {
         VirSchemaTO schema = new VirSchemaTO();
         schema.setKey("virtual");
 
-        VirSchemaTO actual = createSchema(AttributableType.USER, SchemaType.VIRTUAL, schema);
+        VirSchemaTO actual = createSchema(SchemaType.VIRTUAL, schema);
         assertNotNull(actual);
 
-        actual = schemaService.read(AttributableType.USER, SchemaType.VIRTUAL, actual.getKey());
+        actual = schemaService.read(SchemaType.VIRTUAL, actual.getKey());
         assertNotNull(actual);
     }
 
     @Test
     public void delete() {
-        VirSchemaTO schema = schemaService.read(AttributableType.GROUP, SchemaType.VIRTUAL, "rvirtualdata");
+        VirSchemaTO schema = schemaService.read(SchemaType.VIRTUAL, "rvirtualdata");
         assertNotNull(schema);
 
-        schemaService.delete(AttributableType.GROUP, SchemaType.VIRTUAL, schema.getKey());
+        schemaService.delete(SchemaType.VIRTUAL, schema.getKey());
 
         try {
-            schemaService.read(AttributableType.GROUP, SchemaType.VIRTUAL, "rvirtualdata");
+            schemaService.read(SchemaType.VIRTUAL, "rvirtualdata");
             fail();
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
@@ -84,11 +82,11 @@ public class VirSchemaITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE323() {
-        VirSchemaTO actual = schemaService.read(AttributableType.MEMBERSHIP, SchemaType.VIRTUAL, "mvirtualdata");
+        VirSchemaTO actual = schemaService.read(SchemaType.VIRTUAL, "mvirtualdata");
         assertNotNull(actual);
 
         try {
-            createSchema(AttributableType.MEMBERSHIP, SchemaType.VIRTUAL, actual);
+            createSchema(SchemaType.VIRTUAL, actual);
             fail();
         } catch (SyncopeClientException e) {
             assertEquals(Response.Status.CONFLICT, e.getType().getResponseStatus());
@@ -97,7 +95,7 @@ public class VirSchemaITCase extends AbstractITCase {
 
         actual.setKey(null);
         try {
-            createSchema(AttributableType.MEMBERSHIP, SchemaType.VIRTUAL, actual);
+            createSchema(SchemaType.VIRTUAL, actual);
             fail();
         } catch (SyncopeClientException e) {
             assertEquals(Response.Status.BAD_REQUEST, e.getType().getResponseStatus());
@@ -111,7 +109,7 @@ public class VirSchemaITCase extends AbstractITCase {
         schema.setKey("http://schemas.examples.org/security/authorization/organizationUnit");
 
         try {
-            createSchema(AttributableType.MEMBERSHIP, SchemaType.VIRTUAL, schema);
+            createSchema(SchemaType.VIRTUAL, schema);
             fail();
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidVirSchema, e.getType());

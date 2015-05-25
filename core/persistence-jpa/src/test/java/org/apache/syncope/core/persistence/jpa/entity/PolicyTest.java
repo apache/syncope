@@ -27,7 +27,9 @@ import java.util.List;
 import org.apache.syncope.common.lib.types.PasswordPolicySpec;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.lib.types.SyncPolicySpec;
+import org.apache.syncope.common.lib.types.SyncPolicySpecItem;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.entity.Policy;
 import org.apache.syncope.core.persistence.api.entity.SyncPolicy;
@@ -38,6 +40,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
 public class PolicyTest extends AbstractTest {
+
+    @Autowired
+    private AnyTypeDAO anyTypeDAO;
 
     @Autowired
     private PolicyDAO policyDAO;
@@ -80,11 +85,19 @@ public class PolicyTest extends AbstractTest {
         SyncPolicy policy = entityFactory.newEntity(SyncPolicy.class);
 
         final String syncURuleName = "net.tirasa.sync.correlation.TirasaURule";
-        final String syncRRuleName = "net.tirasa.sync.correlation.TirasaRRule";
+        final String syncGRuleName = "net.tirasa.sync.correlation.TirasaGRule";
 
         SyncPolicySpec syncPolicySpec = new SyncPolicySpec();
-        syncPolicySpec.setUserJavaRule(syncURuleName);
-        syncPolicySpec.setGroupJavaRule(syncRRuleName);
+
+        SyncPolicySpecItem item = new SyncPolicySpecItem();
+        item.setAnyTypeKey(anyTypeDAO.findUser().getKey());
+        item.setJavaRule(syncURuleName);
+        syncPolicySpec.getItems().add(item);
+
+        item = new SyncPolicySpecItem();
+        item.setAnyTypeKey(anyTypeDAO.findGroup().getKey());
+        item.setJavaRule(syncGRuleName);
+        syncPolicySpec.getItems().add(item);
 
         policy.setSpecification(syncPolicySpec);
         policy.setDescription("Sync policy");
@@ -93,8 +106,10 @@ public class PolicyTest extends AbstractTest {
 
         assertNotNull(policy);
         assertEquals(PolicyType.SYNC, policy.getType());
-        assertEquals(syncURuleName, (policy.getSpecification(SyncPolicySpec.class)).getUserJavaRule());
-        assertEquals(syncRRuleName, (policy.getSpecification(SyncPolicySpec.class)).getGroupJavaRule());
+        assertEquals(syncURuleName,
+                (policy.getSpecification(SyncPolicySpec.class)).getItem(anyTypeDAO.findUser().getKey()).getJavaRule());
+        assertEquals(syncGRuleName,
+                (policy.getSpecification(SyncPolicySpec.class)).getItem(anyTypeDAO.findGroup().getKey()).getJavaRule());
     }
 
     @Test

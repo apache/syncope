@@ -1,0 +1,77 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+package org.apache.syncope.core.persistence.jpa.entity.user;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
+import org.apache.syncope.core.persistence.api.entity.user.UMembership;
+import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.persistence.jpa.entity.AbstractEntity;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
+
+@Entity
+@Table(name = JPAUMembership.TABLE)
+public class JPAUMembership extends AbstractEntity<Long> implements UMembership {
+
+    private static final long serialVersionUID = -14584450896965100L;
+
+    public static final String TABLE = "UMembership";
+
+    @Id
+    private Long id;
+
+    @ManyToOne
+    @Column(name = "user_id")
+    private JPAUser leftEnd;
+
+    @ManyToOne
+    @Column(name = "group_id")
+    private JPAGroup rightEnd;
+
+    @Override
+    public Long getKey() {
+        return id;
+    }
+
+    @Override
+    public JPAUser getLeftEnd() {
+        return leftEnd;
+    }
+
+    @Override
+    public void setLeftEnd(final User leftEnd) {
+        checkType(leftEnd, JPAUser.class);
+        this.leftEnd = (JPAUser) leftEnd;
+    }
+
+    @Override
+    public JPAGroup getRightEnd() {
+        return rightEnd;
+    }
+
+    @Override
+    public void setRightEnd(final Group rightEnd) {
+        checkType(rightEnd, JPAGroup.class);
+        this.rightEnd = (JPAGroup) rightEnd;
+    }
+}

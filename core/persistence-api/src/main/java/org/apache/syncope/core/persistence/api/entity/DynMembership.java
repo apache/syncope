@@ -19,17 +19,16 @@
 package org.apache.syncope.core.persistence.api.entity;
 
 import java.util.List;
-import org.apache.syncope.core.persistence.api.entity.user.User;
 
-public interface DynMembership extends Entity<Long> {
+public interface DynMembership<A extends Any<?, ?, ?>> extends Entity<Long> {
 
     String getFIQLCond();
 
     void setFIQLCond(String fiql);
 
-    boolean addUser(User user);
+    boolean add(A any);
 
-    boolean removeUser(User user);
+    boolean remove(A any);
 
-    List<? extends User> getUsers();
+    List<? extends A> getMembers();
 }

@@ -18,10 +18,9 @@
  */
 package org.apache.syncope.core.provisioning.java.sync;
 
-import org.apache.syncope.common.lib.to.AbstractSubjectTO;
+import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
 import org.apache.syncope.core.provisioning.api.GroupProvisioningManager;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
@@ -34,8 +33,13 @@ import org.apache.syncope.core.provisioning.api.sync.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.api.sync.SyncopeResultHandler;
 import org.apache.syncope.core.misc.AuditManager;
 import org.apache.syncope.core.misc.ConnObjectUtils;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtils;
+import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
+import org.apache.syncope.core.persistence.api.entity.AnyUtils;
+import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
+import org.apache.syncope.core.provisioning.api.AnyObjectProvisioningManager;
+import org.apache.syncope.core.provisioning.api.data.AnyObjectDataBinder;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
+import org.apache.syncope.core.workflow.api.AnyObjectWorkflowAdapter;
 import org.apache.syncope.core.workflow.api.GroupWorkflowAdapter;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
 import org.slf4j.Logger;
@@ -49,6 +53,9 @@ public abstract class AbstractSyncopeResultHandler<T extends ProvisioningTask, A
      * Logger.
      */
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractSyncopeResultHandler.class);
+
+    @Autowired
+    protected AnyObjectDAO anyObjectDAO;
 
     @Autowired
     protected UserDAO userDAO;
@@ -86,6 +93,8 @@ public abstract class AbstractSyncopeResultHandler<T extends ProvisioningTask, A
     @Autowired
     protected PropagationTaskExecutor taskExecutor;
 
+    protected AnyObjectWorkflowAdapter awfAdapter;
+
     /**
      * User workflow adapter.
      */
@@ -99,10 +108,16 @@ public abstract class AbstractSyncopeResultHandler<T extends ProvisioningTask, A
     protected GroupWorkflowAdapter gwfAdapter;
 
     @Autowired
+    protected AnyObjectDataBinder anyObjectDataBinder;
+
+    @Autowired
     protected UserDataBinder userDataBinder;
 
     @Autowired
     protected GroupDataBinder groupDataBinder;
+
+    @Autowired
+    protected AnyObjectProvisioningManager anyObjectProvisioningManager;
 
     @Autowired
     protected UserProvisioningManager userProvisioningManager;
@@ -111,16 +126,16 @@ public abstract class AbstractSyncopeResultHandler<T extends ProvisioningTask, A
     protected GroupProvisioningManager groupProvisioningManager;
 
     @Autowired
-    protected AttributableUtilsFactory attrUtilsFactory;
+    protected AnyUtilsFactory anyUtilsFactory;
 
     /**
      * Sync profile.
      */
     protected ProvisioningProfile<T, A> profile;
 
-    protected abstract AttributableUtils getAttributableUtils();
+    protected abstract AnyUtils getAnyUtils();
 
-    protected abstract AbstractSubjectTO getSubjectTO(long key);
+    protected abstract AnyTO getAnyTO(long key);
 
     @Override
     public void setProfile(final ProvisioningProfile<T, A> profile) {

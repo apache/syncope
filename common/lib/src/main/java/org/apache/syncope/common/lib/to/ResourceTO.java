@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.common.lib.to;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -27,6 +28,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.PropagationMode;
 import org.apache.syncope.common.lib.types.TraceLevel;
@@ -52,9 +55,7 @@ public class ResourceTO extends AbstractAnnotatedBean {
      */
     private String connectorDisplayName;
 
-    private MappingTO umapping;
-
-    private MappingTO gmapping;
+    private final List<ProvisionTO> provisions = new ArrayList<>();
 
     private boolean propagationPrimary;
 
@@ -130,22 +131,6 @@ public class ResourceTO extends AbstractAnnotatedBean {
 
     public void setConnectorDisplayName(final String connectorDisplayName) {
         this.connectorDisplayName = connectorDisplayName;
-    }
-
-    public MappingTO getUmapping() {
-        return umapping;
-    }
-
-    public void setUmapping(final MappingTO umapping) {
-        this.umapping = umapping;
-    }
-
-    public MappingTO getGmapping() {
-        return gmapping;
-    }
-
-    public void setGmapping(final MappingTO gmapping) {
-        this.gmapping = gmapping;
     }
 
     public boolean isPropagationPrimary() {
@@ -228,6 +213,24 @@ public class ResourceTO extends AbstractAnnotatedBean {
         this.syncPolicy = syncPolicy;
     }
 
+    @JsonIgnore
+    public ProvisionTO getProvision(final String anyType) {
+        return CollectionUtils.find(provisions, new Predicate<ProvisionTO>() {
+
+            @Override
+            public boolean evaluate(final ProvisionTO provisionTO) {
+                return anyType != null && anyType.equals(provisionTO.getAnyType());
+            }
+        });
+    }
+
+    @XmlElementWrapper(name = "provisions")
+    @XmlElement(name = "provision")
+    @JsonProperty("provisions")
+    public List<ProvisionTO> getProvisions() {
+        return provisions;
+    }
+
     @XmlElementWrapper(name = "connConfProperties")
     @XmlElement(name = "property")
     @JsonProperty("connConfProperties")
@@ -241,22 +244,6 @@ public class ResourceTO extends AbstractAnnotatedBean {
 
     public void setSyncTraceLevel(final TraceLevel syncTraceLevel) {
         this.syncTraceLevel = syncTraceLevel;
-    }
-
-    public String getUsyncToken() {
-        return usyncToken;
-    }
-
-    public void setUsyncToken(final String syncToken) {
-        this.usyncToken = syncToken;
-    }
-
-    public String getRsyncToken() {
-        return rsyncToken;
-    }
-
-    public void setRsyncToken(final String syncToken) {
-        this.rsyncToken = syncToken;
     }
 
     @XmlElementWrapper(name = "propagationActionsClassNames")

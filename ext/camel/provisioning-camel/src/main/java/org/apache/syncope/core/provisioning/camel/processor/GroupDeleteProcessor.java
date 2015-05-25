@@ -68,7 +68,7 @@ public class GroupDeleteProcessor implements Processor {
             // Generate propagation tasks for deleting users from group resources, if they are on those resources only
             // because of the reason being deleted (see SYNCOPE-357)
             for (Map.Entry<Long, PropagationByResource> entry
-                    : groupDAO.findUsersWithIndirectResources(group.getKey()).entrySet()) {
+                    : groupDAO.findAnyObjectsWithTransitiveResources(group.getKey()).entrySet()) {
 
                 WorkflowResult<Long> wfResult =
                         new WorkflowResult<>(entry.getKey(), entry.getValue(), Collections.<String>emptySet());

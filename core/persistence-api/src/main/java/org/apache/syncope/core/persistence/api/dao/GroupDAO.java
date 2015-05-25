@@ -20,21 +20,14 @@ package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import org.apache.syncope.common.lib.types.PropagationByResource;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
-import org.apache.syncope.core.persistence.api.entity.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.membership.Membership;
-import org.apache.syncope.core.persistence.api.entity.group.GDerAttr;
-import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
-import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrValue;
-import org.apache.syncope.core.persistence.api.entity.group.GVirAttr;
+import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
+import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
+import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 
-public interface GroupDAO extends SubjectDAO<GPlainAttr, GDerAttr, GVirAttr> {
-
-    Group find(Long key);
+public interface GroupDAO extends AnyDAO<Group> {
 
     Group find(String name);
 
@@ -42,37 +35,29 @@ public interface GroupDAO extends SubjectDAO<GPlainAttr, GDerAttr, GVirAttr> {
 
     List<Group> findOwnedByGroup(Long groupKey);
 
-    List<Group> findByAttrValue(String schemaName, GPlainAttrValue attrValue);
+    List<AMembership> findAMemberships(Group group);
 
-    List<Group> findByDerAttrValue(String schemaName, String value);
+    List<UMembership> findUMemberships(Group group);
 
-    Group findByAttrUniqueValue(String schemaName, GPlainAttrValue attrUniqueValue);
-
-    List<Group> findByResource(ExternalResource resource);
-
-    List<Group> findAll(Set<String> adminRealms, int page, int itemsPerPage);
-
-    List<Group> findAll(Set<String> adminRealms, int page, int itemsPerPage, List<OrderByClause> orderBy);
-
-    List<Membership> findMemberships(Group group);
-
-    int count(Set<String> adminRealms);
-
-    Group save(Group group);
-
-    void delete(Group group);
-
-    void delete(Long key);
-
-    Group authFetch(Long key);
+    /**
+     * Finds any objects having resources assigned exclusively because of memberships of the given group.
+     *
+     * @param groupKey group key
+     * @return map containing pairs with any object key and operations to be performed on those resources (DELETE,
+     * typically).
+     */
+    Map<Long, PropagationByResource> findAnyObjectsWithTransitiveResources(Long groupKey);
 
     /**
      * Finds users having resources assigned exclusively because of memberships of the given group.
      *
      * @param groupKey group key
-     * @return map containing pairs with user key and operations to be performed on those resources (DELETE, typically).
+     * @return map containing pairs with user key and operations to be performed on those resources (DELETE,
+     * typically).
      */
-    Map<Long, PropagationByResource> findUsersWithIndirectResources(Long groupKey);
+    Map<Long, PropagationByResource> findUsersWithTransitiveResources(Long groupKey);
+
+    void refreshDynMemberships(AnyObject anyObject);
 
     void refreshDynMemberships(User user);
 

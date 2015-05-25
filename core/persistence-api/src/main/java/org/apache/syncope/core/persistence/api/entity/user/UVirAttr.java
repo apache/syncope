@@ -20,12 +20,6 @@ package org.apache.syncope.core.persistence.api.entity.user;
 
 import org.apache.syncope.core.persistence.api.entity.VirAttr;
 
-public interface UVirAttr extends VirAttr {
-
-    @Override
-    User getOwner();
-
-    @Override
-    UVirSchema getSchema();
+public interface UVirAttr extends VirAttr<User> {
 
 }

@@ -21,7 +21,7 @@ package org.apache.syncope.client.console.rest;
 import java.util.List;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.common.lib.to.CamelRouteTO;
-import org.apache.syncope.common.lib.types.SubjectType;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.rest.api.service.CamelRouteService;
 import org.springframework.stereotype.Component;
 
@@ -30,8 +30,8 @@ public class CamelRouteRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -2018208424159468912L;
 
-    public List<CamelRouteTO> list(final SubjectType subject) {
-        return getService(CamelRouteService.class).list(subject);
+    public List<CamelRouteTO> list(final AnyTypeKind anyTypeKind) {
+        return getService(CamelRouteService.class).list(anyTypeKind);
     }
 
     public CamelRouteTO read(final String key) {
@@ -44,10 +44,15 @@ public class CamelRouteRestClient extends BaseRestClient {
         getService(CamelRouteService.class).update(key, routeTO);
     }
 
-    public boolean isCamelEnabledFor(final SubjectType subjectType) {
-        return subjectType == SubjectType.USER
-                ? SyncopeConsoleSession.get().getSyncopeTO().getUserProvisioningManager().contains("Camel")
-                : SyncopeConsoleSession.get().getSyncopeTO().getGroupProvisioningManager().contains("Camel");
+    public boolean isCamelEnabledFor(final AnyTypeKind anyTypeKind) {
+        return anyTypeKind == AnyTypeKind.USER
+                ? SyncopeConsoleSession.get().getSyncopeTO().
+                getUserProvisioningManager().contains("Camel")
+                : anyTypeKind == AnyTypeKind.ANY_OBJECT
+                        ? SyncopeConsoleSession.get().getSyncopeTO().
+                        getAnyObjectProvisioningManager().contains("Camel")
+                        : SyncopeConsoleSession.get().getSyncopeTO().
+                        getGroupProvisioningManager().contains("Camel");
 
     }
 }

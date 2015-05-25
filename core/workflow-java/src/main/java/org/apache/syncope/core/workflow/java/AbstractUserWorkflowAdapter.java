@@ -62,21 +62,21 @@ public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter
 
     @Override
     public WorkflowResult<Long> activate(final Long userKey, final String token) {
-        return doActivate(userDAO.authFetch(userKey), token);
+        return doActivate(userDAO.authFind(userKey), token);
     }
 
     protected abstract WorkflowResult<Pair<UserMod, Boolean>> doUpdate(User user, UserMod userMod);
 
     @Override
     public WorkflowResult<Pair<UserMod, Boolean>> update(final UserMod userMod) {
-        return doUpdate(userDAO.authFetch(userMod.getKey()), userMod);
+        return doUpdate(userDAO.authFind(userMod.getKey()), userMod);
     }
 
     protected abstract WorkflowResult<Long> doSuspend(User user);
 
     @Override
     public WorkflowResult<Long> suspend(final Long userKey) {
-        return suspend(userDAO.authFetch(userKey));
+        return suspend(userDAO.authFind(userKey));
     }
 
     @Override
@@ -91,7 +91,7 @@ public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter
 
     @Override
     public WorkflowResult<Long> reactivate(final Long userKey) {
-        final User user = userDAO.authFetch(userKey);
+        final User user = userDAO.authFind(userKey);
 
         // reset failed logins
         user.setFailedLogins(0);
@@ -106,20 +106,20 @@ public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter
 
     @Override
     public void requestPasswordReset(final Long userKey) {
-        doRequestPasswordReset(userDAO.authFetch(userKey));
+        doRequestPasswordReset(userDAO.authFind(userKey));
     }
 
     protected abstract void doConfirmPasswordReset(User user, String token, String password);
 
     @Override
     public void confirmPasswordReset(final Long userKey, final String token, final String password) {
-        doConfirmPasswordReset(userDAO.authFetch(userKey), token, password);
+        doConfirmPasswordReset(userDAO.authFind(userKey), token, password);
     }
 
     protected abstract void doDelete(User user);
 
     @Override
     public void delete(final Long userKey) {
-        doDelete(userDAO.authFetch(userKey));
+        doDelete(userDAO.authFind(userKey));
     }
 }

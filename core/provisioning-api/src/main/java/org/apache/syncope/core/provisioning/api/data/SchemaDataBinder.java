@@ -21,7 +21,6 @@ package org.apache.syncope.core.provisioning.api.data;
 import org.apache.syncope.common.lib.to.DerSchemaTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.VirSchemaTO;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtils;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
@@ -36,11 +35,11 @@ public interface SchemaDataBinder {
 
     <T extends DerSchema> DerSchemaTO getDerSchemaTO(T derSchema);
 
-    <T extends PlainSchema> PlainSchemaTO getPlainSchemaTO(T schema, AttributableUtils attributableUtil);
+    <T extends PlainSchema> PlainSchemaTO getPlainSchemaTO(T schema);
 
     <T extends VirSchema> VirSchemaTO getVirSchemaTO(T virSchema);
 
-    <T extends PlainSchema> void update(PlainSchemaTO schemaTO, T schema, AttributableUtils attributableUtil);
+    <T extends PlainSchema> void update(PlainSchemaTO schemaTO, T schema);
 
     <T extends DerSchema> T update(DerSchemaTO derSchemaTO, T derSchema);
 

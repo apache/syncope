@@ -19,19 +19,15 @@
 package org.apache.syncope.core.persistence.jpa.entity.user;
 
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import org.apache.syncope.core.persistence.api.entity.Attributable;
-import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.user.UDerAttr;
-import org.apache.syncope.core.persistence.api.entity.user.UDerSchema;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractDerAttr;
 
 @Entity
 @Table(name = JPAUDerAttr.TABLE)
-public class JPAUDerAttr extends AbstractDerAttr implements UDerAttr {
+public class JPAUDerAttr extends AbstractDerAttr<User> implements UDerAttr {
 
     private static final long serialVersionUID = 4723044452807292060L;
 
@@ -40,28 +36,15 @@ public class JPAUDerAttr extends AbstractDerAttr implements UDerAttr {
     @ManyToOne
     private JPAUser owner;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    private JPAUDerSchema derSchema;
-
     @Override
     public User getOwner() {
         return owner;
     }
 
     @Override
-    public void setOwner(final Attributable<?, ?, ?> owner) {
+    public void setOwner(final User owner) {
         checkType(owner, JPAUser.class);
         this.owner = (JPAUser) owner;
     }
 
-    @Override
-    public UDerSchema getSchema() {
-        return derSchema;
-    }
-
-    @Override
-    public void setSchema(final DerSchema derSchema) {
-        checkType(derSchema, JPAUDerSchema.class);
-        this.derSchema = (JPAUDerSchema) derSchema;
-    }
 }

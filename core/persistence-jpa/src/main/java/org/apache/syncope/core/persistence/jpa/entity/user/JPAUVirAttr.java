@@ -19,19 +19,15 @@
 package org.apache.syncope.core.persistence.jpa.entity.user;
 
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import org.apache.syncope.core.persistence.api.entity.Attributable;
-import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.user.UVirAttr;
-import org.apache.syncope.core.persistence.api.entity.user.UVirSchema;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractVirAttr;
 
 @Entity
 @Table(name = JPAUVirAttr.TABLE)
-public class JPAUVirAttr extends AbstractVirAttr implements UVirAttr {
+public class JPAUVirAttr extends AbstractVirAttr<User> implements UVirAttr {
 
     private static final long serialVersionUID = 2943450934283989741L;
 
@@ -40,28 +36,15 @@ public class JPAUVirAttr extends AbstractVirAttr implements UVirAttr {
     @ManyToOne
     private JPAUser owner;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    private JPAUVirSchema virSchema;
-
     @Override
     public User getOwner() {
         return owner;
     }
 
     @Override
-    public void setOwner(final Attributable<?, ?, ?> owner) {
+    public void setOwner(final User owner) {
         checkType(owner, JPAUser.class);
         this.owner = (JPAUser) owner;
     }
 
-    @Override
-    public UVirSchema getSchema() {
-        return virSchema;
-    }
-
-    @Override
-    public void setSchema(final VirSchema virSchema) {
-        checkType(virSchema, JPAUVirSchema.class);
-        this.virSchema = (JPAUVirSchema) virSchema;
-    }
 }

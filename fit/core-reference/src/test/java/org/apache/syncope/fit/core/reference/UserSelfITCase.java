@@ -37,16 +37,14 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.mod.AttrMod;
-import org.apache.syncope.common.lib.mod.MembershipMod;
 import org.apache.syncope.common.lib.mod.StatusMod;
 import org.apache.syncope.common.lib.mod.UserMod;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.WorkflowFormPropertyTO;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.apache.syncope.common.lib.types.SubjectType;
 import org.apache.syncope.common.rest.api.Preference;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
@@ -93,7 +91,7 @@ public class UserSelfITCase extends AbstractITCase {
         // self-create user with membership: goes 'createApproval' with resources and membership but no propagation
         UserTO userTO = UserITCase.getUniqueSampleTO("anonymous@syncope.apache.org");
         MembershipTO membership = new MembershipTO();
-        membership.setGroupKey(3L);
+        membership.setRightKey(3L);
         userTO.getMemberships().add(membership);
         userTO.getResources().add(RESOURCE_NAME_TESTDB);
 
@@ -107,7 +105,7 @@ public class UserSelfITCase extends AbstractITCase {
         assertFalse(userTO.getResources().isEmpty());
 
         try {
-            resourceService.getConnectorObject(RESOURCE_NAME_TESTDB, SubjectType.USER, userTO.getKey());
+            resourceService.readConnObject(RESOURCE_NAME_TESTDB, AnyTypeKind.USER.name(), userTO.getKey());
             fail();
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
@@ -123,7 +121,7 @@ public class UserSelfITCase extends AbstractITCase {
         userTO = userWorkflowService.submitForm(form);
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());
-        assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_TESTDB, SubjectType.USER, userTO.getKey()));
+        assertNotNull(resourceService.readConnObject(RESOURCE_NAME_TESTDB, AnyTypeKind.USER.name(), userTO.getKey()));
     }
 
     @Test
@@ -171,16 +169,9 @@ public class UserSelfITCase extends AbstractITCase {
         assertFalse(created.getUsername().endsWith("XX"));
 
         // 2. self-update (username + memberships + resource) - works but needs approval
-        MembershipMod membershipMod = new MembershipMod();
-        membershipMod.setGroup(7L);
-        AttrMod testAttrMod = new AttrMod();
-        testAttrMod.setSchema("testAttribute");
-        testAttrMod.getValuesToBeAdded().add("a value");
-        membershipMod.getPlainAttrsToUpdate().add(testAttrMod);
-
         UserMod userMod = new UserMod();
         userMod.setUsername(created.getUsername() + "XX");
-        userMod.getMembershipsToAdd().add(membershipMod);
+        userMod.getMembershipsToAdd().add(7L);
         userMod.getResourcesToAdd().add(RESOURCE_NAME_TESTDB);
         userMod.setPassword("newPassword123");
         StatusMod statusMod = new StatusMod();
@@ -199,7 +190,7 @@ public class UserSelfITCase extends AbstractITCase {
         // no propagation happened
         assertTrue(updated.getResources().isEmpty());
         try {
-            resourceService.getConnectorObject(RESOURCE_NAME_TESTDB, SubjectType.USER, updated.getKey());
+            resourceService.readConnObject(RESOURCE_NAME_TESTDB, AnyTypeKind.USER.name(), updated.getKey());
             fail();
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
@@ -220,7 +211,7 @@ public class UserSelfITCase extends AbstractITCase {
 
         // check that propagation also happened
         assertTrue(updated.getResources().contains(RESOURCE_NAME_TESTDB));
-        assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_TESTDB, SubjectType.USER, updated.getKey()));
+        assertNotNull(resourceService.readConnObject(RESOURCE_NAME_TESTDB, AnyTypeKind.USER.name(), updated.getKey()));
     }
 
     @Test

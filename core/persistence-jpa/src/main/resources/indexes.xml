@@ -26,15 +26,20 @@ under the License.
   <entry key="UPlainAttrValue_longvalueIndex">CREATE INDEX UAttrValue_longvalueIndex ON UPlainAttrValue(longvalue)</entry>
   <entry key="UPlainAttrValue_doublevalueIndex">CREATE INDEX UAttrValue_doublevalueIndex ON UPlainAttrValue(doublevalue)</entry>
   <entry key="UPlainAttrValue_booleanvalueIndex">CREATE INDEX UAttrValue_booleanvalueIndex ON UPlainAttrValue(booleanvalue)</entry>
-  <entry key="MPlainAttrValue_stringvalueIndex">CREATE INDEX MAttrValue_stringvalueIndex ON MPlainAttrValue(stringvalue)</entry>
-  <entry key="MPlainAttrValue_datevalueIndex">CREATE INDEX MAttrValue_datevalueIndex ON MPlainAttrValue(datevalue)</entry>
-  <entry key="MPlainAttrValue_longvalueIndex">CREATE INDEX MAttrValue_longvalueIndex ON MPlainAttrValue(longvalue)</entry>
-  <entry key="MPlainAttrValue_doublevalueIndex">CREATE INDEX MAttrValue_doublevalueIndex ON MPlainAttrValue(doublevalue)</entry>
-  <entry key="MPlainAttrValue_booleanvalueIndex">CREATE INDEX MAttrValue_booleanvalueIndex ON MPlainAttrValue(booleanvalue)</entry>
+  <entry key="APlainAttrValue_stringvalueIndex">CREATE INDEX AAttrValue_stringvalueIndex ON APlainAttrValue(stringvalue)</entry>
+  <entry key="APlainAttrValue_datevalueIndex">CREATE INDEX AAttrValue_datevalueIndex ON APlainAttrValue(datevalue)</entry>
+  <entry key="APlainAttrValue_longvalueIndex">CREATE INDEX AAttrValue_longvalueIndex ON APlainAttrValue(longvalue)</entry>
+  <entry key="APlainAttrValue_doublevalueIndex">CREATE INDEX AAttrValue_doublevalueIndex ON APlainAttrValue(doublevalue)</entry>
+  <entry key="APlainAttrValue_booleanvalueIndex">CREATE INDEX AAttrValue_booleanvalueIndex ON APlainAttrValue(booleanvalue)</entry>
   <entry key="GPlainAttrValue_stringvalueIndex">CREATE INDEX GAttrValue_stringvalueIndex ON GPlainAttrValue(stringvalue)</entry>
   <entry key="GPlainAttrValue_datevalueIndex">CREATE INDEX GAttrValue_datevalueIndex ON GPlainAttrValue(datevalue)</entry>
   <entry key="GPlainAttrValue_longvalueIndex">CREATE INDEX GAttrValue_longvalueIndex ON GPlainAttrValue(longvalue)</entry>
   <entry key="GPlainAttrValue_doublevalueIndex">CREATE INDEX GAttrValue_doublevalueIndex ON GPlainAttrValue(doublevalue)</entry>
   <entry key="GPlainAttrValue_booleanvalueIndex">CREATE INDEX GAttrValue_booleanvalueIndex ON GPlainAttrValue(booleanvalue)</entry>
+  <entry key="CPlainAttrValue_stringvalueIndex">CREATE INDEX CAttrValue_stringvalueIndex ON CPlainAttrValue(stringvalue)</entry>
+  <entry key="CPlainAttrValue_datevalueIndex">CREATE INDEX CAttrValue_datevalueIndex ON CPlainAttrValue(datevalue)</entry>
+  <entry key="CPlainAttrValue_longvalueIndex">CREATE INDEX CAttrValue_longvalueIndex ON CPlainAttrValue(longvalue)</entry>
+  <entry key="CPlainAttrValue_doublevalueIndex">CREATE INDEX CAttrValue_doublevalueIndex ON CPlainAttrValue(doublevalue)</entry>
+  <entry key="CPlainAttrValue_booleanvalueIndex">CREATE INDEX CAttrValue_booleanvalueIndex ON CPlainAttrValue(booleanvalue)</entry>
   <entry key="Task_executedIndex">CREATE INDEX Task_executedIndex ON Task(executed)</entry>
 </properties>

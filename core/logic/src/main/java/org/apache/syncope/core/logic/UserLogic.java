@@ -32,23 +32,20 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.mod.AttrMod;
 import org.apache.syncope.common.lib.mod.StatusMod;
 import org.apache.syncope.common.lib.mod.UserMod;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.Entitlement;
-import org.apache.syncope.common.lib.types.SubjectType;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
-import org.apache.syncope.core.persistence.api.dao.SubjectSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.apache.syncope.core.provisioning.api.AttributableTransformer;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
@@ -57,6 +54,8 @@ import org.apache.syncope.core.provisioning.java.VirAttrHandler;
 import org.apache.syncope.core.misc.security.AuthContextUtils;
 import org.apache.syncope.core.misc.security.UnauthorizedException;
 import org.apache.syncope.core.misc.serialization.POJOHelper;
+import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
+import org.apache.syncope.core.provisioning.api.AnyTransformer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
@@ -68,7 +67,7 @@ import org.springframework.transaction.interceptor.TransactionInterceptor;
  * Spring's Transactional logic at class level.
  */
 @Component
-public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
+public class UserLogic extends AbstractAnyLogic<UserTO, UserMod> {
 
     @Autowired
     protected UserDAO userDAO;
@@ -77,7 +76,7 @@ public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
     protected GroupDAO groupDAO;
 
     @Autowired
-    protected SubjectSearchDAO searchDAO;
+    protected AnySearchDAO searchDAO;
 
     @Autowired
     protected UserDataBinder binder;
@@ -92,7 +91,7 @@ public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
     protected PropagationTaskExecutor taskExecutor;
 
     @Autowired
-    protected AttributableTransformer attrTransformer;
+    protected AnyTransformer anyTransformer;
 
     @Autowired
     protected UserProvisioningManager provisioningManager;
@@ -157,7 +156,7 @@ public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
     public int searchCount(final SearchCond searchCondition, final List<String> realms) {
         return searchDAO.count(
                 getEffectiveRealms(AuthContextUtils.getAuthorizations().get(Entitlement.USER_SEARCH), realms),
-                searchCondition, SubjectType.USER);
+                searchCondition, AnyTypeKind.USER);
     }
 
     @PreAuthorize("hasRole('" + Entitlement.USER_SEARCH + "')")
@@ -168,7 +167,7 @@ public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
 
         List<User> matchingUsers = searchDAO.search(
                 getEffectiveRealms(AuthContextUtils.getAuthorizations().get(Entitlement.USER_SEARCH), realms),
-                searchCondition, page, size, orderBy, SubjectType.USER);
+                searchCondition, page, size, orderBy, AnyTypeKind.USER);
         return CollectionUtils.collect(matchingUsers, new Transformer<User, UserTO>() {
 
             @Override
@@ -193,7 +192,7 @@ public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
                 AuthContextUtils.getAuthorizations().get(Entitlement.USER_CREATE),
                 Collections.singleton(userTO.getRealm()));
         if (effectiveRealms.isEmpty()) {
-            throw new UnauthorizedException(SubjectType.USER, null);
+            throw new UnauthorizedException(AnyTypeKind.USER, null);
         }
 
         return doCreate(userTO, storePassword);
@@ -201,7 +200,7 @@ public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
 
     protected UserTO doCreate(final UserTO userTO, final boolean storePassword) {
         // Attributable transformation (if configured)
-        UserTO actual = attrTransformer.transform(userTO);
+        UserTO actual = anyTransformer.transform(userTO);
         LOG.debug("Transformed: {}", actual);
 
         Map.Entry<Long, List<PropagationStatus>> created = provisioningManager.create(actual, storePassword);
@@ -226,25 +225,10 @@ public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
     @Override
     public UserTO update(final UserMod userMod) {
         // AttributableMod transformation (if configured)
-        UserMod actual = attrTransformer.transform(userMod);
+        UserMod actual = anyTransformer.transform(userMod);
         LOG.debug("Transformed: {}", actual);
 
-        // SYNCOPE-501: check if there are memberships to be removed with virtual attributes assigned
-        boolean removeMemberships = false;
-        for (Long membershipId : actual.getMembershipsToRemove()) {
-            if (!virtAttrHandler.fillMembershipVirtual(
-                    null,
-                    null,
-                    membershipId,
-                    Collections.<String>emptySet(),
-                    Collections.<AttrMod>emptySet(),
-                    true).isEmpty()) {
-
-                removeMemberships = true;
-            }
-        }
-
-        Map.Entry<Long, List<PropagationStatus>> updated = provisioningManager.update(actual, removeMemberships);
+        Map.Entry<Long, List<PropagationStatus>> updated = provisioningManager.update(actual);
 
         UserTO updatedTO = binder.getUserTO(updated.getKey());
         updatedTO.getPropagationStatusTOs().addAll(updated.getValue());
@@ -277,7 +261,7 @@ public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
     @PreAuthorize("hasRole('" + Entitlement.USER_UPDATE + "')")
     @Transactional(rollbackFor = { Throwable.class })
     public UserTO status(final StatusMod statusMod) {
-        User user = userDAO.authFetch(statusMod.getKey());
+        User user = userDAO.authFind(statusMod.getKey());
 
         Map.Entry<Long, List<PropagationStatus>> updated = setStatusOnWfAdapter(user, statusMod);
         final UserTO savedTO = binder.getUserTO(updated.getKey());
@@ -414,7 +398,7 @@ public class UserLogic extends AbstractSubjectLogic<UserTO, UserMod> {
     @Transactional(rollbackFor = { Throwable.class })
     @Override
     public UserTO deprovision(final Long key, final Collection<String> resources) {
-        final User user = userDAO.authFetch(key);
+        final User user = userDAO.authFind(key);
 
         List<PropagationStatus> statuses = provisioningManager.deprovision(key, resources);
 

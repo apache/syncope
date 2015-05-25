@@ -29,9 +29,9 @@ import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceAssociationActionType;
 import org.apache.syncope.common.lib.types.ResourceDeassociationActionType;
-import org.apache.syncope.common.lib.types.SubjectType;
 import org.apache.syncope.common.lib.wrap.ResourceName;
 import org.apache.syncope.common.rest.api.CollectionWrapper;
 import org.apache.syncope.common.rest.api.service.ResourceService;
@@ -43,7 +43,7 @@ import org.springframework.stereotype.Component;
  * Console client for invoking Rest Group's services.
  */
 @Component
-public class GroupRestClient extends AbstractSubjectRestClient {
+public class GroupRestClient extends AbstractAnyRestClient {
 
     private static final long serialVersionUID = -8549081557283519638L;
 
@@ -80,8 +80,8 @@ public class GroupRestClient extends AbstractSubjectRestClient {
     }
 
     @Override
-    public ConnObjectTO getConnectorObject(final String resourceName, final Long id) {
-        return getService(ResourceService.class).getConnectorObject(resourceName, SubjectType.GROUP, id);
+    public ConnObjectTO readConnObject(final String resourceName, final Long id) {
+        return getService(ResourceService.class).readConnObject(resourceName, AnyTypeKind.GROUP.name(), id);
     }
 
     public GroupTO create(final GroupTO groupTO) {

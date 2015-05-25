@@ -30,26 +30,21 @@ import java.util.Set;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.common.lib.types.IntMappingType;
-import org.apache.syncope.common.lib.types.SubjectType;
-import org.apache.syncope.common.lib.CollectionUtils2;
+import org.apache.syncope.common.lib.to.AnyObjectTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
-import org.apache.syncope.core.persistence.api.dao.SubjectSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
-import org.apache.syncope.core.persistence.api.entity.Attributable;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Notification;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
-import org.apache.syncope.core.persistence.api.entity.Subject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
@@ -61,6 +56,12 @@ import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.misc.ConnObjectUtils;
 import org.apache.syncope.core.misc.search.SearchCondConverter;
+import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
+import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
+import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.AnyAbout;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.context.Context;
@@ -100,6 +101,12 @@ public class NotificationManagerImpl implements NotificationManager {
     private ConfDAO confDAO;
 
     /**
+     * AnyObject DAO.
+     */
+    @Autowired
+    private AnyObjectDAO anyObjectDAO;
+
+    /**
      * User DAO.
      */
     @Autowired
@@ -112,10 +119,10 @@ public class NotificationManagerImpl implements NotificationManager {
     private GroupDAO groupDAO;
 
     /**
-     * User Search DAO.
+     * Search DAO.
      */
     @Autowired
-    private SubjectSearchDAO searchDAO;
+    private AnySearchDAO searchDAO;
 
     /**
      * Task DAO.
@@ -148,7 +155,7 @@ public class NotificationManagerImpl implements NotificationManager {
     private EntityFactory entityFactory;
 
     @Autowired
-    private AttributableUtilsFactory attrUtilsFactory;
+    private AnyUtilsFactory anyUtilsFactory;
 
     @Transactional(readOnly = true)
     @Override
@@ -160,19 +167,17 @@ public class NotificationManagerImpl implements NotificationManager {
      * Create a notification task.
      *
      * @param notification notification to take as model
-     * @param attributable the user this task is about
+     * @param any the any object this task is about
      * @param model Velocity model
      * @return notification task, fully populated
      */
     private NotificationTask getNotificationTask(
             final Notification notification,
-            final Attributable<?, ?, ?> attributable,
+            final Any<?, ?, ?> any,
             final Map<String, Object> model) {
 
-        if (attributable != null) {
-            connObjectUtils.retrieveVirAttrValues(attributable,
-                    attrUtilsFactory.getInstance(
-                            attributable instanceof User ? AttributableType.USER : AttributableType.GROUP));
+        if (any != null) {
+            connObjectUtils.retrieveVirAttrValues(any);
         }
 
         final List<User> recipients = new ArrayList<>();
@@ -180,17 +185,17 @@ public class NotificationManagerImpl implements NotificationManager {
         if (notification.getRecipients() != null) {
             recipients.addAll(searchDAO.<User>search(SyncopeConstants.FULL_ADMIN_REALMS,
                     SearchCondConverter.convert(notification.getRecipients()),
-                    Collections.<OrderByClause>emptyList(), SubjectType.USER));
+                    Collections.<OrderByClause>emptyList(), AnyTypeKind.USER));
         }
 
-        if (notification.isSelfAsRecipient() && attributable instanceof User) {
-            recipients.add((User) attributable);
+        if (notification.isSelfAsRecipient() && any instanceof User) {
+            recipients.add((User) any);
         }
 
         final Set<String> recipientEmails = new HashSet<>();
         final List<UserTO> recipientTOs = new ArrayList<>(recipients.size());
         for (User recipient : recipients) {
-            connObjectUtils.retrieveVirAttrValues(recipient, attrUtilsFactory.getInstance(AttributableType.USER));
+            connObjectUtils.retrieveVirAttrValues(recipient);
 
             String email = getRecipientEmail(notification.getRecipientAttrType(),
                     notification.getRecipientAttrName(), recipient);
@@ -266,42 +271,42 @@ public class NotificationManagerImpl implements NotificationManager {
             final Object output,
             final Object... input) {
 
-        SubjectType subjectType = null;
-        Subject<?, ?, ?> subject = null;
+        Any<?, ?, ?> any = null;
 
         if (before instanceof UserTO) {
-            subjectType = SubjectType.USER;
-            subject = userDAO.find(((UserTO) before).getKey());
+            any = userDAO.find(((UserTO) before).getKey());
         } else if (output instanceof UserTO) {
-            subjectType = SubjectType.USER;
-            subject = userDAO.find(((UserTO) output).getKey());
+            any = userDAO.find(((UserTO) output).getKey());
+        } else if (before instanceof AnyObjectTO) {
+            any = anyObjectDAO.find(((AnyObjectTO) before).getKey());
+        } else if (output instanceof AnyObjectTO) {
+            any = anyObjectDAO.find(((AnyObjectTO) output).getKey());
         } else if (before instanceof GroupTO) {
-            subjectType = SubjectType.GROUP;
-            subject = groupDAO.find(((GroupTO) before).getKey());
+            any = groupDAO.find(((GroupTO) before).getKey());
         } else if (output instanceof GroupTO) {
-            subjectType = SubjectType.GROUP;
-            subject = groupDAO.find(((GroupTO) output).getKey());
+            any = groupDAO.find(((GroupTO) output).getKey());
         }
 
-        LOG.debug("Search notification for [{}]{}", subjectType, subject);
+        AnyType anyType = any == null ? null : any.getType();
+        LOG.debug("Search notification for [{}]{}", anyType, any);
 
         for (Notification notification : notificationDAO.findAll()) {
-            LOG.debug("Notification available user about {}", notification.getUserAbout());
-            LOG.debug("Notification available group about {}", notification.getGroupAbout());
+            if (LOG.isDebugEnabled()) {
+                for (AnyAbout about : notification.getAbouts()) {
+                    LOG.debug("Notification about {} defined: {}", about.getAnyType(), about.get());
+                }
+            }
 
             if (notification.isActive()) {
                 String currentEvent = AuditLoggerName.buildEvent(type, category, subcategory, event, condition);
                 if (!notification.getEvents().contains(currentEvent)) {
-                    LOG.debug("No events found about {}", subject);
-                } else if (subjectType == null || subject == null
-                        || (subjectType == SubjectType.USER && (notification.getUserAbout() == null
-                        || searchDAO.matches(subject,
-                                SearchCondConverter.convert(notification.getUserAbout()), subjectType)))
-                        || subjectType == SubjectType.GROUP && (notification.getGroupAbout() == null
-                        || searchDAO.matches(subject,
-                                SearchCondConverter.convert(notification.getGroupAbout()), subjectType))) {
+                    LOG.debug("No events found about {}", any);
+                } else if (anyType == null || any == null
+                        || notification.getAbout(anyType) == null
+                        || searchDAO.matches(any,
+                                SearchCondConverter.convert(notification.getAbout(anyType).get()), anyType.getKind())) {
 
-                    LOG.debug("Creating notification task for event {} about {}", currentEvent, subject);
+                    LOG.debug("Creating notification task for event {} about {}", currentEvent, any);
 
                     final Map<String, Object> model = new HashMap<>();
                     model.put("type", type);
@@ -313,18 +318,16 @@ public class NotificationManagerImpl implements NotificationManager {
                     model.put("output", output);
                     model.put("input", input);
 
-                    if (subject instanceof User) {
-                        model.put("user", userDataBinder.getUserTO((User) subject));
-                    } else if (subject instanceof Group) {
-                        model.put("group", groupDataBinder.getGroupTO((Group) subject));
+                    if (any instanceof User) {
+                        model.put("user", userDataBinder.getUserTO((User) any));
+                    } else if (any instanceof Group) {
+                        model.put("group", groupDataBinder.getGroupTO((Group) any));
                     }
 
-                    taskDAO.save(getNotificationTask(notification, subject, model));
+                    taskDAO.save(getNotificationTask(notification, any, model));
                 }
             } else {
-                LOG.debug("Notification {}, userAbout {}, groupAbout {} is deactivated, "
-                        + "notification task will not be created", notification.getKey(),
-                        notification.getUserAbout(), notification.getGroupAbout());
+                LOG.debug("Notification {} is not active, task will not be created", notification.getKey());
             }
         }
     }
@@ -342,7 +345,7 @@ public class NotificationManagerImpl implements NotificationManager {
             case UserPlainSchema:
                 UPlainAttr attr = user.getPlainAttr(recipientAttrName);
                 if (attr != null) {
-                    email = CollectionUtils2.getFirstOrNull(attr.getValuesAsStrings());
+                    email = attr.getValuesAsStrings().isEmpty() ? null : attr.getValuesAsStrings().get(0);
                 }
                 break;
 
@@ -356,7 +359,7 @@ public class NotificationManagerImpl implements NotificationManager {
             case UserVirtualSchema:
                 UVirAttr virAttr = user.getVirAttr(recipientAttrName);
                 if (virAttr != null) {
-                    email = CollectionUtils2.getFirstOrNull(virAttr.getValues());
+                    email = virAttr.getValues().isEmpty() ? null : virAttr.getValues().get(0);
                 }
                 break;
 
@@ -402,7 +405,7 @@ public class NotificationManagerImpl implements NotificationManager {
 
     protected Map<String, String> findAllSyncopeConfs() {
         Map<String, String> syncopeConfMap = new HashMap<>();
-        for (PlainAttr attr : confDAO.get().getPlainAttrs()) {
+        for (PlainAttr<?> attr : confDAO.get().getPlainAttrs()) {
             syncopeConfMap.put(attr.getSchema().getKey(), attr.getValuesAsStrings().get(0));
         }
         return syncopeConfMap;

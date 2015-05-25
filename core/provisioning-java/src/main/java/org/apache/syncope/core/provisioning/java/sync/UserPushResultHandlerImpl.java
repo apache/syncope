@@ -22,15 +22,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.apache.syncope.common.lib.mod.UserMod;
-import org.apache.syncope.common.lib.to.AbstractSubjectTO;
+import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.common.lib.types.AttributableType;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtils;
-import org.apache.syncope.core.persistence.api.entity.Mapping;
-import org.apache.syncope.core.persistence.api.entity.MappingItem;
-import org.apache.syncope.core.persistence.api.entity.Subject;
+import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.AnyUtils;
+import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.TimeoutException;
 import org.apache.syncope.core.provisioning.api.sync.UserPushResultHandler;
@@ -41,31 +40,31 @@ import org.identityconnectors.framework.common.objects.Uid;
 public class UserPushResultHandlerImpl extends AbstractPushResultHandler implements UserPushResultHandler {
 
     @Override
-    protected AttributableUtils getAttributableUtils() {
-        return attrUtilsFactory.getInstance(AttributableType.USER);
+    protected AnyUtils getAnyUtils() {
+        return anyUtilsFactory.getInstance(AnyTypeKind.USER);
     }
 
     @Override
-    protected Subject<?, ?, ?> deprovision(final Subject<?, ?, ?> sbj) {
-        final UserTO before = userDataBinder.getUserTO(sbj.getKey());
+    protected Any<?, ?, ?> deprovision(final Any<?, ?, ?> sbj) {
+        UserTO before = userDataBinder.getUserTO(sbj.getKey());
 
-        final List<String> noPropResources = new ArrayList<>(before.getResources());
+        List<String> noPropResources = new ArrayList<>(before.getResources());
         noPropResources.remove(profile.getTask().getResource().getKey());
 
         taskExecutor.execute(propagationManager.getUserDeleteTasks(before.getKey(),
                 Collections.singleton(profile.getTask().getResource().getKey()), noPropResources));
 
-        return userDAO.authFetch(before.getKey());
+        return userDAO.authFind(before.getKey());
     }
 
     @Override
-    protected Subject<?, ?, ?> provision(final Subject<?, ?, ?> sbj, final Boolean enabled) {
-        final UserTO before = userDataBinder.getUserTO(sbj.getKey());
+    protected Any<?, ?, ?> provision(final Any<?, ?, ?> sbj, final Boolean enabled) {
+        UserTO before = userDataBinder.getUserTO(sbj.getKey());
 
-        final List<String> noPropResources = new ArrayList<>(before.getResources());
+        List<String> noPropResources = new ArrayList<>(before.getResources());
         noPropResources.remove(profile.getTask().getResource().getKey());
 
-        final PropagationByResource propByRes = new PropagationByResource();
+        PropagationByResource propByRes = new PropagationByResource();
         propByRes.add(ResourceOperation.CREATE, profile.getTask().getResource().getKey());
 
         taskExecutor.execute(propagationManager.getUserCreateTasks(
@@ -74,15 +73,14 @@ public class UserPushResultHandlerImpl extends AbstractPushResultHandler impleme
                 propByRes,
                 null,
                 Collections.unmodifiableCollection(before.getVirAttrs()),
-                Collections.unmodifiableCollection(before.getMemberships()),
                 noPropResources));
 
-        return userDAO.authFetch(before.getKey());
+        return userDAO.authFind(before.getKey());
     }
 
     @Override
-    protected Subject<?, ?, ?> link(final Subject<?, ?, ?> sbj, final Boolean unlink) {
-        final UserMod userMod = new UserMod();
+    protected Any<?, ?, ?> link(final Any<?, ?, ?> sbj, final Boolean unlink) {
+        UserMod userMod = new UserMod();
         userMod.setKey(sbj.getKey());
 
         if (unlink) {
@@ -93,12 +91,12 @@ public class UserPushResultHandlerImpl extends AbstractPushResultHandler impleme
 
         uwfAdapter.update(userMod);
 
-        return userDAO.authFetch(userMod.getKey());
+        return userDAO.authFind(userMod.getKey());
     }
 
     @Override
-    protected Subject<?, ?, ?> unassign(final Subject<?, ?, ?> sbj) {
-        final UserMod userMod = new UserMod();
+    protected Any<?, ?, ?> unassign(final Any<?, ?, ?> sbj) {
+        UserMod userMod = new UserMod();
         userMod.setKey(sbj.getKey());
         userMod.getResourcesToRemove().add(profile.getTask().getResource().getKey());
         uwfAdapter.update(userMod);
@@ -106,8 +104,8 @@ public class UserPushResultHandlerImpl extends AbstractPushResultHandler impleme
     }
 
     @Override
-    protected Subject<?, ?, ?> assign(final Subject<?, ?, ?> sbj, final Boolean enabled) {
-        final UserMod userMod = new UserMod();
+    protected Any<?, ?, ?> assign(final Any<?, ?, ?> sbj, final Boolean enabled) {
+        UserMod userMod = new UserMod();
         userMod.setKey(sbj.getKey());
         userMod.getResourcesToAdd().add(profile.getTask().getResource().getKey());
         uwfAdapter.update(userMod);
@@ -115,12 +113,12 @@ public class UserPushResultHandlerImpl extends AbstractPushResultHandler impleme
     }
 
     @Override
-    protected String getName(final Subject<?, ?, ?> subject) {
+    protected String getName(final Any<?, ?, ?> subject) {
         return User.class.cast(subject).getUsername();
     }
 
     @Override
-    protected AbstractSubjectTO getSubjectTO(final long key) {
+    protected AnyTO getAnyTO(final long key) {
         try {
             return userDataBinder.getUserTO(key);
         } catch (Exception e) {
@@ -130,9 +128,9 @@ public class UserPushResultHandlerImpl extends AbstractPushResultHandler impleme
     }
 
     @Override
-    protected Subject<?, ?, ?> getSubject(final long key) {
+    protected Any<?, ?, ?> getAny(final long key) {
         try {
-            return userDAO.authFetch(key);
+            return userDAO.authFind(key);
         } catch (Exception e) {
             LOG.warn("Error retrieving user {}", key, e);
             return null;
@@ -140,14 +138,13 @@ public class UserPushResultHandlerImpl extends AbstractPushResultHandler impleme
     }
 
     @Override
-    protected ConnectorObject getRemoteObject(final String accountId) {
+    protected ConnectorObject getRemoteObject(final String connObjectKey, final ObjectClass objectClass) {
         ConnectorObject obj = null;
-
         try {
-            final Uid uid = new Uid(accountId);
+            Uid uid = new Uid(connObjectKey);
 
             obj = profile.getConnector().getObject(
-                    ObjectClass.ACCOUNT,
+                    objectClass,
                     uid,
                     profile.getConnector().getOperationOptions(Collections.<MappingItem>emptySet()));
 
@@ -155,13 +152,9 @@ public class UserPushResultHandlerImpl extends AbstractPushResultHandler impleme
             LOG.debug("Request timeout", toe);
             throw toe;
         } catch (RuntimeException ignore) {
-            LOG.debug("While resolving {}", accountId, ignore);
+            LOG.debug("While resolving {}", connObjectKey, ignore);
         }
-        return obj;
-    }
 
-    @Override
-    protected Mapping<?> getMapping() {
-        return profile.getTask().getResource().getUmapping();
+        return obj;
     }
 }

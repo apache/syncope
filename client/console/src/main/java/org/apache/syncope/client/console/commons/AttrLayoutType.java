@@ -20,27 +20,25 @@ package org.apache.syncope.client.console.commons;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.syncope.common.lib.types.AttributableType;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 
 public enum AttrLayoutType {
 
-    ADMIN_USER("admin.user.layout", Mode.ADMIN, AttributableType.USER),
-    SELF_USER("self.user.layout", Mode.SELF, AttributableType.USER),
-    ADMIN_GROUP("admin.group.layout", Mode.ADMIN, AttributableType.GROUP),
-    SELF_GROUP("self.group.layout", Mode.SELF, AttributableType.GROUP),
-    ADMIN_MEMBERSHIP("admin.membership.layout", Mode.ADMIN, AttributableType.MEMBERSHIP),
-    SELF_MEMBERSHIP("self.membership.layout", Mode.SELF, AttributableType.MEMBERSHIP);
+    ADMIN_USER("admin.user.layout", Mode.ADMIN, AnyTypeKind.USER),
+    SELF_USER("self.user.layout", Mode.SELF, AnyTypeKind.USER),
+    ADMIN_GROUP("admin.group.layout", Mode.ADMIN, AnyTypeKind.GROUP),
+    SELF_GROUP("self.group.layout", Mode.SELF, AnyTypeKind.GROUP);
 
     private final String confKey;
 
     private final Mode mode;
 
-    private final AttributableType attrType;
+    private final AnyTypeKind anyTypeKind;
 
-    AttrLayoutType(final String confKey, final Mode mode, final AttributableType attrType) {
+    AttrLayoutType(final String confKey, final Mode mode, final AnyTypeKind anyTypeKind) {
         this.confKey = confKey;
         this.mode = mode;
-        this.attrType = attrType;
+        this.anyTypeKind = anyTypeKind;
     }
 
     public String getConfKey() {
@@ -51,12 +49,12 @@ public enum AttrLayoutType {
         return mode;
     }
 
-    public AttributableType getAttrType() {
-        return attrType;
+    public AnyTypeKind getAnyTypeKind() {
+        return anyTypeKind;
     }
 
     public static List<String> confKeys() {
-        List<String> confKeys = new ArrayList<String>();
+        List<String> confKeys = new ArrayList<>();
         for (AttrLayoutType value : values()) {
             confKeys.add(value.getConfKey());
         }
@@ -64,16 +62,12 @@ public enum AttrLayoutType {
         return confKeys;
     }
 
-    public static AttrLayoutType valueOf(final Mode mode, final AttributableType attrType) {
+    public static AttrLayoutType valueOf(final Mode mode, final AnyTypeKind anyTypeKind) {
         AttrLayoutType result = null;
         if (mode == Mode.ADMIN) {
-            switch (attrType) {
+            switch (anyTypeKind) {
                 case USER:
                     result = ADMIN_USER;
-                    break;
-
-                case MEMBERSHIP:
-                    result = ADMIN_MEMBERSHIP;
                     break;
 
                 case GROUP:
@@ -83,13 +77,9 @@ public enum AttrLayoutType {
                 default:
             }
         } else if (mode == Mode.SELF) {
-            switch (attrType) {
+            switch (anyTypeKind) {
                 case USER:
                     result = SELF_USER;
-                    break;
-
-                case MEMBERSHIP:
-                    result = SELF_MEMBERSHIP;
                     break;
 
                 case GROUP:

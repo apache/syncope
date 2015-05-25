@@ -34,8 +34,8 @@ import org.apache.syncope.common.lib.types.ResourceAssociationActionType;
 import org.apache.syncope.common.lib.types.ResourceDeassociationActionType;
 import org.apache.syncope.common.lib.wrap.ResourceName;
 import org.apache.syncope.common.rest.api.CollectionWrapper;
-import org.apache.syncope.common.rest.api.beans.SubjectListQuery;
-import org.apache.syncope.common.rest.api.beans.SubjectSearchQuery;
+import org.apache.syncope.common.rest.api.beans.AnyListQuery;
+import org.apache.syncope.common.rest.api.beans.AnySearchQuery;
 import org.apache.syncope.common.rest.api.service.GroupService;
 import org.apache.syncope.core.logic.GroupLogic;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
@@ -65,7 +65,7 @@ public class GroupServiceImpl extends AbstractServiceImpl implements GroupServic
     }
 
     @Override
-    public PagedResult<GroupTO> list(final SubjectListQuery listQuery) {
+    public PagedResult<GroupTO> list(final AnyListQuery listQuery) {
         CollectionUtils.transform(listQuery.getRealms(), new Transformer<String, String>() {
 
             @Override
@@ -91,7 +91,7 @@ public class GroupServiceImpl extends AbstractServiceImpl implements GroupServic
     }
 
     @Override
-    public PagedResult<GroupTO> search(final SubjectSearchQuery searchQuery) {
+    public PagedResult<GroupTO> search(final AnySearchQuery searchQuery) {
         CollectionUtils.transform(searchQuery.getRealms(), new Transformer<String, String>() {
 
             @Override

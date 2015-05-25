@@ -25,13 +25,10 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.List;
-import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
-import org.apache.syncope.core.persistence.api.entity.group.GDerSchema;
-import org.apache.syncope.core.persistence.api.entity.user.UDerSchema;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,52 +42,52 @@ public class DerSchemaTest extends AbstractTest {
 
     @Test
     public void findAll() {
-        List<UDerSchema> list = derSchemaDAO.findAll(UDerSchema.class);
-        assertEquals(3, list.size());
+        List<DerSchema> list = derSchemaDAO.findAll();
+        assertEquals(9, list.size());
     }
 
     @Test
     public void findByName() {
-        UDerSchema attributeSchema = derSchemaDAO.find("cn", UDerSchema.class);
+        DerSchema attributeSchema = derSchemaDAO.find("cn");
         assertNotNull("did not find expected derived attribute schema", attributeSchema);
     }
 
     @Test
     public void save() {
-        UDerSchema derivedAttributeSchema = entityFactory.newEntity(UDerSchema.class);
+        DerSchema derivedAttributeSchema = entityFactory.newEntity(DerSchema.class);
         derivedAttributeSchema.setKey("cn2");
         derivedAttributeSchema.setExpression("firstname surname");
 
         derSchemaDAO.save(derivedAttributeSchema);
 
-        UDerSchema actual = derSchemaDAO.find("cn2", UDerSchema.class);
+        DerSchema actual = derSchemaDAO.find("cn2");
         assertNotNull("expected save to work", actual);
         assertEquals(derivedAttributeSchema, actual);
     }
 
     @Test
     public void delete() {
-        UDerSchema cn = derSchemaDAO.find("cn", UDerSchema.class);
+        DerSchema cn = derSchemaDAO.find("cn");
         assertNotNull(cn);
 
-        derSchemaDAO.delete(cn.getKey(), attrUtilsFactory.getInstance(AttributableType.USER));
+        derSchemaDAO.delete(cn.getKey());
 
-        DerSchema actual = derSchemaDAO.find("cn", UDerSchema.class);
+        DerSchema actual = derSchemaDAO.find("cn");
         assertNull("delete did not work", actual);
 
         // ------------- //
-        GDerSchema rderiveddata = derSchemaDAO.find("rderiveddata", GDerSchema.class);
+        DerSchema rderiveddata = derSchemaDAO.find("rderiveddata");
         assertNotNull(rderiveddata);
 
-        derSchemaDAO.delete(rderiveddata.getKey(), attrUtilsFactory.getInstance(AttributableType.GROUP));
+        derSchemaDAO.delete(rderiveddata.getKey());
 
-        actual = derSchemaDAO.find("rderiveddata", GDerSchema.class);
+        actual = derSchemaDAO.find("rderiveddata");
         assertNull("delete did not work", actual);
     }
 
     @Test
     public void issueSYNCOPE418() {
-        UDerSchema schema = entityFactory.newEntity(UDerSchema.class);
+        DerSchema schema = entityFactory.newEntity(DerSchema.class);
         schema.setKey("http://schemas.examples.org/security/authorization/organizationUnit");
 
         try {

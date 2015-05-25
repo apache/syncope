@@ -24,7 +24,7 @@ import java.util.Set;
 import org.apache.syncope.common.lib.types.PropagationMode;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
-import org.apache.syncope.core.persistence.api.entity.MappingItem;
+import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ObjectClass;

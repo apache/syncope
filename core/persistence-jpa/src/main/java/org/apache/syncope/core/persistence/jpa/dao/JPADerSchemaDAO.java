@@ -20,25 +20,16 @@ package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.util.List;
 import javax.persistence.TypedQuery;
-import org.apache.commons.collections4.Closure;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.syncope.common.lib.types.AttributableType;
-import org.apache.syncope.core.persistence.api.dao.AttrTemplateDAO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.DerAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtils;
+import org.apache.syncope.core.persistence.api.entity.AnyUtils;
+import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.DerAttr;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
-import org.apache.syncope.core.persistence.api.entity.membership.MDerSchema;
-import org.apache.syncope.core.persistence.api.entity.group.GDerSchema;
-import org.apache.syncope.core.persistence.api.entity.user.UDerAttr;
-import org.apache.syncope.core.persistence.api.entity.user.UDerSchema;
-import org.apache.syncope.core.persistence.api.entity.user.UMappingItem;
-import org.apache.syncope.core.persistence.jpa.entity.AbstractDerSchema;
-import org.apache.syncope.core.persistence.jpa.entity.membership.JPAMDerSchema;
-import org.apache.syncope.core.persistence.jpa.entity.group.JPAGDerSchema;
-import org.apache.syncope.core.persistence.jpa.entity.user.JPAUDerSchema;
+import org.apache.syncope.core.persistence.jpa.entity.JPAAnyUtilsFactory;
+import org.apache.syncope.core.persistence.jpa.entity.JPADerSchema;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -49,44 +40,25 @@ public class JPADerSchemaDAO extends AbstractDAO<DerSchema, String> implements D
     private DerAttrDAO derAttrDAO;
 
     @Autowired
-    private AttrTemplateDAO<DerSchema> attrTemplateDAO;
-
-    @Autowired
     private ExternalResourceDAO resourceDAO;
 
-    private <T extends DerSchema> Class<? extends AbstractDerSchema> getJPAEntityReference(final Class<T> reference) {
-        return GDerSchema.class.isAssignableFrom(reference)
-                ? JPAGDerSchema.class
-                : MDerSchema.class.isAssignableFrom(reference)
-                        ? JPAMDerSchema.class
-                        : UDerSchema.class.isAssignableFrom(reference)
-                                ? JPAUDerSchema.class
-                                : null;
+    @Override
+    public DerSchema find(final String key) {
+        return entityManager.find(JPADerSchema.class, key);
     }
 
     @Override
-    public <T extends DerSchema> T find(final String key, final Class<T> reference) {
-        return reference.cast(entityManager.find(getJPAEntityReference(reference), key));
-    }
-
-    @Override
-    public <T extends DerSchema> List<T> findAll(final Class<T> reference) {
-        TypedQuery<T> query = entityManager.createQuery(
-                "SELECT e FROM " + getJPAEntityReference(reference).getSimpleName() + " e", reference);
+    public List<DerSchema> findAll() {
+        TypedQuery<DerSchema> query = entityManager.createQuery(
+                "SELECT e FROM " + JPADerSchema.class.getSimpleName() + " e", DerSchema.class);
         return query.getResultList();
     }
 
     @Override
-    public <T extends DerAttr> List<T> findAttrs(final DerSchema schema, final Class<T> reference) {
+    public <T extends DerAttr<?>> List<T> findAttrs(final DerSchema schema, final Class<T> reference) {
         final StringBuilder queryString = new StringBuilder("SELECT e FROM ").
                 append(((JPADerAttrDAO) derAttrDAO).getJPAEntityReference(reference).getSimpleName()).
-                append(" e WHERE e.");
-        if (UDerAttr.class.isAssignableFrom(reference)) {
-            queryString.append("derSchema");
-        } else {
-            queryString.append("template.schema");
-        }
-        queryString.append("=:schema");
+                append(" e WHERE e.schema=:schema");
 
         TypedQuery<T> query = entityManager.createQuery(queryString.toString(), reference);
         query.setParameter("schema", schema);
@@ -95,41 +67,27 @@ public class JPADerSchemaDAO extends AbstractDAO<DerSchema, String> implements D
     }
 
     @Override
-    public <T extends DerSchema> T save(final T derSchema) {
+    public DerSchema save(final DerSchema derSchema) {
         return entityManager.merge(derSchema);
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public void delete(final String key, final AttributableUtils attributableUtil) {
-        final DerSchema schema = find(key, attributableUtil.derSchemaClass());
+    public void delete(final String key) {
+        final DerSchema schema = find(key);
         if (schema == null) {
             return;
         }
 
-        CollectionUtils.forAllDo(findAttrs(schema, attributableUtil.derAttrClass()), new Closure<DerAttr>() {
+        AnyUtilsFactory anyUtilsFactory = new JPAAnyUtilsFactory();
+        for (AnyTypeKind anyTypeKind : AnyTypeKind.values()) {
+            AnyUtils anyUtils = anyUtilsFactory.getInstance(anyTypeKind);
 
-            @Override
-            public void execute(final DerAttr input) {
-                derAttrDAO.delete(input.getKey(), attributableUtil.derAttrClass());
+            for (DerAttr<?> attr : findAttrs(schema, anyUtils.derAttrClass())) {
+                derAttrDAO.delete(attr.getKey(), anyUtils.derAttrClass());
             }
 
-        });
-
-        if (attributableUtil.getType() != AttributableType.USER) {
-            CollectionUtils.forAllDo(attrTemplateDAO.
-                    findBySchemaName(schema.getKey(), attributableUtil.derAttrTemplateClass()).iterator(),
-                    new Closure<Number>() {
-
-                        @Override
-                        public void execute(final Number input) {
-                            attrTemplateDAO.delete(input.longValue(), attributableUtil.derAttrTemplateClass());
-                        }
-
-                    });
+            resourceDAO.deleteMapping(key, anyUtils.derIntMappingType());
         }
-
-        resourceDAO.deleteMapping(key, attributableUtil.derIntMappingType(), UMappingItem.class);
 
         entityManager.remove(schema);
     }

@@ -22,15 +22,14 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.syncope.common.lib.mod.AbstractSubjectMod;
+import org.apache.syncope.common.lib.mod.AnyMod;
 import org.apache.syncope.common.lib.mod.AttrMod;
 import org.apache.syncope.common.lib.mod.GroupMod;
-import org.apache.syncope.common.lib.mod.UserMod;
-import org.apache.syncope.common.lib.to.AbstractSubjectTO;
+import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.GroupTO;
-import org.apache.syncope.common.lib.types.AttributableType;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtils;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.provisioning.api.sync.ProvisioningResult;
 import org.apache.syncope.core.provisioning.api.sync.GroupSyncResultHandler;
 import org.identityconnectors.framework.common.objects.SyncDelta;
@@ -45,17 +44,17 @@ public class GroupSyncResultHandlerImpl extends AbstractSyncResultHandler implem
     }
 
     @Override
-    protected AttributableUtils getAttributableUtils() {
-        return attrUtilsFactory.getInstance(AttributableType.GROUP);
+    protected AnyUtils getAnyUtils() {
+        return anyUtilsFactory.getInstance(AnyTypeKind.GROUP);
     }
 
     @Override
-    protected String getName(final AbstractSubjectTO subjectTO) {
-        return GroupTO.class.cast(subjectTO).getName();
+    protected String getName(final AnyTO anyTO) {
+        return GroupTO.class.cast(anyTO).getName();
     }
 
     @Override
-    protected AbstractSubjectTO getSubjectTO(final long key) {
+    protected AnyTO getAnyTO(final long key) {
         try {
             return groupDataBinder.getGroupTO(key);
         } catch (Exception e) {
@@ -65,20 +64,8 @@ public class GroupSyncResultHandlerImpl extends AbstractSyncResultHandler implem
     }
 
     @Override
-    protected AbstractSubjectMod getSubjectMod(final AbstractSubjectTO subjectTO, final SyncDelta delta) {
-        return connObjectUtils.getAttributableMod(
-                subjectTO.getKey(),
-                delta.getObject(),
-                subjectTO,
-                profile.getTask(),
-                attrUtilsFactory.getInstance(AttributableType.GROUP));
-    }
-
-    @Override
-    protected AbstractSubjectTO doCreate(
-            final AbstractSubjectTO subjectTO, final SyncDelta delta, final ProvisioningResult result) {
-
-        GroupTO groupTO = GroupTO.class.cast(subjectTO);
+    protected AnyTO doCreate(final AnyTO anyTO, final SyncDelta delta, final ProvisioningResult result) {
+        GroupTO groupTO = GroupTO.class.cast(anyTO);
 
         Map.Entry<Long, List<PropagationStatus>> created = groupProvisioningManager.create(groupTO, groupOwnerMap,
                 Collections.singleton(profile.getTask().getResource().getKey()));
@@ -86,18 +73,18 @@ public class GroupSyncResultHandlerImpl extends AbstractSyncResultHandler implem
         groupTO = groupDataBinder.getGroupTO(created.getKey());
 
         result.setKey(created.getKey());
-        result.setName(getName(subjectTO));
+        result.setName(getName(anyTO));
 
         return groupTO;
     }
 
     @Override
-    protected AbstractSubjectTO doLink(
-            final AbstractSubjectTO before,
+    protected AnyTO doLink(
+            final AnyTO before,
             final ProvisioningResult result,
             final boolean unlink) {
 
-        final GroupMod groupMod = new GroupMod();
+        GroupMod groupMod = new GroupMod();
         groupMod.setKey(before.getKey());
 
         if (unlink) {
@@ -110,13 +97,13 @@ public class GroupSyncResultHandlerImpl extends AbstractSyncResultHandler implem
     }
 
     @Override
-    protected AbstractSubjectTO doUpdate(
-            final AbstractSubjectTO before,
-            final AbstractSubjectMod subjectMod,
+    protected AnyTO doUpdate(
+            final AnyTO before,
+            final AnyMod anyMod,
             final SyncDelta delta,
             final ProvisioningResult result) {
 
-        GroupMod groupMod = GroupMod.class.cast(subjectMod);
+        GroupMod groupMod = GroupMod.class.cast(anyMod);
 
         Map.Entry<Long, List<PropagationStatus>> updated = groupProvisioningManager.update(groupMod);
 
@@ -139,28 +126,26 @@ public class GroupSyncResultHandlerImpl extends AbstractSyncResultHandler implem
     }
 
     @Override
-    protected void doDeprovision(final Long id, final boolean unlink) {
-        taskExecutor.execute(
-                propagationManager.getGroupDeleteTasks(id, profile.getTask().getResource().getKey()));
+    protected void doDeprovision(final Long key, final boolean unlink) {
+        taskExecutor.execute(propagationManager.getGroupDeleteTasks(key, profile.getTask().getResource().getKey()));
 
         if (unlink) {
-            final UserMod userMod = new UserMod();
-            userMod.setKey(id);
-            userMod.getResourcesToRemove().add(profile.getTask().getResource().getKey());
+            GroupMod groupMod = new GroupMod();
+            groupMod.setKey(key);
+            groupMod.getResourcesToRemove().add(profile.getTask().getResource().getKey());
         }
     }
 
     @Override
-    protected void doDelete(final Long id) {
+    protected void doDelete(final Long key) {
         try {
-            taskExecutor.execute(
-                    propagationManager.getGroupDeleteTasks(id, profile.getTask().getResource().getKey()));
+            taskExecutor.execute(propagationManager.getGroupDeleteTasks(key, profile.getTask().getResource().getKey()));
         } catch (Exception e) {
             // A propagation failure doesn't imply a synchronization failure.
             // The propagation exception status will be reported into the propagation task execution.
-            LOG.error("Could not propagate user " + id, e);
+            LOG.error("Could not propagate group " + key, e);
         }
 
-        groupProvisioningManager.delete(id);
+        groupProvisioningManager.delete(key);
     }
 }

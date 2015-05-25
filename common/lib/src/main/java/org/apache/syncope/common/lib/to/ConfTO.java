@@ -23,7 +23,7 @@ import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "conf")
 @XmlType
-public class ConfTO extends AbstractAttributableTO {
+public class ConfTO extends AnyTO {
 
     private static final long serialVersionUID = -3825039700228595590L;
 

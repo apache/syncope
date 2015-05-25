@@ -29,7 +29,7 @@ import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "userReportletConf")
 @XmlType
-public class UserReportletConf extends AbstractSubjectReportletConf {
+public class UserReportletConf extends AbstractAnyReportletConf {
 
     @XmlEnum
     @XmlType(name = "userReportletConfFeature")

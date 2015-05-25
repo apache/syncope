@@ -22,13 +22,13 @@ import javax.validation.ConstraintValidatorContext;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.common.lib.types.EntityViolationType;
-import org.apache.syncope.core.persistence.api.entity.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.Mapping;
-import org.apache.syncope.core.persistence.api.entity.MappingItem;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
+import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
+import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
-import org.apache.syncope.core.persistence.api.entity.user.UMapping;
 
 public class ExternalResourceValidator extends AbstractValidator<ExternalResourceCheck, ExternalResource> {
 
@@ -60,32 +60,29 @@ public class ExternalResourceValidator extends AbstractValidator<ExternalResourc
         return true;
     }
 
-    private boolean isValid(final Mapping<?> mapping, final ConstraintValidatorContext context) {
+    private boolean isValid(final AnyType anyType, final Mapping mapping, final ConstraintValidatorContext context) {
         if (mapping == null) {
             return true;
         }
 
-        int accountIds = CollectionUtils.countMatches(mapping.getItems(), new Predicate<MappingItem>() {
+        int connObjectKeys = CollectionUtils.countMatches(mapping.getItems(), new Predicate<MappingItem>() {
 
             @Override
             public boolean evaluate(final MappingItem item) {
-                return item.isAccountid();
+                return item.isConnObjectKey();
             }
         });
-        if (accountIds != 1) {
+        if (connObjectKeys != 1) {
             context.buildConstraintViolationWithTemplate(
-                    getTemplate(EntityViolationType.InvalidMapping, "One and only one accountId mapping is needed")).
-                    addPropertyNode("accountId.size").addConstraintViolation();
+                    getTemplate(EntityViolationType.InvalidMapping, "Single ConnObjectKey mapping is required")).
+                    addPropertyNode("connObjectKey.size").addConstraintViolation();
             return false;
         }
 
-        final MappingItem accountId = mapping.getAccountIdItem();
-        if (mapping instanceof UMapping
-                && AttributableType.GROUP == accountId.getIntMappingType().getAttributableType()) {
-
+        MappingItem connObjectKey = mapping.getConnObjectKeyItem();
+        if (connObjectKey.getIntMappingType().getAnyTypeKind() != anyType.getKind()) {
             context.buildConstraintViolationWithTemplate(
-                    getTemplate(EntityViolationType.InvalidMapping,
-                            "Group attribute as accountId is not permitted")).
+                    getTemplate(EntityViolationType.InvalidMapping, "ConnObjectKey must be from the same AnyType")).
                     addPropertyNode("attributableType").addConstraintViolation();
             return false;
         }
@@ -102,7 +99,7 @@ public class ExternalResourceValidator extends AbstractValidator<ExternalResourc
         }
         if (passwords > 1) {
             context.buildConstraintViolationWithTemplate(
-                    getTemplate(EntityViolationType.InvalidMapping, "One and only one password mapping is allowed")).
+                    getTemplate(EntityViolationType.InvalidMapping, "One password mapping is allowed at most")).
                     addPropertyNode("password.size").addConstraintViolation();
             isValid = false;
         }
@@ -141,6 +138,12 @@ public class ExternalResourceValidator extends AbstractValidator<ExternalResourc
             }
         }
 
-        return isValid(resource.getUmapping(), context) && isValid(resource.getGmapping(), context);
+        return CollectionUtils.matchesAll(resource.getProvisions(), new Predicate<Provision>() {
+
+            @Override
+            public boolean evaluate(final Provision provision) {
+                return isValid(provision.getAnyType(), provision.getMapping(), context);
+            }
+        });
     }
 }

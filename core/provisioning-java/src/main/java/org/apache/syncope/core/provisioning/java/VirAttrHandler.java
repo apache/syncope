@@ -26,31 +26,24 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.mod.AttrMod;
 import org.apache.syncope.common.lib.to.AttrTO;
-import org.apache.syncope.common.lib.types.AttributableType;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
-import org.apache.syncope.core.persistence.api.dao.MembershipDAO;
+import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.VirAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
-import org.apache.syncope.core.persistence.api.entity.Attributable;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtils;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtilsFactory;
-import org.apache.syncope.core.persistence.api.entity.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.MappingItem;
-import org.apache.syncope.core.persistence.api.entity.Subject;
+import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.AnyUtils;
+import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.VirAttr;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
-import org.apache.syncope.core.persistence.api.entity.membership.MVirAttr;
-import org.apache.syncope.core.persistence.api.entity.membership.MVirAttrTemplate;
-import org.apache.syncope.core.persistence.api.entity.membership.Membership;
-import org.apache.syncope.core.persistence.api.entity.group.GVirAttr;
-import org.apache.syncope.core.persistence.api.entity.group.GVirAttrTemplate;
+import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
-import org.apache.syncope.core.persistence.api.entity.user.UVirAttr;
-import org.apache.syncope.core.persistence.api.entity.user.UVirSchema;
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,18 +64,18 @@ public class VirAttrHandler {
     private VirAttrDAO virAttrDAO;
 
     @Autowired
+    private AnyObjectDAO anyObjectDAO;
+
+    @Autowired
     private UserDAO userDAO;
 
     @Autowired
-    private MembershipDAO membershipDAO;
+    private AnyUtilsFactory anyUtilsFactory;
 
-    @Autowired
-    private AttributableUtilsFactory attrUtilsFactory;
-
-    public <T extends VirSchema> T getVirSchema(final String virSchemaName, final Class<T> reference) {
-        T virtualSchema = null;
+    public VirSchema getVirSchema(final String virSchemaName) {
+        VirSchema virtualSchema = null;
         if (StringUtils.isNotBlank(virSchemaName)) {
-            virtualSchema = virSchemaDAO.find(virSchemaName, reference);
+            virtualSchema = virSchemaDAO.find(virSchemaName);
 
             if (virtualSchema == null) {
                 LOG.debug("Ignoring invalid virtual schema {}", virSchemaName);
@@ -92,33 +85,14 @@ public class VirAttrHandler {
         return virtualSchema;
     }
 
-    public void setVirAttrSchema(final Attributable<?, ?, ?> attributable,
-            final VirAttr virAttr, final VirSchema virSchema) {
-
-        if (virAttr instanceof UVirAttr) {
-            ((UVirAttr) virAttr).setSchema((UVirSchema) virSchema);
-        } else if (virAttr instanceof GVirAttr) {
-            GVirAttrTemplate template = ((Group) attributable).
-                    getAttrTemplate(GVirAttrTemplate.class, virSchema.getKey());
-            if (template != null) {
-                ((GVirAttr) virAttr).setTemplate(template);
-            }
-        } else if (virAttr instanceof MVirAttr) {
-            MVirAttrTemplate template =
-                    ((Membership) attributable).getGroup().
-                    getAttrTemplate(MVirAttrTemplate.class, virSchema.getKey());
-            if (template != null) {
-                ((MVirAttr) virAttr).setTemplate(template);
-            }
-        }
-    }
-
-    public void updateOnResourcesIfMappingMatches(final AttributableUtils attrUtils, final String schemaKey,
-            final Set<ExternalResource> resources, final IntMappingType mappingType,
+    public void updateOnResourcesIfMappingMatches(final Any<?, ?, ?> any, final AnyUtils anyUtils,
+            final String schemaKey, final Set<ExternalResource> resources, final IntMappingType mappingType,
             final PropagationByResource propByRes) {
 
         for (ExternalResource resource : resources) {
-            for (MappingItem mapItem : attrUtils.getMappingItems(resource, MappingPurpose.PROPAGATION)) {
+            for (MappingItem mapItem : anyUtils.getMappingItems(
+                    resource.getProvision(any.getType()), MappingPurpose.PROPAGATION)) {
+
                 if (schemaKey.equals(mapItem.getIntAttrName()) && mapItem.getIntMappingType() == mappingType) {
                     propByRes.add(ResourceOperation.UPDATE, resource.getKey());
                 }
@@ -127,44 +101,44 @@ public class VirAttrHandler {
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public PropagationByResource fillVirtual(final Attributable attributable,
-            final Set<String> vAttrsToBeRemoved, final Set<AttrMod> vAttrsToBeUpdated,
-            final AttributableUtils attrUtils) {
+    public PropagationByResource fillVirtual(final Any any,
+            final Set<String> vAttrsToBeRemoved, final Set<AttrMod> vAttrsToBeUpdated, final AnyUtils anyUtils) {
 
         PropagationByResource propByRes = new PropagationByResource();
 
         Set<ExternalResource> externalResources = new HashSet<>();
-        if (attributable instanceof User) {
-            externalResources.addAll(userDAO.findAllResources((User) attributable));
-        } else if (attributable instanceof Group) {
-            externalResources.addAll(((Group) attributable).getResources());
-        } else if (attributable instanceof Membership) {
-            externalResources.addAll(userDAO.findAllResources(((Membership) attributable).getUser()));
-            externalResources.addAll(((Membership) attributable).getGroup().getResources());
+        if (any instanceof User) {
+            externalResources.addAll(userDAO.findAllResources((User) any));
+        } else if (any instanceof Group) {
+            externalResources.addAll(((Group) any).getResources());
+        } else if (any instanceof AnyObject) {
+            externalResources.addAll(anyObjectDAO.findAllResources((AnyObject) any));
         }
 
         // 1. virtual attributes to be removed
         for (String vAttrToBeRemoved : vAttrsToBeRemoved) {
-            VirSchema virSchema = getVirSchema(vAttrToBeRemoved, attrUtils.virSchemaClass());
+            VirSchema virSchema = getVirSchema(vAttrToBeRemoved);
             if (virSchema != null) {
-                VirAttr virAttr = attributable.getVirAttr(virSchema.getKey());
+                VirAttr virAttr = any.getVirAttr(virSchema.getKey());
                 if (virAttr == null) {
                     LOG.debug("No virtual attribute found for schema {}", virSchema.getKey());
                 } else {
-                    attributable.removeVirAttr(virAttr);
+                    any.remove(virAttr);
                     virAttrDAO.delete(virAttr);
                 }
 
                 for (ExternalResource resource : externalResources) {
-                    for (MappingItem mapItem : attrUtils.getMappingItems(resource, MappingPurpose.PROPAGATION)) {
+                    for (MappingItem mapItem : anyUtils.getMappingItems(
+                            resource.getProvision(any.getType()), MappingPurpose.PROPAGATION)) {
+
                         if (virSchema.getKey().equals(mapItem.getIntAttrName())
-                                && mapItem.getIntMappingType() == attrUtils.virIntMappingType()) {
+                                && mapItem.getIntMappingType() == anyUtils.virIntMappingType()) {
 
                             propByRes.add(ResourceOperation.UPDATE, resource.getKey());
 
-                            // Using virtual attribute as AccountId must be avoided
-                            if (mapItem.isAccountid() && virAttr != null && !virAttr.getValues().isEmpty()) {
-                                propByRes.addOldAccountId(resource.getKey(), virAttr.getValues().get(0));
+                            // Using virtual attribute as ConnObjectKey must be avoided
+                            if (mapItem.isConnObjectKey() && virAttr != null && !virAttr.getValues().isEmpty()) {
+                                propByRes.addOldAccountId(resource.getKey(), virAttr.getValues().get(0).toString());
                             }
                         }
                     }
@@ -176,31 +150,26 @@ public class VirAttrHandler {
 
         // 2. virtual attributes to be updated
         for (AttrMod vAttrToBeUpdated : vAttrsToBeUpdated) {
-            VirSchema virSchema = getVirSchema(vAttrToBeUpdated.getSchema(), attrUtils.virSchemaClass());
+            VirSchema virSchema = getVirSchema(vAttrToBeUpdated.getSchema());
             VirAttr virAttr = null;
             if (virSchema != null) {
-                virAttr = attributable.getVirAttr(virSchema.getKey());
+                virAttr = any.getVirAttr(virSchema.getKey());
                 if (virAttr == null) {
-                    virAttr = attrUtils.newVirAttr();
-                    setVirAttrSchema(attributable, virAttr, virSchema);
+                    virAttr = anyUtils.newVirAttr();
+                    virAttr.setSchema(virSchema);
                     if (virAttr.getSchema() == null) {
-                        LOG.debug("Ignoring {} because no valid schema or template was found", vAttrToBeUpdated);
+                        LOG.debug("Ignoring {} because no valid schema was found", vAttrToBeUpdated);
                     } else {
-                        attributable.addVirAttr(virAttr);
+                        any.add(virAttr);
                     }
                 }
             }
 
             if (virSchema != null && virAttr != null && virAttr.getSchema() != null) {
-                if (attributable instanceof Subject) {
-                    updateOnResourcesIfMappingMatches(attrUtils, virSchema.getKey(),
-                            externalResources, attrUtils.derIntMappingType(), propByRes);
-                } else if (attributable instanceof Membership) {
-                    updateOnResourcesIfMappingMatches(attrUtils, virSchema.getKey(),
-                            externalResources, IntMappingType.MembershipVirtualSchema, propByRes);
-                }
+                updateOnResourcesIfMappingMatches(any, anyUtils, virSchema.getKey(),
+                        externalResources, anyUtils.derIntMappingType(), propByRes);
 
-                final List<String> values = new ArrayList<>(virAttr.getValues());
+                List<String> values = new ArrayList<>(virAttr.getValues());
                 values.removeAll(vAttrToBeUpdated.getValuesToBeRemoved());
                 values.addAll(vAttrToBeUpdated.getValuesToBeAdded());
 
@@ -208,7 +177,7 @@ public class VirAttrHandler {
                 virAttr.getValues().addAll(values);
 
                 // Owner cannot be specified before otherwise a virtual attribute remove will be invalidated.
-                virAttr.setOwner(attributable);
+                virAttr.setOwner(any);
             }
         }
 
@@ -220,33 +189,31 @@ public class VirAttrHandler {
     /**
      * Add virtual attributes and specify values to be propagated.
      *
-     * @param attributable attributable.
+     * @param any any.
      * @param vAttrs virtual attributes to be added.
-     * @param attrUtils attributable util.
+     * @param anyUtils utils
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public void fillVirtual(final Attributable attributable, final Collection<AttrTO> vAttrs,
-            final AttributableUtils attrUtils) {
-
-        for (AttrTO attributeTO : vAttrs) {
-            VirAttr virAttr = attributable.getVirAttr(attributeTO.getSchema());
+    public void fillVirtual(final Any any, final Collection<AttrTO> vAttrs, final AnyUtils anyUtils) {
+        for (AttrTO attrTO : vAttrs) {
+            VirAttr virAttr = any.getVirAttr(attrTO.getSchema());
             if (virAttr == null) {
-                VirSchema virSchema = getVirSchema(attributeTO.getSchema(), attrUtils.virSchemaClass());
+                VirSchema virSchema = getVirSchema(attrTO.getSchema());
                 if (virSchema != null) {
-                    virAttr = attrUtils.newVirAttr();
-                    setVirAttrSchema(attributable, virAttr, virSchema);
+                    virAttr = anyUtils.newVirAttr();
+                    virAttr.setSchema(virSchema);
                     if (virAttr.getSchema() == null) {
-                        LOG.debug("Ignoring {} because no valid schema or template was found", attributeTO);
+                        LOG.debug("Ignoring {} because no valid schema was found", attrTO);
                     } else {
-                        virAttr.setOwner(attributable);
-                        attributable.addVirAttr(virAttr);
+                        virAttr.setOwner(any);
+                        any.add(virAttr);
                         virAttr.getValues().clear();
-                        virAttr.getValues().addAll(attributeTO.getValues());
+                        virAttr.getValues().addAll(attrTO.getValues());
                     }
                 }
             } else {
                 virAttr.getValues().clear();
-                virAttr.getValues().addAll(attributeTO.getValues());
+                virAttr.getValues().addAll(attrTO.getValues());
             }
         }
     }
@@ -263,50 +230,9 @@ public class VirAttrHandler {
             final Long key, final Set<String> vAttrsToBeRemoved, final Set<AttrMod> vAttrsToBeUpdated) {
 
         return fillVirtual(
-                userDAO.authFetch(key),
+                anyObjectDAO.authFind(key),
                 vAttrsToBeRemoved,
                 vAttrsToBeUpdated,
-                attrUtilsFactory.getInstance(AttributableType.USER));
+                anyUtilsFactory.getInstance(AnyTypeKind.USER));
     }
-
-    private Set<String> getAttrNames(final List<? extends VirAttr> virAttrs) {
-        final Set<String> virAttrNames = new HashSet<>();
-        for (VirAttr attr : virAttrs) {
-            virAttrNames.add(attr.getSchema().getKey());
-        }
-        return virAttrNames;
-    }
-
-    /**
-     * SYNCOPE-501: build membership virtual attribute changes in case no other changes were made.
-     *
-     * @param key user key
-     * @param groupKey group key
-     * @param membershipKey membership key
-     * @param vAttrsToBeRemoved virtual attributes to be removed.
-     * @param vAttrsToBeUpdated virtual attributes to be updated.
-     * @param isRemoval flag to check if fill is on removed or added membership
-     * @return operations to be performed on external resources for membership virtual attributes changes
-     */
-    public PropagationByResource fillMembershipVirtual(
-            final Long key, final Long groupKey, final Long membershipKey, final Set<String> vAttrsToBeRemoved,
-            final Set<AttrMod> vAttrsToBeUpdated, final boolean isRemoval) {
-
-        Membership membership = membershipKey == null
-                ? userDAO.authFetch(key).getMembership(groupKey)
-                : membershipDAO.authFetch(membershipKey);
-
-        return membership == null ? new PropagationByResource() : isRemoval
-                ? fillVirtual(
-                        membership,
-                        getAttrNames(membership.getVirAttrs()),
-                        vAttrsToBeUpdated,
-                        attrUtilsFactory.getInstance(AttributableType.MEMBERSHIP))
-                : fillVirtual(
-                        membership,
-                        vAttrsToBeRemoved,
-                        vAttrsToBeUpdated,
-                        attrUtilsFactory.getInstance(AttributableType.MEMBERSHIP));
-    }
-
 }

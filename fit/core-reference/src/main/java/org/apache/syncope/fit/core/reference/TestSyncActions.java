@@ -19,9 +19,9 @@
 package org.apache.syncope.fit.core.reference;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.syncope.common.lib.mod.AbstractSubjectMod;
+import org.apache.syncope.common.lib.mod.AnyMod;
 import org.apache.syncope.common.lib.mod.AttrMod;
-import org.apache.syncope.common.lib.to.AbstractSubjectTO;
+import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.core.provisioning.api.sync.IgnoreProvisionException;
@@ -38,7 +38,7 @@ public class TestSyncActions extends DefaultSyncActions {
     private int counter = 0;
 
     @Override
-    public <T extends AbstractSubjectTO> SyncDelta beforeProvision(
+    public <T extends AnyTO> SyncDelta beforeProvision(
             final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final T subject)
             throws JobExecutionException {
 
@@ -61,7 +61,7 @@ public class TestSyncActions extends DefaultSyncActions {
     }
 
     @Override
-    public <T extends AbstractSubjectTO> SyncDelta beforeAssign(
+    public <T extends AnyTO> SyncDelta beforeAssign(
             final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final T subject)
             throws JobExecutionException {
 
@@ -73,7 +73,7 @@ public class TestSyncActions extends DefaultSyncActions {
     }
 
     @Override
-    public <T extends AbstractSubjectTO, K extends AbstractSubjectMod> SyncDelta beforeUpdate(
+    public <T extends AnyTO, K extends AnyMod> SyncDelta beforeUpdate(
             final ProvisioningProfile<?, ?> profile,
             final SyncDelta delta,
             final T subject,

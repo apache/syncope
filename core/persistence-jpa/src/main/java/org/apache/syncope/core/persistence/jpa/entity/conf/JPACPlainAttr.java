@@ -24,20 +24,16 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.Valid;
-import org.apache.syncope.core.persistence.api.entity.Attributable;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
-import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttrValue;
-import org.apache.syncope.core.persistence.api.entity.conf.CPlainSchema;
 import org.apache.syncope.core.persistence.api.entity.conf.Conf;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractPlainAttr;
 
@@ -46,7 +42,7 @@ import org.apache.syncope.core.persistence.jpa.entity.AbstractPlainAttr;
  */
 @Entity
 @Table(name = JPACPlainAttr.TABLE)
-public class JPACPlainAttr extends AbstractPlainAttr implements CPlainAttr {
+public class JPACPlainAttr extends AbstractPlainAttr<Conf> implements CPlainAttr {
 
     private static final long serialVersionUID = 8022331942314540648L;
 
@@ -65,18 +61,11 @@ public class JPACPlainAttr extends AbstractPlainAttr implements CPlainAttr {
     private JPAConf owner;
 
     /**
-     * The schema of this attribute.
-     */
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "schema_name")
-    private JPACPlainSchema schema;
-
-    /**
      * Values of this attribute (if schema is not UNIQUE).
      */
     @OneToMany(cascade = CascadeType.MERGE, orphanRemoval = true, mappedBy = "attribute")
     @Valid
-    private List<JPACPlainAttrValue> values;
+    private List<JPACPlainAttrValue> values = new ArrayList<>();
 
     /**
      * Value of this attribute (if schema is UNIQUE).
@@ -84,14 +73,6 @@ public class JPACPlainAttr extends AbstractPlainAttr implements CPlainAttr {
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "attribute")
     @Valid
     private JPACPlainAttrUniqueValue uniqueValue;
-
-    /**
-     * Default constructor.
-     */
-    public JPACPlainAttr() {
-        super();
-        values = new ArrayList<>();
-    }
 
     @Override
     public Long getKey() {
@@ -104,30 +85,19 @@ public class JPACPlainAttr extends AbstractPlainAttr implements CPlainAttr {
     }
 
     @Override
-    public void setOwner(final Attributable<?, ?, ?> owner) {
+    public void setOwner(final Conf owner) {
         checkType(owner, JPAConf.class);
         this.owner = (JPAConf) owner;
     }
 
     @Override
-    public CPlainSchema getSchema() {
-        return schema;
-    }
-
-    @Override
-    public void setSchema(final PlainSchema schema) {
-        checkType(schema, JPACPlainSchema.class);
-        this.schema = (JPACPlainSchema) schema;
-    }
-
-    @Override
-    protected boolean addValue(final PlainAttrValue attrValue) {
+    protected boolean addForMultiValue(final PlainAttrValue attrValue) {
         checkType(attrValue, JPACPlainAttrValue.class);
         return values.add((JPACPlainAttrValue) attrValue);
     }
 
     @Override
-    public boolean removeValue(final PlainAttrValue attrValue) {
+    public boolean remove(final PlainAttrValue attrValue) {
         checkType(attrValue, JPACPlainAttrValue.class);
         return values.remove((JPACPlainAttrValue) attrValue);
     }

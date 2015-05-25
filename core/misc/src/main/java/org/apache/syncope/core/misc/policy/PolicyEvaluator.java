@@ -22,7 +22,7 @@ import java.util.List;
 import org.apache.syncope.common.lib.types.AccountPolicySpec;
 import org.apache.syncope.common.lib.types.PasswordPolicySpec;
 import org.apache.syncope.common.lib.types.PolicySpec;
-import org.apache.syncope.core.persistence.api.entity.Attributable;
+import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.Policy;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -40,7 +40,7 @@ public class PolicyEvaluator {
     private static final Logger LOG = LoggerFactory.getLogger(PolicyEvaluator.class);
 
     @SuppressWarnings("unchecked")
-    public <T extends PolicySpec> T evaluate(final Policy policy, final Attributable<?, ?, ?> attributable) {
+    public <T extends PolicySpec> T evaluate(final Policy policy, final Any<?, ?, ?> any) {
         if (policy == null) {
             return null;
         }
@@ -54,7 +54,7 @@ public class PolicyEvaluator {
                 BeanUtils.copyProperties(ppSpec, evaluatedPPSpec, new String[] { "schemasNotPermitted" });
 
                 for (String schema : ppSpec.getSchemasNotPermitted()) {
-                    PlainAttr attr = attributable.getPlainAttr(schema);
+                    PlainAttr attr = any.getPlainAttr(schema);
                     if (attr != null) {
                         List<String> values = attr.getValuesAsStrings();
                         if (values != null && !values.isEmpty()) {
@@ -64,13 +64,13 @@ public class PolicyEvaluator {
                 }
 
                 // Password history verification and update
-                if (!(attributable instanceof User)) {
-                    LOG.error("Cannot check previous passwords. attributable is not a user object: {}",
-                            attributable.getClass().getName());
+                if (!(any instanceof User)) {
+                    LOG.error("Cannot check previous passwords. instance is not user object: {}",
+                            any.getClass().getName());
                     result = (T) evaluatedPPSpec;
                     break;
                 }
-                User user = (User) attributable;
+                User user = (User) any;
                 if (user.verifyPasswordHistory(user.getClearPassword(), ppSpec.getHistoryLength())) {
                     evaluatedPPSpec.getWordsNotPermitted().add(user.getClearPassword());
                 }
@@ -84,7 +84,7 @@ public class PolicyEvaluator {
                 BeanUtils.copyProperties(spec, accountPolicy, new String[] { "schemasNotPermitted" });
 
                 for (String schema : spec.getSchemasNotPermitted()) {
-                    PlainAttr attr = attributable.getPlainAttr(schema);
+                    PlainAttr attr = any.getPlainAttr(schema);
                     if (attr != null) {
                         List<String> values = attr.getValuesAsStrings();
                         if (values != null && !values.isEmpty()) {

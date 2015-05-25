@@ -30,14 +30,14 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import org.apache.syncope.common.lib.to.CamelRouteTO;
-import org.apache.syncope.common.lib.types.SubjectType;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 
 @Path("camelRoutes")
 public interface CamelRouteService extends JAXRSService {
 
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    List<CamelRouteTO> list(@NotNull @MatrixParam("subjectType") SubjectType subjectType);
+    List<CamelRouteTO> list(@NotNull @MatrixParam("anyTypeKind") AnyTypeKind anyTypeKind);
 
     @GET
     @Path("{key}")

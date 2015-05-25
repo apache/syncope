@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.collections4.PredicateUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.ArrayUtils;
@@ -34,13 +36,12 @@ import org.apache.syncope.common.lib.to.ConnBundleTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
-import org.apache.syncope.common.lib.CollectionUtils2;
 import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.core.persistence.api.dao.ConnInstanceDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
-import org.apache.syncope.core.persistence.api.entity.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.ConnectorFactory;
@@ -138,20 +139,21 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
             CurrentLocale.set(new Locale(lang));
         }
 
-        return CollectionUtils2.collect(connInstanceDAO.findAll(), new Transformer<ConnInstance, ConnInstanceTO>() {
+        return CollectionUtils.collect(IteratorUtils.filteredIterator(connInstanceDAO.findAll().iterator(),
+                PredicateUtils.notNullPredicate()), new Transformer<ConnInstance, ConnInstanceTO>() {
 
-            @Override
-            public ConnInstanceTO transform(final ConnInstance input) {
-                ConnInstanceTO result = null;
-                try {
-                    result = binder.getConnInstanceTO(input);
-                } catch (NotFoundException e) {
-                    LOG.error("Connector '{}#{}' not found", input.getBundleName(), input.getVersion());
-                }
+                    @Override
+                    public ConnInstanceTO transform(final ConnInstance input) {
+                        ConnInstanceTO result = null;
+                        try {
+                            result = binder.getConnInstanceTO(input);
+                        } catch (NotFoundException e) {
+                            LOG.error("Connector '{}#{}' not found", input.getBundleName(), input.getVersion());
+                        }
 
-                return result;
-            }
-        }, PredicateUtils.notNullPredicate(), new ArrayList<ConnInstanceTO>());
+                        return result;
+                    }
+                }, new ArrayList<ConnInstanceTO>());
     }
 
     @PreAuthorize("hasRole('" + Entitlement.CONNECTOR_READ + "')")

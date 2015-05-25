@@ -26,12 +26,12 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-import javax.validation.Valid;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.core.persistence.api.entity.AccountPolicy;
-import org.apache.syncope.core.persistence.api.entity.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
+import org.apache.syncope.core.persistence.jpa.entity.resource.JPAExternalResource;
 
 @Entity
 @DiscriminatorValue("AccountPolicy")
@@ -44,10 +44,9 @@ public class JPAAccountPolicy extends JPAPolicy implements AccountPolicy {
      */
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(joinColumns =
-            @JoinColumn(name = "account_policy_id"),
+            @JoinColumn(name = "accountPolicy_id"),
             inverseJoinColumns =
             @JoinColumn(name = "resource_name"))
-    @Valid
     private Set<JPAExternalResource> resources = new HashSet<>();
 
     public JPAAccountPolicy() {

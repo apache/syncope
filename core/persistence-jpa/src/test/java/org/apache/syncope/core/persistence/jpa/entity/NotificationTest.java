@@ -24,7 +24,9 @@ import static org.junit.Assert.assertNull;
 
 import java.util.List;
 import org.apache.syncope.common.lib.types.IntMappingType;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
+import org.apache.syncope.core.persistence.api.entity.AnyAbout;
 import org.apache.syncope.core.persistence.api.entity.Notification;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.junit.Test;
@@ -35,6 +37,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class NotificationTest extends AbstractTest {
 
     @Autowired
+    private AnyTypeDAO anyTypeDAO;
+
+    @Autowired
     private NotificationDAO notificationDAO;
 
     @Test
@@ -43,7 +48,7 @@ public class NotificationTest extends AbstractTest {
         assertNotNull(notification);
         assertNotNull(notification.getEvents());
         assertFalse(notification.getEvents().isEmpty());
-        assertNotNull(notification.getUserAbout());
+        assertNotNull(notification.getAbout(anyTypeDAO.findUser()));
         assertNotNull(notification.getRecipients());
 
     }
@@ -60,9 +65,13 @@ public class NotificationTest extends AbstractTest {
         Notification notification = entityFactory.newEntity(Notification.class);
         notification.getEvents().add("save");
 
-        notification.setUserAbout("fake search condition");
+        AnyAbout about = entityFactory.newEntity(AnyAbout.class);
+        about.setNotification(notification);
+        notification.add(about);
+        about.setAnyType(anyTypeDAO.findUser());
+        about.set("fake search condition");
 
-        notification.setRecipients("fake search condition");
+        notification.setRecipients("fake recipients");
 
         notification.setRecipientAttrName("email");
         notification.setRecipientAttrType(IntMappingType.UserPlainSchema);
@@ -87,7 +96,11 @@ public class NotificationTest extends AbstractTest {
         Notification notification = entityFactory.newEntity(Notification.class);
         notification.getEvents().add("save");
 
-        notification.setUserAbout("fake search condition");
+        AnyAbout about = entityFactory.newEntity(AnyAbout.class);
+        about.setNotification(notification);
+        notification.add(about);
+        about.setAnyType(anyTypeDAO.findUser());
+        about.set("fake search condition");
 
         notification.setRecipients("fake search condition");
 
@@ -112,7 +125,11 @@ public class NotificationTest extends AbstractTest {
         Notification notification = entityFactory.newEntity(Notification.class);
         notification.getEvents().add("[REST]:[GroupLogic]:[]:[create]:[SUCCESS]");
 
-        notification.setGroupAbout("fake search condition");
+        AnyAbout about = entityFactory.newEntity(AnyAbout.class);
+        about.setNotification(notification);
+        notification.add(about);
+        about.setAnyType(anyTypeDAO.findUser());
+        about.set("fake search condition");
 
         notification.setRecipientAttrName("email");
         notification.setRecipientAttrType(IntMappingType.UserPlainSchema);

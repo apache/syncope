@@ -23,21 +23,22 @@ import java.util.Iterator;
 import java.util.Set;
 import javax.annotation.Resource;
 import org.apache.commons.collections4.SetUtils;
-import org.apache.syncope.common.lib.types.AttributableType;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtils;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtilsFactory;
-import org.apache.syncope.core.persistence.api.entity.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.AnyUtils;
+import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.ConnectorFactory;
 import org.apache.syncope.core.misc.AuditManager;
 import org.apache.syncope.core.misc.MappingUtils;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.identityconnectors.framework.common.objects.Uid;
@@ -77,10 +78,13 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
     protected PolicyDAO policyDAO;
 
     @Autowired
+    protected AnyTypeDAO anyTypeDAO;
+
+    @Autowired
     protected ConnectorFactory connFactory;
 
     @Autowired
-    protected AttributableUtilsFactory attrUtilsFactory;
+    protected AnyUtilsFactory attrUtilsFactory;
 
     @Resource(name = "adminUser")
     protected String adminUser;
@@ -253,15 +257,15 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
         boolean authenticated = encryptor.verify(password, user.getCipherAlgorithm(), user.getPassword());
         LOG.debug("{} authenticated on internal storage: {}", user.getUsername(), authenticated);
 
-        AttributableUtils attrUtils = attrUtilsFactory.getInstance(AttributableType.USER);
+        AnyUtils attrUtils = attrUtilsFactory.getInstance(AnyTypeKind.USER);
         for (Iterator<? extends ExternalResource> itor = getPassthroughResources(user).iterator();
                 itor.hasNext() && !authenticated;) {
 
             ExternalResource resource = itor.next();
-            String accountId = null;
+            String connObjectKey = null;
             try {
-                accountId = MappingUtils.getAccountIdValue(user, resource, attrUtils.getAccountIdItem(resource));
-                Uid uid = connFactory.getConnector(resource).authenticate(accountId, password, null);
+                connObjectKey = MappingUtils.getConnObjectKeyValue(user, resource.getProvision(anyTypeDAO.findUser()));
+                Uid uid = connFactory.getConnector(resource).authenticate(connObjectKey, password, null);
                 if (uid != null) {
                     authenticated = true;
                 }
@@ -269,7 +273,7 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
                 LOG.debug("Could not authenticate {} on {}", user.getUsername(), resource.getKey(), e);
             }
             LOG.debug("{} authenticated on {} as {}: {}",
-                    user.getUsername(), resource.getKey(), accountId, authenticated);
+                    user.getUsername(), resource.getKey(), connObjectKey, authenticated);
         }
 
         return authenticated;

@@ -27,10 +27,9 @@ import java.util.Map;
 import org.apache.syncope.client.console.commons.ConnIdSpecialAttributeName;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.ImagePanel;
-import org.apache.syncope.client.console.rest.AbstractSubjectRestClient;
+import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
 import org.apache.syncope.common.lib.mod.StatusMod;
-import org.apache.syncope.common.lib.to.AbstractAttributableTO;
-import org.apache.syncope.common.lib.to.AbstractSubjectTO;
+import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.wicket.Component;
@@ -49,56 +48,56 @@ public class StatusUtils implements Serializable {
 
     private static final String IMG_PREFIX = "/img/statuses/";
 
-    private final AbstractSubjectRestClient restClient;
+    private final AbstractAnyRestClient restClient;
 
-    public StatusUtils(final AbstractSubjectRestClient restClient) {
+    public StatusUtils(final AbstractAnyRestClient restClient) {
         this.restClient = restClient;
     }
 
-    public List<ConnObjectWrapper> getConnectorObjects(final AbstractSubjectTO subject) {
+    public List<ConnObjectWrapper> getConnectorObjects(final AnyTO any) {
         final List<ConnObjectWrapper> objects = new ArrayList<>();
-        objects.addAll(getConnectorObjects(subject, subject.getResources()));
+        objects.addAll(getConnectorObjects(any, any.getResources()));
         return objects;
     }
 
     public List<ConnObjectWrapper> getConnectorObjects(
-            final Collection<AbstractSubjectTO> subjects, final Collection<String> resources) {
+            final Collection<AnyTO> anys, final Collection<String> resources) {
 
         final List<ConnObjectWrapper> objects = new ArrayList<>();
 
-        for (AbstractSubjectTO subject : subjects) {
-            objects.addAll(getConnectorObjects(subject, resources));
+        for (AnyTO any : anys) {
+            objects.addAll(getConnectorObjects(any, resources));
         }
 
         return objects;
     }
 
     private List<ConnObjectWrapper> getConnectorObjects(
-            final AbstractSubjectTO subject, final Collection<String> resources) {
+            final AnyTO any, final Collection<String> resources) {
 
         final List<ConnObjectWrapper> objects = new ArrayList<>();
 
         for (String resourceName : resources) {
             ConnObjectTO objectTO = null;
             try {
-                objectTO = restClient.getConnectorObject(resourceName, subject.getKey());
+                objectTO = restClient.readConnObject(resourceName, any.getKey());
             } catch (Exception e) {
-                LOG.warn("ConnObject '{}' not found on resource '{}'", subject.getKey(), resourceName);
+                LOG.warn("ConnObject '{}' not found on resource '{}'", any.getKey(), resourceName);
             }
 
-            objects.add(new ConnObjectWrapper(subject, resourceName, objectTO));
+            objects.add(new ConnObjectWrapper(any, resourceName, objectTO));
         }
 
         return objects;
     }
 
     public StatusBean getStatusBean(
-            final AbstractAttributableTO attributable,
+            final AnyTO anyTO,
             final String resourceName,
             final ConnObjectTO objectTO,
             final boolean isGroup) {
 
-        final StatusBean statusBean = new StatusBean(attributable, resourceName);
+        final StatusBean statusBean = new StatusBean(anyTO, resourceName);
 
         if (objectTO != null) {
             final Boolean enabled = isEnabled(objectTO);
@@ -165,10 +164,10 @@ public class StatusUtils implements Serializable {
     }
 
     public ConnObjectTO getConnObjectTO(
-            final Long attributableId, final String resourceName, final List<ConnObjectWrapper> objects) {
+            final Long anyKey, final String resourceName, final List<ConnObjectWrapper> objects) {
 
         for (ConnObjectWrapper object : objects) {
-            if (attributableId.equals(object.getAttributable().getKey())
+            if (anyKey.equals(object.getAny().getKey())
                     && resourceName.equalsIgnoreCase(object.getResourceName())) {
 
                 return object.getConnObjectTO();

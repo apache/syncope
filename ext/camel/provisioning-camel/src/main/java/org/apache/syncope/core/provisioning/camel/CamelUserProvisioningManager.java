@@ -81,18 +81,9 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
 
     @Override
     public Pair<Long, List<PropagationStatus>> update(final UserMod userMod) {
-        return update(userMod, false);
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public Pair<Long, List<PropagationStatus>> update(final UserMod userMod, final boolean removeMemberships) {
         PollingConsumer pollingConsumer = getConsumer("direct:updatePort");
 
-        Map<String, Object> props = new HashMap<>();
-        props.put("removeMemberships", removeMemberships);
-
-        sendMessage("direct:updateUser", userMod, props);
+        sendMessage("direct:updateUser", userMod);
 
         Exchange exchange = pollingConsumer.receive();
 

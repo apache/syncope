@@ -20,7 +20,9 @@ package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -39,9 +41,7 @@ public class NotificationTO extends AbstractBaseBean {
 
     private final List<String> events = new ArrayList<>();
 
-    private String userAbout;
-
-    private String groupAbout;
+    private final Map<String, String> abouts = new HashMap<>();
 
     private String recipients;
 
@@ -63,20 +63,8 @@ public class NotificationTO extends AbstractBaseBean {
 
     private boolean active;
 
-    public String getUserAbout() {
-        return userAbout;
-    }
-
-    public void setUserAbout(final String userAbout) {
-        this.userAbout = userAbout;
-    }
-
-    public String getGroupAbout() {
-        return groupAbout;
-    }
-
-    public void setGroupAbout(final String groupAbout) {
-        this.groupAbout = groupAbout;
+    public Map<String, String> getAbouts() {
+        return abouts;
     }
 
     @XmlElementWrapper(name = "events")

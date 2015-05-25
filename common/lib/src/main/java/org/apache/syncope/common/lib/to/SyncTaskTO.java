@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.common.lib.to;
 
+import java.util.HashMap;
+import java.util.Map;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
@@ -29,9 +31,7 @@ public class SyncTaskTO extends AbstractProvisioningTaskTO {
 
     private String destinationRealm;
 
-    private UserTO userTemplate;
-
-    private GroupTO groupTemplate;
+    private final Map<String, AnyTO> templates = new HashMap<>();
 
     private boolean fullReconciliation;
 
@@ -43,20 +43,8 @@ public class SyncTaskTO extends AbstractProvisioningTaskTO {
         this.destinationRealm = destinationRealm;
     }
 
-    public UserTO getUserTemplate() {
-        return userTemplate;
-    }
-
-    public void setUserTemplate(final UserTO userTemplate) {
-        this.userTemplate = userTemplate;
-    }
-
-    public GroupTO getGroupTemplate() {
-        return groupTemplate;
-    }
-
-    public void setGroupTemplate(final GroupTO groupTemplate) {
-        this.groupTemplate = groupTemplate;
+    public Map<String, AnyTO> getTemplates() {
+        return templates;
     }
 
     public boolean isFullReconciliation() {

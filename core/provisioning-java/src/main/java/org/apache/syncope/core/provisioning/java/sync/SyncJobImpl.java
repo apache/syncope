@@ -23,20 +23,21 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.mod.ReferenceMod;
 import org.apache.syncope.common.lib.mod.GroupMod;
 import org.apache.syncope.common.lib.types.SyncPolicySpec;
-import org.apache.syncope.core.persistence.api.entity.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.group.GMapping;
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
 import org.apache.syncope.core.persistence.api.entity.task.SyncTask;
-import org.apache.syncope.core.persistence.api.entity.user.UMapping;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.sync.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.api.sync.SyncActions;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.provisioning.api.job.SyncJob;
+import org.apache.syncope.core.provisioning.api.sync.AnyObjectSyncResultHandler;
 import org.apache.syncope.core.provisioning.api.sync.GroupSyncResultHandler;
 import org.apache.syncope.core.provisioning.api.sync.UserSyncResultHandler;
 import org.apache.syncope.core.workflow.api.GroupWorkflowAdapter;
 import org.identityconnectors.framework.common.objects.ObjectClass;
+import org.identityconnectors.framework.common.objects.SyncResultsHandler;
 import org.identityconnectors.framework.common.objects.SyncToken;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,7 +58,7 @@ public class SyncJobImpl extends AbstractProvisioningJob<SyncTask, SyncActions> 
     private GroupWorkflowAdapter gwfAdapter;
 
     @Autowired
-    protected SyncUtils syncUtilities;
+    protected SyncUtils syncUtils;
 
     protected void setGroupOwners(final GroupSyncResultHandler rhandler) {
         for (Map.Entry<Long, String> entry : rhandler.getGroupOwnerMap().entrySet()) {
@@ -68,24 +69,24 @@ public class SyncJobImpl extends AbstractProvisioningJob<SyncTask, SyncActions> 
                 groupMod.setGroupOwner(null);
                 groupMod.setUserOwner(null);
             } else {
-                Long userId = syncUtilities.findMatchingAttributableKey(
-                        ObjectClass.ACCOUNT,
+                Long userKey = syncUtils.findMatchingAnyKey(
+                        anyTypeDAO.findUser(),
                         entry.getValue(),
                         rhandler.getProfile().getTask().getResource(),
                         rhandler.getProfile().getConnector());
 
-                if (userId == null) {
-                    Long groupId = syncUtilities.findMatchingAttributableKey(
-                            ObjectClass.GROUP,
+                if (userKey == null) {
+                    Long groupKey = syncUtils.findMatchingAnyKey(
+                            anyTypeDAO.findGroup(),
                             entry.getValue(),
                             rhandler.getProfile().getTask().getResource(),
                             rhandler.getProfile().getConnector());
 
-                    if (groupId != null) {
-                        groupMod.setGroupOwner(new ReferenceMod(groupId));
+                    if (groupKey != null) {
+                        groupMod.setGroupOwner(new ReferenceMod(groupKey));
                     }
                 } else {
-                    groupMod.setUserOwner(new ReferenceMod(userId));
+                    groupMod.setUserOwner(new ReferenceMod(userKey));
                 }
             }
 
@@ -97,11 +98,9 @@ public class SyncJobImpl extends AbstractProvisioningJob<SyncTask, SyncActions> 
     protected String executeWithSecurityContext(
             final SyncTask syncTask,
             final Connector connector,
-            final UMapping uMapping,
-            final GMapping rMapping,
             final boolean dryRun) throws JobExecutionException {
 
-        LOG.debug("Execute synchronization with token {}", syncTask.getResource().getUsyncToken());
+        LOG.debug("Executing sync on {}", syncTask.getResource());
 
         ProvisioningProfile<SyncTask, SyncActions> profile = new ProvisioningProfile<>(connector, syncTask);
         if (actions != null) {
@@ -110,6 +109,12 @@ public class SyncJobImpl extends AbstractProvisioningJob<SyncTask, SyncActions> 
         profile.setDryRun(dryRun);
         profile.setResAct(getSyncPolicySpec(syncTask).getConflictResolutionAction());
 
+        // Prepare handler for SyncDelta objects (any objects)
+        AnyObjectSyncResultHandler ahandler =
+                (AnyObjectSyncResultHandler) ApplicationContextProvider.getApplicationContext().getBeanFactory().
+                createBean(AnyObjectSyncResultHandlerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+        ahandler.setProfile(profile);
+
         // Prepare handler for SyncDelta objects (users)
         UserSyncResultHandler uhandler =
                 (UserSyncResultHandler) ApplicationContextProvider.getApplicationContext().getBeanFactory().
@@ -117,10 +122,10 @@ public class SyncJobImpl extends AbstractProvisioningJob<SyncTask, SyncActions> 
         uhandler.setProfile(profile);
 
         // Prepare handler for SyncDelta objects (groups)
-        GroupSyncResultHandler rhandler =
+        GroupSyncResultHandler ghandler =
                 (GroupSyncResultHandler) ApplicationContextProvider.getApplicationContext().getBeanFactory().
                 createBean(GroupSyncResultHandlerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
-        rhandler.setProfile(profile);
+        ghandler.setProfile(profile);
 
         if (actions != null && !profile.isDryRun()) {
             for (SyncActions action : actions) {
@@ -129,47 +134,49 @@ public class SyncJobImpl extends AbstractProvisioningJob<SyncTask, SyncActions> 
         }
 
         try {
-            SyncToken latestUSyncToken = null;
-            if (uMapping != null && !syncTask.isFullReconciliation()) {
-                latestUSyncToken = connector.getLatestSyncToken(ObjectClass.ACCOUNT);
-            }
-            SyncToken latestRSyncToken = null;
-            if (rMapping != null && !syncTask.isFullReconciliation()) {
-                latestRSyncToken = connector.getLatestSyncToken(ObjectClass.GROUP);
-            }
+            for (Provision provision : syncTask.getResource().getProvisions()) {
+                SyncResultsHandler handler;
+                switch (provision.getAnyType().getKind()) {
+                    case USER:
+                        handler = uhandler;
+                        break;
 
-            if (syncTask.isFullReconciliation()) {
-                if (uMapping != null) {
-                    connector.getAllObjects(ObjectClass.ACCOUNT, uhandler,
-                            connector.getOperationOptions(uMapping.getItems()));
-                }
-                if (rMapping != null) {
-                    connector.getAllObjects(ObjectClass.GROUP, rhandler,
-                            connector.getOperationOptions(rMapping.getItems()));
-                }
-            } else {
-                if (uMapping != null) {
-                    connector.sync(ObjectClass.ACCOUNT, syncTask.getResource().getUsyncToken(), uhandler,
-                            connector.getOperationOptions(uMapping.getItems()));
-                }
-                if (rMapping != null) {
-                    connector.sync(ObjectClass.GROUP, syncTask.getResource().getRsyncToken(), rhandler,
-                            connector.getOperationOptions(rMapping.getItems()));
-                }
-            }
+                    case GROUP:
+                        handler = ghandler;
+                        break;
 
-            if (!dryRun && !syncTask.isFullReconciliation()) {
-                try {
-                    ExternalResource resource = resourceDAO.find(syncTask.getResource().getKey());
-                    if (uMapping != null) {
-                        resource.setUsyncToken(latestUSyncToken);
+                    case ANY_OBJECT:
+                    default:
+                        handler = ahandler;
+                }
+
+                SyncToken latestSyncToken = null;
+                if (provision.getMapping() != null && !syncTask.isFullReconciliation()) {
+                    latestSyncToken = connector.getLatestSyncToken(ObjectClass.ACCOUNT);
+                }
+
+                if (syncTask.isFullReconciliation()) {
+                    if (provision.getMapping() != null) {
+                        connector.getAllObjects(provision.getObjectClass(), handler,
+                                connector.getOperationOptions(provision.getMapping().getItems()));
                     }
-                    if (rMapping != null) {
-                        resource.setRsyncToken(latestRSyncToken);
+                } else {
+                    if (provision.getMapping() != null) {
+                        connector.sync(provision.getObjectClass(), provision.getSyncToken(), handler,
+                                connector.getOperationOptions(provision.getMapping().getItems()));
                     }
-                    resourceDAO.save(resource);
-                } catch (Exception e) {
-                    throw new JobExecutionException("While updating SyncToken", e);
+                }
+
+                if (!dryRun && !syncTask.isFullReconciliation()) {
+                    try {
+                        ExternalResource resource = resourceDAO.find(syncTask.getResource().getKey());
+                        if (provision.getMapping() != null) {
+                            provision.setSyncToken(latestSyncToken);
+                        }
+                        resourceDAO.save(resource);
+                    } catch (Exception e) {
+                        throw new JobExecutionException("While updating SyncToken", e);
+                    }
                 }
             }
         } catch (Throwable t) {
@@ -177,7 +184,7 @@ public class SyncJobImpl extends AbstractProvisioningJob<SyncTask, SyncActions> 
         }
 
         try {
-            setGroupOwners(rhandler);
+            setGroupOwners(ghandler);
         } catch (Exception e) {
             LOG.error("While setting group owners", e);
         }

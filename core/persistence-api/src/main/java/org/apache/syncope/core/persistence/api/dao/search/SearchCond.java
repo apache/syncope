@@ -35,11 +35,13 @@ public class SearchCond extends AbstractSearchCond {
 
     private Type type;
 
-    private SubjectCond subjectCond;
+    private AnyCond anyCond;
 
     private AttributeCond attributeCond;
 
-    private GroupCond groupCond;
+    private RelationshipCond relationshipCond;
+
+    private MembershipCond membershipCond;
 
     private RoleCond roleCond;
 
@@ -53,8 +55,8 @@ public class SearchCond extends AbstractSearchCond {
         SearchCond nodeCond = new SearchCond();
 
         nodeCond.type = Type.LEAF;
-        if (attributeCond instanceof SubjectCond) {
-            nodeCond.subjectCond = (SubjectCond) attributeCond;
+        if (attributeCond instanceof AnyCond) {
+            nodeCond.anyCond = (AnyCond) attributeCond;
         } else {
             nodeCond.attributeCond = attributeCond;
         }
@@ -62,11 +64,20 @@ public class SearchCond extends AbstractSearchCond {
         return nodeCond;
     }
 
-    public static SearchCond getLeafCond(final GroupCond groupCond) {
+    public static SearchCond getLeafCond(final RelationshipCond relationshipCond) {
         SearchCond nodeCond = new SearchCond();
 
         nodeCond.type = Type.LEAF;
-        nodeCond.groupCond = groupCond;
+        nodeCond.relationshipCond = relationshipCond;
+
+        return nodeCond;
+    }
+
+    public static SearchCond getLeafCond(final MembershipCond membershipCond) {
+        SearchCond nodeCond = new SearchCond();
+
+        nodeCond.type = Type.LEAF;
+        nodeCond.membershipCond = membershipCond;
 
         return nodeCond;
     }
@@ -95,8 +106,14 @@ public class SearchCond extends AbstractSearchCond {
         return nodeCond;
     }
 
-    public static SearchCond getNotLeafCond(final GroupCond groupCond) {
-        SearchCond nodeCond = getLeafCond(groupCond);
+    public static SearchCond getNotLeafCond(final RelationshipCond relationshipCond) {
+        SearchCond nodeCond = getLeafCond(relationshipCond);
+        nodeCond.type = Type.NOT_LEAF;
+        return nodeCond;
+    }
+
+    public static SearchCond getNotLeafCond(final MembershipCond membershipCond) {
+        SearchCond nodeCond = getLeafCond(membershipCond);
         nodeCond.type = Type.NOT_LEAF;
         return nodeCond;
     }
@@ -156,12 +173,12 @@ public class SearchCond extends AbstractSearchCond {
         }
     }
 
-    public SubjectCond getSubjectCond() {
-        return subjectCond;
+    public AnyCond getAnyCond() {
+        return anyCond;
     }
 
-    public void setSubjectCond(final SubjectCond subjectCond) {
-        this.subjectCond = subjectCond;
+    public void setAnyCond(final AnyCond anyCond) {
+        this.anyCond = anyCond;
     }
 
     public AttributeCond getAttributeCond() {
@@ -172,12 +189,20 @@ public class SearchCond extends AbstractSearchCond {
         this.attributeCond = attributeCond;
     }
 
-    public GroupCond getGroupCond() {
-        return groupCond;
+    public RelationshipCond getRelationshipCond() {
+        return relationshipCond;
     }
 
-    public void setGroupCond(final GroupCond groupCond) {
-        this.groupCond = groupCond;
+    public void setRelationshipCond(final RelationshipCond relationshipCond) {
+        this.relationshipCond = relationshipCond;
+    }
+
+    public MembershipCond getMembershipCond() {
+        return membershipCond;
+    }
+
+    public void setMembershipCond(final MembershipCond membershipCond) {
+        this.membershipCond = membershipCond;
     }
 
     public RoleCond getRoleCond() {
@@ -231,11 +256,12 @@ public class SearchCond extends AbstractSearchCond {
         switch (type) {
             case LEAF:
             case NOT_LEAF:
-                isValid = (subjectCond != null || attributeCond != null
-                        || groupCond != null || roleCond != null || resourceCond != null)
-                        && (subjectCond == null || subjectCond.isValid())
+                isValid = (anyCond != null || attributeCond != null
+                        || relationshipCond != null || membershipCond != null
+                        || roleCond != null || resourceCond != null)
+                        && (anyCond == null || anyCond.isValid())
                         && (attributeCond == null || attributeCond.isValid())
-                        && (groupCond == null || groupCond.isValid())
+                        && (membershipCond == null || membershipCond.isValid())
                         && (roleCond == null || roleCond.isValid())
                         && (resourceCond == null || resourceCond.isValid());
                 break;

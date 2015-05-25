@@ -26,9 +26,9 @@ import java.util.Set;
 import javax.annotation.Resource;
 import org.apache.commons.collections4.Closure;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.collections4.PredicateUtils;
 import org.apache.commons.collections4.Transformer;
-import org.apache.syncope.common.lib.CollectionUtils2;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.core.misc.RealmUtils;
@@ -65,7 +65,8 @@ public class SyncopeUserDetailsService implements UserDetailsService {
         if (anonymousUser.equals(username)) {
             authorities.add(new SyncopeGrantedAuthority(Entitlement.ANONYMOUS));
         } else if (adminUser.equals(username)) {
-            CollectionUtils2.collect(Entitlement.values(),
+            CollectionUtils.collect(IteratorUtils.filteredIterator(Entitlement.values().iterator(),
+                    PredicateUtils.notPredicate(PredicateUtils.equalPredicate(Entitlement.ANONYMOUS))),
                     new Transformer<String, SyncopeGrantedAuthority>() {
 
                         @Override
@@ -73,7 +74,6 @@ public class SyncopeUserDetailsService implements UserDetailsService {
                             return new SyncopeGrantedAuthority(entitlement, SyncopeConstants.ROOT_REALM);
                         }
                     },
-                    PredicateUtils.notPredicate(PredicateUtils.equalPredicate(Entitlement.ANONYMOUS)),
                     authorities);
         } else {
             org.apache.syncope.core.persistence.api.entity.user.User user = userDAO.find(username);

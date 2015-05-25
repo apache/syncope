@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -31,12 +32,17 @@ import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.TraceLevel;
+import org.apache.syncope.core.persistence.api.entity.AnyAbout;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.Notification;
 import org.apache.syncope.core.persistence.jpa.validation.entity.NotificationCheck;
 
@@ -56,19 +62,18 @@ public class JPANotification extends AbstractEntity<Long> implements Notificatio
     @Column(name = "event")
     @CollectionTable(name = "Notification_events",
             joinColumns =
-            @JoinColumn(name = "Notification_id", referencedColumnName = "id"))
+            @JoinColumn(name = "notification_id", referencedColumnName = "id"))
     private List<String> events;
 
-    private String userAbout;
-
-    private String groupAbout;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "notification")
+    private List<JPAAnyAbout> abouts;
 
     private String recipients;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "Notification_staticRecipients",
             joinColumns =
-            @JoinColumn(name = "Notification_id", referencedColumnName = "id"))
+            @JoinColumn(name = "notification_id", referencedColumnName = "id"))
     @Column(name = "staticRecipients")
     private List<String> staticRecipients;
 
@@ -106,6 +111,7 @@ public class JPANotification extends AbstractEntity<Long> implements Notificatio
 
     public JPANotification() {
         events = new ArrayList<>();
+        abouts = new ArrayList<>();
         staticRecipients = new ArrayList<>();
         selfAsRecipient = getBooleanAsInteger(false);
         active = getBooleanAsInteger(true);
@@ -115,26 +121,6 @@ public class JPANotification extends AbstractEntity<Long> implements Notificatio
     @Override
     public Long getKey() {
         return id;
-    }
-
-    @Override
-    public String getUserAbout() {
-        return userAbout;
-    }
-
-    @Override
-    public void setUserAbout(final String userAbout) {
-        this.userAbout = userAbout;
-    }
-
-    @Override
-    public String getGroupAbout() {
-        return groupAbout;
-    }
-
-    @Override
-    public void setGroupAbout(final String groupAbout) {
-        this.groupAbout = groupAbout;
     }
 
     @Override
@@ -171,6 +157,34 @@ public class JPANotification extends AbstractEntity<Long> implements Notificatio
     @Override
     public List<String> getEvents() {
         return events;
+    }
+
+    @Override
+    public boolean add(final AnyAbout about) {
+        checkType(about, JPAAnyAbout.class);
+        return this.abouts.add((JPAAnyAbout) about);
+    }
+
+    @Override
+    public boolean remove(final AnyAbout about) {
+        checkType(about, JPAAnyAbout.class);
+        return this.abouts.remove((JPAAnyAbout) about);
+    }
+
+    @Override
+    public AnyAbout getAbout(final AnyType anyType) {
+        return CollectionUtils.find(abouts, new Predicate<AnyAbout>() {
+
+            @Override
+            public boolean evaluate(final AnyAbout about) {
+                return anyType != null && anyType.equals(about.getAnyType());
+            }
+        });
+    }
+
+    @Override
+    public List<? extends AnyAbout> getAbouts() {
+        return abouts;
     }
 
     @Override

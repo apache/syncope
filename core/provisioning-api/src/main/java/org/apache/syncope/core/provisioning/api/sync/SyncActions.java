@@ -18,15 +18,15 @@
  */
 package org.apache.syncope.core.provisioning.api.sync;
 
-import org.apache.syncope.common.lib.mod.AbstractSubjectMod;
-import org.apache.syncope.common.lib.to.AbstractSubjectTO;
+import org.apache.syncope.common.lib.mod.AnyMod;
+import org.apache.syncope.common.lib.to.AnyTO;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.quartz.JobExecutionException;
 
 /**
  * Interface for actions to be performed during SyncJob execution.
  * <br/>
- * All methods can throw {@link IgnoreProvisionException} to make the current subject ignored by the synchronization
+ * All methods can throw {@link IgnoreProvisionException} to make the current any object ignored by the synchronization
  * process.
  */
 public interface SyncActions extends ProvisioningActions {
@@ -38,14 +38,14 @@ public interface SyncActions extends ProvisioningActions {
      *
      * @param profile profile of the synchronization being executed.
      * @param delta retrieved synchronization information
-     * @param subject user / group to be created
+     * @param any any object
      * @return synchronization information used for user status evaluation and to be passed to the 'after' method.
      * @throws JobExecutionException in case of generic failure
      */
-    <T extends AbstractSubjectTO> SyncDelta beforeProvision(
+    <T extends AnyTO> SyncDelta beforeProvision(
             ProvisioningProfile<?, ?> profile,
             SyncDelta delta,
-            T subject) throws JobExecutionException;
+            T any) throws JobExecutionException;
 
     /**
      * Action to be executed before creating (and linking to the resource) a synchronized user / group locally.
@@ -54,14 +54,14 @@ public interface SyncActions extends ProvisioningActions {
      *
      * @param profile profile of the synchronization being executed.
      * @param delta retrieved synchronization information
-     * @param subject user / group to be created
+     * @param any any object
      * @return synchronization information used for user status evaluation and to be passed to the 'after' method.
      * @throws JobExecutionException in case of generic failure
      */
-    <T extends AbstractSubjectTO> SyncDelta beforeAssign(
+    <T extends AnyTO> SyncDelta beforeAssign(
             ProvisioningProfile<?, ?> profile,
             SyncDelta delta,
-            T subject) throws JobExecutionException;
+            T any) throws JobExecutionException;
 
     /**
      * Action to be executed before unlinking resource from the synchronized user / group and de-provisioning.
@@ -70,14 +70,14 @@ public interface SyncActions extends ProvisioningActions {
      *
      * @param profile profile of the synchronization being executed.
      * @param delta retrieved synchronization information
-     * @param subject user / group to be created
+     * @param any any object
      * @return synchronization information used for user status evaluation and to be passed to the 'after' method.
      * @throws JobExecutionException in case of generic failure
      */
-    <T extends AbstractSubjectTO> SyncDelta beforeUnassign(
+    <T extends AnyTO> SyncDelta beforeUnassign(
             ProvisioningProfile<?, ?> profile,
             SyncDelta delta,
-            T subject) throws JobExecutionException;
+            T any) throws JobExecutionException;
 
     /**
      * Action to be executed before de-provisioning action only.
@@ -86,14 +86,14 @@ public interface SyncActions extends ProvisioningActions {
      *
      * @param profile profile of the synchronization being executed.
      * @param delta retrieved synchronization information
-     * @param subject user / group to be created
+     * @param any any object
      * @return synchronization information used for user status evaluation and to be passed to the 'after' method.
      * @throws JobExecutionException in case of generic failure
      */
-    <T extends AbstractSubjectTO> SyncDelta beforeDeprovision(
+    <T extends AnyTO> SyncDelta beforeDeprovision(
             ProvisioningProfile<?, ?> profile,
             SyncDelta delta,
-            T subject) throws JobExecutionException;
+            T any) throws JobExecutionException;
 
     /**
      * Action to be executed before unlinking resource from the synchronized user / group.
@@ -102,14 +102,14 @@ public interface SyncActions extends ProvisioningActions {
      *
      * @param profile profile of the synchronization being executed.
      * @param delta retrieved synchronization information
-     * @param subject user / group to be created
+     * @param any any object
      * @return synchronization information used for user status evaluation and to be passed to the 'after' method.
      * @throws JobExecutionException in case of generic failure
      */
-    <T extends AbstractSubjectTO> SyncDelta beforeUnlink(
+    <T extends AnyTO> SyncDelta beforeUnlink(
             ProvisioningProfile<?, ?> profile,
             SyncDelta delta,
-            T subject) throws JobExecutionException;
+            T any) throws JobExecutionException;
 
     /**
      * Action to be executed before linking resource to the synchronized user / group.
@@ -118,14 +118,14 @@ public interface SyncActions extends ProvisioningActions {
      *
      * @param profile profile of the synchronization being executed.
      * @param delta retrieved synchronization information
-     * @param subject user / group to be created
+     * @param any any object
      * @return synchronization information used for user status evaluation and to be passed to the 'after' method.
      * @throws JobExecutionException in case of generic failure
      */
-    <T extends AbstractSubjectTO> SyncDelta beforeLink(
+    <T extends AnyTO> SyncDelta beforeLink(
             ProvisioningProfile<?, ?> profile,
             SyncDelta delta,
-            T subject) throws JobExecutionException;
+            T any) throws JobExecutionException;
 
     /**
      * Action to be executed before to update a synchronized user / group locally.
@@ -134,16 +134,16 @@ public interface SyncActions extends ProvisioningActions {
      *
      * @param profile profile of the synchronization being executed.
      * @param delta retrieved synchronization information
-     * @param subject local user / group information
-     * @param subjectMod modification
+     * @param any any object
+     * @param anyMod modification
      * @return synchronization information used for logging and to be passed to the 'after' method.
      * @throws JobExecutionException in case of generic failure.
      */
-    <T extends AbstractSubjectTO, K extends AbstractSubjectMod> SyncDelta beforeUpdate(
+    <T extends AnyTO, K extends AnyMod> SyncDelta beforeUpdate(
             ProvisioningProfile<?, ?> profile,
             SyncDelta delta,
-            T subject,
-            K subjectMod)
+            T any,
+            K anyMod)
             throws JobExecutionException;
 
     /**
@@ -151,14 +151,14 @@ public interface SyncActions extends ProvisioningActions {
      *
      * @param profile profile of the synchronization being executed.
      * @param delta retrieved synchronization information
-     * @param subject local user / group to be deleted
+     * @param any any object to be deleted
      * @return synchronization information used for logging and to be passed to the 'after' method.
      * @throws JobExecutionException in case of generic failure
      */
-    <T extends AbstractSubjectTO> SyncDelta beforeDelete(
+    <T extends AnyTO> SyncDelta beforeDelete(
             ProvisioningProfile<?, ?> profile,
             SyncDelta delta,
-            T subject) throws JobExecutionException;
+            T any) throws JobExecutionException;
 
     /**
      * Action to be executed when user / group synchronization goes on error.
@@ -182,13 +182,13 @@ public interface SyncActions extends ProvisioningActions {
      * @param profile profile of the synchronization being executed.
      * @param delta retrieved synchronization information (may be modified by
      * 'beforeProvision/beforeUpdate/beforeDelete')
-     * @param subject synchronized local user / group
+     * @param any any object
      * @param result global synchronization results at the current synchronization step
      * @throws JobExecutionException in case of generic failure
      */
-    <T extends AbstractSubjectTO> void after(
+    <T extends AnyTO> void after(
             ProvisioningProfile<?, ?> profile,
             SyncDelta delta,
-            T subject,
+            T any,
             ProvisioningResult result) throws JobExecutionException;
 }

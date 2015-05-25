@@ -57,7 +57,7 @@ public class GroupDeprovisionProcessor implements Processor {
         Long groupKey = exchange.getIn().getBody(Long.class);
         List<String> resources = exchange.getProperty("resources", List.class);
 
-        Group group = groupDAO.authFetch(groupKey);
+        Group group = groupDAO.authFind(groupKey);
 
         Collection<String> noPropResourceNames = CollectionUtils.removeAll(group.getResourceNames(), resources);
 

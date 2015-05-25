@@ -28,14 +28,14 @@ import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.lib.types.AttributableType;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.PropagationMode;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.TaskType;
-import org.apache.syncope.core.persistence.api.entity.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.jpa.validation.entity.PropagationTaskCheck;
-import org.apache.syncope.core.persistence.jpa.entity.JPAExternalResource;
+import org.apache.syncope.core.persistence.jpa.entity.resource.JPAExternalResource;
 import org.apache.syncope.core.misc.serialization.POJOHelper;
 import org.identityconnectors.framework.common.objects.Attribute;
 
@@ -62,14 +62,14 @@ public class JPAPropagationTask extends JPATask implements PropagationTask {
     private ResourceOperation propagationOperation;
 
     /**
-     * The accountId on the external resource.
+     * The connObjectKey on the external resource.
      */
-    private String accountId;
+    private String connObjectKey;
 
     /**
-     * The (optional) former accountId on the external resource.
+     * The (optional) former connObjectKey on the external resource.
      */
-    private String oldAccountId;
+    private String oldConnObjectKey;
 
     /**
      * Attributes to be propagated.
@@ -80,9 +80,9 @@ public class JPAPropagationTask extends JPATask implements PropagationTask {
     private String objectClassName;
 
     @Enumerated(EnumType.STRING)
-    private AttributableType subjectType;
+    private AnyTypeKind anyTypeKind;
 
-    private Long subjectId;
+    private Long anyKey;
 
     public JPAPropagationTask() {
         super();
@@ -96,23 +96,23 @@ public class JPAPropagationTask extends JPATask implements PropagationTask {
     private JPAExternalResource resource;
 
     @Override
-    public String getAccountId() {
-        return accountId;
+    public String getConnObjectKey() {
+        return connObjectKey;
     }
 
     @Override
-    public void setAccountId(final String accountId) {
-        this.accountId = accountId;
+    public void setConnObjectKey(final String connObjectKey) {
+        this.connObjectKey = connObjectKey;
     }
 
     @Override
-    public String getOldAccountId() {
-        return oldAccountId;
+    public String getOldConnObjectKey() {
+        return oldConnObjectKey;
     }
 
     @Override
-    public void setOldAccountId(final String oldAccountId) {
-        this.oldAccountId = oldAccountId;
+    public void setOldConnObjectKey(final String oldConnObjectKey) {
+        this.oldConnObjectKey = oldConnObjectKey;
     }
 
     @Override
@@ -176,22 +176,22 @@ public class JPAPropagationTask extends JPATask implements PropagationTask {
     }
 
     @Override
-    public AttributableType getSubjectType() {
-        return subjectType;
+    public AnyTypeKind getAnyTypeKind() {
+        return anyTypeKind;
     }
 
     @Override
-    public void setSubjectType(final AttributableType subjectType) {
-        this.subjectType = subjectType;
+    public void setAnyTypeKind(final AnyTypeKind anyTypeKind) {
+        this.anyTypeKind = anyTypeKind;
     }
 
     @Override
-    public Long getSubjectKey() {
-        return subjectId;
+    public Long getAnyKey() {
+        return anyKey;
     }
 
     @Override
-    public void setSubjectKey(final Long subjectKey) {
-        this.subjectId = subjectKey;
+    public void setAnyKey(final Long anyKey) {
+        this.anyKey = anyKey;
     }
 }

@@ -20,9 +20,9 @@ package org.apache.syncope.common.lib.to;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.PropagationMode;
 import org.apache.syncope.common.lib.types.ResourceOperation;
-import org.apache.syncope.common.lib.types.SubjectType;
 
 @XmlRootElement(name = "propagationTask")
 @XmlType
@@ -34,9 +34,9 @@ public class PropagationTaskTO extends AbstractTaskTO {
 
     private ResourceOperation propagationOperation;
 
-    private String accountId;
+    private String connObjectKey;
 
-    private String oldAccountId;
+    private String oldConnObjectKey;
 
     private String xmlAttributes;
 
@@ -44,24 +44,24 @@ public class PropagationTaskTO extends AbstractTaskTO {
 
     private String objectClassName;
 
-    private SubjectType subjectType;
+    private AnyTypeKind anyTypeKind;
 
-    private Long subjectId;
+    private Long anyKey;
 
-    public String getAccountId() {
-        return accountId;
+    public String getConnObjectKey() {
+        return connObjectKey;
     }
 
-    public void setAccountId(final String accountId) {
-        this.accountId = accountId;
+    public void setConnObjectKey(final String connObjectKey) {
+        this.connObjectKey = connObjectKey;
     }
 
-    public String getOldAccountId() {
-        return oldAccountId;
+    public String getOldConnObjectKey() {
+        return oldConnObjectKey;
     }
 
-    public void setOldAccountId(final String oldAccountId) {
-        this.oldAccountId = oldAccountId;
+    public void setOldConnObjectKey(final String oldConnObjectKey) {
+        this.oldConnObjectKey = oldConnObjectKey;
     }
 
     public PropagationMode getPropagationMode() {
@@ -85,7 +85,6 @@ public class PropagationTaskTO extends AbstractTaskTO {
     }
 
     public void setPropagationOperation(final ResourceOperation propagationOperation) {
-
         this.propagationOperation = propagationOperation;
     }
 
@@ -105,19 +104,19 @@ public class PropagationTaskTO extends AbstractTaskTO {
         this.objectClassName = objectClassName;
     }
 
-    public SubjectType getSubjectType() {
-        return subjectType;
+    public AnyTypeKind getAnyTypeKind() {
+        return anyTypeKind;
     }
 
-    public void setSubjectType(final SubjectType subjectType) {
-        this.subjectType = subjectType;
+    public void setAnyTypeKind(final AnyTypeKind anyTypeKind) {
+        this.anyTypeKind = anyTypeKind;
     }
 
-    public Long getSubjectId() {
-        return subjectId;
+    public Long getAnyKey() {
+        return anyKey;
     }
 
-    public void setSubjectId(final Long subjectId) {
-        this.subjectId = subjectId;
+    public void setAnyKey(final Long anyKey) {
+        this.anyKey = anyKey;
     }
 }

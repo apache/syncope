@@ -20,8 +20,8 @@ package org.apache.syncope.core.persistence.jpa.dao;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
-import org.apache.syncope.common.lib.types.SubjectType;
 
 class SearchSupport {
 
@@ -47,10 +47,10 @@ class SearchSupport {
         }
     }
 
-    private final SubjectType subjectType;
+    private final AnyTypeKind anyTypeKind;
 
-    public SearchSupport(final SubjectType subjectType) {
-        this.subjectType = subjectType;
+    public SearchSupport(final AnyTypeKind anyTypeKind) {
+        this.anyTypeKind = anyTypeKind;
     }
 
     public String fieldName(final AttrSchemaType attrSchemaType) {
@@ -88,14 +88,18 @@ class SearchSupport {
     public SearchView field() {
         String result = "";
 
-        switch (subjectType) {
-            case USER:
-            default:
-                result = "user_search";
+        switch (anyTypeKind) {
+            case ANY_OBJECT:
+                result = "anyObject_search";
                 break;
 
             case GROUP:
                 result = "group_search";
+                break;
+
+            case USER:
+            default:
+                result = "user_search";
                 break;
         }
 
@@ -106,12 +110,19 @@ class SearchSupport {
         return new SearchView("sva", field().name + "_attr");
     }
 
+    public SearchView relationship() {
+        String kind = anyTypeKind == AnyTypeKind.USER ? "u" : "a";
+        return new SearchView("sv" + kind + "m", field().name + "_" + kind + "relationship");
+    }
+
     public SearchView membership() {
-        return new SearchView("svm", field().name + "_membership");
+        String kind = anyTypeKind == AnyTypeKind.USER ? "u" : "a";
+        return new SearchView("sv" + kind + "m", field().name + "_" + kind + "membership");
     }
 
     public SearchView dyngroupmembership() {
-        return new SearchView("svdg", field().name + "_dyngroupmembership");
+        String kind = anyTypeKind == AnyTypeKind.USER ? "u" : "a";
+        return new SearchView("sv" + kind + "dgm", field().name + "_" + kind + "dyngroupmembership");
     }
 
     public SearchView role() {

@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.core.persistence.api.entity;
 
-public interface Attr<S extends Schema> extends Entity<Long> {
+public interface Attr<S extends Schema, O extends Any<?, ?, ?>> extends Entity<Long> {
 
-    Attributable<?, ?, ?> getOwner();
+    O getOwner();
 
-    void setOwner(Attributable<?, ?, ?> owner);
+    void setOwner(O owner);
 
     S getSchema();
 

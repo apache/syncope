@@ -35,10 +35,7 @@ import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
-import org.apache.syncope.core.persistence.api.entity.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.Subject;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.provisioning.api.Connector;
@@ -51,7 +48,12 @@ import org.apache.syncope.core.misc.AuditManager;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.misc.ConnObjectUtils;
 import org.apache.syncope.core.misc.ExceptionUtils2;
+import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
+import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
@@ -88,6 +90,12 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
     protected ConnObjectUtils connObjectUtils;
 
     /**
+     * Any object DAO.
+     */
+    @Autowired
+    protected AnyObjectDAO anyObjectDAO;
+
+    /**
      * User DAO.
      */
     @Autowired
@@ -118,7 +126,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
     protected AuditManager auditManager;
 
     @Autowired
-    protected AttributableUtilsFactory attrUtilsFactory;
+    protected AnyUtilsFactory anyUtilsFactory;
 
     @Autowired
     protected EntityFactory entityFactory;
@@ -232,40 +240,46 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         }
     }
 
-    protected Subject<?, ?, ?> getSubject(final PropagationTask task) {
-        Subject<?, ?, ?> subject = null;
+    protected Any<?, ?, ?> getAny(final PropagationTask task) {
+        Any<?, ?, ?> any = null;
 
-        if (task.getSubjectKey() != null) {
-            switch (task.getSubjectType()) {
+        if (task.getAnyKey() != null) {
+            switch (task.getAnyTypeKind()) {
                 case USER:
                     try {
-                        subject = userDAO.authFetch(task.getSubjectKey());
+                        any = userDAO.authFind(task.getAnyKey());
                     } catch (Exception e) {
-                        LOG.error("Could not read user {}", task.getSubjectKey(), e);
+                        LOG.error("Could not read user {}", task.getAnyKey(), e);
                     }
                     break;
 
                 case GROUP:
                     try {
-                        subject = groupDAO.authFetch(task.getSubjectKey());
+                        any = groupDAO.authFind(task.getAnyKey());
                     } catch (Exception e) {
-                        LOG.error("Could not read group {}", task.getSubjectKey(), e);
+                        LOG.error("Could not read group {}", task.getAnyKey(), e);
                     }
                     break;
 
-                case MEMBERSHIP:
+                case ANY_OBJECT:
                 default:
+                    try {
+                        any = anyObjectDAO.authFind(task.getAnyKey());
+                    } catch (Exception e) {
+                        LOG.error("Could not read any object {}", task.getAnyKey(), e);
+                    }
+                    break;
             }
         }
 
-        return subject;
+        return any;
     }
 
     protected void delete(final PropagationTask task, final ConnectorObject beforeObj,
             final Connector connector, final Set<String> propagationAttempted) {
 
         if (beforeObj == null) {
-            LOG.debug("{} not found on external resource: ignoring delete", task.getAccountId());
+            LOG.debug("{} not found on external resource: ignoring delete", task.getConnObjectKey());
         } else {
             /*
              * We must choose here whether to
@@ -282,7 +296,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
              * update, this user / group used to have the current resource assigned by more than one mean (for example,
              * two different memberships with the same resource).
              */
-            Subject<?, ?, ?> subject = getSubject(task);
+            Any<?, ?, ?> subject = getAny(task);
             Collection<String> resources = subject instanceof User
                     ? userDAO.findAllResourceNames((User) subject)
                     : subject instanceof Group
@@ -305,11 +319,11 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
     @Override
     public TaskExec execute(final PropagationTask task, final PropagationReporter reporter) {
-        final List<PropagationActions> actions = getPropagationActions(task.getResource());
+        List<PropagationActions> actions = getPropagationActions(task.getResource());
 
-        final Date startDate = new Date();
+        Date startDate = new Date();
 
-        final TaskExec execution = entityFactory.newEntity(TaskExec.class);
+        TaskExec execution = entityFactory.newEntity(TaskExec.class);
         execution.setStatus(PropagationTaskExecStatus.CREATED.name());
 
         String taskExecutionMessage = null;
@@ -321,13 +335,21 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         ConnectorObject beforeObj = null;
         ConnectorObject afterObj = null;
 
+        Provision provision = null;
         Connector connector = null;
         Result result;
         try {
+            Any<?, ?, ?> any = getAny(task);
+            provision = task.getResource().getProvision(any.getType());
+            if (provision == null) {
+                throw new IllegalArgumentException("No provision found for " + any.getType() + " on " + task.
+                        getResource());
+            }
+
             connector = connFactory.getConnector(task.getResource());
 
-            // Try to read remote object (user / group) BEFORE any actual operation
-            beforeObj = getRemoteObject(task, connector, false);
+            // Try to read remote object BEFORE any actual operation
+            beforeObj = getRemoteObject(task, connector, provision, false);
 
             for (PropagationActions action : actions) {
                 action.before(task, beforeObj);
@@ -390,10 +412,10 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 action.onError(task, execution, e);
             }
         } finally {
-            // Try to read remote object (user / group) AFTER any actual operation
+            // Try to read remote object AFTER any actual operation
             if (connector != null) {
                 try {
-                    afterObj = getRemoteObject(task, connector, true);
+                    afterObj = getRemoteObject(task, connector, provision, true);
                 } catch (Exception ignore) {
                     // ignore exception
                     LOG.error("Error retrieving after object", ignore);
@@ -434,7 +456,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
         notificationManager.createTasks(
                 AuditElements.EventCategoryType.PROPAGATION,
-                task.getSubjectType().name().toLowerCase(),
+                task.getAnyTypeKind().name().toLowerCase(),
                 task.getResource().getKey(),
                 task.getPropagationOperation().name().toLowerCase(),
                 result,
@@ -444,7 +466,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
         auditManager.audit(
                 AuditElements.EventCategoryType.PROPAGATION,
-                task.getSubjectType().name().toLowerCase(),
+                task.getAnyTypeKind().name().toLowerCase(),
                 task.getResource().getKey(),
                 task.getPropagationOperation().name().toLowerCase(),
                 result,
@@ -504,29 +526,30 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
      *
      * @param connector connector facade proxy.
      * @param task current propagation task.
+     * @param provision provision
      * @param latest 'FALSE' to retrieve object using old accountId if not null.
      * @return remote connector object.
      */
     protected ConnectorObject getRemoteObject(final PropagationTask task, final Connector connector,
-            final boolean latest) {
+            final Provision provision, final boolean latest) {
 
-        String accountId = latest || task.getOldAccountId() == null
-                ? task.getAccountId()
-                : task.getOldAccountId();
+        String connObjectKey = latest || task.getOldConnObjectKey() == null
+                ? task.getConnObjectKey()
+                : task.getOldConnObjectKey();
 
         ConnectorObject obj = null;
         try {
             obj = connector.getObject(task.getPropagationMode(),
                     task.getPropagationOperation(),
                     new ObjectClass(task.getObjectClassName()),
-                    new Uid(accountId),
-                    connector.getOperationOptions(attrUtilsFactory.getInstance(task.getSubjectType()).
-                            getMappingItems(task.getResource(), MappingPurpose.PROPAGATION)));
+                    new Uid(connObjectKey),
+                    connector.getOperationOptions(anyUtilsFactory.getInstance(task.getAnyTypeKind()).
+                            getMappingItems(provision, MappingPurpose.PROPAGATION)));
         } catch (TimeoutException toe) {
             LOG.debug("Request timeout", toe);
             throw toe;
         } catch (RuntimeException ignore) {
-            LOG.debug("While resolving {}", accountId, ignore);
+            LOG.debug("While resolving {}", connObjectKey, ignore);
         }
 
         return obj;

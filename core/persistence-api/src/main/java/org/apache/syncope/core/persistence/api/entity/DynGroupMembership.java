@@ -20,9 +20,9 @@ package org.apache.syncope.core.persistence.api.entity;
 
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 
-public interface DynGroupMembership extends DynMembership {
+public interface DynGroupMembership<A extends Any<?, ?, ?>> extends DynMembership<A> {
 
     Group getGroup();
 
-    void setGroup(Group role);
+    void setGroup(Group group);
 }

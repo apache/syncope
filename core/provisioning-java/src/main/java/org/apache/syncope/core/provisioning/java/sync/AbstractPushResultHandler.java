@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.lib.mod.AttrMod;
-import org.apache.syncope.common.lib.mod.MembershipMod;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
 import org.apache.syncope.common.lib.types.IntMappingType;
@@ -33,57 +32,59 @@ import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtils;
-import org.apache.syncope.core.persistence.api.entity.Mapping;
-import org.apache.syncope.core.persistence.api.entity.MappingItem;
-import org.apache.syncope.core.persistence.api.entity.Subject;
 import org.apache.syncope.core.persistence.api.entity.VirAttr;
-import org.apache.syncope.core.persistence.api.entity.membership.Membership;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.sync.ProvisioningResult;
 import org.apache.syncope.core.provisioning.api.sync.PushActions;
 import org.apache.syncope.core.misc.MappingUtils;
+import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.AnyUtils;
+import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
+import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
+import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
+import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.provisioning.api.sync.IgnoreProvisionException;
 import org.apache.syncope.core.provisioning.api.sync.SyncopePushResultHandler;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
+import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.quartz.JobExecutionException;
 import org.springframework.transaction.annotation.Transactional;
 
 public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHandler<PushTask, PushActions>
         implements SyncopePushResultHandler {
 
-    protected abstract String getName(Subject<?, ?, ?> subject);
+    protected abstract String getName(Any<?, ?, ?> any);
 
-    protected abstract Mapping<?> getMapping();
+    protected abstract Any<?, ?, ?> getAny(long key);
 
-    protected abstract Subject<?, ?, ?> getSubject(long key);
+    protected abstract Any<?, ?, ?> deprovision(Any<?, ?, ?> sbj);
 
-    protected abstract Subject<?, ?, ?> deprovision(Subject<?, ?, ?> sbj);
+    protected abstract Any<?, ?, ?> provision(Any<?, ?, ?> sbj, Boolean enabled);
 
-    protected abstract Subject<?, ?, ?> provision(Subject<?, ?, ?> sbj, Boolean enabled);
+    protected abstract Any<?, ?, ?> link(Any<?, ?, ?> sbj, Boolean unlink);
 
-    protected abstract Subject<?, ?, ?> link(Subject<?, ?, ?> sbj, Boolean unlink);
+    protected abstract Any<?, ?, ?> unassign(Any<?, ?, ?> sbj);
 
-    protected abstract Subject<?, ?, ?> unassign(Subject<?, ?, ?> sbj);
+    protected abstract Any<?, ?, ?> assign(Any<?, ?, ?> sbj, Boolean enabled);
 
-    protected abstract Subject<?, ?, ?> assign(Subject<?, ?, ?> sbj, Boolean enabled);
-
-    protected abstract ConnectorObject getRemoteObject(String accountId);
+    protected abstract ConnectorObject getRemoteObject(String connObjectKey, ObjectClass objectClass);
 
     @Transactional
     @Override
-    public boolean handle(final long subjectKey) {
+    public boolean handle(final long anyKey) {
+        Any<?, ?, ?> any = null;
         try {
-            doHandle(subjectKey);
+            any = getAny(anyKey);
+            doHandle(any);
             return true;
         } catch (IgnoreProvisionException e) {
             ProvisioningResult result = new ProvisioningResult();
             result.setOperation(ResourceOperation.NONE);
-            result.setSubjectType(getAttributableUtils().getType());
+            result.setAnyType(any == null ? null : any.getType().getKey());
             result.setStatus(ProvisioningResult.Status.IGNORE);
-            result.setKey(subjectKey);
+            result.setKey(anyKey);
             profile.getResults().add(result);
 
             LOG.warn("Ignoring during push", e);
@@ -94,26 +95,24 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         }
     }
 
-    protected final void doHandle(final long subjectId)
+    protected final void doHandle(final Any<?, ?, ?> any)
             throws JobExecutionException {
 
-        Subject<?, ?, ?> subject = getSubject(subjectId);
-
-        AttributableUtils attrUtils = attrUtilsFactory.getInstance(subject);
+        AnyUtils anyUtils = anyUtilsFactory.getInstance(any);
 
         ProvisioningResult result = new ProvisioningResult();
         profile.getResults().add(result);
 
-        result.setKey(subject.getKey());
-        result.setSubjectType(attrUtils.getType());
-        result.setName(getName(subject));
+        result.setKey(any.getKey());
+        result.setAnyType(any.getType().getKey());
+        result.setName(getName(any));
 
-        Boolean enabled = subject instanceof User && profile.getTask().isSyncStatus()
-                ? ((User) subject).isSuspended() ? Boolean.FALSE : Boolean.TRUE
+        Boolean enabled = any instanceof User && profile.getTask().isSyncStatus()
+                ? ((User) any).isSuspended() ? Boolean.FALSE : Boolean.TRUE
                 : null;
 
         LOG.debug("Propagating {} with key {} towards {}",
-                attrUtils.getType(), subject.getKey(), profile.getTask().getResource());
+                anyUtils.getAnyTypeKind(), any.getKey(), profile.getTask().getResource());
 
         Object output = null;
         Result resultStatus = null;
@@ -121,10 +120,10 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         String operation = null;
 
         // Try to read remote object (user / group) BEFORE any actual operation
-        String accountId = MappingUtils.getAccountIdValue(
-                subject, profile.getTask().getResource(), getMapping().getAccountIdItem());
+        Provision provision = profile.getTask().getResource().getProvision(any.getType());
+        String connObjecKey = MappingUtils.getConnObjectKeyValue(any, provision);
 
-        beforeObj = getRemoteObject(accountId);
+        beforeObj = getRemoteObject(connObjecKey, provision.getObjectClass());
 
         Boolean status = profile.getTask().isSyncStatus() ? enabled : null;
 
@@ -144,42 +143,45 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                     switch (profile.getTask().getUnmatchingRule()) {
                         case ASSIGN:
                             for (PushActions action : profile.getActions()) {
-                                action.beforeAssign(this.getProfile(), subject);
+                                action.beforeAssign(this.getProfile(), any);
                             }
 
                             if (!profile.getTask().isPerformCreate()) {
                                 LOG.debug("PushTask not configured for create");
                             } else {
-                                assign(subject, status);
+                                assign(any, status);
                             }
 
                             break;
+
                         case PROVISION:
                             for (PushActions action : profile.getActions()) {
-                                action.beforeProvision(this.getProfile(), subject);
+                                action.beforeProvision(this.getProfile(), any);
                             }
 
                             if (!profile.getTask().isPerformCreate()) {
                                 LOG.debug("PushTask not configured for create");
                             } else {
-                                provision(subject, status);
+                                provision(any, status);
                             }
 
                             break;
+
                         case UNLINK:
                             for (PushActions action : profile.getActions()) {
-                                action.beforeUnlink(this.getProfile(), subject);
+                                action.beforeUnlink(this.getProfile(), any);
                             }
 
                             if (!profile.getTask().isPerformUpdate()) {
                                 LOG.debug("PushTask not configured for update");
                             } else {
-                                link(subject, true);
+                                link(any, true);
                             }
 
                             break;
+
                         case IGNORE:
-                            LOG.debug("Ignored subjectId: {}", subjectId);
+                            LOG.debug("Ignored any: {}", any);
                             break;
                         default:
                         // do nothing
@@ -192,65 +194,70 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                     switch (profile.getTask().getMatchingRule()) {
                         case UPDATE:
                             for (PushActions action : profile.getActions()) {
-                                action.beforeUpdate(this.getProfile(), subject);
+                                action.beforeUpdate(this.getProfile(), any);
                             }
                             if (!profile.getTask().isPerformUpdate()) {
                                 LOG.debug("PushTask not configured for update");
                             } else {
-                                update(subject, status);
+                                update(any, status);
                             }
 
                             break;
+
                         case DEPROVISION:
                             for (PushActions action : profile.getActions()) {
-                                action.beforeDeprovision(this.getProfile(), subject);
+                                action.beforeDeprovision(this.getProfile(), any);
                             }
 
                             if (!profile.getTask().isPerformDelete()) {
                                 LOG.debug("PushTask not configured for delete");
                             } else {
-                                deprovision(subject);
+                                deprovision(any);
                             }
 
                             break;
+
                         case UNASSIGN:
                             for (PushActions action : profile.getActions()) {
-                                action.beforeUnassign(this.getProfile(), subject);
+                                action.beforeUnassign(this.getProfile(), any);
                             }
 
                             if (!profile.getTask().isPerformDelete()) {
                                 LOG.debug("PushTask not configured for delete");
                             } else {
-                                unassign(subject);
+                                unassign(any);
                             }
 
                             break;
+
                         case LINK:
                             for (PushActions action : profile.getActions()) {
-                                action.beforeLink(this.getProfile(), subject);
+                                action.beforeLink(this.getProfile(), any);
                             }
 
                             if (!profile.getTask().isPerformUpdate()) {
                                 LOG.debug("PushTask not configured for update");
                             } else {
-                                link(subject, false);
+                                link(any, false);
                             }
 
                             break;
+
                         case UNLINK:
                             for (PushActions action : profile.getActions()) {
-                                action.beforeUnlink(this.getProfile(), subject);
+                                action.beforeUnlink(this.getProfile(), any);
                             }
 
                             if (!profile.getTask().isPerformUpdate()) {
                                 LOG.debug("PushTask not configured for update");
                             } else {
-                                link(subject, true);
+                                link(any, true);
                             }
 
                             break;
+
                         case IGNORE:
-                            LOG.debug("Ignored subjectId: {}", subjectId);
+                            LOG.debug("Ignored any: {}", any);
                             break;
                         default:
                         // do nothing
@@ -258,12 +265,12 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                 }
 
                 for (PushActions action : profile.getActions()) {
-                    action.after(this.getProfile(), subject, result);
+                    action.after(this.getProfile(), any, result);
                 }
 
                 result.setStatus(ProvisioningResult.Status.SUCCESS);
                 resultStatus = AuditElements.Result.SUCCESS;
-                output = getRemoteObject(accountId);
+                output = getRemoteObject(connObjecKey, provision.getObjectClass());
             } catch (IgnoreProvisionException e) {
                 throw e;
             } catch (Exception e) {
@@ -272,30 +279,30 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                 resultStatus = AuditElements.Result.FAILURE;
                 output = e;
 
-                LOG.warn("Error pushing {} towards {}", subject, profile.getTask().getResource(), e);
+                LOG.warn("Error pushing {} towards {}", any, profile.getTask().getResource(), e);
 
                 for (PushActions action : profile.getActions()) {
-                    action.onError(this.getProfile(), subject, result, e);
+                    action.onError(this.getProfile(), any, result, e);
                 }
 
                 throw new JobExecutionException(e);
             } finally {
                 notificationManager.createTasks(AuditElements.EventCategoryType.PUSH,
-                        getAttributableUtils().getType().name().toLowerCase(),
+                        any.getType().getKind().name().toLowerCase(),
                         profile.getTask().getResource().getKey(),
                         operation,
                         resultStatus,
                         beforeObj,
                         output,
-                        subject);
+                        any);
                 auditManager.audit(AuditElements.EventCategoryType.PUSH,
-                        getAttributableUtils().getType().name().toLowerCase(),
+                        any.getType().getKind().name().toLowerCase(),
                         profile.getTask().getResource().getKey(),
                         operation,
                         resultStatus,
                         beforeObj,
                         output,
-                        subject);
+                        any);
             }
         }
     }
@@ -322,28 +329,24 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         }
     }
 
-    protected Subject<?, ?, ?> update(final Subject<?, ?, ?> sbj, final Boolean enabled) {
-        final Set<MembershipMod> membsToAdd = new HashSet<>();
-        final Set<String> vattrToBeRemoved = new HashSet<>();
-        final Set<String> membVattrToBeRemoved = new HashSet<>();
-        final Set<AttrMod> vattrToBeUpdated = new HashSet<>();
+    protected Any<?, ?, ?> update(final Any<?, ?, ?> sbj, final Boolean enabled) {
+        Set<String> vattrToBeRemoved = new HashSet<>();
+        Set<AttrMod> vattrToBeUpdated = new HashSet<>();
 
         // Search for all mapped vattrs
-        final Mapping<?> umapping = getMapping();
-        for (MappingItem mappingItem : umapping.getItems()) {
+        Mapping mapping = profile.getTask().getResource().getProvision(sbj.getType()).getMapping();
+        for (MappingItem mappingItem : mapping.getItems()) {
             if (mappingItem.getIntMappingType() == IntMappingType.UserVirtualSchema) {
                 vattrToBeRemoved.add(mappingItem.getIntAttrName());
-            } else if (mappingItem.getIntMappingType() == IntMappingType.MembershipVirtualSchema) {
-                membVattrToBeRemoved.add(mappingItem.getIntAttrName());
             }
         }
 
         // Search for all user's vattrs and:
         // 1. add mapped vattrs not owned by the user to the set of vattrs to be removed
         // 2. add all vattrs owned by the user to the set of vattrs to be update
-        for (VirAttr vattr : sbj.getVirAttrs()) {
+        for (VirAttr<?> vattr : sbj.getVirAttrs()) {
             vattrToBeRemoved.remove(vattr.getSchema().getKey());
-            final AttrMod mod = new AttrMod();
+            AttrMod mod = new AttrMod();
             mod.setSchema(vattr.getSchema().getKey());
             mod.getValuesToBeAdded().addAll(vattr.getValues());
             vattrToBeUpdated.add(mod);
@@ -354,27 +357,9 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         if (sbj instanceof User) {
             changepwd = true;
             resourceNames = userDAO.findAllResourceNames((User) sbj);
-
-            // Search for memberships
-            for (Membership membership : User.class.cast(sbj).getMemberships()) {
-                MembershipMod membershipMod = new MembershipMod();
-                membershipMod.setKey(membership.getKey());
-                membershipMod.setGroup(membership.getGroup().getKey());
-
-                for (VirAttr vattr : membership.getVirAttrs()) {
-                    membVattrToBeRemoved.remove(vattr.getSchema().getKey());
-                    AttrMod mod = new AttrMod();
-                    mod.setSchema(vattr.getSchema().getKey());
-                    mod.getValuesToBeAdded().addAll(vattr.getValues());
-                    membershipMod.getVirAttrsToUpdate().add(mod);
-                }
-
-                membsToAdd.add(membershipMod);
-            }
-
-            if (!membsToAdd.isEmpty()) {
-                membsToAdd.iterator().next().getVirAttrsToRemove().addAll(membVattrToBeRemoved);
-            }
+        } else if (sbj instanceof AnyObject) {
+            changepwd = true;
+            resourceNames = anyObjectDAO.findAllResourceNames((AnyObject) sbj);
         } else {
             changepwd = false;
             resourceNames = ((Group) sbj).getResourceNames();
@@ -387,9 +372,8 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         propByRes.add(ResourceOperation.CREATE, profile.getTask().getResource().getKey());
 
         taskExecutor.execute(propagationManager.getUpdateTasks(
-                sbj, null, changepwd, enabled, vattrToBeRemoved, vattrToBeUpdated, propByRes, noPropResources,
-                membsToAdd));
+                sbj, null, changepwd, enabled, vattrToBeRemoved, vattrToBeUpdated, propByRes, noPropResources));
 
-        return userDAO.authFetch(sbj.getKey());
+        return getAny(sbj.getKey());
     }
 }

@@ -19,19 +19,18 @@
 package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.List;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtils;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 
 public interface PlainSchemaDAO extends DAO<PlainSchema, String> {
 
-    <T extends PlainSchema> T find(String key, Class<T> reference);
+    PlainSchema find(String name);
 
-    <T extends PlainSchema> List<T> findAll(Class<T> reference);
+    List<PlainSchema> findAll();
 
-    <T extends PlainAttr> List<T> findAttrs(PlainSchema schema, Class<T> reference);
+    <T extends PlainAttr<?>> List<T> findAttrs(PlainSchema schema, Class<T> reference);
 
-    <T extends PlainSchema> T save(T schema);
+    PlainSchema save(PlainSchema derSchema);
 
-    void delete(String name, AttributableUtils attributableUtil);
+    void delete(String key);
 }

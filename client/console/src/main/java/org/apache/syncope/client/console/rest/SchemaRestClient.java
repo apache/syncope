@@ -26,13 +26,12 @@ import java.util.ListIterator;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.console.commons.AttrLayoutType;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AbstractSchemaTO;
 import org.apache.syncope.common.lib.to.DerSchemaTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.VirSchemaTO;
-import org.apache.syncope.common.lib.types.AttributableType;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.rest.api.service.SchemaService;
 import org.springframework.stereotype.Component;
@@ -62,27 +61,22 @@ public class SchemaRestClient extends BaseRestClient {
         }
     }
 
-    public List<? extends AbstractSchemaTO> getSchemas(final AttributableType attrType, final SchemaType schemaType) {
+    public List<? extends AbstractSchemaTO> getSchemas(final SchemaType schemaType) {
         List<? extends AbstractSchemaTO> schemas = Collections.emptyList();
 
         try {
-            schemas = getService(SchemaService.class).list(attrType, schemaType);
+            schemas = getService(SchemaService.class).list(schemaType);
         } catch (SyncopeClientException e) {
-            LOG.error("While getting all schemas for {} and {}", attrType, schemaType, e);
+            LOG.error("While getting all schemas for {}", schemaType, e);
         }
-
-        if (attrType == AttributableType.CONFIGURATION) {
-            filter(schemas, AttrLayoutType.confKeys(), false);
-        }
-
         return schemas;
     }
 
-    public List<PlainSchemaTO> getSchemas(final AttributableType type) {
+    public List<PlainSchemaTO> getSchemas() {
         List<PlainSchemaTO> schemas = null;
 
         try {
-            schemas = getService(SchemaService.class).list(type, SchemaType.PLAIN);
+            schemas = getService(SchemaService.class).list(SchemaType.PLAIN);
         } catch (SyncopeClientException e) {
             LOG.error("While getting all schemas", e);
         }
@@ -90,11 +84,11 @@ public class SchemaRestClient extends BaseRestClient {
         return schemas;
     }
 
-    public List<String> getSchemaNames(final AttributableType attrType, final SchemaType schemaType) {
+    public List<String> getSchemaNames(final SchemaType schemaType) {
         List<String> schemaNames = new ArrayList<>();
 
         try {
-            CollectionUtils.collect(getSchemas(attrType, schemaType), new Transformer<AbstractSchemaTO, String>() {
+            CollectionUtils.collect(getSchemas(schemaType), new Transformer<AbstractSchemaTO, String>() {
 
                 @Override
                 public String transform(final AbstractSchemaTO schemaTO) {
@@ -108,15 +102,15 @@ public class SchemaRestClient extends BaseRestClient {
         return schemaNames;
     }
 
-    public List<String> getPlainSchemaNames(final AttributableType type) {
-        return getSchemaNames(type, SchemaType.PLAIN);
+    public List<String> getPlainSchemaNames() {
+        return getSchemaNames(SchemaType.PLAIN);
     }
 
-    public List<DerSchemaTO> getDerSchemas(final AttributableType type) {
+    public List<DerSchemaTO> getDerSchemas() {
         List<DerSchemaTO> userDerSchemas = null;
 
         try {
-            userDerSchemas = getService(SchemaService.class).list(type, SchemaType.DERIVED);
+            userDerSchemas = getService(SchemaService.class).list(SchemaType.DERIVED);
         } catch (SyncopeClientException e) {
             LOG.error("While getting all user derived schemas", e);
         }
@@ -124,86 +118,86 @@ public class SchemaRestClient extends BaseRestClient {
         return userDerSchemas;
     }
 
-    public List<String> getDerSchemaNames(final AttributableType type) {
-        return getSchemaNames(type, SchemaType.DERIVED);
+    public List<String> getDerSchemaNames() {
+        return getSchemaNames(SchemaType.DERIVED);
     }
 
-    public List<VirSchemaTO> getVirSchemas(final AttributableType type) {
+    public List<VirSchemaTO> getVirSchemas() {
         List<VirSchemaTO> userVirSchemas = null;
 
         try {
-            userVirSchemas = getService(SchemaService.class).list(type, SchemaType.VIRTUAL);
+            userVirSchemas = getService(SchemaService.class).list(SchemaType.VIRTUAL);
         } catch (SyncopeClientException e) {
-            LOG.error("While getting all {} virtual schemas", type, e);
+            LOG.error("While getting all virtual schemas", e);
         }
 
         return userVirSchemas;
     }
 
-    public List<String> getVirSchemaNames(final AttributableType type) {
-        return getSchemaNames(type, SchemaType.VIRTUAL);
+    public List<String> getVirSchemaNames() {
+        return getSchemaNames(SchemaType.VIRTUAL);
     }
 
-    public void createPlainSchema(final AttributableType type, final PlainSchemaTO schemaTO) {
-        getService(SchemaService.class).create(type, SchemaType.PLAIN, schemaTO);
+    public void createPlainSchema(final PlainSchemaTO schemaTO) {
+        getService(SchemaService.class).create(SchemaType.PLAIN, schemaTO);
     }
 
-    public PlainSchemaTO readPlainSchema(final AttributableType type, final String name) {
+    public PlainSchemaTO readPlainSchema(final String name) {
         PlainSchemaTO schema = null;
 
         try {
-            schema = getService(SchemaService.class).read(type, SchemaType.PLAIN, name);
+            schema = getService(SchemaService.class).read(SchemaType.PLAIN, name);
         } catch (SyncopeClientException e) {
             LOG.error("While reading a user schema", e);
         }
         return schema;
     }
 
-    public void updatePlainSchema(final AttributableType type, final PlainSchemaTO schemaTO) {
-        getService(SchemaService.class).update(type, SchemaType.PLAIN, schemaTO.getKey(), schemaTO);
+    public void updatePlainSchema(final PlainSchemaTO schemaTO) {
+        getService(SchemaService.class).update(SchemaType.PLAIN, schemaTO.getKey(), schemaTO);
     }
 
-    public PlainSchemaTO deletePlainSchema(final AttributableType type, final String name) {
-        PlainSchemaTO response = getService(SchemaService.class).read(type, SchemaType.PLAIN, name);
-        getService(SchemaService.class).delete(type, SchemaType.PLAIN, name);
+    public PlainSchemaTO deletePlainSchema(final String name) {
+        PlainSchemaTO response = getService(SchemaService.class).read(SchemaType.PLAIN, name);
+        getService(SchemaService.class).delete(SchemaType.PLAIN, name);
         return response;
     }
 
-    public void createDerSchema(final AttributableType type, final DerSchemaTO schemaTO) {
-        getService(SchemaService.class).create(type, SchemaType.DERIVED, schemaTO);
+    public void createDerSchema(final DerSchemaTO schemaTO) {
+        getService(SchemaService.class).create(SchemaType.DERIVED, schemaTO);
     }
 
-    public DerSchemaTO readDerSchema(final AttributableType type, final String name) {
+    public DerSchemaTO readDerSchema(final String name) {
         DerSchemaTO derivedSchemaTO = null;
         try {
-            derivedSchemaTO = getService(SchemaService.class).read(type, SchemaType.DERIVED, name);
+            derivedSchemaTO = getService(SchemaService.class).read(SchemaType.DERIVED, name);
         } catch (SyncopeClientException e) {
             LOG.error("While reading a derived user schema", e);
         }
         return derivedSchemaTO;
     }
 
-    public void updateVirSchema(final AttributableType type, final VirSchemaTO schemaTO) {
-        getService(SchemaService.class).update(type, SchemaType.VIRTUAL, schemaTO.getKey(), schemaTO);
+    public void updateVirSchema(final VirSchemaTO schemaTO) {
+        getService(SchemaService.class).update(SchemaType.VIRTUAL, schemaTO.getKey(), schemaTO);
     }
 
-    public DerSchemaTO deleteDerSchema(final AttributableType type, final String name) {
-        DerSchemaTO schemaTO = getService(SchemaService.class).read(type, SchemaType.DERIVED, name);
-        getService(SchemaService.class).delete(type, SchemaType.DERIVED, name);
+    public DerSchemaTO deleteDerSchema(final String name) {
+        DerSchemaTO schemaTO = getService(SchemaService.class).read(SchemaType.DERIVED, name);
+        getService(SchemaService.class).delete(SchemaType.DERIVED, name);
         return schemaTO;
     }
 
-    public void createVirSchema(final AttributableType type, final VirSchemaTO schemaTO) {
-        getService(SchemaService.class).create(type, SchemaType.VIRTUAL, schemaTO);
+    public void createVirSchema(final VirSchemaTO schemaTO) {
+        getService(SchemaService.class).create(SchemaType.VIRTUAL, schemaTO);
     }
 
-    public void updateDerSchema(final AttributableType type, final DerSchemaTO schemaTO) {
-        getService(SchemaService.class).update(type, SchemaType.DERIVED, schemaTO.getKey(), schemaTO);
+    public void updateDerSchema(final DerSchemaTO schemaTO) {
+        getService(SchemaService.class).update(SchemaType.DERIVED, schemaTO.getKey(), schemaTO);
     }
 
-    public VirSchemaTO deleteVirSchema(final AttributableType type, final String name) {
-        VirSchemaTO schemaTO = getService(SchemaService.class).read(type, SchemaType.VIRTUAL, name);
-        getService(SchemaService.class).delete(type, SchemaType.VIRTUAL, name);
+    public VirSchemaTO deleteVirSchema(final String name) {
+        VirSchemaTO schemaTO = getService(SchemaService.class).read(SchemaType.VIRTUAL, name);
+        getService(SchemaService.class).delete(SchemaType.VIRTUAL, name);
         return schemaTO;
     }
 

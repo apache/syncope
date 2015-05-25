@@ -31,9 +31,9 @@ import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceAssociationActionType;
 import org.apache.syncope.common.lib.types.ResourceDeassociationActionType;
-import org.apache.syncope.common.lib.types.SubjectType;
 import org.apache.syncope.common.lib.wrap.ResourceName;
 import org.apache.syncope.common.rest.api.CollectionWrapper;
 import org.apache.syncope.common.rest.api.service.ResourceService;
@@ -45,7 +45,7 @@ import org.springframework.stereotype.Component;
  * Console client for invoking rest users services.
  */
 @Component
-public class UserRestClient extends AbstractSubjectRestClient {
+public class UserRestClient extends AbstractAnyRestClient {
 
     private static final long serialVersionUID = -1575748964398293968L;
 
@@ -118,8 +118,8 @@ public class UserRestClient extends AbstractSubjectRestClient {
     }
 
     @Override
-    public ConnObjectTO getConnectorObject(final String resourceName, final Long id) {
-        return getService(ResourceService.class).getConnectorObject(resourceName, SubjectType.USER, id);
+    public ConnObjectTO readConnObject(final String resourceName, final Long id) {
+        return getService(ResourceService.class).readConnObject(resourceName, AnyTypeKind.USER.name(), id);
     }
 
     public void suspend(final String etag, final long userId, final List<StatusBean> statuses) {

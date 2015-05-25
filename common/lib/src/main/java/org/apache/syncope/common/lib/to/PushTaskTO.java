@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.common.lib.to;
 
+import java.util.HashMap;
+import java.util.Map;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
@@ -27,23 +29,10 @@ public class PushTaskTO extends AbstractProvisioningTaskTO {
 
     private static final long serialVersionUID = -2143537546915809018L;
 
-    private String userFilter;
+    private final Map<String, String> filters = new HashMap<>();
 
-    private String groupFilter;
-
-    public String getUserFilter() {
-        return userFilter;
+    public Map<String, String> getFilters() {
+        return filters;
     }
 
-    public void setUserFilter(final String filter) {
-        this.userFilter = filter;
-    }
-
-    public String getGroupFilter() {
-        return groupFilter;
-    }
-
-    public void setGroupFilter(final String filter) {
-        this.groupFilter = filter;
-    }
 }

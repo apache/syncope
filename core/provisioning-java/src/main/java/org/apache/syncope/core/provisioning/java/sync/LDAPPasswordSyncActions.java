@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.core.provisioning.java.sync;
 
-import org.apache.syncope.common.lib.mod.AbstractSubjectMod;
+import org.apache.syncope.common.lib.mod.AnyMod;
 import org.apache.syncope.common.lib.mod.UserMod;
-import org.apache.syncope.common.lib.to.AbstractSubjectTO;
+import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -53,7 +53,7 @@ public class LDAPPasswordSyncActions extends DefaultSyncActions {
 
     @Transactional(readOnly = true)
     @Override
-    public <T extends AbstractSubjectTO> SyncDelta beforeProvision(
+    public <T extends AnyTO> SyncDelta beforeProvision(
             final ProvisioningProfile<?, ?> profile,
             final SyncDelta delta,
             final T subject) throws JobExecutionException {
@@ -68,7 +68,7 @@ public class LDAPPasswordSyncActions extends DefaultSyncActions {
 
     @Transactional(readOnly = true)
     @Override
-    public <T extends AbstractSubjectTO, K extends AbstractSubjectMod> SyncDelta beforeUpdate(
+    public <T extends AnyTO, K extends AnyMod> SyncDelta beforeUpdate(
             final ProvisioningProfile<?, ?> profile,
             final SyncDelta delta,
             final T subject,
@@ -101,7 +101,7 @@ public class LDAPPasswordSyncActions extends DefaultSyncActions {
 
     @Transactional(readOnly = true)
     @Override
-    public <T extends AbstractSubjectTO> void after(
+    public <T extends AnyTO> void after(
             final ProvisioningProfile<?, ?> profile,
             final SyncDelta delta,
             final T subject,

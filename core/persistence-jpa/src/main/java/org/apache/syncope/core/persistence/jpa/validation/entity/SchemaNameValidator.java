@@ -28,36 +28,23 @@ import java.util.Set;
 import javax.validation.ConstraintValidatorContext;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.syncope.common.lib.types.EntityViolationType;
-import org.apache.syncope.core.persistence.api.entity.conf.CPlainSchema;
-import org.apache.syncope.core.persistence.api.entity.membership.MDerSchema;
-import org.apache.syncope.core.persistence.api.entity.membership.MPlainSchema;
-import org.apache.syncope.core.persistence.api.entity.membership.MVirSchema;
-import org.apache.syncope.core.persistence.api.entity.group.GDerSchema;
-import org.apache.syncope.core.persistence.api.entity.group.GPlainSchema;
-import org.apache.syncope.core.persistence.api.entity.group.GVirSchema;
-import org.apache.syncope.core.persistence.api.entity.user.UDerSchema;
-import org.apache.syncope.core.persistence.api.entity.user.UPlainSchema;
-import org.apache.syncope.core.persistence.api.entity.user.UVirSchema;
+import org.apache.syncope.core.persistence.api.entity.DerSchema;
+import org.apache.syncope.core.persistence.api.entity.PlainSchema;
+import org.apache.syncope.core.persistence.api.entity.VirSchema;
+import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
 import org.apache.syncope.core.persistence.jpa.entity.conf.JPAConf;
-import org.apache.syncope.core.persistence.jpa.entity.membership.JPAMembership;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 
 public class SchemaNameValidator extends AbstractValidator<SchemaNameCheck, Object> {
 
-    private static final Set<String> UNALLOWED_USCHEMA_NAMES = new HashSet<>();
-
-    private static final Set<String> UNALLOWED_MSCHEMA_NAMES = new HashSet<>();
-
-    private static final Set<String> UNALLOWED_RSCHEMA_NAMES = new HashSet<>();
-
-    private static final Set<String> UNALLOWED_CSCHEMA_NAMES = new HashSet<>();
+    private static final Set<String> UNALLOWED_SCHEMA_NAMES = new HashSet<>();
 
     static {
-        initUnallowedSchemaNames(JPAUser.class, UNALLOWED_USCHEMA_NAMES);
-        initUnallowedSchemaNames(JPAMembership.class, UNALLOWED_MSCHEMA_NAMES);
-        initUnallowedSchemaNames(JPAGroup.class, UNALLOWED_RSCHEMA_NAMES);
-        initUnallowedSchemaNames(JPAConf.class, UNALLOWED_CSCHEMA_NAMES);
+        initUnallowedSchemaNames(JPAAnyObject.class, UNALLOWED_SCHEMA_NAMES);
+        initUnallowedSchemaNames(JPAGroup.class, UNALLOWED_SCHEMA_NAMES);
+        initUnallowedSchemaNames(JPAUser.class, UNALLOWED_SCHEMA_NAMES);
+        initUnallowedSchemaNames(JPAConf.class, UNALLOWED_SCHEMA_NAMES);
     }
 
     private static void initUnallowedSchemaNames(final Class<?> entityClass, final Set<String> names) {
@@ -78,39 +65,14 @@ public class SchemaNameValidator extends AbstractValidator<SchemaNameCheck, Obje
 
     @Override
     public boolean isValid(final Object object, final ConstraintValidatorContext context) {
-        final String schemaName;
-        final Set<String> unallowedNames;
-
-        if (object instanceof UPlainSchema) {
-            schemaName = ((UPlainSchema) object).getKey();
-            unallowedNames = UNALLOWED_USCHEMA_NAMES;
-        } else if (object instanceof UDerSchema) {
-            schemaName = ((UDerSchema) object).getKey();
-            unallowedNames = UNALLOWED_USCHEMA_NAMES;
-        } else if (object instanceof UVirSchema) {
-            schemaName = ((UVirSchema) object).getKey();
-            unallowedNames = UNALLOWED_USCHEMA_NAMES;
-        } else if (object instanceof MPlainSchema) {
-            schemaName = ((MPlainSchema) object).getKey();
-            unallowedNames = UNALLOWED_MSCHEMA_NAMES;
-        } else if (object instanceof MDerSchema) {
-            schemaName = ((MDerSchema) object).getKey();
-            unallowedNames = UNALLOWED_MSCHEMA_NAMES;
-        } else if (object instanceof MVirSchema) {
-            schemaName = ((MVirSchema) object).getKey();
-            unallowedNames = UNALLOWED_MSCHEMA_NAMES;
-        } else if (object instanceof GPlainSchema) {
-            schemaName = ((GPlainSchema) object).getKey();
-            unallowedNames = UNALLOWED_RSCHEMA_NAMES;
-        } else if (object instanceof GDerSchema) {
-            schemaName = ((GDerSchema) object).getKey();
-            unallowedNames = UNALLOWED_RSCHEMA_NAMES;
-        } else if (object instanceof GVirSchema) {
-            schemaName = ((GVirSchema) object).getKey();
-            unallowedNames = UNALLOWED_RSCHEMA_NAMES;
-        } else if (object instanceof CPlainSchema) {
-            schemaName = ((CPlainSchema) object).getKey();
-            unallowedNames = UNALLOWED_CSCHEMA_NAMES;
+        String schemaName;
+        Set<String> unallowedNames = UNALLOWED_SCHEMA_NAMES;
+        if (object instanceof PlainSchema) {
+            schemaName = ((PlainSchema) object).getKey();
+        } else if (object instanceof DerSchema) {
+            schemaName = ((DerSchema) object).getKey();
+        } else if (object instanceof VirSchema) {
+            schemaName = ((VirSchema) object).getKey();
         } else {
             schemaName = null;
             unallowedNames = Collections.emptySet();

@@ -28,12 +28,14 @@ import org.apache.syncope.common.lib.to.SyncopeTO;
 import org.apache.syncope.core.logic.init.ImplementationClassNamesLoader;
 import org.apache.syncope.core.misc.spring.ResourceWithFallbackLoader;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
-import org.apache.syncope.core.provisioning.api.AttributableTransformer;
+import org.apache.syncope.core.provisioning.api.AnyObjectProvisioningManager;
+import org.apache.syncope.core.provisioning.api.AnyTransformer;
 import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
 import org.apache.syncope.core.provisioning.api.GroupProvisioningManager;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.api.cache.VirAttrCache;
 import org.apache.syncope.core.provisioning.java.notification.NotificationManagerImpl;
+import org.apache.syncope.core.workflow.api.AnyObjectWorkflowAdapter;
 import org.apache.syncope.core.workflow.api.GroupWorkflowAdapter;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
 import org.springframework.aop.support.AopUtils;
@@ -55,13 +57,19 @@ public class SyncopeLogic extends AbstractLogic<SyncopeTO> {
     private ConnIdBundleManager bundleManager;
 
     @Autowired
-    private AttributableTransformer attrTransformer;
+    private AnyTransformer anyTransformer;
+
+    @Autowired
+    private AnyObjectWorkflowAdapter awfAdapter;
 
     @Autowired
     private UserWorkflowAdapter uwfAdapter;
 
     @Autowired
     private GroupWorkflowAdapter gwfAdapter;
+
+    @Autowired
+    private AnyObjectProvisioningManager aProvisioningManager;
 
     @Autowired
     private UserProvisioningManager uProvisioningManager;
@@ -109,11 +117,13 @@ public class SyncopeLogic extends AbstractLogic<SyncopeTO> {
             }
         }
 
-        syncopeTO.setAttributableTransformer(attrTransformer.getClass().getName());
+        syncopeTO.setAnyTransformer(anyTransformer.getClass().getName());
 
+        syncopeTO.setAnyObjectWorkflowAdapter(AopUtils.getTargetClass(awfAdapter).getName());
         syncopeTO.setUserWorkflowAdapter(AopUtils.getTargetClass(uwfAdapter).getName());
         syncopeTO.setGroupWorkflowAdapter(AopUtils.getTargetClass(gwfAdapter).getName());
 
+        syncopeTO.setAnyObjectProvisioningManager(aProvisioningManager.getClass().getName());
         syncopeTO.setUserProvisioningManager(uProvisioningManager.getClass().getName());
         syncopeTO.setGroupProvisioningManager(gProvisioningManager.getClass().getName());
         syncopeTO.setVirAttrCache(virAttrCache.getClass().getName());

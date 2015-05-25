@@ -19,14 +19,14 @@
 package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.List;
-import org.apache.syncope.common.lib.types.SubjectType;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.entity.CamelRoute;
 
 public interface CamelRouteDAO extends DAO<CamelRoute, String> {
 
     CamelRoute find(String key);
 
-    List<CamelRoute> find(SubjectType subjectType);
+    List<CamelRoute> find(AnyTypeKind anyTypeKind);
 
     List<CamelRoute> findAll();
 

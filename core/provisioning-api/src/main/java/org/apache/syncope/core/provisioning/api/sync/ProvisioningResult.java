@@ -23,7 +23,6 @@ import java.util.Collection;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.TraceLevel;
 
@@ -41,7 +40,7 @@ public class ProvisioningResult {
 
     private Status status;
 
-    private AttributableType subjectType;
+    private String anyType;
 
     private ResourceOperation operation;
 
@@ -81,12 +80,12 @@ public class ProvisioningResult {
         this.status = status;
     }
 
-    public AttributableType getSubjectType() {
-        return subjectType;
+    public String getAnyType() {
+        return anyType;
     }
 
-    public void setSubjectType(final AttributableType subjectType) {
-        this.subjectType = subjectType;
+    public void setAnyType(final String anyType) {
+        this.anyType = anyType;
     }
 
     public ResourceOperation getOperation() {

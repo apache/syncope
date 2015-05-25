@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.api.cache;
 
-import org.apache.syncope.common.lib.types.AttributableType;
-
 /**
  * Virtual Attribute Value cache.
  */
@@ -28,21 +26,21 @@ public interface VirAttrCache {
     /**
      * Force entry expiring.
      *
-     * @param type user or group
-     * @param id user or group id
+     * @param type any object
+     * @param key any object key
      * @param schemaName virtual attribute schema name
      */
-    void expire(AttributableType type, Long id, String schemaName);
+    void expire(String type, Long key, String schemaName);
 
     /**
      * Retrieve cached value. Return null in case of virtual attribute not cached.
      *
-     * @param type user or group
-     * @param id user or group id
+     * @param type any object
+     * @param key any object key
      * @param schemaName virtual attribute schema name.
      * @return cached values or null if virtual attribute is not cached.
      */
-    VirAttrCacheValue get(AttributableType type, Long id, String schemaName);
+    VirAttrCacheValue get(String type, Long key, String schemaName);
 
     /**
      * Cache entry is valid if and only if value exist and it is not expired.
@@ -55,11 +53,11 @@ public interface VirAttrCache {
     /**
      * Cache virtual attribute values.
      *
-     * @param type user or group
-     * @param id user or group id
+     * @param type any object
+     * @param key any object key
      * @param schemaName virtual attribute name
      * @param value virtual attribute values
      */
-    void put(AttributableType type, Long id, String schemaName, VirAttrCacheValue value);
+    void put(String type, Long key, String schemaName, VirAttrCacheValue value);
 
 }

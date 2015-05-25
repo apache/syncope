@@ -27,8 +27,8 @@ import org.apache.syncope.core.persistence.api.content.ContentExporter;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
+import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttr;
-import org.apache.syncope.core.persistence.api.entity.conf.CPlainSchema;
 import org.apache.syncope.core.provisioning.api.data.ConfigurationDataBinder;
 import org.apache.syncope.core.workflow.api.GroupWorkflowAdapter;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
@@ -74,7 +74,7 @@ public class ConfigurationLogic extends AbstractTransactionalLogic<ConfTO> {
 
         CPlainAttr conf = confDAO.find(key);
         if (conf == null) {
-            CPlainSchema schema = plainSchemaDAO.find(key, CPlainSchema.class);
+            PlainSchema schema = plainSchemaDAO.find(key);
             if (schema == null) {
                 throw new NotFoundException("Configuration key " + key);
             }

@@ -18,18 +18,30 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
+import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.core.provisioning.api.data.NotificationDataBinder;
 import org.apache.syncope.common.lib.to.NotificationTO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Notification;
 import org.apache.syncope.core.misc.spring.BeanUtils;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
+import org.apache.syncope.core.persistence.api.entity.AnyAbout;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class NotificationDataBinderImpl implements NotificationDataBinder {
 
-    private static final String[] IGNORE_PROPERTIES = { "key", "about", "recipients" };
+    private static final Logger LOG = LoggerFactory.getLogger(NotificationDataBinder.class);
+
+    private static final String[] IGNORE_PROPERTIES = { "key", "abouts", "recipients" };
+
+    @Autowired
+    private AnyTypeDAO anyTypeDAO;
 
     @Autowired
     private EntityFactory entityFactory;
@@ -41,8 +53,10 @@ public class NotificationDataBinderImpl implements NotificationDataBinder {
         BeanUtils.copyProperties(notification, result, IGNORE_PROPERTIES);
 
         result.setKey(notification.getKey());
-        result.setUserAbout(notification.getUserAbout());
-        result.setGroupAbout(notification.getGroupAbout());
+        for (AnyAbout about : notification.getAbouts()) {
+            result.getAbouts().put(about.getAnyType().getKey(), about.get());
+        }
+
         result.setRecipients(notification.getRecipients());
 
         return result;
@@ -59,8 +73,22 @@ public class NotificationDataBinderImpl implements NotificationDataBinder {
     public void update(final Notification notification, final NotificationTO notificationTO) {
         BeanUtils.copyProperties(notificationTO, notification, IGNORE_PROPERTIES);
 
-        notification.setUserAbout(notificationTO.getUserAbout());
-        notification.setGroupAbout(notificationTO.getGroupAbout());
+        notification.getAbouts().clear();
+        for (Map.Entry<String, String> entry : notificationTO.getAbouts().entrySet()) {
+            if (StringUtils.isNotBlank(entry.getValue())) {
+                AnyType anyType = anyTypeDAO.find(entry.getKey());
+                if (anyType == null) {
+                    LOG.warn("Invalid AnyType {} specified, ignoring...", entry.getKey());
+                } else {
+                    AnyAbout about = entityFactory.newEntity(AnyAbout.class);
+                    about.setAnyType(anyType);
+                    about.setNotification(notification);
+
+                    notification.add(about);
+                }
+            }
+        }
+
         notification.setRecipients(notificationTO.getRecipients());
     }
 }

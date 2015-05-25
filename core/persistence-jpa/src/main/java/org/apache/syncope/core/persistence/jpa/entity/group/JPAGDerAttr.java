@@ -18,23 +18,16 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.group;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import org.apache.syncope.core.persistence.api.entity.Attributable;
-import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.group.GDerAttr;
-import org.apache.syncope.core.persistence.api.entity.group.GDerAttrTemplate;
-import org.apache.syncope.core.persistence.api.entity.group.GDerSchema;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractDerAttr;
 
 @Entity
 @Table(name = JPAGDerAttr.TABLE)
-public class JPAGDerAttr extends AbstractDerAttr implements GDerAttr {
+public class JPAGDerAttr extends AbstractDerAttr<Group> implements GDerAttr {
 
     private static final long serialVersionUID = 8007080005675899946L;
 
@@ -43,40 +36,15 @@ public class JPAGDerAttr extends AbstractDerAttr implements GDerAttr {
     @ManyToOne
     private JPAGroup owner;
 
-    @Column(nullable = false)
-    @OneToOne(cascade = CascadeType.MERGE)
-    private JPAGDerAttrTemplate template;
-
     @Override
     public Group getOwner() {
         return owner;
     }
 
     @Override
-    public void setOwner(final Attributable<?, ?, ?> owner) {
+    public void setOwner(final Group owner) {
         checkType(owner, JPAGroup.class);
         this.owner = (JPAGroup) owner;
-    }
-
-    @Override
-    public GDerAttrTemplate getTemplate() {
-        return template;
-    }
-
-    @Override
-    public void setTemplate(final GDerAttrTemplate template) {
-        checkType(template, JPAGDerAttrTemplate.class);
-        this.template = (JPAGDerAttrTemplate) template;
-    }
-
-    @Override
-    public GDerSchema getSchema() {
-        return template == null ? null : template.getSchema();
-    }
-
-    @Override
-    public void setSchema(final DerSchema schema) {
-        LOG.warn("This is group attribute, set template to select schema");
     }
 
 }

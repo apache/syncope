@@ -20,12 +20,6 @@ package org.apache.syncope.core.persistence.api.entity.user;
 
 import org.apache.syncope.core.persistence.api.entity.DerAttr;
 
-public interface UDerAttr extends DerAttr {
-
-    @Override
-    User getOwner();
-
-    @Override
-    UDerSchema getSchema();
+public interface UDerAttr extends DerAttr<User> {
 
 }

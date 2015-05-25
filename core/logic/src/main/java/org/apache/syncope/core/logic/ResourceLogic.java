@@ -29,31 +29,34 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.common.lib.types.MappingPurpose;
-import org.apache.syncope.common.lib.types.SubjectType;
 import org.apache.syncope.core.persistence.api.dao.DuplicateException;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtils;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
-import org.apache.syncope.core.persistence.api.entity.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.MappingItem;
-import org.apache.syncope.core.persistence.api.entity.Subject;
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.ConnectorFactory;
 import org.apache.syncope.core.provisioning.api.data.ResourceDataBinder;
 import org.apache.syncope.core.misc.ConnObjectUtils;
 import org.apache.syncope.core.misc.MappingUtils;
+import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
+import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.AnyUtils;
+import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
+import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.Name;
-import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -65,6 +68,12 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
 
     @Autowired
     private ExternalResourceDAO resourceDAO;
+
+    @Autowired
+    private AnyTypeDAO anyTypeDAO;
+
+    @Autowired
+    private AnyObjectDAO anyObjectDAO;
 
     @Autowired
     private UserDAO userDAO;
@@ -82,7 +91,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
     private ConnectorFactory connFactory;
 
     @Autowired
-    private AttributableUtilsFactory attrUtilsFactory;
+    private AnyUtilsFactory anyUtilsFactory;
 
     @PreAuthorize("hasRole('" + Entitlement.RESOURCE_CREATE + "')")
     public ResourceTO create(final ResourceTO resourceTO) {
@@ -170,37 +179,45 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
 
     @PreAuthorize("hasRole('" + Entitlement.RESOURCE_GETCONNECTOROBJECT + "')")
     @Transactional(readOnly = true)
-    public ConnObjectTO getConnectorObject(final String resourceName, final SubjectType type, final Long id) {
-        ExternalResource resource = resourceDAO.find(resourceName);
+    public ConnObjectTO readConnObject(final String resourceKey, final String anyTypeKey, final Long key) {
+        ExternalResource resource = resourceDAO.find(resourceKey);
         if (resource == null) {
-            throw new NotFoundException("Resource '" + resourceName + "'");
+            throw new NotFoundException("Resource '" + resourceKey + "'");
+        }
+        AnyType anyType = anyTypeDAO.find(anyTypeKey);
+        if (anyType == null) {
+            throw new NotFoundException("AnyType '" + anyTypeKey + "'");
+        }
+        Provision provision = resource.getProvision(anyType);
+        if (provision == null) {
+            throw new NotFoundException("Provision on resource '" + resourceKey + "' for type '" + anyTypeKey + "'");
         }
 
-        Subject<?, ?, ?> subject = type == SubjectType.USER
-                ? userDAO.find(id)
-                : groupDAO.find(id);
-        if (subject == null) {
-            throw new NotFoundException(type + " " + id);
+        Any<?, ?, ?> any = anyType.getKind() == AnyTypeKind.USER
+                ? userDAO.find(key)
+                : anyType.getKind() == AnyTypeKind.ANY_OBJECT
+                        ? anyObjectDAO.find(key)
+                        : groupDAO.find(key);
+        if (any == null) {
+            throw new NotFoundException(anyType + " " + key);
         }
 
-        final AttributableUtils attrUtils = attrUtilsFactory.getInstance(type.asAttributableType());
+        AnyUtils attrUtils = anyUtilsFactory.getInstance(anyType.getKind());
 
-        MappingItem accountIdItem = attrUtils.getAccountIdItem(resource);
-        if (accountIdItem == null) {
+        MappingItem connObjectKeyItem = attrUtils.getConnObjectKeyItem(provision);
+        if (connObjectKeyItem == null) {
             throw new NotFoundException(
-                    "AccountId mapping for " + type + " " + id + " on resource '" + resourceName + "'");
+                    "ConnObjectKey mapping for " + anyType + " " + key + " on resource '" + resourceKey + "'");
         }
-        final String accountIdValue = MappingUtils.getAccountIdValue(
-                subject, resource, attrUtils.getAccountIdItem(resource));
+        String connObjectKeyValue = MappingUtils.getConnObjectKeyValue(any, provision);
 
-        final ObjectClass objectClass = SubjectType.USER == type ? ObjectClass.ACCOUNT : ObjectClass.GROUP;
-
-        final Connector connector = connFactory.getConnector(resource);
-        final ConnectorObject connectorObject = connector.getObject(objectClass, new Uid(accountIdValue),
-                connector.getOperationOptions(attrUtils.getMappingItems(resource, MappingPurpose.BOTH)));
+        Connector connector = connFactory.getConnector(resource);
+        ConnectorObject connectorObject = connector.getObject(
+                provision.getObjectClass(), new Uid(connObjectKeyValue),
+                connector.getOperationOptions(attrUtils.getMappingItems(provision, MappingPurpose.BOTH)));
         if (connectorObject == null) {
-            throw new NotFoundException("Object " + accountIdValue + " with class " + objectClass
-                    + "not found on resource " + resourceName);
+            throw new NotFoundException("Object " + connObjectKeyValue + " with class " + provision.getObjectClass()
+                    + "not found on resource " + resourceKey);
         }
 
         final Set<Attribute> attributes = connectorObject.getAttributes();
@@ -217,9 +234,8 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
     @PreAuthorize("hasRole('" + Entitlement.CONNECTOR_READ + "')")
     @Transactional(readOnly = true)
     public boolean check(final ResourceTO resourceTO) {
-        final ConnInstance connInstance = binder.getConnInstance(resourceTO);
-
-        final Connector connector = connFactory.createConnector(connInstance, connInstance.getConfiguration());
+        ConnInstance connInstance = binder.getConnInstance(resourceTO);
+        Connector connector = connFactory.createConnector(connInstance, connInstance.getConfiguration());
 
         boolean result;
         try {

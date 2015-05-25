@@ -38,8 +38,8 @@ import org.apache.syncope.common.lib.types.ResourceDeassociationActionType;
 import org.apache.syncope.common.lib.wrap.ResourceName;
 import org.apache.syncope.common.rest.api.CollectionWrapper;
 import org.apache.syncope.common.rest.api.RESTHeaders;
-import org.apache.syncope.common.rest.api.beans.SubjectListQuery;
-import org.apache.syncope.common.rest.api.beans.SubjectSearchQuery;
+import org.apache.syncope.common.rest.api.beans.AnyListQuery;
+import org.apache.syncope.common.rest.api.beans.AnySearchQuery;
 import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.syncope.core.logic.UserLogic;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
@@ -83,7 +83,7 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService 
     }
 
     @Override
-    public PagedResult<UserTO> list(final SubjectListQuery listQuery) {
+    public PagedResult<UserTO> list(final AnyListQuery listQuery) {
         CollectionUtils.transform(listQuery.getRealms(), new Transformer<String, String>() {
 
             @Override
@@ -109,7 +109,7 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService 
     }
 
     @Override
-    public PagedResult<UserTO> search(final SubjectSearchQuery searchQuery) {
+    public PagedResult<UserTO> search(final AnySearchQuery searchQuery) {
         CollectionUtils.transform(searchQuery.getRealms(), new Transformer<String, String>() {
 
             @Override

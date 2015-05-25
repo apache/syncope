@@ -34,7 +34,6 @@ import org.apache.cxf.jaxrs.model.wadl.Description;
 import org.apache.cxf.jaxrs.model.wadl.Descriptions;
 import org.apache.cxf.jaxrs.model.wadl.DocTarget;
 import org.apache.syncope.common.lib.to.AbstractSchemaTO;
-import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.common.lib.types.SchemaType;
 
 /**
@@ -47,36 +46,32 @@ public interface SchemaService extends JAXRSService {
      * Returns schema matching the given kind, type and name.
      *
      * @param <T> actual SchemaTO
-     * @param attrType kind for schemas to be read
-     * @param schemaType type for schemas to be read
+     * @param type type for schemas to be read
      * @param schemaKey name of schema to be read
      * @return schema matching the given kind, type and name
      */
     @GET
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    <T extends AbstractSchemaTO> T read(@NotNull @PathParam("kind") AttributableType attrType,
-            @NotNull @PathParam("type") SchemaType schemaType, @NotNull @PathParam("key") String schemaKey);
+    <T extends AbstractSchemaTO> T read(
+            @NotNull @PathParam("type") SchemaType type, @NotNull @PathParam("key") String schemaKey);
 
     /**
      * Returns a list of schemas with matching kind and type.
      *
      * @param <T> actual SchemaTO
-     * @param attrType kind for schemas to be listed
-     * @param schemaType type for schemas to be listed
+     * @param type type for schemas to be listed
      * @return list of schemas with matching kind and type
      */
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    <T extends AbstractSchemaTO> List<T> list(
-            @NotNull @PathParam("kind") AttributableType attrType, @NotNull @PathParam("type") SchemaType schemaType);
+    <T extends AbstractSchemaTO> List<T> list(@NotNull @PathParam("type") SchemaType type);
 
     /**
      * Creates a new schema.
      *
      * @param <T> actual SchemaTO
-     * @param attrType kind for schema to be created
-     * @param schemaType type for schema to be created
+     * @param type type for schema to be created
      * @param schemaTO schema to be created
      * @return <tt>Response</tt> object featuring <tt>Location</tt> header of created schema
      */
@@ -85,35 +80,33 @@ public interface SchemaService extends JAXRSService {
     })
     @POST
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    <T extends AbstractSchemaTO> Response create(@NotNull @PathParam("kind") AttributableType attrType,
-            @NotNull @PathParam("type") SchemaType schemaType, @NotNull T schemaTO);
+    <T extends AbstractSchemaTO> Response create(
+            @NotNull @PathParam("type") SchemaType type, @NotNull T schemaTO);
 
     /**
      * Updates the schema matching the given kind, type and name.
      *
      * @param <T> actual SchemaTO
-     * @param attrType kind for schemas to be updated
-     * @param schemaType type for schemas to be updated
+     * @param type type for schemas to be updated
      * @param schemaKey name of schema to be updated
      * @param schemaTO updated schema to be stored
      */
     @PUT
     @Path("{key}")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    <T extends AbstractSchemaTO> void update(@NotNull @PathParam("kind") AttributableType attrType,
-            @NotNull @PathParam("type") SchemaType schemaType,
+    <T extends AbstractSchemaTO> void update(
+            @NotNull @PathParam("type") SchemaType type,
             @NotNull @PathParam("key") String schemaKey, @NotNull T schemaTO);
 
     /**
      * Deletes the schema matching the given kind, type and name.
      *
-     * @param attrType kind for schema to be deleted
-     * @param schemaType type for schema to be deleted
+     * @param type type for schema to be deleted
      * @param schemaKey name of schema to be deleted
      */
     @DELETE
     @Path("{key}")
-    void delete(@NotNull @PathParam("kind") AttributableType attrType,
-            @NotNull @PathParam("type") SchemaType schemaType,
+    void delete(
+            @NotNull @PathParam("type") SchemaType type,
             @NotNull @PathParam("key") String schemaKey);
 }

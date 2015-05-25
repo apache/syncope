@@ -22,16 +22,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.apache.syncope.common.lib.mod.GroupMod;
-import org.apache.syncope.common.lib.to.AbstractSubjectTO;
+import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.GroupTO;
-import org.apache.syncope.common.lib.types.AttributableType;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtils;
-import org.apache.syncope.core.persistence.api.entity.Mapping;
-import org.apache.syncope.core.persistence.api.entity.MappingItem;
-import org.apache.syncope.core.persistence.api.entity.Subject;
+import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
+import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.provisioning.api.TimeoutException;
 import org.apache.syncope.core.provisioning.api.sync.GroupPushResultHandler;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
@@ -41,30 +40,30 @@ import org.identityconnectors.framework.common.objects.Uid;
 public class GroupPushResultHandlerImpl extends AbstractPushResultHandler implements GroupPushResultHandler {
 
     @Override
-    protected AttributableUtils getAttributableUtils() {
-        return attrUtilsFactory.getInstance(AttributableType.GROUP);
+    protected AnyUtils getAnyUtils() {
+        return anyUtilsFactory.getInstance(AnyTypeKind.GROUP);
     }
 
     @Override
-    protected Subject<?, ?, ?> deprovision(final Subject<?, ?, ?> sbj) {
-        final GroupTO before = groupDataBinder.getGroupTO(Group.class.cast(sbj));
+    protected Any<?, ?, ?> deprovision(final Any<?, ?, ?> sbj) {
+        GroupTO before = groupDataBinder.getGroupTO(Group.class.cast(sbj));
 
-        final List<String> noPropResources = new ArrayList<>(before.getResources());
+        List<String> noPropResources = new ArrayList<>(before.getResources());
         noPropResources.remove(profile.getTask().getResource().getKey());
 
         taskExecutor.execute(propagationManager.getGroupDeleteTasks(before.getKey(), noPropResources));
 
-        return groupDAO.authFetch(before.getKey());
+        return groupDAO.authFind(before.getKey());
     }
 
     @Override
-    protected Subject<?, ?, ?> provision(final Subject<?, ?, ?> sbj, final Boolean enabled) {
-        final GroupTO before = groupDataBinder.getGroupTO(Group.class.cast(sbj));
+    protected Any<?, ?, ?> provision(final Any<?, ?, ?> sbj, final Boolean enabled) {
+        GroupTO before = groupDataBinder.getGroupTO(Group.class.cast(sbj));
 
-        final List<String> noPropResources = new ArrayList<>(before.getResources());
+        List<String> noPropResources = new ArrayList<>(before.getResources());
         noPropResources.remove(profile.getTask().getResource().getKey());
 
-        final PropagationByResource propByRes = new PropagationByResource();
+        PropagationByResource propByRes = new PropagationByResource();
         propByRes.add(ResourceOperation.CREATE, profile.getTask().getResource().getKey());
 
         taskExecutor.execute(propagationManager.getGroupCreateTasks(
@@ -73,12 +72,12 @@ public class GroupPushResultHandlerImpl extends AbstractPushResultHandler implem
                 propByRes,
                 noPropResources));
 
-        return groupDAO.authFetch(before.getKey());
+        return groupDAO.authFind(before.getKey());
     }
 
     @Override
-    protected Subject<?, ?, ?> link(final Subject<?, ?, ?> sbj, final Boolean unlink) {
-        final GroupMod groupMod = new GroupMod();
+    protected Any<?, ?, ?> link(final Any<?, ?, ?> sbj, final Boolean unlink) {
+        GroupMod groupMod = new GroupMod();
         groupMod.setKey(sbj.getKey());
 
         if (unlink) {
@@ -89,12 +88,12 @@ public class GroupPushResultHandlerImpl extends AbstractPushResultHandler implem
 
         gwfAdapter.update(groupMod);
 
-        return groupDAO.authFetch(sbj.getKey());
+        return groupDAO.authFind(sbj.getKey());
     }
 
     @Override
-    protected Subject<?, ?, ?> unassign(final Subject<?, ?, ?> sbj) {
-        final GroupMod groupMod = new GroupMod();
+    protected Any<?, ?, ?> unassign(final Any<?, ?, ?> sbj) {
+        GroupMod groupMod = new GroupMod();
         groupMod.setKey(sbj.getKey());
         groupMod.getResourcesToRemove().add(profile.getTask().getResource().getKey());
         gwfAdapter.update(groupMod);
@@ -102,8 +101,8 @@ public class GroupPushResultHandlerImpl extends AbstractPushResultHandler implem
     }
 
     @Override
-    protected Subject<?, ?, ?> assign(final Subject<?, ?, ?> sbj, final Boolean enabled) {
-        final GroupMod groupMod = new GroupMod();
+    protected Any<?, ?, ?> assign(final Any<?, ?, ?> sbj, final Boolean enabled) {
+        GroupMod groupMod = new GroupMod();
         groupMod.setKey(sbj.getKey());
         groupMod.getResourcesToAdd().add(profile.getTask().getResource().getKey());
         gwfAdapter.update(groupMod);
@@ -111,12 +110,12 @@ public class GroupPushResultHandlerImpl extends AbstractPushResultHandler implem
     }
 
     @Override
-    protected String getName(final Subject<?, ?, ?> subject) {
+    protected String getName(final Any<?, ?, ?> subject) {
         return Group.class.cast(subject).getName();
     }
 
     @Override
-    protected AbstractSubjectTO getSubjectTO(final long key) {
+    protected AnyTO getAnyTO(final long key) {
         try {
             return groupDataBinder.getGroupTO(key);
         } catch (Exception e) {
@@ -126,9 +125,9 @@ public class GroupPushResultHandlerImpl extends AbstractPushResultHandler implem
     }
 
     @Override
-    protected Subject<?, ?, ?> getSubject(final long key) {
+    protected Any<?, ?, ?> getAny(final long key) {
         try {
-            return groupDAO.authFetch(key);
+            return groupDAO.authFind(key);
         } catch (Exception e) {
             LOG.warn("Error retrieving group {}", key, e);
             return null;
@@ -136,27 +135,22 @@ public class GroupPushResultHandlerImpl extends AbstractPushResultHandler implem
     }
 
     @Override
-    protected ConnectorObject getRemoteObject(final String accountId) {
+    protected ConnectorObject getRemoteObject(final String connObjectKey, final ObjectClass objectClass) {
         ConnectorObject obj = null;
-
         try {
-            final Uid uid = new Uid(accountId);
+            Uid uid = new Uid(connObjectKey);
 
             obj = profile.getConnector().getObject(
-                    ObjectClass.GROUP,
+                    objectClass,
                     uid,
                     profile.getConnector().getOperationOptions(Collections.<MappingItem>emptySet()));
         } catch (TimeoutException toe) {
             LOG.debug("Request timeout", toe);
             throw toe;
         } catch (RuntimeException ignore) {
-            LOG.debug("While resolving {}", accountId, ignore);
+            LOG.debug("While resolving {}", connObjectKey, ignore);
         }
-        return obj;
-    }
 
-    @Override
-    protected Mapping<?> getMapping() {
-        return profile.getTask().getResource().getGmapping();
+        return obj;
     }
 }

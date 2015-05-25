@@ -23,9 +23,6 @@ import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
-import org.apache.syncope.core.persistence.api.entity.membership.MPlainSchema;
-import org.apache.syncope.core.persistence.api.entity.group.GPlainSchema;
-import org.apache.syncope.core.persistence.api.entity.user.UPlainSchema;
 
 public class PlainAttrValueValidator extends AbstractValidator<PlainAttrValueCheck, PlainAttrValue> {
 
@@ -76,16 +73,8 @@ public class PlainAttrValueValidator extends AbstractValidator<PlainAttrValueChe
                     LOG.error("Unique value schema for " + object.getClass().getSimpleName() + "[" + object.getKey()
                             + "]" + " is " + uniqueValueSchema + ", while owning attribute schema is " + attrSchema);
 
-                    EntityViolationType violationType = attrSchema instanceof UPlainSchema
-                            ? EntityViolationType.InvalidUPlainSchema
-                            : attrSchema instanceof GPlainSchema
-                                    ? EntityViolationType.InvalidGPlainSchema
-                                    : attrSchema instanceof MPlainSchema
-                                            ? EntityViolationType.InvalidMPlainSchema
-                                            : EntityViolationType.InvalidCPlainSchema;
-
                     context.disableDefaultConstraintViolation();
-                    context.buildConstraintViolationWithTemplate(getTemplate(violationType,
+                    context.buildConstraintViolationWithTemplate(getTemplate(EntityViolationType.InvalidPlainSchema,
                             "Unique value schema is " + uniqueValueSchema
                             + ", while owning attribute schema is " + attrSchema)).addPropertyNode("schema").
                             addConstraintViolation();

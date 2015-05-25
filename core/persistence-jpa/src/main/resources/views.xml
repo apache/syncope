@@ -20,15 +20,17 @@ under the License.
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
   <comment>Views</comment>
+  
+  <!-- user -->
   <entry key="user_search">
     CREATE VIEW user_search AS
  
-    SELECT u.id as subject_id, u.* FROM SyncopeUser u
+    SELECT u.id as any_id, u.* FROM SyncopeUser u
   </entry>
   <entry key="user_search_unique_attr">
     CREATE VIEW user_search_unique_attr AS
 
-    SELECT ua.owner_id AS subject_id,
+    SELECT ua.owner_id AS any_id,
     ua.schema_name AS schema_name,
     uav.booleanvalue AS booleanvalue,
     uav.datevalue AS datevalue,
@@ -41,7 +43,7 @@ under the License.
   <entry key="user_search_attr">
     CREATE VIEW user_search_attr AS
 
-    SELECT ua.owner_id AS subject_id,
+    SELECT ua.owner_id AS any_id,
     ua.schema_name AS schema_name,
     uav.booleanvalue AS booleanvalue,
     uav.datevalue AS datevalue,
@@ -54,109 +56,194 @@ under the License.
   <entry key="user_search_null_attr">
     CREATE VIEW user_search_null_attr AS
 
-    SELECT u.id AS subject_id,
-    UPlainSchema.name AS schema_name,
+    SELECT u.id AS any_id,
+    PlainSchema.name AS schema_name,
     NULL AS booleanvalue,
     NULL AS datevalue,
     NULL AS doublevalue,
     NULL AS longvalue,
     NULL AS stringvalue
-    FROM SyncopeUser u CROSS JOIN UPlainSchema
-    LEFT OUTER JOIN UPlainAttr ua ON (UPlainSchema.name = ua.schema_name AND ua.owner_id = u.id)
+    FROM SyncopeUser u CROSS JOIN PlainSchema
+    LEFT OUTER JOIN UPlainAttr ua ON (PlainSchema.name = ua.schema_name AND ua.owner_id = u.id)
     WHERE ua.id IS NULL
   </entry>
-  <entry key="user_search_membership">
-    CREATE VIEW user_search_membership AS
+  <entry key="user_search_urelationship">
+    CREATE VIEW user_search_urelationship AS
 
-    SELECT m.user_id AS subject_id, g.id AS group_id, g.name AS group_name
-    FROM Membership m, SyncopeGroup g
+    SELECT m.user_id AS any_id, m.anyObject_id AS anyObject_id
+    FROM URelationship m
+  </entry>
+  <entry key="user_search_umembership">
+    CREATE VIEW user_search_umembership AS
+
+    SELECT m.user_id AS any_id, g.id AS group_id, g.name AS group_name
+    FROM UMembership m, SyncopeGroup g
     WHERE m.group_id = g.id
   </entry>
-  <entry key="user_search_dyngroupmembership">
-    CREATE VIEW user_search_dyngroupmembership AS
+  <entry key="user_search_udyngroupmembership">
+    CREATE VIEW user_search_udyngroupmembership AS
 
-    SELECT ds.user_id AS subject_id, d.group_id AS group_id
-    FROM DynGroupMembership d, DynGroupMembership_SyncopeUser ds
-    WHERE d.id = ds.dynGroupMembership_id
+    SELECT ds.user_id AS any_id, d.group_id AS group_id
+    FROM UDynGroupMembership d, UDynGroupMembership_SyncopeUser ds
+    WHERE d.id = ds.uDynGroupMembership_id
   </entry>
   <entry key="user_search_role">
     CREATE VIEW user_search_role AS
 
-    SELECT ss.user_id AS subject_id, ss.role_id AS role_id
+    SELECT ss.user_id AS any_id, ss.role_id AS role_id
     FROM SyncopeUser_SyncopeRole ss
   </entry>
   <entry key="user_search_dynrolemembership">
     CREATE VIEW user_search_dynrolemembership AS
 
-    SELECT ds.user_id AS subject_id, d.role_id AS role_id
+    SELECT ds.user_id AS any_id, d.role_id AS role_id
     FROM DynRoleMembership d, DynRoleMembership_SyncopeUser ds
     WHERE d.id = ds.dynRoleMembership_id
   </entry>
   <entry key="user_search_resource">
     CREATE VIEW user_search_resource AS
 
-    SELECT st.user_id AS subject_id, st.resource_name AS resource_name
+    SELECT st.user_id AS any_id, st.resource_name AS resource_name
     FROM SyncopeUser_ExternalResource st
   </entry>
   <entry key="user_search_group_resource">
     CREATE VIEW user_search_group_resource AS
 
-    SELECT m.user_id AS subject_id, st.resource_name AS resource_name
-    FROM Membership m, SyncopeGroup r, SyncopeGroup_ExternalResource st
+    SELECT m.user_id AS any_id, st.resource_name AS resource_name
+    FROM UMembership m, SyncopeGroup r, SyncopeGroup_ExternalResource st
     WHERE m.group_id = r.id AND st.group_id = r.id
   </entry>
-  <entry key="group_search">
-    CREATE VIEW group_search AS
+
+  <!-- anyObject -->
+  <entry key="anyObject_search">
+    CREATE VIEW anyObject_search AS
  
-    SELECT r.id as subject_id, r.* FROM SyncopeGroup r
+    SELECT a.id as any_id, a.* FROM AnyObject a
   </entry>
-  <entry key="group_search_unique_attr">
-    CREATE VIEW group_search_unique_attr AS
+  <entry key="anyObject_search_unique_attr">
+    CREATE VIEW anyObject_search_unique_attr AS
 
-    SELECT ra.owner_id AS subject_id,
-    rat.schema_name AS schema_name,
-    rav.booleanvalue AS booleanvalue,
-    rav.datevalue AS datevalue,
-    rav.doublevalue AS doublevalue,
-    rav.longvalue AS longvalue,
-    rav.stringvalue AS stringvalue
-    FROM GPlainAttrUniqueValue rav, GPlainAttr ra, GPlainAttrTemplate rat
-    WHERE rav.attribute_id = ra.id
-    AND ra.template_id = rat.id
+    SELECT ua.owner_id AS any_id,
+    ua.schema_name AS schema_name,
+    uav.booleanvalue AS booleanvalue,
+    uav.datevalue AS datevalue,
+    uav.doublevalue AS doublevalue,
+    uav.longvalue AS longvalue,
+    uav.stringvalue AS stringvalue
+    FROM APlainAttrUniqueValue uav, APlainAttr ua
+    WHERE uav.attribute_id = ua.id
   </entry>
-  <entry key="group_search_attr">
-    CREATE VIEW group_search_attr AS
+  <entry key="anyObject_search_attr">
+    CREATE VIEW anyObject_search_attr AS
 
-    SELECT ra.owner_id AS subject_id,
-    rat.schema_name AS schema_name,
-    rav.booleanvalue AS booleanvalue,
-    rav.datevalue AS datevalue,
-    rav.doublevalue AS doublevalue,
-    rav.longvalue AS longvalue,
-    rav.stringvalue AS stringvalue
-    FROM GPlainAttrValue rav, GPlainAttr ra, GPlainAttrTemplate rat
-    WHERE rav.attribute_id = ra.id
-    AND ra.template_id = rat.id
+    SELECT ua.owner_id AS any_id,
+    ua.schema_name AS schema_name,
+    uav.booleanvalue AS booleanvalue,
+    uav.datevalue AS datevalue,
+    uav.doublevalue AS doublevalue,
+    uav.longvalue AS longvalue,
+    uav.stringvalue AS stringvalue
+    FROM APlainAttrValue uav, APlainAttr ua
+    WHERE uav.attribute_id = ua.id
   </entry>
-  <entry key="group_search_null_attr">
-    CREATE VIEW group_search_null_attr AS
+  <entry key="anyObject_search_null_attr">
+    CREATE VIEW anyObject_search_null_attr AS
 
-    SELECT r.id AS subject_id,
-    GPlainSchema.name AS schema_name,
+    SELECT u.id AS any_id,
+    PlainSchema.name AS schema_name,
     NULL AS booleanvalue,
     NULL AS datevalue,
     NULL AS doublevalue,
     NULL AS longvalue,
     NULL AS stringvalue
-    FROM SyncopeGroup r CROSS JOIN GPlainSchema
-    LEFT OUTER JOIN GPlainAttr ra ON (ra.owner_id = r.id)
-    LEFT OUTER JOIN GPlainAttrTemplate rat ON (GPlainSchema.name = rat.schema_name AND ra.template_id = rat.id)
-    WHERE ra.id IS NULL
+    FROM AnyObject u CROSS JOIN PlainSchema
+    LEFT OUTER JOIN APlainAttr ua ON (PlainSchema.name = ua.schema_name AND ua.owner_id = u.id)
+    WHERE ua.id IS NULL
+  </entry>
+  <entry key="anyObject_search_arelationship">
+    CREATE VIEW anyObject_search_arelationship AS
+
+    SELECT m.left_anyObject_id AS any_id, m.right_anyObject_id AS right_anyObject_id
+    FROM ARelationship m
+  </entry>
+  <entry key="anyObject_search_amembership">
+    CREATE VIEW anyObject_search_amembership AS
+
+    SELECT m.anyObject_id AS any_id, g.id AS group_id, g.name AS group_name
+    FROM AMembership m, SyncopeGroup g
+    WHERE m.group_id = g.id
+  </entry>
+  <entry key="anyObject_search_adyngroupmembership">
+    CREATE VIEW anyObject_search_adyngroupmembership AS
+
+    SELECT ds.anyObject_id AS any_id, d.group_id AS group_id
+    FROM ADynGroupMembership d, ADynGroupMembership_AnyObject ds
+    WHERE d.id = ds.aDynGroupMembership_id
+  </entry>
+  <entry key="anyObject_search_resource">
+    CREATE VIEW anyObject_search_resource AS
+
+    SELECT st.anyObject_id AS any_id, st.resource_name AS resource_name
+    FROM AnyObject_ExternalResource st
+  </entry>
+  <entry key="anyObject_search_group_resource">
+    CREATE VIEW anyObject_search_group_resource AS
+
+    SELECT m.anyObject_id AS any_id, st.resource_name AS resource_name
+    FROM AMembership m, SyncopeGroup r, SyncopeGroup_ExternalResource st
+    WHERE m.group_id = r.id AND st.group_id = r.id
+  </entry>
+
+  <!-- group -->
+  <entry key="group_search">
+    CREATE VIEW group_search AS
+ 
+    SELECT r.id as any_id, r.* FROM SyncopeGroup r
+  </entry>
+  <entry key="group_search_unique_attr">
+    CREATE VIEW group_search_unique_attr AS
+
+    SELECT ua.owner_id AS any_id,
+    ua.schema_name AS schema_name,
+    uav.booleanvalue AS booleanvalue,
+    uav.datevalue AS datevalue,
+    uav.doublevalue AS doublevalue,
+    uav.longvalue AS longvalue,
+    uav.stringvalue AS stringvalue
+    FROM GPlainAttrUniqueValue uav, GPlainAttr ua
+    WHERE uav.attribute_id = ua.id
+  </entry>
+  <entry key="group_search_attr">
+    CREATE VIEW group_search_attr AS
+
+    SELECT ua.owner_id AS any_id,
+    ua.schema_name AS schema_name,
+    uav.booleanvalue AS booleanvalue,
+    uav.datevalue AS datevalue,
+    uav.doublevalue AS doublevalue,
+    uav.longvalue AS longvalue,
+    uav.stringvalue AS stringvalue
+    FROM GPlainAttrValue uav, GPlainAttr ua
+    WHERE uav.attribute_id = ua.id
+  </entry>
+  <entry key="group_search_null_attr">
+    CREATE VIEW group_search_null_attr AS
+
+    SELECT u.id AS any_id,
+    PlainSchema.name AS schema_name,
+    NULL AS booleanvalue,
+    NULL AS datevalue,
+    NULL AS doublevalue,
+    NULL AS longvalue,
+    NULL AS stringvalue
+    FROM SyncopeGroup u CROSS JOIN PlainSchema
+    LEFT OUTER JOIN GPlainAttr ua ON (PlainSchema.name = ua.schema_name AND ua.owner_id = u.id)
+    WHERE ua.id IS NULL
   </entry>
   <entry key="group_search_resource">
     CREATE VIEW group_search_resource AS
 
-    SELECT st.group_id AS subject_id, st.resource_name AS resource_name
+    SELECT st.group_id AS any_id, st.resource_name AS resource_name
     FROM SyncopeGroup_ExternalResource st
   </entry>
 

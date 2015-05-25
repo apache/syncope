@@ -19,16 +19,21 @@
 package org.apache.syncope.core.persistence.jpa.entity;
 
 import java.util.Collection;
+import javax.persistence.Column;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 import org.apache.syncope.core.persistence.api.entity.DerAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.misc.jexl.JexlUtils;
+import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.DerSchema;
 
 @MappedSuperclass
-public abstract class AbstractDerAttr extends AbstractEntity<Long> implements DerAttr {
+public abstract class AbstractDerAttr<O extends Any<?, ?, ?>> extends AbstractEntity<Long> implements DerAttr<O> {
 
     private static final long serialVersionUID = 4740924251090424771L;
 
@@ -36,9 +41,24 @@ public abstract class AbstractDerAttr extends AbstractEntity<Long> implements De
     @GeneratedValue(strategy = GenerationType.AUTO)
     protected Long id;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @Column(name = "schema_name")
+    private JPADerSchema schema;
+
     @Override
     public Long getKey() {
         return id;
+    }
+
+    @Override
+    public DerSchema getSchema() {
+        return schema;
+    }
+
+    @Override
+    public void setSchema(final DerSchema derSchema) {
+        checkType(derSchema, JPADerSchema.class);
+        this.schema = (JPADerSchema) derSchema;
     }
 
     /**
@@ -46,7 +66,7 @@ public abstract class AbstractDerAttr extends AbstractEntity<Long> implements De
      * @return the value of this derived attribute
      */
     @Override
-    public String getValue(final Collection<? extends PlainAttr> attributes) {
+    public String getValue(final Collection<? extends PlainAttr<?>> attributes) {
         return JexlUtils.evaluate(getSchema().getExpression(), getOwner(), attributes);
     }
 }

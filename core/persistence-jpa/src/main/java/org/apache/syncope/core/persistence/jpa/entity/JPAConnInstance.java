@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
+import org.apache.syncope.core.persistence.jpa.entity.resource.JPAExternalResource;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -41,7 +42,7 @@ import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.ConnPoolConf;
-import org.apache.syncope.core.persistence.api.entity.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.jpa.validation.entity.ConnInstanceCheck;
 import org.apache.syncope.core.misc.serialization.POJOHelper;
 

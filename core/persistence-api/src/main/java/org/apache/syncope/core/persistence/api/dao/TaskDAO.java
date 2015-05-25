@@ -21,7 +21,7 @@ package org.apache.syncope.core.persistence.api.dao;
 import java.util.List;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
-import org.apache.syncope.core.persistence.api.entity.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
 
 public interface TaskDAO extends DAO<Task, Long> {

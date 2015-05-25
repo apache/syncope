@@ -23,6 +23,7 @@ import java.lang.reflect.Method;
 import javax.ws.rs.core.MediaType;
 import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.types.Entitlement;
+import org.apache.syncope.core.workflow.api.AnyObjectWorkflowAdapter;
 import org.apache.syncope.core.workflow.api.GroupWorkflowAdapter;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
 import org.apache.syncope.core.workflow.api.WorkflowAdapter;
@@ -34,6 +35,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class WorkflowLogic extends AbstractTransactionalLogic<AbstractBaseBean> {
+
+    @Autowired
+    private AnyObjectWorkflowAdapter awfAdapter;
 
     @Autowired
     private UserWorkflowAdapter uwfAdapter;
@@ -55,6 +59,12 @@ public class WorkflowLogic extends AbstractTransactionalLogic<AbstractBaseBean> 
 
     @PreAuthorize("hasRole('" + Entitlement.WORKFLOW_DEF_READ + "')")
     @Transactional(readOnly = true)
+    public void exportAnyObjectDefinition(final MediaType format, final OutputStream os) {
+        exportDefinition(awfAdapter, getFormat(format), os);
+    }
+
+    @PreAuthorize("hasRole('" + Entitlement.WORKFLOW_DEF_READ + "')")
+    @Transactional(readOnly = true)
     public void exportUserDefinition(final MediaType format, final OutputStream os) {
         exportDefinition(uwfAdapter, getFormat(format), os);
     }
@@ -67,6 +77,12 @@ public class WorkflowLogic extends AbstractTransactionalLogic<AbstractBaseBean> 
 
     private void exportDiagram(final WorkflowAdapter adapter, final OutputStream os) {
         adapter.exportDiagram(os);
+    }
+
+    @PreAuthorize("hasRole('" + Entitlement.WORKFLOW_DEF_READ + "')")
+    @Transactional(readOnly = true)
+    public void exportAnyObjectDiagram(final OutputStream os) {
+        exportDiagram(awfAdapter, os);
     }
 
     @PreAuthorize("hasRole('" + Entitlement.WORKFLOW_DEF_READ + "')")
@@ -85,6 +101,11 @@ public class WorkflowLogic extends AbstractTransactionalLogic<AbstractBaseBean> 
             final WorkflowAdapter adapter, final WorkflowDefinitionFormat format, final String definition) {
 
         adapter.importDefinition(format, definition);
+    }
+
+    @PreAuthorize("hasRole('" + Entitlement.WORKFLOW_DEF_UPDATE + "')")
+    public void importAnyObjectDefinition(final MediaType format, final String definition) {
+        importDefinition(awfAdapter, getFormat(format), definition);
     }
 
     @PreAuthorize("hasRole('" + Entitlement.WORKFLOW_DEF_UPDATE + "')")

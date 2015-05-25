@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.core.provisioning.java.sync;
 
-import org.apache.syncope.common.lib.mod.AbstractSubjectMod;
-import org.apache.syncope.common.lib.to.AbstractSubjectTO;
+import org.apache.syncope.common.lib.mod.AnyMod;
+import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.core.provisioning.api.sync.SyncActions;
 import org.apache.syncope.core.provisioning.api.sync.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.api.sync.ProvisioningResult;
@@ -36,66 +36,66 @@ public abstract class DefaultSyncActions implements SyncActions {
     }
 
     @Override
-    public <T extends AbstractSubjectTO, K extends AbstractSubjectMod> SyncDelta beforeUpdate(
+    public <T extends AnyTO, K extends AnyMod> SyncDelta beforeUpdate(
             final ProvisioningProfile<?, ?> profile,
             final SyncDelta delta,
-            final T subject,
-            final K subjectMod) throws JobExecutionException {
+            final T any,
+            final K anyMod) throws JobExecutionException {
 
         return delta;
     }
 
     @Override
-    public <T extends AbstractSubjectTO> SyncDelta beforeDelete(
-            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final T subject)
+    public <T extends AnyTO> SyncDelta beforeDelete(
+            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final T any)
             throws JobExecutionException {
 
         return delta;
     }
 
     @Override
-    public <T extends AbstractSubjectTO> SyncDelta beforeAssign(
-            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final T subject)
+    public <T extends AnyTO> SyncDelta beforeAssign(
+            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final T any)
             throws JobExecutionException {
 
         return delta;
     }
 
     @Override
-    public <T extends AbstractSubjectTO> SyncDelta beforeProvision(
-            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final T subject)
+    public <T extends AnyTO> SyncDelta beforeProvision(
+            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final T any)
             throws JobExecutionException {
 
         return delta;
     }
 
     @Override
-    public <T extends AbstractSubjectTO> SyncDelta beforeLink(
-            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final T subject)
+    public <T extends AnyTO> SyncDelta beforeLink(
+            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final T any)
             throws JobExecutionException {
 
         return delta;
     }
 
     @Override
-    public <T extends AbstractSubjectTO> SyncDelta beforeUnassign(
-            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final T subject)
+    public <T extends AnyTO> SyncDelta beforeUnassign(
+            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final T any)
             throws JobExecutionException {
 
         return delta;
     }
 
     @Override
-    public <T extends AbstractSubjectTO> SyncDelta beforeDeprovision(
-            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final T subject)
+    public <T extends AnyTO> SyncDelta beforeDeprovision(
+            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final T any)
             throws JobExecutionException {
 
         return delta;
     }
 
     @Override
-    public <T extends AbstractSubjectTO> SyncDelta beforeUnlink(
-            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final T subject)
+    public <T extends AnyTO> SyncDelta beforeUnlink(
+            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final T any)
             throws JobExecutionException {
 
         return delta;
@@ -108,8 +108,8 @@ public abstract class DefaultSyncActions implements SyncActions {
     }
 
     @Override
-    public <T extends AbstractSubjectTO> void after(
-            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final T subject,
+    public <T extends AnyTO> void after(
+            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final T any,
             final ProvisioningResult result)
             throws JobExecutionException {
     }

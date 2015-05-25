@@ -29,7 +29,7 @@ import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "groupReportletConf")
 @XmlType
-public class GroupReportletConf extends AbstractSubjectReportletConf {
+public class GroupReportletConf extends AbstractAnyReportletConf {
 
     private static final long serialVersionUID = -8488503068032439699L;
 

@@ -19,19 +19,18 @@
 package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.List;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtils;
 import org.apache.syncope.core.persistence.api.entity.VirAttr;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 
 public interface VirSchemaDAO extends DAO<VirSchema, String> {
 
-    <T extends VirSchema> T find(String key, Class<T> reference);
+    VirSchema find(String name);
 
-    <T extends VirSchema> List<T> findAll(Class<T> reference);
+    List<VirSchema> findAll();
 
-    <T extends VirAttr> List<T> findAttrs(VirSchema virSchema, Class<T> reference);
+    <T extends VirAttr<?>> List<T> findAttrs(VirSchema virSchema, Class<T> reference);
 
-    <T extends VirSchema> T save(T virSchema);
+    VirSchema save(VirSchema derSchema);
 
-    void delete(String key, AttributableUtils attributableUtil);
+    void delete(String key);
 }

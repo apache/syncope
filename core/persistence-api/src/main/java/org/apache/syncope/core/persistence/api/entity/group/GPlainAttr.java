@@ -21,17 +21,7 @@ package org.apache.syncope.core.persistence.api.entity.group;
 import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 
-public interface GPlainAttr extends PlainAttr {
-
-    @Override
-    Group getOwner();
-
-    @Override
-    GPlainSchema getSchema();
-
-    GPlainAttrTemplate getTemplate();
-
-    void setTemplate(GPlainAttrTemplate template);
+public interface GPlainAttr extends PlainAttr<Group> {
 
     @Override
     List<? extends GPlainAttrValue> getValues();

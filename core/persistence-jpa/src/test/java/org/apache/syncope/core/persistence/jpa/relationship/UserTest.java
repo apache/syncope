@@ -28,10 +28,9 @@ import org.apache.syncope.core.persistence.api.dao.PlainAttrValueDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.entity.membership.Membership;
+import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrValue;
-import org.apache.syncope.core.persistence.api.entity.user.UPlainSchema;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,9 +63,9 @@ public class UserTest extends AbstractTest {
         assertNull(userDAO.find(4L));
         assertNull(plainAttrDAO.find(550L, UPlainAttr.class));
         assertNull(plainAttrValueDAO.find(22L, UPlainAttrValue.class));
-        assertNotNull(plainSchemaDAO.find("loginDate", UPlainSchema.class));
+        assertNotNull(plainSchemaDAO.find("loginDate"));
 
-        List<Membership> memberships = groupDAO.findMemberships(groupDAO.find(7L));
+        List<UMembership> memberships = groupDAO.findUMemberships(groupDAO.find(7L));
         assertTrue(memberships.isEmpty());
     }
 }

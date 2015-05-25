@@ -18,117 +18,80 @@
  */
 package org.apache.syncope.core.persistence.api.entity.user;
 
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
+import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.Role;
-import org.apache.syncope.core.persistence.api.entity.Subject;
-import org.apache.syncope.core.persistence.api.entity.membership.Membership;
+import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 
-public interface User extends Subject<UPlainAttr, UDerAttr, UVirAttr> {
+public interface User extends Any<UPlainAttr, UDerAttr, UVirAttr> {
 
-    boolean addRole(Role role);
+    String getUsername();
 
-    boolean addMembership(Membership membership);
-
-    boolean canDecodePassword();
-
-    boolean checkToken(String token);
-
-    void generateToken(int tokenLength, int tokenExpireTime);
-
-    Date getChangePwdDate();
-
-    CipherAlgorithm getCipherAlgorithm();
-
-    String getClearPassword();
-
-    Integer getFailedLogins();
-
-    Date getLastLoginDate();
-
-    List<? extends Role> getRoles();
-
-    Membership getMembership(Long groupKey);
-
-    List<? extends Membership> getMemberships();
-
-    Collection<Long> getStaticGroupKeys();
-
-    String getPassword();
-
-    List<String> getPasswordHistory();
-
-    String getSecurityAnswer();
-
-    SecurityQuestion getSecurityQuestion();
-
-    String getStatus();
+    void setUsername(String username);
 
     String getToken();
 
     Date getTokenExpireTime();
 
-    String getUsername();
-
-    String getWorkflowId();
-
-    boolean hasTokenExpired();
-
-    Boolean isSuspended();
-
-    void removeClearPassword();
-
-    boolean removeRole(Role role);
-
-    boolean removeMembership(Membership membership);
+    void generateToken(int tokenLength, int tokenExpireTime);
 
     void removeToken();
 
+    boolean checkToken(String token);
+
+    boolean hasTokenExpired();
+
+    Date getChangePwdDate();
+
     void setChangePwdDate(Date changePwdDate);
+
+    CipherAlgorithm getCipherAlgorithm();
 
     void setCipherAlgorithm(CipherAlgorithm cipherAlgorithm);
 
+    boolean canDecodePassword();
+
+    String getClearPassword();
+
+    void removeClearPassword();
+
+    String getPassword();
+
     void setEncodedPassword(String password, CipherAlgorithm cipherAlgoritm);
-
-    void setFailedLogins(Integer failedLogins);
-
-    void setLastLoginDate(Date lastLoginDate);
 
     void setPassword(String password, CipherAlgorithm cipherAlgoritm);
 
-    void setSecurityAnswer(String securityAnswer);
-
-    void setSecurityQuestion(SecurityQuestion securityQuestion);
-
-    void setStatus(String status);
-
-    void setSuspended(Boolean suspended);
-
-    void setUsername(String username);
-
-    void setWorkflowId(String workflowId);
+    List<String> getPasswordHistory();
 
     boolean verifyPasswordHistory(String password, int size);
 
-    @Override
-    boolean addPlainAttr(UPlainAttr attr);
+    SecurityQuestion getSecurityQuestion();
+
+    void setSecurityQuestion(SecurityQuestion securityQuestion);
+
+    String getSecurityAnswer();
+
+    void setSecurityAnswer(String securityAnswer);
+
+    Integer getFailedLogins();
+
+    void setFailedLogins(Integer failedLogins);
+
+    Date getLastLoginDate();
+
+    void setLastLoginDate(Date lastLoginDate);
+
+    Boolean isSuspended();
+
+    void setSuspended(Boolean suspended);
 
     @Override
-    boolean removePlainAttr(UPlainAttr attr);
+    boolean add(UPlainAttr attr);
 
     @Override
-    boolean addDerAttr(UDerAttr attr);
-
-    @Override
-    boolean removeDerAttr(UDerAttr derAttr);
-
-    @Override
-    boolean addVirAttr(UVirAttr attr);
-
-    @Override
-    boolean removeVirAttr(UVirAttr virAttr);
+    boolean remove(UPlainAttr attr);
 
     @Override
     UPlainAttr getPlainAttr(String plainSchemaName);
@@ -137,10 +100,22 @@ public interface User extends Subject<UPlainAttr, UDerAttr, UVirAttr> {
     List<? extends UPlainAttr> getPlainAttrs();
 
     @Override
+    boolean add(UDerAttr attr);
+
+    @Override
+    boolean remove(UDerAttr derAttr);
+
+    @Override
     UDerAttr getDerAttr(String derSchemaName);
 
     @Override
     List<? extends UDerAttr> getDerAttrs();
+
+    @Override
+    boolean add(UVirAttr attr);
+
+    @Override
+    boolean remove(UVirAttr virAttr);
 
     @Override
     UVirAttr getVirAttr(String virSchemaName);
@@ -148,4 +123,25 @@ public interface User extends Subject<UPlainAttr, UDerAttr, UVirAttr> {
     @Override
     List<? extends UVirAttr> getVirAttrs();
 
+    boolean add(Role role);
+
+    boolean remove(Role role);
+
+    List<? extends Role> getRoles();
+
+    boolean add(URelationship relationship);
+
+    boolean remove(URelationship relationship);
+
+    URelationship getRelationship(AnyObject rightEnd);
+
+    List<? extends URelationship> getRelationships();
+
+    boolean add(UMembership membership);
+
+    boolean remove(UMembership membership);
+
+    UMembership getMembership(Long groupKey);
+
+    List<? extends UMembership> getMemberships();
 }

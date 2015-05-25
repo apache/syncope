@@ -25,7 +25,4 @@ public interface UPlainAttrUniqueValue extends PlainAttrUniqueValue {
     @Override
     UPlainAttr getAttr();
 
-    @Override
-    UPlainSchema getSchema();
-
 }

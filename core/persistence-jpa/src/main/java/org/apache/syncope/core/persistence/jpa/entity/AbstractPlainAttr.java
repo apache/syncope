@@ -21,33 +21,45 @@ package org.apache.syncope.core.persistence.jpa.entity;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import javax.persistence.Column;
+import javax.persistence.FetchType;
+import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtils;
+import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
+import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.jpa.validation.entity.PlainAttrCheck;
 
 @MappedSuperclass
 @PlainAttrCheck
-public abstract class AbstractPlainAttr extends AbstractEntity<Long> implements PlainAttr {
+public abstract class AbstractPlainAttr<O extends Any<?, ?, ?>> extends AbstractEntity<Long> implements PlainAttr<O> {
 
     private static final long serialVersionUID = -9115431608821806124L;
 
-    protected abstract boolean addValue(PlainAttrValue attrValue);
+    @ManyToOne(fetch = FetchType.EAGER)
+    @Column(name = "schema_name")
+    private JPAPlainSchema schema;
 
     @Override
-    public void addValue(final String value, final AttributableUtils attributableUtil) {
-        PlainAttrValue attrValue;
-        if (getSchema().isUniqueConstraint()) {
-            attrValue = attributableUtil.newPlainAttrUniqueValue();
-            ((PlainAttrUniqueValue) attrValue).setSchema(getSchema());
-        } else {
-            attrValue = attributableUtil.newPlainAttrValue();
-        }
+    public PlainSchema getSchema() {
+        return schema;
+    }
 
+    @Override
+    public void setSchema(final PlainSchema schema) {
+        checkType(schema, JPAPlainSchema.class);
+        this.schema = (JPAPlainSchema) schema;
+    }
+
+    protected abstract boolean addForMultiValue(PlainAttrValue attrValue);
+
+    @Override
+    public void add(final String value, final PlainAttrValue attrValue) {
         attrValue.setAttr(this);
         getSchema().getValidator().validate(value, attrValue);
 
@@ -57,8 +69,21 @@ public abstract class AbstractPlainAttr extends AbstractEntity<Long> implements 
             if (!getSchema().isMultivalue()) {
                 getValues().clear();
             }
-            addValue(attrValue);
+            addForMultiValue(attrValue);
         }
+    }
+
+    @Override
+    public void add(final String value, final AnyUtils anyUtils) {
+        PlainAttrValue attrValue;
+        if (getSchema().isUniqueConstraint()) {
+            attrValue = anyUtils.newPlainAttrUniqueValue();
+            ((PlainAttrUniqueValue) attrValue).setSchema(getSchema());
+        } else {
+            attrValue = anyUtils.newPlainAttrValue();
+        }
+
+        add(value, attrValue);
     }
 
     @Override

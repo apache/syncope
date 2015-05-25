@@ -63,7 +63,6 @@ public class UserCreateProcessor implements Processor {
                     created.getPropByRes(),
                     actual.getPassword(),
                     actual.getVirAttrs(),
-                    actual.getMemberships(),
                     excludedResources);
             PropagationReporter propagationReporter =
                     ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);

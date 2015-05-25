@@ -28,6 +28,7 @@ import javax.ws.rs.core.Response;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.NotificationTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.TraceLevel;
@@ -44,7 +45,8 @@ public class NotificationITCase extends AbstractITCase {
         notificationTO.setTraceLevel(TraceLevel.SUMMARY);
         notificationTO.getEvents().add("create");
 
-        notificationTO.setUserAbout(SyncopeClient.getUserSearchConditionBuilder().
+        notificationTO.getAbouts().put(AnyTypeKind.USER.name(),
+                SyncopeClient.getUserSearchConditionBuilder().
                 is("fullname").equalTo("*o*").and("fullname").equalTo("*i*").query());
 
         notificationTO.setRecipientAttrName("email");
@@ -154,7 +156,7 @@ public class NotificationITCase extends AbstractITCase {
     public void issueSYNCOPE446() {
         NotificationTO notificationTO = buildNotificationTO();
         notificationTO.getStaticRecipients().add("syncope446@syncope.apache.org");
-        notificationTO.setGroupAbout(
+        notificationTO.getAbouts().put(AnyTypeKind.GROUP.name(),
                 SyncopeClient.getGroupSearchConditionBuilder().is("name").equalTo("citizen").query());
 
         NotificationTO actual = null;

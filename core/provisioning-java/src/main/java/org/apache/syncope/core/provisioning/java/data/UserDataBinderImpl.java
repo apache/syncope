@@ -19,7 +19,6 @@
 package org.apache.syncope.core.provisioning.java.data;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
@@ -31,24 +30,15 @@ import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.mod.MembershipMod;
 import org.apache.syncope.common.lib.mod.UserMod;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.common.lib.types.AttributableType;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.SecurityQuestionDAO;
-import org.apache.syncope.core.persistence.api.entity.DerAttr;
-import org.apache.syncope.core.persistence.api.entity.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.PlainAttr;
-import org.apache.syncope.core.persistence.api.entity.VirAttr;
-import org.apache.syncope.core.persistence.api.entity.membership.MDerAttr;
-import org.apache.syncope.core.persistence.api.entity.membership.MPlainAttr;
-import org.apache.syncope.core.persistence.api.entity.membership.MVirAttr;
-import org.apache.syncope.core.persistence.api.entity.membership.Membership;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -60,13 +50,14 @@ import org.apache.syncope.core.misc.spring.BeanUtils;
 import org.apache.syncope.core.misc.ConnObjectUtils;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.entity.Role;
+import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @Transactional(rollbackFor = { Throwable.class })
-public class UserDataBinderImpl extends AbstractAttributableDataBinder implements UserDataBinder {
+public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDataBinder {
 
     private static final String[] IGNORE_USER_PROPERTIES = {
         "realm", "roles", "memberships", "plainAttrs", "derAttrs", "virAttrs", "resources",
@@ -118,7 +109,7 @@ public class UserDataBinderImpl extends AbstractAttributableDataBinder implement
     @Transactional(readOnly = true)
     @Override
     public boolean verifyPassword(final String username, final String password) {
-        return verifyPassword(userDAO.authFetch(username), password);
+        return verifyPassword(userDAO.authFind(username), password);
     }
 
     @Transactional(readOnly = true)
@@ -153,40 +144,35 @@ public class UserDataBinderImpl extends AbstractAttributableDataBinder implement
             if (role == null) {
                 LOG.warn("Ignoring unknown role with id {}", roleKey);
             } else {
-                user.addRole(role);
+                user.add(role);
             }
         }
 
         // memberships
-        Group group;
         for (MembershipTO membershipTO : userTO.getMemberships()) {
-            group = groupDAO.find(membershipTO.getGroupKey());
+            Group group = groupDAO.find(membershipTO.getRightKey());
 
             if (group == null) {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Ignoring invalid group " + membershipTO.getGroupName());
                 }
             } else {
-                Membership membership = null;
+                UMembership membership = null;
                 if (user.getKey() != null) {
-                    membership = user.getMembership(group.getKey()) == null
-                            ? membershipDAO.find(user, group)
-                            : user.getMembership(group.getKey());
+                    membership = user.getMembership(group.getKey());
                 }
                 if (membership == null) {
-                    membership = entityFactory.newEntity(Membership.class);
-                    membership.setGroup(group);
-                    membership.setUser(user);
+                    membership = entityFactory.newEntity(UMembership.class);
+                    membership.setRightEnd(group);
+                    membership.setLeftEnd(user);
 
-                    user.addMembership(membership);
+                    user.add(membership);
                 }
-
-                fill(membership, membershipTO, attrUtilsFactory.getInstance(AttributableType.MEMBERSHIP), scce);
             }
         }
 
         // realm, attributes, derived attributes, virtual attributes and resources
-        fill(user, userTO, attrUtilsFactory.getInstance(AttributableType.USER), scce);
+        fill(user, userTO, anyUtilsFactory.getInstance(AnyTypeKind.USER), scce);
 
         // set password
         if (StringUtils.isBlank(userTO.getPassword()) || !storePassword) {
@@ -228,7 +214,7 @@ public class UserDataBinderImpl extends AbstractAttributableDataBinder implement
         Collection<String> currentResources = userDAO.findAllResourceNames(user);
 
         // fetch account ids before update
-        Map<String, String> oldAccountIds = getAccountIds(user, AttributableType.USER);
+        Map<String, String> oldConnObjectKeys = getConnObjectKeys(user);
 
         // realm
         setRealm(user, userMod);
@@ -272,7 +258,7 @@ public class UserDataBinderImpl extends AbstractAttributableDataBinder implement
                 if (role == null) {
                     LOG.warn("Ignoring unknown role with id {}", roleKey);
                 } else {
-                    user.removeRole(role);
+                    user.remove(role);
                 }
             }
         });
@@ -284,100 +270,57 @@ public class UserDataBinderImpl extends AbstractAttributableDataBinder implement
                 if (role == null) {
                     LOG.warn("Ignoring unknown role with id {}", roleKey);
                 } else {
-                    user.addRole(role);
+                    user.add(role);
                 }
             }
         });
 
         // attributes, derived attributes, virtual attributes and resources
-        propByRes.merge(fill(user, userMod, attrUtilsFactory.getInstance(AttributableType.USER), scce));
+        propByRes.merge(fill(user, userMod, anyUtilsFactory.getInstance(AnyTypeKind.USER), scce));
 
         // store the group ids of membership required to be added
-        Set<Long> membershipToBeAddedGroupKeys = CollectionUtils.collect(userMod.getMembershipsToAdd(),
-                new Transformer<MembershipMod, Long>() {
-
-                    @Override
-                    public Long transform(final MembershipMod membToBeAdded) {
-                        return membToBeAdded.getGroup();
-                    }
-                }, new HashSet<Long>());
+        Set<Long> membershipToBeAddedGroupKeys = new HashSet<>(userMod.getMembershipsToAdd());
 
         final Set<String> toBeDeprovisioned = new HashSet<>();
         final Set<String> toBeProvisioned = new HashSet<>();
 
         // memberships to be removed
-        for (Long membKey : userMod.getMembershipsToRemove()) {
-            LOG.debug("Membership to be removed: {}", membKey);
+        for (Long groupKey : userMod.getMembershipsToRemove()) {
+            LOG.debug("Membership to be removed for group {}", groupKey);
 
-            Membership membership = membershipDAO.find(membKey);
+            UMembership membership = user.getMembership(groupKey);
             if (membership == null) {
-                LOG.warn("Invalid membership id specified to be removed: {}", membKey);
+                LOG.warn("Invalid group key specified for membership to be removed: {}", groupKey);
             } else {
-                if (!membershipToBeAddedGroupKeys.contains(membership.getGroup().getKey())) {
-                    toBeDeprovisioned.addAll(membership.getGroup().getResourceNames());
+                if (!membershipToBeAddedGroupKeys.contains(membership.getRightEnd().getKey())) {
+                    toBeDeprovisioned.addAll(membership.getRightEnd().getResourceNames());
                 }
 
-                // In order to make the removeMembership() below to work,
-                // we need to be sure to take exactly the same membership
-                // of the user object currently in memory (which has potentially
-                // some modifications compared to the one stored in the DB
-                membership = user.getMembership(membership.getGroup().getKey());
-                if (membershipToBeAddedGroupKeys.contains(membership.getGroup().getKey())) {
-                    Set<Long> attrKeys = new HashSet<>(membership.getPlainAttrs().size());
-                    for (PlainAttr plainAttr : membership.getPlainAttrs()) {
-                        attrKeys.add(plainAttr.getKey());
-                    }
-                    for (Long attrKey : attrKeys) {
-                        plainAttrDAO.delete(attrKey, MPlainAttr.class);
-                    }
-                    attrKeys.clear();
-
-                    // remove derived attributes
-                    for (DerAttr derAttr : membership.getDerAttrs()) {
-                        attrKeys.add(derAttr.getKey());
-                    }
-                    for (Long derAttrId : attrKeys) {
-                        derAttrDAO.delete(derAttrId, MDerAttr.class);
-                    }
-                    attrKeys.clear();
-
-                    // remove virtual attributes
-                    for (VirAttr virAttr : membership.getVirAttrs()) {
-                        attrKeys.add(virAttr.getKey());
-                    }
-                    for (Long virAttrId : attrKeys) {
-                        virAttrDAO.delete(virAttrId, MVirAttr.class);
-                    }
-                    attrKeys.clear();
+                if (!membershipToBeAddedGroupKeys.contains(membership.getRightEnd().getKey())) {
                 } else {
-                    user.removeMembership(membership);
-
-                    membershipDAO.delete(membKey);
+                    user.remove(membership);
                 }
             }
         }
 
         // memberships to be added
-        for (MembershipMod membershipMod : userMod.getMembershipsToAdd()) {
-            LOG.debug("Membership to be added: group({})", membershipMod.getGroup());
+        for (Long groupKey : userMod.getMembershipsToAdd()) {
+            LOG.debug("Membership to be added for group {}", groupKey);
 
-            Group group = groupDAO.find(membershipMod.getGroup());
+            Group group = groupDAO.find(groupKey);
             if (group == null) {
-                LOG.debug("Ignoring invalid group {}", membershipMod.getGroup());
+                LOG.debug("Ignoring invalid group {}", groupKey);
             } else {
-                Membership membership = user.getMembership(group.getKey());
+                UMembership membership = user.getMembership(group.getKey());
                 if (membership == null) {
-                    membership = entityFactory.newEntity(Membership.class);
-                    membership.setGroup(group);
-                    membership.setUser(user);
+                    membership = entityFactory.newEntity(UMembership.class);
+                    membership.setRightEnd(group);
+                    membership.setLeftEnd(user);
 
-                    user.addMembership(membership);
+                    user.add(membership);
 
                     toBeProvisioned.addAll(group.getResourceNames());
                 }
-
-                propByRes.merge(fill(membership, membershipMod,
-                        attrUtilsFactory.getInstance(AttributableType.MEMBERSHIP), scce));
             }
         }
 
@@ -394,8 +337,8 @@ public class UserDataBinderImpl extends AbstractAttributableDataBinder implement
         }
 
         // check if some account id was changed by the update above
-        Map<String, String> newAccountIds = getAccountIds(user, AttributableType.USER);
-        for (Map.Entry<String, String> entry : oldAccountIds.entrySet()) {
+        Map<String, String> newAccountIds = getConnObjectKeys(user);
+        for (Map.Entry<String, String> entry : oldConnObjectKeys.entrySet()) {
             if (newAccountIds.containsKey(entry.getKey())
                     && !entry.getValue().equals(newAccountIds.get(entry.getKey()))) {
 
@@ -418,29 +361,16 @@ public class UserDataBinderImpl extends AbstractAttributableDataBinder implement
             userTO.setSecurityQuestion(user.getSecurityQuestion().getKey());
         }
 
-        connObjectUtils.retrieveVirAttrValues(user, attrUtilsFactory.getInstance(AttributableType.USER));
+        connObjectUtils.retrieveVirAttrValues(user);
         fillTO(userTO, user.getRealm().getFullPath(),
                 user.getPlainAttrs(), user.getDerAttrs(), user.getVirAttrs(), userDAO.findAllResources(user));
 
-        for (Membership membership : user.getMemberships()) {
+        for (UMembership membership : user.getMemberships()) {
             MembershipTO membershipTO = new MembershipTO();
 
-            // set sys info
-            membershipTO.setCreator(membership.getCreator());
-            membershipTO.setCreationDate(membership.getCreationDate());
-            membershipTO.setLastModifier(membership.getLastModifier());
-            membershipTO.setLastChangeDate(membership.getLastChangeDate());
-
             membershipTO.setKey(membership.getKey());
-            membershipTO.setGroupKey(membership.getGroup().getKey());
-            membershipTO.setGroupName(membership.getGroup().getName());
-
-            // SYNCOPE-458 retrieve also membership virtual attributes
-            connObjectUtils.retrieveVirAttrValues(
-                    membership, attrUtilsFactory.getInstance(AttributableType.MEMBERSHIP));
-            fillTO(membershipTO, null,
-                    membership.getPlainAttrs(), membership.getDerAttrs(), membership.getVirAttrs(),
-                    Collections.<ExternalResource>emptyList());
+            membershipTO.setRightKey(membership.getRightEnd().getKey());
+            membershipTO.setGroupName(membership.getRightEnd().getName());
 
             userTO.getMemberships().add(membershipTO);
         }
@@ -467,13 +397,13 @@ public class UserDataBinderImpl extends AbstractAttributableDataBinder implement
     @Transactional(readOnly = true)
     @Override
     public UserTO getUserTO(final String username) {
-        return getUserTO(userDAO.authFetch(username));
+        return getUserTO(userDAO.authFind(username));
     }
 
     @Transactional(readOnly = true)
     @Override
     public UserTO getUserTO(final Long key) {
-        return getUserTO(userDAO.authFetch(key));
+        return getUserTO(userDAO.authFind(key));
     }
 
 }

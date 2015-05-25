@@ -20,7 +20,7 @@ package org.apache.syncope.core.rest.cxf.service;
 
 import java.util.List;
 import org.apache.syncope.common.lib.to.CamelRouteTO;
-import org.apache.syncope.common.lib.types.SubjectType;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.rest.api.service.CamelRouteService;
 import org.apache.syncope.core.logic.CamelRouteLogic;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,8 +33,8 @@ public class CamelRouteServiceImpl extends AbstractServiceImpl implements CamelR
     private CamelRouteLogic logic;
 
     @Override
-    public List<CamelRouteTO> list(final SubjectType subjectType) {
-        return logic.list(subjectType);
+    public List<CamelRouteTO> list(final AnyTypeKind anyTypeKind) {
+        return logic.list(anyTypeKind);
     }
 
     @Override

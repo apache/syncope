@@ -25,10 +25,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.syncope.common.lib.to.AbstractAttributableTO;
+import org.apache.syncope.common.lib.to.AnyObjectTO;
+import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.common.lib.types.SubjectType;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 
 public final class SearchableFields {
 
@@ -36,17 +37,19 @@ public final class SearchableFields {
         "serialVersionUID", "password"
     };
 
-    public static List<String> get(final SubjectType subjectType) {
-        return get(subjectType == SubjectType.USER
+    public static List<String> get(final AnyTypeKind anyTypeKind) {
+        return get(anyTypeKind == AnyTypeKind.USER
                 ? UserTO.class
-                : GroupTO.class);
+                : anyTypeKind == AnyTypeKind.GROUP
+                        ? GroupTO.class
+                        : AnyObjectTO.class);
     }
 
-    public static List<String> get(final Class<? extends AbstractAttributableTO> attributableRef) {
+    public static List<String> get(final Class<? extends AnyTO> anyRef) {
         final List<String> fieldNames = new ArrayList<>();
 
         // loop on class and all superclasses searching for field
-        Class<?> clazz = attributableRef;
+        Class<?> clazz = anyRef;
         while (clazz != null && clazz != Object.class) {
             for (Field field : clazz.getDeclaredFields()) {
                 if (!ArrayUtils.contains(ATTRIBUTES_NOTINCLUDED, field.getName())

@@ -25,14 +25,15 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import org.apache.syncope.common.lib.types.AttrSchemaType;
-import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
+import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
+import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttr;
-import org.apache.syncope.core.persistence.api.entity.conf.CPlainSchema;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
+import org.apache.syncope.core.persistence.jpa.entity.conf.JPACPlainAttrValue;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -60,10 +61,21 @@ public class ConfTest extends AbstractTest {
         assertNull(conf);
     }
 
+    private void add(final CPlainAttr newAttr, final String value) {
+        JPACPlainAttrValue attrValue;
+        if (newAttr.getSchema().isUniqueConstraint()) {
+            attrValue = new JPACPlainAttrValue();
+            ((PlainAttrUniqueValue) attrValue).setSchema(newAttr.getSchema());
+        } else {
+            attrValue = new JPACPlainAttrValue();
+        }
+        newAttr.add(value, attrValue);
+    }
+
     @Test
     public void setAndDelete() {
         // 1. create CSChema
-        CPlainSchema useless = entityFactory.newEntity(CPlainSchema.class);
+        PlainSchema useless = entityFactory.newEntity(PlainSchema.class);
         useless.setKey("useless");
         useless.setType(AttrSchemaType.Date);
         useless.setConversionPattern("yyyy-MM-dd");
@@ -72,7 +84,7 @@ public class ConfTest extends AbstractTest {
         // 2. create conf
         CPlainAttr newConf = entityFactory.newEntity(CPlainAttr.class);
         newConf.setSchema(useless);
-        newConf.addValue("2014-06-20", attrUtilsFactory.getInstance(AttributableType.CONFIGURATION));
+        add(newConf, "2014-06-20");
         confDAO.save(newConf);
 
         CPlainAttr actual = confDAO.find("useless");
@@ -80,7 +92,7 @@ public class ConfTest extends AbstractTest {
 
         // 3. update conf
         newConf.getValues().clear();
-        newConf.addValue("2014-06-20", attrUtilsFactory.getInstance(AttributableType.CONFIGURATION));
+        add(newConf, "2014-06-20");
         confDAO.save(newConf);
 
         actual = confDAO.find("useless");
@@ -94,7 +106,7 @@ public class ConfTest extends AbstractTest {
     @Test
     public void issueSYNCOPE418() {
         try {
-            CPlainSchema failing = entityFactory.newEntity(CPlainSchema.class);
+            PlainSchema failing = entityFactory.newEntity(PlainSchema.class);
             failing.setKey("http://schemas.examples.org/security/authorization/organizationUnit");
             failing.setType(AttrSchemaType.String);
             plainSchemaDAO.save(failing);

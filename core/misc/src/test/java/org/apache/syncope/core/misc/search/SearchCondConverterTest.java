@@ -23,11 +23,11 @@ import static org.junit.Assert.assertEquals;
 import org.apache.syncope.common.lib.search.SpecialAttr;
 import org.apache.syncope.common.lib.search.UserFiqlSearchConditionBuilder;
 import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
-import org.apache.syncope.core.persistence.api.dao.search.GroupCond;
+import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
 import org.apache.syncope.core.persistence.api.dao.search.ResourceCond;
 import org.apache.syncope.core.persistence.api.dao.search.RoleCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
-import org.apache.syncope.core.persistence.api.dao.search.SubjectCond;
+import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.junit.Test;
 
 public class SearchCondConverterTest {
@@ -37,7 +37,7 @@ public class SearchCondConverterTest {
         String fiqlExpression = new UserFiqlSearchConditionBuilder().is("username").equalTo("rossini").query();
         assertEquals("username==rossini", fiqlExpression);
 
-        SubjectCond attrCond = new SubjectCond(AttributeCond.Type.EQ);
+        AnyCond attrCond = new AnyCond(AttributeCond.Type.EQ);
         attrCond.setSchema("username");
         attrCond.setExpression("rossini");
         SearchCond simpleCond = SearchCond.getLeafCond(attrCond);
@@ -50,7 +50,7 @@ public class SearchCondConverterTest {
         String fiqlExpression = new UserFiqlSearchConditionBuilder().is("username").equalTo("ros*").query();
         assertEquals("username==ros*", fiqlExpression);
 
-        AttributeCond attrCond = new SubjectCond(AttributeCond.Type.LIKE);
+        AttributeCond attrCond = new AnyCond(AttributeCond.Type.LIKE);
         attrCond.setSchema("username");
         attrCond.setExpression("ros%");
         SearchCond simpleCond = SearchCond.getLeafCond(attrCond);
@@ -87,7 +87,7 @@ public class SearchCondConverterTest {
         String fiqlExpression = new UserFiqlSearchConditionBuilder().inGroups(1L).query();
         assertEquals(SpecialAttr.GROUPS + "==1", fiqlExpression);
 
-        GroupCond groupCond = new GroupCond();
+        MembershipCond groupCond = new MembershipCond();
         groupCond.setGroupKey(1L);
         SearchCond simpleCond = SearchCond.getLeafCond(groupCond);
 

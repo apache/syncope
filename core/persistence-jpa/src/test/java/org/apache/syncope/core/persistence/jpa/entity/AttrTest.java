@@ -29,7 +29,7 @@ import java.util.Arrays;
 import java.util.Random;
 import javax.validation.ValidationException;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.types.AttributableType;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
@@ -37,10 +37,10 @@ import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrUniqueValue;
-import org.apache.syncope.core.persistence.api.entity.user.UPlainSchema;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.apache.syncope.core.misc.security.Encryptor;
+import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.codec.Base64;
@@ -78,7 +78,7 @@ public class AttrTest extends AbstractTest {
     public void save() throws ClassNotFoundException {
         User user = userDAO.find(1L);
 
-        UPlainSchema emailSchema = plainSchemaDAO.find("email", UPlainSchema.class);
+        PlainSchema emailSchema = plainSchemaDAO.find("email");
         assertNotNull(emailSchema);
 
         UPlainAttr attribute = entityFactory.newEntity(UPlainAttr.class);
@@ -87,15 +87,15 @@ public class AttrTest extends AbstractTest {
 
         Exception thrown = null;
         try {
-            attribute.addValue("john.doe@gmail.com", attrUtilsFactory.getInstance(AttributableType.USER));
-            attribute.addValue("mario.rossi@gmail.com", attrUtilsFactory.getInstance(AttributableType.USER));
+            attribute.add("john.doe@gmail.com", anyUtilsFactory.getInstance(AnyTypeKind.USER));
+            attribute.add("mario.rossi@gmail.com", anyUtilsFactory.getInstance(AnyTypeKind.USER));
         } catch (ValidationException e) {
             thrown = e;
         }
         assertNull("no validation exception expected here ", thrown);
 
         try {
-            attribute.addValue("http://www.apache.org", attrUtilsFactory.getInstance(AttributableType.USER));
+            attribute.add("http://www.apache.org", anyUtilsFactory.getInstance(AnyTypeKind.USER));
         } catch (ValidationException e) {
             thrown = e;
         }
@@ -105,8 +105,9 @@ public class AttrTest extends AbstractTest {
     @Test
     public void saveWithEnum() throws ClassNotFoundException {
         User user = userDAO.find(1L);
+        assertNotNull(user);
 
-        UPlainSchema gender = plainSchemaDAO.find("gender", UPlainSchema.class);
+        PlainSchema gender = plainSchemaDAO.find("gender");
         assertNotNull(gender);
         assertNotNull(gender.getType());
         assertNotNull(gender.getEnumerationValues());
@@ -114,18 +115,18 @@ public class AttrTest extends AbstractTest {
         UPlainAttr attribute = entityFactory.newEntity(UPlainAttr.class);
         attribute.setSchema(gender);
         attribute.setOwner(user);
-        user.addPlainAttr(attribute);
+        user.add(attribute);
 
         Exception thrown = null;
 
         try {
-            attribute.addValue("A", attrUtilsFactory.getInstance(AttributableType.USER));
+            attribute.add("A", anyUtilsFactory.getInstance(AnyTypeKind.USER));
         } catch (ValidationException e) {
             thrown = e;
         }
         assertNotNull("validation exception expected here ", thrown);
 
-        attribute.addValue("M", attrUtilsFactory.getInstance(AttributableType.USER));
+        attribute.add("M", anyUtilsFactory.getInstance(AnyTypeKind.USER));
 
         InvalidEntityException iee = null;
         try {
@@ -140,10 +141,10 @@ public class AttrTest extends AbstractTest {
     public void validateAndSave() {
         User user = userDAO.find(1L);
 
-        final UPlainSchema emailSchema = plainSchemaDAO.find("email", UPlainSchema.class);
+        PlainSchema emailSchema = plainSchemaDAO.find("email");
         assertNotNull(emailSchema);
 
-        final UPlainSchema fullnameSchema = plainSchemaDAO.find("fullname", UPlainSchema.class);
+        PlainSchema fullnameSchema = plainSchemaDAO.find("fullname");
         assertNotNull(fullnameSchema);
 
         UPlainAttr attribute = entityFactory.newEntity(UPlainAttr.class);
@@ -156,7 +157,7 @@ public class AttrTest extends AbstractTest {
 
         attribute.setUniqueValue(uauv);
 
-        user.addPlainAttr(attribute);
+        user.add(attribute);
 
         InvalidEntityException iee = null;
         try {
@@ -169,23 +170,23 @@ public class AttrTest extends AbstractTest {
         // for attribute
         assertTrue(iee.hasViolation(EntityViolationType.InvalidValueList));
         // for uauv
-        assertTrue(iee.hasViolation(EntityViolationType.InvalidUPlainSchema));
+        assertTrue(iee.hasViolation(EntityViolationType.InvalidPlainSchema));
     }
 
     @Test
     public void saveWithEncrypted() throws Exception {
         User user = userDAO.find(1L);
 
-        final UPlainSchema obscureSchema = plainSchemaDAO.find("obscure", UPlainSchema.class);
+        PlainSchema obscureSchema = plainSchemaDAO.find("obscure");
         assertNotNull(obscureSchema);
         assertNotNull(obscureSchema.getSecretKey());
         assertNotNull(obscureSchema.getCipherAlgorithm());
 
         UPlainAttr attribute = entityFactory.newEntity(UPlainAttr.class);
         attribute.setSchema(obscureSchema);
-        attribute.addValue("testvalue", attrUtilsFactory.getInstance(AttributableType.USER));
+        attribute.add("testvalue", anyUtilsFactory.getInstance(AnyTypeKind.USER));
         attribute.setOwner(user);
-        user.addPlainAttr(attribute);
+        user.add(attribute);
 
         userDAO.save(user);
 
@@ -200,7 +201,7 @@ public class AttrTest extends AbstractTest {
     public void saveWithBinary() throws UnsupportedEncodingException {
         User user = userDAO.find(1L);
 
-        final UPlainSchema photoSchema = plainSchemaDAO.find("photo", UPlainSchema.class);
+        PlainSchema photoSchema = plainSchemaDAO.find("photo");
         assertNotNull(photoSchema);
         assertNotNull(photoSchema.getMimeType());
 
@@ -210,9 +211,9 @@ public class AttrTest extends AbstractTest {
 
         UPlainAttr attribute = entityFactory.newEntity(UPlainAttr.class);
         attribute.setSchema(photoSchema);
-        attribute.addValue(photoB64Value, attrUtilsFactory.getInstance(AttributableType.USER));
+        attribute.add(photoB64Value, anyUtilsFactory.getInstance(AnyTypeKind.USER));
         attribute.setOwner(user);
-        user.addPlainAttr(attribute);
+        user.add(attribute);
 
         userDAO.save(user);
 
@@ -229,7 +230,7 @@ public class AttrTest extends AbstractTest {
 
         plainAttrDAO.delete(attribute.getKey(), UPlainAttr.class);
 
-        UPlainSchema schema = plainSchemaDAO.find(attrSchemaName, UPlainSchema.class);
+        PlainSchema schema = plainSchemaDAO.find(attrSchemaName);
         assertNotNull("user attribute schema deleted when deleting values", schema);
     }
 }

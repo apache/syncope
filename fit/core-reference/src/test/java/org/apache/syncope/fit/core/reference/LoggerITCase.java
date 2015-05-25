@@ -27,7 +27,7 @@ import java.text.ParseException;
 import java.util.List;
 import org.apache.syncope.common.lib.to.EventCategoryTO;
 import org.apache.syncope.common.lib.to.LoggerTO;
-import org.apache.syncope.common.lib.types.AttributableType;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.EventCategoryType;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
@@ -168,7 +168,7 @@ public class LoggerITCase extends AbstractITCase {
 
         found = false;
         for (EventCategoryTO eventCategoryTO : events) {
-            if (AttributableType.USER.name().toLowerCase().equals(eventCategoryTO.getCategory())) {
+            if (AnyTypeKind.USER.name().toLowerCase().equals(eventCategoryTO.getCategory())) {
                 if (RESOURCE_NAME_LDAP.equals(eventCategoryTO.getSubcategory())
                         && EventCategoryType.SYNCHRONIZATION == eventCategoryTO.getType()) {
                     assertTrue(eventCategoryTO.getEvents().contains(ResourceOperation.CREATE.name().toLowerCase()));
@@ -182,7 +182,7 @@ public class LoggerITCase extends AbstractITCase {
 
         found = false;
         for (EventCategoryTO eventCategoryTO : events) {
-            if (AttributableType.USER.name().toLowerCase().equals(eventCategoryTO.getCategory())) {
+            if (AnyTypeKind.USER.name().toLowerCase().equals(eventCategoryTO.getCategory())) {
                 if (RESOURCE_NAME_CSV.equals(eventCategoryTO.getSubcategory())
                         && EventCategoryType.PROPAGATION == eventCategoryTO.getType()) {
                     assertTrue(eventCategoryTO.getEvents().contains(ResourceOperation.CREATE.name().toLowerCase()));

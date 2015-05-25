@@ -25,24 +25,18 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
-import org.apache.syncope.common.lib.types.AttributableType;
+import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.dao.DerAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
-import org.apache.syncope.core.persistence.api.dao.MembershipDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrValueDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
-import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.entity.membership.MPlainAttr;
-import org.apache.syncope.core.persistence.api.entity.membership.MPlainAttrTemplate;
-import org.apache.syncope.core.persistence.api.entity.membership.MPlainSchema;
-import org.apache.syncope.core.persistence.api.entity.membership.Membership;
-import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrTemplate;
-import org.apache.syncope.core.persistence.api.entity.group.Group;
+import org.apache.syncope.core.persistence.api.entity.DerSchema;
+import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.user.UDerAttr;
-import org.apache.syncope.core.persistence.api.entity.user.UDerSchema;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -68,12 +62,6 @@ public class AttrTest extends AbstractTest {
 
     @Autowired
     private DerSchemaDAO derSchemaDAO;
-
-    @Autowired
-    private MembershipDAO membershipDAO;
-
-    @Autowired
-    private GroupDAO groupDAO;
 
     @Autowired
     private UserDAO userDAO;
@@ -106,48 +94,43 @@ public class AttrTest extends AbstractTest {
     @Test
     public void checkForEnumType() {
         User user = userDAO.find(1L);
-        Membership membership = user.getMembership(1L);
-        assertNotNull(membership);
+        user.setPassword("password123", CipherAlgorithm.SHA);
+        assertNotNull(user);
 
-        MPlainSchema schema = entityFactory.newEntity(MPlainSchema.class);
+        PlainSchema schema = entityFactory.newEntity(PlainSchema.class);
         schema.setType(AttrSchemaType.Enum);
         schema.setKey("color");
         schema.setEnumerationValues("red" + SyncopeConstants.ENUM_VALUES_SEPARATOR + "yellow");
 
-        MPlainSchema actualSchema = plainSchemaDAO.save(schema);
+        PlainSchema actualSchema = plainSchemaDAO.save(schema);
         assertNotNull(actualSchema);
 
-        MPlainAttrTemplate template = entityFactory.newEntity(MPlainAttrTemplate.class);
-        template.setSchema(actualSchema);
-        membership.getGroup().getAttrTemplates(MPlainAttrTemplate.class).add(template);
+        UPlainAttr attr = entityFactory.newEntity(UPlainAttr.class);
+        attr.setSchema(actualSchema);
+        attr.setOwner(user);
+        attr.add("yellow", anyUtilsFactory.getInstance(AnyTypeKind.USER));
+        user.add(attr);
 
-        MPlainAttr attr = entityFactory.newEntity(MPlainAttr.class);
-        attr.setTemplate(template);
-        attr.setOwner(membership);
-        attr.addValue("yellow", attrUtilsFactory.getInstance(AttributableType.MEMBERSHIP));
-        membership.addPlainAttr(attr);
+        userDAO.save(user);
+        userDAO.flush();
 
-        MPlainAttr actualAttribute = userDAO.save(user).getMembership(1L).getPlainAttr("color");
-        assertNotNull(actualAttribute);
-
-        membership = membershipDAO.find(1L);
-        assertNotNull(membership);
-        assertNotNull(membership.getPlainAttr(schema.getKey()));
-        assertNotNull(membership.getPlainAttr(schema.getKey()).getValues());
-
-        assertEquals(membership.getPlainAttr(schema.getKey()).getValues().size(), 1);
+        user = userDAO.find(1L);
+        assertNotNull(user);
+        assertNotNull(user.getPlainAttr(schema.getKey()));
+        assertNotNull(user.getPlainAttr(schema.getKey()).getValues());
+        assertEquals(user.getPlainAttr(schema.getKey()).getValues().size(), 1);
     }
 
     @Test
     public void derAttrFromSpecialAttrs() {
-        UDerSchema sderived = entityFactory.newEntity(UDerSchema.class);
+        DerSchema sderived = entityFactory.newEntity(DerSchema.class);
         sderived.setKey("sderived");
         sderived.setExpression("username + ' - ' + creationDate + '[' + failedLogins + ']'");
 
         sderived = derSchemaDAO.save(sderived);
         derSchemaDAO.flush();
 
-        UDerSchema actual = derSchemaDAO.find("sderived", UDerSchema.class);
+        DerSchema actual = derSchemaDAO.find("sderived");
         assertNotNull("expected save to work", actual);
         assertEquals(sderived, actual);
 
@@ -169,23 +152,5 @@ public class AttrTest extends AbstractTest {
         assertFalse(value.isEmpty());
         assertTrue(value.startsWith("vivaldi - 2010-10-20"));
         assertTrue(value.endsWith("[0]"));
-    }
-
-    @Test
-    public void unmatchedGroupAttr() {
-        Group group = groupDAO.find(1L);
-        assertNotNull(group);
-
-        assertNotNull(group.getAttrTemplate(GPlainAttrTemplate.class, "icon"));
-        assertNotNull(group.getPlainAttr("icon"));
-
-        assertTrue(group.getAttrTemplates(GPlainAttrTemplate.class).
-                remove(group.getAttrTemplate(GPlainAttrTemplate.class, "icon")));
-
-        group = groupDAO.save(group);
-        groupDAO.flush();
-
-        assertNull(group.getAttrTemplate(GPlainAttrTemplate.class, "icon"));
-        assertNull(group.getPlainAttr("icon"));
     }
 }

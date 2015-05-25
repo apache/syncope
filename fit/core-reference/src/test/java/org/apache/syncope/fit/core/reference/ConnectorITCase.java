@@ -46,7 +46,9 @@ import org.apache.syncope.common.lib.to.ConnPoolConfTO;
 import org.apache.syncope.common.lib.to.MappingItemTO;
 import org.apache.syncope.common.lib.to.MappingTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
+import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ConnConfPropSchema;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
@@ -54,6 +56,7 @@ import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.rest.api.service.ConnectorService;
 import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.identityconnectors.common.security.GuardedString;
+import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -638,22 +641,27 @@ public class ConnectorITCase extends AbstractITCase {
             resourceTO.setKey(resourceName);
             resourceTO.setConnectorId(connectorTO.getKey());
 
-            conf = new HashSet<ConnConfProperty>();
+            conf = new HashSet<>();
             endpoint.getValues().clear();
             endpoint.getValues().add("http://localhost:9080/wssample/services/provisioning");
             conf.add(endpoint);
 
             resourceTO.getConnConfProperties().addAll(conf);
 
+            ProvisionTO provisionTO = new ProvisionTO();
+            provisionTO.setAnyType(AnyTypeKind.USER.name());
+            provisionTO.setObjectClass(ObjectClass.ACCOUNT_NAME);
+            resourceTO.getProvisions().add(provisionTO);
+
             MappingTO mapping = new MappingTO();
-            resourceTO.setUmapping(mapping);
+            provisionTO.setMapping(mapping);
 
             MappingItemTO mapItem = new MappingItemTO();
             mapItem.setExtAttrName("uid");
             mapItem.setIntAttrName("userId");
             mapItem.setIntMappingType(IntMappingType.UserPlainSchema);
             mapItem.setAccountid(true);
-            mapping.setAccountIdItem(mapItem);
+            mapping.setConnObjectKeyItem(mapItem);
             // ----------------------------------------
 
             // ----------------------------------------

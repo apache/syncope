@@ -21,51 +21,51 @@ package org.apache.syncope.core.persistence.jpa.dao;
 import java.util.List;
 import javax.persistence.TypedQuery;
 import org.apache.syncope.core.persistence.api.dao.DerAttrDAO;
-import org.apache.syncope.core.persistence.api.entity.Attributable;
+import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.DerAttr;
-import org.apache.syncope.core.persistence.api.entity.membership.MDerAttr;
+import org.apache.syncope.core.persistence.api.entity.anyobject.ADerAttr;
 import org.apache.syncope.core.persistence.api.entity.group.GDerAttr;
 import org.apache.syncope.core.persistence.api.entity.user.UDerAttr;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractDerAttr;
-import org.apache.syncope.core.persistence.jpa.entity.membership.JPAMDerAttr;
+import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAADerAttr;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGDerAttr;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUDerAttr;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class JPADerAttrDAO extends AbstractDAO<DerAttr, Long> implements DerAttrDAO {
+public class JPADerAttrDAO extends AbstractDAO<DerAttr<?>, Long> implements DerAttrDAO {
 
-    public <T extends DerAttr> Class<? extends AbstractDerAttr> getJPAEntityReference(
+    public <T extends DerAttr<?>> Class<? extends AbstractDerAttr<?>> getJPAEntityReference(
             final Class<T> reference) {
 
         return GDerAttr.class.isAssignableFrom(reference)
                 ? JPAGDerAttr.class
-                : MDerAttr.class.isAssignableFrom(reference)
-                        ? JPAMDerAttr.class
+                : ADerAttr.class.isAssignableFrom(reference)
+                        ? JPAADerAttr.class
                         : UDerAttr.class.isAssignableFrom(reference)
                                 ? JPAUDerAttr.class
                                 : null;
     }
 
     @Override
-    public <T extends DerAttr> T find(final Long key, final Class<T> reference) {
+    public <T extends DerAttr<?>> T find(final Long key, final Class<T> reference) {
         return reference.cast(entityManager.find(getJPAEntityReference(reference), key));
     }
 
     @Override
-    public <T extends DerAttr> List<T> findAll(final Class<T> reference) {
+    public <T extends DerAttr<?>> List<T> findAll(final Class<T> reference) {
         TypedQuery<T> query = entityManager.createQuery(
                 "SELECT e FROM " + getJPAEntityReference(reference).getSimpleName() + " e", reference);
         return query.getResultList();
     }
 
     @Override
-    public <T extends DerAttr> T save(final T derAttr) {
+    public <T extends DerAttr<?>> T save(final T derAttr) {
         return entityManager.merge(derAttr);
     }
 
     @Override
-    public <T extends DerAttr> void delete(final Long key, final Class<T> reference) {
+    public <T extends DerAttr<?>> void delete(final Long key, final Class<T> reference) {
         T derAttr = find(key, reference);
         if (derAttr == null) {
             return;
@@ -76,9 +76,9 @@ public class JPADerAttrDAO extends AbstractDAO<DerAttr, Long> implements DerAttr
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T extends DerAttr> void delete(final T derAttr) {
+    public <T extends DerAttr<?>> void delete(final T derAttr) {
         if (derAttr.getOwner() != null) {
-            ((Attributable<?, T, ?>) derAttr.getOwner()).removeDerAttr(derAttr);
+            ((Any<?, T, ?>) derAttr.getOwner()).remove(derAttr);
         }
 
         entityManager.remove(derAttr);

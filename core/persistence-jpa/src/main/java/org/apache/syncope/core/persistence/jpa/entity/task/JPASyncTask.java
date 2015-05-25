@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.jpa.entity.task;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
@@ -28,17 +29,18 @@ import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-import org.apache.syncope.common.lib.to.GroupTO;
-import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.types.TaskType;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.task.SyncTask;
 import org.apache.syncope.core.provisioning.api.job.SyncJob;
-import org.apache.syncope.core.misc.serialization.POJOHelper;
 import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.persistence.api.entity.task.AnyTemplate;
 import org.apache.syncope.core.persistence.jpa.entity.JPARealm;
 
 @Entity
@@ -54,14 +56,11 @@ public class JPASyncTask extends AbstractProvisioningTask implements SyncTask {
     @Column(name = "actionClassName")
     @CollectionTable(name = "SyncTask_actionsClassNames",
             joinColumns =
-            @JoinColumn(name = "SyncTask_id", referencedColumnName = "id"))
+            @JoinColumn(name = "syncTask_id", referencedColumnName = "id"))
     private List<String> actionsClassNames = new ArrayList<>();
 
-    @Lob
-    private String userTemplate;
-
-    @Lob
-    private String groupTemplate;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "syncTask")
+    private List<JPAAnyTemplate> templates = new ArrayList<>();
 
     @Basic
     @Min(0)
@@ -92,30 +91,6 @@ public class JPASyncTask extends AbstractProvisioningTask implements SyncTask {
     }
 
     @Override
-    public UserTO getUserTemplate() {
-        return userTemplate == null
-                ? new UserTO()
-                : POJOHelper.deserialize(userTemplate, UserTO.class);
-    }
-
-    @Override
-    public void setUserTemplate(final UserTO userTemplate) {
-        this.userTemplate = POJOHelper.serialize(userTemplate);
-    }
-
-    @Override
-    public GroupTO getGroupTemplate() {
-        return userTemplate == null
-                ? new GroupTO()
-                : POJOHelper.deserialize(groupTemplate, GroupTO.class);
-    }
-
-    @Override
-    public void setGroupTemplate(final GroupTO groupTemplate) {
-        this.groupTemplate = POJOHelper.serialize(groupTemplate);
-    }
-
-    @Override
     public boolean isFullReconciliation() {
         return isBooleanAsInteger(fullReconciliation);
     }
@@ -124,4 +99,33 @@ public class JPASyncTask extends AbstractProvisioningTask implements SyncTask {
     public void setFullReconciliation(final boolean fullReconciliation) {
         this.fullReconciliation = getBooleanAsInteger(fullReconciliation);
     }
+
+    @Override
+    public boolean add(final AnyTemplate template) {
+        checkType(template, JPAAnyTemplate.class);
+        return this.templates.add((JPAAnyTemplate) template);
+    }
+
+    @Override
+    public boolean remove(final AnyTemplate template) {
+        checkType(template, JPAAnyTemplate.class);
+        return this.templates.remove((JPAAnyTemplate) template);
+    }
+
+    @Override
+    public AnyTemplate getTemplate(final AnyType anyType) {
+        return CollectionUtils.find(templates, new Predicate<AnyTemplate>() {
+
+            @Override
+            public boolean evaluate(final AnyTemplate template) {
+                return anyType != null && anyType.equals(template.getAnyType());
+            }
+        });
+    }
+
+    @Override
+    public List<? extends AnyTemplate> getTemplates() {
+        return templates;
+    }
+
 }

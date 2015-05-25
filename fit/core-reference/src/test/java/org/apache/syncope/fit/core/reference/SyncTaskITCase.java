@@ -48,11 +48,12 @@ import org.apache.syncope.common.lib.to.SyncPolicyTO;
 import org.apache.syncope.common.lib.to.SyncTaskTO;
 import org.apache.syncope.common.lib.to.TaskExecTO;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.lib.types.ResourceDeassociationActionType;
-import org.apache.syncope.common.lib.types.SubjectType;
+import org.apache.syncope.common.lib.types.SyncPolicySpecItem;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.wrap.ResourceName;
 import org.apache.syncope.common.rest.api.CollectionWrapper;
@@ -108,13 +109,13 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         userTemplate.getResources().add(RESOURCE_NAME_WS2);
 
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setGroupKey(8L);
+        membershipTO.setRightKey(8L);
         userTemplate.getMemberships().add(membershipTO);
-        task.setUserTemplate(userTemplate);
+        task.getTemplates().put(AnyTypeKind.USER.name(), userTemplate);
 
         GroupTO groupTemplate = new GroupTO();
         groupTemplate.getResources().add(RESOURCE_NAME_LDAP);
-        task.setGroupTemplate(groupTemplate);
+        task.getTemplates().put(AnyTypeKind.GROUP.name(), groupTemplate);
 
         Response response = taskService.create(task);
         SyncTaskTO actual = getObject(response.getLocation(), TaskService.class, SyncTaskTO.class);
@@ -124,8 +125,8 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         assertNotNull(task);
         assertEquals(actual.getKey(), task.getKey());
         assertEquals(actual.getJobClassName(), task.getJobClassName());
-        assertEquals(userTemplate, task.getUserTemplate());
-        assertEquals(groupTemplate, task.getGroupTemplate());
+        assertEquals(userTemplate, task.getTemplates().get(AnyTypeKind.USER.name()));
+        assertEquals(groupTemplate, task.getTemplates().get(AnyTypeKind.USER.name()));
     }
 
     @Test
@@ -185,7 +186,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
             assertTrue(userTO.getResources().contains(RESOURCE_NAME_TESTDB));
             assertTrue(userTO.getResources().contains(RESOURCE_NAME_WS2));
             assertEquals(1, userTO.getMemberships().size());
-            assertTrue(userTO.getMemberships().get(0).getPlainAttrMap().containsKey("subscriptionDate"));
+            assertEquals(8, userTO.getMemberships().get(0).getRightKey());
 
             // Unmatching --> Assign (link) - SYNCOPE-658
             assertTrue(userTO.getResources().contains(RESOURCE_NAME_CSV));
@@ -378,7 +379,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         userTO.getResources().add(RESOURCE_NAME_NOPROPAGATION4);
 
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setGroupKey(7L);
+        membershipTO.setRightKey(7L);
 
         userTO.getMemberships().add(membershipTO);
 
@@ -396,7 +397,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
             UserTO template = new UserTO();
 
             membershipTO = new MembershipTO();
-            membershipTO.setGroupKey(10L);
+            membershipTO.setRightKey(10L);
 
             template.getMemberships().add(membershipTO);
 
@@ -407,14 +408,14 @@ public class SyncTaskITCase extends AbstractTaskITCase {
             SyncTaskTO task = taskService.read(9L);
             assertNotNull(task);
 
-            task.setUserTemplate(template);
+            task.getTemplates().put(AnyTypeKind.USER.name(), template);
 
             taskService.update(task.getKey(), task);
             SyncTaskTO actual = taskService.read(task.getKey());
             assertNotNull(actual);
             assertEquals(task.getKey(), actual.getKey());
-            assertFalse(actual.getUserTemplate().getResources().isEmpty());
-            assertFalse(actual.getUserTemplate().getMemberships().isEmpty());
+            assertFalse(actual.getTemplates().get(AnyTypeKind.USER.name()).getResources().isEmpty());
+            assertFalse(actual.getTemplates().get(AnyTypeKind.USER.name()).getMemberships().isEmpty());
 
             TaskExecTO execution = execSyncTask(actual.getKey(), 50, false);
             final String status = execution.getStatus();
@@ -464,7 +465,15 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         // Add a custom correlation rule
         // -----------------------------
         SyncPolicyTO policyTO = policyService.read(9L);
-        policyTO.getSpecification().setUserJavaRule(TestSyncRule.class.getName());
+
+        SyncPolicySpecItem item = policyTO.getSpecification().getItem(AnyTypeKind.USER.name());
+        if (item == null) {
+            item = new SyncPolicySpecItem();
+            item.setAnyTypeKey(AnyTypeKind.USER.name());
+
+            policyTO.getSpecification().getItems().add(item);
+        }
+        item.setJavaRule(TestSyncRule.class.getName());
 
         policyService.update(policyTO.getKey(), policyTO);
         // -----------------------------
@@ -571,7 +580,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         AttrTO email = attrTO("email", "'s307@apache.org'");
         template.getPlainAttrs().add(email);
 
-        task.setUserTemplate(template);
+        task.getTemplates().put(AnyTypeKind.USER.name(), template);
 
         taskService.update(task.getKey(), task);
         execSyncTask(task.getKey(), 50, false);
@@ -675,7 +684,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
 
         // 4. Check that the LDAP resource has the old password
         ConnObjectTO connObject =
-                resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.USER, user.getKey());
+                resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), user.getKey());
         assertNotNull(getLdapRemoteObject(
                 connObject.getPlainAttrMap().get(Name.NAME).getValues().get(0),
                 "security123",

@@ -26,14 +26,14 @@ import static org.junit.Assert.assertNull;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.apache.syncope.common.lib.types.AttributableType;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.PropagationMode;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.entity.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
@@ -81,12 +81,12 @@ public class TaskTest extends AbstractTest {
 
         PropagationTask task = entityFactory.newEntity(PropagationTask.class);
         task.setResource(resource);
-        task.setSubjectType(AttributableType.USER);
+        task.setAnyTypeKind(AnyTypeKind.USER);
         task.setPropagationMode(PropagationMode.TWO_PHASES);
         task.setPropagationOperation(ResourceOperation.CREATE);
-        task.setAccountId("one@two.com");
+        task.setConnObjectKey("one@two.com");
 
-        Set<Attribute> attributes = new HashSet<Attribute>();
+        Set<Attribute> attributes = new HashSet<>();
         attributes.add(AttributeBuilder.build("testAttribute", "testValue1", "testValue2"));
         attributes.add(AttributeBuilder.buildPassword("password".toCharArray()));
         task.setAttributes(attributes);

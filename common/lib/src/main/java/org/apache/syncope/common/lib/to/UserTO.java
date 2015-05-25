@@ -18,15 +18,11 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -36,7 +32,7 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 
 @XmlRootElement(name = "user")
 @XmlType
-public class UserTO extends AbstractSubjectTO {
+public class UserTO extends AnyTO {
 
     private static final long serialVersionUID = 7791304495192615740L;
 
@@ -45,12 +41,6 @@ public class UserTO extends AbstractSubjectTO {
     private final List<Long> roles = new ArrayList<>();
 
     private final List<Long> dynRoles = new ArrayList<>();
-
-    private final List<MembershipTO> memberships = new ArrayList<>();
-
-    private final List<Long> dynGroups = new ArrayList<>();
-
-    private String status;
 
     private String token;
 
@@ -88,45 +78,6 @@ public class UserTO extends AbstractSubjectTO {
     @JsonProperty("dynRoles")
     public List<Long> getDynRoles() {
         return dynRoles;
-    }
-
-    @XmlElementWrapper(name = "memberships")
-    @XmlElement(name = "membership")
-    @JsonProperty("memberships")
-    public List<MembershipTO> getMemberships() {
-        return memberships;
-    }
-
-    @JsonIgnore
-    public Map<Long, MembershipTO> getMembershipMap() {
-        Map<Long, MembershipTO> result;
-
-        if (getMemberships() == null) {
-            result = Collections.emptyMap();
-        } else {
-            result = new HashMap<>(getMemberships().size());
-            for (MembershipTO membership : getMemberships()) {
-                result.put(membership.getGroupKey(), membership);
-            }
-            result = Collections.unmodifiableMap(result);
-        }
-
-        return result;
-    }
-
-    @XmlElementWrapper(name = "dynGroups")
-    @XmlElement(name = "role")
-    @JsonProperty("dynGroups")
-    public List<Long> getDynGroups() {
-        return dynGroups;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(final String status) {
-        this.status = status;
     }
 
     public String getToken() {

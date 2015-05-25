@@ -21,38 +21,38 @@ package org.apache.syncope.core.persistence.api.entity.task;
 import java.util.List;
 import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
-import org.apache.syncope.core.persistence.api.entity.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 
 public interface ProvisioningTask extends SchedTask {
+
+    ExternalResource getResource();
+
+    void setResource(ExternalResource resource);
 
     List<String> getActionsClassNames();
 
     MatchingRule getMatchingRule();
 
-    ExternalResource getResource();
+    void setMatchingRule(MatchingRule matchigRule);
 
     UnmatchingRule getUnmatchingRule();
 
+    void setUnmatchingRule(UnmatchingRule unmatchigRule);
+
     boolean isPerformCreate();
-
-    boolean isPerformDelete();
-
-    boolean isPerformUpdate();
-
-    boolean isSyncStatus();
-
-    void setMatchingRule(MatchingRule matchigRule);
 
     void setPerformCreate(boolean performCreate);
 
+    boolean isPerformDelete();
+
     void setPerformDelete(boolean performDelete);
+
+    boolean isPerformUpdate();
 
     void setPerformUpdate(boolean performUpdate);
 
-    void setResource(ExternalResource resource);
+    boolean isSyncStatus();
 
     void setSyncStatus(boolean syncStatus);
-
-    void setUnmatchingRule(UnmatchingRule unmatchigRule);
 
 }

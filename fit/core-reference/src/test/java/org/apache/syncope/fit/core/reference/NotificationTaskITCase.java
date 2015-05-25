@@ -30,6 +30,7 @@ import org.apache.syncope.common.lib.to.NotificationTO;
 import org.apache.syncope.common.lib.to.NotificationTaskTO;
 import org.apache.syncope.common.lib.to.TaskExecTO;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.common.rest.api.service.NotificationService;
@@ -109,7 +110,8 @@ public class NotificationTaskITCase extends AbstractTaskITCase {
         notification.setTraceLevel(TraceLevel.FAILURES);
         notification.getEvents().add("[REST]:[UserLogic]:[]:[create]:[SUCCESS]");
 
-        notification.setUserAbout(SyncopeClient.getUserSearchConditionBuilder().inGroups(7L).query());
+        notification.getAbouts().put(AnyTypeKind.USER.name(),
+                SyncopeClient.getUserSearchConditionBuilder().inGroups(7L).query());
 
         notification.setRecipients(SyncopeClient.getUserSearchConditionBuilder().inGroups(8L).query());
         notification.setSelfAsRecipient(true);
@@ -130,7 +132,7 @@ public class NotificationTaskITCase extends AbstractTaskITCase {
         // 2. create user
         UserTO userTO = UserITCase.getUniqueSampleTO("syncope@syncope.apache.org");
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setGroupKey(7);
+        membershipTO.setRightKey(7);
         userTO.getMemberships().add(membershipTO);
 
         userTO = createUser(userTO);

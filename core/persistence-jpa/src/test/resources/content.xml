@@ -22,8 +22,8 @@ under the License.
                creator="admin" lastModifier="admin"
                creationDate="2014-06-20 11:00:00" lastChangeDate="2014-06-20 11:00:00"/>
 
-  <CPlainSchema name="password.cipher.algorithm" type="String"
-                mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <PlainSchema name="password.cipher.algorithm" type="String"
+               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
   <CPlainAttr id="1" owner_id="1" schema_name="password.cipher.algorithm"/>
   <CPlainAttrValue id="1" attribute_id="1" stringValue="SHA1"/>
 
@@ -31,66 +31,66 @@ under the License.
   + not existing: NotificationJob runs according to Notification.DEFAULT_CRON_EXP
   + provided as empty string: NotificationJob disabled
   + provided as non-empty string: NotificationJob runs according to the given value -->
-  <CPlainSchema name="notificationjob.cronExpression" type="String"
-                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <PlainSchema name="notificationjob.cronExpression" type="String"
+               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
   <CPlainAttr id="2" owner_id="1" schema_name="notificationjob.cronExpression"/>
   <CPlainAttrValue id="2" attribute_id="2" stringValue=""/>
   
-  <CPlainSchema name="notification.maxRetries" type="Long"
-                mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <PlainSchema name="notification.maxRetries" type="Long"
+               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
   <CPlainAttr id="3" owner_id="1" schema_name="notification.maxRetries"/>
   <CPlainAttrValue id="3" attribute_id="3" longValue="3"/>
 
-  <CPlainSchema name="token.length" type="Long"
-                mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <PlainSchema name="token.length" type="Long"
+               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
   <CPlainAttr id="4" owner_id="1" schema_name="token.length"/>
   <CPlainAttrValue id="4" attribute_id="4" longValue="256"/>
 
-  <CPlainSchema name="token.expireTime" type="Long"
-                mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <PlainSchema name="token.expireTime" type="Long"
+               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
   <CPlainAttr id="5" owner_id="1" schema_name="token.expireTime"/>
   <CPlainAttrValue id="5" attribute_id="5" longValue="60"/>
 
-  <CPlainSchema name="selfRegistration.allowed" type="Boolean"
-                mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <PlainSchema name="selfRegistration.allowed" type="Boolean"
+               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
   <CPlainAttr id="6" owner_id="1" schema_name="selfRegistration.allowed"/>
   <CPlainAttrValue id="6" attribute_id="6" booleanValue="1"/>
 
-  <CPlainSchema name="passwordReset.allowed" type="Boolean"
-                mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <PlainSchema name="passwordReset.allowed" type="Boolean"
+               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
   <CPlainAttr id="7" owner_id="1" schema_name="passwordReset.allowed"/>
   <CPlainAttrValue id="7" attribute_id="7" booleanValue="1"/>
 
-  <CPlainSchema name="passwordReset.securityQuestion" type="Boolean"
-                mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <PlainSchema name="passwordReset.securityQuestion" type="Boolean"
+               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
   <CPlainAttr id="8" owner_id="1" schema_name="passwordReset.securityQuestion"/>
   <CPlainAttrValue id="8" attribute_id="8" booleanValue="1"/>
 
-  <CPlainSchema name="authentication.statuses" type="String"
-                mandatoryCondition="true" multivalue="1" uniqueConstraint="0" readonly="0"/>
+  <PlainSchema name="authentication.statuses" type="String"
+               mandatoryCondition="true" multivalue="1" uniqueConstraint="0" readonly="0"/>
   <CPlainAttr id="9" owner_id="1" schema_name="authentication.statuses"/>
   <CPlainAttrValue id="9" attribute_id="9" stringValue="created"/>
   <CPlainAttrValue id="10" attribute_id="9" stringValue="active"/>
 
   <!-- Save user login date upon successful authentication -->
-  <CPlainSchema name="log.lastlogindate" type="Boolean"
-                mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <PlainSchema name="log.lastlogindate" type="Boolean"
+               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
   <CPlainAttr id="11" owner_id="1" schema_name="log.lastlogindate"/>
   <CPlainAttrValue id="11" attribute_id="11" booleanValue="1"/>
 
   <!-- For usage with admin console -->
-  <CPlainSchema name="admin.user.layout" type="String"
-                mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
-  <CPlainSchema name="self.user.layout" type="String"
-                mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
-  <CPlainSchema name="admin.group.layout" type="String"
-                mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
-  <CPlainSchema name="self.group.layout" type="String"
-                mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
-  <CPlainSchema name="admin.membership.layout" type="String"
-                mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
-  <CPlainSchema name="self.membership.layout" type="String"
-                mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
+  <PlainSchema name="admin.user.layout" type="String"
+               mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
+  <PlainSchema name="self.user.layout" type="String"
+               mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
+  <PlainSchema name="admin.group.layout" type="String"
+               mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
+  <PlainSchema name="self.group.layout" type="String"
+               mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
+  <PlainSchema name="admin.membership.layout" type="String"
+               mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
+  <PlainSchema name="self.membership.layout" type="String"
+               mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
   
   <!-- sample policies -->
   <Policy DTYPE="SyncPolicy" id="1" description="a sync policy" type="SYNC" 
@@ -111,11 +111,24 @@ under the License.
           specification='{"historyLength":0,"maxLength":0,"minLength":10,"nonAlphanumericRequired":true,"alphanumericRequired":false,"digitRequired":true,"lowercaseRequired":true,"uppercaseRequired":true,"mustStartWithDigit":true,"mustntStartWithDigit":false,"mustEndWithDigit":true,"mustntEndWithDigit":false,"mustStartWithNonAlpha":false,"mustStartWithAlpha":false,"mustntStartWithNonAlpha":false,"mustntStartWithAlpha":false,"mustEndWithNonAlpha":false,"mustEndWithAlpha":false,"mustntEndWithNonAlpha":false,"mustntEndWithAlpha":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[],"allowNullPassword":false}'/>
   <Policy DTYPE="SyncPolicy" id="9" description="sync policy for java rule" type="SYNC" 
           specification='{"userJavaRule":null,"groupJavaRule":null,"conflictResolutionAction":"IGNORE","userAltSearchSchemas":[],"groupAltSearchSchemas":[]}'/>
-    
+
+  <AnyType name="USER" kind="USER"/>
+  <AnyType name="GROUP" kind="GROUP"/>
+  <AnyType name="OTHER" kind="ANY_OBJECT"/>
+      
   <Realm id="1" name="/" passwordPolicy_id="4"/>
   <Realm id="2" name="odd" parent_id="1" accountPolicy_id="6"/>
   <Realm id="3" name="even" parent_id="1"/>
   <Realm id="4" name="two" parent_id="3" accountPolicy_id="5" passwordPolicy_id="2"/>
+  
+  <AnyObject id="1" realm_id="1" type_name="OTHER"
+             creator="admin" lastModifier="admin" 
+             creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+  <AnyObject id="2" realm_id="1" type_name="OTHER"
+             creator="admin" lastModifier="admin" 
+             creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+
+  <ARelationship id="1" left_anyObject_id="1" right_anyObject_id="2"/>
   
   <SyncopeRole id="1" name="User reviewer"/>
   <SyncopeRole_entitlements entitlement="USER_READ" role_id="1"/>
@@ -225,106 +238,92 @@ under the License.
                 creator="admin" lastModifier="admin" 
                 creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
 
-  <Membership id="1" user_id="1" group_id="1"
-              creator="admin" lastModifier="admin" 
-              creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <Membership id="2" user_id="2" group_id="1"
-              creator="admin" lastModifier="admin" 
-              creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <Membership id="3" user_id="2" group_id="2"
-              creator="admin" lastModifier="admin" 
-              creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <Membership id="4" user_id="4" group_id="7"
-              creator="admin" lastModifier="admin" 
-              creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <Membership id="5" user_id="1" group_id="8"
-              creator="admin" lastModifier="admin" 
-              creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <Membership id="6" user_id="2" group_id="3"
-              creator="admin" lastModifier="admin" 
-              creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <Membership id="7" user_id="5" group_id="14"
-              creator="admin" lastModifier="admin" 
-              creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+  <UMembership id="1" user_id="1" group_id="1"/>
+  <UMembership id="2" user_id="2" group_id="1"/>
+  <UMembership id="3" user_id="2" group_id="2"/>
+  <UMembership id="4" user_id="4" group_id="7"/>
+  <UMembership id="5" user_id="1" group_id="8"/>
+  <UMembership id="6" user_id="2" group_id="3"/>
+  <UMembership id="7" user_id="5" group_id="14"/>
 
-  <UPlainSchema name="fullname" type="String"
-                mandatoryCondition="true" multivalue="0" uniqueConstraint="1" readonly="0"/>
-  <UPlainSchema name="userId" type="String"
-                mandatoryCondition="true" multivalue="0" uniqueConstraint="1" readonly="0"
-                validatorClass="org.apache.syncope.core.persistence.jpa.attrvalue.validation.EmailAddressValidator"/>
-  <UPlainSchema name="loginDate" type="Date"
-                mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"
-                conversionPattern="yyyy-MM-dd"/>
-  <UPlainSchema name="firstname" type="String"
-                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
-  <UPlainSchema name="surname" type="String"
-                mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
-  <UPlainSchema name="type" type="String"
-                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
-  <UPlainSchema name="email" type="String"
-                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
-                validatorClass="org.apache.syncope.core.persistence.jpa.attrvalue.validation.EmailAddressValidator"/>
-  <UPlainSchema name="activationDate" type="Date"
-                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
-                conversionPattern="yyyy-MM-dd'T'HH:mm:ss.SSSZ"/>
-  <UPlainSchema name="uselessReadonly" type="String"
-                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="1"/>
-  <UPlainSchema name="cool" type="Boolean"
-                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
-  <UPlainSchema name="gender" type="Enum"
-                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
-                enumerationValues="M;F"/>
-  <UPlainSchema name="aLong" type="Long"
-                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
-  <UPlainSchema name="makeItDouble" type="Long"
-                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
-  <UPlainSchema name="obscure" type="Encrypted"
-                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
-                secretKey="7abcdefghilmnopqrstuvz9#" cipherAlgorithm="SHA"/>
-  <UPlainSchema name="photo" type="Binary"
-                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
-                mimeType="image/jpeg"/>
+  <PlainSchema name="fullname" type="String"
+               mandatoryCondition="true" multivalue="0" uniqueConstraint="1" readonly="0"/>
+  <PlainSchema name="userId" type="String"
+               mandatoryCondition="true" multivalue="0" uniqueConstraint="1" readonly="0"
+               validatorClass="org.apache.syncope.core.persistence.jpa.attrvalue.validation.EmailAddressValidator"/>
+  <PlainSchema name="loginDate" type="Date"
+               mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"
+               conversionPattern="yyyy-MM-dd"/>
+  <PlainSchema name="firstname" type="String"
+               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <PlainSchema name="surname" type="String"
+               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <PlainSchema name="type" type="String"
+               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <PlainSchema name="email" type="String"
+               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
+               validatorClass="org.apache.syncope.core.persistence.jpa.attrvalue.validation.EmailAddressValidator"/>
+  <PlainSchema name="activationDate" type="Date"
+               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
+               conversionPattern="yyyy-MM-dd'T'HH:mm:ss.SSSZ"/>
+  <PlainSchema name="uselessReadonly" type="String"
+               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="1"/>
+  <PlainSchema name="cool" type="Boolean"
+               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <PlainSchema name="gender" type="Enum"
+               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
+               enumerationValues="M;F"/>
+  <PlainSchema name="aLong" type="Long"
+               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <PlainSchema name="makeItDouble" type="Long"
+               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <PlainSchema name="obscure" type="Encrypted"
+               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
+               secretKey="7abcdefghilmnopqrstuvz9#" cipherAlgorithm="SHA"/>
+  <PlainSchema name="photo" type="Binary"
+               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
+               mimeType="image/jpeg"/>
 
-  <UDerSchema name="csvuserid" expression="firstname + ',' + surname"/>
-  <UDerSchema name="cn" expression="surname + ', ' + firstname"/>
-  <UDerSchema name="noschema" expression="surname + ', ' + notfound"/>
+  <DerSchema name="csvuserid" expression="firstname + ',' + surname"/>
+  <DerSchema name="cn" expression="surname + ', ' + firstname"/>
+  <DerSchema name="noschema" expression="surname + ', ' + notfound"/>
 
-  <UVirSchema name="virtualdata"/>
+  <VirSchema name="virtualdata"/>
 
-  <GPlainSchema name="icon" type="String"
-                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>                
-  <GPlainSchema name="show" type="Boolean"
-                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
-  <GPlainSchema name="rderived_sx" type="String"
-                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
-  <GPlainSchema name="rderived_dx" type="String"
-                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>           
-  <GPlainSchema name="title" type="String"
-                mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
+  <PlainSchema name="icon" type="String"
+               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>                
+  <PlainSchema name="show" type="Boolean"
+               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <PlainSchema name="rderived_sx" type="String"
+               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <PlainSchema name="rderived_dx" type="String"
+               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>           
+  <PlainSchema name="title" type="String"
+               mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
 
-  <GDerSchema name="rderiveddata" expression="rderived_sx + '-' + rderived_dx"/>
-  <GDerSchema name="displayProperty" expression="icon + ': ' + show"/>
-  <GDerSchema name="rderToBePropagated" expression="rderived_sx + '-' + rderived_dx"/>
+  <DerSchema name="rderiveddata" expression="rderived_sx + '-' + rderived_dx"/>
+  <DerSchema name="displayProperty" expression="icon + ': ' + show"/>
+  <DerSchema name="rderToBePropagated" expression="rderived_sx + '-' + rderived_dx"/>
 
-  <GVirSchema name="rvirtualdata"/>
+  <VirSchema name="rvirtualdata"/>
 
   <!-- rderiveddata is used to verify der schema deletion -->
-  <GDerSchema name="rderivedschema" expression="rderived_sx + '-' + rderived_dx"/>
+  <DerSchema name="rderivedschema" expression="rderived_sx + '-' + rderived_dx"/>
 
-  <MPlainSchema name="subscriptionDate" type="Date"
-                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
-                conversionPattern="yyyy-MM-dd'T'HH:mm:ss.SSSZ"/>
-  <MPlainSchema name="mderived_sx" type="String"
-                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
-  <MPlainSchema name="mderived_dx" type="String"
-                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>          
-  <MPlainSchema name="postalAddress" type="String"
-                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <PlainSchema name="subscriptionDate" type="Date"
+               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
+               conversionPattern="yyyy-MM-dd'T'HH:mm:ss.SSSZ"/>
+  <PlainSchema name="mderived_sx" type="String"
+               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <PlainSchema name="mderived_dx" type="String"
+               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>          
+  <PlainSchema name="postalAddress" type="String"
+               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
 
-  <MDerSchema name="mderiveddata" expression="mderived_sx + '-' + mderived_dx"/>
-  <MDerSchema name="mderToBePropagated" expression="mderived_sx + '-' + mderived_dx"/>
+  <DerSchema name="mderiveddata" expression="mderived_sx + '-' + mderived_dx"/>
+  <DerSchema name="mderToBePropagated" expression="mderived_sx + '-' + mderived_dx"/>
 
-  <MVirSchema name="mvirtualdata"/>
+  <VirSchema name="mvirtualdata"/>
   
   <UPlainAttr id="99" owner_id="1" schema_name="type"/>
   <UPlainAttrValue id="9" attribute_id="99" stringValue="G"/>
@@ -389,93 +388,49 @@ under the License.
   <UPlainAttr id="126" owner_id="3" schema_name="type"/>
   <UPlainAttrValue id="37" attribute_id="126" stringValue="F"/>
     
-  <UVirAttr id="1000" virSchema_name="virtualdata" owner_id="3"/>
+  <UVirAttr id="1000" schema_name="virtualdata" owner_id="3"/>
 
-  <UVirSchema name="virtualReadOnly" READONLY="1"/>
+  <VirSchema name="virtualReadOnly" READONLY="1"/>
   
-  <UDerAttr id="100" derSchema_name="cn" owner_id="3"/>
-  <UDerAttr id="101" derSchema_name="cn" owner_id="1"/>
+  <UDerAttr id="100" schema_name="cn" owner_id="3"/>
+  <UDerAttr id="101" schema_name="cn" owner_id="1"/>
 
-  <GPlainAttrTemplate id="600" owner_id="1" schema_name="icon"/>
-  <GPlainAttr id="600" owner_id="1" template_id="600"/>
+  <GPlainAttr id="600" owner_id="1" schema_name="icon"/>
   <GPlainAttrValue attribute_id="600" id="40" stringValue="niceIcon"/>
 
-  <GPlainAttrTemplate id="700" owner_id="2" schema_name="icon"/>
-  <GPlainAttr id="700" owner_id="2" template_id="700"/>
+  <GPlainAttr id="700" owner_id="2" schema_name="icon"/>
   <GPlainAttrValue attribute_id="700" id="41" stringValue="badIcon"/>
 
-  <GPlainAttrTemplate id="800" owner_id="1" schema_name="show"/>
-  <GPlainAttr id="800" owner_id="1" template_id="800"/>
+  <GPlainAttr id="800" owner_id="1"  schema_name="show"/>
   <GPlainAttrValue attribute_id="800" id="42" booleanValue="1"/>
 
-  <GPlainAttrTemplate id="900" owner_id="6" schema_name="icon"/>
-  <GPlainAttr id="900" owner_id="6" template_id="900"/>
+  <GPlainAttr id="900" owner_id="6" schema_name="icon"/>
   <GPlainAttrValue attribute_id="900" id="43" stringValue="icon6"/>
 
-  <GPlainAttrTemplate id="950" owner_id="4" schema_name="icon"/>
-  <GPlainAttr id="950" owner_id="4" template_id="950"/>
+  <GPlainAttr id="950" owner_id="4" schema_name="icon"/>
   <GPlainAttrValue attribute_id="950" id="44" stringValue="icon4"/>
 
-  <GPlainAttrTemplate id="992" owner_id="1" schema_name="rderived_sx"/>
-  <GPlainAttr id="992" owner_id="1" template_id="992"/>
+  <GPlainAttr id="992" owner_id="1" schema_name="rderived_sx"/>
   <GPlainAttrValue attribute_id="992" id="92" stringValue="sx"/>
 
-  <GPlainAttrTemplate id="993" owner_id="1" schema_name="rderived_dx"/>
-  <GPlainAttr id="993" owner_id="1" template_id="993"/>
+  <GPlainAttr id="993" owner_id="1" schema_name="rderived_dx"/>
   <GPlainAttrValue attribute_id="993" id="93" stringValue="dx"/>
 
-  <GPlainAttrTemplate id="994" owner_id="12" schema_name="title"/>
-  <GPlainAttr id="994" owner_id="12" template_id="994"/>
+  <GPlainAttr id="994" owner_id="12" schema_name="title"/>
   <GPlainAttrValue attribute_id="994" id="94" stringValue="r12"/>
   
-  <GPlainAttrTemplate id="995" owner_id="13" schema_name="title"/>
-  <GPlainAttr id="995" owner_id="13" template_id="995"/>
+  <GPlainAttr id="995" owner_id="13" schema_name="title"/>
   <GPlainAttrValue attribute_id="995" id="95" stringValue="r13"/>
 
-  <GDerAttrTemplate id="1000" owner_id="1" schema_name="rderiveddata"/>
-  <GDerAttr id="1000" owner_id="1" template_id="1000"/>
+  <GDerAttr id="1000" owner_id="1" schema_name="rderiveddata"/>
     
-  <GDerAttrTemplate id="1001" owner_id="1" schema_name="displayProperty"/>
-  <GDerAttr id="1001" owner_id="1" template_id="1001"/>
+  <GDerAttr id="1001" owner_id="1" schema_name="displayProperty"/>
   
-  <GDerAttrTemplate id="1002" owner_id="4" schema_name="displayProperty"/>
-  <GDerAttr id="1002" owner_id="4" template_id="1002"/>
+  <GDerAttr id="1002" owner_id="4" schema_name="displayProperty"/>
 
-  <GDerAttrTemplate id="1003" owner_id="1" schema_name="rderToBePropagated"/>    
-  <GDerAttr id="1003" owner_id="1" template_id="1003"/>    
+  <GDerAttr id="1003" owner_id="1" schema_name="rderToBePropagated"/>    
 
-  <GVirAttrTemplate id="98" owner_id="4" schema_name="rvirtualdata"/>
-  <GVirAttr id="98" owner_id="4" template_id="98"/>
-
-  <GVirAttrTemplate id="99" owner_id="3" schema_name="rvirtualdata"/>
-
-  <MPlainAttrTemplate id="98" owner_id="1" schema_name="mderived_sx"/>
-  
-  <MPlainAttrTemplate id="99" owner_id="1" schema_name="mderived_dx"/>
-
-  <MPlainAttrTemplate id="100" owner_id="7" schema_name="subscriptionDate"/>
-  <MPlainAttr id="100" owner_id="4" template_id="100"/>
-  <MPlainAttrValue attribute_id="100" id="90" dateValue="2009-05-26"/>
-  <MPlainAttrValue attribute_id="100" id="91" dateValue="2010-05-26 15:40:04"/>
-
-  <MPlainAttrTemplate id="101" owner_id="8" schema_name="subscriptionDate"/>
-
-  <MPlainAttrTemplate id="102" owner_id="1" schema_name="mderived_sx"/>
-  <MPlainAttr id="102" owner_id="1" template_id="102"/>
-  <MPlainAttrValue attribute_id="102" id="92" stringValue="sx"/>
-
-  <MPlainAttrTemplate id="103" owner_id="1" schema_name="mderived_dx"/>
-  <MPlainAttr id="103" owner_id="1" template_id="103"/>
-  <MPlainAttrValue attribute_id="103" id="93" stringValue="dx"/>
-
-  <MPlainAttrTemplate id="104" owner_id="12" schema_name="postalAddress"/>
-
-  <MDerAttrTemplate id="99" owner_id="1" schema_name="mderiveddata"/>
-  <MDerAttr id="99" owner_id="1" template_id="99"/>
-  
-  <MDerAttrTemplate id="100" owner_id="1" schema_name="mderToBePropagated"/>  
-    
-  <MVirAttrTemplate id="99" owner_id="2" schema_name="mvirtualdata"/>
+  <GVirAttr id="98" owner_id="4" schema_name="rvirtualdata"/>
 
   <ConnInstance id="100" displayName="ConnInstance100"
                 location="${connid.location}"
@@ -632,7 +587,6 @@ under the License.
                     creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
   <ExternalResource name="ws-target-resource-update-resetsynctoken" connector_id="100" enforceMandatoryCondition="1" propagationMode="TWO_PHASES"
                     randomPwdIfNotProvided="0" propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"
-                    userializedSyncToken='{"value":null}'
                     creator="admin" lastModifier="admin" 
                     creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
   <ExternalResource name="resource-ldap" connector_id="105"
@@ -641,7 +595,7 @@ under the License.
                     createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"
                     creator="admin" lastModifier="admin" 
                     creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <ExternalResource_PropActions externalResource_name="resource-ldap"
+  <ExternalResource_PropActions resource_name="resource-ldap"
                                 actionClassName="org.apache.syncope.core.provisioning.java.propagation.LDAPMembershipPropagationActions"/>
   <ExternalResource name="ws-target-resource-nopropagation" connector_id="103"
                     randomPwdIfNotProvided="0" enforceMandatoryCondition="1" propagationMode="TWO_PHASES"
@@ -681,7 +635,7 @@ under the License.
                     creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
 
   <!-- Use resource-testdb for passthrough authentication (SYNCOPE-164) -->
-  <Policy_ExternalResource account_policy_id="5" resource_name="resource-testdb"/>
+  <Policy_ExternalResource accountPolicy_id="5" resource_name="resource-testdb"/>
     
   <SyncopeUser_ExternalResource user_id="1" resource_name="resource-testdb2"/>
   <SyncopeUser_ExternalResource user_id="3" resource_name="ws-target-resource-delete"/>
@@ -695,264 +649,288 @@ under the License.
   <SyncopeGroup_ExternalResource group_id="10" resource_name="ws-target-resource-nopropagation3"/>
   <SyncopeGroup_ExternalResource group_id="12" resource_name="resource-csv"/>
   <SyncopeGroup_ExternalResource group_id="13" resource_name="resource-csv"/>
-
-  <UMapping id="15" resource_name="ws-target-resource-1"/>
-  <UMappingItem id="99" mapping_id="15" extAttrName="userId"
-                intMappingType="UserId" mandatoryCondition="true"
-                accountid="1" password="0" purpose="PROPAGATION"/>
-  <UMappingItem id="100" extAttrName="email" mapping_id="15"
-                intAttrName="email" intMappingType="UserPlainSchema" mandatoryCondition="true"
-                accountid="0" password="0" purpose="PROPAGATION"/>
-  <UMappingItem id="101" extAttrName="surname" mapping_id="15"
-                intAttrName="surname" intMappingType="UserPlainSchema" mandatoryCondition="true"
-                accountid="0" password="0" purpose="PROPAGATION"/>
-  <UMappingItem id="102" mapping_id="15"
-                extAttrName="__PASSWORD__" intMappingType="Password" mandatoryCondition="true"
-                accountid="0" password="1" purpose="PROPAGATION"/>
-  <UMappingItem id="335" mapping_id="15" 
-                extAttrName="fullname" intAttrName="surname" intMappingType="UserPlainSchema" mandatoryCondition="true"
-                accountid="0" password="0" purpose="PROPAGATION"/>
-  <UMappingItem id="336" mapping_id="15"
-                extAttrName="type" intAttrName="type" intMappingType="UserPlainSchema" mandatoryCondition="true"
-                accountid="0" password="0" purpose="PROPAGATION"/>
-  <UMappingItem id="337" mapping_id="15"
-                extAttrName="name" intAttrName="firstname" intMappingType="UserPlainSchema" mandatoryCondition="false"
-                accountid="0" password="0" purpose="NONE"/>
+     
+  <Provision id="15" resource_name="ws-target-resource-1" anyType_name="USER" objectClass="__ACCOUNT__"/>
+  <Mapping id="15" provision_id="15"/>
+  <MappingItem id="99" mapping_id="15" extAttrName="userId"
+               intMappingType="UserId" mandatoryCondition="true"
+               connObjectKey="1" password="0" purpose="PROPAGATION"/>
+  <MappingItem id="100" extAttrName="email" mapping_id="15"
+               intAttrName="email" intMappingType="UserPlainSchema" mandatoryCondition="true"
+               connObjectKey="0" password="0" purpose="PROPAGATION"/>
+  <MappingItem id="101" extAttrName="surname" mapping_id="15"
+               intAttrName="surname" intMappingType="UserPlainSchema" mandatoryCondition="true"
+               connObjectKey="0" password="0" purpose="PROPAGATION"/>
+  <MappingItem id="102" mapping_id="15"
+               extAttrName="__PASSWORD__" intMappingType="Password" mandatoryCondition="true"
+               connObjectKey="0" password="1" purpose="PROPAGATION"/>
+  <MappingItem id="335" mapping_id="15" 
+               extAttrName="fullname" intAttrName="surname" intMappingType="UserPlainSchema" mandatoryCondition="true"
+               connObjectKey="0" password="0" purpose="PROPAGATION"/>
+  <MappingItem id="336" mapping_id="15"
+               extAttrName="type" intAttrName="type" intMappingType="UserPlainSchema" mandatoryCondition="true"
+               connObjectKey="0" password="0" purpose="PROPAGATION"/>
+  <MappingItem id="337" mapping_id="15"
+               extAttrName="name" intAttrName="firstname" intMappingType="UserPlainSchema" mandatoryCondition="false"
+               connObjectKey="0" password="0" purpose="NONE"/>
   
-  <UMapping id="12" resource_name="ws-target-resource-list-mappings-1"/>
-  <UMappingItem id="103" mapping_id="12"
-                extAttrName="email" intAttrName="email" intMappingType="UserPlainSchema" mandatoryCondition="true"
-                accountid="1" password="0" purpose="PROPAGATION"/>
-  <UMappingItem id="104" extAttrName="surname" mapping_id="12"
-                intAttrName="surname" intMappingType="UserPlainSchema" mandatoryCondition="true"
-                accountid="0" password="0" purpose="PROPAGATION"/>
+  <Provision id="12" resource_name="ws-target-resource-list-mappings-1" anyType_name="USER" objectClass="__ACCOUNT__"/>
+  <Mapping id="12" provision_id="12"/>
+  <MappingItem id="103" mapping_id="12"
+               extAttrName="email" intAttrName="email" intMappingType="UserPlainSchema" mandatoryCondition="true"
+               connObjectKey="1" password="0" purpose="PROPAGATION"/>
+  <MappingItem id="104" extAttrName="surname" mapping_id="12"
+               intAttrName="surname" intMappingType="UserPlainSchema" mandatoryCondition="true"
+               connObjectKey="0" password="0" purpose="PROPAGATION"/>
 
-  <UMapping id="13" resource_name="ws-target-resource-list-mappings-2"/>
-  <UMappingItem id="105" mapping_id="13"
-                extAttrName="userId" intAttrName="userId" intMappingType="UserPlainSchema" mandatoryCondition="true"
-                accountid="1" password="0" purpose="PROPAGATION"/>
+  <Provision id="13" resource_name="ws-target-resource-list-mappings-2" anyType_name="USER" objectClass="__ACCOUNT__"/>
+  <Mapping id="13" provision_id="13"/>
+  <MappingItem id="105" mapping_id="13"
+               extAttrName="userId" intAttrName="userId" intMappingType="UserPlainSchema" mandatoryCondition="true"
+               connObjectKey="1" password="0" purpose="PROPAGATION"/>
 
-  <UMapping id="1" resource_name="ws-target-resource-2"/>
-  <UMappingItem id="106" mapping_id="1" extAttrName="fullname"
-                intAttrName="fullname" intMappingType="UserPlainSchema" mandatoryCondition="true"
-                accountid="1" password="0" purpose="BOTH"/>
-  <UMappingItem id="107" mapping_id="1"
-                extAttrName="__PASSWORD__" intMappingType="Password" mandatoryCondition="true"
-                accountid="0" password="1" purpose="BOTH"/>
-  <UMappingItem id="108" extAttrName="type" mapping_id="1"
-                intAttrName="type" intMappingType="UserPlainSchema" mandatoryCondition="true"
-                accountid="0" password="0" purpose="BOTH"/>
-  <UMappingItem id="109" extAttrName="surname" mapping_id="1"
-                intAttrName="surname" intMappingType="UserPlainSchema" mandatoryCondition="type == 'F'"
-                accountid="0" password="0" purpose="BOTH"/>
-  <UMappingItem id="110" extAttrName="name" mapping_id="1"
-                intAttrName="virtualdata" intMappingType="UserVirtualSchema" mandatoryCondition="type == 'F'"
-                accountid="0" password="0" purpose="BOTH"/>
-  <UMappingItem id="111" extAttrName="fullname" mapping_id="1"
-                intAttrName="cn" intMappingType="UserDerivedSchema" mandatoryCondition="true"
-                accountid="0" password="0" purpose="BOTH"/>
+  <Provision id="1" resource_name="ws-target-resource-2" anyType_name="USER" objectClass="__ACCOUNT__"/>
+  <Mapping id="1" provision_id="1"/>
+  <MappingItem id="106" mapping_id="1" extAttrName="fullname"
+               intAttrName="fullname" intMappingType="UserPlainSchema" mandatoryCondition="true"
+               connObjectKey="1" password="0" purpose="BOTH"/>
+  <MappingItem id="107" mapping_id="1"
+               extAttrName="__PASSWORD__" intMappingType="Password" mandatoryCondition="true"
+               connObjectKey="0" password="1" purpose="BOTH"/>
+  <MappingItem id="108" extAttrName="type" mapping_id="1"
+               intAttrName="type" intMappingType="UserPlainSchema" mandatoryCondition="true"
+               connObjectKey="0" password="0" purpose="BOTH"/>
+  <MappingItem id="109" extAttrName="surname" mapping_id="1"
+               intAttrName="surname" intMappingType="UserPlainSchema" mandatoryCondition="type == 'F'"
+               connObjectKey="0" password="0" purpose="BOTH"/>
+  <MappingItem id="110" extAttrName="name" mapping_id="1"
+               intAttrName="virtualdata" intMappingType="UserVirtualSchema" mandatoryCondition="type == 'F'"
+               connObjectKey="0" password="0" purpose="BOTH"/>
+  <MappingItem id="111" extAttrName="fullname" mapping_id="1"
+               intAttrName="cn" intMappingType="UserDerivedSchema" mandatoryCondition="true"
+               connObjectKey="0" password="0" purpose="BOTH"/>
     
-  <UMapping id="2" resource_name="ws-target-resource-update"/>
-  <UMappingItem id="112" extAttrName="email" mapping_id="2"
-                intAttrName="email" intMappingType="UserPlainSchema" mandatoryCondition="false"
-                accountid="0" password="0" purpose="PROPAGATION"/>
-  <UMappingItem id="113" extAttrName="userId" mapping_id="2"
-                intAttrName="userId" intMappingType="UserPlainSchema" mandatoryCondition="false"
-                accountid="1" password="0" purpose="PROPAGATION"/>
-  <UMappingItem id="114" extAttrName="test3" mapping_id="2" 
-                intAttrName="fullname" intMappingType="UserPlainSchema" mandatoryCondition="false"
-                accountid="0" password="0" purpose="PROPAGATION"/>
+  <Provision id="2" resource_name="ws-target-resource-update" anyType_name="USER" objectClass="__ACCOUNT__"/>
+  <Mapping id="2" provision_id="2"/>
+  <MappingItem id="112" extAttrName="email" mapping_id="2"
+               intAttrName="email" intMappingType="UserPlainSchema" mandatoryCondition="false"
+               connObjectKey="0" password="0" purpose="PROPAGATION"/>
+  <MappingItem id="113" extAttrName="userId" mapping_id="2"
+               intAttrName="userId" intMappingType="UserPlainSchema" mandatoryCondition="false"
+               connObjectKey="1" password="0" purpose="PROPAGATION"/>
+  <MappingItem id="114" extAttrName="test3" mapping_id="2" 
+               intAttrName="fullname" intMappingType="UserPlainSchema" mandatoryCondition="false"
+               connObjectKey="0" password="0" purpose="PROPAGATION"/>
     
-  <UMapping id="3" resource_name="ws-target-resource-nopropagation"/>
-  <UMappingItem id="115" mapping_id="3" extAttrName="fullname" 
-                intAttrName="fullname" intMappingType="UserPlainSchema" mandatoryCondition="true"
-                accountid="1" password="0" purpose="PROPAGATION"/>
+  <Provision id="3" resource_name="ws-target-resource-nopropagation" anyType_name="USER" objectClass="__ACCOUNT__"/>
+  <Mapping id="3" provision_id="3"/>
+  <MappingItem id="115" mapping_id="3" extAttrName="fullname" 
+               intAttrName="fullname" intMappingType="UserPlainSchema" mandatoryCondition="true"
+               connObjectKey="1" password="0" purpose="PROPAGATION"/>
                      
-  <UMapping id="4" resource_name="ws-target-resource-nopropagation2"/>
-  <UMappingItem id="116" mapping_id="4" extAttrName="fullname" 
-                intAttrName="fullname" intMappingType="UserPlainSchema" mandatoryCondition="true"
-                accountid="1" password="0" purpose="PROPAGATION"/>
+  <Provision id="4" resource_name="ws-target-resource-nopropagation2" anyType_name="USER" objectClass="__ACCOUNT__"/>
+  <Mapping id="4" provision_id="4"/>
+  <MappingItem id="116" mapping_id="4" extAttrName="fullname" 
+               intAttrName="fullname" intMappingType="UserPlainSchema" mandatoryCondition="true"
+               connObjectKey="1" password="0" purpose="PROPAGATION"/>
                      
-  <UMapping id="5" resource_name="ws-target-resource-nopropagation3"/>
-  <UMappingItem id="117" mapping_id="5" extAttrName="fullname"
-                intAttrName="fullname" intMappingType="UserPlainSchema" mandatoryCondition="true"
-                accountid="1" password="0" purpose="PROPAGATION"/>
+  <Provision id="5" resource_name="ws-target-resource-nopropagation3" anyType_name="USER" objectClass="__ACCOUNT__"/>
+  <Mapping id="5" provision_id="5"/>
+  <MappingItem id="117" mapping_id="5" extAttrName="fullname"
+               intAttrName="fullname" intMappingType="UserPlainSchema" mandatoryCondition="true"
+               connObjectKey="1" password="0" purpose="PROPAGATION"/>
                      
-  <UMapping id="6" resource_name="ws-target-resource-nopropagation4"/>
-  <UMappingItem id="118" mapping_id="6"
-                extAttrName="fullname" intAttrName="fullname" intMappingType="UserPlainSchema" mandatoryCondition="true"
-                accountid="1" password="0" purpose="PROPAGATION"/>
+  <Provision id="6" resource_name="ws-target-resource-nopropagation4" anyType_name="USER" objectClass="__ACCOUNT__"/>
+  <Mapping id="6" provision_id="6"/>
+  <MappingItem id="118" mapping_id="6"
+               extAttrName="fullname" intAttrName="fullname" intMappingType="UserPlainSchema" mandatoryCondition="true"
+               connObjectKey="1" password="0" purpose="PROPAGATION"/>
                        
-  <UMapping id="7" resource_name="resource-testdb"/>
-  <UMappingItem id="119" mapping_id="7"
-                extAttrName="id" intMappingType="Username" mandatoryCondition="true"
-                accountid="1" password="0" purpose="BOTH"/>
-  <UMappingItem id="120" mapping_id="7"
-                extAttrName="__PASSWORD__" intMappingType="Password" mandatoryCondition="true"
-                accountid="0" password="1" purpose="BOTH"/>
+  <Provision id="7" resource_name="resource-testdb" anyType_name="USER" objectClass="__ACCOUNT__"/>
+  <Mapping id="7" provision_id="7"/>
+  <MappingItem id="119" mapping_id="7"
+               extAttrName="id" intMappingType="Username" mandatoryCondition="true"
+               connObjectKey="1" password="0" purpose="BOTH"/>
+  <MappingItem id="120" mapping_id="7"
+               extAttrName="__PASSWORD__" intMappingType="Password" mandatoryCondition="true"
+               connObjectKey="0" password="1" purpose="BOTH"/>
                      
-  <UMapping id="8" resource_name="resource-testdb2"/>
-  <UMappingItem id="121" mapping_id="8" extAttrName="id" 
-                intMappingType="Username" mandatoryCondition="true"
-                accountid="1" password="0" purpose="PROPAGATION"/>
-  <UMappingItem id="122" mapping_id="8" extAttrName="__PASSWORD__" 
-                intMappingType="Password" mandatoryCondition="true"
-                accountid="0" password="1" purpose="PROPAGATION"/>
+  <Provision id="8" resource_name="resource-testdb2" anyType_name="USER" objectClass="__ACCOUNT__"/>
+  <Mapping id="8" provision_id="8"/>
+  <MappingItem id="121" mapping_id="8" extAttrName="id" 
+               intMappingType="Username" mandatoryCondition="true"
+               connObjectKey="1" password="0" purpose="PROPAGATION"/>
+  <MappingItem id="122" mapping_id="8" extAttrName="__PASSWORD__" 
+               intMappingType="Password" mandatoryCondition="true"
+               connObjectKey="0" password="1" purpose="PROPAGATION"/>
                          
-  <UMapping id="9" resource_name="resource-csv"/>
-  <UMappingItem id="200" extAttrName="id" mapping_id="9"
-                intMappingType="Username" mandatoryCondition="true"
-                accountid="0" password="0" purpose="BOTH"/>
-  <UMappingItem id="201" extAttrName="id" mapping_id="9"
-                intAttrName="fullname" intMappingType="UserPlainSchema" mandatoryCondition="true"
-                accountid="0" password="0" purpose="BOTH"/>
-  <UMappingItem id="202" mapping_id="9"
-                extAttrName="__PASSWORD__" intMappingType="Password" mandatoryCondition="true"
-                accountid="0" password="1" purpose="BOTH"/>
-  <UMappingItem id="203" extAttrName="name" mapping_id="9"
-                intAttrName="firstname" intMappingType="UserPlainSchema" mandatoryCondition="false"
-                accountid="0" password="0" purpose="BOTH"/>
-  <UMappingItem id="204" extAttrName="surname" mapping_id="9"
-                intAttrName="surname" intMappingType="UserPlainSchema" mandatoryCondition="false"
-                accountid="0" password="0" purpose="BOTH"/>
-  <UMappingItem id="205" extAttrName="email" mapping_id="9"
-                intAttrName="userId" intMappingType="UserPlainSchema" mandatoryCondition="true"
-                accountid="0" password="0" purpose="SYNCHRONIZATION"/>
-  <UMappingItem id="206" extAttrName="email" mapping_id="9"
-                intAttrName="email" intMappingType="UserPlainSchema" mandatoryCondition="true"
-                accountid="0" password="0" purpose="SYNCHRONIZATION"/>
-  <UMappingItem id="207" extAttrName="__NAME__" mapping_id="9"
-                intAttrName="csvuserid" intMappingType="UserDerivedSchema" mandatoryCondition="true"
-                accountid="1" password="0" purpose="BOTH"/>
-  <UMappingItem id="208" extAttrName="theirgroup" mapping_id="9"
-                intAttrName="rderToBePropagated" intMappingType="GroupDerivedSchema" mandatoryCondition="false"
-                accountid="0" password="0" purpose="BOTH"/>
-  <UMappingItem id="209" extAttrName="membership" mapping_id="9"
-                intAttrName="mderToBePropagated" intMappingType="MembershipDerivedSchema" mandatoryCondition="false"
-                accountid="0" password="0" purpose="BOTH"/>
+  <Provision id="9" resource_name="resource-csv" anyType_name="USER" objectClass="__ACCOUNT__"/>
+  <Mapping id="9" provision_id="9"/>
+  <MappingItem id="200" extAttrName="id" mapping_id="9"
+               intMappingType="Username" mandatoryCondition="true"
+               connObjectKey="0" password="0" purpose="BOTH"/>
+  <MappingItem id="201" extAttrName="id" mapping_id="9"
+               intAttrName="fullname" intMappingType="UserPlainSchema" mandatoryCondition="true"
+               connObjectKey="0" password="0" purpose="BOTH"/>
+  <MappingItem id="202" mapping_id="9"
+               extAttrName="__PASSWORD__" intMappingType="Password" mandatoryCondition="true"
+               connObjectKey="0" password="1" purpose="BOTH"/>
+  <MappingItem id="203" extAttrName="name" mapping_id="9"
+               intAttrName="firstname" intMappingType="UserPlainSchema" mandatoryCondition="false"
+               connObjectKey="0" password="0" purpose="BOTH"/>
+  <MappingItem id="204" extAttrName="surname" mapping_id="9"
+               intAttrName="surname" intMappingType="UserPlainSchema" mandatoryCondition="false"
+               connObjectKey="0" password="0" purpose="BOTH"/>
+  <MappingItem id="205" extAttrName="email" mapping_id="9"
+               intAttrName="userId" intMappingType="UserPlainSchema" mandatoryCondition="true"
+               connObjectKey="0" password="0" purpose="SYNCHRONIZATION"/>
+  <MappingItem id="206" extAttrName="email" mapping_id="9"
+               intAttrName="email" intMappingType="UserPlainSchema" mandatoryCondition="true"
+               connObjectKey="0" password="0" purpose="SYNCHRONIZATION"/>
+  <MappingItem id="207" extAttrName="__NAME__" mapping_id="9"
+               intAttrName="csvuserid" intMappingType="UserDerivedSchema" mandatoryCondition="true"
+               connObjectKey="1" password="0" purpose="BOTH"/>
+  <MappingItem id="208" extAttrName="theirgroup" mapping_id="9"
+               intAttrName="rderToBePropagated" intMappingType="GroupDerivedSchema" mandatoryCondition="false"
+               connObjectKey="0" password="0" purpose="BOTH"/>
+  <MappingItem id="209" extAttrName="membership" mapping_id="9"
+               intAttrName="mderToBePropagated" intMappingType="AnyDerivedSchema" mandatoryCondition="false"
+               connObjectKey="0" password="0" purpose="BOTH"/>
                          
-  <UMapping id="10" resource_name="ws-target-resource-update-resetsynctoken"/>
-  <UMappingItem id="300" mapping_id="10"
-                extAttrName="userId" intAttrName="userId" intMappingType="UserPlainSchema" mandatoryCondition="false"
-                accountid="1" password="0" purpose="BOTH"/>
-  <UMappingItem id="301" mapping_id="10"
-                extAttrName="__PASSWORD__" intAttrName="fullname" intMappingType="UserPlainSchema" mandatoryCondition="false"
-                accountid="0" password="1" purpose="BOTH"/>
+  <Provision id="10" resource_name="ws-target-resource-update-resetsynctoken" anyType_name="USER" objectClass="__ACCOUNT__"
+             serializedSyncToken='{"value":null}'/>
+  <Mapping id="10" provision_id="10"/>
+  <MappingItem id="300" mapping_id="10"
+               extAttrName="userId" intAttrName="userId" intMappingType="UserPlainSchema" mandatoryCondition="false"
+               connObjectKey="1" password="0" purpose="BOTH"/>
+  <MappingItem id="301" mapping_id="10"
+               extAttrName="__PASSWORD__" intAttrName="fullname" intMappingType="UserPlainSchema" mandatoryCondition="false"
+               connObjectKey="0" password="1" purpose="BOTH"/>
 
-  <UMapping id="11" resource_name="resource-ldap"
-            accountlink="&apos;uid=&apos; + username + &apos;,ou=people,o=isp&apos;"/>
-  <UMappingItem id="311" accountid="1" password="0" mapping_id="11"
-                extAttrName="cn" intAttrName="Username" intMappingType="Username"
-                mandatoryCondition="true" purpose="BOTH"/>
-  <UMappingItem id="312" accountid="0" password="1" mapping_id="11"
-                extAttrName="__PASSWORD__" intAttrName="Password" intMappingType="Password"
-                mandatoryCondition="true" purpose="BOTH"/>
-  <UMappingItem id="313" accountid="0" password="0" mapping_id="11"
-                extAttrName="sn" intAttrName="surname" intMappingType="UserPlainSchema"
-                mandatoryCondition="true" purpose="BOTH"/>
-  <UMappingItem id="314" accountid="0" password="0" mapping_id="11"
-                extAttrName="cn" intAttrName="fullname" intMappingType="UserPlainSchema"
-                mandatoryCondition="true" purpose="BOTH"/>
-  <UMappingItem id="315" accountid="0" password="0" mapping_id="11"
-                extAttrName="mail" intAttrName="email" intMappingType="UserPlainSchema"
-                mandatoryCondition="false" purpose="BOTH"/>
-  <UMappingItem id="316" accountid="0" password="0" mapping_id="11"
-                extAttrName="title" intAttrName="title" intMappingType="GroupPlainSchema"
-                mandatoryCondition="false" purpose="BOTH"/>
-  <UMappingItem id="317" accountid="0" password="0" mapping_id="11"
-                extAttrName="postalAddress" intAttrName="postalAddress" intMappingType="MembershipPlainSchema"
-                mandatoryCondition="false" purpose="BOTH"/>
-  <UMappingItem id="318" accountid="0" password="0" mapping_id="11"
-                extAttrName="mail" intAttrName="userId" intMappingType="UserPlainSchema"
-                mandatoryCondition="false" purpose="BOTH"/>
-  <UMappingItem id="319" accountid="0" password="0" mapping_id="11"
-                extAttrName="givenname" intAttrName="virtualReadOnly" intMappingType="UserVirtualSchema"
-                mandatoryCondition="false" purpose="BOTH"/>
-  <UMappingItem id="320" accountid="0" password="0" mapping_id="11"
-                extAttrName="registeredAddress" intAttrName="obscure" intMappingType="UserPlainSchema"
-                mandatoryCondition="false" purpose="BOTH"/>
-  <UMappingItem id="321" accountid="0" password="0" mapping_id="11"
-                extAttrName="jpegPhoto" intAttrName="photo" intMappingType="UserPlainSchema"
-                mandatoryCondition="false" purpose="BOTH"/>
-  
-  <GMapping id="1" resource_name="resource-ldap"
-            accountlink="&apos;cn=&apos; + name + &apos;,ou=groups,o=isp&apos;"/>
-  <GMappingItem id="1" accountid="1" password="0" mapping_id="1"
-                extAttrName="cn" intAttrName="groupName" intMappingType="GroupName"
-                mandatoryCondition="true" purpose="BOTH"/>
-  <GMappingItem id="2" accountid="0" password="0" mapping_id="1"
-                extAttrName="owner" intAttrName="groupOwnerSchema" intMappingType="GroupOwnerSchema"
-                mandatoryCondition="false" purpose="BOTH"/>
-  <GMappingItem id="3" accountid="0" password="0" mapping_id="1"
-                extAttrName="description" intAttrName="title" intMappingType="GroupPlainSchema"
-                mandatoryCondition="false" purpose="BOTH"/>
-  <GMappingItem id="4" extAttrName="businessCategory" mapping_id="1"
-                intAttrName="rvirtualdata" intMappingType="GroupVirtualSchema" mandatoryCondition="false"
-                accountid="0" password="0" purpose="BOTH"/>
+  <Provision id="11" resource_name="resource-ldap" anyType_name="USER" objectClass="__ACCOUNT__"/>
+  <Mapping id="11" provision_id="11"
+           connObjectLink="&apos;uid=&apos; + username + &apos;,ou=people,o=isp&apos;"/>
+  <MappingItem id="311" connObjectKey="1" password="0" mapping_id="11"
+               extAttrName="cn" intAttrName="Username" intMappingType="Username"
+               mandatoryCondition="true" purpose="BOTH"/>
+  <MappingItem id="312" connObjectKey="0" password="1" mapping_id="11"
+               extAttrName="__PASSWORD__" intAttrName="Password" intMappingType="Password"
+               mandatoryCondition="true" purpose="BOTH"/>
+  <MappingItem id="313" connObjectKey="0" password="0" mapping_id="11"
+               extAttrName="sn" intAttrName="surname" intMappingType="UserPlainSchema"
+               mandatoryCondition="true" purpose="BOTH"/>
+  <MappingItem id="314" connObjectKey="0" password="0" mapping_id="11"
+               extAttrName="cn" intAttrName="fullname" intMappingType="UserPlainSchema"
+               mandatoryCondition="true" purpose="BOTH"/>
+  <MappingItem id="315" connObjectKey="0" password="0" mapping_id="11"
+               extAttrName="mail" intAttrName="email" intMappingType="UserPlainSchema"
+               mandatoryCondition="false" purpose="BOTH"/>
+  <MappingItem id="316" connObjectKey="0" password="0" mapping_id="11"
+               extAttrName="title" intAttrName="title" intMappingType="GroupPlainSchema"
+               mandatoryCondition="false" purpose="BOTH"/>
+  <MappingItem id="317" connObjectKey="0" password="0" mapping_id="11"
+               extAttrName="postalAddress" intAttrName="postalAddress" intMappingType="AnyPlainSchema"
+               mandatoryCondition="false" purpose="BOTH"/>
+  <MappingItem id="318" connObjectKey="0" password="0" mapping_id="11"
+               extAttrName="mail" intAttrName="userId" intMappingType="UserPlainSchema"
+               mandatoryCondition="false" purpose="BOTH"/>
+  <MappingItem id="319" connObjectKey="0" password="0" mapping_id="11"
+               extAttrName="givenname" intAttrName="virtualReadOnly" intMappingType="UserVirtualSchema"
+               mandatoryCondition="false" purpose="BOTH"/>
+  <MappingItem id="320" connObjectKey="0" password="0" mapping_id="11"
+               extAttrName="registeredAddress" intAttrName="obscure" intMappingType="UserPlainSchema"
+               mandatoryCondition="false" purpose="BOTH"/>
+  <MappingItem id="321" connObjectKey="0" password="0" mapping_id="11"
+               extAttrName="jpegPhoto" intAttrName="photo" intMappingType="UserPlainSchema"
+               mandatoryCondition="false" purpose="BOTH"/>
         
-  <UMapping id="16" resource_name="resource-db-sync"/>
-  <UMappingItem id="322" accountid="0" mapping_id="16"
-                extAttrName="EMAIL" intAttrName="email" intMappingType="UserPlainSchema" 
-                mandatoryCondition="false" password="0" purpose="BOTH"/>
-  <UMappingItem id="323" accountid="0" mapping_id="16"
-                extAttrName="SURNAME" intAttrName="fullname" intMappingType="UserPlainSchema" 
-                mandatoryCondition="false" password="0" purpose="BOTH"/>
-  <UMappingItem id="324" accountid="1" mapping_id="16"
-                extAttrName="ID" intAttrName="aLong" intMappingType="UserPlainSchema" 
-                mandatoryCondition="false" password="0" purpose="BOTH"/>
-  <UMappingItem id="325" accountid="0" mapping_id="16"
-                extAttrName="SURNAME" intAttrName="surname" intMappingType="UserPlainSchema" 
-                mandatoryCondition="false" password="0" purpose="BOTH"/>
-  <UMappingItem id="326" accountid="0" mapping_id="16"
-                extAttrName="USERNAME" intAttrName="Username" intMappingType="Username" 
-                mandatoryCondition="false" password="0" purpose="BOTH"/>
-  <UMappingItem id="327" accountid="0" mapping_id="16"
-                extAttrName="EMAIL" intAttrName="userId" intMappingType="UserPlainSchema" 
-                mandatoryCondition="false" password="0" purpose="BOTH"/>
-              
-  <UMapping id="17" resource_name="resource-db-virattr"/>
-  <UMappingItem id="331" mapping_id="17" accountid="1" password="0"
-                extAttrName="id" intMappingType="UserId" 
-                mandatoryCondition="true" purpose="BOTH"/>
-  <UMappingItem id="332" mapping_id="17" accountid="0" password="0" 
-                extAttrName="USERNAME" intAttrName="virtualdata" intMappingType="UserVirtualSchema"
-                mandatoryCondition="false" purpose="BOTH"/>
-                
-  <UMapping id="18" resource_name="ws-target-resource-timeout"/>
-  <UMappingItem id="333" mapping_id="18" accountid="1" password="0"
-                extAttrName="fullname" intAttrName="fullname" intMappingType="UserPlainSchema"
-                mandatoryCondition="true" purpose="PROPAGATION"/>
+  <Provision id="20" resource_name="resource-ldap" anyType_name="GROUP" objectClass="__GROUP__"/>
+  <Mapping id="20" provision_id="20"
+           connObjectLink="&apos;cn=&apos; + name + &apos;,ou=groups,o=isp&apos;"/>
+  <MappingItem id="1" connObjectKey="1" password="0" mapping_id="20"
+               extAttrName="cn" intAttrName="groupName" intMappingType="GroupName"
+               mandatoryCondition="true" purpose="BOTH"/>
+  <MappingItem id="2" connObjectKey="0" password="0" mapping_id="20"
+               extAttrName="owner" intAttrName="groupOwnerSchema" intMappingType="GroupOwnerSchema"
+               mandatoryCondition="false" purpose="BOTH"/>
+  <MappingItem id="3" connObjectKey="0" password="0" mapping_id="20"
+               extAttrName="description" intAttrName="title" intMappingType="GroupPlainSchema"
+               mandatoryCondition="false" purpose="BOTH"/>
+  <MappingItem id="4" extAttrName="businessCategory" mapping_id="20"
+               intAttrName="rvirtualdata" intMappingType="GroupVirtualSchema" mandatoryCondition="false"
+               connObjectKey="0" password="0" purpose="BOTH"/>
   
-  <UMapping id="19" resource_name="ws-target-resource-delete"/>
-  <UMappingItem id="334" mapping_id="19" extAttrName="userId" 
-                intMappingType="Username" mandatoryCondition="true"
-                accountid="1" password="0" purpose="PROPAGATION"/>
+  <Provision id="16" resource_name="resource-db-sync" anyType_name="USER" objectClass="__ACCOUNT__"/>
+  <Mapping id="16" provision_id="16"/>
+  <MappingItem id="322" connObjectKey="0" mapping_id="16"
+               extAttrName="EMAIL" intAttrName="email" intMappingType="UserPlainSchema" 
+               mandatoryCondition="false" password="0" purpose="BOTH"/>
+  <MappingItem id="323" connObjectKey="0" mapping_id="16"
+               extAttrName="SURNAME" intAttrName="fullname" intMappingType="UserPlainSchema" 
+               mandatoryCondition="false" password="0" purpose="BOTH"/>
+  <MappingItem id="324" connObjectKey="1" mapping_id="16"
+               extAttrName="ID" intAttrName="aLong" intMappingType="UserPlainSchema" 
+               mandatoryCondition="false" password="0" purpose="BOTH"/>
+  <MappingItem id="325" connObjectKey="0" mapping_id="16"
+               extAttrName="SURNAME" intAttrName="surname" intMappingType="UserPlainSchema" 
+               mandatoryCondition="false" password="0" purpose="BOTH"/>
+  <MappingItem id="326" connObjectKey="0" mapping_id="16"
+               extAttrName="USERNAME" intAttrName="Username" intMappingType="Username" 
+               mandatoryCondition="false" password="0" purpose="BOTH"/>
+  <MappingItem id="327" connObjectKey="0" mapping_id="16"
+               extAttrName="EMAIL" intAttrName="userId" intMappingType="UserPlainSchema" 
+               mandatoryCondition="false" password="0" purpose="BOTH"/>
+              
+  <Provision id="17" resource_name="resource-db-virattr" anyType_name="USER" objectClass="__ACCOUNT__"/>
+  <Mapping id="17" provision_id="17"/>
+  <MappingItem id="331" mapping_id="17" connObjectKey="1" password="0"
+               extAttrName="id" intMappingType="UserId" 
+               mandatoryCondition="true" purpose="BOTH"/>
+  <MappingItem id="332" mapping_id="17" connObjectKey="0" password="0" 
+               extAttrName="USERNAME" intAttrName="virtualdata" intMappingType="UserVirtualSchema"
+               mandatoryCondition="false" purpose="BOTH"/>
+                
+  <Provision id="18" resource_name="ws-target-resource-timeout" anyType_name="USER" objectClass="__ACCOUNT__"/>
+  <Mapping id="18" provision_id="18"/>
+  <MappingItem id="333" mapping_id="18" connObjectKey="1" password="0"
+               extAttrName="fullname" intAttrName="fullname" intMappingType="UserPlainSchema"
+               mandatoryCondition="true" purpose="PROPAGATION"/>
+  
+  <Provision id="19" resource_name="ws-target-resource-delete" anyType_name="USER" objectClass="__ACCOUNT__"/>
+  <Mapping id="19" provision_id="19"/>
+  <MappingItem id="334" mapping_id="19" extAttrName="userId" 
+               intMappingType="Username" mandatoryCondition="true"
+               connObjectKey="1" password="0" purpose="PROPAGATION"/>
   
   <Task DTYPE="PropagationTask" type="PROPAGATION" id="1" propagationMode="TWO_PHASES" propagationOperation="UPDATE"
-        objectClassName="__ACCOUNT__" resource_name="ws-target-resource-2" subjectType="USER" subjectId="1"
+        objectClassName="__ACCOUNT__" resource_name="ws-target-resource-2" anyTypeKind="USER" anyKey="1"
         xmlAttributes='[{"name":"__PASSWORD__","value":[{"readOnly":false,"disposed":false,"encryptedBytes":"m9nh2US0Sa6m+cXccCq0Xw==","base64SHA1Hash":"GFJ69qfjxEOdrmt+9q+0Cw2uz60="}]},{"name":"__NAME__","value":["userId"],"nameValue":"userId"},{"name":"fullname","value":["fullname"]},{"name":"type","value":["type"]}]'/>
   <TaskExec id="1" task_id="1" status="SUCCESS"/>
   <Task DTYPE="PropagationTask" type="PROPAGATION" id="2" propagationMode="ONE_PHASE" propagationOperation="CREATE"
-        objectClassName="__ACCOUNT__" resource_name="ws-target-resource-2" subjectType="USER" subjectId="1"
+        objectClassName="__ACCOUNT__" resource_name="ws-target-resource-2" anyTypeKind="USER" anyKey="1"
         xmlAttributes='[{"name":"__PASSWORD__","value":[{"readOnly":false,"disposed":false,"encryptedBytes":"m9nh2US0Sa6m+cXccCq0Xw==","base64SHA1Hash":"GFJ69qfjxEOdrmt+9q+0Cw2uz60="}]},{"name":"__NAME__","value":["userId"],"nameValue":"userId"},{"name":"fullname","value":["fullname"]},{"name":"type","value":["type"]}]'/>
   <Task DTYPE="PropagationTask" type="PROPAGATION" id="3" propagationMode="TWO_PHASES" propagationOperation="DELETE"
-        objectClassName="__ACCOUNT__" resource_name="ws-target-resource-2" subjectType="USER" subjectId="1"
+        objectClassName="__ACCOUNT__" resource_name="ws-target-resource-2" anyTypeKind="USER" anyKey="1"
         xmlAttributes='[{"name":"__PASSWORD__","value":[{"readOnly":false,"disposed":false,"encryptedBytes":"m9nh2US0Sa6m+cXccCq0Xw==","base64SHA1Hash":"GFJ69qfjxEOdrmt+9q+0Cw2uz60="}]},{"name":"__NAME__","value":["userId"],"nameValue":"userId"},{"name":"type","value":["type"]}]'/>
   <Task DTYPE="SyncTask" type="SYNCHRONIZATION" id="4" name="CSV (update matching; assign unmatching)" resource_name="resource-csv"
         destinationRealm_id="1" performCreate="1" performUpdate="1" performDelete="1" syncStatus="1" fullReconciliation="0"
-        jobClassName="org.apache.syncope.core.provisioning.api.job.SyncJob" unmatchingRule="ASSIGN" matchingRule="UPDATE"
-        userTemplate='{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"password":null,"status":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"plainAttrs":[{"schema":"type","readonly":false,"values":["email == &apos;test8@syncope.apache.org&apos;? &apos;TYPE_8&apos;: &apos;TYPE_OTHER&apos;"]}],"derAttrs":[{"schema":"cn","readonly":false,"values":[null]}],"virAttrs":[],"resources":["resource-testdb"],"propagationStatuses":[],"memberships":[{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"groupKey":8,"groupName":null,"plainAttrs":[{"schema":"subscriptionDate","readonly":false,"values":["&apos;2009-08-18T16:33:12.203+0200&apos;"]}],"derAttrs":[],"virAttrs":[]}]}'
-        groupTemplate='{"creator": null,"creationDate": null,"lastModifier": null,"lastChangeDate": null,"key": 0,"name": null,"userOwner": null,"groupOwner": null,"plainAttrs": [], "derAttrs": [],"virAttrs": [],"resources": [],"propagationStatuses": [],"gPlainAttrTemplates": [],"gDerAttrTemplates": [],"gVirAttrTemplates": [],"mPlainAttrTemplates": [],"mDerAttrTemplates": [],"mVirAttrTemplates": []}'/>
+        jobClassName="org.apache.syncope.core.provisioning.api.job.SyncJob" unmatchingRule="ASSIGN" matchingRule="UPDATE"/>
+  <AnyTemplate id="41" syncTask_id="4" anyType_name="USER"
+               template='{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"password":null,"status":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"plainAttrs":[{"schema":"type","readonly":false,"values":["email == &apos;test8@syncope.apache.org&apos;? &apos;TYPE_8&apos;: &apos;TYPE_OTHER&apos;"]}],"derAttrs":[{"schema":"cn","readonly":false,"values":[null]}],"virAttrs":[],"resources":["resource-testdb"],"propagationStatuses":[],"memberships":[{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"groupKey":8,"groupName":null,"plainAttrs":[{"schema":"subscriptionDate","readonly":false,"values":["&apos;2009-08-18T16:33:12.203+0200&apos;"]}],"derAttrs":[],"virAttrs":[]}]}'/>
+  <AnyTemplate id="42" syncTask_id="4" anyType_name="GROUP"
+               template='{"creator": null,"creationDate": null,"lastModifier": null,"lastChangeDate": null,"key": 0,"name": null,"userOwner": null,"groupOwner": null,"plainAttrs": [], "derAttrs": [],"virAttrs": [],"resources": [],"propagationStatuses": []}'/>
   <Task DTYPE="SchedTask" type="SCHEDULED" id="5" name="SampleJob Task" jobClassName="org.apache.syncope.core.provisioning.java.job.SampleJob" cronExpression="0 0 0 1 * ?"/>
   <Task DTYPE="PropagationTask" type="PROPAGATION" id="6" propagationMode="TWO_PHASES" propagationOperation="UPDATE"
-        objectClassName="__ACCOUNT__" resource_name="ws-target-resource-nopropagation" subjectType="USER" subjectId="1"
+        objectClassName="__ACCOUNT__" resource_name="ws-target-resource-nopropagation" anyTypeKind="USER" anyKey="1"
         xmlAttributes='[{"name":"__PASSWORD__","value":[{"readOnly":false,"disposed":false,"encryptedBytes":"m9nh2US0Sa6m+cXccCq0Xw==","base64SHA1Hash":"GFJ69qfjxEOdrmt+9q+0Cw2uz60="}]},{"name":"__NAME__","value":["userId"],"nameValue":"userId"},{"name":"fullname","value":["fullname"]},{"name":"type","value":["type"]}]'/>
   <TaskExec id="6" task_id="6" status="SUCCESS"/>
   <Task DTYPE="SyncTask" type="SYNCHRONIZATION" id="7" name="TestDB Task" resource_name="resource-testdb"
         destinationRealm_id="1" performCreate="1" performUpdate="1" performDelete="0" syncStatus="1" fullReconciliation="1"
-        jobClassName="org.apache.syncope.core.provisioning.api.job.SyncJob" unmatchingRule="PROVISION" matchingRule="UPDATE"
-        userTemplate='{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"password":null,"status":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"plainAttrs":[{"schema":"type","readonly":false,"values":["&apos;type a&apos;"]},{"schema":"userId","readonly":false,"values":["&apos;reconciled@syncope.apache.org&apos;"]},{"schema":"fullname","readonly":false,"values":["&apos;reconciled fullname&apos;"]},{"schema":"surname","readonly":false,"values":["&apos;surname&apos;"]}],"derAttrs":[],"virAttrs":[],"resources":[],"propagationStatuses":[],"memberships":[]}'
-        groupTemplate='{"creator": null,"creationDate": null,"lastModifier": null,"lastChangeDate": null,"key": 0,"name": null,"userOwner": null,"groupOwner": null,"plainAttrs": [], "derAttrs": [],"virAttrs": [],"resources": [],"propagationStatuses": [],"gPlainAttrTemplates": [],"gDerAttrTemplates": [],"gVirAttrTemplates": [],"mPlainAttrTemplates": [],"mDerAttrTemplates": [],"mVirAttrTemplates": []}'/>
+        jobClassName="org.apache.syncope.core.provisioning.api.job.SyncJob" unmatchingRule="PROVISION" matchingRule="UPDATE"/>
+  <AnyTemplate id="61" syncTask_id="7" anyType_name="USER"
+               template='{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"password":null,"status":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"plainAttrs":[{"schema":"type","readonly":false,"values":["email == &apos;test8@syncope.apache.org&apos;? &apos;TYPE_8&apos;: &apos;TYPE_OTHER&apos;"]}],"derAttrs":[{"schema":"cn","readonly":false,"values":[null]}],"virAttrs":[],"resources":["resource-testdb"],"propagationStatuses":[],"memberships":[{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"groupKey":8,"groupName":null,"plainAttrs":[{"schema":"subscriptionDate","readonly":false,"values":["&apos;2009-08-18T16:33:12.203+0200&apos;"]}],"derAttrs":[],"virAttrs":[]}]}'/>
+  <AnyTemplate id="62" syncTask_id="7" anyType_name="GROUP"
+               template='{"creator": null,"creationDate": null,"lastModifier": null,"lastChangeDate": null,"key": 0,"name": null,"userOwner": null,"groupOwner": null,"plainAttrs": [], "derAttrs": [],"virAttrs": [],"resources": [],"propagationStatuses": []}'/>
   <Task DTYPE="NotificationTask" type="NOTIFICATION" id="8" sender="admin@prova.org" subject="Notification for SYNCOPE-81" 
         textBody="NOTIFICATION-81" htmlBody="NOTIFICATION-81" traceLevel="ALL"/>
   <Task DTYPE="SyncTask" type="SYNCHRONIZATION" id="9" name="TestDB2 Task" resource_name="resource-testdb2"
@@ -963,62 +941,88 @@ under the License.
         jobClassName="org.apache.syncope.core.provisioning.api.job.SyncJob" unmatchingRule="PROVISION" matchingRule="UPDATE"/>
   <Task DTYPE="SyncTask" type="SYNCHRONIZATION" id="11" name="LDAP Sync Task" resource_name="resource-ldap"
         destinationRealm_id="1" fullReconciliation="1" performCreate="1" performDelete="1" performUpdate="1" syncStatus="0"
-        jobClassName="org.apache.syncope.core.provisioning.api.job.SyncJob" unmatchingRule="PROVISION" matchingRule="UPDATE"
-        userTemplate='{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"password":null,"status":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"plainAttrs":[],"derAttrs":[],"virAttrs":[{"schema":"virtualReadOnly","readonly":false,"values":[""]}],"resources":["resource-ldap"],"propagationStatuses":[],"memberships":[]}'
-        groupTemplate='{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"realm":null,"name":null,"userOwner":null,"groupOwner":null,"derAttrs":[],"virAttrs":[],"resources":[],"propagationStatuses":[],"gPlainAttrTemplates":["show"],"gDerAttrTemplates":[],"gVirAttrTemplates":[],"mPlainAttrTemplates":[],"mDerAttrTemplates":[],"mVirAttrTemplates":[],"plainAttrs":[{"schema":"show","readonly":false,"values":["true"]}]}'/>
+        jobClassName="org.apache.syncope.core.provisioning.api.job.SyncJob" unmatchingRule="PROVISION" matchingRule="UPDATE"/>
+  <AnyTemplate id="1" syncTask_id="11" anyType_name="USER"
+               template='{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"password":null,"status":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"plainAttrs":[{"schema":"type","readonly":false,"values":["email == &apos;test8@syncope.apache.org&apos;? &apos;TYPE_8&apos;: &apos;TYPE_OTHER&apos;"]}],"derAttrs":[{"schema":"cn","readonly":false,"values":[null]}],"virAttrs":[],"resources":["resource-testdb"],"propagationStatuses":[],"memberships":[{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"groupKey":8,"groupName":null,"plainAttrs":[{"schema":"subscriptionDate","readonly":false,"values":["&apos;2009-08-18T16:33:12.203+0200&apos;"]}],"derAttrs":[],"virAttrs":[]}]}'/>
+  <AnyTemplate id="2" syncTask_id="11" anyType_name="GROUP"
+               template='{"creator": null,"creationDate": null,"lastModifier": null,"lastChangeDate": null,"key": 0,"name": null,"userOwner": null,"groupOwner": null,"plainAttrs": [], "derAttrs": [],"virAttrs": [],"resources": [],"propagationStatuses": []}'/>
   <SyncTask_actionsClassNames SyncTask_id="11" actionClassName="org.apache.syncope.core.provisioning.java.sync.LDAPMembershipSyncActions"/>
   <Task DTYPE="SyncTask" type="SYNCHRONIZATION" id="12" name="VirAttrCache test" resource_name="resource-csv"
         destinationRealm_id="1" performCreate="0" performUpdate="1" performDelete="0" syncStatus="0" fullReconciliation="1"
         jobClassName="org.apache.syncope.core.provisioning.api.job.SyncJob" unmatchingRule="PROVISION" matchingRule="UPDATE"/>
   <Task DTYPE="PushTask" type="PUSH" id="13" name="Export on resource-testdb2" resource_name="resource-testdb2"
         performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"
-        jobClassName="org.apache.syncope.core.provisioning.api.job.PushJob" unmatchingRule="ASSIGN" matchingRule="IGNORE" 
-        userFilter="surname==Vivaldi" groupFilter="name==_NO_ONE_"/>
+        jobClassName="org.apache.syncope.core.provisioning.api.job.PushJob" 
+        unmatchingRule="ASSIGN" matchingRule="IGNORE"/>  
+  <AnyFilter id="131" anyType_name="USER" pushTask_id="13" filter="surname==Vivaldi"/>
+  <AnyFilter id="132" anyType_name="GROUP" pushTask_id="13" filter="name==_NO_ONE_"/>
   <Task DTYPE="PushTask" type="PUSH" id="14" name="Export on resource-testdb2" resource_name="resource-testdb2"
         performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"
-        jobClassName="org.apache.syncope.core.provisioning.api.job.PushJob" unmatchingRule="PROVISION" matchingRule="IGNORE" 
-        userFilter="surname==Bellini" groupFilter="name==_NO_ONE_"/>
+        jobClassName="org.apache.syncope.core.provisioning.api.job.PushJob" 
+        unmatchingRule="PROVISION" matchingRule="IGNORE"/>
+  <AnyFilter id="141" anyType_name="USER" pushTask_id="14" filter="surname==Bellini"/>
+  <AnyFilter id="142" anyType_name="GROUP" pushTask_id="14" filter="name==_NO_ONE_"/>
   <Task DTYPE="PushTask" type="PUSH" id="15" name="Export on resource-testdb2" resource_name="resource-testdb2"
         performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"
-        jobClassName="org.apache.syncope.core.provisioning.api.job.PushJob" unmatchingRule="UNLINK" matchingRule="IGNORE" 
-        userFilter="surname==Puccini" groupFilter="name==_NO_ONE_"/>
+        jobClassName="org.apache.syncope.core.provisioning.api.job.PushJob"
+        unmatchingRule="UNLINK" matchingRule="IGNORE"/>
+  <AnyFilter id="151" anyType_name="USER" pushTask_id="15" filter="surname==Puccini"/>
+  <AnyFilter id="152" anyType_name="GROUP" pushTask_id="15" filter="name==_NO_ONE_"/>
   <Task DTYPE="PushTask" type="PUSH" id="16" name="Export on resource-testdb2" resource_name="resource-testdb2"
         performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"
-        jobClassName="org.apache.syncope.core.provisioning.api.job.PushJob" unmatchingRule="IGNORE" matchingRule="IGNORE" 
-        userFilter="surname==Verdi" groupFilter="name==_NO_ONE_"/>
+        jobClassName="org.apache.syncope.core.provisioning.api.job.PushJob" 
+        unmatchingRule="IGNORE" matchingRule="IGNORE"/>
+  <AnyFilter id="161" anyType_name="USER" pushTask_id="16" filter="surname==Verdi"/>
+  <AnyFilter id="162" anyType_name="GROUP" pushTask_id="16" filter="name==_NO_ONE_"/>
   <Task DTYPE="PushTask" type="PUSH" id="17" name="Export on resource-testdb2" resource_name="resource-testdb2"
         performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"
-        jobClassName="org.apache.syncope.core.provisioning.api.job.PushJob" unmatchingRule="ASSIGN" matchingRule="UPDATE" 
-        userFilter="username==_NO_ONE_" groupFilter="name==_NO_ONE_"/>
+        jobClassName="org.apache.syncope.core.provisioning.api.job.PushJob"
+        unmatchingRule="ASSIGN" matchingRule="UPDATE"/>
+  <AnyFilter id="171" anyType_name="USER" pushTask_id="17" filter="username==_NO_ONE_"/>
+  <AnyFilter id="172" anyType_name="GROUP" pushTask_id="17" filter="name==_NO_ONE_"/>
   <Task DTYPE="PushTask" type="PUSH" id="18" name="Export on resource-testdb2" resource_name="resource-testdb2"
         performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"
-        jobClassName="org.apache.syncope.core.provisioning.api.job.PushJob" unmatchingRule="IGNORE" matchingRule="DEPROVISION" 
-        userFilter="surname==Verdi" groupFilter="name==_NO_ONE_"/>
+        jobClassName="org.apache.syncope.core.provisioning.api.job.PushJob"
+        unmatchingRule="IGNORE" matchingRule="DEPROVISION"/>
+  <AnyFilter id="181" anyType_name="USER" pushTask_id="18" filter="surname==Verdi"/>
+  <AnyFilter id="182" anyType_name="GROUP" pushTask_id="18" filter="name==_NO_ONE_"/>
   <Task DTYPE="PushTask" type="PUSH" id="19" name="Export on resource-testdb2" resource_name="resource-testdb2"
         performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"
-        jobClassName="org.apache.syncope.core.provisioning.api.job.PushJob" unmatchingRule="IGNORE" matchingRule="UNASSIGN" 
-        userFilter="surname==Rossini" groupFilter="name==_NO_ONE_"/>
+        jobClassName="org.apache.syncope.core.provisioning.api.job.PushJob"
+        unmatchingRule="IGNORE" matchingRule="UNASSIGN"/>
+  <AnyFilter id="191" anyType_name="USER" pushTask_id="19" filter="surname==Rossini"/>
+  <AnyFilter id="192" anyType_name="GROUP" pushTask_id="19" filter="name==_NO_ONE_"/>
   <Task DTYPE="PushTask" type="PUSH" id="20" name="Export on resource-testdb2" resource_name="resource-testdb2"
         performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"
-        jobClassName="org.apache.syncope.core.provisioning.api.job.PushJob" unmatchingRule="IGNORE" matchingRule="LINK" 
-        userFilter="surname==Verdi" groupFilter="name==_NO_ONE_"/>
+        jobClassName="org.apache.syncope.core.provisioning.api.job.PushJob"
+        unmatchingRule="IGNORE" matchingRule="LINK"/>
+  <AnyFilter id="201" anyType_name="USER" pushTask_id="20" filter="surname==Verdi"/>
+  <AnyFilter id="202" anyType_name="GROUP" pushTask_id="20" filter="name==_NO_ONE_"/>
   <Task DTYPE="PushTask" type="PUSH" id="21" name="Export on resource-testdb2" resource_name="resource-testdb2"
         performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"
-        jobClassName="org.apache.syncope.core.provisioning.api.job.PushJob" unmatchingRule="IGNORE" matchingRule="UNLINK" 
-        userFilter="surname==Verdi" groupFilter="name==_NO_ONE_"/>
+        jobClassName="org.apache.syncope.core.provisioning.api.job.PushJob"
+        unmatchingRule="IGNORE" matchingRule="UNLINK"/>
+  <AnyFilter id="211" anyType_name="USER" pushTask_id="21" filter="surname==Verdi"/>
+  <AnyFilter id="212" anyType_name="GROUP" pushTask_id="21" filter="name==_NO_ONE_"/>
   <Task DTYPE="PushTask" type="PUSH" id="22" name="Export on resource-testdb2" resource_name="resource-testdb2"
         performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"
-        jobClassName="org.apache.syncope.core.provisioning.api.job.PushJob" unmatchingRule="IGNORE" matchingRule="UPDATE" 
-        userFilter="surname==Verdi" groupFilter="name==_NO_ONE_"/>
+        jobClassName="org.apache.syncope.core.provisioning.api.job.PushJob"
+        unmatchingRule="IGNORE" matchingRule="UPDATE"/>
+  <AnyFilter id="221" anyType_name="USER" pushTask_id="22" filter="surname==Verdi"/>
+  <AnyFilter id="222" anyType_name="GROUP" pushTask_id="22" filter="name==_NO_ONE_"/>
   <Task DTYPE="PushTask" type="PUSH" id="23" name="Export on resource-ldap" resource_name="resource-ldap"
         performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"
-        jobClassName="org.apache.syncope.core.provisioning.api.job.PushJob" unmatchingRule="ASSIGN" matchingRule="UNLINK" 
-        userFilter="username==_NO_ONE_" groupFilter="name==citizen"/>
+        jobClassName="org.apache.syncope.core.provisioning.api.job.PushJob"
+        unmatchingRule="ASSIGN" matchingRule="UNLINK"/>
+  <AnyFilter id="231" anyType_name="USER" pushTask_id="23" filter="username==_NO_ONE_"/>
+  <AnyFilter id="232" anyType_name="GROUP" pushTask_id="23" filter="name==citizen"/>
   <Task DTYPE="SyncTask" type="SYNCHRONIZATION" id="24" name="CSV Task (update matching; provision unmatching)" resource_name="resource-csv"
         destinationRealm_id="1" performCreate="1" performUpdate="1" performDelete="1" syncStatus="1" fullReconciliation="0"
-        jobClassName="org.apache.syncope.core.provisioning.api.job.SyncJob" unmatchingRule="PROVISION" matchingRule="UPDATE"
-        userTemplate='{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"password":null,"status":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"plainAttrs":[{"schema":"firstname","readonly":false,"values":[""]},{"schema":"userId","readonly":false,"values":["&apos;test&apos;"]},{"schema":"fullname","readonly":false,"values":["&apos;test&apos;"]},{"schema":"surname","readonly":false,"values":["&apos;test&apos;"]}],"derAttrs":[],"virAttrs":[],"resources":["resource-testdb"],"propagationStatuses":[],"memberships":[]}'
-        groupTemplate='{"creator": null,"creationDate": null,"lastModifier": null,"lastChangeDate": null,"key": 0,"name": null,"userOwner": null,"groupOwner": null,"plainAttrs": [], "derAttrs": [],"virAttrs": [],"resources": [],"propagationStatuses": [],"gPlainAttrTemplates": [],"gDerAttrTemplates": [],"gVirAttrTemplates": [],"mPlainAttrTemplates": [],"mDerAttrTemplates": [],"mVirAttrTemplates": []}'/>
+        jobClassName="org.apache.syncope.core.provisioning.api.job.SyncJob" unmatchingRule="PROVISION" matchingRule="UPDATE"/>
+  <AnyTemplate id="3" syncTask_id="24" anyType_name="USER"
+               template='{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"password":null,"status":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"plainAttrs":[{"schema":"type","readonly":false,"values":["email == &apos;test8@syncope.apache.org&apos;? &apos;TYPE_8&apos;: &apos;TYPE_OTHER&apos;"]}],"derAttrs":[{"schema":"cn","readonly":false,"values":[null]}],"virAttrs":[],"resources":["resource-testdb"],"propagationStatuses":[],"memberships":[{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"groupKey":8,"groupName":null,"plainAttrs":[{"schema":"subscriptionDate","readonly":false,"values":["&apos;2009-08-18T16:33:12.203+0200&apos;"]}],"derAttrs":[],"virAttrs":[]}]}'/>
+  <AnyTemplate id="4" syncTask_id="24" anyType_name="GROUP"
+               template='{"creator": null,"creationDate": null,"lastModifier": null,"lastChangeDate": null,"key": 0,"name": null,"userOwner": null,"groupOwner": null,"plainAttrs": [], "derAttrs": [],"virAttrs": [],"resources": [],"propagationStatuses": []}'/>
   <Task DTYPE="SyncTask" type="SYNCHRONIZATION" id="25" name="CSV (unlink matching; ignore unmatching)" resource_name="resource-csv"
         destinationRealm_id="1" performCreate="1" performUpdate="1" performDelete="1" syncStatus="1" fullReconciliation="0"
         jobClassName="org.apache.syncope.core.provisioning.api.job.SyncJob" unmatchingRule="IGNORE" matchingRule="UNLINK"/>
@@ -1026,12 +1030,13 @@ under the License.
         destinationRealm_id="1" performCreate="1" performUpdate="1" performDelete="1" syncStatus="1" fullReconciliation="0"
         jobClassName="org.apache.syncope.core.provisioning.api.job.SyncJob" unmatchingRule="ASSIGN" matchingRule="IGNORE"/>
   <Task DTYPE="PropagationTask" type="PROPAGATION" id="27" propagationMode="ONE_PHASE" propagationOperation="CREATE"
-        objectClassName="__ACCOUNT__" resource_name="resource-testdb" subjectType="USER" subjectId="1"
+        objectClassName="__ACCOUNT__" resource_name="resource-testdb" anyTypeKind="USER" anyKey="1"
         xmlAttributes='[{"name":"__PASSWORD__","value":[{"readOnly":false,"disposed":false,"encryptedBytes":"m9nh2US0Sa6m+cXccCq0Xw==","base64SHA1Hash":"GFJ69qfjxEOdrmt+9q+0Cw2uz60="}]},{"name":"__NAME__","value":["userId"],"nameValue":"userId"},{"name":"fullname","value":["fullname"]},{"name":"type","value":["type"]}]'/>
 
   <Notification id="1" active="1" recipientAttrName="email" recipientAttrType="UserPlainSchema" selfAsRecipient="1" 
                 sender="admin@syncope.apache.org" subject="Password Reset request" template="requestPasswordReset" 
                 traceLevel="FAILURES" userAbout="token!=$null"/> 
+  <AnyAbout id="1" anyType_name="USER" notification_id="1" about="token!=$null"/>
   <Notification_events Notification_id="1" event="[CUSTOM]:[]:[]:[requestPasswordReset]:[SUCCESS]"/>
   
   <Notification id="2" active="1" recipientAttrName="email" recipientAttrType="UserPlainSchema" selfAsRecipient="1" 
@@ -1041,9 +1046,9 @@ under the License.
 
   <Notification id="10" sender="test@syncope.apache.org" subject="Test subject" template="test" selfAsRecipient="0" 
                 traceLevel="FAILURES"
-                userAbout="fullname==*o*;fullname==*i*"
                 recipients="$groups==7"
                 recipientAttrType="UserPlainSchema" recipientAttrName="email" active="1"/>
+  <AnyAbout id="10" anyType_name="USER" notification_id="10" about="fullname==*o*;fullname==*i*"/>
   <Notification_events Notification_id="10" event="[CUSTOM]:[]:[]:[unexisting1]:[FAILURE]"/>
   <Notification_events Notification_id="10" event="[CUSTOM]:[]:[]:[unexisting2]:[SUCCESS]"/>
     

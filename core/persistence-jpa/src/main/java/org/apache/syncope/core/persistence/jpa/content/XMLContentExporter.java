@@ -52,17 +52,21 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.misc.DataFormat;
 import org.apache.syncope.core.persistence.api.content.ContentExporter;
 import org.apache.syncope.core.persistence.jpa.entity.JPAReportExec;
-import org.apache.syncope.core.persistence.jpa.entity.membership.JPAMDerAttr;
-import org.apache.syncope.core.persistence.jpa.entity.membership.JPAMPlainAttr;
-import org.apache.syncope.core.persistence.jpa.entity.membership.JPAMPlainAttrUniqueValue;
-import org.apache.syncope.core.persistence.jpa.entity.membership.JPAMPlainAttrValue;
-import org.apache.syncope.core.persistence.jpa.entity.membership.JPAMVirAttr;
-import org.apache.syncope.core.persistence.jpa.entity.membership.JPAMembership;
+import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAADerAttr;
+import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAMembership;
+import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAPlainAttr;
+import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAPlainAttrUniqueValue;
+import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAPlainAttrValue;
+import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAARelationship;
+import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAVirAttr;
+import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPATaskExec;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUDerAttr;
+import org.apache.syncope.core.persistence.jpa.entity.user.JPAUMembership;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUPlainAttr;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUPlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUPlainAttrValue;
+import org.apache.syncope.core.persistence.jpa.entity.user.JPAURelationship;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUVirAttr;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 import org.springframework.jdbc.datasource.DataSourceUtils;
@@ -82,8 +86,9 @@ public class XMLContentExporter extends AbstractContentDealer implements Content
                 "QRTZ_", "LOGGING", JPAReportExec.TABLE, JPATaskExec.TABLE,
                 JPAUser.TABLE, JPAUPlainAttr.TABLE, JPAUPlainAttrValue.TABLE, JPAUPlainAttrUniqueValue.TABLE,
                 JPAUDerAttr.TABLE, JPAUVirAttr.TABLE,
-                JPAMembership.TABLE, JPAMPlainAttr.TABLE, JPAMPlainAttrValue.TABLE, JPAMPlainAttrUniqueValue.TABLE,
-                JPAMDerAttr.TABLE, JPAMVirAttr.TABLE
+                JPAAnyObject.TABLE, JPAAPlainAttr.TABLE, JPAAPlainAttrValue.TABLE, JPAAPlainAttrUniqueValue.TABLE,
+                JPAADerAttr.TABLE, JPAAVirAttr.TABLE,
+                JPAARelationship.TABLE, JPAAMembership.TABLE, JPAURelationship.TABLE, JPAUMembership.TABLE
             }));
 
     protected static final Set<String> TABLE_SUFFIXES_TO_BE_INCLUDED =

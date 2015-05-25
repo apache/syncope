@@ -49,13 +49,13 @@ public abstract class AbstractGroupWorkflowAdapter implements GroupWorkflowAdapt
 
     @Override
     public WorkflowResult<Long> update(final GroupMod groupMod) {
-        return doUpdate(groupDAO.authFetch(groupMod.getKey()), groupMod);
+        return doUpdate(groupDAO.authFind(groupMod.getKey()), groupMod);
     }
 
     protected abstract void doDelete(Group group);
 
     @Override
     public void delete(final Long groupKey) {
-        doDelete(groupDAO.authFetch(groupKey));
+        doDelete(groupDAO.authFind(groupKey));
     }
 }

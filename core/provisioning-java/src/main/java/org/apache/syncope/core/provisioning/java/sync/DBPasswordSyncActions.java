@@ -20,9 +20,9 @@ package org.apache.syncope.core.provisioning.java.sync;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
-import org.apache.syncope.common.lib.mod.AbstractSubjectMod;
+import org.apache.syncope.common.lib.mod.AnyMod;
 import org.apache.syncope.common.lib.mod.UserMod;
-import org.apache.syncope.common.lib.to.AbstractSubjectTO;
+import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
@@ -59,13 +59,13 @@ public class DBPasswordSyncActions extends DefaultSyncActions {
 
     @Transactional(readOnly = true)
     @Override
-    public <T extends AbstractSubjectTO> SyncDelta beforeProvision(
+    public <T extends AnyTO> SyncDelta beforeProvision(
             final ProvisioningProfile<?, ?> profile,
             final SyncDelta delta,
-            final T subject) throws JobExecutionException {
+            final T any) throws JobExecutionException {
 
-        if (subject instanceof UserTO) {
-            String password = ((UserTO) subject).getPassword();
+        if (any instanceof UserTO) {
+            String password = ((UserTO) any).getPassword();
             parseEncodedPassword(password, profile.getConnector());
         }
 
@@ -74,14 +74,14 @@ public class DBPasswordSyncActions extends DefaultSyncActions {
 
     @Transactional(readOnly = true)
     @Override
-    public <T extends AbstractSubjectTO, K extends AbstractSubjectMod> SyncDelta beforeUpdate(
+    public <T extends AnyTO, K extends AnyMod> SyncDelta beforeUpdate(
             final ProvisioningProfile<?, ?> profile,
             final SyncDelta delta,
-            final T subject,
-            final K subjectMod) throws JobExecutionException {
+            final T any,
+            final K anyMod) throws JobExecutionException {
 
-        if (subjectMod instanceof UserMod) {
-            String modPassword = ((UserMod) subjectMod).getPassword();
+        if (anyMod instanceof UserMod) {
+            String modPassword = ((UserMod) anyMod).getPassword();
             parseEncodedPassword(modPassword, profile.getConnector());
         }
 
@@ -123,14 +123,14 @@ public class DBPasswordSyncActions extends DefaultSyncActions {
 
     @Transactional(readOnly = true)
     @Override
-    public <T extends AbstractSubjectTO> void after(
+    public <T extends AnyTO> void after(
             final ProvisioningProfile<?, ?> profile,
             final SyncDelta delta,
-            final T subject,
+            final T any,
             final ProvisioningResult result) throws JobExecutionException {
 
-        if (subject instanceof UserTO && encodedPassword != null && cipher != null) {
-            User syncopeUser = userDAO.find(subject.getKey());
+        if (any instanceof UserTO && encodedPassword != null && cipher != null) {
+            User syncopeUser = userDAO.find(any.getKey());
             if (syncopeUser != null) {
                 syncopeUser.setEncodedPassword(encodedPassword.toUpperCase(), cipher);
             }

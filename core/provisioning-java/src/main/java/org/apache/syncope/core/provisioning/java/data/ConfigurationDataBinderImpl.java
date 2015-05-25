@@ -18,26 +18,33 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
+import static org.apache.syncope.core.provisioning.java.data.AbstractAnyDataBinder.LOG;
+
 import org.apache.syncope.core.provisioning.api.data.ConfigurationDataBinder;
 import java.util.Collections;
+import java.util.List;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.ConfTO;
-import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidPlainAttrValueException;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
-import org.apache.syncope.core.persistence.api.entity.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
+import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
+import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttr;
-import org.apache.syncope.core.persistence.api.entity.conf.CPlainSchema;
+import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttrUniqueValue;
+import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.conf.Conf;
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ConfigurationDataBinderImpl extends AbstractAttributableDataBinder implements ConfigurationDataBinder {
+public class ConfigurationDataBinderImpl extends AbstractAnyDataBinder implements ConfigurationDataBinder {
 
     @Override
     public ConfTO getConfTO(final Conf conf) {
-        final ConfTO confTO = new ConfTO();
+        ConfTO confTO = new ConfTO();
         confTO.setKey(conf.getKey());
 
         fillTO(confTO, null, conf.getPlainAttrs(),
@@ -48,7 +55,7 @@ public class ConfigurationDataBinderImpl extends AbstractAttributableDataBinder 
 
     @Override
     public AttrTO getAttrTO(final CPlainAttr attr) {
-        final AttrTO attributeTO = new AttrTO();
+        AttrTO attributeTO = new AttrTO();
         attributeTO.setSchema(attr.getSchema().getKey());
         attributeTO.getValues().addAll(attr.getValuesAsStrings());
         attributeTO.setReadonly(attr.getSchema().isReadonly());
@@ -56,9 +63,43 @@ public class ConfigurationDataBinderImpl extends AbstractAttributableDataBinder 
         return attributeTO;
     }
 
+    private void fillAttribute(final List<String> values,
+            final PlainSchema schema, final CPlainAttr attr, final SyncopeClientException invalidValues) {
+
+        // if schema is multivalue, all values are considered for addition;
+        // otherwise only the fist one - if provided - is considered
+        List<String> valuesProvided = schema.isMultivalue()
+                ? values
+                : (values.isEmpty()
+                        ? Collections.<String>emptyList()
+                        : Collections.singletonList(values.iterator().next()));
+
+        for (String value : valuesProvided) {
+            if (value == null || value.isEmpty()) {
+                LOG.debug("Null value for {}, ignoring", schema.getKey());
+            } else {
+                try {
+                    PlainAttrValue attrValue;
+                    if (schema.isUniqueConstraint()) {
+                        attrValue = entityFactory.newEntity(CPlainAttrUniqueValue.class);
+                        ((PlainAttrUniqueValue) attrValue).setSchema(schema);
+                    } else {
+                        attrValue = entityFactory.newEntity(CPlainAttrValue.class);
+                    }
+
+                    attr.add(value, attrValue);
+                } catch (InvalidPlainAttrValueException e) {
+                    LOG.warn("Invalid value for attribute " + schema.getKey() + ": " + value, e);
+
+                    invalidValues.getElements().add(schema.getKey() + ": " + value + " - " + e.getMessage());
+                }
+            }
+        }
+    }
+
     @Override
     public CPlainAttr getAttribute(final AttrTO attributeTO) {
-        CPlainSchema schema = getPlainSchema(attributeTO.getSchema(), CPlainSchema.class);
+        PlainSchema schema = getPlainSchema(attributeTO.getSchema());
         if (schema == null) {
             throw new NotFoundException("Conf schema " + attributeTO.getSchema());
         } else {
@@ -66,8 +107,7 @@ public class ConfigurationDataBinderImpl extends AbstractAttributableDataBinder 
 
             CPlainAttr attr = entityFactory.newEntity(CPlainAttr.class);
             attr.setSchema(schema);
-            fillAttribute(attributeTO.getValues(), attrUtilsFactory.getInstance(AttributableType.CONFIGURATION),
-                    schema, attr, invalidValues);
+            fillAttribute(attributeTO.getValues(), schema, attr, invalidValues);
 
             if (!invalidValues.isEmpty()) {
                 throw invalidValues;

@@ -24,31 +24,15 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.lib.annotation.ClassList;
-import org.apache.syncope.common.lib.annotation.SchemaList;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
 
 @XmlType
 public class SyncPolicySpec implements PolicySpec {
 
     private static final long serialVersionUID = -3144027171719498127L;
 
-    /**
-     * User attributes and fields for matching during synchronization.
-     */
-    @SchemaList(extended = true)
-    private final List<String> uAltSearchSchemas = new ArrayList<>();
-
-    @ClassList
-    private String userJavaRule;
-
-    /**
-     * Group attributes and fields for matching during synchronization.
-     */
-    @SchemaList(extended = true)
-    private final List<String> gAltSearchSchemas = new ArrayList<>();
-
-    @ClassList
-    private String groupJavaRule;
+    private final List<SyncPolicySpecItem> items = new ArrayList<>();
 
     /**
      * Conflict resolution action.
@@ -65,33 +49,20 @@ public class SyncPolicySpec implements PolicySpec {
         this.conflictResolutionAction = conflictResolutionAction;
     }
 
-    @XmlElementWrapper(name = "userAltSearchSchemas")
-    @XmlElement(name = "userAltSearchSchema")
-    @JsonProperty("userAltSearchSchemas")
-    public List<String> getuAltSearchSchemas() {
-        return uAltSearchSchemas;
+    public SyncPolicySpecItem getItem(final String anyTypeKey) {
+        return CollectionUtils.find(items, new Predicate<SyncPolicySpecItem>() {
+
+            @Override
+            public boolean evaluate(final SyncPolicySpecItem item) {
+                return anyTypeKey != null && anyTypeKey.equals(item.getAnyTypeKey());
+            }
+        });
     }
 
-    @XmlElementWrapper(name = "groupAltSearchSchemas")
-    @XmlElement(name = "groupAltSearchSchema")
-    @JsonProperty("groupAltSearchSchemas")
-    public List<String> getrAltSearchSchemas() {
-        return gAltSearchSchemas;
-    }
-
-    public String getGroupJavaRule() {
-        return groupJavaRule;
-    }
-
-    public void setGroupJavaRule(final String groupJavaRule) {
-        this.groupJavaRule = groupJavaRule;
-    }
-
-    public String getUserJavaRule() {
-        return userJavaRule;
-    }
-
-    public void setUserJavaRule(final String userJavaRule) {
-        this.userJavaRule = userJavaRule;
+    @XmlElementWrapper(name = "items")
+    @XmlElement(name = "item")
+    @JsonProperty("items")
+    public List<SyncPolicySpecItem> getItems() {
+        return items;
     }
 }

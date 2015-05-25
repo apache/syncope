@@ -22,10 +22,10 @@ import java.util.List;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.types.SubjectType;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.misc.search.SearchCondConverter;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
-import org.apache.syncope.core.persistence.api.dao.SubjectSearchDAO;
+import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -39,7 +39,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class JPARoleDAO extends AbstractDAO<Role, Long> implements RoleDAO {
 
     @Autowired
-    private SubjectSearchDAO searchDAO;
+    private AnySearchDAO searchDAO;
 
     @Override
     public Role find(final Long key) {
@@ -82,11 +82,11 @@ public class JPARoleDAO extends AbstractDAO<Role, Long> implements RoleDAO {
         // refresh dynaminc memberships
         if (role.getDynMembership() != null) {
             List<User> matchingUsers = searchDAO.search(SyncopeConstants.FULL_ADMIN_REALMS,
-                    SearchCondConverter.convert(role.getDynMembership().getFIQLCond()), SubjectType.USER);
+                    SearchCondConverter.convert(role.getDynMembership().getFIQLCond()), AnyTypeKind.USER);
 
-            role.getDynMembership().getUsers().clear();
+            role.getDynMembership().getMembers().clear();
             for (User user : matchingUsers) {
-                role.getDynMembership().addUser(user);
+                role.getDynMembership().add(user);
             }
         }
 
@@ -113,9 +113,9 @@ public class JPARoleDAO extends AbstractDAO<Role, Long> implements RoleDAO {
     public void refreshDynMemberships(final User user) {
         for (Role role : findAll()) {
             if (role.getDynMembership() != null && !searchDAO.matches(user,
-                    SearchCondConverter.convert(role.getDynMembership().getFIQLCond()), SubjectType.USER)) {
+                    SearchCondConverter.convert(role.getDynMembership().getFIQLCond()), AnyTypeKind.USER)) {
 
-                role.getDynMembership().removeUser(user);
+                role.getDynMembership().remove(user);
             }
         }
     }

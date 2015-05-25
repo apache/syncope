@@ -25,7 +25,7 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
-import org.apache.syncope.common.lib.types.SubjectType;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.entity.CamelRoute;
 
 @Entity
@@ -41,7 +41,7 @@ public class JPACamelRoute extends AbstractEntity<String> implements CamelRoute 
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    private SubjectType subjectType;
+    private AnyTypeKind anyTypeKind;
 
     @Lob
     private String content;
@@ -57,13 +57,13 @@ public class JPACamelRoute extends AbstractEntity<String> implements CamelRoute 
     }
 
     @Override
-    public SubjectType getSubjectType() {
-        return subjectType;
+    public AnyTypeKind getAnyTypeKind() {
+        return anyTypeKind;
     }
 
     @Override
-    public void setSubjectType(final SubjectType subjectType) {
-        this.subjectType = subjectType;
+    public void setAnyTypeKind(final AnyTypeKind anyTypeKind) {
+        this.anyTypeKind = anyTypeKind;
     }
 
     @Override

@@ -46,7 +46,6 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.WorkflowFormPropertyTO;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
-import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.Entitlement;
@@ -130,7 +129,7 @@ public class AuthenticationITCase extends AbstractITCase {
         schemaTO.setMandatoryCondition("false");
         schemaTO.setType(AttrSchemaType.String);
 
-        PlainSchemaTO newPlainSchemaTO = createSchema(AttributableType.USER, SchemaType.PLAIN, schemaTO);
+        PlainSchemaTO newPlainSchemaTO = createSchema(SchemaType.PLAIN, schemaTO);
         assertEquals(schemaTO, newPlainSchemaTO);
 
         // 2. create an user with the role created above (as admin)
@@ -141,18 +140,18 @@ public class AuthenticationITCase extends AbstractITCase {
         assertNotNull(userTO);
 
         // 3. read the schema created above (as admin) - success
-        schemaTO = schemaService.read(AttributableType.USER, SchemaType.PLAIN, schemaName);
+        schemaTO = schemaService.read(SchemaType.PLAIN, schemaName);
         assertNotNull(schemaTO);
 
         // 4. read the schema created above (as user) - success
         SchemaService schemaService2 = clientFactory.create(userTO.getUsername(), "password123").
                 getService(SchemaService.class);
-        schemaTO = schemaService2.read(AttributableType.USER, SchemaType.PLAIN, schemaName);
+        schemaTO = schemaService2.read(SchemaType.PLAIN, schemaName);
         assertNotNull(schemaTO);
 
         // 5. update the schema create above (as user) - failure
         try {
-            schemaService2.update(AttributableType.GROUP, SchemaType.PLAIN, schemaName, schemaTO);
+            schemaService2.update(SchemaType.PLAIN, schemaName, schemaTO);
             fail("Schemaupdate as user should not work");
         } catch (AccessControlException e) {
             // CXF Service will throw this exception
@@ -298,7 +297,7 @@ public class AuthenticationITCase extends AbstractITCase {
         // 1. create user with group 9 (users with group 9 are defined in workflow as subject to approval)
         UserTO userTO = UserITCase.getUniqueSampleTO("createWithReject@syncope.apache.org");
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setGroupKey(9L);
+        membershipTO.setRightKey(9L);
         userTO.getMemberships().add(membershipTO);
 
         userTO = createUser(userTO);

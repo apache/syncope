@@ -26,7 +26,7 @@ import org.apache.syncope.common.lib.types.AccountPolicySpec;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.common.lib.types.PasswordPolicySpec;
 import org.apache.syncope.core.persistence.api.entity.AccountPolicy;
-import org.apache.syncope.core.persistence.api.entity.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.Policy;
 import org.apache.syncope.core.persistence.api.entity.user.User;

@@ -25,7 +25,4 @@ public interface GPlainAttrUniqueValue extends PlainAttrUniqueValue {
     @Override
     GPlainAttr getAttr();
 
-    @Override
-    GPlainSchema getSchema();
-
 }

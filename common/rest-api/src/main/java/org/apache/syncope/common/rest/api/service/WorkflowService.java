@@ -27,7 +27,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.common.lib.types.SubjectType;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 
 /**
@@ -39,32 +39,32 @@ public interface WorkflowService extends JAXRSService {
     /**
      * Exports workflow definition for matching kind.
      *
-     * @param kind user or group
+     * @param anyTypeKind any object type
      * @return workflow definition for matching kind
      */
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    Response exportDefinition(@NotNull @PathParam("kind") SubjectType kind);
+    Response exportDefinition(@NotNull @PathParam("anyTypeKind") AnyTypeKind anyTypeKind);
 
     /**
      * Exports workflow diagram representation.
      *
-     * @param kind user or group
+     * @param anyTypeKind any object type
      * @return workflow diagram representation
      */
     @GET
     @Path("diagram.png")
     @Produces({ RESTHeaders.MEDIATYPE_IMAGE_PNG })
-    Response exportDiagram(@NotNull @PathParam("kind") SubjectType kind);
+    Response exportDiagram(@NotNull @PathParam("anyTypeKind") AnyTypeKind anyTypeKind);
 
     /**
      * Imports workflow definition for matching kind.
      *
-     * @param kind user or group
+     * @param anyTypeKind any object type
      * @param definition workflow definition for matching kind
      */
     @PUT
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    void importDefinition(@NotNull @PathParam("kind") SubjectType kind, @NotNull String definition);
+    void importDefinition(@NotNull @PathParam("anyTypeKind") AnyTypeKind anyTypeKind, @NotNull String definition);
 
 }

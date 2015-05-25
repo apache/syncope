@@ -18,13 +18,16 @@
  */
 package org.apache.syncope.core.persistence.api.entity.task;
 
+import java.util.List;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
+
 public interface PushTask extends ProvisioningTask {
 
-    String getGroupFilter();
+    boolean add(AnyFilter filter);
 
-    String getUserFilter();
+    boolean remove(AnyFilter filter);
 
-    void setGroupFilter(String filter);
+    AnyFilter getFilter(AnyType anyType);
 
-    void setUserFilter(String filter);
+    List<? extends AnyFilter> getFilters();
 }

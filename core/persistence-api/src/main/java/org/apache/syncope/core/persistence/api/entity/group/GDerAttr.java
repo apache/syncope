@@ -20,15 +20,6 @@ package org.apache.syncope.core.persistence.api.entity.group;
 
 import org.apache.syncope.core.persistence.api.entity.DerAttr;
 
-public interface GDerAttr extends DerAttr {
+public interface GDerAttr extends DerAttr<Group> {
 
-    @Override
-    Group getOwner();
-
-    @Override
-    GDerSchema getSchema();
-
-    GDerAttrTemplate getTemplate();
-
-    void setTemplate(GDerAttrTemplate template);
 }

@@ -44,11 +44,10 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.common.util.Base64Utility;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
-import org.apache.syncope.common.lib.AttributableOperations;
+import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.mod.AttrMod;
-import org.apache.syncope.common.lib.mod.MembershipMod;
 import org.apache.syncope.common.lib.mod.ResourceAssociationMod;
 import org.apache.syncope.common.lib.mod.StatusMod;
 import org.apache.syncope.common.lib.mod.UserMod;
@@ -66,13 +65,13 @@ import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.lib.types.ResourceAssociationActionType;
 import org.apache.syncope.common.lib.types.ResourceDeassociationActionType;
-import org.apache.syncope.common.lib.types.SubjectType;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.wrap.ResourceName;
 import org.apache.syncope.common.rest.api.CollectionWrapper;
@@ -312,8 +311,8 @@ public class UserITCase extends AbstractITCase {
         // configured to be minLength=16
         userTO.setPassword("password1");
 
-        final MembershipTO membership = new MembershipTO();
-        membership.setGroupKey(8L);
+        MembershipTO membership = new MembershipTO();
+        membership.setRightKey(8L);
 
         userTO.getMemberships().add(membership);
 
@@ -346,11 +345,8 @@ public class UserITCase extends AbstractITCase {
 
         // add a membership
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setGroupKey(8L);
+        membershipTO.setRightKey(8L);
         userTO.getMemberships().add(membershipTO);
-
-        // add an attribute with no values: must be ignored
-        membershipTO.getPlainAttrs().add(attrTO("subscriptionDate", null));
 
         // add an attribute with a non-existing schema: must be ignored
         AttrTO attrWithInvalidSchemaTO = attrTO("invalid schema", "a value");
@@ -445,7 +441,7 @@ public class UserITCase extends AbstractITCase {
         userTO.getPlainAttrs().remove(type);
 
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setGroupKey(8L);
+        membershipTO.setRightKey(8L);
         userTO.getMemberships().add(membershipTO);
 
         // 1. create user without type (mandatory by UserSchema)
@@ -637,18 +633,13 @@ public class UserITCase extends AbstractITCase {
         UserTO userTO = getUniqueSampleTO("g.h@t.com");
 
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setGroupKey(8L);
-        membershipTO.getPlainAttrs().add(attrTO("subscriptionDate", "2009-08-18T16:33:12.203+0200"));
+        membershipTO.setRightKey(8L);
         userTO.getMemberships().add(membershipTO);
 
         userTO = createUser(userTO);
 
         assertFalse(userTO.getDerAttrs().isEmpty());
         assertEquals(1, userTO.getMemberships().size());
-
-        MembershipMod membershipMod = new MembershipMod();
-        membershipMod.setGroup(8L);
-        membershipMod.getPlainAttrsToUpdate().add(attrMod("subscriptionDate", "2010-08-18T16:33:12.203+0200"));
 
         UserMod userMod = new UserMod();
         userMod.setKey(userTO.getKey());
@@ -663,7 +654,7 @@ public class UserITCase extends AbstractITCase {
         userMod.getPlainAttrsToUpdate().add(attrMod("fullname", newFullName));
 
         userMod.getDerAttrsToAdd().add("cn");
-        userMod.getMembershipsToAdd().add(membershipMod);
+        userMod.getMembershipsToAdd().add(8L);
         userMod.getMembershipsToRemove().add(userTO.getMemberships().iterator().next().getKey());
 
         userTO = updateUser(userMod);
@@ -677,7 +668,6 @@ public class UserITCase extends AbstractITCase {
         assertTrue(userTO.getCreationDate().before(userTO.getLastChangeDate()));
 
         assertEquals(1, userTO.getMemberships().size());
-        assertEquals(1, userTO.getMemberships().iterator().next().getPlainAttrs().size());
         assertFalse(userTO.getDerAttrs().isEmpty());
 
         AttrTO userIdAttr = userTO.getPlainAttrMap().get("userId");
@@ -695,8 +685,7 @@ public class UserITCase extends AbstractITCase {
 
         UserTO userTO = getUniqueSampleTO("pwdonly@t.com");
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setGroupKey(8L);
-        membershipTO.getPlainAttrs().add(attrTO("subscriptionDate", "2009-08-18T16:33:12.203+0200"));
+        membershipTO.setRightKey(8L);
         userTO.getMemberships().add(membershipTO);
 
         userTO = createUser(userTO);
@@ -736,7 +725,7 @@ public class UserITCase extends AbstractITCase {
 
         // add a membership
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setGroupKey(8L);
+        membershipTO.setRightKey(8L);
         userTO.getMemberships().add(membershipTO);
 
         // 1. create user
@@ -811,7 +800,7 @@ public class UserITCase extends AbstractITCase {
         UserTO userTO = getUniqueSampleTO("createActivate@syncope.apache.org");
 
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setGroupKey(11L);
+        membershipTO.setRightKey(11L);
         userTO.getMemberships().add(membershipTO);
 
         userTO = createUser(userTO);
@@ -838,7 +827,7 @@ public class UserITCase extends AbstractITCase {
         UserTO userTO = getUniqueSampleTO("suspendReactivate@syncope.apache.org");
 
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setGroupKey(7L);
+        membershipTO.setRightKey(7L);
         userTO.getMemberships().add(membershipTO);
 
         userTO = createUser(userTO);
@@ -892,10 +881,11 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(userTO);
         assertEquals("suspended", userTO.getStatus());
 
-        ConnObjectTO connObjectTO = resourceService.getConnectorObject(RESOURCE_NAME_TESTDB, SubjectType.USER, userId);
+        ConnObjectTO connObjectTO =
+                resourceService.readConnObject(RESOURCE_NAME_TESTDB, AnyTypeKind.USER.name(), userId);
         assertFalse(getBooleanAttribute(connObjectTO, OperationalAttributes.ENABLE_NAME));
 
-        connObjectTO = resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.USER, userId);
+        connObjectTO = resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), userId);
         assertNotNull(connObjectTO);
 
         // Suspend and reactivate only on ldap => db and syncope should still show suspended
@@ -909,7 +899,7 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(userTO);
         assertEquals("suspended", userTO.getStatus());
 
-        connObjectTO = resourceService.getConnectorObject(RESOURCE_NAME_TESTDB, SubjectType.USER, userId);
+        connObjectTO = resourceService.readConnObject(RESOURCE_NAME_TESTDB, AnyTypeKind.USER.name(), userId);
         assertFalse(getBooleanAttribute(connObjectTO, OperationalAttributes.ENABLE_NAME));
 
         // Reactivate on syncope and db => syncope and db should show the user as active
@@ -922,7 +912,7 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());
 
-        connObjectTO = resourceService.getConnectorObject(RESOURCE_NAME_TESTDB, SubjectType.USER, userId);
+        connObjectTO = resourceService.readConnObject(RESOURCE_NAME_TESTDB, AnyTypeKind.USER.name(), userId);
         assertTrue(getBooleanAttribute(connObjectTO, OperationalAttributes.ENABLE_NAME));
     }
 
@@ -1019,7 +1009,7 @@ public class UserITCase extends AbstractITCase {
         toBeUpdated.getVirAttrs().add(virtual);
 
         // 2. try to update by adding a resource, but no password: must fail
-        UserMod userMod = AttributableOperations.diff(toBeUpdated, original);
+        UserMod userMod = AnyOperations.diff(toBeUpdated, original);
         assertNotNull(userMod);
 
         toBeUpdated = updateUser(userMod);
@@ -1115,7 +1105,7 @@ public class UserITCase extends AbstractITCase {
         userTO.getDerAttrs().add(attrTO("csvuserid", null));
 
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setGroupKey(1L);
+        membershipTO.setRightKey(1L);
 
         userTO.getMemberships().add(membershipTO);
 
@@ -1126,37 +1116,9 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(actual.getDerAttrMap().get("csvuserid"));
 
         ConnObjectTO connObjectTO =
-                resourceService.getConnectorObject(RESOURCE_NAME_CSV, SubjectType.USER, actual.getKey());
+                resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey());
         assertNotNull(connObjectTO);
         assertEquals("sx-dx", connObjectTO.getPlainAttrMap().get("THEIRGROUP").getValues().get(0));
-    }
-
-    @Test
-    public void membershipAttrPropagation() {
-        UserTO userTO = getUniqueSampleTO("checkMembAttrPropagation@syncope.apache.org");
-        userTO.getResources().clear();
-        userTO.getMemberships().clear();
-        userTO.getDerAttrs().clear();
-        userTO.getVirAttrs().clear();
-        userTO.getDerAttrs().add(attrTO("csvuserid", null));
-
-        MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setGroupKey(1L);
-        membershipTO.getPlainAttrs().add(attrTO("mderived_sx", "sx"));
-        membershipTO.getPlainAttrs().add(attrTO("mderived_dx", "dx"));
-        membershipTO.getDerAttrs().add(attrTO("mderToBePropagated", null));
-        userTO.getMemberships().add(membershipTO);
-
-        userTO.getResources().add(RESOURCE_NAME_CSV);
-
-        UserTO actual = createUser(userTO);
-        assertNotNull(actual);
-        assertNotNull(actual.getDerAttrMap().get("csvuserid"));
-
-        ConnObjectTO connObjectTO =
-                resourceService.getConnectorObject(RESOURCE_NAME_CSV, SubjectType.USER, actual.getKey());
-        assertNotNull(connObjectTO);
-        assertEquals("sx-dx", connObjectTO.getPlainAttrMap().get("MEMBERSHIP").getValues().get(0));
     }
 
     @Test
@@ -1198,12 +1160,12 @@ public class UserITCase extends AbstractITCase {
         userTO.getDerAttrs().add(attrTO("csvuserid", null));
 
         MembershipTO memb12 = new MembershipTO();
-        memb12.setGroupKey(12L);
+        memb12.setRightKey(12L);
 
         userTO.getMemberships().add(memb12);
 
         MembershipTO memb13 = new MembershipTO();
-        memb13.setGroupKey(13L);
+        memb13.setRightKey(13L);
 
         userTO.getMemberships().add(memb13);
 
@@ -1215,7 +1177,7 @@ public class UserITCase extends AbstractITCase {
         assertEquals(1, actual.getResources().size());
 
         ConnObjectTO connObjectTO =
-                resourceService.getConnectorObject(RESOURCE_NAME_CSV, SubjectType.USER, actual.getKey());
+                resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey());
         assertNotNull(connObjectTO);
 
         // -----------------------------------
@@ -1230,7 +1192,7 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(actual);
         assertEquals(1, actual.getMemberships().size());
 
-        connObjectTO = resourceService.getConnectorObject(RESOURCE_NAME_CSV, SubjectType.USER, actual.getKey());
+        connObjectTO = resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey());
         assertNotNull(connObjectTO);
         // -----------------------------------
 
@@ -1247,7 +1209,7 @@ public class UserITCase extends AbstractITCase {
         assertEquals(1, actual.getMemberships().size());
         assertFalse(actual.getResources().isEmpty());
 
-        connObjectTO = resourceService.getConnectorObject(RESOURCE_NAME_CSV, SubjectType.USER, actual.getKey());
+        connObjectTO = resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey());
         assertNotNull(connObjectTO);
         // -----------------------------------
 
@@ -1265,79 +1227,11 @@ public class UserITCase extends AbstractITCase {
         assertTrue(actual.getResources().isEmpty());
 
         try {
-            resourceService.getConnectorObject(RESOURCE_NAME_CSV, SubjectType.USER, actual.getKey());
+            resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey());
             fail("Read should not succeeed");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
         }
-    }
-
-    @Test
-    public void issueSYNCOPE111() {
-        UserTO userTO = getUniqueSampleTO("syncope111@syncope.apache.org");
-        userTO.getResources().clear();
-        userTO.getMemberships().clear();
-        userTO.getDerAttrs().clear();
-        userTO.getVirAttrs().clear();
-        userTO.getDerAttrs().add(attrTO("csvuserid", null));
-
-        MembershipTO memb12 = new MembershipTO();
-        memb12.setGroupKey(12L);
-        memb12.getPlainAttrs().add(attrTO("postalAddress", "postalAddress"));
-        userTO.getMemberships().add(memb12);
-
-        MembershipTO memb13 = new MembershipTO();
-        memb13.setGroupKey(13L);
-        userTO.getMemberships().add(memb13);
-
-        userTO.getResources().add(RESOURCE_NAME_LDAP);
-
-        UserTO actual = createUser(userTO);
-        assertNotNull(actual);
-        assertEquals(2, actual.getMemberships().size());
-
-        ConnObjectTO connObjectTO =
-                resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.USER, actual.getKey());
-        assertNotNull(connObjectTO);
-
-        AttrTO postalAddress = connObjectTO.getPlainAttrMap().get("postalAddress");
-        assertNotNull(postalAddress);
-        assertEquals(1, postalAddress.getValues().size());
-        assertEquals("postalAddress", postalAddress.getValues().get(0));
-
-        AttrTO title = connObjectTO.getPlainAttrMap().get("title");
-        assertNotNull(title);
-        assertEquals(2, title.getValues().size());
-        assertTrue(title.getValues().contains("r12") && title.getValues().contains("r13"));
-
-        // -----------------------------------
-        // Remove the first membership and check for membership attr propagation and group attr propagation
-        // -----------------------------------
-        UserMod userMod = new UserMod();
-        userMod.setKey(actual.getKey());
-
-        MembershipTO membershipTO = actual.getMemberships().get(0).getGroupKey() == 12L
-                ? actual.getMemberships().get(0)
-                : actual.getMemberships().get(1);
-
-        userMod.getMembershipsToRemove().add(membershipTO.getKey());
-
-        actual = updateUser(userMod);
-        assertNotNull(actual);
-        assertEquals(1, actual.getMemberships().size());
-
-        connObjectTO = resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.USER, actual.getKey());
-        assertNotNull(connObjectTO);
-
-        postalAddress = connObjectTO.getPlainAttrMap().get("postalAddress");
-        assertTrue(postalAddress == null || postalAddress.getValues().isEmpty()
-                || StringUtils.isNotBlank(postalAddress.getValues().get(0)));
-
-        title = connObjectTO.getPlainAttrMap().get("title");
-        assertNotNull(title);
-        assertEquals(1, title.getValues().size());
-        assertTrue(title.getValues().contains("r13"));
-        // -----------------------------------
     }
 
     @Test
@@ -1358,7 +1252,7 @@ public class UserITCase extends AbstractITCase {
 
         // 3. try (and fail) to find this user on the external LDAP resource
         try {
-            resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.USER, userTO.getKey());
+            resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), userTO.getKey());
             fail("This entry should not be present on this resource");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
@@ -1409,7 +1303,7 @@ public class UserITCase extends AbstractITCase {
         assertEquals(PropagationTaskExecStatus.SUBMITTED, userTO.getPropagationStatusTOs().get(0).getStatus());
 
         ConnObjectTO connObjectTO =
-                resourceService.getConnectorObject(RESOURCE_NAME_DBVIRATTR, SubjectType.USER, userTO.getKey());
+                resourceService.readConnObject(RESOURCE_NAME_DBVIRATTR, AnyTypeKind.USER.name(), userTO.getKey());
         assertNotNull(connObjectTO);
         assertEquals("virtualvalue", connObjectTO.getPlainAttrMap().get("USERNAME").getValues().get(0));
         // ----------------------------------
@@ -1466,16 +1360,16 @@ public class UserITCase extends AbstractITCase {
 
         final String pwdOnSyncope = userTO.getPassword();
 
-        ConnObjectTO userOnDb = resourceService.getConnectorObject(
-                RESOURCE_NAME_TESTDB, SubjectType.USER, userTO.getKey());
+        ConnObjectTO userOnDb = resourceService.readConnObject(
+                RESOURCE_NAME_TESTDB, AnyTypeKind.USER.name(), userTO.getKey());
         final AttrTO pwdOnTestDbAttr = userOnDb.getPlainAttrMap().get(OperationalAttributes.PASSWORD_NAME);
         assertNotNull(pwdOnTestDbAttr);
         assertNotNull(pwdOnTestDbAttr.getValues());
         assertFalse(pwdOnTestDbAttr.getValues().isEmpty());
         final String pwdOnTestDb = pwdOnTestDbAttr.getValues().iterator().next();
 
-        ConnObjectTO userOnDb2 = resourceService.getConnectorObject(
-                RESOURCE_NAME_TESTDB2, SubjectType.USER, userTO.getKey());
+        ConnObjectTO userOnDb2 = resourceService.readConnObject(
+                RESOURCE_NAME_TESTDB2, AnyTypeKind.USER.name(), userTO.getKey());
         final AttrTO pwdOnTestDb2Attr = userOnDb2.getPlainAttrMap().get(OperationalAttributes.PASSWORD_NAME);
         assertNotNull(pwdOnTestDb2Attr);
         assertNotNull(pwdOnTestDb2Attr.getValues());
@@ -1502,7 +1396,7 @@ public class UserITCase extends AbstractITCase {
         assertEquals(pwdOnSyncope, userTO.getPassword());
 
         // 3c. verify that password *has* changed on testdb
-        userOnDb = resourceService.getConnectorObject(RESOURCE_NAME_TESTDB, SubjectType.USER, userTO.getKey());
+        userOnDb = resourceService.readConnObject(RESOURCE_NAME_TESTDB, AnyTypeKind.USER.name(), userTO.getKey());
         final AttrTO pwdOnTestDbAttrAfter = userOnDb.getPlainAttrMap().get(OperationalAttributes.PASSWORD_NAME);
         assertNotNull(pwdOnTestDbAttrAfter);
         assertNotNull(pwdOnTestDbAttrAfter.getValues());
@@ -1510,7 +1404,7 @@ public class UserITCase extends AbstractITCase {
         assertNotEquals(pwdOnTestDb, pwdOnTestDbAttrAfter.getValues().iterator().next());
 
         // 3d. verify that password hasn't changed on testdb2
-        userOnDb2 = resourceService.getConnectorObject(RESOURCE_NAME_TESTDB2, SubjectType.USER, userTO.getKey());
+        userOnDb2 = resourceService.readConnObject(RESOURCE_NAME_TESTDB2, AnyTypeKind.USER.name(), userTO.getKey());
         final AttrTO pwdOnTestDb2AttrAfter = userOnDb2.getPlainAttrMap().get(OperationalAttributes.PASSWORD_NAME);
         assertNotNull(pwdOnTestDb2AttrAfter);
         assertNotNull(pwdOnTestDb2AttrAfter.getValues());
@@ -1608,7 +1502,7 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(actual);
 
         ConnObjectTO connObjectTO =
-                resourceService.getConnectorObject(RESOURCE_NAME_CSV, SubjectType.USER, actual.getKey());
+                resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey());
         assertNull(connObjectTO.getPlainAttrMap().get("email"));
     }
 
@@ -1668,7 +1562,7 @@ public class UserITCase extends AbstractITCase {
     public void issueSYNCOPE354() {
         // change resource-ldap group mapping for including uniqueMember (need for assertions below)
         ResourceTO ldap = resourceService.read(RESOURCE_NAME_LDAP);
-        for (MappingItemTO item : ldap.getGmapping().getItems()) {
+        for (MappingItemTO item : ldap.getProvision(AnyTypeKind.GROUP.name()).getMapping().getItems()) {
             if ("description".equals(item.getExtAttrName())) {
                 item.setExtAttrName("uniqueMember");
             }
@@ -1688,15 +1582,15 @@ public class UserITCase extends AbstractITCase {
         UserTO userTO = getUniqueSampleTO("syncope354@syncope.apache.org");
         userTO.getResources().add(RESOURCE_NAME_LDAP);
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setGroupKey(groupTO.getKey());
+        membershipTO.setRightKey(groupTO.getKey());
         userTO.getMemberships().add(membershipTO);
 
         userTO = createUser(userTO);
         assertTrue(userTO.getResources().contains(RESOURCE_NAME_LDAP));
 
         // 3. read group on resource, check that user DN is included in uniqueMember
-        ConnObjectTO connObj = resourceService.getConnectorObject(
-                RESOURCE_NAME_LDAP, SubjectType.GROUP, groupTO.getKey());
+        ConnObjectTO connObj = resourceService.readConnObject(
+                RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), groupTO.getKey());
         assertNotNull(connObj);
         assertTrue(connObj.getPlainAttrMap().get("uniqueMember").getValues().
                 contains("uid=" + userTO.getUsername() + ",ou=people,o=isp"));
@@ -1710,13 +1604,13 @@ public class UserITCase extends AbstractITCase {
         assertTrue(userTO.getResources().contains(RESOURCE_NAME_LDAP));
 
         // 5. read group on resource, check that user DN was removed from uniqueMember
-        connObj = resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.GROUP, groupTO.getKey());
+        connObj = resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), groupTO.getKey());
         assertNotNull(connObj);
         assertFalse(connObj.getPlainAttrMap().get("uniqueMember").getValues().
                 contains("uid=" + userTO.getUsername() + ",ou=people,o=isp"));
 
         // 6. restore original resource-ldap group mapping
-        for (MappingItemTO item : ldap.getGmapping().getItems()) {
+        for (MappingItemTO item : ldap.getProvision(AnyTypeKind.GROUP.name()).getMapping().getItems()) {
             if ("uniqueMember".equals(item.getExtAttrName())) {
                 item.setExtAttrName("description");
             }
@@ -1741,7 +1635,7 @@ public class UserITCase extends AbstractITCase {
         userTO.getPlainAttrs().add(attrTO("photo",
                 Base64Utility.encode(IOUtils.readBytesFromStream(getClass().getResourceAsStream("/favicon.jpg")))));
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setGroupKey(groupTO.getKey());
+        membershipTO.setRightKey(groupTO.getKey());
         userTO.getMemberships().add(membershipTO);
 
         userTO = createUser(userTO);
@@ -1750,8 +1644,8 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(userTO.getPlainAttrMap().get("photo"));
 
         // 3. read user on resource
-        ConnObjectTO connObj = resourceService.getConnectorObject(
-                RESOURCE_NAME_LDAP, SubjectType.USER, userTO.getKey());
+        ConnObjectTO connObj = resourceService.readConnObject(
+                RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), userTO.getKey());
         assertNotNull(connObj);
         AttrTO registeredAddress = connObj.getPlainAttrMap().get("registeredAddress");
         assertNotNull(registeredAddress);
@@ -1765,7 +1659,7 @@ public class UserITCase extends AbstractITCase {
 
         // 5. try to read user on resource: fail
         try {
-            resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.USER, userTO.getKey());
+            resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), userTO.getKey());
             fail();
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
@@ -1857,7 +1751,7 @@ public class UserITCase extends AbstractITCase {
 
         UserTO actual = createUser(userTO);
         assertNotNull(actual);
-        assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_CSV, SubjectType.USER, actual.getKey()));
+        assertNotNull(resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey()));
 
         assertNotNull(userService.bulkDeassociation(actual.getKey(),
                 ResourceDeassociationActionType.UNLINK,
@@ -1868,7 +1762,7 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(actual);
         assertTrue(actual.getResources().isEmpty());
 
-        assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_CSV, SubjectType.USER, actual.getKey()));
+        assertNotNull(resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey()));
     }
 
     @Test
@@ -1885,7 +1779,7 @@ public class UserITCase extends AbstractITCase {
         assertTrue(actual.getResources().isEmpty());
 
         try {
-            resourceService.getConnectorObject(RESOURCE_NAME_CSV, SubjectType.USER, actual.getKey());
+            resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey());
             fail();
         } catch (Exception e) {
             assertNotNull(e);
@@ -1902,7 +1796,7 @@ public class UserITCase extends AbstractITCase {
         assertFalse(actual.getResources().isEmpty());
 
         try {
-            resourceService.getConnectorObject(RESOURCE_NAME_CSV, SubjectType.USER, actual.getKey());
+            resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey());
             fail();
         } catch (Exception e) {
             assertNotNull(e);
@@ -1921,7 +1815,7 @@ public class UserITCase extends AbstractITCase {
 
         UserTO actual = createUser(userTO);
         assertNotNull(actual);
-        assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_CSV, SubjectType.USER, actual.getKey()));
+        assertNotNull(resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey()));
 
         assertNotNull(userService.bulkDeassociation(actual.getKey(),
                 ResourceDeassociationActionType.UNASSIGN,
@@ -1933,7 +1827,7 @@ public class UserITCase extends AbstractITCase {
         assertTrue(actual.getResources().isEmpty());
 
         try {
-            resourceService.getConnectorObject(RESOURCE_NAME_CSV, SubjectType.USER, actual.getKey());
+            resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey());
             fail();
         } catch (Exception e) {
             assertNotNull(e);
@@ -1954,7 +1848,7 @@ public class UserITCase extends AbstractITCase {
         assertTrue(actual.getResources().isEmpty());
 
         try {
-            resourceService.getConnectorObject(RESOURCE_NAME_CSV, SubjectType.USER, actual.getKey());
+            resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey());
             fail();
         } catch (Exception e) {
             assertNotNull(e);
@@ -1971,7 +1865,7 @@ public class UserITCase extends AbstractITCase {
         actual = userService.read(actual.getKey());
         assertNotNull(actual);
         assertFalse(actual.getResources().isEmpty());
-        assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_CSV, SubjectType.USER, actual.getKey()));
+        assertNotNull(resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey()));
     }
 
     @Test
@@ -1986,7 +1880,7 @@ public class UserITCase extends AbstractITCase {
 
         UserTO actual = createUser(userTO);
         assertNotNull(actual);
-        assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_CSV, SubjectType.USER, actual.getKey()));
+        assertNotNull(resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey()));
 
         assertNotNull(userService.bulkDeassociation(actual.getKey(),
                 ResourceDeassociationActionType.DEPROVISION,
@@ -1998,7 +1892,7 @@ public class UserITCase extends AbstractITCase {
         assertFalse(actual.getResources().isEmpty());
 
         try {
-            resourceService.getConnectorObject(RESOURCE_NAME_CSV, SubjectType.USER, actual.getKey());
+            resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey());
             fail();
         } catch (Exception e) {
             assertNotNull(e);
@@ -2019,7 +1913,7 @@ public class UserITCase extends AbstractITCase {
         assertTrue(actual.getResources().isEmpty());
 
         try {
-            resourceService.getConnectorObject(RESOURCE_NAME_CSV, SubjectType.USER, actual.getKey());
+            resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey());
             fail();
         } catch (Exception e) {
             assertNotNull(e);
@@ -2037,7 +1931,7 @@ public class UserITCase extends AbstractITCase {
         actual = userService.read(actual.getKey());
         assertNotNull(actual);
         assertTrue(actual.getResources().isEmpty());
-        assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_CSV, SubjectType.USER, actual.getKey()));
+        assertNotNull(resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey()));
     }
 
     @Test
@@ -2054,7 +1948,7 @@ public class UserITCase extends AbstractITCase {
         assertTrue(actual.getResources().isEmpty());
 
         try {
-            resourceService.getConnectorObject(RESOURCE_NAME_CSV, SubjectType.USER, actual.getKey());
+            resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey());
             fail();
         } catch (Exception e) {
             assertNotNull(e);
@@ -2072,7 +1966,7 @@ public class UserITCase extends AbstractITCase {
         actual = userService.read(actual.getKey());
         assertNotNull(actual);
         assertTrue(actual.getResources().isEmpty());
-        assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_CSV, SubjectType.USER, actual.getKey()));
+        assertNotNull(resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey()));
 
         assertNotNull(userService.bulkDeassociation(actual.getKey(),
                 ResourceDeassociationActionType.DEPROVISION,
@@ -2084,7 +1978,7 @@ public class UserITCase extends AbstractITCase {
         assertTrue(actual.getResources().isEmpty());
 
         try {
-            resourceService.getConnectorObject(RESOURCE_NAME_CSV, SubjectType.USER, actual.getKey());
+            resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey());
             fail();
         } catch (Exception e) {
             assertNotNull(e);
@@ -2181,7 +2075,7 @@ public class UserITCase extends AbstractITCase {
 
         // 2. read resource configuration for LDAP binding
         ConnObjectTO connObject =
-                resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.USER, userTO.getKey());
+                resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), userTO.getKey());
 
         // 3. try (and succeed) to perform simple LDAP binding with provided password ('password123')
         assertNotNull(getLdapRemoteObject(
@@ -2214,8 +2108,8 @@ public class UserITCase extends AbstractITCase {
         assertEquals(1, userTO.getPropagationStatusTOs().size());
         assertTrue(userTO.getPropagationStatusTOs().get(0).getStatus().isSuccessful());
 
-        final ConnObjectTO actual = resourceService.getConnectorObject(RESOURCE_NAME_WS1, SubjectType.USER, userTO.
-                getKey());
+        ConnObjectTO actual =
+                resourceService.readConnObject(RESOURCE_NAME_WS1, AnyTypeKind.USER.name(), userTO.getKey());
         assertNotNull(actual);
         // check if mapping attribute with purpose NONE really hasn't been propagated
         assertNull(actual.getPlainAttrMap().get("NAME"));
@@ -2224,7 +2118,7 @@ public class UserITCase extends AbstractITCase {
         ResourceTO ws1 = resourceService.read(RESOURCE_NAME_WS1);
         assertNotNull(ws1);
 
-        MappingTO ws1NewUMapping = ws1.getUmapping();
+        MappingTO ws1NewUMapping = ws1.getProvision(AnyTypeKind.USER.name()).getMapping();
         // change purpose from NONE to BOTH
         for (MappingItemTO itemTO : ws1NewUMapping.getItems()) {
             if ("firstname".equals(itemTO.getIntAttrName())) {
@@ -2232,15 +2126,14 @@ public class UserITCase extends AbstractITCase {
             }
         }
 
-        ws1.setUmapping(ws1NewUMapping);
-        ws1.setGmapping(ws1.getGmapping());
+        ws1.getProvision(AnyTypeKind.USER.name()).setMapping(ws1NewUMapping);
 
         resourceService.update(RESOURCE_NAME_WS1, ws1);
         ResourceTO newWs1 = resourceService.read(ws1.getKey());
         assertNotNull(newWs1);
 
         // check for existence
-        Collection<MappingItemTO> mapItems = newWs1.getUmapping().getItems();
+        Collection<MappingItemTO> mapItems = newWs1.getProvision(AnyTypeKind.USER.name()).getMapping().getItems();
         assertNotNull(mapItems);
         assertEquals(7, mapItems.size());
 
@@ -2255,14 +2148,14 @@ public class UserITCase extends AbstractITCase {
         assertEquals(1, userTO.getPropagationStatusTOs().size());
         assertTrue(userTO.getPropagationStatusTOs().get(0).getStatus().isSuccessful());
 
-        final ConnObjectTO newUser = resourceService.getConnectorObject(RESOURCE_NAME_WS1, SubjectType.USER,
-                userTO.getKey());
+        ConnObjectTO newUser =
+                resourceService.readConnObject(RESOURCE_NAME_WS1, AnyTypeKind.USER.name(), userTO.getKey());
 
         assertNotNull(newUser.getPlainAttrMap().get("NAME"));
         assertEquals("firstnameNew", newUser.getPlainAttrMap().get("NAME").getValues().get(0));
 
         // 4.  restore resource ws-target-resource-1 mapping
-        ws1NewUMapping = newWs1.getUmapping();
+        ws1NewUMapping = newWs1.getProvision(AnyTypeKind.USER.name()).getMapping();
         // restore purpose from BOTH to NONE
         for (MappingItemTO itemTO : ws1NewUMapping.getItems()) {
             if ("firstname".equals(itemTO.getIntAttrName())) {
@@ -2270,8 +2163,7 @@ public class UserITCase extends AbstractITCase {
             }
         }
 
-        newWs1.setUmapping(ws1NewUMapping);
-        newWs1.setGmapping(newWs1.getGmapping());
+        newWs1.getProvision(AnyTypeKind.USER.name()).setMapping(ws1NewUMapping);
 
         resourceService.update(RESOURCE_NAME_WS1, newWs1);
     }
@@ -2350,7 +2242,7 @@ public class UserITCase extends AbstractITCase {
 
         // 4. Check that the LDAP resource has the correct password
         ConnObjectTO connObject =
-                resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.USER, user.getKey());
+                resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), user.getKey());
 
         assertNotNull(getLdapRemoteObject(
                 connObject.getPlainAttrMap().get(Name.NAME).getValues().get(0),
@@ -2393,7 +2285,7 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(userTO);
 
         ConnObjectTO connObjectTO =
-                resourceService.getConnectorObject(RESOURCE_NAME_CSV, SubjectType.USER, userTO.getKey());
+                resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), userTO.getKey());
         assertNotNull(connObjectTO);
 
         // check if password has not changed
@@ -2414,7 +2306,7 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(userTO);
 
         connObjectTO =
-                resourceService.getConnectorObject(RESOURCE_NAME_CSV, SubjectType.USER, userTO.getKey());
+                resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), userTO.getKey());
         assertNotNull(connObjectTO);
 
         // check if password has been propagated and that saved userTO's password is null
@@ -2435,7 +2327,7 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(userTO);
 
         connObjectTO =
-                resourceService.getConnectorObject(RESOURCE_NAME_CSV, SubjectType.USER, userTO.getKey());
+                resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), userTO.getKey());
         assertNotNull(connObjectTO);
 
         // check if password has been correctly propagated on Syncope and resource-csv as usual
@@ -2480,8 +2372,7 @@ public class UserITCase extends AbstractITCase {
         userTO.getDerAttrs().add(attrTO("csvuserid", null));
 
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setGroupKey(12L);
-        membershipTO.getPlainAttrs().add(attrTO("postalAddress", "postalAddress"));
+        membershipTO.setRightKey(12L);
         userTO.getMemberships().add(membershipTO);
 
         userTO.getResources().add(RESOURCE_NAME_LDAP);
@@ -2491,22 +2382,19 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(actual.getDerAttrMap().get("csvuserid"));
 
         ConnObjectTO connObjectTO =
-                resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.USER, actual.getKey());
+                resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), actual.getKey());
         assertNotNull(connObjectTO);
         assertEquals("postalAddress", connObjectTO.getPlainAttrMap().get("postalAddress").getValues().get(0));
 
         UserMod userMod = new UserMod();
         userMod.setKey(actual.getKey());
 
-        MembershipMod membershipMod = new MembershipMod();
-        membershipMod.setGroup(12L);
-        membershipMod.getPlainAttrsToUpdate().add(attrMod("postalAddress", "newPostalAddress"));
-        userMod.getMembershipsToAdd().add(membershipMod);
+        userMod.getMembershipsToAdd().add(12L);
         userMod.getMembershipsToRemove().add(actual.getMemberships().iterator().next().getKey());
 
         actual = updateUser(userMod);
 
-        connObjectTO = resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.USER, actual.getKey());
+        connObjectTO = resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), actual.getKey());
         assertNotNull(connObjectTO);
         assertEquals("newPostalAddress", connObjectTO.getPlainAttrMap().get("postalAddress").getValues().get(0));
     }

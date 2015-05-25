@@ -23,7 +23,7 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.PasswordPolicySpec;
-import org.apache.syncope.core.persistence.api.entity.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.misc.policy.InvalidPasswordPolicySpecException;
 import org.apache.syncope.core.misc.policy.PolicyPattern;

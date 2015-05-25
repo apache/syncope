@@ -22,20 +22,21 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.apache.syncope.common.lib.mod.AbstractSubjectMod;
-import org.apache.syncope.common.lib.to.AbstractSubjectTO;
+import org.apache.syncope.common.lib.mod.AnyMod;
+import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
 import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtils;
 import org.apache.syncope.core.persistence.api.entity.task.SyncTask;
-import org.apache.syncope.core.provisioning.api.AttributableTransformer;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationException;
 import org.apache.syncope.core.provisioning.api.sync.SyncActions;
 import org.apache.syncope.core.misc.security.UnauthorizedException;
+import org.apache.syncope.core.persistence.api.entity.AnyUtils;
+import org.apache.syncope.core.persistence.api.entity.resource.Provision;
+import org.apache.syncope.core.provisioning.api.AnyTransformer;
 import org.apache.syncope.core.provisioning.api.sync.IgnoreProvisionException;
 import org.apache.syncope.core.provisioning.api.sync.ProvisioningResult;
 import org.apache.syncope.core.provisioning.api.sync.SyncopeSyncResultHandler;
@@ -51,19 +52,15 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
     protected SyncUtils syncUtilities;
 
     @Autowired
-    protected AttributableTransformer attrTransformer;
+    protected AnyTransformer anyTransformer;
 
-    protected abstract String getName(AbstractSubjectTO subjectTO);
+    protected abstract String getName(AnyTO anyTO);
 
-    protected abstract AbstractSubjectMod getSubjectMod(AbstractSubjectTO subjectTO, SyncDelta delta);
+    protected abstract AnyTO doCreate(AnyTO anyTO, SyncDelta delta, ProvisioningResult result);
 
-    protected abstract AbstractSubjectTO doCreate(
-            AbstractSubjectTO subjectTO, SyncDelta delta, ProvisioningResult result);
+    protected abstract AnyTO doLink(AnyTO before, ProvisioningResult result, boolean unlink);
 
-    protected abstract AbstractSubjectTO doLink(AbstractSubjectTO before, ProvisioningResult result, boolean unlink);
-
-    protected abstract AbstractSubjectTO doUpdate(AbstractSubjectTO before, AbstractSubjectMod subjectMod,
-            SyncDelta delta, ProvisioningResult result);
+    protected abstract AnyTO doUpdate(AnyTO before, AnyMod anyMod, SyncDelta delta, ProvisioningResult result);
 
     protected abstract void doDeprovision(Long key, boolean unlink);
 
@@ -71,13 +68,21 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
 
     @Override
     public boolean handle(final SyncDelta delta) {
+        Provision provision = null;
         try {
-            doHandle(delta);
+            provision = profile.getTask().getResource().getProvision(delta.getObject().getObjectClass());
+            if (provision == null) {
+                throw new JobExecutionException("No provision found on " + profile.getTask().getResource() + " for "
+                        + delta.getObject().getObjectClass());
+            }
+
+            doHandle(delta, provision);
             return true;
         } catch (IgnoreProvisionException e) {
             ProvisioningResult result = new ProvisioningResult();
             result.setOperation(ResourceOperation.NONE);
-            result.setSubjectType(getAttributableUtils().getType());
+            result.setAnyType(provision == null
+                    ? getAnyUtils().getAnyTypeKind().name() : provision.getAnyType().getKey());
             result.setStatus(ProvisioningResult.Status.IGNORE);
             result.setKey(0L);
             result.setName(delta.getObject().getName().getNameValue());
@@ -91,7 +96,8 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
         }
     }
 
-    protected List<ProvisioningResult> assign(final SyncDelta delta, final AttributableUtils attrUtils)
+    protected List<ProvisioningResult> assign(
+            final SyncDelta delta, final Provision provision, final AnyUtils anyUtils)
             throws JobExecutionException {
 
         if (!profile.getTask().isPerformCreate()) {
@@ -99,18 +105,17 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
             return Collections.<ProvisioningResult>emptyList();
         }
 
-        final AbstractSubjectTO subjectTO =
-                connObjectUtils.getSubjectTO(delta.getObject(), profile.getTask(), attrUtils);
+        AnyTO anyTO = connObjectUtils.getAnyTO(delta.getObject(), profile.getTask(), provision, anyUtils);
 
-        subjectTO.getResources().add(profile.getTask().getResource().getKey());
+        anyTO.getResources().add(profile.getTask().getResource().getKey());
 
         final ProvisioningResult result = new ProvisioningResult();
         result.setOperation(ResourceOperation.CREATE);
-        result.setSubjectType(attrUtils.getType());
+        result.setAnyType(provision.getAnyType().getKey());
         result.setStatus(ProvisioningResult.Status.SUCCESS);
 
         // Attributable transformation (if configured)
-        AbstractSubjectTO transformed = attrTransformer.transform(subjectTO);
+        AnyTO transformed = anyTransformer.transform(anyTO);
         LOG.debug("Transformed: {}", transformed);
 
         result.setName(getName(transformed));
@@ -123,13 +128,14 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
                 actionedDelta = action.beforeAssign(this.getProfile(), actionedDelta, transformed);
             }
 
-            create(transformed, actionedDelta, attrUtils, UnmatchingRule.toEventName(UnmatchingRule.ASSIGN), result);
+            create(transformed, actionedDelta, UnmatchingRule.toEventName(UnmatchingRule.ASSIGN), result);
         }
 
         return Collections.singletonList(result);
     }
 
-    protected List<ProvisioningResult> provision(final SyncDelta delta, final AttributableUtils attrUtils)
+    protected List<ProvisioningResult> provision(
+            final SyncDelta delta, final Provision provision, final AnyUtils anyUtils)
             throws JobExecutionException {
 
         if (!profile.getTask().isPerformCreate()) {
@@ -137,16 +143,15 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
             return Collections.<ProvisioningResult>emptyList();
         }
 
-        final AbstractSubjectTO subjectTO =
-                connObjectUtils.getSubjectTO(delta.getObject(), profile.getTask(), attrUtils);
+        AnyTO anyTO = connObjectUtils.getAnyTO(delta.getObject(), profile.getTask(), provision, anyUtils);
 
         // Attributable transformation (if configured)
-        AbstractSubjectTO transformed = attrTransformer.transform(subjectTO);
+        AnyTO transformed = anyTransformer.transform(anyTO);
         LOG.debug("Transformed: {}", transformed);
 
         final ProvisioningResult result = new ProvisioningResult();
         result.setOperation(ResourceOperation.CREATE);
-        result.setSubjectType(attrUtils.getType());
+        result.setAnyType(provision.getAnyType().getKey());
         result.setStatus(ProvisioningResult.Status.SUCCESS);
 
         result.setName(getName(transformed));
@@ -159,16 +164,15 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
                 actionedDelta = action.beforeProvision(this.getProfile(), actionedDelta, transformed);
             }
 
-            create(transformed, actionedDelta, attrUtils, UnmatchingRule.toEventName(UnmatchingRule.PROVISION), result);
+            create(transformed, actionedDelta, UnmatchingRule.toEventName(UnmatchingRule.PROVISION), result);
         }
 
         return Collections.<ProvisioningResult>singletonList(result);
     }
 
     private void create(
-            final AbstractSubjectTO subjectTO,
+            final AnyTO anyTO,
             final SyncDelta delta,
-            final AttributableUtils attrUtils,
             final String operation,
             final ProvisioningResult result)
             throws JobExecutionException {
@@ -177,7 +181,7 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
         Result resultStatus;
 
         try {
-            AbstractSubjectTO actual = doCreate(subjectTO, delta, result);
+            AnyTO actual = doCreate(anyTO, delta, result);
             result.setName(getName(actual));
             output = actual;
             resultStatus = Result.SUCCESS;
@@ -190,7 +194,7 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
         } catch (PropagationException e) {
             // A propagation failure doesn't imply a synchronization failure.
             // The propagation exception status will be reported into the propagation task execution.
-            LOG.error("Could not propagate {} {}", attrUtils.getType(), delta.getUid().getUidValue(), e);
+            LOG.error("Could not propagate {} {}", anyTO.getType(), delta.getUid().getUidValue(), e);
             output = e;
             resultStatus = Result.FAILURE;
 
@@ -200,7 +204,7 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
         } catch (Exception e) {
             result.setStatus(ProvisioningResult.Status.FAILURE);
             result.setMessage(ExceptionUtils.getRootCauseMessage(e));
-            LOG.error("Could not create {} {} ", attrUtils.getType(), delta.getUid().getUidValue(), e);
+            LOG.error("Could not create {} {} ", anyTO.getType(), delta.getUid().getUidValue(), e);
             output = e;
             resultStatus = Result.FAILURE;
 
@@ -212,32 +216,32 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
         audit(operation, resultStatus, null, output, delta);
     }
 
-    protected List<ProvisioningResult> update(final SyncDelta delta, final List<Long> subjects,
-            final AttributableUtils attrUtils) throws JobExecutionException {
+    protected List<ProvisioningResult> update(final SyncDelta delta, final List<Long> anys,
+            final Provision provision) throws JobExecutionException {
 
         if (!profile.getTask().isPerformUpdate()) {
             LOG.debug("SyncTask not configured for update");
             return Collections.<ProvisioningResult>emptyList();
         }
 
-        LOG.debug("About to update {}", subjects);
+        LOG.debug("About to update {}", anys);
 
         List<ProvisioningResult> results = new ArrayList<>();
 
         SyncDelta workingDelta = delta;
-        for (Long key : subjects) {
+        for (Long key : anys) {
             LOG.debug("About to update {}", key);
 
-            final ProvisioningResult result = new ProvisioningResult();
+            ProvisioningResult result = new ProvisioningResult();
             result.setOperation(ResourceOperation.UPDATE);
-            result.setSubjectType(attrUtils.getType());
+            result.setAnyType(provision.getAnyType().getKey());
             result.setStatus(ProvisioningResult.Status.SUCCESS);
             result.setKey(key);
 
-            AbstractSubjectTO before = getSubjectTO(key);
+            AnyTO before = getAnyTO(key);
             if (before == null) {
                 result.setStatus(ProvisioningResult.Status.FAILURE);
-                result.setMessage(String.format("Subject '%s(%d)' not found", attrUtils.getType().name(), key));
+                result.setMessage(String.format("Any '%s(%d)' not found", provision.getAnyType().getKey(), key));
             } else {
                 result.setName(getName(before));
             }
@@ -250,17 +254,23 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
                     output = null;
                 } else {
                     try {
-                        AbstractSubjectMod subjectMod = getSubjectMod(before, workingDelta);
+                        AnyMod anyMod = connObjectUtils.getAnyMod(
+                                before.getKey(),
+                                workingDelta.getObject(),
+                                before,
+                                profile.getTask(),
+                                provision,
+                                getAnyUtils());
 
                         // Attribute value transformation (if configured)
-                        AbstractSubjectMod actual = attrTransformer.transform(subjectMod);
+                        AnyMod actual = anyTransformer.transform(anyMod);
                         LOG.debug("Transformed: {}", actual);
 
                         for (SyncActions action : profile.getActions()) {
-                            workingDelta = action.beforeUpdate(this.getProfile(), workingDelta, before, subjectMod);
+                            workingDelta = action.beforeUpdate(this.getProfile(), workingDelta, before, anyMod);
                         }
 
-                        final AbstractSubjectTO updated = doUpdate(before, subjectMod, workingDelta, result);
+                        final AnyTO updated = doUpdate(before, anyMod, workingDelta, result);
 
                         for (SyncActions action : profile.getActions()) {
                             action.after(this.getProfile(), workingDelta, updated, result);
@@ -269,14 +279,14 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
                         output = updated;
                         resultStatus = Result.SUCCESS;
                         result.setName(getName(updated));
-                        LOG.debug("{} {} successfully updated", attrUtils.getType(), key);
+                        LOG.debug("{} {} successfully updated", provision.getAnyType().getKey(), key);
                     } catch (IgnoreProvisionException e) {
                         throw e;
                     } catch (PropagationException e) {
                         // A propagation failure doesn't imply a synchronization failure.
                         // The propagation exception status will be reported into the propagation task execution.
                         LOG.error("Could not propagate {} {}",
-                                attrUtils.getType(), workingDelta.getUid().getUidValue(), e);
+                                provision.getAnyType().getKey(), workingDelta.getUid().getUidValue(), e);
                         output = e;
                         resultStatus = Result.FAILURE;
 
@@ -287,7 +297,7 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
                         result.setStatus(ProvisioningResult.Status.FAILURE);
                         result.setMessage(ExceptionUtils.getRootCauseMessage(e));
                         LOG.error("Could not update {} {}",
-                                attrUtils.getType(), workingDelta.getUid().getUidValue(), e);
+                                provision.getAnyType().getKey(), workingDelta.getUid().getUidValue(), e);
                         output = e;
                         resultStatus = Result.FAILURE;
 
@@ -305,8 +315,8 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
 
     protected List<ProvisioningResult> deprovision(
             final SyncDelta delta,
-            final List<Long> subjects,
-            final AttributableUtils attrUtils,
+            final List<Long> anys,
+            final Provision provision,
             final boolean unlink)
             throws JobExecutionException {
 
@@ -315,11 +325,11 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
             return Collections.<ProvisioningResult>emptyList();
         }
 
-        LOG.debug("About to update {}", subjects);
+        LOG.debug("About to update {}", anys);
 
         final List<ProvisioningResult> updResults = new ArrayList<>();
 
-        for (Long id : subjects) {
+        for (Long id : anys) {
             LOG.debug("About to unassign resource {}", id);
 
             Object output;
@@ -327,15 +337,15 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
 
             final ProvisioningResult result = new ProvisioningResult();
             result.setOperation(ResourceOperation.DELETE);
-            result.setSubjectType(attrUtils.getType());
+            result.setAnyType(provision.getAnyType().getKey());
             result.setStatus(ProvisioningResult.Status.SUCCESS);
             result.setKey(id);
 
-            final AbstractSubjectTO before = getSubjectTO(id);
+            final AnyTO before = getAnyTO(id);
 
             if (before == null) {
                 result.setStatus(ProvisioningResult.Status.FAILURE);
-                result.setMessage(String.format("Subject '%s(%d)' not found", attrUtils.getType().name(), id));
+                result.setMessage(String.format("Any '%s(%d)' not found", provision.getAnyType().getKey(), id));
             }
 
             if (!profile.isDryRun()) {
@@ -357,20 +367,21 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
                         }
 
                         doDeprovision(id, unlink);
-                        output = getSubjectTO(id);
+                        output = getAnyTO(id);
 
                         for (SyncActions action : profile.getActions()) {
-                            action.after(this.getProfile(), delta, AbstractSubjectTO.class.cast(output), result);
+                            action.after(this.getProfile(), delta, AnyTO.class.cast(output), result);
                         }
 
                         resultStatus = Result.SUCCESS;
-                        LOG.debug("{} {} successfully updated", attrUtils.getType(), id);
+                        LOG.debug("{} {} successfully updated", provision.getAnyType().getKey(), id);
                     } catch (IgnoreProvisionException e) {
                         throw e;
                     } catch (PropagationException e) {
                         // A propagation failure doesn't imply a synchronization failure.
                         // The propagation exception status will be reported into the propagation task execution.
-                        LOG.error("Could not propagate {} {}", attrUtils.getType(), delta.getUid().getUidValue(), e);
+                        LOG.error("Could not propagate {} {}",
+                                provision.getAnyType().getKey(), delta.getUid().getUidValue(), e);
                         output = e;
                         resultStatus = Result.FAILURE;
 
@@ -380,7 +391,8 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
                     } catch (Exception e) {
                         result.setStatus(ProvisioningResult.Status.FAILURE);
                         result.setMessage(ExceptionUtils.getRootCauseMessage(e));
-                        LOG.error("Could not update {} {}", attrUtils.getType(), delta.getUid().getUidValue(), e);
+                        LOG.error("Could not update {} {}",
+                                provision.getAnyType().getKey(), delta.getUid().getUidValue(), e);
                         output = e;
                         resultStatus = Result.FAILURE;
 
@@ -401,8 +413,8 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
 
     protected List<ProvisioningResult> link(
             final SyncDelta delta,
-            final List<Long> subjects,
-            final AttributableUtils attrUtils,
+            final List<Long> anys,
+            final Provision provision,
             final boolean unlink)
             throws JobExecutionException {
 
@@ -411,27 +423,27 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
             return Collections.<ProvisioningResult>emptyList();
         }
 
-        LOG.debug("About to update {}", subjects);
+        LOG.debug("About to update {}", anys);
 
         final List<ProvisioningResult> updResults = new ArrayList<>();
 
-        for (Long id : subjects) {
+        for (Long id : anys) {
             LOG.debug("About to unassign resource {}", id);
 
             Object output;
             Result resultStatus;
 
-            final ProvisioningResult result = new ProvisioningResult();
+            ProvisioningResult result = new ProvisioningResult();
             result.setOperation(ResourceOperation.NONE);
-            result.setSubjectType(attrUtils.getType());
+            result.setAnyType(provision.getAnyType().getKey());
             result.setStatus(ProvisioningResult.Status.SUCCESS);
             result.setKey(id);
 
-            final AbstractSubjectTO before = getSubjectTO(id);
+            final AnyTO before = getAnyTO(id);
 
             if (before == null) {
                 result.setStatus(ProvisioningResult.Status.FAILURE);
-                result.setMessage(String.format("Subject '%s(%d)' not found", attrUtils.getType().name(), id));
+                result.setMessage(String.format("Any '%s(%d)' not found", provision.getAnyType().getKey(), id));
             }
 
             if (!profile.isDryRun()) {
@@ -455,17 +467,18 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
                         output = doLink(before, result, unlink);
 
                         for (SyncActions action : profile.getActions()) {
-                            action.after(this.getProfile(), delta, AbstractSubjectTO.class.cast(output), result);
+                            action.after(this.getProfile(), delta, AnyTO.class.cast(output), result);
                         }
 
                         resultStatus = Result.SUCCESS;
-                        LOG.debug("{} {} successfully updated", attrUtils.getType(), id);
+                        LOG.debug("{} {} successfully updated", provision.getAnyType().getKey(), id);
                     } catch (IgnoreProvisionException e) {
                         throw e;
                     } catch (PropagationException e) {
                         // A propagation failure doesn't imply a synchronization failure.
                         // The propagation exception status will be reported into the propagation task execution.
-                        LOG.error("Could not propagate {} {}", attrUtils.getType(), delta.getUid().getUidValue(), e);
+                        LOG.error("Could not propagate {} {}",
+                                provision.getAnyType().getKey(), delta.getUid().getUidValue(), e);
                         output = e;
                         resultStatus = Result.FAILURE;
 
@@ -475,7 +488,8 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
                     } catch (Exception e) {
                         result.setStatus(ProvisioningResult.Status.FAILURE);
                         result.setMessage(ExceptionUtils.getRootCauseMessage(e));
-                        LOG.error("Could not update {} {}", attrUtils.getType(), delta.getUid().getUidValue(), e);
+                        LOG.error("Could not update {} {}",
+                                provision.getAnyType().getKey(), delta.getUid().getUidValue(), e);
                         output = e;
                         resultStatus = Result.FAILURE;
 
@@ -494,7 +508,9 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
     }
 
     protected List<ProvisioningResult> delete(
-            final SyncDelta delta, final List<Long> subjects, final AttributableUtils attrUtils)
+            final SyncDelta delta,
+            final List<Long> anys,
+            final Provision provision)
             throws JobExecutionException {
 
         if (!profile.getTask().isPerformDelete()) {
@@ -502,25 +518,25 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
             return Collections.<ProvisioningResult>emptyList();
         }
 
-        LOG.debug("About to delete {}", subjects);
+        LOG.debug("About to delete {}", anys);
 
         List<ProvisioningResult> delResults = new ArrayList<>();
 
         SyncDelta workingDelta = delta;
-        for (Long id : subjects) {
+        for (Long id : anys) {
             Object output;
             Result resultStatus = Result.FAILURE;
 
-            AbstractSubjectTO before = null;
+            AnyTO before = null;
             final ProvisioningResult result = new ProvisioningResult();
 
             try {
-                before = getSubjectTO(id);
+                before = getAnyTO(id);
 
                 result.setKey(id);
                 result.setName(getName(before));
                 result.setOperation(ResourceOperation.DELETE);
-                result.setSubjectType(attrUtils.getType());
+                result.setAnyType(provision.getAnyType().getKey());
                 result.setStatus(ProvisioningResult.Status.SUCCESS);
 
                 if (!profile.isDryRun()) {
@@ -541,7 +557,7 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
                     } catch (Exception e) {
                         result.setStatus(ProvisioningResult.Status.FAILURE);
                         result.setMessage(ExceptionUtils.getRootCauseMessage(e));
-                        LOG.error("Could not delete {} {}", attrUtils.getType(), id, e);
+                        LOG.error("Could not delete {} {}", provision.getAnyType().getKey(), id, e);
                         output = e;
 
                         for (SyncActions action : profile.getActions()) {
@@ -554,21 +570,24 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
 
                 delResults.add(result);
             } catch (NotFoundException e) {
-                LOG.error("Could not find {} {}", attrUtils.getType(), id, e);
+                LOG.error("Could not find {} {}", provision.getAnyType().getKey(), id, e);
             } catch (UnauthorizedException e) {
-                LOG.error("Not allowed to read {} {}", attrUtils.getType(), id, e);
+                LOG.error("Not allowed to read {} {}", provision.getAnyType().getKey(), id, e);
             } catch (Exception e) {
-                LOG.error("Could not delete {} {}", attrUtils.getType(), id, e);
+                LOG.error("Could not delete {} {}", provision.getAnyType().getKey(), id, e);
             }
         }
 
         return delResults;
     }
 
-    private List<ProvisioningResult> ignore(final SyncDelta delta, final AttributableUtils attrUtils,
-            final boolean matching) throws JobExecutionException {
+    private List<ProvisioningResult> ignore(
+            final SyncDelta delta,
+            final Provision provision,
+            final boolean matching)
+            throws JobExecutionException {
 
-        LOG.debug("Subject to ignore {}", delta.getObject().getUid().getUidValue());
+        LOG.debug("Any to ignore {}", delta.getObject().getUid().getUidValue());
 
         final List<ProvisioningResult> ignoreResults = new ArrayList<>();
         final ProvisioningResult result = new ProvisioningResult();
@@ -576,7 +595,7 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
         result.setKey(null);
         result.setName(delta.getObject().getUid().getUidValue());
         result.setOperation(ResourceOperation.NONE);
-        result.setSubjectType(attrUtils.getType());
+        result.setAnyType(provision.getAnyType().getKey());
         result.setStatus(ProvisioningResult.Status.SUCCESS);
         ignoreResults.add(result);
 
@@ -590,89 +609,92 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
     }
 
     /**
-     * Look into SyncDelta and take necessary profile.getActions() (create / update / delete) on user(s)/group(s).
+     * Look into SyncDelta and take necessary profile.getActions() (create / update / delete) on any object(s).
      *
      * @param delta returned by the underlying profile.getConnector()
+     * @param provision provisioning info
      * @throws JobExecutionException in case of synchronization failure.
      */
-    protected void doHandle(final SyncDelta delta)
+    protected void doHandle(final SyncDelta delta, final Provision provision)
             throws JobExecutionException {
 
-        final AttributableUtils attrUtils = getAttributableUtils();
+        AnyUtils anyUtils = getAnyUtils();
 
         LOG.debug("Process {} for {} as {}",
                 delta.getDeltaType(), delta.getUid().getUidValue(), delta.getObject().getObjectClass());
 
-        final String uid = delta.getPreviousUid() == null
+        String uid = delta.getPreviousUid() == null
                 ? delta.getUid().getUidValue()
                 : delta.getPreviousUid().getUidValue();
 
         try {
-            List<Long> subjectKeys = syncUtilities.findExisting(
-                    uid, delta.getObject(), profile.getTask().getResource(), attrUtils);
+            List<Long> anyKeys = syncUtilities.findExisting(uid, delta.getObject(), provision, anyUtils);
 
-            if (subjectKeys.size() > 1) {
+            if (anyKeys.size() > 1) {
                 switch (profile.getResAct()) {
                     case IGNORE:
-                        throw new IllegalStateException("More than one match " + subjectKeys);
+                        throw new IllegalStateException("More than one match " + anyKeys);
 
                     case FIRSTMATCH:
-                        subjectKeys = subjectKeys.subList(0, 1);
+                        anyKeys = anyKeys.subList(0, 1);
                         break;
 
                     case LASTMATCH:
-                        subjectKeys = subjectKeys.subList(subjectKeys.size() - 1, subjectKeys.size());
+                        anyKeys = anyKeys.subList(anyKeys.size() - 1, anyKeys.size());
                         break;
 
                     default:
-                    // keep subjectIds as is
+                    // keep anyIds as is
                 }
             }
 
             if (SyncDeltaType.CREATE_OR_UPDATE == delta.getDeltaType()) {
-                if (subjectKeys.isEmpty()) {
+                if (anyKeys.isEmpty()) {
                     switch (profile.getTask().getUnmatchingRule()) {
                         case ASSIGN:
-                            profile.getResults().addAll(assign(delta, attrUtils));
+                            profile.getResults().addAll(assign(delta, provision, anyUtils));
                             break;
+
                         case PROVISION:
-                            profile.getResults().addAll(provision(delta, attrUtils));
+                            profile.getResults().addAll(provision(delta, provision, anyUtils));
                             break;
+
                         case IGNORE:
-                            profile.getResults().addAll(ignore(delta, attrUtils, false));
+                            profile.getResults().addAll(ignore(delta, provision, false));
                             break;
+
                         default:
                         // do nothing
                     }
                 } else {
                     switch (profile.getTask().getMatchingRule()) {
                         case UPDATE:
-                            profile.getResults().addAll(update(delta, subjectKeys, attrUtils));
+                            profile.getResults().addAll(update(delta, anyKeys, provision));
                             break;
                         case DEPROVISION:
-                            profile.getResults().addAll(deprovision(delta, subjectKeys, attrUtils, false));
+                            profile.getResults().addAll(deprovision(delta, anyKeys, provision, false));
                             break;
                         case UNASSIGN:
-                            profile.getResults().addAll(deprovision(delta, subjectKeys, attrUtils, true));
+                            profile.getResults().addAll(deprovision(delta, anyKeys, provision, true));
                             break;
                         case LINK:
-                            profile.getResults().addAll(link(delta, subjectKeys, attrUtils, false));
+                            profile.getResults().addAll(link(delta, anyKeys, provision, false));
                             break;
                         case UNLINK:
-                            profile.getResults().addAll(link(delta, subjectKeys, attrUtils, true));
+                            profile.getResults().addAll(link(delta, anyKeys, provision, true));
                             break;
                         case IGNORE:
-                            profile.getResults().addAll(ignore(delta, attrUtils, true));
+                            profile.getResults().addAll(ignore(delta, provision, true));
                             break;
                         default:
                         // do nothing
                     }
                 }
             } else if (SyncDeltaType.DELETE == delta.getDeltaType()) {
-                if (subjectKeys.isEmpty()) {
+                if (anyKeys.isEmpty()) {
                     LOG.debug("No match found for deletion");
                 } else {
-                    profile.getResults().addAll(delete(delta, subjectKeys, attrUtils));
+                    profile.getResults().addAll(delete(delta, anyKeys, provision));
                 }
             }
         } catch (IllegalStateException | IllegalArgumentException e) {
@@ -688,7 +710,7 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
             final Object... input) {
 
         notificationManager.createTasks(AuditElements.EventCategoryType.SYNCHRONIZATION,
-                getAttributableUtils().getType().name().toLowerCase(),
+                getAnyUtils().getAnyTypeKind().name().toLowerCase(),
                 profile.getTask().getResource().getKey(),
                 event,
                 result,
@@ -697,7 +719,7 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
                 input);
 
         auditManager.audit(AuditElements.EventCategoryType.SYNCHRONIZATION,
-                getAttributableUtils().getType().name().toLowerCase(),
+                getAnyUtils().getAnyTypeKind().name().toLowerCase(),
                 profile.getTask().getResource().getKey(),
                 event,
                 result,

@@ -18,17 +18,18 @@
  */
 package org.apache.syncope.core.persistence.api.entity;
 
-import org.apache.syncope.common.lib.types.SubjectType;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 
 public interface CamelRoute extends Entity<String> {
 
-    String getContent();
-
-    SubjectType getSubjectType();
-
     void setKey(String name);
+
+    AnyTypeKind getAnyTypeKind();
+
+    void setAnyTypeKind(AnyTypeKind anyTypeKind);
+
+    String getContent();
 
     void setContent(String routeContent);
 
-    void setSubjectType(SubjectType subject);
 }

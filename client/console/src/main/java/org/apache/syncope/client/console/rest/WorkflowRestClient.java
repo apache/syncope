@@ -24,7 +24,7 @@ import javax.ws.rs.core.Response;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.common.lib.types.SubjectType;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.WorkflowService;
 import org.springframework.stereotype.Component;
@@ -39,7 +39,7 @@ public class WorkflowRestClient extends BaseRestClient {
     }
 
     public InputStream getDefinition(final MediaType mediaType) {
-        Response response = getService(mediaType).exportDefinition(SubjectType.USER);
+        Response response = getService(mediaType).exportDefinition(AnyTypeKind.USER);
 
         return (InputStream) response.getEntity();
     }
@@ -47,7 +47,7 @@ public class WorkflowRestClient extends BaseRestClient {
     public byte[] getDiagram() {
         WorkflowService service = getService(WorkflowService.class);
         WebClient.client(service).accept(RESTHeaders.MEDIATYPE_IMAGE_PNG);
-        Response response = service.exportDiagram(SubjectType.USER);
+        Response response = service.exportDiagram(AnyTypeKind.USER);
 
         byte[] diagram;
         try {
@@ -64,6 +64,6 @@ public class WorkflowRestClient extends BaseRestClient {
     }
 
     public void updateDefinition(final MediaType mediaType, final String definition) {
-        getService(mediaType).importDefinition(SubjectType.USER, definition);
+        getService(mediaType).importDefinition(AnyTypeKind.USER, definition);
     }
 }

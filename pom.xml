@@ -378,7 +378,7 @@ under the License.
     <font-awesome.version>4.3.0</font-awesome.version>
     <ionicons.version>2.0.1</ionicons.version>
     <highlightjs.version>8.4-4</highlightjs.version>
-    <codemirror.version>5.1</codemirror.version>
+    <codemirror.version>5.3</codemirror.version>
     
     <wicket.version>7.0.0-M5</wicket.version>
     <wicket-jqueryui.version>7.0.0-M5</wicket-jqueryui.version>

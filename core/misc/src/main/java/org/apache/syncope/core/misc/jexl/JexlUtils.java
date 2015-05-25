@@ -33,13 +33,13 @@ import org.apache.commons.jexl2.JexlException;
 import org.apache.commons.jexl2.MapContext;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.lib.to.AbstractAttributableTO;
+import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
-import org.apache.syncope.core.persistence.api.entity.Attributable;
 import org.apache.syncope.core.persistence.api.entity.DerAttr;
-import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.VirAttr;
 import org.apache.syncope.core.misc.DataFormat;
+import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -146,14 +146,14 @@ public final class JexlUtils {
         return context;
     }
 
-    public static JexlContext addAttrsToContext(final Collection<? extends PlainAttr> attrs,
+    public static JexlContext addAttrsToContext(final Collection<? extends PlainAttr<?>> attrs,
             final JexlContext jexlContext) {
 
         JexlContext context = jexlContext == null
                 ? new MapContext()
                 : jexlContext;
 
-        for (PlainAttr attr : attrs) {
+        for (PlainAttr<?> attr : attrs) {
             if (attr.getSchema() != null) {
                 List<String> attrValues = attr.getValuesAsStrings();
                 String expressionValue = attrValues.isEmpty()
@@ -170,13 +170,13 @@ public final class JexlUtils {
     }
 
     public static JexlContext addDerAttrsToContext(final Collection<? extends DerAttr> derAttrs,
-            final Collection<? extends PlainAttr> attrs, final JexlContext jexlContext) {
+            final Collection<? extends PlainAttr<?>> attrs, final JexlContext jexlContext) {
 
         JexlContext context = jexlContext == null
                 ? new MapContext()
                 : jexlContext;
 
-        for (DerAttr derAttr : derAttrs) {
+        for (DerAttr<?> derAttr : derAttrs) {
             if (derAttr.getSchema() != null) {
                 String expressionValue = derAttr.getValue(attrs);
                 if (expressionValue == null) {
@@ -199,7 +199,7 @@ public final class JexlUtils {
                 ? new MapContext()
                 : jexlContext;
 
-        for (VirAttr virAttr : virAttrs) {
+        for (VirAttr<?> virAttr : virAttrs) {
             if (virAttr.getSchema() != null) {
                 List<String> attrValues = virAttr.getValues();
                 String expressionValue = attrValues.isEmpty()
@@ -216,33 +216,33 @@ public final class JexlUtils {
     }
 
     public static boolean evaluateMandatoryCondition(
-            final String mandatoryCondition, final Attributable<?, ?, ?> attributable) {
+            final String mandatoryCondition, final Any<?, ?, ?> any) {
 
         JexlContext jexlContext = new MapContext();
-        addAttrsToContext(attributable.getPlainAttrs(), jexlContext);
-        addDerAttrsToContext(attributable.getDerAttrs(), attributable.getPlainAttrs(), jexlContext);
-        addVirAttrsToContext(attributable.getVirAttrs(), jexlContext);
+        addAttrsToContext(any.getPlainAttrs(), jexlContext);
+        addDerAttrsToContext(any.getDerAttrs(), any.getPlainAttrs(), jexlContext);
+        addVirAttrsToContext(any.getVirAttrs(), jexlContext);
 
         return Boolean.parseBoolean(evaluate(mandatoryCondition, jexlContext));
     }
 
     public static String evaluate(final String expression,
-            final Attributable<?, ?, ?> attributable, final Collection<? extends PlainAttr> attributes) {
+            final Any<?, ?, ?> any, final Collection<? extends PlainAttr<?>> attributes) {
 
         final JexlContext jexlContext = new MapContext();
         JexlUtils.addAttrsToContext(attributes, jexlContext);
-        JexlUtils.addFieldsToContext(attributable, jexlContext);
+        JexlUtils.addFieldsToContext(any, jexlContext);
 
         // Evaluate expression using the context prepared before
         return evaluate(expression, jexlContext);
     }
 
-    public static String evaluate(final String expression, final AbstractAttributableTO attributableTO) {
+    public static String evaluate(final String expression, final AnyTO anyTO) {
         final JexlContext context = new MapContext();
 
-        addFieldsToContext(attributableTO, context);
+        addFieldsToContext(anyTO, context);
 
-        for (AttrTO plainAttr : attributableTO.getPlainAttrs()) {
+        for (AttrTO plainAttr : anyTO.getPlainAttrs()) {
             List<String> values = plainAttr.getValues();
             String expressionValue = values.isEmpty()
                     ? StringUtils.EMPTY
@@ -252,7 +252,7 @@ public final class JexlUtils {
 
             context.set(plainAttr.getSchema(), expressionValue);
         }
-        for (AttrTO derAttr : attributableTO.getDerAttrs()) {
+        for (AttrTO derAttr : anyTO.getDerAttrs()) {
             List<String> values = derAttr.getValues();
             String expressionValue = values.isEmpty()
                     ? StringUtils.EMPTY
@@ -262,7 +262,7 @@ public final class JexlUtils {
 
             context.set(derAttr.getSchema(), expressionValue);
         }
-        for (AttrTO virAttr : attributableTO.getVirAttrs()) {
+        for (AttrTO virAttr : anyTO.getVirAttrs()) {
             List<String> values = virAttr.getValues();
             String expressionValue = values.isEmpty()
                     ? StringUtils.EMPTY

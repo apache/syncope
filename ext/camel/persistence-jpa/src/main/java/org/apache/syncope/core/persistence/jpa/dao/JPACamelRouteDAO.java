@@ -20,7 +20,7 @@ package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.util.List;
 import javax.persistence.TypedQuery;
-import org.apache.syncope.common.lib.types.SubjectType;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.CamelRouteDAO;
 import org.apache.syncope.core.persistence.api.entity.CamelRoute;
 import org.apache.syncope.core.persistence.jpa.entity.JPACamelRoute;
@@ -37,11 +37,11 @@ public class JPACamelRouteDAO extends AbstractDAO<CamelRoute, String> implements
 
     @Transactional(readOnly = true)
     @Override
-    public List<CamelRoute> find(final SubjectType subjectType) {
+    public List<CamelRoute> find(final AnyTypeKind anyTypeKind) {
         TypedQuery<CamelRoute> query = entityManager.createQuery(
                 "SELECT e FROM " + JPACamelRoute.class.getSimpleName()
-                + " e WHERE e.subjectType = :subjectType", CamelRoute.class);
-        query.setParameter("subjectType", subjectType);
+                + " e WHERE e.anyTypeKind = :anyTypeKind", CamelRoute.class);
+        query.setParameter("anyTypeKind", anyTypeKind);
 
         return query.getResultList();
     }

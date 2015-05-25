@@ -22,7 +22,7 @@ import java.io.StringWriter;
 import java.util.List;
 import java.util.Map;
 import javax.sql.DataSource;
-import org.apache.syncope.common.lib.types.SubjectType;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.misc.spring.ResourceWithFallbackLoader;
 import org.apache.syncope.core.persistence.api.SyncopeLoader;
 import org.apache.syncope.core.persistence.api.entity.CamelEntityFactory;
@@ -73,17 +73,18 @@ public class CamelRouteLoader implements SyncopeLoader {
     public void load() {
         synchronized (this) {
             if (!loaded) {
-                loadRoutes(userRoutesLoader.getResource(), SubjectType.USER);
-                loadRoutes(groupRoutesLoader.getResource(), SubjectType.GROUP);
+                loadRoutes(userRoutesLoader.getResource(), AnyTypeKind.USER);
+                loadRoutes(groupRoutesLoader.getResource(), AnyTypeKind.GROUP);
+                loadRoutes(groupRoutesLoader.getResource(), AnyTypeKind.ANY_OBJECT);
                 loaded = true;
             }
         }
     }
 
-    private boolean loadRoutesFor(final SubjectType subject) {
+    private boolean loadRoutesFor(final AnyTypeKind anyTypeKind) {
         final String sql = String.format("SELECT * FROM %s WHERE SUBJECTTYPE = ?", CamelRoute.class.getSimpleName());
         final JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-        final List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, new Object[] { subject.name() });
+        final List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, new Object[] { anyTypeKind.name() });
         return rows.isEmpty();
     }
 
@@ -101,8 +102,8 @@ public class CamelRouteLoader implements SyncopeLoader {
         return writer.toString();
     }
 
-    private void loadRoutes(final Resource resource, final SubjectType subjectType) {
-        if (loadRoutesFor(subjectType)) {
+    private void loadRoutes(final Resource resource, final AnyTypeKind anyTypeKind) {
+        if (loadRoutesFor(anyTypeKind)) {
             String query = String.format("INSERT INTO %s(NAME, SUBJECTTYPE, CONTENT) VALUES (?, ?, ?)",
                     CamelRoute.class.getSimpleName());
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
@@ -122,11 +123,11 @@ public class CamelRouteLoader implements SyncopeLoader {
                     String routeId = ((Element) routeElement).getAttribute("id");
 
                     CamelRoute route = entityFactory.newCamelRoute();
-                    route.setSubjectType(subjectType);
+                    route.setAnyTypeKind(anyTypeKind);
                     route.setKey(routeId);
                     route.setContent(routeContent);
 
-                    jdbcTemplate.update(query, new Object[] { routeId, subjectType.name(), routeContent });
+                    jdbcTemplate.update(query, new Object[] { routeId, anyTypeKind.name(), routeContent });
                     LOG.info("Route successfully loaded: {}", routeId);
                 }
             } catch (DataAccessException e) {

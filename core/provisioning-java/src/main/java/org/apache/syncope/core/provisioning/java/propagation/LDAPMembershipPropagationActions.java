@@ -25,12 +25,14 @@ import java.util.Set;
 import org.apache.commons.jexl2.JexlContext;
 import org.apache.commons.jexl2.MapContext;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.lib.types.AttributableType;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.misc.jexl.JexlUtils;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
+import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
@@ -51,6 +53,9 @@ public class LDAPMembershipPropagationActions extends DefaultPropagationActions 
     protected static final Logger LOG = LoggerFactory.getLogger(LDAPMembershipPropagationActions.class);
 
     @Autowired
+    protected AnyTypeDAO anyTypeDAO;
+
+    @Autowired
     protected UserDAO userDAO;
 
     /**
@@ -67,23 +72,24 @@ public class LDAPMembershipPropagationActions extends DefaultPropagationActions 
     public void before(final PropagationTask task, final ConnectorObject beforeObj) {
         super.before(task, beforeObj);
 
-        if (AttributableType.USER == task.getSubjectType() && task.getResource().getGmapping() != null) {
-            User user = userDAO.find(task.getSubjectKey());
+        Provision provision = task.getResource().getProvision(anyTypeDAO.findGroup());
+        if (AnyTypeKind.USER == task.getAnyTypeKind() && provision.getMapping() != null) {
+            User user = userDAO.find(task.getAnyKey());
             if (user != null) {
                 List<String> groupAccountLinks = new ArrayList<>();
                 for (Group group : userDAO.findAllGroups(user)) {
                     if (group.getResourceNames().contains(task.getResource().getKey())
-                            && StringUtils.isNotBlank(task.getResource().getGmapping().getAccountLink())) {
+                            && StringUtils.isNotBlank(provision.getMapping().getConnObjectLink())) {
 
                         LOG.debug("Evaluating accountLink for {}", group);
 
-                        final JexlContext jexlContext = new MapContext();
+                        JexlContext jexlContext = new MapContext();
                         JexlUtils.addFieldsToContext(group, jexlContext);
                         JexlUtils.addAttrsToContext(group.getPlainAttrs(), jexlContext);
                         JexlUtils.addDerAttrsToContext(group.getDerAttrs(), group.getPlainAttrs(), jexlContext);
 
-                        final String groupAccountLink =
-                                JexlUtils.evaluate(task.getResource().getGmapping().getAccountLink(), jexlContext);
+                        String groupAccountLink =
+                                JexlUtils.evaluate(provision.getMapping().getConnObjectLink(), jexlContext);
                         LOG.debug("AccountLink for {} is '{}'", group, groupAccountLink);
                         if (StringUtils.isNotBlank(groupAccountLink)) {
                             groupAccountLinks.add(groupAccountLink);

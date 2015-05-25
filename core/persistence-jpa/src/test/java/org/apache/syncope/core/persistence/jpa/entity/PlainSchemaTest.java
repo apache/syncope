@@ -28,13 +28,11 @@ import static org.junit.Assert.fail;
 import java.util.List;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
-import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
+import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
-import org.apache.syncope.core.persistence.api.entity.group.GPlainSchema;
-import org.apache.syncope.core.persistence.api.entity.user.UPlainSchema;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,35 +46,29 @@ public class PlainSchemaTest extends AbstractTest {
 
     @Test
     public void findAll() {
-        List<UPlainSchema> userList = plainSchemaDAO.findAll(UPlainSchema.class);
-        assertEquals(15, userList.size());
-
-        List<GPlainSchema> groupList = plainSchemaDAO.findAll(GPlainSchema.class);
-        assertEquals(5, groupList.size());
+        List<PlainSchema> schemas = plainSchemaDAO.findAll();
+        assertEquals(40, schemas.size());
     }
 
     @Test
     public void findByName() {
-        UPlainSchema schema = plainSchemaDAO.find("fullname", UPlainSchema.class);
+        PlainSchema schema = plainSchemaDAO.find("fullname");
         assertNotNull("did not find expected attribute schema", schema);
     }
 
     @Test
     public void findAttrs() {
-        List<GPlainSchema> schemas = plainSchemaDAO.findAll(GPlainSchema.class);
-        assertNotNull(schemas);
-        assertFalse(schemas.isEmpty());
+        PlainSchema schema = plainSchemaDAO.find("icon");
+        assertNotNull(schema);
 
-        for (GPlainSchema schema : schemas) {
-            List<GPlainAttr> attrs = plainSchemaDAO.findAttrs(schema, GPlainAttr.class);
-            assertNotNull(attrs);
-            assertFalse(attrs.isEmpty());
-        }
+        List<GPlainAttr> attrs = plainSchemaDAO.findAttrs(schema, GPlainAttr.class);
+        assertNotNull(attrs);
+        assertFalse(attrs.isEmpty());
     }
 
     @Test
     public void save() {
-        UPlainSchema schema = entityFactory.newEntity(UPlainSchema.class);
+        PlainSchema schema = entityFactory.newEntity(PlainSchema.class);
         schema.setKey("secondaryEmail");
         schema.setType(AttrSchemaType.String);
         schema.setValidatorClass("org.apache.syncope.core.validation.EmailAddressValidator");
@@ -85,14 +77,14 @@ public class PlainSchemaTest extends AbstractTest {
 
         plainSchemaDAO.save(schema);
 
-        UPlainSchema actual = plainSchemaDAO.find("secondaryEmail", UPlainSchema.class);
+        PlainSchema actual = plainSchemaDAO.find("secondaryEmail");
         assertNotNull("expected save to work", actual);
         assertEquals(schema, actual);
     }
 
     @Test(expected = InvalidEntityException.class)
     public void saveNonValid() {
-        UPlainSchema schema = entityFactory.newEntity(UPlainSchema.class);
+        PlainSchema schema = entityFactory.newEntity(PlainSchema.class);
         schema.setKey("secondaryEmail");
         schema.setType(AttrSchemaType.String);
         schema.setValidatorClass("org.apache.syncope.core.validation.EmailAddressValidator");
@@ -105,7 +97,7 @@ public class PlainSchemaTest extends AbstractTest {
 
     @Test
     public void checkForEnumType() {
-        GPlainSchema schema = entityFactory.newEntity(GPlainSchema.class);
+        PlainSchema schema = entityFactory.newEntity(PlainSchema.class);
         schema.setType(AttrSchemaType.Enum);
         schema.setKey("color");
 
@@ -122,7 +114,7 @@ public class PlainSchemaTest extends AbstractTest {
 
         plainSchemaDAO.save(schema);
 
-        GPlainSchema actual = plainSchemaDAO.find(schema.getKey(), GPlainSchema.class);
+        PlainSchema actual = plainSchemaDAO.find(schema.getKey());
         assertNotNull(actual);
         assertNotNull(actual.getEnumerationKeys());
         assertFalse(actual.getEnumerationKeys().isEmpty());
@@ -130,24 +122,24 @@ public class PlainSchemaTest extends AbstractTest {
 
     @Test(expected = InvalidEntityException.class)
     public void saveInvalidSchema() {
-        UPlainSchema schema = entityFactory.newEntity(UPlainSchema.class);
+        PlainSchema schema = entityFactory.newEntity(PlainSchema.class);
         schema.setKey("username");
         plainSchemaDAO.save(schema);
     }
 
     @Test
     public void delete() {
-        UPlainSchema fullnam = plainSchemaDAO.find("fullname", UPlainSchema.class);
+        PlainSchema firstname = plainSchemaDAO.find("firstname");
 
-        plainSchemaDAO.delete(fullnam.getKey(), attrUtilsFactory.getInstance(AttributableType.USER));
+        plainSchemaDAO.delete(firstname.getKey());
 
-        UPlainSchema actual = plainSchemaDAO.find("fullname", UPlainSchema.class);
+        PlainSchema actual = plainSchemaDAO.find("firstname");
         assertNull("delete did not work", actual);
     }
 
     @Test
     public void issueSYNCOPE418() {
-        UPlainSchema schema = entityFactory.newEntity(UPlainSchema.class);
+        PlainSchema schema = entityFactory.newEntity(PlainSchema.class);
         schema.setKey("http://schemas.examples.org/security/authorization/organizationUnit");
 
         try {

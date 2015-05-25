@@ -19,22 +19,22 @@
 package org.apache.syncope.core.provisioning.java.data;
 
 import org.apache.syncope.core.provisioning.api.data.SchemaDataBinder;
-import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.DerSchemaTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.VirSchemaTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtils;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
-import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.misc.spring.BeanUtils;
 import org.apache.syncope.core.misc.jexl.JexlUtils;
+import org.apache.syncope.core.persistence.api.entity.AnyUtils;
+import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -43,6 +43,9 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
 
     @Autowired
     private PlainSchemaDAO schemaDAO;
+
+    @Autowired
+    private AnyUtilsFactory anyUtilsFactory;
 
     // --------------- PLAIN -----------------
     private <T extends PlainSchema> void fill(final T schema, final PlainSchemaTO schemaTO) {
@@ -61,13 +64,16 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
     }
 
     @Override
-    public <T extends PlainSchema> void update(final PlainSchemaTO schemaTO, final T schema,
-            final AttributableUtils attributableUtil) {
-
+    public <T extends PlainSchema> void update(final PlainSchemaTO schemaTO, final T schema) {
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
 
-        List<PlainAttr> attrs = schemaDAO.findAttrs(schema, attributableUtil.plainAttrClass());
-        if (!attrs.isEmpty()) {
+        boolean hasAttrs = false;
+        for (AnyTypeKind anyTypeKind : AnyTypeKind.values()) {
+            AnyUtils anyUtils = anyUtilsFactory.getInstance(anyTypeKind);
+            hasAttrs &= schemaDAO.findAttrs(schema, anyUtils.plainAttrClass()).isEmpty();
+        }
+
+        if (hasAttrs) {
             if (schema.getType() != schemaTO.getType()) {
                 SyncopeClientException e = SyncopeClientException.build(ClientExceptionType.InvalidPlainSchema);
                 e.getElements().add("Cannot change type since " + schema.getKey() + " has attributes");
@@ -90,9 +96,7 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
     }
 
     @Override
-    public <T extends PlainSchema> PlainSchemaTO getPlainSchemaTO(
-            final T schema, final AttributableUtils attributableUtil) {
-
+    public <T extends PlainSchema> PlainSchemaTO getPlainSchemaTO(final T schema) {
         PlainSchemaTO schemaTO = new PlainSchemaTO();
         BeanUtils.copyProperties(schema, schemaTO);
 

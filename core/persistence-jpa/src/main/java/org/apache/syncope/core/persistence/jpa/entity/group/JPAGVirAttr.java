@@ -18,23 +18,16 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.group;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import org.apache.syncope.core.persistence.api.entity.Attributable;
-import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.group.GVirAttr;
-import org.apache.syncope.core.persistence.api.entity.group.GVirAttrTemplate;
-import org.apache.syncope.core.persistence.api.entity.group.GVirSchema;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractVirAttr;
 
 @Entity
 @Table(name = JPAGVirAttr.TABLE)
-public class JPAGVirAttr extends AbstractVirAttr implements GVirAttr {
+public class JPAGVirAttr extends AbstractVirAttr<Group> implements GVirAttr {
 
     private static final long serialVersionUID = -1747430556914428649L;
 
@@ -43,40 +36,15 @@ public class JPAGVirAttr extends AbstractVirAttr implements GVirAttr {
     @ManyToOne
     private JPAGroup owner;
 
-    @Column(nullable = false)
-    @OneToOne(cascade = CascadeType.MERGE)
-    private JPAGVirAttrTemplate template;
-
     @Override
     public Group getOwner() {
         return owner;
     }
 
     @Override
-    public void setOwner(final Attributable<?, ?, ?> owner) {
+    public void setOwner(final Group owner) {
         checkType(owner, JPAGroup.class);
         this.owner = (JPAGroup) owner;
-    }
-
-    @Override
-    public GVirAttrTemplate getTemplate() {
-        return template;
-    }
-
-    @Override
-    public void setTemplate(final GVirAttrTemplate template) {
-        checkType(template, JPAGVirAttrTemplate.class);
-        this.template = (JPAGVirAttrTemplate) template;
-    }
-
-    @Override
-    public GVirSchema getSchema() {
-        return template == null ? null : template.getSchema();
-    }
-
-    @Override
-    public void setSchema(final VirSchema schema) {
-        LOG.warn("This is group attribute, set template to select schema");
     }
 
 }

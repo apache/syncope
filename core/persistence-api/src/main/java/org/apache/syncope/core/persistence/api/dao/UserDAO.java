@@ -20,53 +20,21 @@ package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
-import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
-import org.apache.syncope.core.persistence.api.entity.user.UDerAttr;
-import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
-import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrValue;
-import org.apache.syncope.core.persistence.api.entity.user.UVirAttr;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 
-public interface UserDAO extends SubjectDAO<UPlainAttr, UDerAttr, UVirAttr> {
+public interface UserDAO extends AnyDAO<User> {
 
-    User find(Long key);
+    User authFind(String username);
 
     User find(String username);
-
-    User findByWorkflowId(String workflowId);
 
     User findByToken(String token);
 
     List<User> findBySecurityQuestion(SecurityQuestion securityQuestion);
-
-    List<User> findByDerAttrValue(String schemaName, String value);
-
-    List<User> findByAttrValue(String schemaName, UPlainAttrValue attrValue);
-
-    User findByAttrUniqueValue(String schemaName, UPlainAttrValue attrUniqueValue);
-
-    List<User> findByResource(ExternalResource resource);
-
-    List<User> findAll(Set<String> adminRealms, int page, int itemsPerPage);
-
-    List<User> findAll(Set<String> adminRealms, int page, int itemsPerPage, List<OrderByClause> orderBy);
-
-    int count(Set<String> adminRealms);
-
-    User save(User user);
-
-    void delete(Long key);
-
-    void delete(User user);
-
-    User authFetch(Long key);
-
-    User authFetch(String username);
 
     List<Role> findDynRoleMemberships(User user);
 

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
+import org.apache.syncope.core.persistence.jpa.entity.user.JPADynRoleMembership;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -37,7 +38,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import org.apache.syncope.core.persistence.api.entity.DynRoleMembership;
+import org.apache.syncope.core.persistence.api.entity.user.DynRoleMembership;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Role;
 

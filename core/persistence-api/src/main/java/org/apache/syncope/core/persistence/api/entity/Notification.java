@@ -26,49 +26,50 @@ public interface Notification extends Entity<Long> {
 
     List<String> getEvents();
 
-    String getRecipientAttrName();
-
-    IntMappingType getRecipientAttrType();
-
-    String getRecipients();
-
-    String getGroupAbout();
-
-    String getSender();
-
-    List<String> getStaticRecipients();
-
-    String getSubject();
-
-    String getTemplate();
-
-    TraceLevel getTraceLevel();
-
-    String getUserAbout();
-
-    boolean isActive();
-
     boolean isSelfAsRecipient();
-
-    void setActive(boolean active);
-
-    void setRecipientAttrName(String recipientAttrName);
-
-    void setRecipientAttrType(IntMappingType recipientAttrType);
-
-    void setRecipients(String recipients);
-
-    void setGroupAbout(String groupAbout);
 
     void setSelfAsRecipient(boolean selfAsRecipient);
 
+    List<String> getStaticRecipients();
+
+    String getRecipientAttrName();
+
+    void setRecipientAttrName(String recipientAttrName);
+
+    IntMappingType getRecipientAttrType();
+
+    void setRecipientAttrType(IntMappingType recipientAttrType);
+
+    String getRecipients();
+
+    void setRecipients(String recipients);
+
+    boolean add(AnyAbout about);
+
+    boolean remove(AnyAbout about);
+
+    AnyAbout getAbout(AnyType anyType);
+
+    List<? extends AnyAbout> getAbouts();
+
+    String getSender();
+
     void setSender(String sender);
+
+    String getSubject();
 
     void setSubject(String subject);
 
+    String getTemplate();
+
     void setTemplate(String template);
+
+    TraceLevel getTraceLevel();
 
     void setTraceLevel(TraceLevel traceLevel);
 
-    void setUserAbout(String userAbout);
+    boolean isActive();
+
+    void setActive(boolean active);
+
 }

@@ -23,19 +23,14 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import java.util.List;
-import org.apache.syncope.core.persistence.api.dao.MembershipDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.VirAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
-import org.apache.syncope.core.persistence.api.entity.membership.MVirAttr;
-import org.apache.syncope.core.persistence.api.entity.membership.MVirAttrTemplate;
-import org.apache.syncope.core.persistence.api.entity.membership.Membership;
+import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.group.GVirAttr;
-import org.apache.syncope.core.persistence.api.entity.group.GVirAttrTemplate;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.UVirAttr;
-import org.apache.syncope.core.persistence.api.entity.user.UVirSchema;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.junit.Test;
@@ -55,9 +50,6 @@ public class VirAttrTest extends AbstractTest {
     private GroupDAO groupDAO;
 
     @Autowired
-    private MembershipDAO membershipDAO;
-
-    @Autowired
     private VirSchemaDAO virSchemaDAO;
 
     @Test
@@ -74,7 +66,7 @@ public class VirAttrTest extends AbstractTest {
 
     @Test
     public void saveUVirAttribute() {
-        UVirSchema virSchema = virSchemaDAO.find("virtualdata", UVirSchema.class);
+        VirSchema virSchema = virSchemaDAO.find("virtualdata");
         assertNotNull(virSchema);
 
         User owner = userDAO.find(3L);
@@ -92,33 +84,18 @@ public class VirAttrTest extends AbstractTest {
     }
 
     @Test
-    public void saveMVirAttribute() {
-        Membership owner = membershipDAO.find(3L);
-        assertNotNull("did not get expected membership", owner);
+    public void saveGVirAttribute() {
+        VirSchema virSchema = virSchemaDAO.find("rvirtualdata");
+        assertNotNull(virSchema);
 
-        MVirAttr virAttr = entityFactory.newEntity(MVirAttr.class);
-        virAttr.setOwner(owner);
-        virAttr.setTemplate(owner.getGroup().getAttrTemplate(MVirAttrTemplate.class, "mvirtualdata"));
-
-        virAttr = virAttrDAO.save(virAttr);
-        assertNotNull(virAttr.getTemplate());
-
-        MVirAttr actual = virAttrDAO.find(virAttr.getKey(), MVirAttr.class);
-        assertNotNull("expected save to work", actual);
-        assertEquals(virAttr, actual);
-    }
-
-    @Test
-    public void saveRVirAttribute() {
         Group owner = groupDAO.find(3L);
         assertNotNull("did not get expected membership", owner);
 
         GVirAttr virAttr = entityFactory.newEntity(GVirAttr.class);
         virAttr.setOwner(owner);
-        virAttr.setTemplate(owner.getAttrTemplate(GVirAttrTemplate.class, "rvirtualdata"));
+        virAttr.setSchema(virSchema);
 
         virAttr = virAttrDAO.save(virAttr);
-        assertNotNull(virAttr.getTemplate());
 
         GVirAttr actual = virAttrDAO.find(virAttr.getKey(), GVirAttr.class);
         assertNotNull("expected save to work", actual);
@@ -135,8 +112,7 @@ public class VirAttrTest extends AbstractTest {
         UVirAttr actual = virAttrDAO.find(1000L, UVirAttr.class);
         assertNull("delete did not work", actual);
 
-        UVirSchema attributeSchema = virSchemaDAO.find(attributeSchemaName, UVirSchema.class);
-
+        VirSchema attributeSchema = virSchemaDAO.find(attributeSchemaName);
         assertNotNull("user virtual attribute schema deleted " + "when deleting values", attributeSchema);
     }
 }

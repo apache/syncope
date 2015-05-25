@@ -32,21 +32,23 @@ import javax.persistence.EntityManager;
 import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.TaskType;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ConnInstanceDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
-import org.apache.syncope.core.persistence.api.entity.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.PasswordPolicy;
-import org.apache.syncope.core.persistence.api.entity.group.GMappingItem;
+import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
+import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
+import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
-import org.apache.syncope.core.persistence.api.entity.user.UMapping;
-import org.apache.syncope.core.persistence.api.entity.user.UMappingItem;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
-import org.apache.syncope.core.persistence.jpa.entity.group.JPAGMappingItem;
+import org.apache.syncope.core.persistence.jpa.entity.resource.JPAMappingItem;
+import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -62,6 +64,9 @@ public class ResourceTest extends AbstractTest {
 
     @Autowired
     private ConnInstanceDAO connInstanceDAO;
+
+    @Autowired
+    private AnyTypeDAO anyTypeDAO;
 
     @Autowired
     private UserDAO userDAO;
@@ -109,43 +114,49 @@ public class ResourceTest extends AbstractTest {
 
         resource.setConnector(connector);
 
-        UMapping mapping = entityFactory.newEntity(UMapping.class);
-        mapping.setResource(resource);
-        resource.setUmapping(mapping);
+        Provision provision = entityFactory.newEntity(Provision.class);
+        provision.setAnyType(anyTypeDAO.findUser());
+        provision.setObjectClass(ObjectClass.ACCOUNT);
+        provision.setResource(resource);
+        resource.add(provision);
+
+        Mapping mapping = entityFactory.newEntity(Mapping.class);
+        mapping.setProvision(provision);
+        provision.setMapping(mapping);
 
         // specify mappings
         for (int i = 0; i < 3; i++) {
-            UMappingItem item = entityFactory.newEntity(UMappingItem.class);
+            MappingItem item = entityFactory.newEntity(MappingItem.class);
             item.setExtAttrName("test" + i);
             item.setIntAttrName("nonexistent" + i);
             item.setIntMappingType(IntMappingType.UserPlainSchema);
             item.setMandatoryCondition("false");
             item.setPurpose(MappingPurpose.SYNCHRONIZATION);
-            mapping.addItem(item);
+            mapping.add(item);
             item.setMapping(mapping);
         }
-        UMappingItem accountId = entityFactory.newEntity(UMappingItem.class);
-        accountId.setExtAttrName("username");
-        accountId.setIntAttrName("username");
-        accountId.setIntMappingType(IntMappingType.UserId);
-        accountId.setPurpose(MappingPurpose.PROPAGATION);
-        mapping.setAccountIdItem(accountId);
-        accountId.setMapping(mapping);
+        MappingItem connObjectKey = entityFactory.newEntity(MappingItem.class);
+        connObjectKey.setExtAttrName("username");
+        connObjectKey.setIntAttrName("username");
+        connObjectKey.setIntMappingType(IntMappingType.UserId);
+        connObjectKey.setPurpose(MappingPurpose.PROPAGATION);
+        mapping.setConnObjectKeyItem(connObjectKey);
+        connObjectKey.setMapping(mapping);
 
         // map a derived attribute
-        UMappingItem derived = entityFactory.newEntity(UMappingItem.class);
-        derived.setAccountid(false);
+        MappingItem derived = entityFactory.newEntity(MappingItem.class);
+        derived.setConnObjectKey(false);
         derived.setExtAttrName("fullname");
         derived.setIntAttrName("cn");
         derived.setIntMappingType(IntMappingType.UserDerivedSchema);
         derived.setPurpose(MappingPurpose.PROPAGATION);
-        mapping.addItem(derived);
+        mapping.add(derived);
         derived.setMapping(mapping);
 
         // save the resource
         ExternalResource actual = resourceDAO.save(resource);
         assertNotNull(actual);
-        assertNotNull(actual.getUmapping());
+        assertNotNull(actual.getProvision(anyTypeDAO.findUser()).getMapping());
 
         resourceDAO.flush();
         resourceDAO.detach(actual);
@@ -155,13 +166,14 @@ public class ResourceTest extends AbstractTest {
         User user = userDAO.find(1L);
         assertNotNull("user not found", user);
 
-        user.addResource(actual);
+        user.add(actual);
 
         resourceDAO.flush();
 
         // retrieve resource
         resource = resourceDAO.find(actual.getKey());
         assertNotNull(resource);
+        resourceDAO.refresh(resource);
 
         // check connector
         connector = connInstanceDAO.find(100L);
@@ -172,7 +184,7 @@ public class ResourceTest extends AbstractTest {
         assertTrue(resource.getConnector().equals(connector));
 
         // check mappings
-        List<? extends UMappingItem> items = resource.getUmapping().getItems();
+        List<? extends MappingItem> items = resource.getProvision(anyTypeDAO.findUser()).getMapping().getItems();
         assertNotNull(items);
         assertEquals(5, items.size());
 
@@ -247,18 +259,18 @@ public class ResourceTest extends AbstractTest {
     public void emptyMapping() {
         ExternalResource ldap = resourceDAO.find("resource-ldap");
         assertNotNull(ldap);
-        assertNotNull(ldap.getUmapping());
-        assertNotNull(ldap.getGmapping());
+        assertNotNull(ldap.getProvision(anyTypeDAO.findUser()).getMapping());
+        assertNotNull(ldap.getProvision(anyTypeDAO.findGroup()).getMapping());
 
-        List<? extends GMappingItem> items = ldap.getGmapping().getItems();
+        List<? extends MappingItem> items = ldap.getProvision(anyTypeDAO.findGroup()).getMapping().getItems();
         assertNotNull(items);
         assertFalse(items.isEmpty());
-        List<Long> itemIds = new ArrayList<>(items.size());
-        for (GMappingItem item : items) {
-            itemIds.add(item.getKey());
+        List<Long> itemKeys = new ArrayList<>(items.size());
+        for (MappingItem item : items) {
+            itemKeys.add(item.getKey());
         }
 
-        ldap.setGmapping(null);
+        ldap.remove(ldap.getProvision(anyTypeDAO.findGroup()));
 
         // need to avoid any class not defined in this Maven module
         ldap.getPropagationActionsClassNames().clear();
@@ -266,8 +278,8 @@ public class ResourceTest extends AbstractTest {
         resourceDAO.save(ldap);
         resourceDAO.flush();
 
-        for (Long itemId : itemIds) {
-            assertNull(entityManager.find(JPAGMappingItem.class, itemId));
+        for (Long itemId : itemKeys) {
+            assertNull(entityManager.find(JPAMappingItem.class, itemId));
         }
     }
 
@@ -276,19 +288,19 @@ public class ResourceTest extends AbstractTest {
         ExternalResource csv = resourceDAO.find("resource-csv");
         assertNotNull(csv);
 
-        int origMapItems = csv.getUmapping().getItems().size();
+        int origMapItems = csv.getProvision(anyTypeDAO.findUser()).getMapping().getItems().size();
 
-        UMappingItem newMapItem = entityFactory.newEntity(UMappingItem.class);
+        MappingItem newMapItem = entityFactory.newEntity(MappingItem.class);
         newMapItem.setIntMappingType(IntMappingType.Username);
         newMapItem.setExtAttrName("TEST");
         newMapItem.setPurpose(MappingPurpose.PROPAGATION);
-        csv.getUmapping().addItem(newMapItem);
+        csv.getProvision(anyTypeDAO.findUser()).getMapping().add(newMapItem);
 
         resourceDAO.save(csv);
         resourceDAO.flush();
 
         csv = resourceDAO.find("resource-csv");
         assertNotNull(csv);
-        assertEquals(origMapItems + 1, csv.getUmapping().getItems().size());
+        assertEquals(origMapItems + 1, csv.getProvision(anyTypeDAO.findUser()).getMapping().getItems().size());
     }
 }

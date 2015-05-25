@@ -25,17 +25,14 @@ import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.mod.AbstractSubjectMod;
-import org.apache.syncope.common.lib.mod.MembershipMod;
+import org.apache.syncope.common.lib.mod.AnyMod;
 import org.apache.syncope.common.lib.mod.UserMod;
-import org.apache.syncope.common.lib.to.AbstractSubjectTO;
+import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
-import org.apache.syncope.core.persistence.api.entity.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.membership.Membership;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
@@ -48,6 +45,9 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecu
 import org.apache.syncope.core.provisioning.api.sync.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.api.sync.ProvisioningResult;
 import org.apache.syncope.core.misc.AuditManager;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
 import org.identityconnectors.framework.common.objects.Attribute;
@@ -70,6 +70,9 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
     protected static final Logger LOG = LoggerFactory.getLogger(LDAPMembershipSyncActions.class);
 
     @Autowired
+    protected AnyTypeDAO anyTypeDAO;
+
+    @Autowired
     protected GroupDAO groupDAO;
 
     @Autowired
@@ -88,7 +91,7 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
     private AuditManager auditManager;
 
     @Autowired
-    private SyncUtils syncUtilities;
+    private SyncUtils syncUtils;
 
     protected Map<Long, Long> membersBeforeGroupUpdate = Collections.<Long, Long>emptyMap();
 
@@ -122,24 +125,24 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
      * {@inheritDoc}
      */
     @Override
-    public <T extends AbstractSubjectTO, K extends AbstractSubjectMod> SyncDelta beforeUpdate(
+    public <T extends AnyTO, K extends AnyMod> SyncDelta beforeUpdate(
             final ProvisioningProfile<?, ?> profile,
-            final SyncDelta delta, final T subject, final K subjectMod) throws JobExecutionException {
+            final SyncDelta delta, final T any, final K anyMod) throws JobExecutionException {
 
-        if (subject instanceof GroupTO) {
+        if (any instanceof GroupTO) {
             // search for all users assigned to given group
-            Group group = groupDAO.find(subject.getKey());
+            Group group = groupDAO.find(any.getKey());
             if (group != null) {
-                List<Membership> membs = groupDAO.findMemberships(group);
+                List<UMembership> membs = groupDAO.findUMemberships(group);
                 // save memberships before group update takes place
                 membersBeforeGroupUpdate = new HashMap<>(membs.size());
-                for (Membership memb : membs) {
-                    membersBeforeGroupUpdate.put(memb.getUser().getKey(), memb.getKey());
+                for (UMembership memb : membs) {
+                    membersBeforeGroupUpdate.put(memb.getLeftEnd().getKey(), memb.getKey());
                 }
             }
         }
 
-        return super.beforeUpdate(profile, delta, subject, subjectMod);
+        return super.beforeUpdate(profile, delta, any, anyMod);
     }
 
     /**
@@ -156,10 +159,7 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
             membersBeforeGroupUpdate.remove(userKey);
         } else {
             userMod.setKey(userKey);
-
-            MembershipMod membershipMod = new MembershipMod();
-            membershipMod.setGroup(groupTO.getKey());
-            userMod.getMembershipsToAdd().add(membershipMod);
+            userMod.getMembershipsToAdd().add(groupTO.getKey());
         }
 
         return userMod;
@@ -256,16 +256,16 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
      * @throws JobExecutionException if anything goes wrong
      */
     protected void synchronizeMemberships(
-            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final GroupTO groupTO) throws
-            JobExecutionException {
+            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final GroupTO groupTO)
+            throws JobExecutionException {
 
-        final ProvisioningTask task = profile.getTask();
-        final ExternalResource resource = task.getResource();
-        final Connector connector = profile.getConnector();
+        ProvisioningTask task = profile.getTask();
+        ExternalResource resource = task.getResource();
+        Connector connector = profile.getConnector();
 
         for (Object membValue : getMembAttrValues(delta, connector)) {
-            Long userKey = syncUtilities.findMatchingAttributableKey(
-                    ObjectClass.ACCOUNT,
+            Long userKey = syncUtils.findMatchingAnyKey(
+                    anyTypeDAO.findUser(),
                     membValue.toString(),
                     profile.getTask().getResource(),
                     profile.getConnector());
@@ -289,20 +289,23 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
      * {@inheritDoc}
      */
     @Override
-    public <T extends AbstractSubjectTO> void after(
+    public <T extends AnyTO> void after(
             final ProvisioningProfile<?, ?> profile,
             final SyncDelta delta,
-            final T subject,
+            final T any,
             final ProvisioningResult result) throws JobExecutionException {
 
         if (!(profile.getTask() instanceof SyncTask)) {
             return;
         }
 
-        if (!(subject instanceof GroupTO) || profile.getTask().getResource().getUmapping() == null) {
-            super.after(profile, delta, subject, result);
+        if (!(any instanceof GroupTO)
+                || profile.getTask().getResource().getProvision(anyTypeDAO.findUser()) == null
+                || profile.getTask().getResource().getProvision(anyTypeDAO.findUser()).getMapping() == null) {
+
+            super.after(profile, delta, any, result);
         } else {
-            synchronizeMemberships(profile, delta, (GroupTO) subject);
+            synchronizeMemberships(profile, delta, (GroupTO) any);
         }
     }
 }

@@ -18,13 +18,13 @@
  */
 package org.apache.syncope.core.misc.security;
 
-import org.apache.syncope.common.lib.types.SubjectType;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 
 public class UnauthorizedException extends RuntimeException {
 
     private static final long serialVersionUID = 7540587364235915081L;
 
-    public UnauthorizedException(final SubjectType subject, final Long key) {
-        super("Missing entitlement or realm administration for " + subject + " " + key);
+    public UnauthorizedException(final AnyTypeKind type, final Long key) {
+        super("Missing entitlement or realm administration for " + type + " " + key);
     }
 }

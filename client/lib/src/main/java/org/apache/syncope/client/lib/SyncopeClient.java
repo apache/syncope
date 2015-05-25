@@ -31,8 +31,8 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.lib.builders.ListQueryBuilder;
-import org.apache.syncope.client.lib.builders.SubjectListQueryBuilder;
-import org.apache.syncope.client.lib.builders.SubjectSearchQueryBuilder;
+import org.apache.syncope.client.lib.builders.AnyListQueryBuilder;
+import org.apache.syncope.client.lib.builders.AnySearchQueryBuilder;
 import org.apache.syncope.common.lib.search.OrderByClauseBuilder;
 import org.apache.syncope.common.lib.search.GroupFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.search.UserFiqlSearchConditionBuilder;
@@ -108,24 +108,24 @@ public class SyncopeClient {
     }
 
     /**
-     * Returns a new instance of {@link SubjectListQueryBuilder}, for assisted building of some service's {@code list()}
+     * Returns a new instance of {@link AnyListQueryBuilder}, for assisted building of some service's {@code list()}
      * arguments.
      *
-     * @return default instance of {@link SubjectListQueryBuilder}
+     * @return default instance of {@link AnyListQueryBuilder}
      */
-    public static SubjectListQueryBuilder getSubjectListQueryBuilder() {
-        return new SubjectListQueryBuilder();
+    public static AnyListQueryBuilder getSubjectListQueryBuilder() {
+        return new AnyListQueryBuilder();
     }
 
     /**
-     * Returns a new instance of {@link SubjectSearchQueryBuilder}, for assisted building of some service's
+     * Returns a new instance of {@link AnySearchQueryBuilder}, for assisted building of some service's
      * {@code search()}
      * arguments.
      *
-     * @return default instance of {@link SubjectSearchQueryBuilder}
+     * @return default instance of {@link AnySearchQueryBuilder}
      */
-    public static SubjectSearchQueryBuilder getSubjectSearchQueryBuilder() {
-        return new SubjectSearchQueryBuilder();
+    public static AnySearchQueryBuilder getSubjectSearchQueryBuilder() {
+        return new AnySearchQueryBuilder();
     }
 
     /**

@@ -23,14 +23,12 @@ import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.mod.AttrMod;
-import org.apache.syncope.common.lib.mod.MembershipMod;
 import org.apache.syncope.common.lib.mod.UserMod;
 import org.apache.syncope.common.lib.to.AttrTO;
-import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.types.PropagationByResource;
-import org.apache.syncope.core.persistence.api.entity.Subject;
-import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
+import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 
 public interface PropagationManager {
@@ -92,7 +90,7 @@ public interface PropagationManager {
     List<PropagationTask> getGroupDeleteTasks(Long groupKey, String noPropResourceName);
 
     /**
-     * Perform delete on each resource associated to the user. It is possible to ask for a mandatory provisioning for
+     * Perform delete on each resource associated to the group. It is possible to ask for a mandatory provisioning for
      * some resources specifying a set of resource names. Exceptions won't be ignored and the process will be stopped if
      * the creation fails onto a mandatory resource.
      *
@@ -103,7 +101,7 @@ public interface PropagationManager {
     List<PropagationTask> getGroupDeleteTasks(Long groupKey, Collection<String> noPropResourceNames);
 
     /**
-     * Perform delete on each resource associated to the user. It is possible to ask for a mandatory provisioning for
+     * Perform delete on each resource associated to the group. It is possible to ask for a mandatory provisioning for
      * some resources specifying a set of resource names. Exceptions won't be ignored and the process will be stopped if
      * the creation fails onto a mandatory resource.
      *
@@ -115,6 +113,13 @@ public interface PropagationManager {
     List<PropagationTask> getGroupDeleteTasks(
             Long groupKey, Set<String> resourceNames, Collection<String> noPropResourceNames);
 
+    List<PropagationTask> getAnyObjectCreateTasks(Long anyObjectKey, Collection<AttrTO> vAttrs,
+            PropagationByResource propByRes, List<String> noPropResourceNames);
+
+    List<PropagationTask> getAnyObjectDeleteTasks(Long anyObjectKey, String noPropResourceName);
+
+    List<PropagationTask> getAnyObjectDeleteTasks(Long anyObjectKey, Collection<String> noPropResourceNames);
+
     /**
      * Create the user on every associated resource.
      *
@@ -124,12 +129,11 @@ public interface PropagationManager {
      * @param password to be set
      * @param vAttrs virtual attributes to be set
      * @param noPropResourceNames external resources not to be considered for propagation
-     * @param membershipTOs user memberships
      * @return list of propagation tasks
      */
     List<PropagationTask> getUserCreateTasks(Long key, Boolean enable,
             PropagationByResource propByRes, String password, Collection<AttrTO> vAttrs,
-            Collection<MembershipTO> membershipTOs, Collection<String> noPropResourceNames);
+            Collection<String> noPropResourceNames);
 
     /**
      * Performs update on each resource associated to the user excluding the specified into 'resourceNames' parameter.
@@ -154,10 +158,9 @@ public interface PropagationManager {
 
     List<PropagationTask> getUserUpdateTasks(WorkflowResult<Pair<UserMod, Boolean>> wfResult);
 
-    List<PropagationTask> getUpdateTasks(Subject<?, ?, ?> subject, String password, boolean changePwd,
+    List<PropagationTask> getUpdateTasks(Any<?, ?, ?> any, String password, boolean changePwd,
             Boolean enable, Set<String> vAttrsToBeRemoved, Set<AttrMod> vAttrsToBeUpdated,
-            PropagationByResource propByRes, Collection<String> noPropResourceNames,
-            Set<MembershipMod> membershipsToAdd);
+            PropagationByResource propByRes, Collection<String> noPropResourceNames);
 
     /**
      * Perform delete on each resource associated to the user. It is possible to ask for a mandatory provisioning for

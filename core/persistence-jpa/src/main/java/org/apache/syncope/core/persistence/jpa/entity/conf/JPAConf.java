@@ -28,16 +28,22 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.Valid;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.DerAttr;
+import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.VirAttr;
 import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.conf.Conf;
-import org.apache.syncope.core.persistence.jpa.entity.AbstractAttributable;
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
+import org.apache.syncope.core.persistence.jpa.entity.AbstractAnnotatedEntity;
 
 @Entity
 @Table(name = JPAConf.TABLE)
 @Cacheable
-public class JPAConf extends AbstractAttributable<CPlainAttr, DerAttr, VirAttr> implements Conf {
+public class JPAConf extends AbstractAnnotatedEntity<Long> implements Conf {
 
     private static final long serialVersionUID = 7671699609879382195L;
 
@@ -67,15 +73,27 @@ public class JPAConf extends AbstractAttributable<CPlainAttr, DerAttr, VirAttr> 
     }
 
     @Override
-    public boolean addPlainAttr(final CPlainAttr attr) {
+    public boolean add(final CPlainAttr attr) {
         checkType(attr, JPACPlainAttr.class);
         return plainAttrs.add((JPACPlainAttr) attr);
     }
 
     @Override
-    public boolean removePlainAttr(final CPlainAttr attr) {
+    public boolean remove(final CPlainAttr attr) {
         checkType(attr, JPACPlainAttr.class);
         return plainAttrs.remove((JPACPlainAttr) attr);
+    }
+
+    @Override
+    public CPlainAttr getPlainAttr(final String plainSchemaName) {
+        return CollectionUtils.find(plainAttrs, new Predicate<CPlainAttr>() {
+
+            @Override
+            public boolean evaluate(final CPlainAttr plainAttr) {
+                return plainAttr != null && plainAttr.getSchema() != null
+                        && plainSchemaName.equals(plainAttr.getSchema().getKey());
+            }
+        });
     }
 
     @Override
@@ -84,33 +102,118 @@ public class JPAConf extends AbstractAttributable<CPlainAttr, DerAttr, VirAttr> 
     }
 
     @Override
-    public boolean addDerAttr(final DerAttr attr) {
+    public boolean add(final DerAttr<?> attr) {
         return false;
     }
 
     @Override
-    public boolean removeDerAttr(final DerAttr derAttr) {
+    public boolean remove(final DerAttr<?> derAttr) {
         return false;
     }
 
     @Override
-    public List<? extends DerAttr> getDerAttrs() {
+    public DerAttr<?> getDerAttr(final String derSchemaName) {
+        return null;
+    }
+
+    @Override
+    public List<? extends DerAttr<?>> getDerAttrs() {
         return Collections.emptyList();
     }
 
     @Override
-    public boolean addVirAttr(final VirAttr attr) {
+    public boolean add(final VirAttr<?> attr) {
         return false;
     }
 
     @Override
-    public boolean removeVirAttr(final VirAttr virAttr) {
+    public boolean remove(final VirAttr<?> virAttr) {
         return false;
     }
 
     @Override
-    public List<? extends VirAttr> getVirAttrs() {
+    public VirAttr<?> getVirAttr(final String virSchemaName) {
+        return null;
+    }
+
+    @Override
+    public List<? extends VirAttr<?>> getVirAttrs() {
         return Collections.emptyList();
+    }
+
+    @Override
+    public boolean add(final ExternalResource resource) {
+        return false;
+    }
+
+    @Override
+    public boolean remove(final ExternalResource resource) {
+        return false;
+    }
+
+    @Override
+    public List<String> getResourceNames() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<? extends ExternalResource> getResources() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public boolean add(final AnyTypeClass auxClass) {
+        return false;
+    }
+
+    @Override
+    public boolean remove(final AnyTypeClass auxClass) {
+        return false;
+    }
+
+    @Override
+    public List<? extends AnyTypeClass> getAuxClasses() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public String getWorkflowId() {
+        return null;
+    }
+
+    @Override
+    public void setWorkflowId(final String workflowId) {
+        // nothing to do
+    }
+
+    @Override
+    public String getStatus() {
+        return null;
+    }
+
+    @Override
+    public void setStatus(final String status) {
+        // nothing to do
+    }
+
+    @Override
+    public Realm getRealm() {
+        return null;
+    }
+
+    @Override
+    public void setRealm(final Realm realm) {
+        // nothing to do
+    }
+
+    @Override
+    public AnyType getType() {
+        return null;
+    }
+
+    @Override
+    public void setType(final AnyType type) {
+        // nothing to do
     }
 
 }

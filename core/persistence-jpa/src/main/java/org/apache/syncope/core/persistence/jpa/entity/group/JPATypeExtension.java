@@ -1,0 +1,108 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+package org.apache.syncope.core.persistence.jpa.entity.group;
+
+import java.util.ArrayList;
+import java.util.List;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
+import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
+import org.apache.syncope.core.persistence.jpa.entity.AbstractEntity;
+import org.apache.syncope.core.persistence.jpa.entity.JPAAnyType;
+import org.apache.syncope.core.persistence.jpa.entity.JPAAnyTypeClass;
+
+@Entity
+@Table(name = JPATypeExtension.TABLE, uniqueConstraints =
+        @UniqueConstraint(columnNames = { "group_id", "anyType_name" }))
+public class JPATypeExtension extends AbstractEntity<Long> implements TypeExtension {
+
+    private static final long serialVersionUID = -8367626793791263551L;
+
+    public static final String TABLE = "TypeExtension";
+
+    @Id
+    private Long id;
+
+    @ManyToOne
+    private JPAGroup group;
+
+    @ManyToOne
+    private JPAAnyType anyType;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(joinColumns =
+            @JoinColumn(name = "typeExtension_id"),
+            inverseJoinColumns =
+            @JoinColumn(name = "anyTypeClass_name"))
+    private List<JPAAnyTypeClass> auxClasses = new ArrayList<>();
+
+    @Override
+    public Long getKey() {
+        return id;
+    }
+
+    @Override
+    public Group getGroup() {
+        return group;
+    }
+
+    @Override
+    public void setGroup(final Group group) {
+        checkType(group, JPAGroup.class);
+        this.group = (JPAGroup) group;
+    }
+
+    @Override
+    public AnyType getAnyType() {
+        return anyType;
+    }
+
+    @Override
+    public void setAnyType(final AnyType anyType) {
+        checkType(anyType, JPAAnyType.class);
+        this.anyType = (JPAAnyType) anyType;
+    }
+
+    @Override
+    public boolean add(final AnyTypeClass auxClass) {
+        checkType(auxClass, JPAAnyTypeClass.class);
+        return this.auxClasses.add((JPAAnyTypeClass) auxClass);
+    }
+
+    @Override
+    public boolean remove(final AnyTypeClass auxClass) {
+        checkType(auxClass, JPAAnyTypeClass.class);
+        return this.auxClasses.remove((JPAAnyTypeClass) auxClass);
+    }
+
+    @Override
+    public List<? extends AnyTypeClass> getAuxClasses() {
+        return auxClasses;
+    }
+}

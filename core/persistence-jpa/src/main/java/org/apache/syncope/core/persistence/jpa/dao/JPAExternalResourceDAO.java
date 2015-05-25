@@ -25,6 +25,7 @@ import javax.persistence.TypedQuery;
 import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.lib.types.TaskType;
+import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
@@ -32,17 +33,17 @@ import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AccountPolicy;
-import org.apache.syncope.core.persistence.api.entity.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.Mapping;
-import org.apache.syncope.core.persistence.api.entity.MappingItem;
+import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.Policy;
+import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
-import org.apache.syncope.core.persistence.api.entity.user.UMappingItem;
+import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.apache.syncope.core.persistence.jpa.entity.AbstractMappingItem;
-import org.apache.syncope.core.persistence.jpa.entity.JPAExternalResource;
-import org.apache.syncope.core.persistence.jpa.entity.group.JPAGMappingItem;
-import org.apache.syncope.core.persistence.jpa.entity.user.JPAUMappingItem;
+import org.apache.syncope.core.persistence.jpa.entity.resource.JPAMappingItem;
+import org.apache.syncope.core.persistence.jpa.entity.resource.JPAExternalResource;
+import org.apache.syncope.core.persistence.jpa.entity.resource.JPAMapping;
 import org.apache.syncope.core.provisioning.api.ConnectorRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -55,6 +56,9 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource, String
     private TaskDAO taskDAO;
 
     @Autowired
+    private AnyObjectDAO anyObjectDAO;
+
+    @Autowired
     private UserDAO userDAO;
 
     @Autowired
@@ -65,6 +69,9 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource, String
 
     @Autowired
     private ConnectorRegistry connRegistry;
+
+    @Autowired
+    private AnyUtilsFactory anyUtilsFactory;
 
     @Override
     public ExternalResource find(final String name) {
@@ -146,33 +153,25 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource, String
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T extends MappingItem> void deleteMapping(
-            final String intAttrName, final IntMappingType intMappingType, final Class<T> reference) {
-
+    public void deleteMapping(final String intAttrName, final IntMappingType intMappingType) {
         if (IntMappingType.getEmbedded().contains(intMappingType)) {
             return;
         }
 
-        Class<? extends AbstractMappingItem> jpaRef = reference.equals(UMappingItem.class)
-                ? JPAUMappingItem.class
-                : JPAGMappingItem.class;
-
-        TypedQuery<T> query = entityManager.createQuery("SELECT m FROM " + jpaRef.getSimpleName()
-                + " m WHERE m.intAttrName=:intAttrName AND m.intMappingType=:intMappingType", reference);
+        TypedQuery<MappingItem> query = entityManager.createQuery(
+                "SELECT m FROM " + JPAMappingItem.class.getSimpleName()
+                + " m WHERE m.intAttrName=:intAttrName AND m.intMappingType=:intMappingType", MappingItem.class);
         query.setParameter("intAttrName", intAttrName);
         query.setParameter("intMappingType", intMappingType);
 
-        Set<Long> itemIds = new HashSet<>();
-        for (T item : query.getResultList()) {
-            itemIds.add(item.getKey());
+        Set<Long> itemKeys = new HashSet<>();
+        for (MappingItem item : query.getResultList()) {
+            itemKeys.add(item.getKey());
         }
-        Class<?> mappingRef = null;
-        for (Long itemId : itemIds) {
-            T item = (T) entityManager.find(jpaRef, itemId);
+        for (Long itemKey : itemKeys) {
+            MappingItem item = entityManager.find(JPAMappingItem.class, itemKey);
             if (item != null) {
-                mappingRef = item.getMapping().getClass();
-
-                ((Mapping<T>) item.getMapping()).removeItem(item);
+                item.getMapping().remove(item);
                 item.setMapping(null);
 
                 entityManager.remove(item);
@@ -180,10 +179,8 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource, String
         }
 
         // Make empty query cache for *MappingItem and related *Mapping
-        entityManager.getEntityManagerFactory().getCache().evict(jpaRef);
-        if (mappingRef != null) {
-            entityManager.getEntityManagerFactory().getCache().evict(mappingRef);
-        }
+        entityManager.getEntityManagerFactory().getCache().evict(JPAMappingItem.class);
+        entityManager.getEntityManagerFactory().getCache().evict(JPAMapping.class);
     }
 
     @Override
@@ -197,11 +194,14 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource, String
         taskDAO.deleteAll(resource, TaskType.SYNCHRONIZATION);
         taskDAO.deleteAll(resource, TaskType.PUSH);
 
+        for (AnyObject anyObject : anyObjectDAO.findByResource(resource)) {
+            anyObject.remove(resource);
+        }
         for (User user : userDAO.findByResource(resource)) {
-            user.removeResource(resource);
+            user.remove(resource);
         }
         for (Group group : groupDAO.findByResource(resource)) {
-            group.removeResource(resource);
+            group.remove(resource);
         }
         for (AccountPolicy policy : policyDAO.findByResource(resource)) {
             policy.removeResource(resource);
@@ -214,21 +214,13 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource, String
         }
         resource.setConnector(null);
 
-        if (resource.getUmapping() != null) {
-            for (MappingItem item : resource.getUmapping().getItems()) {
+        for (Provision provision : resource.getProvisions()) {
+            for (MappingItem item : provision.getMapping().getItems()) {
                 item.setMapping(null);
             }
-            resource.getUmapping().getItems().clear();
-            resource.getUmapping().setResource(null);
-            resource.setUmapping(null);
-        }
-        if (resource.getGmapping() != null) {
-            for (MappingItem item : resource.getGmapping().getItems()) {
-                item.setMapping(null);
-            }
-            resource.getGmapping().getItems().clear();
-            resource.getGmapping().setResource(null);
-            resource.setGmapping(null);
+            provision.getMapping().getItems().clear();
+            provision.setMapping(null);
+            provision.setResource(null);
         }
 
         entityManager.remove(resource);

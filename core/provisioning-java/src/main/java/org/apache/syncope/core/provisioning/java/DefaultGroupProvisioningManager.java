@@ -137,12 +137,12 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
     public List<PropagationStatus> delete(final Long subjectKey) {
         final List<PropagationTask> tasks = new ArrayList<>();
 
-        Group group = groupDAO.authFetch(subjectKey);
+        Group group = groupDAO.authFind(subjectKey);
         if (group != null) {
             // Generate propagation tasks for deleting users from group resources, if they are on those resources only
             // because of the reason being deleted (see SYNCOPE-357)
             for (Map.Entry<Long, PropagationByResource> entry
-                    : groupDAO.findUsersWithIndirectResources(group.getKey()).entrySet()) {
+                    : groupDAO.findAnyObjectsWithTransitiveResources(group.getKey()).entrySet()) {
 
                 WorkflowResult<Long> wfResult =
                         new WorkflowResult<>(entry.getKey(), entry.getValue(), Collections.<String>emptySet());
@@ -179,7 +179,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
 
     @Override
     public List<PropagationStatus> deprovision(final Long groupKey, final Collection<String> resources) {
-        Group group = groupDAO.authFetch(groupKey);
+        Group group = groupDAO.authFind(groupKey);
 
         Collection<String> noPropResourceName = CollectionUtils.removeAll(group.getResourceNames(), resources);
 

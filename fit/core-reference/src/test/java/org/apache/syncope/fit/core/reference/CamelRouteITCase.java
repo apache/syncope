@@ -27,10 +27,9 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.CamelRouteTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
-import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.common.lib.types.SchemaType;
-import org.apache.syncope.common.lib.types.SubjectType;
 import org.junit.Assume;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -43,7 +42,7 @@ public class CamelRouteITCase extends AbstractITCase {
     public void userRoutes() {
         Assume.assumeTrue(CamelDetector.isCamelEnabledForUsers(syncopeService));
 
-        List<CamelRouteTO> userRoutes = camelRouteService.list(SubjectType.USER);
+        List<CamelRouteTO> userRoutes = camelRouteService.list(AnyTypeKind.USER);
         assertNotNull(userRoutes);
         assertEquals(15, userRoutes.size());
         for (CamelRouteTO route : userRoutes) {
@@ -55,7 +54,7 @@ public class CamelRouteITCase extends AbstractITCase {
     public void groupRoutes() {
         Assume.assumeTrue(CamelDetector.isCamelEnabledForGroups(syncopeService));
 
-        List<CamelRouteTO> groupRoutes = camelRouteService.list(SubjectType.GROUP);
+        List<CamelRouteTO> groupRoutes = camelRouteService.list(AnyTypeKind.GROUP);
         assertNotNull(groupRoutes);
         assertEquals(7, groupRoutes.size());
         for (CamelRouteTO route : groupRoutes) {
@@ -146,7 +145,7 @@ public class CamelRouteITCase extends AbstractITCase {
             PlainSchemaTO schemaTO = new PlainSchemaTO();
             schemaTO.setKey("camelAttribute");
             schemaTO.setType(AttrSchemaType.String);
-            createSchema(AttributableType.USER, SchemaType.PLAIN, schemaTO);
+            createSchema(SchemaType.PLAIN, schemaTO);
 
             UserTO userTO = new UserTO();
             userTO.setRealm(SyncopeConstants.ROOT_REALM);

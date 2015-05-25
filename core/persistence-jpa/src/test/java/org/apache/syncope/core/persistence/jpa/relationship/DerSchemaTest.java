@@ -20,12 +20,11 @@ package org.apache.syncope.core.persistence.jpa.relationship;
 
 import static org.junit.Assert.assertNull;
 
-import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.core.persistence.api.dao.DerAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.user.UDerAttr;
-import org.apache.syncope.core.persistence.api.entity.user.UDerSchema;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,13 +44,13 @@ public class DerSchemaTest extends AbstractTest {
 
     @Test
     public void test() {
-        UDerSchema schema = derSchemaDAO.find("cn", UDerSchema.class);
+        DerSchema schema = derSchemaDAO.find("cn");
 
-        derSchemaDAO.delete(schema.getKey(), attrUtilsFactory.getInstance(AttributableType.USER));
+        derSchemaDAO.delete(schema.getKey());
 
         derSchemaDAO.flush();
 
-        assertNull(derSchemaDAO.find(schema.getKey(), UDerSchema.class));
+        assertNull(derSchemaDAO.find(schema.getKey()));
         assertNull(derAttrDAO.find(100L, UDerAttr.class));
         assertNull(userDAO.find(3L).getDerAttr(schema.getKey()));
     }

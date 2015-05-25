@@ -31,7 +31,6 @@ import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
-import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
@@ -64,7 +63,7 @@ public class ExceptionMapperITCase extends AbstractITCase {
         schemaTO.setKey("unique" + schemaUID);
         schemaTO.setType(AttrSchemaType.String);
         schemaTO.setUniqueConstraint(true);
-        createSchema(AttributableType.USER, SchemaType.PLAIN, schemaTO);
+        createSchema(SchemaType.PLAIN, schemaTO);
 
         // 2. create an user with mandatory attributes and unique
         UserTO userTO1 = new UserTO();

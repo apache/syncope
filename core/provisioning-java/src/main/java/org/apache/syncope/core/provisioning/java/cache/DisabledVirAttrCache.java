@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.java.cache;
 
-import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.core.provisioning.api.cache.VirAttrCache;
 import org.apache.syncope.core.provisioning.api.cache.VirAttrCacheValue;
 
@@ -32,12 +31,12 @@ public class DisabledVirAttrCache implements VirAttrCache {
     }
 
     @Override
-    public void expire(final AttributableType type, final Long id, final String schemaName) {
+    public void expire(final String type, final Long id, final String schemaName) {
         // nothing to do
     }
 
     @Override
-    public VirAttrCacheValue get(final AttributableType type, final Long id, final String schemaName) {
+    public VirAttrCacheValue get(final String type, final Long id, final String schemaName) {
         return null;
     }
 
@@ -47,9 +46,7 @@ public class DisabledVirAttrCache implements VirAttrCache {
     }
 
     @Override
-    public void put(
-            final AttributableType type, final Long id, final String schemaName, final VirAttrCacheValue value) {
-
+    public void put(final String type, final Long id, final String schemaName, final VirAttrCacheValue value) {
         // nothing to do
     }
 

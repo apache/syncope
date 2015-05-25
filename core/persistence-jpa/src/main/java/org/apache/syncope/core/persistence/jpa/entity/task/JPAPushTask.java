@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.jpa.entity.task;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
@@ -27,7 +28,12 @@ import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.types.TaskType;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.task.AnyFilter;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.provisioning.api.job.PushJob;
 
@@ -41,12 +47,11 @@ public class JPAPushTask extends AbstractProvisioningTask implements PushTask {
     @Column(name = "actionClassName")
     @CollectionTable(name = "PushTask_actionsClassNames",
             joinColumns =
-            @JoinColumn(name = "PushTask_id", referencedColumnName = "id"))
+            @JoinColumn(name = "pushTask_id", referencedColumnName = "id"))
     private List<String> actionsClassNames = new ArrayList<>();
 
-    private String userFilter;
-
-    private String groupFilter;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "pushTask")
+    private List<JPAAnyFilter> filters = new ArrayList<>();
 
     /**
      * Default constructor.
@@ -61,22 +66,30 @@ public class JPAPushTask extends AbstractProvisioningTask implements PushTask {
     }
 
     @Override
-    public String getUserFilter() {
-        return userFilter;
+    public boolean add(final AnyFilter filter) {
+        checkType(filter, JPAAnyFilter.class);
+        return this.filters.add((JPAAnyFilter) filter);
     }
 
     @Override
-    public void setUserFilter(final String filter) {
-        this.userFilter = filter;
+    public boolean remove(final AnyFilter filter) {
+        checkType(filter, JPAAnyFilter.class);
+        return this.filters.remove((JPAAnyFilter) filter);
     }
 
     @Override
-    public String getGroupFilter() {
-        return groupFilter;
+    public AnyFilter getFilter(final AnyType anyType) {
+        return CollectionUtils.find(filters, new Predicate<AnyFilter>() {
+
+            @Override
+            public boolean evaluate(final AnyFilter filter) {
+                return anyType != null && anyType.equals(filter.getAnyType());
+            }
+        });
     }
 
     @Override
-    public void setGroupFilter(final String filter) {
-        this.groupFilter = filter;
+    public List<? extends AnyFilter> getFilters() {
+        return filters;
     }
 }

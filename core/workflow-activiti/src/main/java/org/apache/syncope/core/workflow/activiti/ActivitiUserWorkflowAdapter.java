@@ -439,7 +439,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
     @Override
     public WorkflowResult<Long> execute(final UserTO userTO, final String taskId) {
-        User user = userDAO.authFetch(userTO.getKey());
+        User user = userDAO.authFind(userTO.getKey());
 
         final Map<String, Object> variables = new HashMap<>();
         variables.put(USER_TO, userTO);

@@ -43,12 +43,10 @@ public interface UserProvisioningManager extends ProvisioningManager<UserTO, Use
     Pair<Long, List<PropagationStatus>> create(UserTO userTO, boolean storePassword,
             boolean disablePwdPolicyCheck, Boolean enabled, Set<String> excludedResources);
 
-    Pair<Long, List<PropagationStatus>> update(UserMod userMod, boolean removeMemberships);
-
     Pair<Long, List<PropagationStatus>> update(UserMod userMod, Long key,
             ProvisioningResult result, Boolean enabled, Set<String> excludedResources);
 
-    List<PropagationStatus> delete(Long subjectKey, Set<String> excludedResources);
+    List<PropagationStatus> delete(Long key, Set<String> excludedResources);
 
     void requestPasswordReset(Long key);
 

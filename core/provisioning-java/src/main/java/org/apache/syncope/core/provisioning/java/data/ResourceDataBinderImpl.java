@@ -27,6 +27,7 @@ import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.MappingItemTO;
 import org.apache.syncope.common.lib.to.MappingTO;
+import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.IntMappingType;
@@ -36,32 +37,32 @@ import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.entity.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
-import org.apache.syncope.core.persistence.api.entity.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.Mapping;
-import org.apache.syncope.core.persistence.api.entity.MappingItem;
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
+import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.SyncPolicy;
-import org.apache.syncope.core.persistence.api.entity.group.GMapping;
-import org.apache.syncope.core.persistence.api.entity.group.GMappingItem;
-import org.apache.syncope.core.persistence.api.entity.user.UMapping;
-import org.apache.syncope.core.persistence.api.entity.user.UMappingItem;
 import org.apache.syncope.core.provisioning.api.ConnectorRegistry;
 import org.apache.syncope.core.misc.jexl.JexlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.syncope.core.misc.spring.BeanUtils;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.resource.Provision;
+import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ResourceDataBinderImpl implements ResourceDataBinder {
 
-    /**
-     * Logger.
-     */
     private static final Logger LOG = LoggerFactory.getLogger(ResourceDataBinder.class);
 
     private static final String[] MAPPINGITEM_IGNORE_PROPERTIES = { "key", "mapping" };
+
+    @Autowired
+    private AnyTypeDAO anyTypeDAO;
 
     @Autowired
     private ConnectorRegistry connRegistry;
@@ -107,21 +108,34 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
 
         resource.setPropagationMode(resourceTO.getPropagationMode());
 
-        if (resourceTO.getUmapping() == null || resourceTO.getUmapping().getItems().isEmpty()) {
-            resource.setUmapping(null);
-        } else {
-            UMapping mapping = entityFactory.newEntity(UMapping.class);
-            mapping.setResource(resource);
-            resource.setUmapping(mapping);
-            populateMapping(resourceTO.getUmapping(), mapping, entityFactory.newEntity(UMappingItem.class));
-        }
-        if (resourceTO.getGmapping() == null || resourceTO.getGmapping().getItems().isEmpty()) {
-            resource.setGmapping(null);
-        } else {
-            GMapping mapping = entityFactory.newEntity(GMapping.class);
-            mapping.setResource(resource);
-            resource.setGmapping(mapping);
-            populateMapping(resourceTO.getGmapping(), mapping, entityFactory.newEntity(GMappingItem.class));
+        for (ProvisionTO provisionTO : resourceTO.getProvisions()) {
+            AnyType anyType = anyTypeDAO.find(provisionTO.getAnyType());
+            if (anyType == null) {
+                LOG.warn("Invalid type specified {}, ignoring...", provisionTO.getAnyType());
+            }
+
+            Provision provision = resource.getProvision(anyType);
+            if (provision == null) {
+                provision = entityFactory.newEntity(Provision.class);
+                provision.setResource(resource);
+                resource.add(provision);
+                provision.setAnyType(anyType);
+            }
+
+            provision.setObjectClass(new ObjectClass(provisionTO.getObjectClass()));
+
+            if (provisionTO.getSyncToken() == null) {
+                provision.setSyncToken(null);
+            }
+
+            if (provisionTO.getMapping() == null) {
+                provision.setMapping(null);
+            } else {
+                Mapping mapping = entityFactory.newEntity(Mapping.class);
+                mapping.setProvision(provision);
+                provision.setMapping(mapping);
+                populateMapping(provisionTO.getMapping(), mapping, entityFactory.newEntity(MappingItem.class));
+            }
         }
 
         resource.setCreateTraceLevel(resourceTO.getCreateTraceLevel());
@@ -140,13 +154,6 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
 
         resource.setConnInstanceConfiguration(new HashSet<>(resourceTO.getConnConfProperties()));
 
-        if (resourceTO.getUsyncToken() == null) {
-            resource.setUsyncToken(null);
-        }
-        if (resourceTO.getRsyncToken() == null) {
-            resource.setRsyncToken(null);
-        }
-
         resource.getPropagationActionsClassNames().clear();
         resource.getPropagationActionsClassNames().addAll(resourceTO.getPropagationActionsClassNames());
 
@@ -155,16 +162,14 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     private void populateMapping(final MappingTO mappingTO, final Mapping mapping, final MappingItem prototype) {
-        mapping.setAccountLink(mappingTO.getAccountLink());
+        mapping.setConnObjectLink(mappingTO.getConnObjectLink());
 
         for (MappingItem item : getMappingItems(mappingTO.getItems(), prototype)) {
             item.setMapping(mapping);
-            if (item.isAccountid()) {
-                mapping.setAccountIdItem(item);
-            } else if (item.isPassword()) {
-                ((UMapping) mapping).setPasswordItem((UMappingItem) item);
+            if (item.isConnObjectKey()) {
+                mapping.setConnObjectKeyItem(item);
             } else {
-                mapping.addItem(item);
+                mapping.add(item);
             }
         }
     }
@@ -233,8 +238,8 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         return connRegistry.getOverriddenConnInstance(connInstanceClone, resourceTO.getConnConfProperties());
     }
 
-    private void populateMappingTO(final Mapping<?> mapping, final MappingTO mappingTO) {
-        mappingTO.setAccountLink(mapping.getAccountLink());
+    private void populateMappingTO(final Mapping mapping, final MappingTO mappingTO) {
+        mappingTO.setConnObjectLink(mapping.getConnObjectLink());
 
         for (MappingItem item : mapping.getItems()) {
             MappingItemTO itemTO = new MappingItemTO();
@@ -242,11 +247,9 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
             BeanUtils.copyProperties(item, itemTO, MAPPINGITEM_IGNORE_PROPERTIES);
 
             if (itemTO.isAccountid()) {
-                mappingTO.setAccountIdItem(itemTO);
-            } else if (itemTO.isPassword()) {
-                mappingTO.setPasswordItem(itemTO);
+                mappingTO.setConnObjectKeyItem(itemTO);
             } else {
-                mappingTO.addItem(itemTO);
+                mappingTO.add(itemTO);
             }
         }
     }
@@ -274,16 +277,19 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         resourceTO.setConnectorId(connector == null ? null : connector.getKey());
         resourceTO.setConnectorDisplayName(connector == null ? null : connector.getDisplayName());
 
-        // set the mappings
-        if (resource.getUmapping() != null) {
-            MappingTO mappingTO = new MappingTO();
-            resourceTO.setUmapping(mappingTO);
-            populateMappingTO(resource.getUmapping(), mappingTO);
-        }
-        if (resource.getGmapping() != null) {
-            MappingTO mappingTO = new MappingTO();
-            resourceTO.setGmapping(mappingTO);
-            populateMappingTO(resource.getGmapping(), mappingTO);
+        // set the provision information
+        for (Provision provision : resource.getProvisions()) {
+            ProvisionTO provisionTO = new ProvisionTO();
+            provisionTO.setKey(provision.getKey());
+            provisionTO.setAnyType(provision.getAnyType().getKey());
+            provisionTO.setObjectClass(provision.getObjectClass().getObjectClassValue());
+            provisionTO.setSyncToken(provision.getSerializedSyncToken());
+
+            if (provision.getMapping() != null) {
+                MappingTO mappingTO = new MappingTO();
+                provisionTO.setMapping(mappingTO);
+                populateMappingTO(provision.getMapping(), mappingTO);
+            }
         }
 
         resourceTO.setEnforceMandatoryCondition(resource.isEnforceMandatoryCondition());
@@ -311,9 +317,6 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                 ? null : resource.getSyncPolicy().getKey());
 
         resourceTO.getConnConfProperties().addAll(resource.getConnInstanceConfiguration());
-
-        resourceTO.setUsyncToken(resource.getSerializedUSyncToken());
-        resourceTO.setRsyncToken(resource.getSerializedRSyncToken());
 
         resourceTO.getPropagationActionsClassNames().addAll(resource.getPropagationActionsClassNames());
 

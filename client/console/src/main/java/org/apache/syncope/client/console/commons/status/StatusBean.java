@@ -23,7 +23,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-import org.apache.syncope.common.lib.to.AbstractAttributableTO;
+import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 
@@ -31,9 +31,9 @@ public class StatusBean implements Serializable {
 
     private static final long serialVersionUID = -5207260204921071129L;
 
-    private final Long attributableKey;
+    private final Long anyKey;
 
-    private final String attributableName;
+    private final String anyName;
 
     private final String resourceName;
 
@@ -43,10 +43,10 @@ public class StatusBean implements Serializable {
 
     private boolean linked = true;
 
-    public StatusBean(final AbstractAttributableTO attributable, final String resourceName) {
-        this.attributableKey = attributable.getKey();
-        this.attributableName = attributable instanceof UserTO
-                ? ((UserTO) attributable).getUsername() : ((GroupTO) attributable).getName();
+    public StatusBean(final AnyTO any, final String resourceName) {
+        this.anyKey = any.getKey();
+        this.anyName = any instanceof UserTO
+                ? ((UserTO) any).getUsername() : ((GroupTO) any).getName();
         this.resourceName = resourceName;
     }
 
@@ -70,12 +70,12 @@ public class StatusBean implements Serializable {
         this.status = status;
     }
 
-    public Long getAttributableId() {
-        return attributableKey;
+    public Long getAnyKey() {
+        return anyKey;
     }
 
-    public String getAttributableName() {
-        return attributableName;
+    public String getAnyName() {
+        return anyName;
     }
 
     public boolean isLinked() {

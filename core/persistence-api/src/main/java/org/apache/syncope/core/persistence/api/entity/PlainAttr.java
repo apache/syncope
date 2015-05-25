@@ -20,17 +20,20 @@ package org.apache.syncope.core.persistence.api.entity;
 
 import java.util.List;
 
-public interface PlainAttr extends Attr<PlainSchema> {
+public interface PlainAttr<O extends Any<?, ?, ?>> extends Attr<PlainSchema, O> {
 
-    void addValue(String value, AttributableUtils attributableUtil);
+    void add(String value, AnyUtils anyUtils);
 
-    boolean removeValue(PlainAttrValue attrValue);
+    void add(String value, PlainAttrValue attrValue);
+
+    boolean remove(PlainAttrValue attrValue);
 
     PlainAttrUniqueValue getUniqueValue();
+
+    void setUniqueValue(PlainAttrUniqueValue uniqueValue);
 
     List<? extends PlainAttrValue> getValues();
 
     List<String> getValuesAsStrings();
 
-    void setUniqueValue(PlainAttrUniqueValue uniqueValue);
 }

@@ -21,14 +21,11 @@ package org.apache.syncope.client.console.rest;
 import java.util.List;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.AbstractAttributableTO;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ResourceTO;
-import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.ResourceDeassociationActionType;
-import org.apache.syncope.common.lib.types.SubjectType;
-import org.apache.syncope.common.lib.wrap.SubjectKey;
+import org.apache.syncope.common.lib.wrap.AnyKey;
 import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.springframework.stereotype.Component;
 
@@ -84,11 +81,9 @@ public class ResourceRestClient extends BaseRestClient {
     }
 
     public BulkActionResult bulkAssociationAction(
-            final String resourceName, final Class<? extends AbstractAttributableTO> typeRef,
-            final ResourceDeassociationActionType type, final List<SubjectKey> subjtectIds) {
+            final String resourceName, final String anyTypeName,
+            final ResourceDeassociationActionType type, final List<AnyKey> anyKeys) {
 
-        return getService(ResourceService.class).bulkDeassociation(resourceName,
-                UserTO.class.isAssignableFrom(typeRef) ? SubjectType.USER : SubjectType.GROUP,
-                type, subjtectIds);
+        return getService(ResourceService.class).bulkDeassociation(resourceName, anyTypeName, type, anyKeys);
     }
 }

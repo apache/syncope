@@ -27,15 +27,17 @@ import java.util.HashSet;
 import java.util.Set;
 import org.apache.syncope.common.lib.to.MappingItemTO;
 import org.apache.syncope.common.lib.to.MappingTO;
+import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.PropagationMode;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
-import org.apache.syncope.core.persistence.api.entity.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.MappingItem;
-import org.apache.syncope.core.persistence.api.entity.user.UPlainSchema;
+import org.apache.syncope.core.persistence.api.entity.PlainSchema;
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.provisioning.api.data.ResourceDataBinder;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +45,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
 public class ResourceDataBinderTest extends AbstractTest {
+
+    @Autowired
+    private AnyTypeDAO anyTypeDAO;
 
     @Autowired
     private ExternalResourceDAO resourceDAO;
@@ -55,12 +60,14 @@ public class ResourceDataBinderTest extends AbstractTest {
 
     @Test
     public void issue42() {
-        UPlainSchema userId = plainSchemaDAO.find("userId", UPlainSchema.class);
+        PlainSchema userId = plainSchemaDAO.find("userId");
 
         Set<MappingItem> beforeUserIdMappings = new HashSet<>();
         for (ExternalResource res : resourceDAO.findAll()) {
-            if (res.getUmapping() != null) {
-                for (MappingItem mapItem : res.getUmapping().getItems()) {
+            if (res.getProvision(anyTypeDAO.findUser()) != null
+                    && res.getProvision(anyTypeDAO.findUser()).getMapping() != null) {
+
+                for (MappingItem mapItem : res.getProvision(anyTypeDAO.findUser()).getMapping().getItems()) {
                     if (userId.getKey().equals(mapItem.getIntAttrName())) {
                         beforeUserIdMappings.add(mapItem);
                     }
@@ -74,8 +81,12 @@ public class ResourceDataBinderTest extends AbstractTest {
         resourceTO.setPropagationMode(PropagationMode.ONE_PHASE);
         resourceTO.setEnforceMandatoryCondition(true);
 
+        ProvisionTO provisionTO = new ProvisionTO();
+        provisionTO.setAnyType("user");
+        resourceTO.getProvisions().add(provisionTO);
+
         MappingTO mapping = new MappingTO();
-        resourceTO.setUmapping(mapping);
+        provisionTO.setMapping(mapping);
 
         MappingItemTO item = new MappingItemTO();
         item.setIntAttrName("userId");
@@ -84,13 +95,13 @@ public class ResourceDataBinderTest extends AbstractTest {
         item.setAccountid(true);
         item.setMandatoryCondition("false");
         item.setPurpose(MappingPurpose.BOTH);
-        mapping.setAccountIdItem(item);
+        mapping.setConnObjectKeyItem(item);
 
         ExternalResource resource = resourceDataBinder.create(resourceTO);
         resource = resourceDAO.save(resource);
         assertNotNull(resource);
-        assertNotNull(resource.getUmapping());
-        assertEquals(1, resource.getUmapping().getItems().size());
+        assertNotNull(resource.getProvision(anyTypeDAO.findUser()).getMapping());
+        assertEquals(1, resource.getProvision(anyTypeDAO.findUser()).getMapping().getItems().size());
 
         resourceDAO.flush();
 
@@ -98,12 +109,14 @@ public class ResourceDataBinderTest extends AbstractTest {
         assertNotNull(actual);
         assertEquals(resource, actual);
 
-        userId = plainSchemaDAO.find("userId", UPlainSchema.class);
+        userId = plainSchemaDAO.find("userId");
 
         Set<MappingItem> afterUserIdMappings = new HashSet<>();
         for (ExternalResource res : resourceDAO.findAll()) {
-            if (res.getUmapping() != null) {
-                for (MappingItem mapItem : res.getUmapping().getItems()) {
+            if (res.getProvision(anyTypeDAO.findUser()) != null
+                    && res.getProvision(anyTypeDAO.findUser()).getMapping() != null) {
+
+                for (MappingItem mapItem : res.getProvision(anyTypeDAO.findUser()).getMapping().getItems()) {
                     if (userId.getKey().equals(mapItem.getIntAttrName())) {
                         afterUserIdMappings.add(mapItem);
                     }

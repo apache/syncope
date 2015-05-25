@@ -26,13 +26,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
-import org.apache.syncope.common.lib.types.SubjectType;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.junit.Assume;
 import org.junit.Test;
 
 public class WorkflowITCase extends AbstractITCase {
 
-    private void exportDefinition(final SubjectType type) throws IOException {
+    private void exportDefinition(final AnyTypeKind type) throws IOException {
         Response response = workflowService.exportDefinition(type);
         assertTrue(response.getMediaType().toString().
                 startsWith(clientFactory.getContentType().getMediaType().toString()));
@@ -45,16 +45,16 @@ public class WorkflowITCase extends AbstractITCase {
     @Test
     public void exportUserDefinition() throws IOException {
         Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
-        exportDefinition(SubjectType.USER);
+        exportDefinition(AnyTypeKind.USER);
     }
 
     @Test
     public void getGroupDefinition() throws IOException {
         Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForGroups(syncopeService));
-        exportDefinition(SubjectType.GROUP);
+        exportDefinition(AnyTypeKind.GROUP);
     }
 
-    private void importDefinition(final SubjectType type) throws IOException {
+    private void importDefinition(final AnyTypeKind type) throws IOException {
         Response response = workflowService.exportDefinition(type);
         String definition = IOUtils.toString((InputStream) response.getEntity());
 
@@ -64,12 +64,12 @@ public class WorkflowITCase extends AbstractITCase {
     @Test
     public void updateUserDefinition() throws IOException {
         Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
-        importDefinition(SubjectType.USER);
+        importDefinition(AnyTypeKind.USER);
     }
 
     @Test
     public void updateGroupDefinition() throws IOException {
         Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForGroups(syncopeService));
-        importDefinition(SubjectType.GROUP);
+        importDefinition(AnyTypeKind.GROUP);
     }
 }

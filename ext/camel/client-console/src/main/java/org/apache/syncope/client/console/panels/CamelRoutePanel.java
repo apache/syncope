@@ -26,8 +26,8 @@ import org.apache.syncope.client.console.annotations.ExtensionPanel;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.rest.CamelRouteRestClient;
 import org.apache.syncope.common.lib.to.CamelRouteTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.Entitlement;
-import org.apache.syncope.common.lib.types.SubjectType;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
@@ -85,32 +85,33 @@ public class CamelRoutePanel extends AbstractExtensionPanel {
                     final IModel<CamelRouteTO> model) {
 
                 // Uncomment with something similar once SYNCOPE-156 is completed
-                /*final ActionLinksPanel panel = new ActionLinksPanel(componentId, model, pageref);
-
-                panel.add(new ActionLink() {
-
-                    private static final long serialVersionUID = -3722207913631435501L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target) {
-
-                        editCamelRouteWin.setPageCreator(new ModalWindow.PageCreator() {
-
-                            private static final long serialVersionUID = -7834632442532690940L;
-
-                            @Override
-                            public Page createPage() {
-                                return new CamelRouteModalPage(pageref, editCamelRouteWin,
-                                        restClient.read(model.getObject().getKey()), false);
-                            }
-
-                        });
-
-                        editCamelRouteWin.show(target);
-                    }
-                }, ActionLink.ActionType.EDIT, "CamelRoutes");
-
-                cellItem.add(panel);*/
+                /* final ActionLinksPanel panel = new
+                 * ActionLinksPanel(componentId, model, pageref);
+                 *
+                 * panel.add(new ActionLink() {
+                 *
+                 * private static final long serialVersionUID = -3722207913631435501L;
+                 *
+                 * @Override
+                 * public void onClick(final AjaxRequestTarget target) {
+                 *
+                 * editCamelRouteWin.setPageCreator(new ModalWindow.PageCreator() {
+                 *
+                 * private static final long serialVersionUID = -7834632442532690940L;
+                 *
+                 * @Override
+                 * public Page createPage() {
+                 * return new CamelRouteModalPage(pageref, editCamelRouteWin,
+                 * restClient.read(model.getObject().getKey()), false);
+                 * }
+                 *
+                 * });
+                 *
+                 * editCamelRouteWin.show(target);
+                 * }
+                 * }, ActionLink.ActionType.EDIT, "CamelRoutes");
+                 *
+                 * cellItem.add(panel); */
             }
         });
 
@@ -138,11 +139,11 @@ public class CamelRoutePanel extends AbstractExtensionPanel {
         @Override
         public Iterator<? extends CamelRouteTO> iterator(final long first, final long count) {
             List<CamelRouteTO> list = new ArrayList<>();
-            if (restClient.isCamelEnabledFor(SubjectType.USER)) {
-                list.addAll(restClient.list(SubjectType.USER));
+            if (restClient.isCamelEnabledFor(AnyTypeKind.USER)) {
+                list.addAll(restClient.list(AnyTypeKind.USER));
             }
-            if (restClient.isCamelEnabledFor(SubjectType.GROUP)) {
-                list.addAll(restClient.list(SubjectType.GROUP));
+            if (restClient.isCamelEnabledFor(AnyTypeKind.GROUP)) {
+                list.addAll(restClient.list(AnyTypeKind.GROUP));
             }
 
             Collections.sort(list, comparator);
@@ -152,11 +153,11 @@ public class CamelRoutePanel extends AbstractExtensionPanel {
 
         @Override
         public long size() {
-            return (restClient.isCamelEnabledFor(SubjectType.USER)
-                    ? restClient.list(SubjectType.USER).size()
+            return (restClient.isCamelEnabledFor(AnyTypeKind.USER)
+                    ? restClient.list(AnyTypeKind.USER).size()
                     : 0)
-                    + (restClient.isCamelEnabledFor(SubjectType.GROUP)
-                            ? restClient.list(SubjectType.GROUP).size()
+                    + (restClient.isCamelEnabledFor(AnyTypeKind.GROUP)
+                            ? restClient.list(AnyTypeKind.GROUP).size()
                             : 0);
         }
 

@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.fit.core.reference;
 
-import static org.apache.syncope.fit.core.reference.AbstractITCase.userService;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -29,7 +28,6 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.client.lib.SyncopeClient;
-import org.apache.syncope.common.lib.CollectionUtils2;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.GroupTO;
@@ -64,7 +62,7 @@ public class SearchITCase extends AbstractITCase {
         assertNotNull(matchedUsers);
         assertFalse(matchedUsers.getResult().isEmpty());
 
-        Collection<UserTO> found = CollectionUtils2.find(matchedUsers.getResult(), new Predicate<UserTO>() {
+        Collection<UserTO> found = CollectionUtils.select(matchedUsers.getResult(), new Predicate<UserTO>() {
 
             @Override
             public boolean evaluate(final UserTO user) {
@@ -119,7 +117,7 @@ public class SearchITCase extends AbstractITCase {
     @Test
     public void searchByDynGroup() {
         GroupTO group = GroupITCase.getBasicSampleTO("dynMembership");
-        group.setDynMembershipCond("cool==true");
+        group.setUDynMembershipCond("cool==true");
         group = createGroup(group);
         assertNotNull(group);
 

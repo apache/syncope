@@ -22,7 +22,7 @@ import java.util.HashSet;
 import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
-import org.apache.syncope.common.lib.types.AttributableType;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -58,8 +58,8 @@ public class LDAPPasswordPropagationActions extends DefaultPropagationActions {
     public void before(final PropagationTask task, final ConnectorObject beforeObj) {
         super.before(task, beforeObj);
 
-        if (AttributableType.USER == task.getSubjectType()) {
-            User user = userDAO.find(task.getSubjectKey());
+        if (AnyTypeKind.USER == task.getAnyTypeKind()) {
+            User user = userDAO.find(task.getAnyKey());
 
             if (user != null && user.getPassword() != null) {
                 Attribute missing = AttributeUtil.find(

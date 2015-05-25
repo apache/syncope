@@ -26,7 +26,6 @@ import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.mod.MembershipMod;
 import org.apache.syncope.common.lib.mod.StatusMod;
 import org.apache.syncope.common.lib.mod.UserMod;
 import org.apache.syncope.common.lib.to.PropagationStatus;
@@ -94,7 +93,6 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
                 created.getPropByRes(),
                 userTO.getPassword(),
                 userTO.getVirAttrs(),
-                userTO.getMemberships(),
                 excludedResources);
         PropagationReporter propagationReporter =
                 ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
@@ -110,35 +108,16 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
 
     @Override
     public Pair<Long, List<PropagationStatus>> update(final UserMod userMod) {
-        return update(userMod, false);
-    }
-
-    @Override
-    public Pair<Long, List<PropagationStatus>> update(final UserMod userMod, final boolean removeMemberships) {
         WorkflowResult<Pair<UserMod, Boolean>> updated = uwfAdapter.update(userMod);
 
         List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(updated);
         if (tasks.isEmpty()) {
             // SYNCOPE-459: take care of user virtual attributes ...
-            final PropagationByResource propByResVirAttr = virtAttrHandler.fillVirtual(
+            PropagationByResource propByResVirAttr = virtAttrHandler.fillVirtual(
                     updated.getResult().getKey().getKey(),
                     userMod.getVirAttrsToRemove(),
                     userMod.getVirAttrsToUpdate());
-            // SYNCOPE-501: update only virtual attributes (if any of them changed), password propagation is
-            // not required, take care also of membership virtual attributes
-            boolean addOrUpdateMemberships = false;
-            for (MembershipMod membershipMod : userMod.getMembershipsToAdd()) {
-                if (!virtAttrHandler.fillMembershipVirtual(
-                        updated.getResult().getKey().getKey(),
-                        membershipMod.getGroup(),
-                        null,
-                        membershipMod.getVirAttrsToRemove(),
-                        membershipMod.getVirAttrsToUpdate(),
-                        false).isEmpty()) {
-                    addOrUpdateMemberships = true;
-                }
-            }
-            tasks.addAll(!propByResVirAttr.isEmpty() || addOrUpdateMemberships || removeMemberships
+            tasks.addAll(!propByResVirAttr.isEmpty()
                     ? propagationManager.getUserUpdateTasks(updated, false, null)
                     : Collections.<PropagationTask>emptyList());
         }
@@ -267,7 +246,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
 
     @Override
     public List<PropagationStatus> deprovision(final Long userKey, final Collection<String> resources) {
-        final User user = userDAO.authFetch(userKey);
+        final User user = userDAO.authFind(userKey);
 
         List<PropagationTask> tasks = propagationManager.getUserDeleteTasks(
                 userKey,

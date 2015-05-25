@@ -51,15 +51,15 @@ import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.MappingTO;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.common.lib.types.AttributableType;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.ResourceAssociationActionType;
 import org.apache.syncope.common.lib.types.ResourceDeassociationActionType;
 import org.apache.syncope.common.lib.types.SchemaType;
-import org.apache.syncope.common.lib.types.SubjectType;
 import org.apache.syncope.common.lib.wrap.ResourceName;
 import org.apache.syncope.common.rest.api.CollectionWrapper;
 import org.apache.syncope.common.rest.api.Preference;
@@ -83,7 +83,6 @@ public class GroupITCase extends AbstractITCase {
     public static GroupTO getSampleTO(final String name) {
         GroupTO groupTO = getBasicSampleTO(name);
 
-        groupTO.getGPlainAttrTemplates().add("icon");
         groupTO.getPlainAttrs().add(attrTO("icon", "anIcon"));
 
         groupTO.getResources().add(RESOURCE_NAME_LDAP);
@@ -94,7 +93,6 @@ public class GroupITCase extends AbstractITCase {
     @Ignore
     public void create() {
         GroupTO groupTO = getSampleTO("lastGroup");
-        groupTO.getGVirAttrTemplates().add("rvirtualdata");
         groupTO.getVirAttrs().add(attrTO("rvirtualdata", "rvirtualvalue"));
         groupTO.setGroupOwner(8L);
 
@@ -109,7 +107,7 @@ public class GroupITCase extends AbstractITCase {
         assertTrue(groupTO.getResources().contains(RESOURCE_NAME_LDAP));
 
         ConnObjectTO connObjectTO =
-                resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.GROUP, groupTO.getKey());
+                resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), groupTO.getKey());
         assertNotNull(connObjectTO);
         assertNotNull(connObjectTO.getPlainAttrMap().get("owner"));
 
@@ -199,7 +197,6 @@ public class GroupITCase extends AbstractITCase {
     @Test
     public void update() {
         GroupTO groupTO = getSampleTO("latestGroup" + getUUIDString());
-        groupTO.getGPlainAttrTemplates().add("show");
         groupTO = createGroup(groupTO);
 
         assertEquals(1, groupTO.getPlainAttrs().size());
@@ -219,7 +216,6 @@ public class GroupITCase extends AbstractITCase {
     @Test
     public void updateRemovingVirAttribute() {
         GroupTO groupTO = getBasicSampleTO("withvirtual" + getUUIDString());
-        groupTO.getGVirAttrTemplates().add("rvirtualdata");
         groupTO.getVirAttrs().add(attrTO("rvirtualdata", null));
 
         groupTO = createGroup(groupTO);
@@ -239,7 +235,6 @@ public class GroupITCase extends AbstractITCase {
     @Test
     public void updateRemovingDerAttribute() {
         GroupTO groupTO = getBasicSampleTO("withderived" + getUUIDString());
-        groupTO.getGDerAttrTemplates().add("rderivedschema");
         groupTO.getDerAttrs().add(attrTO("rderivedschema", null));
 
         groupTO = createGroup(groupTO);
@@ -325,7 +320,7 @@ public class GroupITCase extends AbstractITCase {
         GroupTO actual = createGroup(getSampleTO("unlink"));
         assertNotNull(actual);
 
-        assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.GROUP, actual.getKey()));
+        assertNotNull(resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), actual.getKey()));
 
         assertNotNull(groupService.bulkDeassociation(actual.getKey(),
                 ResourceDeassociationActionType.UNLINK,
@@ -336,7 +331,7 @@ public class GroupITCase extends AbstractITCase {
         assertNotNull(actual);
         assertTrue(actual.getResources().isEmpty());
 
-        assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.GROUP, actual.getKey()));
+        assertNotNull(resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), actual.getKey()));
     }
 
     @Test
@@ -348,7 +343,7 @@ public class GroupITCase extends AbstractITCase {
         assertNotNull(actual);
 
         try {
-            resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.GROUP, actual.getKey());
+            resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), actual.getKey());
             fail();
         } catch (Exception e) {
             assertNotNull(e);
@@ -363,7 +358,7 @@ public class GroupITCase extends AbstractITCase {
         assertFalse(actual.getResources().isEmpty());
 
         try {
-            resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.GROUP, actual.getKey());
+            resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), actual.getKey());
             fail();
         } catch (Exception e) {
             assertNotNull(e);
@@ -375,7 +370,7 @@ public class GroupITCase extends AbstractITCase {
         GroupTO actual = createGroup(getSampleTO("unassign"));
         assertNotNull(actual);
 
-        assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.GROUP, actual.getKey()));
+        assertNotNull(resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), actual.getKey()));
 
         assertNotNull(groupService.bulkDeassociation(actual.getKey(),
                 ResourceDeassociationActionType.UNASSIGN,
@@ -387,7 +382,7 @@ public class GroupITCase extends AbstractITCase {
         assertTrue(actual.getResources().isEmpty());
 
         try {
-            resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.GROUP, actual.getKey());
+            resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), actual.getKey());
             fail();
         } catch (Exception e) {
             assertNotNull(e);
@@ -403,7 +398,7 @@ public class GroupITCase extends AbstractITCase {
         assertNotNull(actual);
 
         try {
-            resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.GROUP, actual.getKey());
+            resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), actual.getKey());
             fail();
         } catch (Exception e) {
             assertNotNull(e);
@@ -416,7 +411,7 @@ public class GroupITCase extends AbstractITCase {
 
         actual = groupService.read(actual.getKey());
         assertFalse(actual.getResources().isEmpty());
-        assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.GROUP, actual.getKey()));
+        assertNotNull(resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), actual.getKey()));
     }
 
     @Test
@@ -424,7 +419,7 @@ public class GroupITCase extends AbstractITCase {
         GroupTO actual = createGroup(getSampleTO("deprovision"));
         assertNotNull(actual);
 
-        assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.GROUP, actual.getKey()));
+        assertNotNull(resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), actual.getKey()));
 
         assertNotNull(groupService.bulkDeassociation(actual.getKey(),
                 ResourceDeassociationActionType.DEPROVISION,
@@ -436,7 +431,7 @@ public class GroupITCase extends AbstractITCase {
         assertFalse(actual.getResources().isEmpty());
 
         try {
-            resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.GROUP, actual.getKey());
+            resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), actual.getKey());
             fail();
         } catch (Exception e) {
             assertNotNull(e);
@@ -452,7 +447,7 @@ public class GroupITCase extends AbstractITCase {
         assertNotNull(actual);
 
         try {
-            resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.GROUP, actual.getKey());
+            resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), actual.getKey());
             fail();
         } catch (Exception e) {
             assertNotNull(e);
@@ -466,7 +461,7 @@ public class GroupITCase extends AbstractITCase {
         actual = groupService.read(actual.getKey());
         assertTrue(actual.getResources().isEmpty());
 
-        assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.GROUP, actual.getKey()));
+        assertNotNull(resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), actual.getKey()));
     }
 
     @Test
@@ -478,7 +473,7 @@ public class GroupITCase extends AbstractITCase {
         assertNotNull(actual);
 
         try {
-            resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.GROUP, actual.getKey());
+            resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), actual.getKey());
             fail();
         } catch (Exception e) {
             assertNotNull(e);
@@ -492,7 +487,7 @@ public class GroupITCase extends AbstractITCase {
         actual = groupService.read(actual.getKey());
         assertTrue(actual.getResources().isEmpty());
 
-        assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.GROUP, actual.getKey()));
+        assertNotNull(resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), actual.getKey()));
 
         assertNotNull(groupService.bulkDeassociation(actual.getKey(),
                 ResourceDeassociationActionType.DEPROVISION,
@@ -504,7 +499,7 @@ public class GroupITCase extends AbstractITCase {
         assertTrue(actual.getResources().isEmpty());
 
         try {
-            resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.GROUP, actual.getKey());
+            resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), actual.getKey());
             fail();
         } catch (Exception e) {
             assertNotNull(e);
@@ -517,7 +512,7 @@ public class GroupITCase extends AbstractITCase {
         PlainSchemaTO badge = new PlainSchemaTO();
         badge.setKey("badge" + getUUIDString());
         badge.setMandatoryCondition("true");
-        schemaService.create(AttributableType.GROUP, SchemaType.PLAIN, badge);
+        schemaService.create(SchemaType.PLAIN, badge);
 
         // 2. create a group *without* an attribute for that schema: it works
         GroupTO groupTO = getSampleTO("lastGroup");
@@ -530,8 +525,6 @@ public class GroupITCase extends AbstractITCase {
         // failure since no values are provided and it is mandatory
         GroupMod groupMod = new GroupMod();
         groupMod.setKey(groupTO.getKey());
-        groupMod.setModGAttrTemplates(true);
-        groupMod.getGPlainAttrTemplates().add(badge.getKey());
 
         try {
             updateGroup(groupMod);
@@ -598,32 +591,32 @@ public class GroupITCase extends AbstractITCase {
     public void issueSYNCOPE632() {
         GroupTO groupTO = null;
         try {
-            // 1. create new LDAP resource having account id mapped to a derived attribute
+            // 1. create new LDAP resource having ConnObjectKey mapped to a derived attribute
             ResourceTO newLDAP = resourceService.read(RESOURCE_NAME_LDAP);
             newLDAP.setKey("new-ldap");
             newLDAP.setPropagationPrimary(true);
-            MappingItemTO accountId = newLDAP.getGmapping().getAccountIdItem();
-            accountId.setIntMappingType(IntMappingType.GroupDerivedSchema);
-            accountId.setIntAttrName("displayProperty");
-            newLDAP.getGmapping().setAccountIdItem(accountId);
-            newLDAP.getGmapping().setAccountLink("'cn=' + displayProperty + ',ou=groups,o=isp'");
+
+            MappingTO mapping = newLDAP.getProvision(AnyTypeKind.GROUP.name()).getMapping();
+
+            MappingItemTO connObjectKey = mapping.getConnObjectKeyItem();
+            connObjectKey.setIntMappingType(IntMappingType.GroupDerivedSchema);
+            connObjectKey.setIntAttrName("displayProperty");
+            mapping.setConnObjectKeyItem(connObjectKey);
+            mapping.setConnObjectLink("'cn=' + displayProperty + ',ou=groups,o=isp'");
 
             MappingItemTO description = new MappingItemTO();
             description.setIntMappingType(IntMappingType.GroupId);
             description.setExtAttrName("description");
             description.setPurpose(MappingPurpose.BOTH);
-            newLDAP.getGmapping().addItem(description);
+            mapping.add(description);
 
             newLDAP = createResource(newLDAP);
             assertNotNull(newLDAP);
 
             // 2. create a group and give the resource created above
             groupTO = getSampleTO("lastGroup" + getUUIDString());
-            groupTO.getGPlainAttrTemplates().add("icon");
             groupTO.getPlainAttrs().add(attrTO("icon", "anIcon"));
-            groupTO.getGPlainAttrTemplates().add("show");
             groupTO.getPlainAttrs().add(attrTO("show", "true"));
-            groupTO.getGDerAttrTemplates().add("displayProperty");
             groupTO.getDerAttrs().add(attrTO("displayProperty", null));
             groupTO.getResources().clear();
             groupTO.getResources().add("new-ldap");
@@ -682,7 +675,7 @@ public class GroupITCase extends AbstractITCase {
         assertTrue(userService.read(4L).getDynGroups().isEmpty());
 
         GroupTO group = getBasicSampleTO("dynMembership");
-        group.setDynMembershipCond("cool==true");
+        group.setUDynMembershipCond("cool==true");
         group = createGroup(group);
         assertNotNull(group);
 
@@ -690,7 +683,7 @@ public class GroupITCase extends AbstractITCase {
 
         GroupMod mod = new GroupMod();
         mod.setKey(group.getKey());
-        mod.setDynMembershipCond("cool==false");
+        mod.setUDynMembershipCond("cool==false");
         groupService.update(mod.getKey(), mod);
 
         assertTrue(userService.read(4L).getDynGroups().isEmpty());

@@ -37,6 +37,7 @@ import org.apache.cocoon.sax.component.XMLGenerator;
 import org.apache.cocoon.sax.component.XMLSerializer;
 import org.apache.cocoon.sax.component.XSLTTransformer;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.collections4.PredicateUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.io.IOUtils;
@@ -62,7 +63,6 @@ import org.apache.syncope.core.provisioning.api.job.JobInstanceLoader;
 import org.apache.syncope.core.logic.report.Reportlet;
 import org.apache.syncope.core.logic.report.ReportletConfClass;
 import org.apache.syncope.core.logic.report.TextSerializer;
-import org.apache.syncope.common.lib.CollectionUtils2;
 import org.apache.syncope.common.lib.to.AbstractExecTO;
 import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.common.lib.types.JobAction;
@@ -169,7 +169,9 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
 
     @SuppressWarnings({ "rawtypes" })
     private Set<Class<Reportlet>> getAllReportletClasses() {
-        return CollectionUtils2.collect(classNamesLoader.getClassNames(ImplementationClassNamesLoader.Type.REPORTLET),
+        return CollectionUtils.collect(IteratorUtils.filteredIterator(
+                classNamesLoader.getClassNames(ImplementationClassNamesLoader.Type.REPORTLET).iterator(),
+                PredicateUtils.notNullPredicate()),
                 new Transformer<String, Class<Reportlet>>() {
 
                     @SuppressWarnings("unchecked")
@@ -187,13 +189,14 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
 
                         return result;
                     }
-                },
-                PredicateUtils.notNullPredicate(), new HashSet<Class<Reportlet>>());
+                }, new HashSet<Class<Reportlet>>());
     }
 
     @PreAuthorize("hasRole('" + Entitlement.REPORT_LIST + "')")
+    @SuppressWarnings({ "rawtypes" })
     public Set<String> getReportletConfClasses() {
-        return CollectionUtils2.collect(getAllReportletClasses(),
+        return CollectionUtils.collect(IteratorUtils.filteredIterator(getAllReportletClasses().iterator(),
+                PredicateUtils.notNullPredicate()),
                 new Transformer<Class<Reportlet>, String>() {
 
                     @Override
@@ -201,7 +204,7 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
                         Class<? extends ReportletConf> reportletConfClass = getReportletConfClass(reportletClass);
                         return reportletConfClass == null ? null : reportletConfClass.getName();
                     }
-                }, PredicateUtils.notNullPredicate(), new HashSet<String>());
+                }, new HashSet<String>());
     }
 
     public Class<Reportlet> findReportletClassHavingConfClass(final Class<? extends ReportletConf> reportletConfClass) {

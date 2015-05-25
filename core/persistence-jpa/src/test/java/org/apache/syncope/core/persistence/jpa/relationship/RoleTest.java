@@ -30,19 +30,18 @@ import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
-import org.apache.syncope.common.lib.types.AttributableType;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.entity.DynRoleMembership;
+import org.apache.syncope.core.persistence.api.entity.user.DynRoleMembership;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
-import org.apache.syncope.core.persistence.api.entity.user.UPlainSchema;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
-import org.apache.syncope.core.persistence.jpa.entity.JPADynRoleMembership;
+import org.apache.syncope.core.persistence.jpa.entity.user.JPADynRoleMembership;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -87,10 +86,10 @@ public class RoleTest extends AbstractTest {
         user.setRealm(realmDAO.find("/even/two"));
 
         UPlainAttr attribute = entityFactory.newEntity(UPlainAttr.class);
-        attribute.setSchema(plainSchemaDAO.find("cool", UPlainSchema.class));
+        attribute.setSchema(plainSchemaDAO.find("cool"));
         attribute.setOwner(user);
-        attribute.addValue("true", attrUtilsFactory.getInstance(AttributableType.USER));
-        user.addPlainAttr(attribute);
+        attribute.add("true", anyUtilsFactory.getInstance(AnyTypeKind.USER));
+        user.add(attribute);
 
         user = userDAO.save(user);
         Long newUserKey = user.getKey();
@@ -123,9 +122,9 @@ public class RoleTest extends AbstractTest {
         assertEquals(actual, actual.getDynMembership().getRole());
 
         // 3. verify that expected users have the created role dynamically assigned
-        assertEquals(2, actual.getDynMembership().getUsers().size());
+        assertEquals(2, actual.getDynMembership().getMembers().size());
         assertEquals(new HashSet<>(Arrays.asList(4L, newUserKey)),
-                CollectionUtils.collect(actual.getDynMembership().getUsers(), new Transformer<User, Long>() {
+                CollectionUtils.collect(actual.getDynMembership().getMembers(), new Transformer<User, Long>() {
 
                     @Override
                     public Long transform(final User input) {
@@ -145,8 +144,8 @@ public class RoleTest extends AbstractTest {
         userDAO.flush();
 
         actual = roleDAO.find(actual.getKey());
-        assertEquals(1, actual.getDynMembership().getUsers().size());
-        assertEquals(4L, actual.getDynMembership().getUsers().get(0).getKey(), 0);
+        assertEquals(1, actual.getDynMembership().getMembers().size());
+        assertEquals(4L, actual.getDynMembership().getMembers().get(0).getKey(), 0);
 
         // 5. delete role and verify that dynamic membership was also removed
         Long dynMembershipKey = actual.getDynMembership().getKey();

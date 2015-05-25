@@ -33,12 +33,12 @@ import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.syncope.common.lib.types.PropagationMode;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
-import org.apache.syncope.core.persistence.api.entity.MappingItem;
 import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
 import org.apache.syncope.core.provisioning.api.ConnPoolConfUtils;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.TimeoutException;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
+import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.identityconnectors.common.security.GuardedByteArray;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.api.APIConfiguration;
@@ -536,7 +536,7 @@ public class ConnectorFacadeProxy implements Connector {
         // -------------------------------------
         final OperationOptionsBuilder oob = new OperationOptionsBuilder();
 
-        final Set<String> attrsToGet = new HashSet<String>();
+        final Set<String> attrsToGet = new HashSet<>();
         attrsToGet.add(Name.NAME);
         attrsToGet.add(Uid.NAME);
         attrsToGet.add(OperationalAttributes.ENABLE_NAME);

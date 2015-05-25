@@ -25,13 +25,10 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.List;
-import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
-import org.apache.syncope.core.persistence.api.entity.group.GVirSchema;
-import org.apache.syncope.core.persistence.api.entity.user.UVirSchema;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,51 +42,51 @@ public class VirSchemaTest extends AbstractTest {
 
     @Test
     public void findAll() {
-        List<UVirSchema> list = virSchemaDAO.findAll(UVirSchema.class);
-        assertEquals(2, list.size());
+        List<VirSchema> list = virSchemaDAO.findAll();
+        assertEquals(4, list.size());
     }
 
     @Test
     public void findByName() {
-        UVirSchema attributeSchema = virSchemaDAO.find("virtualdata", UVirSchema.class);
+        VirSchema attributeSchema = virSchemaDAO.find("virtualdata");
         assertNotNull("did not find expected virtual attribute schema", attributeSchema);
     }
 
     @Test
     public void save() {
-        UVirSchema virtualAttributeSchema = entityFactory.newEntity(UVirSchema.class);
+        VirSchema virtualAttributeSchema = entityFactory.newEntity(VirSchema.class);
         virtualAttributeSchema.setKey("virtual");
         virtualAttributeSchema.setReadonly(true);
 
         virSchemaDAO.save(virtualAttributeSchema);
 
-        UVirSchema actual = virSchemaDAO.find("virtual", UVirSchema.class);
+        VirSchema actual = virSchemaDAO.find("virtual");
         assertNotNull("expected save to work", actual);
         assertTrue(actual.isReadonly());
     }
 
     @Test
     public void delete() {
-        UVirSchema virtualdata = virSchemaDAO.find("virtualdata", UVirSchema.class);
+        VirSchema virtualdata = virSchemaDAO.find("virtualdata");
 
-        virSchemaDAO.delete(virtualdata.getKey(), attrUtilsFactory.getInstance(AttributableType.USER));
+        virSchemaDAO.delete(virtualdata.getKey());
 
-        VirSchema actual = virSchemaDAO.find("virtualdata", UVirSchema.class);
+        VirSchema actual = virSchemaDAO.find("virtualdata");
         assertNull("delete did not work", actual);
 
         // ------------- //
-        GVirSchema rvirtualdata = virSchemaDAO.find("rvirtualdata", GVirSchema.class);
+        VirSchema rvirtualdata = virSchemaDAO.find("rvirtualdata");
         assertNotNull(rvirtualdata);
 
-        virSchemaDAO.delete(rvirtualdata.getKey(), attrUtilsFactory.getInstance(AttributableType.GROUP));
+        virSchemaDAO.delete(rvirtualdata.getKey());
 
-        actual = virSchemaDAO.find("rvirtualdata", GVirSchema.class);
+        actual = virSchemaDAO.find("rvirtualdata");
         assertNull("delete did not work", actual);
     }
 
     @Test
     public void issueSYNCOPE418() {
-        UVirSchema schema = entityFactory.newEntity(UVirSchema.class);
+        VirSchema schema = entityFactory.newEntity(VirSchema.class);
         schema.setKey("http://schemas.examples.org/security/authorization/organizationUnit");
 
         try {

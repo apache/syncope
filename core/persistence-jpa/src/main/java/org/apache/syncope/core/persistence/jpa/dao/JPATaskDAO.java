@@ -26,7 +26,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
-import org.apache.syncope.core.persistence.api.entity.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPANotificationTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAPropagationTask;

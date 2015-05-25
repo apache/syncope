@@ -18,25 +18,25 @@
  */
 package org.apache.syncope.core.persistence.api.entity.task;
 
-import org.apache.syncope.common.lib.to.GroupTO;
-import org.apache.syncope.common.lib.to.UserTO;
+import java.util.List;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 
 public interface SyncTask extends ProvisioningTask {
 
     Realm getDestinatioRealm();
 
-    GroupTO getGroupTemplate();
-
-    UserTO getUserTemplate();
+    void setDestinationRealm(Realm destinationRealm);
 
     boolean isFullReconciliation();
 
     void setFullReconciliation(boolean condition);
 
-    void setGroupTemplate(GroupTO groupTemplate);
+    boolean add(AnyTemplate template);
 
-    void setUserTemplate(UserTO userTemplate);
+    boolean remove(AnyTemplate template);
 
-    void setDestinationRealm(Realm destinationRealm);
+    AnyTemplate getTemplate(AnyType anyType);
+
+    List<? extends AnyTemplate> getTemplates();
 }

@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.collections4.PredicateUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.logging.log4j.Level;
@@ -35,7 +36,6 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.EventCategoryTO;
 import org.apache.syncope.common.lib.to.LoggerTO;
-import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.common.lib.types.AuditElements.EventCategoryType;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -45,14 +45,14 @@ import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
-import org.apache.syncope.common.lib.CollectionUtils2;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.LoggerDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
-import org.apache.syncope.core.persistence.api.entity.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Logger;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.SyncTask;
@@ -106,20 +106,22 @@ public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
     @PreAuthorize("hasRole('" + Entitlement.AUDIT_LIST + "')")
     @Transactional(readOnly = true)
     public List<AuditLoggerName> listAudits() {
-        return CollectionUtils2.collect(list(LoggerType.AUDIT), new Transformer<LoggerTO, AuditLoggerName>() {
+        return CollectionUtils.collect(
+                IteratorUtils.filteredIterator(list(LoggerType.AUDIT).iterator(), PredicateUtils.notNullPredicate()),
+                new Transformer<LoggerTO, AuditLoggerName>() {
 
-            @Override
-            public AuditLoggerName transform(final LoggerTO logger) {
-                AuditLoggerName result = null;
-                try {
-                    result = AuditLoggerName.fromLoggerName(logger.getKey());
-                } catch (Exception e) {
-                    LOG.warn("Unexpected audit logger name: {}", logger.getKey(), e);
-                }
+                    @Override
+                    public AuditLoggerName transform(final LoggerTO logger) {
+                        AuditLoggerName result = null;
+                        try {
+                            result = AuditLoggerName.fromLoggerName(logger.getKey());
+                        } catch (Exception e) {
+                            LOG.warn("Unexpected audit logger name: {}", logger.getKey(), e);
+                        }
 
-                return result;
-            }
-        }, PredicateUtils.notNullPredicate(), new ArrayList<AuditLoggerName>());
+                        return result;
+                    }
+                }, new ArrayList<AuditLoggerName>());
     }
 
     private void throwInvalidLogger(final LoggerType type) {
@@ -263,17 +265,17 @@ public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
             events.add(new EventCategoryTO(EventCategoryType.SYNCHRONIZATION));
             events.add(new EventCategoryTO(EventCategoryType.PUSH));
 
-            for (AttributableType attributableType : AttributableType.values()) {
+            for (AnyTypeKind anyTypeKind : AnyTypeKind.values()) {
                 for (ExternalResource resource : resourceDAO.findAll()) {
                     EventCategoryTO propEventCategoryTO = new EventCategoryTO(EventCategoryType.PROPAGATION);
                     EventCategoryTO syncEventCategoryTO = new EventCategoryTO(EventCategoryType.SYNCHRONIZATION);
                     EventCategoryTO pushEventCategoryTO = new EventCategoryTO(EventCategoryType.PUSH);
 
-                    propEventCategoryTO.setCategory(attributableType.name().toLowerCase());
+                    propEventCategoryTO.setCategory(anyTypeKind.name().toLowerCase());
                     propEventCategoryTO.setSubcategory(resource.getKey());
 
-                    syncEventCategoryTO.setCategory(attributableType.name().toLowerCase());
-                    pushEventCategoryTO.setCategory(attributableType.name().toLowerCase());
+                    syncEventCategoryTO.setCategory(anyTypeKind.name().toLowerCase());
+                    pushEventCategoryTO.setCategory(anyTypeKind.name().toLowerCase());
                     syncEventCategoryTO.setSubcategory(resource.getKey());
                     pushEventCategoryTO.setSubcategory(resource.getKey());
 

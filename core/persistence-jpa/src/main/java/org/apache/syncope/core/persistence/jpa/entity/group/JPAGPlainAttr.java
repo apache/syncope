@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.jpa.entity.group;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.CascadeType;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
@@ -30,21 +29,17 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.Valid;
-import org.apache.syncope.core.persistence.api.entity.Attributable;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
-import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
-import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrTemplate;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrValue;
-import org.apache.syncope.core.persistence.api.entity.group.GPlainSchema;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractPlainAttr;
 
 @Entity
 @Table(name = JPAGPlainAttr.TABLE)
-public class JPAGPlainAttr extends AbstractPlainAttr implements GPlainAttr {
+public class JPAGPlainAttr extends AbstractPlainAttr<Group> implements GPlainAttr {
 
     private static final long serialVersionUID = 2848159565890995780L;
 
@@ -56,22 +51,13 @@ public class JPAGPlainAttr extends AbstractPlainAttr implements GPlainAttr {
     @ManyToOne(fetch = FetchType.EAGER)
     private JPAGroup owner;
 
-    @Column(nullable = false)
-    @OneToOne(cascade = CascadeType.MERGE)
-    private JPAGPlainAttrTemplate template;
-
     @OneToMany(cascade = CascadeType.MERGE, orphanRemoval = true, mappedBy = "attribute")
     @Valid
-    private List<JPAGPlainAttrValue> values;
+    private List<JPAGPlainAttrValue> values = new ArrayList<>();
 
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "attribute")
     @Valid
     private JPAGPlainAttrUniqueValue uniqueValue;
-
-    public JPAGPlainAttr() {
-        super();
-        values = new ArrayList<>();
-    }
 
     @Override
     public Long getKey() {
@@ -84,40 +70,19 @@ public class JPAGPlainAttr extends AbstractPlainAttr implements GPlainAttr {
     }
 
     @Override
-    public void setOwner(final Attributable<?, ?, ?> owner) {
+    public void setOwner(final Group owner) {
         checkType(owner, JPAGroup.class);
         this.owner = (JPAGroup) owner;
     }
 
     @Override
-    public GPlainAttrTemplate getTemplate() {
-        return template;
-    }
-
-    @Override
-    public void setTemplate(final GPlainAttrTemplate template) {
-        checkType(template, JPAGPlainAttrTemplate.class);
-        this.template = (JPAGPlainAttrTemplate) template;
-    }
-
-    @Override
-    public GPlainSchema getSchema() {
-        return template == null ? null : template.getSchema();
-    }
-
-    @Override
-    public void setSchema(final PlainSchema schema) {
-        LOG.warn("This is group attribute, set template to select schema");
-    }
-
-    @Override
-    protected boolean addValue(final PlainAttrValue attrValue) {
+    protected boolean addForMultiValue(final PlainAttrValue attrValue) {
         checkType(attrValue, JPAGPlainAttrValue.class);
         return values.add((JPAGPlainAttrValue) attrValue);
     }
 
     @Override
-    public boolean removeValue(final PlainAttrValue attrValue) {
+    public boolean remove(final PlainAttrValue attrValue) {
         checkType(attrValue, JPAGPlainAttrValue.class);
         return values.remove((JPAGPlainAttrValue) attrValue);
     }

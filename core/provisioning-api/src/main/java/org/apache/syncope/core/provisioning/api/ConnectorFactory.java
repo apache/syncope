@@ -22,7 +22,7 @@ import java.util.Set;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.core.persistence.api.SyncopeLoader;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
-import org.apache.syncope.core.persistence.api.entity.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 
 /**
  * Entry point for creating and destroying connectors for external resources.

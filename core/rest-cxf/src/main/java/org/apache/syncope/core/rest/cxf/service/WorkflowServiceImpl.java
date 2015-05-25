@@ -23,7 +23,7 @@ import java.io.OutputStream;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-import org.apache.syncope.common.lib.types.SubjectType;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.WorkflowService;
 import org.apache.syncope.core.logic.WorkflowLogic;
@@ -37,7 +37,7 @@ public class WorkflowServiceImpl extends AbstractServiceImpl implements Workflow
     private WorkflowLogic logic;
 
     @Override
-    public Response exportDefinition(final SubjectType kind) {
+    public Response exportDefinition(final AnyTypeKind kind) {
         final MediaType accept =
                 messageContext.getHttpHeaders().getAcceptableMediaTypes().contains(MediaType.APPLICATION_JSON_TYPE)
                         ? MediaType.APPLICATION_JSON_TYPE
@@ -47,8 +47,10 @@ public class WorkflowServiceImpl extends AbstractServiceImpl implements Workflow
 
             @Override
             public void write(final OutputStream os) throws IOException {
-                if (kind == SubjectType.USER) {
+                if (kind == AnyTypeKind.USER) {
                     logic.exportUserDefinition(accept, os);
+                } else if (kind == AnyTypeKind.ANY_OBJECT) {
+                    logic.exportAnyObjectDefinition(accept, os);
                 } else {
                     logic.exportGroupDefinition(accept, os);
                 }
@@ -61,13 +63,15 @@ public class WorkflowServiceImpl extends AbstractServiceImpl implements Workflow
     }
 
     @Override
-    public Response exportDiagram(final SubjectType kind) {
+    public Response exportDiagram(final AnyTypeKind kind) {
         StreamingOutput sout = new StreamingOutput() {
 
             @Override
             public void write(final OutputStream os) throws IOException {
-                if (kind == SubjectType.USER) {
+                if (kind == AnyTypeKind.USER) {
                     logic.exportUserDiagram(os);
+                } else if (kind == AnyTypeKind.ANY_OBJECT) {
+                    logic.exportAnyObjectDiagram(os);
                 } else {
                     logic.exportGroupDiagram(os);
                 }
@@ -80,14 +84,16 @@ public class WorkflowServiceImpl extends AbstractServiceImpl implements Workflow
     }
 
     @Override
-    public void importDefinition(final SubjectType kind, final String definition) {
+    public void importDefinition(final AnyTypeKind kind, final String definition) {
         final MediaType contentType =
                 messageContext.getHttpHeaders().getMediaType().equals(MediaType.APPLICATION_JSON_TYPE)
                         ? MediaType.APPLICATION_JSON_TYPE
                         : MediaType.APPLICATION_XML_TYPE;
 
-        if (kind == SubjectType.USER) {
+        if (kind == AnyTypeKind.USER) {
             logic.importUserDefinition(contentType, definition);
+        } else if (kind == AnyTypeKind.ANY_OBJECT) {
+            logic.importAnyObjectDefinition(contentType, definition);
         } else {
             logic.importGroupDefinition(contentType, definition);
         }

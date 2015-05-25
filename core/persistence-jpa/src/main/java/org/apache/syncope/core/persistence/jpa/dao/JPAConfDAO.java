@@ -18,15 +18,14 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
-import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtilsFactory;
+import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttr;
-import org.apache.syncope.core.persistence.api.entity.conf.CPlainSchema;
 import org.apache.syncope.core.persistence.api.entity.conf.Conf;
 import org.apache.syncope.core.persistence.jpa.entity.conf.JPACPlainAttr;
+import org.apache.syncope.core.persistence.jpa.entity.conf.JPACPlainAttrValue;
 import org.apache.syncope.core.persistence.jpa.entity.conf.JPAConf;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -40,9 +39,6 @@ public class JPAConfDAO extends AbstractDAO<Conf, Long> implements ConfDAO {
 
     @Autowired
     private PlainAttrDAO attrDAO;
-
-    @Autowired
-    private AttributableUtilsFactory attrUtilsFactory;
 
     @Override
     public Conf get() {
@@ -68,10 +64,19 @@ public class JPAConfDAO extends AbstractDAO<Conf, Long> implements ConfDAO {
     public CPlainAttr find(final String key, final String defaultValue) {
         CPlainAttr result = find(key);
         if (result == null) {
-            result = new JPACPlainAttr();
-            result.setSchema(schemaDAO.find(key, CPlainSchema.class));
+            JPACPlainAttr newAttr = new JPACPlainAttr();
+            newAttr.setSchema(schemaDAO.find(key));
 
-            result.addValue(defaultValue, attrUtilsFactory.getInstance(AttributableType.CONFIGURATION));
+            JPACPlainAttrValue attrValue;
+            if (newAttr.getSchema().isUniqueConstraint()) {
+                attrValue = new JPACPlainAttrValue();
+                ((PlainAttrUniqueValue) attrValue).setSchema(newAttr.getSchema());
+            } else {
+                attrValue = new JPACPlainAttrValue();
+            }
+            newAttr.add(defaultValue, attrValue);
+
+            result = newAttr;
         }
 
         return result;
@@ -85,11 +90,11 @@ public class JPAConfDAO extends AbstractDAO<Conf, Long> implements ConfDAO {
         if (old != null && (!attr.getSchema().isUniqueConstraint()
                 || (!attr.getUniqueValue().getStringValue().equals(old.getUniqueValue().getStringValue())))) {
 
-            instance.removePlainAttr(old);
+            instance.remove(old);
             attrDAO.delete(old.getKey(), CPlainAttr.class);
         }
 
-        instance.addPlainAttr(attr);
+        instance.add(attr);
         attr.setOwner(instance);
 
         return entityManager.merge(instance);
@@ -100,7 +105,7 @@ public class JPAConfDAO extends AbstractDAO<Conf, Long> implements ConfDAO {
         Conf instance = get();
         CPlainAttr attr = instance.getPlainAttr(key);
         if (attr != null) {
-            instance.removePlainAttr(attr);
+            instance.remove(attr);
             instance = entityManager.merge(instance);
         }
 

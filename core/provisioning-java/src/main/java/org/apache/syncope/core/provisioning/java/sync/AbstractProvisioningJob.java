@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.core.provisioning.java.sync;
 
+import static org.apache.syncope.common.lib.types.AnyTypeKind.USER;
+
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -28,12 +30,14 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.core.misc.security.SyncopeGrantedAuthority;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
-import org.apache.syncope.core.persistence.api.entity.group.GMapping;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
+import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
-import org.apache.syncope.core.persistence.api.entity.user.UMapping;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.ConnectorFactory;
 import org.apache.syncope.core.provisioning.api.sync.ProvisioningActions;
@@ -62,6 +66,9 @@ public abstract class AbstractProvisioningJob<T extends ProvisioningTask, A exte
      */
     @Autowired
     protected ConnectorFactory connFactory;
+
+    @Autowired
+    protected AnyTypeDAO anyTypeDAO;
 
     /**
      * Resource DAO.
@@ -121,13 +128,23 @@ public abstract class AbstractProvisioningJob<T extends ProvisioningTask, A exte
         List<ProvisioningResult> gFailDelete = new ArrayList<>();
         List<ProvisioningResult> gSuccNone = new ArrayList<>();
         List<ProvisioningResult> gIgnore = new ArrayList<>();
+        List<ProvisioningResult> aSuccCreate = new ArrayList<>();
+        List<ProvisioningResult> aFailCreate = new ArrayList<>();
+        List<ProvisioningResult> aSuccUpdate = new ArrayList<>();
+        List<ProvisioningResult> aFailUpdate = new ArrayList<>();
+        List<ProvisioningResult> aSuccDelete = new ArrayList<>();
+        List<ProvisioningResult> aFailDelete = new ArrayList<>();
+        List<ProvisioningResult> aSuccNone = new ArrayList<>();
+        List<ProvisioningResult> aIgnore = new ArrayList<>();
 
         for (ProvisioningResult provResult : provResults) {
+            AnyType anyType = anyTypeDAO.find(provResult.getAnyType());
+
             switch (provResult.getStatus()) {
                 case SUCCESS:
                     switch (provResult.getOperation()) {
                         case CREATE:
-                            switch (provResult.getSubjectType()) {
+                            switch (anyType.getKind()) {
                                 case USER:
                                     uSuccCreate.add(provResult);
                                     break;
@@ -136,12 +153,14 @@ public abstract class AbstractProvisioningJob<T extends ProvisioningTask, A exte
                                     gSuccCreate.add(provResult);
                                     break;
 
+                                case ANY_OBJECT:
                                 default:
+                                    aSuccCreate.add(provResult);
                             }
                             break;
 
                         case UPDATE:
-                            switch (provResult.getSubjectType()) {
+                            switch (anyType.getKind()) {
                                 case USER:
                                     uSuccUpdate.add(provResult);
                                     break;
@@ -150,12 +169,14 @@ public abstract class AbstractProvisioningJob<T extends ProvisioningTask, A exte
                                     gSuccUpdate.add(provResult);
                                     break;
 
+                                case ANY_OBJECT:
                                 default:
+                                    aSuccUpdate.add(provResult);
                             }
                             break;
 
                         case DELETE:
-                            switch (provResult.getSubjectType()) {
+                            switch (anyType.getKind()) {
                                 case USER:
                                     uSuccDelete.add(provResult);
                                     break;
@@ -164,12 +185,14 @@ public abstract class AbstractProvisioningJob<T extends ProvisioningTask, A exte
                                     gSuccDelete.add(provResult);
                                     break;
 
+                                case ANY_OBJECT:
                                 default:
+                                    aSuccDelete.add(provResult);
                             }
                             break;
 
                         case NONE:
-                            switch (provResult.getSubjectType()) {
+                            switch (anyType.getKind()) {
                                 case USER:
                                     uSuccNone.add(provResult);
                                     break;
@@ -178,7 +201,9 @@ public abstract class AbstractProvisioningJob<T extends ProvisioningTask, A exte
                                     gSuccNone.add(provResult);
                                     break;
 
+                                case ANY_OBJECT:
                                 default:
+                                    aSuccNone.add(provResult);
                             }
                             break;
 
@@ -189,7 +214,7 @@ public abstract class AbstractProvisioningJob<T extends ProvisioningTask, A exte
                 case FAILURE:
                     switch (provResult.getOperation()) {
                         case CREATE:
-                            switch (provResult.getSubjectType()) {
+                            switch (anyType.getKind()) {
                                 case USER:
                                     uFailCreate.add(provResult);
                                     break;
@@ -198,12 +223,14 @@ public abstract class AbstractProvisioningJob<T extends ProvisioningTask, A exte
                                     gFailCreate.add(provResult);
                                     break;
 
+                                case ANY_OBJECT:
                                 default:
+                                    aFailCreate.add(provResult);
                             }
                             break;
 
                         case UPDATE:
-                            switch (provResult.getSubjectType()) {
+                            switch (anyType.getKind()) {
                                 case USER:
                                     uFailUpdate.add(provResult);
                                     break;
@@ -212,12 +239,14 @@ public abstract class AbstractProvisioningJob<T extends ProvisioningTask, A exte
                                     gFailUpdate.add(provResult);
                                     break;
 
+                                case ANY_OBJECT:
                                 default:
+                                    aFailUpdate.add(provResult);
                             }
                             break;
 
                         case DELETE:
-                            switch (provResult.getSubjectType()) {
+                            switch (anyType.getKind()) {
                                 case USER:
                                     uFailDelete.add(provResult);
                                     break;
@@ -226,7 +255,9 @@ public abstract class AbstractProvisioningJob<T extends ProvisioningTask, A exte
                                     gFailDelete.add(provResult);
                                     break;
 
+                                case ANY_OBJECT:
                                 default:
+                                    aFailDelete.add(provResult);
                             }
                             break;
 
@@ -235,7 +266,7 @@ public abstract class AbstractProvisioningJob<T extends ProvisioningTask, A exte
                     break;
 
                 case IGNORE:
-                    switch (provResult.getSubjectType()) {
+                    switch (anyType.getKind()) {
                         case USER:
                             uIgnore.add(provResult);
                             break;
@@ -244,7 +275,9 @@ public abstract class AbstractProvisioningJob<T extends ProvisioningTask, A exte
                             gIgnore.add(provResult);
                             break;
 
+                        case ANY_OBJECT:
                         default:
+                            aIgnore.add(provResult);
                     }
                     break;
 
@@ -270,6 +303,14 @@ public abstract class AbstractProvisioningJob<T extends ProvisioningTask, A exte
                 append("[deleted/failures]: ").append(gSuccDelete.size()).append('/').append(gFailDelete.size()).
                 append(' ').
                 append("[no operation/ignored]: ").append(gSuccNone.size()).append('/').append(gIgnore.size());
+        report.append("Any objects ").
+                append("[created/failures]: ").append(aSuccCreate.size()).append('/').append(aFailCreate.size()).
+                append(' ').
+                append("[updated/failures]: ").append(aSuccUpdate.size()).append('/').append(aFailUpdate.size()).
+                append(' ').
+                append("[deleted/failures]: ").append(aSuccDelete.size()).append('/').append(aFailDelete.size()).
+                append(' ').
+                append("[no operation/ignored]: ").append(aSuccNone.size()).append('/').append(aIgnore.size());
 
         // Failures
         if (syncTraceLevel == TraceLevel.FAILURES || syncTraceLevel == TraceLevel.ALL) {
@@ -298,6 +339,19 @@ public abstract class AbstractProvisioningJob<T extends ProvisioningTask, A exte
                 report.append("\nGroups failed to delete: ");
                 report.append(ProvisioningResult.produceReport(gFailDelete, syncTraceLevel));
             }
+
+            if (!aFailCreate.isEmpty()) {
+                report.append("\nAny objects failed to create: ");
+                report.append(ProvisioningResult.produceReport(aFailCreate, syncTraceLevel));
+            }
+            if (!aFailUpdate.isEmpty()) {
+                report.append("\nAny objects failed to update: ");
+                report.append(ProvisioningResult.produceReport(aFailUpdate, syncTraceLevel));
+            }
+            if (!aFailDelete.isEmpty()) {
+                report.append("\nAny objects failed to delete: ");
+                report.append(ProvisioningResult.produceReport(aFailDelete, syncTraceLevel));
+            }
         }
 
         // Succeeded, only if on 'ALL' level
@@ -322,6 +376,16 @@ public abstract class AbstractProvisioningJob<T extends ProvisioningTask, A exte
                     append(ProvisioningResult.produceReport(gSuccNone, syncTraceLevel)).
                     append("\nGroups ignored:\n").
                     append(ProvisioningResult.produceReport(gSuccNone, syncTraceLevel));
+            report.append("\n\nAny objects created:\n").
+                    append(ProvisioningResult.produceReport(aSuccCreate, syncTraceLevel)).
+                    append("\nAny objects updated:\n").
+                    append(ProvisioningResult.produceReport(aSuccUpdate, syncTraceLevel)).
+                    append("\nAny objects deleted:\n").
+                    append(ProvisioningResult.produceReport(aSuccDelete, syncTraceLevel)).
+                    append("\nAny objects no operation:\n").
+                    append(ProvisioningResult.produceReport(aSuccNone, syncTraceLevel)).
+                    append("\nAny objects ignored:\n").
+                    append(ProvisioningResult.produceReport(aSuccNone, syncTraceLevel));
         }
 
         return report.toString();
@@ -339,49 +403,48 @@ public abstract class AbstractProvisioningJob<T extends ProvisioningTask, A exte
                     }
                 }, new ArrayList<GrantedAuthority>());
 
-        final UserDetails userDetails = new User("admin", "FAKE_PASSWORD", authorities);
+        UserDetails userDetails = new User("admin", "FAKE_PASSWORD", authorities);
 
         SecurityContextHolder.getContext().setAuthentication(
                 new UsernamePasswordAuthenticationToken(userDetails, "FAKE_PASSWORD", authorities));
 
         try {
-            final Class<T> clazz = getTaskClassReference();
+            Class<T> clazz = getTaskClassReference();
             if (!clazz.isAssignableFrom(task.getClass())) {
                 throw new JobExecutionException("Task " + taskId + " isn't a SyncTask");
             }
 
-            final T syncTask = clazz.cast(this.task);
+            T _task = clazz.cast(this.task);
 
-            final Connector connector;
+            Connector connector;
             try {
-                connector = connFactory.getConnector(syncTask.getResource());
+                connector = connFactory.getConnector(_task.getResource());
             } catch (Exception e) {
                 final String msg = String.
                         format("Connector instance bean for resource %s and connInstance %s not found",
-                                syncTask.getResource(), syncTask.getResource().getConnector());
+                                _task.getResource(), _task.getResource().getConnector());
 
                 throw new JobExecutionException(msg, e);
             }
 
-            final UMapping uMapping = syncTask.getResource().getUmapping();
-            if (uMapping != null && uMapping.getAccountIdItem() == null) {
-                throw new JobExecutionException(
-                        "Invalid user account id mapping for resource " + syncTask.getResource());
+            boolean noMapping = true;
+            for (Provision provision : _task.getResource().getProvisions()) {
+                Mapping mapping = provision.getMapping();
+                if (mapping != null) {
+                    noMapping = false;
+                    if (mapping.getConnObjectKeyItem() == null) {
+                        throw new JobExecutionException(
+                                "Invalid ConnObjectKey mapping for provision " + provision);
+                    }
+                }
             }
-            final GMapping rMapping = syncTask.getResource().getGmapping();
-            if (rMapping != null && rMapping.getAccountIdItem() == null) {
-                throw new JobExecutionException(
-                        "Invalid group account id mapping for resource " + syncTask.getResource());
-            }
-            if (uMapping == null && rMapping == null) {
+            if (noMapping) {
                 return "No mapping configured for both users and groups: aborting...";
             }
 
             return executeWithSecurityContext(
-                    syncTask,
+                    _task,
                     connector,
-                    uMapping,
-                    rMapping,
                     dryRun);
         } catch (Throwable t) {
             LOG.error("While executing provisioning job {}", getClass().getName(), t);
@@ -395,8 +458,6 @@ public abstract class AbstractProvisioningJob<T extends ProvisioningTask, A exte
     protected abstract String executeWithSecurityContext(
             final T task,
             final Connector connector,
-            final UMapping uMapping,
-            final GMapping rMapping,
             final boolean dryRun) throws JobExecutionException;
 
     @Override

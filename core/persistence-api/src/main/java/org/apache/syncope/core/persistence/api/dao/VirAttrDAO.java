@@ -21,15 +21,15 @@ package org.apache.syncope.core.persistence.api.dao;
 import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.VirAttr;
 
-public interface VirAttrDAO extends DAO<VirAttr, Long> {
+public interface VirAttrDAO extends DAO<VirAttr<?>, Long> {
 
-    <T extends VirAttr> T find(Long key, Class<T> reference);
+    <T extends VirAttr<?>> T find(Long key, Class<T> reference);
 
-    <T extends VirAttr> List<T> findAll(Class<T> reference);
+    <T extends VirAttr<?>> List<T> findAll(Class<T> reference);
 
-    <T extends VirAttr> T save(T virtualAttribute);
+    <T extends VirAttr<?>> T save(T virtualAttribute);
 
-    <T extends VirAttr> void delete(Long key, Class<T> reference);
+    <T extends VirAttr<?>> void delete(Long key, Class<T> reference);
 
-    <T extends VirAttr> void delete(T virAttr);
+    <T extends VirAttr<?>> void delete(T virAttr);
 }

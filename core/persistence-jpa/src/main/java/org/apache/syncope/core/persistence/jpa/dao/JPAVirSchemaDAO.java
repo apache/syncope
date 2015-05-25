@@ -20,25 +20,16 @@ package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.util.List;
 import javax.persistence.TypedQuery;
-import org.apache.commons.collections4.Closure;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.syncope.common.lib.types.AttributableType;
-import org.apache.syncope.core.persistence.api.dao.AttrTemplateDAO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.VirAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtils;
+import org.apache.syncope.core.persistence.api.entity.AnyUtils;
+import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.VirAttr;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
-import org.apache.syncope.core.persistence.api.entity.membership.MVirSchema;
-import org.apache.syncope.core.persistence.api.entity.group.GVirSchema;
-import org.apache.syncope.core.persistence.api.entity.user.UMappingItem;
-import org.apache.syncope.core.persistence.api.entity.user.UVirAttr;
-import org.apache.syncope.core.persistence.api.entity.user.UVirSchema;
-import org.apache.syncope.core.persistence.jpa.entity.AbstractVirSchema;
-import org.apache.syncope.core.persistence.jpa.entity.membership.JPAMVirSchema;
-import org.apache.syncope.core.persistence.jpa.entity.group.JPAGVirSchema;
-import org.apache.syncope.core.persistence.jpa.entity.user.JPAUVirSchema;
+import org.apache.syncope.core.persistence.jpa.entity.JPAAnyUtilsFactory;
+import org.apache.syncope.core.persistence.jpa.entity.JPAVirSchema;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -49,44 +40,25 @@ public class JPAVirSchemaDAO extends AbstractDAO<VirSchema, String> implements V
     private VirAttrDAO virAttrDAO;
 
     @Autowired
-    private AttrTemplateDAO<VirSchema> attrTemplateDAO;
-
-    @Autowired
     private ExternalResourceDAO resourceDAO;
 
-    private <T extends VirSchema> Class<? extends AbstractVirSchema> getJPAEntityReference(final Class<T> reference) {
-        return GVirSchema.class.isAssignableFrom(reference)
-                ? JPAGVirSchema.class
-                : MVirSchema.class.isAssignableFrom(reference)
-                        ? JPAMVirSchema.class
-                        : UVirSchema.class.isAssignableFrom(reference)
-                                ? JPAUVirSchema.class
-                                : null;
+    @Override
+    public VirSchema find(final String key) {
+        return entityManager.find(JPAVirSchema.class, key);
     }
 
     @Override
-    public <T extends VirSchema> T find(final String key, final Class<T> reference) {
-        return reference.cast(entityManager.find(getJPAEntityReference(reference), key));
-    }
-
-    @Override
-    public <T extends VirSchema> List<T> findAll(final Class<T> reference) {
-        TypedQuery<T> query = entityManager.createQuery(
-                "SELECT e FROM " + getJPAEntityReference(reference).getSimpleName() + " e", reference);
+    public List<VirSchema> findAll() {
+        TypedQuery<VirSchema> query = entityManager.createQuery(
+                "SELECT e FROM " + JPAVirSchema.class.getSimpleName() + " e", VirSchema.class);
         return query.getResultList();
     }
 
     @Override
-    public <T extends VirAttr> List<T> findAttrs(final VirSchema schema, final Class<T> reference) {
+    public <T extends VirAttr<?>> List<T> findAttrs(final VirSchema schema, final Class<T> reference) {
         final StringBuilder queryString = new StringBuilder("SELECT e FROM ").
                 append(((JPAVirAttrDAO) virAttrDAO).getJPAEntityReference(reference).getSimpleName()).
-                append(" e WHERE e.");
-        if (UVirAttr.class.isAssignableFrom(reference)) {
-            queryString.append("virSchema");
-        } else {
-            queryString.append("template.schema");
-        }
-        queryString.append("=:schema");
+                append(" e WHERE e.schema=:schema");
 
         TypedQuery<T> query = entityManager.createQuery(queryString.toString(), reference);
         query.setParameter("schema", schema);
@@ -95,40 +67,27 @@ public class JPAVirSchemaDAO extends AbstractDAO<VirSchema, String> implements V
     }
 
     @Override
-    public <T extends VirSchema> T save(final T virSchema) {
+    public VirSchema save(final VirSchema virSchema) {
         return entityManager.merge(virSchema);
     }
 
     @Override
-    public void delete(final String key, final AttributableUtils attributableUtil) {
-        final VirSchema schema = find(key, attributableUtil.virSchemaClass());
+    public void delete(final String key) {
+        final VirSchema schema = find(key);
         if (schema == null) {
             return;
         }
 
-        CollectionUtils.forAllDo(findAttrs(schema, attributableUtil.virAttrClass()), new Closure<VirAttr>() {
+        AnyUtilsFactory anyUtilsFactory = new JPAAnyUtilsFactory();
+        for (AnyTypeKind anyTypeKind : AnyTypeKind.values()) {
+            AnyUtils anyUtils = anyUtilsFactory.getInstance(anyTypeKind);
 
-            @Override
-            public void execute(final VirAttr input) {
-                virAttrDAO.delete(input.getKey(), attributableUtil.virAttrClass());
+            for (VirAttr<?> attr : findAttrs(schema, anyUtils.virAttrClass())) {
+                virAttrDAO.delete(attr.getKey(), anyUtils.virAttrClass());
             }
 
-        });
-
-        if (attributableUtil.getType() != AttributableType.USER) {
-            CollectionUtils.forAllDo(attrTemplateDAO.
-                    findBySchemaName(schema.getKey(), attributableUtil.virAttrTemplateClass()).iterator(),
-                    new Closure<Number>() {
-
-                        @Override
-                        public void execute(final Number input) {
-                            attrTemplateDAO.delete(input.longValue(), attributableUtil.virAttrTemplateClass());
-                        }
-
-                    });
+            resourceDAO.deleteMapping(key, anyUtils.virIntMappingType());
         }
-
-        resourceDAO.deleteMapping(key, attributableUtil.virIntMappingType(), UMappingItem.class);
 
         entityManager.remove(schema);
     }

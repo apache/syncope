@@ -80,6 +80,18 @@ public final class Entitlement {
 
     public static final String GROUP_DELETE = "GROUP_DELETE";
 
+    public static final String ANY_OBJECT_SEARCH = "ANY_OBJECT_SEARCH";
+
+    public static final String ANY_OBJECT_LIST = "ANY_OBJECT_LIST";
+
+    public static final String ANY_OBJECT_CREATE = "ANY_OBJECT_CREATE";
+
+    public static final String ANY_OBJECT_READ = "ANY_OBJECT_READ";
+
+    public static final String ANY_OBJECT_UPDATE = "ANY_OBJECT_UPDATE";
+
+    public static final String ANY_OBJECT_DELETE = "ANY_OBJECT_DELETE";
+
     public static final String RESOURCE_LIST = "RESOURCE_LIST";
 
     public static final String RESOURCE_CREATE = "RESOURCE_CREATE";

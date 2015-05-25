@@ -42,7 +42,6 @@ import org.apache.syncope.common.lib.to.ConfTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
-import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.common.lib.types.SchemaType;
@@ -58,7 +57,7 @@ public class ConfigurationITCase extends AbstractITCase {
         PlainSchemaTO testKey = new PlainSchemaTO();
         testKey.setKey("testKey" + getUUIDString());
         testKey.setType(AttrSchemaType.String);
-        createSchema(AttributableType.CONFIGURATION, SchemaType.PLAIN, testKey);
+        createSchema(SchemaType.PLAIN, testKey);
 
         AttrTO conf = new AttrTO();
         conf.setSchema(testKey.getKey());
@@ -144,7 +143,7 @@ public class ConfigurationITCase extends AbstractITCase {
         failing.setType(AttrSchemaType.String);
 
         try {
-            createSchema(AttributableType.CONFIGURATION, SchemaType.PLAIN, failing);
+            createSchema(SchemaType.PLAIN, failing);
             fail();
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidPlainSchema, e.getType());
@@ -191,19 +190,17 @@ public class ConfigurationITCase extends AbstractITCase {
         PlainSchemaTO membershipKey = new PlainSchemaTO();
         membershipKey.setKey("membershipKey" + getUUIDString());
         membershipKey.setType(AttrSchemaType.String);
-        createSchema(AttributableType.MEMBERSHIP, SchemaType.PLAIN, membershipKey);
+        createSchema(SchemaType.PLAIN, membershipKey);
 
         PlainSchemaTO groupKey = new PlainSchemaTO();
         groupKey.setKey("group"
                 + "Key" + getUUIDString());
         groupKey.setType(AttrSchemaType.String);
-        createSchema(AttributableType.GROUP, SchemaType.PLAIN, groupKey);
+        createSchema(SchemaType.PLAIN, groupKey);
 
         GroupTO groupTO = new GroupTO();
         groupTO.setRealm("/");
         groupTO.setName("aGroup" + getUUIDString());
-        groupTO.getMPlainAttrTemplates().add(membershipKey.getKey());
-        groupTO.getGPlainAttrTemplates().add(groupKey.getKey());
         groupTO = createGroup(groupTO);
 
         try {

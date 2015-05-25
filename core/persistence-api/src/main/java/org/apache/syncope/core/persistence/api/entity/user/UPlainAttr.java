@@ -21,13 +21,7 @@ package org.apache.syncope.core.persistence.api.entity.user;
 import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 
-public interface UPlainAttr extends PlainAttr {
-
-    @Override
-    User getOwner();
-
-    @Override
-    UPlainSchema getSchema();
+public interface UPlainAttr extends PlainAttr<User> {
 
     @Override
     List<? extends UPlainAttrValue> getValues();

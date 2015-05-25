@@ -34,24 +34,24 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.mod.GroupMod;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.apache.syncope.common.lib.types.SubjectType;
 import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.core.misc.RealmUtils;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
-import org.apache.syncope.core.persistence.api.dao.SubjectSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
-import org.apache.syncope.core.provisioning.api.AttributableTransformer;
 import org.apache.syncope.core.provisioning.api.GroupProvisioningManager;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.misc.security.AuthContextUtils;
 import org.apache.syncope.core.misc.security.UnauthorizedException;
+import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
+import org.apache.syncope.core.provisioning.api.AnyTransformer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
@@ -63,7 +63,7 @@ import org.springframework.transaction.interceptor.TransactionInterceptor;
  * Spring's Transactional logic at class level.
  */
 @Component
-public class GroupLogic extends AbstractSubjectLogic<GroupTO, GroupMod> {
+public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupMod> {
 
     @Autowired
     protected GroupDAO groupDAO;
@@ -72,7 +72,7 @@ public class GroupLogic extends AbstractSubjectLogic<GroupTO, GroupMod> {
     protected UserDAO userDAO;
 
     @Autowired
-    protected SubjectSearchDAO searchDAO;
+    protected AnySearchDAO searchDAO;
 
     @Autowired
     protected GroupDataBinder binder;
@@ -84,7 +84,7 @@ public class GroupLogic extends AbstractSubjectLogic<GroupTO, GroupMod> {
     protected PropagationTaskExecutor taskExecutor;
 
     @Autowired
-    protected AttributableTransformer attrTransformer;
+    protected AnyTransformer attrTransformer;
 
     @Resource(name = "anonymousUser")
     protected String anonymousUser;
@@ -144,7 +144,7 @@ public class GroupLogic extends AbstractSubjectLogic<GroupTO, GroupMod> {
     public int searchCount(final SearchCond searchCondition, final List<String> realms) {
         return searchDAO.count(
                 getEffectiveRealms(AuthContextUtils.getAuthorizations().get(Entitlement.GROUP_SEARCH), realms),
-                searchCondition, SubjectType.GROUP);
+                searchCondition, AnyTypeKind.GROUP);
     }
 
     @PreAuthorize("hasRole('" + Entitlement.GROUP_SEARCH + "')")
@@ -155,7 +155,7 @@ public class GroupLogic extends AbstractSubjectLogic<GroupTO, GroupMod> {
 
         final List<Group> matchingGroups = searchDAO.search(
                 getEffectiveRealms(AuthContextUtils.getAuthorizations().get(Entitlement.GROUP_SEARCH), realms),
-                searchCondition, page, size, orderBy, SubjectType.GROUP);
+                searchCondition, page, size, orderBy, AnyTypeKind.GROUP);
         return CollectionUtils.collect(matchingGroups, new Transformer<Group, GroupTO>() {
 
             @Override
@@ -175,7 +175,7 @@ public class GroupLogic extends AbstractSubjectLogic<GroupTO, GroupMod> {
                 AuthContextUtils.getAuthorizations().get(Entitlement.GROUP_CREATE),
                 Collections.singleton(groupTO.getRealm()));
         if (effectiveRealms.isEmpty()) {
-            throw new UnauthorizedException(SubjectType.GROUP, null);
+            throw new UnauthorizedException(AnyTypeKind.GROUP, null);
         }
 
         // Attributable transformation (if configured)
@@ -194,7 +194,7 @@ public class GroupLogic extends AbstractSubjectLogic<GroupTO, GroupMod> {
     @PreAuthorize("hasRole('" + Entitlement.GROUP_UPDATE + "')")
     @Override
     public GroupTO update(final GroupMod groupMod) {
-        Group group = groupDAO.authFetch(groupMod.getKey());
+        Group group = groupDAO.authFind(groupMod.getKey());
         if (group == null) {
             throw new NotFoundException("Group with key " + groupMod.getKey());
         }
@@ -202,7 +202,7 @@ public class GroupLogic extends AbstractSubjectLogic<GroupTO, GroupMod> {
                 AuthContextUtils.getAuthorizations().get(Entitlement.GROUP_UPDATE),
                 Collections.singleton(RealmUtils.getGroupOwnerRealm(group.getRealm().getFullPath(), group.getKey())));
         if (effectiveRealms.isEmpty()) {
-            throw new UnauthorizedException(SubjectType.GROUP, group.getKey());
+            throw new UnauthorizedException(AnyTypeKind.GROUP, group.getKey());
         }
 
         // Attribute value transformation (if configured)
@@ -219,7 +219,7 @@ public class GroupLogic extends AbstractSubjectLogic<GroupTO, GroupMod> {
     @PreAuthorize("hasRole('" + Entitlement.GROUP_DELETE + "')")
     @Override
     public GroupTO delete(final Long groupKey) {
-        Group group = groupDAO.authFetch(groupKey);
+        Group group = groupDAO.authFind(groupKey);
         if (group == null) {
             throw new NotFoundException("Group with key " + groupKey);
         }
@@ -227,7 +227,7 @@ public class GroupLogic extends AbstractSubjectLogic<GroupTO, GroupMod> {
                 AuthContextUtils.getAuthorizations().get(Entitlement.GROUP_DELETE),
                 Collections.singleton(RealmUtils.getGroupOwnerRealm(group.getRealm().getFullPath(), group.getKey())));
         if (effectiveRealms.isEmpty()) {
-            throw new UnauthorizedException(SubjectType.GROUP, group.getKey());
+            throw new UnauthorizedException(AnyTypeKind.GROUP, group.getKey());
         }
 
         List<Group> ownedGroups = groupDAO.findOwnedByGroup(groupKey);
@@ -301,7 +301,7 @@ public class GroupLogic extends AbstractSubjectLogic<GroupTO, GroupMod> {
     @Transactional(rollbackFor = { Throwable.class })
     @Override
     public GroupTO deprovision(final Long groupKey, final Collection<String> resources) {
-        final Group group = groupDAO.authFetch(groupKey);
+        final Group group = groupDAO.authFind(groupKey);
 
         List<PropagationStatus> statuses = provisioningManager.deprovision(groupKey, resources);
 

@@ -23,20 +23,15 @@ import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "membership")
 @XmlType
-public class MembershipTO extends AbstractAttributableTO {
+public class MembershipTO extends RelationshipTO {
 
     private static final long serialVersionUID = 5992828670273935861L;
 
-    private long groupKey;
-
     private String groupName;
 
-    public long getGroupKey() {
-        return groupKey;
-    }
-
-    public void setGroupKey(final long groupId) {
-        this.groupKey = groupId;
+    @Override
+    public String getRightType() {
+        return "group";
     }
 
     public String getGroupName() {

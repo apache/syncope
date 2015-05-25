@@ -19,49 +19,31 @@
 package org.apache.syncope.core.persistence.api.entity.group;
 
 import java.util.List;
-import org.apache.syncope.core.persistence.api.entity.AttrTemplate;
-import org.apache.syncope.core.persistence.api.entity.DynGroupMembership;
-import org.apache.syncope.core.persistence.api.entity.Schema;
-import org.apache.syncope.core.persistence.api.entity.Subject;
+import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
+import org.apache.syncope.core.persistence.api.entity.user.UDynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 
-public interface Group extends Subject<GPlainAttr, GDerAttr, GVirAttr> {
+public interface Group extends Any<GPlainAttr, GDerAttr, GVirAttr> {
 
     String getName();
 
-    <T extends AttrTemplate<K>, K extends Schema> T getAttrTemplate(Class<T> reference, String schemaName);
-
-    <T extends AttrTemplate<K>, K extends Schema> List<K> getAttrTemplateSchemas(Class<T> reference);
-
-    <T extends AttrTemplate<K>, K extends Schema> List<T> getAttrTemplates(Class<T> reference);
+    void setName(String name);
 
     Group getGroupOwner();
 
     User getUserOwner();
-
-    void setName(String name);
 
     void setGroupOwner(Group groupOwner);
 
     void setUserOwner(User userOwner);
 
     @Override
-    boolean addPlainAttr(GPlainAttr attr);
+    boolean add(GPlainAttr attr);
 
     @Override
-    boolean removePlainAttr(GPlainAttr attr);
-
-    @Override
-    boolean addDerAttr(GDerAttr attr);
-
-    @Override
-    boolean removeDerAttr(GDerAttr derAttr);
-
-    @Override
-    boolean addVirAttr(GVirAttr attr);
-
-    @Override
-    boolean removeVirAttr(GVirAttr virAttr);
+    boolean remove(GPlainAttr attr);
 
     @Override
     GPlainAttr getPlainAttr(String plainSchemaName);
@@ -70,10 +52,22 @@ public interface Group extends Subject<GPlainAttr, GDerAttr, GVirAttr> {
     List<? extends GPlainAttr> getPlainAttrs();
 
     @Override
+    boolean add(GDerAttr attr);
+
+    @Override
+    boolean remove(GDerAttr derAttr);
+
+    @Override
     GDerAttr getDerAttr(String derSchemaName);
 
     @Override
     List<? extends GDerAttr> getDerAttrs();
+
+    @Override
+    boolean add(GVirAttr attr);
+
+    @Override
+    boolean remove(GVirAttr virAttr);
 
     @Override
     GVirAttr getVirAttr(String virSchemaName);
@@ -81,7 +75,19 @@ public interface Group extends Subject<GPlainAttr, GDerAttr, GVirAttr> {
     @Override
     List<? extends GVirAttr> getVirAttrs();
 
-    DynGroupMembership getDynMembership();
+    ADynGroupMembership getADynMembership();
 
-    void setDynMembership(DynGroupMembership dynMembership);
+    void setADynMembership(ADynGroupMembership aDynMembership);
+
+    UDynGroupMembership getUDynMembership();
+
+    void setUDynMembership(UDynGroupMembership uDynMembership);
+
+    boolean add(TypeExtension typeExtension);
+
+    boolean remove(TypeExtension typeExtension);
+
+    TypeExtension getTypeExtension(AnyType anyType);
+
+    List<? extends TypeExtension> getTypeExtensions();
 }

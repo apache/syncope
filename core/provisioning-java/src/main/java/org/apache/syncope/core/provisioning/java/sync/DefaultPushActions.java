@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java.sync;
 
-import org.apache.syncope.core.persistence.api.entity.Subject;
+import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.provisioning.api.sync.PushActions;
 import org.apache.syncope.core.provisioning.api.sync.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.api.sync.ProvisioningResult;
@@ -34,58 +34,58 @@ public abstract class DefaultPushActions implements PushActions {
     }
 
     @Override
-    public <T extends Subject<?, ?, ?>> T beforeAssign(final ProvisioningProfile<?, ?> profile, final T subject)
+    public <T extends Any<?, ?, ?>> T beforeAssign(final ProvisioningProfile<?, ?> profile, final T any)
             throws JobExecutionException {
 
-        return subject;
+        return any;
     }
 
     @Override
-    public <T extends Subject<?, ?, ?>> T beforeProvision(final ProvisioningProfile<?, ?> profile, final T subject)
+    public <T extends Any<?, ?, ?>> T beforeProvision(final ProvisioningProfile<?, ?> profile, final T any)
             throws JobExecutionException {
 
-        return subject;
+        return any;
     }
 
     @Override
-    public <T extends Subject<?, ?, ?>> T beforeLink(final ProvisioningProfile<?, ?> profile, final T subject)
+    public <T extends Any<?, ?, ?>> T beforeLink(final ProvisioningProfile<?, ?> profile, final T any)
             throws JobExecutionException {
 
-        return subject;
+        return any;
     }
 
     @Override
-    public <T extends Subject<?, ?, ?>> T beforeUnassign(final ProvisioningProfile<?, ?> profile, final T subject)
+    public <T extends Any<?, ?, ?>> T beforeUnassign(final ProvisioningProfile<?, ?> profile, final T any)
             throws JobExecutionException {
 
-        return subject;
+        return any;
     }
 
     @Override
-    public <T extends Subject<?, ?, ?>> T beforeDeprovision(final ProvisioningProfile<?, ?> profile, final T subject)
+    public <T extends Any<?, ?, ?>> T beforeDeprovision(final ProvisioningProfile<?, ?> profile, final T any)
             throws JobExecutionException {
 
-        return subject;
+        return any;
     }
 
     @Override
-    public <T extends Subject<?, ?, ?>> T beforeUnlink(final ProvisioningProfile<?, ?> profile, final T subject)
+    public <T extends Any<?, ?, ?>> T beforeUnlink(final ProvisioningProfile<?, ?> profile, final T any)
             throws JobExecutionException {
 
-        return subject;
+        return any;
     }
 
     @Override
-    public <T extends Subject<?, ?, ?>> void onError(
-            final ProvisioningProfile<?, ?> profile, final T subject, final ProvisioningResult result,
+    public <T extends Any<?, ?, ?>> void onError(
+            final ProvisioningProfile<?, ?> profile, final T any, final ProvisioningResult result,
             final Exception error) throws JobExecutionException {
 
         // do nothing
     }
 
     @Override
-    public <T extends Subject<?, ?, ?>> void after(
-            final ProvisioningProfile<?, ?> profile, final T subject, final ProvisioningResult result)
+    public <T extends Any<?, ?, ?>> void after(
+            final ProvisioningProfile<?, ?> profile, final T any, final ProvisioningResult result)
             throws JobExecutionException {
 
         // do nothing

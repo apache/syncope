@@ -18,15 +18,14 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
-import java.util.List;
 import javax.persistence.MappedSuperclass;
 import javax.validation.constraints.NotNull;
+import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.DynMembership;
-import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 
 @MappedSuperclass
-public abstract class AbstractDynMembership extends AbstractEntity<Long> implements DynMembership {
+public abstract class AbstractDynMembership<A extends Any<?, ?, ?>>
+        extends AbstractEntity<Long> implements DynMembership<A> {
 
     private static final long serialVersionUID = 921821654690948787L;
 
@@ -41,25 +40,6 @@ public abstract class AbstractDynMembership extends AbstractEntity<Long> impleme
     @Override
     public void setFIQLCond(final String fiql) {
         this.fiql = fiql;
-    }
-
-    protected abstract List<JPAUser> internalGetUsers();
-
-    @Override
-    public boolean addUser(final User user) {
-        checkType(user, JPAUser.class);
-        return internalGetUsers().add((JPAUser) user);
-    }
-
-    @Override
-    public boolean removeUser(final User user) {
-        checkType(user, JPAUser.class);
-        return internalGetUsers().remove((JPAUser) user);
-    }
-
-    @Override
-    public List<? extends User> getUsers() {
-        return internalGetUsers();
     }
 
 }

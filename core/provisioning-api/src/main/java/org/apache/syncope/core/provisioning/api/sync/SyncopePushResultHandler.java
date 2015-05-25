@@ -22,5 +22,5 @@ import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 
 public interface SyncopePushResultHandler extends SyncopeResultHandler<PushTask, PushActions> {
 
-    boolean handle(long subjectId);
+    boolean handle(long anyKey);
 }

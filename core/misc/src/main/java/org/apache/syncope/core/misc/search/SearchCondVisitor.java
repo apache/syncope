@@ -28,26 +28,28 @@ import org.apache.cxf.jaxrs.ext.search.SearchUtils;
 import org.apache.cxf.jaxrs.ext.search.visitor.AbstractSearchConditionVisitor;
 import org.apache.syncope.common.lib.search.SearchableFields;
 import org.apache.syncope.common.lib.search.SpecialAttr;
+import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
-import org.apache.syncope.core.persistence.api.dao.search.GroupCond;
+import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
 import org.apache.syncope.core.persistence.api.dao.search.ResourceCond;
 import org.apache.syncope.core.persistence.api.dao.search.RoleCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
-import org.apache.syncope.core.persistence.api.dao.search.SubjectCond;
+import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 
 /**
  * Converts CXF's <tt>SearchCondition</tt> into internal <tt>SearchCond</tt>.
  */
 public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean, SearchCond> {
 
-    private static final List<String> ATTRIBUTABLE_FIELDS;
+    private static final List<String> ANY_FIELDS;
 
     static {
-        ATTRIBUTABLE_FIELDS = new ArrayList<String>();
-        ATTRIBUTABLE_FIELDS.addAll(SearchableFields.get(UserTO.class));
-        ATTRIBUTABLE_FIELDS.addAll(SearchableFields.get(GroupTO.class));
+        ANY_FIELDS = new ArrayList<>();
+        ANY_FIELDS.addAll(SearchableFields.get(UserTO.class));
+        ANY_FIELDS.addAll(SearchableFields.get(GroupTO.class));
+        ANY_FIELDS.addAll(SearchableFields.get(AnyObjectTO.class));
     }
 
     private SearchCond searchCond;
@@ -61,8 +63,8 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
     }
 
     private AttributeCond createAttributeCond(final String schema) {
-        AttributeCond attributeCond = ATTRIBUTABLE_FIELDS.contains(schema)
-                ? new SubjectCond()
+        AttributeCond attributeCond = ANY_FIELDS.contains(schema)
+                ? new AnyCond()
                 : new AttributeCond();
         attributeCond.setSchema(schema);
         return attributeCond;
@@ -97,7 +99,7 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
                 } else {
                     switch (specialAttrName) {
                         case GROUPS:
-                            GroupCond groupCond = new GroupCond();
+                            MembershipCond groupCond = new MembershipCond();
                             groupCond.setGroupKey(Long.valueOf(value));
                             leaf = SearchCond.getLeafCond(groupCond);
                             break;
@@ -124,10 +126,10 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
                             && leaf.getAttributeCond().getType() == AttributeCond.Type.ISNULL) {
 
                         leaf.getAttributeCond().setType(AttributeCond.Type.ISNOTNULL);
-                    } else if (leaf.getSubjectCond() != null
-                            && leaf.getSubjectCond().getType() == SubjectCond.Type.ISNULL) {
+                    } else if (leaf.getAnyCond() != null
+                            && leaf.getAnyCond().getType() == AnyCond.Type.ISNULL) {
 
-                        leaf.getSubjectCond().setType(AttributeCond.Type.ISNOTNULL);
+                        leaf.getAnyCond().setType(AttributeCond.Type.ISNOTNULL);
                     } else {
                         leaf = SearchCond.getNotLeafCond(leaf);
                     }

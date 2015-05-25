@@ -21,22 +21,22 @@ package org.apache.syncope.core.provisioning.api;
 import java.util.Collection;
 import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.mod.AbstractAttributableMod;
-import org.apache.syncope.common.lib.to.AbstractAttributableTO;
+import org.apache.syncope.common.lib.mod.AnyMod;
+import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 
-public interface ProvisioningManager<T extends AbstractAttributableTO, M extends AbstractAttributableMod> {
+public interface ProvisioningManager<T extends AnyTO, M extends AnyMod> {
 
-    Pair<Long, List<PropagationStatus>> create(T subject);
+    Pair<Long, List<PropagationStatus>> create(T anyTO);
 
-    Pair<Long, List<PropagationStatus>> update(M subjectMod);
+    Pair<Long, List<PropagationStatus>> update(M anyMod);
 
-    List<PropagationStatus> delete(Long subjectId);
+    List<PropagationStatus> delete(Long anyKey);
 
-    Long unlink(M subjectMod);
+    Long unlink(M anyMod);
 
-    Long link(M subjectMod);
+    Long link(M anyMod);
 
-    List<PropagationStatus> deprovision(Long user, Collection<String> resources);
+    List<PropagationStatus> deprovision(Long anyKey, Collection<String> resources);
 
 }

@@ -30,8 +30,8 @@ import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.entity.membership.Membership;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
+import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 
 public class SyncopeUserQueryImpl implements UserQuery {
 
@@ -152,10 +152,9 @@ public class SyncopeUserQueryImpl implements UserQuery {
                 result = Collections.<User>emptyList();
             } else {
                 result = new ArrayList<>();
-                List<Membership> memberships = groupDAO.findMemberships(group);
-                User user;
-                for (Membership membership : memberships) {
-                    user = fromSyncopeUser(membership.getUser());
+                List<UMembership> memberships = groupDAO.findUMemberships(group);
+                for (UMembership membership : memberships) {
+                    User user = fromSyncopeUser(membership.getLeftEnd());
                     if (!result.contains(user)) {
                         result.add(user);
                     }

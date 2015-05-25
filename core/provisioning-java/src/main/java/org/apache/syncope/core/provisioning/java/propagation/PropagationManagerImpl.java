@@ -26,29 +26,19 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.mod.AttrMod;
-import org.apache.syncope.common.lib.mod.MembershipMod;
 import org.apache.syncope.common.lib.mod.UserMod;
 import org.apache.syncope.common.lib.to.AttrTO;
-import org.apache.syncope.common.lib.to.MembershipTO;
-import org.apache.syncope.common.lib.types.AttributableType;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtils;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
-import org.apache.syncope.core.persistence.api.entity.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.MappingItem;
-import org.apache.syncope.core.persistence.api.entity.Subject;
 import org.apache.syncope.core.persistence.api.entity.VirAttr;
-import org.apache.syncope.core.persistence.api.entity.membership.Membership;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -59,6 +49,14 @@ import org.apache.syncope.core.provisioning.java.VirAttrHandler;
 import org.apache.syncope.core.misc.ConnObjectUtils;
 import org.apache.syncope.core.misc.MappingUtils;
 import org.apache.syncope.core.misc.jexl.JexlUtils;
+import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
+import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.AnyUtils;
+import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
+import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
+import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
@@ -77,6 +75,8 @@ public class PropagationManagerImpl implements PropagationManager {
      * Logger.
      */
     protected static final Logger LOG = LoggerFactory.getLogger(PropagationManager.class);
+
+    protected AnyObjectDAO anyObjectDAO;
 
     /**
      * User DAO.
@@ -106,10 +106,25 @@ public class PropagationManagerImpl implements PropagationManager {
     protected ConnObjectUtils connObjectUtils;
 
     @Autowired
-    protected AttributableUtilsFactory attrUtilsFactory;
+    protected AnyUtilsFactory anyUtilsFactory;
 
     @Autowired
     protected VirAttrHandler virAttrHandler;
+
+    @Override
+    public List<PropagationTask> getAnyObjectCreateTasks(
+            final Long key,
+            final Collection<AttrTO> vAttrs,
+            final PropagationByResource propByRes,
+            final List<String> noPropResourceNames) {
+
+        AnyObject anyObject = anyObjectDAO.authFind(key);
+        if (vAttrs != null && !vAttrs.isEmpty()) {
+            virAttrHandler.fillVirtual(anyObject, vAttrs, anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT));
+        }
+
+        return getCreateTaskIds(anyObject, null, null, propByRes, noPropResourceNames);
+    }
 
     @Override
     public List<PropagationTask> getUserCreateTasks(
@@ -118,27 +133,11 @@ public class PropagationManagerImpl implements PropagationManager {
             final PropagationByResource propByRes,
             final String password,
             final Collection<AttrTO> vAttrs,
-            final Collection<MembershipTO> membershipTOs,
             final Collection<String> noPropResourceNames) {
 
-        User user = userDAO.authFetch(key);
+        User user = userDAO.authFind(key);
         if (vAttrs != null && !vAttrs.isEmpty()) {
-            virAttrHandler.fillVirtual(user, vAttrs, attrUtilsFactory.getInstance(AttributableType.USER));
-        }
-        for (final Membership membership : user.getMemberships()) {
-            if (membership.getVirAttrs() != null && !membership.getVirAttrs().isEmpty()) {
-                MembershipTO membershipTO = CollectionUtils.find(membershipTOs, new Predicate<MembershipTO>() {
-
-                    @Override
-                    public boolean evaluate(final MembershipTO membershipTO) {
-                        return membershipTO.getGroupKey() == membership.getGroup().getKey();
-                    }
-                });
-                if (membershipTO != null) {
-                    virAttrHandler.fillVirtual(membership,
-                            membershipTO.getVirAttrs(), attrUtilsFactory.getInstance(AttributableType.MEMBERSHIP));
-                }
-            }
+            virAttrHandler.fillVirtual(user, vAttrs, anyUtilsFactory.getInstance(AnyTypeKind.USER));
         }
         return getCreateTaskIds(user, password, enable, propByRes, noPropResourceNames);
     }
@@ -176,15 +175,15 @@ public class PropagationManagerImpl implements PropagationManager {
             final PropagationByResource propByRes,
             final Collection<String> noPropResourceNames) {
 
-        Group group = groupDAO.authFetch(key);
+        Group group = groupDAO.authFind(key);
         if (vAttrs != null && !vAttrs.isEmpty()) {
-            virAttrHandler.fillVirtual(group, vAttrs, attrUtilsFactory.getInstance(AttributableType.GROUP));
+            virAttrHandler.fillVirtual(group, vAttrs, anyUtilsFactory.getInstance(AnyTypeKind.GROUP));
         }
 
         return getCreateTaskIds(group, null, null, propByRes, noPropResourceNames);
     }
 
-    protected List<PropagationTask> getCreateTaskIds(final Subject<?, ?, ?> subject,
+    protected List<PropagationTask> getCreateTaskIds(final Any<?, ?, ?> any,
             final String password, final Boolean enable,
             final PropagationByResource propByRes,
             final Collection<String> noPropResourceNames) {
@@ -197,7 +196,7 @@ public class PropagationManagerImpl implements PropagationManager {
             propByRes.get(ResourceOperation.CREATE).removeAll(noPropResourceNames);
         }
 
-        return createTasks(subject, password, true, null, null, null, null, enable, false, propByRes);
+        return createTasks(any, password, true, null, null, enable, false, propByRes);
     }
 
     /**
@@ -220,8 +219,7 @@ public class PropagationManagerImpl implements PropagationManager {
                 Collections.<String>emptySet(), // no virtual attributes to be managed
                 Collections.<AttrMod>emptySet(), // no virtual attributes to be managed
                 null, // no propagation by resources
-                noPropResourceNames,
-                Collections.<MembershipMod>emptySet());
+                noPropResourceNames);
     }
 
     /**
@@ -236,7 +234,7 @@ public class PropagationManagerImpl implements PropagationManager {
     public List<PropagationTask> getUserUpdateTasks(final WorkflowResult<Pair<UserMod, Boolean>> wfResult,
             final boolean changePwd, final Collection<String> noPropResourceNames) {
 
-        User user = userDAO.authFetch(wfResult.getResult().getKey().getKey());
+        User user = userDAO.authFind(wfResult.getResult().getKey().getKey());
         return getUpdateTasks(user,
                 wfResult.getResult().getKey().getPassword(),
                 changePwd,
@@ -244,8 +242,7 @@ public class PropagationManagerImpl implements PropagationManager {
                 wfResult.getResult().getKey().getVirAttrsToRemove(),
                 wfResult.getResult().getKey().getVirAttrsToUpdate(),
                 wfResult.getPropByRes(),
-                noPropResourceNames,
-                wfResult.getResult().getKey().getMembershipsToAdd());
+                noPropResourceNames);
     }
 
     @Override
@@ -264,7 +261,7 @@ public class PropagationManagerImpl implements PropagationManager {
             origPropByRes.merge(wfResult.getPropByRes());
 
             Set<String> pwdResourceNames = new HashSet<>(userMod.getPwdPropRequest().getResourceNames());
-            Collection<String> currentResourceNames = userDAO.findAllResourceNames(userDAO.authFetch(userMod.getKey()));
+            Collection<String> currentResourceNames = userDAO.findAllResourceNames(userDAO.authFind(userMod.getKey()));
             pwdResourceNames.retainAll(currentResourceNames);
             PropagationByResource pwdPropByRes = new PropagationByResource();
             pwdPropByRes.addAll(ResourceOperation.UPDATE, pwdResourceNames);
@@ -292,55 +289,25 @@ public class PropagationManagerImpl implements PropagationManager {
             final Set<String> vAttrsToBeRemoved, final Set<AttrMod> vAttrsToBeUpdated,
             final Set<String> noPropResourceNames) {
 
-        Group group = groupDAO.authFetch(wfResult.getResult());
+        Group group = groupDAO.authFind(wfResult.getResult());
         return getUpdateTasks(group, null, false, null,
-                vAttrsToBeRemoved, vAttrsToBeUpdated, wfResult.getPropByRes(), noPropResourceNames,
-                Collections.<MembershipMod>emptySet());
+                vAttrsToBeRemoved, vAttrsToBeUpdated, wfResult.getPropByRes(), noPropResourceNames);
     }
 
     @Override
-    public List<PropagationTask> getUpdateTasks(final Subject<?, ?, ?> subject,
+    public List<PropagationTask> getUpdateTasks(final Any<?, ?, ?> any,
             final String password, final boolean changePwd, final Boolean enable,
             final Set<String> vAttrsToBeRemoved, final Set<AttrMod> vAttrsToBeUpdated,
-            final PropagationByResource propByRes, final Collection<String> noPropResourceNames,
-            final Set<MembershipMod> membershipsToAdd) {
+            final PropagationByResource propByRes, final Collection<String> noPropResourceNames) {
 
-        PropagationByResource localPropByRes = virAttrHandler.fillVirtual(subject, vAttrsToBeRemoved == null
+        PropagationByResource localPropByRes = virAttrHandler.fillVirtual(any, vAttrsToBeRemoved == null
                 ? Collections.<String>emptySet()
                 : vAttrsToBeRemoved, vAttrsToBeUpdated == null
                         ? Collections.<AttrMod>emptySet()
-                        : vAttrsToBeUpdated, attrUtilsFactory.getInstance(subject));
-
-        // SYNCOPE-458 fill membership virtual attributes
-        Collection<String> resourceNames;
-        if (subject instanceof User) {
-            User user = (User) subject;
-            resourceNames = userDAO.findAllResourceNames(user);
-            for (final Membership membership : user.getMemberships()) {
-                if (membership.getVirAttrs() != null && !membership.getVirAttrs().isEmpty()) {
-                    MembershipMod membMod = CollectionUtils.find(membershipsToAdd, new Predicate<MembershipMod>() {
-
-                        @Override
-                        public boolean evaluate(final MembershipMod membershipMod) {
-                            return membershipMod.getGroup() == membership.getGroup().getKey();
-                        }
-                    });
-                    if (membMod != null) {
-                        virAttrHandler.fillVirtual(membership, membMod.getVirAttrsToRemove() == null
-                                ? Collections.<String>emptySet()
-                                : membMod.getVirAttrsToRemove(),
-                                membMod.getVirAttrsToUpdate() == null ? Collections.<AttrMod>emptySet()
-                                        : membMod.getVirAttrsToUpdate(), attrUtilsFactory.getInstance(
-                                        AttributableType.MEMBERSHIP));
-                    }
-                }
-            }
-        } else {
-            resourceNames = subject.getResourceNames();
-        }
+                        : vAttrsToBeUpdated, anyUtilsFactory.getInstance(any));
 
         if (propByRes == null || propByRes.isEmpty()) {
-            localPropByRes.addAll(ResourceOperation.UPDATE, resourceNames);
+            localPropByRes.addAll(ResourceOperation.UPDATE, any.getResourceNames());
         } else {
             localPropByRes.merge(propByRes);
         }
@@ -357,29 +324,26 @@ public class PropagationManagerImpl implements PropagationManager {
             }
         }
 
-        // SYNCOPE-458 fill membership virtual attributes to be updated map
-        Map<String, AttrMod> membVAttrsToBeUpdatedMap = new HashMap<>();
-        for (MembershipMod membershipMod : membershipsToAdd) {
-            for (AttrMod attrMod : membershipMod.getVirAttrsToUpdate()) {
-                membVAttrsToBeUpdatedMap.put(attrMod.getSchema(), attrMod);
-            }
-        }
+        return createTasks(
+                any, password, changePwd, vAttrsToBeRemoved, vAttrsToBeUpdatedMap, enable, false, localPropByRes);
+    }
 
-        // SYNCOPE-458 fill membership virtual attributes to be removed set
-        final Set<String> membVAttrsToBeRemoved = new HashSet<>();
-        for (MembershipMod membershipMod : membershipsToAdd) {
-            membVAttrsToBeRemoved.addAll(membershipMod.getVirAttrsToRemove());
-        }
+    @Override
+    public List<PropagationTask> getAnyObjectDeleteTasks(final Long anyObjectKey, final String noPropResourceName) {
+        return getAnyObjectDeleteTasks(anyObjectKey, Collections.<String>singleton(noPropResourceName));
+    }
 
-        return createTasks(subject, password, changePwd,
-                vAttrsToBeRemoved, vAttrsToBeUpdatedMap, membVAttrsToBeRemoved, membVAttrsToBeUpdatedMap, enable, false,
-                localPropByRes);
+    @Override
+    public List<PropagationTask> getAnyObjectDeleteTasks(
+            final Long anyObjectKey, final Collection<String> noPropResourceNames) {
+
+        AnyObject anyObject = anyObjectDAO.authFind(anyObjectKey);
+        return getDeleteTaskIds(anyObject, anyObject.getResourceNames(), noPropResourceNames);
     }
 
     @Override
     public List<PropagationTask> getUserDeleteTasks(final Long userKey, final Collection<String> noPropResourceNames) {
-
-        User user = userDAO.authFetch(userKey);
+        User user = userDAO.authFind(userKey);
         return getDeleteTaskIds(user, userDAO.findAllResourceNames(user), noPropResourceNames);
     }
 
@@ -387,25 +351,23 @@ public class PropagationManagerImpl implements PropagationManager {
     public List<PropagationTask> getUserDeleteTasks(
             final Long userKey, final Set<String> resourceNames, final Collection<String> noPropResourceNames) {
 
-        User user = userDAO.authFetch(userKey);
+        User user = userDAO.authFind(userKey);
         return getDeleteTaskIds(user, resourceNames, noPropResourceNames);
     }
 
     @Override
     public List<PropagationTask> getUserDeleteTasks(final WorkflowResult<Long> wfResult) {
-        User user = userDAO.authFetch(wfResult.getResult());
-        return createTasks(user, null, false, null, null, null, null, false, true, wfResult.getPropByRes());
+        User user = userDAO.authFind(wfResult.getResult());
+        return createTasks(user, null, false, null, null, false, true, wfResult.getPropByRes());
     }
 
     @Override
     public List<PropagationTask> getGroupDeleteTasks(final Long groupKey) {
-
         return getGroupDeleteTasks(groupKey, Collections.<String>emptySet());
     }
 
     @Override
     public List<PropagationTask> getGroupDeleteTasks(final Long groupKey, final String noPropResourceName) {
-
         return getGroupDeleteTasks(groupKey, Collections.<String>singleton(noPropResourceName));
     }
 
@@ -413,7 +375,7 @@ public class PropagationManagerImpl implements PropagationManager {
     public List<PropagationTask> getGroupDeleteTasks(
             final Long groupKey, final Collection<String> noPropResourceNames) {
 
-        Group group = groupDAO.authFetch(groupKey);
+        Group group = groupDAO.authFind(groupKey);
         return getDeleteTaskIds(group, group.getResourceNames(), noPropResourceNames);
     }
 
@@ -421,12 +383,12 @@ public class PropagationManagerImpl implements PropagationManager {
     public List<PropagationTask> getGroupDeleteTasks(
             final Long groupKey, final Set<String> resourceNames, final Collection<String> noPropResourceNames) {
 
-        Group group = groupDAO.authFetch(groupKey);
+        Group group = groupDAO.authFind(groupKey);
         return getDeleteTaskIds(group, resourceNames, noPropResourceNames);
     }
 
     protected List<PropagationTask> getDeleteTaskIds(
-            final Subject<?, ?, ?> subject,
+            final Any<?, ?, ?> any,
             final Collection<String> resourceNames,
             final Collection<String> noPropResourceNames) {
 
@@ -435,41 +397,38 @@ public class PropagationManagerImpl implements PropagationManager {
         if (noPropResourceNames != null && !noPropResourceNames.isEmpty()) {
             propByRes.get(ResourceOperation.DELETE).removeAll(noPropResourceNames);
         }
-        return createTasks(subject, null, false, null, null, null, null, false, true, propByRes);
+        return createTasks(any, null, false, null, null, false, true, propByRes);
     }
 
     /**
      * Create propagation tasks.
      *
-     * @param subject user / group to be provisioned
+     * @param any user / group to be provisioned
      * @param password cleartext password to be provisioned
      * @param changePwd whether password should be included for propagation attributes or not
      * @param vAttrsToBeRemoved virtual attributes to be removed
      * @param vAttrsToBeUpdated virtual attributes to be added
-     * @param membVAttrsToBeRemoved membership virtual attributes to be removed
-     * @param membVAttrsToBeUpdatedMap membership virtual attributes to be added
      * @param enable whether user must be enabled or not
      * @param deleteOnResource whether user / group must be deleted anyway from external resource or not
      * @param propByRes operation to be performed per resource
      * @return list of propagation tasks created
      */
-    protected List<PropagationTask> createTasks(final Subject<?, ?, ?> subject,
+    protected List<PropagationTask> createTasks(final Any<?, ?, ?> any,
             final String password, final boolean changePwd,
             final Set<String> vAttrsToBeRemoved, final Map<String, AttrMod> vAttrsToBeUpdated,
-            final Set<String> membVAttrsToBeRemoved, final Map<String, AttrMod> membVAttrsToBeUpdatedMap,
             final Boolean enable, final boolean deleteOnResource, final PropagationByResource propByRes) {
 
-        LOG.debug("Provisioning subject {}:\n{}", subject, propByRes);
+        LOG.debug("Provisioning any {}:\n{}", any, propByRes);
 
-        final AttributableUtils attrUtils = attrUtilsFactory.getInstance(subject);
+        AnyUtils anyUtils = anyUtilsFactory.getInstance(any);
 
         if (!propByRes.get(ResourceOperation.CREATE).isEmpty()
                 && vAttrsToBeRemoved != null && vAttrsToBeUpdated != null) {
 
-            connObjectUtils.retrieveVirAttrValues(subject, attrUtils);
+            connObjectUtils.retrieveVirAttrValues(any);
 
             // update vAttrsToBeUpdated as well
-            for (VirAttr virAttr : subject.getVirAttrs()) {
+            for (VirAttr<?> virAttr : any.getVirAttrs()) {
                 final String schema = virAttr.getSchema().getKey();
 
                 final AttrMod attributeMod = new AttrMod();
@@ -488,36 +447,39 @@ public class PropagationManagerImpl implements PropagationManager {
 
         for (ResourceOperation operation : ResourceOperation.values()) {
             for (String resourceName : propByRes.get(operation)) {
-                final ExternalResource resource = resourceDAO.find(resourceName);
+                ExternalResource resource = resourceDAO.find(resourceName);
+                Provision provision = resource == null ? null : resource.getProvision(any.getType());
                 if (resource == null) {
                     LOG.error("Invalid resource name specified: {}, ignoring...", resourceName);
-                } else if (attrUtils.getMappingItems(resource, MappingPurpose.PROPAGATION).isEmpty()) {
+                } else if (provision == null) {
+                    LOG.error("No provision specified on resource {} for type {}, ignoring...",
+                            resource, any.getType());
+                } else if (anyUtils.getMappingItems(provision, MappingPurpose.PROPAGATION).isEmpty()) {
                     LOG.warn("Requesting propagation for {} but no propagation mapping provided for {}",
-                            attrUtils.getType(), resource);
+                            any.getType(), resource);
                 } else {
                     PropagationTask task = entityFactory.newEntity(PropagationTask.class);
                     task.setResource(resource);
-                    task.setObjectClassName(connObjectUtils.fromSubject(subject).getObjectClassValue());
-                    task.setSubjectType(attrUtils.getType());
+                    task.setObjectClassName(resource.getProvision(any.getType()).getObjectClass().getObjectClassValue());
+                    task.setAnyTypeKind(anyUtils.getAnyTypeKind());
                     if (!deleteOnResource) {
-                        task.setSubjectKey(subject.getKey());
+                        task.setAnyKey(any.getKey());
                     }
                     task.setPropagationOperation(operation);
                     task.setPropagationMode(resource.getPropagationMode());
-                    task.setOldAccountId(propByRes.getOldAccountId(resource.getKey()));
+                    task.setOldConnObjectKey(propByRes.getOldAccountId(resource.getKey()));
 
-                    Pair<String, Set<Attribute>> preparedAttrs = MappingUtils.prepareAttributes(attrUtils, subject,
-                            password, changePwd, vAttrsToBeRemoved, vAttrsToBeUpdated, membVAttrsToBeRemoved,
-                            membVAttrsToBeUpdatedMap, enable, resource);
-                    task.setAccountId(preparedAttrs.getKey());
+                    Pair<String, Set<Attribute>> preparedAttrs = MappingUtils.prepareAttributes(anyUtils, any,
+                            password, changePwd, vAttrsToBeRemoved, vAttrsToBeUpdated, enable, provision);
+                    task.setConnObjectKey(preparedAttrs.getKey());
 
                     // Check if any of mandatory attributes (in the mapping) is missing or not received any value: 
                     // if so, add special attributes that will be evaluated by PropagationTaskExecutor
                     List<String> mandatoryMissing = new ArrayList<>();
                     List<String> mandatoryNullOrEmpty = new ArrayList<>();
-                    for (MappingItem item : attrUtils.getMappingItems(resource, MappingPurpose.PROPAGATION)) {
-                        if (!item.isAccountid()
-                                && JexlUtils.evaluateMandatoryCondition(item.getMandatoryCondition(), subject)) {
+                    for (MappingItem item : anyUtils.getMappingItems(provision, MappingPurpose.PROPAGATION)) {
+                        if (!item.isConnObjectKey()
+                                && JexlUtils.evaluateMandatoryCondition(item.getMandatoryCondition(), any)) {
 
                             Attribute attr = AttributeUtil.find(item.getExtAttrName(), preparedAttrs.getValue());
                             if (attr == null) {

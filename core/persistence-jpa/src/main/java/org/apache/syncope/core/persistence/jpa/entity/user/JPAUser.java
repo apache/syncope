@@ -20,11 +20,8 @@ package org.apache.syncope.core.persistence.jpa.entity.user;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import javax.persistence.Basic;
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
@@ -52,29 +49,34 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
-import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
-import org.apache.syncope.core.persistence.api.entity.membership.Membership;
 import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
 import org.apache.syncope.core.persistence.api.entity.user.UDerAttr;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.UVirAttr;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.validation.entity.UserCheck;
-import org.apache.syncope.core.persistence.jpa.entity.AbstractSubject;
-import org.apache.syncope.core.persistence.jpa.entity.JPAExternalResource;
+import org.apache.syncope.core.persistence.jpa.entity.resource.JPAExternalResource;
 import org.apache.syncope.core.persistence.jpa.entity.JPASecurityQuestion;
-import org.apache.syncope.core.persistence.jpa.entity.membership.JPAMembership;
 import org.apache.syncope.core.misc.security.Encryptor;
 import org.apache.syncope.core.misc.security.SecureRandomUtils;
+import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.Role;
+import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
+import org.apache.syncope.core.persistence.api.entity.user.UMembership;
+import org.apache.syncope.core.persistence.api.entity.user.URelationship;
+import org.apache.syncope.core.persistence.jpa.entity.AbstractAny;
+import org.apache.syncope.core.persistence.jpa.entity.JPAAnyTypeClass;
 import org.apache.syncope.core.persistence.jpa.entity.JPARole;
 
 @Entity
 @Table(name = JPAUser.TABLE)
 @Cacheable
 @UserCheck
-public class JPAUser extends AbstractSubject<UPlainAttr, UDerAttr, UVirAttr> implements User {
+public class JPAUser extends AbstractAny<UPlainAttr, UDerAttr, UVirAttr> implements User {
 
     private static final long serialVersionUID = -3905046855521446823L;
 
@@ -96,21 +98,17 @@ public class JPAUser extends AbstractSubject<UPlainAttr, UDerAttr, UVirAttr> imp
             @JoinColumn(name = "role_id"))
     private List<JPARole> roles;
 
-    @OneToMany(cascade = CascadeType.MERGE, mappedBy = "user")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     @Valid
-    private List<JPAMembership> memberships;
+    private List<JPAUPlainAttr> plainAttrs = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     @Valid
-    private List<JPAUPlainAttr> plainAttrs;
+    private List<JPAUDerAttr> derAttrs = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     @Valid
-    private List<JPAUDerAttr> derAttrs;
-
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
-    @Valid
-    private List<JPAUVirAttr> virAttrs;
+    private List<JPAUVirAttr> virAttrs = new ArrayList<>();
 
     private String workflowId;
 
@@ -130,7 +128,7 @@ public class JPAUser extends AbstractSubject<UPlainAttr, UDerAttr, UVirAttr> imp
     @ElementCollection
     @Column(name = "passwordHistoryValue")
     @CollectionTable(name = "SyncopeUser_passwordHistory", joinColumns =
-            @JoinColumn(name = "SyncopeUser_id", referencedColumnName = "id"))
+            @JoinColumn(name = "user_id", referencedColumnName = "id"))
     private List<String> passwordHistory;
 
     /**
@@ -174,7 +172,22 @@ public class JPAUser extends AbstractSubject<UPlainAttr, UDerAttr, UVirAttr> imp
             inverseJoinColumns =
             @JoinColumn(name = "resource_name"))
     @Valid
-    private Set<JPAExternalResource> resources;
+    private List<JPAExternalResource> resources = new ArrayList<>();
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(joinColumns =
+            @JoinColumn(name = "user_id"),
+            inverseJoinColumns =
+            @JoinColumn(name = "anyTypeClass_name"))
+    private List<JPAAnyTypeClass> auxClasses = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "leftEnd")
+    @Valid
+    private List<JPAURelationship> relationships = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "leftEnd")
+    @Valid
+    private List<JPAUMembership> memberships = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.EAGER)
     private JPASecurityQuestion securityQuestion;
@@ -187,13 +200,9 @@ public class JPAUser extends AbstractSubject<UPlainAttr, UDerAttr, UVirAttr> imp
 
         roles = new ArrayList<>();
         memberships = new ArrayList<>();
-        plainAttrs = new ArrayList<>();
-        derAttrs = new ArrayList<>();
-        virAttrs = new ArrayList<>();
         passwordHistory = new ArrayList<>();
         failedLogins = 0;
         suspended = getBooleanAsInteger(Boolean.FALSE);
-        resources = new HashSet<>();
     }
 
     @Override
@@ -202,18 +211,28 @@ public class JPAUser extends AbstractSubject<UPlainAttr, UDerAttr, UVirAttr> imp
     }
 
     @Override
-    protected Set<JPAExternalResource> internalGetResources() {
+    public AnyType getType() {
+        return ApplicationContextProvider.getApplicationContext().getBean(AnyTypeDAO.class).findUser();
+    }
+
+    @Override
+    public void setType(final AnyType type) {
+        // nothing to do
+    }
+
+    @Override
+    protected List<JPAExternalResource> internalGetResources() {
         return resources;
     }
 
     @Override
-    public boolean addRole(final Role role) {
+    public boolean add(final Role role) {
         checkType(role, JPARole.class);
         return roles.contains((JPARole) role) || roles.add((JPARole) role);
     }
 
     @Override
-    public boolean removeRole(final Role role) {
+    public boolean remove(final Role role) {
         checkType(role, JPARole.class);
         return roles.remove((JPARole) role);
     }
@@ -221,45 +240,6 @@ public class JPAUser extends AbstractSubject<UPlainAttr, UDerAttr, UVirAttr> imp
     @Override
     public List<? extends Role> getRoles() {
         return roles;
-    }
-
-    @Override
-    public boolean addMembership(final Membership membership) {
-        checkType(membership, JPAMembership.class);
-        return memberships.contains((JPAMembership) membership) || memberships.add((JPAMembership) membership);
-    }
-
-    @Override
-    public boolean removeMembership(final Membership membership) {
-        checkType(membership, JPAMembership.class);
-        return memberships.remove((JPAMembership) membership);
-    }
-
-    @Override
-    public Membership getMembership(final Long groupKey) {
-        return CollectionUtils.find(getMemberships(), new Predicate<Membership>() {
-
-            @Override
-            public boolean evaluate(final Membership membership) {
-                return membership.getGroup() != null && groupKey.equals(membership.getGroup().getKey());
-            }
-        });
-    }
-
-    @Override
-    public List<? extends Membership> getMemberships() {
-        return memberships;
-    }
-
-    @Override
-    public Collection<Long> getStaticGroupKeys() {
-        return CollectionUtils.collect(memberships, new Transformer<Membership, Long>() {
-
-            @Override
-            public Long transform(final Membership membership) {
-                return membership.getGroup().getKey();
-            }
-        }, new HashSet<Long>());
     }
 
     @Override
@@ -309,13 +289,13 @@ public class JPAUser extends AbstractSubject<UPlainAttr, UDerAttr, UVirAttr> imp
     }
 
     @Override
-    public boolean addPlainAttr(final UPlainAttr attr) {
+    public boolean add(final UPlainAttr attr) {
         checkType(attr, JPAUPlainAttr.class);
         return plainAttrs.add((JPAUPlainAttr) attr);
     }
 
     @Override
-    public boolean removePlainAttr(final UPlainAttr attr) {
+    public boolean remove(final UPlainAttr attr) {
         checkType(attr, JPAUPlainAttr.class);
         return plainAttrs.remove((JPAUPlainAttr) attr);
     }
@@ -326,13 +306,13 @@ public class JPAUser extends AbstractSubject<UPlainAttr, UDerAttr, UVirAttr> imp
     }
 
     @Override
-    public boolean addDerAttr(final UDerAttr attr) {
+    public boolean add(final UDerAttr attr) {
         checkType(attr, JPAUDerAttr.class);
         return derAttrs.add((JPAUDerAttr) attr);
     }
 
     @Override
-    public boolean removeDerAttr(final UDerAttr attr) {
+    public boolean remove(final UDerAttr attr) {
         checkType(attr, JPAUDerAttr.class);
         return derAttrs.remove((JPAUDerAttr) attr);
     }
@@ -343,13 +323,13 @@ public class JPAUser extends AbstractSubject<UPlainAttr, UDerAttr, UVirAttr> imp
     }
 
     @Override
-    public boolean addVirAttr(final UVirAttr attr) {
+    public boolean add(final UVirAttr attr) {
         checkType(attr, JPAUVirAttr.class);
         return virAttrs.add((JPAUVirAttr) attr);
     }
 
     @Override
-    public boolean removeVirAttr(final UVirAttr attr) {
+    public boolean remove(final UVirAttr attr) {
         checkType(attr, JPAUVirAttr.class);
         return virAttrs.remove((JPAUVirAttr) attr);
     }
@@ -528,4 +508,76 @@ public class JPAUser extends AbstractSubject<UPlainAttr, UDerAttr, UVirAttr> imp
         this.securityAnswer = securityAnswer;
     }
 
+    @Override
+    public boolean add(final AnyTypeClass auxClass) {
+        checkType(auxClass, JPAAnyTypeClass.class);
+        return this.auxClasses.add((JPAAnyTypeClass) auxClass);
+    }
+
+    @Override
+    public boolean remove(final AnyTypeClass auxClass) {
+        checkType(auxClass, JPAAnyTypeClass.class);
+        return this.auxClasses.remove((JPAAnyTypeClass) auxClass);
+    }
+
+    @Override
+    public List<? extends AnyTypeClass> getAuxClasses() {
+        return auxClasses;
+    }
+
+    @Override
+    public boolean add(final URelationship relationship) {
+        checkType(relationship, JPAURelationship.class);
+        return this.relationships.add((JPAURelationship) relationship);
+    }
+
+    @Override
+    public boolean remove(final URelationship relationship) {
+        checkType(relationship, JPAURelationship.class);
+        return this.relationships.remove((JPAURelationship) relationship);
+    }
+
+    @Override
+    public URelationship getRelationship(final AnyObject rightEnd) {
+        return CollectionUtils.find(getRelationships(), new Predicate<URelationship>() {
+
+            @Override
+            public boolean evaluate(final URelationship relationship) {
+                return rightEnd != null && rightEnd.equals(relationship.getRightEnd());
+            }
+        });
+    }
+
+    @Override
+    public List<? extends URelationship> getRelationships() {
+        return relationships;
+    }
+
+    @Override
+    public boolean add(final UMembership membership) {
+        checkType(membership, JPAUMembership.class);
+        return this.memberships.add((JPAUMembership) membership);
+    }
+
+    @Override
+    public boolean remove(final UMembership membership) {
+        checkType(membership, JPAUMembership.class);
+        return this.memberships.remove((JPAUMembership) membership);
+    }
+
+    @Override
+    public UMembership getMembership(final Long groupKey) {
+        return CollectionUtils.find(getMemberships(), new Predicate<UMembership>() {
+
+            @Override
+            public boolean evaluate(final UMembership membership) {
+                return groupKey != null && groupKey.equals(membership.getRightEnd().getKey());
+            }
+        });
+    }
+
+    @Override
+    public List<? extends UMembership> getMemberships() {
+        return memberships;
+    }
 }

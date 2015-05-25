@@ -21,15 +21,17 @@ package org.apache.syncope.common.lib.to;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.lib.AbstractBaseBean;
-import org.apache.syncope.common.lib.types.SubjectType;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 
 @XmlRootElement(name = "camelRoute")
 @XmlType
 public class CamelRouteTO extends AbstractBaseBean {
 
+    private static final long serialVersionUID = 6431992877435181674L;
+
     private String name;
 
-    private SubjectType subjectType;
+    private AnyTypeKind anyTypeKind;
 
     private String content;
 
@@ -49,12 +51,12 @@ public class CamelRouteTO extends AbstractBaseBean {
         this.content = content;
     }
 
-    public SubjectType getSubjectType() {
-        return subjectType;
+    public AnyTypeKind getAnyTypeKind() {
+        return anyTypeKind;
     }
 
-    public void setSubjectType(final SubjectType subjectType) {
-        this.subjectType = subjectType;
+    public void setAnyTypeKind(final AnyTypeKind anyTypeKind) {
+        this.anyTypeKind = anyTypeKind;
     }
 
 }

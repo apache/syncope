@@ -27,12 +27,11 @@ import org.apache.commons.lang3.ClassUtils;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.entity.AnnotatedEntity;
+import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.Attr;
-import org.apache.syncope.core.persistence.api.entity.Attributable;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.Policy;
 import org.apache.syncope.core.persistence.api.entity.Schema;
-import org.apache.syncope.core.persistence.api.entity.Subject;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,8 +62,7 @@ public class EntityValidationListener {
                         && !Attr.class.equals(interf)
                         && !Task.class.equals(interf)
                         && !Policy.class.equals(interf)
-                        && !Attributable.class.equals(interf)
-                        && !Subject.class.equals(interf)
+                        && !Any.class.equals(interf)
                         && Entity.class.isAssignableFrom(interf)) {
 
                     entityInt = interf;

@@ -26,17 +26,16 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.report.GroupReportletConf;
 import org.apache.syncope.common.lib.report.GroupReportletConf.Feature;
-import org.apache.syncope.common.lib.to.AbstractAttributableTO;
-import org.apache.syncope.common.lib.to.AbstractSubjectTO;
+import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.GroupTO;
-import org.apache.syncope.common.lib.types.SubjectType;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
-import org.apache.syncope.core.persistence.api.dao.SubjectSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
-import org.apache.syncope.core.persistence.api.entity.membership.Membership;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.misc.search.SearchCondConverter;
+import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
+import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.xml.sax.ContentHandler;
@@ -52,7 +51,7 @@ public class GroupReportlet extends AbstractReportlet<GroupReportletConf> {
     private GroupDAO groupDAO;
 
     @Autowired
-    private SubjectSearchDAO searchDAO;
+    private AnySearchDAO searchDAO;
 
     @Autowired
     private GroupDataBinder groupDataBinder;
@@ -65,7 +64,7 @@ public class GroupReportlet extends AbstractReportlet<GroupReportletConf> {
         } else {
             result = searchDAO.search(SyncopeConstants.FULL_ADMIN_REALMS,
                     SearchCondConverter.convert(conf.getMatchingCond()),
-                    page, PAGE_SIZE, Collections.<OrderByClause>emptyList(), SubjectType.GROUP);
+                    page, PAGE_SIZE, Collections.<OrderByClause>emptyList(), AnyTypeKind.GROUP);
         }
 
         return result;
@@ -75,19 +74,19 @@ public class GroupReportlet extends AbstractReportlet<GroupReportletConf> {
         return StringUtils.isBlank(conf.getMatchingCond())
                 ? groupDAO.count(SyncopeConstants.FULL_ADMIN_REALMS)
                 : searchDAO.count(SyncopeConstants.FULL_ADMIN_REALMS,
-                        SearchCondConverter.convert(conf.getMatchingCond()), SubjectType.GROUP);
+                        SearchCondConverter.convert(conf.getMatchingCond()), AnyTypeKind.GROUP);
     }
 
-    private void doExtractResources(final ContentHandler handler, final AbstractSubjectTO subjectTO)
+    private void doExtractResources(final ContentHandler handler, final AnyTO anyTO)
             throws SAXException {
 
-        if (subjectTO.getResources().isEmpty()) {
-            LOG.debug("No resources found for {}[{}]", subjectTO.getClass().getSimpleName(), subjectTO.getKey());
+        if (anyTO.getResources().isEmpty()) {
+            LOG.debug("No resources found for {}[{}]", anyTO.getClass().getSimpleName(), anyTO.getKey());
         } else {
             AttributesImpl atts = new AttributesImpl();
             handler.startElement("", "", "resources", null);
 
-            for (String resourceName : subjectTO.getResources()) {
+            for (String resourceName : anyTO.getResources()) {
                 atts.clear();
 
                 atts.addAttribute("", "", ReportXMLConst.ATTR_NAME, ReportXMLConst.XSD_STRING, resourceName);
@@ -99,13 +98,13 @@ public class GroupReportlet extends AbstractReportlet<GroupReportletConf> {
         }
     }
 
-    private void doExtractAttributes(final ContentHandler handler, final AbstractAttributableTO attributableTO,
+    private void doExtractAttributes(final ContentHandler handler, final AnyTO anyTO,
             final Collection<String> attrs, final Collection<String> derAttrs, final Collection<String> virAttrs)
             throws SAXException {
 
         AttributesImpl atts = new AttributesImpl();
         if (!attrs.isEmpty()) {
-            Map<String, AttrTO> attrMap = attributableTO.getPlainAttrMap();
+            Map<String, AttrTO> attrMap = anyTO.getPlainAttrMap();
 
             handler.startElement("", "", "attributes", null);
             for (String attrName : attrs) {
@@ -122,7 +121,7 @@ public class GroupReportlet extends AbstractReportlet<GroupReportletConf> {
                     }
                 } else {
                     LOG.debug("{} not found for {}[{}]", attrName,
-                            attributableTO.getClass().getSimpleName(), attributableTO.getKey());
+                            anyTO.getClass().getSimpleName(), anyTO.getKey());
                 }
 
                 handler.endElement("", "", "attribute");
@@ -131,7 +130,7 @@ public class GroupReportlet extends AbstractReportlet<GroupReportletConf> {
         }
 
         if (!derAttrs.isEmpty()) {
-            Map<String, AttrTO> derAttrMap = attributableTO.getDerAttrMap();
+            Map<String, AttrTO> derAttrMap = anyTO.getDerAttrMap();
 
             handler.startElement("", "", "derivedAttributes", null);
             for (String attrName : derAttrs) {
@@ -148,7 +147,7 @@ public class GroupReportlet extends AbstractReportlet<GroupReportletConf> {
                     }
                 } else {
                     LOG.debug("{} not found for {}[{}]", attrName,
-                            attributableTO.getClass().getSimpleName(), attributableTO.getKey());
+                            anyTO.getClass().getSimpleName(), anyTO.getKey());
                 }
 
                 handler.endElement("", "", "derivedAttribute");
@@ -157,7 +156,7 @@ public class GroupReportlet extends AbstractReportlet<GroupReportletConf> {
         }
 
         if (!virAttrs.isEmpty()) {
-            Map<String, AttrTO> virAttrMap = attributableTO.getVirAttrMap();
+            Map<String, AttrTO> virAttrMap = anyTO.getVirAttrMap();
 
             handler.startElement("", "", "virtualAttributes", null);
             for (String attrName : virAttrs) {
@@ -174,7 +173,7 @@ public class GroupReportlet extends AbstractReportlet<GroupReportletConf> {
                     }
                 } else {
                     LOG.debug("{} not found for {}[{}]", attrName,
-                            attributableTO.getClass().getSimpleName(), attributableTO.getKey());
+                            anyTO.getClass().getSimpleName(), anyTO.getKey());
                 }
 
                 handler.endElement("", "", "virtualAttribute");
@@ -236,13 +235,13 @@ public class GroupReportlet extends AbstractReportlet<GroupReportletConf> {
             if (conf.getFeatures().contains(Feature.users)) {
                 handler.startElement("", "", "users", null);
 
-                for (Membership memb : groupDAO.findMemberships(group)) {
+                for (UMembership memb : groupDAO.findUMemberships(group)) {
                     atts.clear();
 
                     atts.addAttribute("", "", "key", ReportXMLConst.XSD_LONG,
-                            String.valueOf(memb.getUser().getKey()));
+                            String.valueOf(memb.getLeftEnd().getKey()));
                     atts.addAttribute("", "", "username", ReportXMLConst.XSD_STRING,
-                            String.valueOf(memb.getUser().getUsername()));
+                            String.valueOf(memb.getLeftEnd().getUsername()));
 
                     handler.startElement("", "", "user", atts);
                     handler.endElement("", "", "user");

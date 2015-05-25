@@ -19,17 +19,12 @@
 package org.apache.syncope.common.lib.mod;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.ArrayList;
-import java.util.List;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "groupMod")
 @XmlType
-public class GroupMod extends AbstractSubjectMod {
+public class GroupMod extends AnyMod {
 
     private static final long serialVersionUID = 7455805264680210747L;
 
@@ -39,31 +34,9 @@ public class GroupMod extends AbstractSubjectMod {
 
     private ReferenceMod groupOwner;
 
-    private boolean modGAttrTemplates;
+    private String aDynMembershipCond;
 
-    private final List<String> gPlainAttrTemplates = new ArrayList<>();
-
-    private boolean modGDerAttrTemplates;
-
-    private final List<String> gDerAttrTemplates = new ArrayList<>();
-
-    private boolean modGVirAttrTemplates;
-
-    private final List<String> gVirAttrTemplates = new ArrayList<>();
-
-    private boolean modMAttrTemplates;
-
-    private final List<String> mPlainAttrTemplates = new ArrayList<>();
-
-    private boolean modMDerAttrTemplates;
-
-    private final List<String> mDerAttrTemplates = new ArrayList<>();
-
-    private boolean modMVirAttrTemplates;
-
-    private final List<String> mVirAttrTemplates = new ArrayList<>();
-
-    private String dynMembershipCond;
+    private String uDynMembershipCond;
 
     public String getName() {
         return name;
@@ -89,110 +62,26 @@ public class GroupMod extends AbstractSubjectMod {
         this.groupOwner = groupOwner;
     }
 
-    public boolean isModGAttrTemplates() {
-        return modGAttrTemplates;
+    public String getADynMembershipCond() {
+        return aDynMembershipCond;
     }
 
-    public void setModGAttrTemplates(final boolean modGAttrTemplates) {
-        this.modGAttrTemplates = modGAttrTemplates;
+    public void setADynMembershipCond(final String aDynMembershipCond) {
+        this.aDynMembershipCond = aDynMembershipCond;
     }
 
-    @XmlElementWrapper(name = "gPlainAttrTemplates")
-    @XmlElement(name = "gAttrTemplate")
-    @JsonProperty("gPlainAttrTemplates")
-    public List<String> getGPlainAttrTemplates() {
-        return gPlainAttrTemplates;
+    public String getUDynMembershipCond() {
+        return uDynMembershipCond;
     }
 
-    public boolean isModGDerAttrTemplates() {
-        return modGDerAttrTemplates;
-    }
-
-    public void setModGDerAttrTemplates(final boolean modGDerAttrTemplates) {
-        this.modGDerAttrTemplates = modGDerAttrTemplates;
-    }
-
-    @XmlElementWrapper(name = "gDerAttrTemplates")
-    @XmlElement(name = "gDerAttrTemplate")
-    @JsonProperty("gDerAttrTemplates")
-    public List<String> getGDerAttrTemplates() {
-        return gDerAttrTemplates;
-    }
-
-    public boolean isModGVirAttrTemplates() {
-        return modGVirAttrTemplates;
-    }
-
-    public void setModGVirAttrTemplates(final boolean modGVirAttrTemplates) {
-        this.modGVirAttrTemplates = modGVirAttrTemplates;
-    }
-
-    @XmlElementWrapper(name = "gVirAttrTemplates")
-    @XmlElement(name = "gVirAttrTemplate")
-    @JsonProperty("gVirAttrTemplates")
-    public List<String> getGVirAttrTemplates() {
-        return gVirAttrTemplates;
-    }
-
-    public boolean isModMAttrTemplates() {
-        return modMAttrTemplates;
-    }
-
-    public void setModMAttrTemplates(final boolean modMAttrTemplates) {
-        this.modMAttrTemplates = modMAttrTemplates;
-    }
-
-    @XmlElementWrapper(name = "mPlainAttrTemplates")
-    @XmlElement(name = "mAttrTemplate")
-    @JsonProperty("mPlainAttrTemplates")
-    public List<String> getMPlainAttrTemplates() {
-        return mPlainAttrTemplates;
-    }
-
-    public boolean isModMDerAttrTemplates() {
-        return modMDerAttrTemplates;
-    }
-
-    public void setModMDerAttrTemplates(final boolean modMDerAttrTemplates) {
-        this.modMDerAttrTemplates = modMDerAttrTemplates;
-    }
-
-    @XmlElementWrapper(name = "mDerAttrTemplates")
-    @XmlElement(name = "mDerAttrTemplate")
-    @JsonProperty("mDerAttrTemplates")
-    public List<String> getMDerAttrTemplates() {
-        return mDerAttrTemplates;
-    }
-
-    public boolean isModMVirAttrTemplates() {
-        return modMVirAttrTemplates;
-    }
-
-    public void setModMVirAttrTemplates(final boolean modMVirAttrTemplates) {
-        this.modMVirAttrTemplates = modMVirAttrTemplates;
-    }
-
-    @XmlElementWrapper(name = "mVirAttrTemplates")
-    @XmlElement(name = "mVirAttrTemplate")
-    @JsonProperty("mVirAttrTemplates")
-    public List<String> getMVirAttrTemplates() {
-        return mVirAttrTemplates;
-    }
-
-    public String getDynMembershipCond() {
-        return dynMembershipCond;
-    }
-
-    public void setDynMembershipCond(final String dynMembershipCond) {
-        this.dynMembershipCond = dynMembershipCond;
+    public void setUDynMembershipCond(final String uDynMembershipCond) {
+        this.uDynMembershipCond = uDynMembershipCond;
     }
 
     @JsonIgnore
     @Override
     public boolean isEmpty() {
         return super.isEmpty() && name == null && userOwner == null && groupOwner == null
-                && gPlainAttrTemplates.isEmpty() && gDerAttrTemplates.isEmpty() && gVirAttrTemplates.isEmpty()
-                && mPlainAttrTemplates.isEmpty() && mDerAttrTemplates.isEmpty() && mVirAttrTemplates.isEmpty()
-                && dynMembershipCond == null;
+                && aDynMembershipCond == null && uDynMembershipCond == null;
     }
 }

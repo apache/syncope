@@ -40,21 +40,22 @@ import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.TaskExecTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
-import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.lib.types.SchemaType;
-import org.apache.syncope.common.lib.types.SubjectType;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.common.rest.api.service.NotificationService;
 import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.apache.syncope.common.rest.api.service.TaskService;
+import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -93,9 +94,9 @@ public class PushTaskITCase extends AbstractTaskITCase {
         PushTaskTO task = new PushTaskTO();
         task.setName("Test create Push");
         task.setResource(RESOURCE_NAME_WS2);
-        task.setUserFilter(
+        task.getFilters().put(AnyTypeKind.USER.name(),
                 SyncopeClient.getUserSearchConditionBuilder().hasNotResources(RESOURCE_NAME_TESTDB2).query());
-        task.setGroupFilter(
+        task.getFilters().put(AnyTypeKind.GROUP.name(),
                 SyncopeClient.getGroupSearchConditionBuilder().isNotNull("cool").query());
         task.setMatchingRule(MatchingRule.LINK);
 
@@ -107,8 +108,10 @@ public class PushTaskITCase extends AbstractTaskITCase {
         assertNotNull(task);
         assertEquals(task.getKey(), actual.getKey());
         assertEquals(task.getJobClassName(), actual.getJobClassName());
-        assertEquals(task.getUserFilter(), actual.getUserFilter());
-        assertEquals(task.getGroupFilter(), actual.getGroupFilter());
+        assertEquals(task.getFilters().get(AnyTypeKind.USER.name()),
+                actual.getFilters().get(AnyTypeKind.USER.name()));
+        assertEquals(task.getFilters().get(AnyTypeKind.GROUP.name()),
+                actual.getFilters().get(AnyTypeKind.GROUP.name()));
         assertEquals(UnmatchingRule.ASSIGN, actual.getUnmatchingRule());
         assertEquals(MatchingRule.LINK, actual.getMatchingRule());
     }
@@ -119,12 +122,12 @@ public class PushTaskITCase extends AbstractTaskITCase {
 
         execSyncTask(23L, 50, false);
 
-        assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.GROUP, 3L));
+        assertNotNull(resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), 3L));
         assertTrue(groupService.read(3L).getResources().contains(RESOURCE_NAME_LDAP));
 
         execSyncTask(23L, 50, false);
 
-        assertNotNull(resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.GROUP, 3L));
+        assertNotNull(resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), 3L));
         assertFalse(groupService.read(3L).getResources().contains(RESOURCE_NAME_LDAP));
     }
 
@@ -249,12 +252,12 @@ public class PushTaskITCase extends AbstractTaskITCase {
     @Test
     public void issueSYNCOPE598() {
         // create a new group schema
-        final PlainSchemaTO schemaTO = new PlainSchemaTO();
+        PlainSchemaTO schemaTO = new PlainSchemaTO();
         schemaTO.setKey("LDAPGroupName" + getUUIDString());
         schemaTO.setType(AttrSchemaType.String);
         schemaTO.setMandatoryCondition("true");
 
-        final PlainSchemaTO newPlainSchemaTO = createSchema(AttributableType.GROUP, SchemaType.PLAIN, schemaTO);
+        PlainSchemaTO newPlainSchemaTO = createSchema(SchemaType.PLAIN, schemaTO);
         assertEquals(schemaTO, newPlainSchemaTO);
 
         // create a new sample group
@@ -262,7 +265,6 @@ public class PushTaskITCase extends AbstractTaskITCase {
         groupTO.setName("all" + getUUIDString());
         groupTO.setRealm("/even");
 
-        groupTO.getGPlainAttrTemplates().add(newPlainSchemaTO.getKey());
         groupTO.getPlainAttrs().add(attrTO(newPlainSchemaTO.getKey(), "all"));
 
         groupTO = createGroup(groupTO);
@@ -277,61 +279,33 @@ public class PushTaskITCase extends AbstractTaskITCase {
             resourceTO.setKey(resourceName);
             resourceTO.setConnectorId(105L);
 
-            final MappingTO umapping = new MappingTO();
+            ProvisionTO provisionTO = new ProvisionTO();
+            provisionTO.setAnyType(AnyTypeKind.GROUP.name());
+            provisionTO.setObjectClass(ObjectClass.GROUP_NAME);
+            resourceTO.getProvisions().add(provisionTO);
+
+            MappingTO rmapping = new MappingTO();
+            provisionTO.setMapping(rmapping);
+
             MappingItemTO item = new MappingItemTO();
-            item.setIntMappingType(IntMappingType.Username);
-            item.setExtAttrName("cn");
-            item.setAccountid(true);
-            item.setPurpose(MappingPurpose.PROPAGATION);
-            item.setMandatoryCondition("true");
-            umapping.setAccountIdItem(item);
-
-            item = new MappingItemTO();
-            item.setIntMappingType(IntMappingType.UserPlainSchema);
-            item.setExtAttrName("surname");
-            item.setIntAttrName("sn");
-            item.setPurpose(MappingPurpose.BOTH);
-            umapping.addItem(item);
-
-            item = new MappingItemTO();
-            item.setIntMappingType(IntMappingType.UserPlainSchema);
-            item.setExtAttrName("email");
-            item.setIntAttrName("mail");
-            item.setPurpose(MappingPurpose.BOTH);
-            umapping.addItem(item);
-
-            item = new MappingItemTO();
-            item.setIntMappingType(IntMappingType.Password);
-            item.setPassword(true);
-            item.setPurpose(MappingPurpose.BOTH);
-            item.setMandatoryCondition("true");
-            umapping.addItem(item);
-
-            umapping.setAccountLink("'cn=' + username + ',ou=people,o=isp'");
-
-            final MappingTO rmapping = new MappingTO();
-
-            item = new MappingItemTO();
             item.setIntMappingType(IntMappingType.GroupPlainSchema);
             item.setExtAttrName("cn");
             item.setIntAttrName(newPlainSchemaTO.getKey());
             item.setAccountid(true);
             item.setPurpose(MappingPurpose.BOTH);
-            rmapping.setAccountIdItem(item);
+            rmapping.setConnObjectKeyItem(item);
 
-            rmapping.setAccountLink("'cn=' + " + newPlainSchemaTO.getKey() + " + ',ou=groups,o=isp'");
-
-            resourceTO.setGmapping(rmapping);
+            rmapping.setConnObjectLink("'cn=' + " + newPlainSchemaTO.getKey() + " + ',ou=groups,o=isp'");
 
             Response response = resourceService.create(resourceTO);
             newResourceTO = getObject(response.getLocation(), ResourceService.class, ResourceTO.class);
 
             assertNotNull(newResourceTO);
-            assertNull(newResourceTO.getUmapping());
-            assertNotNull(newResourceTO.getGmapping());
+            assertNull(newResourceTO.getProvision(AnyTypeKind.USER.name()));
+            assertNotNull(newResourceTO.getProvision(AnyTypeKind.GROUP.name()).getMapping());
 
             // create push task ad-hoc
-            final PushTaskTO task = new PushTaskTO();
+            PushTaskTO task = new PushTaskTO();
             task.setName("issueSYNCOPE598");
             task.setResource(resourceName);
             task.setPerformCreate(true);
@@ -341,12 +315,12 @@ public class PushTaskITCase extends AbstractTaskITCase {
             task.setMatchingRule(MatchingRule.UPDATE);
 
             response = taskService.create(task);
-            final PushTaskTO push = getObject(response.getLocation(), TaskService.class, PushTaskTO.class);
+            PushTaskTO push = getObject(response.getLocation(), TaskService.class, PushTaskTO.class);
 
             assertNotNull(push);
 
             // execute the new task
-            final TaskExecTO pushExec = execSyncTask(push.getKey(), 50, false);
+            TaskExecTO pushExec = execSyncTask(push.getKey(), 50, false);
             assertTrue(PropagationTaskExecStatus.valueOf(pushExec.getStatus()).isSuccessful());
         } finally {
             groupService.delete(groupTO.getKey());
@@ -359,12 +333,12 @@ public class PushTaskITCase extends AbstractTaskITCase {
     @Test
     public void issueSYNCOPE648() {
         //1. Create Push Task
-        final PushTaskTO task = new PushTaskTO();
+        PushTaskTO task = new PushTaskTO();
         task.setName("Test create Push");
         task.setResource(RESOURCE_NAME_LDAP);
-        task.setUserFilter(
+        task.getFilters().put(AnyTypeKind.USER.name(),
                 SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("_NO_ONE_").query());
-        task.setGroupFilter(
+        task.getFilters().put(AnyTypeKind.GROUP.name(),
                 SyncopeClient.getGroupSearchConditionBuilder().is("name").equalTo("citizen").query());
         task.setMatchingRule(MatchingRule.IGNORE);
         task.setUnmatchingRule(UnmatchingRule.IGNORE);

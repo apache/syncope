@@ -46,8 +46,8 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.ResourceAssociationActionType;
 import org.apache.syncope.common.lib.types.ResourceDeassociationActionType;
 import org.apache.syncope.common.lib.wrap.ResourceName;
-import org.apache.syncope.common.rest.api.beans.SubjectListQuery;
-import org.apache.syncope.common.rest.api.beans.SubjectSearchQuery;
+import org.apache.syncope.common.rest.api.beans.AnyListQuery;
+import org.apache.syncope.common.rest.api.beans.AnySearchQuery;
 
 /**
  * REST operations for users.
@@ -102,7 +102,7 @@ public interface UserService extends JAXRSService {
      */
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    PagedResult<UserTO> list(@BeanParam SubjectListQuery listQuery);
+    PagedResult<UserTO> list(@BeanParam AnyListQuery listQuery);
 
     /**
      * Returns a paged list of users matching the given query.
@@ -113,7 +113,7 @@ public interface UserService extends JAXRSService {
     @GET
     @Path("search")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    PagedResult<UserTO> search(@BeanParam SubjectSearchQuery searchQuery);
+    PagedResult<UserTO> search(@BeanParam AnySearchQuery searchQuery);
 
     /**
      * Creates a new user.

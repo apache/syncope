@@ -19,19 +19,13 @@
 package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "group")
 @XmlType
 @JsonIgnoreProperties({ "displayName" })
-public class GroupTO extends AbstractSubjectTO {
+public class GroupTO extends AnyTO {
 
     private static final long serialVersionUID = -7785920258290147542L;
 
@@ -41,19 +35,9 @@ public class GroupTO extends AbstractSubjectTO {
 
     private Long groupOwner;
 
-    private final List<String> gPlainAttrTemplates = new ArrayList<>();
+    private String aDynMembershipCond;
 
-    private final List<String> gDerAttrTemplates = new ArrayList<>();
-
-    private final List<String> gVirAttrTemplates = new ArrayList<>();
-
-    private final List<String> mPlainAttrTemplates = new ArrayList<>();
-
-    private final List<String> mDerAttrTemplates = new ArrayList<>();
-
-    private final List<String> mVirAttrTemplates = new ArrayList<>();
-
-    private String dynMembershipCond;
+    private String uDynMembershipCond;
 
     public String getName() {
         return name;
@@ -79,54 +63,20 @@ public class GroupTO extends AbstractSubjectTO {
         this.groupOwner = groupOwner;
     }
 
-    @XmlElementWrapper(name = "gPlainAttrTemplates")
-    @XmlElement(name = "gPlainAttrTemplate")
-    @JsonProperty("gPlainAttrTemplates")
-    public List<String> getGPlainAttrTemplates() {
-        return gPlainAttrTemplates;
+    public String getADynMembershipCond() {
+        return aDynMembershipCond;
     }
 
-    @XmlElementWrapper(name = "gDerAttrTemplates")
-    @XmlElement(name = "gDerAttrTemplate")
-    @JsonProperty("gDerAttrTemplates")
-    public List<String> getGDerAttrTemplates() {
-        return gDerAttrTemplates;
+    public void setADynMembershipCond(final String aDynMembershipCond) {
+        this.aDynMembershipCond = aDynMembershipCond;
     }
 
-    @XmlElementWrapper(name = "gVirAttrTemplates")
-    @XmlElement(name = "gVirAttrTemplate")
-    @JsonProperty("gVirAttrTemplates")
-    public List<String> getGVirAttrTemplates() {
-        return gVirAttrTemplates;
+    public String getUDynMembershipCond() {
+        return uDynMembershipCond;
     }
 
-    @XmlElementWrapper(name = "mPlainAttrTemplates")
-    @XmlElement(name = "mPlainAttrTemplate")
-    @JsonProperty("mPlainAttrTemplates")
-    public List<String> getMPlainAttrTemplates() {
-        return mPlainAttrTemplates;
-    }
-
-    @XmlElementWrapper(name = "mDerAttrTemplates")
-    @XmlElement(name = "mDerAttrTemplate")
-    @JsonProperty("mDerAttrTemplates")
-    public List<String> getMDerAttrTemplates() {
-        return mDerAttrTemplates;
-    }
-
-    @XmlElementWrapper(name = "mVirAttrTemplates")
-    @XmlElement(name = "mVirAttrTemplate")
-    @JsonProperty("mVirAttrTemplates")
-    public List<String> getMVirAttrTemplates() {
-        return mVirAttrTemplates;
-    }
-
-    public String getDynMembershipCond() {
-        return dynMembershipCond;
-    }
-
-    public void setDynMembershipCond(final String dynMembershipCond) {
-        this.dynMembershipCond = dynMembershipCond;
+    public void setUDynMembershipCond(final String uDynMembershipCond) {
+        this.uDynMembershipCond = uDynMembershipCond;
     }
 
 }

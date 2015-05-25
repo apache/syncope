@@ -23,7 +23,7 @@ import org.apache.syncope.common.lib.types.AttrSchemaType;
 
 public interface PlainAttrValue extends Entity<Long> {
 
-    PlainAttr getAttr();
+    PlainAttr<?> getAttr();
 
     byte[] getBinaryValue();
 
@@ -45,7 +45,7 @@ public interface PlainAttrValue extends Entity<Long> {
 
     void parseValue(PlainSchema schema, String value);
 
-    void setAttr(PlainAttr attr);
+    void setAttr(PlainAttr<?> attr);
 
     void setBinaryValue(byte[] binaryValue);
 

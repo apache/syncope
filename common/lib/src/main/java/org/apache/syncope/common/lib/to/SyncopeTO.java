@@ -43,11 +43,15 @@ public class SyncopeTO extends AbstractBaseBean {
 
     private final List<String> connIdLocations = new ArrayList<>();
 
-    private String attributableTransformer;
+    private String anyTransformer;
+
+    private String anyObjectWorkflowAdapter;
 
     private String userWorkflowAdapter;
 
     private String groupWorkflowAdapter;
+
+    private String anyObjectProvisioningManager;
 
     private String userProvisioningManager;
 
@@ -96,8 +100,12 @@ public class SyncopeTO extends AbstractBaseBean {
         return connIdLocations;
     }
 
-    public String getAttributableTransformer() {
-        return attributableTransformer;
+    public String getAnyTransformer() {
+        return anyTransformer;
+    }
+
+    public String getAnyObjectWorkflowAdapter() {
+        return anyObjectWorkflowAdapter;
     }
 
     public String getUserWorkflowAdapter() {
@@ -106,6 +114,10 @@ public class SyncopeTO extends AbstractBaseBean {
 
     public String getGroupWorkflowAdapter() {
         return groupWorkflowAdapter;
+    }
+
+    public String getAnyObjectProvisioningManager() {
+        return anyObjectProvisioningManager;
     }
 
     public String getUserProvisioningManager() {
@@ -199,8 +211,12 @@ public class SyncopeTO extends AbstractBaseBean {
         this.pwdResetRequiringSecurityQuestions = pwdResetRequiringSecurityQuestions;
     }
 
-    public void setAttributableTransformer(final String attributableTransformer) {
-        this.attributableTransformer = attributableTransformer;
+    public void setAnyTransformer(final String anyTransformer) {
+        this.anyTransformer = anyTransformer;
+    }
+
+    public void setAnyObjectWorkflowAdapter(final String anyObjectWorkflowAdapter) {
+        this.anyObjectWorkflowAdapter = anyObjectWorkflowAdapter;
     }
 
     public void setUserWorkflowAdapter(final String userWorkflowAdapter) {
@@ -209,6 +225,10 @@ public class SyncopeTO extends AbstractBaseBean {
 
     public void setGroupWorkflowAdapter(final String groupWorkflowAdapter) {
         this.groupWorkflowAdapter = groupWorkflowAdapter;
+    }
+
+    public void setAnyObjectProvisioningManager(final String anyObjectProvisioningManager) {
+        this.anyObjectProvisioningManager = anyObjectProvisioningManager;
     }
 
     public void setUserProvisioningManager(final String userProvisioningManager) {

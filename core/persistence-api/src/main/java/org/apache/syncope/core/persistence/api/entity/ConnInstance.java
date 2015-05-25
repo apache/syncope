@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.api.entity;
 
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import java.util.List;
 import java.util.Set;
 import org.apache.syncope.common.lib.types.ConnConfProperty;

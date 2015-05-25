@@ -21,7 +21,7 @@ package org.apache.syncope.core.workflow.api;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import java.io.OutputStream;
 import java.util.List;
-import org.apache.syncope.common.lib.mod.AbstractAttributableMod;
+import org.apache.syncope.common.lib.mod.AnyMod;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
 
 public interface WorkflowAdapter {
@@ -79,7 +79,7 @@ public interface WorkflowAdapter {
     WorkflowFormTO getForm(String workflowId);
 
     /**
-     * Claim a form for a given user.
+     * Claim a form for a given object.
      *
      * @param taskId Workflow task to which the form is associated
      * @return updated form
@@ -90,7 +90,7 @@ public interface WorkflowAdapter {
      * Submit a form.
      *
      * @param form to be submitted
-     * @return user updated by this form submit
+     * @return object updated by this form submit
      */
-    WorkflowResult<? extends AbstractAttributableMod> submitForm(WorkflowFormTO form);
+    WorkflowResult<? extends AnyMod> submitForm(WorkflowFormTO form);
 }

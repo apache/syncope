@@ -35,71 +35,71 @@ public enum IntMappingType {
     // -------------------------
     // User attribute types (the same in UserMappingType)
     // -------------------------
-    UserPlainSchema(AttributableType.USER),
-    UserDerivedSchema(AttributableType.USER),
-    UserVirtualSchema(AttributableType.USER),
-    UserId(AttributableType.USER),
-    Username(AttributableType.USER),
-    Password(AttributableType.USER),
+    UserPlainSchema(AnyTypeKind.USER),
+    UserDerivedSchema(AnyTypeKind.USER),
+    UserVirtualSchema(AnyTypeKind.USER),
+    UserId(AnyTypeKind.USER),
+    Username(AnyTypeKind.USER),
+    Password(AnyTypeKind.USER),
     // -------------------------
     // Group attribute types (the same in GroupMappingType)
     // -------------------------
-    GroupPlainSchema(AttributableType.GROUP),
-    GroupDerivedSchema(AttributableType.GROUP),
-    GroupVirtualSchema(AttributableType.GROUP),
-    GroupId(AttributableType.GROUP),
-    GroupName(AttributableType.GROUP),
-    GroupOwnerSchema(AttributableType.GROUP),
+    GroupPlainSchema(AnyTypeKind.GROUP),
+    GroupDerivedSchema(AnyTypeKind.GROUP),
+    GroupVirtualSchema(AnyTypeKind.GROUP),
+    GroupId(AnyTypeKind.GROUP),
+    GroupName(AnyTypeKind.GROUP),
+    GroupOwnerSchema(AnyTypeKind.GROUP),
     // -------------------------
-    // Membership attribute types (the same in MembershipMappingType)
+    // Any attribute types (the same in AnyMappingType)
     // -------------------------
-    MembershipPlainSchema(AttributableType.MEMBERSHIP),
-    MembershipDerivedSchema(AttributableType.MEMBERSHIP),
-    MembershipVirtualSchema(AttributableType.MEMBERSHIP),
-    MembershipId(AttributableType.MEMBERSHIP);
+    AnyPlainSchema(AnyTypeKind.ANY_OBJECT),
+    AnyDerivedSchema(AnyTypeKind.ANY_OBJECT),
+    AnyVirtualSchema(AnyTypeKind.ANY_OBJECT),
+    AnyId(AnyTypeKind.ANY_OBJECT);
 
-    private final AttributableType attributableType;
+    private final AnyTypeKind anyTypeKind;
 
-    private IntMappingType(final AttributableType attributableType) {
-        this.attributableType = attributableType;
+    private IntMappingType(final AnyTypeKind anyTypeKind) {
+        this.anyTypeKind = anyTypeKind;
     }
 
-    public AttributableType getAttributableType() {
-        return attributableType;
+    public AnyTypeKind getAnyTypeKind() {
+        return anyTypeKind;
     }
 
     /**
-     * Get attribute types for a certain attributable type.
+     * Get attribute types for a certain any object type.
      *
-     * @param attributableType attributable type
+     * @param anyTypeKind any object type
      * @param toBeFiltered types to be filtered from the result.
      * @return set of attribute types.
      */
     public static Set<IntMappingType> getAttributeTypes(
-            final AttributableType attributableType, final Collection<IntMappingType> toBeFiltered) {
+            final AnyTypeKind anyTypeKind, final Collection<IntMappingType> toBeFiltered) {
 
-        final Set<IntMappingType> res = getAttributeTypes(attributableType);
+        final Set<IntMappingType> res = getAttributeTypes(anyTypeKind);
         res.removeAll(toBeFiltered);
 
         return res;
     }
 
     /**
-     * Get attribute types for a certain attributable type.
+     * Get attribute types for a certain any object type.
      *
-     * @param attributableType attributable type
+     * @param anyTypeKind any object type
      * @return set of attribute types.
      */
-    public static Set<IntMappingType> getAttributeTypes(final AttributableType attributableType) {
+    public static Set<IntMappingType> getAttributeTypes(final AnyTypeKind anyTypeKind) {
         EnumSet<?> enumset;
 
-        switch (attributableType) {
+        switch (anyTypeKind) {
             case GROUP:
                 enumset = EnumSet.allOf(GroupMappingType.class);
                 break;
 
-            case MEMBERSHIP:
-                enumset = EnumSet.allOf(MembershipMappingType.class);
+            case ANY_OBJECT:
+                enumset = EnumSet.allOf(AnyMappingType.class);
                 break;
 
             case USER:
@@ -119,18 +119,18 @@ public enum IntMappingType {
     public static Set<IntMappingType> getEmbedded() {
         return EnumSet.of(IntMappingType.UserId, IntMappingType.Username, IntMappingType.Password,
                 IntMappingType.GroupId, IntMappingType.GroupName, IntMappingType.GroupOwnerSchema,
-                IntMappingType.MembershipId);
+                IntMappingType.AnyId);
     }
 
     /**
-     * Check if attribute type belongs to the specified attributable type set.
+     * Check if attribute type belongs to the specified any object type set.
      *
-     * @param attributableType attributable type.
+     * @param anyTypeKind any object type.
      * @param type attribute type.
-     * @return true if attribute type belongs to the specified attributable type set.
+     * @return true if attribute type belongs to the specified any object type set.
      */
-    public static boolean contains(final AttributableType attributableType, final String type) {
-        switch (attributableType) {
+    public static boolean contains(final AnyTypeKind anyTypeKind, final String type) {
+        switch (anyTypeKind) {
             case GROUP:
                 for (GroupMappingType c : GroupMappingType.values()) {
                     if (c.name().equals(type)) {
@@ -139,8 +139,8 @@ public enum IntMappingType {
                 }
                 break;
 
-            case MEMBERSHIP:
-                for (MembershipMappingType c : MembershipMappingType.values()) {
+            case ANY_OBJECT:
+                for (AnyMappingType c : AnyMappingType.values()) {
                     if (c.name().equals(type)) {
                         return true;
                     }
@@ -188,14 +188,14 @@ public enum IntMappingType {
     }
 
     /**
-     * Membership attribute types.
+     * Any attribute types.
      */
-    private enum MembershipMappingType {
+    private enum AnyMappingType {
 
-        MembershipPlainSchema,
-        MembershipDerivedSchema,
-        MembershipVirtualSchema,
-        MembershipId;
+        AnyPlainSchema,
+        AnyDerivedSchema,
+        AnyVirtualSchema,
+        AnyId;
 
     }
 }

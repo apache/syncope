@@ -36,19 +36,19 @@ public class MappingTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = 8447688036282611118L;
 
-    private String accountLink;
+    private String connObjectLink;
 
     private final List<MappingItemTO> items = new ArrayList<>();
 
-    public String getAccountLink() {
-        return accountLink;
+    public String getConnObjectLink() {
+        return connObjectLink;
     }
 
-    public void setAccountLink(final String accountLink) {
-        this.accountLink = accountLink;
+    public void setConnObjectLink(final String connObjectLink) {
+        this.connObjectLink = connObjectLink;
     }
 
-    public MappingItemTO getAccountIdItem() {
+    public MappingItemTO getConnObjectKeyItem() {
         return CollectionUtils.find(getItems(), new Predicate<MappingItemTO>() {
 
             @Override
@@ -58,48 +58,28 @@ public class MappingTO extends AbstractBaseBean {
         });
     }
 
-    protected boolean addAccountIdItem(final MappingItemTO accountIdItem) {
-        if (IntMappingType.UserVirtualSchema == accountIdItem.getIntMappingType()
-                || IntMappingType.GroupVirtualSchema == accountIdItem.getIntMappingType()
-                || IntMappingType.MembershipVirtualSchema == accountIdItem.getIntMappingType()
-                || IntMappingType.Password == accountIdItem.getIntMappingType()) {
+    protected boolean addConnObjectKeyItem(final MappingItemTO connObjectItem) {
+        if (IntMappingType.UserVirtualSchema == connObjectItem.getIntMappingType()
+                || IntMappingType.GroupVirtualSchema == connObjectItem.getIntMappingType()
+                || IntMappingType.AnyVirtualSchema == connObjectItem.getIntMappingType()
+                || IntMappingType.Password == connObjectItem.getIntMappingType()) {
 
             throw new IllegalArgumentException("Virtual attributes cannot be set as accountId");
         }
-        if (IntMappingType.Password == accountIdItem.getIntMappingType()) {
+        if (IntMappingType.Password == connObjectItem.getIntMappingType()) {
             throw new IllegalArgumentException("Password attributes cannot be set as accountId");
         }
 
-        accountIdItem.setExtAttrName(accountIdItem.getExtAttrName());
-        accountIdItem.setAccountid(true);
+        connObjectItem.setExtAttrName(connObjectItem.getExtAttrName());
+        connObjectItem.setAccountid(true);
 
-        return this.addItem(accountIdItem);
+        return this.add(connObjectItem);
     }
 
-    public boolean setAccountIdItem(final MappingItemTO accountIdItem) {
-        return accountIdItem == null
-                ? removeItem(getAccountIdItem())
-                : addAccountIdItem(accountIdItem);
-    }
-
-    public MappingItemTO getPasswordItem() {
-        return CollectionUtils.find(getItems(), new Predicate<MappingItemTO>() {
-
-            @Override
-            public boolean evaluate(final MappingItemTO item) {
-                return item.isPassword();
-            }
-        });
-    }
-
-    public boolean setPasswordItem(final MappingItemTO passwordItem) {
-        if (passwordItem == null) {
-            return this.removeItem(getPasswordItem());
-        } else {
-            passwordItem.setExtAttrName(null);
-            passwordItem.setPassword(true);
-            return addItem(passwordItem);
-        }
+    public boolean setConnObjectKeyItem(final MappingItemTO connObjectKeyItem) {
+        return connObjectKeyItem == null
+                ? remove(getConnObjectKeyItem())
+                : addConnObjectKeyItem(connObjectKeyItem);
     }
 
     @XmlElementWrapper(name = "items")
@@ -109,11 +89,11 @@ public class MappingTO extends AbstractBaseBean {
         return items;
     }
 
-    public boolean addItem(final MappingItemTO item) {
+    public boolean add(final MappingItemTO item) {
         return item == null ? false : this.items.contains(item) || this.items.add(item);
     }
 
-    public boolean removeItem(final MappingItemTO item) {
+    public boolean remove(final MappingItemTO item) {
         return this.items.remove(item);
     }
 }

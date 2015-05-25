@@ -28,7 +28,6 @@ import java.util.List;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.DerSchemaTO;
-import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.common.lib.types.SchemaType;
@@ -41,7 +40,7 @@ public class DerSchemaITCase extends AbstractITCase {
 
     @Test
     public void list() {
-        List<DerSchemaTO> derivedSchemas = schemaService.list(AttributableType.USER, SchemaType.DERIVED);
+        List<DerSchemaTO> derivedSchemas = schemaService.list(SchemaType.DERIVED);
         assertFalse(derivedSchemas.isEmpty());
         for (DerSchemaTO derivedSchemaTO : derivedSchemas) {
             assertNotNull(derivedSchemaTO);
@@ -50,8 +49,7 @@ public class DerSchemaITCase extends AbstractITCase {
 
     @Test
     public void read() {
-        DerSchemaTO derivedSchemaTO = schemaService.read(AttributableType.USER, SchemaType.DERIVED,
-                "cn");
+        DerSchemaTO derivedSchemaTO = schemaService.read(SchemaType.DERIVED, "cn");
         assertNotNull(derivedSchemaTO);
     }
 
@@ -61,63 +59,62 @@ public class DerSchemaITCase extends AbstractITCase {
         schema.setKey("derived");
         schema.setExpression("derived_sx + '_' + derived_dx");
 
-        DerSchemaTO actual = createSchema(AttributableType.USER, SchemaType.DERIVED, schema);
+        DerSchemaTO actual = createSchema(SchemaType.DERIVED, schema);
         assertNotNull(actual);
 
-        actual = schemaService.read(AttributableType.USER, SchemaType.DERIVED, actual.getKey());
+        actual = schemaService.read(SchemaType.DERIVED, actual.getKey());
         assertNotNull(actual);
         assertEquals(actual.getExpression(), "derived_sx + '_' + derived_dx");
     }
 
     @Test
     public void delete() {
-        DerSchemaTO schema = schemaService.read(AttributableType.GROUP, SchemaType.DERIVED, "rderiveddata");
+        DerSchemaTO schema = schemaService.read(SchemaType.DERIVED, "rderiveddata");
         assertNotNull(schema);
 
-        schemaService.delete(AttributableType.GROUP, SchemaType.DERIVED, schema.getKey());
+        schemaService.delete(SchemaType.DERIVED, schema.getKey());
 
         try {
-            schemaService.read(AttributableType.GROUP, SchemaType.DERIVED, "rderiveddata");
+            schemaService.read(SchemaType.DERIVED, "rderiveddata");
             fail();
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
         } finally {
             // Recreate schema to make test re-runnable
-            schema = createSchema(AttributableType.GROUP, SchemaType.DERIVED, schema);
+            schema = createSchema(SchemaType.DERIVED, schema);
             assertNotNull(schema);
         }
     }
 
     @Test
     public void update() {
-        DerSchemaTO schema = schemaService.read(AttributableType.MEMBERSHIP, SchemaType.DERIVED,
-                "mderiveddata");
+        DerSchemaTO schema = schemaService.read(SchemaType.DERIVED, "mderiveddata");
         assertNotNull(schema);
         assertEquals("mderived_sx + '-' + mderived_dx", schema.getExpression());
         try {
             schema.setExpression("mderived_sx + '.' + mderived_dx");
 
-            schemaService.update(AttributableType.MEMBERSHIP, SchemaType.DERIVED,
+            schemaService.update(SchemaType.DERIVED,
                     schema.getKey(), schema);
 
-            schema = schemaService.read(AttributableType.MEMBERSHIP, SchemaType.DERIVED, "mderiveddata");
+            schema = schemaService.read(SchemaType.DERIVED, "mderiveddata");
             assertNotNull(schema);
             assertEquals("mderived_sx + '.' + mderived_dx", schema.getExpression());
         } finally {
             // Set updated back to make test re-runnable
             schema.setExpression("mderived_sx + '-' + mderived_dx");
-            schemaService.update(AttributableType.MEMBERSHIP, SchemaType.DERIVED,
+            schemaService.update(SchemaType.DERIVED,
                     schema.getKey(), schema);
         }
     }
 
     @Test
     public void issueSYNCOPE323() {
-        DerSchemaTO actual = schemaService.read(AttributableType.GROUP, SchemaType.DERIVED, "rderiveddata");
+        DerSchemaTO actual = schemaService.read(SchemaType.DERIVED, "rderiveddata");
         assertNotNull(actual);
 
         try {
-            createSchema(AttributableType.GROUP, SchemaType.DERIVED, actual);
+            createSchema(SchemaType.DERIVED, actual);
             fail();
         } catch (SyncopeClientException e) {
             assertEquals(Response.Status.CONFLICT, e.getType().getResponseStatus());
@@ -126,7 +123,7 @@ public class DerSchemaITCase extends AbstractITCase {
 
         actual.setKey(null);
         try {
-            createSchema(AttributableType.GROUP, SchemaType.DERIVED, actual);
+            createSchema(SchemaType.DERIVED, actual);
             fail();
         } catch (SyncopeClientException e) {
             assertEquals(Response.Status.BAD_REQUEST, e.getType().getResponseStatus());
@@ -141,7 +138,7 @@ public class DerSchemaITCase extends AbstractITCase {
         schema.setExpression("derived_sx + '_' + derived_dx");
 
         try {
-            createSchema(AttributableType.GROUP, SchemaType.DERIVED, schema);
+            createSchema(SchemaType.DERIVED, schema);
             fail();
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidDerSchema, e.getType());

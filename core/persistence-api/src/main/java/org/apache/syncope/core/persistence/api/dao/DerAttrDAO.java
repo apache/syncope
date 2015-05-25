@@ -21,15 +21,15 @@ package org.apache.syncope.core.persistence.api.dao;
 import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.DerAttr;
 
-public interface DerAttrDAO extends DAO<DerAttr, Long> {
+public interface DerAttrDAO extends DAO<DerAttr<?>, Long> {
 
-    <T extends DerAttr> T find(Long key, Class<T> reference);
+    <T extends DerAttr<?>> T find(Long key, Class<T> reference);
 
-    <T extends DerAttr> List<T> findAll(Class<T> reference);
+    <T extends DerAttr<?>> List<T> findAll(Class<T> reference);
 
-    <T extends DerAttr> T save(T derAttr);
+    <T extends DerAttr<?>> T save(T derAttr);
 
-    <T extends DerAttr> void delete(Long key, Class<T> reference);
+    <T extends DerAttr<?>> void delete(Long key, Class<T> reference);
 
-    <T extends DerAttr> void delete(T derAttr);
+    <T extends DerAttr<?>> void delete(T derAttr);
 }

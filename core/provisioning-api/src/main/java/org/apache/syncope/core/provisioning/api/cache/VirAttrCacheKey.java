@@ -22,7 +22,6 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-import org.apache.syncope.common.lib.types.AttributableType;
 
 /**
  * Cache entry key.
@@ -30,12 +29,12 @@ import org.apache.syncope.common.lib.types.AttributableType;
 public class VirAttrCacheKey {
 
     /**
-     * Subject type.
+     * Any type name.
      */
-    private final AttributableType type;
+    private final String type;
 
     /**
-     * Subject key.
+     * Any object key.
      */
     private final transient Long key;
 
@@ -44,13 +43,13 @@ public class VirAttrCacheKey {
      */
     private final transient String virSchema;
 
-    public VirAttrCacheKey(final AttributableType type, final Long key, final String virSchema) {
+    public VirAttrCacheKey(final String type, final Long key, final String virSchema) {
         this.type = type;
         this.key = key;
         this.virSchema = virSchema;
     }
 
-    public AttributableType getType() {
+    public String getKind() {
         return type;
     }
 

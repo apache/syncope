@@ -28,8 +28,8 @@ import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttrUniqueValue;
-import org.apache.syncope.core.persistence.api.entity.conf.CPlainSchema;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractPlainAttrValue;
+import org.apache.syncope.core.persistence.jpa.entity.JPAPlainSchema;
 
 @Entity
 @Table(name = JPACPlainAttrUniqueValue.TABLE)
@@ -47,7 +47,7 @@ public class JPACPlainAttrUniqueValue extends AbstractPlainAttrValue implements 
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "schema_name")
-    private JPACPlainSchema schema;
+    private JPAPlainSchema schema;
 
     @Override
     public Long getKey() {
@@ -66,13 +66,13 @@ public class JPACPlainAttrUniqueValue extends AbstractPlainAttrValue implements 
     }
 
     @Override
-    public CPlainSchema getSchema() {
+    public PlainSchema getSchema() {
         return schema;
     }
 
     @Override
     public void setSchema(final PlainSchema schema) {
-        checkType(schema, JPACPlainSchema.class);
-        this.schema = (JPACPlainSchema) schema;
+        checkType(schema, JPAPlainSchema.class);
+        this.schema = (JPAPlainSchema) schema;
     }
 }

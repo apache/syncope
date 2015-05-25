@@ -26,19 +26,18 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.report.UserReportletConf;
 import org.apache.syncope.common.lib.report.UserReportletConf.Feature;
-import org.apache.syncope.common.lib.to.AbstractAttributableTO;
-import org.apache.syncope.common.lib.to.AbstractSubjectTO;
+import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.common.lib.types.SubjectType;
-import org.apache.syncope.core.persistence.api.dao.SubjectSearchDAO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
-import org.apache.syncope.core.persistence.api.entity.membership.Membership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.misc.search.SearchCondConverter;
 import org.apache.syncope.core.misc.DataFormat;
+import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
+import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,7 +54,7 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
     private UserDAO userDAO;
 
     @Autowired
-    private SubjectSearchDAO searchDAO;
+    private AnySearchDAO searchDAO;
 
     @Autowired
     private UserDataBinder userDataBinder;
@@ -71,7 +70,7 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
         } else {
             result = searchDAO.search(SyncopeConstants.FULL_ADMIN_REALMS,
                     SearchCondConverter.convert(conf.getMatchingCond()),
-                    page, PAGE_SIZE, Collections.<OrderByClause>emptyList(), SubjectType.USER);
+                    page, PAGE_SIZE, Collections.<OrderByClause>emptyList(), AnyTypeKind.USER);
         }
 
         return result;
@@ -81,19 +80,19 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
         return StringUtils.isBlank(conf.getMatchingCond())
                 ? userDAO.count(SyncopeConstants.FULL_ADMIN_REALMS)
                 : searchDAO.count(SyncopeConstants.FULL_ADMIN_REALMS,
-                        SearchCondConverter.convert(conf.getMatchingCond()), SubjectType.USER);
+                        SearchCondConverter.convert(conf.getMatchingCond()), AnyTypeKind.USER);
     }
 
-    private void doExtractResources(final ContentHandler handler, final AbstractSubjectTO subjectTO)
+    private void doExtractResources(final ContentHandler handler, final AnyTO anyTO)
             throws SAXException {
 
-        if (subjectTO.getResources().isEmpty()) {
-            LOG.debug("No resources found for {}[{}]", subjectTO.getClass().getSimpleName(), subjectTO.getKey());
+        if (anyTO.getResources().isEmpty()) {
+            LOG.debug("No resources found for {}[{}]", anyTO.getClass().getSimpleName(), anyTO.getKey());
         } else {
             AttributesImpl atts = new AttributesImpl();
             handler.startElement("", "", "resources", null);
 
-            for (String resourceName : subjectTO.getResources()) {
+            for (String resourceName : anyTO.getResources()) {
                 atts.clear();
 
                 atts.addAttribute("", "", ReportXMLConst.ATTR_NAME, ReportXMLConst.XSD_STRING, resourceName);
@@ -105,13 +104,13 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
         }
     }
 
-    private void doExtractAttributes(final ContentHandler handler, final AbstractAttributableTO attributableTO,
+    private void doExtractAttributes(final ContentHandler handler, final AnyTO anyTO,
             final Collection<String> attrs, final Collection<String> derAttrs, final Collection<String> virAttrs)
             throws SAXException {
 
         AttributesImpl atts = new AttributesImpl();
         if (!attrs.isEmpty()) {
-            Map<String, AttrTO> attrMap = attributableTO.getPlainAttrMap();
+            Map<String, AttrTO> attrMap = anyTO.getPlainAttrMap();
 
             handler.startElement("", "", "attributes", null);
             for (String attrName : attrs) {
@@ -128,7 +127,7 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
                     }
                 } else {
                     LOG.debug("{} not found for {}[{}]", attrName,
-                            attributableTO.getClass().getSimpleName(), attributableTO.getKey());
+                            anyTO.getClass().getSimpleName(), anyTO.getKey());
                 }
 
                 handler.endElement("", "", "attribute");
@@ -137,7 +136,7 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
         }
 
         if (!derAttrs.isEmpty()) {
-            Map<String, AttrTO> derAttrMap = attributableTO.getDerAttrMap();
+            Map<String, AttrTO> derAttrMap = anyTO.getDerAttrMap();
 
             handler.startElement("", "", "derivedAttributes", null);
             for (String attrName : derAttrs) {
@@ -154,7 +153,7 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
                     }
                 } else {
                     LOG.debug("{} not found for {}[{}]", attrName,
-                            attributableTO.getClass().getSimpleName(), attributableTO.getKey());
+                            anyTO.getClass().getSimpleName(), anyTO.getKey());
                 }
 
                 handler.endElement("", "", "derivedAttribute");
@@ -163,7 +162,7 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
         }
 
         if (!virAttrs.isEmpty()) {
-            Map<String, AttrTO> virAttrMap = attributableTO.getVirAttrMap();
+            Map<String, AttrTO> virAttrMap = anyTO.getVirAttrMap();
 
             handler.startElement("", "", "virtualAttributes", null);
             for (String attrName : virAttrs) {
@@ -180,7 +179,7 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
                     }
                 } else {
                     LOG.debug("{} not found for {}[{}]", attrName,
-                            attributableTO.getClass().getSimpleName(), attributableTO.getKey());
+                            anyTO.getClass().getSimpleName(), anyTO.getKey());
                 }
 
                 handler.endElement("", "", "virtualAttribute");
@@ -272,21 +271,18 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
                     atts.clear();
 
                     atts.addAttribute("", "", "id", ReportXMLConst.XSD_LONG, String.valueOf(memb.getKey()));
-                    atts.addAttribute("", "", "groupId", ReportXMLConst.XSD_LONG, String.valueOf(memb.getGroupKey()));
+                    atts.addAttribute("", "", "groupId", ReportXMLConst.XSD_LONG, String.valueOf(memb.getRightKey()));
                     atts.addAttribute("", "", "groupName", ReportXMLConst.XSD_STRING, String.
                             valueOf(memb.getGroupName()));
                     handler.startElement("", "", "membership", atts);
 
-                    doExtractAttributes(handler, memb, memb.getPlainAttrMap().keySet(), memb.getDerAttrMap()
-                            .keySet(), memb.getVirAttrMap().keySet());
-
                     if (conf.getFeatures().contains(Feature.resources)) {
-                        Membership actualMemb = user.getMembership(memb.getGroupKey());
+                        UMembership actualMemb = user.getMembership(memb.getRightKey());
                         if (actualMemb == null) {
-                            LOG.warn("Unexpected: cannot find membership for group {} for user {}", memb.getGroupKey(),
+                            LOG.warn("Unexpected: cannot find membership for group {} for user {}", memb.getRightKey(),
                                     user);
                         } else {
-                            doExtractResources(handler, groupDataBinder.getGroupTO(actualMemb.getGroup()));
+                            doExtractResources(handler, groupDataBinder.getGroupTO(actualMemb.getRightEnd()));
                         }
                     }
 
@@ -305,7 +301,6 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
     }
 
     private void doExtractConf(final ContentHandler handler) throws SAXException {
-
         AttributesImpl atts = new AttributesImpl();
         handler.startElement("", "", "configurations", null);
         handler.startElement("", "", "userAttributes", atts);

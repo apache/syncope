@@ -27,21 +27,13 @@ import static org.junit.Assert.assertTrue;
 import java.util.List;
 import org.apache.syncope.core.persistence.api.dao.DerAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
-import org.apache.syncope.core.persistence.api.dao.MembershipDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.entity.membership.MDerAttr;
-import org.apache.syncope.core.persistence.api.entity.membership.MDerAttrTemplate;
-import org.apache.syncope.core.persistence.api.entity.membership.MDerSchema;
-import org.apache.syncope.core.persistence.api.entity.membership.MPlainAttrValue;
-import org.apache.syncope.core.persistence.api.entity.membership.Membership;
+import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.group.GDerAttr;
-import org.apache.syncope.core.persistence.api.entity.group.GDerAttrTemplate;
-import org.apache.syncope.core.persistence.api.entity.group.GDerSchema;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.UDerAttr;
-import org.apache.syncope.core.persistence.api.entity.user.UDerSchema;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
@@ -57,9 +49,6 @@ public class DerAttrTest extends AbstractTest {
 
     @Autowired
     private UserDAO userDAO;
-
-    @Autowired
-    private MembershipDAO membershipDAO;
 
     @Autowired
     private GroupDAO groupDAO;
@@ -81,7 +70,7 @@ public class DerAttrTest extends AbstractTest {
 
     @Test
     public void saveUDerAttribute() {
-        UDerSchema cnSchema = derSchemaDAO.find("cn", UDerSchema.class);
+        DerSchema cnSchema = derSchemaDAO.find("cn");
         assertNotNull(cnSchema);
 
         User owner = userDAO.find(3L);
@@ -104,38 +93,18 @@ public class DerAttrTest extends AbstractTest {
     }
 
     @Test
-    public void saveMDerAttribute() {
-        Membership owner = membershipDAO.find(1L);
-        assertNotNull("did not get expected user", owner);
+    public void saveGDerAttribute() {
+        DerSchema schema = derSchemaDAO.find("rderiveddata");
+        assertNotNull(schema);
 
-        MDerAttr derAttr = entityFactory.newEntity(MDerAttr.class);
-        derAttr.setOwner(owner);
-        derAttr.setTemplate(owner.getGroup().getAttrTemplate(MDerAttrTemplate.class, "mderiveddata"));
-
-        derAttr = derAttrDAO.save(derAttr);
-        assertNotNull(derAttr.getTemplate());
-
-        MDerAttr actual = derAttrDAO.find(derAttr.getKey(), MDerAttr.class);
-        assertNotNull("expected save to work", actual);
-        assertEquals(derAttr, actual);
-
-        MPlainAttrValue sx = owner.getPlainAttr("mderived_sx").getValues().iterator().next();
-        MPlainAttrValue dx = owner.getPlainAttr("mderived_dx").getValues().iterator().next();
-
-        assertEquals(sx.getValue() + "-" + dx.getValue(), derAttr.getValue(owner.getPlainAttrs()));
-    }
-
-    @Test
-    public void saveRDerAttribute() {
         Group owner = groupDAO.find(1L);
         assertNotNull("did not get expected user", owner);
 
         GDerAttr derAttr = entityFactory.newEntity(GDerAttr.class);
         derAttr.setOwner(owner);
-        derAttr.setTemplate(owner.getAttrTemplate(GDerAttrTemplate.class, "rderiveddata"));
+        derAttr.setSchema(schema);
 
         derAttr = derAttrDAO.save(derAttr);
-        assertNotNull(derAttr.getTemplate());
 
         GDerAttr actual = derAttrDAO.find(derAttr.getKey(), GDerAttr.class);
         assertNotNull("expected save to work", actual);
@@ -150,27 +119,27 @@ public class DerAttrTest extends AbstractTest {
     @Test
     public void delete() {
         UDerAttr attribute = derAttrDAO.find(100L, UDerAttr.class);
-        String attributeSchemaName = attribute.getSchema().getKey();
+        String schemaName = attribute.getSchema().getKey();
 
         derAttrDAO.delete(attribute.getKey(), UDerAttr.class);
 
         UDerAttr actual = derAttrDAO.find(100L, UDerAttr.class);
         assertNull("delete did not work", actual);
 
-        UDerSchema attributeSchema = derSchemaDAO.find(attributeSchemaName, UDerSchema.class);
-        assertNotNull("user derived attribute schema deleted " + "when deleting values", attributeSchema);
+        DerSchema attributeSchema = derSchemaDAO.find(schemaName);
+        assertNotNull("user derived attribute schema deleted when deleting values", attributeSchema);
     }
 
     @Test
     public void issueSYNCOPE134User() {
-        UDerSchema sderived = entityFactory.newEntity(UDerSchema.class);
+        DerSchema sderived = entityFactory.newEntity(DerSchema.class);
         sderived.setKey("sderived");
         sderived.setExpression("status + ' - ' + username + ' - ' + creationDate + '[' + failedLogins + ']'");
 
         sderived = derSchemaDAO.save(sderived);
         derSchemaDAO.flush();
 
-        UDerSchema actual = derSchemaDAO.find("sderived", UDerSchema.class);
+        DerSchema actual = derSchemaDAO.find("sderived");
         assertNotNull("expected save to work", actual);
         assertEquals(sderived, actual);
 
@@ -196,30 +165,25 @@ public class DerAttrTest extends AbstractTest {
 
     @Test
     public void issueSYNCOPE134Group() {
-        GDerSchema sderived = entityFactory.newEntity(GDerSchema.class);
+        DerSchema sderived = entityFactory.newEntity(DerSchema.class);
         sderived.setKey("sderived");
         sderived.setExpression("name");
 
         sderived = derSchemaDAO.save(sderived);
         derSchemaDAO.flush();
 
-        GDerSchema actual = derSchemaDAO.find("sderived", GDerSchema.class);
+        DerSchema actual = derSchemaDAO.find("sderived");
         assertNotNull("expected save to work", actual);
         assertEquals(sderived, actual);
 
         Group owner = groupDAO.find(7L);
         assertNotNull("did not get expected group", owner);
 
-        GDerAttrTemplate template = entityFactory.newEntity(GDerAttrTemplate.class);
-        template.setSchema(sderived);
-        owner.getAttrTemplates(GDerAttrTemplate.class).add(template);
-
         GDerAttr derAttr = entityFactory.newEntity(GDerAttr.class);
         derAttr.setOwner(owner);
-        derAttr.setTemplate(owner.getAttrTemplate(GDerAttrTemplate.class, sderived.getKey()));
+        derAttr.setSchema(sderived);
 
         derAttr = derAttrDAO.save(derAttr);
-        assertNotNull(derAttr.getTemplate());
         derAttrDAO.flush();
 
         derAttr = derAttrDAO.find(derAttr.getKey(), GDerAttr.class);
@@ -229,44 +193,5 @@ public class DerAttrTest extends AbstractTest {
         assertNotNull(value);
         assertFalse(value.isEmpty());
         assertTrue(value.startsWith("managingDirector"));
-    }
-
-    @Test
-    public void issueSYNCOPE134Memb() {
-        MDerSchema mderived = entityFactory.newEntity(MDerSchema.class);
-        mderived.setKey("mderived");
-        mderived.setExpression("key");
-
-        mderived = derSchemaDAO.save(mderived);
-        derSchemaDAO.flush();
-
-        MDerSchema actual = derSchemaDAO.find("mderived", MDerSchema.class);
-        assertNotNull("expected save to work", actual);
-        assertEquals(mderived, actual);
-
-        Membership owner = membershipDAO.find(4L);
-        assertNotNull("did not get expected membership", owner);
-
-        MDerAttrTemplate template = entityFactory.newEntity(MDerAttrTemplate.class);
-        template.setSchema(mderived);
-        owner.getGroup().getAttrTemplates(MDerAttrTemplate.class).add(template);
-
-        derSchemaDAO.flush();
-
-        MDerAttr derAttr = entityFactory.newEntity(MDerAttr.class);
-        derAttr.setOwner(owner);
-        derAttr.setTemplate(owner.getGroup().getAttrTemplate(MDerAttrTemplate.class, mderived.getKey()));
-
-        derAttr = derAttrDAO.save(derAttr);
-        assertNotNull(derAttr.getTemplate());
-        derAttrDAO.flush();
-
-        derAttr = derAttrDAO.find(derAttr.getKey(), MDerAttr.class);
-        assertNotNull("expected save to work", derAttr);
-
-        String value = derAttr.getValue(owner.getPlainAttrs());
-        assertNotNull(value);
-        assertFalse(value.isEmpty());
-        assertTrue(value.equalsIgnoreCase("4"));
     }
 }

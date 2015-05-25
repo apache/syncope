@@ -20,11 +20,11 @@ package org.apache.syncope.core.persistence.api.entity;
 
 import java.util.List;
 
-public interface VirAttr extends Attr<VirSchema> {
+public interface VirAttr<O extends Any<?, ?, ?>> extends Attr<VirSchema, O> {
 
     List<String> getValues();
 
-    boolean addValue(String value);
+    boolean add(String value);
 
-    boolean removeValue(String value);
+    boolean remove(String value);
 }

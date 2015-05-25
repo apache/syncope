@@ -23,30 +23,30 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.syncope.common.lib.to.AbstractAttributableTO;
+import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 
-public class SortableAttributableProviderComparator extends SortableDataProviderComparator<AbstractAttributableTO> {
+public class SortableAttributableProviderComparator extends SortableDataProviderComparator<AnyTO> {
 
     private static final long serialVersionUID = 1775967163571699258L;
 
     private static final Set<String> INLINE_PROPS = new HashSet<>(Arrays.asList(
             new String[] { "key", "status", "token", "username" }));
 
-    public SortableAttributableProviderComparator(final SortableDataProvider<AbstractAttributableTO, String> provider) {
+    public SortableAttributableProviderComparator(final SortableDataProvider<AnyTO, String> provider) {
         super(provider);
     }
 
     @Override
-    public int compare(final AbstractAttributableTO attributable1, final AbstractAttributableTO attributable2) {
+    public int compare(final AnyTO any1, final AnyTO any2) {
         if (INLINE_PROPS.contains(provider.getSort().getProperty())) {
-            return super.compare(attributable1, attributable2);
+            return super.compare(any1, any2);
         }
 
-        return super.compare(new AttrModel(attributable1), new AttrModel(attributable2));
+        return super.compare(new AttrModel(any1), new AttrModel(any2));
     }
 
     @SuppressWarnings("rawtypes")
@@ -60,12 +60,12 @@ public class SortableAttributableProviderComparator extends SortableDataProvider
 
         private final Map<String, AttrTO> virAttrs;
 
-        public AttrModel(final AbstractAttributableTO attributableTO) {
+        public AttrModel(final AnyTO anyTO) {
             super();
 
-            this.attrs = attributableTO.getPlainAttrMap();
-            this.derAttrs = attributableTO.getDerAttrMap();
-            this.virAttrs = attributableTO.getVirAttrMap();
+            this.attrs = anyTO.getPlainAttrMap();
+            this.derAttrs = anyTO.getDerAttrMap();
+            this.virAttrs = anyTO.getVirAttrMap();
         }
 
         /**

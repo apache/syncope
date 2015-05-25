@@ -26,9 +26,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.Collections;
 import java.util.Map;
 import org.apache.commons.lang3.SerializationUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.mod.AttrMod;
-import org.apache.syncope.common.lib.mod.MembershipMod;
 import org.apache.syncope.common.lib.mod.StatusMod;
 import org.apache.syncope.common.lib.mod.UserMod;
 import org.apache.syncope.common.lib.to.AttrTO;
@@ -39,13 +37,15 @@ import org.apache.syncope.common.lib.to.MappingTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
-import org.apache.syncope.common.lib.types.SubjectType;
 import org.apache.syncope.common.rest.api.service.ResourceService;
+import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -59,7 +59,7 @@ public class VirAttrITCase extends AbstractITCase {
         UserTO userTO = UserITCase.getUniqueSampleTO("issue16@apache.org");
 
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setGroupKey(8L);
+        membershipTO.setRightKey(8L);
         userTO.getMemberships().add(membershipTO);
 
         // 1. create user
@@ -101,7 +101,7 @@ public class VirAttrITCase extends AbstractITCase {
         assertEquals(PropagationTaskExecStatus.SUBMITTED, userTO.getPropagationStatusTOs().get(0).getStatus());
 
         ConnObjectTO connObjectTO =
-                resourceService.getConnectorObject(RESOURCE_NAME_WS2, SubjectType.USER, userTO.getKey());
+                resourceService.readConnObject(RESOURCE_NAME_WS2, AnyTypeKind.USER.name(), userTO.getKey());
         assertNotNull(connObjectTO);
         assertEquals("virtualvalue", connObjectTO.getPlainAttrMap().get("NAME").getValues().get(0));
         // ----------------------------------
@@ -125,7 +125,7 @@ public class VirAttrITCase extends AbstractITCase {
         assertEquals("ws-target-resource-2", userTO.getPropagationStatusTOs().get(0).getResource());
         assertEquals(PropagationTaskExecStatus.SUBMITTED, userTO.getPropagationStatusTOs().get(0).getStatus());
 
-        connObjectTO = resourceService.getConnectorObject(RESOURCE_NAME_WS2, SubjectType.USER, userTO.getKey());
+        connObjectTO = resourceService.readConnObject(RESOURCE_NAME_WS2, AnyTypeKind.USER.name(), userTO.getKey());
         assertNotNull(connObjectTO);
         assertEquals("virtualvalue2", connObjectTO.getPlainAttrMap().get("NAME").getValues().get(0));
         // ----------------------------------
@@ -138,7 +138,7 @@ public class VirAttrITCase extends AbstractITCase {
         userTO = userService.status(userTO.getKey(), statusMod).readEntity(UserTO.class);
         assertEquals("suspended", userTO.getStatus());
 
-        connObjectTO = resourceService.getConnectorObject(RESOURCE_NAME_WS2, SubjectType.USER, userTO.getKey());
+        connObjectTO = resourceService.readConnObject(RESOURCE_NAME_WS2, AnyTypeKind.USER.name(), userTO.getKey());
         assertNotNull(connObjectTO);
         assertFalse(connObjectTO.getPlainAttrMap().get("NAME").getValues().isEmpty());
         assertEquals("virtualvalue2", connObjectTO.getPlainAttrMap().get("NAME").getValues().get(0));
@@ -148,7 +148,7 @@ public class VirAttrITCase extends AbstractITCase {
         userTO = userService.status(userTO.getKey(), statusMod).readEntity(UserTO.class);
         assertEquals("active", userTO.getStatus());
 
-        connObjectTO = resourceService.getConnectorObject(RESOURCE_NAME_WS2, SubjectType.USER, userTO.getKey());
+        connObjectTO = resourceService.readConnObject(RESOURCE_NAME_WS2, AnyTypeKind.USER.name(), userTO.getKey());
         assertNotNull(connObjectTO);
         assertFalse(connObjectTO.getPlainAttrMap().get("NAME").getValues().isEmpty());
         assertEquals("virtualvalue2", connObjectTO.getPlainAttrMap().get("NAME").getValues().get(0));
@@ -173,7 +173,7 @@ public class VirAttrITCase extends AbstractITCase {
         assertEquals(RESOURCE_NAME_WS2, userTO.getPropagationStatusTOs().get(0).getResource());
         assertEquals(PropagationTaskExecStatus.SUBMITTED, userTO.getPropagationStatusTOs().get(0).getStatus());
 
-        connObjectTO = resourceService.getConnectorObject(RESOURCE_NAME_WS2, SubjectType.USER, userTO.getKey());
+        connObjectTO = resourceService.readConnObject(RESOURCE_NAME_WS2, AnyTypeKind.USER.name(), userTO.getKey());
         assertNotNull(connObjectTO);
         assertEquals("Surname2", connObjectTO.getPlainAttrMap().get("SURNAME").getValues().get(0));
 
@@ -196,7 +196,7 @@ public class VirAttrITCase extends AbstractITCase {
         assertEquals(RESOURCE_NAME_WS2, userTO.getPropagationStatusTOs().get(0).getResource());
         assertEquals(PropagationTaskExecStatus.SUBMITTED, userTO.getPropagationStatusTOs().get(0).getStatus());
 
-        connObjectTO = resourceService.getConnectorObject(RESOURCE_NAME_WS2, SubjectType.USER, userTO.getKey());
+        connObjectTO = resourceService.readConnObject(RESOURCE_NAME_WS2, AnyTypeKind.USER.name(), userTO.getKey());
         assertNotNull(connObjectTO);
 
         // attribute "name" mapped on virtual attribute "virtualdata" should be reset
@@ -267,11 +267,11 @@ public class VirAttrITCase extends AbstractITCase {
     @Test
     public void issueSYNCOPE397() {
         ResourceTO csv = resourceService.read(RESOURCE_NAME_CSV);
-        final MappingTO origMapping = SerializationUtils.clone(csv.getUmapping());
+        MappingTO origMapping = SerializationUtils.clone(csv.getProvisions().get(0).getMapping());
         try {
             // change mapping of resource-csv
             assertNotNull(origMapping);
-            for (MappingItemTO item : csv.getUmapping().getItems()) {
+            for (MappingItemTO item : csv.getProvisions().get(0).getMapping().getItems()) {
                 if ("email".equals(item.getIntAttrName())) {
                     // unset internal attribute mail and set virtual attribute virtualdata as mapped to external email
                     item.setIntMappingType(IntMappingType.UserVirtualSchema);
@@ -283,10 +283,10 @@ public class VirAttrITCase extends AbstractITCase {
 
             resourceService.update(csv.getKey(), csv);
             csv = resourceService.read(RESOURCE_NAME_CSV);
-            assertNotNull(csv.getUmapping());
+            assertNotNull(csv.getProvisions().get(0).getMapping());
 
             boolean found = false;
-            for (MappingItemTO item : csv.getUmapping().getItems()) {
+            for (MappingItemTO item : csv.getProvisions().get(0).getMapping().getItems()) {
                 if ("email".equals(item.getExtAttrName()) && "virtualdata".equals(item.getIntAttrName())) {
                     found = true;
                 }
@@ -335,7 +335,7 @@ public class VirAttrITCase extends AbstractITCase {
             assertEquals(2, toBeUpdated.getPropagationStatusTOs().size());
         } finally {
             // restore mapping of resource-csv
-            csv.setUmapping(origMapping);
+            csv.getProvisions().get(0).setMapping(origMapping);
             resourceService.update(csv.getKey(), csv);
         }
     }
@@ -447,12 +447,18 @@ public class VirAttrITCase extends AbstractITCase {
         // -------------------------------------------
         // Create a resource ad-hoc
         // -------------------------------------------
-        final ResourceTO resourceTO = new ResourceTO();
+        ResourceTO resourceTO = new ResourceTO();
 
         resourceTO.setKey(resourceName);
         resourceTO.setConnectorId(107L);
 
+        ProvisionTO provisionTO = new ProvisionTO();
+        provisionTO.setAnyType(AnyTypeKind.USER.name());
+        provisionTO.setObjectClass(ObjectClass.ACCOUNT_NAME);
+        resourceTO.getProvisions().add(provisionTO);
+
         MappingTO mapping = new MappingTO();
+        provisionTO.setMapping(mapping);
 
         MappingItemTO item = new MappingItemTO();
         item.setIntAttrName("aLong");
@@ -460,7 +466,7 @@ public class VirAttrITCase extends AbstractITCase {
         item.setExtAttrName(groupName);
         item.setPurpose(MappingPurpose.PROPAGATION);
         item.setAccountid(true);
-        mapping.setAccountIdItem(item);
+        mapping.setConnObjectKeyItem(item);
 
         item = new MappingItemTO();
         item.setExtAttrName("USERNAME");
@@ -476,7 +482,6 @@ public class VirAttrITCase extends AbstractITCase {
         item.setPurpose(MappingPurpose.PROPAGATION);
         mapping.getItems().add(item);
 
-        resourceTO.setUmapping(mapping);
         assertNotNull(getObject(
                 resourceService.create(resourceTO).getLocation(), ResourceService.class, ResourceTO.class));
         // -------------------------------------------
@@ -487,7 +492,6 @@ public class VirAttrITCase extends AbstractITCase {
         GroupTO groupTO = new GroupTO();
         groupTO.setName(groupName);
         groupTO.setRealm("/");
-        groupTO.getGVirAttrTemplates().add("rvirtualdata");
         groupTO.getVirAttrs().add(attrTO("rvirtualdata", "ml@group.it"));
         groupTO.getResources().add(RESOURCE_NAME_LDAP);
         groupTO = createGroup(groupTO);
@@ -507,8 +511,7 @@ public class VirAttrITCase extends AbstractITCase {
         userTO.getMemberships().clear();
 
         MembershipTO membership = new MembershipTO();
-        membership.setGroupKey(groupTO.getKey());
-        membership.getVirAttrs().add(attrTO("mvirtualdata", "mvirtualvalue"));
+        membership.setRightKey(groupTO.getKey());
         userTO.getMemberships().add(membership);
 
         userTO = createUser(userTO);
@@ -541,7 +544,7 @@ public class VirAttrITCase extends AbstractITCase {
         userTO.getMemberships().clear();
         userTO.getVirAttrs().clear();
 
-        final AttrTO virtualReadOnly = attrTO("virtualReadOnly", "");
+        AttrTO virtualReadOnly = attrTO("virtualReadOnly", "");
         virtualReadOnly.getValues().clear();
 
         userTO.getVirAttrs().add(virtualReadOnly);
@@ -563,174 +566,7 @@ public class VirAttrITCase extends AbstractITCase {
     }
 
     @Test
-    public void issueSYNCOPE458() {
-        // -------------------------------------------
-        // Create a group ad-hoc
-        // -------------------------------------------
-        final String groupName = "issueSYNCOPE458-Group-" + getUUIDString();
-        GroupTO groupTO = new GroupTO();
-        groupTO.setName(groupName);
-        groupTO.setRealm("/");
-        groupTO.getMVirAttrTemplates().add("mvirtualdata");
-        groupTO = createGroup(groupTO);
-        // -------------------------------------------
-
-        // -------------------------------------------
-        // Update resource-db-virattr mapping adding new membership virtual schema mapping
-        // -------------------------------------------
-        ResourceTO resourceDBVirAttr = resourceService.read(RESOURCE_NAME_DBVIRATTR);
-        assertNotNull(resourceDBVirAttr);
-
-        final MappingTO resourceUMapping = resourceDBVirAttr.getUmapping();
-
-        MappingItemTO item = new MappingItemTO();
-        item.setIntAttrName("mvirtualdata");
-        item.setIntMappingType(IntMappingType.MembershipVirtualSchema);
-        item.setExtAttrName("EMAIL");
-        item.setPurpose(MappingPurpose.BOTH);
-
-        resourceUMapping.addItem(item);
-
-        resourceDBVirAttr.setUmapping(resourceUMapping);
-
-        resourceService.update(RESOURCE_NAME_DBVIRATTR, resourceDBVirAttr);
-        // -------------------------------------------
-
-        // -------------------------------------------
-        // Create new user
-        // -------------------------------------------
-        UserTO userTO = UserITCase.getUniqueSampleTO("syncope458@syncope.apache.org");
-        userTO.getResources().clear();
-        userTO.getResources().add(RESOURCE_NAME_DBVIRATTR);
-        userTO.getVirAttrs().clear();
-        userTO.getDerAttrs().clear();
-        userTO.getMemberships().clear();
-
-        // add membership, with virtual attribute populated, to user
-        MembershipTO membership = new MembershipTO();
-        membership.setGroupKey(groupTO.getKey());
-        membership.getVirAttrs().add(attrTO("mvirtualdata", "syncope458@syncope.apache.org"));
-        userTO.getMemberships().add(membership);
-
-        // propagate user
-        userTO = createUser(userTO);
-        assertEquals(1, userTO.getPropagationStatusTOs().size());
-        assertTrue(userTO.getPropagationStatusTOs().get(0).getStatus().isSuccessful());
-       // -------------------------------------------
-
-        // 1. check if membership has virtual attribute populated
-        assertNotNull(userTO.getMemberships().get(0).getVirAttrMap().get("mvirtualdata"));
-        assertEquals("syncope458@syncope.apache.org",
-                userTO.getMemberships().get(0).getVirAttrMap().get("mvirtualdata").getValues().get(0));
-        // -------------------------------------------
-
-        // 2. update membership virtual attribute
-        MembershipMod membershipMod = new MembershipMod();
-        membershipMod.setGroup(groupTO.getKey());
-        membershipMod.getVirAttrsToUpdate().add(attrMod("mvirtualdata", "syncope458_NEW@syncope.apache.org"));
-
-        UserMod userMod = new UserMod();
-        userMod.setKey(userTO.getKey());
-        userMod.getMembershipsToAdd().add(membershipMod);
-        userMod.getMembershipsToRemove().add(userTO.getMemberships().iterator().next().getKey());
-
-        userTO = updateUser(userMod);
-        assertNotNull(userTO);
-        // 3. check again after update if membership has virtual attribute populated with new value
-        assertNotNull(userTO.getMemberships().get(0).getVirAttrMap().get("mvirtualdata"));
-        assertEquals("syncope458_NEW@syncope.apache.org", userTO.getMemberships().get(0).getVirAttrMap().get(
-                "mvirtualdata").getValues().get(0));
-
-        // ----------------------------------------
-        // force cache expiring without any modification
-        // ----------------------------------------
-        String jdbcURL = null;
-        ConnInstanceTO connInstanceBean = connectorService.readByResource(RESOURCE_NAME_DBVIRATTR);
-        for (ConnConfProperty prop : connInstanceBean.getConfiguration()) {
-            if ("jdbcUrlTemplate".equals(prop.getSchema().getName())) {
-                jdbcURL = prop.getValues().iterator().next().toString();
-                prop.getValues().clear();
-                prop.getValues().add("jdbc:h2:tcp://localhost:9092/xxx");
-            }
-        }
-
-        connectorService.update(connInstanceBean.getKey(), connInstanceBean);
-
-        membershipMod = new MembershipMod();
-        membershipMod.setGroup(groupTO.getKey());
-        membershipMod.getVirAttrsToUpdate().add(attrMod("mvirtualdata", "syncope458_updated@syncope.apache.org"));
-
-        userMod = new UserMod();
-        userMod.setKey(userTO.getKey());
-        userMod.getMembershipsToAdd().add(membershipMod);
-        userMod.getMembershipsToRemove().add(userTO.getMemberships().iterator().next().getKey());
-
-        userTO = updateUser(userMod);
-        assertNotNull(userTO);
-        // ----------------------------------
-
-        // change attribute value directly on resource
-        final JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
-
-        String value = jdbcTemplate.queryForObject(
-                "SELECT EMAIL FROM testsync WHERE ID=?", String.class, userTO.getKey());
-        assertEquals("syncope458_NEW@syncope.apache.org", value);
-
-        jdbcTemplate.update("UPDATE testsync set EMAIL='syncope458_NEW_TWO@syncope.apache.org' WHERE ID=?", userTO.
-                getKey());
-
-        value = jdbcTemplate.queryForObject("SELECT EMAIL FROM testsync WHERE ID=?", String.class, userTO.getKey());
-        assertEquals("syncope458_NEW_TWO@syncope.apache.org", value);
-        // ----------------------------------------
-
-        // ----------------------------------------
-        // restore connector
-        // ----------------------------------------
-        for (ConnConfProperty prop : connInstanceBean.getConfiguration()) {
-            if ("jdbcUrlTemplate".equals(prop.getSchema().getName())) {
-                prop.getValues().clear();
-                prop.getValues().add(jdbcURL);
-            }
-        }
-        connectorService.update(connInstanceBean.getKey(), connInstanceBean);
-        // ----------------------------------------
-
-        userTO = userService.read(userTO.getKey());
-        assertNotNull(userTO);
-        // 4. check virtual attribute synchronization after direct update on resource
-        assertEquals("syncope458_NEW_TWO@syncope.apache.org", userTO.getMemberships().get(0).getVirAttrMap().get(
-                "mvirtualdata").getValues().get(0));
-
-        // 5. remove membership virtual attribute
-        membershipMod = new MembershipMod();
-        membershipMod.setGroup(groupTO.getKey());
-        membershipMod.getVirAttrsToRemove().add("mvirtualdata");
-
-        userMod = new UserMod();
-        userMod.setKey(userTO.getKey());
-        userMod.getMembershipsToAdd().add(membershipMod);
-        userMod.getMembershipsToRemove().add(userTO.getMemberships().iterator().next().getKey());
-
-        userTO = updateUser(userMod);
-        assertNotNull(userTO);
-        // check again after update if membership hasn't any virtual attribute
-        assertTrue(userTO.getMemberships().get(0).getVirAttrMap().isEmpty());
-
-        // -------------------------------------------
-        // Delete group ad-hoc and restore resource mapping
-        // -------------------------------------------
-        groupService.delete(groupTO.getKey());
-
-        resourceUMapping.removeItem(item);
-        resourceDBVirAttr.setUmapping(resourceUMapping);
-        resourceService.update(RESOURCE_NAME_DBVIRATTR, resourceDBVirAttr);
-        // -------------------------------------------
-    }
-
-    @Test
     public void issueSYNCOPE501() {
-        // PHASE 1: update only user virtual attributes
-
         // 1. create user and propagate him on resource-db-virattr
         UserTO userTO = UserITCase.getUniqueSampleTO("syncope501@apache.org");
         userTO.getResources().clear();
@@ -771,102 +607,5 @@ public class VirAttrITCase extends AbstractITCase {
         // 3. check that user virtual attribute has really been updated 
         assertFalse(userTO.getVirAttrMap().get("virtualdata").getValues().isEmpty());
         assertEquals("syncope501_updated@apache.org", userTO.getVirAttrMap().get("virtualdata").getValues().get(0));
-
-        // ----------------------------------------------------------
-        // PHASE 2: update only membership virtual attributes
-        // -------------------------------------------
-        // Update resource-db-virattr mapping adding new membership virtual schema mapping
-        // -------------------------------------------
-        ResourceTO resourceDBVirAttr = resourceService.read(RESOURCE_NAME_DBVIRATTR);
-        assertNotNull(resourceDBVirAttr);
-
-        final MappingTO resourceUMapping = resourceDBVirAttr.getUmapping();
-
-        MappingItemTO item = new MappingItemTO();
-        item.setIntAttrName("mvirtualdata");
-        item.setIntMappingType(IntMappingType.MembershipVirtualSchema);
-        item.setExtAttrName("EMAIL");
-        item.setPurpose(MappingPurpose.BOTH);
-
-        resourceUMapping.addItem(item);
-
-        resourceDBVirAttr.setUmapping(resourceUMapping);
-
-        resourceService.update(RESOURCE_NAME_DBVIRATTR, resourceDBVirAttr);
-        // -------------------------------------------
-
-        // -------------------------------------------
-        // Create a group ad-hoc
-        // -------------------------------------------
-        final String groupName = "issueSYNCOPE501-Group-" + getUUIDString();
-        GroupTO groupTO = new GroupTO();
-        groupTO.setName(groupName);
-        groupTO.setRealm("/");
-        groupTO.getMVirAttrTemplates().add("mvirtualdata");
-        groupTO = createGroup(groupTO);
-        // -------------------------------------------
-
-        // 1. add membership, with virtual attribute populated, to user
-        MembershipMod membershipMod = new MembershipMod();
-        membershipMod.setGroup(groupTO.getKey());
-        membershipMod.getVirAttrsToUpdate().add(attrMod("mvirtualdata", "syncope501membership@test.org"));
-
-        userMod = new UserMod();
-        userMod.setKey(userTO.getKey());
-        userMod.getMembershipsToAdd().add(membershipMod);
-        userMod.setPwdPropRequest(statusMod);
-
-        userTO = updateUser(userMod);
-        assertNotNull(userTO);
-        assertEquals("syncope501membership@test.org",
-                userTO.getMemberships().get(0).getVirAttrMap().get("mvirtualdata").getValues().get(0));
-
-        // 2. update only membership virtual attribute and propagate user
-        membershipMod = new MembershipMod();
-        membershipMod.setGroup(groupTO.getKey());
-        membershipMod.getVirAttrsToUpdate().add(attrMod("mvirtualdata",
-                "syncope501membership_updated@test.org"));
-        membershipMod.getVirAttrsToRemove().add("syncope501membership@test.org");
-
-        userMod = new UserMod();
-        userMod.setKey(userTO.getKey());
-        userMod.getMembershipsToAdd().add(membershipMod);
-        userMod.getMembershipsToRemove().add(userTO.getMemberships().iterator().next().getKey());
-        userMod.setPwdPropRequest(statusMod);
-
-        userTO = updateUser(userMod);
-        assertNotNull(userTO);
-
-        // 3. check if change has been propagated
-        assertEquals("syncope501membership_updated@test.org", userTO.getMemberships().get(0).getVirAttrMap().
-                get("mvirtualdata").getValues().get(0));
-
-        // 4. delete membership and check on resource attribute deletion
-        userMod = new UserMod();
-        userMod.setKey(userTO.getKey());
-        userMod.getMembershipsToRemove().add(userTO.getMemberships().get(0).getKey());
-        userMod.setPwdPropRequest(statusMod);
-
-        userTO = updateUser(userMod);
-        assertNotNull(userTO);
-        assertTrue(userTO.getMemberships().isEmpty());
-
-        // read attribute value directly on resource
-        final JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
-
-        final String emailValue = jdbcTemplate.queryForObject(
-                "SELECT EMAIL FROM testsync WHERE ID=?", String.class, userTO.getKey());
-        assertTrue(StringUtils.isBlank(emailValue));
-        // ----------------------------------------
-
-        // -------------------------------------------
-        // Delete group ad-hoc and restore resource mapping
-        // -------------------------------------------
-        groupService.delete(groupTO.getKey());
-
-        resourceUMapping.removeItem(item);
-        resourceDBVirAttr.setUmapping(resourceUMapping);
-        resourceService.update(RESOURCE_NAME_DBVIRATTR, resourceDBVirAttr);
-        // -------------------------------------------
     }
 }

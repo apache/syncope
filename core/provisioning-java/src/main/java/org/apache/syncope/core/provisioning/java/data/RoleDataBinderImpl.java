@@ -26,10 +26,10 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.core.misc.search.SearchCondConverter;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
-import org.apache.syncope.core.persistence.api.entity.DynRoleMembership;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Role;
+import org.apache.syncope.core.persistence.api.entity.user.DynRoleMembership;
 import org.apache.syncope.core.provisioning.api.data.RoleDataBinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,7 +101,7 @@ public class RoleDataBinderImpl implements RoleDataBinder {
             } else if (role.getDynMembership() != null && roleTO.getDynMembershipCond() != null
                     && !role.getDynMembership().getFIQLCond().equals(roleTO.getDynMembershipCond())) {
 
-                role.getDynMembership().getUsers().clear();
+                role.getDynMembership().getMembers().clear();
                 setDynMembership(role, roleTO.getDynMembershipCond());
             }
         }

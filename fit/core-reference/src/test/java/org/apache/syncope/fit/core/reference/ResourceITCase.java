@@ -36,7 +36,9 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.MappingItemTO;
 import org.apache.syncope.common.lib.to.MappingTO;
+import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ConnConfPropSchema;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
@@ -44,6 +46,7 @@ import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.rest.api.service.ResourceService;
+import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -57,21 +60,27 @@ public class ResourceITCase extends AbstractITCase {
         resourceTO.setKey(resourceName);
         resourceTO.setConnectorId(102L);
 
+        ProvisionTO provisionTO = new ProvisionTO();
+        provisionTO.setAnyType(AnyTypeKind.USER.name());
+        provisionTO.setObjectClass(ObjectClass.ACCOUNT_NAME);
+        resourceTO.getProvisions().add(provisionTO);
+
         MappingTO mapping = new MappingTO();
+        provisionTO.setMapping(mapping);
 
         MappingItemTO item = new MappingItemTO();
         item.setExtAttrName("userId");
         item.setIntAttrName("userId");
         item.setIntMappingType(IntMappingType.UserPlainSchema);
         item.setPurpose(MappingPurpose.BOTH);
-        mapping.addItem(item);
+        mapping.add(item);
 
         item = new MappingItemTO();
         item.setExtAttrName("username");
         item.setIntAttrName("fullname");
         item.setIntMappingType(IntMappingType.UserId);
         item.setPurpose(MappingPurpose.BOTH);
-        mapping.setAccountIdItem(item);
+        mapping.setConnObjectKeyItem(item);
 
         item = new MappingItemTO();
         item.setExtAttrName("fullname");
@@ -79,9 +88,8 @@ public class ResourceITCase extends AbstractITCase {
         item.setIntMappingType(IntMappingType.UserPlainSchema);
         item.setAccountid(false);
         item.setPurpose(MappingPurpose.BOTH);
-        mapping.addItem(item);
+        mapping.add(item);
 
-        resourceTO.setUmapping(mapping);
         return resourceTO;
     }
 
@@ -111,14 +119,20 @@ public class ResourceITCase extends AbstractITCase {
         String resourceName = "overriding-conn-conf-target-resource-create";
         ResourceTO resourceTO = new ResourceTO();
 
+        ProvisionTO provisionTO = new ProvisionTO();
+        provisionTO.setAnyType(AnyTypeKind.USER.name());
+        provisionTO.setObjectClass(ObjectClass.ACCOUNT_NAME);
+        resourceTO.getProvisions().add(provisionTO);
+
         MappingTO mapping = new MappingTO();
+        provisionTO.setMapping(mapping);
 
         MappingItemTO item = new MappingItemTO();
         item.setExtAttrName("uid");
         item.setIntAttrName("userId");
         item.setIntMappingType(IntMappingType.UserPlainSchema);
         item.setPurpose(MappingPurpose.BOTH);
-        mapping.addItem(item);
+        mapping.add(item);
 
         item = new MappingItemTO();
         item.setExtAttrName("username");
@@ -126,7 +140,7 @@ public class ResourceITCase extends AbstractITCase {
         item.setIntMappingType(IntMappingType.UserId);
         item.setAccountid(true);
         item.setPurpose(MappingPurpose.BOTH);
-        mapping.setAccountIdItem(item);
+        mapping.setConnObjectKeyItem(item);
 
         item = new MappingItemTO();
         item.setExtAttrName("fullname");
@@ -134,12 +148,10 @@ public class ResourceITCase extends AbstractITCase {
         item.setIntMappingType(IntMappingType.UserPlainSchema);
         item.setAccountid(false);
         item.setPurpose(MappingPurpose.BOTH);
-        mapping.addItem(item);
+        mapping.add(item);
 
         resourceTO.setKey(resourceName);
         resourceTO.setConnectorId(102L);
-
-        resourceTO.setUmapping(mapping);
 
         ConnConfProperty p = new ConnConfProperty();
         ConnConfPropSchema schema = new ConnConfPropSchema();
@@ -149,7 +161,7 @@ public class ResourceITCase extends AbstractITCase {
         p.setSchema(schema);
         p.getValues().add("http://invalidurl/");
 
-        Set<ConnConfProperty> connectorConfigurationProperties = new HashSet<ConnConfProperty>(Arrays.asList(p));
+        Set<ConnConfProperty> connectorConfigurationProperties = new HashSet<>(Arrays.asList(p));
         resourceTO.getConnConfProperties().addAll(connectorConfigurationProperties);
 
         Response response = resourceService.create(resourceTO);
@@ -168,38 +180,47 @@ public class ResourceITCase extends AbstractITCase {
         resourceTO.setKey(resourceName);
         resourceTO.setConnectorId(102L);
 
-        MappingTO umapping = new MappingTO();
+        ProvisionTO provisionTO = new ProvisionTO();
+        provisionTO.setAnyType(AnyTypeKind.USER.name());
+        provisionTO.setObjectClass(ObjectClass.ACCOUNT_NAME);
+        resourceTO.getProvisions().add(provisionTO);
+
+        MappingTO mapping = new MappingTO();
+        provisionTO.setMapping(mapping);
 
         MappingItemTO item = new MappingItemTO();
         item.setIntMappingType(IntMappingType.UserId);
         item.setExtAttrName("userId");
         item.setAccountid(true);
         item.setPurpose(MappingPurpose.PROPAGATION);
-        umapping.setAccountIdItem(item);
+        mapping.setConnObjectKeyItem(item);
 
-        resourceTO.setUmapping(umapping);
+        provisionTO = new ProvisionTO();
+        provisionTO.setAnyType(AnyTypeKind.GROUP.name());
+        provisionTO.setObjectClass(ObjectClass.GROUP_NAME);
+        resourceTO.getProvisions().add(provisionTO);
 
-        MappingTO rmapping = new MappingTO();
-
+        mapping = new MappingTO();
+        provisionTO.setMapping(mapping);
         item = new MappingItemTO();
         item.setIntMappingType(IntMappingType.GroupId);
         item.setExtAttrName("groupId");
         item.setAccountid(true);
         item.setPurpose(MappingPurpose.SYNCHRONIZATION);
-        rmapping.setAccountIdItem(item);
-
-        resourceTO.setGmapping(rmapping);
+        mapping.setConnObjectKeyItem(item);
 
         Response response = resourceService.create(resourceTO);
         ResourceTO actual = getObject(response.getLocation(), ResourceService.class, ResourceTO.class);
 
         assertNotNull(actual);
-        assertNotNull(actual.getUmapping());
-        assertNotNull(actual.getUmapping().getItems());
-        assertNotNull(actual.getGmapping());
-        assertNotNull(actual.getGmapping().getItems());
-        assertEquals(MappingPurpose.SYNCHRONIZATION, actual.getGmapping().getAccountIdItem().getPurpose());
-        assertEquals(MappingPurpose.PROPAGATION, actual.getUmapping().getAccountIdItem().getPurpose());
+        assertNotNull(actual.getProvision(AnyTypeKind.USER.name()).getMapping());
+        assertNotNull(actual.getProvision(AnyTypeKind.USER.name()).getMapping().getItems());
+        assertNotNull(actual.getProvision(AnyTypeKind.GROUP.name()).getMapping());
+        assertNotNull(actual.getProvision(AnyTypeKind.GROUP.name()).getMapping().getItems());
+        assertEquals(MappingPurpose.SYNCHRONIZATION,
+                actual.getProvision(AnyTypeKind.GROUP.name()).getMapping().getConnObjectKeyItem().getPurpose());
+        assertEquals(MappingPurpose.PROPAGATION,
+                actual.getProvision(AnyTypeKind.USER.name()).getMapping().getConnObjectKeyItem().getPurpose());
     }
 
     @Test
@@ -209,21 +230,25 @@ public class ResourceITCase extends AbstractITCase {
         resourceTO.setKey(resourceName);
         resourceTO.setConnectorId(102L);
 
+        ProvisionTO provisionTO = new ProvisionTO();
+        provisionTO.setAnyType(AnyTypeKind.USER.name());
+        provisionTO.setObjectClass(ObjectClass.ACCOUNT_NAME);
+        resourceTO.getProvisions().add(provisionTO);
+
         MappingTO mapping = new MappingTO();
+        provisionTO.setMapping(mapping);
 
         MappingItemTO item = new MappingItemTO();
         item.setIntMappingType(IntMappingType.UserId);
         item.setExtAttrName("userId");
         item.setAccountid(true);
-        mapping.setAccountIdItem(item);
+        mapping.setConnObjectKeyItem(item);
 
         item = new MappingItemTO();
         item.setIntMappingType(IntMappingType.UserPlainSchema);
         item.setExtAttrName("email");
         // missing intAttrName ...
-        mapping.addItem(item);
-
-        resourceTO.setUmapping(mapping);
+        mapping.add(item);
 
         try {
             createResource(resourceTO);
@@ -241,21 +266,25 @@ public class ResourceITCase extends AbstractITCase {
         resourceTO.setKey(resourceName);
         resourceTO.setConnectorId(102L);
 
+        ProvisionTO provisionTO = new ProvisionTO();
+        provisionTO.setAnyType(AnyTypeKind.USER.name());
+        provisionTO.setObjectClass(ObjectClass.ACCOUNT_NAME);
+        resourceTO.getProvisions().add(provisionTO);
+
         MappingTO mapping = new MappingTO();
+        provisionTO.setMapping(mapping);
 
         MappingItemTO item = new MappingItemTO();
         item.setIntMappingType(IntMappingType.UserId);
         item.setExtAttrName("userId");
         item.setAccountid(true);
-        mapping.setAccountIdItem(item);
+        mapping.setConnObjectKeyItem(item);
 
         item = new MappingItemTO();
         item.setIntMappingType(IntMappingType.UserPlainSchema);
         item.setIntAttrName("usernane");
         // missing extAttrName ...
-        mapping.addItem(item);
-
-        resourceTO.setUmapping(mapping);
+        mapping.add(item);
 
         createResource(resourceTO);
     }
@@ -268,7 +297,13 @@ public class ResourceITCase extends AbstractITCase {
         resourceTO.setConnectorId(102L);
         resourceTO.setPasswordPolicy(4L);
 
+        ProvisionTO provisionTO = new ProvisionTO();
+        provisionTO.setAnyType(AnyTypeKind.USER.name());
+        provisionTO.setObjectClass(ObjectClass.ACCOUNT_NAME);
+        resourceTO.getProvisions().add(provisionTO);
+
         MappingTO mapping = new MappingTO();
+        provisionTO.setMapping(mapping);
 
         MappingItemTO item = new MappingItemTO();
         item.setExtAttrName("userId");
@@ -276,9 +311,7 @@ public class ResourceITCase extends AbstractITCase {
         item.setIntMappingType(IntMappingType.UserPlainSchema);
         item.setAccountid(true);
         item.setPurpose(MappingPurpose.BOTH);
-        mapping.setAccountIdItem(item);
-
-        resourceTO.setUmapping(mapping);
+        mapping.setConnObjectKeyItem(item);
 
         Response response = resourceService.create(resourceTO);
         ResourceTO actual = getObject(response.getLocation(), ResourceService.class, ResourceTO.class);
@@ -311,7 +344,13 @@ public class ResourceITCase extends AbstractITCase {
         resourceTO.setKey(resourceName);
         resourceTO.setConnectorId(101L);
 
+        ProvisionTO provisionTO = new ProvisionTO();
+        provisionTO.setAnyType(AnyTypeKind.USER.name());
+        provisionTO.setObjectClass(ObjectClass.ACCOUNT_NAME);
+        resourceTO.getProvisions().add(provisionTO);
+
         MappingTO mapping = new MappingTO();
+        provisionTO.setMapping(mapping);
 
         // Update with an existing and already assigned mapping
         MappingItemTO item = new MappingItemTO();
@@ -320,7 +359,7 @@ public class ResourceITCase extends AbstractITCase {
         item.setIntAttrName("fullname");
         item.setIntMappingType(IntMappingType.UserPlainSchema);
         item.setPurpose(MappingPurpose.BOTH);
-        mapping.addItem(item);
+        mapping.add(item);
 
         // Update defining new mappings
         for (int i = 4; i < 6; i++) {
@@ -329,7 +368,7 @@ public class ResourceITCase extends AbstractITCase {
             item.setIntAttrName("fullname");
             item.setIntMappingType(IntMappingType.UserPlainSchema);
             item.setPurpose(MappingPurpose.BOTH);
-            mapping.addItem(item);
+            mapping.add(item);
         }
         item = new MappingItemTO();
         item.setExtAttrName("username");
@@ -337,16 +376,14 @@ public class ResourceITCase extends AbstractITCase {
         item.setIntMappingType(IntMappingType.UserId);
         item.setAccountid(true);
         item.setPurpose(MappingPurpose.BOTH);
-        mapping.setAccountIdItem(item);
-
-        resourceTO.setUmapping(mapping);
+        mapping.setConnObjectKeyItem(item);
 
         resourceService.update(resourceTO.getKey(), resourceTO);
         ResourceTO actual = resourceService.read(resourceTO.getKey());
         assertNotNull(actual);
 
         // check for existence
-        Collection<MappingItemTO> mapItems = actual.getUmapping().getItems();
+        Collection<MappingItemTO> mapItems = actual.getProvision(AnyTypeKind.USER.name()).getMapping().getItems();
         assertNotNull(mapItems);
         assertEquals(4, mapItems.size());
     }
@@ -366,14 +403,15 @@ public class ResourceITCase extends AbstractITCase {
         // create resource with sync token
         String resourceName = RESOURCE_NAME_RESETSYNCTOKEN + getUUIDString();
         ResourceTO pre = buildResourceTO(resourceName);
-        pre.setUsyncToken("test");
+
+        pre.getProvision(AnyTypeKind.USER.name()).setSyncToken("test");
         resourceService.create(pre);
 
-        pre.setUsyncToken(null);
+        pre.getProvision(AnyTypeKind.USER.name()).setSyncToken(null);
         resourceService.update(pre.getKey(), pre);
         ResourceTO actual = resourceService.read(pre.getKey());
         // check that the synctoken has been reset
-        assertNull(actual.getUsyncToken());
+        assertNull(actual.getProvision(AnyTypeKind.USER.name()).getSyncToken());
     }
 
     @Test
@@ -470,14 +508,14 @@ public class ResourceITCase extends AbstractITCase {
 
         ResourceTO resource = resourceService.read(name);
         assertNotNull(resource);
-        assertNotNull(resource.getUmapping());
+        assertNotNull(resource.getProvision(AnyTypeKind.USER.name()).getMapping());
 
-        resource.setUmapping(new MappingTO());
+        resource.getProvision(AnyTypeKind.USER.name()).setMapping(new MappingTO());
         resourceService.update(name, resource);
 
         resource = resourceService.read(name);
         assertNotNull(resource);
-        assertNull(resource.getUmapping());
+        assertNull(resource.getProvision(AnyTypeKind.USER.name()).getMapping());
     }
 
     @Test
@@ -489,25 +527,29 @@ public class ResourceITCase extends AbstractITCase {
         resourceTO.setKey(name);
         resourceTO.setConnectorId(105L);
 
+        ProvisionTO provisionTO = new ProvisionTO();
+        provisionTO.setAnyType(AnyTypeKind.GROUP.name());
+        provisionTO.setObjectClass(ObjectClass.GROUP_NAME);
+        resourceTO.getProvisions().add(provisionTO);
+
         MappingTO mapping = new MappingTO();
+        provisionTO.setMapping(mapping);
 
         MappingItemTO item = new MappingItemTO();
         item.setIntMappingType(IntMappingType.GroupName);
         item.setExtAttrName("cn");
         item.setPurpose(MappingPurpose.BOTH);
-        mapping.setAccountIdItem(item);
+        mapping.setConnObjectKeyItem(item);
 
         item = new MappingItemTO();
         item.setIntMappingType(IntMappingType.GroupOwnerSchema);
         item.setExtAttrName("owner");
         item.setPurpose(MappingPurpose.BOTH);
-        mapping.addItem(item);
-
-        resourceTO.setGmapping(mapping);
+        mapping.add(item);
 
         resourceTO = createResource(resourceTO);
         assertNotNull(resourceTO);
-        assertEquals(2, resourceTO.getGmapping().getItems().size());
+        assertEquals(2, resourceTO.getProvision(AnyTypeKind.GROUP.name()).getMapping().getItems().size());
     }
 
     @Test
@@ -519,7 +561,7 @@ public class ResourceITCase extends AbstractITCase {
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidExternalResource, e.getType());
 
-            assertTrue(e.getElements().iterator().next().toString().contains(EntityViolationType.InvalidName.name()));
+            assertTrue(e.getElements().iterator().next().contains(EntityViolationType.InvalidName.name()));
         }
     }
 
@@ -546,14 +588,20 @@ public class ResourceITCase extends AbstractITCase {
         resourceTO.setKey(resourceName);
         resourceTO.setConnectorId(102L);
 
-        MappingTO umapping = new MappingTO();
+        ProvisionTO provisionTO = new ProvisionTO();
+        provisionTO.setAnyType(AnyTypeKind.USER.name());
+        provisionTO.setObjectClass(ObjectClass.ACCOUNT_NAME);
+        resourceTO.getProvisions().add(provisionTO);
+
+        MappingTO mapping = new MappingTO();
+        provisionTO.setMapping(mapping);
 
         MappingItemTO item = new MappingItemTO();
         item.setIntMappingType(IntMappingType.UserId);
         item.setExtAttrName("userId");
         item.setAccountid(true);
         item.setPurpose(MappingPurpose.PROPAGATION);
-        umapping.setAccountIdItem(item);
+        mapping.setConnObjectKeyItem(item);
 
         MappingItemTO item2 = new MappingItemTO();
         item2.setIntMappingType(IntMappingType.UserPlainSchema);
@@ -561,18 +609,17 @@ public class ResourceITCase extends AbstractITCase {
         item2.setIntAttrName("gender");
         item2.setExtAttrName("gender");
         item2.setPurpose(MappingPurpose.NONE);
-        umapping.addItem(item2);
-
-        resourceTO.setUmapping(umapping);
+        mapping.add(item2);
 
         Response response = resourceService.create(resourceTO);
         ResourceTO actual = getObject(response.getLocation(), ResourceService.class, ResourceTO.class);
 
         assertNotNull(actual);
-        assertNotNull(actual.getUmapping());
-        assertNotNull(actual.getUmapping().getItems());
-        assertEquals(MappingPurpose.PROPAGATION, actual.getUmapping().getAccountIdItem().getPurpose());
-        for (MappingItemTO itemTO : actual.getUmapping().getItems()) {
+        assertNotNull(actual.getProvision(AnyTypeKind.USER.name()).getMapping());
+        assertNotNull(actual.getProvision(AnyTypeKind.USER.name()).getMapping().getItems());
+        assertEquals(MappingPurpose.PROPAGATION,
+                actual.getProvision(AnyTypeKind.USER.name()).getMapping().getConnObjectKeyItem().getPurpose());
+        for (MappingItemTO itemTO : actual.getProvision(AnyTypeKind.USER.name()).getMapping().getItems()) {
             if ("gender".equals(itemTO.getIntAttrName())) {
                 assertEquals(MappingPurpose.NONE, itemTO.getPurpose());
             }

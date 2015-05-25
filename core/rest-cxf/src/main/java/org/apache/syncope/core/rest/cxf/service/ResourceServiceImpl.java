@@ -23,17 +23,18 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.common.lib.to.AbstractAttributableTO;
+import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceDeassociationActionType;
-import org.apache.syncope.common.lib.types.SubjectType;
-import org.apache.syncope.common.lib.wrap.SubjectKey;
+import org.apache.syncope.common.lib.wrap.AnyKey;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.apache.syncope.core.logic.AbstractResourceAssociator;
+import org.apache.syncope.core.logic.AnyObjectLogic;
 import org.apache.syncope.core.logic.ResourceLogic;
 import org.apache.syncope.core.logic.GroupLogic;
 import org.apache.syncope.core.logic.UserLogic;
@@ -45,6 +46,9 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
 
     @Autowired
     private ResourceLogic logic;
+
+    @Autowired
+    private AnyObjectLogic anyObjectLogic;
 
     @Autowired
     private UserLogic userLogic;
@@ -83,8 +87,8 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
     }
 
     @Override
-    public ConnObjectTO getConnectorObject(final String resourceKey, final SubjectType type, final Long key) {
-        return logic.getConnectorObject(resourceKey, type, key);
+    public ConnObjectTO readConnObject(final String resourceKey, final String anyTypeKey, final Long key) {
+        return logic.readConnObject(resourceKey, anyTypeKey, key);
     }
 
     @Override
@@ -93,17 +97,20 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
     }
 
     @Override
-    public BulkActionResult bulkDeassociation(final String resourceKey, final SubjectType subjectType,
-            final ResourceDeassociationActionType type, final List<SubjectKey> subjectKeys) {
+    public BulkActionResult bulkDeassociation(
+            final String resourceKey, final String anyTypeKey, final ResourceDeassociationActionType type,
+            final List<AnyKey> keys) {
 
-        AbstractResourceAssociator<? extends AbstractAttributableTO> associator = subjectType == SubjectType.USER
+        AbstractResourceAssociator<? extends AnyTO> associator = anyTypeKey.equalsIgnoreCase(AnyTypeKind.USER.name())
                 ? userLogic
-                : groupLogic;
+                : anyTypeKey.equalsIgnoreCase(AnyTypeKind.GROUP.name())
+                        ? groupLogic
+                        : anyObjectLogic;
 
-        final BulkActionResult res = new BulkActionResult();
+        BulkActionResult res = new BulkActionResult();
 
-        for (SubjectKey key : subjectKeys) {
-            final Set<String> resources = Collections.singleton(resourceKey);
+        for (AnyKey key : keys) {
+            Set<String> resources = Collections.singleton(resourceKey);
             try {
                 switch (type) {
                     case DEPROVISION:
@@ -123,7 +130,7 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
 
                 res.add(key, BulkActionResult.Status.SUCCESS);
             } catch (Exception e) {
-                LOG.warn("While executing {} on {} {}", type, subjectType, key.getElement(), e);
+                LOG.warn("While executing {} on {} {}", type, anyTypeKey, key.getElement(), e);
                 res.add(key, BulkActionResult.Status.FAILURE);
             }
         }

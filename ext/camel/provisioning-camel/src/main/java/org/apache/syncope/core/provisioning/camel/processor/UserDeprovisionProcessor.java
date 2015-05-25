@@ -56,7 +56,7 @@ public class UserDeprovisionProcessor implements Processor {
         @SuppressWarnings("unchecked")
         List<String> resources = exchange.getProperty("resources", List.class);
 
-        User user = userDAO.authFetch(userKey);
+        User user = userDAO.authFind(userKey);
 
         List<PropagationTask> tasks = propagationManager.getUserDeleteTasks(
                 userKey,

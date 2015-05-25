@@ -48,7 +48,6 @@ import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.NotificationTaskTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.TaskType;
@@ -57,15 +56,15 @@ import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Notification;
 import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttr;
-import org.apache.syncope.core.persistence.api.entity.conf.CPlainSchema;
 import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
 import org.apache.syncope.core.logic.notification.NotificationJob;
 import org.apache.syncope.core.misc.security.SyncopeGrantedAuthority;
-import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
+import org.apache.syncope.core.persistence.api.entity.AnyAbout;
+import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttrValue;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -124,7 +123,7 @@ public class NotificationTest {
     private NotificationDAO notificationDAO;
 
     @Autowired
-    private RealmDAO realmDAO;
+    private AnyTypeDAO anyTypeDAO;
 
     @Autowired
     private TaskDAO taskDAO;
@@ -155,9 +154,6 @@ public class NotificationTest {
 
     @Autowired
     private EntityFactory entityFactory;
-
-    @Autowired
-    private AttributableUtilsFactory attrUtilsFactory;
 
     @BeforeClass
     public static void startGreenMail() {
@@ -264,7 +260,13 @@ public class NotificationTest {
         // 1. create suitable notification for subsequent tests
         Notification notification = entityFactory.newEntity(Notification.class);
         notification.getEvents().add("[REST]:[UserLogic]:[]:[create]:[SUCCESS]");
-        notification.setUserAbout(new UserFiqlSearchConditionBuilder().inGroups(7L).query());
+
+        AnyAbout about = entityFactory.newEntity(AnyAbout.class);
+        about.setNotification(notification);
+        notification.add(about);
+        about.setAnyType(anyTypeDAO.findUser());
+        about.set(new UserFiqlSearchConditionBuilder().inGroups(7L).query());
+
         notification.setRecipients(new UserFiqlSearchConditionBuilder().inGroups(8L).query());
         notification.setSelfAsRecipient(true);
 
@@ -286,7 +288,7 @@ public class NotificationTest {
         // 2. create user
         UserTO userTO = getSampleTO(MAIL_ADDRESS);
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setGroupKey(7);
+        membershipTO.setRightKey(7);
         userTO.getMemberships().add(membershipTO);
 
         userLogic.create(userTO, true);
@@ -322,7 +324,13 @@ public class NotificationTest {
         // 1. create suitable notification for subsequent tests
         Notification notification = entityFactory.newEntity(Notification.class);
         notification.getEvents().add("[REST]:[UserLogic]:[]:[create]:[SUCCESS]");
-        notification.setUserAbout(new UserFiqlSearchConditionBuilder().inGroups(7L).query());
+
+        AnyAbout about = entityFactory.newEntity(AnyAbout.class);
+        about.setNotification(notification);
+        notification.add(about);
+        about.setAnyType(anyTypeDAO.findUser());
+        about.set(new UserFiqlSearchConditionBuilder().inGroups(7L).query());
+
         notification.setRecipients(new UserFiqlSearchConditionBuilder().inGroups(8L).query());
         notification.setSelfAsRecipient(true);
 
@@ -343,7 +351,7 @@ public class NotificationTest {
         // 2. create user
         UserTO userTO = getSampleTO(MAIL_ADDRESS);
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setGroupKey(7);
+        membershipTO.setRightKey(7);
         userTO.getMemberships().add(membershipTO);
 
         userLogic.create(userTO, true);
@@ -374,7 +382,6 @@ public class NotificationTest {
         // 1. create suitable notification for subsequent tests
         Notification notification = entityFactory.newEntity(Notification.class);
         notification.getEvents().add("[REST]:[UserLogic]:[]:[create]:[SUCCESS]");
-        notification.setUserAbout(null);
         notification.setRecipients(new UserFiqlSearchConditionBuilder().inGroups(8L).query());
         notification.setSelfAsRecipient(true);
 
@@ -396,7 +403,7 @@ public class NotificationTest {
         // 2. create user
         UserTO userTO = getSampleTO(MAIL_ADDRESS);
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setGroupKey(7);
+        membershipTO.setRightKey(7);
         userTO.getMemberships().add(membershipTO);
 
         userLogic.create(userTO, true);
@@ -424,7 +431,6 @@ public class NotificationTest {
         // 1. create suitable notification for subsequent tests
         Notification notification = entityFactory.newEntity(Notification.class);
         notification.getEvents().add("[REST]:[UserLogic]:[]:[create]:[SUCCESS]");
-        notification.setUserAbout(null);
         notification.setRecipients(new UserFiqlSearchConditionBuilder().inGroups(8L).query());
         notification.setSelfAsRecipient(true);
 
@@ -446,15 +452,16 @@ public class NotificationTest {
         // 2. create user
         UserTO userTO = getSampleTO(MAIL_ADDRESS);
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setGroupKey(7);
+        membershipTO.setRightKey(7);
         userTO.getMemberships().add(membershipTO);
 
         userLogic.create(userTO, true);
 
         // 3. Set number of retries
         CPlainAttr maxRetries = entityFactory.newEntity(CPlainAttr.class);
-        maxRetries.setSchema(plainSchemaDAO.find("notification.maxRetries", CPlainSchema.class));
-        maxRetries.addValue("5", attrUtilsFactory.getInstance(AttributableType.CONFIGURATION));
+        maxRetries.setSchema(plainSchemaDAO.find("notification.maxRetries"));
+        CPlainAttrValue maxRetriesValue = entityFactory.newEntity(CPlainAttrValue.class);
+        maxRetries.add("5", maxRetriesValue);
         confDAO.save(maxRetries);
         confDAO.flush();
 
@@ -482,8 +489,9 @@ public class NotificationTest {
 
         // 8. reset number of retries
         maxRetries = entityFactory.newEntity(CPlainAttr.class);
-        maxRetries.setSchema(plainSchemaDAO.find("notification.maxRetries", CPlainSchema.class));
-        maxRetries.addValue("0", attrUtilsFactory.getInstance(AttributableType.CONFIGURATION));
+        maxRetries.setSchema(plainSchemaDAO.find("notification.maxRetries"));
+        maxRetriesValue = entityFactory.newEntity(CPlainAttrValue.class);
+        maxRetries.add("0", maxRetriesValue);
         confDAO.save(maxRetries);
         confDAO.flush();
     }
@@ -493,7 +501,13 @@ public class NotificationTest {
         // 1. create suitable notification for subsequent tests
         Notification notification = entityFactory.newEntity(Notification.class);
         notification.getEvents().add("[REST]:[UserLogic]:[]:[create]:[SUCCESS]");
-        notification.setUserAbout(new UserFiqlSearchConditionBuilder().inGroups(7L).query());
+
+        AnyAbout about = entityFactory.newEntity(AnyAbout.class);
+        about.setNotification(notification);
+        notification.add(about);
+        about.setAnyType(anyTypeDAO.findUser());
+        about.set(new UserFiqlSearchConditionBuilder().inGroups(7L).query());
+
         notification.setRecipients(new UserFiqlSearchConditionBuilder().inGroups(8L).query());
         notification.setSelfAsRecipient(true);
 
@@ -517,7 +531,7 @@ public class NotificationTest {
         // 2. create user
         UserTO userTO = getSampleTO(MAIL_ADDRESS);
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setGroupKey(7);
+        membershipTO.setRightKey(7);
         userTO.getMemberships().add(membershipTO);
 
         userLogic.create(userTO, true);
@@ -552,7 +566,13 @@ public class NotificationTest {
         // 1. create suitable disabled notification for subsequent tests
         Notification notification = entityFactory.newEntity(Notification.class);
         notification.getEvents().add("[REST]:[UserLogic]:[]:[create]:[SUCCESS]");
-        notification.setUserAbout(new UserFiqlSearchConditionBuilder().inGroups(7L).query());
+
+        AnyAbout about = entityFactory.newEntity(AnyAbout.class);
+        about.setNotification(notification);
+        notification.add(about);
+        about.setAnyType(anyTypeDAO.findUser());
+        about.set(new UserFiqlSearchConditionBuilder().inGroups(7L).query());
+
         notification.setSelfAsRecipient(true);
 
         notification.setRecipientAttrName("email");
@@ -578,7 +598,7 @@ public class NotificationTest {
         // 2. create user
         UserTO userTO = getUniqueSampleTO(MAIL_ADDRESS);
         MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setGroupKey(7);
+        membershipTO.setRightKey(7);
         userTO.getMemberships().add(membershipTO);
 
         userLogic.create(userTO, true);
@@ -592,11 +612,16 @@ public class NotificationTest {
 
     @Test
     public void issueSYNCOPE446() throws Exception {
-
         // 1. create suitable notification for subsequent tests
         Notification notification = entityFactory.newEntity(Notification.class);
         notification.getEvents().add("[REST]:[GroupLogic]:[]:[create]:[SUCCESS]");
-        notification.setGroupAbout(new GroupFiqlSearchConditionBuilder().is("name").equalTo("group446").query());
+
+        AnyAbout about = entityFactory.newEntity(AnyAbout.class);
+        about.setNotification(notification);
+        notification.add(about);
+        about.setAnyType(anyTypeDAO.findGroup());
+        about.set(new GroupFiqlSearchConditionBuilder().is("name").equalTo("group446").query());
+
         notification.setSelfAsRecipient(false);
 
         notification.setRecipientAttrName("email");

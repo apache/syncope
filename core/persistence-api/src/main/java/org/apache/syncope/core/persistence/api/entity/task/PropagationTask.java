@@ -19,47 +19,47 @@
 package org.apache.syncope.core.persistence.api.entity.task;
 
 import java.util.Set;
-import org.apache.syncope.common.lib.types.AttributableType;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.PropagationMode;
 import org.apache.syncope.common.lib.types.ResourceOperation;
-import org.apache.syncope.core.persistence.api.entity.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.identityconnectors.framework.common.objects.Attribute;
 
 public interface PropagationTask extends Task {
 
-    String getAccountId();
+    String getConnObjectKey();
+
+    void setConnObjectKey(String connObjectKey);
+
+    String getOldConnObjectKey();
+
+    void setOldConnObjectKey(String oldConnObjectKey);
 
     Set<Attribute> getAttributes();
 
-    String getObjectClassName();
-
-    String getOldAccountId();
-
-    PropagationMode getPropagationMode();
-
-    ResourceOperation getPropagationOperation();
-
-    ExternalResource getResource();
-
-    Long getSubjectKey();
-
-    AttributableType getSubjectType();
-
-    void setAccountId(String accountId);
-
     void setAttributes(Set<Attribute> attributes);
+
+    String getObjectClassName();
 
     void setObjectClassName(String objectClassName);
 
-    void setOldAccountId(String oldAccountId);
+    PropagationMode getPropagationMode();
 
     void setPropagationMode(PropagationMode propagationMode);
 
+    ResourceOperation getPropagationOperation();
+
     void setPropagationOperation(ResourceOperation operation);
 
+    Long getAnyKey();
+
+    void setAnyKey(Long anyKey);
+
+    AnyTypeKind getAnyTypeKind();
+
+    void setAnyTypeKind(AnyTypeKind anyTypeKind);
+
+    ExternalResource getResource();
+
     void setResource(ExternalResource resource);
-
-    void setSubjectKey(Long subjectKey);
-
-    void setSubjectType(AttributableType subjectType);
 }

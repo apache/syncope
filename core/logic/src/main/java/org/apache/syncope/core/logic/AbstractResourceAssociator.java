@@ -19,9 +19,9 @@
 package org.apache.syncope.core.logic;
 
 import java.util.Collection;
-import org.apache.syncope.common.lib.to.AbstractAttributableTO;
+import org.apache.syncope.common.lib.to.AnyTO;
 
-public abstract class AbstractResourceAssociator<T extends AbstractAttributableTO> extends AbstractLogic<T> {
+public abstract class AbstractResourceAssociator<T extends AnyTO> extends AbstractLogic<T> {
 
     public abstract T unlink(Long id, Collection<String> resources);
 

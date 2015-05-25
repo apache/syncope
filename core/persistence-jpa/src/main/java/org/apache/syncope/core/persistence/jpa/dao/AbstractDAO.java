@@ -37,9 +37,6 @@ import org.springframework.util.ReflectionUtils;
 @Configurable
 public abstract class AbstractDAO<E extends Entity<KEY>, KEY> implements DAO<E, KEY> {
 
-    /**
-     * Logger.
-     */
     protected static final Logger LOG = LoggerFactory.getLogger(DAO.class);
 
     private static final String CACHE_STORE_MODE = "javax.persistence.cache.storeMode";

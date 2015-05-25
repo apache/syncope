@@ -21,14 +21,7 @@ package org.apache.syncope.core.persistence.api.entity.conf;
 import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 
-public interface CPlainAttr extends PlainAttr {
-
-    @SuppressWarnings("unchecked")
-    @Override
-    Conf getOwner();
-
-    @Override
-    CPlainSchema getSchema();
+public interface CPlainAttr extends PlainAttr<Conf> {
 
     @Override
     List<? extends CPlainAttrValue> getValues();

@@ -20,21 +20,21 @@ package org.apache.syncope.fit.core.reference;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.syncope.common.lib.mod.AbstractAttributableMod;
+import org.apache.syncope.common.lib.mod.AnyMod;
 import org.apache.syncope.common.lib.mod.AttrMod;
-import org.apache.syncope.common.lib.to.AbstractAttributableTO;
+import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
-import org.apache.syncope.core.provisioning.api.AttributableTransformer;
+import org.apache.syncope.core.provisioning.api.AnyTransformer;
 
 /**
  * Class for integration tests: transform (by making it double) any attribute value for defined schema.
  */
-public class DoubleValueAttributableTransformer implements AttributableTransformer {
+public class DoubleValueAttributableTransformer implements AnyTransformer {
 
     private static final String NAME = "makeItDouble";
 
     @Override
-    public <T extends AbstractAttributableTO> T transform(final T input) {
+    public <T extends AnyTO> T transform(final T input) {
         for (AttrTO attr : input.getPlainAttrs()) {
             if (NAME.equals(attr.getSchema())) {
                 List<String> values = new ArrayList<>(attr.getValues().size());
@@ -54,7 +54,7 @@ public class DoubleValueAttributableTransformer implements AttributableTransform
     }
 
     @Override
-    public <T extends AbstractAttributableMod> T transform(final T input) {
+    public <T extends AnyMod> T transform(final T input) {
         for (AttrMod attr : input.getPlainAttrsToUpdate()) {
             if (NAME.equals(attr.getSchema())) {
                 List<String> values = new ArrayList<>(attr.getValuesToBeAdded().size());

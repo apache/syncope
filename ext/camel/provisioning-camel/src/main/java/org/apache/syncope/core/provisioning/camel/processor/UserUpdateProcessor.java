@@ -24,7 +24,6 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.mod.MembershipMod;
 import org.apache.syncope.common.lib.mod.UserMod;
 import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
@@ -59,7 +58,6 @@ public class UserUpdateProcessor implements Processor {
     public void process(final Exchange exchange) {
         WorkflowResult<Pair<UserMod, Boolean>> updated = (WorkflowResult) exchange.getIn().getBody();
         UserMod actual = exchange.getProperty("actual", UserMod.class);
-        boolean removeMemberships = exchange.getProperty("removeMemberships", boolean.class);
 
         List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(updated);
         if (tasks.isEmpty()) {
@@ -68,22 +66,7 @@ public class UserUpdateProcessor implements Processor {
                     updated.getResult().getKey().getKey(),
                     actual.getVirAttrsToRemove(),
                     actual.getVirAttrsToUpdate());
-            // SYNCOPE-501: update only virtual attributes (if any of them changed), password propagation is
-            // not required, take care also of membership virtual attributes
-            boolean addOrUpdateMemberships = false;
-            for (MembershipMod membershipMod : actual.getMembershipsToAdd()) {
-                if (!virtAttrHandler.fillMembershipVirtual(
-                        updated.getResult().getKey().getKey(),
-                        membershipMod.getGroup(),
-                        null,
-                        membershipMod.getVirAttrsToRemove(),
-                        membershipMod.getVirAttrsToUpdate(),
-                        false).isEmpty()) {
-
-                    addOrUpdateMemberships = true;
-                }
-            }
-            tasks.addAll(!propByResVirAttr.isEmpty() || addOrUpdateMemberships || removeMemberships
+            tasks.addAll(!propByResVirAttr.isEmpty()
                     ? propagationManager.getUserUpdateTasks(updated, false, null)
                     : Collections.<PropagationTask>emptyList());
         }

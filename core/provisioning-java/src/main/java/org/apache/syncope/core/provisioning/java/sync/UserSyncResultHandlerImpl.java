@@ -21,13 +21,13 @@ package org.apache.syncope.core.provisioning.java.sync;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import org.apache.syncope.common.lib.mod.AbstractSubjectMod;
+import org.apache.syncope.common.lib.mod.AnyMod;
 import org.apache.syncope.common.lib.mod.UserMod;
-import org.apache.syncope.common.lib.to.AbstractSubjectTO;
+import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.common.lib.types.AttributableType;
-import org.apache.syncope.core.persistence.api.entity.AttributableUtils;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.provisioning.api.sync.ProvisioningResult;
 import org.apache.syncope.core.provisioning.api.sync.UserSyncResultHandler;
 import org.identityconnectors.framework.common.objects.SyncDelta;
@@ -35,17 +35,17 @@ import org.identityconnectors.framework.common.objects.SyncDelta;
 public class UserSyncResultHandlerImpl extends AbstractSyncResultHandler implements UserSyncResultHandler {
 
     @Override
-    protected AttributableUtils getAttributableUtils() {
-        return attrUtilsFactory.getInstance(AttributableType.USER);
+    protected AnyUtils getAnyUtils() {
+        return anyUtilsFactory.getInstance(AnyTypeKind.USER);
     }
 
     @Override
-    protected String getName(final AbstractSubjectTO subjectTO) {
+    protected String getName(final AnyTO subjectTO) {
         return UserTO.class.cast(subjectTO).getUsername();
     }
 
     @Override
-    protected AbstractSubjectTO getSubjectTO(final long key) {
+    protected AnyTO getAnyTO(final long key) {
         try {
             return userDataBinder.getUserTO(key);
         } catch (Exception e) {
@@ -55,20 +55,7 @@ public class UserSyncResultHandlerImpl extends AbstractSyncResultHandler impleme
     }
 
     @Override
-    protected AbstractSubjectMod getSubjectMod(
-            final AbstractSubjectTO subjectTO, final SyncDelta delta) {
-
-        return connObjectUtils.getAttributableMod(subjectTO.getKey(),
-                delta.getObject(),
-                subjectTO,
-                profile.getTask(),
-                getAttributableUtils());
-    }
-
-    @Override
-    protected AbstractSubjectTO doCreate(
-            final AbstractSubjectTO subjectTO, final SyncDelta delta, final ProvisioningResult result) {
-
+    protected AnyTO doCreate(final AnyTO subjectTO, final SyncDelta delta, final ProvisioningResult result) {
         UserTO userTO = UserTO.class.cast(subjectTO);
 
         Boolean enabled = syncUtilities.readEnabled(delta.getObject(), profile.getTask());
@@ -81,8 +68,8 @@ public class UserSyncResultHandlerImpl extends AbstractSyncResultHandler impleme
     }
 
     @Override
-    protected AbstractSubjectTO doLink(
-            final AbstractSubjectTO before,
+    protected AnyTO doLink(
+            final AnyTO before,
             final ProvisioningResult result,
             final boolean unlink) {
 
@@ -99,13 +86,13 @@ public class UserSyncResultHandlerImpl extends AbstractSyncResultHandler impleme
     }
 
     @Override
-    protected AbstractSubjectTO doUpdate(
-            final AbstractSubjectTO before,
-            final AbstractSubjectMod subjectMod,
+    protected AnyTO doUpdate(
+            final AnyTO before,
+            final AnyMod anyMod,
             final SyncDelta delta,
             final ProvisioningResult result) {
 
-        final UserMod userMod = UserMod.class.cast(subjectMod);
+        final UserMod userMod = UserMod.class.cast(anyMod);
         final Boolean enabled = syncUtilities.readEnabled(delta.getObject(), profile.getTask());
 
         Map.Entry<Long, List<PropagationStatus>> updated = userProvisioningManager.update(userMod, before.getKey(),

@@ -20,7 +20,7 @@ package org.apache.syncope.core.provisioning.api.data;
 
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
-import org.apache.syncope.core.persistence.api.entity.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 
 public interface ResourceDataBinder {
 

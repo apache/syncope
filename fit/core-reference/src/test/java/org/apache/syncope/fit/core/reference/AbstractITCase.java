@@ -45,7 +45,6 @@ import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
@@ -292,10 +291,8 @@ public abstract class AbstractITCase {
     }
 
     @SuppressWarnings("unchecked")
-    protected <T extends AbstractSchemaTO> T createSchema(final AttributableType kind,
-            final SchemaType type, final T schemaTO) {
-
-        Response response = schemaService.create(kind, type, schemaTO);
+    protected <T extends AbstractSchemaTO> T createSchema(final SchemaType type, final T schemaTO) {
+        Response response = schemaService.create(type, schemaTO);
         if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
             Exception ex = clientFactory.getExceptionMapper().fromResponse(response);
             if (ex != null) {

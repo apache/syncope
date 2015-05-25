@@ -19,19 +19,19 @@
 package org.apache.syncope.core.persistence.api.entity.conf;
 
 import java.util.List;
-import org.apache.syncope.core.persistence.api.entity.Attributable;
+import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.DerAttr;
 import org.apache.syncope.core.persistence.api.entity.VirAttr;
 
-public interface Conf extends Attributable<CPlainAttr, DerAttr, VirAttr> {
+public interface Conf extends Any<CPlainAttr, DerAttr<?>, VirAttr<?>> {
 
     void setKey(Long key);
 
     @Override
-    boolean addPlainAttr(CPlainAttr attr);
+    boolean add(CPlainAttr attr);
 
     @Override
-    boolean removePlainAttr(CPlainAttr attr);
+    boolean remove(CPlainAttr attr);
 
     @Override
     List<? extends CPlainAttr> getPlainAttrs();

@@ -1,0 +1,394 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+package org.apache.syncope.core.persistence.jpa.entity.resource;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import javax.persistence.Basic;
+import javax.persistence.CascadeType;
+import javax.persistence.CollectionTable;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.types.ConnConfProperty;
+import org.apache.syncope.common.lib.types.PropagationMode;
+import org.apache.syncope.common.lib.types.TraceLevel;
+import org.apache.syncope.core.persistence.api.entity.AccountPolicy;
+import org.apache.syncope.core.persistence.api.entity.ConnInstance;
+import org.apache.syncope.core.persistence.api.entity.PasswordPolicy;
+import org.apache.syncope.core.persistence.api.entity.SyncPolicy;
+import org.apache.syncope.core.persistence.jpa.validation.entity.ExternalResourceCheck;
+import org.apache.syncope.core.misc.serialization.POJOHelper;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.resource.Provision;
+import org.apache.syncope.core.persistence.jpa.entity.AbstractAnnotatedEntity;
+import org.apache.syncope.core.persistence.jpa.entity.JPAAccountPolicy;
+import org.apache.syncope.core.persistence.jpa.entity.JPAConnInstance;
+import org.apache.syncope.core.persistence.jpa.entity.JPAPasswordPolicy;
+import org.apache.syncope.core.persistence.jpa.entity.JPASyncPolicy;
+import org.identityconnectors.framework.common.objects.ObjectClass;
+
+/**
+ * Resource for propagation and synchronization.
+ */
+@Entity
+@Table(name = JPAExternalResource.TABLE)
+@ExternalResourceCheck
+public class JPAExternalResource extends AbstractAnnotatedEntity<String> implements ExternalResource {
+
+    private static final long serialVersionUID = -6937712883512073278L;
+
+    public static final String TABLE = "ExternalResource";
+
+    /**
+     * The resource identifier is the name.
+     */
+    @Id
+    private String name;
+
+    /**
+     * Should this resource enforce the mandatory constraints?
+     */
+    @Column(nullable = false)
+    @Basic
+    @Min(0)
+    @Max(1)
+    private Integer enforceMandatoryCondition;
+
+    /**
+     * The resource type is identified by the associated connector.
+     */
+    @ManyToOne(fetch = FetchType.EAGER, cascade = { CascadeType.MERGE })
+    @NotNull
+    private JPAConnInstance connector;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "resource")
+    private List<JPAProvision> provisions = new ArrayList<>();
+
+    /**
+     * Is this resource primary, for propagations?
+     */
+    @Column(nullable = false)
+    @Basic
+    @Min(0)
+    @Max(1)
+    private Integer propagationPrimary;
+
+    /**
+     * Priority index for propagation ordering.
+     */
+    @Column(nullable = false)
+    private Integer propagationPriority;
+
+    /**
+     * Generate random password for propagation, if not provided?
+     */
+    @Column(nullable = false)
+    @Basic
+    @Min(0)
+    @Max(1)
+    private Integer randomPwdIfNotProvided;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private PropagationMode propagationMode;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TraceLevel createTraceLevel;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TraceLevel updateTraceLevel;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TraceLevel deleteTraceLevel;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TraceLevel syncTraceLevel;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    private JPAPasswordPolicy passwordPolicy;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    private JPAAccountPolicy accountPolicy;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    private JPASyncPolicy syncPolicy;
+
+    /**
+     * Configuration properties that are overridden from the connector instance.
+     */
+    @Lob
+    private String jsonConf;
+
+    /**
+     * (Optional) classes for PropagationAction.
+     */
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Column(name = "actionClassName")
+    @CollectionTable(name = "ExternalResource_PropActions",
+            joinColumns =
+            @JoinColumn(name = "resource_name", referencedColumnName = "name"))
+    private List<String> propagationActionsClassNames = new ArrayList<>();
+
+    /**
+     * Default constructor.
+     */
+    public JPAExternalResource() {
+        super();
+
+        enforceMandatoryCondition = getBooleanAsInteger(false);
+        propagationPrimary = 0;
+        propagationPriority = 0;
+        randomPwdIfNotProvided = 0;
+        propagationMode = PropagationMode.TWO_PHASES;
+
+        createTraceLevel = TraceLevel.FAILURES;
+        updateTraceLevel = TraceLevel.FAILURES;
+        deleteTraceLevel = TraceLevel.FAILURES;
+        syncTraceLevel = TraceLevel.FAILURES;
+    }
+
+    @Override
+    public boolean isEnforceMandatoryCondition() {
+        return isBooleanAsInteger(enforceMandatoryCondition);
+    }
+
+    @Override
+    public void setEnforceMandatoryCondition(final boolean enforceMandatoryCondition) {
+        this.enforceMandatoryCondition = getBooleanAsInteger(enforceMandatoryCondition);
+    }
+
+    @Override
+    public ConnInstance getConnector() {
+        return connector;
+    }
+
+    @Override
+    public void setConnector(final ConnInstance connector) {
+        checkType(connector, JPAConnInstance.class);
+        this.connector = (JPAConnInstance) connector;
+    }
+
+    @Override
+    public boolean add(final Provision provision) {
+        checkType(provision, JPAProvision.class);
+        return this.provisions.add((JPAProvision) provision);
+    }
+
+    @Override
+    public boolean remove(final Provision provision) {
+        checkType(provision, JPAProvision.class);
+        return this.provisions.remove((JPAProvision) provision);
+    }
+
+    @Override
+    public Provision getProvision(final ObjectClass objectClass) {
+        return CollectionUtils.find(provisions, new Predicate<Provision>() {
+
+            @Override
+            public boolean evaluate(final Provision provision) {
+                return provision.getObjectClass().equals(objectClass);
+            }
+        });
+    }
+
+    @Override
+    public Provision getProvision(final AnyType anyType) {
+        return CollectionUtils.find(provisions, new Predicate<Provision>() {
+
+            @Override
+            public boolean evaluate(final Provision provision) {
+                return provision.getAnyType().equals(anyType);
+            }
+        });
+    }
+
+    @Override
+    public List<? extends Provision> getProvisions() {
+        return provisions;
+    }
+
+    @Override
+    public boolean isPropagationPrimary() {
+        return isBooleanAsInteger(propagationPrimary);
+    }
+
+    @Override
+    public void setPropagationPrimary(final boolean propagationPrimary) {
+        this.propagationPrimary = getBooleanAsInteger(propagationPrimary);
+    }
+
+    @Override
+    public Integer getPropagationPriority() {
+        return propagationPriority;
+    }
+
+    @Override
+    public void setPropagationPriority(final Integer propagationPriority) {
+        if (propagationPriority != null) {
+            this.propagationPriority = propagationPriority;
+        }
+    }
+
+    @Override
+    public boolean isRandomPwdIfNotProvided() {
+        return isBooleanAsInteger(randomPwdIfNotProvided);
+    }
+
+    @Override
+    public void setRandomPwdIfNotProvided(final boolean randomPwdIfNotProvided) {
+        this.randomPwdIfNotProvided = getBooleanAsInteger(randomPwdIfNotProvided);
+    }
+
+    @Override
+    public PropagationMode getPropagationMode() {
+        return propagationMode;
+    }
+
+    @Override
+    public void setPropagationMode(final PropagationMode propagationMode) {
+        this.propagationMode = propagationMode;
+    }
+
+    @Override
+    public String getKey() {
+        return name;
+    }
+
+    @Override
+    public void setKey(final String name) {
+        this.name = name;
+    }
+
+    @Override
+    public TraceLevel getCreateTraceLevel() {
+        return createTraceLevel;
+    }
+
+    @Override
+    public void setCreateTraceLevel(final TraceLevel createTraceLevel) {
+        this.createTraceLevel = createTraceLevel;
+    }
+
+    @Override
+
+    public TraceLevel getDeleteTraceLevel() {
+        return deleteTraceLevel;
+    }
+
+    @Override
+    public void setDeleteTraceLevel(final TraceLevel deleteTraceLevel) {
+        this.deleteTraceLevel = deleteTraceLevel;
+    }
+
+    @Override
+    public TraceLevel getUpdateTraceLevel() {
+        return updateTraceLevel;
+    }
+
+    @Override
+    public void setUpdateTraceLevel(final TraceLevel updateTraceLevel) {
+        this.updateTraceLevel = updateTraceLevel;
+    }
+
+    @Override
+    public TraceLevel getSyncTraceLevel() {
+        return syncTraceLevel;
+    }
+
+    @Override
+    public void setSyncTraceLevel(final TraceLevel syncTraceLevel) {
+        this.syncTraceLevel = syncTraceLevel;
+    }
+
+    @Override
+    public AccountPolicy getAccountPolicy() {
+        return accountPolicy;
+    }
+
+    @Override
+    public void setAccountPolicy(final AccountPolicy accountPolicy) {
+        checkType(accountPolicy, JPAAccountPolicy.class);
+        this.accountPolicy = (JPAAccountPolicy) accountPolicy;
+    }
+
+    @Override
+    public PasswordPolicy getPasswordPolicy() {
+        return passwordPolicy;
+    }
+
+    @Override
+    public void setPasswordPolicy(final PasswordPolicy passwordPolicy) {
+        checkType(passwordPolicy, JPAPasswordPolicy.class);
+        this.passwordPolicy = (JPAPasswordPolicy) passwordPolicy;
+    }
+
+    @Override
+    public SyncPolicy getSyncPolicy() {
+        return syncPolicy;
+    }
+
+    @Override
+    public void setSyncPolicy(final SyncPolicy syncPolicy) {
+        checkType(syncPolicy, JPASyncPolicy.class);
+        this.syncPolicy = (JPASyncPolicy) syncPolicy;
+    }
+
+    @Override
+    public Set<ConnConfProperty> getConnInstanceConfiguration() {
+        Set<ConnConfProperty> configuration = new HashSet<>();
+        if (!StringUtils.isBlank(jsonConf)) {
+            CollectionUtils.addAll(configuration, POJOHelper.deserialize(jsonConf, ConnConfProperty[].class));
+        }
+
+        return configuration;
+    }
+
+    @Override
+    public void setConnInstanceConfiguration(final Set<ConnConfProperty> properties) {
+        jsonConf = POJOHelper.serialize(new HashSet<>(properties));
+    }
+
+    @Override
+    public List<String> getPropagationActionsClassNames() {
+        return propagationActionsClassNames;
+    }
+}

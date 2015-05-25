@@ -20,15 +20,6 @@ package org.apache.syncope.core.persistence.api.entity.group;
 
 import org.apache.syncope.core.persistence.api.entity.VirAttr;
 
-public interface GVirAttr extends VirAttr {
+public interface GVirAttr extends VirAttr<Group> {
 
-    @Override
-    Group getOwner();
-
-    @Override
-    GVirSchema getSchema();
-
-    GVirAttrTemplate getTemplate();
-
-    void setTemplate(GVirAttrTemplate template);
 }

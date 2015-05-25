@@ -21,8 +21,7 @@ package org.apache.syncope.core.persistence.api.dao;
 import java.util.List;
 import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.PolicyType;
-import org.apache.syncope.core.persistence.api.entity.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.MappingItem;
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Policy;
 
 public interface ExternalResourceDAO extends DAO<ExternalResource, String> {
@@ -39,8 +38,7 @@ public interface ExternalResourceDAO extends DAO<ExternalResource, String> {
 
     ExternalResource save(ExternalResource resource);
 
-    <T extends MappingItem> void deleteMapping(
-            String schemaName, IntMappingType intMappingType, Class<T> reference);
+    void deleteMapping(String schemaName, IntMappingType intMappingType);
 
     void delete(String key);
 }

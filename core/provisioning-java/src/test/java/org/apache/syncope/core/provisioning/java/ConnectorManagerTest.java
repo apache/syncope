@@ -18,12 +18,10 @@
  */
 package org.apache.syncope.core.provisioning.java;
 
-import org.apache.syncope.core.provisioning.java.ConnectorManager;
-
 import static org.junit.Assert.assertEquals;
 
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
-import org.apache.syncope.core.persistence.api.entity.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;

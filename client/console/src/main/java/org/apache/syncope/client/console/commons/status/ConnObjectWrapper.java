@@ -19,29 +19,29 @@
 package org.apache.syncope.client.console.commons.status;
 
 import java.io.Serializable;
-import org.apache.syncope.common.lib.to.AbstractAttributableTO;
+import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 
 public class ConnObjectWrapper implements Serializable {
 
     private static final long serialVersionUID = 9083721948999924299L;
 
-    private final AbstractAttributableTO attributable;
+    private final AnyTO any;
 
     private final String resourceName;
 
     private final ConnObjectTO connObjectTO;
 
-    public ConnObjectWrapper(final AbstractAttributableTO attributable, final String resourceName,
+    public ConnObjectWrapper(final AnyTO attributable, final String resourceName,
             final ConnObjectTO connObjectTO) {
 
-        this.attributable = attributable;
+        this.any = attributable;
         this.resourceName = resourceName;
         this.connObjectTO = connObjectTO;
     }
 
-    public AbstractAttributableTO getAttributable() {
-        return attributable;
+    public AnyTO getAny() {
+        return any;
     }
 
     public String getResourceName() {

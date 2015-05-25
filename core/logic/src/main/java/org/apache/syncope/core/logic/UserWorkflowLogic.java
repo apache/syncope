@@ -22,7 +22,7 @@ import java.lang.reflect.Method;
 import java.util.List;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.mod.AbstractAttributableMod;
+import org.apache.syncope.common.lib.mod.AnyMod;
 import org.apache.syncope.common.lib.mod.UserMod;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
@@ -84,7 +84,7 @@ public class UserWorkflowLogic extends AbstractTransactionalLogic<WorkflowFormTO
     @PreAuthorize("hasRole('" + Entitlement.WORKFLOW_FORM_READ + "') and hasRole('" + Entitlement.USER_READ + "')")
     @Transactional(rollbackFor = { Throwable.class })
     public WorkflowFormTO getFormForUser(final Long key) {
-        User user = userDAO.authFetch(key);
+        User user = userDAO.authFind(key);
         return uwfAdapter.getForm(user.getWorkflowId());
     }
 
@@ -97,14 +97,14 @@ public class UserWorkflowLogic extends AbstractTransactionalLogic<WorkflowFormTO
     @PreAuthorize("hasRole('" + Entitlement.WORKFLOW_FORM_READ + "') and hasRole('" + Entitlement.USER_READ + "')")
     @Transactional(rollbackFor = { Throwable.class })
     public List<WorkflowFormTO> getForms(final Long key, final String formName) {
-        User user = userDAO.authFetch(key);
+        User user = userDAO.authFind(key);
         return uwfAdapter.getForms(user.getWorkflowId(), formName);
     }
 
     @PreAuthorize("hasRole('" + Entitlement.WORKFLOW_FORM_SUBMIT + "')")
     @Transactional(rollbackFor = { Throwable.class })
     public UserTO submitForm(final WorkflowFormTO form) {
-        WorkflowResult<? extends AbstractAttributableMod> updated = uwfAdapter.submitForm(form);
+        WorkflowResult<? extends AnyMod> updated = uwfAdapter.submitForm(form);
 
         // propByRes can be made empty by the workflow definition if no propagation should occur 
         // (for example, with rejected users)

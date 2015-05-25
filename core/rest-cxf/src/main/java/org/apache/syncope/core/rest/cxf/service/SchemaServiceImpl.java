@@ -22,7 +22,6 @@ import java.net.URI;
 import java.util.List;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.AbstractSchemaTO;
-import org.apache.syncope.common.lib.types.AttributableType;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.SchemaService;
@@ -37,10 +36,8 @@ public class SchemaServiceImpl extends AbstractServiceImpl implements SchemaServ
     private SchemaLogic logic;
 
     @Override
-    public <T extends AbstractSchemaTO> Response create(final AttributableType attrType, final SchemaType schemaType,
-            final T schemaTO) {
-
-        T created = logic.create(attrType, schemaType, schemaTO);
+    public <T extends AbstractSchemaTO> Response create(final SchemaType schemaType, final T schemaTO) {
+        T created = logic.create(schemaType, schemaTO);
 
         URI location = uriInfo.getAbsolutePathBuilder().path(created.getKey()).build();
         return Response.created(location).
@@ -49,27 +46,25 @@ public class SchemaServiceImpl extends AbstractServiceImpl implements SchemaServ
     }
 
     @Override
-    public void delete(final AttributableType attrType, final SchemaType schemaType, final String schemaKey) {
-        logic.delete(attrType, schemaType, schemaKey);
+    public void delete(final SchemaType schemaType, final String schemaKey) {
+        logic.delete(schemaType, schemaKey);
     }
 
     @Override
-    public <T extends AbstractSchemaTO> List<T> list(final AttributableType attrType, final SchemaType schemaType) {
-        return logic.list(attrType, schemaType);
+    public <T extends AbstractSchemaTO> List<T> list(final SchemaType schemaType) {
+        return logic.list(schemaType);
     }
 
     @Override
-    public <T extends AbstractSchemaTO> T read(final AttributableType attrType, final SchemaType schemaType,
-            final String schemaKey) {
-
-        return logic.read(attrType, schemaType, schemaKey);
+    public <T extends AbstractSchemaTO> T read(final SchemaType schemaType, final String schemaKey) {
+        return logic.read(schemaType, schemaKey);
     }
 
     @Override
-    public <T extends AbstractSchemaTO> void update(final AttributableType attrType, final SchemaType schemaType,
-            final String schemaKey, final T schemaTO) {
+    public <T extends AbstractSchemaTO> void update(
+            final SchemaType schemaType, final String schemaKey, final T schemaTO) {
 
         schemaTO.setKey(schemaKey);
-        logic.update(attrType, schemaType, schemaTO);
+        logic.update(schemaType, schemaTO);
     }
 }

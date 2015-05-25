@@ -49,7 +49,7 @@ public class JPANotificationTask extends JPATask implements NotificationTask {
     @Column(name = "address")
     @CollectionTable(name = "NotificationTask_recipients",
             joinColumns =
-            @JoinColumn(name = "NotificationTask_id", referencedColumnName = "id"))
+            @JoinColumn(name = "notificationTask_id", referencedColumnName = "id"))
     private Set<String> recipients;
 
     @NotNull

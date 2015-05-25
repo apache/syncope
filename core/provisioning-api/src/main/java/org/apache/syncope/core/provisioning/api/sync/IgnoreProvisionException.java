@@ -19,7 +19,7 @@
 package org.apache.syncope.core.provisioning.api.sync;
 
 /**
- * Raised by {@link SyncActions} or {@link PushActions} methods when the given subject is to be ignored for
+ * Raised by {@link SyncActions} or {@link PushActions} methods when the given any object is to be ignored for
  * synchronization / push.
  */
 public class IgnoreProvisionException extends RuntimeException {

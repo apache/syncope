@@ -41,8 +41,8 @@ import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.types.ResourceAssociationActionType;
 import org.apache.syncope.common.lib.types.ResourceDeassociationActionType;
 import org.apache.syncope.common.lib.wrap.ResourceName;
-import org.apache.syncope.common.rest.api.beans.SubjectListQuery;
-import org.apache.syncope.common.rest.api.beans.SubjectSearchQuery;
+import org.apache.syncope.common.rest.api.beans.AnyListQuery;
+import org.apache.syncope.common.rest.api.beans.AnySearchQuery;
 
 /**
  * REST operations for groups.
@@ -85,7 +85,7 @@ public interface GroupService extends JAXRSService {
      */
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    PagedResult<GroupTO> list(@BeanParam SubjectListQuery listQuery);
+    PagedResult<GroupTO> list(@BeanParam AnyListQuery listQuery);
 
     /**
      * Returns a paged list of groups matching the given query.
@@ -96,7 +96,7 @@ public interface GroupService extends JAXRSService {
     @GET
     @Path("search")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    PagedResult<GroupTO> search(@BeanParam SubjectSearchQuery searchQuery);
+    PagedResult<GroupTO> search(@BeanParam AnySearchQuery searchQuery);
 
     /**
      * Creates a new group.

@@ -23,8 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.to.CamelRouteTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.Entitlement;
-import org.apache.syncope.common.lib.types.SubjectType;
 import org.apache.syncope.core.persistence.api.dao.CamelRouteDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.CamelRoute;
@@ -49,10 +49,10 @@ public class CamelRouteLogic extends AbstractTransactionalLogic<CamelRouteTO> {
 
     @PreAuthorize("hasRole('" + Entitlement.ROUTE_LIST + "')")
     @Transactional(readOnly = true)
-    public List<CamelRouteTO> list(final SubjectType subjectType) {
+    public List<CamelRouteTO> list(final AnyTypeKind anyTypeKind) {
         List<CamelRouteTO> routes = new ArrayList<>();
 
-        for (CamelRoute route : routeDAO.find(subjectType)) {
+        for (CamelRoute route : routeDAO.find(anyTypeKind)) {
             routes.add(binder.getRouteTO(route));
         }
         return routes;

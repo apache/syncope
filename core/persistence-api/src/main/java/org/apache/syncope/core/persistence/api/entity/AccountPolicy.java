@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.api.entity;
 
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import java.util.Set;
 
 public interface AccountPolicy extends Policy {
