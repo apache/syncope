@@ -34,9 +34,11 @@ import javax.validation.constraints.NotNull;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
+import org.apache.syncope.core.persistence.jpa.validation.entity.AnyTypeCheck;
 
 @Entity
 @Table(name = JPAAnyType.TABLE)
+@AnyTypeCheck
 @Cacheable
 public class JPAAnyType extends AbstractEntity<String> implements AnyType {
 

@@ -22,8 +22,10 @@ import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
+import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.jpa.validation.entity.SchemaNameCheck;
 
@@ -40,6 +42,9 @@ public class JPADerSchema extends AbstractEntity<String> implements DerSchema {
     @Id
     private String name;
 
+    @OneToOne
+    private JPAAnyTypeClass anyTypeClass;
+
     @Column(nullable = false)
     private String expression;
 
@@ -51,6 +56,17 @@ public class JPADerSchema extends AbstractEntity<String> implements DerSchema {
     @Override
     public void setKey(final String key) {
         this.name = key;
+    }
+
+    @Override
+    public AnyTypeClass getAnyTypeClass() {
+        return anyTypeClass;
+    }
+
+    @Override
+    public void setAnyTypeClass(final AnyTypeClass anyTypeClass) {
+        checkType(anyTypeClass, JPAAnyTypeClass.class);
+        this.anyTypeClass = (JPAAnyTypeClass) anyTypeClass;
     }
 
     @Override

@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 
 public interface AnyTypeDAO extends DAO<AnyType, String> {
 
@@ -28,6 +29,8 @@ public interface AnyTypeDAO extends DAO<AnyType, String> {
     AnyType findUser();
 
     AnyType findGroup();
+
+    List<AnyType> findByTypeClass(AnyTypeClass anyTypeClass);
 
     List<AnyType> findAll();
 

@@ -22,6 +22,10 @@ import org.apache.syncope.common.lib.types.AttrSchemaType;
 
 public interface Schema extends Entity<String> {
 
+    AnyTypeClass getAnyTypeClass();
+
+    void setAnyTypeClass(AnyTypeClass anyTypeClass);
+
     AttrSchemaType getType();
 
     String getMandatoryCondition();

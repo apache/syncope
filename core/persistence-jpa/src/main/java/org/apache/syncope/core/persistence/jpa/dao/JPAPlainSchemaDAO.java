@@ -24,6 +24,7 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
+import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
@@ -45,6 +46,18 @@ public class JPAPlainSchemaDAO extends AbstractDAO<PlainSchema, String> implemen
     @Override
     public PlainSchema find(final String key) {
         return entityManager.find(JPAPlainSchema.class, key);
+    }
+
+    @Override
+    public List<PlainSchema> findByAnyTypeClass(final AnyTypeClass anyTypeClass) {
+        StringBuilder queryString = new StringBuilder("SELECT e FROM ").
+                append(JPAPlainSchema.class.getSimpleName()).
+                append(" e WHERE e.anyTypeClass=:anyTypeClass");
+
+        TypedQuery<PlainSchema> query = entityManager.createQuery(queryString.toString(), PlainSchema.class);
+        query.setParameter("anyTypeClass", anyTypeClass);
+
+        return query.getResultList();
     }
 
     @Override
@@ -88,6 +101,8 @@ public class JPAPlainSchemaDAO extends AbstractDAO<PlainSchema, String> implemen
 
             resourceDAO.deleteMapping(key, anyUtils.plainIntMappingType());
         }
+
+        schema.getAnyTypeClass().remove(schema);
 
         entityManager.remove(schema);
     }

@@ -21,12 +21,33 @@ package org.apache.syncope.core.persistence.jpa.dao;
 import java.util.List;
 import javax.persistence.TypedQuery;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
+import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
+import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
+import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
+import org.apache.syncope.core.persistence.api.entity.DerSchema;
+import org.apache.syncope.core.persistence.api.entity.PlainSchema;
+import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyTypeClass;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public class JPAAnyTypeClassDAO extends AbstractDAO<AnyTypeClass, String> implements AnyTypeClassDAO {
+
+    @Autowired
+    private AnyTypeDAO anyTypeDAO;
+
+    @Autowired
+    private PlainSchemaDAO plainSchemaDAO;
+
+    @Autowired
+    private DerSchemaDAO derSchemaDAO;
+
+    @Autowired
+    private VirSchemaDAO virSchemaDAO;
 
     @Override
     public AnyTypeClass find(final String key) {
@@ -50,6 +71,20 @@ public class JPAAnyTypeClassDAO extends AbstractDAO<AnyTypeClass, String> implem
         AnyTypeClass anyTypeClass = find(key);
         if (anyTypeClass == null) {
             return;
+        }
+
+        for (PlainSchema schema : plainSchemaDAO.findByAnyTypeClass(anyTypeClass)) {
+            schema.setAnyTypeClass(null);
+        }
+        for (DerSchema schema : derSchemaDAO.findByAnyTypeClass(anyTypeClass)) {
+            schema.setAnyTypeClass(null);
+        }
+        for (VirSchema schema : virSchemaDAO.findByAnyTypeClass(anyTypeClass)) {
+            schema.setAnyTypeClass(null);
+        }
+
+        for (AnyType type : anyTypeDAO.findByTypeClass(anyTypeClass)) {
+            type.remove(anyTypeClass);
         }
 
         entityManager.remove(anyTypeClass);

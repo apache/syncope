@@ -18,19 +18,9 @@
  */
 package org.apache.syncope.core.persistence.api.dao;
 
-import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.DerAttr;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 
-public interface DerSchemaDAO extends DAO<DerSchema, String> {
+public interface DerSchemaDAO extends SchemaDAO<DerSchema, DerAttr<?>> {
 
-    DerSchema find(String name);
-
-    List<DerSchema> findAll();
-
-    <T extends DerAttr<?>> List<T> findAttrs(DerSchema schema, Class<T> reference);
-
-    DerSchema save(DerSchema derSchema);
-
-    void delete(String key);
 }

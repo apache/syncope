@@ -18,11 +18,14 @@
  */
 package org.apache.syncope.core.persistence.jpa.relationship;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
+import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrValueDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
@@ -31,6 +34,8 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrValue;
+import org.apache.syncope.core.persistence.api.entity.user.URelationship;
+import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +43,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
 public class UserTest extends AbstractTest {
+
+    @Autowired
+    private AnyObjectDAO anyObjectDAO;
 
     @Autowired
     private UserDAO userDAO;
@@ -55,7 +63,12 @@ public class UserTest extends AbstractTest {
     private PlainAttrValueDAO plainAttrValueDAO;
 
     @Test
-    public void test() {
+    public void delete() {
+        List<UMembership> memberships = groupDAO.findUMemberships(groupDAO.find(7L));
+        assertFalse(memberships.isEmpty());
+        List<URelationship> relationships = anyObjectDAO.findURelationships(anyObjectDAO.find(1L));
+        assertFalse(relationships.isEmpty());
+
         userDAO.delete(4L);
 
         userDAO.flush();
@@ -65,7 +78,49 @@ public class UserTest extends AbstractTest {
         assertNull(plainAttrValueDAO.find(22L, UPlainAttrValue.class));
         assertNotNull(plainSchemaDAO.find("loginDate"));
 
-        List<UMembership> memberships = groupDAO.findUMemberships(groupDAO.find(7L));
+        memberships = groupDAO.findUMemberships(groupDAO.find(7L));
         assertTrue(memberships.isEmpty());
+        relationships = anyObjectDAO.findURelationships(anyObjectDAO.find(1L));
+        assertTrue(relationships.isEmpty());
+    }
+
+    @Test
+    public void ships() {
+        User user = userDAO.find(4L);
+        assertNotNull(user);
+        assertEquals(1, user.getMemberships().size());
+        assertEquals(7L, user.getMemberships().get(0).getRightEnd().getKey(), 0);
+
+        user.remove(user.getMemberships().get(0));
+
+        UMembership newM = entityFactory.newEntity(UMembership.class);
+        newM.setLeftEnd(user);
+        newM.setRightEnd(groupDAO.find(13L));
+        user.add(newM);
+
+        userDAO.save(user);
+
+        userDAO.flush();
+
+        user = userDAO.find(4L);
+        assertEquals(1, user.getMemberships().size());
+        assertEquals(13L, user.getMemberships().get(0).getRightEnd().getKey(), 0);
+        assertEquals(1, user.getRelationships().size());
+        assertEquals(1L, user.getRelationships().get(0).getRightEnd().getKey(), 0);
+
+        user.remove(user.getRelationships().get(0));
+
+        URelationship newR = entityFactory.newEntity(URelationship.class);
+        newR.setLeftEnd(user);
+        newR.setRightEnd(anyObjectDAO.find(2L));
+        user.add(newR);
+
+        userDAO.save(user);
+
+        userDAO.flush();
+
+        user = userDAO.find(4L);
+        assertEquals(1, user.getRelationships().size());
+        assertEquals(2L, user.getRelationships().get(0).getRightEnd().getKey(), 0);
     }
 }

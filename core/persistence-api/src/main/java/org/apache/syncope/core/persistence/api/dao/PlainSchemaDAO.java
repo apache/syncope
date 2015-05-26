@@ -18,19 +18,9 @@
  */
 package org.apache.syncope.core.persistence.api.dao;
 
-import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 
-public interface PlainSchemaDAO extends DAO<PlainSchema, String> {
+public interface PlainSchemaDAO extends SchemaDAO<PlainSchema, PlainAttr<?>> {
 
-    PlainSchema find(String name);
-
-    List<PlainSchema> findAll();
-
-    <T extends PlainAttr<?>> List<T> findAttrs(PlainSchema schema, Class<T> reference);
-
-    PlainSchema save(PlainSchema derSchema);
-
-    void delete(String key);
 }

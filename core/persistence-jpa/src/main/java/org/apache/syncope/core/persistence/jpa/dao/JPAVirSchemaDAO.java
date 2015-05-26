@@ -24,6 +24,7 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.VirAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
+import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.VirAttr;
@@ -45,6 +46,18 @@ public class JPAVirSchemaDAO extends AbstractDAO<VirSchema, String> implements V
     @Override
     public VirSchema find(final String key) {
         return entityManager.find(JPAVirSchema.class, key);
+    }
+
+    @Override
+    public List<VirSchema> findByAnyTypeClass(final AnyTypeClass anyTypeClass) {
+        StringBuilder queryString = new StringBuilder("SELECT e FROM ").
+                append(JPAVirSchema.class.getSimpleName()).
+                append(" e WHERE e.anyTypeClass=:anyTypeClass");
+
+        TypedQuery<VirSchema> query = entityManager.createQuery(queryString.toString(), VirSchema.class);
+        query.setParameter("anyTypeClass", anyTypeClass);
+
+        return query.getResultList();
     }
 
     @Override
@@ -88,6 +101,8 @@ public class JPAVirSchemaDAO extends AbstractDAO<VirSchema, String> implements V
 
             resourceDAO.deleteMapping(key, anyUtils.virIntMappingType());
         }
+
+        schema.getAnyTypeClass().remove(schema);
 
         entityManager.remove(schema);
     }

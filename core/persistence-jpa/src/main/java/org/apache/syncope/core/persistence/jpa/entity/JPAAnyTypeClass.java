@@ -21,12 +21,9 @@ package org.apache.syncope.core.persistence.jpa.entity;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Cacheable;
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
@@ -46,25 +43,13 @@ public class JPAAnyTypeClass extends AbstractEntity<String> implements AnyTypeCl
     @Id
     private String name;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    @JoinTable(joinColumns =
-            @JoinColumn(name = "anyTypeClass_name"),
-            inverseJoinColumns =
-            @JoinColumn(name = "plainSchema_name"))
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "anyTypeClass")
     private List<JPAPlainSchema> plainSchemas = new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    @JoinTable(joinColumns =
-            @JoinColumn(name = "anyTypeClass_name"),
-            inverseJoinColumns =
-            @JoinColumn(name = "derSchema_name"))
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "anyTypeClass")
     private List<JPADerSchema> derSchemas = new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    @JoinTable(joinColumns =
-            @JoinColumn(name = "anyTypeClass_name"),
-            inverseJoinColumns =
-            @JoinColumn(name = "virSchema_name"))
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "anyTypeClass")
     private List<JPAVirSchema> virSchemas = new ArrayList<>();
 
     @Override
@@ -102,7 +87,7 @@ public class JPAAnyTypeClass extends AbstractEntity<String> implements AnyTypeCl
 
     @Override
     public boolean remove(final DerSchema facet) {
-        checkType(facet, JPAPlainSchema.class);
+        checkType(facet, JPADerSchema.class);
         return this.derSchemas.remove((JPADerSchema) facet);
     }
 
@@ -119,7 +104,7 @@ public class JPAAnyTypeClass extends AbstractEntity<String> implements AnyTypeCl
 
     @Override
     public boolean remove(final VirSchema facet) {
-        checkType(facet, JPAPlainSchema.class);
+        checkType(facet, JPAVirSchema.class);
         return this.virSchemas.remove((JPAVirSchema) facet);
     }
 

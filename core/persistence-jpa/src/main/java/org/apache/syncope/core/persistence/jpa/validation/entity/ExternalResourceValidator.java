@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.core.persistence.jpa.validation.entity;
 
+import java.util.HashSet;
+import java.util.Set;
 import javax.validation.ConstraintValidatorContext;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
@@ -138,12 +140,26 @@ public class ExternalResourceValidator extends AbstractValidator<ExternalResourc
             }
         }
 
-        return CollectionUtils.matchesAll(resource.getProvisions(), new Predicate<Provision>() {
+        final Set<String> objectClasses = new HashSet<>();
+        boolean validMappings = CollectionUtils.matchesAll(resource.getProvisions(),
+                new Predicate<Provision>() {
 
-            @Override
-            public boolean evaluate(final Provision provision) {
-                return isValid(provision.getAnyType(), provision.getMapping(), context);
-            }
-        });
+                    @Override
+                    public boolean evaluate(final Provision provision) {
+                        if (provision.getObjectClass() != null) {
+                            objectClasses.add(provision.getObjectClass().getObjectClassValue());
+                        }
+                        return isValid(provision.getAnyType(), provision.getMapping(), context);
+                    }
+                });
+
+        if (objectClasses.size() < resource.getProvisions().size()) {
+            context.buildConstraintViolationWithTemplate(getTemplate(EntityViolationType.InvalidResource,
+                    "Each provision requires a different ObjectClass")).
+                    addPropertyNode("provisions").addConstraintViolation();
+            return false;
+        }
+
+        return validMappings;
     }
 }

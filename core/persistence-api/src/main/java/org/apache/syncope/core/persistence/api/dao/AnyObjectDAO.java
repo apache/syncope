@@ -20,15 +20,21 @@ package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.Collection;
 import java.util.List;
+import org.apache.syncope.core.persistence.api.entity.anyobject.ARelationship;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.user.URelationship;
 
 public interface AnyObjectDAO extends AnyDAO<AnyObject> {
 
     List<AnyObject> findByAnyType(String anyTypeName);
 
     List<Group> findDynGroupMemberships(AnyObject anyObject);
+
+    List<ARelationship> findARelationships(AnyObject anyObject);
+
+    List<URelationship> findURelationships(AnyObject anyObject);
 
     Collection<Group> findAllGroups(AnyObject anyObject);
 

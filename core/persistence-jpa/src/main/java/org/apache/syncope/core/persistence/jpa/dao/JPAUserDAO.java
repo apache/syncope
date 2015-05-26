@@ -45,7 +45,6 @@ import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
-import org.apache.syncope.core.persistence.api.entity.user.UVirAttr;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyUtilsFactory;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPADynRoleMembership;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUDynGroupMembership;
@@ -152,11 +151,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
 
     @Override
     public User save(final User user) {
-        User merged = entityManager.merge(user);
-        for (UVirAttr virAttr : merged.getVirAttrs()) {
-            virAttr.getValues().clear();
-            virAttr.getValues().addAll(user.getVirAttr(virAttr.getSchema().getKey()).getValues());
-        }
+        User merged = super.save(user);
 
         roleDAO.refreshDynMemberships(merged);
         groupDAO.refreshDynMemberships(merged);

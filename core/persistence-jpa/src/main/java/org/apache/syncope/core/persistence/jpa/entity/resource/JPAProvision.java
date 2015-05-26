@@ -27,6 +27,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import javax.validation.constraints.NotNull;
 import org.apache.syncope.core.misc.serialization.POJOHelper;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
@@ -55,6 +56,7 @@ public class JPAProvision extends AbstractEntity<Long> implements Provision {
     @ManyToOne
     private JPAAnyType anyType;
 
+    @NotNull
     private String objectClass;
 
     @Lob

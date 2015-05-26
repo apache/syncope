@@ -23,9 +23,9 @@ import javax.persistence.TypedQuery;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyType;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class JPAAnyTypeDAO extends AbstractDAO<AnyType, String> implements AnyTypeDAO {
@@ -35,27 +35,25 @@ public class JPAAnyTypeDAO extends AbstractDAO<AnyType, String> implements AnyTy
         return entityManager.find(JPAAnyType.class, key);
     }
 
-    private AnyType find(final AnyTypeKind typeKind) {
-        AnyType anyType = find(typeKind.name());
-        if (anyType == null) {
-            anyType = new JPAAnyType();
-            anyType.setKey(typeKind.name());
-            anyType.setKind(typeKind);
-            anyType = save(anyType);
-        }
-        return anyType;
-    }
-
-    @Transactional(readOnly = false)
     @Override
     public AnyType findUser() {
-        return find(AnyTypeKind.USER);
+        return find(AnyTypeKind.USER.name());
     }
 
-    @Transactional(readOnly = false)
     @Override
     public AnyType findGroup() {
-        return find(AnyTypeKind.GROUP);
+        return find(AnyTypeKind.GROUP.name());
+    }
+
+    public List<AnyType> findByTypeClass(final AnyTypeClass anyTypeClass) {
+        StringBuilder queryString = new StringBuilder("SELECT e FROM ").
+                append(JPAAnyType.class.getSimpleName()).
+                append(" e WHERE :anyTypeClass MEMBER OF e.classes");
+
+        TypedQuery<AnyType> query = entityManager.createQuery(queryString.toString(), AnyType.class);
+        query.setParameter("anyTypeClass", anyTypeClass);
+
+        return query.getResultList();
     }
 
     @Override
@@ -75,6 +73,10 @@ public class JPAAnyTypeDAO extends AbstractDAO<AnyType, String> implements AnyTy
         AnyType anyType = find(key);
         if (anyType == null) {
             return;
+        }
+
+        if (anyType.equals(findUser()) || anyType.equals(findGroup())) {
+            throw new IllegalArgumentException(key + " cannot be deleted");
         }
 
         entityManager.remove(anyType);

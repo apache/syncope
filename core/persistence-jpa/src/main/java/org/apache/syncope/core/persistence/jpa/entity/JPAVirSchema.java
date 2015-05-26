@@ -22,10 +22,12 @@ import javax.persistence.Basic;
 import javax.persistence.Cacheable;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
+import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.jpa.validation.entity.SchemaNameCheck;
 
@@ -41,6 +43,9 @@ public class JPAVirSchema extends AbstractEntity<String> implements VirSchema {
 
     @Id
     private String name;
+
+    @OneToOne
+    private JPAAnyTypeClass anyTypeClass;
 
     @Basic
     @Min(0)
@@ -61,6 +66,17 @@ public class JPAVirSchema extends AbstractEntity<String> implements VirSchema {
     @Override
     public void setKey(final String key) {
         this.name = key;
+    }
+
+    @Override
+    public AnyTypeClass getAnyTypeClass() {
+        return anyTypeClass;
+    }
+
+    @Override
+    public void setAnyTypeClass(final AnyTypeClass anyTypeClass) {
+        checkType(anyTypeClass, JPAAnyTypeClass.class);
+        this.anyTypeClass = (JPAAnyTypeClass) anyTypeClass;
     }
 
     @Override

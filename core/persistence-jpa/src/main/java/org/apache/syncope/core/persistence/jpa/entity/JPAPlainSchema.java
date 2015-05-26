@@ -26,6 +26,7 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.Lob;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.constraints.Max;
@@ -34,6 +35,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.Validator;
+import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.jpa.attrvalue.validation.BasicValidator;
 import org.apache.syncope.core.persistence.jpa.validation.entity.PlainSchemaCheck;
@@ -51,6 +53,9 @@ public class JPAPlainSchema extends AbstractEntity<String> implements PlainSchem
 
     @Id
     private String name;
+
+    @OneToOne
+    private JPAAnyTypeClass anyTypeClass;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
@@ -119,6 +124,17 @@ public class JPAPlainSchema extends AbstractEntity<String> implements PlainSchem
     @Override
     public void setKey(final String name) {
         this.name = name;
+    }
+
+    @Override
+    public AnyTypeClass getAnyTypeClass() {
+        return anyTypeClass;
+    }
+
+    @Override
+    public void setAnyTypeClass(final AnyTypeClass anyTypeClass) {
+        checkType(anyTypeClass, JPAAnyTypeClass.class);
+        this.anyTypeClass = (JPAAnyTypeClass) anyTypeClass;
     }
 
     @Override

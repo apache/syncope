@@ -16,10 +16,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.dao;
+package org.apache.syncope.core.persistence.jpa.validation.entity;
 
-import org.apache.syncope.core.persistence.api.entity.VirAttr;
-import org.apache.syncope.core.persistence.api.entity.VirSchema;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-public interface VirSchemaDAO extends SchemaDAO<VirSchema, VirAttr<?>> {
+import javax.validation.Constraint;
+import javax.validation.Payload;
+
+@Target({ ElementType.TYPE })
+@Retention(RetentionPolicy.RUNTIME)
+@Constraint(validatedBy = AnyTypeValidator.class)
+@Documented
+public @interface AnyTypeCheck {
+
+    String message() default "{org.apache.syncope.core.persistence.validation.anytype}";
+
+    Class<?>[] groups() default {};
+
+    Class<? extends Payload>[] payload() default {};
 }

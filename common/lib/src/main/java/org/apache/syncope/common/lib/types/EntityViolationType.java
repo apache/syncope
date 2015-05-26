@@ -25,6 +25,7 @@ public enum EntityViolationType {
 
     Standard(""),
     InvalidAccountPolicy("org.apache.syncope.core.persistence.validation.accountpolicy"),
+    InvalidAnyType("org.apache.syncope.core.persistence.validation.anytype"),
     InvalidConnInstanceLocation("org.apache.syncope.core.persistence.validation.conninstance.location"),
     InvalidConnPoolConf("org.apache.syncope.core.persistence.validation.conninstance.poolConf"),
     InvalidMapping("org.apache.syncope.core.persistence.validation.mapping"),

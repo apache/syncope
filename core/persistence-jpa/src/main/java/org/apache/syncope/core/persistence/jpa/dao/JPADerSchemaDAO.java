@@ -24,6 +24,7 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.DerAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
+import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.DerAttr;
@@ -48,6 +49,18 @@ public class JPADerSchemaDAO extends AbstractDAO<DerSchema, String> implements D
     }
 
     @Override
+    public List<DerSchema> findByAnyTypeClass(final AnyTypeClass anyTypeClass) {
+        StringBuilder queryString = new StringBuilder("SELECT e FROM ").
+                append(JPADerSchema.class.getSimpleName()).
+                append(" e WHERE e.anyTypeClass=:anyTypeClass");
+
+        TypedQuery<DerSchema> query = entityManager.createQuery(queryString.toString(), DerSchema.class);
+        query.setParameter("anyTypeClass", anyTypeClass);
+
+        return query.getResultList();
+    }
+
+    @Override
     public List<DerSchema> findAll() {
         TypedQuery<DerSchema> query = entityManager.createQuery(
                 "SELECT e FROM " + JPADerSchema.class.getSimpleName() + " e", DerSchema.class);
@@ -56,7 +69,7 @@ public class JPADerSchemaDAO extends AbstractDAO<DerSchema, String> implements D
 
     @Override
     public <T extends DerAttr<?>> List<T> findAttrs(final DerSchema schema, final Class<T> reference) {
-        final StringBuilder queryString = new StringBuilder("SELECT e FROM ").
+        StringBuilder queryString = new StringBuilder("SELECT e FROM ").
                 append(((JPADerAttrDAO) derAttrDAO).getJPAEntityReference(reference).getSimpleName()).
                 append(" e WHERE e.schema=:schema");
 
@@ -88,6 +101,8 @@ public class JPADerSchemaDAO extends AbstractDAO<DerSchema, String> implements D
 
             resourceDAO.deleteMapping(key, anyUtils.derIntMappingType());
         }
+
+        schema.getAnyTypeClass().remove(schema);
 
         entityManager.remove(schema);
     }

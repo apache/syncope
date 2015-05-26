@@ -41,6 +41,7 @@ import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
+import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -108,6 +109,7 @@ public class ResourceTest extends AbstractTest {
 
         Provision provision = entityFactory.newEntity(Provision.class);
         provision.setAnyType(anyTypeDAO.findUser());
+        provision.setObjectClass(ObjectClass.ACCOUNT);
         provision.setResource(resource);
         resource.add(provision);
 
@@ -146,6 +148,7 @@ public class ResourceTest extends AbstractTest {
 
         Provision provision = entityFactory.newEntity(Provision.class);
         provision.setAnyType(anyTypeDAO.findUser());
+        provision.setObjectClass(ObjectClass.ACCOUNT);
         provision.setResource(resource);
         resource.add(provision);
 
@@ -159,8 +162,7 @@ public class ResourceTest extends AbstractTest {
         mapping.add(connObjectKey);
 
         // save the resource
-        ExternalResource actual = resourceDAO.save(resource);
-        assertNotNull(actual);
+        resourceDAO.save(resource);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -173,6 +175,7 @@ public class ResourceTest extends AbstractTest {
 
         Provision provision = entityFactory.newEntity(Provision.class);
         provision.setAnyType(anyTypeDAO.findUser());
+        provision.setObjectClass(ObjectClass.ACCOUNT);
         provision.setResource(resource);
         resource.add(provision);
 
@@ -186,8 +189,7 @@ public class ResourceTest extends AbstractTest {
         mapping.setConnObjectKeyItem(connObjectKey);
 
         // save the resource
-        ExternalResource actual = resourceDAO.save(resource);
-        assertNotNull(actual);
+        resourceDAO.save(resource);
     }
 
     @Test(expected = InvalidEntityException.class)
@@ -200,6 +202,7 @@ public class ResourceTest extends AbstractTest {
 
         Provision provision = entityFactory.newEntity(Provision.class);
         provision.setAnyType(anyTypeDAO.findUser());
+        provision.setObjectClass(ObjectClass.ACCOUNT);
         provision.setResource(resource);
         resource.add(provision);
 
@@ -218,8 +221,42 @@ public class ResourceTest extends AbstractTest {
         item.setIntMappingType(IntMappingType.UserPlainSchema);
         mapping.add(item);
 
-        ExternalResource actual = resourceDAO.save(resource);
-        assertNotNull(actual);
+        resourceDAO.save(resource);
+    }
+
+    @Test(expected = InvalidEntityException.class)
+    public void saveInvalidProvision() {
+        ExternalResource resource = entityFactory.newEntity(ExternalResource.class);
+        resource.setKey("invalidProvision");
+
+        Provision provision = entityFactory.newEntity(Provision.class);
+        provision.setAnyType(anyTypeDAO.findUser());
+        provision.setObjectClass(ObjectClass.ACCOUNT);
+        provision.setResource(resource);
+        resource.add(provision);
+
+        Mapping mapping = entityFactory.newEntity(Mapping.class);
+        mapping.setProvision(provision);
+        provision.setMapping(mapping);
+
+        MappingItem connObjectKey = entityFactory.newEntity(MappingItem.class);
+        connObjectKey.setExtAttrName("username");
+        connObjectKey.setIntAttrName("fullname");
+        connObjectKey.setIntMappingType(IntMappingType.UserId);
+        connObjectKey.setPurpose(MappingPurpose.BOTH);
+        mapping.setConnObjectKeyItem(connObjectKey);
+
+        provision = entityFactory.newEntity(Provision.class);
+        provision.setAnyType(anyTypeDAO.findGroup());
+        provision.setObjectClass(ObjectClass.ACCOUNT);
+        provision.setResource(resource);
+        resource.add(provision);
+
+        ConnInstance connector = resourceDAO.find("ws-target-resource-1").getConnector();
+        resource.setConnector(connector);
+
+        // save the resource
+        resourceDAO.save(resource);
     }
 
     @Test
@@ -232,6 +269,7 @@ public class ResourceTest extends AbstractTest {
 
         Provision provision = entityFactory.newEntity(Provision.class);
         provision.setAnyType(anyTypeDAO.findUser());
+        provision.setObjectClass(ObjectClass.ACCOUNT);
         provision.setResource(resource);
         resource.add(provision);
 
@@ -312,6 +350,7 @@ public class ResourceTest extends AbstractTest {
 
         Provision provision = entityFactory.newEntity(Provision.class);
         provision.setAnyType(anyTypeDAO.findUser());
+        provision.setObjectClass(ObjectClass.ACCOUNT);
         provision.setResource(resource);
         resource.add(provision);
 

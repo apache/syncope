@@ -32,20 +32,29 @@ import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.core.misc.security.AuthContextUtils;
 import org.apache.syncope.core.misc.security.UnauthorizedException;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
+import org.apache.syncope.core.persistence.api.entity.anyobject.ARelationship;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.user.URelationship;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyUtilsFactory;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAADynGroupMembership;
+import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAARelationship;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
+import org.apache.syncope.core.persistence.jpa.entity.user.JPAURelationship;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObjectDAO {
+
+    @Autowired
+    private GroupDAO groupDAO;
 
     @Override
     protected AnyUtils init() {
@@ -77,6 +86,35 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
     }
 
     @Override
+    public List<ARelationship> findARelationships(final AnyObject anyObject) {
+        TypedQuery<ARelationship> query = entityManager.createQuery(
+                "SELECT e FROM " + JPAARelationship.class.getSimpleName()
+                + " e WHERE e.rightEnd=:anyObject", ARelationship.class);
+        query.setParameter("anyObject", anyObject);
+
+        return query.getResultList();
+    }
+
+    @Override
+    public List<URelationship> findURelationships(final AnyObject anyObject) {
+        TypedQuery<URelationship> query = entityManager.createQuery(
+                "SELECT e FROM " + JPAURelationship.class.getSimpleName()
+                + " e WHERE e.rightEnd=:anyObject", URelationship.class);
+        query.setParameter("anyObject", anyObject);
+
+        return query.getResultList();
+    }
+
+    @Override
+    public AnyObject save(final AnyObject anyObject) {
+        AnyObject merged = super.save(anyObject);
+
+        groupDAO.refreshDynMemberships(merged);
+
+        return merged;
+    }
+
+    @Override
     public void delete(final AnyObject any) {
         for (Group group : findDynGroupMemberships(any)) {
             group.getADynMembership().remove(any);
@@ -90,7 +128,7 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
     public List<Group> findDynGroupMemberships(final AnyObject anyObject) {
         TypedQuery<Group> query = entityManager.createQuery(
                 "SELECT e.group FROM " + JPAADynGroupMembership.class.getSimpleName()
-                + " e WHERE :anyObject MEMBER OF e.members", Group.class);
+                + " e WHERE :anyObject MEMBER OF e.anyObjects", Group.class);
         query.setParameter("anyObject", anyObject);
 
         return query.getResultList();

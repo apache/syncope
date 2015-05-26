@@ -112,10 +112,24 @@ under the License.
   <Policy DTYPE="SyncPolicy" id="9" description="sync policy for java rule" type="SYNC" 
           specification='{"userJavaRule":null,"groupJavaRule":null,"conflictResolutionAction":"IGNORE","userAltSearchSchemas":[],"groupAltSearchSchemas":[]}'/>
 
+  <AnyTypeClass name="generic membership"/>
+
   <AnyType name="USER" kind="USER"/>
+  <AnyTypeClass name="minimal user"/>
+  <AnyType_AnyTypeClass anyType_name="USER" anyTypeClass_name="minimal user"/>
+  <AnyTypeClass name="other"/>
+  <AnyType_AnyTypeClass anyType_name="USER" anyTypeClass_name="other"/>
+
   <AnyType name="GROUP" kind="GROUP"/>
+  <AnyTypeClass name="minimal group"/>
+  <AnyType_AnyTypeClass anyType_name="GROUP" anyTypeClass_name="minimal group"/>
+  
   <AnyType name="OTHER" kind="ANY_OBJECT"/>
+  <AnyTypeClass name="minimal other"/>
+  <AnyType_AnyTypeClass anyType_name="OTHER" anyTypeClass_name="minimal other"/>
       
+  <AnyTypeClass name="csv"/>
+
   <Realm id="1" name="/" passwordPolicy_id="4"/>
   <Realm id="2" name="odd" parent_id="1" accountPolicy_id="6"/>
   <Realm id="3" name="even" parent_id="1"/>
@@ -229,14 +243,18 @@ under the License.
                 realm_id="1"
                 creator="admin" lastModifier="admin" 
                 creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+  <SyncopeGroup_AnyTypeClass group_id="12" anyTypeClass_name="csv"/>  
   <SyncopeGroup id="13" name="bGroupForPropagation"
                 realm_id="1"
                 creator="admin" lastModifier="admin" 
                 creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+  <SyncopeGroup_AnyTypeClass group_id="13" anyTypeClass_name="csv"/>  
   <SyncopeGroup id="14" name="artDirector"
                 realm_id="1"
                 creator="admin" lastModifier="admin" 
                 creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+  
+  <URelationship id="1" user_id="4" anyObject_id="1"/>
 
   <UMembership id="1" user_id="1" group_id="1"/>
   <UMembership id="2" user_id="2" group_id="1"/>
@@ -246,84 +264,90 @@ under the License.
   <UMembership id="6" user_id="2" group_id="3"/>
   <UMembership id="7" user_id="5" group_id="14"/>
 
-  <PlainSchema name="fullname" type="String"
+  <PlainSchema name="fullname" type="String" anyTypeClass_name="minimal user"
                mandatoryCondition="true" multivalue="0" uniqueConstraint="1" readonly="0"/>
-  <PlainSchema name="userId" type="String"
+  <PlainSchema name="userId" type="String" anyTypeClass_name="minimal user"
                mandatoryCondition="true" multivalue="0" uniqueConstraint="1" readonly="0"
                validatorClass="org.apache.syncope.core.persistence.jpa.attrvalue.validation.EmailAddressValidator"/>
-  <PlainSchema name="loginDate" type="Date"
+  <PlainSchema name="loginDate" type="Date" anyTypeClass_name="other"
                mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"
                conversionPattern="yyyy-MM-dd"/>
-  <PlainSchema name="firstname" type="String"
+  <PlainSchema name="firstname" type="String" anyTypeClass_name="minimal user"
                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
-  <PlainSchema name="surname" type="String"
+  <PlainSchema name="surname" type="String" anyTypeClass_name="minimal user"
                mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
-  <PlainSchema name="type" type="String"
+  <PlainSchema name="type" type="String" anyTypeClass_name="other"
                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
-  <PlainSchema name="email" type="String"
+  <PlainSchema name="email" type="String" anyTypeClass_name="minimal user"
                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
                validatorClass="org.apache.syncope.core.persistence.jpa.attrvalue.validation.EmailAddressValidator"/>
-  <PlainSchema name="activationDate" type="Date"
+  <PlainSchema name="activationDate" type="Date" anyTypeClass_name="other"
                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
                conversionPattern="yyyy-MM-dd'T'HH:mm:ss.SSSZ"/>
-  <PlainSchema name="uselessReadonly" type="String"
+  <PlainSchema name="uselessReadonly" type="String" anyTypeClass_name="other"
                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="1"/>
-  <PlainSchema name="cool" type="Boolean"
+  <PlainSchema name="cool" type="Boolean" anyTypeClass_name="minimal other" 
                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
-  <PlainSchema name="gender" type="Enum"
+  <PlainSchema name="gender" type="Enum" anyTypeClass_name="other"
                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
                enumerationValues="M;F"/>
-  <PlainSchema name="aLong" type="Long"
+  <PlainSchema name="aLong" type="Long" anyTypeClass_name="other"
                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
-  <PlainSchema name="makeItDouble" type="Long"
+  <PlainSchema name="makeItDouble" type="Long" anyTypeClass_name="other"
                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
-  <PlainSchema name="obscure" type="Encrypted"
+  <PlainSchema name="obscure" type="Encrypted" anyTypeClass_name="other"
                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
                secretKey="7abcdefghilmnopqrstuvz9#" cipherAlgorithm="SHA"/>
-  <PlainSchema name="photo" type="Binary"
+  <PlainSchema name="photo" type="Binary" anyTypeClass_name="other"
                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
                mimeType="image/jpeg"/>
 
-  <DerSchema name="csvuserid" expression="firstname + ',' + surname"/>
-  <DerSchema name="cn" expression="surname + ', ' + firstname"/>
-  <DerSchema name="noschema" expression="surname + ', ' + notfound"/>
+  <DerSchema name="csvuserid" expression="firstname + ',' + surname" anyTypeClass_name="csv"/>
+  <DerSchema name="cn" expression="surname + ', ' + firstname" anyTypeClass_name="minimal user"/>
+  <DerSchema name="noschema" expression="surname + ', ' + notfound" anyTypeClass_name="other"/>
 
-  <VirSchema name="virtualdata"/>
+  <VirSchema name="virtualdata" anyTypeClass_name="minimal user"/>
 
-  <PlainSchema name="icon" type="String"
+  <PlainSchema name="icon" type="String" anyTypeClass_name="minimal group"
                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>                
-  <PlainSchema name="show" type="Boolean"
+  <PlainSchema name="show" type="Boolean" anyTypeClass_name="minimal group"
                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
-  <PlainSchema name="rderived_sx" type="String"
+  <PlainSchema name="rderived_sx" type="String" anyTypeClass_name="minimal group"
                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
-  <PlainSchema name="rderived_dx" type="String"
+  <PlainSchema name="rderived_dx" type="String" anyTypeClass_name="minimal group"
                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>           
-  <PlainSchema name="title" type="String"
+  <PlainSchema name="title" type="String" anyTypeClass_name="minimal group"
                mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
 
-  <DerSchema name="rderiveddata" expression="rderived_sx + '-' + rderived_dx"/>
-  <DerSchema name="displayProperty" expression="icon + ': ' + show"/>
-  <DerSchema name="rderToBePropagated" expression="rderived_sx + '-' + rderived_dx"/>
+  <DerSchema name="rderiveddata" expression="rderived_sx + '-' + rderived_dx"
+             anyTypeClass_name="minimal group"/>
+  <DerSchema name="displayProperty" expression="icon + ': ' + show"
+             anyTypeClass_name="minimal group"/>
+  <DerSchema name="rderToBePropagated" expression="rderived_sx + '-' + rderived_dx"
+             anyTypeClass_name="minimal group"/>
 
-  <VirSchema name="rvirtualdata"/>
+  <VirSchema name="rvirtualdata" anyTypeClass_name="minimal group"/>
 
-  <!-- rderiveddata is used to verify der schema deletion -->
   <DerSchema name="rderivedschema" expression="rderived_sx + '-' + rderived_dx"/>
 
-  <PlainSchema name="subscriptionDate" type="Date"
+  <PlainSchema name="subscriptionDate" type="Date" anyTypeClass_name="generic membership"
                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
                conversionPattern="yyyy-MM-dd'T'HH:mm:ss.SSSZ"/>
-  <PlainSchema name="mderived_sx" type="String"
+  <PlainSchema name="mderived_sx" type="String" anyTypeClass_name="generic membership"
                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
-  <PlainSchema name="mderived_dx" type="String"
+  <PlainSchema name="mderived_dx" type="String" anyTypeClass_name="generic membership"
                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>          
-  <PlainSchema name="postalAddress" type="String"
+  <PlainSchema name="postalAddress" type="String" anyTypeClass_name="generic membership"
                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
 
   <DerSchema name="mderiveddata" expression="mderived_sx + '-' + mderived_dx"/>
-  <DerSchema name="mderToBePropagated" expression="mderived_sx + '-' + mderived_dx"/>
+  <DerSchema name="mderToBePropagated" expression="mderived_sx + '-' + mderived_dx" 
+             anyTypeClass_name="generic membership"/>
 
   <VirSchema name="mvirtualdata"/>
+        
+  <APlainAttr id="1" owner_id="2" schema_name="cool"/>
+  <APlainAttrValue id="1" attribute_id="1" booleanValue="1"/>
   
   <UPlainAttr id="99" owner_id="1" schema_name="type"/>
   <UPlainAttrValue id="9" attribute_id="99" stringValue="G"/>
@@ -1035,13 +1059,13 @@ under the License.
 
   <Notification id="1" active="1" recipientAttrName="email" recipientAttrType="UserPlainSchema" selfAsRecipient="1" 
                 sender="admin@syncope.apache.org" subject="Password Reset request" template="requestPasswordReset" 
-                traceLevel="FAILURES" userAbout="token!=$null"/> 
+                traceLevel="FAILURES"/> 
   <AnyAbout id="1" anyType_name="USER" notification_id="1" about="token!=$null"/>
   <Notification_events Notification_id="1" event="[CUSTOM]:[]:[]:[requestPasswordReset]:[SUCCESS]"/>
   
   <Notification id="2" active="1" recipientAttrName="email" recipientAttrType="UserPlainSchema" selfAsRecipient="1" 
                 sender="admin@syncope.apache.org" subject="Password Reset successful" template="confirmPasswordReset" 
-                traceLevel="FAILURES" userAbout="token!=$null"/> 
+                traceLevel="FAILURES"/> 
   <Notification_events Notification_id="2" event="[CUSTOM]:[]:[]:[confirmPasswordReset]:[SUCCESS]"/>
 
   <Notification id="10" sender="test@syncope.apache.org" subject="Test subject" template="test" selfAsRecipient="0" 

@@ -66,6 +66,15 @@ under the License.
     </attributes>
   </entity>
   
+  <entity class="org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAMembership">
+    <attributes>
+      <id name="id">
+        <generated-value generator="SEQ_AMembership" strategy="TABLE"/>
+        <table-generator name="SEQ_AMembership" pk-column-value="SEQ_AMembership" initial-value="100"/>
+      </id>
+    </attributes>
+  </entity>
+  
   <entity class="org.apache.syncope.core.persistence.jpa.entity.JPARole">
     <attributes>
       <id name="id">
@@ -83,7 +92,7 @@ under the License.
       </id>
     </attributes>
   </entity>
-  
+
   <entity class="org.apache.syncope.core.persistence.jpa.entity.user.JPAUser">
     <attributes>
       <id name="id">
@@ -98,6 +107,15 @@ under the License.
       <id name="id">
         <generated-value generator="SEQ_URelationship" strategy="TABLE"/>
         <table-generator name="SEQ_URelationship" pk-column-value="SEQ_URelationship" initial-value="100"/>
+      </id>
+    </attributes>
+  </entity>
+  
+  <entity class="org.apache.syncope.core.persistence.jpa.entity.user.JPAUMembership">
+    <attributes>
+      <id name="id">
+        <generated-value generator="SEQ_UMembership" strategy="TABLE"/>
+        <table-generator name="SEQ_UMembership" pk-column-value="SEQ_UMembership" initial-value="100"/>
       </id>
     </attributes>
   </entity>
