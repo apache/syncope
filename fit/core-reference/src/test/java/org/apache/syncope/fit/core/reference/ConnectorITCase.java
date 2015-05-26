@@ -660,7 +660,7 @@ public class ConnectorITCase extends AbstractITCase {
             mapItem.setExtAttrName("uid");
             mapItem.setIntAttrName("userId");
             mapItem.setIntMappingType(IntMappingType.UserPlainSchema);
-            mapItem.setAccountid(true);
+            mapItem.setConnObjectKey(true);
             mapping.setConnObjectKeyItem(mapItem);
             // ----------------------------------------
 

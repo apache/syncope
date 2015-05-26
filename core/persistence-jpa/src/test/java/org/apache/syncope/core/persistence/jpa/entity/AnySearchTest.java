@@ -272,7 +272,7 @@ public class AnySearchTest extends AbstractTest {
     }
 
     @Test
-    public void searchByBooleanSubjectCond() {
+    public void searchByBooleanAnyCond() {
         AttributeCond booleanCond = new AttributeCond(AnyCond.Type.EQ);
         booleanCond.setSchema("show");
         booleanCond.setExpression("true");

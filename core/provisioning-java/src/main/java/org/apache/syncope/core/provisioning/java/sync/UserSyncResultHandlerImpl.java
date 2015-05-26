@@ -40,8 +40,8 @@ public class UserSyncResultHandlerImpl extends AbstractSyncResultHandler impleme
     }
 
     @Override
-    protected String getName(final AnyTO subjectTO) {
-        return UserTO.class.cast(subjectTO).getUsername();
+    protected String getName(final AnyTO anyTO) {
+        return UserTO.class.cast(anyTO).getUsername();
     }
 
     @Override
@@ -55,8 +55,8 @@ public class UserSyncResultHandlerImpl extends AbstractSyncResultHandler impleme
     }
 
     @Override
-    protected AnyTO doCreate(final AnyTO subjectTO, final SyncDelta delta, final ProvisioningResult result) {
-        UserTO userTO = UserTO.class.cast(subjectTO);
+    protected AnyTO doCreate(final AnyTO anyTO, final SyncDelta delta, final ProvisioningResult result) {
+        UserTO userTO = UserTO.class.cast(anyTO);
 
         Boolean enabled = syncUtilities.readEnabled(delta.getObject(), profile.getTask());
         Map.Entry<Long, List<PropagationStatus>> created = userProvisioningManager.create(userTO, true, true, enabled,

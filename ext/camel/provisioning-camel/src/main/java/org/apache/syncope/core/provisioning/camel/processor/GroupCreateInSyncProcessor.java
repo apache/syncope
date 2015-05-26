@@ -48,7 +48,7 @@ public class GroupCreateInSyncProcessor implements Processor {
     public void process(final Exchange exchange) {
         WorkflowResult<Long> created = (WorkflowResult) exchange.getIn().getBody();
 
-        GroupTO actual = exchange.getProperty("subject", GroupTO.class);
+        GroupTO actual = exchange.getProperty("any", GroupTO.class);
         Map<Long, String> groupOwnerMap = exchange.getProperty("groupOwnerMap", Map.class);
         Set<String> excludedResources = exchange.getProperty("excludedResources", Set.class);
 

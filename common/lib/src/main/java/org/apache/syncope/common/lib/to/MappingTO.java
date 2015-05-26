@@ -53,7 +53,7 @@ public class MappingTO extends AbstractBaseBean {
 
             @Override
             public boolean evaluate(final MappingItemTO item) {
-                return item.isAccountid();
+                return item.isConnObjectKey();
             }
         });
     }
@@ -64,14 +64,14 @@ public class MappingTO extends AbstractBaseBean {
                 || IntMappingType.AnyVirtualSchema == connObjectItem.getIntMappingType()
                 || IntMappingType.Password == connObjectItem.getIntMappingType()) {
 
-            throw new IllegalArgumentException("Virtual attributes cannot be set as accountId");
+            throw new IllegalArgumentException("Virtual attributes cannot be set as connObjectKey");
         }
         if (IntMappingType.Password == connObjectItem.getIntMappingType()) {
-            throw new IllegalArgumentException("Password attributes cannot be set as accountId");
+            throw new IllegalArgumentException("Password attributes cannot be set as connObjectKey");
         }
 
         connObjectItem.setExtAttrName(connObjectItem.getExtAttrName());
-        connObjectItem.setAccountid(true);
+        connObjectItem.setConnObjectKey(true);
 
         return this.add(connObjectItem);
     }

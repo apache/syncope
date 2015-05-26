@@ -296,11 +296,11 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
              * update, this user / group used to have the current resource assigned by more than one mean (for example,
              * two different memberships with the same resource).
              */
-            Any<?, ?, ?> subject = getAny(task);
-            Collection<String> resources = subject instanceof User
-                    ? userDAO.findAllResourceNames((User) subject)
-                    : subject instanceof Group
-                            ? ((Group) subject).getResourceNames()
+            Any<?, ?, ?> any = getAny(task);
+            Collection<String> resources = any instanceof User
+                    ? userDAO.findAllResourceNames((User) any)
+                    : any instanceof Group
+                            ? ((Group) any).getResourceNames()
                             : Collections.<String>emptySet();
             if (!resources.contains(task.getResource().getKey())) {
                 LOG.debug("Delete {} on {}", beforeObj.getUid(), task.getResource().getKey());
@@ -527,7 +527,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
      * @param connector connector facade proxy.
      * @param task current propagation task.
      * @param provision provision
-     * @param latest 'FALSE' to retrieve object using old accountId if not null.
+     * @param latest 'FALSE' to retrieve object using old connObjectKey if not null.
      * @return remote connector object.
      */
     protected ConnectorObject getRemoteObject(final PropagationTask task, final Connector connector,

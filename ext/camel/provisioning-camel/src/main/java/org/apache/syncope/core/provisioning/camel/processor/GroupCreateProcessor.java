@@ -51,11 +51,11 @@ public class GroupCreateProcessor implements Processor {
     @Override
     public void process(final Exchange exchange) {
         WorkflowResult<Long> created = (WorkflowResult) exchange.getIn().getBody();
-        GroupTO subject = exchange.getProperty("subject", GroupTO.class);
+        GroupTO any = exchange.getProperty("any", GroupTO.class);
         Set<String> excludedResource = exchange.getProperty("excludedResources", Set.class);
 
         List<PropagationTask> tasks =
-                propagationManager.getGroupCreateTasks(created, subject.getVirAttrs(), excludedResource);
+                propagationManager.getGroupCreateTasks(created, any.getVirAttrs(), excludedResource);
         PropagationReporter propagationReporter =
                 ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
         try {

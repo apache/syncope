@@ -149,7 +149,7 @@ public class GroupITCase extends AbstractITCase {
     @Test
     public void list() {
         PagedResult<GroupTO> groupTOs =
-                groupService.list(SyncopeClient.getSubjectListQueryBuilder().realm(SyncopeConstants.ROOT_REALM).build());
+                groupService.list(SyncopeClient.getAnyListQueryBuilder().realm(SyncopeConstants.ROOT_REALM).build());
         assertNotNull(groupTOs);
         assertTrue(groupTOs.getResult().size() >= 8);
         for (GroupTO groupTO : groupTOs.getResult()) {
@@ -546,14 +546,14 @@ public class GroupITCase extends AbstractITCase {
         GroupService unauthenticated = clientFactory.createAnonymous().getService(GroupService.class);
         try {
             unauthenticated.
-                    list(SyncopeClient.getSubjectSearchQueryBuilder().realm(SyncopeConstants.ROOT_REALM).build());
+                    list(SyncopeClient.getAnySearchQueryBuilder().realm(SyncopeConstants.ROOT_REALM).build());
             fail();
         } catch (AccessControlException e) {
             assertNotNull(e);
         }
 
         GroupService anonymous = clientFactory.create(ANONYMOUS_UNAME, ANONYMOUS_KEY).getService(GroupService.class);
-        assertFalse(anonymous.list(SyncopeClient.getSubjectSearchQueryBuilder().realm(SyncopeConstants.ROOT_REALM).
+        assertFalse(anonymous.list(SyncopeClient.getAnySearchQueryBuilder().realm(SyncopeConstants.ROOT_REALM).
                 build()).
                 getResult().isEmpty());
     }

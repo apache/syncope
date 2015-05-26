@@ -114,7 +114,7 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
         result.setAnyType(provision.getAnyType().getKey());
         result.setStatus(ProvisioningResult.Status.SUCCESS);
 
-        // Attributable transformation (if configured)
+        // Any transformation (if configured)
         AnyTO transformed = anyTransformer.transform(anyTO);
         LOG.debug("Transformed: {}", transformed);
 
@@ -145,7 +145,7 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
 
         AnyTO anyTO = connObjectUtils.getAnyTO(delta.getObject(), profile.getTask(), provision, anyUtils);
 
-        // Attributable transformation (if configured)
+        // Any transformation (if configured)
         AnyTO transformed = anyTransformer.transform(anyTO);
         LOG.debug("Transformed: {}", transformed);
 

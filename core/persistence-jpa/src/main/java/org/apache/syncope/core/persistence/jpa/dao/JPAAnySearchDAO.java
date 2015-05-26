@@ -61,16 +61,12 @@ import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.jpa.entity.JPAPlainSchema;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.ReflectionUtils;
 
 @Repository
 public class JPAAnySearchDAO extends AbstractDAO<Any<?, ?, ?>, Long> implements AnySearchDAO {
-
-    protected static final Logger LOG = LoggerFactory.getLogger(AnySearchDAO.class);
 
     private static final String EMPTY_ATTR_QUERY = "SELECT any_id FROM user_search_attr WHERE 1=2";
 
@@ -193,7 +189,7 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?, ?, ?>, Long> implements 
 
     @Override
     public <T extends Any<?, ?, ?>> boolean matches(
-            final T subject, final SearchCond searchCondition, final AnyTypeKind typeKind) {
+            final T any, final SearchCond searchCondition, final AnyTypeKind typeKind) {
 
         List<Object> parameters = Collections.synchronizedList(new ArrayList<>());
 
@@ -208,7 +204,7 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?, ?, ?>, Long> implements 
         } else {
             // 2. take into account the passed user
             queryString.insert(0, "SELECT u.any_id FROM (");
-            queryString.append(") u WHERE any_id=?").append(setParameter(parameters, subject.getKey()));
+            queryString.append(") u WHERE any_id=?").append(setParameter(parameters, any.getKey()));
 
             // 3. prepare the search query
             Query query = entityManager.createNativeQuery(queryString.toString());
@@ -305,8 +301,8 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?, ?, ?>, Long> implements 
             // Manage difference among external key attribute and internal JPA @Id
             String fieldName = "key".equals(clause.getField()) ? "id" : clause.getField();
 
-            Field subjectField = ReflectionUtils.findField(attrUtils.anyClass(), fieldName);
-            if (subjectField == null) {
+            Field anyField = ReflectionUtils.findField(attrUtils.anyClass(), fieldName);
+            if (anyField == null) {
                 PlainSchema schema = schemaDAO.find(fieldName);
                 if (schema != null) {
                     if (schema.isUniqueConstraint()) {
@@ -389,25 +385,25 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?, ?, ?>, Long> implements 
         // 6. Prepare the result (avoiding duplicates)
         List<T> result = new ArrayList<>();
 
-        for (Object subjectKey : query.getResultList()) {
+        for (Object anyKey : query.getResultList()) {
             long actualKey;
-            if (subjectKey instanceof Object[]) {
-                actualKey = ((Number) ((Object[]) subjectKey)[0]).longValue();
+            if (anyKey instanceof Object[]) {
+                actualKey = ((Number) ((Object[]) anyKey)[0]).longValue();
             } else {
-                actualKey = ((Number) subjectKey).longValue();
+                actualKey = ((Number) anyKey).longValue();
             }
 
-            T subject = typeKind == AnyTypeKind.USER
+            T any = typeKind == AnyTypeKind.USER
                     ? (T) userDAO.find(actualKey)
                     : typeKind == AnyTypeKind.GROUP
                             ? (T) groupDAO.find(actualKey)
                             : (T) anyObjectDAO.find(actualKey);
-            if (subject == null) {
+            if (any == null) {
                 LOG.error("Could not find {} with id {}, even though returned by the native query",
                         typeKind, actualKey);
             } else {
-                if (!result.contains(subject)) {
-                    result.add(subject);
+                if (!result.contains(any)) {
+                    result.add(any);
                 }
             }
         }
@@ -736,26 +732,26 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?, ?, ?>, Long> implements 
             cond.setSchema("id");
         }
 
-        Field subjectField = ReflectionUtils.findField(attrUtils.anyClass(), cond.getSchema());
-        if (subjectField == null) {
+        Field anyField = ReflectionUtils.findField(attrUtils.anyClass(), cond.getSchema());
+        if (anyField == null) {
             LOG.warn("Ignoring invalid schema '{}'", cond.getSchema());
             return EMPTY_ATTR_QUERY;
         }
 
         PlainSchema schema = new JPAPlainSchema();
-        schema.setKey(subjectField.getName());
+        schema.setKey(anyField.getName());
         for (AttrSchemaType attrSchemaType : AttrSchemaType.values()) {
-            if (subjectField.getType().isAssignableFrom(attrSchemaType.getType())) {
+            if (anyField.getType().isAssignableFrom(attrSchemaType.getType())) {
                 schema.setType(attrSchemaType);
             }
         }
 
-        // Deal with subject Integer fields logically mapping to boolean values
+        // Deal with any Integer fields logically mapping to boolean values
         // (JPAGroup.inheritPlainAttrs, for example)
         boolean foundBooleanMin = false;
         boolean foundBooleanMax = false;
-        if (Integer.class.equals(subjectField.getType())) {
-            for (Annotation annotation : subjectField.getAnnotations()) {
+        if (Integer.class.equals(anyField.getType())) {
+            for (Annotation annotation : anyField.getAnnotations()) {
                 if (Min.class.equals(annotation.annotationType())) {
                     foundBooleanMin = ((Min) annotation).value() == 0;
                 } else if (Max.class.equals(annotation.annotationType())) {
@@ -767,13 +763,13 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?, ?, ?>, Long> implements 
             schema.setType(AttrSchemaType.Boolean);
         }
 
-        // Deal with subject fields representing relationships to other entities
-        if (subjectField.getType().getAnnotation(Entity.class) != null) {
+        // Deal with any fields representing relationships to other entities
+        if (anyField.getType().getAnnotation(Entity.class) != null) {
             Method relMethod = null;
             try {
-                relMethod = ClassUtils.getPublicMethod(subjectField.getType(), "getKey", new Class[0]);
+                relMethod = ClassUtils.getPublicMethod(anyField.getType(), "getKey", new Class[0]);
             } catch (Exception e) {
-                LOG.error("Could not find {}#getKey", subjectField.getType(), e);
+                LOG.error("Could not find {}#getKey", anyField.getType(), e);
             }
 
             if (relMethod != null) {

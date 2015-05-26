@@ -49,9 +49,9 @@ public class PropagationByResource implements Serializable {
     private final Set<String> toBeDeleted;
 
     /**
-     * Mapping target resource names to old account ids (when applicable).
+     * Mapping target resource names to old ConnObjectKeys (when applicable).
      */
-    private final Map<String, String> oldAccountIds;
+    private final Map<String, String> oldConnObjectKeys;
 
     /**
      * Default constructor.
@@ -61,7 +61,7 @@ public class PropagationByResource implements Serializable {
         toBeUpdated = new HashSet<>();
         toBeDeleted = new HashSet<>();
 
-        oldAccountIds = new HashMap<>();
+        oldConnObjectKeys = new HashMap<>();
     }
 
     /**
@@ -301,7 +301,7 @@ public class PropagationByResource implements Serializable {
             toBeCreated.addAll(propByRes.get(ResourceOperation.CREATE));
             toBeUpdated.addAll(propByRes.get(ResourceOperation.UPDATE));
             toBeDeleted.addAll(propByRes.get(ResourceOperation.DELETE));
-            oldAccountIds.putAll(propByRes.getOldAccountIds());
+            oldConnObjectKeys.putAll(propByRes.getOldConnObjectKeys());
         }
     }
 
@@ -317,40 +317,40 @@ public class PropagationByResource implements Serializable {
     /**
      * Whether no operations are present.
      *
-     * @return true if no operations (create / update / delete) and no old account ids are present
+     * @return true if no operations (create / update / delete) and no old connObjectKeys are present
      */
     public final boolean isEmpty() {
-        return toBeCreated.isEmpty() && toBeUpdated.isEmpty() && toBeDeleted.isEmpty() && oldAccountIds.isEmpty();
+        return toBeCreated.isEmpty() && toBeUpdated.isEmpty() && toBeDeleted.isEmpty() && oldConnObjectKeys.isEmpty();
     }
 
     /**
-     * Fetch all old account ids.
+     * Fetch all old connObjectKeys.
      *
-     * @return old account ids; can be empty
+     * @return old connObjectKeys; can be empty
      */
-    public Map<String, String> getOldAccountIds() {
-        return oldAccountIds;
+    public Map<String, String> getOldConnObjectKeys() {
+        return oldConnObjectKeys;
     }
 
     /**
-     * Fetch old account id for given resource name.
+     * Fetch old connObjectKey for given resource name.
      *
      * @param resourceName resource name
-     * @return old account id; can be null
+     * @return old connObjectKey; can be null
      */
-    public String getOldAccountId(final String resourceName) {
-        return oldAccountIds.get(resourceName);
+    public String getOldConnObjectKey(final String resourceName) {
+        return oldConnObjectKeys.get(resourceName);
     }
 
     /**
-     * Add old account id for a given resource name.
+     * Add old ConnObjectKey for a given resource name.
      *
      * @param resourceName resourceName resource name
-     * @param oldAccountId old account id
+     * @param oldConnObjectKey old ConnObjectKey
      */
-    public void addOldAccountId(final String resourceName, final String oldAccountId) {
-        if (resourceName != null && oldAccountId != null) {
-            oldAccountIds.put(resourceName, oldAccountId);
+    public void addOldConnObjectKey(final String resourceName, final String oldConnObjectKey) {
+        if (resourceName != null && oldConnObjectKey != null) {
+            oldConnObjectKeys.put(resourceName, oldConnObjectKey);
         }
     }
 
@@ -359,6 +359,6 @@ public class PropagationByResource implements Serializable {
         return "To be Created: " + toBeCreated + ";\n"
                 + "To be Updated: " + toBeUpdated + ";\n"
                 + "To be Deleted: " + toBeDeleted + ";\n"
-                + "Old account Ids: " + oldAccountIds;
+                + "Old connObjectKeys: " + oldConnObjectKeys;
     }
 }

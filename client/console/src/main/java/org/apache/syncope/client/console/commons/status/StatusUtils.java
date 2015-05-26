@@ -108,10 +108,10 @@ public class StatusUtils implements Serializable {
                             ? Status.ACTIVE
                             : Status.SUSPENDED;
 
-            final String accountLink = getAccountLink(objectTO);
+            String connObjectLink = getConnObjectLink(objectTO);
 
             statusBean.setStatus(status);
-            statusBean.setAccountLink(accountLink);
+            statusBean.setConnObjectLink(connObjectLink);
         }
 
         return statusBean;
@@ -127,7 +127,7 @@ public class StatusUtils implements Serializable {
                 : null;
     }
 
-    private String getAccountLink(final ConnObjectTO objectTO) {
+    private String getConnObjectLink(final ConnObjectTO objectTO) {
         final Map<String, AttrTO> attributeTOs = objectTO == null
                 ? Collections.<String, AttrTO>emptyMap()
                 : objectTO.getPlainAttrMap();

@@ -156,7 +156,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         // -----------------------------
         try {
             int usersPre = userService.list(
-                    SyncopeClient.getSubjectListQueryBuilder().realm(SyncopeConstants.ROOT_REALM).
+                    SyncopeClient.getAnyListQueryBuilder().realm(SyncopeConstants.ROOT_REALM).
                     page(1).size(1).build()).getTotalCount();
             assertNotNull(usersPre);
 
@@ -212,7 +212,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
 
             // check for sync results
             int usersPost = userService.list(
-                    SyncopeClient.getSubjectListQueryBuilder().realm(SyncopeConstants.ROOT_REALM).
+                    SyncopeClient.getAnyListQueryBuilder().realm(SyncopeConstants.ROOT_REALM).
                     page(1).size(1).build()).getTotalCount();
             assertNotNull(usersPost);
             assertEquals(usersPre + 8, usersPost);
@@ -282,7 +282,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
      */
     private void ldapCleanup() {
         PagedResult<GroupTO> matchingGroups = groupService.search(
-                SyncopeClient.getSubjectSearchQueryBuilder().realm(SyncopeConstants.ROOT_REALM).
+                SyncopeClient.getAnySearchQueryBuilder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getGroupSearchConditionBuilder().is("name").equalTo("testLDAPGroup").query()).
                 build());
         if (matchingGroups.getSize() > 0) {
@@ -294,7 +294,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
             }
         }
         PagedResult<UserTO> matchingUsers = userService.search(
-                SyncopeClient.getSubjectSearchQueryBuilder().realm(SyncopeConstants.ROOT_REALM).
+                SyncopeClient.getAnySearchQueryBuilder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("syncFromLDAP").query()).
                 build());
         if (matchingUsers.getSize() > 0) {
@@ -322,14 +322,14 @@ public class SyncTaskITCase extends AbstractTaskITCase {
 
         // 2. verify that synchronized group is found, with expected attributes
         PagedResult<GroupTO> matchingGroups = groupService.search(
-                SyncopeClient.getSubjectSearchQueryBuilder().realm(SyncopeConstants.ROOT_REALM).
+                SyncopeClient.getAnySearchQueryBuilder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getGroupSearchConditionBuilder().is("name").equalTo("testLDAPGroup").query()).
                 build());
         assertNotNull(matchingGroups);
         assertEquals(1, matchingGroups.getResult().size());
 
         PagedResult<UserTO> matchingUsers = userService.search(
-                SyncopeClient.getSubjectSearchQueryBuilder().realm(SyncopeConstants.ROOT_REALM).
+                SyncopeClient.getAnySearchQueryBuilder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("syncFromLDAP").query()).
                 build());
         assertNotNull(matchingUsers);
@@ -352,7 +352,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
 
         // 3. verify that LDAP group membership is propagated as Syncope group membership
         PagedResult<UserTO> members = userService.search(
-                SyncopeClient.getSubjectSearchQueryBuilder().realm(SyncopeConstants.ROOT_REALM).
+                SyncopeClient.getAnySearchQueryBuilder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().inGroups(groupTO.getKey()).query()).build());
         assertNotNull(members);
         assertEquals(1, members.getResult().size());

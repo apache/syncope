@@ -465,7 +465,7 @@ public class VirAttrITCase extends AbstractITCase {
         item.setIntMappingType(IntMappingType.UserPlainSchema);
         item.setExtAttrName(groupName);
         item.setPurpose(MappingPurpose.PROPAGATION);
-        item.setAccountid(true);
+        item.setConnObjectKey(true);
         mapping.setConnObjectKeyItem(item);
 
         item = new MappingItemTO();

@@ -163,10 +163,10 @@ public class SyncUtils {
         return result;
     }
 
-    private AnyDAO<?> getAnyDAO(final MappingItem accountIdItem) {
-        return AnyTypeKind.USER == accountIdItem.getIntMappingType().getAnyTypeKind()
+    private AnyDAO<?> getAnyDAO(final MappingItem connObjectKeyItem) {
+        return AnyTypeKind.USER == connObjectKeyItem.getIntMappingType().getAnyTypeKind()
                 ? userDAO
-                : AnyTypeKind.ANY_OBJECT == accountIdItem.getIntMappingType().getAnyTypeKind()
+                : AnyTypeKind.ANY_OBJECT == connObjectKeyItem.getIntMappingType().getAnyTypeKind()
                         ? anyObjectDAO
                         : groupDAO;
     }
@@ -238,7 +238,7 @@ public class SyncUtils {
                 break;
 
             default:
-                LOG.error("Invalid accountId type '{}'", connObjectKeyItem.getIntMappingType());
+                LOG.error("Invalid connObjectKey type '{}'", connObjectKeyItem.getIntMappingType());
         }
 
         return result;
@@ -356,7 +356,7 @@ public class SyncUtils {
     /**
      * Find users / groups based on mapped uid value (or previous uid value, if updated).
      *
-     * @param uid for finding by account id
+     * @param uid for finding by connObjectKey
      * @param connObj for finding by attribute value
      * @param provision external resource
      * @param anyUtils any util

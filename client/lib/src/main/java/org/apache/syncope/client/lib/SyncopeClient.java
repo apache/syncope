@@ -113,7 +113,7 @@ public class SyncopeClient {
      *
      * @return default instance of {@link AnyListQueryBuilder}
      */
-    public static AnyListQueryBuilder getSubjectListQueryBuilder() {
+    public static AnyListQueryBuilder getAnyListQueryBuilder() {
         return new AnyListQueryBuilder();
     }
 
@@ -124,7 +124,7 @@ public class SyncopeClient {
      *
      * @return default instance of {@link AnySearchQueryBuilder}
      */
-    public static AnySearchQueryBuilder getSubjectSearchQueryBuilder() {
+    public static AnySearchQueryBuilder getAnySearchQueryBuilder() {
         return new AnySearchQueryBuilder();
     }
 

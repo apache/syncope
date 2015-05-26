@@ -198,7 +198,7 @@ public class AuthenticationITCase extends AbstractITCase {
                 getService(UserService.class);
 
         PagedResult<UserTO> matchedUsers = userService2.search(
-                SyncopeClient.getSubjectSearchQueryBuilder().realm(SyncopeConstants.ROOT_REALM).
+                SyncopeClient.getAnySearchQueryBuilder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().isNotNull("key").query()).build());
         assertNotNull(matchedUsers);
         assertFalse(matchedUsers.getResult().isEmpty());
@@ -217,7 +217,7 @@ public class AuthenticationITCase extends AbstractITCase {
         UserService userService3 = clientFactory.create("puccini", ADMIN_PWD).getService(UserService.class);
 
         matchedUsers = userService3.search(
-                SyncopeClient.getSubjectSearchQueryBuilder().realm("/even/two").
+                SyncopeClient.getAnySearchQueryBuilder().realm("/even/two").
                 fiql(SyncopeClient.getUserSearchConditionBuilder().isNotNull("loginDate").query()).build());
         assertNotNull(matchedUsers);
         assertTrue(matchedUsers.getResult().isEmpty());

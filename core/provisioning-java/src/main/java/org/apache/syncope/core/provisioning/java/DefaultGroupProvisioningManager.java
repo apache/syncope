@@ -66,16 +66,16 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
     protected GroupDAO groupDAO;
 
     @Override
-    public Pair<Long, List<PropagationStatus>> create(final GroupTO subject) {
-        return create(subject, Collections.<String>emptySet());
+    public Pair<Long, List<PropagationStatus>> create(final GroupTO any) {
+        return create(any, Collections.<String>emptySet());
     }
 
     @Override
-    public Pair<Long, List<PropagationStatus>> create(final GroupTO subject, final Set<String> excludedResources) {
-        WorkflowResult<Long> created = gwfAdapter.create(subject);
+    public Pair<Long, List<PropagationStatus>> create(final GroupTO any, final Set<String> excludedResources) {
+        WorkflowResult<Long> created = gwfAdapter.create(any);
 
         List<PropagationTask> tasks =
-                propagationManager.getGroupCreateTasks(created, subject.getVirAttrs(), excludedResources);
+                propagationManager.getGroupCreateTasks(created, any.getVirAttrs(), excludedResources);
         PropagationReporter propagationReporter = ApplicationContextProvider.getApplicationContext().getBean(
                 PropagationReporter.class);
         try {
@@ -107,18 +107,18 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
     }
 
     @Override
-    public Pair<Long, List<PropagationStatus>> update(final GroupMod subjectMod) {
-        return update(subjectMod, Collections.<String>emptySet());
+    public Pair<Long, List<PropagationStatus>> update(final GroupMod anyMod) {
+        return update(anyMod, Collections.<String>emptySet());
     }
 
     @Override
     public Pair<Long, List<PropagationStatus>> update(
-            final GroupMod subjectMod, final Set<String> excludedResources) {
+            final GroupMod anyMod, final Set<String> excludedResources) {
 
-        WorkflowResult<Long> updated = gwfAdapter.update(subjectMod);
+        WorkflowResult<Long> updated = gwfAdapter.update(anyMod);
 
         List<PropagationTask> tasks = propagationManager.getGroupUpdateTasks(updated,
-                subjectMod.getVirAttrsToRemove(), subjectMod.getVirAttrsToUpdate(), null);
+                anyMod.getVirAttrsToRemove(), anyMod.getVirAttrsToUpdate(), null);
         PropagationReporter propagationReporter =
                 ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
         try {
@@ -134,10 +134,10 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
     }
 
     @Override
-    public List<PropagationStatus> delete(final Long subjectKey) {
+    public List<PropagationStatus> delete(final Long anyKey) {
         final List<PropagationTask> tasks = new ArrayList<>();
 
-        Group group = groupDAO.authFind(subjectKey);
+        Group group = groupDAO.authFind(anyKey);
         if (group != null) {
             // Generate propagation tasks for deleting users from group resources, if they are on those resources only
             // because of the reason being deleted (see SYNCOPE-357)
@@ -163,7 +163,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
         }
 
         try {
-            gwfAdapter.delete(subjectKey);
+            gwfAdapter.delete(anyKey);
         } catch (RuntimeException e) {
             throw e;
         }
@@ -172,8 +172,8 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
     }
 
     @Override
-    public Long unlink(final GroupMod subjectMod) {
-        WorkflowResult<Long> updated = gwfAdapter.update(subjectMod);
+    public Long unlink(final GroupMod anyMod) {
+        WorkflowResult<Long> updated = gwfAdapter.update(anyMod);
         return updated.getResult();
     }
 
@@ -197,8 +197,8 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
     }
 
     @Override
-    public Long link(final GroupMod subjectMod) {
-        return gwfAdapter.update(subjectMod).getResult();
+    public Long link(final GroupMod anyMod) {
+        return gwfAdapter.update(anyMod).getResult();
     }
 
 }

@@ -531,7 +531,7 @@ public class UserITCase extends AbstractITCase {
     @Test
     public void list() {
         PagedResult<UserTO> users = userService.list(
-                SyncopeClient.getSubjectListQueryBuilder().realm(SyncopeConstants.ROOT_REALM).build());
+                SyncopeClient.getAnyListQueryBuilder().realm(SyncopeConstants.ROOT_REALM).build());
         assertNotNull(users);
         assertFalse(users.getResult().isEmpty());
 
@@ -543,7 +543,7 @@ public class UserITCase extends AbstractITCase {
     @Test
     public void paginatedList() {
         PagedResult<UserTO> users = userService.list(
-                SyncopeClient.getSubjectListQueryBuilder().realm(SyncopeConstants.ROOT_REALM).page(1).size(2).build());
+                SyncopeClient.getAnyListQueryBuilder().realm(SyncopeConstants.ROOT_REALM).page(1).size(2).build());
         assertNotNull(users);
         assertFalse(users.getResult().isEmpty());
         assertEquals(2, users.getResult().size());
@@ -552,13 +552,13 @@ public class UserITCase extends AbstractITCase {
             assertNotNull(user);
         }
 
-        users = userService.list(SyncopeClient.getSubjectListQueryBuilder().realm(SyncopeConstants.ROOT_REALM).
+        users = userService.list(SyncopeClient.getAnyListQueryBuilder().realm(SyncopeConstants.ROOT_REALM).
                 page(2).size(2).build());
         assertNotNull(users);
         assertEquals(2, users.getPage());
         assertEquals(2, users.getResult().size());
 
-        users = userService.list(SyncopeClient.getSubjectListQueryBuilder().realm(SyncopeConstants.ROOT_REALM).
+        users = userService.list(SyncopeClient.getAnyListQueryBuilder().realm(SyncopeConstants.ROOT_REALM).
                 page(100).size(2).build());
         assertNotNull(users);
         assertTrue(users.getResult().isEmpty());

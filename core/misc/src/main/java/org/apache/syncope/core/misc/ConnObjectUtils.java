@@ -540,7 +540,7 @@ public class ConnObjectUtils {
                                     : MappingUtils.getConnObjectKeyValue(any, provision);
 
                             if (StringUtils.isBlank(connObjectKey)) {
-                                throw new IllegalArgumentException("No AccountId found for " + resource.getKey());
+                                throw new IllegalArgumentException("No ConnObjectKey found for " + resource.getKey());
                             }
 
                             Connector connector = connFactory.getConnector(resource);

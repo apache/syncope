@@ -32,10 +32,10 @@ public class ConnObjectWrapper implements Serializable {
 
     private final ConnObjectTO connObjectTO;
 
-    public ConnObjectWrapper(final AnyTO attributable, final String resourceName,
+    public ConnObjectWrapper(final AnyTO any, final String resourceName,
             final ConnObjectTO connObjectTO) {
 
-        this.any = attributable;
+        this.any = any;
         this.resourceName = resourceName;
         this.connObjectTO = connObjectTO;
     }

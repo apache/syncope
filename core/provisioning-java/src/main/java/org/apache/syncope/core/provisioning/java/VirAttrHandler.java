@@ -138,7 +138,7 @@ public class VirAttrHandler {
 
                             // Using virtual attribute as ConnObjectKey must be avoided
                             if (mapItem.isConnObjectKey() && virAttr != null && !virAttr.getValues().isEmpty()) {
-                                propByRes.addOldAccountId(resource.getKey(), virAttr.getValues().get(0).toString());
+                                propByRes.addOldConnObjectKey(resource.getKey(), virAttr.getValues().get(0).toString());
                             }
                         }
                     }

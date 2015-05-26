@@ -113,8 +113,8 @@ public class UserPushResultHandlerImpl extends AbstractPushResultHandler impleme
     }
 
     @Override
-    protected String getName(final Any<?, ?, ?> subject) {
-        return User.class.cast(subject).getUsername();
+    protected String getName(final Any<?, ?, ?> any) {
+        return User.class.cast(any).getUsername();
     }
 
     @Override

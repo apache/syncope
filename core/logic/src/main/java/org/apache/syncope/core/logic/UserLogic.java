@@ -199,7 +199,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserMod> {
     }
 
     protected UserTO doCreate(final UserTO userTO, final boolean storePassword) {
-        // Attributable transformation (if configured)
+        // Any transformation (if configured)
         UserTO actual = anyTransformer.transform(userTO);
         LOG.debug("Transformed: {}", actual);
 
@@ -224,7 +224,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserMod> {
     @PreAuthorize("hasRole('" + Entitlement.USER_UPDATE + "')")
     @Override
     public UserTO update(final UserMod userMod) {
-        // AttributableMod transformation (if configured)
+        // Any transformation (if configured)
         UserMod actual = anyTransformer.transform(userMod);
         LOG.debug("Transformed: {}", actual);
 

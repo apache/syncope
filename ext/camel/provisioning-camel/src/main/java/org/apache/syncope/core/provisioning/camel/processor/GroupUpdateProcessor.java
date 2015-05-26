@@ -51,11 +51,11 @@ public class GroupUpdateProcessor implements Processor {
     @Override
     public void process(final Exchange exchange) {
         WorkflowResult<Long> updated = (WorkflowResult) exchange.getIn().getBody();
-        GroupMod subjectMod = exchange.getProperty("subjectMod", GroupMod.class);
+        GroupMod anyMod = exchange.getProperty("anyMod", GroupMod.class);
         Set<String> excludedResources = exchange.getProperty("excludedResources", Set.class);
 
         List<PropagationTask> tasks = propagationManager.getGroupUpdateTasks(updated,
-                subjectMod.getVirAttrsToRemove(), subjectMod.getVirAttrsToUpdate(), excludedResources);
+                anyMod.getVirAttrsToRemove(), anyMod.getVirAttrsToUpdate(), excludedResources);
         PropagationReporter propagationReporter =
                 ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
         try {

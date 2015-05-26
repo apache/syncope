@@ -353,7 +353,7 @@ abstract class AbstractAnyDataBinder {
                             propByRes.add(ResourceOperation.UPDATE, resource.getKey());
 
                             if (mapItem.isConnObjectKey() && attr != null && !attr.getValuesAsStrings().isEmpty()) {
-                                propByRes.addOldAccountId(resource.getKey(), attr.getValuesAsStrings().get(0));
+                                propByRes.addOldConnObjectKey(resource.getKey(), attr.getValuesAsStrings().get(0));
                             }
                         }
                     }
@@ -451,7 +451,7 @@ abstract class AbstractAnyDataBinder {
                             if (mapItem.isConnObjectKey() && derAttr != null
                                     && !derAttr.getValue(any.getPlainAttrs()).isEmpty()) {
 
-                                propByRes.addOldAccountId(resource.getKey(),
+                                propByRes.addOldConnObjectKey(resource.getKey(),
                                         derAttr.getValue(any.getPlainAttrs()));
                             }
                         }

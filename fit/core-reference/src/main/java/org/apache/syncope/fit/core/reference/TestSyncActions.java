@@ -39,12 +39,12 @@ public class TestSyncActions extends DefaultSyncActions {
 
     @Override
     public <T extends AnyTO> SyncDelta beforeProvision(
-            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final T subject)
+            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final T any)
             throws JobExecutionException {
 
         AttrTO attrTO = null;
-        for (int i = 0; i < subject.getPlainAttrs().size(); i++) {
-            AttrTO plainAttr = CollectionUtils.get(subject.getPlainAttrs(), i);
+        for (int i = 0; i < any.getPlainAttrs().size(); i++) {
+            AttrTO plainAttr = CollectionUtils.get(any.getPlainAttrs(), i);
             if ("fullname".equals(plainAttr.getSchema())) {
                 attrTO = plainAttr;
             }
@@ -52,7 +52,7 @@ public class TestSyncActions extends DefaultSyncActions {
         if (attrTO == null) {
             attrTO = new AttrTO();
             attrTO.setSchema("fullname");
-            subject.getPlainAttrs().add(attrTO);
+            any.getPlainAttrs().add(attrTO);
         }
         attrTO.getValues().clear();
         attrTO.getValues().add(String.valueOf(counter++));
@@ -62,10 +62,10 @@ public class TestSyncActions extends DefaultSyncActions {
 
     @Override
     public <T extends AnyTO> SyncDelta beforeAssign(
-            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final T subject)
+            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final T any)
             throws JobExecutionException {
 
-        if (subject instanceof UserTO && "test2".equals(UserTO.class.cast(subject).getUsername())) {
+        if (any instanceof UserTO && "test2".equals(UserTO.class.cast(any).getUsername())) {
             throw new IgnoreProvisionException();
         }
 
@@ -76,13 +76,13 @@ public class TestSyncActions extends DefaultSyncActions {
     public <T extends AnyTO, K extends AnyMod> SyncDelta beforeUpdate(
             final ProvisioningProfile<?, ?> profile,
             final SyncDelta delta,
-            final T subject,
-            final K subjectMod) throws JobExecutionException {
+            final T any,
+            final K anyMod) throws JobExecutionException {
 
-        subjectMod.getPlainAttrsToRemove().add("fullname");
+        anyMod.getPlainAttrsToRemove().add("fullname");
 
         AttrMod fullnameMod = null;
-        for (AttrMod attrMod : subjectMod.getPlainAttrsToUpdate()) {
+        for (AttrMod attrMod : anyMod.getPlainAttrsToUpdate()) {
             if ("fullname".equals(attrMod.getSchema())) {
                 fullnameMod = attrMod;
             }
@@ -90,7 +90,7 @@ public class TestSyncActions extends DefaultSyncActions {
         if (fullnameMod == null) {
             fullnameMod = new AttrMod();
             fullnameMod.setSchema("fullname");
-            subjectMod.getPlainAttrsToUpdate().add(fullnameMod);
+            anyMod.getPlainAttrsToUpdate().add(fullnameMod);
         }
 
         fullnameMod.getValuesToBeAdded().clear();

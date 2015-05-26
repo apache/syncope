@@ -37,7 +37,7 @@ public class StatusBean implements Serializable {
 
     private final String resourceName;
 
-    private String accountLink = null;
+    private String connObjectLink = null;
 
     private Status status = Status.OBJECT_NOT_FOUND;
 
@@ -50,12 +50,12 @@ public class StatusBean implements Serializable {
         this.resourceName = resourceName;
     }
 
-    public String getAccountLink() {
-        return accountLink;
+    public String getConnObjectLink() {
+        return connObjectLink;
     }
 
-    public void setAccountLink(final String accountLink) {
-        this.accountLink = accountLink;
+    public void setConnObjectLink(final String connObjectLink) {
+        this.connObjectLink = connObjectLink;
     }
 
     public String getResourceName() {

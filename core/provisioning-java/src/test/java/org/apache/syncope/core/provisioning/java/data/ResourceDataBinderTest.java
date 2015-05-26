@@ -92,7 +92,7 @@ public class ResourceDataBinderTest extends AbstractTest {
         item.setIntAttrName("userId");
         item.setIntMappingType(IntMappingType.UserPlainSchema);
         item.setExtAttrName("campo1");
-        item.setAccountid(true);
+        item.setConnObjectKey(true);
         item.setMandatoryCondition("false");
         item.setPurpose(MappingPurpose.BOTH);
         mapping.setConnObjectKeyItem(item);

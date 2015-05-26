@@ -71,7 +71,7 @@ public abstract class AbstractAnyLogic<T extends AnyTO, V extends AnyMod>
 
     public abstract int count(List<String> realms);
 
-    public abstract T update(V attributableMod);
+    public abstract T update(V anyMod);
 
     public abstract T delete(Long key);
 

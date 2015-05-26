@@ -82,8 +82,8 @@ public class ExternalResourceValidator extends AbstractValidator<ExternalResourc
         MappingItem connObjectKey = mapping.getConnObjectKeyItem();
         if (connObjectKey.getIntMappingType().getAnyTypeKind() != anyType.getKind()) {
             context.buildConstraintViolationWithTemplate(
-                    getTemplate(EntityViolationType.InvalidMapping, "ConnObjectKey must be from the same AnyType")).
-                    addPropertyNode("attributableType").addConstraintViolation();
+                    getTemplate(EntityViolationType.InvalidMapping, "ConnObjectKey must be from the same AnyTypeKind")).
+                    addPropertyNode("anyTypeKind").addConstraintViolation();
             return false;
         }
 

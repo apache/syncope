@@ -126,7 +126,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
 
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
 
-        // fetch account ids before update
+        // fetch connObjectKeys before update
         Map<String, String> oldConnObjectKeys = getConnObjectKeys(group);
 
         // realm
@@ -153,13 +153,13 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
         // attributes, derived attributes, virtual attributes and resources
         propByRes.merge(fill(group, groupMod, anyUtilsFactory.getInstance(AnyTypeKind.GROUP), scce));
 
-        // check if some account id was changed by the update above
+        // check if some connObjectKey was changed by the update above
         Map<String, String> newConnObjectKeys = getConnObjectKeys(group);
         for (Map.Entry<String, String> entry : oldConnObjectKeys.entrySet()) {
             if (newConnObjectKeys.containsKey(entry.getKey())
                     && !entry.getValue().equals(newConnObjectKeys.get(entry.getKey()))) {
 
-                propByRes.addOldAccountId(entry.getKey(), entry.getValue());
+                propByRes.addOldConnObjectKey(entry.getKey(), entry.getValue());
                 propByRes.add(ResourceOperation.UPDATE, entry.getKey());
             }
         }

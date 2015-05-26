@@ -21,7 +21,7 @@ under the License.
      
   <route id="createGroup">
     <from uri="direct:createGroup"/>
-    <setProperty propertyName="subject">
+    <setProperty propertyName="any">
       <simple>${body}</simple>
     </setProperty>
     <doTry>
@@ -40,7 +40,7 @@ under the License.
                
   <route id="createGroupSync">
     <from uri="direct:createGroupInSync"/>
-    <setProperty propertyName="subject">
+    <setProperty propertyName="any">
       <simple>${body}</simple>
     </setProperty>
     <doTry>
@@ -59,7 +59,7 @@ under the License.
          
   <route id="updateGroup">
     <from uri="direct:updateGroup"/>
-    <setProperty propertyName="subjectMod">
+    <setProperty propertyName="anyMod">
       <simple>${body}</simple>
     </setProperty>
     <doTry>

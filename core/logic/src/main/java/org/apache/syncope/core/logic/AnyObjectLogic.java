@@ -161,7 +161,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectMod> 
             throw new UnauthorizedException(AnyTypeKind.ANY_OBJECT, null);
         }
 
-        // Attributable transformation (if configured)
+        // Any transformation (if configured)
         AnyObjectTO actual = attrTransformer.transform(anyObjectTO);
         LOG.debug("Transformed: {}", actual);
 
@@ -188,7 +188,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectMod> 
             throw new UnauthorizedException(AnyTypeKind.ANY_OBJECT, anyObject.getKey());
         }
 
-        // Attribute value transformation (if configured)
+        // Any transformation (if configured)
         AnyObjectMod actual = attrTransformer.transform(anyObjectMod);
         LOG.debug("Transformed: {}", actual);
 

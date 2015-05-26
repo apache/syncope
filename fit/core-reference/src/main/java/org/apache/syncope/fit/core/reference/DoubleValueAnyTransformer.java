@@ -29,7 +29,7 @@ import org.apache.syncope.core.provisioning.api.AnyTransformer;
 /**
  * Class for integration tests: transform (by making it double) any attribute value for defined schema.
  */
-public class DoubleValueAttributableTransformer implements AnyTransformer {
+public class DoubleValueAnyTransformer implements AnyTransformer {
 
     private static final String NAME = "makeItDouble";
 

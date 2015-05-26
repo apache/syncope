@@ -467,7 +467,7 @@ public class PropagationManagerImpl implements PropagationManager {
                     }
                     task.setPropagationOperation(operation);
                     task.setPropagationMode(resource.getPropagationMode());
-                    task.setOldConnObjectKey(propByRes.getOldAccountId(resource.getKey()));
+                    task.setOldConnObjectKey(propByRes.getOldConnObjectKey(resource.getKey()));
 
                     Pair<String, Set<Attribute>> preparedAttrs = MappingUtils.prepareAttributes(anyUtils, any,
                             password, changePwd, vAttrsToBeRemoved, vAttrsToBeUpdated, enable, provision);

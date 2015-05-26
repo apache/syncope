@@ -56,10 +56,10 @@ public class LDAPPasswordSyncActions extends DefaultSyncActions {
     public <T extends AnyTO> SyncDelta beforeProvision(
             final ProvisioningProfile<?, ?> profile,
             final SyncDelta delta,
-            final T subject) throws JobExecutionException {
+            final T any) throws JobExecutionException {
 
-        if (subject instanceof UserTO) {
-            String password = ((UserTO) subject).getPassword();
+        if (any instanceof UserTO) {
+            String password = ((UserTO) any).getPassword();
             parseEncodedPassword(password);
         }
 
@@ -71,11 +71,11 @@ public class LDAPPasswordSyncActions extends DefaultSyncActions {
     public <T extends AnyTO, K extends AnyMod> SyncDelta beforeUpdate(
             final ProvisioningProfile<?, ?> profile,
             final SyncDelta delta,
-            final T subject,
-            final K subjectMod) throws JobExecutionException {
+            final T any,
+            final K anyMod) throws JobExecutionException {
 
-        if (subjectMod instanceof UserMod) {
-            String modPassword = ((UserMod) subjectMod).getPassword();
+        if (anyMod instanceof UserMod) {
+            String modPassword = ((UserMod) anyMod).getPassword();
             parseEncodedPassword(modPassword);
         }
 
@@ -104,11 +104,11 @@ public class LDAPPasswordSyncActions extends DefaultSyncActions {
     public <T extends AnyTO> void after(
             final ProvisioningProfile<?, ?> profile,
             final SyncDelta delta,
-            final T subject,
+            final T any,
             final ProvisioningResult result) throws JobExecutionException {
 
-        if (subject instanceof UserTO && encodedPassword != null && cipher != null) {
-            User syncopeUser = userDAO.find(subject.getKey());
+        if (any instanceof UserTO && encodedPassword != null && cipher != null) {
+            User syncopeUser = userDAO.find(any.getKey());
             if (syncopeUser != null) {
                 byte[] encodedPasswordBytes = Base64.decode(encodedPassword.getBytes());
                 char[] encodedHex = Hex.encode(encodedPasswordBytes);

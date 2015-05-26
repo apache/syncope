@@ -178,7 +178,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupMod> {
             throw new UnauthorizedException(AnyTypeKind.GROUP, null);
         }
 
-        // Attributable transformation (if configured)
+        // Any transformation (if configured)
         GroupTO actual = attrTransformer.transform(groupTO);
         LOG.debug("Transformed: {}", actual);
 
@@ -205,7 +205,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupMod> {
             throw new UnauthorizedException(AnyTypeKind.GROUP, group.getKey());
         }
 
-        // Attribute value transformation (if configured)
+        // Any transformation (if configured)
         GroupMod actual = attrTransformer.transform(groupMod);
         LOG.debug("Transformed: {}", actual);
 

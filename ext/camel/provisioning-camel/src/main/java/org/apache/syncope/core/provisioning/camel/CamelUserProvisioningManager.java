@@ -214,10 +214,10 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
     }
 
     @Override
-    public Long link(final UserMod subjectMod) {
+    public Long link(final UserMod anyMod) {
         PollingConsumer pollingConsumer = getConsumer("direct:linkPort");
 
-        sendMessage("direct:linkUser", subjectMod);
+        sendMessage("direct:linkUser", anyMod);
 
         Exchange exchange = pollingConsumer.receive();
 

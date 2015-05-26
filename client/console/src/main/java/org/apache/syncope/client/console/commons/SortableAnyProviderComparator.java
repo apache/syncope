@@ -29,14 +29,14 @@ import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 
-public class SortableAttributableProviderComparator extends SortableDataProviderComparator<AnyTO> {
+public class SortableAnyProviderComparator extends SortableDataProviderComparator<AnyTO> {
 
     private static final long serialVersionUID = 1775967163571699258L;
 
     private static final Set<String> INLINE_PROPS = new HashSet<>(Arrays.asList(
             new String[] { "key", "status", "token", "username" }));
 
-    public SortableAttributableProviderComparator(final SortableDataProvider<AnyTO, String> provider) {
+    public SortableAnyProviderComparator(final SortableDataProvider<AnyTO, String> provider) {
         super(provider);
     }
 

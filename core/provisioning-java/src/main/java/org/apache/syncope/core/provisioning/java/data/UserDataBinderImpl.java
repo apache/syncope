@@ -213,7 +213,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
         Collection<String> currentResources = userDAO.findAllResourceNames(user);
 
-        // fetch account ids before update
+        // fetch connObjectKeys before update
         Map<String, String> oldConnObjectKeys = getConnObjectKeys(user);
 
         // realm
@@ -336,13 +336,13 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             propByRes.addAll(ResourceOperation.UPDATE, currentResources);
         }
 
-        // check if some account id was changed by the update above
-        Map<String, String> newAccountIds = getConnObjectKeys(user);
+        // check if some connObjectKey was changed by the update above
+        Map<String, String> newcCnnObjectKeys = getConnObjectKeys(user);
         for (Map.Entry<String, String> entry : oldConnObjectKeys.entrySet()) {
-            if (newAccountIds.containsKey(entry.getKey())
-                    && !entry.getValue().equals(newAccountIds.get(entry.getKey()))) {
+            if (newcCnnObjectKeys.containsKey(entry.getKey())
+                    && !entry.getValue().equals(newcCnnObjectKeys.get(entry.getKey()))) {
 
-                propByRes.addOldAccountId(entry.getKey(), entry.getValue());
+                propByRes.addOldConnObjectKey(entry.getKey(), entry.getValue());
                 propByRes.add(ResourceOperation.UPDATE, entry.getKey());
             }
         }

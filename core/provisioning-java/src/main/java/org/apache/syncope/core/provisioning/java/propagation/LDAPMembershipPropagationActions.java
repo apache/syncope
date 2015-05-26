@@ -76,31 +76,31 @@ public class LDAPMembershipPropagationActions extends DefaultPropagationActions 
         if (AnyTypeKind.USER == task.getAnyTypeKind() && provision.getMapping() != null) {
             User user = userDAO.find(task.getAnyKey());
             if (user != null) {
-                List<String> groupAccountLinks = new ArrayList<>();
+                List<String> groupConnObjectLinks = new ArrayList<>();
                 for (Group group : userDAO.findAllGroups(user)) {
                     if (group.getResourceNames().contains(task.getResource().getKey())
                             && StringUtils.isNotBlank(provision.getMapping().getConnObjectLink())) {
 
-                        LOG.debug("Evaluating accountLink for {}", group);
+                        LOG.debug("Evaluating connObjectLink for {}", group);
 
                         JexlContext jexlContext = new MapContext();
                         JexlUtils.addFieldsToContext(group, jexlContext);
                         JexlUtils.addAttrsToContext(group.getPlainAttrs(), jexlContext);
                         JexlUtils.addDerAttrsToContext(group.getDerAttrs(), group.getPlainAttrs(), jexlContext);
 
-                        String groupAccountLink =
+                        String groupConnObjectLinkLink =
                                 JexlUtils.evaluate(provision.getMapping().getConnObjectLink(), jexlContext);
-                        LOG.debug("AccountLink for {} is '{}'", group, groupAccountLink);
-                        if (StringUtils.isNotBlank(groupAccountLink)) {
-                            groupAccountLinks.add(groupAccountLink);
+                        LOG.debug("ConnObjectLink for {} is '{}'", group, groupConnObjectLinkLink);
+                        if (StringUtils.isNotBlank(groupConnObjectLinkLink)) {
+                            groupConnObjectLinks.add(groupConnObjectLinkLink);
                         }
                     }
                 }
-                LOG.debug("Group accountLinks to propagate for membership: {}", groupAccountLinks);
+                LOG.debug("Group connObjectLinks to propagate for membership: {}", groupConnObjectLinks);
 
                 Set<Attribute> attributes = new HashSet<>(task.getAttributes());
 
-                Set<String> groups = new HashSet<>(groupAccountLinks);
+                Set<String> groups = new HashSet<>(groupConnObjectLinks);
                 Attribute ldapGroups = AttributeUtil.find(getGroupMembershipAttrName(), attributes);
 
                 if (ldapGroups != null) {

@@ -51,7 +51,7 @@ public class MappingItemTO extends AbstractBaseBean {
     /**
      * Specify if the mapped target resource's field is the key.
      */
-    private boolean accountid;
+    private boolean connObjectKey;
 
     /**
      * Specify if the mapped target resource's field is the password.
@@ -68,12 +68,12 @@ public class MappingItemTO extends AbstractBaseBean {
      */
     private MappingPurpose purpose;
 
-    public boolean isAccountid() {
-        return accountid;
+    public boolean isConnObjectKey() {
+        return connObjectKey;
     }
 
-    public void setAccountid(final boolean accountid) {
-        this.accountid = accountid;
+    public void setConnObjectKey(final boolean connObjectKey) {
+        this.connObjectKey = connObjectKey;
     }
 
     public String getExtAttrName() {

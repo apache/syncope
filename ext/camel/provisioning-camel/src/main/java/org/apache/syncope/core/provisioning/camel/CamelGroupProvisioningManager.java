@@ -36,8 +36,8 @@ public class CamelGroupProvisioningManager
         extends AbstractCamelProvisioningManager implements GroupProvisioningManager {
 
     @Override
-    public Pair<Long, List<PropagationStatus>> create(final GroupTO subject) {
-        return create(subject, Collections.<String>emptySet());
+    public Pair<Long, List<PropagationStatus>> create(final GroupTO any) {
+        return create(any, Collections.<String>emptySet());
     }
 
     @Override
@@ -82,21 +82,21 @@ public class CamelGroupProvisioningManager
     }
 
     @Override
-    public Pair<Long, List<PropagationStatus>> update(final GroupMod subjectMod) {
-        return update(subjectMod, Collections.<String>emptySet());
+    public Pair<Long, List<PropagationStatus>> update(final GroupMod anyMod) {
+        return update(anyMod, Collections.<String>emptySet());
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public Pair<Long, List<PropagationStatus>> update(
-            final GroupMod subjectMod, final Set<String> excludedResources) {
+            final GroupMod anyMod, final Set<String> excludedResources) {
 
         PollingConsumer pollingConsumer = getConsumer("direct:updateGroupPort");
 
         Map<String, Object> props = new HashMap<>();
         props.put("excludedResources", excludedResources);
 
-        sendMessage("direct:updateGroup", subjectMod, props);
+        sendMessage("direct:updateGroup", anyMod, props);
 
         Exchange exchange = pollingConsumer.receive();
 

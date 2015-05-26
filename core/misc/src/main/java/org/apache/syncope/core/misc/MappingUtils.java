@@ -127,7 +127,7 @@ public final class MappingUtils {
      * @param vAttrsToBeUpdated virtual attributes to be added
      * @param enable whether any object must be enabled or not
      * @param provision provision information
-     * @return account link + prepared attributes
+     * @return connObjectLink + prepared attributes
      */
     public static Pair<String, Set<Attribute>> prepareAttributes(
             final AnyUtils anyUtils, final Any<?, ?, ?> any,
@@ -186,10 +186,10 @@ public final class MappingUtils {
             }
         }
 
-        final Attribute accountIdExtAttr =
+        Attribute connObjectKeyExtAttr =
                 AttributeUtil.find(anyUtils.getConnObjectKeyItem(provision).getExtAttrName(), attributes);
-        if (accountIdExtAttr != null) {
-            attributes.remove(accountIdExtAttr);
+        if (connObjectKeyExtAttr != null) {
+            attributes.remove(connObjectKeyExtAttr);
             attributes.add(AttributeBuilder.build(
                     anyUtils.getConnObjectKeyItem(provision).getExtAttrName(), connObjectKey));
         }
@@ -218,7 +218,7 @@ public final class MappingUtils {
      * @param passwordGenerator password generator
      * @param vAttrsToBeRemoved virtual attributes to be removed
      * @param vAttrsToBeUpdated virtual attributes to be added
-     * @return account link + prepared attribute
+     * @return connObjectLink + prepared attribute
      */
     @SuppressWarnings("unchecked")
     private static Pair<String, Attribute> prepareAttr(
@@ -294,7 +294,7 @@ public final class MappingUtils {
 
         LOG.debug("Define mapping for: "
                 + "\n* ExtAttrName " + extAttrName
-                + "\n* is accountId " + mapItem.isConnObjectKey()
+                + "\n* is connObjectKey " + mapItem.isConnObjectKey()
                 + "\n* is password " + (mapItem.isPassword() || mapItem.getIntMappingType() == IntMappingType.Password)
                 + "\n* mandatory condition " + mapItem.getMandatoryCondition()
                 + "\n* Schema " + mapItem.getIntAttrName()
@@ -364,8 +364,8 @@ public final class MappingUtils {
     }
 
     /**
-     * Build __NAME__ for propagation. First look if there ia a defined accountLink for the given resource (and in this
-     * case evaluate as JEXL); otherwise, take given accountId.
+     * Build __NAME__ for propagation. First look if there ia a defined connObjectLink for the given resource (and in
+     * this case evaluate as JEXL); otherwise, take given connObjectKey.
      *
      * @param any given any object
      * @param provision external resource
@@ -384,29 +384,29 @@ public final class MappingUtils {
             LOG.error("Missing ConnObjectKey for '{}': ", provision.getResource());
         }
 
-        // Evaluate AccountLink expression
-        String evalAccountLink = null;
+        // Evaluate connObjectKey expression
+        String evalConnObjectLink = null;
         if (StringUtils.isNotBlank(anyUtils.getConnObjectLink(provision))) {
             final JexlContext jexlContext = new MapContext();
             JexlUtils.addFieldsToContext(any, jexlContext);
             JexlUtils.addAttrsToContext(any.getPlainAttrs(), jexlContext);
             JexlUtils.addDerAttrsToContext(any.getDerAttrs(), any.getPlainAttrs(), jexlContext);
-            evalAccountLink = JexlUtils.evaluate(anyUtils.getConnObjectLink(provision), jexlContext);
+            evalConnObjectLink = JexlUtils.evaluate(anyUtils.getConnObjectLink(provision), jexlContext);
         }
 
-        // If AccountLink evaluates to an empty string, just use the provided AccountId as Name(),
-        // otherwise evaluated AccountLink expression is taken as Name().
+        // If connObjectLink evaluates to an empty string, just use the provided connObjectKey as Name(),
+        // otherwise evaluated connObjectLink expression is taken as Name().
         Name name;
-        if (StringUtils.isBlank(evalAccountLink)) {
-            // add AccountId as __NAME__ attribute ...
-            LOG.debug("Add AccountId [{}] as __NAME__", connObjectKey);
+        if (StringUtils.isBlank(evalConnObjectLink)) {
+            // add connObjectKey as __NAME__ attribute ...
+            LOG.debug("Add connObjectKey [{}] as __NAME__", connObjectKey);
             name = new Name(connObjectKey);
         } else {
-            LOG.debug("Add AccountLink [{}] as __NAME__", evalAccountLink);
-            name = new Name(evalAccountLink);
+            LOG.debug("Add connObjectLink [{}] as __NAME__", evalConnObjectLink);
+            name = new Name(evalConnObjectLink);
 
-            // AccountId not propagated: it will be used to set the value for __UID__ attribute
-            LOG.debug("AccountId will be used just as __UID__ attribute");
+            // connObjectKey not propagated: it will be used to set the value for __UID__ attribute
+            LOG.debug("connObjectKey will be used just as __UID__ attribute");
         }
 
         return name;

@@ -111,7 +111,7 @@ public class AnyObjectPushResultHandlerImpl extends AbstractPushResultHandler im
     }
 
     @Override
-    protected String getName(final Any<?, ?, ?> subject) {
+    protected String getName(final Any<?, ?, ?> any) {
         return StringUtils.EMPTY;
     }
 

@@ -29,8 +29,7 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 /**
  * Mirror REST resource for obtaining user workflow definition in JSON (used by Activiti Modeler).
  *
- * @see org.apache.syncope.common.rest.api.service.WorkflowService#exportDefinition(
- * org.apache.syncope.common.types.SubjectType)
+ * @see org.apache.syncope.common.rest.api.service.WorkflowService#exportDefinition
  */
 public class WorkflowDefGETResource extends AbstractResource {
 

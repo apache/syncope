@@ -291,7 +291,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
             item.setIntMappingType(IntMappingType.GroupPlainSchema);
             item.setExtAttrName("cn");
             item.setIntAttrName(newPlainSchemaTO.getKey());
-            item.setAccountid(true);
+            item.setConnObjectKey(true);
             item.setPurpose(MappingPurpose.BOTH);
             rmapping.setConnObjectKeyItem(item);
 

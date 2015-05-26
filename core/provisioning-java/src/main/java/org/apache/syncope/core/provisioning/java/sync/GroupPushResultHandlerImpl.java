@@ -110,8 +110,8 @@ public class GroupPushResultHandlerImpl extends AbstractPushResultHandler implem
     }
 
     @Override
-    protected String getName(final Any<?, ?, ?> subject) {
-        return Group.class.cast(subject).getName();
+    protected String getName(final Any<?, ?, ?> any) {
+        return Group.class.cast(any).getName();
     }
 
     @Override

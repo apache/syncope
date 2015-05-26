@@ -59,8 +59,8 @@ public class GroupDeleteProcessor implements Processor {
 
     @Override
     public void process(final Exchange exchange) throws Exception {
-        Long subjectKey = exchange.getIn().getBody(Long.class);
-        Group group = groupDAO.find(subjectKey);
+        Long anyKey = exchange.getIn().getBody(Long.class);
+        Group group = groupDAO.find(anyKey);
 
         final List<PropagationTask> tasks = new ArrayList<>();
 

@@ -246,7 +246,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
             itemTO.setKey(item.getKey());
             BeanUtils.copyProperties(item, itemTO, MAPPINGITEM_IGNORE_PROPERTIES);
 
-            if (itemTO.isAccountid()) {
+            if (itemTO.isConnObjectKey()) {
                 mappingTO.setConnObjectKeyItem(itemTO);
             } else {
                 mappingTO.add(itemTO);

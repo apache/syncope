@@ -82,7 +82,7 @@ public class CamelRouteLoader implements SyncopeLoader {
     }
 
     private boolean loadRoutesFor(final AnyTypeKind anyTypeKind) {
-        final String sql = String.format("SELECT * FROM %s WHERE SUBJECTTYPE = ?", CamelRoute.class.getSimpleName());
+        final String sql = String.format("SELECT * FROM %s WHERE ANYTYPEKIND = ?", CamelRoute.class.getSimpleName());
         final JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
         final List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, new Object[] { anyTypeKind.name() });
         return rows.isEmpty();
@@ -104,7 +104,7 @@ public class CamelRouteLoader implements SyncopeLoader {
 
     private void loadRoutes(final Resource resource, final AnyTypeKind anyTypeKind) {
         if (loadRoutesFor(anyTypeKind)) {
-            String query = String.format("INSERT INTO %s(NAME, SUBJECTTYPE, CONTENT) VALUES (?, ?, ?)",
+            String query = String.format("INSERT INTO %s(NAME, ANYTYPEKIND, CONTENT) VALUES (?, ?, ?)",
                     CamelRoute.class.getSimpleName());
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 

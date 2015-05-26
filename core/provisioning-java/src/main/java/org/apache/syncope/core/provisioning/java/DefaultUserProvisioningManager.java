@@ -143,13 +143,13 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
     }
 
     @Override
-    public List<PropagationStatus> delete(final Long subjectId, final Set<String> excludedResources) {
+    public List<PropagationStatus> delete(final Long anyId, final Set<String> excludedResources) {
         // Note here that we can only notify about "delete", not any other
         // task defined in workflow process definition: this because this
         // information could only be available after uwfAdapter.delete(), which
         // will also effectively remove user from db, thus making virtually
         // impossible by NotificationManager to fetch required user information
-        List<PropagationTask> tasks = propagationManager.getUserDeleteTasks(subjectId, excludedResources);
+        List<PropagationTask> tasks = propagationManager.getUserDeleteTasks(anyId, excludedResources);
 
         PropagationReporter propagationReporter =
                 ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
@@ -161,7 +161,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
         }
 
         try {
-            uwfAdapter.delete(subjectId);
+            uwfAdapter.delete(anyId);
         } catch (PropagationException e) {
             throw e;
         }
@@ -176,8 +176,8 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
     }
 
     @Override
-    public Long link(final UserMod subjectMod) {
-        return uwfAdapter.update(subjectMod).getResult().getKey().getKey();
+    public Long link(final UserMod anyMod) {
+        return uwfAdapter.update(anyMod).getResult().getKey().getKey();
     }
 
     @Override

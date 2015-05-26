@@ -86,7 +86,7 @@ public class ResourceITCase extends AbstractITCase {
         item.setExtAttrName("fullname");
         item.setIntAttrName("cn");
         item.setIntMappingType(IntMappingType.UserPlainSchema);
-        item.setAccountid(false);
+        item.setConnObjectKey(false);
         item.setPurpose(MappingPurpose.BOTH);
         mapping.add(item);
 
@@ -138,7 +138,7 @@ public class ResourceITCase extends AbstractITCase {
         item.setExtAttrName("username");
         item.setIntAttrName("fullname");
         item.setIntMappingType(IntMappingType.UserId);
-        item.setAccountid(true);
+        item.setConnObjectKey(true);
         item.setPurpose(MappingPurpose.BOTH);
         mapping.setConnObjectKeyItem(item);
 
@@ -146,7 +146,7 @@ public class ResourceITCase extends AbstractITCase {
         item.setExtAttrName("fullname");
         item.setIntAttrName("cn");
         item.setIntMappingType(IntMappingType.UserPlainSchema);
-        item.setAccountid(false);
+        item.setConnObjectKey(false);
         item.setPurpose(MappingPurpose.BOTH);
         mapping.add(item);
 
@@ -191,7 +191,7 @@ public class ResourceITCase extends AbstractITCase {
         MappingItemTO item = new MappingItemTO();
         item.setIntMappingType(IntMappingType.UserId);
         item.setExtAttrName("userId");
-        item.setAccountid(true);
+        item.setConnObjectKey(true);
         item.setPurpose(MappingPurpose.PROPAGATION);
         mapping.setConnObjectKeyItem(item);
 
@@ -205,7 +205,7 @@ public class ResourceITCase extends AbstractITCase {
         item = new MappingItemTO();
         item.setIntMappingType(IntMappingType.GroupId);
         item.setExtAttrName("groupId");
-        item.setAccountid(true);
+        item.setConnObjectKey(true);
         item.setPurpose(MappingPurpose.SYNCHRONIZATION);
         mapping.setConnObjectKeyItem(item);
 
@@ -241,7 +241,7 @@ public class ResourceITCase extends AbstractITCase {
         MappingItemTO item = new MappingItemTO();
         item.setIntMappingType(IntMappingType.UserId);
         item.setExtAttrName("userId");
-        item.setAccountid(true);
+        item.setConnObjectKey(true);
         mapping.setConnObjectKeyItem(item);
 
         item = new MappingItemTO();
@@ -277,7 +277,7 @@ public class ResourceITCase extends AbstractITCase {
         MappingItemTO item = new MappingItemTO();
         item.setIntMappingType(IntMappingType.UserId);
         item.setExtAttrName("userId");
-        item.setAccountid(true);
+        item.setConnObjectKey(true);
         mapping.setConnObjectKeyItem(item);
 
         item = new MappingItemTO();
@@ -309,7 +309,7 @@ public class ResourceITCase extends AbstractITCase {
         item.setExtAttrName("userId");
         item.setIntAttrName("userId");
         item.setIntMappingType(IntMappingType.UserPlainSchema);
-        item.setAccountid(true);
+        item.setConnObjectKey(true);
         item.setPurpose(MappingPurpose.BOTH);
         mapping.setConnObjectKeyItem(item);
 
@@ -374,7 +374,7 @@ public class ResourceITCase extends AbstractITCase {
         item.setExtAttrName("username");
         item.setIntAttrName("fullname");
         item.setIntMappingType(IntMappingType.UserId);
-        item.setAccountid(true);
+        item.setConnObjectKey(true);
         item.setPurpose(MappingPurpose.BOTH);
         mapping.setConnObjectKeyItem(item);
 
@@ -599,13 +599,13 @@ public class ResourceITCase extends AbstractITCase {
         MappingItemTO item = new MappingItemTO();
         item.setIntMappingType(IntMappingType.UserId);
         item.setExtAttrName("userId");
-        item.setAccountid(true);
+        item.setConnObjectKey(true);
         item.setPurpose(MappingPurpose.PROPAGATION);
         mapping.setConnObjectKeyItem(item);
 
         MappingItemTO item2 = new MappingItemTO();
         item2.setIntMappingType(IntMappingType.UserPlainSchema);
-        item2.setAccountid(false);
+        item2.setConnObjectKey(false);
         item2.setIntAttrName("gender");
         item2.setExtAttrName("gender");
         item2.setPurpose(MappingPurpose.NONE);

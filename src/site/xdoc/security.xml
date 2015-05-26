@@ -63,7 +63,7 @@ under the License.
 
       <subsection name="CVE-2014-0111: Remote code execution by an authenticated administrator">	
         <p>In the various places in which Apache Commons JEXL expressions are allowed (derived schema definition, 
-          user / group templates, account links of resource mappings) a malicious administrator can inject Java code 
+          user / group templates, connObjectLinks of resource mappings) a malicious administrator can inject Java code 
           that can be executed remotely by the JEE container running the Apache Syncope core.</p>
 
         <p>

@@ -56,7 +56,7 @@ public class MemoryVirAttrCache implements VirAttrCache {
      * Cache virtual attribute values.
      *
      * @param type any object type
-     * @param key attributable key
+     * @param key any key
      * @param schemaName virtual attribute name
      * @param value virtual attribute values
      */
@@ -81,7 +81,7 @@ public class MemoryVirAttrCache implements VirAttrCache {
      * Retrieve cached value. Return null in case of virtual attribute not cached.
      *
      * @param type any object type
-     * @param key attributable key
+     * @param key any key
      * @param schemaName virtual attribute schema name.
      * @return cached values or null if virtual attribute is not cached.
      */
@@ -94,7 +94,7 @@ public class MemoryVirAttrCache implements VirAttrCache {
      * Force entry expiring.
      *
      * @param type any object type
-     * @param key attributable key
+     * @param key any key
      * @param schemaName virtual attribute schema name
      */
     @Override
