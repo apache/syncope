@@ -225,6 +225,7 @@ public abstract class AbstractSearchPanel extends Panel {
             }
         } else if (SpecialAttr.RESOURCES.toString().equals(property)) {
             searchClause.setType(SearchClause.Type.RESOURCE);
+            searchClause.setProperty(value);
         } else if (SpecialAttr.ENTITLEMENTS.toString().equals(property)) {
             searchClause.setType(SearchClause.Type.ENTITLEMENT);
         } else {
