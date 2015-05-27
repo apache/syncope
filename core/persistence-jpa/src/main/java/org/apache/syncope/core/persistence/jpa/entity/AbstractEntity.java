@@ -34,9 +34,6 @@ public abstract class AbstractEntity<KEY> implements Entity<KEY> {
 
     private static final long serialVersionUID = -9017214159540857901L;
 
-    /**
-     * Logger.
-     */
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractEntity.class);
 
     protected void checkType(final Object object, final Class<?> clazz) {

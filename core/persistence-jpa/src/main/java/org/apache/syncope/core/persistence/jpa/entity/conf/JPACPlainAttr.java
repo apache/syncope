@@ -31,11 +31,13 @@ import javax.persistence.Table;
 import javax.validation.Valid;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
+import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.conf.Conf;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractPlainAttr;
+import org.apache.syncope.core.persistence.jpa.entity.JPAPlainSchema;
 
 /**
  * Configuration attribute.
@@ -88,6 +90,18 @@ public class JPACPlainAttr extends AbstractPlainAttr<Conf> implements CPlainAttr
     public void setOwner(final Conf owner) {
         checkType(owner, JPAConf.class);
         this.owner = (JPAConf) owner;
+    }
+
+    /**
+     * Explicitly overrides default schema check (used for users, groups and any objects) since Conf does not own any
+     * type reference.
+     *
+     * @param schema schema for this attribute
+     */
+    @Override
+    public void setSchema(final PlainSchema schema) {
+        checkType(schema, JPAPlainSchema.class);
+        this.schema = (JPAPlainSchema) schema;
     }
 
     @Override

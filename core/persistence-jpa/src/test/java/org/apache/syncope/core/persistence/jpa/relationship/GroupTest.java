@@ -35,6 +35,7 @@ import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrValueDAO;
@@ -87,6 +88,9 @@ public class GroupTest extends AbstractTest {
 
     @Autowired
     private PlainAttrValueDAO plainAttrValueDAO;
+
+    @Autowired
+    private AnyTypeClassDAO anyTypeClassDAO;
 
     @Test(expected = InvalidEntityException.class)
     public void saveWithTwoOwners() {
@@ -154,12 +158,13 @@ public class GroupTest extends AbstractTest {
         User user = entityFactory.newEntity(User.class);
         user.setUsername("username");
         user.setRealm(realmDAO.find("/even/two"));
+        user.add(anyTypeClassDAO.find("minimal other"));
 
-        UPlainAttr attribute = entityFactory.newEntity(UPlainAttr.class);
-        attribute.setSchema(plainSchemaDAO.find("cool"));
-        attribute.setOwner(user);
-        attribute.add("true", anyUtilsFactory.getInstance(AnyTypeKind.USER));
-        user.add(attribute);
+        UPlainAttr attr = entityFactory.newEntity(UPlainAttr.class);
+        attr.setOwner(user);
+        attr.setSchema(plainSchemaDAO.find("cool"));
+        attr.add("true", anyUtilsFactory.getInstance(AnyTypeKind.USER));
+        user.add(attr);
 
         user = userDAO.save(user);
         Long newUserKey = user.getKey();
@@ -248,11 +253,11 @@ public class GroupTest extends AbstractTest {
         anyObject.setType(anyTypeDAO.find("OTHER"));
         anyObject.setRealm(realmDAO.find("/even/two"));
 
-        APlainAttr attribute = entityFactory.newEntity(APlainAttr.class);
-        attribute.setSchema(plainSchemaDAO.find("cool"));
-        attribute.setOwner(anyObject);
-        attribute.add("true", anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT));
-        anyObject.add(attribute);
+        APlainAttr attr = entityFactory.newEntity(APlainAttr.class);
+        attr.setOwner(anyObject);
+        attr.setSchema(plainSchemaDAO.find("cool"));
+        attr.add("true", anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT));
+        anyObject.add(attr);
 
         anyObject = anyObjectDAO.save(anyObject);
         Long newAnyObjectKey = anyObject.getKey();

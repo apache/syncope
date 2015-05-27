@@ -28,12 +28,14 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.DerAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrValueDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.user.UDerAttr;
@@ -46,7 +48,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class AttrTest extends AbstractTest {
+public class PlainAttrTest extends AbstractTest {
 
     @Autowired
     private PlainAttrDAO plainAttrDAO;
@@ -65,6 +67,9 @@ public class AttrTest extends AbstractTest {
 
     @Autowired
     private UserDAO userDAO;
+
+    @Autowired
+    private AnyTypeClassDAO anyTypeClassDAO;
 
     @Test
     public void deleteAttribute() {
@@ -97,17 +102,27 @@ public class AttrTest extends AbstractTest {
         user.setPassword("password123", CipherAlgorithm.SHA);
         assertNotNull(user);
 
-        PlainSchema schema = entityFactory.newEntity(PlainSchema.class);
-        schema.setType(AttrSchemaType.Enum);
-        schema.setKey("color");
-        schema.setEnumerationValues("red" + SyncopeConstants.ENUM_VALUES_SEPARATOR + "yellow");
+        AnyTypeClass other = anyTypeClassDAO.find("other");
 
-        PlainSchema actualSchema = plainSchemaDAO.save(schema);
-        assertNotNull(actualSchema);
+        PlainSchema color = entityFactory.newEntity(PlainSchema.class);
+        color.setType(AttrSchemaType.Enum);
+        color.setKey("color");
+        color.setEnumerationValues("red" + SyncopeConstants.ENUM_VALUES_SEPARATOR + "yellow");
+
+        color = plainSchemaDAO.save(color);
+
+        other.add(color);
+        color.setAnyTypeClass(other);
+
+        plainSchemaDAO.flush();
+
+        color = plainSchemaDAO.find("color");
+        assertNotNull("expected save to work", color);
+        assertEquals(other, color.getAnyTypeClass());
 
         UPlainAttr attr = entityFactory.newEntity(UPlainAttr.class);
-        attr.setSchema(actualSchema);
         attr.setOwner(user);
+        attr.setSchema(color);
         attr.add("yellow", anyUtilsFactory.getInstance(AnyTypeKind.USER));
         user.add(attr);
 
@@ -116,23 +131,31 @@ public class AttrTest extends AbstractTest {
 
         user = userDAO.find(1L);
         assertNotNull(user);
-        assertNotNull(user.getPlainAttr(schema.getKey()));
-        assertNotNull(user.getPlainAttr(schema.getKey()).getValues());
-        assertEquals(user.getPlainAttr(schema.getKey()).getValues().size(), 1);
+        assertNotNull(user.getPlainAttr(color.getKey()));
+        assertNotNull(user.getPlainAttr(color.getKey()).getValues());
+        assertEquals(user.getPlainAttr(color.getKey()).getValues().size(), 1);
     }
 
     @Test
     public void derAttrFromSpecialAttrs() {
+        AnyTypeClass other = anyTypeClassDAO.find("other");
+
         DerSchema sderived = entityFactory.newEntity(DerSchema.class);
         sderived.setKey("sderived");
         sderived.setExpression("username + ' - ' + creationDate + '[' + failedLogins + ']'");
 
         sderived = derSchemaDAO.save(sderived);
+
         derSchemaDAO.flush();
 
-        DerSchema actual = derSchemaDAO.find("sderived");
-        assertNotNull("expected save to work", actual);
-        assertEquals(sderived, actual);
+        other.add(sderived);
+        sderived.setAnyTypeClass(other);
+
+        derSchemaDAO.flush();
+
+        sderived = derSchemaDAO.find("sderived");
+        assertNotNull("expected save to work", sderived);
+        assertEquals(other, sderived.getAnyTypeClass());
 
         User owner = userDAO.find(3L);
         assertNotNull("did not get expected user", owner);

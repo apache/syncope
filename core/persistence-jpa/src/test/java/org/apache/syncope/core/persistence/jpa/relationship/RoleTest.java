@@ -32,6 +32,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.Entitlement;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
@@ -64,6 +65,9 @@ public class RoleTest extends AbstractTest {
     @Autowired
     private UserDAO userDAO;
 
+    @Autowired
+    private AnyTypeClassDAO anyTypeClassDAO;
+
     /**
      * Static copy of {@link org.apache.syncope.core.persistence.jpa.dao.JPAUserDAO} method with same signature:
      * required for avoiding creating new transaction - good for general use case but bad for the way how
@@ -84,12 +88,13 @@ public class RoleTest extends AbstractTest {
         User user = entityFactory.newEntity(User.class);
         user.setUsername("username");
         user.setRealm(realmDAO.find("/even/two"));
+        user.add(anyTypeClassDAO.find("minimal other"));
 
-        UPlainAttr attribute = entityFactory.newEntity(UPlainAttr.class);
-        attribute.setSchema(plainSchemaDAO.find("cool"));
-        attribute.setOwner(user);
-        attribute.add("true", anyUtilsFactory.getInstance(AnyTypeKind.USER));
-        user.add(attribute);
+        UPlainAttr attr = entityFactory.newEntity(UPlainAttr.class);
+        attr.setOwner(user);
+        attr.setSchema(plainSchemaDAO.find("cool"));
+        attr.add("true", anyUtilsFactory.getInstance(AnyTypeKind.USER));
+        user.add(attr);
 
         user = userDAO.save(user);
         Long newUserKey = user.getKey();

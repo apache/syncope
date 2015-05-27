@@ -54,13 +54,7 @@ public class JPAConf extends AbstractAnnotatedEntity<Long> implements Conf {
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     @Valid
-    private List<JPACPlainAttr> plainAttrs;
-
-    public JPAConf() {
-        super();
-
-        plainAttrs = new ArrayList<>();
-    }
+    private List<JPACPlainAttr> plainAttrs = new ArrayList<>();
 
     @Override
     public Long getKey() {

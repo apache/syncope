@@ -37,13 +37,14 @@ import org.apache.syncope.core.persistence.jpa.validation.entity.PlainAttrCheck;
 
 @MappedSuperclass
 @PlainAttrCheck
-public abstract class AbstractPlainAttr<O extends Any<?, ?, ?>> extends AbstractEntity<Long> implements PlainAttr<O> {
+public abstract class AbstractPlainAttr<O extends Any<?, ?, ?>>
+        extends AbstractAttr<PlainSchema, O> implements PlainAttr<O> {
 
     private static final long serialVersionUID = -9115431608821806124L;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @Column(name = "schema_name")
-    private JPAPlainSchema schema;
+    protected JPAPlainSchema schema;
 
     @Override
     public PlainSchema getSchema() {
@@ -54,6 +55,7 @@ public abstract class AbstractPlainAttr<O extends Any<?, ?, ?>> extends Abstract
     public void setSchema(final PlainSchema schema) {
         checkType(schema, JPAPlainSchema.class);
         this.schema = (JPAPlainSchema) schema;
+        checkSchema(this.schema);
     }
 
     protected abstract boolean addForMultiValue(PlainAttrValue attrValue);

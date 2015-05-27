@@ -33,7 +33,8 @@ import org.apache.syncope.core.persistence.api.entity.VirAttr;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 
 @MappedSuperclass
-public abstract class AbstractVirAttr<O extends Any<?, ?, ?>> extends AbstractEntity<Long> implements VirAttr<O> {
+public abstract class AbstractVirAttr<O extends Any<?, ?, ?>>
+        extends AbstractAttr<VirSchema, O> implements VirAttr<O> {
 
     private static final long serialVersionUID = 5023204776925954907L;
 
@@ -74,8 +75,9 @@ public abstract class AbstractVirAttr<O extends Any<?, ?, ?>> extends AbstractEn
     }
 
     @Override
-    public void setSchema(final VirSchema virSchema) {
-        checkType(virSchema, JPAVirSchema.class);
-        this.schema = (JPAVirSchema) virSchema;
+    public void setSchema(final VirSchema schema) {
+        checkType(schema, JPAVirSchema.class);
+        this.schema = (JPAVirSchema) schema;
+        checkSchema(this.schema);
     }
 }

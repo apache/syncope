@@ -47,7 +47,7 @@ import org.springframework.security.crypto.codec.Base64;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-public class AttrTest extends AbstractTest {
+public class PlainAttrTest extends AbstractTest {
 
     @Autowired
     private UserDAO userDAO;
@@ -81,21 +81,21 @@ public class AttrTest extends AbstractTest {
         PlainSchema emailSchema = plainSchemaDAO.find("email");
         assertNotNull(emailSchema);
 
-        UPlainAttr attribute = entityFactory.newEntity(UPlainAttr.class);
-        attribute.setSchema(emailSchema);
-        attribute.setOwner(user);
+        UPlainAttr attr = entityFactory.newEntity(UPlainAttr.class);
+        attr.setOwner(user);
+        attr.setSchema(emailSchema);
 
         Exception thrown = null;
         try {
-            attribute.add("john.doe@gmail.com", anyUtilsFactory.getInstance(AnyTypeKind.USER));
-            attribute.add("mario.rossi@gmail.com", anyUtilsFactory.getInstance(AnyTypeKind.USER));
+            attr.add("john.doe@gmail.com", anyUtilsFactory.getInstance(AnyTypeKind.USER));
+            attr.add("mario.rossi@gmail.com", anyUtilsFactory.getInstance(AnyTypeKind.USER));
         } catch (ValidationException e) {
             thrown = e;
         }
         assertNull("no validation exception expected here ", thrown);
 
         try {
-            attribute.add("http://www.apache.org", anyUtilsFactory.getInstance(AnyTypeKind.USER));
+            attr.add("http://www.apache.org", anyUtilsFactory.getInstance(AnyTypeKind.USER));
         } catch (ValidationException e) {
             thrown = e;
         }
@@ -113,8 +113,8 @@ public class AttrTest extends AbstractTest {
         assertNotNull(gender.getEnumerationValues());
 
         UPlainAttr attribute = entityFactory.newEntity(UPlainAttr.class);
-        attribute.setSchema(gender);
         attribute.setOwner(user);
+        attribute.setSchema(gender);
         user.add(attribute);
 
         Exception thrown = null;
@@ -147,17 +147,18 @@ public class AttrTest extends AbstractTest {
         PlainSchema fullnameSchema = plainSchemaDAO.find("fullname");
         assertNotNull(fullnameSchema);
 
-        UPlainAttr attribute = entityFactory.newEntity(UPlainAttr.class);
-        attribute.setSchema(emailSchema);
+        UPlainAttr attr = entityFactory.newEntity(UPlainAttr.class);
+        attr.setOwner(user);
+        attr.setSchema(emailSchema);
 
         UPlainAttrUniqueValue uauv = entityFactory.newEntity(UPlainAttrUniqueValue.class);
-        uauv.setAttr(attribute);
+        uauv.setAttr(attr);
         uauv.setSchema(fullnameSchema);
         uauv.setStringValue("a value");
 
-        attribute.setUniqueValue(uauv);
+        attr.setUniqueValue(uauv);
 
-        user.add(attribute);
+        user.add(attr);
 
         InvalidEntityException iee = null;
         try {
@@ -182,11 +183,11 @@ public class AttrTest extends AbstractTest {
         assertNotNull(obscureSchema.getSecretKey());
         assertNotNull(obscureSchema.getCipherAlgorithm());
 
-        UPlainAttr attribute = entityFactory.newEntity(UPlainAttr.class);
-        attribute.setSchema(obscureSchema);
-        attribute.add("testvalue", anyUtilsFactory.getInstance(AnyTypeKind.USER));
-        attribute.setOwner(user);
-        user.add(attribute);
+        UPlainAttr attr = entityFactory.newEntity(UPlainAttr.class);
+        attr.setOwner(user);
+        attr.setSchema(obscureSchema);
+        attr.add("testvalue", anyUtilsFactory.getInstance(AnyTypeKind.USER));
+        user.add(attr);
 
         userDAO.save(user);
 
@@ -209,11 +210,11 @@ public class AttrTest extends AbstractTest {
         new Random().nextBytes(bytes);
         final String photoB64Value = new String(Base64.encode(bytes), SyncopeConstants.DEFAULT_ENCODING);
 
-        UPlainAttr attribute = entityFactory.newEntity(UPlainAttr.class);
-        attribute.setSchema(photoSchema);
-        attribute.add(photoB64Value, anyUtilsFactory.getInstance(AnyTypeKind.USER));
-        attribute.setOwner(user);
-        user.add(attribute);
+        UPlainAttr attr = entityFactory.newEntity(UPlainAttr.class);
+        attr.setOwner(user);
+        attr.setSchema(photoSchema);
+        attr.add(photoB64Value, anyUtilsFactory.getInstance(AnyTypeKind.USER));
+        user.add(attr);
 
         userDAO.save(user);
 

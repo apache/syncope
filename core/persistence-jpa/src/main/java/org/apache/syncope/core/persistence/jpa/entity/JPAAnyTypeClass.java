@@ -63,15 +63,15 @@ public class JPAAnyTypeClass extends AbstractEntity<String> implements AnyTypeCl
     }
 
     @Override
-    public boolean add(final PlainSchema facet) {
-        checkType(facet, JPAPlainSchema.class);
-        return this.plainSchemas.add((JPAPlainSchema) facet);
+    public boolean add(final PlainSchema schema) {
+        checkType(schema, JPAPlainSchema.class);
+        return this.plainSchemas.add((JPAPlainSchema) schema);
     }
 
     @Override
-    public boolean remove(final PlainSchema facet) {
-        checkType(facet, JPAPlainSchema.class);
-        return this.plainSchemas.remove((JPAPlainSchema) facet);
+    public boolean remove(final PlainSchema schema) {
+        checkType(schema, JPAPlainSchema.class);
+        return this.plainSchemas.remove((JPAPlainSchema) schema);
     }
 
     @Override
@@ -80,15 +80,15 @@ public class JPAAnyTypeClass extends AbstractEntity<String> implements AnyTypeCl
     }
 
     @Override
-    public boolean add(final DerSchema facet) {
-        checkType(facet, JPADerSchema.class);
-        return this.derSchemas.add((JPADerSchema) facet);
+    public boolean add(final DerSchema schema) {
+        checkType(schema, JPADerSchema.class);
+        return this.derSchemas.add((JPADerSchema) schema);
     }
 
     @Override
-    public boolean remove(final DerSchema facet) {
-        checkType(facet, JPADerSchema.class);
-        return this.derSchemas.remove((JPADerSchema) facet);
+    public boolean remove(final DerSchema schema) {
+        checkType(schema, JPADerSchema.class);
+        return this.derSchemas.remove((JPADerSchema) schema);
     }
 
     @Override
@@ -97,15 +97,15 @@ public class JPAAnyTypeClass extends AbstractEntity<String> implements AnyTypeCl
     }
 
     @Override
-    public boolean add(final VirSchema facet) {
-        checkType(facet, JPAVirSchema.class);
-        return this.virSchemas.add((JPAVirSchema) facet);
+    public boolean add(final VirSchema schema) {
+        checkType(schema, JPAVirSchema.class);
+        return this.virSchemas.add((JPAVirSchema) schema);
     }
 
     @Override
-    public boolean remove(final VirSchema facet) {
-        checkType(facet, JPAVirSchema.class);
-        return this.virSchemas.remove((JPAVirSchema) facet);
+    public boolean remove(final VirSchema schema) {
+        checkType(schema, JPAVirSchema.class);
+        return this.virSchemas.remove((JPAVirSchema) schema);
     }
 
     @Override

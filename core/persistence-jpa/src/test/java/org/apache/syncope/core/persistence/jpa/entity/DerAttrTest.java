@@ -25,10 +25,12 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.DerAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.group.GDerAttr;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrValue;
@@ -55,6 +57,9 @@ public class DerAttrTest extends AbstractTest {
 
     @Autowired
     private DerSchemaDAO derSchemaDAO;
+
+    @Autowired
+    private AnyTypeClassDAO anyTypeClassDAO;
 
     @Test
     public void findAll() {
@@ -132,19 +137,28 @@ public class DerAttrTest extends AbstractTest {
 
     @Test
     public void issueSYNCOPE134User() {
+        AnyTypeClass other = anyTypeClassDAO.find("other");
+
         DerSchema sderived = entityFactory.newEntity(DerSchema.class);
         sderived.setKey("sderived");
         sderived.setExpression("status + ' - ' + username + ' - ' + creationDate + '[' + failedLogins + ']'");
 
         sderived = derSchemaDAO.save(sderived);
+
         derSchemaDAO.flush();
 
-        DerSchema actual = derSchemaDAO.find("sderived");
-        assertNotNull("expected save to work", actual);
-        assertEquals(sderived, actual);
+        other.add(sderived);
+        sderived.setAnyTypeClass(other);
+
+        derSchemaDAO.flush();
+
+        sderived = derSchemaDAO.find("sderived");
+        assertNotNull("expected save to work", sderived);
+        assertEquals(other, sderived.getAnyTypeClass());
 
         User owner = userDAO.find(3L);
         assertNotNull("did not get expected user", owner);
+        owner.add(other);
 
         UDerAttr derAttr = entityFactory.newEntity(UDerAttr.class);
         derAttr.setOwner(owner);
@@ -165,19 +179,28 @@ public class DerAttrTest extends AbstractTest {
 
     @Test
     public void issueSYNCOPE134Group() {
+        AnyTypeClass genericMembership = anyTypeClassDAO.find("generic membership");
+
         DerSchema sderived = entityFactory.newEntity(DerSchema.class);
         sderived.setKey("sderived");
         sderived.setExpression("name");
 
         sderived = derSchemaDAO.save(sderived);
+
         derSchemaDAO.flush();
 
-        DerSchema actual = derSchemaDAO.find("sderived");
-        assertNotNull("expected save to work", actual);
-        assertEquals(sderived, actual);
+        genericMembership.add(sderived);
+        sderived.setAnyTypeClass(genericMembership);
+
+        derSchemaDAO.flush();
+
+        sderived = derSchemaDAO.find("sderived");
+        assertNotNull("expected save to work", sderived);
+        assertEquals(genericMembership, sderived.getAnyTypeClass());
 
         Group owner = groupDAO.find(7L);
         assertNotNull("did not get expected group", owner);
+        owner.add(genericMembership);
 
         GDerAttr derAttr = entityFactory.newEntity(GDerAttr.class);
         derAttr.setOwner(owner);

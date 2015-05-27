@@ -33,7 +33,8 @@ import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 
 @MappedSuperclass
-public abstract class AbstractDerAttr<O extends Any<?, ?, ?>> extends AbstractEntity<Long> implements DerAttr<O> {
+public abstract class AbstractDerAttr<O extends Any<?, ?, ?>>
+        extends AbstractAttr<DerSchema, O> implements DerAttr<O> {
 
     private static final long serialVersionUID = 4740924251090424771L;
 
@@ -56,9 +57,10 @@ public abstract class AbstractDerAttr<O extends Any<?, ?, ?>> extends AbstractEn
     }
 
     @Override
-    public void setSchema(final DerSchema derSchema) {
-        checkType(derSchema, JPADerSchema.class);
-        this.schema = (JPADerSchema) derSchema;
+    public void setSchema(final DerSchema schema) {
+        checkType(schema, JPADerSchema.class);
+        this.schema = (JPADerSchema) schema;
+        checkSchema(this.schema);
     }
 
     /**
