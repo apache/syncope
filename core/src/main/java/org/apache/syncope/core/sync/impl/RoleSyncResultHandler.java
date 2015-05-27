@@ -85,6 +85,9 @@ public class RoleSyncResultHandler extends AbstractSubjectSyncResultHandler {
         RoleTO roleTO = RoleTO.class.cast(subjectTO);
 
         WorkflowResult<Long> created = rwfAdapter.create(roleTO);
+
+        result.setId(created.getResult());
+
         AttributeTO roleOwner = roleTO.getAttrMap().get(StringUtils.EMPTY);
         if (roleOwner != null) {
             roleOwnerMap.put(created.getResult(), roleOwner.getValues().iterator().next());
@@ -97,12 +100,7 @@ public class RoleSyncResultHandler extends AbstractSubjectSyncResultHandler {
 
         taskExecutor.execute(tasks);
 
-        roleTO = roleDataBinder.getRoleTO(created.getResult());
-
-        result.setId(created.getResult());
-        result.setName(getName(subjectTO));
-
-        return roleTO;
+        return roleDataBinder.getRoleTO(created.getResult());
     }
 
     @Override
@@ -152,7 +150,7 @@ public class RoleSyncResultHandler extends AbstractSubjectSyncResultHandler {
 
         taskExecutor.execute(tasks);
 
-        final RoleTO after = roleDataBinder.getRoleTO(updated.getResult());
+        RoleTO after = roleDataBinder.getRoleTO(updated.getResult());
         result.setName(getName(after));
 
         return after;

@@ -78,8 +78,9 @@ public class UserSyncResultHandler extends AbstractSubjectSyncResultHandler {
         UserTO userTO = UserTO.class.cast(subjectTO);
 
         Boolean enabled = syncUtilities.readEnabled(delta.getObject(), profile.getSyncTask());
-        WorkflowResult<Map.Entry<Long, Boolean>> created =
-                uwfAdapter.create(userTO, true, enabled, true);
+        WorkflowResult<Map.Entry<Long, Boolean>> created = uwfAdapter.create(userTO, true, enabled, true);
+
+        result.setId(created.getResult().getKey());
 
         List<PropagationTask> tasks = propagationManager.getUserCreateTaskIds(created,
                 userTO.getPassword(), userTO.getVirAttrs(),
@@ -88,11 +89,7 @@ public class UserSyncResultHandler extends AbstractSubjectSyncResultHandler {
 
         taskExecutor.execute(tasks);
 
-        userTO = userDataBinder.getUserTO(created.getResult().getKey());
-
-        result.setId(created.getResult().getKey());
-
-        return userTO;
+        return userDataBinder.getUserTO(created.getResult().getKey());
     }
 
     @Override
