@@ -70,12 +70,9 @@ public class GroupSyncResultHandlerImpl extends AbstractSyncResultHandler implem
         Map.Entry<Long, List<PropagationStatus>> created = groupProvisioningManager.create(groupTO, groupOwnerMap,
                 Collections.singleton(profile.getTask().getResource().getKey()));
 
-        groupTO = groupDataBinder.getGroupTO(created.getKey());
-
         result.setKey(created.getKey());
-        result.setName(getName(anyTO));
 
-        return groupTO;
+        return groupDataBinder.getGroupTO(created.getKey());
     }
 
     @Override
