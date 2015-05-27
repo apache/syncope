@@ -55,9 +55,7 @@ public class UserSyncResultHandlerImpl extends AbstractSyncResultHandler impleme
     }
 
     @Override
-    protected AbstractSubjectMod getSubjectMod(
-            final AbstractSubjectTO subjectTO, final SyncDelta delta) {
-
+    protected AbstractSubjectMod getSubjectMod(final AbstractSubjectTO subjectTO, final SyncDelta delta) {
         return connObjectUtils.getAttributableMod(subjectTO.getKey(),
                 delta.getObject(),
                 subjectTO,
@@ -72,8 +70,9 @@ public class UserSyncResultHandlerImpl extends AbstractSyncResultHandler impleme
         UserTO userTO = UserTO.class.cast(subjectTO);
 
         Boolean enabled = syncUtilities.readEnabled(delta.getObject(), profile.getTask());
-        Map.Entry<Long, List<PropagationStatus>> created = userProvisioningManager.create(userTO, true, true, enabled,
-                Collections.singleton(profile.getTask().getResource().getKey()));
+        Map.Entry<Long, List<PropagationStatus>> created =
+                userProvisioningManager.create(userTO, true, true, enabled,
+                        Collections.singleton(profile.getTask().getResource().getKey()));
 
         result.setKey(created.getKey());
 
@@ -86,7 +85,7 @@ public class UserSyncResultHandlerImpl extends AbstractSyncResultHandler impleme
             final ProvisioningResult result,
             final boolean unlink) {
 
-        final UserMod userMod = new UserMod();
+        UserMod userMod = new UserMod();
         userMod.setKey(before.getKey());
 
         if (unlink) {
@@ -105,8 +104,8 @@ public class UserSyncResultHandlerImpl extends AbstractSyncResultHandler impleme
             final SyncDelta delta,
             final ProvisioningResult result) {
 
-        final UserMod userMod = UserMod.class.cast(subjectMod);
-        final Boolean enabled = syncUtilities.readEnabled(delta.getObject(), profile.getTask());
+        UserMod userMod = UserMod.class.cast(subjectMod);
+        Boolean enabled = syncUtilities.readEnabled(delta.getObject(), profile.getTask());
 
         Map.Entry<Long, List<PropagationStatus>> updated = userProvisioningManager.update(userMod, before.getKey(),
                 result, enabled, Collections.singleton(profile.getTask().getResource().getKey()));
