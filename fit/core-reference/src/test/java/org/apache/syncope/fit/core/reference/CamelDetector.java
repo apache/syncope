@@ -29,4 +29,8 @@ public class CamelDetector {
     public static boolean isCamelEnabledForGroups(final SyncopeService syncopeService) {
         return syncopeService.info().getGroupProvisioningManager().indexOf("Camel") != -1;
     }
+
+    public static boolean isCamelEnabledForAnyObjects(final SyncopeService syncopeService) {
+        return syncopeService.info().getAnyObjectProvisioningManager().indexOf("Camel") != -1;
+    }
 }

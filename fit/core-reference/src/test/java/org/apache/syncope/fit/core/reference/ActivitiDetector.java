@@ -29,4 +29,8 @@ public class ActivitiDetector {
     public static boolean isActivitiEnabledForGroups(final SyncopeService syncopeService) {
         return syncopeService.info().getGroupWorkflowAdapter().indexOf("Activiti") != -1;
     }
+
+    public static boolean isActivitiEnabledForAnyObjects(final SyncopeService syncopeService) {
+        return syncopeService.info().getAnyObjectWorkflowAdapter().indexOf("Activiti") != -1;
+    }
 }

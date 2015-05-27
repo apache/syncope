@@ -70,12 +70,12 @@ public class CamelRouteLoader implements SyncopeLoader {
     }
 
     @Transactional
+    @Override
     public void load() {
         synchronized (this) {
             if (!loaded) {
                 loadRoutes(userRoutesLoader.getResource(), AnyTypeKind.USER);
                 loadRoutes(groupRoutesLoader.getResource(), AnyTypeKind.GROUP);
-                loadRoutes(groupRoutesLoader.getResource(), AnyTypeKind.ANY_OBJECT);
                 loaded = true;
             }
         }
