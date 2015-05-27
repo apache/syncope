@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.syncope.common.lib.types.PropagationByResource;
@@ -61,22 +62,31 @@ public class GroupDeleteProcessor implements Processor {
     public void process(final Exchange exchange) throws Exception {
         Long anyKey = exchange.getIn().getBody(Long.class);
         Group group = groupDAO.find(anyKey);
+        @SuppressWarnings("unchecked")
+        Set<String> excludedResources = exchange.getProperty("excludedResources", Set.class);
 
-        final List<PropagationTask> tasks = new ArrayList<>();
+        List<PropagationTask> tasks = new ArrayList<>();
 
         if (group != null) {
             // Generate propagation tasks for deleting users from group resources, if they are on those resources only
             // because of the reason being deleted (see SYNCOPE-357)
             for (Map.Entry<Long, PropagationByResource> entry
+                    : groupDAO.findUsersWithTransitiveResources(group.getKey()).entrySet()) {
+
+                WorkflowResult<Long> wfResult =
+                        new WorkflowResult<>(entry.getKey(), entry.getValue(), Collections.<String>emptySet());
+                tasks.addAll(propagationManager.getUserDeleteTasks(wfResult.getResult(), excludedResources));
+            }
+            for (Map.Entry<Long, PropagationByResource> entry
                     : groupDAO.findAnyObjectsWithTransitiveResources(group.getKey()).entrySet()) {
 
                 WorkflowResult<Long> wfResult =
                         new WorkflowResult<>(entry.getKey(), entry.getValue(), Collections.<String>emptySet());
-                tasks.addAll(propagationManager.getUserDeleteTasks(wfResult));
+                tasks.addAll(propagationManager.getAnyObjectDeleteTasks(wfResult.getResult(), excludedResources));
             }
 
             // Generate propagation tasks for deleting this group from resources
-            tasks.addAll(propagationManager.getGroupDeleteTasks(group.getKey()));
+            tasks.addAll(propagationManager.getGroupDeleteTasks(group.getKey(), excludedResources));
         }
 
         PropagationReporter propagationReporter =

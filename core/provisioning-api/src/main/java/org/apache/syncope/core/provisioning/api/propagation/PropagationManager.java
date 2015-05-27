@@ -113,12 +113,23 @@ public interface PropagationManager {
     List<PropagationTask> getGroupDeleteTasks(
             Long groupKey, Set<String> resourceNames, Collection<String> noPropResourceNames);
 
+    List<PropagationTask> getAnyObjectCreateTasks(
+            WorkflowResult<Long> wfResult, Collection<AttrTO> vAttrs, Collection<String> noPropResourceNames);
+
     List<PropagationTask> getAnyObjectCreateTasks(Long anyObjectKey, Collection<AttrTO> vAttrs,
-            PropagationByResource propByRes, List<String> noPropResourceNames);
+            PropagationByResource propByRes, Collection<String> noPropResourceNames);
+
+    List<PropagationTask> getAnyObjectUpdateTasks(WorkflowResult<Long> wfResult, Set<String> vAttrsToBeRemoved,
+            Set<AttrMod> vAttrsToBeUpdated, Set<String> noPropResourceNames);
+
+    List<PropagationTask> getAnyObjectDeleteTasks(Long anyObjectKey);
 
     List<PropagationTask> getAnyObjectDeleteTasks(Long anyObjectKey, String noPropResourceName);
 
     List<PropagationTask> getAnyObjectDeleteTasks(Long anyObjectKey, Collection<String> noPropResourceNames);
+
+    List<PropagationTask> getAnyObjectDeleteTasks(
+            Long groupKey, Set<String> resourceNames, Collection<String> noPropResourceNames);
 
     /**
      * Create the user on every associated resource.
@@ -185,15 +196,5 @@ public interface PropagationManager {
      */
     List<PropagationTask> getUserDeleteTasks(
             Long userKey, Set<String> resourceNames, Collection<String> noPropResourceNames);
-
-    /**
-     * Perform delete on each resource associated to the user. It is possible to ask for a mandatory provisioning for
-     * some resources specifying a set of resource names. Exceptions won't be ignored and the process will be stopped if
-     * the creation fails onto a mandatory resource.
-     *
-     * @param wfResult user to be propagated (and info associated), as per result from workflow
-     * @return list of propagation tasks
-     */
-    List<PropagationTask> getUserDeleteTasks(WorkflowResult<Long> wfResult);
 
 }

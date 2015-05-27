@@ -47,7 +47,6 @@ import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.misc.security.AuthContextUtils;
 import org.apache.syncope.core.misc.security.Encryptor;
 import org.apache.syncope.core.misc.spring.BeanUtils;
-import org.apache.syncope.core.misc.ConnObjectUtils;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
@@ -69,9 +68,6 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
     @Autowired
     private ConfDAO confDAO;
-
-    @Autowired
-    private ConnObjectUtils connObjectUtils;
 
     @Autowired
     private SecurityQuestionDAO securityQuestionDAO;
@@ -194,14 +190,6 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         user.setSecurityAnswer(userTO.getSecurityAnswer());
     }
 
-    /**
-     * Update user, given UserMod.
-     *
-     * @param toBeUpdated user to be updated
-     * @param userMod bean containing update request
-     * @return updated user + propagation by resource
-     * @see PropagationByResource
-     */
     @Override
     public PropagationByResource update(final User toBeUpdated, final UserMod userMod) {
         // Re-merge any pending change from workflow tasks
@@ -292,13 +280,10 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             if (membership == null) {
                 LOG.warn("Invalid group key specified for membership to be removed: {}", groupKey);
             } else {
-                if (!membershipToBeAddedGroupKeys.contains(membership.getRightEnd().getKey())) {
-                    toBeDeprovisioned.addAll(membership.getRightEnd().getResourceNames());
-                }
-
-                if (!membershipToBeAddedGroupKeys.contains(membership.getRightEnd().getKey())) {
-                } else {
+                if (membershipToBeAddedGroupKeys.contains(membership.getRightEnd().getKey())) {
                     user.remove(membership);
+                } else {
+                    toBeDeprovisioned.addAll(membership.getRightEnd().getResourceNames());
                 }
             }
         }

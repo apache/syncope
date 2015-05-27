@@ -97,9 +97,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class NotificationTest {
 
-    /**
-     * Logger.
-     */
     private static final Logger LOG = LoggerFactory.getLogger(NotificationTest.class);
 
     private static final String SMTP_HOST = "localhost";

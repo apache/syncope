@@ -59,6 +59,7 @@ import org.apache.syncope.core.persistence.api.entity.VirAttr;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.common.lib.types.PropagationByResource;
+import org.apache.syncope.core.misc.ConnObjectUtils;
 import org.apache.syncope.core.provisioning.java.VirAttrHandler;
 import org.apache.syncope.core.misc.MappingUtils;
 import org.apache.syncope.core.misc.jexl.JexlUtils;
@@ -129,6 +130,9 @@ abstract class AbstractAnyDataBinder {
 
     @Autowired
     protected VirAttrHandler virtAttrHander;
+
+    @Autowired
+    protected ConnObjectUtils connObjectUtils;
 
     protected void setRealm(final Any<?, ?, ?> any, final AnyMod anyMod) {
         if (StringUtils.isNotBlank(anyMod.getRealm())) {
@@ -239,8 +243,7 @@ abstract class AbstractAnyDataBinder {
         SyncopeClientException reqValMissing = SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
 
         // Check if there is some mandatory schema defined for which no value has been provided
-        List<PlainSchema> plainSchemas = plainSchemaDAO.findAll();
-        for (PlainSchema schema : plainSchemas) {
+        for (PlainSchema schema : any.getAllowedPlainSchemas()) {
             if (any.getPlainAttr(schema.getKey()) == null
                     && !schema.isReadonly()
                     && (JexlUtils.evaluateMandatoryCondition(schema.getMandatoryCondition(), any)
@@ -253,8 +256,7 @@ abstract class AbstractAnyDataBinder {
             }
         }
 
-        List<DerSchema> derSchemas = derSchemaDAO.findAll();
-        for (DerSchema derSchema : derSchemas) {
+        for (DerSchema derSchema : any.getAllowedDerSchemas()) {
             if (any.getDerAttr(derSchema.getKey()) == null
                     && evaluateMandatoryCondition(anyUtils, any, derSchema.getKey(),
                             anyUtils.derIntMappingType())) {
@@ -265,8 +267,7 @@ abstract class AbstractAnyDataBinder {
             }
         }
 
-        List<VirSchema> virSchemas = virSchemaDAO.findAll();
-        for (VirSchema virSchema : virSchemas) {
+        for (VirSchema virSchema : any.getAllowedVirSchemas()) {
             if (any.getVirAttr(virSchema.getKey()) == null
                     && !virSchema.isReadonly()
                     && evaluateMandatoryCondition(anyUtils, any, virSchema.getKey(),
@@ -294,7 +295,7 @@ abstract class AbstractAnyDataBinder {
             ExternalResource resource = resourceDAO.find(resourceToBeRemoved);
             if (resource != null) {
                 propByRes.add(ResourceOperation.DELETE, resource.getKey());
-                ((Any<?, ?, ?>) any).remove(resource);
+                any.remove(resource);
             }
         }
 
@@ -305,7 +306,7 @@ abstract class AbstractAnyDataBinder {
             ExternalResource resource = resourceDAO.find(resourceToBeAdded);
             if (resource != null) {
                 propByRes.add(ResourceOperation.CREATE, resource.getKey());
-                ((Any<?, ?, ?>) any).add(resource);
+                any.add(resource);
             }
         }
 
@@ -512,17 +513,15 @@ abstract class AbstractAnyDataBinder {
                     PlainAttr attr = any.getPlainAttr(schema.getKey());
                     if (attr == null) {
                         attr = anyUtils.newPlainAttr();
+                        attr.setOwner(any);
                         attr.setSchema(schema);
                     }
-                    if (attr.getSchema() == null) {
-                        LOG.debug("Ignoring {} because no valid schema or template was found", attributeTO);
-                    } else {
-                        fillAttribute(attributeTO.getValues(), anyUtils, schema, attr, invalidValues);
+                    fillAttribute(attributeTO.getValues(), anyUtils, schema, attr, invalidValues);
 
-                        if (!attr.getValuesAsStrings().isEmpty()) {
-                            any.add(attr);
-                            attr.setOwner(any);
-                        }
+                    if (attr.getValuesAsStrings().isEmpty()) {
+                        attr.setOwner(null);
+                    } else {
+                        any.add(attr);
                     }
                 }
             }
@@ -538,13 +537,9 @@ abstract class AbstractAnyDataBinder {
 
             if (derSchema != null) {
                 DerAttr derAttr = anyUtils.newDerAttr();
+                derAttr.setOwner(any);
                 derAttr.setSchema(derSchema);
-                if (derAttr.getSchema() == null) {
-                    LOG.debug("Ignoring {} because no valid schema or template was found", attributeTO);
-                } else {
-                    derAttr.setOwner(any);
-                    any.add(derAttr);
-                }
+                any.add(derAttr);
             }
         }
 
@@ -554,13 +549,9 @@ abstract class AbstractAnyDataBinder {
 
             if (virSchema != null) {
                 VirAttr virAttr = anyUtils.newVirAttr();
+                virAttr.setOwner(any);
                 virAttr.setSchema(virSchema);
-                if (virAttr.getSchema() == null) {
-                    LOG.debug("Ignoring {} because no valid schema or template was found", vattrTO);
-                } else {
-                    virAttr.setOwner(any);
-                    any.add(virAttr);
-                }
+                any.add(virAttr);
             }
         }
 
@@ -574,13 +565,13 @@ abstract class AbstractAnyDataBinder {
                     "Invalid or null realm specified: " + anyTO.getRealm());
             scce.addException(noRealm);
         }
-        ((Any<?, ?, ?>) any).setRealm(realm);
+        any.setRealm(realm);
 
         for (String resourceName : anyTO.getResources()) {
             ExternalResource resource = resourceDAO.find(resourceName);
 
             if (resource != null) {
-                ((Any<?, ?, ?>) any).add(resource);
+                any.add(resource);
             }
         }
 

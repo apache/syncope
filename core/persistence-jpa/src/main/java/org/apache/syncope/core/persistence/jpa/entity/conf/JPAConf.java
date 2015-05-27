@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.jpa.entity.conf;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -33,8 +34,11 @@ import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.DerAttr;
+import org.apache.syncope.core.persistence.api.entity.DerSchema;
+import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.VirAttr;
+import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.conf.Conf;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
@@ -210,4 +214,18 @@ public class JPAConf extends AbstractAnnotatedEntity<Long> implements Conf {
         // nothing to do
     }
 
+    @Override
+    public Set<PlainSchema> getAllowedPlainSchemas() {
+        return Collections.emptySet();
+    }
+
+    @Override
+    public Set<DerSchema> getAllowedDerSchemas() {
+        return Collections.emptySet();
+    }
+
+    @Override
+    public Set<VirSchema> getAllowedVirSchemas() {
+        return Collections.emptySet();
+    }
 }

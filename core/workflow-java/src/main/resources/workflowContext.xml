@@ -24,5 +24,6 @@ under the License.
 
   <bean id="uwfAdapter" class="${uwfAdapter}"/>
   <bean id="gwfAdapter" class="${gwfAdapter}"/>
+  <bean id="awfAdapter" class="${awfAdapter}"/>
     
 </beans>

@@ -33,6 +33,7 @@ under the License.
   
   <bean class="${userProvisioningManager}"/>
   <bean class="${groupProvisioningManager}"/>
+  <bean class="${anyObjectProvisioningManager}"/>
 
   <bean id="scheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean"
         lazy-init="false" depends-on="nonJPAdbInitializer">

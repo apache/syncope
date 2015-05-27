@@ -56,6 +56,11 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
     }
 
     @Override
+    public Pair<Long, List<PropagationStatus>> create(final UserTO userTO, final Set<String> excludedResources) {
+        return create(userTO, false, false, null, excludedResources);
+    }
+
+    @Override
     @SuppressWarnings("unchecked")
     public Pair<Long, List<PropagationStatus>> create(final UserTO userTO, final boolean storePassword,
             final boolean disablePwdPolicyCheck, final Boolean enabled, final Set<String> excludedResources) {
@@ -80,6 +85,7 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Pair<Long, List<PropagationStatus>> update(final UserMod userMod) {
         PollingConsumer pollingConsumer = getConsumer("direct:updatePort");
 
@@ -92,6 +98,11 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
         }
 
         return exchange.getIn().getBody(Pair.class);
+    }
+
+    @Override
+    public Pair<Long, List<PropagationStatus>> update(final UserMod anyMod, final Set<String> excludedResources) {
+        return update(anyMod, anyMod.getKey(), new ProvisioningResult(), null, excludedResources);
     }
 
     @Override

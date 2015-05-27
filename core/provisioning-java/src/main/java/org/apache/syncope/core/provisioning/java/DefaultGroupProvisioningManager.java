@@ -66,16 +66,16 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
     protected GroupDAO groupDAO;
 
     @Override
-    public Pair<Long, List<PropagationStatus>> create(final GroupTO any) {
-        return create(any, Collections.<String>emptySet());
+    public Pair<Long, List<PropagationStatus>> create(final GroupTO group) {
+        return create(group, Collections.<String>emptySet());
     }
 
     @Override
-    public Pair<Long, List<PropagationStatus>> create(final GroupTO any, final Set<String> excludedResources) {
-        WorkflowResult<Long> created = gwfAdapter.create(any);
+    public Pair<Long, List<PropagationStatus>> create(final GroupTO groupTO, final Set<String> excludedResources) {
+        WorkflowResult<Long> created = gwfAdapter.create(groupTO);
 
-        List<PropagationTask> tasks =
-                propagationManager.getGroupCreateTasks(created, any.getVirAttrs(), excludedResources);
+        List<PropagationTask> tasks = propagationManager.getGroupCreateTasks(
+                created, groupTO.getVirAttrs(), excludedResources);
         PropagationReporter propagationReporter = ApplicationContextProvider.getApplicationContext().getBean(
                 PropagationReporter.class);
         try {
@@ -107,18 +107,18 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
     }
 
     @Override
-    public Pair<Long, List<PropagationStatus>> update(final GroupMod anyMod) {
-        return update(anyMod, Collections.<String>emptySet());
+    public Pair<Long, List<PropagationStatus>> update(final GroupMod groupObjectMod) {
+        return update(groupObjectMod, Collections.<String>emptySet());
     }
 
     @Override
     public Pair<Long, List<PropagationStatus>> update(
-            final GroupMod anyMod, final Set<String> excludedResources) {
+            final GroupMod groupMod, final Set<String> excludedResources) {
 
-        WorkflowResult<Long> updated = gwfAdapter.update(anyMod);
+        WorkflowResult<Long> updated = gwfAdapter.update(groupMod);
 
         List<PropagationTask> tasks = propagationManager.getGroupUpdateTasks(updated,
-                anyMod.getVirAttrsToRemove(), anyMod.getVirAttrsToUpdate(), null);
+                groupMod.getVirAttrsToRemove(), groupMod.getVirAttrsToUpdate(), excludedResources);
         PropagationReporter propagationReporter =
                 ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
         try {
@@ -128,25 +128,35 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
             propagationReporter.onPrimaryResourceFailure(tasks);
         }
 
-        Pair<Long, List<PropagationStatus>> result = new ImmutablePair<>(
-                updated.getResult(), propagationReporter.getStatuses());
-        return result;
+        return new ImmutablePair<>(updated.getResult(), propagationReporter.getStatuses());
     }
 
     @Override
-    public List<PropagationStatus> delete(final Long anyKey) {
-        final List<PropagationTask> tasks = new ArrayList<>();
+    public List<PropagationStatus> delete(final Long groupObjectKey) {
+        return delete(groupObjectKey, Collections.<String>emptySet());
+    }
 
-        Group group = groupDAO.authFind(anyKey);
+    @Override
+    public List<PropagationStatus> delete(final Long groupKey, final Set<String> excludedResources) {
+        List<PropagationTask> tasks = new ArrayList<>();
+
+        Group group = groupDAO.authFind(groupKey);
         if (group != null) {
             // Generate propagation tasks for deleting users from group resources, if they are on those resources only
             // because of the reason being deleted (see SYNCOPE-357)
+            for (Map.Entry<Long, PropagationByResource> entry
+                    : groupDAO.findUsersWithTransitiveResources(group.getKey()).entrySet()) {
+
+                WorkflowResult<Long> wfResult =
+                        new WorkflowResult<>(entry.getKey(), entry.getValue(), Collections.<String>emptySet());
+                tasks.addAll(propagationManager.getUserDeleteTasks(wfResult.getResult(), excludedResources));
+            }
             for (Map.Entry<Long, PropagationByResource> entry
                     : groupDAO.findAnyObjectsWithTransitiveResources(group.getKey()).entrySet()) {
 
                 WorkflowResult<Long> wfResult =
                         new WorkflowResult<>(entry.getKey(), entry.getValue(), Collections.<String>emptySet());
-                tasks.addAll(propagationManager.getUserDeleteTasks(wfResult));
+                tasks.addAll(propagationManager.getAnyObjectDeleteTasks(wfResult.getResult(), excludedResources));
             }
 
             // Generate propagation tasks for deleting this group from resources
@@ -162,18 +172,14 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
             propagationReporter.onPrimaryResourceFailure(tasks);
         }
 
-        try {
-            gwfAdapter.delete(anyKey);
-        } catch (RuntimeException e) {
-            throw e;
-        }
+        gwfAdapter.delete(groupKey);
 
         return propagationReporter.getStatuses();
     }
 
     @Override
-    public Long unlink(final GroupMod anyMod) {
-        WorkflowResult<Long> updated = gwfAdapter.update(anyMod);
+    public Long unlink(final GroupMod groupMod) {
+        WorkflowResult<Long> updated = gwfAdapter.update(groupMod);
         return updated.getResult();
     }
 
@@ -197,8 +203,8 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
     }
 
     @Override
-    public Long link(final GroupMod anyMod) {
-        return gwfAdapter.update(anyMod).getResult();
+    public Long link(final GroupMod groupMod) {
+        return gwfAdapter.update(groupMod).getResult();
     }
 
 }

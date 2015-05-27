@@ -113,10 +113,19 @@ public class PropagationManagerImpl implements PropagationManager {
 
     @Override
     public List<PropagationTask> getAnyObjectCreateTasks(
+            final WorkflowResult<Long> wfResult,
+            final Collection<AttrTO> vAttrs,
+            final Collection<String> noPropResourceNames) {
+
+        return getAnyObjectCreateTasks(wfResult.getResult(), vAttrs, wfResult.getPropByRes(), noPropResourceNames);
+    }
+
+    @Override
+    public List<PropagationTask> getAnyObjectCreateTasks(
             final Long key,
             final Collection<AttrTO> vAttrs,
             final PropagationByResource propByRes,
-            final List<String> noPropResourceNames) {
+            final Collection<String> noPropResourceNames) {
 
         AnyObject anyObject = anyObjectDAO.authFind(key);
         if (vAttrs != null && !vAttrs.isEmpty()) {
@@ -142,14 +151,6 @@ public class PropagationManagerImpl implements PropagationManager {
         return getCreateTaskIds(user, password, enable, propByRes, noPropResourceNames);
     }
 
-    /**
-     * Create the group on every associated resource.
-     *
-     * @param wfResult group to be propagated (and info associated), as per result from workflow
-     * @param vAttrs virtual attributes to be set
-     * @param noPropResourceNames external resources performing not to be considered for propagation
-     * @return list of propagation tasks
-     */
     @Override
     public List<PropagationTask> getGroupCreateTasks(
             final WorkflowResult<Long> wfResult,
@@ -159,15 +160,6 @@ public class PropagationManagerImpl implements PropagationManager {
         return getGroupCreateTasks(wfResult.getResult(), vAttrs, wfResult.getPropByRes(), noPropResourceNames);
     }
 
-    /**
-     * Create the group on every associated resource.
-     *
-     * @param key group key
-     * @param vAttrs virtual attributes to be set
-     * @param propByRes operation to be performed per resource
-     * @param noPropResourceNames external resources performing not to be considered for propagation
-     * @return list of propagation tasks
-     */
     @Override
     public List<PropagationTask> getGroupCreateTasks(
             final Long key,
@@ -199,14 +191,17 @@ public class PropagationManagerImpl implements PropagationManager {
         return createTasks(any, password, true, null, null, enable, false, propByRes);
     }
 
-    /**
-     * Performs update on each resource associated to the user excluding the specified into 'resourceNames' parameter.
-     *
-     * @param user to be propagated
-     * @param enable whether user must be enabled or not
-     * @param noPropResourceNames external resource names not to be considered for propagation
-     * @return list of propagation tasks
-     */
+    @Override
+    public List<PropagationTask> getAnyObjectUpdateTasks(
+            final WorkflowResult<Long> wfResult,
+            final Set<String> vAttrsToBeRemoved, final Set<AttrMod> vAttrsToBeUpdated,
+            final Set<String> noPropResourceNames) {
+
+        AnyObject anyObject = anyObjectDAO.authFind(wfResult.getResult());
+        return getUpdateTasks(anyObject, null, false, null,
+                vAttrsToBeRemoved, vAttrsToBeUpdated, wfResult.getPropByRes(), noPropResourceNames);
+    }
+
     @Override
     public List<PropagationTask> getUserUpdateTasks(final User user, final Boolean enable,
             final Collection<String> noPropResourceNames) {
@@ -222,14 +217,6 @@ public class PropagationManagerImpl implements PropagationManager {
                 noPropResourceNames);
     }
 
-    /**
-     * Performs update on each resource associated to the user.
-     *
-     * @param wfResult user to be propagated (and info associated), as per result from workflow
-     * @param changePwd whether password should be included for propagation attributes or not
-     * @param noPropResourceNames external resources not to be considered for propagation
-     * @return list of propagation tasks
-     */
     @Override
     public List<PropagationTask> getUserUpdateTasks(final WorkflowResult<Pair<UserMod, Boolean>> wfResult,
             final boolean changePwd, final Collection<String> noPropResourceNames) {
@@ -329,6 +316,11 @@ public class PropagationManagerImpl implements PropagationManager {
     }
 
     @Override
+    public List<PropagationTask> getAnyObjectDeleteTasks(final Long anyObjectKey) {
+        return getAnyObjectDeleteTasks(anyObjectKey, Collections.<String>emptySet());
+    }
+
+    @Override
     public List<PropagationTask> getAnyObjectDeleteTasks(final Long anyObjectKey, final String noPropResourceName) {
         return getAnyObjectDeleteTasks(anyObjectKey, Collections.<String>singleton(noPropResourceName));
     }
@@ -339,6 +331,14 @@ public class PropagationManagerImpl implements PropagationManager {
 
         AnyObject anyObject = anyObjectDAO.authFind(anyObjectKey);
         return getDeleteTaskIds(anyObject, anyObject.getResourceNames(), noPropResourceNames);
+    }
+
+    @Override
+    public List<PropagationTask> getAnyObjectDeleteTasks(
+            final Long groupKey, final Set<String> resourceNames, final Collection<String> noPropResourceNames) {
+
+        AnyObject anyObject = anyObjectDAO.authFind(groupKey);
+        return getDeleteTaskIds(anyObject, resourceNames, noPropResourceNames);
     }
 
     @Override
@@ -353,12 +353,6 @@ public class PropagationManagerImpl implements PropagationManager {
 
         User user = userDAO.authFind(userKey);
         return getDeleteTaskIds(user, resourceNames, noPropResourceNames);
-    }
-
-    @Override
-    public List<PropagationTask> getUserDeleteTasks(final WorkflowResult<Long> wfResult) {
-        User user = userDAO.authFind(wfResult.getResult());
-        return createTasks(user, null, false, null, null, false, true, wfResult.getPropByRes());
     }
 
     @Override
@@ -460,7 +454,8 @@ public class PropagationManagerImpl implements PropagationManager {
                 } else {
                     PropagationTask task = entityFactory.newEntity(PropagationTask.class);
                     task.setResource(resource);
-                    task.setObjectClassName(resource.getProvision(any.getType()).getObjectClass().getObjectClassValue());
+                    task.setObjectClassName(
+                            resource.getProvision(any.getType()).getObjectClass().getObjectClassValue());
                     task.setAnyTypeKind(anyUtils.getAnyTypeKind());
                     if (!deleteOnResource) {
                         task.setAnyKey(any.getKey());

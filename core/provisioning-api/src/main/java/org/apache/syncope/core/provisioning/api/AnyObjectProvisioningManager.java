@@ -18,17 +18,8 @@
  */
 package org.apache.syncope.core.provisioning.api;
 
-import java.util.List;
-import java.util.Set;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.mod.AnyObjectMod;
-import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 
 public interface AnyObjectProvisioningManager extends ProvisioningManager<AnyObjectTO, AnyObjectMod> {
-
-    Pair<Long, List<PropagationStatus>> create(AnyObjectTO anyObjectTO, Set<String> excludedResources);
-
-    Pair<Long, List<PropagationStatus>> update(AnyObjectMod anyObjectMod, Set<String> excludedResources);
-
 }

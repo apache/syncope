@@ -108,11 +108,19 @@ public class CamelGroupProvisioningManager
     }
 
     @Override
+    public List<PropagationStatus> delete(final Long groupObjectKey) {
+        return delete(groupObjectKey, Collections.<String>emptySet());
+    }
+
+    @Override
     @SuppressWarnings("unchecked")
-    public List<PropagationStatus> delete(final Long groupKey) {
+    public List<PropagationStatus> delete(final Long groupKey, final Set<String> excludedResources) {
         PollingConsumer pollingConsumer = getConsumer("direct:deleteGroupPort");
 
-        sendMessage("direct:deleteGroup", groupKey);
+        Map<String, Object> props = new HashMap<>();
+        props.put("excludedResources", excludedResources);
+
+        sendMessage("direct:deleteGroup", groupKey, props);
 
         Exchange exchange = pollingConsumer.receive();
 

@@ -37,9 +37,7 @@ import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.Entitlement;
-import org.apache.syncope.core.misc.RealmUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
-import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.provisioning.api.AnyObjectProvisioningManager;
@@ -136,7 +134,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectMod> 
     public List<AnyObjectTO> search(final SearchCond searchCondition, final int page, final int size,
             final List<OrderByClause> orderBy, final List<String> realms) {
 
-        final List<AnyObject> matchingAnyObjects = searchDAO.search(
+        List<AnyObject> matchingAnyObjects = searchDAO.search(
                 getEffectiveRealms(AuthContextUtils.getAuthorizations().get(Entitlement.ANY_OBJECT_SEARCH), realms),
                 searchCondition, page, size, orderBy, AnyTypeKind.ANY_OBJECT);
         return CollectionUtils.collect(matchingAnyObjects, new Transformer<AnyObject, AnyObjectTO>() {
@@ -227,7 +225,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectMod> 
     @Transactional(rollbackFor = { Throwable.class })
     @Override
     public AnyObjectTO unlink(final Long anyObjectKey, final Collection<String> resources) {
-        final AnyObjectMod anyObjectMod = new AnyObjectMod();
+        AnyObjectMod anyObjectMod = new AnyObjectMod();
         anyObjectMod.setKey(anyObjectKey);
         anyObjectMod.getResourcesToRemove().addAll(resources);
         final Long updatedResult = provisioningManager.unlink(anyObjectMod);
@@ -239,7 +237,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectMod> 
     @Transactional(rollbackFor = { Throwable.class })
     @Override
     public AnyObjectTO link(final Long anyObjectKey, final Collection<String> resources) {
-        final AnyObjectMod anyObjectMod = new AnyObjectMod();
+        AnyObjectMod anyObjectMod = new AnyObjectMod();
         anyObjectMod.setKey(anyObjectKey);
         anyObjectMod.getResourcesToAdd().addAll(resources);
         return binder.getAnyObjectTO(provisioningManager.link(anyObjectMod));
@@ -249,7 +247,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectMod> 
     @Transactional(rollbackFor = { Throwable.class })
     @Override
     public AnyObjectTO unassign(final Long anyObjectKey, final Collection<String> resources) {
-        final AnyObjectMod anyObjectMod = new AnyObjectMod();
+        AnyObjectMod anyObjectMod = new AnyObjectMod();
         anyObjectMod.setKey(anyObjectKey);
         anyObjectMod.getResourcesToRemove().addAll(resources);
         return update(anyObjectMod);
@@ -258,10 +256,10 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectMod> 
     @PreAuthorize("hasRole('" + Entitlement.ANY_OBJECT_UPDATE + "')")
     @Transactional(rollbackFor = { Throwable.class })
     @Override
-    public AnyObjectTO assign(
-            final Long anyObjectKey, final Collection<String> resources, final boolean changePwd, final String password) {
+    public AnyObjectTO assign(final Long anyObjectKey, final Collection<String> resources,
+            final boolean changePwd, final String password) {
 
-        final AnyObjectMod userMod = new AnyObjectMod();
+        AnyObjectMod userMod = new AnyObjectMod();
         userMod.setKey(anyObjectKey);
         userMod.getResourcesToAdd().addAll(resources);
         return update(userMod);
@@ -271,7 +269,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectMod> 
     @Transactional(rollbackFor = { Throwable.class })
     @Override
     public AnyObjectTO deprovision(final Long anyObjectKey, final Collection<String> resources) {
-        final AnyObject anyObject = anyObjectDAO.authFind(anyObjectKey);
+        AnyObject anyObject = anyObjectDAO.authFind(anyObjectKey);
 
         List<PropagationStatus> statuses = provisioningManager.deprovision(anyObjectKey, resources);
 
@@ -283,8 +281,9 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectMod> 
     @PreAuthorize("hasRole('" + Entitlement.ANY_OBJECT_UPDATE + "')")
     @Transactional(rollbackFor = { Throwable.class })
     @Override
-    public AnyObjectTO provision(
-            final Long anyObjectKey, final Collection<String> resources, final boolean changePwd, final String password) {
+    public AnyObjectTO provision(final Long anyObjectKey, final Collection<String> resources,
+            final boolean changePwd, final String password) {
+
         AnyObjectTO original = binder.getAnyObjectTO(anyObjectKey);
 
         //trick: assign and retrieve propagation statuses ...
@@ -297,7 +296,9 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectMod> 
     }
 
     @Override
-    protected AnyObjectTO resolveReference(final Method method, final Object... args) throws UnresolvedReferenceException {
+    protected AnyObjectTO resolveReference(final Method method, final Object... args)
+            throws UnresolvedReferenceException {
+
         Long key = null;
 
         if (ArrayUtils.isNotEmpty(args)) {

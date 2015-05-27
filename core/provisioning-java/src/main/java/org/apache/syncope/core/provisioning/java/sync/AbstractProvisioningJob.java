@@ -414,21 +414,21 @@ public abstract class AbstractProvisioningJob<T extends ProvisioningTask, A exte
                 throw new JobExecutionException("Task " + taskId + " isn't a SyncTask");
             }
 
-            T _task = clazz.cast(this.task);
+            T provisioningTask = clazz.cast(this.task);
 
             Connector connector;
             try {
-                connector = connFactory.getConnector(_task.getResource());
+                connector = connFactory.getConnector(provisioningTask.getResource());
             } catch (Exception e) {
                 final String msg = String.
                         format("Connector instance bean for resource %s and connInstance %s not found",
-                                _task.getResource(), _task.getResource().getConnector());
+                                provisioningTask.getResource(), provisioningTask.getResource().getConnector());
 
                 throw new JobExecutionException(msg, e);
             }
 
             boolean noMapping = true;
-            for (Provision provision : _task.getResource().getProvisions()) {
+            for (Provision provision : provisioningTask.getResource().getProvisions()) {
                 Mapping mapping = provision.getMapping();
                 if (mapping != null) {
                     noMapping = false;
@@ -443,7 +443,7 @@ public abstract class AbstractProvisioningJob<T extends ProvisioningTask, A exte
             }
 
             return executeWithSecurityContext(
-                    _task,
+                    provisioningTask,
                     connector,
                     dryRun);
         } catch (Throwable t) {

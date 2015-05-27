@@ -112,29 +112,34 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
             AnyType anyType = anyTypeDAO.find(provisionTO.getAnyType());
             if (anyType == null) {
                 LOG.warn("Invalid type specified {}, ignoring...", provisionTO.getAnyType());
-            }
-
-            Provision provision = resource.getProvision(anyType);
-            if (provision == null) {
-                provision = entityFactory.newEntity(Provision.class);
-                provision.setResource(resource);
-                resource.add(provision);
-                provision.setAnyType(anyType);
-            }
-
-            provision.setObjectClass(new ObjectClass(provisionTO.getObjectClass()));
-
-            if (provisionTO.getSyncToken() == null) {
-                provision.setSyncToken(null);
-            }
-
-            if (provisionTO.getMapping() == null) {
-                provision.setMapping(null);
             } else {
-                Mapping mapping = entityFactory.newEntity(Mapping.class);
-                mapping.setProvision(provision);
-                provision.setMapping(mapping);
-                populateMapping(provisionTO.getMapping(), mapping, entityFactory.newEntity(MappingItem.class));
+                Provision provision = resource.getProvision(anyType);
+                if (provision == null) {
+                    provision = entityFactory.newEntity(Provision.class);
+                    provision.setResource(resource);
+                    resource.add(provision);
+                    provision.setAnyType(anyType);
+                }
+
+                if (provisionTO.getObjectClass() == null) {
+                    SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidProvision);
+                    sce.getElements().add("Null ObjectClass");
+                    throw sce;
+                }
+                provision.setObjectClass(new ObjectClass(provisionTO.getObjectClass()));
+
+                if (provisionTO.getSyncToken() == null) {
+                    provision.setSyncToken(null);
+                }
+
+                if (provisionTO.getMapping() == null) {
+                    provision.setMapping(null);
+                } else {
+                    Mapping mapping = entityFactory.newEntity(Mapping.class);
+                    mapping.setProvision(provision);
+                    provision.setMapping(mapping);
+                    populateMapping(provisionTO.getMapping(), mapping, entityFactory.newEntity(MappingItem.class));
+                }
             }
         }
 

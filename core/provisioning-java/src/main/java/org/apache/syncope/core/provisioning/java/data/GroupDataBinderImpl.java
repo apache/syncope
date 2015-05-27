@@ -30,22 +30,17 @@ import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
-import org.apache.syncope.core.misc.ConnObjectUtils;
 import org.apache.syncope.core.misc.search.SearchCondConverter;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.DynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.user.UDynGroupMembership;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @Transactional(rollbackFor = { Throwable.class })
 public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupDataBinder {
-
-    @Autowired
-    private ConnObjectUtils connObjectUtils;
 
     private void setDynMembership(final Group group, final AnyTypeKind anyTypeKind, final String dynMembershipFIQL) {
         SearchCond dynMembershipCond = SearchCondConverter.convert(dynMembershipFIQL);
@@ -77,7 +72,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
 
         // name
-        SyncopeClientException invalidGroups = SyncopeClientException.build(ClientExceptionType.InvalidGroups);
+        SyncopeClientException invalidGroups = SyncopeClientException.build(ClientExceptionType.InvalidGroup);
         if (groupTO.getName() == null) {
             LOG.error("No name specified for this group");
 

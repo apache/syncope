@@ -29,6 +29,7 @@ import org.apache.syncope.common.lib.to.MappingItemTO;
 import org.apache.syncope.common.lib.to.MappingTO;
 import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.PropagationMode;
@@ -39,6 +40,7 @@ import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.provisioning.api.data.ResourceDataBinder;
+import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -82,7 +84,8 @@ public class ResourceDataBinderTest extends AbstractTest {
         resourceTO.setEnforceMandatoryCondition(true);
 
         ProvisionTO provisionTO = new ProvisionTO();
-        provisionTO.setAnyType("user");
+        provisionTO.setAnyType(AnyTypeKind.USER.name());
+        provisionTO.setObjectClass(ObjectClass.ACCOUNT_NAME);
         resourceTO.getProvisions().add(provisionTO);
 
         MappingTO mapping = new MappingTO();

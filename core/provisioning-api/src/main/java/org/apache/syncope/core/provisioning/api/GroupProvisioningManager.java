@@ -28,11 +28,7 @@ import org.apache.syncope.common.lib.to.GroupTO;
 
 public interface GroupProvisioningManager extends ProvisioningManager<GroupTO, GroupMod> {
 
-    Pair<Long, List<PropagationStatus>> create(GroupTO groupTO, Set<String> excludedResources);
-
     Pair<Long, List<PropagationStatus>> create(
             GroupTO groupTO, Map<Long, String> groupOwnerMap, Set<String> excludedResources);
-
-    Pair<Long, List<PropagationStatus>> update(GroupMod groupMod, Set<String> excludedResources);
 
 }

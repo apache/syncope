@@ -77,6 +77,11 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
     }
 
     @Override
+    public Pair<Long, List<PropagationStatus>> create(final UserTO userTO, final Set<String> excludedResources) {
+        return create(userTO, false, false, null, excludedResources);
+    }
+
+    @Override
     public Pair<Long, List<PropagationStatus>> create(final UserTO userTO, final boolean storePassword,
             final boolean disablePwdPolicyCheck, final Boolean enabled, final Set<String> excludedResources) {
 
@@ -138,6 +143,64 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
     }
 
     @Override
+    public Pair<Long, List<PropagationStatus>> update(final UserMod userMod, final Set<String> excludedResources) {
+        return update(userMod, userMod.getKey(), new ProvisioningResult(), null, excludedResources);
+    }
+
+    @Override
+    public Pair<Long, List<PropagationStatus>> update(final UserMod userMod, final Long key,
+            final ProvisioningResult result, final Boolean enabled, final Set<String> excludedResources) {
+
+        WorkflowResult<Pair<UserMod, Boolean>> updated;
+        try {
+            updated = uwfAdapter.update(userMod);
+        } catch (Exception e) {
+            LOG.error("Update of user {} failed, trying to sync its status anyway (if configured)", key, e);
+
+            result.setStatus(ProvisioningResult.Status.FAILURE);
+            result.setMessage("Update failed, trying to sync status anyway (if configured)\n" + e.getMessage());
+
+            updated = new WorkflowResult<Pair<UserMod, Boolean>>(
+                    new ImmutablePair<>(userMod, false), new PropagationByResource(),
+                    new HashSet<String>());
+        }
+
+        if (enabled != null) {
+            User user = userDAO.find(key);
+
+            WorkflowResult<Long> enableUpdate = null;
+            if (user.isSuspended() == null) {
+                enableUpdate = uwfAdapter.activate(key, null);
+            } else if (enabled && user.isSuspended()) {
+                enableUpdate = uwfAdapter.reactivate(key);
+            } else if (!enabled && !user.isSuspended()) {
+                enableUpdate = uwfAdapter.suspend(key);
+            }
+
+            if (enableUpdate != null) {
+                if (enableUpdate.getPropByRes() != null) {
+                    updated.getPropByRes().merge(enableUpdate.getPropByRes());
+                    updated.getPropByRes().purge();
+                }
+                updated.getPerformedTasks().addAll(enableUpdate.getPerformedTasks());
+            }
+        }
+
+        List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(
+                updated, updated.getResult().getKey().getPassword() != null, excludedResources);
+        PropagationReporter propagationReporter = ApplicationContextProvider.getApplicationContext().
+                getBean(PropagationReporter.class);
+        try {
+            taskExecutor.execute(tasks, propagationReporter);
+        } catch (PropagationException e) {
+            LOG.error("Error propagation primary resource", e);
+            propagationReporter.onPrimaryResourceFailure(tasks);
+        }
+
+        return new ImmutablePair<>(updated.getResult().getKey().getKey(), propagationReporter.getStatuses());
+    }
+
+    @Override
     public List<PropagationStatus> delete(final Long userKey) {
         return delete(userKey, Collections.<String>emptySet());
     }
@@ -176,8 +239,8 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
     }
 
     @Override
-    public Long link(final UserMod anyMod) {
-        return uwfAdapter.update(anyMod).getResult().getKey().getKey();
+    public Long link(final UserMod userMod) {
+        return uwfAdapter.update(userMod).getResult().getKey().getKey();
     }
 
     @Override
@@ -262,61 +325,6 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
         }
 
         return propagationReporter.getStatuses();
-    }
-
-    @Override
-    public Pair<Long, List<PropagationStatus>> update(final UserMod userMod, final Long key,
-            final ProvisioningResult result, final Boolean enabled, final Set<String> excludedResources) {
-
-        WorkflowResult<Pair<UserMod, Boolean>> updated;
-        try {
-            updated = uwfAdapter.update(userMod);
-        } catch (Exception e) {
-            LOG.error("Update of user {} failed, trying to sync its status anyway (if configured)", key, e);
-
-            result.setStatus(ProvisioningResult.Status.FAILURE);
-            result.setMessage("Update failed, trying to sync status anyway (if configured)\n" + e.getMessage());
-
-            updated = new WorkflowResult<Pair<UserMod, Boolean>>(
-                    new ImmutablePair<>(userMod, false), new PropagationByResource(),
-                    new HashSet<String>());
-        }
-
-        if (enabled != null) {
-            User user = userDAO.find(key);
-
-            WorkflowResult<Long> enableUpdate = null;
-            if (user.isSuspended() == null) {
-                enableUpdate = uwfAdapter.activate(key, null);
-            } else if (enabled && user.isSuspended()) {
-                enableUpdate = uwfAdapter.reactivate(key);
-            } else if (!enabled && !user.isSuspended()) {
-                enableUpdate = uwfAdapter.suspend(key);
-            }
-
-            if (enableUpdate != null) {
-                if (enableUpdate.getPropByRes() != null) {
-                    updated.getPropByRes().merge(enableUpdate.getPropByRes());
-                    updated.getPropByRes().purge();
-                }
-                updated.getPerformedTasks().addAll(enableUpdate.getPerformedTasks());
-            }
-        }
-
-        List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(
-                updated, updated.getResult().getKey().getPassword() != null, excludedResources);
-        PropagationReporter propagationReporter = ApplicationContextProvider.getApplicationContext().
-                getBean(PropagationReporter.class);
-        try {
-            taskExecutor.execute(tasks, propagationReporter);
-        } catch (PropagationException e) {
-            LOG.error("Error propagation primary resource", e);
-            propagationReporter.onPrimaryResourceFailure(tasks);
-        }
-
-        return new ImmutablePair<>(updated.getResult().getKey().getKey(),
-                propagationReporter.getStatuses());
-
     }
 
     @Override

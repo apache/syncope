@@ -35,6 +35,14 @@ public interface UserDataBinder {
 
     void create(User user, UserTO userTO, boolean storePassword);
 
+    /**
+     * Update user, given UserMod.
+     *
+     * @param toBeUpdated user to be updated
+     * @param userMod bean containing update request
+     * @return updated user + propagation by resource
+     * @see PropagationByResource
+     */
     PropagationByResource update(User toBeUpdated, UserMod userMod);
 
     boolean verifyPassword(String username, String password);

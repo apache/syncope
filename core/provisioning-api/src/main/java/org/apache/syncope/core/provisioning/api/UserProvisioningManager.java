@@ -46,8 +46,6 @@ public interface UserProvisioningManager extends ProvisioningManager<UserTO, Use
     Pair<Long, List<PropagationStatus>> update(UserMod userMod, Long key,
             ProvisioningResult result, Boolean enabled, Set<String> excludedResources);
 
-    List<PropagationStatus> delete(Long key, Set<String> excludedResources);
-
     void requestPasswordReset(Long key);
 
     void confirmPasswordReset(User user, String token, String password);
