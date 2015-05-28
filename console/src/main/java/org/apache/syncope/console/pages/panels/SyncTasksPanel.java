@@ -29,6 +29,7 @@ import org.apache.syncope.console.pages.SyncTaskModalPage;
 import org.apache.syncope.console.pages.UserTemplateModalPage;
 import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
+import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.JobColumn;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.wicket.Component;
@@ -69,6 +70,9 @@ public class SyncTasksPanel extends AbstractSyncTasksPanel<SyncTaskTO> {
                 new StringResourceModel("nextExec", this, null), "nextExec", "nextExec"));
         syncTaskscolumns.add(new PropertyColumn<AbstractTaskTO, String>(
                 new StringResourceModel("latestExecStatus", this, null), "latestExecStatus", "latestExecStatus"));
+        
+        syncTaskscolumns.add(new JobColumn<AbstractTaskTO, String>(new StringResourceModel("", this, null, ""), "runtime",
+                pageRef, restClient));        
 
         syncTaskscolumns.add(
                 new ActionColumn<AbstractTaskTO, String>(new StringResourceModel("actions", this, null, "")) {

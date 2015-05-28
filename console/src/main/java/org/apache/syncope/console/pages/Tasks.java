@@ -152,10 +152,10 @@ public class Tasks extends BasePage {
         @Override
         public Iterator<T> iterator(final long first, final long count) {
             final List<T> tasks = new ArrayList<T>();
-            
+
             final int page = ((int) first / paginatorRows);
-            
-            for (T task : restClient.list(reference, (page < 0 ? 0 : page)  + 1, paginatorRows, getSort())) {
+
+            for (T task : restClient.list(reference, (page < 0 ? 0 : page) + 1, paginatorRows, getSort())) {
                 if (task instanceof SchedTaskTO && ((SchedTaskTO) task).getLastExec() == null
                         && task.getExecutions() != null && !task.getExecutions().isEmpty()) {
 
@@ -227,4 +227,13 @@ public class Tasks extends BasePage {
 
         return table;
     }
+
+    /**
+     * IndicatorMarkupId behaviour is embedded in Tasks.html
+     */
+    @Override
+    public String getAjaxIndicatorMarkupId() {
+        return "";
+    }
+
 }

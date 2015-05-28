@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.console.pages.panels;
 
+import static org.apache.syncope.console.pages.panels.AbstractTasks.TASKS;
+
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.common.to.SchedTaskTO;
@@ -30,6 +32,7 @@ import org.apache.syncope.console.pages.Tasks.TasksProvider;
 import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
 import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
+import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.JobColumn;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.wicket.Component;
@@ -166,6 +169,9 @@ public class SchedTasks extends AbstractTasks {
                 new StringResourceModel("nextExec", this, null), "nextExec", "nextExec"));
         columns.add(new PropertyColumn<AbstractTaskTO, String>(
                 new StringResourceModel("latestExecStatus", this, null), "latestExecStatus", "latestExecStatus"));
+
+        columns.add(new JobColumn<AbstractTaskTO, String>(new StringResourceModel("", this, null, ""), "runtime",
+                pageRef, restClient)); 
 
         columns.add(new ActionColumn<AbstractTaskTO, String>(new StringResourceModel("actions", this, null, "")) {
 

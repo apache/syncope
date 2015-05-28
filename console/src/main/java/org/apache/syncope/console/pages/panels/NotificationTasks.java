@@ -28,6 +28,7 @@ import org.apache.syncope.console.pages.NotificationTaskModalPage;
 import org.apache.syncope.console.pages.Tasks;
 import org.apache.syncope.console.pages.Tasks.TasksProvider;
 import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
+import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.JobColumn;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.wicket.Component;
@@ -151,6 +152,9 @@ public class NotificationTasks extends AbstractTasks {
                 new StringResourceModel("traceLevel", this, null), "traceLevel", "traceLevel"));
         columns.add(new PropertyColumn<AbstractTaskTO, String>(
                 new StringResourceModel("latestExecStatus", this, null), "latestExecStatus", "latestExecStatus"));
+
+        columns.add(new JobColumn<AbstractTaskTO, String>(new StringResourceModel("", this, null, ""), "runtime",
+                pageRef, restClient)); 
 
         columns.add(new ActionColumn<AbstractTaskTO, String>(new StringResourceModel("actions", this, null, "")) {
 

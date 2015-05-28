@@ -158,7 +158,20 @@ abstract class AbstractJobController<T extends AbstractBaseBean> extends Abstrac
                 if (scheduler.getScheduler().checkExists(jobKey)) {
                     switch (action) {
                         case START:
-                            scheduler.getScheduler().triggerJob(jobKey);
+                            Long currentId = getIdFromJobName(jobKey);
+                            boolean found = false;
+                            //Two or more equals jobs cannot be executed concurrently
+                            for (int i = 0; i < scheduler.getScheduler().getCurrentlyExecutingJobs().size() && !found;
+                                    i++) {
+                                JobExecutionContext jec = scheduler.getScheduler().getCurrentlyExecutingJobs().get(i);
+                                Long jobId = getIdFromJobName(jec.getJobDetail().getKey());
+                                if (jobId == currentId) {
+                                    found = true;
+                                }
+                            }
+                            if (!found) {
+                                scheduler.getScheduler().triggerJob(jobKey);
+                            }
                             break;
 
                         case STOP:
