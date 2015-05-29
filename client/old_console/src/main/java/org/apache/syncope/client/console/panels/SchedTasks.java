@@ -16,22 +16,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.panels;
+package org.apache.syncope.console.pages.panels;
+
+import static org.apache.syncope.console.pages.panels.AbstractTasks.TASKS;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.pages.SchedTaskModalPage;
-import org.apache.syncope.client.console.pages.Tasks;
-import org.apache.syncope.client.console.pages.Tasks.TasksProvider;
-import org.apache.syncope.client.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
-import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
-import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
-import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
-import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
-import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.AbstractTaskTO;
-import org.apache.syncope.common.lib.to.SchedTaskTO;
+import org.apache.syncope.common.to.SchedTaskTO;
+import org.apache.syncope.common.to.AbstractTaskTO;
+import org.apache.syncope.common.SyncopeClientException;
+import org.apache.syncope.console.commons.Constants;
+import org.apache.syncope.console.pages.SchedTaskModalPage;
+import org.apache.syncope.console.pages.Tasks;
+import org.apache.syncope.console.pages.Tasks.TasksProvider;
+import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
+import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
+import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
+import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.JobColumn;
+import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
+import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageReference;
@@ -153,7 +156,7 @@ public class SchedTasks extends AbstractTasks {
         final List<IColumn<AbstractTaskTO, String>> columns = new ArrayList<IColumn<AbstractTaskTO, String>>();
 
         columns.add(new PropertyColumn<AbstractTaskTO, String>(
-                new StringResourceModel("key", this, null), "key", "key"));
+                new StringResourceModel("id", this, null), "id", "id"));
         columns.add(new PropertyColumn<AbstractTaskTO, String>(
                 new StringResourceModel("name", this, null), "name", "name"));
         columns.add(new PropertyColumn<AbstractTaskTO, String>(
@@ -166,6 +169,9 @@ public class SchedTasks extends AbstractTasks {
                 new StringResourceModel("nextExec", this, null), "nextExec", "nextExec"));
         columns.add(new PropertyColumn<AbstractTaskTO, String>(
                 new StringResourceModel("latestExecStatus", this, null), "latestExecStatus", "latestExecStatus"));
+
+        columns.add(new JobColumn<AbstractTaskTO, String>(new StringResourceModel("", this, null, ""), "runtime",
+                pageRef, restClient)); 
 
         columns.add(new ActionColumn<AbstractTaskTO, String>(new StringResourceModel("actions", this, null, "")) {
 
@@ -205,7 +211,7 @@ public class SchedTasks extends AbstractTasks {
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
                         try {
-                            restClient.startExecution(taskTO.getKey(), false);
+                            restClient.startExecution(taskTO.getId(), false);
                             getSession().info(getString(Constants.OPERATION_SUCCEEDED));
                         } catch (SyncopeClientException scce) {
                             error(scce.getMessage());
@@ -223,7 +229,7 @@ public class SchedTasks extends AbstractTasks {
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
                         try {
-                            restClient.startExecution(taskTO.getKey(), true);
+                            restClient.startExecution(taskTO.getId(), true);
                             getSession().info(getString(Constants.OPERATION_SUCCEEDED));
                         } catch (SyncopeClientException scce) {
                             error(scce.getMessage());
@@ -241,7 +247,7 @@ public class SchedTasks extends AbstractTasks {
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
                         try {
-                            restClient.delete(taskTO.getKey(), SchedTaskTO.class);
+                            restClient.delete(taskTO.getId(), SchedTaskTO.class);
                             info(getString(Constants.OPERATION_SUCCEEDED));
                         } catch (SyncopeClientException scce) {
                             error(scce.getMessage());

@@ -16,29 +16,31 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.pages;
+package org.apache.syncope.console.pages;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.commons.PreferenceManager;
-import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
-import org.apache.syncope.client.console.panels.LoggerCategoryPanel;
-import org.apache.syncope.client.console.panels.SelectedEventsPanel;
-import org.apache.syncope.client.console.rest.LoggerRestClient;
-import org.apache.syncope.client.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
-import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
-import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
-import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
-import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
-import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.EventCategoryTO;
-import org.apache.syncope.common.lib.to.ReportTO;
-import org.apache.syncope.common.lib.types.AuditElements.Result;
-import org.apache.syncope.common.lib.types.AuditLoggerName;
+import java.util.Map;
+import org.apache.syncope.common.to.EventCategoryTO;
+import org.apache.syncope.common.to.ReportTO;
+import org.apache.syncope.common.types.AuditElements.Result;
+import org.apache.syncope.common.types.AuditLoggerName;
+import org.apache.syncope.common.util.LoggerEventUtils;
+import org.apache.syncope.common.SyncopeClientException;
+import org.apache.syncope.console.commons.Constants;
+import org.apache.syncope.console.commons.PreferenceManager;
+import org.apache.syncope.console.commons.SortableDataProviderComparator;
+import org.apache.syncope.console.pages.panels.LoggerCategoryPanel;
+import org.apache.syncope.console.pages.panels.SelectedEventsPanel;
+import org.apache.syncope.console.rest.LoggerRestClient;
+import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
+import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
+import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
+import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.JobColumn;
+import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
+import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -60,6 +62,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
@@ -113,8 +116,8 @@ public class Reports extends BasePage {
 
         paginatorRows = prefMan.getPaginatorRows(getRequest(), Constants.PREF_REPORT_PAGINATOR_ROWS);
 
-        List<IColumn<ReportTO, String>> columns = new ArrayList<>();
-        columns.add(new PropertyColumn<ReportTO, String>(new ResourceModel("key"), "key", "key"));
+        List<IColumn<ReportTO, String>> columns = new ArrayList<IColumn<ReportTO, String>>();
+        columns.add(new PropertyColumn<ReportTO, String>(new ResourceModel("id"), "id", "id"));
         columns.add(new PropertyColumn<ReportTO, String>(new ResourceModel("name"), "name", "name"));
         columns.add(new DatePropertyColumn<ReportTO>(new ResourceModel("lastExec"), "lastExec", "lastExec"));
         columns.add(new DatePropertyColumn<ReportTO>(new ResourceModel("nextExec"), "nextExec", "nextExec"));
@@ -122,6 +125,8 @@ public class Reports extends BasePage {
         columns.add(new DatePropertyColumn<ReportTO>(new ResourceModel("endDate"), "endDate", "endDate"));
         columns.add(new PropertyColumn<ReportTO, String>(
                 new ResourceModel("latestExecStatus"), "latestExecStatus", "latestExecStatus"));
+        columns.add(new JobColumn<ReportTO, String>(new StringResourceModel("", this, null, ""), "runtime",
+                getPageReference(), reportRestClient));
         columns.add(new ActionColumn<ReportTO, String>(new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
@@ -161,7 +166,7 @@ public class Reports extends BasePage {
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
                         try {
-                            reportRestClient.startExecution(reportTO.getKey());
+                            reportRestClient.startExecution(reportTO.getId());
                             getSession().info(getString(Constants.OPERATION_SUCCEEDED));
                         } catch (SyncopeClientException scce) {
                             error(scce.getMessage());
@@ -179,7 +184,7 @@ public class Reports extends BasePage {
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
                         try {
-                            reportRestClient.delete(reportTO.getKey());
+                            reportRestClient.delete(reportTO.getId());
                             info(getString(Constants.OPERATION_SUCCEEDED));
                         } catch (SyncopeClientException scce) {
                             error(scce.getMessage());
@@ -213,7 +218,8 @@ public class Reports extends BasePage {
         });
 
         final AjaxFallbackDefaultDataTable<ReportTO, String> reportTable =
-                new AjaxFallbackDefaultDataTable<>("reportTable", columns, new ReportProvider(), paginatorRows);
+                new AjaxFallbackDefaultDataTable<ReportTO, String>(
+                        "reportTable", columns, new ReportProvider(), paginatorRows);
 
         reportContainer.add(reportTable);
         reportContainer.setOutputMarkupId(true);
@@ -247,7 +253,7 @@ public class Reports extends BasePage {
         paginatorForm.add(rowsChooser);
         add(paginatorForm);
 
-        AjaxLink<Void> createLink = new ClearIndicatingAjaxLink<Void>("createLink", getPageReference()) {
+        AjaxLink createLink = new ClearIndicatingAjaxLink("createLink", getPageReference()) {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
@@ -285,11 +291,11 @@ public class Reports extends BasePage {
         final Form form = new Form("auditForm");
         auditContainer.add(form);
 
-        final List<String> events = new ArrayList<>();
+        final List<String> events = new ArrayList<String>();
 
         final List<AuditLoggerName> audits = loggerRestClient.listAudits();
         for (AuditLoggerName audit : audits) {
-            events.add(AuditLoggerName.buildEvent(
+            events.add(LoggerEventUtils.buildEvent(
                     audit.getType(),
                     audit.getCategory(),
                     audit.getSubcategory(),
@@ -297,7 +303,7 @@ public class Reports extends BasePage {
                     audit.getResult()));
         }
 
-        final ListModel<String> model = new ListModel<>(new ArrayList<>(events));
+        final ListModel<String> model = new ListModel<String>(new ArrayList<String>(events));
 
         form.add(new LoggerCategoryPanel(
                 "events", loggerRestClient.listEvents(), model, getPageReference(), "Reports") {
@@ -328,8 +334,8 @@ public class Reports extends BasePage {
 
                             for (String toBeRemoved : eventSelectionChanged.getToBeRemoved()) {
                                 if (events.contains(toBeRemoved)) {
-                                    Pair<EventCategoryTO, Result> eventCategory =
-                                    AuditLoggerName.parseEventCategory(toBeRemoved);
+                                    final Map.Entry<EventCategoryTO, Result> eventCategory =
+                                    LoggerEventUtils.parseEventCategory(toBeRemoved);
 
                                     final AuditLoggerName auditLoggerName = new AuditLoggerName(
                                             eventCategory.getKey().getType(),
@@ -346,8 +352,8 @@ public class Reports extends BasePage {
 
                             for (String toBeAdded : eventSelectionChanged.getToBeAdded()) {
                                 if (!events.contains(toBeAdded)) {
-                                    Pair<EventCategoryTO, Result> eventCategory =
-                                    AuditLoggerName.parseEventCategory(toBeAdded);
+                                    final Map.Entry<EventCategoryTO, Result> eventCategory =
+                                    LoggerEventUtils.parseEventCategory(toBeAdded);
 
                                     final AuditLoggerName auditLoggerName = new AuditLoggerName(
                                             eventCategory.getKey().getType(),
@@ -376,8 +382,8 @@ public class Reports extends BasePage {
             super();
 
             //Default sorting
-            setSort("key", SortOrder.ASCENDING);
-            comparator = new SortableDataProviderComparator<>(this);
+            setSort("id", SortOrder.ASCENDING);
+            comparator = new SortableDataProviderComparator<ReportTO>(this);
         }
 
         @Override
@@ -408,5 +414,12 @@ public class Reports extends BasePage {
                 }
             };
         }
+    }
+    /**
+     * IndicatorMarkupId behaviour is embedded in Reports.html
+     */
+    @Override
+    public String getAjaxIndicatorMarkupId() {
+        return "";
     }
 }

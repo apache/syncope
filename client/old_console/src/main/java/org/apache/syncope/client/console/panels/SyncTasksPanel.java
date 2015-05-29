@@ -16,21 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.panels;
+package org.apache.syncope.console.pages.panels;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.pages.GroupTemplateModalPage;
-import org.apache.syncope.client.console.pages.SyncTaskModalPage;
-import org.apache.syncope.client.console.pages.UserTemplateModalPage;
-import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
-import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
-import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
-import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
-import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.AbstractTaskTO;
-import org.apache.syncope.common.lib.to.SyncTaskTO;
+import org.apache.syncope.common.SyncopeClientException;
+import org.apache.syncope.common.to.AbstractTaskTO;
+import org.apache.syncope.common.to.SyncTaskTO;
+import org.apache.syncope.console.commons.Constants;
+import org.apache.syncope.console.pages.RoleTemplateModalPage;
+import org.apache.syncope.console.pages.SyncTaskModalPage;
+import org.apache.syncope.console.pages.UserTemplateModalPage;
+import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
+import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
+import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.JobColumn;
+import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
+import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageReference;
@@ -42,7 +43,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
 
-public class SyncTasksPanel extends AbstractProvisioningTasksPanel<SyncTaskTO> {
+public class SyncTasksPanel extends AbstractSyncTasksPanel<SyncTaskTO> {
 
     private static final long serialVersionUID = 53189199346016099L;
 
@@ -53,10 +54,10 @@ public class SyncTasksPanel extends AbstractProvisioningTasksPanel<SyncTaskTO> {
 
     @Override
     protected List<IColumn<AbstractTaskTO, String>> getColumns() {
-        final List<IColumn<AbstractTaskTO, String>> syncTaskscolumns = new ArrayList<>();
+        final List<IColumn<AbstractTaskTO, String>> syncTaskscolumns = new ArrayList<IColumn<AbstractTaskTO, String>>();
 
         syncTaskscolumns.add(new PropertyColumn<AbstractTaskTO, String>(
-                new StringResourceModel("key", this, null), "key", "key"));
+                new StringResourceModel("id", this, null), "id", "id"));
         syncTaskscolumns.add(new PropertyColumn<AbstractTaskTO, String>(
                 new StringResourceModel("name", this, null), "name", "name"));
         syncTaskscolumns.add(new PropertyColumn<AbstractTaskTO, String>(
@@ -69,8 +70,12 @@ public class SyncTasksPanel extends AbstractProvisioningTasksPanel<SyncTaskTO> {
                 new StringResourceModel("nextExec", this, null), "nextExec", "nextExec"));
         syncTaskscolumns.add(new PropertyColumn<AbstractTaskTO, String>(
                 new StringResourceModel("latestExecStatus", this, null), "latestExecStatus", "latestExecStatus"));
+        
+        syncTaskscolumns.add(new JobColumn<AbstractTaskTO, String>(new StringResourceModel("", this, null, ""), "runtime",
+                pageRef, restClient));        
 
-        syncTaskscolumns.add(new ActionColumn<AbstractTaskTO, String>(new StringResourceModel("actions", this, null, "")) {
+        syncTaskscolumns.add(
+                new ActionColumn<AbstractTaskTO, String>(new StringResourceModel("actions", this, null, "")) {
 
                     private static final long serialVersionUID = 2054811145491901166L;
 
@@ -136,13 +141,13 @@ public class SyncTasksPanel extends AbstractProvisioningTasksPanel<SyncTaskTO> {
 
                                     @Override
                                     public Page createPage() {
-                                        return new GroupTemplateModalPage(pageRef, window, taskTO);
+                                        return new RoleTemplateModalPage(pageRef, window, taskTO);
                                     }
                                 });
 
                                 window.show(target);
                             }
-                        }, ActionLink.ActionType.GROUP_TEMPLATE, TASKS);
+                        }, ActionLink.ActionType.ROLE_TEMPLATE, TASKS);
 
                         panel.add(new ActionLink() {
 
@@ -151,7 +156,7 @@ public class SyncTasksPanel extends AbstractProvisioningTasksPanel<SyncTaskTO> {
                             @Override
                             public void onClick(final AjaxRequestTarget target) {
                                 try {
-                                    restClient.startExecution(taskTO.getKey(), false);
+                                    restClient.startExecution(taskTO.getId(), false);
                                     getSession().info(getString(Constants.OPERATION_SUCCEEDED));
                                 } catch (SyncopeClientException scce) {
                                     error(scce.getMessage());
@@ -169,7 +174,7 @@ public class SyncTasksPanel extends AbstractProvisioningTasksPanel<SyncTaskTO> {
                             @Override
                             public void onClick(final AjaxRequestTarget target) {
                                 try {
-                                    restClient.startExecution(taskTO.getKey(), true);
+                                    restClient.startExecution(taskTO.getId(), true);
                                     getSession().info(getString(Constants.OPERATION_SUCCEEDED));
                                 } catch (SyncopeClientException scce) {
                                     error(scce.getMessage());
@@ -187,7 +192,7 @@ public class SyncTasksPanel extends AbstractProvisioningTasksPanel<SyncTaskTO> {
                             @Override
                             public void onClick(final AjaxRequestTarget target) {
                                 try {
-                                    restClient.delete(taskTO.getKey(), SyncTaskTO.class);
+                                    restClient.delete(taskTO.getId(), SyncTaskTO.class);
                                     info(getString(Constants.OPERATION_SUCCEEDED));
                                 } catch (SyncopeClientException scce) {
                                     error(scce.getMessage());
@@ -201,7 +206,7 @@ public class SyncTasksPanel extends AbstractProvisioningTasksPanel<SyncTaskTO> {
                     }
 
                     @Override
-                    public Component getHeader(final String componentId) {
+                    public Component getHeader(String componentId) {
                         final ActionLinksPanel panel = new ActionLinksPanel(componentId, new Model(), pageRef);
 
                         panel.add(new ActionLink() {
