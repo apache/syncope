@@ -16,28 +16,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.console.rest;
+package org.apache.syncope.client.console.rest;
 
-import java.util.ArrayList;
 import java.util.List;
-import org.apache.syncope.common.services.TaskService;
-import org.apache.syncope.common.reqres.BulkAction;
-import org.apache.syncope.common.reqres.BulkActionResult;
-import org.apache.syncope.common.wrap.JobClass;
-import org.apache.syncope.common.to.NotificationTaskTO;
-import org.apache.syncope.common.to.PropagationTaskTO;
-import org.apache.syncope.common.to.SchedTaskTO;
-import org.apache.syncope.common.wrap.SyncActionClass;
-import org.apache.syncope.common.to.SyncTaskTO;
-import org.apache.syncope.common.to.AbstractTaskTO;
-import org.apache.syncope.common.types.TaskType;
-import org.apache.syncope.common.util.CollectionWrapper;
-import org.apache.syncope.common.SyncopeClientException;
-import org.apache.syncope.common.to.PushTaskTO;
-import org.apache.syncope.common.to.TaskExecTO;
-import org.apache.syncope.common.types.JobAction;
-import org.apache.syncope.common.types.JobStatusType;
-import org.apache.syncope.common.wrap.PushActionClass;
+import org.apache.syncope.client.console.SyncopeSession;
+import org.apache.syncope.common.lib.to.AbstractTaskTO;
+import org.apache.syncope.common.lib.to.BulkAction;
+import org.apache.syncope.common.lib.to.BulkActionResult;
+import org.apache.syncope.common.lib.to.NotificationTaskTO;
+import org.apache.syncope.common.lib.to.PropagationTaskTO;
+import org.apache.syncope.common.lib.to.PushTaskTO;
+import org.apache.syncope.common.lib.to.SchedTaskTO;
+import org.apache.syncope.common.lib.to.SyncTaskTO;
+import org.apache.syncope.common.lib.types.TaskType;
+import org.apache.syncope.common.lib.to.TaskExecTO;
+import org.apache.syncope.common.lib.types.JobAction;
+import org.apache.syncope.common.lib.types.JobStatusType;
+import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 import org.springframework.stereotype.Component;
 
@@ -49,42 +44,16 @@ public class TaskRestClient extends JobRestClient implements ExecutionRestClient
 
     private static final long serialVersionUID = 6284485820911028843L;
 
-    /**
-     * Return a list of job classes.
-     *
-     * @return list of classes.
-     */
     public List<String> getJobClasses() {
-        List<JobClass> jobClasses = null;
-
-        try {
-            jobClasses = new ArrayList<JobClass>(getService(TaskService.class).getJobClasses());
-        } catch (SyncopeClientException e) {
-            LOG.error("While getting all job classes", e);
-        }
-        return CollectionWrapper.unwrap(jobClasses);
+        return SyncopeSession.get().getSyncopeTO().getTaskJobs();
     }
 
     public List<String> getSyncActionsClasses() {
-        List<SyncActionClass> actions = null;
-
-        try {
-            actions = new ArrayList<SyncActionClass>(getService(TaskService.class).getSyncActionsClasses());
-        } catch (SyncopeClientException e) {
-            LOG.error("While getting all sync actions classes", e);
-        }
-        return CollectionWrapper.unwrap(actions);
+        return SyncopeSession.get().getSyncopeTO().getSyncActions();
     }
 
     public List<String> getPushActionsClasses() {
-        List<PushActionClass> actions = null;
-
-        try {
-            actions = new ArrayList<PushActionClass>(getService(TaskService.class).getPushActionsClasses());
-        } catch (SyncopeClientException e) {
-            LOG.error("While getting all sync actions classes", e);
-        }
-        return CollectionWrapper.unwrap(actions);
+        return SyncopeSession.get().getSyncopeTO().getPushActions();
     }
 
     /**
@@ -160,27 +129,29 @@ public class TaskRestClient extends JobRestClient implements ExecutionRestClient
     }
 
     public void updateSchedTask(final SchedTaskTO taskTO) {
-        getService(TaskService.class).update(taskTO.getId(), taskTO);
+        getService(TaskService.class).update(taskTO.getKey(), taskTO);
     }
 
     public void updateSyncTask(final SyncTaskTO taskTO) {
-        getService(TaskService.class).update(taskTO.getId(), taskTO);
+        getService(TaskService.class).update(taskTO.getKey(), taskTO);
     }
 
     public BulkActionResult bulkAction(final BulkAction action) {
         return getService(TaskService.class).bulk(action);
     }
-    
+
     @Override
-    public boolean isJobRunning(final long taskId){
-        for(TaskExecTO taskExecTO : getService(TaskService.class).listJobs(JobStatusType.RUNNING)){
-            if(taskExecTO.getTask()== taskId) return true;
+    public boolean isJobRunning(final long taskId) {
+        for (TaskExecTO taskExecTO : getService(TaskService.class).listJobs(JobStatusType.RUNNING)) {
+            if (taskExecTO.getTask() == taskId) {
+                return true;
+            }
         }
         return false;
     }
-    
+
     @Override
-    public void startJob(final long taskId){
+    public void startJob(final long taskId) {
         getService(TaskService.class).actionJob(taskId, JobAction.START);
     }
 

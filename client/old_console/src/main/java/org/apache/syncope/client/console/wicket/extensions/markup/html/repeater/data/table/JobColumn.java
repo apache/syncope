@@ -20,8 +20,8 @@ package org.apache.syncope.client.console.wicket.extensions.markup.html.repeater
 
 import org.apache.syncope.client.console.panels.RuntimePanel;
 import org.apache.syncope.client.console.rest.JobRestClient;
-import org.apache.syncope.common.to.AbstractTaskTO;
-import org.apache.syncope.common.to.ReportTO;
+import org.apache.syncope.common.lib.to.AbsractTaskTO;
+import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AbstractAjaxTimerBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;

@@ -19,7 +19,7 @@
 package org.apache.syncope.client.console.panels;
 
 import org.apache.syncope.client.console.rest.JobRestClient;
-import org.apache.syncope.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
+import org.apache.syncope.client.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AbstractAjaxTimerBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;

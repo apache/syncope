@@ -16,19 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.console.rest;
+package org.apache.syncope.client.console.rest;
 
 import java.util.ArrayList;
 import java.util.List;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.common.services.ReportService;
-import org.apache.syncope.common.to.ReportTO;
-import org.apache.syncope.common.types.ReportExecExportFormat;
-import org.apache.syncope.common.SyncopeClientException;
-import org.apache.syncope.common.to.ReportExecTO;
-import org.apache.syncope.common.types.JobAction;
-import org.apache.syncope.common.types.JobStatusType;
-import org.apache.syncope.common.wrap.ReportletConfClass;
+import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.to.ReportTO;
+import org.apache.syncope.common.lib.types.ReportExecExportFormat;
+import org.apache.syncope.common.lib.wrap.ReportletConfClass;
+import org.apache.syncope.common.lib.types.JobAction;
+import org.apache.syncope.common.lib.types.JobStatusType;
+import org.apache.syncope.common.rest.api.service.ReportService;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 import org.springframework.stereotype.Component;
 
@@ -73,7 +72,7 @@ public class ReportRestClient extends JobRestClient implements ExecutionRestClie
     }
 
     public void update(final ReportTO reportTO) {
-        getService(ReportService.class).update(reportTO.getId(), reportTO);
+        getService(ReportService.class).update(reportTO.getKey(), reportTO);
     }
 
     /**
@@ -108,7 +107,8 @@ public class ReportRestClient extends JobRestClient implements ExecutionRestClie
     public Response exportExecutionResult(final Long executionId, final ReportExecExportFormat fmt) {
         return getService(ReportService.class).exportExecutionResult(executionId, fmt);
     }
-
+    
+    
     @Override
     public boolean isJobRunning(final long reportId) {
         for (ReportExecTO reportExecTO : getService(ReportService.class).listJobs(JobStatusType.RUNNING)) {

@@ -16,21 +16,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.console.pages.panels;
+package org.apache.syncope.client.console.panels;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.syncope.common.to.NotificationTaskTO;
-import org.apache.syncope.common.to.AbstractTaskTO;
-import org.apache.syncope.common.SyncopeClientException;
-import org.apache.syncope.console.commons.Constants;
-import org.apache.syncope.console.pages.NotificationTaskModalPage;
-import org.apache.syncope.console.pages.Tasks;
-import org.apache.syncope.console.pages.Tasks.TasksProvider;
-import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
-import org.apache.syncope.console.wicket.extensions.markup.html.repeater.data.table.JobColumn;
-import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
-import org.apache.syncope.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.pages.NotificationTaskModalPage;
+import org.apache.syncope.client.console.pages.Tasks;
+import org.apache.syncope.client.console.pages.Tasks.TasksProvider;
+import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
+import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.JobColumn;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.to.AbstractTaskTO;
+import org.apache.syncope.common.lib.to.NotificationTaskTO;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageReference;
@@ -138,10 +138,10 @@ public class NotificationTasks extends AbstractTasks {
     }
 
     private List<IColumn<AbstractTaskTO, String>> getColumns() {
-        final List<IColumn<AbstractTaskTO, String>> columns = new ArrayList<IColumn<AbstractTaskTO, String>>();
+        final List<IColumn<AbstractTaskTO, String>> columns = new ArrayList<>();
 
         columns.add(new PropertyColumn<AbstractTaskTO, String>(
-                new StringResourceModel("id", this, null), "id", "id"));
+                new StringResourceModel("key", this, null), "key", "key"));
         columns.add(new PropertyColumn<AbstractTaskTO, String>(
                 new StringResourceModel("sender", this, null), "sender", "sender"));
         columns.add(new PropertyColumn<AbstractTaskTO, String>(
@@ -152,9 +152,8 @@ public class NotificationTasks extends AbstractTasks {
                 new StringResourceModel("traceLevel", this, null), "traceLevel", "traceLevel"));
         columns.add(new PropertyColumn<AbstractTaskTO, String>(
                 new StringResourceModel("latestExecStatus", this, null), "latestExecStatus", "latestExecStatus"));
-
         columns.add(new JobColumn<AbstractTaskTO, String>(new StringResourceModel("", this, null, ""), "runtime",
-                pageRef, restClient)); 
+                pageRef, restClient));
 
         columns.add(new ActionColumn<AbstractTaskTO, String>(new StringResourceModel("actions", this, null, "")) {
 
@@ -195,7 +194,7 @@ public class NotificationTasks extends AbstractTasks {
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
                         try {
-                            restClient.startExecution(taskTO.getId(), false);
+                            restClient.startExecution(taskTO.getKey(), false);
                             getSession().info(getString(Constants.OPERATION_SUCCEEDED));
                         } catch (SyncopeClientException scce) {
                             error(scce.getMessage());
@@ -213,7 +212,7 @@ public class NotificationTasks extends AbstractTasks {
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
                         try {
-                            restClient.delete(taskTO.getId(), NotificationTaskTO.class);
+                            restClient.delete(taskTO.getKey(), NotificationTaskTO.class);
                             info(getString(Constants.OPERATION_SUCCEEDED));
                         } catch (SyncopeClientException scce) {
                             error(scce.getMessage());

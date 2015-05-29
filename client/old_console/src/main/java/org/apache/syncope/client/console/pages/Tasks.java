@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.console.pages;
+package org.apache.syncope.client.console.pages;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,19 +24,19 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.syncope.common.to.SchedTaskTO;
-import org.apache.syncope.common.to.TaskExecTO;
-import org.apache.syncope.common.to.AbstractTaskTO;
-import org.apache.syncope.console.commons.SortableDataProviderComparator;
-import org.apache.syncope.console.pages.panels.AjaxDataTablePanel;
-import org.apache.syncope.console.pages.panels.NotificationTasks;
-import org.apache.syncope.console.pages.panels.PropagationTasks;
-import org.apache.syncope.console.pages.panels.SchedTasks;
-import org.apache.syncope.console.pages.panels.PushTasksPanel;
-import org.apache.syncope.console.pages.panels.SyncTasksPanel;
-import org.apache.syncope.console.rest.BaseRestClient;
-import org.apache.syncope.console.rest.TaskRestClient;
-import org.apache.syncope.console.wicket.markup.html.form.ActionLink;
+import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
+import org.apache.syncope.client.console.panels.AjaxDataTablePanel;
+import org.apache.syncope.client.console.panels.NotificationTasks;
+import org.apache.syncope.client.console.panels.PropagationTasks;
+import org.apache.syncope.client.console.panels.PushTasksPanel;
+import org.apache.syncope.client.console.panels.SchedTasks;
+import org.apache.syncope.client.console.panels.SyncTasksPanel;
+import org.apache.syncope.client.console.rest.BaseRestClient;
+import org.apache.syncope.client.console.rest.TaskRestClient;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
+import org.apache.syncope.common.lib.to.AbstractTaskTO;
+import org.apache.syncope.common.lib.to.SchedTaskTO;
+import org.apache.syncope.common.lib.to.TaskExecTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
@@ -141,8 +141,8 @@ public class Tasks extends BasePage {
             super();
 
             //Default sorting
-            setSort("id", SortOrder.DESCENDING);
-            comparator = new SortableDataProviderComparator<T>(this);
+            setSort("key", SortOrder.DESCENDING);
+            comparator = new SortableDataProviderComparator<>(this);
             this.paginatorRows = paginatorRows;
             this.restClient = restClient;
             this.id = id;
@@ -151,7 +151,7 @@ public class Tasks extends BasePage {
 
         @Override
         public Iterator<T> iterator(final long first, final long count) {
-            final List<T> tasks = new ArrayList<T>();
+            final List<T> tasks = new ArrayList<>();
 
             final int page = ((int) first / paginatorRows);
 
@@ -184,7 +184,7 @@ public class Tasks extends BasePage {
 
         @Override
         public IModel<T> model(final T object) {
-            return new CompoundPropertyModel<T>(object);
+            return new CompoundPropertyModel<>(object);
         }
     }
 
@@ -208,7 +208,7 @@ public class Tasks extends BasePage {
             final BaseRestClient restClient) {
 
         @SuppressWarnings("unchecked")
-        final AjaxDataTablePanel<AbstractTaskTO, String> table = new AjaxDataTablePanel<AbstractTaskTO, String>(
+        final AjaxDataTablePanel<AbstractTaskTO, String> table = new AjaxDataTablePanel<>(
                 "datatable",
                 columns,
                 (ISortableDataProvider<AbstractTaskTO, String>) dataProvider,
@@ -216,7 +216,7 @@ public class Tasks extends BasePage {
                 Arrays.asList(new ActionLink.ActionType[] {
                     ActionLink.ActionType.DELETE, ActionLink.ActionType.DRYRUN, ActionLink.ActionType.EXECUTE }),
                 restClient,
-                "id",
+                "key",
                 TASKS,
                 pageRef);
 
@@ -232,8 +232,8 @@ public class Tasks extends BasePage {
      * IndicatorMarkupId behaviour is embedded in Tasks.html
      */
     @Override
+
     public String getAjaxIndicatorMarkupId() {
         return "";
     }
-
 }
