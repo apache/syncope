@@ -23,9 +23,11 @@ import org.apache.syncope.client.console.wicket.ajax.markup.html.ClearIndicating
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AbstractAjaxTimerBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.util.time.Duration;
 
 public class RuntimePanel extends Panel {
 
@@ -54,7 +56,7 @@ public class RuntimePanel extends Panel {
 
     }
 
-    public final void refresh() {
+    public final RuntimePanel refresh() {
         boolean currentStatus = jobRestClient.isJobRunning(jobId);
         if (currentStatus && !latestStatus) {
             setRunning();
@@ -62,6 +64,7 @@ public class RuntimePanel extends Panel {
             setNotRunning();
         }
         latestStatus = currentStatus;
+        return this;
     }
 
     public void setRunning() {
@@ -100,6 +103,28 @@ public class RuntimePanel extends Panel {
         }
         this.timer = timer;
         this.add(this.timer);
+    }
+
+    public void startPolling(final int seconds) {
+        AbstractAjaxTimerBehavior timer = new AbstractAjaxTimerBehavior(Duration.seconds(seconds)) {
+
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            protected void onTimer(AjaxRequestTarget target) {                
+                target.add(refresh());
+            }
+
+            @Override
+            protected void updateAjaxAttributes(AjaxRequestAttributes attributes) {
+                super.updateAjaxAttributes(attributes);
+                attributes.getExtraParameters().put("pollingTimeout", "true");
+            }
+
+        };
+
+        panel.setTimer(timer);
+
     }
 
 }
