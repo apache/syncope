@@ -23,14 +23,10 @@ import org.apache.syncope.common.to.ReportTO;
 import org.apache.syncope.console.pages.panels.RuntimePanel;
 import org.apache.syncope.console.rest.JobRestClient;
 import org.apache.wicket.PageReference;
-import org.apache.wicket.ajax.AbstractAjaxTimerBehavior;
-import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.util.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,32 +59,8 @@ public class JobColumn<T, S> extends AbstractColumn<T, S> {
         }
         if (jobId != null) {
             panel = new RuntimePanel(componentId, model, pageRef, jobId, jobRestClient);
-            startPolling(10);
+            panel.startPolling(10);
             item.add(panel);
         }
     }
-
-    public void startPolling(final int seconds) {
-        AbstractAjaxTimerBehavior timer = new AbstractAjaxTimerBehavior(Duration.seconds(seconds)) {
-
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            protected void onTimer(AjaxRequestTarget target) {
-                panel.refresh();
-                target.add(panel);
-            }
-
-            @Override
-            protected void updateAjaxAttributes(AjaxRequestAttributes attributes) {
-                super.updateAjaxAttributes(attributes);
-                attributes.getExtraParameters().put("pollingTimeout", "true");
-            }
-
-        };
-
-        panel.setTimer(timer);
-
-    }
-
 }
