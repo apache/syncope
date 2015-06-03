@@ -25,12 +25,14 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.types.ReportExecExportFormat;
 import org.apache.syncope.common.lib.wrap.ReportletConfClass;
+import org.apache.syncope.common.lib.types.JobAction;
+import org.apache.syncope.common.lib.types.JobStatusType;
 import org.apache.syncope.common.rest.api.service.ReportService;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ReportRestClient extends BaseRestClient implements ExecutionRestClient {
+public class ReportRestClient extends JobRestClient implements ExecutionRestClient {
 
     private static final long serialVersionUID = 1644689667998953604L;
 
@@ -104,5 +106,26 @@ public class ReportRestClient extends BaseRestClient implements ExecutionRestCli
 
     public Response exportExecutionResult(final Long executionId, final ReportExecExportFormat fmt) {
         return getService(ReportService.class).exportExecutionResult(executionId, fmt);
+    }
+    
+    
+    @Override
+    public boolean isJobRunning(final long reportId) {
+        for (ReportExecTO reportExecTO : getService(ReportService.class).listJobs(JobStatusType.RUNNING)) {
+            if (reportExecTO.getReport() == reportId) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public void startJob(final long reportId) {
+        getService(ReportService.class).actionJob(reportId, JobAction.START);
+    }
+
+    @Override
+    public void stopJob(final long reportId) {
+        getService(ReportService.class).actionJob(reportId, JobAction.STOP);
     }
 }

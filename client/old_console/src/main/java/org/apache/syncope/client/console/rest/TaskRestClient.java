@@ -29,6 +29,9 @@ import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.SyncTaskTO;
 import org.apache.syncope.common.lib.types.TaskType;
+import org.apache.syncope.common.lib.to.TaskExecTO;
+import org.apache.syncope.common.lib.types.JobAction;
+import org.apache.syncope.common.lib.types.JobStatusType;
 import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 import org.springframework.stereotype.Component;
@@ -37,7 +40,7 @@ import org.springframework.stereotype.Component;
  * Console client for invoking Rest Tasks services.
  */
 @Component
-public class TaskRestClient extends BaseRestClient implements ExecutionRestClient {
+public class TaskRestClient extends JobRestClient implements ExecutionRestClient {
 
     private static final long serialVersionUID = 6284485820911028843L;
 
@@ -135,5 +138,25 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
 
     public BulkActionResult bulkAction(final BulkAction action) {
         return getService(TaskService.class).bulk(action);
+    }
+
+    @Override
+    public boolean isJobRunning(final long taskId) {
+        for (TaskExecTO taskExecTO : getService(TaskService.class).listJobs(JobStatusType.RUNNING)) {
+            if (taskExecTO.getTask() == taskId) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public void startJob(final long taskId) {
+        getService(TaskService.class).actionJob(taskId, JobAction.START);
+    }
+
+    @Override
+    public void stopJob(final long taskId) {
+        getService(TaskService.class).actionJob(taskId, JobAction.STOP);
     }
 }
