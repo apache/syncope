@@ -383,7 +383,7 @@ under the License.
     <wicket.version>7.0.0-M5</wicket.version>
     <wicket-jqueryui.version>7.0.0-M5</wicket-jqueryui.version>
 
-    <izpack.version>5.0.0-rc4</izpack.version>
+    <izpack.version>5.0.0-rc5</izpack.version>
     <httpclient.version>4.3.6</httpclient.version>
     <maven-invoker.version>2.1.1</maven-invoker.version>
 
