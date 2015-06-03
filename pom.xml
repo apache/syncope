@@ -384,7 +384,7 @@ under the License.
     <highlightjs.version>8.0</highlightjs.version>
     <codemirror.version>3.23</codemirror.version>
 
-    <izpack.version>5.0.0-rc4</izpack.version>
+    <izpack.version>5.0.0-rc5</izpack.version>
     <maven-invoker.version>2.1.1</maven-invoker.version>
     
     <jdeb.version>1.4</jdeb.version>
