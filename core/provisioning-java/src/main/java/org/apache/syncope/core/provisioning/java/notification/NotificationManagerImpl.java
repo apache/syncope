@@ -256,7 +256,7 @@ public class NotificationManagerImpl implements NotificationManager {
     }
 
     @Override
-    public void createTasks(
+    public List<NotificationTask> createTasks(
             final AuditElements.EventCategoryType type,
             final String category,
             final String subcategory,
@@ -268,6 +268,7 @@ public class NotificationManagerImpl implements NotificationManager {
 
         SubjectType subjectType = null;
         Subject<?, ?, ?> subject = null;
+        List<NotificationTask> notificationList = new ArrayList<NotificationTask>();
 
         if (before instanceof UserTO) {
             subjectType = SubjectType.USER;
@@ -319,7 +320,9 @@ public class NotificationManagerImpl implements NotificationManager {
                         model.put("group", groupDataBinder.getGroupTO((Group) subject));
                     }
 
-                    taskDAO.save(getNotificationTask(notification, subject, model));
+                    NotificationTask notificationTask = getNotificationTask(notification, subject, model);
+                    notificationTask = taskDAO.save(notificationTask);
+                    notificationList.add(notificationTask);     
                 }
             } else {
                 LOG.debug("Notification {}, userAbout {}, groupAbout {} is deactivated, "
@@ -327,6 +330,7 @@ public class NotificationManagerImpl implements NotificationManager {
                         notification.getUserAbout(), notification.getGroupAbout());
             }
         }
+        return notificationList;
     }
 
     private String getRecipientEmail(
