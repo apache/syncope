@@ -156,7 +156,20 @@ abstract class AbstractJobLogic<T extends AbstractBaseBean> extends AbstractTran
                 if (scheduler.getScheduler().checkExists(jobKey)) {
                     switch (action) {
                         case START:
-                            scheduler.getScheduler().triggerJob(jobKey);
+                            Long currentKey = getKeyFromJobName(jobKey);
+                            boolean found = false;
+                            //Two or more equals jobs cannot be executed concurrently
+                            for (int i = 0; i < scheduler.getScheduler().getCurrentlyExecutingJobs().size() && !found;
+                                    i++) {
+                                JobExecutionContext jec = scheduler.getScheduler().getCurrentlyExecutingJobs().get(i);
+                                Long execJobKey = getKeyFromJobName(jec.getJobDetail().getKey());
+                                if (execJobKey == currentKey) {
+                                    found = true;
+                                }
+                            }
+                            if (!found) {
+                                scheduler.getScheduler().triggerJob(jobKey);
+                            }
                             break;
 
                         case STOP:

@@ -32,6 +32,7 @@ import org.apache.syncope.client.console.rest.LoggerRestClient;
 import org.apache.syncope.client.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
+import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.JobColumn;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -60,6 +61,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
@@ -122,6 +124,8 @@ public class Reports extends BasePage {
         columns.add(new DatePropertyColumn<ReportTO>(new ResourceModel("endDate"), "endDate", "endDate"));
         columns.add(new PropertyColumn<ReportTO, String>(
                 new ResourceModel("latestExecStatus"), "latestExecStatus", "latestExecStatus"));
+        columns.add(new JobColumn<ReportTO, String>(new StringResourceModel("", this, null, ""), "runtime",
+                getPageReference(), reportRestClient));
         columns.add(new ActionColumn<ReportTO, String>(new ResourceModel("actions", "")) {
 
             private static final long serialVersionUID = 2054811145491901166L;
@@ -408,5 +412,13 @@ public class Reports extends BasePage {
                 }
             };
         }
+    }
+
+    /**
+     * IndicatorMarkupId behaviour is embedded in Reports.html
+     */
+    @Override
+    public String getAjaxIndicatorMarkupId() {
+        return "";
     }
 }

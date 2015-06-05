@@ -227,4 +227,13 @@ public class Tasks extends BasePage {
 
         return table;
     }
+
+    /**
+     * IndicatorMarkupId behaviour is embedded in Tasks.html
+     */
+    @Override
+
+    public String getAjaxIndicatorMarkupId() {
+        return "";
+    }
 }

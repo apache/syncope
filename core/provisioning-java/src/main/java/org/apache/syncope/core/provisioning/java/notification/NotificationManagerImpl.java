@@ -261,7 +261,7 @@ public class NotificationManagerImpl implements NotificationManager {
     }
 
     @Override
-    public void createTasks(
+    public List<NotificationTask> createTasks(
             final AuditElements.EventCategoryType type,
             final String category,
             final String subcategory,
@@ -290,6 +290,7 @@ public class NotificationManagerImpl implements NotificationManager {
         AnyType anyType = any == null ? null : any.getType();
         LOG.debug("Search notification for [{}]{}", anyType, any);
 
+        List<NotificationTask> notifications = new ArrayList<>();
         for (Notification notification : notificationDAO.findAll()) {
             if (LOG.isDebugEnabled()) {
                 for (AnyAbout about : notification.getAbouts()) {
@@ -324,12 +325,15 @@ public class NotificationManagerImpl implements NotificationManager {
                         model.put("group", groupDataBinder.getGroupTO((Group) any));
                     }
 
-                    taskDAO.save(getNotificationTask(notification, any, model));
+                    NotificationTask notificationTask = getNotificationTask(notification, any, model);
+                    notificationTask = taskDAO.save(notificationTask);
+                    notifications.add(notificationTask);
                 }
             } else {
                 LOG.debug("Notification {} is not active, task will not be created", notification.getKey());
             }
         }
+        return notifications;
     }
 
     private String getRecipientEmail(
