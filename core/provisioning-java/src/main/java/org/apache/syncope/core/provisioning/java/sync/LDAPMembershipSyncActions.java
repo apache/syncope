@@ -46,6 +46,7 @@ import org.apache.syncope.core.provisioning.api.sync.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.api.sync.ProvisioningResult;
 import org.apache.syncope.core.misc.AuditManager;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
@@ -63,7 +64,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * Simple action for synchronizing LDAP groups memberships to Syncope group memberships, when the same resource is
  * configured for both users and groups.
  *
- * @see org.apache.syncope.core.propagation.impl.LDAPMembershipPropagationActions
+ * @see org.apache.syncope.core.provisioning.java.propagation.LDAPMembershipPropagationActions
  */
 public class LDAPMembershipSyncActions extends DefaultSyncActions {
 
@@ -71,6 +72,9 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
 
     @Autowired
     protected AnyTypeDAO anyTypeDAO;
+
+    @Autowired
+    protected UserDAO userDAO;
 
     @Autowired
     protected GroupDAO groupDAO;
@@ -182,7 +186,7 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
         Attribute membAttr = delta.getObject().getAttributeByName(groupMemberName);
         // if not found, perform an additional read on the underlying connector for the same connector object
         if (membAttr == null) {
-            final OperationOptionsBuilder oob = new OperationOptionsBuilder();
+            OperationOptionsBuilder oob = new OperationOptionsBuilder();
             oob.setAttributesToGet(groupMemberName);
             membAttr = connector.getObjectAttribute(ObjectClass.GROUP, delta.getUid(), oob.build(), groupMemberName);
         }

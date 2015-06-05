@@ -198,12 +198,12 @@ public class JPAAnyObject extends AbstractAny<APlainAttr, ADerAttr, AVirAttr> im
     }
 
     @Override
-    public ARelationship getRelationship(final AnyObject rightEnd) {
+    public ARelationship getRelationship(final Long anyObjectKey) {
         return CollectionUtils.find(getRelationships(), new Predicate<ARelationship>() {
 
             @Override
             public boolean evaluate(final ARelationship relationship) {
-                return rightEnd != null && rightEnd.equals(relationship.getRightEnd());
+                return anyObjectKey != null && anyObjectKey.equals(relationship.getRightEnd().getKey());
             }
         });
     }

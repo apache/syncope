@@ -146,7 +146,7 @@ public final class JexlUtils {
         return context;
     }
 
-    public static JexlContext addAttrsToContext(final Collection<? extends PlainAttr<?>> attrs,
+    public static JexlContext addPlainAttrsToContext(final Collection<? extends PlainAttr<?>> attrs,
             final JexlContext jexlContext) {
 
         JexlContext context = jexlContext == null
@@ -215,11 +215,9 @@ public final class JexlUtils {
         return context;
     }
 
-    public static boolean evaluateMandatoryCondition(
-            final String mandatoryCondition, final Any<?, ?, ?> any) {
-
+    public static boolean evaluateMandatoryCondition(final String mandatoryCondition, final Any<?, ?, ?> any) {
         JexlContext jexlContext = new MapContext();
-        addAttrsToContext(any.getPlainAttrs(), jexlContext);
+        addPlainAttrsToContext(any.getPlainAttrs(), jexlContext);
         addDerAttrsToContext(any.getDerAttrs(), any.getPlainAttrs(), jexlContext);
         addVirAttrsToContext(any.getVirAttrs(), jexlContext);
 
@@ -229,8 +227,8 @@ public final class JexlUtils {
     public static String evaluate(final String expression,
             final Any<?, ?, ?> any, final Collection<? extends PlainAttr<?>> attributes) {
 
-        final JexlContext jexlContext = new MapContext();
-        JexlUtils.addAttrsToContext(attributes, jexlContext);
+        JexlContext jexlContext = new MapContext();
+        JexlUtils.addPlainAttrsToContext(attributes, jexlContext);
         JexlUtils.addFieldsToContext(any, jexlContext);
 
         // Evaluate expression using the context prepared before

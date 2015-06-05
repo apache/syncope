@@ -27,20 +27,15 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.List;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.ConfTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
-import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.EntityViolationType;
@@ -151,93 +146,6 @@ public class ConfigurationITCase extends AbstractITCase {
             assertNotNull(e.getElements());
             assertEquals(1, e.getElements().size());
             assertTrue(e.getElements().iterator().next().contains(EntityViolationType.InvalidName.name()));
-        }
-    }
-
-    private static String[] substringsBetween(final String str, final String open, final String close) {
-        if (str == null || StringUtils.isEmpty(open) || StringUtils.isEmpty(close)) {
-            return null;
-        }
-        final int strLen = str.length();
-        if (strLen == 0) {
-            return ArrayUtils.EMPTY_STRING_ARRAY;
-        }
-        final int closeLen = close.length();
-        final int openLen = open.length();
-        final List<String> list = new ArrayList<>();
-        int pos = 0;
-        while (pos < strLen - closeLen) {
-            int start = StringUtils.indexOfIgnoreCase(str, open, pos);
-            if (start < 0) {
-                break;
-            }
-            start += openLen;
-            final int end = StringUtils.indexOfIgnoreCase(str, close, start);
-            if (end < 0) {
-                break;
-            }
-            list.add(str.substring(start, end));
-            pos = end + closeLen;
-        }
-        if (list.isEmpty()) {
-            return null;
-        }
-        return list.toArray(new String[list.size()]);
-    }
-
-    @Test
-    public void issueSYNCOPE629() throws IOException {
-        PlainSchemaTO membershipKey = new PlainSchemaTO();
-        membershipKey.setKey("membershipKey" + getUUIDString());
-        membershipKey.setType(AttrSchemaType.String);
-        createSchema(SchemaType.PLAIN, membershipKey);
-
-        PlainSchemaTO groupKey = new PlainSchemaTO();
-        groupKey.setKey("group"
-                + "Key" + getUUIDString());
-        groupKey.setType(AttrSchemaType.String);
-        createSchema(SchemaType.PLAIN, groupKey);
-
-        GroupTO groupTO = new GroupTO();
-        groupTO.setRealm("/");
-        groupTO.setName("aGroup" + getUUIDString());
-        groupTO = createGroup(groupTO);
-
-        try {
-            Response response = configurationService.export();
-            assertNotNull(response);
-            assertEquals(Response.Status.OK.getStatusCode(), response.getStatusInfo().getStatusCode());
-            assertTrue(response.getMediaType().toString().startsWith(MediaType.TEXT_XML));
-            String contentDisposition = response.getHeaderString(HttpHeaders.CONTENT_DISPOSITION);
-            assertNotNull(contentDisposition);
-
-            Object entity = response.getEntity();
-            assertTrue(entity instanceof InputStream);
-            String configExport = IOUtils.toString((InputStream) entity, SyncopeConstants.DEFAULT_ENCODING);
-            assertFalse(configExport.isEmpty());
-            assertTrue(configExport.length() > 1000);
-
-            String[] result = substringsBetween(configExport, "<GPLAINATTRTEMPLATE", "/>");
-            assertNotNull(result);
-            boolean rattrExists = false;
-            for (String entry : result) {
-                if (entry.contains(groupKey.getKey())) {
-                    rattrExists = true;
-                }
-            }
-            assertTrue(rattrExists);
-
-            result = substringsBetween(configExport, "<MPLAINATTRTEMPLATE", "/>");
-            assertNotNull(result);
-            boolean mattrExists = false;
-            for (String entry : result) {
-                if (entry.contains(membershipKey.getKey())) {
-                    mattrExists = true;
-                }
-            }
-            assertTrue(mattrExists);
-        } finally {
-            deleteGroup(groupTO.getKey());
         }
     }
 }

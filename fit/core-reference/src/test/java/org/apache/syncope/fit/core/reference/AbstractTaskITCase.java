@@ -57,7 +57,9 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
 
         private final boolean dryRun;
 
-        public ThreadExec(AbstractTaskITCase test, Long taskKey, int maxWaitSeconds, boolean dryRun) {
+        public ThreadExec(
+                final AbstractTaskITCase test, final Long taskKey, final int maxWaitSeconds, final boolean dryRun) {
+
             this.test = test;
             this.taskKey = taskKey;
             this.maxWaitSeconds = maxWaitSeconds;
@@ -66,7 +68,7 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
 
         @Override
         public TaskExecTO call() throws Exception {
-            return test.execSyncTask(taskKey, maxWaitSeconds, dryRun);
+            return test.execProvisioningTask(taskKey, maxWaitSeconds, dryRun);
         }
     }
 
@@ -85,7 +87,7 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
         }
     }
 
-    protected TaskExecTO execSyncTask(final Long taskKey, final int maxWaitSeconds, final boolean dryRun) {
+    protected TaskExecTO execProvisioningTask(final Long taskKey, final int maxWaitSeconds, final boolean dryRun) {
         AbstractTaskTO taskTO = taskService.read(taskKey);
         assertNotNull(taskTO);
         assertNotNull(taskTO.getExecutions());
@@ -117,17 +119,17 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
         return taskTO.getExecutions().get(taskTO.getExecutions().size() - 1);
     }
 
-    protected Map<Long, TaskExecTO> execSyncTasks(
+    protected Map<Long, TaskExecTO> execProvisioningTasks(
             final Set<Long> taskKeys, final int maxWaitSeconds, final boolean dryRun) throws Exception {
 
-        final ExecutorService service = Executors.newFixedThreadPool(taskKeys.size());
-        final List<Future<TaskExecTO>> futures = new ArrayList<>();
+        ExecutorService service = Executors.newFixedThreadPool(taskKeys.size());
+        List<Future<TaskExecTO>> futures = new ArrayList<>();
 
         for (Long key : taskKeys) {
             futures.add(service.submit(new ThreadExec(this, key, maxWaitSeconds, dryRun)));
         }
 
-        final Map<Long, TaskExecTO> res = new HashMap<>();
+        Map<Long, TaskExecTO> res = new HashMap<>();
 
         for (Future<TaskExecTO> future : futures) {
             TaskExecTO taskExecTO = future.get(100, TimeUnit.SECONDS);

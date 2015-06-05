@@ -29,13 +29,17 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.mod.AnyMod;
+import org.apache.syncope.common.lib.mod.AnyObjectMod;
 import org.apache.syncope.common.lib.mod.AttrMod;
 import org.apache.syncope.common.lib.mod.ReferenceMod;
 import org.apache.syncope.common.lib.mod.GroupMod;
 import org.apache.syncope.common.lib.mod.UserMod;
+import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.MembershipTO;
+import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.to.UserTO;
 
 /**
@@ -193,6 +197,63 @@ public final class AnyOperations {
     /**
      * Calculate modifications needed by first in order to be equal to second.
      *
+     * @param updated updated AnyObjectTO
+     * @param original original AnyObjectTO
+     * @return AnyObjectMod containing differences
+     */
+    public static AnyObjectMod diff(final AnyObjectTO updated, final AnyObjectTO original) {
+        return diff(updated, original, false);
+    }
+
+    /**
+     * Calculate modifications needed by first in order to be equal to second.
+     *
+     * @param updated updated AnyObjectTO
+     * @param original original AnyObjectTO
+     * @param incremental perform incremental diff (without removing existing info)
+     * @return AnyObjectMod containing differences
+     */
+    public static AnyObjectMod diff(final AnyObjectTO updated, final AnyObjectTO original, final boolean incremental) {
+        AnyObjectMod result = new AnyObjectMod();
+
+        diff(updated, original, result, incremental);
+
+        // 1. relationships
+        Map<Long, RelationshipTO> updatedRels = updated.getRelationshipMap();
+        Map<Long, RelationshipTO> originalRels = original.getRelationshipMap();
+
+        for (Map.Entry<Long, RelationshipTO> entry : updatedRels.entrySet()) {
+            if (!originalRels.containsKey(entry.getKey())) {
+                result.getRelationshipsToAdd().add(entry.getKey());
+            }
+        }
+        if (!incremental) {
+            Set<Long> originalGroups = new HashSet<>(originalRels.keySet());
+            originalGroups.removeAll(updatedRels.keySet());
+            result.getRelationshipsToRemove().addAll(originalGroups);
+        }
+
+        // 2. memberships
+        Map<Long, MembershipTO> updatedMembs = updated.getMembershipMap();
+        Map<Long, MembershipTO> originalMembs = original.getMembershipMap();
+
+        for (Map.Entry<Long, MembershipTO> entry : updatedMembs.entrySet()) {
+            if (!originalMembs.containsKey(entry.getKey())) {
+                result.getMembershipsToAdd().add(entry.getKey());
+            }
+        }
+        if (!incremental) {
+            Set<Long> originalGroups = new HashSet<>(originalMembs.keySet());
+            originalGroups.removeAll(updatedMembs.keySet());
+            result.getMembershipsToRemove().addAll(originalGroups);
+        }
+
+        return result;
+    }
+
+    /**
+     * Calculate modifications needed by first in order to be equal to second.
+     *
      * @param updated updated UserTO
      * @param original original UserTO
      * @return UserMod containing differences
@@ -247,6 +308,36 @@ public final class AnyOperations {
         // 4. roles
         result.getRolesToRemove().addAll(CollectionUtils.subtract(original.getRoles(), updated.getRoles()));
         result.getRolesToAdd().addAll(CollectionUtils.subtract(updated.getRoles(), original.getRoles()));
+
+        // 5. relationships
+        Map<Long, RelationshipTO> updatedRels = updated.getRelationshipMap();
+        Map<Long, RelationshipTO> originalRels = original.getRelationshipMap();
+
+        for (Map.Entry<Long, RelationshipTO> entry : updatedRels.entrySet()) {
+            if (!originalRels.containsKey(entry.getKey())) {
+                result.getRelationshipsToAdd().add(entry.getKey());
+            }
+        }
+        if (!incremental) {
+            Set<Long> originalGroups = new HashSet<>(originalRels.keySet());
+            originalGroups.removeAll(updatedRels.keySet());
+            result.getRelationshipsToRemove().addAll(originalGroups);
+        }
+
+        // 6. memberships
+        Map<Long, MembershipTO> updatedMembs = updated.getMembershipMap();
+        Map<Long, MembershipTO> originalMembs = original.getMembershipMap();
+
+        for (Map.Entry<Long, MembershipTO> entry : updatedMembs.entrySet()) {
+            if (!originalMembs.containsKey(entry.getKey())) {
+                result.getMembershipsToAdd().add(entry.getKey());
+            }
+        }
+        if (!incremental) {
+            Set<Long> originalGroups = new HashSet<>(originalMembs.keySet());
+            originalGroups.removeAll(updatedMembs.keySet());
+            result.getMembershipsToRemove().addAll(originalGroups);
+        }
 
         return result;
     }

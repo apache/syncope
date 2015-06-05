@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.jpa.entity.user;
 
 import javax.persistence.Entity;
+import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import org.apache.syncope.core.persistence.api.entity.user.UDerAttr;
@@ -33,8 +34,16 @@ public class JPAUDerAttr extends AbstractDerAttr<User> implements UDerAttr {
 
     public static final String TABLE = "UDerAttr";
 
+    @Id
+    private Long id;
+
     @ManyToOne
     private JPAUser owner;
+
+    @Override
+    public Long getKey() {
+        return id;
+    }
 
     @Override
     public User getOwner() {

@@ -41,21 +41,12 @@ public class AttrTO extends AbstractBaseBean {
     /**
      * Set of (string) values of this attribute.
      */
-    private final List<String> values;
+    private final List<String> values = new ArrayList<>();
 
     /**
      * Whether this attribute is read-only or not.
      */
-    private boolean readonly;
-
-    /**
-     * Default constructor.
-     */
-    public AttrTO() {
-        super();
-        values = new ArrayList<String>();
-        readonly = false;
-    }
+    private boolean readonly = false;
 
     /**
      * @return the name of the schema that this attribute is referring to

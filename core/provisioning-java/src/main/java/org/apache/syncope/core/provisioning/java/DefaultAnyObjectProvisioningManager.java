@@ -30,6 +30,8 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.mod.AnyObjectMod;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.provisioning.api.AnyObjectProvisioningManager;
@@ -40,6 +42,7 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
+import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.workflow.api.AnyObjectWorkflowAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -102,6 +105,18 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
 
         List<PropagationTask> tasks = propagationManager.getAnyObjectUpdateTasks(updated,
                 anyObjectMod.getVirAttrsToRemove(), anyObjectMod.getVirAttrsToUpdate(), null);
+        if (tasks.isEmpty()) {
+            // SYNCOPE-459: take care of user virtual attributes ...
+            PropagationByResource propByResVirAttr = virtAttrHandler.fillVirtual(
+                    updated.getResult(),
+                    AnyTypeKind.ANY_OBJECT,
+                    anyObjectMod.getVirAttrsToRemove(),
+                    anyObjectMod.getVirAttrsToUpdate());
+            tasks.addAll(!propByResVirAttr.isEmpty()
+                    ? propagationManager.getAnyObjectUpdateTasks(updated, null, null, null)
+                    : Collections.<PropagationTask>emptyList());
+        }
+
         PropagationReporter propagationReporter =
                 ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
         try {

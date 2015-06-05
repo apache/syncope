@@ -21,9 +21,6 @@ package org.apache.syncope.core.persistence.jpa.entity;
 import java.util.Collection;
 import javax.persistence.Column;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 import org.apache.syncope.core.persistence.api.entity.DerAttr;
@@ -38,18 +35,9 @@ public abstract class AbstractDerAttr<O extends Any<?, ?, ?>>
 
     private static final long serialVersionUID = 4740924251090424771L;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    protected Long id;
-
     @ManyToOne(fetch = FetchType.EAGER)
     @Column(name = "schema_name")
     private JPADerSchema schema;
-
-    @Override
-    public Long getKey() {
-        return id;
-    }
 
     @Override
     public DerSchema getSchema() {

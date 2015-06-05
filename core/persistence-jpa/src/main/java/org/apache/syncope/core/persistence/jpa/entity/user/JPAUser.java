@@ -65,7 +65,6 @@ import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.Role;
-import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.URelationship;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractAny;
@@ -538,12 +537,12 @@ public class JPAUser extends AbstractAny<UPlainAttr, UDerAttr, UVirAttr> impleme
     }
 
     @Override
-    public URelationship getRelationship(final AnyObject rightEnd) {
+    public URelationship getRelationship(final Long anyObjectKey) {
         return CollectionUtils.find(getRelationships(), new Predicate<URelationship>() {
 
             @Override
             public boolean evaluate(final URelationship relationship) {
-                return rightEnd != null && rightEnd.equals(relationship.getRightEnd());
+                return anyObjectKey != null && anyObjectKey.equals(relationship.getRightEnd().getKey());
             }
         });
     }

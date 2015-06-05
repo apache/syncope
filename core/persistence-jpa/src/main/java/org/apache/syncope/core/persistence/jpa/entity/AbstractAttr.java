@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.jpa.entity;
 
 import java.util.Collections;
 import java.util.Set;
+import org.apache.syncope.core.persistence.api.dao.UnallowedSchemaException;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.Attr;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
@@ -53,7 +54,7 @@ public abstract class AbstractAttr<S extends Schema, O extends Any<?, ?, ?>>
         }
 
         if (!getAllowedSchemas(getOwner()).contains(schema)) {
-            throw new IllegalArgumentException(schema + " not allowed for this instance");
+            throw new UnallowedSchemaException(schema.getKey());
         }
     }
 }

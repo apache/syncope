@@ -228,7 +228,7 @@ public class VirAttrITCase extends AbstractITCase {
         assertEquals("virattrcache", actual.getVirAttrMap().get("virtualdata").getValues().get(0));
 
         // 3. update virtual attribute directly
-        final JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
 
         String value = jdbcTemplate.queryForObject(
                 "SELECT USERNAME FROM testsync WHERE ID=?", String.class, actual.getKey());
@@ -296,6 +296,7 @@ public class VirAttrITCase extends AbstractITCase {
 
             // create a new user
             UserTO userTO = UserITCase.getUniqueSampleTO("syncope397@syncope.apache.org");
+            userTO.getAuxClasses().add("csv");
             userTO.getResources().clear();
             userTO.getMemberships().clear();
             userTO.getDerAttrs().clear();
@@ -450,7 +451,7 @@ public class VirAttrITCase extends AbstractITCase {
         ResourceTO resourceTO = new ResourceTO();
 
         resourceTO.setKey(resourceName);
-        resourceTO.setConnectorId(107L);
+        resourceTO.setConnector(107L);
 
         ProvisionTO provisionTO = new ProvisionTO();
         provisionTO.setAnyType(AnyTypeKind.USER.name());
@@ -463,7 +464,7 @@ public class VirAttrITCase extends AbstractITCase {
         MappingItemTO item = new MappingItemTO();
         item.setIntAttrName("aLong");
         item.setIntMappingType(IntMappingType.UserPlainSchema);
-        item.setExtAttrName(groupName);
+        item.setExtAttrName("ID");
         item.setPurpose(MappingPurpose.PROPAGATION);
         item.setConnObjectKey(true);
         mapping.setConnObjectKeyItem(item);

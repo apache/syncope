@@ -51,6 +51,7 @@ import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValid
 import org.apache.syncope.core.persistence.api.dao.DuplicateException;
 import org.apache.syncope.core.persistence.api.dao.MalformedPathException;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
+import org.apache.syncope.core.persistence.api.dao.UnallowedSchemaException;
 import org.apache.syncope.core.workflow.api.WorkflowException;
 import org.identityconnectors.framework.common.exceptions.ConfigurationException;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
@@ -114,6 +115,8 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
                     header(HttpHeaders.WWW_AUTHENTICATE, BASIC_REALM_UNAUTHORIZED);
         } else if (ex instanceof UnauthorizedException) {
             builder = builder(ClientExceptionType.Unauthorized, ExceptionUtils.getRootCauseMessage(ex));
+        } else if (ex instanceof UnallowedSchemaException) {
+            builder = builder(ClientExceptionType.UnallowedSchemas, ExceptionUtils.getRootCauseMessage(ex));
         } else if (ex instanceof EntityExistsException || ex instanceof DuplicateException) {
             builder = builder(ClientExceptionType.EntityExists, getJPAMessage(ex));
         } else if (ex instanceof DataIntegrityViolationException || ex instanceof JpaSystemException) {

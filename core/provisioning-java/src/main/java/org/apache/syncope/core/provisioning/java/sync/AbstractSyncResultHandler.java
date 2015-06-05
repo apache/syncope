@@ -109,7 +109,7 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
 
         anyTO.getResources().add(profile.getTask().getResource().getKey());
 
-        final ProvisioningResult result = new ProvisioningResult();
+        ProvisioningResult result = new ProvisioningResult();
         result.setOperation(ResourceOperation.CREATE);
         result.setAnyType(provision.getAnyType().getKey());
         result.setStatus(ProvisioningResult.Status.SUCCESS);
@@ -149,7 +149,7 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
         AnyTO transformed = anyTransformer.transform(anyTO);
         LOG.debug("Transformed: {}", transformed);
 
-        final ProvisioningResult result = new ProvisioningResult();
+        ProvisioningResult result = new ProvisioningResult();
         result.setOperation(ResourceOperation.CREATE);
         result.setAnyType(provision.getAnyType().getKey());
         result.setStatus(ProvisioningResult.Status.SUCCESS);
@@ -270,7 +270,7 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
                             workingDelta = action.beforeUpdate(this.getProfile(), workingDelta, before, anyMod);
                         }
 
-                        final AnyTO updated = doUpdate(before, anyMod, workingDelta, result);
+                        AnyTO updated = doUpdate(before, anyMod, workingDelta, result);
 
                         for (SyncActions action : profile.getActions()) {
                             action.after(this.getProfile(), workingDelta, updated, result);
@@ -335,13 +335,13 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
             Object output;
             Result resultStatus;
 
-            final ProvisioningResult result = new ProvisioningResult();
+            ProvisioningResult result = new ProvisioningResult();
             result.setOperation(ResourceOperation.DELETE);
             result.setAnyType(provision.getAnyType().getKey());
             result.setStatus(ProvisioningResult.Status.SUCCESS);
             result.setKey(id);
 
-            final AnyTO before = getAnyTO(id);
+            AnyTO before = getAnyTO(id);
 
             if (before == null) {
                 result.setStatus(ProvisioningResult.Status.FAILURE);
@@ -427,8 +427,8 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
 
         final List<ProvisioningResult> updResults = new ArrayList<>();
 
-        for (Long id : anys) {
-            LOG.debug("About to unassign resource {}", id);
+        for (Long key : anys) {
+            LOG.debug("About to unassign resource {}", key);
 
             Object output;
             Result resultStatus;
@@ -437,13 +437,13 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
             result.setOperation(ResourceOperation.NONE);
             result.setAnyType(provision.getAnyType().getKey());
             result.setStatus(ProvisioningResult.Status.SUCCESS);
-            result.setKey(id);
+            result.setKey(key);
 
-            final AnyTO before = getAnyTO(id);
+            AnyTO before = getAnyTO(key);
 
             if (before == null) {
                 result.setStatus(ProvisioningResult.Status.FAILURE);
-                result.setMessage(String.format("Any '%s(%d)' not found", provision.getAnyType().getKey(), id));
+                result.setMessage(String.format("Any '%s(%d)' not found", provision.getAnyType().getKey(), key));
             }
 
             if (!profile.isDryRun()) {
@@ -471,7 +471,7 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
                         }
 
                         resultStatus = Result.SUCCESS;
-                        LOG.debug("{} {} successfully updated", provision.getAnyType().getKey(), id);
+                        LOG.debug("{} {} successfully updated", provision.getAnyType().getKey(), key);
                     } catch (IgnoreProvisionException e) {
                         throw e;
                     } catch (PropagationException e) {
@@ -527,11 +527,10 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
             Object output;
             Result resultStatus = Result.FAILURE;
 
-            AnyTO before = null;
-            final ProvisioningResult result = new ProvisioningResult();
+            ProvisioningResult result = new ProvisioningResult();
 
             try {
-                before = getAnyTO(id);
+                AnyTO before = getAnyTO(id);
 
                 result.setKey(id);
                 result.setName(getName(before));
@@ -590,7 +589,7 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
         LOG.debug("Any to ignore {}", delta.getObject().getUid().getUidValue());
 
         final List<ProvisioningResult> ignoreResults = new ArrayList<>();
-        final ProvisioningResult result = new ProvisioningResult();
+        ProvisioningResult result = new ProvisioningResult();
 
         result.setKey(null);
         result.setName(delta.getObject().getUid().getUidValue());

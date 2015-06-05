@@ -18,11 +18,15 @@
  */
 package org.apache.syncope.common.lib.to;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.HashMap;
 import java.util.Map;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.apache.syncope.common.lib.AbstractBaseBean;
+import org.apache.syncope.common.lib.jaxb.XmlGenericMapAdapter;
 import org.apache.syncope.common.lib.types.WorkflowFormPropertyType;
 
 @XmlRootElement(name = "workflowFormProperty")
@@ -47,6 +51,8 @@ public class WorkflowFormPropertyTO extends AbstractBaseBean {
 
     private String datePattern;
 
+    @XmlJavaTypeAdapter(XmlGenericMapAdapter.class)
+    @JsonIgnore
     private final Map<String, String> enumValues = new HashMap<>();
 
     public String getId() {
@@ -113,6 +119,7 @@ public class WorkflowFormPropertyTO extends AbstractBaseBean {
         this.datePattern = datePattern;
     }
 
+    @JsonProperty
     public Map<String, String> getEnumValues() {
         return enumValues;
     }

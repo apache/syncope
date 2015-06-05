@@ -36,7 +36,7 @@ import org.identityconnectors.framework.common.objects.SyncDelta;
 
 public class GroupSyncResultHandlerImpl extends AbstractSyncResultHandler implements GroupSyncResultHandler {
 
-    protected Map<Long, String> groupOwnerMap = new HashMap<>();
+    protected final Map<Long, String> groupOwnerMap = new HashMap<>();
 
     @Override
     public Map<Long, String> getGroupOwnerMap() {
@@ -107,7 +107,7 @@ public class GroupSyncResultHandlerImpl extends AbstractSyncResultHandler implem
         // moved after group provisioning manager
         String groupOwner = null;
         for (AttrMod attrMod : groupMod.getPlainAttrsToUpdate()) {
-            if (attrMod.getSchema().isEmpty()) {
+            if (attrMod.getSchema().isEmpty() && !attrMod.getValuesToBeAdded().isEmpty()) {
                 groupOwner = attrMod.getValuesToBeAdded().iterator().next();
             }
         }
@@ -115,7 +115,7 @@ public class GroupSyncResultHandlerImpl extends AbstractSyncResultHandler implem
             groupOwnerMap.put(updated.getKey(), groupOwner);
         }
 
-        final GroupTO after = groupDataBinder.getGroupTO(updated.getKey());
+        GroupTO after = groupDataBinder.getGroupTO(updated.getKey());
 
         result.setName(getName(after));
 

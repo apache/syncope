@@ -172,7 +172,7 @@ public class ConnectorRestClient extends BaseRestClient {
         try {
             check = getService(ResourceService.class).check(resourceTO);
         } catch (Exception e) {
-            LOG.error("Connector not found {}", resourceTO.getConnectorId(), e);
+            LOG.error("Connector not found {}", resourceTO.getConnector(), e);
         }
 
         return check;

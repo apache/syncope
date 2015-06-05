@@ -74,10 +74,19 @@ public class UserWorkflowITCase extends AbstractITCase {
         assertNotNull(form.getTaskId());
         assertNull(form.getOwner());
 
-        // 3. claim task from rossini, not in group 7 (designated for approval in workflow definition): fail
-        UserWorkflowService userService2 = clientFactory.create(
-                "rossini", ADMIN_PWD).getService(UserWorkflowService.class);
+        // 3. claim task as rossini, with role 2 granting entitlement to claim forms but not in group 7,
+        // designated for approval in workflow definition: fail
+        UserTO rossini = userService.read(1L);
+        if (!rossini.getRoles().contains(2L)) {
+            UserMod userMod = new UserMod();
+            userMod.setKey(1L);
+            userMod.getRolesToAdd().add(2L);
+            rossini = updateUser(userMod);
+        }
+        assertTrue(rossini.getRoles().contains(2L));
 
+        UserWorkflowService userService2 = clientFactory.create("rossini", ADMIN_PWD).
+                getService(UserWorkflowService.class);
         try {
             userService2.claimForm(form.getTaskId());
             fail();
@@ -85,10 +94,9 @@ public class UserWorkflowITCase extends AbstractITCase {
             assertEquals(ClientExceptionType.Workflow, e.getType());
         }
 
-        // 4. claim task from bellini, in role 2
-        UserWorkflowService userService3 = clientFactory.create(
-                "bellini", ADMIN_PWD).getService(UserWorkflowService.class);
-
+        // 4. claim task from bellini, with role 2 and in group 7
+        UserWorkflowService userService3 = clientFactory.create("bellini", ADMIN_PWD).
+                getService(UserWorkflowService.class);
         form = userService3.claimForm(form.getTaskId());
         assertNotNull(form);
         assertNotNull(form.getTaskId());
@@ -237,9 +245,8 @@ public class UserWorkflowITCase extends AbstractITCase {
         assertNotNull(form);
 
         // 3. first claim ny bellini ....
-        UserWorkflowService userService3 = clientFactory.create(
-                "bellini", ADMIN_PWD).getService(UserWorkflowService.class);
-
+        UserWorkflowService userService3 = clientFactory.create("bellini", ADMIN_PWD).
+                getService(UserWorkflowService.class);
         form = userService3.claimForm(form.getTaskId());
         assertNotNull(form);
         assertNotNull(form.getTaskId());
@@ -250,7 +257,7 @@ public class UserWorkflowITCase extends AbstractITCase {
         assertNotNull(form);
 
         // 5. approve user
-        final Map<String, WorkflowFormPropertyTO> props = form.getPropertyMap();
+        Map<String, WorkflowFormPropertyTO> props = form.getPropertyMap();
         props.get("approve").setValue(Boolean.TRUE.toString());
         form.getProperties().clear();
         form.getProperties().addAll(props.values());

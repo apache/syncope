@@ -18,17 +18,22 @@
  */
 package org.apache.syncope.common.lib.to;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 
 @XmlRootElement(name = "user")
 @XmlType
@@ -57,6 +62,22 @@ public class UserTO extends AnyTO {
     private Long securityQuestion;
 
     private String securityAnswer;
+
+    private final List<RelationshipTO> relationships = new ArrayList<>();
+
+    private final List<MembershipTO> memberships = new ArrayList<>();
+
+    private final List<Long> dynGroups = new ArrayList<>();
+
+    @Override
+    public String getType() {
+        return AnyTypeKind.USER.name();
+    }
+
+    @Override
+    public void setType(final String type) {
+        // fixed
+    }
 
     public String getPassword() {
         return password;
@@ -146,6 +167,49 @@ public class UserTO extends AnyTO {
 
     public void setSecurityAnswer(final String securityAnswer) {
         this.securityAnswer = securityAnswer;
+    }
+
+    @XmlElementWrapper(name = "relationships")
+    @XmlElement(name = "relationship")
+    @JsonProperty("relationships")
+    public List<RelationshipTO> getRelationships() {
+        return relationships;
+    }
+
+    @JsonIgnore
+    public Map<Long, RelationshipTO> getRelationshipMap() {
+        Map<Long, RelationshipTO> result = new HashMap<>(getRelationships().size());
+        for (RelationshipTO membership : getRelationships()) {
+            result.put(membership.getRightKey(), membership);
+        }
+        result = Collections.unmodifiableMap(result);
+
+        return result;
+    }
+
+    @XmlElementWrapper(name = "memberships")
+    @XmlElement(name = "membership")
+    @JsonProperty("memberships")
+    public List<MembershipTO> getMemberships() {
+        return memberships;
+    }
+
+    @JsonIgnore
+    public Map<Long, MembershipTO> getMembershipMap() {
+        Map<Long, MembershipTO> result = new HashMap<>(getMemberships().size());
+        for (MembershipTO membership : getMemberships()) {
+            result.put(membership.getRightKey(), membership);
+        }
+        result = Collections.unmodifiableMap(result);
+
+        return result;
+    }
+
+    @XmlElementWrapper(name = "dynGroups")
+    @XmlElement(name = "role")
+    @JsonProperty("dynGroups")
+    public List<Long> getDynGroups() {
+        return dynGroups;
     }
 
     @Override

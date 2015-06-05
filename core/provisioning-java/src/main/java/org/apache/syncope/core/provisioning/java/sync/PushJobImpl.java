@@ -27,7 +27,6 @@ import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
-import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.sync.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.api.sync.PushActions;
@@ -39,7 +38,9 @@ import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.provisioning.api.job.PushJob;
+import org.apache.syncope.core.provisioning.api.sync.AnyObjectPushResultHandler;
 import org.apache.syncope.core.provisioning.api.sync.GroupPushResultHandler;
+import org.apache.syncope.core.provisioning.api.sync.SyncopePushResultHandler;
 import org.apache.syncope.core.provisioning.api.sync.UserPushResultHandler;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -111,15 +112,20 @@ public class PushJobImpl extends AbstractProvisioningJob<PushTask, PushActions> 
         profile.setDryRun(dryRun);
         profile.setResAct(null);
 
+        AnyObjectPushResultHandler ahandler =
+                (AnyObjectPushResultHandler) ApplicationContextProvider.getApplicationContext().getBeanFactory().
+                createBean(AnyObjectPushResultHandlerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+        ahandler.setProfile(profile);
+
         UserPushResultHandler uhandler =
                 (UserPushResultHandler) ApplicationContextProvider.getApplicationContext().getBeanFactory().
                 createBean(UserPushResultHandlerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
         uhandler.setProfile(profile);
 
-        GroupPushResultHandler rhandler =
+        GroupPushResultHandler ghandler =
                 (GroupPushResultHandler) ApplicationContextProvider.getApplicationContext().getBeanFactory().
                 createBean(GroupPushResultHandlerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
-        rhandler.setProfile(profile);
+        ghandler.setProfile(profile);
 
         if (actions != null && !profile.isDryRun()) {
             for (PushActions action : actions) {
@@ -138,16 +144,32 @@ public class PushJobImpl extends AbstractProvisioningJob<PushTask, PushActions> 
                 for (int page = 1; page <= (count / PAGE_SIZE) + 1; page++) {
                     List<? extends Any<?, ?, ?>> localAnys = StringUtils.isBlank(filter)
                             ? anyDAO.findAll(SyncopeConstants.FULL_ADMIN_REALMS, page, PAGE_SIZE)
-                            : searchDAO.<User>search(SyncopeConstants.FULL_ADMIN_REALMS,
+                            : searchDAO.search(SyncopeConstants.FULL_ADMIN_REALMS,
                                     SearchCondConverter.convert(filter),
                                     Collections.<OrderByClause>emptyList(), provision.getAnyType().getKind());
 
                     for (Any<?, ?, ?> any : localAnys) {
+                        SyncopePushResultHandler handler;
+                        switch (provision.getAnyType().getKind()) {
+                            case USER:
+                                handler = uhandler;
+                                break;
+
+                            case GROUP:
+                                handler = ghandler;
+                                break;
+
+                            case ANY_OBJECT:
+                            default:
+                                handler = ahandler;
+                        }
+
                         try {
-                            uhandler.handle(any.getKey());
+                            handler.handle(any.getKey());
                         } catch (Exception e) {
-                            LOG.warn("Failure pushing user '{}' on '{}'", any, pushTask.getResource(), e);
-                            throw new JobExecutionException("While pushing users on connector", e);
+                            LOG.warn("Failure pushing '{}' on '{}'", any, pushTask.getResource(), e);
+                            throw new JobExecutionException(
+                                    "While pushing " + any + " on " + pushTask.getResource(), e);
                         }
                     }
                 }

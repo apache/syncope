@@ -30,6 +30,8 @@ under the License.
     <property name="fallback" value="classpath:userWorkflow.bpmn20.xml"/>
   </bean>
 
+  <bean id="activitiUtils" class="org.apache.syncope.core.workflow.activiti.ActivitiUtils"/>
+
   <bean id="syncopeActivitiUserManager" class="org.apache.syncope.core.workflow.activiti.SyncopeUserManager"/>
   <bean id="syncopeActivitiGroupManager" class="org.apache.syncope.core.workflow.activiti.SyncopeGroupManager"/>
 

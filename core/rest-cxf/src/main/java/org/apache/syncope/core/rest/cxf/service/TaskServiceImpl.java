@@ -129,10 +129,12 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService 
             case DELETE:
                 for (String taskKey : bulkAction.getTargets()) {
                     try {
-                        result.add(logic.delete(Long.valueOf(taskKey)).getKey(), BulkActionResult.Status.SUCCESS);
+                        result.getResults().put(
+                                String.valueOf(logic.delete(Long.valueOf(taskKey)).getKey()),
+                                BulkActionResult.Status.SUCCESS);
                     } catch (Exception e) {
                         LOG.error("Error performing delete for task {}", taskKey, e);
-                        result.add(taskKey, BulkActionResult.Status.FAILURE);
+                        result.getResults().put(taskKey, BulkActionResult.Status.FAILURE);
                     }
                 }
                 break;
@@ -141,10 +143,10 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService 
                 for (String taskKey : bulkAction.getTargets()) {
                     try {
                         logic.execute(Long.valueOf(taskKey), true);
-                        result.add(taskKey, BulkActionResult.Status.SUCCESS);
+                        result.getResults().put(taskKey, BulkActionResult.Status.SUCCESS);
                     } catch (Exception e) {
                         LOG.error("Error performing dryrun for task {}", taskKey, e);
-                        result.add(taskKey, BulkActionResult.Status.FAILURE);
+                        result.getResults().put(taskKey, BulkActionResult.Status.FAILURE);
                     }
                 }
                 break;
@@ -153,10 +155,10 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService 
                 for (String taskKey : bulkAction.getTargets()) {
                     try {
                         logic.execute(Long.valueOf(taskKey), false);
-                        result.add(taskKey, BulkActionResult.Status.SUCCESS);
+                        result.getResults().put(taskKey, BulkActionResult.Status.SUCCESS);
                     } catch (Exception e) {
                         LOG.error("Error performing execute for task {}", taskKey, e);
-                        result.add(taskKey, BulkActionResult.Status.FAILURE);
+                        result.getResults().put(taskKey, BulkActionResult.Status.FAILURE);
                     }
                 }
                 break;

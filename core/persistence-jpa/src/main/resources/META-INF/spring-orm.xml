@@ -360,6 +360,56 @@ under the License.
     </attributes>
   </entity>
 
+  <entity class="org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAADerAttr">
+    <attributes>
+      <id name="id">
+        <generated-value generator="SEQ_ADerAttr" strategy="TABLE"/>
+        <table-generator name="SEQ_ADerAttr" pk-column-value="SEQ_ADerAttr" initial-value="1000"/>
+      </id>
+    </attributes>
+  </entity>
+  <entity class="org.apache.syncope.core.persistence.jpa.entity.user.JPAUDerAttr">
+    <attributes>
+      <id name="id">
+        <generated-value generator="SEQ_UDerAttr" strategy="TABLE"/>
+        <table-generator name="SEQ_UDerAttr" pk-column-value="SEQ_UDerAttr" initial-value="1000"/>
+      </id>
+    </attributes>
+  </entity>
+  <entity class="org.apache.syncope.core.persistence.jpa.entity.group.JPAGDerAttr">
+    <attributes>
+      <id name="id">
+        <generated-value generator="SEQ_GDerAttr" strategy="TABLE"/>
+        <table-generator name="SEQ_GDerAttr" pk-column-value="SEQ_GDerAttr" initial-value="1000"/>
+      </id>
+    </attributes>
+  </entity>
+
+  <entity class="org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAVirAttr">
+    <attributes>
+      <id name="id">
+        <generated-value generator="SEQ_AVirAttr" strategy="TABLE"/>
+        <table-generator name="SEQ_AVirAttr" pk-column-value="SEQ_AVirAttr" initial-value="1000"/>
+      </id>
+    </attributes>
+  </entity>
+  <entity class="org.apache.syncope.core.persistence.jpa.entity.user.JPAUVirAttr">
+    <attributes>
+      <id name="id">
+        <generated-value generator="SEQ_UVirAttr" strategy="TABLE"/>
+        <table-generator name="SEQ_UVirAttr" pk-column-value="SEQ_UVirAttr" initial-value="1000"/>
+      </id>
+    </attributes>
+  </entity>
+  <entity class="org.apache.syncope.core.persistence.jpa.entity.group.JPAGVirAttr">
+    <attributes>
+      <id name="id">
+        <generated-value generator="SEQ_GVirAttr" strategy="TABLE"/>
+        <table-generator name="SEQ_GVirAttr" pk-column-value="SEQ_GVirAttr" initial-value="1000"/>
+      </id>
+    </attributes>
+  </entity>
+  
   <entity class="org.apache.syncope.core.persistence.jpa.entity.task.JPAAnyTemplate">
     <attributes>
       <id name="id">

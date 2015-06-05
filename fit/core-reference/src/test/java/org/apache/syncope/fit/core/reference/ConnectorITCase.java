@@ -273,7 +273,7 @@ public class ConnectorITCase extends AbstractITCase {
         List<ResourceTO> result = new ArrayList<>();
 
         for (ResourceTO resource : input) {
-            if (connectorKey.equals(resource.getConnectorId())) {
+            if (connectorKey.equals(resource.getConnector())) {
                 result.add(resource);
             }
         }
@@ -320,7 +320,7 @@ public class ConnectorITCase extends AbstractITCase {
         long connId = connInstanceTO.getKey();
 
         // Link resourceTO to the new connector instance.
-        resourceTO.setConnectorId(connId);
+        resourceTO.setConnector(connId);
         // ----------------------------------
 
         // ----------------------------------
@@ -639,7 +639,7 @@ public class ConnectorITCase extends AbstractITCase {
             ResourceTO resourceTO = new ResourceTO();
 
             resourceTO.setKey(resourceName);
-            resourceTO.setConnectorId(connectorTO.getKey());
+            resourceTO.setConnector(connectorTO.getKey());
 
             conf = new HashSet<>();
             endpoint.getValues().clear();

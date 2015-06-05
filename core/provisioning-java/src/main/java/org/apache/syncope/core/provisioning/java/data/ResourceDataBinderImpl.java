@@ -22,6 +22,8 @@ import org.apache.syncope.core.provisioning.api.data.ResourceDataBinder;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -89,8 +91,8 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
 
         resource.setKey(resourceTO.getKey());
 
-        if (resourceTO.getConnectorId() != null) {
-            ConnInstance connector = connInstanceDAO.find(resourceTO.getConnectorId());
+        if (resourceTO.getConnector() != null) {
+            ConnInstance connector = connInstanceDAO.find(resourceTO.getConnector());
             resource.setConnector(connector);
 
             if (!connector.getResources().contains(resource)) {
@@ -108,10 +110,11 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
 
         resource.setPropagationMode(resourceTO.getPropagationMode());
 
+        // 1. add or update all (valid) provisions from TO
         for (ProvisionTO provisionTO : resourceTO.getProvisions()) {
             AnyType anyType = anyTypeDAO.find(provisionTO.getAnyType());
             if (anyType == null) {
-                LOG.warn("Invalid type specified {}, ignoring...", provisionTO.getAnyType());
+                LOG.debug("Invalid AnyType specified {}, ignoring...", provisionTO.getAnyType());
             } else {
                 Provision provision = resource.getProvision(anyType);
                 if (provision == null) {
@@ -135,13 +138,27 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                 if (provisionTO.getMapping() == null) {
                     provision.setMapping(null);
                 } else {
-                    Mapping mapping = entityFactory.newEntity(Mapping.class);
-                    mapping.setProvision(provision);
-                    provision.setMapping(mapping);
+                    Mapping mapping = provision.getMapping();
+                    if (mapping == null) {
+                        mapping = entityFactory.newEntity(Mapping.class);
+                        mapping.setProvision(provision);
+                        provision.setMapping(mapping);
+                    } else {
+                        mapping.getItems().clear();
+                    }
                     populateMapping(provisionTO.getMapping(), mapping, entityFactory.newEntity(MappingItem.class));
                 }
             }
         }
+
+        // 2. remove all abouts not contained in the TO
+        CollectionUtils.filter(resource.getProvisions(), new Predicate<Provision>() {
+
+            @Override
+            public boolean evaluate(final Provision provision) {
+                return resourceTO.getProvision(provision.getAnyType().getKey()) != null;
+            }
+        });
 
         resource.setCreateTraceLevel(resourceTO.getCreateTraceLevel());
         resource.setUpdateTraceLevel(resourceTO.getUpdateTraceLevel());
@@ -207,8 +224,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
             }
         }
 
-        // Throw composite exception if there is at least one element set
-        // in the composing exceptions
+        // Throw composite exception if there is at least one element set in the composing exceptions
         if (!requiredValuesMissing.isEmpty()) {
             scce.addException(requiredValuesMissing);
         }
@@ -234,9 +250,9 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
 
     @Override
     public ConnInstance getConnInstance(final ResourceTO resourceTO) {
-        ConnInstance connInstance = connInstanceDAO.find(resourceTO.getConnectorId());
+        ConnInstance connInstance = connInstanceDAO.find(resourceTO.getConnector());
         if (connInstance == null) {
-            throw new NotFoundException("Connector '" + resourceTO.getConnectorId() + "'");
+            throw new NotFoundException("Connector '" + resourceTO.getConnector() + "'");
         }
 
         final ConnInstance connInstanceClone = SerializationUtils.clone(connInstance);
@@ -279,7 +295,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         // set the connector instance
         ConnInstance connector = resource.getConnector();
 
-        resourceTO.setConnectorId(connector == null ? null : connector.getKey());
+        resourceTO.setConnector(connector == null ? null : connector.getKey());
         resourceTO.setConnectorDisplayName(connector == null ? null : connector.getDisplayName());
 
         // set the provision information
@@ -295,6 +311,8 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                 provisionTO.setMapping(mappingTO);
                 populateMappingTO(provision.getMapping(), mappingTO);
             }
+
+            resourceTO.getProvisions().add(provisionTO);
         }
 
         resourceTO.setEnforceMandatoryCondition(resource.isEnforceMandatoryCondition());

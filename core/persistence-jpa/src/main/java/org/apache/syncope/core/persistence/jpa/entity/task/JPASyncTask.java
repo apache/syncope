@@ -19,7 +19,9 @@
 package org.apache.syncope.core.persistence.jpa.entity.task;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
@@ -57,7 +59,7 @@ public class JPASyncTask extends AbstractProvisioningTask implements SyncTask {
     @CollectionTable(name = "SyncTask_actionsClassNames",
             joinColumns =
             @JoinColumn(name = "syncTask_id", referencedColumnName = "id"))
-    private List<String> actionsClassNames = new ArrayList<>();
+    private Set<String> actionsClassNames = new HashSet<>();
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "syncTask")
     private List<JPAAnyTemplate> templates = new ArrayList<>();
@@ -86,7 +88,7 @@ public class JPASyncTask extends AbstractProvisioningTask implements SyncTask {
     }
 
     @Override
-    public List<String> getActionsClassNames() {
+    public Set<String> getActionsClassNames() {
         return actionsClassNames;
     }
 

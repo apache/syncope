@@ -217,7 +217,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
                 connector.getOperationOptions(attrUtils.getMappingItems(provision, MappingPurpose.BOTH)));
         if (connectorObject == null) {
             throw new NotFoundException("Object " + connObjectKeyValue + " with class " + provision.getObjectClass()
-                    + "not found on resource " + resourceKey);
+                    + " not found on resource " + resourceKey);
         }
 
         final Set<Attribute> attributes = connectorObject.getAttributes();

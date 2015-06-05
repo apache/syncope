@@ -302,7 +302,8 @@ public abstract class AbstractProvisioningJob<T extends ProvisioningTask, A exte
                 append(' ').
                 append("[deleted/failures]: ").append(gSuccDelete.size()).append('/').append(gFailDelete.size()).
                 append(' ').
-                append("[no operation/ignored]: ").append(gSuccNone.size()).append('/').append(gIgnore.size());
+                append("[no operation/ignored]: ").append(gSuccNone.size()).append('/').append(gIgnore.size()).
+                append('\n');
         report.append("Any objects ").
                 append("[created/failures]: ").append(aSuccCreate.size()).append('/').append(aFailCreate.size()).
                 append(' ').

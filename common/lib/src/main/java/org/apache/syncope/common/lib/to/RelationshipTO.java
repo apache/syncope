@@ -28,8 +28,6 @@ public class RelationshipTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = 360672942026613929L;
 
-    private long key;
-
     private String leftType;
 
     private long leftKey;
@@ -37,14 +35,6 @@ public class RelationshipTO extends AbstractBaseBean {
     private String rightType;
 
     private long rightKey;
-
-    public long getKey() {
-        return key;
-    }
-
-    public void setKey(final long key) {
-        this.key = key;
-    }
 
     public String getLeftType() {
         return leftType;

@@ -60,7 +60,7 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService 
     }
 
     @Override
-    public Response getUserId(final String username) {
+    public Response getUserKey(final String username) {
         return Response.ok().header(HttpHeaders.ALLOW, OPTIONS_ALLOW).
                 header(RESTHeaders.USER_ID, logic.getKey(username)).
                 build();
@@ -179,21 +179,23 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService 
                 updated = logic.read(userKey);
         }
 
-        final BulkActionResult res = new BulkActionResult();
+        BulkActionResult result = new BulkActionResult();
 
         if (type == ResourceDeassociationActionType.UNLINK) {
             for (ResourceName resourceName : resourceNames) {
-                res.add(resourceName.getElement(), updated.getResources().contains(resourceName.getElement())
-                        ? BulkActionResult.Status.FAILURE
-                        : BulkActionResult.Status.SUCCESS);
+                result.getResults().put(
+                        resourceName.getElement(), updated.getResources().contains(resourceName.getElement())
+                                ? BulkActionResult.Status.FAILURE
+                                : BulkActionResult.Status.SUCCESS);
             }
         } else {
             for (PropagationStatus propagationStatusTO : updated.getPropagationStatusTOs()) {
-                res.add(propagationStatusTO.getResource(), propagationStatusTO.getStatus().toString());
+                result.getResults().put(propagationStatusTO.getResource(),
+                        BulkActionResult.Status.valueOf(propagationStatusTO.getStatus().toString()));
             }
         }
 
-        return modificationResponse(res);
+        return modificationResponse(result);
     }
 
     @Override
@@ -232,21 +234,23 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService 
                 updated = logic.read(userKey);
         }
 
-        final BulkActionResult res = new BulkActionResult();
+        BulkActionResult result = new BulkActionResult();
 
         if (type == ResourceAssociationActionType.LINK) {
             for (ResourceName resourceName : associationMod.getTargetResources()) {
-                res.add(resourceName.getElement(), updated.getResources().contains(resourceName.getElement())
-                        ? BulkActionResult.Status.FAILURE
-                        : BulkActionResult.Status.SUCCESS);
+                result.getResults().put(resourceName.getElement(),
+                        updated.getResources().contains(resourceName.getElement())
+                                ? BulkActionResult.Status.FAILURE
+                                : BulkActionResult.Status.SUCCESS);
             }
         } else {
             for (PropagationStatus propagationStatusTO : updated.getPropagationStatusTOs()) {
-                res.add(propagationStatusTO.getResource(), propagationStatusTO.getStatus().toString());
+                result.getResults().put(propagationStatusTO.getResource(),
+                        BulkActionResult.Status.valueOf(propagationStatusTO.getStatus().toString()));
             }
         }
 
-        return modificationResponse(res);
+        return modificationResponse(result);
     }
 
     @Override
@@ -257,10 +261,12 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService 
             case DELETE:
                 for (String key : bulkAction.getTargets()) {
                     try {
-                        result.add(logic.delete(Long.valueOf(key)).getKey(), BulkActionResult.Status.SUCCESS);
+                        result.getResults().put(
+                                String.valueOf(logic.delete(Long.valueOf(key)).getKey()),
+                                BulkActionResult.Status.SUCCESS);
                     } catch (Exception e) {
                         LOG.error("Error performing delete for user {}", key, e);
-                        result.add(key, BulkActionResult.Status.FAILURE);
+                        result.getResults().put(key, BulkActionResult.Status.FAILURE);
                     }
                 }
                 break;
@@ -271,10 +277,11 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService 
                     statusMod.setKey(Long.valueOf(key));
                     statusMod.setType(StatusMod.ModType.SUSPEND);
                     try {
-                        result.add(logic.status(statusMod).getKey(), BulkActionResult.Status.SUCCESS);
+                        result.getResults().put(
+                                String.valueOf(logic.status(statusMod).getKey()), BulkActionResult.Status.SUCCESS);
                     } catch (Exception e) {
                         LOG.error("Error performing suspend for user {}", key, e);
-                        result.add(key, BulkActionResult.Status.FAILURE);
+                        result.getResults().put(key, BulkActionResult.Status.FAILURE);
                     }
                 }
                 break;
@@ -285,10 +292,11 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService 
                     statusMod.setKey(Long.valueOf(key));
                     statusMod.setType(StatusMod.ModType.REACTIVATE);
                     try {
-                        result.add(logic.status(statusMod).getKey(), BulkActionResult.Status.SUCCESS);
+                        result.getResults().put(
+                                String.valueOf(logic.status(statusMod).getKey()), BulkActionResult.Status.SUCCESS);
                     } catch (Exception e) {
                         LOG.error("Error performing reactivate for user {}", key, e);
-                        result.add(key, BulkActionResult.Status.FAILURE);
+                        result.getResults().put(key, BulkActionResult.Status.FAILURE);
                     }
                 }
                 break;

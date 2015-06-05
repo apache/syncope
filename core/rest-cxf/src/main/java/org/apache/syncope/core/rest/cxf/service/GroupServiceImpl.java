@@ -155,21 +155,23 @@ public class GroupServiceImpl extends AbstractServiceImpl implements GroupServic
                 updated = logic.read(groupKey);
         }
 
-        final BulkActionResult res = new BulkActionResult();
+        BulkActionResult result = new BulkActionResult();
 
         if (type == ResourceDeassociationActionType.UNLINK) {
             for (ResourceName resourceName : resourceNames) {
-                res.add(resourceName.getElement(), updated.getResources().contains(resourceName.getElement())
-                        ? BulkActionResult.Status.FAILURE
-                        : BulkActionResult.Status.SUCCESS);
+                result.getResults().put(resourceName.getElement(),
+                        updated.getResources().contains(resourceName.getElement())
+                                ? BulkActionResult.Status.FAILURE
+                                : BulkActionResult.Status.SUCCESS);
             }
         } else {
             for (PropagationStatus propagationStatusTO : updated.getPropagationStatusTOs()) {
-                res.add(propagationStatusTO.getResource(), propagationStatusTO.getStatus().toString());
+                result.getResults().put(propagationStatusTO.getResource(),
+                        BulkActionResult.Status.valueOf(propagationStatusTO.getStatus().toString()));
             }
         }
 
-        return modificationResponse(res);
+        return modificationResponse(result);
     }
 
     @Override
@@ -198,21 +200,23 @@ public class GroupServiceImpl extends AbstractServiceImpl implements GroupServic
                 updated = logic.read(groupKey);
         }
 
-        final BulkActionResult res = new BulkActionResult();
+        BulkActionResult result = new BulkActionResult();
 
         if (type == ResourceAssociationActionType.LINK) {
             for (ResourceName resourceName : resourceNames) {
-                res.add(resourceName.getElement(), updated.getResources().contains(resourceName.getElement())
-                        ? BulkActionResult.Status.FAILURE
-                        : BulkActionResult.Status.SUCCESS);
+                result.getResults().put(resourceName.getElement(),
+                        updated.getResources().contains(resourceName.getElement())
+                                ? BulkActionResult.Status.FAILURE
+                                : BulkActionResult.Status.SUCCESS);
             }
         } else {
             for (PropagationStatus propagationStatusTO : updated.getPropagationStatusTOs()) {
-                res.add(propagationStatusTO.getResource(), propagationStatusTO.getStatus().toString());
+                result.getResults().put(propagationStatusTO.getResource(),
+                        BulkActionResult.Status.valueOf(propagationStatusTO.getStatus().toString()));
             }
         }
 
-        return modificationResponse(res);
+        return modificationResponse(result);
     }
 
     @Override
@@ -222,10 +226,12 @@ public class GroupServiceImpl extends AbstractServiceImpl implements GroupServic
         if (bulkAction.getOperation() == BulkAction.Type.DELETE) {
             for (String groupKey : bulkAction.getTargets()) {
                 try {
-                    result.add(logic.delete(Long.valueOf(groupKey)).getKey(), BulkActionResult.Status.SUCCESS);
+                    result.getResults().put(
+                            String.valueOf(logic.delete(Long.valueOf(groupKey)).getKey()),
+                            BulkActionResult.Status.SUCCESS);
                 } catch (Exception e) {
                     LOG.error("Error performing delete for group {}", groupKey, e);
-                    result.add(groupKey, BulkActionResult.Status.FAILURE);
+                    result.getResults().put(groupKey, BulkActionResult.Status.FAILURE);
                 }
             }
         } else {

@@ -107,7 +107,7 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
                         ? groupLogic
                         : anyObjectLogic;
 
-        BulkActionResult res = new BulkActionResult();
+        BulkActionResult result = new BulkActionResult();
 
         for (AnyKey key : keys) {
             Set<String> resources = Collections.singleton(resourceKey);
@@ -128,14 +128,14 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
                     default:
                 }
 
-                res.add(key, BulkActionResult.Status.SUCCESS);
+                result.getResults().put(String.valueOf(key.getElement()), BulkActionResult.Status.SUCCESS);
             } catch (Exception e) {
                 LOG.warn("While executing {} on {} {}", type, anyTypeKey, key.getElement(), e);
-                res.add(key, BulkActionResult.Status.FAILURE);
+                result.getResults().put(String.valueOf(key.getElement()), BulkActionResult.Status.FAILURE);
             }
         }
 
-        return res;
+        return result;
     }
 
     @Override
@@ -145,10 +145,10 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
         if (bulkAction.getOperation() == BulkAction.Type.DELETE) {
             for (String name : bulkAction.getTargets()) {
                 try {
-                    result.add(logic.delete(name).getKey(), BulkActionResult.Status.SUCCESS);
+                    result.getResults().put(logic.delete(name).getKey(), BulkActionResult.Status.SUCCESS);
                 } catch (Exception e) {
                     LOG.error("Error performing delete for resource {}", name, e);
-                    result.add(name, BulkActionResult.Status.FAILURE);
+                    result.getResults().put(name, BulkActionResult.Status.FAILURE);
                 }
             }
         }

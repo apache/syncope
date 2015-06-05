@@ -18,19 +18,28 @@
  */
 package org.apache.syncope.common.lib.to;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.HashMap;
 import java.util.Map;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import org.apache.syncope.common.lib.jaxb.XmlGenericMapAdapter;
 
 @XmlRootElement(name = "syncTask")
 @XmlType
+@XmlAccessorType(XmlAccessType.FIELD)
 public class SyncTaskTO extends AbstractProvisioningTaskTO {
 
     private static final long serialVersionUID = -2143537546915809017L;
 
     private String destinationRealm;
 
+    @XmlJavaTypeAdapter(XmlGenericMapAdapter.class)
+    @JsonIgnore
     private final Map<String, AnyTO> templates = new HashMap<>();
 
     private boolean fullReconciliation;
@@ -43,6 +52,7 @@ public class SyncTaskTO extends AbstractProvisioningTaskTO {
         this.destinationRealm = destinationRealm;
     }
 
+    @JsonProperty
     public Map<String, AnyTO> getTemplates() {
         return templates;
     }

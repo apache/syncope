@@ -84,7 +84,7 @@ public class RoleDataBinderImpl implements RoleDataBinder {
         for (String realmFullPath : roleTO.getRealms()) {
             Realm realm = realmDAO.find(realmFullPath);
             if (realm == null) {
-                LOG.warn("Invalid realm full path {}, ignoring", realmFullPath);
+                LOG.debug("Invalid realm full path {}, ignoring", realmFullPath);
             } else {
                 role.addRealm(realm);
             }

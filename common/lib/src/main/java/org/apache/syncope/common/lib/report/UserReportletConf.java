@@ -44,6 +44,7 @@ public class UserReportletConf extends AbstractAnyReportletConf {
         changePwdDate,
         passwordHistorySize,
         failedLoginCount,
+        relationships,
         memberships,
         resources
 

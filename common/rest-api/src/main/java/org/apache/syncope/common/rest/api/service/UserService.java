@@ -81,7 +81,7 @@ public interface UserService extends JAXRSService {
     })
     @OPTIONS
     @Path("{username}/userKey")
-    Response getUserId(@NotNull @PathParam("username") String username);
+    Response getUserKey(@NotNull @PathParam("username") String username);
 
     /**
      * Reads the user matching the provided userKey.

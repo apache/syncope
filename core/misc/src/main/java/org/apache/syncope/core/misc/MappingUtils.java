@@ -64,6 +64,7 @@ import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
+import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.identityconnectors.framework.common.FrameworkUtil;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
@@ -230,7 +231,7 @@ public final class MappingUtils {
 
         ConfigurableApplicationContext context = ApplicationContextProvider.getApplicationContext();
         AnyUtilsFactory anyUtilsFactory = context.getBean(AnyUtilsFactory.class);
-        ConnObjectUtils connObjectUtils = context.getBean(ConnObjectUtils.class);
+        VirAttrHandler virAttrHandler = context.getBean(VirAttrHandler.class);
 
         switch (mapItem.getIntMappingType().getAnyTypeKind()) {
             case USER:
@@ -243,7 +244,7 @@ public final class MappingUtils {
                 if (any instanceof User) {
                     UserDAO userDAO = context.getBean(UserDAO.class);
                     for (Group group : userDAO.findAllGroups((User) any)) {
-                        connObjectUtils.retrieveVirAttrValues(group);
+                        virAttrHandler.retrieveVirAttrValues(group);
                         anys.add(group);
                     }
                 } else if (any instanceof Group) {
@@ -266,7 +267,7 @@ public final class MappingUtils {
         PlainSchema schema = null;
         boolean readOnlyVirSchema = false;
         AttrSchemaType schemaType;
-        final Pair<String, Attribute> result;
+        Pair<String, Attribute> result;
 
         switch (mapItem.getIntMappingType()) {
             case UserPlainSchema:
@@ -290,7 +291,7 @@ public final class MappingUtils {
                 schemaType = AttrSchemaType.String;
         }
 
-        final String extAttrName = mapItem.getExtAttrName();
+        String extAttrName = mapItem.getExtAttrName();
 
         LOG.debug("Define mapping for: "
                 + "\n* ExtAttrName " + extAttrName
@@ -389,7 +390,7 @@ public final class MappingUtils {
         if (StringUtils.isNotBlank(anyUtils.getConnObjectLink(provision))) {
             final JexlContext jexlContext = new MapContext();
             JexlUtils.addFieldsToContext(any, jexlContext);
-            JexlUtils.addAttrsToContext(any.getPlainAttrs(), jexlContext);
+            JexlUtils.addPlainAttrsToContext(any.getPlainAttrs(), jexlContext);
             JexlUtils.addDerAttrsToContext(any.getDerAttrs(), any.getPlainAttrs(), jexlContext);
             evalConnObjectLink = JexlUtils.evaluate(anyUtils.getConnObjectLink(provision), jexlContext);
         }
@@ -443,6 +444,8 @@ public final class MappingUtils {
 
         EntityFactory entityFactory =
                 ApplicationContextProvider.getApplicationContext().getBean(EntityFactory.class);
+        AnyUtilsFactory anyUtilsFactory =
+                ApplicationContextProvider.getApplicationContext().getBean(AnyUtilsFactory.class);
         List<PlainAttrValue> values = new ArrayList<>();
         PlainAttrValue attrValue;
         switch (mappingItem.getIntMappingType()) {
@@ -472,6 +475,7 @@ public final class MappingUtils {
             case GroupVirtualSchema:
             case AnyVirtualSchema:
                 for (Any<?, ?, ?> any : anys) {
+                    AnyUtils anyUtils = anyUtilsFactory.getInstance(any);
                     VirAttr<?> virAttr = any.getVirAttr(mappingItem.getIntAttrName());
                     if (virAttr != null) {
                         if (vAttrsToBeRemoved != null && vAttrsToBeUpdated != null) {
@@ -488,7 +492,7 @@ public final class MappingUtils {
                         }
                         if (virAttr.getValues() != null) {
                             for (String value : virAttr.getValues()) {
-                                attrValue = entityFactory.newEntity(UPlainAttrValue.class);
+                                attrValue = anyUtils.newPlainAttrValue();
                                 attrValue.setStringValue(value);
                                 values.add(attrValue);
                             }
@@ -508,11 +512,10 @@ public final class MappingUtils {
             case GroupDerivedSchema:
             case AnyDerivedSchema:
                 for (Any<?, ?, ?> any : anys) {
+                    AnyUtils anyUtils = anyUtilsFactory.getInstance(any);
                     DerAttr<?> derAttr = any.getDerAttr(mappingItem.getIntAttrName());
                     if (derAttr != null) {
-                        attrValue = any instanceof Group
-                                ? entityFactory.newEntity(GPlainAttrValue.class)
-                                : entityFactory.newEntity(UPlainAttrValue.class);
+                        attrValue = anyUtils.newPlainAttrValue();
                         attrValue.setStringValue(derAttr.getValue(any.getPlainAttrs()));
                         values.add(attrValue);
                     }
@@ -529,7 +532,8 @@ public final class MappingUtils {
             case GroupId:
             case AnyId:
                 for (Any<?, ?, ?> any : anys) {
-                    attrValue = entityFactory.newEntity(UPlainAttrValue.class);
+                    AnyUtils anyUtils = anyUtilsFactory.getInstance(any);
+                    attrValue = anyUtils.newPlainAttrValue();
                     attrValue.setStringValue(any.getKey().toString());
                     values.add(attrValue);
                 }
@@ -600,7 +604,6 @@ public final class MappingUtils {
      * @return connObjectKey internal value
      */
     public static String getConnObjectKeyValue(final Any<?, ?, ?> any, final Provision provision) {
-
         List<PlainAttrValue> values = getIntValues(provision, provision.getMapping().getConnObjectKeyItem(),
                 Collections.<Any<?, ?, ?>>singletonList(any), null, null);
         return values == null || values.isEmpty()

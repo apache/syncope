@@ -19,6 +19,8 @@
 package org.apache.syncope.core.provisioning.java.data;
 
 import java.util.Map;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.core.provisioning.api.data.NotificationDataBinder;
 import org.apache.syncope.common.lib.to.NotificationTO;
@@ -72,23 +74,35 @@ public class NotificationDataBinderImpl implements NotificationDataBinder {
     @Override
     public void update(final Notification notification, final NotificationTO notificationTO) {
         BeanUtils.copyProperties(notificationTO, notification, IGNORE_PROPERTIES);
+        notification.setRecipients(notificationTO.getRecipients());
 
-        notification.getAbouts().clear();
+        // 1. add or update all (valid) abouts from TO
         for (Map.Entry<String, String> entry : notificationTO.getAbouts().entrySet()) {
             if (StringUtils.isNotBlank(entry.getValue())) {
                 AnyType anyType = anyTypeDAO.find(entry.getKey());
                 if (anyType == null) {
-                    LOG.warn("Invalid AnyType {} specified, ignoring...", entry.getKey());
+                    LOG.debug("Invalid AnyType {} specified, ignoring...", entry.getKey());
                 } else {
-                    AnyAbout about = entityFactory.newEntity(AnyAbout.class);
-                    about.setAnyType(anyType);
-                    about.setNotification(notification);
+                    AnyAbout about = notification.getAbout(anyType);
+                    if (about == null) {
+                        about = entityFactory.newEntity(AnyAbout.class);
+                        about.setAnyType(anyType);
+                        about.setNotification(notification);
 
-                    notification.add(about);
+                        notification.add(about);
+                    }
+                    about.set(entry.getValue());
                 }
             }
         }
 
-        notification.setRecipients(notificationTO.getRecipients());
+        // 2. remove all abouts not contained in the TO
+        CollectionUtils.filter(notification.getAbouts(), new Predicate<AnyAbout>() {
+
+            @Override
+            public boolean evaluate(final AnyAbout anyAbout) {
+                return notificationTO.getAbouts().containsKey(anyAbout.getAnyType().getKey());
+            }
+        });
     }
 }

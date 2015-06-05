@@ -47,8 +47,8 @@ public class ConfigurationDataBinderImpl extends AbstractAnyDataBinder implement
         ConfTO confTO = new ConfTO();
         confTO.setKey(conf.getKey());
 
-        fillTO(confTO, null, conf.getPlainAttrs(),
-                conf.getDerAttrs(), conf.getVirAttrs(), Collections.<ExternalResource>emptySet());
+        fillTO(confTO, null, conf.getAuxClasses(),
+                conf.getPlainAttrs(), conf.getDerAttrs(), conf.getVirAttrs(), Collections.<ExternalResource>emptySet());
 
         return confTO;
     }

@@ -20,6 +20,7 @@ package org.apache.syncope.common.lib.to;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 
 @XmlRootElement(name = "membership")
 @XmlType
@@ -29,9 +30,14 @@ public class MembershipTO extends RelationshipTO {
 
     private String groupName;
 
+    public MembershipTO() {
+        super();
+        super.setRightType(AnyTypeKind.GROUP.name());
+    }
+
     @Override
-    public String getRightType() {
-        return "group";
+    public void setRightType(final String rightType) {
+        // ignore
     }
 
     public String getGroupName() {

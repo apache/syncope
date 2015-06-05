@@ -116,14 +116,13 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
 
         Object output = null;
         Result resultStatus = null;
-        ConnectorObject beforeObj = null;
         String operation = null;
 
-        // Try to read remote object (user / group) BEFORE any actual operation
+        // Try to read remote object BEFORE any actual operation
         Provision provision = profile.getTask().getResource().getProvision(any.getType());
         String connObjecKey = MappingUtils.getConnObjectKeyValue(any, provision);
 
-        beforeObj = getRemoteObject(connObjecKey, provision.getObjectClass());
+        ConnectorObject beforeObj = getRemoteObject(connObjecKey, provision.getObjectClass());
 
         Boolean status = profile.getTask().isSyncStatus() ? enabled : null;
 
@@ -186,7 +185,6 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                         default:
                         // do nothing
                     }
-
                 } else {
                     operation = MatchingRule.toEventName(profile.getTask().getMatchingRule());
                     result.setOperation(getResourceOperation(profile.getTask().getMatchingRule()));

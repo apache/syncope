@@ -32,6 +32,7 @@ import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.mod.UserMod;
+import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -63,8 +64,12 @@ public class PlainSchemaITCase extends AbstractITCase {
         PlainSchemaTO newPlainSchemaTO = createSchema(SchemaType.PLAIN, schemaTO);
         assertEquals(schemaTO, newPlainSchemaTO);
 
-        newPlainSchemaTO = createSchema(SchemaType.PLAIN, schemaTO);
-        assertEquals(schemaTO, newPlainSchemaTO);
+        try {
+            createSchema(SchemaType.PLAIN, schemaTO);
+            fail();
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.EntityExists, e.getType());
+        }
     }
 
     @Test
@@ -79,8 +84,7 @@ public class PlainSchemaITCase extends AbstractITCase {
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidPlainSchema, e.getType());
 
-            assertTrue(e.getElements().iterator().next().toString().
-                    contains(EntityViolationType.InvalidName.name()));
+            assertTrue(e.getElements().iterator().next().contains(EntityViolationType.InvalidName.name()));
         }
     }
 
@@ -202,7 +206,13 @@ public class PlainSchemaITCase extends AbstractITCase {
         schemaTO = createSchema(SchemaType.PLAIN, schemaTO);
         assertNotNull(schemaTO);
 
+        AnyTypeClassTO typeClass = new AnyTypeClassTO();
+        typeClass.setKey("issue258");
+        typeClass.getPlainSchemas().add(schemaTO.getKey());
+        anyTypeClassService.create(typeClass);
+
         UserTO userTO = UserITCase.getUniqueSampleTO("issue258@syncope.apache.org");
+        userTO.getAuxClasses().add(typeClass.getKey());
         userTO.getPlainAttrs().add(attrTO(schemaTO.getKey(), "1.2"));
 
         userTO = createUser(userTO);
@@ -225,7 +235,13 @@ public class PlainSchemaITCase extends AbstractITCase {
         schemaTO = createSchema(SchemaType.PLAIN, schemaTO);
         assertNotNull(schemaTO);
 
+        AnyTypeClassTO typeClass = new AnyTypeClassTO();
+        typeClass.setKey("issue259");
+        typeClass.getPlainSchemas().add(schemaTO.getKey());
+        anyTypeClassService.create(typeClass);
+
         UserTO userTO = UserITCase.getUniqueSampleTO("issue259@syncope.apache.org");
+        userTO.getAuxClasses().add(typeClass.getKey());
         userTO.getPlainAttrs().add(attrTO(schemaTO.getKey(), "1"));
         userTO = createUser(userTO);
         assertNotNull(userTO);
@@ -249,7 +265,13 @@ public class PlainSchemaITCase extends AbstractITCase {
         schemaTO = createSchema(SchemaType.PLAIN, schemaTO);
         assertNotNull(schemaTO);
 
+        AnyTypeClassTO typeClass = new AnyTypeClassTO();
+        typeClass.setKey("issue260");
+        typeClass.getPlainSchemas().add(schemaTO.getKey());
+        anyTypeClassService.create(typeClass);
+
         UserTO userTO = UserITCase.getUniqueSampleTO("issue260@syncope.apache.org");
+        userTO.getAuxClasses().add(typeClass.getKey());
         userTO.getPlainAttrs().add(attrTO(schemaTO.getKey(), "1.2"));
         userTO = createUser(userTO);
         assertNotNull(userTO);

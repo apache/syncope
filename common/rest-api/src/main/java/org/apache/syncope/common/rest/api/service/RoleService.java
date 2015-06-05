@@ -51,15 +51,15 @@ public interface RoleService extends JAXRSService {
     List<RoleTO> list();
 
     /**
-     * Returns role with matching id.
+     * Returns role with matching key.
      *
-     * @param roleKey role id to be read
-     * @return role with matching id
+     * @param key role key to be read
+     * @return role with matching key
      */
     @GET
-    @Path("{roleKey}")
+    @Path("{key}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    RoleTO read(@NotNull @PathParam("roleKey") Long roleKey);
+    RoleTO read(@NotNull @PathParam("key") Long key);
 
     /**
      * Creates a new role.
@@ -76,22 +76,22 @@ public interface RoleService extends JAXRSService {
     Response create(@NotNull RoleTO roleTO);
 
     /**
-     * Updates the role matching the provided id.
+     * Updates the role matching the provided key.
      *
-     * @param roleKey role id to be updated
+     * @param key role key to be updated
      * @param roleTO role to be stored
      */
     @PUT
-    @Path("{roleKey}")
+    @Path("{key}")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    void update(@NotNull @PathParam("roleKey") Long roleKey, @NotNull RoleTO roleTO);
+    void update(@NotNull @PathParam("key") Long key, @NotNull RoleTO roleTO);
 
     /**
-     * Deletes the role matching the provided id.
+     * Deletes the role matching the provided key.
      *
-     * @param roleKey role id to be deleted
+     * @param key role key to be deleted
      */
     @DELETE
-    @Path("{roleKey}")
-    void delete(@NotNull @PathParam("roleKey") Long roleKey);
+    @Path("{key}")
+    void delete(@NotNull @PathParam("key") Long key);
 }

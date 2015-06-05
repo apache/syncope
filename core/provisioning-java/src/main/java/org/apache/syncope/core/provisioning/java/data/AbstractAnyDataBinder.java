@@ -18,14 +18,17 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Transformer;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -33,6 +36,8 @@ import org.apache.syncope.common.lib.mod.AnyMod;
 import org.apache.syncope.common.lib.mod.AttrMod;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.to.MembershipTO;
+import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
@@ -60,21 +65,25 @@ import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.core.misc.ConnObjectUtils;
-import org.apache.syncope.core.provisioning.java.VirAttrHandler;
 import org.apache.syncope.core.misc.MappingUtils;
 import org.apache.syncope.core.misc.jexl.JexlUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
+import org.apache.syncope.core.persistence.api.entity.Membership;
 import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.persistence.api.entity.Relationship;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,8 +92,16 @@ abstract class AbstractAnyDataBinder {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractAnyDataBinder.class);
 
+    private static final IntMappingType[] FOR_MANDATORY = new IntMappingType[] {
+        IntMappingType.AnyPlainSchema, IntMappingType.AnyDerivedSchema,
+        IntMappingType.UserPlainSchema, IntMappingType.UserDerivedSchema,
+        IntMappingType.GroupPlainSchema, IntMappingType.GroupDerivedSchema };
+
     @Autowired
     protected RealmDAO realmDAO;
+
+    @Autowired
+    protected AnyTypeClassDAO anyTypeClassDAO;
 
     @Autowired
     protected AnyObjectDAO anyObjectDAO;
@@ -129,7 +146,7 @@ abstract class AbstractAnyDataBinder {
     protected AnyUtilsFactory anyUtilsFactory;
 
     @Autowired
-    protected VirAttrHandler virtAttrHander;
+    protected VirAttrHandler virAttrHander;
 
     @Autowired
     protected ConnObjectUtils connObjectUtils;
@@ -138,7 +155,7 @@ abstract class AbstractAnyDataBinder {
         if (StringUtils.isNotBlank(anyMod.getRealm())) {
             Realm newRealm = realmDAO.find(anyMod.getRealm());
             if (newRealm == null) {
-                LOG.warn("Invalid realm specified: {}, ignoring", anyMod.getRealm());
+                LOG.debug("Invalid realm specified: {}, ignoring", anyMod.getRealm());
             } else {
                 any.setRealm(newRealm);
             }
@@ -155,7 +172,6 @@ abstract class AbstractAnyDataBinder {
                 LOG.debug("Ignoring invalid schema {}", schemaName);
             } else if (schema.isReadonly()) {
                 schema = null;
-
                 LOG.debug("Ignoring readonly schema {}", schemaName);
             }
         }
@@ -175,7 +191,7 @@ abstract class AbstractAnyDataBinder {
         return schema;
     }
 
-    protected void fillAttribute(final List<String> values, final AnyUtils anyUtils,
+    private void fillAttribute(final List<String> values, final AnyUtils anyUtils,
             final PlainSchema schema, final PlainAttr<?> attr, final SyncopeClientException invalidValues) {
 
         // if schema is multivalue, all values are considered for addition;
@@ -201,54 +217,57 @@ abstract class AbstractAnyDataBinder {
         }
     }
 
-    private boolean evaluateMandatoryCondition(final AnyUtils anyUtils, final ExternalResource resource,
-            final Any<?, ?, ?> any, final String intAttrName, final IntMappingType intMappingType) {
+    private List<String> evaluateMandatoryCondition(final Provision provision, final Any<?, ?, ?> any) {
+        List<String> missingAttrNames = new ArrayList<>();
 
-        boolean result = false;
+        if (provision != null) {
+            for (MappingItem item : provision.getMapping().getItems()) {
+                if (ArrayUtils.contains(FOR_MANDATORY, item.getIntMappingType())
+                        && (item.getPurpose() == MappingPurpose.PROPAGATION
+                        || item.getPurpose() == MappingPurpose.BOTH)) {
 
-        Collection<MappingItem> mappings = MappingUtils.getMatchingMappingItems(
-                anyUtils.getMappingItems(resource.getProvision(any.getType()), MappingPurpose.PROPAGATION),
-                intAttrName, intMappingType);
-        for (Iterator<MappingItem> itor = mappings.iterator(); itor.hasNext() && !result;) {
-            MappingItem mapping = itor.next();
-            result |= JexlUtils.evaluateMandatoryCondition(mapping.getMandatoryCondition(), any);
-        }
+                    List<PlainAttrValue> values = MappingUtils.getIntValues(
+                            provision, item, Collections.<Any<?, ?, ?>>singletonList(any), null, null);
+                    if ((values == null || values.isEmpty())
+                            && JexlUtils.evaluateMandatoryCondition(item.getMandatoryCondition(), any)) {
 
-        return result;
-    }
-
-    private boolean evaluateMandatoryCondition(final AnyUtils anyUtils,
-            final Any<?, ?, ?> any, final String intAttrName, final IntMappingType intMappingType) {
-
-        boolean result = false;
-
-        Iterable<? extends ExternalResource> iterable = any instanceof User
-                ? userDAO.findAllResources((User) any)
-                : any instanceof Group
-                        ? ((Group) any).getResources()
-                        : Collections.<ExternalResource>emptySet();
-
-        for (Iterator<? extends ExternalResource> itor = iterable.iterator(); itor.hasNext() && !result;) {
-            ExternalResource resource = itor.next();
-            if (resource.isEnforceMandatoryCondition()) {
-                result |= evaluateMandatoryCondition(
-                        anyUtils, resource, any, intAttrName, intMappingType);
+                        missingAttrNames.add(item.getIntAttrName());
+                    }
+                }
             }
         }
 
-        return result;
+        return missingAttrNames;
     }
 
-    private SyncopeClientException checkMandatory(final AnyUtils anyUtils, final Any<?, ?, ?> any) {
+    private SyncopeClientException checkMandatoryOnResources(
+            final Any<?, ?, ?> any, final Set<ExternalResource> resources) {
+
+        SyncopeClientException reqValMissing = SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
+
+        for (ExternalResource resource : resources) {
+            Provision provision = resource.getProvision(any.getType());
+            if (resource.isEnforceMandatoryCondition() && provision != null) {
+                List<String> missingAttrNames = evaluateMandatoryCondition(provision, any);
+                if (!missingAttrNames.isEmpty()) {
+                    LOG.error("Mandatory schemas {} not provided with values", missingAttrNames);
+
+                    reqValMissing.getElements().addAll(missingAttrNames);
+                }
+            }
+        }
+
+        return reqValMissing;
+    }
+
+    private SyncopeClientException checkMandatory(final Any<?, ?, ?> any) {
         SyncopeClientException reqValMissing = SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
 
         // Check if there is some mandatory schema defined for which no value has been provided
         for (PlainSchema schema : any.getAllowedPlainSchemas()) {
             if (any.getPlainAttr(schema.getKey()) == null
                     && !schema.isReadonly()
-                    && (JexlUtils.evaluateMandatoryCondition(schema.getMandatoryCondition(), any)
-                    || evaluateMandatoryCondition(anyUtils, any, schema.getKey(),
-                            anyUtils.plainIntMappingType()))) {
+                    && (JexlUtils.evaluateMandatoryCondition(schema.getMandatoryCondition(), any))) {
 
                 LOG.error("Mandatory schema " + schema.getKey() + " not provided with values");
 
@@ -256,30 +275,21 @@ abstract class AbstractAnyDataBinder {
             }
         }
 
-        for (DerSchema derSchema : any.getAllowedDerSchemas()) {
-            if (any.getDerAttr(derSchema.getKey()) == null
-                    && evaluateMandatoryCondition(anyUtils, any, derSchema.getKey(),
-                            anyUtils.derIntMappingType())) {
-
-                LOG.error("Mandatory derived schema " + derSchema.getKey() + " does not evaluate to any value");
-
-                reqValMissing.getElements().add(derSchema.getKey());
-            }
-        }
-
-        for (VirSchema virSchema : any.getAllowedVirSchemas()) {
-            if (any.getVirAttr(virSchema.getKey()) == null
-                    && !virSchema.isReadonly()
-                    && evaluateMandatoryCondition(anyUtils, any, virSchema.getKey(),
-                            anyUtils.virIntMappingType())) {
-
-                LOG.error("Mandatory virtual schema " + virSchema.getKey() + " not provided with values");
-
-                reqValMissing.getElements().add(virSchema.getKey());
-            }
-        }
-
         return reqValMissing;
+    }
+
+    private Set<ExternalResource> getAllResources(final Any<?, ?, ?> any) {
+        Set<ExternalResource> resources = new HashSet<>();
+
+        if (any instanceof User) {
+            resources.addAll(userDAO.findAllResources((User) any));
+        } else if (any instanceof Group) {
+            resources.addAll(((Group) any).getResources());
+        } else if (any instanceof AnyObject) {
+            resources.addAll(anyObjectDAO.findAllResources((AnyObject) any));
+        }
+
+        return resources;
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -288,9 +298,29 @@ abstract class AbstractAnyDataBinder {
 
         PropagationByResource propByRes = new PropagationByResource();
 
+        // 1. anyTypeClass to be removed
+        for (String className : anyMod.getAuxClassesToRemove()) {
+            AnyTypeClass auxClass = anyTypeClassDAO.find(className);
+            if (auxClass == null) {
+                LOG.debug("Invalid " + AnyTypeClass.class.getSimpleName() + "{}, ignoring...", auxClass);
+            } else {
+                any.remove(auxClass);
+            }
+        }
+
+        // 2. anyTypeClass to be added
+        for (String className : anyMod.getAuxClassesToAdd()) {
+            AnyTypeClass auxClass = anyTypeClassDAO.find(className);
+            if (auxClass == null) {
+                LOG.debug("Invalid " + AnyTypeClass.class.getSimpleName() + "{}, ignoring...", auxClass);
+            } else {
+                any.add(auxClass);
+            }
+        }
+
         SyncopeClientException invalidValues = SyncopeClientException.build(ClientExceptionType.InvalidValues);
 
-        // 1. resources to be removed
+        // 3. resources to be removed
         for (String resourceToBeRemoved : anyMod.getResourcesToRemove()) {
             ExternalResource resource = resourceDAO.find(resourceToBeRemoved);
             if (resource != null) {
@@ -301,7 +331,7 @@ abstract class AbstractAnyDataBinder {
 
         LOG.debug("Resources to be removed:\n{}", propByRes);
 
-        // 2. resources to be added
+        // 4. resources to be added
         for (String resourceToBeAdded : anyMod.getResourcesToAdd()) {
             ExternalResource resource = resourceDAO.find(resourceToBeAdded);
             if (resource != null) {
@@ -312,16 +342,9 @@ abstract class AbstractAnyDataBinder {
 
         LOG.debug("Resources to be added:\n{}", propByRes);
 
-        Set<ExternalResource> externalResources = new HashSet<>();
-        if (any instanceof User) {
-            externalResources.addAll(userDAO.findAllResources((User) any));
-        } else if (any instanceof Group) {
-            externalResources.addAll(((Group) any).getResources());
-        } else if (any instanceof AnyObject) {
-            externalResources.addAll(anyObjectDAO.findAllResources((AnyObject) any));
-        }
+        Set<ExternalResource> resources = getAllResources(any);
 
-        // 3. attributes to be removed
+        // 5. attributes to be removed
         for (String attributeToBeRemoved : anyMod.getPlainAttrsToRemove()) {
             PlainSchema schema = getPlainSchema(attributeToBeRemoved);
             if (schema != null) {
@@ -344,7 +367,7 @@ abstract class AbstractAnyDataBinder {
                     }
                 }
 
-                for (ExternalResource resource : externalResources) {
+                for (ExternalResource resource : resources) {
                     for (MappingItem mapItem : anyUtils.getMappingItems(
                             resource.getProvision(any.getType()), MappingPurpose.PROPAGATION)) {
 
@@ -364,7 +387,7 @@ abstract class AbstractAnyDataBinder {
 
         LOG.debug("Attributes to be removed:\n{}", propByRes);
 
-        // 4. attributes to be updated
+        // 6. attributes to be updated
         for (AttrMod attributeMod : anyMod.getPlainAttrsToUpdate()) {
             PlainSchema schema = getPlainSchema(attributeMod.getSchema());
             PlainAttr attr = null;
@@ -372,19 +395,15 @@ abstract class AbstractAnyDataBinder {
                 attr = any.getPlainAttr(schema.getKey());
                 if (attr == null) {
                     attr = anyUtils.newPlainAttr();
+                    attr.setOwner(any);
                     attr.setSchema(schema);
-                    if (attr.getSchema() == null) {
-                        LOG.debug("Ignoring {} because no valid schema or template was found", attributeMod);
-                    } else {
-                        attr.setOwner(any);
-                        any.add(attr);
-                    }
+                    any.add(attr);
                 }
             }
 
             if (schema != null && attr != null && attr.getSchema() != null) {
-                virtAttrHander.updateOnResourcesIfMappingMatches(any, anyUtils, schema.getKey(),
-                        externalResources, anyUtils.plainIntMappingType(), propByRes);
+                virAttrHander.updateOnResourcesIfMappingMatches(any, anyUtils, schema.getKey(),
+                        resources, anyUtils.plainIntMappingType(), propByRes);
 
                 // 1.1 remove values
                 Set<Long> valuesToBeRemoved = new HashSet<>();
@@ -429,7 +448,7 @@ abstract class AbstractAnyDataBinder {
 
         LOG.debug("Attributes to be updated:\n{}", propByRes);
 
-        // 5. derived attributes to be removed
+        // 7. derived attributes to be removed
         for (String derAttrToBeRemoved : anyMod.getDerAttrsToRemove()) {
             DerSchema derSchema = getDerSchema(derAttrToBeRemoved);
             if (derSchema != null) {
@@ -440,7 +459,7 @@ abstract class AbstractAnyDataBinder {
                     derAttrDAO.delete(derAttr);
                 }
 
-                for (ExternalResource resource : externalResources) {
+                for (ExternalResource resource : resources) {
                     for (MappingItem mapItem : anyUtils.getMappingItems(
                             resource.getProvision(any.getType()), MappingPurpose.PROPAGATION)) {
 
@@ -463,19 +482,18 @@ abstract class AbstractAnyDataBinder {
 
         LOG.debug("Derived attributes to be removed:\n{}", propByRes);
 
-        // 6. derived attributes to be added
+        // 8. derived attributes to be added
         for (String derAttrToBeAdded : anyMod.getDerAttrsToAdd()) {
             DerSchema derSchema = getDerSchema(derAttrToBeAdded);
             if (derSchema != null) {
-                virtAttrHander.updateOnResourcesIfMappingMatches(any, anyUtils, derSchema.getKey(),
-                        externalResources, anyUtils.derIntMappingType(), propByRes);
+                virAttrHander.updateOnResourcesIfMappingMatches(any, anyUtils, derSchema.getKey(),
+                        resources, anyUtils.derIntMappingType(), propByRes);
 
-                DerAttr derAttr = anyUtils.newDerAttr();
-                derAttr.setSchema(derSchema);
-                if (derAttr.getSchema() == null) {
-                    LOG.debug("Ignoring {} because no valid schema or template was found", derAttrToBeAdded);
-                } else {
+                DerAttr derAttr = any.getDerAttr(derSchema.getKey());
+                if (derAttr == null) {
+                    derAttr = anyUtils.newDerAttr();
                     derAttr.setOwner(any);
+                    derAttr.setSchema(derSchema);
                     any.add(derAttr);
                 }
             }
@@ -483,8 +501,11 @@ abstract class AbstractAnyDataBinder {
 
         LOG.debug("Derived attributes to be added:\n{}", propByRes);
 
-        // Finally, check if mandatory values are missing
-        SyncopeClientException requiredValuesMissing = checkMandatory(anyUtils, any);
+        SyncopeClientException requiredValuesMissing = checkMandatory(any);
+        if (!requiredValuesMissing.isEmpty()) {
+            scce.addException(requiredValuesMissing);
+        }
+        requiredValuesMissing = checkMandatoryOnResources(any, resources);
         if (!requiredValuesMissing.isEmpty()) {
             scce.addException(requiredValuesMissing);
         }
@@ -501,6 +522,17 @@ abstract class AbstractAnyDataBinder {
     protected void fill(final Any any, final AnyTO anyTO,
             final AnyUtils anyUtils, final SyncopeClientCompositeException scce) {
 
+        // 0. aux classes
+        any.getAuxClasses().clear();
+        for (String className : anyTO.getAuxClasses()) {
+            AnyTypeClass auxClass = anyTypeClassDAO.find(className);
+            if (auxClass == null) {
+                LOG.debug("Invalid " + AnyTypeClass.class.getSimpleName() + "{}, ignoring...", auxClass);
+            } else {
+                any.add(auxClass);
+            }
+        }
+
         // 1. attributes
         SyncopeClientException invalidValues = SyncopeClientException.build(ClientExceptionType.InvalidValues);
 
@@ -508,7 +540,6 @@ abstract class AbstractAnyDataBinder {
         for (AttrTO attributeTO : anyTO.getPlainAttrs()) {
             if (attributeTO.getValues() != null && !attributeTO.getValues().isEmpty()) {
                 PlainSchema schema = getPlainSchema(attributeTO.getSchema());
-
                 if (schema != null) {
                     PlainAttr attr = any.getPlainAttr(schema.getKey());
                     if (attr == null) {
@@ -534,7 +565,6 @@ abstract class AbstractAnyDataBinder {
         // 2. derived attributes
         for (AttrTO attributeTO : anyTO.getDerAttrs()) {
             DerSchema derSchema = getDerSchema(attributeTO.getSchema());
-
             if (derSchema != null) {
                 DerAttr derAttr = anyUtils.newDerAttr();
                 derAttr.setOwner(any);
@@ -545,8 +575,7 @@ abstract class AbstractAnyDataBinder {
 
         // 3. virtual attributes
         for (AttrTO vattrTO : anyTO.getVirAttrs()) {
-            VirSchema virSchema = virtAttrHander.getVirSchema(vattrTO.getSchema());
-
+            VirSchema virSchema = virAttrHander.getVirSchema(vattrTO.getSchema());
             if (virSchema != null) {
                 VirAttr virAttr = anyUtils.newVirAttr();
                 virAttr.setOwner(any);
@@ -555,27 +584,32 @@ abstract class AbstractAnyDataBinder {
             }
         }
 
-        virtAttrHander.fillVirtual(any, anyTO.getVirAttrs(), anyUtils);
+        SyncopeClientException requiredValuesMissing = checkMandatory(any);
+        if (!requiredValuesMissing.isEmpty()) {
+            scce.addException(requiredValuesMissing);
+        }
+
+        virAttrHander.fillVirtual(any, anyTO.getVirAttrs());
 
         // 4. realm & resources
         Realm realm = realmDAO.find(anyTO.getRealm());
         if (realm == null) {
             SyncopeClientException noRealm = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
-            noRealm.getElements().add(
-                    "Invalid or null realm specified: " + anyTO.getRealm());
+            noRealm.getElements().add("Invalid or null realm specified: " + anyTO.getRealm());
             scce.addException(noRealm);
         }
         any.setRealm(realm);
 
         for (String resourceName : anyTO.getResources()) {
             ExternalResource resource = resourceDAO.find(resourceName);
-
-            if (resource != null) {
+            if (resource == null) {
+                LOG.debug("Invalid " + ExternalResource.class.getSimpleName() + "{}, ignoring...", resourceName);
+            } else {
                 any.add(resource);
             }
         }
 
-        SyncopeClientException requiredValuesMissing = checkMandatory(anyUtils, any);
+        requiredValuesMissing = checkMandatoryOnResources(any, getAllResources(any));
         if (!requiredValuesMissing.isEmpty()) {
             scce.addException(requiredValuesMissing);
         }
@@ -588,10 +622,21 @@ abstract class AbstractAnyDataBinder {
 
     protected void fillTO(final AnyTO anyTO,
             final String realmFullPath,
+            final Collection<? extends AnyTypeClass> auxClasses,
             final Collection<? extends PlainAttr<?>> attrs,
             final Collection<? extends DerAttr<?>> derAttrs,
             final Collection<? extends VirAttr<?>> virAttrs,
             final Collection<? extends ExternalResource> resources) {
+
+        anyTO.setRealm(realmFullPath);
+
+        CollectionUtils.collect(auxClasses, new Transformer<AnyTypeClass, String>() {
+
+            @Override
+            public String transform(final AnyTypeClass role) {
+                return role.getKey();
+            }
+        }, anyTO.getAuxClasses());
 
         AttrTO attributeTO;
         for (PlainAttr<?> attr : attrs) {
@@ -621,10 +666,27 @@ abstract class AbstractAnyDataBinder {
             anyTO.getVirAttrs().add(attributeTO);
         }
 
-        anyTO.setRealm(realmFullPath);
         for (ExternalResource resource : resources) {
             anyTO.getResources().add(resource.getKey());
         }
+    }
+
+    protected RelationshipTO getRelationshipTO(final Relationship<? extends Any<?, ?, ?>, AnyObject> relationship) {
+        RelationshipTO relationshipTO = new RelationshipTO();
+        relationshipTO.setLeftKey(relationship.getLeftEnd().getKey());
+        relationshipTO.setLeftType(relationship.getLeftEnd().getType().getKey());
+        relationshipTO.setRightKey(relationship.getRightEnd().getKey());
+        relationshipTO.setRightType(relationship.getRightEnd().getType().getKey());
+        return relationshipTO;
+    }
+
+    protected MembershipTO getMembershipTO(final Membership<? extends Any<?, ?, ?>> membership) {
+        MembershipTO membershipTO = new MembershipTO();
+        membershipTO.setLeftKey(membership.getLeftEnd().getKey());
+        membershipTO.setLeftType(membership.getLeftEnd().getType().getKey());
+        membershipTO.setRightKey(membership.getRightEnd().getKey());
+        membershipTO.setGroupName(membership.getRightEnd().getName());
+        return membershipTO;
     }
 
     protected Map<String, String> getConnObjectKeys(final Any<?, ?, ?> any) {
@@ -637,7 +699,7 @@ abstract class AbstractAnyDataBinder {
                         : ((Group) any).getResources();
         for (ExternalResource resource : iterable) {
             Provision provision = resource.getProvision(any.getType());
-            if (provision.getMapping() != null) {
+            if (provision != null && provision.getMapping() != null) {
                 MappingItem connObjectKeyItem = anyUtilsFactory.getInstance(any).getConnObjectKeyItem(provision);
                 if (connObjectKeyItem == null) {
                     throw new NotFoundException(

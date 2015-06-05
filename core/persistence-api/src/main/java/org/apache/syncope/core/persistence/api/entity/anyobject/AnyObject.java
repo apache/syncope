@@ -27,7 +27,7 @@ public interface AnyObject extends Any<APlainAttr, ADerAttr, AVirAttr> {
 
     boolean remove(ARelationship relationship);
 
-    ARelationship getRelationship(AnyObject rightEnd);
+    ARelationship getRelationship(Long relationshipKey);
 
     List<? extends ARelationship> getRelationships();
 
@@ -35,7 +35,7 @@ public interface AnyObject extends Any<APlainAttr, ADerAttr, AVirAttr> {
 
     boolean remove(AMembership membership);
 
-    AMembership getMembership(Long groupKey);
+    AMembership getMembership(Long membershipKey);
 
     List<? extends AMembership> getMemberships();
 

@@ -33,7 +33,7 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
 /**
  * REST operations for workflow definition management.
  */
-@Path("workflows/{kind}")
+@Path("workflows/{anyTypeKind}")
 public interface WorkflowService extends JAXRSService {
 
     /**

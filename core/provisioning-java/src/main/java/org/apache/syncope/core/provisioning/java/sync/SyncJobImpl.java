@@ -60,8 +60,8 @@ public class SyncJobImpl extends AbstractProvisioningJob<SyncTask, SyncActions> 
     @Autowired
     protected SyncUtils syncUtils;
 
-    protected void setGroupOwners(final GroupSyncResultHandler rhandler) {
-        for (Map.Entry<Long, String> entry : rhandler.getGroupOwnerMap().entrySet()) {
+    protected void setGroupOwners(final GroupSyncResultHandler ghandler) {
+        for (Map.Entry<Long, String> entry : ghandler.getGroupOwnerMap().entrySet()) {
             GroupMod groupMod = new GroupMod();
             groupMod.setKey(entry.getKey());
 
@@ -72,15 +72,15 @@ public class SyncJobImpl extends AbstractProvisioningJob<SyncTask, SyncActions> 
                 Long userKey = syncUtils.findMatchingAnyKey(
                         anyTypeDAO.findUser(),
                         entry.getValue(),
-                        rhandler.getProfile().getTask().getResource(),
-                        rhandler.getProfile().getConnector());
+                        ghandler.getProfile().getTask().getResource(),
+                        ghandler.getProfile().getConnector());
 
                 if (userKey == null) {
                     Long groupKey = syncUtils.findMatchingAnyKey(
                             anyTypeDAO.findGroup(),
                             entry.getValue(),
-                            rhandler.getProfile().getTask().getResource(),
-                            rhandler.getProfile().getConnector());
+                            ghandler.getProfile().getTask().getResource(),
+                            ghandler.getProfile().getConnector());
 
                     if (groupKey != null) {
                         groupMod.setGroupOwner(new ReferenceMod(groupKey));

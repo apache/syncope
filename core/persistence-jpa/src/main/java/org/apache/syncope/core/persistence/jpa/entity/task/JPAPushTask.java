@@ -19,7 +19,9 @@
 package org.apache.syncope.core.persistence.jpa.entity.task;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
@@ -48,7 +50,7 @@ public class JPAPushTask extends AbstractProvisioningTask implements PushTask {
     @CollectionTable(name = "PushTask_actionsClassNames",
             joinColumns =
             @JoinColumn(name = "pushTask_id", referencedColumnName = "id"))
-    private List<String> actionsClassNames = new ArrayList<>();
+    private Set<String> actionsClassNames = new HashSet<>();
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "pushTask")
     private List<JPAAnyFilter> filters = new ArrayList<>();
@@ -61,7 +63,7 @@ public class JPAPushTask extends AbstractProvisioningTask implements PushTask {
     }
 
     @Override
-    public List<String> getActionsClassNames() {
+    public Set<String> getActionsClassNames() {
         return actionsClassNames;
     }
 

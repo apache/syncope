@@ -22,9 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
@@ -38,21 +35,12 @@ public abstract class AbstractVirAttr<O extends Any<?, ?, ?>>
 
     private static final long serialVersionUID = 5023204776925954907L;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    protected Long id;
-
     @Transient
     protected List<String> values = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.EAGER)
     @Column(name = "schema_name")
     private JPAVirSchema schema;
-
-    @Override
-    public Long getKey() {
-        return id;
-    }
 
     @Override
     public List<String> getValues() {

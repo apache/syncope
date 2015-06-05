@@ -49,10 +49,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 public abstract class AbstractSyncopeResultHandler<T extends ProvisioningTask, A extends ProvisioningActions>
         implements SyncopeResultHandler<T, A> {
 
-    /**
-     * Logger.
-     */
-    protected static final Logger LOG = LoggerFactory.getLogger(AbstractSyncopeResultHandler.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(SyncopeResultHandler.class);
 
     @Autowired
     protected AnyObjectDAO anyObjectDAO;

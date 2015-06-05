@@ -32,9 +32,7 @@ import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValid
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
-import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
-import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
@@ -69,52 +67,40 @@ import org.springframework.stereotype.Component;
 @Component
 public class SyncUtils {
 
-    /**
-     * Logger.
-     */
-    protected static final Logger LOG = LoggerFactory.getLogger(SyncUtils.class);
-
-    /**
-     * Policy DAO.
-     */
-    @Autowired
-    protected PolicyDAO policyDAO;
+    private static final Logger LOG = LoggerFactory.getLogger(SyncUtils.class);
 
     /**
      * Schema DAO.
      */
     @Autowired
-    protected PlainSchemaDAO plainSchemaDAO;
-
-    @Autowired
-    protected AnyTypeDAO anyTypeDAO;
+    private PlainSchemaDAO plainSchemaDAO;
 
     /**
      * Any Object DAO.
      */
     @Autowired
-    protected AnyObjectDAO anyObjectDAO;
+    private AnyObjectDAO anyObjectDAO;
 
     /**
      * User DAO.
      */
     @Autowired
-    protected UserDAO userDAO;
+    private UserDAO userDAO;
 
     /**
      * Group DAO.
      */
     @Autowired
-    protected GroupDAO groupDAO;
+    private GroupDAO groupDAO;
 
     /**
      * Search DAO.
      */
     @Autowired
-    protected AnySearchDAO searchDAO;
+    private AnySearchDAO searchDAO;
 
     @Autowired
-    protected AnyUtilsFactory anyUtilsFactory;
+    private AnyUtilsFactory anyUtilsFactory;
 
     public Long findMatchingAnyKey(
             final AnyType anyType,
@@ -180,7 +166,8 @@ public class SyncUtils {
         switch (connObjectKeyItem.getIntMappingType()) {
             case UserPlainSchema:
             case GroupPlainSchema:
-                final PlainAttrValue value = anyUtils.newPlainAttrValue();
+            case AnyPlainSchema:
+                PlainAttrValue value = anyUtils.newPlainAttrValue();
 
                 PlainSchema schema = plainSchemaDAO.find(connObjectKeyItem.getIntAttrName());
                 if (schema == null) {
@@ -203,8 +190,18 @@ public class SyncUtils {
 
             case UserDerivedSchema:
             case GroupDerivedSchema:
+            case AnyDerivedSchema:
                 anys = getAnyDAO(connObjectKeyItem).findByDerAttrValue(connObjectKeyItem.getIntAttrName(), uid);
                 for (Any<?, ?, ?> any : anys) {
+                    result.add(any.getKey());
+                }
+                break;
+
+            case UserId:
+            case GroupId:
+            case AnyId:
+                Any<?, ?, ?> any = getAnyDAO(connObjectKeyItem).find(Long.parseLong(uid));
+                if (any != null) {
                     result.add(any.getKey());
                 }
                 break;
@@ -216,22 +213,8 @@ public class SyncUtils {
                 }
                 break;
 
-            case UserId:
-                user = userDAO.find(Long.parseLong(uid));
-                if (user != null) {
-                    result.add(user.getKey());
-                }
-                break;
-
             case GroupName:
                 Group group = groupDAO.find(uid);
-                if (group != null) {
-                    result.add(group.getKey());
-                }
-                break;
-
-            case GroupId:
-                group = groupDAO.find(Long.parseLong(uid));
                 if (group != null) {
                     result.add(group.getKey());
                 }
@@ -354,7 +337,7 @@ public class SyncUtils {
     }
 
     /**
-     * Find users / groups based on mapped uid value (or previous uid value, if updated).
+     * Find any objects based on mapped uid value (or previous uid value, if updated).
      *
      * @param uid for finding by connObjectKey
      * @param connObj for finding by attribute value
@@ -381,9 +364,10 @@ public class SyncUtils {
             altSearchSchemas = getAltSearchSchemas(provision, syncPolicySpec);
         }
 
-        return syncRule == null ? altSearchSchemas == null || altSearchSchemas.isEmpty()
-                ? findByConnObjectKeyItem(uid, provision, anyUtils)
-                : findByAnySearch(connObj, altSearchSchemas, provision, anyUtils)
+        return syncRule == null
+                ? altSearchSchemas == null || altSearchSchemas.isEmpty()
+                        ? findByConnObjectKeyItem(uid, provision, anyUtils)
+                        : findByAnySearch(connObj, altSearchSchemas, provision, anyUtils)
                 : findByCorrelationRule(connObj, syncRule, anyUtils.getAnyTypeKind());
     }
 

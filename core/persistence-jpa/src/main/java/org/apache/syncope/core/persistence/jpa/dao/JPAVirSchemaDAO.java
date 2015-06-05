@@ -102,7 +102,9 @@ public class JPAVirSchemaDAO extends AbstractDAO<VirSchema, String> implements V
             resourceDAO.deleteMapping(key, anyUtils.virIntMappingType());
         }
 
-        schema.getAnyTypeClass().remove(schema);
+        if (schema.getAnyTypeClass() != null) {
+            schema.getAnyTypeClass().remove(schema);
+        }
 
         entityManager.remove(schema);
     }

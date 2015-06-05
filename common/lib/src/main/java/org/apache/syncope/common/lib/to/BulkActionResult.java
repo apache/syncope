@@ -25,15 +25,18 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.apache.syncope.common.lib.AbstractBaseBean;
+import org.apache.syncope.common.lib.jaxb.XmlGenericMapAdapter;
 
 @XmlRootElement(name = "bulkActionResult")
 @XmlType
+@XmlAccessorType(XmlAccessType.FIELD)
 public class BulkActionResult extends AbstractBaseBean {
 
     private static final long serialVersionUID = 2868894178821778133L;
@@ -52,86 +55,25 @@ public class BulkActionResult extends AbstractBaseBean {
 
     }
 
-    private final List<Result> results = new ArrayList<>();
+    @XmlJavaTypeAdapter(XmlGenericMapAdapter.class)
+    @JsonIgnore
+    private final Map<String, Status> results = new HashMap<>();
 
-    @XmlElementWrapper(name = "result")
-    @XmlElement(name = "item")
-    @JsonProperty("result")
-    public List<Result> getResult() {
+    @JsonProperty
+    public Map<String, Status> getResults() {
         return results;
     }
 
     @JsonIgnore
-    public void add(final Object id, final Status status) {
-        if (id != null) {
-            results.add(new Result(id.toString(), status));
-        }
-    }
-
-    @JsonIgnore
-    public void add(final Object id, final String status) {
-        if (id != null) {
-            results.add(new Result(id.toString(), Status.valueOf(status.toUpperCase())));
-        }
-    }
-
-    @JsonIgnore
-    public Map<String, Status> getResultMap() {
-        final Map<String, Status> res = new HashMap<>();
-
-        for (Result result : results) {
-            res.put(result.getKey(), result.getValue());
-        }
-
-        return Collections.unmodifiableMap(res);
-    }
-
-    @JsonIgnore
     public List<String> getResultByStatus(final Status status) {
-        final List<String> res = new ArrayList<>();
+        final List<String> result = new ArrayList<>();
 
-        for (Result result : results) {
-            if (result.getValue() == status) {
-                res.add(result.getKey());
+        for (Map.Entry<String, Status> entry : results.entrySet()) {
+            if (entry.getValue() == status) {
+                result.add(entry.getKey());
             }
         }
 
-        return Collections.unmodifiableList(res);
-    }
-
-    public static class Result extends AbstractBaseBean {
-
-        private static final long serialVersionUID = -1149681964161193232L;
-
-        private String key;
-
-        private Status value;
-
-        public Result() {
-            super();
-        }
-
-        public Result(final String key, final Status value) {
-            super();
-
-            this.key = key;
-            this.value = value;
-        }
-
-        public String getKey() {
-            return key;
-        }
-
-        public Status getValue() {
-            return value;
-        }
-
-        public void setKey(final String key) {
-            this.key = key;
-        }
-
-        public void setValue(final Status value) {
-            this.value = value;
-        }
+        return Collections.unmodifiableList(result);
     }
 }

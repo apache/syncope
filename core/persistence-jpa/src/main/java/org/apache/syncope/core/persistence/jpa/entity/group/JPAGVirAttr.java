@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.jpa.entity.group;
 
 import javax.persistence.Entity;
+import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import org.apache.syncope.core.persistence.api.entity.group.GVirAttr;
@@ -33,8 +34,16 @@ public class JPAGVirAttr extends AbstractVirAttr<Group> implements GVirAttr {
 
     public static final String TABLE = "GVirAttr";
 
+    @Id
+    private Long id;
+
     @ManyToOne
     private JPAGroup owner;
+
+    @Override
+    public Long getKey() {
+        return id;
+    }
 
     @Override
     public Group getOwner() {

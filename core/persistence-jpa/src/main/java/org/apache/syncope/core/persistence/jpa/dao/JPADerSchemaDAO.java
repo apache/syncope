@@ -102,7 +102,9 @@ public class JPADerSchemaDAO extends AbstractDAO<DerSchema, String> implements D
             resourceDAO.deleteMapping(key, anyUtils.derIntMappingType());
         }
 
-        schema.getAnyTypeClass().remove(schema);
+        if (schema.getAnyTypeClass() != null) {
+            schema.getAnyTypeClass().remove(schema);
+        }
 
         entityManager.remove(schema);
     }

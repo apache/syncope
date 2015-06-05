@@ -18,12 +18,14 @@
  */
 package org.apache.syncope.fit.core.reference;
 
+import static org.apache.syncope.fit.core.reference.AbstractITCase.anyTypeClassService;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.CamelRouteTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -147,8 +149,14 @@ public class CamelRouteITCase extends AbstractITCase {
             schemaTO.setType(AttrSchemaType.String);
             createSchema(SchemaType.PLAIN, schemaTO);
 
+            AnyTypeClassTO typeClass = new AnyTypeClassTO();
+            typeClass.setKey("camelAttribute");
+            typeClass.getPlainSchemas().add(schemaTO.getKey());
+            anyTypeClassService.create(typeClass);
+
             UserTO userTO = new UserTO();
             userTO.setRealm(SyncopeConstants.ROOT_REALM);
+            userTO.getAuxClasses().add(typeClass.getKey());
             String userId = getUUIDString() + "camelUser@syncope.apache.org";
             userTO.setUsername(userId);
             userTO.setPassword("password123");

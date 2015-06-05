@@ -39,7 +39,7 @@ import org.apache.syncope.common.lib.types.SchemaType;
 /**
  * REST operations for attribute schemas.
  */
-@Path("schemas/{kind}/{type}")
+@Path("schemas/{type}")
 public interface SchemaService extends JAXRSService {
 
     /**

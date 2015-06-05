@@ -18,13 +18,13 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 
 @XmlRootElement(name = "group")
 @XmlType
-@JsonIgnoreProperties({ "displayName" })
 public class GroupTO extends AnyTO {
 
     private static final long serialVersionUID = -7785920258290147542L;
@@ -35,9 +35,19 @@ public class GroupTO extends AnyTO {
 
     private Long groupOwner;
 
-    private String aDynMembershipCond;
+    private String adynMembershipCond;
 
-    private String uDynMembershipCond;
+    private String udynMembershipCond;
+
+    @Override
+    public String getType() {
+        return AnyTypeKind.GROUP.name();
+    }
+
+    @Override
+    public void setType(final String type) {
+        // fixed
+    }
 
     public String getName() {
         return name;
@@ -64,19 +74,36 @@ public class GroupTO extends AnyTO {
     }
 
     public String getADynMembershipCond() {
-        return aDynMembershipCond;
+        return adynMembershipCond;
     }
 
     public void setADynMembershipCond(final String aDynMembershipCond) {
-        this.aDynMembershipCond = aDynMembershipCond;
+        this.adynMembershipCond = aDynMembershipCond;
     }
 
     public String getUDynMembershipCond() {
-        return uDynMembershipCond;
+        return udynMembershipCond;
     }
 
     public void setUDynMembershipCond(final String uDynMembershipCond) {
-        this.uDynMembershipCond = uDynMembershipCond;
+        this.udynMembershipCond = uDynMembershipCond;
     }
 
+    @JsonIgnore
+    public String getDisplayName() {
+        return getKey() + " " + getName();
+    }
+
+    public static long fromDisplayName(final String displayName) {
+        long result = 0;
+        if (displayName != null && !displayName.isEmpty() && displayName.indexOf(' ') != -1) {
+            try {
+                result = Long.valueOf(displayName.split(" ")[0]);
+            } catch (NumberFormatException e) {
+                // ignore
+            }
+        }
+
+        return result;
+    }
 }

@@ -57,6 +57,7 @@ import org.quartz.impl.JobDetailImpl;
 import org.quartz.impl.triggers.CronTriggerImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
@@ -126,6 +127,30 @@ public class JobInstanceLoaderImpl implements JobInstanceLoader, SyncopeLoader {
         }
     }
 
+    private Job createSpringBean(final Class<?> jobClass) {
+        Job jobInstance = null;
+        for (int i = 0; i < 5 && jobInstance == null; i++) {
+            LOG.debug("{} attempt to create Spring bean for {}", i, jobClass);
+            try {
+                jobInstance = (Job) ApplicationContextProvider.getBeanFactory().
+                        createBean(jobClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
+                LOG.debug("{} attempt to create Spring bean for {} succeeded", i, jobClass);
+            } catch (BeanCreationException e) {
+                LOG.error("Could not create Spring bean for {}", jobClass, e);
+                try {
+                    Thread.sleep(1000);
+                } catch (final InterruptedException ex) {
+                    // ignore
+                }
+            }
+        }
+        if (jobInstance == null) {
+            throw new NotFoundException("Spring bean for " + jobClass);
+        }
+
+        return jobInstance;
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public void registerJob(final Task task, final String jobClassName, final String cronExpression)
@@ -137,8 +162,8 @@ public class JobInstanceLoaderImpl implements JobInstanceLoader, SyncopeLoader {
         } else if (PushJob.class.equals(jobClass)) {
             jobClass = PushJobImpl.class;
         }
-        Job jobInstance = (Job) ApplicationContextProvider.getBeanFactory().
-                createBean(jobClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
+
+        Job jobInstance = createSpringBean(jobClass);
         if (jobInstance instanceof TaskJob) {
             ((TaskJob) jobInstance).setTaskId(task.getKey());
         }
@@ -151,10 +176,8 @@ public class JobInstanceLoaderImpl implements JobInstanceLoader, SyncopeLoader {
                 try {
                     Class<?> actionsClass = Class.forName(className);
 
-                    final SyncActions syncActions =
-                            (SyncActions) ApplicationContextProvider.getBeanFactory().
+                    SyncActions syncActions = (SyncActions) ApplicationContextProvider.getBeanFactory().
                             createBean(actionsClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true);
-
                     actions.add(syncActions);
                 } catch (Exception e) {
                     LOG.info("Class '{}' not found", className, e);
@@ -182,8 +205,7 @@ public class JobInstanceLoaderImpl implements JobInstanceLoader, SyncopeLoader {
 
     @Override
     public void registerJob(final Report report) throws SchedulerException, ParseException {
-        Job jobInstance = (Job) ApplicationContextProvider.getBeanFactory().
-                createBean(ReportJob.class, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
+        Job jobInstance = createSpringBean(ReportJob.class);
         ((ReportJob) jobInstance).setReportKey(report.getKey());
 
         registerJob(JobNamer.getJobName(report), jobInstance, report.getCronExpression());

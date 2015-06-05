@@ -95,12 +95,18 @@ import org.springframework.jdbc.core.JdbcTemplate;
 @FixMethodOrder(MethodSorters.JVM)
 public class UserITCase extends AbstractITCase {
 
-    private String getStringAttribute(final ConnObjectTO connObjectTO, final String attrName) {
-        return connObjectTO.getPlainAttrMap().get(attrName).getValues().get(0);
-    }
+    private static final ThreadLocal<SimpleDateFormat> DATE_FORMAT = new ThreadLocal<SimpleDateFormat>() {
+
+        @Override
+        protected SimpleDateFormat initialValue() {
+            SimpleDateFormat sdf = new SimpleDateFormat();
+            sdf.applyPattern("yyyy-MM-dd");
+            return sdf;
+        }
+    };
 
     private boolean getBooleanAttribute(final ConnObjectTO connObjectTO, final String attrName) {
-        return Boolean.parseBoolean(getStringAttribute(connObjectTO, attrName));
+        return Boolean.parseBoolean(connObjectTO.getPlainAttrMap().get(attrName).getValues().get(0));
     }
 
     public static UserTO getUniqueSampleTO(final String email) {
@@ -120,7 +126,7 @@ public class UserITCase extends AbstractITCase {
         userTO.getPlainAttrs().add(attrTO("type", "a type"));
         userTO.getPlainAttrs().add(attrTO("userId", uid));
         userTO.getPlainAttrs().add(attrTO("email", uid));
-        userTO.getPlainAttrs().add(attrTO("loginDate", new SimpleDateFormat("yyyy-MM-dd").format(new Date())));
+        userTO.getPlainAttrs().add(attrTO("loginDate", DATE_FORMAT.get().format(new Date())));
         userTO.getDerAttrs().add(attrTO("cn", null));
         userTO.getVirAttrs().add(attrTO("virtualdata", "virtualvalue"));
         return userTO;
@@ -261,6 +267,7 @@ public class UserITCase extends AbstractITCase {
             assertEquals(ClientExceptionType.RequiredValuesMissing, e.getType());
         }
 
+        userTO.getAuxClasses().add("csv");
         userTO.getDerAttrs().add(attrTO("csvuserid", null));
 
         userTO = createUser(userTO);
@@ -655,7 +662,7 @@ public class UserITCase extends AbstractITCase {
 
         userMod.getDerAttrsToAdd().add("cn");
         userMod.getMembershipsToAdd().add(8L);
-        userMod.getMembershipsToRemove().add(userTO.getMemberships().iterator().next().getKey());
+        userMod.getMembershipsToRemove().add(userTO.getMemberships().get(0).getRightKey());
 
         userTO = updateUser(userMod);
         assertNotNull(userTO);
@@ -1102,6 +1109,7 @@ public class UserITCase extends AbstractITCase {
         userTO.getDerAttrs().clear();
         userTO.getVirAttrs().clear();
 
+        userTO.getAuxClasses().add("csv");
         userTO.getDerAttrs().add(attrTO("csvuserid", null));
 
         MembershipTO membershipTO = new MembershipTO();
@@ -1157,6 +1165,7 @@ public class UserITCase extends AbstractITCase {
         userTO.getMemberships().clear();
         userTO.getDerAttrs().clear();
         userTO.getVirAttrs().clear();
+        userTO.getAuxClasses().add("csv");
         userTO.getDerAttrs().add(attrTO("csvuserid", null));
 
         MembershipTO memb12 = new MembershipTO();
@@ -1186,7 +1195,7 @@ public class UserITCase extends AbstractITCase {
         UserMod userMod = new UserMod();
         userMod.setKey(actual.getKey());
 
-        userMod.getMembershipsToRemove().add(actual.getMemberships().get(0).getKey());
+        userMod.getMembershipsToRemove().add(actual.getMemberships().get(0).getRightKey());
 
         actual = updateUser(userMod);
         assertNotNull(actual);
@@ -1219,7 +1228,7 @@ public class UserITCase extends AbstractITCase {
         userMod = new UserMod();
         userMod.setKey(actual.getKey());
 
-        userMod.getMembershipsToRemove().add(actual.getMemberships().get(0).getKey());
+        userMod.getMembershipsToRemove().add(actual.getMemberships().get(0).getRightKey());
 
         actual = updateUser(userMod);
         assertNotNull(actual);
@@ -1490,6 +1499,7 @@ public class UserITCase extends AbstractITCase {
     @Test
     public void mappingPurpose() {
         UserTO userTO = getUniqueSampleTO("mpurpose@apache.org");
+        userTO.getAuxClasses().add("csv");
 
         AttrTO csvuserid = new AttrTO();
         csvuserid.setSchema("csvuserid");
@@ -1526,7 +1536,7 @@ public class UserITCase extends AbstractITCase {
 
     @Test
     public void bulkActions() {
-        final BulkAction bulkAction = new BulkAction();
+        BulkAction bulkAction = new BulkAction();
 
         for (int i = 0; i < 10; i++) {
             UserTO userTO = getUniqueSampleTO("bulk_" + i + "@apache.org");
@@ -1598,7 +1608,7 @@ public class UserITCase extends AbstractITCase {
         // 4. remove membership
         UserMod userMod = new UserMod();
         userMod.setKey(userTO.getKey());
-        userMod.getMembershipsToRemove().add(userTO.getMemberships().iterator().next().getKey());
+        userMod.getMembershipsToRemove().add(userTO.getMemberships().get(0).getRightKey());
 
         userTO = updateUser(userMod);
         assertTrue(userTO.getResources().contains(RESOURCE_NAME_LDAP));
@@ -1746,6 +1756,7 @@ public class UserITCase extends AbstractITCase {
         userTO.getMemberships().clear();
         userTO.getDerAttrs().clear();
         userTO.getVirAttrs().clear();
+        userTO.getAuxClasses().add("csv");
         userTO.getDerAttrs().add(attrTO("csvuserid", null));
         userTO.getResources().add(RESOURCE_NAME_CSV);
 
@@ -1772,6 +1783,7 @@ public class UserITCase extends AbstractITCase {
         userTO.getMemberships().clear();
         userTO.getDerAttrs().clear();
         userTO.getVirAttrs().clear();
+        userTO.getAuxClasses().add("csv");
         userTO.getDerAttrs().add(attrTO("csvuserid", null));
 
         UserTO actual = createUser(userTO);
@@ -1810,6 +1822,7 @@ public class UserITCase extends AbstractITCase {
         userTO.getMemberships().clear();
         userTO.getDerAttrs().clear();
         userTO.getVirAttrs().clear();
+        userTO.getAuxClasses().add("csv");
         userTO.getDerAttrs().add(attrTO("csvuserid", null));
         userTO.getResources().add(RESOURCE_NAME_CSV);
 
@@ -1841,6 +1854,7 @@ public class UserITCase extends AbstractITCase {
         userTO.getMemberships().clear();
         userTO.getDerAttrs().clear();
         userTO.getVirAttrs().clear();
+        userTO.getAuxClasses().add("csv");
         userTO.getDerAttrs().add(attrTO("csvuserid", null));
 
         UserTO actual = createUser(userTO);
@@ -1875,6 +1889,7 @@ public class UserITCase extends AbstractITCase {
         userTO.getMemberships().clear();
         userTO.getDerAttrs().clear();
         userTO.getVirAttrs().clear();
+        userTO.getAuxClasses().add("csv");
         userTO.getDerAttrs().add(attrTO("csvuserid", null));
         userTO.getResources().add(RESOURCE_NAME_CSV);
 
@@ -1906,6 +1921,7 @@ public class UserITCase extends AbstractITCase {
         userTO.getMemberships().clear();
         userTO.getDerAttrs().clear();
         userTO.getVirAttrs().clear();
+        userTO.getAuxClasses().add("csv");
         userTO.getDerAttrs().add(attrTO("csvuserid", null));
 
         UserTO actual = createUser(userTO);
@@ -1941,6 +1957,7 @@ public class UserITCase extends AbstractITCase {
         userTO.getMemberships().clear();
         userTO.getDerAttrs().clear();
         userTO.getVirAttrs().clear();
+        userTO.getAuxClasses().add("csv");
         userTO.getDerAttrs().add(attrTO("csvuserid", null));
 
         UserTO actual = createUser(userTO);
@@ -2280,6 +2297,7 @@ public class UserITCase extends AbstractITCase {
         userTO.getPlainAttrs().add(attrTO("email", "syncope391@syncope.apache.org"));
         userTO.getDerAttrs().add(attrTO("csvuserid", null));
 
+        userTO.getAuxClasses().add("csv");
         userTO.getResources().add(RESOURCE_NAME_CSV);
         userTO = createUser(userTO, false);
         assertNotNull(userTO);
@@ -2299,6 +2317,7 @@ public class UserITCase extends AbstractITCase {
         userTO.setPassword("passwordTESTNULL1");
         userTO.getDerAttrs().clear();
         userTO.getVirAttrs().clear();
+        userTO.getAuxClasses().add("csv");
         userTO.getDerAttrs().add(attrTO("csvuserid", null));
 
         userTO.getResources().add(RESOURCE_NAME_CSV);
@@ -2319,6 +2338,7 @@ public class UserITCase extends AbstractITCase {
         userTO.setPassword("passwordTESTNULL1");
         userTO.getDerAttrs().clear();
         userTO.getVirAttrs().clear();
+        userTO.getAuxClasses().add("csv");
         userTO.getDerAttrs().add(attrTO("csvuserid", null));
 
         userTO.getResources().add(RESOURCE_NAME_CSV);
@@ -2347,6 +2367,7 @@ public class UserITCase extends AbstractITCase {
             userTO.setPassword(null);
             userTO.getDerAttrs().clear();
             userTO.getVirAttrs().clear();
+            userTO.getAuxClasses().add("csv");
             userTO.getDerAttrs().add(attrTO("csvuserid", null));
 
             userTO.getResources().add(RESOURCE_NAME_CSV);
@@ -2369,11 +2390,11 @@ public class UserITCase extends AbstractITCase {
         userTO.getMemberships().clear();
         userTO.getDerAttrs().clear();
         userTO.getVirAttrs().clear();
+        userTO.getAuxClasses().add("csv");
         userTO.getDerAttrs().add(attrTO("csvuserid", null));
 
-        MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setRightKey(12L);
-        userTO.getMemberships().add(membershipTO);
+        userTO.getAuxClasses().add("generic membership");
+        userTO.getPlainAttrs().add(attrTO("postalAddress", "postalAddress"));
 
         userTO.getResources().add(RESOURCE_NAME_LDAP);
 
@@ -2388,9 +2409,7 @@ public class UserITCase extends AbstractITCase {
 
         UserMod userMod = new UserMod();
         userMod.setKey(actual.getKey());
-
-        userMod.getMembershipsToAdd().add(12L);
-        userMod.getMembershipsToRemove().add(actual.getMemberships().iterator().next().getKey());
+        userMod.getPlainAttrsToUpdate().add(attrMod("postalAddress", "newPostalAddress"));
 
         actual = updateUser(userMod);
 

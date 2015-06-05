@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.common.lib;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 
 public class SyncopeClientException extends RuntimeException {
@@ -28,7 +28,7 @@ public class SyncopeClientException extends RuntimeException {
 
     private ClientExceptionType type;
 
-    private final List<String> elements = new ArrayList<>();
+    private final Set<String> elements = new HashSet<>();
 
     public static SyncopeClientException build(final ClientExceptionType type) {
         if (type == ClientExceptionType.Composite) {
@@ -66,7 +66,7 @@ public class SyncopeClientException extends RuntimeException {
         this.type = type;
     }
 
-    public List<String> getElements() {
+    public Set<String> getElements() {
         return elements;
     }
 

@@ -51,6 +51,7 @@ import org.apache.syncope.core.misc.ExceptionUtils2;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
+import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
@@ -72,9 +73,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(rollbackFor = { Throwable.class })
 public abstract class AbstractPropagationTaskExecutor implements PropagationTaskExecutor {
 
-    /**
-     * Logger.
-     */
     protected static final Logger LOG = LoggerFactory.getLogger(PropagationTaskExecutor.class);
 
     /**
@@ -299,9 +297,11 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             Any<?, ?, ?> any = getAny(task);
             Collection<String> resources = any instanceof User
                     ? userDAO.findAllResourceNames((User) any)
-                    : any instanceof Group
-                            ? ((Group) any).getResourceNames()
-                            : Collections.<String>emptySet();
+                    : any instanceof AnyObject
+                            ? anyObjectDAO.findAllResourceNames((AnyObject) any)
+                            : any instanceof Group
+                                    ? ((Group) any).getResourceNames()
+                                    : Collections.<String>emptySet();
             if (!resources.contains(task.getResource().getKey())) {
                 LOG.debug("Delete {} on {}", beforeObj.getUid(), task.getResource().getKey());
 
@@ -339,13 +339,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         Connector connector = null;
         Result result;
         try {
-            Any<?, ?, ?> any = getAny(task);
-            provision = task.getResource().getProvision(any.getType());
-            if (provision == null) {
-                throw new IllegalArgumentException("No provision found for " + any.getType() + " on " + task.
-                        getResource());
-            }
-
+            provision = task.getResource().getProvision(new ObjectClass(task.getObjectClassName()));
             connector = connFactory.getConnector(task.getResource());
 
             // Try to read remote object BEFORE any actual operation

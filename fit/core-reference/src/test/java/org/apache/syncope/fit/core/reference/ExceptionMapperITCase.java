@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.fit.core.reference;
 
+import static org.apache.syncope.fit.core.reference.AbstractITCase.anyTypeClassService;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -27,6 +28,7 @@ import java.util.Properties;
 import org.apache.commons.io.IOUtils;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -65,9 +67,15 @@ public class ExceptionMapperITCase extends AbstractITCase {
         schemaTO.setUniqueConstraint(true);
         createSchema(SchemaType.PLAIN, schemaTO);
 
+        AnyTypeClassTO typeClass = new AnyTypeClassTO();
+        typeClass.setKey("camelAttribute");
+        typeClass.getPlainSchemas().add(schemaTO.getKey());
+        anyTypeClassService.create(typeClass);
+
         // 2. create an user with mandatory attributes and unique
         UserTO userTO1 = new UserTO();
         userTO1.setRealm(SyncopeConstants.ROOT_REALM);
+        userTO1.getAuxClasses().add(typeClass.getKey());
         String userId1 = getUUIDString() + "issue654_1@syncope.apache.org";
         userTO1.setUsername(userId1);
         userTO1.setPassword("password123");
@@ -82,6 +90,7 @@ public class ExceptionMapperITCase extends AbstractITCase {
         // 3. create an other user with mandatory attributes and unique with the same value of userTO1
         UserTO userTO2 = new UserTO();
         userTO2.setRealm(SyncopeConstants.ROOT_REALM);
+        userTO2.getAuxClasses().add(typeClass.getKey());
         String userId2 = getUUIDString() + "issue654_2@syncope.apache.org";
         userTO2.setUsername(userId2);
         userTO2.setPassword("password123");

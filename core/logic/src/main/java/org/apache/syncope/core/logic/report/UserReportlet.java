@@ -29,6 +29,7 @@ import org.apache.syncope.common.lib.report.UserReportletConf.Feature;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
+import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -38,6 +39,8 @@ import org.apache.syncope.core.misc.search.SearchCondConverter;
 import org.apache.syncope.core.misc.DataFormat;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
+import org.apache.syncope.core.persistence.api.entity.user.URelationship;
+import org.apache.syncope.core.provisioning.api.data.AnyObjectDataBinder;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,6 +64,9 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
 
     @Autowired
     private GroupDataBinder groupDataBinder;
+
+    @Autowired
+    private AnyObjectDataBinder anyObjectDataBinder;
 
     private List<User> getPagedUsers(final int page) {
         List<User> result;
@@ -264,14 +270,39 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
 
             doExtractAttributes(handler, userTO, conf.getPlainAttrs(), conf.getDerAttrs(), conf.getVirAttrs());
 
+            if (conf.getFeatures().contains(Feature.relationships)) {
+                handler.startElement("", "", "relationships", null);
+
+                for (RelationshipTO rel : userTO.getRelationships()) {
+                    atts.clear();
+
+                    atts.addAttribute("", "", "anyObjectKey",
+                            ReportXMLConst.XSD_LONG, String.valueOf(rel.getRightKey()));
+                    handler.startElement("", "", "relationship", atts);
+
+                    if (conf.getFeatures().contains(Feature.resources)) {
+                        URelationship actualRel = user.getRelationship(rel.getRightKey());
+                        if (actualRel == null) {
+                            LOG.warn("Unexpected: cannot find relationship for any object {} for user {}",
+                                    rel.getRightKey(), user);
+                        } else {
+                            doExtractResources(handler, anyObjectDataBinder.getAnyObjectTO(actualRel.getRightEnd()));
+                        }
+                    }
+
+                    handler.endElement("", "", "relationship");
+                }
+
+                handler.endElement("", "", "relationships");
+            }
             if (conf.getFeatures().contains(Feature.memberships)) {
                 handler.startElement("", "", "memberships", null);
 
                 for (MembershipTO memb : userTO.getMemberships()) {
                     atts.clear();
 
-                    atts.addAttribute("", "", "id", ReportXMLConst.XSD_LONG, String.valueOf(memb.getKey()));
-                    atts.addAttribute("", "", "groupId", ReportXMLConst.XSD_LONG, String.valueOf(memb.getRightKey()));
+                    atts.addAttribute("", "", "groupKey",
+                            ReportXMLConst.XSD_LONG, String.valueOf(memb.getRightKey()));
                     atts.addAttribute("", "", "groupName", ReportXMLConst.XSD_STRING, String.
                             valueOf(memb.getGroupName()));
                     handler.startElement("", "", "membership", atts);
@@ -279,8 +310,8 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
                     if (conf.getFeatures().contains(Feature.resources)) {
                         UMembership actualMemb = user.getMembership(memb.getRightKey());
                         if (actualMemb == null) {
-                            LOG.warn("Unexpected: cannot find membership for group {} for user {}", memb.getRightKey(),
-                                    user);
+                            LOG.warn("Unexpected: cannot find membership for group {} for user {}",
+                                    memb.getRightKey(), user);
                         } else {
                             doExtractResources(handler, groupDataBinder.getGroupTO(actualMemb.getRightEnd()));
                         }

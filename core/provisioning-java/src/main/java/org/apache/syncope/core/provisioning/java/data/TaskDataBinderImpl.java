@@ -19,6 +19,8 @@
 package org.apache.syncope.core.provisioning.java.data;
 
 import java.util.Map;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.core.provisioning.api.data.TaskDataBinder;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -72,13 +74,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class TaskDataBinderImpl implements TaskDataBinder {
 
-    /**
-     * Logger.
-     */
     private static final Logger LOG = LoggerFactory.getLogger(TaskDataBinder.class);
 
     private static final String[] IGNORE_TASK_PROPERTIES = {
-        "destinationRealm", "executions", "resource", "matchingRule", "unmatchingRule" };
+        "destinationRealm", "templates", "filters", "executions", "resource", "matchingRule", "unmatchingRule" };
 
     private static final String[] IGNORE_TASK_EXECUTION_PROPERTIES = { "key", "task" };
 
@@ -100,40 +99,82 @@ public class TaskDataBinderImpl implements TaskDataBinder {
     @Autowired
     private SchedulerFactoryBean scheduler;
 
-    private void checkJexl(final AnyTO anyTO, final SyncopeClientException sce) {
-        for (AttrTO attrTO : anyTO.getPlainAttrs()) {
-            if (!attrTO.getValues().isEmpty() && !JexlUtils.isExpressionValid(attrTO.getValues().get(0))) {
-                sce.getElements().add("Invalid JEXL: " + attrTO.getValues().get(0));
+    private void checkTemplateJEXL(final SyncTaskTO syncTaskTO) {
+        SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSyncTask);
+
+        for (Map.Entry<String, AnyTO> entry : syncTaskTO.getTemplates().entrySet()) {
+            for (AttrTO attrTO : entry.getValue().getPlainAttrs()) {
+                if (!attrTO.getValues().isEmpty() && !JexlUtils.isExpressionValid(attrTO.getValues().get(0))) {
+                    sce.getElements().add("Invalid JEXL: " + attrTO.getValues().get(0));
+                }
+            }
+
+            for (AttrTO attrTO : entry.getValue().getVirAttrs()) {
+                if (!attrTO.getValues().isEmpty() && !JexlUtils.isExpressionValid(attrTO.getValues().get(0))) {
+                    sce.getElements().add("Invalid JEXL: " + attrTO.getValues().get(0));
+                }
+            }
+
+            if (entry.getValue() instanceof UserTO) {
+                UserTO template = (UserTO) entry.getValue();
+                if (StringUtils.isNotBlank(template.getUsername())
+                        && !JexlUtils.isExpressionValid(template.getUsername())) {
+
+                    sce.getElements().add("Invalid JEXL: " + template.getUsername());
+                }
+                if (StringUtils.isNotBlank(template.getPassword())
+                        && !JexlUtils.isExpressionValid(template.getPassword())) {
+
+                    sce.getElements().add("Invalid JEXL: " + template.getPassword());
+                }
+            } else if (entry.getValue() instanceof GroupTO) {
+                GroupTO template = (GroupTO) entry.getValue();
+                if (StringUtils.isNotBlank(template.getName())
+                        && !JexlUtils.isExpressionValid(template.getName())) {
+
+                    sce.getElements().add("Invalid JEXL: " + template.getName());
+                }
             }
         }
 
-        for (AttrTO attrTO : anyTO.getVirAttrs()) {
-            if (!attrTO.getValues().isEmpty() && !JexlUtils.isExpressionValid(attrTO.getValues().get(0))) {
-                sce.getElements().add("Invalid JEXL: " + attrTO.getValues().get(0));
-            }
+        if (!sce.isEmpty()) {
+            throw sce;
         }
     }
 
     private void fill(final ProvisioningTask task, final AbstractProvisioningTaskTO taskTO) {
         if (task instanceof PushTask && taskTO instanceof PushTaskTO) {
-            PushTask pushTask = (PushTask) task;
-            PushTaskTO pushTaskTO = (PushTaskTO) taskTO;
-
-            for (Map.Entry<String, String> entry : pushTaskTO.getFilters().entrySet()) {
-                AnyFilter filter = entityFactory.newEntity(AnyFilter.class);
-                filter.setAnyType(anyTypeDAO.find(entry.getKey()));
-                filter.set(entry.getValue());
-
-                filter.setPushTask(pushTask);
-                pushTask.add(filter);
-            }
+            final PushTask pushTask = (PushTask) task;
+            final PushTaskTO pushTaskTO = (PushTaskTO) taskTO;
 
             pushTask.setMatchingRule(pushTaskTO.getMatchingRule() == null
                     ? MatchingRule.LINK : pushTaskTO.getMatchingRule());
-
             pushTask.setUnmatchingRule(pushTaskTO.getUnmatchingRule() == null
                     ? UnmatchingRule.ASSIGN : pushTaskTO.getUnmatchingRule());
 
+            for (Map.Entry<String, String> entry : pushTaskTO.getFilters().entrySet()) {
+                AnyType type = anyTypeDAO.find(entry.getKey());
+                if (type == null) {
+                    LOG.debug("Invalid AnyType {} specified, ignoring...", entry.getKey());
+                } else {
+                    AnyFilter filter = pushTask.getFilter(type);
+                    if (filter == null) {
+                        filter = entityFactory.newEntity(AnyFilter.class);
+                        filter.setAnyType(anyTypeDAO.find(entry.getKey()));
+                        filter.setPushTask(pushTask);
+                        pushTask.add(filter);
+                    }
+                    filter.set(entry.getValue());
+                }
+            }
+            // remove all filters not contained in the TO
+            CollectionUtils.filter(pushTask.getFilters(), new Predicate<AnyFilter>() {
+
+                @Override
+                public boolean evaluate(final AnyFilter anyFilter) {
+                    return pushTaskTO.getFilters().containsKey(anyFilter.getAnyType().getKey());
+                }
+            });
         } else if (task instanceof SyncTask && taskTO instanceof SyncTaskTO) {
             final SyncTask syncTask = (SyncTask) task;
             final SyncTaskTO syncTaskTO = (SyncTaskTO) taskTO;
@@ -142,52 +183,35 @@ public class TaskDataBinderImpl implements TaskDataBinder {
 
             syncTask.setMatchingRule(syncTaskTO.getMatchingRule() == null
                     ? MatchingRule.UPDATE : syncTaskTO.getMatchingRule());
-
             syncTask.setUnmatchingRule(syncTaskTO.getUnmatchingRule() == null
                     ? UnmatchingRule.PROVISION : syncTaskTO.getUnmatchingRule());
 
-            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSyncTask);
-            // 1. validate JEXL expressions in user and group templates
-            for (Map.Entry<String, AnyTO> entry : syncTaskTO.getTemplates().entrySet()) {
-                checkJexl(entry.getValue(), sce);
-
-                if (entry.getValue() instanceof UserTO) {
-                    UserTO template = (UserTO) entry.getValue();
-                    if (StringUtils.isNotBlank(template.getUsername())
-                            && !JexlUtils.isExpressionValid(template.getUsername())) {
-
-                        sce.getElements().add("Invalid JEXL: " + template.getUsername());
-                    }
-                    if (StringUtils.isNotBlank(template.getPassword())
-                            && !JexlUtils.isExpressionValid(template.getPassword())) {
-
-                        sce.getElements().add("Invalid JEXL: " + template.getPassword());
-                    }
-                } else if (entry.getValue() instanceof GroupTO) {
-                    GroupTO template = (GroupTO) entry.getValue();
-                    if (StringUtils.isNotBlank(template.getName())
-                            && !JexlUtils.isExpressionValid(template.getName())) {
-
-                        sce.getElements().add("Invalid JEXL: " + template.getName());
-                    }
-                }
-            }
-            if (!sce.isEmpty()) {
-                throw sce;
-            }
-
-            // 2. all JEXL expressions are valid: accept user and group templates
+            // validate JEXL expressions from templates and proceed if fine
+            checkTemplateJEXL(syncTaskTO);
             for (Map.Entry<String, AnyTO> entry : syncTaskTO.getTemplates().entrySet()) {
                 AnyType type = anyTypeDAO.find(entry.getKey());
-                if (type != null) {
-                    AnyTemplate anyTemplate = entityFactory.newEntity(AnyTemplate.class);
-                    anyTemplate.setAnyType(type);
-                    anyTemplate.set(entry.getValue());
-                    anyTemplate.setSyncTask(syncTask);
+                if (type == null) {
+                    LOG.debug("Invalid AnyType {} specified, ignoring...", entry.getKey());
+                } else {
+                    AnyTemplate anyTemplate = syncTask.getTemplate(type);
+                    if (anyTemplate == null) {
+                        anyTemplate = entityFactory.newEntity(AnyTemplate.class);
+                        anyTemplate.setAnyType(type);
+                        anyTemplate.setSyncTask(syncTask);
 
-                    syncTask.add(anyTemplate);
+                        syncTask.add(anyTemplate);
+                    }
+                    anyTemplate.set(entry.getValue());
                 }
             }
+            // remove all templates not contained in the TO
+            CollectionUtils.filter(syncTask.getTemplates(), new Predicate<AnyTemplate>() {
+
+                @Override
+                public boolean evaluate(final AnyTemplate anyTemplate) {
+                    return syncTaskTO.getTemplates().containsKey(anyTemplate.getAnyType().getKey());
+                }
+            });
 
             syncTask.setFullReconciliation(syncTaskTO.isFullReconciliation());
         }
@@ -197,18 +221,13 @@ public class TaskDataBinderImpl implements TaskDataBinder {
         task.setPerformUpdate(taskTO.isPerformUpdate());
         task.setPerformDelete(taskTO.isPerformDelete());
         task.setSyncStatus(taskTO.isSyncStatus());
-        task.getActionsClassNames()
-                .clear();
-        task.getActionsClassNames()
-                .addAll(taskTO.getActionsClassNames());
+        task.getActionsClassNames().clear();
+        task.getActionsClassNames().addAll(taskTO.getActionsClassNames());
     }
 
     @Override
-    public SchedTask createSchedTask(final SchedTaskTO taskTO,
-            final TaskUtils taskUtils
-    ) {
-        final Class<? extends AbstractTaskTO> taskTOClass = taskUtils.taskTOClass();
-
+    public SchedTask createSchedTask(final SchedTaskTO taskTO, final TaskUtils taskUtils) {
+        Class<? extends AbstractTaskTO> taskTOClass = taskUtils.taskTOClass();
         if (taskTOClass == null || !taskTOClass.equals(taskTO.getClass())) {
             throw new IllegalArgumentException(
                     String.format("taskUtils is type %s but task is not: %s", taskTOClass, taskTO.getClass()));
@@ -222,7 +241,7 @@ public class TaskDataBinderImpl implements TaskDataBinder {
         if (taskUtils.getType() == TaskType.SCHEDULED) {
             task.setJobClassName(taskTO.getJobClassName());
         } else if (taskTO instanceof AbstractProvisioningTaskTO) {
-            final AbstractProvisioningTaskTO provisioningTaskTO = (AbstractProvisioningTaskTO) taskTO;
+            AbstractProvisioningTaskTO provisioningTaskTO = (AbstractProvisioningTaskTO) taskTO;
 
             ExternalResource resource = resourceDAO.find(provisioningTaskTO.getResource());
             if (resource == null) {
@@ -237,10 +256,7 @@ public class TaskDataBinderImpl implements TaskDataBinder {
     }
 
     @Override
-    public void updateSchedTask(final SchedTask task,
-            final SchedTaskTO taskTO,
-            final TaskUtils taskUtils
-    ) {
+    public void updateSchedTask(final SchedTask task, final SchedTaskTO taskTO, final TaskUtils taskUtils) {
         Class<? extends Task> taskClass = taskUtils.taskClass();
         Class<? extends AbstractTaskTO> taskTOClass = taskUtils.taskTOClass();
 
@@ -268,8 +284,7 @@ public class TaskDataBinderImpl implements TaskDataBinder {
     }
 
     @Override
-    public TaskExecTO getTaskExecTO(final TaskExec execution
-    ) {
+    public TaskExecTO getTaskExecTO(final TaskExec execution) {
         TaskExecTO executionTO = new TaskExecTO();
         BeanUtils.copyProperties(execution, executionTO, IGNORE_TASK_EXECUTION_PROPERTIES);
 
@@ -347,6 +362,10 @@ public class TaskDataBinderImpl implements TaskDataBinder {
                         ? MatchingRule.UPDATE : ((SyncTask) task).getMatchingRule());
                 ((SyncTaskTO) taskTO).setUnmatchingRule(((SyncTask) task).getUnmatchingRule() == null
                         ? UnmatchingRule.PROVISION : ((SyncTask) task).getUnmatchingRule());
+
+                for (AnyTemplate template : ((SyncTask) task).getTemplates()) {
+                    ((SyncTaskTO) taskTO).getTemplates().put(template.getAnyType().getKey(), template.get());
+                }
                 break;
 
             case PUSH:
@@ -362,6 +381,10 @@ public class TaskDataBinderImpl implements TaskDataBinder {
                         ? MatchingRule.LINK : ((PushTask) task).getMatchingRule());
                 ((PushTaskTO) taskTO).setUnmatchingRule(((PushTask) task).getUnmatchingRule() == null
                         ? UnmatchingRule.ASSIGN : ((PushTask) task).getUnmatchingRule());
+
+                for (AnyFilter filter : ((PushTask) task).getFilters()) {
+                    ((PushTaskTO) taskTO).getFilters().put(filter.getAnyType().getKey(), filter.get());
+                }
                 break;
 
             case NOTIFICATION:

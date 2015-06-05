@@ -105,7 +105,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
         if (groupTO.getADynMembershipCond() != null) {
             setDynMembership(group, AnyTypeKind.ANY_OBJECT, groupTO.getADynMembershipCond());
         }
-        if (groupTO.getADynMembershipCond() != null) {
+        if (groupTO.getUDynMembershipCond() != null) {
             setDynMembership(group, AnyTypeKind.USER, groupTO.getUDynMembershipCond());
         }
 
@@ -188,7 +188,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
     @Transactional(readOnly = true)
     @Override
     public GroupTO getGroupTO(final Group group) {
-        connObjectUtils.retrieveVirAttrValues(group);
+        virAttrHander.retrieveVirAttrValues(group);
 
         GroupTO groupTO = new GroupTO();
 
@@ -208,7 +208,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
             groupTO.setGroupOwner(group.getGroupOwner().getKey());
         }
 
-        fillTO(groupTO, group.getRealm().getFullPath(),
+        fillTO(groupTO, group.getRealm().getFullPath(), group.getAuxClasses(),
                 group.getPlainAttrs(), group.getDerAttrs(), group.getVirAttrs(), group.getResources());
 
         if (group.getADynMembership() != null) {

@@ -102,7 +102,9 @@ public class JPAPlainSchemaDAO extends AbstractDAO<PlainSchema, String> implemen
             resourceDAO.deleteMapping(key, anyUtils.plainIntMappingType());
         }
 
-        schema.getAnyTypeClass().remove(schema);
+        if (schema.getAnyTypeClass() != null) {
+            schema.getAnyTypeClass().remove(schema);
+        }
 
         entityManager.remove(schema);
     }

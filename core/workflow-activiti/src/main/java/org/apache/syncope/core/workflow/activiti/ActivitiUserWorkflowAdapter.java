@@ -84,15 +84,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Activiti {
- *
- * @see http://www.activiti.org/} based implementation.
+ * Activiti {@link http://www.activiti.org/} based implementation.
  */
 public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
-    /**
-     * Logger.
-     */
     private static final Logger LOG = LoggerFactory.getLogger(ActivitiUserWorkflowAdapter.class);
 
     private static final String[] PROPERTY_IGNORE_PROPS = { "type" };
@@ -258,7 +253,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     public WorkflowResult<Pair<Long, Boolean>> create(final UserTO userTO, final boolean disablePwdPolicyCheck,
             final Boolean enabled, final boolean storePassword) {
 
-        final Map<String, Object> variables = new HashMap<>();
+        Map<String, Object> variables = new HashMap<>();
         variables.put(WF_EXECUTOR, AuthContextUtils.getAuthenticatedUsername());
         variables.put(USER_TO, userTO);
         variables.put(ENABLED, enabled);
@@ -271,8 +266,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
             throwException(e, "While starting " + WF_PROCESS_ID + " instance");
         }
 
-        User user =
-                runtimeService.getVariable(processInstance.getProcessInstanceId(), USER, User.class);
+        User user = runtimeService.getVariable(processInstance.getProcessInstanceId(), USER, User.class);
 
         Boolean updatedEnabled =
                 runtimeService.getVariable(processInstance.getProcessInstanceId(), ENABLED, Boolean.class);

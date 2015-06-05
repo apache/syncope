@@ -31,11 +31,13 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.mod.AnyObjectMod;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
+import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.misc.spring.BeanUtils;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
+import org.apache.syncope.core.persistence.api.entity.anyobject.ARelationship;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.provisioning.api.data.AnyObjectDataBinder;
@@ -47,7 +49,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements AnyObjectDataBinder {
 
     private static final String[] IGNORE_PROPERTIES = {
-        "realm", "memberships", "plainAttrs", "derAttrs", "virAttrs", "resources"
+        "type", "realm", "auxClasses", "relationships", "memberships", "dynGroups",
+        "plainAttrs", "derAttrs", "virAttrs", "resources"
     };
 
     @Transactional(readOnly = true)
@@ -62,20 +65,29 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
 
         BeanUtils.copyProperties(anyObject, anyObjectTO, IGNORE_PROPERTIES);
 
-        connObjectUtils.retrieveVirAttrValues(anyObject);
-        fillTO(anyObjectTO, anyObject.getRealm().getFullPath(),
+        virAttrHander.retrieveVirAttrValues(anyObject);
+        fillTO(anyObjectTO, anyObject.getRealm().getFullPath(), anyObject.getAuxClasses(),
                 anyObject.getPlainAttrs(), anyObject.getDerAttrs(), anyObject.getVirAttrs(),
                 anyObjectDAO.findAllResources(anyObject));
 
-        for (AMembership membership : anyObject.getMemberships()) {
-            MembershipTO membershipTO = new MembershipTO();
+        // relationships
+        CollectionUtils.collect(anyObject.getRelationships(), new Transformer<ARelationship, RelationshipTO>() {
 
-            membershipTO.setKey(membership.getKey());
-            membershipTO.setRightKey(membership.getRightEnd().getKey());
-            membershipTO.setGroupName(membership.getRightEnd().getName());
+            @Override
+            public RelationshipTO transform(final ARelationship relationship) {
+                return AnyObjectDataBinderImpl.this.getRelationshipTO(relationship);
+            }
 
-            anyObjectTO.getMemberships().add(membershipTO);
-        }
+        }, anyObjectTO.getRelationships());
+
+        // memberships
+        CollectionUtils.collect(anyObject.getMemberships(), new Transformer<AMembership, MembershipTO>() {
+
+            @Override
+            public MembershipTO transform(final AMembership membership) {
+                return AnyObjectDataBinderImpl.this.getMembershipTO(membership);
+            }
+        }, anyObjectTO.getMemberships());
 
         // dynamic memberships
         CollectionUtils.collect(anyObjectDAO.findDynGroupMemberships(anyObject), new Transformer<Group, Long>() {
@@ -92,6 +104,29 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
     @Override
     public void create(final AnyObject anyObject, final AnyObjectTO anyObjectTO) {
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
+
+        // relationships
+        for (RelationshipTO relationshipTO : anyObjectTO.getRelationships()) {
+            AnyObject otherEnd = anyObjectDAO.find(relationshipTO.getRightKey());
+
+            if (otherEnd == null) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Ignoring invalid anyObject " + relationshipTO.getRightKey());
+                }
+            } else {
+                ARelationship relationship = null;
+                if (anyObject.getKey() != null) {
+                    relationship = anyObject.getRelationship(otherEnd.getKey());
+                }
+                if (relationship == null) {
+                    relationship = entityFactory.newEntity(ARelationship.class);
+                    relationship.setRightEnd(otherEnd);
+                    relationship.setLeftEnd(anyObject);
+
+                    anyObject.add(relationship);
+                }
+            }
+        }
 
         // memberships
         for (MembershipTO membershipTO : anyObjectTO.getMemberships()) {
@@ -137,11 +172,44 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
         // attributes, derived attributes, virtual attributes and resources
         propByRes.merge(fill(anyObject, anyObjectMod, anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT), scce));
 
-        // store the group ids of membership required to be added
-        Set<Long> membershipToBeAddedGroupKeys = new HashSet<>(anyObjectMod.getMembershipsToAdd());
+        Set<String> toBeDeprovisioned = new HashSet<>();
+        Set<String> toBeProvisioned = new HashSet<>();
 
-        final Set<String> toBeDeprovisioned = new HashSet<>();
-        final Set<String> toBeProvisioned = new HashSet<>();
+        // relationships to be removed
+        for (Long anyObjectKey : anyObjectMod.getRelationshipsToRemove()) {
+            LOG.debug("Relationship to be removed for any object {}", anyObjectKey);
+
+            ARelationship relationship = anyObject.getRelationship(anyObjectKey);
+            if (relationship == null) {
+                LOG.warn("Invalid anyObject key specified for relationship to be removed: {}", anyObjectKey);
+            } else {
+                if (!anyObjectMod.getRelationshipsToAdd().contains(anyObjectKey)) {
+                    anyObject.remove(relationship);
+                    toBeDeprovisioned.addAll(relationship.getRightEnd().getResourceNames());
+                }
+            }
+        }
+
+        // relationships to be added
+        for (Long anyObjectKey : anyObjectMod.getRelationshipsToAdd()) {
+            LOG.debug("Relationship to be added for any object {}", anyObjectKey);
+
+            AnyObject otherEnd = anyObjectDAO.find(anyObjectKey);
+            if (otherEnd == null) {
+                LOG.debug("Ignoring invalid any object {}", anyObjectKey);
+            } else {
+                ARelationship relationship = anyObject.getRelationship(otherEnd.getKey());
+                if (relationship == null) {
+                    relationship = entityFactory.newEntity(ARelationship.class);
+                    relationship.setRightEnd(otherEnd);
+                    relationship.setLeftEnd(anyObject);
+
+                    anyObject.add(relationship);
+
+                    toBeProvisioned.addAll(otherEnd.getResourceNames());
+                }
+            }
+        }
 
         // memberships to be removed
         for (Long groupKey : anyObjectMod.getMembershipsToRemove()) {
@@ -151,9 +219,8 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
             if (membership == null) {
                 LOG.warn("Invalid group key specified for membership to be removed: {}", groupKey);
             } else {
-                if (membershipToBeAddedGroupKeys.contains(membership.getRightEnd().getKey())) {
+                if (!anyObjectMod.getMembershipsToAdd().contains(groupKey)) {
                     anyObject.remove(membership);
-                } else {
                     toBeDeprovisioned.addAll(membership.getRightEnd().getResourceNames());
                 }
             }

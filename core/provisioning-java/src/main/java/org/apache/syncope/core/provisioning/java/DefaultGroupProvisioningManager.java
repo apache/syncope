@@ -36,6 +36,7 @@ import org.apache.syncope.common.lib.mod.GroupMod;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
@@ -47,6 +48,7 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
+import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.workflow.api.GroupWorkflowAdapter;
 
 public class DefaultGroupProvisioningManager implements GroupProvisioningManager {
@@ -64,6 +66,9 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
 
     @Autowired
     protected GroupDAO groupDAO;
+
+    @Autowired
+    protected VirAttrHandler virtAttrHandler;
 
     @Override
     public Pair<Long, List<PropagationStatus>> create(final GroupTO group) {
@@ -119,6 +124,18 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
 
         List<PropagationTask> tasks = propagationManager.getGroupUpdateTasks(updated,
                 groupMod.getVirAttrsToRemove(), groupMod.getVirAttrsToUpdate(), excludedResources);
+        if (tasks.isEmpty()) {
+            // SYNCOPE-459: take care of user virtual attributes ...
+            PropagationByResource propByResVirAttr = virtAttrHandler.fillVirtual(
+                    updated.getResult(),
+                    AnyTypeKind.GROUP,
+                    groupMod.getVirAttrsToRemove(),
+                    groupMod.getVirAttrsToUpdate());
+            tasks.addAll(!propByResVirAttr.isEmpty()
+                    ? propagationManager.getGroupUpdateTasks(updated, null, null, null)
+                    : Collections.<PropagationTask>emptyList());
+        }
+
         PropagationReporter propagationReporter =
                 ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
         try {

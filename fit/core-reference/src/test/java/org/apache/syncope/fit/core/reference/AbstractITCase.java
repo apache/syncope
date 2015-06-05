@@ -48,6 +48,8 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.service.AnyTypeClassService;
+import org.apache.syncope.common.rest.api.service.AnyTypeService;
 import org.apache.syncope.common.rest.api.service.CamelRouteService;
 import org.apache.syncope.common.rest.api.service.ConfigurationService;
 import org.apache.syncope.common.rest.api.service.ConnectorService;
@@ -147,6 +149,10 @@ public abstract class AbstractITCase {
 
     protected static SyncopeService syncopeService;
 
+    protected static AnyTypeClassService anyTypeClassService;
+
+    protected static AnyTypeService anyTypeService;
+
     protected static RealmService realmService;
 
     protected static RoleService roleService;
@@ -217,6 +223,8 @@ public abstract class AbstractITCase {
         adminClient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
 
         syncopeService = adminClient.getService(SyncopeService.class);
+        anyTypeClassService = adminClient.getService(AnyTypeClassService.class);
+        anyTypeService = adminClient.getService(AnyTypeService.class);
         realmService = adminClient.getService(RealmService.class);
         roleService = adminClient.getService(RoleService.class);
         userService = adminClient.getService(UserService.class);
@@ -272,7 +280,7 @@ public abstract class AbstractITCase {
 
     protected UserTO readUser(final String username) {
         return userService.read(Long.valueOf(
-                userService.getUserId(username).getHeaderString(RESTHeaders.USER_ID)));
+                userService.getUserKey(username).getHeaderString(RESTHeaders.USER_ID)));
     }
 
     protected UserTO updateUser(final UserMod userMod) {
@@ -361,7 +369,7 @@ public abstract class AbstractITCase {
             throws NamingException {
         ResourceTO ldapRes = resourceService.read(RESOURCE_NAME_LDAP);
         final Map<String, ConnConfProperty> ldapConnConf =
-                connectorService.read(ldapRes.getConnectorId()).getConfigurationMap();
+                connectorService.read(ldapRes.getConnector()).getConfigurationMap();
 
         Properties env = new Properties();
         env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");

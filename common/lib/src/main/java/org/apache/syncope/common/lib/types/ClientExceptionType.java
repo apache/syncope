@@ -40,6 +40,7 @@ public enum ClientExceptionType {
     InvalidProvision(Response.Status.BAD_REQUEST),
     InvalidReport(Response.Status.BAD_REQUEST),
     InvalidReportExec(Response.Status.BAD_REQUEST),
+    InvalidAnyType(Response.Status.BAD_REQUEST),
     InvalidAnyObject(Response.Status.BAD_REQUEST),
     InvalidGroup(Response.Status.BAD_REQUEST),
     InvalidSchemaDefinition(Response.Status.BAD_REQUEST),
@@ -49,7 +50,7 @@ public enum ClientExceptionType {
     InvalidPlainSchema(Response.Status.BAD_REQUEST),
     InvalidDerSchema(Response.Status.BAD_REQUEST),
     InvalidVirSchema(Response.Status.BAD_REQUEST),
-    InvalidSchemaMapping(Response.Status.BAD_REQUEST),
+    InvalidMapping(Response.Status.BAD_REQUEST),
     InvalidRealm(Response.Status.BAD_REQUEST),
     InvalidUser(Response.Status.BAD_REQUEST),
     InvalidExternalResource(Response.Status.BAD_REQUEST),
@@ -65,6 +66,7 @@ public enum ClientExceptionType {
     GroupOwnership(Response.Status.BAD_REQUEST),
     Scheduling(Response.Status.BAD_REQUEST),
     Unauthorized(Response.Status.UNAUTHORIZED),
+    UnallowedSchemas(Response.Status.BAD_REQUEST),
     Unknown(Response.Status.BAD_REQUEST),
     Workflow(Response.Status.BAD_REQUEST);
 

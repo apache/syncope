@@ -45,9 +45,6 @@ public class JPAUPlainAttr extends AbstractPlainAttr<User> implements UPlainAttr
 
     public static final String TABLE = "UPlainAttr";
 
-    /**
-     * Auto-generated id for this table.
-     */
     @Id
     private Long id;
 

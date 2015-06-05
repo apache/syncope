@@ -36,6 +36,26 @@ public final class Entitlement {
 
     public static final String REALM_DELETE = "REALM_DELETE";
 
+    public static final String ANYTYPECLASS_LIST = "ANYTYPECLASS_LIST";
+
+    public static final String ANYTYPECLASS_CREATE = "ANYTYPECLASS_CREATE";
+
+    public static final String ANYTYPECLASS_READ = "ANYTYPECLASS_READ";
+
+    public static final String ANYTYPECLASS_UPDATE = "ANYTYPECLASS_UPDATE";
+
+    public static final String ANYTYPECLASS_DELETE = "ANYTYPECLASS_DELETE";
+
+    public static final String ANYTYPE_LIST = "ANYTYPE_LIST";
+
+    public static final String ANYTYPE_CREATE = "ANYTYPE_CREATE";
+
+    public static final String ANYTYPE_READ = "ANYTYPE_READ";
+
+    public static final String ANYTYPE_UPDATE = "ANYTYPE_UPDATE";
+
+    public static final String ANYTYPE_DELETE = "ANYTYPE_DELETE";
+
     public static final String ROLE_LIST = "ROLE_LIST";
 
     public static final String ROLE_CREATE = "ROLE_CREATE";

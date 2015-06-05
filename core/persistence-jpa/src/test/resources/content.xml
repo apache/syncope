@@ -94,11 +94,11 @@ under the License.
   
   <!-- sample policies -->
   <Policy DTYPE="SyncPolicy" id="1" description="a sync policy" type="SYNC" 
-          specification='{"userJavaRule":null,"groupJavaRule":null,"conflictResolutionAction":"IGNORE","userAltSearchSchemas":[],"groupAltSearchSchemas":[]}'/>
+          specification='{"conflictResolutionAction":"IGNORE","items":[]}'/>
   <Policy DTYPE="PasswordPolicy" id="2" description="a password policy" type="PASSWORD" 
           specification='{"historyLength":1,"maxLength":0,"minLength":8,"nonAlphanumericRequired":false,"alphanumericRequired":false,"digitRequired":false,"lowercaseRequired":false,"uppercaseRequired":false,"mustStartWithDigit":false,"mustntStartWithDigit":false,"mustEndWithDigit":false,"mustntEndWithDigit":false,"mustStartWithNonAlpha":false,"mustStartWithAlpha":false,"mustntStartWithNonAlpha":false,"mustntStartWithAlpha":false,"mustEndWithNonAlpha":false,"mustEndWithAlpha":false,"mustntEndWithNonAlpha":false,"mustntEndWithAlpha":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[],"allowNullPassword":true}'/>
   <Policy DTYPE="SyncPolicy" id="3" description="sync policy 2" type="SYNC" 
-          specification='{"userJavaRule":null,"groupJavaRule":null,"conflictResolutionAction":"ALL","userAltSearchSchemas":["username","firstname"],"groupAltSearchSchemas":[]}'/>
+          specification='{"conflictResolutionAction":"ALL","items":[{"anyTypeKey":"USER","javaRule":null,"altSearchSchemas":["username","firstname"]}]}'/>
   <Policy DTYPE="PasswordPolicy" id="4" description="sample password policy" type="PASSWORD" 
           specification='{"historyLength":0,"maxLength":0,"minLength":10,"nonAlphanumericRequired":false,"alphanumericRequired":false,"digitRequired":true,"lowercaseRequired":false,"uppercaseRequired":false,"mustStartWithDigit":false,"mustntStartWithDigit":false,"mustEndWithDigit":false,"mustntEndWithDigit":false,"mustStartWithNonAlpha":false,"mustStartWithAlpha":false,"mustntStartWithNonAlpha":false,"mustntStartWithAlpha":false,"mustEndWithNonAlpha":false,"mustEndWithAlpha":false,"mustntEndWithNonAlpha":false,"mustntEndWithAlpha":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[], "allowNullPassword":true}'/>
   <Policy DTYPE="AccountPolicy" id="5" description="an account policy" type="ACCOUNT" 
@@ -106,11 +106,11 @@ under the License.
   <Policy DTYPE="AccountPolicy" id="6" description="sample account policy" type="ACCOUNT" 
           specification='{"maxLength":0,"minLength":4,"pattern":null,"allUpperCase":false,"allLowerCase":false,"propagateSuspension":false,"maxAuthenticationAttempts":3,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[]}'/>
   <Policy DTYPE="SyncPolicy" id="7" description="sync policy 1" type="SYNC" 
-          specification='{"userJavaRule":null,"groupJavaRule":null,"conflictResolutionAction":"IGNORE","userAltSearchSchemas":[],"groupAltSearchSchemas":[]}'/>
+          specification='{"conflictResolutionAction":"IGNORE","items":[]}'/>
   <Policy DTYPE="PasswordPolicy" id="8" description="sample password policy" type="PASSWORD" 
           specification='{"historyLength":0,"maxLength":0,"minLength":10,"nonAlphanumericRequired":true,"alphanumericRequired":false,"digitRequired":true,"lowercaseRequired":true,"uppercaseRequired":true,"mustStartWithDigit":true,"mustntStartWithDigit":false,"mustEndWithDigit":true,"mustntEndWithDigit":false,"mustStartWithNonAlpha":false,"mustStartWithAlpha":false,"mustntStartWithNonAlpha":false,"mustntStartWithAlpha":false,"mustEndWithNonAlpha":false,"mustEndWithAlpha":false,"mustntEndWithNonAlpha":false,"mustntEndWithAlpha":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[],"allowNullPassword":false}'/>
   <Policy DTYPE="SyncPolicy" id="9" description="sync policy for java rule" type="SYNC" 
-          specification='{"userJavaRule":null,"groupJavaRule":null,"conflictResolutionAction":"IGNORE","userAltSearchSchemas":[],"groupAltSearchSchemas":[]}'/>
+          specification='{"conflictResolutionAction":"IGNORE","items":[]}'/>
 
   <AnyTypeClass name="generic membership"/>
 
@@ -307,6 +307,7 @@ under the License.
   <DerSchema name="noschema" expression="surname + ', ' + notfound" anyTypeClass_name="other"/>
 
   <VirSchema name="virtualdata" anyTypeClass_name="minimal user"/>
+  <VirSchema name="virtualReadOnly" READONLY="1"  anyTypeClass_name="minimal user"/>
 
   <PlainSchema name="icon" type="String" anyTypeClass_name="minimal group"
                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>                
@@ -328,7 +329,7 @@ under the License.
 
   <VirSchema name="rvirtualdata" anyTypeClass_name="minimal group"/>
 
-  <DerSchema name="rderivedschema" expression="rderived_sx + '-' + rderived_dx"/>
+  <DerSchema name="rderivedschema" expression="rderived_sx + '-' + rderived_dx"  anyTypeClass_name="minimal group"/>
 
   <PlainSchema name="subscriptionDate" type="Date" anyTypeClass_name="generic membership"
                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
@@ -412,9 +413,7 @@ under the License.
   <UPlainAttr id="126" owner_id="3" schema_name="type"/>
   <UPlainAttrValue id="37" attribute_id="126" stringValue="F"/>
     
-  <UVirAttr id="1000" schema_name="virtualdata" owner_id="3"/>
-
-  <VirSchema name="virtualReadOnly" READONLY="1"/>
+  <UVirAttr id="100" schema_name="virtualdata" owner_id="3"/>
   
   <UDerAttr id="100" schema_name="cn" owner_id="3"/>
   <UDerAttr id="101" schema_name="cn" owner_id="1"/>
@@ -446,13 +445,13 @@ under the License.
   <GPlainAttr id="995" owner_id="13" schema_name="title"/>
   <GPlainAttrValue attribute_id="995" id="95" stringValue="r13"/>
 
-  <GDerAttr id="1000" owner_id="1" schema_name="rderiveddata"/>
+  <GDerAttr id="100" owner_id="1" schema_name="rderiveddata"/>
     
-  <GDerAttr id="1001" owner_id="1" schema_name="displayProperty"/>
+  <GDerAttr id="101" owner_id="1" schema_name="displayProperty"/>
   
-  <GDerAttr id="1002" owner_id="4" schema_name="displayProperty"/>
+  <GDerAttr id="102" owner_id="4" schema_name="displayProperty"/>
 
-  <GDerAttr id="1003" owner_id="1" schema_name="rderToBePropagated"/>    
+  <GDerAttr id="103" owner_id="1" schema_name="rderToBePropagated"/>    
 
   <GVirAttr id="98" owner_id="4" schema_name="rvirtualdata"/>
 
@@ -816,10 +815,10 @@ under the License.
                connObjectKey="1" password="0" purpose="BOTH"/>
   <MappingItem id="208" extAttrName="theirgroup" mapping_id="9"
                intAttrName="rderToBePropagated" intMappingType="GroupDerivedSchema" mandatoryCondition="false"
-               connObjectKey="0" password="0" purpose="BOTH"/>
+               connObjectKey="0" password="0" purpose="PROPAGATION"/>
   <MappingItem id="209" extAttrName="membership" mapping_id="9"
                intAttrName="mderToBePropagated" intMappingType="AnyDerivedSchema" mandatoryCondition="false"
-               connObjectKey="0" password="0" purpose="BOTH"/>
+               connObjectKey="0" password="0" purpose="PROPAGATION"/>
                          
   <Provision id="10" resource_name="ws-target-resource-update-resetsynctoken" anyType_name="USER" objectClass="__ACCOUNT__"
              serializedSyncToken='{"value":null}'/>
@@ -853,7 +852,7 @@ under the License.
                extAttrName="title" intAttrName="title" intMappingType="GroupPlainSchema"
                mandatoryCondition="false" purpose="BOTH"/>
   <MappingItem id="317" connObjectKey="0" password="0" mapping_id="11"
-               extAttrName="postalAddress" intAttrName="postalAddress" intMappingType="AnyPlainSchema"
+               extAttrName="postalAddress" intAttrName="postalAddress" intMappingType="UserPlainSchema"
                mandatoryCondition="false" purpose="BOTH"/>
   <MappingItem id="318" connObjectKey="0" password="0" mapping_id="11"
                extAttrName="mail" intAttrName="userId" intMappingType="UserPlainSchema"
@@ -940,9 +939,9 @@ under the License.
         destinationRealm_id="1" performCreate="1" performUpdate="1" performDelete="1" syncStatus="1" fullReconciliation="0"
         jobClassName="org.apache.syncope.core.provisioning.api.job.SyncJob" unmatchingRule="ASSIGN" matchingRule="UPDATE"/>
   <AnyTemplate id="41" syncTask_id="4" anyType_name="USER"
-               template='{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"password":null,"status":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"plainAttrs":[{"schema":"type","readonly":false,"values":["email == &apos;test8@syncope.apache.org&apos;? &apos;TYPE_8&apos;: &apos;TYPE_OTHER&apos;"]}],"derAttrs":[{"schema":"cn","readonly":false,"values":[null]}],"virAttrs":[],"resources":["resource-testdb"],"propagationStatuses":[],"memberships":[{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"groupKey":8,"groupName":null,"plainAttrs":[{"schema":"subscriptionDate","readonly":false,"values":["&apos;2009-08-18T16:33:12.203+0200&apos;"]}],"derAttrs":[],"virAttrs":[]}]}'/>
+               template='{"@class":"org.apache.syncope.common.lib.to.UserTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"type":"USER","realm":null,"status":null,"password":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"securityQuestion":null,"securityAnswer":null,"auxClasses":["csv"],"derAttrs":[{"schema":"cn","readonly":false,"values":[""]}],"virAttrs":[],"resources":["resource-testdb"],"propagationStatuses":[],"relationships":[],"memberships":[{"leftType":null,"leftKey":0,"rightType":"GROUP","rightKey":8,"groupName":null}],"dynGroups":[],"roles":[],"dynRoles":[],"plainAttrs":[{"schema":"type","readonly":false,"values":["email == &apos;test8@syncope.apache.org&apos;? &apos;TYPE_8&apos;: &apos;TYPE_OTHER&apos;"]}]}'/>
   <AnyTemplate id="42" syncTask_id="4" anyType_name="GROUP"
-               template='{"creator": null,"creationDate": null,"lastModifier": null,"lastChangeDate": null,"key": 0,"name": null,"userOwner": null,"groupOwner": null,"plainAttrs": [], "derAttrs": [],"virAttrs": [],"resources": [],"propagationStatuses": []}'/>
+               template='{"@class":"org.apache.syncope.common.lib.to.GroupTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"type":"GROUP","realm":null,"status":null,"name":null,"userOwner":null,"groupOwner":null,"adynMembershipCond":null,"udynMembershipCond":null,"auxClasses":[],"derAttrs":[],"virAttrs":[],"resources":[],"propagationStatuses":[],"plainAttrs":[]}'/>
   <Task DTYPE="SchedTask" type="SCHEDULED" id="5" name="SampleJob Task" jobClassName="org.apache.syncope.core.provisioning.java.job.SampleJob" cronExpression="0 0 0 1 * ?"/>
   <Task DTYPE="PropagationTask" type="PROPAGATION" id="6" propagationMode="TWO_PHASES" propagationOperation="UPDATE"
         objectClassName="__ACCOUNT__" resource_name="ws-target-resource-nopropagation" anyTypeKind="USER" anyKey="1"
@@ -951,10 +950,10 @@ under the License.
   <Task DTYPE="SyncTask" type="SYNCHRONIZATION" id="7" name="TestDB Task" resource_name="resource-testdb"
         destinationRealm_id="1" performCreate="1" performUpdate="1" performDelete="0" syncStatus="1" fullReconciliation="1"
         jobClassName="org.apache.syncope.core.provisioning.api.job.SyncJob" unmatchingRule="PROVISION" matchingRule="UPDATE"/>
-  <AnyTemplate id="61" syncTask_id="7" anyType_name="USER"
-               template='{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"password":null,"status":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"plainAttrs":[{"schema":"type","readonly":false,"values":["email == &apos;test8@syncope.apache.org&apos;? &apos;TYPE_8&apos;: &apos;TYPE_OTHER&apos;"]}],"derAttrs":[{"schema":"cn","readonly":false,"values":[null]}],"virAttrs":[],"resources":["resource-testdb"],"propagationStatuses":[],"memberships":[{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"groupKey":8,"groupName":null,"plainAttrs":[{"schema":"subscriptionDate","readonly":false,"values":["&apos;2009-08-18T16:33:12.203+0200&apos;"]}],"derAttrs":[],"virAttrs":[]}]}'/>
-  <AnyTemplate id="62" syncTask_id="7" anyType_name="GROUP"
-               template='{"creator": null,"creationDate": null,"lastModifier": null,"lastChangeDate": null,"key": 0,"name": null,"userOwner": null,"groupOwner": null,"plainAttrs": [], "derAttrs": [],"virAttrs": [],"resources": [],"propagationStatuses": []}'/>
+  <AnyTemplate id="71" syncTask_id="7" anyType_name="USER"
+               template='{"@class":"org.apache.syncope.common.lib.to.UserTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"type":"USER","realm":null,"status":null,"password":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"securityQuestion":null,"securityAnswer":null,"auxClasses":[],"derAttrs":[],"virAttrs":[],"resources":[],"propagationStatuses":[],"relationships":[],"memberships":[],"dynGroups":[],"roles":[],"dynRoles":[],"plainAttrs":[{"schema":"type","readonly":false,"values":["&apos;type a&apos;"]},{"schema":"userId","readonly":false,"values":["&apos;reconciled@syncope.apache.org&apos;"]},{"schema":"fullname","readonly":false,"values":["&apos;reconciled fullname&apos;"]},{"schema":"surname","readonly":false,"values":["&apos;surname&apos;"]}]}'/>
+  <AnyTemplate id="72" syncTask_id="7" anyType_name="GROUP"
+               template='{"@class":"org.apache.syncope.common.lib.to.GroupTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"type":"GROUP","realm":null,"status":null,"name":null,"userOwner":null,"groupOwner":null,"adynMembershipCond":null,"udynMembershipCond":null,"auxClasses":[],"derAttrs":[],"virAttrs":[],"resources":[],"propagationStatuses":[],"plainAttrs":[]}'/>
   <Task DTYPE="NotificationTask" type="NOTIFICATION" id="8" sender="admin@prova.org" subject="Notification for SYNCOPE-81" 
         textBody="NOTIFICATION-81" htmlBody="NOTIFICATION-81" traceLevel="ALL"/>
   <Task DTYPE="SyncTask" type="SYNCHRONIZATION" id="9" name="TestDB2 Task" resource_name="resource-testdb2"
@@ -967,9 +966,9 @@ under the License.
         destinationRealm_id="1" fullReconciliation="1" performCreate="1" performDelete="1" performUpdate="1" syncStatus="0"
         jobClassName="org.apache.syncope.core.provisioning.api.job.SyncJob" unmatchingRule="PROVISION" matchingRule="UPDATE"/>
   <AnyTemplate id="1" syncTask_id="11" anyType_name="USER"
-               template='{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"password":null,"status":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"plainAttrs":[{"schema":"type","readonly":false,"values":["email == &apos;test8@syncope.apache.org&apos;? &apos;TYPE_8&apos;: &apos;TYPE_OTHER&apos;"]}],"derAttrs":[{"schema":"cn","readonly":false,"values":[null]}],"virAttrs":[],"resources":["resource-testdb"],"propagationStatuses":[],"memberships":[{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"groupKey":8,"groupName":null,"plainAttrs":[{"schema":"subscriptionDate","readonly":false,"values":["&apos;2009-08-18T16:33:12.203+0200&apos;"]}],"derAttrs":[],"virAttrs":[]}]}'/>
+               template='{"@class":"org.apache.syncope.common.lib.to.UserTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"type":"USER","realm":null,"status":null,"password":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"securityQuestion":null,"securityAnswer":null,"auxClasses":[],"derAttrs":[],"virAttrs":[{"schema":"virtualReadOnly","readonly":true,"values":[""]}],"resources":["resource-ldap"],"propagationStatuses":[],"roles":[],"dynRoles":[],"relationships":[],"memberships":[],"dynGroups":[],"plainAttrs":[]}'/>
   <AnyTemplate id="2" syncTask_id="11" anyType_name="GROUP"
-               template='{"creator": null,"creationDate": null,"lastModifier": null,"lastChangeDate": null,"key": 0,"name": null,"userOwner": null,"groupOwner": null,"plainAttrs": [], "derAttrs": [],"virAttrs": [],"resources": [],"propagationStatuses": []}'/>
+               template='{"@class":"org.apache.syncope.common.lib.to.GroupTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"type":"GROUP","realm":null,"status":null,"name":null,"userOwner":null,"groupOwner":null,"adynMembershipCond":null,"udynMembershipCond":null,"auxClasses":[],"derAttrs":[],"virAttrs":[],"resources":[],"propagationStatuses":[],"plainAttrs":[{"schema":"show","readonly":false,"values":["true"]}]}'/>
   <SyncTask_actionsClassNames SyncTask_id="11" actionClassName="org.apache.syncope.core.provisioning.java.sync.LDAPMembershipSyncActions"/>
   <Task DTYPE="SyncTask" type="SYNCHRONIZATION" id="12" name="VirAttrCache test" resource_name="resource-csv"
         destinationRealm_id="1" performCreate="0" performUpdate="1" performDelete="0" syncStatus="0" fullReconciliation="1"
@@ -1044,9 +1043,9 @@ under the License.
         destinationRealm_id="1" performCreate="1" performUpdate="1" performDelete="1" syncStatus="1" fullReconciliation="0"
         jobClassName="org.apache.syncope.core.provisioning.api.job.SyncJob" unmatchingRule="PROVISION" matchingRule="UPDATE"/>
   <AnyTemplate id="3" syncTask_id="24" anyType_name="USER"
-               template='{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"password":null,"status":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"plainAttrs":[{"schema":"type","readonly":false,"values":["email == &apos;test8@syncope.apache.org&apos;? &apos;TYPE_8&apos;: &apos;TYPE_OTHER&apos;"]}],"derAttrs":[{"schema":"cn","readonly":false,"values":[null]}],"virAttrs":[],"resources":["resource-testdb"],"propagationStatuses":[],"memberships":[{"creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"groupKey":8,"groupName":null,"plainAttrs":[{"schema":"subscriptionDate","readonly":false,"values":["&apos;2009-08-18T16:33:12.203+0200&apos;"]}],"derAttrs":[],"virAttrs":[]}]}'/>
+               template='{"@class":"org.apache.syncope.common.lib.to.UserTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"type":"USER","realm":null,"status":null,"password":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"securityQuestion":null,"securityAnswer":null,"auxClasses":[],"derAttrs":[],"virAttrs":[],"resources":["resource-testdb"],"propagationStatuses":[],"roles":[],"dynRoles":[],"relationships":[],"memberships":[],"dynGroups":[],"plainAttrs":[{"schema":"firstname","readonly":false,"values":[""]},{"schema":"userId","readonly":false,"values":["&apos;test&apos;"]},{"schema":"fullname","readonly":false,"values":["&apos;test&apos;"]},{"schema":"surname","readonly":false,"values":["&apos;test&apos;"]}]}'/>
   <AnyTemplate id="4" syncTask_id="24" anyType_name="GROUP"
-               template='{"creator": null,"creationDate": null,"lastModifier": null,"lastChangeDate": null,"key": 0,"name": null,"userOwner": null,"groupOwner": null,"plainAttrs": [], "derAttrs": [],"virAttrs": [],"resources": [],"propagationStatuses": []}'/>
+               template='{"@class":"org.apache.syncope.common.lib.to.GroupTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"type":"GROUP","realm":null,"status":null,"name":null,"userOwner":null,"groupOwner":null,"adynMembershipCond":null,"udynMembershipCond":null,"auxClasses":[],"derAttrs":[],"virAttrs":[],"resources":[],"propagationStatuses":[],"plainAttrs":[]}'/>
   <Task DTYPE="SyncTask" type="SYNCHRONIZATION" id="25" name="CSV (unlink matching; ignore unmatching)" resource_name="resource-csv"
         destinationRealm_id="1" performCreate="1" performUpdate="1" performDelete="1" syncStatus="1" fullReconciliation="0"
         jobClassName="org.apache.syncope.core.provisioning.api.job.SyncJob" unmatchingRule="IGNORE" matchingRule="UNLINK"/>

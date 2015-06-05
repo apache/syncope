@@ -23,7 +23,6 @@ import java.util.List;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.Role;
-import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 
 public interface User extends Any<UPlainAttr, UDerAttr, UVirAttr> {
 
@@ -133,7 +132,7 @@ public interface User extends Any<UPlainAttr, UDerAttr, UVirAttr> {
 
     boolean remove(URelationship relationship);
 
-    URelationship getRelationship(AnyObject rightEnd);
+    URelationship getRelationship(Long anyObjectKey);
 
     List<? extends URelationship> getRelationships();
 

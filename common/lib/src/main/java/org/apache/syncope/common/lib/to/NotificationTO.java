@@ -18,21 +18,27 @@
  */
 package org.apache.syncope.common.lib.to;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.apache.syncope.common.lib.AbstractBaseBean;
+import org.apache.syncope.common.lib.jaxb.XmlGenericMapAdapter;
 import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.TraceLevel;
 
 @XmlRootElement(name = "notification")
 @XmlType
+@XmlAccessorType(XmlAccessType.FIELD)
 public class NotificationTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = -6145117115632592612L;
@@ -41,6 +47,8 @@ public class NotificationTO extends AbstractBaseBean {
 
     private final List<String> events = new ArrayList<>();
 
+    @XmlJavaTypeAdapter(XmlGenericMapAdapter.class)
+    @JsonIgnore
     private final Map<String, String> abouts = new HashMap<>();
 
     private String recipients;
@@ -63,6 +71,7 @@ public class NotificationTO extends AbstractBaseBean {
 
     private boolean active;
 
+    @JsonProperty
     public Map<String, String> getAbouts() {
         return abouts;
     }

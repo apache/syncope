@@ -46,7 +46,7 @@ import org.springframework.transaction.annotation.Transactional;
  * Simple action for propagating group memberships to LDAP groups, when the same resource is configured for both users
  * and groups.
  *
- * @see org.apache.syncope.core.sync.impl.LDAPMembershipSyncActions
+ * @see org.apache.syncope.core.provisioning.java.sync.LDAPMembershipSyncActions
  */
 public class LDAPMembershipPropagationActions extends DefaultPropagationActions {
 
@@ -85,7 +85,7 @@ public class LDAPMembershipPropagationActions extends DefaultPropagationActions 
 
                         JexlContext jexlContext = new MapContext();
                         JexlUtils.addFieldsToContext(group, jexlContext);
-                        JexlUtils.addAttrsToContext(group.getPlainAttrs(), jexlContext);
+                        JexlUtils.addPlainAttrsToContext(group.getPlainAttrs(), jexlContext);
                         JexlUtils.addDerAttrsToContext(group.getDerAttrs(), group.getPlainAttrs(), jexlContext);
 
                         String groupConnObjectLinkLink =

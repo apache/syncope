@@ -135,12 +135,13 @@ public class ConnectorServiceImpl extends AbstractServiceImpl implements Connect
         BulkActionResult result = new BulkActionResult();
 
         if (bulkAction.getOperation() == BulkAction.Type.DELETE) {
-            for (String id : bulkAction.getTargets()) {
+            for (String key : bulkAction.getTargets()) {
                 try {
-                    result.add(logic.delete(Long.valueOf(id)).getKey(), BulkActionResult.Status.SUCCESS);
+                    result.getResults().put(
+                            String.valueOf(logic.delete(Long.valueOf(key)).getKey()), BulkActionResult.Status.SUCCESS);
                 } catch (Exception e) {
-                    LOG.error("Error performing delete for connector {}", id, e);
-                    result.add(id, BulkActionResult.Status.FAILURE);
+                    LOG.error("Error performing delete for connector {}", key, e);
+                    result.getResults().put(key, BulkActionResult.Status.FAILURE);
                 }
             }
         }

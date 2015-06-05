@@ -25,10 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.GroupTO;
-import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 
 public final class SearchableFields {
@@ -38,11 +35,7 @@ public final class SearchableFields {
     };
 
     public static List<String> get(final AnyTypeKind anyTypeKind) {
-        return get(anyTypeKind == AnyTypeKind.USER
-                ? UserTO.class
-                : anyTypeKind == AnyTypeKind.GROUP
-                        ? GroupTO.class
-                        : AnyObjectTO.class);
+        return get(anyTypeKind.getToClass());
     }
 
     public static List<String> get(final Class<? extends AnyTO> anyRef) {

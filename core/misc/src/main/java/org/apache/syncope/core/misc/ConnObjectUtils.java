@@ -25,23 +25,21 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.mod.AnyMod;
+import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.MembershipTO;
+import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
-import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.PasswordPolicySpec;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValidationException;
@@ -54,24 +52,13 @@ import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
-import org.apache.syncope.core.persistence.api.entity.VirAttr;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.task.SyncTask;
 import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.apache.syncope.core.provisioning.api.Connector;
-import org.apache.syncope.core.provisioning.api.ConnectorFactory;
-import org.apache.syncope.core.provisioning.api.cache.VirAttrCache;
-import org.apache.syncope.core.provisioning.api.cache.VirAttrCacheValue;
 import org.apache.syncope.core.misc.security.Encryptor;
-import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.misc.jexl.JexlUtils;
-import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
-import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.persistence.api.entity.AnyType;
-import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.task.AnyTemplate;
 import org.identityconnectors.common.Base64;
@@ -79,12 +66,9 @@ import org.identityconnectors.common.security.GuardedByteArray;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
-import org.identityconnectors.framework.common.objects.OperationOptions;
-import org.identityconnectors.framework.common.objects.Uid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -100,9 +84,6 @@ public class ConnObjectUtils {
     private UserDAO userDAO;
 
     @Autowired
-    private AnyObjectDAO anyObjectDAO;
-
-    @Autowired
     private GroupDAO groupDAO;
 
     @Autowired
@@ -114,16 +95,7 @@ public class ConnObjectUtils {
     @Autowired
     private PasswordGenerator pwdGen;
 
-    @Autowired
-    private AnyUtilsFactory anyUtilsFactory;
-
     private final Encryptor encryptor = Encryptor.getInstance();
-
-    /**
-     * Virtual attribute cache.
-     */
-    @Autowired
-    private VirAttrCache virAttrCache;
 
     /**
      * Build a UserTO / GroupTO / AnyObjectTO out of connector object attributes and schema mapping.
@@ -213,6 +185,8 @@ public class ConnObjectUtils {
             return (T) AnyOperations.diff(((UserTO) updated), ((UserTO) original), true);
         } else if (AnyTypeKind.GROUP == anyUtils.getAnyTypeKind()) {
             return (T) AnyOperations.diff(((GroupTO) updated), ((GroupTO) original), true);
+        } else if (AnyTypeKind.ANY_OBJECT == anyUtils.getAnyTypeKind()) {
+            return (T) AnyOperations.diff(((AnyObjectTO) updated), ((AnyObjectTO) original), true);
         }
 
         return null;
@@ -348,12 +322,14 @@ public class ConnObjectUtils {
         AnyTemplate anyTypeTemplate = syncTask.getTemplate(provision.getAnyType());
         if (anyTypeTemplate != null) {
             AnyTO template = anyTypeTemplate.get();
+            fillFromTemplate(anyTO, template);
 
-            if (template.getRealm() != null) {
-                anyTO.setRealm(template.getRealm());
-            }
-
-            if (template instanceof UserTO) {
+            if (template instanceof AnyObjectTO) {
+                fillRelationshipsFromTemplate(((AnyObjectTO) anyTO).getRelationshipMap(),
+                        ((AnyObjectTO) anyTO).getRelationships(), ((AnyObjectTO) template).getRelationships());
+                fillMembershipsFromTemplate(((AnyObjectTO) anyTO).getMembershipMap(),
+                        ((AnyObjectTO) anyTO).getMemberships(), ((AnyObjectTO) template).getMemberships());
+            } else if (template instanceof UserTO) {
                 if (StringUtils.isNotBlank(((UserTO) template).getUsername())) {
                     String evaluated = JexlUtils.evaluate(((UserTO) template).getUsername(), anyTO);
                     if (StringUtils.isNotBlank(evaluated)) {
@@ -367,8 +343,12 @@ public class ConnObjectUtils {
                         ((UserTO) anyTO).setPassword(evaluated);
                     }
                 }
-            }
-            if (template instanceof GroupTO) {
+
+                fillRelationshipsFromTemplate(((UserTO) anyTO).getRelationshipMap(),
+                        ((UserTO) anyTO).getRelationships(), ((UserTO) template).getRelationships());
+                fillMembershipsFromTemplate(((UserTO) anyTO).getMembershipMap(),
+                        ((UserTO) anyTO).getMemberships(), ((UserTO) template).getMemberships());
+            } else if (template instanceof GroupTO) {
                 if (StringUtils.isNotBlank(((GroupTO) template).getName())) {
                     String evaluated = JexlUtils.evaluate(((GroupTO) template).getName(), anyTO);
                     if (StringUtils.isNotBlank(evaluated)) {
@@ -388,12 +368,6 @@ public class ConnObjectUtils {
                         ((GroupTO) anyTO).setGroupOwner(groupOwner.getKey());
                     }
                 }
-            }
-
-            fillFromTemplate(anyTO, template);
-
-            for (String resource : template.getResources()) {
-                anyTO.getResources().add(resource);
             }
         }
 
@@ -467,193 +441,7 @@ public class ConnObjectUtils {
         return connObjectTO;
     }
 
-    /**
-     * Query connected external resources for values to populated virtual attributes associated with the given owner.
-     *
-     * @param any any object
-     */
-    public void retrieveVirAttrValues(final Any<?, ?, ?> any) {
-        ConfigurableApplicationContext context = ApplicationContextProvider.getApplicationContext();
-        ConnectorFactory connFactory = context.getBean(ConnectorFactory.class);
-
-        IntMappingType type = any.getType().getKind() == AnyTypeKind.USER
-                ? IntMappingType.UserVirtualSchema
-                : any.getType().getKind() == AnyTypeKind.GROUP
-                        ? IntMappingType.GroupVirtualSchema
-                        : IntMappingType.AnyVirtualSchema;
-
-        Map<String, ConnectorObject> resources = new HashMap<>();
-
-        // -----------------------
-        // Retrieve virtual attribute values if and only if they have not been retrieved yet
-        // -----------------------
-        for (VirAttr<?> virAttr : any.getVirAttrs()) {
-            // reset value set
-            if (virAttr.getValues().isEmpty()) {
-                retrieveVirAttrValue(any, virAttr, type, resources, connFactory);
-            }
-        }
-        // -----------------------
-    }
-
-    private void retrieveVirAttrValue(
-            final Any<?, ?, ?> any,
-            final VirAttr<?> virAttr,
-            final IntMappingType type,
-            final Map<String, ConnectorObject> externalResources,
-            final ConnectorFactory connFactory) {
-
-        String schemaName = virAttr.getSchema().getKey();
-        VirAttrCacheValue virAttrCacheValue = virAttrCache.get(any.getType().getKey(), any.getKey(), schemaName);
-
-        LOG.debug("Retrieve values for virtual attribute {} ({})", schemaName, type);
-
-        if (virAttrCache.isValidEntry(virAttrCacheValue)) {
-            // cached ...
-            LOG.debug("Values found in cache {}", virAttrCacheValue);
-            virAttr.getValues().clear();
-            virAttr.getValues().addAll(new ArrayList<>(virAttrCacheValue.getValues()));
-        } else {
-            // not cached ...
-            LOG.debug("Need one or more remote connections");
-
-            VirAttrCacheValue toBeCached = new VirAttrCacheValue();
-
-            AnyUtils anyUtils = anyUtilsFactory.getInstance(any);
-            Collection<ExternalResource> targetResources = getTargetResources(virAttr, type, anyUtils, any.getType());
-
-            for (ExternalResource resource : targetResources) {
-                Provision provision = resource.getProvision(any.getType());
-                LOG.debug("Search values into {},{}", resource, provision);
-
-                if (provision != null) {
-                    try {
-                        List<MappingItem> mappings = anyUtils.getMappingItems(provision, MappingPurpose.BOTH);
-
-                        ConnectorObject connectorObject;
-                        if (externalResources.containsKey(resource.getKey())) {
-                            connectorObject = externalResources.get(resource.getKey());
-                        } else {
-                            LOG.debug("Perform connection to {}", resource.getKey());
-                            String connObjectKey = anyUtils.getConnObjectKeyItem(provision) == null
-                                    ? null
-                                    : MappingUtils.getConnObjectKeyValue(any, provision);
-
-                            if (StringUtils.isBlank(connObjectKey)) {
-                                throw new IllegalArgumentException("No ConnObjectKey found for " + resource.getKey());
-                            }
-
-                            Connector connector = connFactory.getConnector(resource);
-
-                            OperationOptions oo =
-                                    connector.getOperationOptions(MappingUtils.getMatchingMappingItems(mappings, type));
-
-                            connectorObject =
-                                    connector.getObject(provision.getObjectClass(), new Uid(connObjectKey), oo);
-                            externalResources.put(resource.getKey(), connectorObject);
-                        }
-
-                        if (connectorObject != null) {
-                            // ask for searched virtual attribute value
-                            Collection<MappingItem> virAttrMappings =
-                                    MappingUtils.getMatchingMappingItems(mappings, schemaName, type);
-
-                            // the same virtual attribute could be mapped with one or more external attribute 
-                            for (MappingItem mapping : virAttrMappings) {
-                                Attribute attribute = connectorObject.getAttributeByName(mapping.getExtAttrName());
-
-                                if (attribute != null && attribute.getValue() != null) {
-                                    for (Object obj : attribute.getValue()) {
-                                        if (obj != null) {
-                                            virAttr.getValues().add(obj.toString());
-                                        }
-                                    }
-                                }
-                            }
-
-                            toBeCached.setResourceValues(resource.getKey(), new HashSet<>(virAttr.getValues()));
-
-                            LOG.debug("Retrieved values {}", virAttr.getValues());
-                        }
-                    } catch (Exception e) {
-                        LOG.error("Error reading connector object from {}", resource.getKey(), e);
-
-                        if (virAttrCacheValue != null) {
-                            toBeCached.forceExpiring();
-                            LOG.debug("Search for a cached value (even expired!) ...");
-                            final Set<String> cachedValues = virAttrCacheValue.getValues(resource.getKey());
-                            if (cachedValues != null) {
-                                LOG.debug("Use cached value {}", cachedValues);
-                                virAttr.getValues().addAll(cachedValues);
-                                toBeCached.setResourceValues(resource.getKey(), new HashSet<>(cachedValues));
-                            }
-                        }
-                    }
-                }
-            }
-
-            virAttrCache.put(any.getType().getKey(), any.getKey(), schemaName, toBeCached);
-        }
-    }
-
-    private Collection<ExternalResource> getTargetResources(
-            final VirAttr<?> attr, final IntMappingType type, final AnyUtils anyUtils, final AnyType anyType) {
-
-        Iterable<? extends ExternalResource> iterable = attr.getOwner() instanceof User
-                ? userDAO.findAllResources((User) attr.getOwner())
-                : attr.getOwner() instanceof AnyObject
-                        ? anyObjectDAO.findAllResources((AnyObject) attr.getOwner())
-                        : attr.getOwner() instanceof Group
-                                ? ((Group) attr.getOwner()).getResources()
-                                : Collections.<ExternalResource>emptySet();
-        return getTargetResources(attr, type, anyUtils, iterable, anyType);
-    }
-
-    private Collection<ExternalResource> getTargetResources(final VirAttr<?> attr, final IntMappingType type,
-            final AnyUtils anyUtils, final Iterable<? extends ExternalResource> ownerResources, final AnyType anyType) {
-
-        return CollectionUtils.select(ownerResources, new Predicate<ExternalResource>() {
-
-            @Override
-            public boolean evaluate(final ExternalResource resource) {
-                return resource.getProvision(anyType) != null
-                        && !MappingUtils.getMatchingMappingItems(
-                                anyUtils.getMappingItems(resource.getProvision(anyType), MappingPurpose.BOTH),
-                                attr.getSchema().getKey(), type).isEmpty();
-            }
-        });
-    }
-
-    private void fillFromTemplate(final AnyTO anyTO, final AnyTO template) {
-        Map<String, AttrTO> currentAttrMap = anyTO.getPlainAttrMap();
-        for (AttrTO templateAttr : template.getPlainAttrs()) {
-            if (templateAttr.getValues() != null && !templateAttr.getValues().isEmpty()
-                    && (!currentAttrMap.containsKey(templateAttr.getSchema())
-                    || currentAttrMap.get(templateAttr.getSchema()).getValues().isEmpty())) {
-
-                anyTO.getPlainAttrs().add(evaluateAttrTemplate(anyTO, templateAttr));
-            }
-        }
-
-        currentAttrMap = anyTO.getDerAttrMap();
-        for (AttrTO templateDerAttr : template.getDerAttrs()) {
-            if (!currentAttrMap.containsKey(templateDerAttr.getSchema())) {
-                anyTO.getDerAttrs().add(templateDerAttr);
-            }
-        }
-
-        currentAttrMap = anyTO.getVirAttrMap();
-        for (AttrTO templateVirAttr : template.getVirAttrs()) {
-            if (templateVirAttr.getValues() != null && !templateVirAttr.getValues().isEmpty()
-                    && (!currentAttrMap.containsKey(templateVirAttr.getSchema())
-                    || currentAttrMap.get(templateVirAttr.getSchema()).getValues().isEmpty())) {
-
-                anyTO.getVirAttrs().add(evaluateAttrTemplate(anyTO, templateVirAttr));
-            }
-        }
-    }
-
-    private AttrTO evaluateAttrTemplate(final AnyTO anyTO, final AttrTO template) {
+    private AttrTO evaluateAttrFromTemplate(final AnyTO anyTO, final AttrTO template) {
         AttrTO result = new AttrTO();
         result.setSchema(template.getSchema());
 
@@ -667,6 +455,65 @@ public class ConnObjectUtils {
         }
 
         return result;
+    }
+
+    private void fillFromTemplate(final AnyTO anyTO, final AnyTO template) {
+        if (template.getRealm() != null) {
+            anyTO.setRealm(template.getRealm());
+        }
+
+        Map<String, AttrTO> currentAttrMap = anyTO.getPlainAttrMap();
+        for (AttrTO templatePlainAttr : template.getPlainAttrs()) {
+            if (!templatePlainAttr.getValues().isEmpty()
+                    && (!currentAttrMap.containsKey(templatePlainAttr.getSchema())
+                    || currentAttrMap.get(templatePlainAttr.getSchema()).getValues().isEmpty())) {
+
+                anyTO.getPlainAttrs().add(evaluateAttrFromTemplate(anyTO, templatePlainAttr));
+            }
+        }
+
+        currentAttrMap = anyTO.getDerAttrMap();
+        for (AttrTO templateDerAttr : template.getDerAttrs()) {
+            if (!currentAttrMap.containsKey(templateDerAttr.getSchema())) {
+                anyTO.getDerAttrs().add(templateDerAttr);
+            }
+        }
+
+        currentAttrMap = anyTO.getVirAttrMap();
+        for (AttrTO templateVirAttr : template.getVirAttrs()) {
+            if (!templateVirAttr.getValues().isEmpty()
+                    && (!currentAttrMap.containsKey(templateVirAttr.getSchema())
+                    || currentAttrMap.get(templateVirAttr.getSchema()).getValues().isEmpty())) {
+
+                anyTO.getVirAttrs().add(evaluateAttrFromTemplate(anyTO, templateVirAttr));
+            }
+        }
+
+        for (String resource : template.getResources()) {
+            anyTO.getResources().add(resource);
+        }
+
+        anyTO.getAuxClasses().addAll(template.getAuxClasses());
+    }
+
+    private void fillRelationshipsFromTemplate(final Map<Long, RelationshipTO> anyRelMap,
+            final List<RelationshipTO> anyRels, final List<RelationshipTO> templateRels) {
+
+        for (RelationshipTO memb : templateRels) {
+            if (!anyRelMap.containsKey(memb.getRightKey())) {
+                anyRels.add(memb);
+            }
+        }
+    }
+
+    private void fillMembershipsFromTemplate(final Map<Long, MembershipTO> anyMembMap,
+            final List<MembershipTO> anyMembs, final List<MembershipTO> templateMembs) {
+
+        for (MembershipTO memb : templateMembs) {
+            if (!anyMembMap.containsKey(memb.getRightKey())) {
+                anyMembs.add(memb);
+            }
+        }
     }
 
     /**

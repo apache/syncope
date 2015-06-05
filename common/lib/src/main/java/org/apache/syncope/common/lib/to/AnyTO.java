@@ -20,6 +20,7 @@ package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,9 +31,14 @@ import java.util.Map;
 import java.util.Set;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
 
+@XmlRootElement(name = "any")
 @XmlType
+@XmlSeeAlso({ UserTO.class, GroupTO.class, AnyObjectTO.class })
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 public abstract class AnyTO extends ConnObjectTO {
 
     private static final long serialVersionUID = -754311920679872084L;
@@ -45,6 +51,8 @@ public abstract class AnyTO extends ConnObjectTO {
 
     private String status;
 
+    private final List<String> auxClasses = new ArrayList<>();
+
     private final Set<AttrTO> derAttrs = new LinkedHashSet<>();
 
     private final Set<AttrTO> virAttrs = new LinkedHashSet<>();
@@ -52,12 +60,6 @@ public abstract class AnyTO extends ConnObjectTO {
     private final Set<String> resources = new HashSet<>();
 
     private final List<PropagationStatus> propagationStatusTOs = new ArrayList<>();
-
-    private final List<RelationshipTO> relationships = new ArrayList<>();
-
-    private final List<MembershipTO> memberships = new ArrayList<>();
-
-    private final List<Long> dynGroups = new ArrayList<>();
 
     public long getKey() {
         return key;
@@ -89,6 +91,13 @@ public abstract class AnyTO extends ConnObjectTO {
 
     public void setStatus(final String status) {
         this.status = status;
+    }
+
+    @XmlElementWrapper(name = "auxClasses")
+    @XmlElement(name = "class")
+    @JsonProperty("auxClasses")
+    public List<String> getAuxClasses() {
+        return auxClasses;
     }
 
     @XmlElementWrapper(name = "derAttrs")
@@ -137,44 +146,6 @@ public abstract class AnyTO extends ConnObjectTO {
     @JsonProperty("propagationStatuses")
     public List<PropagationStatus> getPropagationStatusTOs() {
         return propagationStatusTOs;
-    }
-
-    @XmlElementWrapper(name = "relationships")
-    @XmlElement(name = "relationship")
-    @JsonProperty("relationships")
-    public List<RelationshipTO> getRelationships() {
-        return relationships;
-    }
-
-    @XmlElementWrapper(name = "memberships")
-    @XmlElement(name = "membership")
-    @JsonProperty("memberships")
-    public List<MembershipTO> getMemberships() {
-        return memberships;
-    }
-
-    @JsonIgnore
-    public Map<Long, MembershipTO> getMembershipMap() {
-        Map<Long, MembershipTO> result;
-
-        if (getMemberships() == null) {
-            result = Collections.emptyMap();
-        } else {
-            result = new HashMap<>(getMemberships().size());
-            for (MembershipTO membership : getMemberships()) {
-                result.put(membership.getRightKey(), membership);
-            }
-            result = Collections.unmodifiableMap(result);
-        }
-
-        return result;
-    }
-
-    @XmlElementWrapper(name = "dynGroups")
-    @XmlElement(name = "role")
-    @JsonProperty("dynGroups")
-    public List<Long> getDynGroups() {
-        return dynGroups;
     }
 
 }

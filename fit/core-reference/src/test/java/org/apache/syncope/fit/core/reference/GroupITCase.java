@@ -44,6 +44,8 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.mod.ReferenceMod;
 import org.apache.syncope.common.lib.mod.GroupMod;
+import org.apache.syncope.common.lib.to.AnyTypeClassTO;
+import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.MappingItemTO;
@@ -418,6 +420,7 @@ public class GroupITCase extends AbstractITCase {
     public void deprovision() {
         GroupTO actual = createGroup(getSampleTO("deprovision"));
         assertNotNull(actual);
+        assertNotNull(actual.getKey());
 
         assertNotNull(resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), actual.getKey()));
 
@@ -507,8 +510,8 @@ public class GroupITCase extends AbstractITCase {
     }
 
     @Test
-    public void createWithMandatorySchemaNotTemplate() {
-        // 1. create a group mandatory schema
+    public void createWithMandatorySchema() {
+        // 1. create a mandatory schema
         PlainSchemaTO badge = new PlainSchemaTO();
         badge.setKey("badge" + getUUIDString());
         badge.setMandatoryCondition("true");
@@ -521,24 +524,40 @@ public class GroupITCase extends AbstractITCase {
         assertNotNull(groupTO);
         assertFalse(groupTO.getPlainAttrMap().containsKey(badge.getKey()));
 
-        // 3. add a template for badge to the group just created - 
-        // failure since no values are provided and it is mandatory
-        GroupMod groupMod = new GroupMod();
-        groupMod.setKey(groupTO.getKey());
+        // 3. add the new mandatory schema to the default group type
+        AnyTypeTO type = anyTypeService.read(AnyTypeKind.GROUP.name());
+        String typeClassName = type.getClasses().get(0);
+        AnyTypeClassTO typeClass = anyTypeClassService.read(typeClassName);
+        typeClass.getPlainSchemas().add(badge.getKey());
+        anyTypeClassService.update(typeClassName, typeClass);
+        typeClass = anyTypeClassService.read(typeClassName);
+        assertTrue(typeClass.getPlainSchemas().contains(badge.getKey()));
 
         try {
-            updateGroup(groupMod);
-            fail();
-        } catch (SyncopeClientException e) {
-            assertEquals(ClientExceptionType.RequiredValuesMissing, e.getType());
+            // 4. update group: failure since no values are provided and it is mandatory
+            GroupMod groupMod = new GroupMod();
+            groupMod.setKey(groupTO.getKey());
+
+            try {
+                updateGroup(groupMod);
+                fail();
+            } catch (SyncopeClientException e) {
+                assertEquals(ClientExceptionType.RequiredValuesMissing, e.getType());
+            }
+
+            // 5. also add an actual attribute for badge - it will work        
+            groupMod.getPlainAttrsToUpdate().add(attrMod(badge.getKey(), "xxxxxxxxxx"));
+
+            groupTO = updateGroup(groupMod);
+            assertNotNull(groupTO);
+            assertTrue(groupTO.getPlainAttrMap().containsKey(badge.getKey()));
+        } finally {
+            // restore the original group class
+            typeClass.getPlainSchemas().remove(badge.getKey());
+            anyTypeClassService.update(typeClassName, typeClass);
+            typeClass = anyTypeClassService.read(typeClassName);
+            assertFalse(typeClass.getPlainSchemas().contains(badge.getKey()));
         }
-
-        // 4. also add an actual attribute for badge - it will work        
-        groupMod.getPlainAttrsToUpdate().add(attrMod(badge.getKey(), "xxxxxxxxxx"));
-
-        groupTO = updateGroup(groupMod);
-        assertNotNull(groupTO);
-        assertTrue(groupTO.getPlainAttrMap().containsKey(badge.getKey()));
     }
 
     @Test

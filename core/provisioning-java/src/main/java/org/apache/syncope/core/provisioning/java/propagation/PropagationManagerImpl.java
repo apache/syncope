@@ -30,7 +30,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.mod.AttrMod;
 import org.apache.syncope.common.lib.mod.UserMod;
 import org.apache.syncope.common.lib.to.AttrTO;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
@@ -45,7 +44,6 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
-import org.apache.syncope.core.provisioning.java.VirAttrHandler;
 import org.apache.syncope.core.misc.ConnObjectUtils;
 import org.apache.syncope.core.misc.MappingUtils;
 import org.apache.syncope.core.misc.jexl.JexlUtils;
@@ -57,6 +55,7 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
+import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
@@ -71,9 +70,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(rollbackFor = { Throwable.class })
 public class PropagationManagerImpl implements PropagationManager {
 
-    /**
-     * Logger.
-     */
     protected static final Logger LOG = LoggerFactory.getLogger(PropagationManager.class);
 
     protected AnyObjectDAO anyObjectDAO;
@@ -129,7 +125,7 @@ public class PropagationManagerImpl implements PropagationManager {
 
         AnyObject anyObject = anyObjectDAO.authFind(key);
         if (vAttrs != null && !vAttrs.isEmpty()) {
-            virAttrHandler.fillVirtual(anyObject, vAttrs, anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT));
+            virAttrHandler.fillVirtual(anyObject, vAttrs);
         }
 
         return getCreateTaskIds(anyObject, null, null, propByRes, noPropResourceNames);
@@ -146,7 +142,7 @@ public class PropagationManagerImpl implements PropagationManager {
 
         User user = userDAO.authFind(key);
         if (vAttrs != null && !vAttrs.isEmpty()) {
-            virAttrHandler.fillVirtual(user, vAttrs, anyUtilsFactory.getInstance(AnyTypeKind.USER));
+            virAttrHandler.fillVirtual(user, vAttrs);
         }
         return getCreateTaskIds(user, password, enable, propByRes, noPropResourceNames);
     }
@@ -169,7 +165,7 @@ public class PropagationManagerImpl implements PropagationManager {
 
         Group group = groupDAO.authFind(key);
         if (vAttrs != null && !vAttrs.isEmpty()) {
-            virAttrHandler.fillVirtual(group, vAttrs, anyUtilsFactory.getInstance(AnyTypeKind.GROUP));
+            virAttrHandler.fillVirtual(group, vAttrs);
         }
 
         return getCreateTaskIds(group, null, null, propByRes, noPropResourceNames);
@@ -287,11 +283,13 @@ public class PropagationManagerImpl implements PropagationManager {
             final Set<String> vAttrsToBeRemoved, final Set<AttrMod> vAttrsToBeUpdated,
             final PropagationByResource propByRes, final Collection<String> noPropResourceNames) {
 
-        PropagationByResource localPropByRes = virAttrHandler.fillVirtual(any, vAttrsToBeRemoved == null
-                ? Collections.<String>emptySet()
-                : vAttrsToBeRemoved, vAttrsToBeUpdated == null
+        PropagationByResource localPropByRes = virAttrHandler.fillVirtual(
+                any,
+                vAttrsToBeRemoved == null
+                        ? Collections.<String>emptySet()
+                        : vAttrsToBeRemoved, vAttrsToBeUpdated == null
                         ? Collections.<AttrMod>emptySet()
-                        : vAttrsToBeUpdated, anyUtilsFactory.getInstance(any));
+                        : vAttrsToBeUpdated);
 
         if (propByRes == null || propByRes.isEmpty()) {
             localPropByRes.addAll(ResourceOperation.UPDATE, any.getResourceNames());
@@ -419,7 +417,7 @@ public class PropagationManagerImpl implements PropagationManager {
         if (!propByRes.get(ResourceOperation.CREATE).isEmpty()
                 && vAttrsToBeRemoved != null && vAttrsToBeUpdated != null) {
 
-            connObjectUtils.retrieveVirAttrValues(any);
+            virAttrHandler.retrieveVirAttrValues(any);
 
             // update vAttrsToBeUpdated as well
             for (VirAttr<?> virAttr : any.getVirAttrs()) {

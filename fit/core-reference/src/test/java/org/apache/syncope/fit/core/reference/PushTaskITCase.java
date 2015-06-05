@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.fit.core.reference;
 
+import static org.apache.syncope.fit.core.reference.AbstractITCase.anyTypeClassService;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -31,6 +32,7 @@ import java.util.Set;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
+import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.MappingItemTO;
 import org.apache.syncope.common.lib.to.MappingTO;
 import org.apache.syncope.common.lib.to.NotificationTO;
@@ -120,12 +122,12 @@ public class PushTaskITCase extends AbstractTaskITCase {
     public void pushMatchingUnmatchingGroups() {
         assertFalse(groupService.read(3L).getResources().contains(RESOURCE_NAME_LDAP));
 
-        execSyncTask(23L, 50, false);
+        execProvisioningTask(23L, 50, false);
 
         assertNotNull(resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), 3L));
         assertTrue(groupService.read(3L).getResources().contains(RESOURCE_NAME_LDAP));
 
-        execSyncTask(23L, 50, false);
+        execProvisioningTask(23L, 50, false);
 
         assertNotNull(resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), 3L));
         assertFalse(groupService.read(3L).getResources().contains(RESOURCE_NAME_LDAP));
@@ -144,17 +146,17 @@ public class PushTaskITCase extends AbstractTaskITCase {
         // ------------------------------------------
         // Unmatching --> Assign --> dryRuyn
         // ------------------------------------------
-        execSyncTask(13L, 50, true);
+        execProvisioningTask(13L, 50, true);
         assertEquals(0, jdbcTemplate.queryForList("SELECT ID FROM test2 WHERE ID='vivaldi'").size());
         assertFalse(userService.read(3L).getResources().contains(RESOURCE_NAME_TESTDB2));
         // ------------------------------------------
 
-        final Set<Long> pushTaskIds = new HashSet<>();
+        Set<Long> pushTaskIds = new HashSet<>();
         pushTaskIds.add(13L);
         pushTaskIds.add(14L);
         pushTaskIds.add(15L);
         pushTaskIds.add(16L);
-        execSyncTasks(pushTaskIds, 50, false);
+        execProvisioningTasks(pushTaskIds, 50, false);
 
         // ------------------------------------------
         // Unatching --> Ignore
@@ -199,17 +201,17 @@ public class PushTaskITCase extends AbstractTaskITCase {
         // ------------------------------------------
         // Matching --> Deprovision --> dryRuyn
         // ------------------------------------------
-        execSyncTask(19L, 50, true);
+        execProvisioningTask(19L, 50, true);
         assertTrue(userService.read(1L).getResources().contains(RESOURCE_NAME_TESTDB2));
         assertEquals(1, jdbcTemplate.queryForList("SELECT ID FROM test2 WHERE ID='rossini'").size());
         // ------------------------------------------
 
-        final Set<Long> pushTaskIds = new HashSet<>();
-        pushTaskIds.add(18L);
-        pushTaskIds.add(19L);
-        pushTaskIds.add(16L);
+        Set<Long> pushTaskKeys = new HashSet<>();
+        pushTaskKeys.add(18L);
+        pushTaskKeys.add(19L);
+        pushTaskKeys.add(16L);
 
-        execSyncTasks(pushTaskIds, 50, false);
+        execProvisioningTasks(pushTaskKeys, 50, false);
 
         // ------------------------------------------
         // Matching --> Deprovision && Ignore
@@ -230,16 +232,16 @@ public class PushTaskITCase extends AbstractTaskITCase {
         // ------------------------------------------
         // Matching --> Link
         // ------------------------------------------
-        execSyncTask(20L, 50, false);
+        execProvisioningTask(20L, 50, false);
         assertTrue(userService.read(2L).getResources().contains(RESOURCE_NAME_TESTDB2));
         assertEquals(1, jdbcTemplate.queryForList("SELECT ID FROM test2 WHERE ID='verdi'").size());
         // ------------------------------------------
 
-        pushTaskIds.clear();
-        pushTaskIds.add(21L);
-        pushTaskIds.add(22L);
+        pushTaskKeys.clear();
+        pushTaskKeys.add(21L);
+        pushTaskKeys.add(22L);
 
-        execSyncTasks(pushTaskIds, 50, false);
+        execProvisioningTasks(pushTaskKeys, 50, false);
 
         // ------------------------------------------
         // Matching --> Unlink && Update
@@ -257,15 +259,21 @@ public class PushTaskITCase extends AbstractTaskITCase {
         schemaTO.setType(AttrSchemaType.String);
         schemaTO.setMandatoryCondition("true");
 
-        PlainSchemaTO newPlainSchemaTO = createSchema(SchemaType.PLAIN, schemaTO);
-        assertEquals(schemaTO, newPlainSchemaTO);
+        schemaTO = createSchema(SchemaType.PLAIN, schemaTO);
+        assertNotNull(schemaTO);
+
+        AnyTypeClassTO typeClass = new AnyTypeClassTO();
+        typeClass.setKey("SYNCOPE-598");
+        typeClass.getPlainSchemas().add(schemaTO.getKey());
+        anyTypeClassService.create(typeClass);
 
         // create a new sample group
         GroupTO groupTO = new GroupTO();
         groupTO.setName("all" + getUUIDString());
         groupTO.setRealm("/even");
+        groupTO.getAuxClasses().add(typeClass.getKey());
 
-        groupTO.getPlainAttrs().add(attrTO(newPlainSchemaTO.getKey(), "all"));
+        groupTO.getPlainAttrs().add(attrTO(schemaTO.getKey(), "all"));
 
         groupTO = createGroup(groupTO);
         assertNotNull(groupTO);
@@ -277,29 +285,28 @@ public class PushTaskITCase extends AbstractTaskITCase {
             // Create resource ad-hoc
             ResourceTO resourceTO = new ResourceTO();
             resourceTO.setKey(resourceName);
-            resourceTO.setConnectorId(105L);
+            resourceTO.setConnector(105L);
 
             ProvisionTO provisionTO = new ProvisionTO();
             provisionTO.setAnyType(AnyTypeKind.GROUP.name());
             provisionTO.setObjectClass(ObjectClass.GROUP_NAME);
             resourceTO.getProvisions().add(provisionTO);
 
-            MappingTO rmapping = new MappingTO();
-            provisionTO.setMapping(rmapping);
+            MappingTO mapping = new MappingTO();
+            provisionTO.setMapping(mapping);
 
             MappingItemTO item = new MappingItemTO();
             item.setIntMappingType(IntMappingType.GroupPlainSchema);
             item.setExtAttrName("cn");
-            item.setIntAttrName(newPlainSchemaTO.getKey());
+            item.setIntAttrName(schemaTO.getKey());
             item.setConnObjectKey(true);
             item.setPurpose(MappingPurpose.BOTH);
-            rmapping.setConnObjectKeyItem(item);
+            mapping.setConnObjectKeyItem(item);
 
-            rmapping.setConnObjectLink("'cn=' + " + newPlainSchemaTO.getKey() + " + ',ou=groups,o=isp'");
+            mapping.setConnObjectLink("'cn=' + " + schemaTO.getKey() + " + ',ou=groups,o=isp'");
 
             Response response = resourceService.create(resourceTO);
             newResourceTO = getObject(response.getLocation(), ResourceService.class, ResourceTO.class);
-
             assertNotNull(newResourceTO);
             assertNull(newResourceTO.getProvision(AnyTypeKind.USER.name()));
             assertNotNull(newResourceTO.getProvision(AnyTypeKind.GROUP.name()).getMapping());
@@ -316,11 +323,10 @@ public class PushTaskITCase extends AbstractTaskITCase {
 
             response = taskService.create(task);
             PushTaskTO push = getObject(response.getLocation(), TaskService.class, PushTaskTO.class);
-
             assertNotNull(push);
 
             // execute the new task
-            TaskExecTO pushExec = execSyncTask(push.getKey(), 50, false);
+            TaskExecTO pushExec = execProvisioningTask(push.getKey(), 50, false);
             assertTrue(PropagationTaskExecStatus.valueOf(pushExec.getStatus()).isSuccessful());
         } finally {
             groupService.delete(groupTO.getKey());
@@ -332,7 +338,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void issueSYNCOPE648() {
-        //1. Create Push Task
+        // 1. Create Push Task
         PushTaskTO task = new PushTaskTO();
         task.setName("Test create Push");
         task.setResource(RESOURCE_NAME_LDAP);
@@ -343,8 +349,8 @@ public class PushTaskITCase extends AbstractTaskITCase {
         task.setMatchingRule(MatchingRule.IGNORE);
         task.setUnmatchingRule(UnmatchingRule.IGNORE);
 
-        final Response response = taskService.create(task);
-        final PushTaskTO actual = getObject(response.getLocation(), TaskService.class, PushTaskTO.class);
+        Response response = taskService.create(task);
+        PushTaskTO actual = getObject(response.getLocation(), TaskService.class, PushTaskTO.class);
         assertNotNull(actual);
 
         // 2. Create notification
@@ -368,7 +374,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
         notification = getObject(responseNotification.getLocation(), NotificationService.class, NotificationTO.class);
         assertNotNull(notification);
 
-        execSyncTask(actual.getKey(), 50, false);
+        execProvisioningTask(actual.getKey(), 50, false);
 
         NotificationTaskTO taskTO = findNotificationTaskBySender("syncope648@syncope.apache.org");
         assertNotNull(taskTO);

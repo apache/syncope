@@ -87,7 +87,9 @@ public class JPAAnyTemplate extends AbstractEntity<Long> implements AnyTemplate 
                 ? anyType == null
                         ? null
                         : new JPAAnyUtilsFactory().getInstance(anyType.getKind()).newAnyTO()
-                : POJOHelper.deserialize(template, AnyTO.class);
+                : anyType == null
+                        ? null
+                        : POJOHelper.deserialize(template, anyType.getKind().getToClass());
     }
 
     @Override

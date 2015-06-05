@@ -35,6 +35,10 @@ public abstract class AnyMod extends AbstractBaseBean {
 
     private String realm;
 
+    protected final Set<String> auxClassesToAdd = new HashSet<>();
+
+    protected final Set<String> auxClassesToRemove = new HashSet<>();
+
     protected final Set<AttrMod> plainAttrsToUpdate = new HashSet<>();
 
     protected final Set<String> plainAttrsToRemove = new HashSet<>();
@@ -65,6 +69,20 @@ public abstract class AnyMod extends AbstractBaseBean {
 
     public void setRealm(final String realm) {
         this.realm = realm;
+    }
+
+    @XmlElementWrapper(name = "auxClassesToAdd")
+    @XmlElement(name = "class")
+    @JsonProperty("auxClassesToAdd")
+    public Set<String> getAuxClassesToAdd() {
+        return auxClassesToAdd;
+    }
+
+    @XmlElementWrapper(name = "auxClassesToRemove")
+    @XmlElement(name = "class")
+    @JsonProperty("auxClassesToRemove")
+    public Set<String> getAuxClassesToRemove() {
+        return auxClassesToRemove;
     }
 
     @XmlElementWrapper(name = "plainAttrsToRemove")

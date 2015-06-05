@@ -89,7 +89,8 @@ public abstract class AbstractAnyDAO<A extends Any<?, ?, ?>> extends AbstractDAO
 
         A any = find(key);
         if (any == null) {
-            throw new NotFoundException("Any " + key);
+            throw new NotFoundException(StringUtils.substringBefore(
+                    StringUtils.substringAfter(getClass().getSimpleName(), "JPA"), "DAO") + " " + key);
         }
 
         securityChecks(any);

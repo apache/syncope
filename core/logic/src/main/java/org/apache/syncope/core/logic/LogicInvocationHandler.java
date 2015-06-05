@@ -34,9 +34,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Aspect
 public class LogicInvocationHandler {
 
-    /**
-     * Logger.
-     */
     private static final Logger LOG = LoggerFactory.getLogger(LogicInvocationHandler.class);
 
     @Autowired
@@ -47,16 +44,16 @@ public class LogicInvocationHandler {
 
     @Around("execution(* org.apache.syncope.core.logic.AbstractLogic+.*(..))")
     public Object around(final ProceedingJoinPoint joinPoint) throws Throwable {
-        final Class<?> clazz = joinPoint.getTarget().getClass();
+        Class<?> clazz = joinPoint.getTarget().getClass();
 
-        final Object[] input = joinPoint.getArgs();
+        Object[] input = joinPoint.getArgs();
 
-        final String category = clazz.getSimpleName();
+        String category = clazz.getSimpleName();
 
-        final MethodSignature ms = (MethodSignature) joinPoint.getSignature();
+        MethodSignature ms = (MethodSignature) joinPoint.getSignature();
         Method method = ms.getMethod();
 
-        final String event = joinPoint.getSignature().getName();
+        String event = joinPoint.getSignature().getName();
 
         AuditElements.Result result = null;
         Object output = null;

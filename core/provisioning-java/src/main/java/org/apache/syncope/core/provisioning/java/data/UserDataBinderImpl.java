@@ -32,6 +32,7 @@ import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.mod.UserMod;
 import org.apache.syncope.common.lib.to.MembershipTO;
+import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
@@ -49,7 +50,9 @@ import org.apache.syncope.core.misc.security.Encryptor;
 import org.apache.syncope.core.misc.spring.BeanUtils;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.entity.Role;
+import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
+import org.apache.syncope.core.persistence.api.entity.user.URelationship;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,9 +61,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(rollbackFor = { Throwable.class })
 public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDataBinder {
 
-    private static final String[] IGNORE_USER_PROPERTIES = {
-        "realm", "roles", "memberships", "plainAttrs", "derAttrs", "virAttrs", "resources",
-        "securityQuestion", "securityAnswer"
+    private static final String[] IGNORE_PROPERTIES = {
+        "type", "realm", "auxClasses", "roles", "dynRoles", "relationships", "memberships", "dynGroups",
+        "plainAttrs", "derAttrs", "virAttrs", "resources", "securityQuestion", "securityAnswer"
     };
 
     @Autowired
@@ -141,6 +144,29 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                 LOG.warn("Ignoring unknown role with id {}", roleKey);
             } else {
                 user.add(role);
+            }
+        }
+
+        // relationships
+        for (RelationshipTO relationshipTO : userTO.getRelationships()) {
+            AnyObject anyObject = anyObjectDAO.find(relationshipTO.getRightKey());
+
+            if (anyObject == null) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Ignoring invalid anyObject " + relationshipTO.getRightKey());
+                }
+            } else {
+                URelationship relationship = null;
+                if (user.getKey() != null) {
+                    relationship = user.getRelationship(anyObject.getKey());
+                }
+                if (relationship == null) {
+                    relationship = entityFactory.newEntity(URelationship.class);
+                    relationship.setRightEnd(anyObject);
+                    relationship.setLeftEnd(user);
+
+                    user.add(relationship);
+                }
             }
         }
 
@@ -266,11 +292,44 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         // attributes, derived attributes, virtual attributes and resources
         propByRes.merge(fill(user, userMod, anyUtilsFactory.getInstance(AnyTypeKind.USER), scce));
 
-        // store the group ids of membership required to be added
-        Set<Long> membershipToBeAddedGroupKeys = new HashSet<>(userMod.getMembershipsToAdd());
+        Set<String> toBeDeprovisioned = new HashSet<>();
+        Set<String> toBeProvisioned = new HashSet<>();
 
-        final Set<String> toBeDeprovisioned = new HashSet<>();
-        final Set<String> toBeProvisioned = new HashSet<>();
+        // relationships to be removed
+        for (Long anyObjectKey : userMod.getRelationshipsToRemove()) {
+            LOG.debug("Relationship to be removed for any object {}", anyObjectKey);
+
+            URelationship relationship = user.getRelationship(anyObjectKey);
+            if (relationship == null) {
+                LOG.warn("Invalid anyObject key specified for relationship to be removed: {}", anyObjectKey);
+            } else {
+                if (!userMod.getRelationshipsToAdd().contains(anyObjectKey)) {
+                    user.remove(relationship);
+                    toBeDeprovisioned.addAll(relationship.getRightEnd().getResourceNames());
+                }
+            }
+        }
+
+        // relationships to be added
+        for (Long anyObjectKey : userMod.getRelationshipsToAdd()) {
+            LOG.debug("Relationship to be added for any object {}", anyObjectKey);
+
+            AnyObject otherEnd = anyObjectDAO.find(anyObjectKey);
+            if (otherEnd == null) {
+                LOG.debug("Ignoring invalid any object {}", anyObjectKey);
+            } else {
+                URelationship relationship = user.getRelationship(otherEnd.getKey());
+                if (relationship == null) {
+                    relationship = entityFactory.newEntity(URelationship.class);
+                    relationship.setRightEnd(otherEnd);
+                    relationship.setLeftEnd(user);
+
+                    user.add(relationship);
+
+                    toBeProvisioned.addAll(otherEnd.getResourceNames());
+                }
+            }
+        }
 
         // memberships to be removed
         for (Long groupKey : userMod.getMembershipsToRemove()) {
@@ -278,11 +337,10 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
             UMembership membership = user.getMembership(groupKey);
             if (membership == null) {
-                LOG.warn("Invalid group key specified for membership to be removed: {}", groupKey);
+                LOG.debug("Invalid group key specified for membership to be removed: {}", groupKey);
             } else {
-                if (membershipToBeAddedGroupKeys.contains(membership.getRightEnd().getKey())) {
+                if (!userMod.getMembershipsToAdd().contains(groupKey)) {
                     user.remove(membership);
-                } else {
                     toBeDeprovisioned.addAll(membership.getRightEnd().getResourceNames());
                 }
             }
@@ -312,10 +370,8 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         propByRes.addAll(ResourceOperation.DELETE, toBeDeprovisioned);
         propByRes.addAll(ResourceOperation.UPDATE, toBeProvisioned);
 
-        /**
-         * In case of new memberships all the current resources have to be updated in order to propagate new group and
-         * membership attribute values.
-         */
+        // In case of new memberships all current resources need to be updated in order to propagate new group
+        // attribute values.
         if (!toBeDeprovisioned.isEmpty() || !toBeProvisioned.isEmpty()) {
             currentResources.removeAll(toBeDeprovisioned);
             propByRes.addAll(ResourceOperation.UPDATE, currentResources);
@@ -340,25 +396,43 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
     public UserTO getUserTO(final User user) {
         UserTO userTO = new UserTO();
 
-        BeanUtils.copyProperties(user, userTO, IGNORE_USER_PROPERTIES);
+        BeanUtils.copyProperties(user, userTO, IGNORE_PROPERTIES);
 
         if (user.getSecurityQuestion() != null) {
             userTO.setSecurityQuestion(user.getSecurityQuestion().getKey());
         }
 
-        connObjectUtils.retrieveVirAttrValues(user);
-        fillTO(userTO, user.getRealm().getFullPath(),
+        virAttrHander.retrieveVirAttrValues(user);
+        fillTO(userTO, user.getRealm().getFullPath(), user.getAuxClasses(),
                 user.getPlainAttrs(), user.getDerAttrs(), user.getVirAttrs(), userDAO.findAllResources(user));
 
-        for (UMembership membership : user.getMemberships()) {
-            MembershipTO membershipTO = new MembershipTO();
+        // roles
+        CollectionUtils.collect(user.getRoles(), new Transformer<Role, Long>() {
 
-            membershipTO.setKey(membership.getKey());
-            membershipTO.setRightKey(membership.getRightEnd().getKey());
-            membershipTO.setGroupName(membership.getRightEnd().getName());
+            @Override
+            public Long transform(final Role role) {
+                return role.getKey();
+            }
+        }, userTO.getRoles());
 
-            userTO.getMemberships().add(membershipTO);
-        }
+        // relationships
+        CollectionUtils.collect(user.getRelationships(), new Transformer<URelationship, RelationshipTO>() {
+
+            @Override
+            public RelationshipTO transform(final URelationship relationship) {
+                return UserDataBinderImpl.this.getRelationshipTO(relationship);
+            }
+
+        }, userTO.getRelationships());
+
+        // memberships
+        CollectionUtils.collect(user.getMemberships(), new Transformer<UMembership, MembershipTO>() {
+
+            @Override
+            public MembershipTO transform(final UMembership membership) {
+                return UserDataBinderImpl.this.getMembershipTO(membership);
+            }
+        }, userTO.getMemberships());
 
         // dynamic memberships
         CollectionUtils.collect(userDAO.findDynRoleMemberships(user), new Transformer<Role, Long>() {

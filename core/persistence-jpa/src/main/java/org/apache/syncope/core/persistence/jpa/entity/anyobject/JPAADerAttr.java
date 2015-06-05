@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.jpa.entity.anyobject;
 
 import javax.persistence.Entity;
+import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ADerAttr;
@@ -33,8 +34,16 @@ public class JPAADerAttr extends AbstractDerAttr<AnyObject> implements ADerAttr 
 
     public static final String TABLE = "ADerAttr";
 
+    @Id
+    private Long id;
+
     @ManyToOne
     private JPAAnyObject owner;
+
+    @Override
+    public Long getKey() {
+        return id;
+    }
 
     @Override
     public AnyObject getOwner() {

@@ -52,13 +52,8 @@ public class AnyTypeTest extends AbstractTest {
 
         anyTypeClassDAO.delete("other");
 
-        try {
         anyTypeDAO.flush();
-        } catch(Exception e) {
-            System.err.println("EEEEEEEEEEEE");
-            e.printStackTrace();
-        }
-        
+
         userType = anyTypeDAO.findUser();
         assertNotNull(userType);
         assertEquals(before, userType.getClasses().size() + 1);

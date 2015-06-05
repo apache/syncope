@@ -54,14 +54,13 @@ import org.apache.syncope.core.persistence.api.entity.user.UVirAttr;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
-import org.apache.syncope.core.misc.ConnObjectUtils;
 import org.apache.syncope.core.misc.search.SearchCondConverter;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyAbout;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
-import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
+import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.context.Context;
@@ -143,7 +142,7 @@ public class NotificationManagerImpl implements NotificationManager {
     private ToolManager velocityToolManager;
 
     @Autowired
-    private ConnObjectUtils connObjectUtils;
+    private VirAttrHandler virAttrHander;
 
     @Autowired
     private UserDataBinder userDataBinder;
@@ -153,9 +152,6 @@ public class NotificationManagerImpl implements NotificationManager {
 
     @Autowired
     private EntityFactory entityFactory;
-
-    @Autowired
-    private AnyUtilsFactory anyUtilsFactory;
 
     @Transactional(readOnly = true)
     @Override
@@ -177,10 +173,10 @@ public class NotificationManagerImpl implements NotificationManager {
             final Map<String, Object> model) {
 
         if (any != null) {
-            connObjectUtils.retrieveVirAttrValues(any);
+            virAttrHander.retrieveVirAttrValues(any);
         }
 
-        final List<User> recipients = new ArrayList<>();
+        List<User> recipients = new ArrayList<>();
 
         if (notification.getRecipients() != null) {
             recipients.addAll(searchDAO.<User>search(SyncopeConstants.FULL_ADMIN_REALMS,
@@ -192,10 +188,10 @@ public class NotificationManagerImpl implements NotificationManager {
             recipients.add((User) any);
         }
 
-        final Set<String> recipientEmails = new HashSet<>();
-        final List<UserTO> recipientTOs = new ArrayList<>(recipients.size());
+        Set<String> recipientEmails = new HashSet<>();
+        List<UserTO> recipientTOs = new ArrayList<>(recipients.size());
         for (User recipient : recipients) {
-            connObjectUtils.retrieveVirAttrValues(recipient);
+            virAttrHander.retrieveVirAttrValues(recipient);
 
             String email = getRecipientEmail(notification.getRecipientAttrType(),
                     notification.getRecipientAttrName(), recipient);

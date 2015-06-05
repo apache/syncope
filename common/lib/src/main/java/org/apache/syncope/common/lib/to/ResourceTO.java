@@ -48,7 +48,7 @@ public class ResourceTO extends AbstractAnnotatedBean {
     /**
      * The resource type is identified by the associated connector.
      */
-    private Long connectorId;
+    private Long connector;
 
     /**
      * Convenience information: display name for the connector id.
@@ -83,10 +83,6 @@ public class ResourceTO extends AbstractAnnotatedBean {
 
     private final Set<ConnConfProperty> connConfProperties = new HashSet<>();
 
-    private String usyncToken;
-
-    private String rsyncToken;
-
     private final List<String> propagationActionsClassNames = new ArrayList<>();
 
     public ResourceTO() {
@@ -117,12 +113,12 @@ public class ResourceTO extends AbstractAnnotatedBean {
         this.enforceMandatoryCondition = enforceMandatoryCondition;
     }
 
-    public Long getConnectorId() {
-        return connectorId;
+    public Long getConnector() {
+        return connector;
     }
 
-    public void setConnectorId(final Long connectorId) {
-        this.connectorId = connectorId;
+    public void setConnector(final Long connector) {
+        this.connector = connector;
     }
 
     public String getConnectorDisplayName() {

@@ -79,7 +79,7 @@ public class ResourceDataBinderTest extends AbstractTest {
 
         ResourceTO resourceTO = new ResourceTO();
         resourceTO.setKey("resource-issue42");
-        resourceTO.setConnectorId(100L);
+        resourceTO.setConnector(100L);
         resourceTO.setPropagationMode(PropagationMode.ONE_PHASE);
         resourceTO.setEnforceMandatoryCondition(true);
 

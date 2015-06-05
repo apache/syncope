@@ -30,6 +30,7 @@ import org.apache.syncope.common.lib.mod.StatusMod;
 import org.apache.syncope.common.lib.mod.UserMod;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -42,6 +43,7 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.provisioning.api.sync.ProvisioningResult;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
+import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -120,6 +122,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
             // SYNCOPE-459: take care of user virtual attributes ...
             PropagationByResource propByResVirAttr = virtAttrHandler.fillVirtual(
                     updated.getResult().getKey().getKey(),
+                    AnyTypeKind.USER,
                     userMod.getVirAttrsToRemove(),
                     userMod.getVirAttrsToUpdate());
             tasks.addAll(!propByResVirAttr.isEmpty()

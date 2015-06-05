@@ -58,7 +58,7 @@ public class ResourceITCase extends AbstractITCase {
         ResourceTO resourceTO = new ResourceTO();
 
         resourceTO.setKey(resourceName);
-        resourceTO.setConnectorId(102L);
+        resourceTO.setConnector(102L);
 
         ProvisionTO provisionTO = new ProvisionTO();
         provisionTO.setAnyType(AnyTypeKind.USER.name());
@@ -151,7 +151,7 @@ public class ResourceITCase extends AbstractITCase {
         mapping.add(item);
 
         resourceTO.setKey(resourceName);
-        resourceTO.setConnectorId(102L);
+        resourceTO.setConnector(102L);
 
         ConnConfProperty p = new ConnConfProperty();
         ConnConfPropSchema schema = new ConnConfPropSchema();
@@ -178,7 +178,7 @@ public class ResourceITCase extends AbstractITCase {
         String resourceName = RESOURCE_NAME_CREATE_SINGLE;
         ResourceTO resourceTO = new ResourceTO();
         resourceTO.setKey(resourceName);
-        resourceTO.setConnectorId(102L);
+        resourceTO.setConnector(102L);
 
         ProvisionTO provisionTO = new ProvisionTO();
         provisionTO.setAnyType(AnyTypeKind.USER.name());
@@ -228,7 +228,7 @@ public class ResourceITCase extends AbstractITCase {
         String resourceName = RESOURCE_NAME_CREATE_WRONG;
         ResourceTO resourceTO = new ResourceTO();
         resourceTO.setKey(resourceName);
-        resourceTO.setConnectorId(102L);
+        resourceTO.setConnector(102L);
 
         ProvisionTO provisionTO = new ProvisionTO();
         provisionTO.setAnyType(AnyTypeKind.USER.name());
@@ -264,7 +264,7 @@ public class ResourceITCase extends AbstractITCase {
         String resourceName = RESOURCE_NAME_CREATE_WRONG;
         ResourceTO resourceTO = new ResourceTO();
         resourceTO.setKey(resourceName);
-        resourceTO.setConnectorId(102L);
+        resourceTO.setConnector(102L);
 
         ProvisionTO provisionTO = new ProvisionTO();
         provisionTO.setAnyType(AnyTypeKind.USER.name());
@@ -294,7 +294,7 @@ public class ResourceITCase extends AbstractITCase {
         String resourceName = "res-with-password-policy";
         ResourceTO resourceTO = new ResourceTO();
         resourceTO.setKey(resourceName);
-        resourceTO.setConnectorId(102L);
+        resourceTO.setConnector(102L);
         resourceTO.setPasswordPolicy(4L);
 
         ProvisionTO provisionTO = new ProvisionTO();
@@ -342,7 +342,7 @@ public class ResourceITCase extends AbstractITCase {
         String resourceName = RESOURCE_NAME_UPDATE;
         ResourceTO resourceTO = new ResourceTO();
         resourceTO.setKey(resourceName);
-        resourceTO.setConnectorId(101L);
+        resourceTO.setConnector(101L);
 
         ProvisionTO provisionTO = new ProvisionTO();
         provisionTO.setAnyType(AnyTypeKind.USER.name());
@@ -510,7 +510,7 @@ public class ResourceITCase extends AbstractITCase {
         assertNotNull(resource);
         assertNotNull(resource.getProvision(AnyTypeKind.USER.name()).getMapping());
 
-        resource.getProvision(AnyTypeKind.USER.name()).setMapping(new MappingTO());
+        resource.getProvision(AnyTypeKind.USER.name()).setMapping(null);
         resourceService.update(name, resource);
 
         resource = resourceService.read(name);
@@ -525,7 +525,7 @@ public class ResourceITCase extends AbstractITCase {
         ResourceTO resourceTO = new ResourceTO();
 
         resourceTO.setKey(name);
-        resourceTO.setConnectorId(105L);
+        resourceTO.setConnector(105L);
 
         ProvisionTO provisionTO = new ProvisionTO();
         provisionTO.setAnyType(AnyTypeKind.GROUP.name());
@@ -586,7 +586,7 @@ public class ResourceITCase extends AbstractITCase {
         String resourceName = RESOURCE_NAME_CREATE_NONE;
         ResourceTO resourceTO = new ResourceTO();
         resourceTO.setKey(resourceName);
-        resourceTO.setConnectorId(102L);
+        resourceTO.setConnector(102L);
 
         ProvisionTO provisionTO = new ProvisionTO();
         provisionTO.setAnyType(AnyTypeKind.USER.name());

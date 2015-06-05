@@ -50,12 +50,12 @@ import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
-import org.apache.syncope.core.provisioning.java.VirAttrHandler;
 import org.apache.syncope.core.misc.security.AuthContextUtils;
 import org.apache.syncope.core.misc.security.UnauthorizedException;
 import org.apache.syncope.core.misc.serialization.POJOHelper;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.provisioning.api.AnyTransformer;
+import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
@@ -205,7 +205,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserMod> {
 
         Map.Entry<Long, List<PropagationStatus>> created = provisioningManager.create(actual, storePassword);
 
-        final UserTO savedTO = binder.getUserTO(created.getKey());
+        UserTO savedTO = binder.getUserTO(created.getKey());
         savedTO.getPropagationStatusTOs().addAll(created.getValue());
         return savedTO;
     }
