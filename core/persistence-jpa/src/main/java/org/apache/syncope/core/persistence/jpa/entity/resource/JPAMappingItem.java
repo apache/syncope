@@ -141,9 +141,9 @@ public class JPAMappingItem extends AbstractEntity<Long> implements MappingItem 
         final String name;
 
         switch (getIntMappingType()) {
-            case UserId:
-            case GroupId:
-            case AnyId:
+            case UserKey:
+            case GroupKey:
+            case AnyKey:
                 name = "id";
                 break;
 

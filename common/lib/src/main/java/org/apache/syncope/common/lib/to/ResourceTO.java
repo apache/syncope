@@ -40,10 +40,7 @@ public class ResourceTO extends AbstractAnnotatedBean {
 
     private static final long serialVersionUID = -9193551354041698963L;
 
-    /**
-     * The resource identifier is the name.
-     */
-    private String name;
+    private String key;
 
     /**
      * The resource type is identified by the associated connector.
@@ -98,11 +95,11 @@ public class ResourceTO extends AbstractAnnotatedBean {
     }
 
     public String getKey() {
-        return name;
+        return key;
     }
 
     public void setKey(final String key) {
-        this.name = key;
+        this.key = key;
     }
 
     public boolean isEnforceMandatoryCondition() {

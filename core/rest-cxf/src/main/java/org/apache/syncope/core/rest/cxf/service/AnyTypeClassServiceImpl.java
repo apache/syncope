@@ -49,7 +49,7 @@ public class AnyTypeClassServiceImpl extends AbstractServiceImpl implements AnyT
         AnyTypeClassTO created = logic.create(anyTypeTO);
         URI location = uriInfo.getAbsolutePathBuilder().path(String.valueOf(created.getKey())).build();
         return Response.created(location).
-                header(RESTHeaders.RESOURCE_ID, created.getKey()).
+                header(RESTHeaders.RESOURCE_KEY, created.getKey()).
                 build();
     }
 

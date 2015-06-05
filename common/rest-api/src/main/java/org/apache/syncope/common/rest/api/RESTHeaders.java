@@ -23,22 +23,13 @@ package org.apache.syncope.common.rest.api;
  */
 public final class RESTHeaders {
 
-    /**
-     * UserId option key.
-     */
-    public static final String USER_ID = "X-Syncope-User-Id";
+    public static final String USER_KEY = "X-Syncope-User-Key";
 
-    /**
-     * Username option key.
-     */
     public static final String USERNAME = "X-Syncope-Username";
 
     public static final String OWNED_ENTITLEMENTS = "X-Syncope-Entitlements";
 
-    /**
-     * HTTP header key for object ID assigned to an object after its creation.
-     */
-    public static final String RESOURCE_ID = "X-Syncope-Id";
+    public static final String RESOURCE_KEY = "X-Syncope-Key";
 
     /**
      * Declares the type of exception being raised.

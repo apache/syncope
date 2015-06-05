@@ -59,7 +59,7 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService 
 
         URI location = uriInfo.getAbsolutePathBuilder().path(String.valueOf(createdTask.getKey())).build();
         return Response.created(location).
-                header(RESTHeaders.RESOURCE_ID, createdTask.getKey()).
+                header(RESTHeaders.RESOURCE_KEY, createdTask.getKey()).
                 build();
     }
 

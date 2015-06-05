@@ -30,9 +30,6 @@ import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 @XmlType
 public class PropagationStatus extends AbstractBaseBean {
 
-    /**
-     * Serial version ID.
-     */
     private static final long serialVersionUID = 3921498450222857690L;
 
     /**

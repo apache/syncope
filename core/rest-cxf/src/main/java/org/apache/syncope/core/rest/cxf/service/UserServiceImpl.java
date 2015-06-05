@@ -62,7 +62,7 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService 
     @Override
     public Response getUserKey(final String username) {
         return Response.ok().header(HttpHeaders.ALLOW, OPTIONS_ALLOW).
-                header(RESTHeaders.USER_ID, logic.getKey(username)).
+                header(RESTHeaders.USER_KEY, logic.getKey(username)).
                 build();
     }
 

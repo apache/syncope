@@ -49,27 +49,27 @@ public interface ResourceService extends JAXRSService {
     /**
      * Returns connector object from the external resource, for the given type and key.
      *
-     * @param resourceKey Name of resource to read connector object from
+     * @param key Name of resource to read connector object from
      * @param anyTypeKey any object type
-     * @param key any object key
+     * @param anyKey any object key
      * @return connector object from the external resource, for the given type and key
      */
     @GET
-    @Path("{resourceKey}/{anyTypeKey}/{key}")
+    @Path("{key}/{anyTypeKey}/{anyKey}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    ConnObjectTO readConnObject(@NotNull @PathParam("resourceKey") String resourceKey,
-            @NotNull @PathParam("anyTypeKey") String anyTypeKey, @NotNull @PathParam("key") Long key);
+    ConnObjectTO readConnObject(@NotNull @PathParam("key") String key,
+            @NotNull @PathParam("anyTypeKey") String anyTypeKey, @NotNull @PathParam("anyKey") Long anyKey);
 
     /**
      * Returns the resource with matching name.
      *
-     * @param resourceKey Name of resource to be read
+     * @param key Name of resource to be read
      * @return resource with matching name
      */
     @GET
-    @Path("{resourceKey}")
+    @Path("{key}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    ResourceTO read(@NotNull @PathParam("resourceKey") String resourceKey);
+    ResourceTO read(@NotNull @PathParam("key") String key);
 
     /**
      * Returns a list of all resources.
@@ -97,23 +97,23 @@ public interface ResourceService extends JAXRSService {
     /**
      * Updates the resource matching the given name.
      *
-     * @param resourceKey name of resource to be updated
+     * @param key name of resource to be updated
      * @param resourceTO resource to be stored
      */
     @PUT
-    @Path("{resourceKey}")
+    @Path("{key}")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    void update(@NotNull @PathParam("resourceKey") String resourceKey, @NotNull ResourceTO resourceTO);
+    void update(@NotNull @PathParam("key") String key, @NotNull ResourceTO resourceTO);
 
     /**
      * Deletes the resource matching the given name.
      *
-     * @param resourceKey name of resource to be deleted
+     * @param key name of resource to be deleted
      */
     @DELETE
-    @Path("{resourceKey}")
+    @Path("{key}")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    void delete(@NotNull @PathParam("resourceKey") String resourceKey);
+    void delete(@NotNull @PathParam("key") String key);
 
     /**
      * Checks whether the connection to resource could be established.
@@ -129,7 +129,7 @@ public interface ResourceService extends JAXRSService {
     /**
      * De-associate any objects from the given resource.
      *
-     * @param resourceKey name of resource
+     * @param key name of resource
      * @param anyTypeKey any object kind
      * @param type resource de-association action type
      * @param keys any object keys against which the bulk action will be performed
@@ -140,10 +140,10 @@ public interface ResourceService extends JAXRSService {
                 value = "Featuring <tt>BulkActionResult</tt> as <tt>Entity</tt>")
     })
     @POST
-    @Path("{resourceKey}/bulkDeassociation/{anyTypeKey}/{type}")
+    @Path("{key}/bulkDeassociation/{anyTypeKey}/{type}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    BulkActionResult bulkDeassociation(@NotNull @PathParam("resourceKey") String resourceKey,
+    BulkActionResult bulkDeassociation(@NotNull @PathParam("key") String key,
             @NotNull @PathParam("anyTypeKey") String anyTypeKey,
             @NotNull @PathParam("type") ResourceDeassociationActionType type, @NotNull List<AnyKey> keys);
 

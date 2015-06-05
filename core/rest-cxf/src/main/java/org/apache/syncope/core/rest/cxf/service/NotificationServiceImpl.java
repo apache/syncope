@@ -39,7 +39,7 @@ public class NotificationServiceImpl extends AbstractServiceImpl implements Noti
         NotificationTO created = logic.create(notificationTO);
         URI location = uriInfo.getAbsolutePathBuilder().path(String.valueOf(created.getKey())).build();
         return Response.created(location).
-                header(RESTHeaders.RESOURCE_ID, created.getKey()).
+                header(RESTHeaders.RESOURCE_KEY, created.getKey()).
                 build();
     }
 

@@ -280,7 +280,7 @@ public abstract class AbstractITCase {
 
     protected UserTO readUser(final String username) {
         return userService.read(Long.valueOf(
-                userService.getUserKey(username).getHeaderString(RESTHeaders.USER_ID)));
+                userService.getUserKey(username).getHeaderString(RESTHeaders.USER_KEY)));
     }
 
     protected UserTO updateUser(final UserMod userMod) {

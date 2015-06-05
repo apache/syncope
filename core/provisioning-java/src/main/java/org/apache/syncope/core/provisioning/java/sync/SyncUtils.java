@@ -197,9 +197,9 @@ public class SyncUtils {
                 }
                 break;
 
-            case UserId:
-            case GroupId:
-            case AnyId:
+            case UserKey:
+            case GroupKey:
+            case AnyKey:
                 Any<?, ?, ?> any = getAnyDAO(connObjectKeyItem).find(Long.parseLong(uid));
                 if (any != null) {
                     result.add(any.getKey());

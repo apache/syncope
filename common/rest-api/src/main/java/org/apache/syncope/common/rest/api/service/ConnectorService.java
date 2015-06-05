@@ -63,56 +63,56 @@ public interface ConnectorService extends JAXRSService {
     /**
      * Returns configuration for given connector instance.
      *
-     * @param connInstanceKey connector instance id to read configuration from
+     * @param key connector instance key to read configuration from
      * @return configuration for given connector instance
      */
     @GET
-    @Path("{connInstanceKey}/configuration")
+    @Path("{key}/configuration")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    List<ConnConfProperty> getConfigurationProperties(@NotNull @PathParam("connInstanceKey") Long connInstanceKey);
+    List<ConnConfProperty> getConfigurationProperties(@NotNull @PathParam("key") Long key);
 
     /**
-     * Returns schema names for connector bundle matching the given connector instance id.
+     * Returns schema names for connector bundle matching the given connector instance key.
      *
-     * @param connInstanceKey connector instance id to be used for schema lookup
+     * @param key connector instance key to be used for schema lookup
      * @param connInstanceTO connector instance object to provide special configuration properties
      * @param includeSpecial if set to true, special schema names (like '__PASSWORD__') will be included;
      * default is false
-     * @return schema names for connector bundle matching the given connector instance id
+     * @return schema names for connector bundle matching the given connector instance key
      */
     @POST
-    @Path("{connInstanceKey}/schemaNames")
+    @Path("{key}/schemaNames")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    List<PlainSchemaTO> getSchemaNames(@NotNull @PathParam("connInstanceKey") Long connInstanceKey,
+    List<PlainSchemaTO> getSchemaNames(@NotNull @PathParam("key") Long key,
             @NotNull ConnInstanceTO connInstanceTO,
             @QueryParam("includeSpecial") @DefaultValue("false") boolean includeSpecial);
 
     /**
-     * Returns supported object classes for connector bundle matching the given connector instance id.
+     * Returns supported object classes for connector bundle matching the given connector instance key.
      *
-     * @param connInstanceKey connector instance id to be used for schema lookup
+     * @param key connector instance key to be used for schema lookup
      * @param connInstanceTO connector instance object to provide special configuration properties
-     * @return supported object classes for connector bundle matching the given connector instance id
+     * @return supported object classes for connector bundle matching the given connector instance key
      */
     @POST
-    @Path("{connInstanceKey}/supportedObjectClasses")
+    @Path("{key}/supportedObjectClasses")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     List<ConnIdObjectClassTO> getSupportedObjectClasses(
-            @NotNull @PathParam("connInstanceKey") Long connInstanceKey,
+            @NotNull @PathParam("key") Long key,
             @NotNull ConnInstanceTO connInstanceTO);
 
     /**
-     * Returns connector instance with matching id.
+     * Returns connector instance with matching key.
      *
-     * @param connInstanceKey connector instance id to be read
-     * @return connector instance with matching id
+     * @param key connector instance key to be read
+     * @return connector instance with matching key
      */
     @GET
-    @Path("{connInstanceKey}")
+    @Path("{key}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    ConnInstanceTO read(@NotNull @PathParam("connInstanceKey") Long connInstanceKey);
+    ConnInstanceTO read(@NotNull @PathParam("key") Long key);
 
     /**
      * Returns connector instance for matching resource.
@@ -151,24 +151,24 @@ public interface ConnectorService extends JAXRSService {
     Response create(@NotNull ConnInstanceTO connInstanceTO);
 
     /**
-     * Updates the connector instance matching the provided id.
+     * Updates the connector instance matching the provided key.
      *
-     * @param connInstanceKey connector instance id to be updated
+     * @param key connector instance key to be updated
      * @param connInstanceTO connector instance to be stored
      */
     @PUT
-    @Path("{connInstanceKey}")
+    @Path("{key}")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    void update(@NotNull @PathParam("connInstanceKey") Long connInstanceKey, @NotNull ConnInstanceTO connInstanceTO);
+    void update(@NotNull @PathParam("key") Long key, @NotNull ConnInstanceTO connInstanceTO);
 
     /**
-     * Deletes the connector instance matching the provided id.
+     * Deletes the connector instance matching the provided key.
      *
-     * @param connInstanceKey connector instance id to be deleted
+     * @param key connector instance key to be deleted
      */
     @DELETE
-    @Path("{connInstanceKey}")
-    void delete(@NotNull @PathParam("connInstanceKey") Long connInstanceKey);
+    @Path("{key}")
+    void delete(@NotNull @PathParam("key") Long key);
 
     /**
      * @param connInstanceTO connector instance to be used for connection check
@@ -190,7 +190,7 @@ public interface ConnectorService extends JAXRSService {
     /**
      * Executes the provided bulk action.
      *
-     * @param bulkAction list of connector instance ids against which the bulk action will be performed.
+     * @param bulkAction list of connector instance keys against which the bulk action will be performed.
      * @return Bulk action result
      */
     @POST

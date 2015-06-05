@@ -43,7 +43,7 @@ public class PolicyServiceImpl extends AbstractServiceImpl implements PolicyServ
         T policy = logic.create(policyTO);
         URI location = uriInfo.getAbsolutePathBuilder().path(String.valueOf(policy.getKey())).build();
         return Response.created(location).
-                header(RESTHeaders.RESOURCE_ID, policy.getKey()).
+                header(RESTHeaders.RESOURCE_KEY, policy.getKey()).
                 build();
     }
 

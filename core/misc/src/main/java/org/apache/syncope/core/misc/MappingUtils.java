@@ -528,9 +528,9 @@ public final class MappingUtils {
                 }
                 break;
 
-            case UserId:
-            case GroupId:
-            case AnyId:
+            case UserKey:
+            case GroupKey:
+            case AnyKey:
                 for (Any<?, ?, ?> any : anys) {
                     AnyUtils anyUtils = anyUtilsFactory.getInstance(any);
                     attrValue = anyUtils.newPlainAttrValue();

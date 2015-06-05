@@ -34,18 +34,18 @@ public class AnyTypeTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = 6771657557616874373L;
 
-    private String name;
+    private String key;
 
     private AnyTypeKind kind;
 
     private final List<String> classes = new ArrayList<>();
 
     public String getKey() {
-        return name;
+        return key;
     }
 
     public void setKey(final String key) {
-        this.name = key;
+        this.key = key;
     }
 
     public AnyTypeKind getKind() {

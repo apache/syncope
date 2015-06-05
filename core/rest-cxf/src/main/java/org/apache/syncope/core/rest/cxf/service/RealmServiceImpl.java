@@ -51,7 +51,7 @@ public class RealmServiceImpl extends AbstractServiceImpl implements RealmServic
         RealmTO created = logic.create(StringUtils.prependIfMissing(parentPath, SyncopeConstants.ROOT_REALM), realmTO);
         URI location = uriInfo.getAbsolutePathBuilder().path(created.getName()).build();
         return Response.created(location).
-                header(RESTHeaders.RESOURCE_ID, created.getFullPath()).
+                header(RESTHeaders.RESOURCE_KEY, created.getFullPath()).
                 build();
     }
 

@@ -50,7 +50,7 @@ public class SecurityQuestionServiceImpl extends AbstractServiceImpl implements 
 
         URI location = uriInfo.getAbsolutePathBuilder().path(String.valueOf(created.getKey())).build();
         return Response.created(location).
-                header(RESTHeaders.RESOURCE_ID, String.valueOf(created.getKey())).
+                header(RESTHeaders.RESOURCE_KEY, String.valueOf(created.getKey())).
                 build();
     }
 

@@ -204,8 +204,8 @@ public class ConnObjectUtils {
 
             AttrTO attrTO;
             switch (item.getIntMappingType()) {
-                case UserId:
-                case GroupId:
+                case UserKey:
+                case GroupKey:
                     break;
 
                 case Password:

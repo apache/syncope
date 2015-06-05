@@ -676,7 +676,7 @@ under the License.
   <Provision id="15" resource_name="ws-target-resource-1" anyType_name="USER" objectClass="__ACCOUNT__"/>
   <Mapping id="15" provision_id="15"/>
   <MappingItem id="99" mapping_id="15" extAttrName="userId"
-               intMappingType="UserId" mandatoryCondition="true"
+               intMappingType="UserKey" mandatoryCondition="true"
                connObjectKey="1" password="0" purpose="PROPAGATION"/>
   <MappingItem id="100" extAttrName="email" mapping_id="15"
                intAttrName="email" intMappingType="UserPlainSchema" mandatoryCondition="true"
@@ -907,7 +907,7 @@ under the License.
   <Provision id="17" resource_name="resource-db-virattr" anyType_name="USER" objectClass="__ACCOUNT__"/>
   <Mapping id="17" provision_id="17"/>
   <MappingItem id="331" mapping_id="17" connObjectKey="1" password="0"
-               extAttrName="id" intMappingType="UserId" 
+               extAttrName="id" intMappingType="UserKey" 
                mandatoryCondition="true" purpose="BOTH"/>
   <MappingItem id="332" mapping_id="17" connObjectKey="0" password="0" 
                extAttrName="USERNAME" intAttrName="virtualdata" intMappingType="UserVirtualSchema"

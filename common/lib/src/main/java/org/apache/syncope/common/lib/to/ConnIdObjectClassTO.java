@@ -38,7 +38,7 @@ public class ConnIdObjectClassTO extends AbstractBaseBean {
         ACCOUNT("__ACCOUNT__"),
         GROUP("__GROUP__");
 
-        private String specialName;
+        private final String specialName;
 
         private DefaultType(final String specialName) {
             this.specialName = specialName;

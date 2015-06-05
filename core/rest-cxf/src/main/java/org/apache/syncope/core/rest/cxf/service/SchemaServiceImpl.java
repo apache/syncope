@@ -41,7 +41,7 @@ public class SchemaServiceImpl extends AbstractServiceImpl implements SchemaServ
 
         URI location = uriInfo.getAbsolutePathBuilder().path(created.getKey()).build();
         return Response.created(location).
-                header(RESTHeaders.RESOURCE_ID, created.getKey()).
+                header(RESTHeaders.RESOURCE_KEY, created.getKey()).
                 build();
     }
 

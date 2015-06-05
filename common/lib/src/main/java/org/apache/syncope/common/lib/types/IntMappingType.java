@@ -38,7 +38,7 @@ public enum IntMappingType {
     UserPlainSchema(AnyTypeKind.USER),
     UserDerivedSchema(AnyTypeKind.USER),
     UserVirtualSchema(AnyTypeKind.USER),
-    UserId(AnyTypeKind.USER),
+    UserKey(AnyTypeKind.USER),
     Username(AnyTypeKind.USER),
     Password(AnyTypeKind.USER),
     // -------------------------
@@ -47,7 +47,7 @@ public enum IntMappingType {
     GroupPlainSchema(AnyTypeKind.GROUP),
     GroupDerivedSchema(AnyTypeKind.GROUP),
     GroupVirtualSchema(AnyTypeKind.GROUP),
-    GroupId(AnyTypeKind.GROUP),
+    GroupKey(AnyTypeKind.GROUP),
     GroupName(AnyTypeKind.GROUP),
     GroupOwnerSchema(AnyTypeKind.GROUP),
     // -------------------------
@@ -56,7 +56,7 @@ public enum IntMappingType {
     AnyPlainSchema(AnyTypeKind.ANY_OBJECT),
     AnyDerivedSchema(AnyTypeKind.ANY_OBJECT),
     AnyVirtualSchema(AnyTypeKind.ANY_OBJECT),
-    AnyId(AnyTypeKind.ANY_OBJECT);
+    AnyKey(AnyTypeKind.ANY_OBJECT);
 
     private final AnyTypeKind anyTypeKind;
 
@@ -117,9 +117,9 @@ public enum IntMappingType {
     }
 
     public static Set<IntMappingType> getEmbedded() {
-        return EnumSet.of(IntMappingType.UserId, IntMappingType.Username, IntMappingType.Password,
-                IntMappingType.GroupId, IntMappingType.GroupName, IntMappingType.GroupOwnerSchema,
-                IntMappingType.AnyId);
+        return EnumSet.of(IntMappingType.UserKey, IntMappingType.Username, IntMappingType.Password,
+                IntMappingType.GroupKey, IntMappingType.GroupName, IntMappingType.GroupOwnerSchema,
+                IntMappingType.AnyKey);
     }
 
     /**
@@ -167,7 +167,7 @@ public enum IntMappingType {
         UserPlainSchema,
         UserDerivedSchema,
         UserVirtualSchema,
-        UserId,
+        UserKey,
         Username,
         Password;
 
@@ -181,7 +181,7 @@ public enum IntMappingType {
         GroupPlainSchema,
         GroupDerivedSchema,
         GroupVirtualSchema,
-        GroupId,
+        GroupKey,
         GroupName,
         GroupOwnerSchema;
 
@@ -195,7 +195,7 @@ public enum IntMappingType {
         AnyPlainSchema,
         AnyDerivedSchema,
         AnyVirtualSchema,
-        AnyId;
+        AnyKey;
 
     }
 }

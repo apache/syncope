@@ -624,7 +624,7 @@ public class GroupITCase extends AbstractITCase {
             mapping.setConnObjectLink("'cn=' + displayProperty + ',ou=groups,o=isp'");
 
             MappingItemTO description = new MappingItemTO();
-            description.setIntMappingType(IntMappingType.GroupId);
+            description.setIntMappingType(IntMappingType.GroupKey);
             description.setExtAttrName("description");
             description.setPurpose(MappingPurpose.BOTH);
             mapping.add(description);

@@ -52,7 +52,7 @@ public class ReportServiceImpl extends AbstractServiceImpl implements ReportServ
         ReportTO createdReportTO = logic.create(reportTO);
         URI location = uriInfo.getAbsolutePathBuilder().path(String.valueOf(createdReportTO.getKey())).build();
         return Response.created(location).
-                header(RESTHeaders.RESOURCE_ID, createdReportTO.getKey()).
+                header(RESTHeaders.RESOURCE_KEY, createdReportTO.getKey()).
                 build();
     }
 

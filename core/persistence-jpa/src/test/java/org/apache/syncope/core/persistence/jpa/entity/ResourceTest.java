@@ -120,7 +120,7 @@ public class ResourceTest extends AbstractTest {
         MappingItem connObjectKey = entityFactory.newEntity(MappingItem.class);
         connObjectKey.setExtAttrName("username");
         connObjectKey.setIntAttrName("fullname");
-        connObjectKey.setIntMappingType(IntMappingType.UserId);
+        connObjectKey.setIntMappingType(IntMappingType.UserKey);
         connObjectKey.setPurpose(MappingPurpose.BOTH);
         mapping.setConnObjectKeyItem(connObjectKey);
 
@@ -242,7 +242,7 @@ public class ResourceTest extends AbstractTest {
         MappingItem connObjectKey = entityFactory.newEntity(MappingItem.class);
         connObjectKey.setExtAttrName("username");
         connObjectKey.setIntAttrName("fullname");
-        connObjectKey.setIntMappingType(IntMappingType.UserId);
+        connObjectKey.setIntMappingType(IntMappingType.UserKey);
         connObjectKey.setPurpose(MappingPurpose.BOTH);
         mapping.setConnObjectKeyItem(connObjectKey);
 

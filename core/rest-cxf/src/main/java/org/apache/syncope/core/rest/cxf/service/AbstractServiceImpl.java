@@ -84,7 +84,7 @@ abstract class AbstractServiceImpl implements JAXRSService {
     protected Response createResponse(final Object id, final Object entity) {
         Response.ResponseBuilder builder = Response.
                 created(uriInfo.getAbsolutePathBuilder().path(String.valueOf(id)).build()).
-                header(RESTHeaders.RESOURCE_ID, id);
+                header(RESTHeaders.RESOURCE_KEY, id);
 
         switch (getPreference()) {
             case RETURN_NO_CONTENT:

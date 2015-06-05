@@ -48,13 +48,13 @@ public class ConnectorServiceImpl extends AbstractServiceImpl implements Connect
         ConnInstanceTO connInstance = logic.create(connInstanceTO);
         URI location = uriInfo.getAbsolutePathBuilder().path(String.valueOf(connInstance.getKey())).build();
         return Response.created(location).
-                header(RESTHeaders.RESOURCE_ID, connInstance.getKey()).
+                header(RESTHeaders.RESOURCE_KEY, connInstance.getKey()).
                 build();
     }
 
     @Override
-    public void delete(final Long connInstanceKey) {
-        logic.delete(connInstanceKey);
+    public void delete(final Long key) {
+        logic.delete(key);
     }
 
     @Override
@@ -63,15 +63,15 @@ public class ConnectorServiceImpl extends AbstractServiceImpl implements Connect
     }
 
     @Override
-    public List<ConnConfProperty> getConfigurationProperties(final Long connInstanceKey) {
-        return logic.getConfigurationProperties(connInstanceKey);
+    public List<ConnConfProperty> getConfigurationProperties(final Long key) {
+        return logic.getConfigurationProperties(key);
     }
 
     @Override
-    public List<PlainSchemaTO> getSchemaNames(final Long connInstanceKey, final ConnInstanceTO connInstanceTO,
+    public List<PlainSchemaTO> getSchemaNames(final Long key, final ConnInstanceTO connInstanceTO,
             final boolean includeSpecial) {
 
-        connInstanceTO.setKey(connInstanceKey);
+        connInstanceTO.setKey(key);
 
         return CollectionUtils.collect(logic.getSchemaNames(connInstanceTO, includeSpecial),
                 new Transformer<String, PlainSchemaTO>() {
@@ -86,10 +86,10 @@ public class ConnectorServiceImpl extends AbstractServiceImpl implements Connect
     }
 
     @Override
-    public List<ConnIdObjectClassTO> getSupportedObjectClasses(final Long connInstanceKey,
+    public List<ConnIdObjectClassTO> getSupportedObjectClasses(final Long key,
             final ConnInstanceTO connInstanceTO) {
 
-        connInstanceTO.setKey(connInstanceKey);
+        connInstanceTO.setKey(key);
 
         List<String> objectClasses = logic.getSupportedObjectClasses(connInstanceTO);
         List<ConnIdObjectClassTO> result = new ArrayList<>(objectClasses.size());
@@ -105,8 +105,8 @@ public class ConnectorServiceImpl extends AbstractServiceImpl implements Connect
     }
 
     @Override
-    public ConnInstanceTO read(final Long connInstanceKey) {
-        return logic.read(connInstanceKey);
+    public ConnInstanceTO read(final Long key) {
+        return logic.read(key);
     }
 
     @Override
@@ -115,8 +115,8 @@ public class ConnectorServiceImpl extends AbstractServiceImpl implements Connect
     }
 
     @Override
-    public void update(final Long connInstanceKey, final ConnInstanceTO connInstanceTO) {
-        connInstanceTO.setKey(connInstanceKey);
+    public void update(final Long key, final ConnInstanceTO connInstanceTO) {
+        connInstanceTO.setKey(key);
         logic.update(connInstanceTO);
     }
 

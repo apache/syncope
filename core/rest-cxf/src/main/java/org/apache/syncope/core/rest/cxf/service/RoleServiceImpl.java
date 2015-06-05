@@ -49,7 +49,7 @@ public class RoleServiceImpl extends AbstractServiceImpl implements RoleService 
         RoleTO created = logic.create(roleTO);
         URI location = uriInfo.getAbsolutePathBuilder().path(String.valueOf(created.getKey())).build();
         return Response.created(location).
-                header(RESTHeaders.RESOURCE_ID, created.getKey()).
+                header(RESTHeaders.RESOURCE_KEY, created.getKey()).
                 build();
     }
 

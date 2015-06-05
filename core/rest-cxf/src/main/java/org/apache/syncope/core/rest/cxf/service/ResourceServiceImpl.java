@@ -61,24 +61,24 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
         ResourceTO created = logic.create(resourceTO);
         URI location = uriInfo.getAbsolutePathBuilder().path(created.getKey()).build();
         return Response.created(location).
-                header(RESTHeaders.RESOURCE_ID, created.getKey()).
+                header(RESTHeaders.RESOURCE_KEY, created.getKey()).
                 build();
     }
 
     @Override
-    public void update(final String resourceKey, final ResourceTO resourceTO) {
-        resourceTO.setKey(resourceKey);
+    public void update(final String key, final ResourceTO resourceTO) {
+        resourceTO.setKey(key);
         logic.update(resourceTO);
     }
 
     @Override
-    public void delete(final String resourceKey) {
-        logic.delete(resourceKey);
+    public void delete(final String key) {
+        logic.delete(key);
     }
 
     @Override
-    public ResourceTO read(final String resourceKey) {
-        return logic.read(resourceKey);
+    public ResourceTO read(final String key) {
+        return logic.read(key);
     }
 
     @Override
@@ -87,8 +87,8 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
     }
 
     @Override
-    public ConnObjectTO readConnObject(final String resourceKey, final String anyTypeKey, final Long key) {
-        return logic.readConnObject(resourceKey, anyTypeKey, key);
+    public ConnObjectTO readConnObject(final String key, final String anyTypeKey, final Long anyKey) {
+        return logic.readConnObject(key, anyTypeKey, anyKey);
     }
 
     @Override
@@ -98,7 +98,7 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
 
     @Override
     public BulkActionResult bulkDeassociation(
-            final String resourceKey, final String anyTypeKey, final ResourceDeassociationActionType type,
+            final String key, final String anyTypeKey, final ResourceDeassociationActionType type,
             final List<AnyKey> keys) {
 
         AbstractResourceAssociator<? extends AnyTO> associator = anyTypeKey.equalsIgnoreCase(AnyTypeKind.USER.name())
@@ -109,29 +109,29 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
 
         BulkActionResult result = new BulkActionResult();
 
-        for (AnyKey key : keys) {
-            Set<String> resources = Collections.singleton(resourceKey);
+        for (AnyKey anyKey : keys) {
+            Set<String> resources = Collections.singleton(key);
             try {
                 switch (type) {
                     case DEPROVISION:
-                        associator.deprovision(key.getElement(), resources);
+                        associator.deprovision(anyKey.getElement(), resources);
                         break;
 
                     case UNASSIGN:
-                        associator.unassign(key.getElement(), resources);
+                        associator.unassign(anyKey.getElement(), resources);
                         break;
 
                     case UNLINK:
-                        associator.unlink(key.getElement(), resources);
+                        associator.unlink(anyKey.getElement(), resources);
                         break;
 
                     default:
                 }
 
-                result.getResults().put(String.valueOf(key.getElement()), BulkActionResult.Status.SUCCESS);
+                result.getResults().put(String.valueOf(anyKey.getElement()), BulkActionResult.Status.SUCCESS);
             } catch (Exception e) {
-                LOG.warn("While executing {} on {} {}", type, anyTypeKey, key.getElement(), e);
-                result.getResults().put(String.valueOf(key.getElement()), BulkActionResult.Status.FAILURE);
+                LOG.warn("While executing {} on {} {}", type, anyTypeKey, anyKey.getElement(), e);
+                result.getResults().put(String.valueOf(anyKey.getElement()), BulkActionResult.Status.FAILURE);
             }
         }
 

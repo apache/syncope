@@ -138,7 +138,7 @@ public class ResourceTest extends AbstractTest {
         MappingItem connObjectKey = entityFactory.newEntity(MappingItem.class);
         connObjectKey.setExtAttrName("username");
         connObjectKey.setIntAttrName("username");
-        connObjectKey.setIntMappingType(IntMappingType.UserId);
+        connObjectKey.setIntMappingType(IntMappingType.UserKey);
         connObjectKey.setPurpose(MappingPurpose.PROPAGATION);
         mapping.setConnObjectKeyItem(connObjectKey);
         connObjectKey.setMapping(mapping);

@@ -33,7 +33,7 @@ public class AnyTypeClassTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = -591757688607551266L;
 
-    private String name;
+    private String key;
 
     private final List<String> plainSchemas = new ArrayList<>();
 
@@ -42,11 +42,11 @@ public class AnyTypeClassTO extends AbstractBaseBean {
     private final List<String> virSchemas = new ArrayList<>();
 
     public String getKey() {
-        return name;
+        return key;
     }
 
     public void setKey(final String key) {
-        this.name = key;
+        this.key = key;
     }
 
     @XmlElementWrapper(name = "plainSchemas")
