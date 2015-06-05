@@ -262,7 +262,7 @@ public class NotificationManager {
     /**
      * Create notification tasks for each notification matching the given user id and (some of) tasks performed.
      */
-    public void createTasks(
+    public List<NotificationTask> createTasks(
             final AuditElements.EventCategoryType type,
             final String category,
             final String subcategory,
@@ -274,6 +274,7 @@ public class NotificationManager {
 
         SubjectType subjectType = null;
         AbstractSubject subject = null;
+        List<NotificationTask> notificationList = new ArrayList<NotificationTask>();
 
         if (before instanceof UserTO) {
             subjectType = SubjectType.USER;
@@ -327,15 +328,17 @@ public class NotificationManager {
                     } else if (subject instanceof SyncopeRole) {
                         model.put("role", roleDataBinder.getRoleTO((SyncopeRole) subject));
                     }
-
-                    taskDAO.save(getNotificationTask(notification, subject, model));
+                    NotificationTask notificationTask = getNotificationTask(notification, subject, model);
+                    notificationTask = taskDAO.save(notificationTask);
+                    notificationList.add(notificationTask);                    
                 }
             } else {
                 LOG.debug("Notification {}, userAbout {}, roleAbout {} is deactivated, "
                         + "notification task will not be created", notification.getId(),
                         notification.getUserAbout(), notification.getRoleAbout());
             }
-        }
+        }        
+        return notificationList;
     }
 
     private String getRecipientEmail(
