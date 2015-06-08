@@ -120,7 +120,6 @@ public final class MappingUtils {
     /**
      * Prepare attributes for sending to a connector instance.
      *
-     * @param anyUtils any object
      * @param any given any object
      * @param password clear-text password
      * @param changePwd whether password should be included for propagation attributes or not
@@ -130,8 +129,8 @@ public final class MappingUtils {
      * @param provision provision information
      * @return connObjectLink + prepared attributes
      */
-    public static Pair<String, Set<Attribute>> prepareAttributes(
-            final AnyUtils anyUtils, final Any<?, ?, ?> any,
+    public static Pair<String, Set<Attribute>> prepareAttrs(
+            final Any<?, ?, ?> any,
             final String password,
             final boolean changePwd,
             final Set<String> vAttrsToBeRemoved,
@@ -149,7 +148,7 @@ public final class MappingUtils {
         Set<Attribute> attributes = new HashSet<>();
         String connObjectKey = null;
 
-        for (MappingItem mapping : anyUtils.getMappingItems(provision, MappingPurpose.PROPAGATION)) {
+        for (MappingItem mapping : getMappingItems(provision, MappingPurpose.PROPAGATION)) {
             LOG.debug("Processing schema {}", mapping.getIntAttrName());
 
             try {
@@ -188,11 +187,10 @@ public final class MappingUtils {
         }
 
         Attribute connObjectKeyExtAttr =
-                AttributeUtil.find(anyUtils.getConnObjectKeyItem(provision).getExtAttrName(), attributes);
+                AttributeUtil.find(getConnObjectKeyItem(provision).getExtAttrName(), attributes);
         if (connObjectKeyExtAttr != null) {
             attributes.remove(connObjectKeyExtAttr);
-            attributes.add(AttributeBuilder.build(
-                    anyUtils.getConnObjectKeyItem(provision).getExtAttrName(), connObjectKey));
+            attributes.add(AttributeBuilder.build(getConnObjectKeyItem(provision).getExtAttrName(), connObjectKey));
         }
         attributes.add(evaluateNAME(any, provision, connObjectKey));
 
@@ -373,26 +371,23 @@ public final class MappingUtils {
      * @param connObjectKey connector object key
      * @return the value to be propagated as __NAME__
      */
-    public static Name evaluateNAME(final Any<?, ?, ?> any,
-            final Provision provision, final String connObjectKey) {
-
-        final AnyUtilsFactory anyUtilsFactory =
-                ApplicationContextProvider.getApplicationContext().getBean(AnyUtilsFactory.class);
-        final AnyUtils anyUtils = anyUtilsFactory.getInstance(any);
-
+    public static Name evaluateNAME(final Any<?, ?, ?> any, final Provision provision, final String connObjectKey) {
         if (StringUtils.isBlank(connObjectKey)) {
             // LOG error but avoid to throw exception: leave it to the external resource
             LOG.error("Missing ConnObjectKey for '{}': ", provision.getResource());
         }
 
         // Evaluate connObjectKey expression
+        String connObjectLink = provision == null || provision.getMapping() == null
+                ? null
+                : provision.getMapping().getConnObjectLink();
         String evalConnObjectLink = null;
-        if (StringUtils.isNotBlank(anyUtils.getConnObjectLink(provision))) {
-            final JexlContext jexlContext = new MapContext();
+        if (StringUtils.isNotBlank(connObjectLink)) {
+            JexlContext jexlContext = new MapContext();
             JexlUtils.addFieldsToContext(any, jexlContext);
             JexlUtils.addPlainAttrsToContext(any.getPlainAttrs(), jexlContext);
             JexlUtils.addDerAttrsToContext(any.getDerAttrs(), any.getPlainAttrs(), jexlContext);
-            evalConnObjectLink = JexlUtils.evaluate(anyUtils.getConnObjectLink(provision), jexlContext);
+            evalConnObjectLink = JexlUtils.evaluate(connObjectLink, jexlContext);
         }
 
         // If connObjectLink evaluates to an empty string, just use the provided connObjectKey as Name(),
@@ -414,11 +409,7 @@ public final class MappingUtils {
     }
 
     private static String getGroupOwnerValue(final Provision provision, final Any<?, ?, ?> any) {
-        AnyUtilsFactory anyUtilsFactory =
-                ApplicationContextProvider.getApplicationContext().getBean(AnyUtilsFactory.class);
-
-        Pair<String, Attribute> preparedAttr = prepareAttr(
-                provision, anyUtilsFactory.getInstance(any).getConnObjectKeyItem(provision),
+        Pair<String, Attribute> preparedAttr = prepareAttr(provision, getConnObjectKeyItem(provision),
                 any, null, null, Collections.<String>emptySet(), Collections.<String, AttrMod>emptyMap());
         String connObjectKey = preparedAttr.getKey();
 
@@ -609,6 +600,68 @@ public final class MappingUtils {
         return values == null || values.isEmpty()
                 ? null
                 : values.get(0).getValueAsString();
+    }
+
+    public static MappingItem getConnObjectKeyItem(final Provision provision) {
+        Mapping mapping = null;
+        if (provision != null) {
+            mapping = provision.getMapping();
+        }
+
+        return mapping == null
+                ? null
+                : mapping.getConnObjectKeyItem();
+    }
+
+    public static List<MappingItem> getMappingItems(final Provision provision, final MappingPurpose purpose) {
+        List<? extends MappingItem> items = Collections.<MappingItem>emptyList();
+        if (provision != null) {
+            items = provision.getMapping().getItems();
+        }
+
+        List<MappingItem> result = new ArrayList<>();
+
+        switch (purpose) {
+            case SYNCHRONIZATION:
+                for (MappingItem item : items) {
+                    if (MappingPurpose.PROPAGATION != item.getPurpose()
+                            && MappingPurpose.NONE != item.getPurpose()) {
+
+                        result.add(item);
+                    }
+                }
+                break;
+
+            case PROPAGATION:
+                for (MappingItem item : items) {
+                    if (MappingPurpose.SYNCHRONIZATION != item.getPurpose()
+                            && MappingPurpose.NONE != item.getPurpose()) {
+
+                        result.add(item);
+                    }
+                }
+                break;
+
+            case BOTH:
+                for (MappingItem item : items) {
+                    if (MappingPurpose.NONE != item.getPurpose()) {
+                        result.add(item);
+                    }
+                }
+                break;
+
+            case NONE:
+                for (MappingItem item : items) {
+                    if (MappingPurpose.NONE == item.getPurpose()) {
+                        result.add(item);
+                    }
+                }
+                break;
+
+            default:
+        }
+
+        return result;
     }
 
     /**

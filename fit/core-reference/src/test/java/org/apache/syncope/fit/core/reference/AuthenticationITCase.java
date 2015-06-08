@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.lib.SyncopeClient;
@@ -194,6 +195,8 @@ public class AuthenticationITCase extends AbstractITCase {
         userTO = createUser(userTO);
         assertNotNull(userTO);
 
+        // 1. user assigned to role 1, with search entitlement on realms /odd and /even: won't find anything with 
+        // root realm
         UserService userService2 = clientFactory.create(userTO.getUsername(), "password123").
                 getService(UserService.class);
 
@@ -214,13 +217,20 @@ public class AuthenticationITCase extends AbstractITCase {
         assertFalse(matchedUserKeys.contains(2L));
         assertFalse(matchedUserKeys.contains(5L));
 
+        // 2. user assigned to role 4, with search entitlement on realm /even/two
         UserService userService3 = clientFactory.create("puccini", ADMIN_PWD).getService(UserService.class);
 
         matchedUsers = userService3.search(
                 SyncopeClient.getAnySearchQueryBuilder().realm("/even/two").
                 fiql(SyncopeClient.getUserSearchConditionBuilder().isNotNull("loginDate").query()).build());
         assertNotNull(matchedUsers);
-        assertTrue(matchedUsers.getResult().isEmpty());
+        assertTrue(CollectionUtils.matchesAll(matchedUsers.getResult(), new Predicate<UserTO>() {
+
+            @Override
+            public boolean evaluate(final UserTO matched) {
+                return "/even/two".equals(matched.getRealm());
+            }
+        }));
     }
 
     @Test

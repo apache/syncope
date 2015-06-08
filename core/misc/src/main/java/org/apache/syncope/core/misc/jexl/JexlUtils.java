@@ -22,7 +22,6 @@ import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -106,24 +105,22 @@ public final class JexlUtils {
 
         try {
             for (PropertyDescriptor desc : Introspector.getBeanInfo(object.getClass()).getPropertyDescriptors()) {
-                final Class<?> type = desc.getPropertyType();
-                final String fieldName = desc.getName();
+                Class<?> type = desc.getPropertyType();
+                String fieldName = desc.getName();
 
                 if ((!fieldName.startsWith("pc"))
                         && (!ArrayUtils.contains(IGNORE_FIELDS, fieldName))
                         && (!Iterable.class.isAssignableFrom(type))
                         && (!type.isArray())) {
+
                     try {
-                        final Method getter = desc.getReadMethod();
-
-                        final Object fieldValue;
-
-                        if (getter == null) {
+                        Object fieldValue;
+                        if (desc.getReadMethod() == null) {
                             final Field field = object.getClass().getDeclaredField(fieldName);
                             field.setAccessible(true);
                             fieldValue = field.get(object);
                         } else {
-                            fieldValue = getter.invoke(object);
+                            fieldValue = desc.getReadMethod().invoke(object);
                         }
 
                         context.set(fieldName, fieldValue == null
@@ -133,7 +130,6 @@ public final class JexlUtils {
                                         : fieldValue));
 
                         LOG.debug("Add field {} with value {}", fieldName, fieldValue);
-
                     } catch (Exception iae) {
                         LOG.error("Reading '{}' value error", fieldName, iae);
                     }
@@ -141,6 +137,13 @@ public final class JexlUtils {
             }
         } catch (IntrospectionException ie) {
             LOG.error("Reading class attributes error", ie);
+        }
+
+        if (object instanceof Any) {
+            Any<?, ?, ?> any = (Any<?, ?, ?>) object;
+            if (any.getRealm() != null) {
+                context.set("realm", any.getRealm().getName());
+            }
         }
 
         return context;

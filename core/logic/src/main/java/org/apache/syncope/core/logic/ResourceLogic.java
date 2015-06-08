@@ -50,7 +50,6 @@ import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
-import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.identityconnectors.framework.common.objects.Attribute;
@@ -201,10 +200,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         if (any == null) {
             throw new NotFoundException(anyType + " " + key);
         }
-
-        AnyUtils attrUtils = anyUtilsFactory.getInstance(anyType.getKind());
-
-        MappingItem connObjectKeyItem = attrUtils.getConnObjectKeyItem(provision);
+        MappingItem connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision);
         if (connObjectKeyItem == null) {
             throw new NotFoundException(
                     "ConnObjectKey mapping for " + anyType + " " + key + " on resource '" + resourceKey + "'");
@@ -214,7 +210,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         Connector connector = connFactory.getConnector(resource);
         ConnectorObject connectorObject = connector.getObject(
                 provision.getObjectClass(), new Uid(connObjectKeyValue),
-                connector.getOperationOptions(attrUtils.getMappingItems(provision, MappingPurpose.BOTH)));
+                connector.getOperationOptions(MappingUtils.getMappingItems(provision, MappingPurpose.BOTH)));
         if (connectorObject == null) {
             throw new NotFoundException("Object " + connObjectKeyValue + " with class " + provision.getObjectClass()
                     + " not found on resource " + resourceKey);

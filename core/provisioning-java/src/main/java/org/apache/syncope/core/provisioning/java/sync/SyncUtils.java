@@ -28,6 +28,7 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.SyncPolicySpec;
+import org.apache.syncope.core.misc.MappingUtils;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValidationException;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
@@ -119,7 +120,7 @@ public class SyncUtils {
 
         List<ConnectorObject> found = connector.search(provision.getObjectClass(),
                 new EqualsFilter(new Name(name)), connector.getOperationOptions(
-                        anyUtils.getMappingItems(provision, MappingPurpose.SYNCHRONIZATION)));
+                        MappingUtils.getMappingItems(provision, MappingPurpose.SYNCHRONIZATION)));
 
         if (found.isEmpty()) {
             LOG.debug("No {} found on {} with __NAME__ {}", provision.getObjectClass(), resource, name);
@@ -162,7 +163,7 @@ public class SyncUtils {
 
         List<Long> result = new ArrayList<>();
 
-        MappingItem connObjectKeyItem = anyUtils.getConnObjectKeyItem(provision);
+        MappingItem connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision);
         switch (connObjectKeyItem.getIntMappingType()) {
             case UserPlainSchema:
             case GroupPlainSchema:
@@ -249,12 +250,12 @@ public class SyncUtils {
             final ConnectorObject connObj,
             final List<String> altSearchSchemas,
             final Provision provision,
-            final AnyUtils anyUtils) {
+            final AnyTypeKind anyTypeKind) {
 
         // search for external attribute's name/value of each specified name
         Map<String, Attribute> extValues = new HashMap<>();
 
-        for (MappingItem item : anyUtils.getMappingItems(provision, MappingPurpose.SYNCHRONIZATION)) {
+        for (MappingItem item : MappingUtils.getMappingItems(provision, MappingPurpose.SYNCHRONIZATION)) {
             extValues.put(item.getIntAttrName(), connObj.getAttributeByName(item.getExtAttrName()));
         }
 
@@ -309,7 +310,7 @@ public class SyncUtils {
                     : SearchCond.getAndCond(searchCond, nodeCond);
         }
 
-        return search(searchCond, anyUtils.getAnyTypeKind());
+        return search(searchCond, anyTypeKind);
     }
 
     private SyncCorrelationRule getCorrelationRule(final Provision provision, final SyncPolicySpec policySpec) {
@@ -367,7 +368,7 @@ public class SyncUtils {
         return syncRule == null
                 ? altSearchSchemas == null || altSearchSchemas.isEmpty()
                         ? findByConnObjectKeyItem(uid, provision, anyUtils)
-                        : findByAnySearch(connObj, altSearchSchemas, provision, anyUtils)
+                        : findByAnySearch(connObj, altSearchSchemas, provision, anyUtils.getAnyTypeKind())
                 : findByCorrelationRule(connObj, syncRule, anyUtils.getAnyTypeKind());
     }
 

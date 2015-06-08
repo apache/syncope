@@ -199,7 +199,7 @@ public class ConnObjectUtils {
 
         // 1. fill with data from connector object
         anyTO.setRealm(syncTask.getDestinatioRealm().getFullPath());
-        for (MappingItem item : anyUtils.getMappingItems(provision, MappingPurpose.SYNCHRONIZATION)) {
+        for (MappingItem item : MappingUtils.getMappingItems(provision, MappingPurpose.SYNCHRONIZATION)) {
             Attribute attr = obj.getAttributeByName(item.getExtAttrName());
 
             AttrTO attrTO;

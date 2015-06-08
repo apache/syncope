@@ -48,9 +48,9 @@ import org.apache.syncope.core.misc.AuditManager;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.misc.ConnObjectUtils;
 import org.apache.syncope.core.misc.ExceptionUtils2;
+import org.apache.syncope.core.misc.MappingUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
@@ -122,9 +122,6 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
      */
     @Autowired
     protected AuditManager auditManager;
-
-    @Autowired
-    protected AnyUtilsFactory anyUtilsFactory;
 
     @Autowired
     protected EntityFactory entityFactory;
@@ -537,8 +534,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                     task.getPropagationOperation(),
                     new ObjectClass(task.getObjectClassName()),
                     new Uid(connObjectKey),
-                    connector.getOperationOptions(anyUtilsFactory.getInstance(task.getAnyTypeKind()).
-                            getMappingItems(provision, MappingPurpose.PROPAGATION)));
+                    connector.getOperationOptions(MappingUtils.getMappingItems(provision, MappingPurpose.PROPAGATION)));
         } catch (TimeoutException toe) {
             LOG.debug("Request timeout", toe);
             throw toe;

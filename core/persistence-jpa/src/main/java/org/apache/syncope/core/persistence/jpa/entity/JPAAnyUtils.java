@@ -18,25 +18,18 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IntMappingType;
-import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.DerAttr;
-import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.VirAttr;
-import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
-import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAADerAttr;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAPlainAttr;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAPlainAttrUniqueValue;
@@ -310,82 +303,6 @@ public class JPAAnyUtils implements AnyUtils {
 
             case ANY_OBJECT:
                 result = (T) new JPAAVirAttr();
-                break;
-
-            default:
-        }
-
-        return result;
-    }
-
-    @Override
-    public MappingItem getConnObjectKeyItem(final Provision provision) {
-        Mapping mapping = null;
-        if (provision != null) {
-            mapping = provision.getMapping();
-        }
-
-        return mapping == null
-                ? null
-                : mapping.getConnObjectKeyItem();
-    }
-
-    @Override
-    public String getConnObjectLink(final Provision provision) {
-        Mapping mapping = null;
-        if (provision != null) {
-            mapping = provision.getMapping();
-        }
-
-        return mapping == null
-                ? null
-                : mapping.getConnObjectLink();
-    }
-
-    @Override
-    public List<MappingItem> getMappingItems(final Provision provision, final MappingPurpose purpose) {
-        List<? extends MappingItem> items = Collections.<MappingItem>emptyList();
-        if (provision != null) {
-            items = provision.getMapping().getItems();
-        }
-
-        List<MappingItem> result = new ArrayList<>();
-
-        switch (purpose) {
-            case SYNCHRONIZATION:
-                for (MappingItem item : items) {
-                    if (MappingPurpose.PROPAGATION != item.getPurpose()
-                            && MappingPurpose.NONE != item.getPurpose()) {
-
-                        result.add(item);
-                    }
-                }
-                break;
-
-            case PROPAGATION:
-                for (MappingItem item : items) {
-                    if (MappingPurpose.SYNCHRONIZATION != item.getPurpose()
-                            && MappingPurpose.NONE != item.getPurpose()) {
-
-                        result.add(item);
-                    }
-                }
-                break;
-
-            case BOTH:
-                for (MappingItem item : items) {
-                    if (MappingPurpose.NONE != item.getPurpose()) {
-                        result.add(item);
-                    }
-                }
-                break;
-
-            case NONE:
-                for (MappingItem item : items) {
-                    if (MappingPurpose.NONE == item.getPurpose()) {
-                        result.add(item);
-                    }
-                }
                 break;
 
             default:

@@ -26,7 +26,6 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 
@@ -64,8 +63,7 @@ public interface VirAttrHandler {
     void retrieveVirAttrValues(Any<?, ?, ?> any);
 
     void updateOnResourcesIfMappingMatches(
-            Any<?, ?, ?> any, AnyUtils anyUtils, String schemaKey,
-            Iterable<? extends ExternalResource> resources, IntMappingType mappingType,
-            PropagationByResource propByRes);
+            Any<?, ?, ?> any, String schemaKey, Iterable<? extends ExternalResource> resources,
+            IntMappingType mappingType, PropagationByResource propByRes);
 
 }

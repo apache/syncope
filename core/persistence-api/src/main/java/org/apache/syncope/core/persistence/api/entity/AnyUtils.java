@@ -18,13 +18,9 @@
  */
 package org.apache.syncope.core.persistence.api.entity;
 
-import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
-import java.util.List;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IntMappingType;
-import org.apache.syncope.common.lib.types.MappingPurpose;
-import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 
 public interface AnyUtils {
 
@@ -51,12 +47,6 @@ public interface AnyUtils {
     <T extends VirAttr<?>> Class<T> virAttrClass();
 
     <T extends VirAttr<?>> T newVirAttr();
-
-    MappingItem getConnObjectKeyItem(Provision provision);
-
-    String getConnObjectLink(Provision provision);
-
-    List<MappingItem> getMappingItems(Provision provision, MappingPurpose purpose);
 
     IntMappingType plainIntMappingType();
 

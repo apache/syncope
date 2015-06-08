@@ -49,8 +49,6 @@ import org.apache.syncope.core.misc.MappingUtils;
 import org.apache.syncope.core.misc.jexl.JexlUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.persistence.api.entity.AnyUtils;
-import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
@@ -100,9 +98,6 @@ public class PropagationManagerImpl implements PropagationManager {
      */
     @Autowired
     protected ConnObjectUtils connObjectUtils;
-
-    @Autowired
-    protected AnyUtilsFactory anyUtilsFactory;
 
     @Autowired
     protected VirAttrHandler virAttrHandler;
@@ -412,8 +407,6 @@ public class PropagationManagerImpl implements PropagationManager {
 
         LOG.debug("Provisioning any {}:\n{}", any, propByRes);
 
-        AnyUtils anyUtils = anyUtilsFactory.getInstance(any);
-
         if (!propByRes.get(ResourceOperation.CREATE).isEmpty()
                 && vAttrsToBeRemoved != null && vAttrsToBeUpdated != null) {
 
@@ -421,9 +414,9 @@ public class PropagationManagerImpl implements PropagationManager {
 
             // update vAttrsToBeUpdated as well
             for (VirAttr<?> virAttr : any.getVirAttrs()) {
-                final String schema = virAttr.getSchema().getKey();
+                String schema = virAttr.getSchema().getKey();
 
-                final AttrMod attributeMod = new AttrMod();
+                AttrMod attributeMod = new AttrMod();
                 attributeMod.setSchema(schema);
                 attributeMod.getValuesToBeAdded().addAll(virAttr.getValues());
 
@@ -446,7 +439,7 @@ public class PropagationManagerImpl implements PropagationManager {
                 } else if (provision == null) {
                     LOG.error("No provision specified on resource {} for type {}, ignoring...",
                             resource, any.getType());
-                } else if (anyUtils.getMappingItems(provision, MappingPurpose.PROPAGATION).isEmpty()) {
+                } else if (MappingUtils.getMappingItems(provision, MappingPurpose.PROPAGATION).isEmpty()) {
                     LOG.warn("Requesting propagation for {} but no propagation mapping provided for {}",
                             any.getType(), resource);
                 } else {
@@ -454,7 +447,7 @@ public class PropagationManagerImpl implements PropagationManager {
                     task.setResource(resource);
                     task.setObjectClassName(
                             resource.getProvision(any.getType()).getObjectClass().getObjectClassValue());
-                    task.setAnyTypeKind(anyUtils.getAnyTypeKind());
+                    task.setAnyTypeKind(any.getType().getKind());
                     if (!deleteOnResource) {
                         task.setAnyKey(any.getKey());
                     }
@@ -462,15 +455,15 @@ public class PropagationManagerImpl implements PropagationManager {
                     task.setPropagationMode(resource.getPropagationMode());
                     task.setOldConnObjectKey(propByRes.getOldConnObjectKey(resource.getKey()));
 
-                    Pair<String, Set<Attribute>> preparedAttrs = MappingUtils.prepareAttributes(anyUtils, any,
-                            password, changePwd, vAttrsToBeRemoved, vAttrsToBeUpdated, enable, provision);
+                    Pair<String, Set<Attribute>> preparedAttrs = MappingUtils.prepareAttrs(
+                            any, password, changePwd, vAttrsToBeRemoved, vAttrsToBeUpdated, enable, provision);
                     task.setConnObjectKey(preparedAttrs.getKey());
 
                     // Check if any of mandatory attributes (in the mapping) is missing or not received any value: 
                     // if so, add special attributes that will be evaluated by PropagationTaskExecutor
                     List<String> mandatoryMissing = new ArrayList<>();
                     List<String> mandatoryNullOrEmpty = new ArrayList<>();
-                    for (MappingItem item : anyUtils.getMappingItems(provision, MappingPurpose.PROPAGATION)) {
+                    for (MappingItem item : MappingUtils.getMappingItems(provision, MappingPurpose.PROPAGATION)) {
                         if (!item.isConnObjectKey()
                                 && JexlUtils.evaluateMandatoryCondition(item.getMandatoryCondition(), any)) {
 

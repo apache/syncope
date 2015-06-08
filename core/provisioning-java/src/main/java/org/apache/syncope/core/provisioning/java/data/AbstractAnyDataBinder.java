@@ -368,7 +368,7 @@ abstract class AbstractAnyDataBinder {
                 }
 
                 for (ExternalResource resource : resources) {
-                    for (MappingItem mapItem : anyUtils.getMappingItems(
+                    for (MappingItem mapItem : MappingUtils.getMappingItems(
                             resource.getProvision(any.getType()), MappingPurpose.PROPAGATION)) {
 
                         if (schema.getKey().equals(mapItem.getIntAttrName())
@@ -402,7 +402,7 @@ abstract class AbstractAnyDataBinder {
             }
 
             if (schema != null && attr != null && attr.getSchema() != null) {
-                virAttrHander.updateOnResourcesIfMappingMatches(any, anyUtils, schema.getKey(),
+                virAttrHander.updateOnResourcesIfMappingMatches(any, schema.getKey(),
                         resources, anyUtils.plainIntMappingType(), propByRes);
 
                 // 1.1 remove values
@@ -460,7 +460,7 @@ abstract class AbstractAnyDataBinder {
                 }
 
                 for (ExternalResource resource : resources) {
-                    for (MappingItem mapItem : anyUtils.getMappingItems(
+                    for (MappingItem mapItem : MappingUtils.getMappingItems(
                             resource.getProvision(any.getType()), MappingPurpose.PROPAGATION)) {
 
                         if (derSchema.getKey().equals(mapItem.getIntAttrName())
@@ -486,7 +486,7 @@ abstract class AbstractAnyDataBinder {
         for (String derAttrToBeAdded : anyMod.getDerAttrsToAdd()) {
             DerSchema derSchema = getDerSchema(derAttrToBeAdded);
             if (derSchema != null) {
-                virAttrHander.updateOnResourcesIfMappingMatches(any, anyUtils, derSchema.getKey(),
+                virAttrHander.updateOnResourcesIfMappingMatches(any, derSchema.getKey(),
                         resources, anyUtils.derIntMappingType(), propByRes);
 
                 DerAttr derAttr = any.getDerAttr(derSchema.getKey());
@@ -700,7 +700,7 @@ abstract class AbstractAnyDataBinder {
         for (ExternalResource resource : iterable) {
             Provision provision = resource.getProvision(any.getType());
             if (provision != null && provision.getMapping() != null) {
-                MappingItem connObjectKeyItem = anyUtilsFactory.getInstance(any).getConnObjectKeyItem(provision);
+                MappingItem connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision);
                 if (connObjectKeyItem == null) {
                     throw new NotFoundException(
                             "ConnObjectKey mapping for " + any.getType().getKey() + " " + any.getKey()

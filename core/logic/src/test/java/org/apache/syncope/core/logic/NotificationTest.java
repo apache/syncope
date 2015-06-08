@@ -70,9 +70,6 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
@@ -82,22 +79,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.annotation.Transactional;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {
-    "classpath:provisioningContext.xml",
-    "classpath:logicContext.xml",
-    "classpath:workflowContext.xml",
-    "classpath:persistenceTest.xml",
-    "classpath:logicTest.xml"
-})
-@Transactional
-public class NotificationTest {
-
-    private static final Logger LOG = LoggerFactory.getLogger(NotificationTest.class);
+public class NotificationTest extends AbstractTest {
 
     private static final String SMTP_HOST = "localhost";
 

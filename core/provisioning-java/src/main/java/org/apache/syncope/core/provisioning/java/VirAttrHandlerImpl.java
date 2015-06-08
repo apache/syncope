@@ -117,12 +117,12 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
     }
 
     @Override
-    public void updateOnResourcesIfMappingMatches(final Any<?, ?, ?> any, final AnyUtils anyUtils,
-            final String schemaKey, final Iterable<? extends ExternalResource> resources,
-            final IntMappingType mappingType, final PropagationByResource propByRes) {
+    public void updateOnResourcesIfMappingMatches(final Any<?, ?, ?> any, final String schemaKey,
+            final Iterable<? extends ExternalResource> resources, final IntMappingType mappingType,
+            final PropagationByResource propByRes) {
 
         for (ExternalResource resource : resources) {
-            for (MappingItem mapItem : anyUtils.getMappingItems(
+            for (MappingItem mapItem : MappingUtils.getMappingItems(
                     resource.getProvision(any.getType()), MappingPurpose.PROPAGATION)) {
 
                 if (schemaKey.equals(mapItem.getIntAttrName()) && mapItem.getIntMappingType() == mappingType) {
@@ -166,7 +166,7 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
                 }
 
                 for (ExternalResource resource : externalResources) {
-                    for (MappingItem mapItem : anyUtils.getMappingItems(
+                    for (MappingItem mapItem : MappingUtils.getMappingItems(
                             resource.getProvision(any.getType()), MappingPurpose.PROPAGATION)) {
 
                         if (virSchema.getKey().equals(mapItem.getIntAttrName())
@@ -199,8 +199,8 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
                     any.add(virAttr);
                 }
 
-                updateOnResourcesIfMappingMatches(any, anyUtils, virSchema.getKey(),
-                        externalResources, anyUtils.derIntMappingType(), propByRes);
+                updateOnResourcesIfMappingMatches(
+                        any, virSchema.getKey(), externalResources, anyUtils.derIntMappingType(), propByRes);
 
                 List<String> values = new ArrayList<>(virAttr.getValues());
                 values.removeAll(vAttrToBeUpdated.getValuesToBeRemoved());
@@ -322,19 +322,19 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
 
             AnyUtils anyUtils = anyUtilsFactory.getInstance(any);
 
-            for (ExternalResource resource : getTargetResources(virAttr, type, anyUtils, any.getType())) {
+            for (ExternalResource resource : getTargetResources(virAttr, type, any.getType())) {
                 Provision provision = resource.getProvision(any.getType());
                 LOG.debug("Search values into {},{}", resource, provision);
 
                 try {
-                    List<MappingItem> mappings = anyUtils.getMappingItems(provision, MappingPurpose.BOTH);
+                    List<MappingItem> mappings = MappingUtils.getMappingItems(provision, MappingPurpose.BOTH);
 
                     ConnectorObject connectorObject;
                     if (externalResources.containsKey(resource.getKey())) {
                         connectorObject = externalResources.get(resource.getKey());
                     } else {
                         LOG.debug("Perform connection to {}", resource.getKey());
-                        String connObjectKey = anyUtils.getConnObjectKeyItem(provision) == null
+                        String connObjectKey = MappingUtils.getConnObjectKeyItem(provision) == null
                                 ? null
                                 : MappingUtils.getConnObjectKeyValue(any, provision);
 
@@ -395,7 +395,7 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
     }
 
     private Collection<ExternalResource> getTargetResources(
-            final VirAttr<?> attr, final IntMappingType type, final AnyUtils anyUtils, final AnyType anyType) {
+            final VirAttr<?> attr, final IntMappingType type, final AnyType anyType) {
 
         return CollectionUtils.select(getAllResources(attr.getOwner()), new Predicate<ExternalResource>() {
 
@@ -403,7 +403,7 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
             public boolean evaluate(final ExternalResource resource) {
                 return resource.getProvision(anyType) != null
                         && !MappingUtils.getMatchingMappingItems(
-                                anyUtils.getMappingItems(resource.getProvision(anyType), MappingPurpose.BOTH),
+                                MappingUtils.getMappingItems(resource.getProvision(anyType), MappingPurpose.BOTH),
                                 attr.getSchema().getKey(), type).isEmpty();
             }
         });
