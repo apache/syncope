@@ -162,8 +162,8 @@ public class UserRestClient extends AbstractAnyRestClient {
             UserService service = getService(etag, UserService.class);
 
             final ResourceAssociationMod associationMod = new ResourceAssociationMod();
-            associationMod.getTargetResources().addAll(CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(),
-                            ResourceKey.class));
+            associationMod.getTargetResources().addAll(
+                    CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(), ResourceKey.class));
             service.bulkAssociation(userId, ResourceAssociationActionType.LINK, associationMod);
 
             resetClient(UserService.class);
@@ -191,8 +191,9 @@ public class UserRestClient extends AbstractAnyRestClient {
             UserService service = getService(etag, UserService.class);
 
             final ResourceAssociationMod associationMod = new ResourceAssociationMod();
-            associationMod.getTargetResources().addAll(CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(),
-                            ResourceKey.class));
+            associationMod.getTargetResources().addAll(CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).
+                    getResourceNames(),
+                    ResourceKey.class));
             associationMod.setChangePwd(changepwd);
             associationMod.setPassword(password);
 
@@ -224,8 +225,9 @@ public class UserRestClient extends AbstractAnyRestClient {
             UserService service = getService(etag, UserService.class);
 
             final ResourceAssociationMod associationMod = new ResourceAssociationMod();
-            associationMod.getTargetResources().addAll(CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(),
-                            ResourceKey.class));
+            associationMod.getTargetResources().addAll(CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).
+                    getResourceNames(),
+                    ResourceKey.class));
             associationMod.setChangePwd(changepwd);
             associationMod.setPassword(password);
 
