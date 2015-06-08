@@ -32,7 +32,7 @@ import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceAssociationActionType;
 import org.apache.syncope.common.lib.types.ResourceDeassociationActionType;
-import org.apache.syncope.common.lib.wrap.ResourceName;
+import org.apache.syncope.common.lib.wrap.ResourceKey;
 import org.apache.syncope.common.rest.api.CollectionWrapper;
 import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.apache.syncope.common.rest.api.service.GroupService;
@@ -124,7 +124,7 @@ public class GroupRestClient extends AbstractAnyRestClient {
             GroupService service = getService(etag, GroupService.class);
             service.bulkDeassociation(groupId, ResourceDeassociationActionType.UNLINK,
                     CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(),
-                            ResourceName.class));
+                            ResourceKey.class));
             resetClient(GroupService.class);
         }
     }
@@ -134,7 +134,7 @@ public class GroupRestClient extends AbstractAnyRestClient {
             GroupService service = getService(etag, GroupService.class);
             service.bulkAssociation(groupId, ResourceAssociationActionType.LINK,
                     CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(),
-                            ResourceName.class));
+                            ResourceKey.class));
             resetClient(GroupService.class);
         }
     }
@@ -145,7 +145,7 @@ public class GroupRestClient extends AbstractAnyRestClient {
             GroupService service = getService(etag, GroupService.class);
             result = service.bulkDeassociation(groupId, ResourceDeassociationActionType.DEPROVISION,
                     CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(),
-                            ResourceName.class)).
+                            ResourceKey.class)).
                     readEntity(BulkActionResult.class);
             resetClient(GroupService.class);
         }
@@ -158,7 +158,7 @@ public class GroupRestClient extends AbstractAnyRestClient {
             GroupService service = getService(etag, GroupService.class);
             result = service.bulkAssociation(groupId, ResourceAssociationActionType.PROVISION,
                     CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(),
-                            ResourceName.class)).
+                            ResourceKey.class)).
                     readEntity(BulkActionResult.class);
             resetClient(GroupService.class);
         }
@@ -171,7 +171,7 @@ public class GroupRestClient extends AbstractAnyRestClient {
             GroupService service = getService(etag, GroupService.class);
             result = service.bulkDeassociation(groupId, ResourceDeassociationActionType.UNASSIGN,
                     CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(),
-                            ResourceName.class)).
+                            ResourceKey.class)).
                     readEntity(BulkActionResult.class);
             resetClient(GroupService.class);
         }
@@ -184,7 +184,7 @@ public class GroupRestClient extends AbstractAnyRestClient {
             GroupService service = getService(etag, GroupService.class);
             result = service.bulkAssociation(groupId, ResourceAssociationActionType.ASSIGN,
                     CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(),
-                            ResourceName.class)).
+                            ResourceKey.class)).
                     readEntity(BulkActionResult.class);
             resetClient(GroupService.class);
         }

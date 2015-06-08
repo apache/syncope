@@ -159,7 +159,7 @@ public class ConnectorRestClient extends BaseRestClient {
 
         boolean check = false;
         try {
-            check = getService(ConnectorService.class).check(toBeChecked);
+            check = getService(ConnectorService.class).check(toBeChecked).getElement();
         } catch (Exception e) {
             LOG.error("While checking {}", toBeChecked, e);
         }
@@ -170,7 +170,7 @@ public class ConnectorRestClient extends BaseRestClient {
     public boolean check(final ResourceTO resourceTO) {
         boolean check = false;
         try {
-            check = getService(ResourceService.class).check(resourceTO);
+            check = getService(ResourceService.class).check(resourceTO).getElement();
         } catch (Exception e) {
             LOG.error("Connector not found {}", resourceTO.getConnector(), e);
         }

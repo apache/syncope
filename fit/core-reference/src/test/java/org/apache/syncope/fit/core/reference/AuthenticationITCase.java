@@ -52,7 +52,7 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.common.lib.types.ResourceDeassociationActionType;
 import org.apache.syncope.common.lib.types.SchemaType;
-import org.apache.syncope.common.lib.wrap.ResourceName;
+import org.apache.syncope.common.lib.wrap.ResourceKey;
 import org.apache.syncope.common.rest.api.CollectionWrapper;
 import org.apache.syncope.common.rest.api.service.SchemaService;
 import org.apache.syncope.common.rest.api.service.UserService;
@@ -354,7 +354,7 @@ public class AuthenticationITCase extends AbstractITCase {
         // 2. unlink the resource from the created user
         assertNotNull(userService.bulkDeassociation(user.getKey(),
                 ResourceDeassociationActionType.UNLINK,
-                CollectionWrapper.wrap(RESOURCE_NAME_TESTDB, ResourceName.class)).
+                CollectionWrapper.wrap(RESOURCE_NAME_TESTDB, ResourceKey.class)).
                 readEntity(BulkActionResult.class));
 
         // 3. change password on Syncope

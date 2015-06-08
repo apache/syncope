@@ -29,6 +29,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.apache.syncope.common.lib.AbstractBaseBean;
@@ -37,6 +38,7 @@ import org.apache.syncope.common.lib.jaxb.XmlGenericMapAdapter;
 @XmlRootElement(name = "bulkActionResult")
 @XmlType
 @XmlAccessorType(XmlAccessType.FIELD)
+@XmlSeeAlso(BulkActionResult.Status.class)
 public class BulkActionResult extends AbstractBaseBean {
 
     private static final long serialVersionUID = 2868894178821778133L;

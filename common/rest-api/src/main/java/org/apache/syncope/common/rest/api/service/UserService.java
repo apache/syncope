@@ -45,7 +45,7 @@ import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.ResourceAssociationActionType;
 import org.apache.syncope.common.lib.types.ResourceDeassociationActionType;
-import org.apache.syncope.common.lib.wrap.ResourceName;
+import org.apache.syncope.common.lib.wrap.ResourceKey;
 import org.apache.syncope.common.rest.api.beans.AnyListQuery;
 import org.apache.syncope.common.rest.api.beans.AnySearchQuery;
 
@@ -209,7 +209,7 @@ public interface UserService extends JAXRSService {
     Response bulkDeassociation(
             @NotNull @PathParam("userKey") Long userKey,
             @NotNull @PathParam("type") ResourceDeassociationActionType type,
-            @NotNull List<ResourceName> resourceNames);
+            @NotNull List<ResourceKey> resourceNames);
 
     /**
      * Executes resource-related operations on given user.

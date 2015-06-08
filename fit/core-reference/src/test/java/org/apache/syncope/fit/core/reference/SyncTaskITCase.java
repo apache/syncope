@@ -55,7 +55,7 @@ import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.lib.types.ResourceDeassociationActionType;
 import org.apache.syncope.common.lib.types.SyncPolicySpecItem;
 import org.apache.syncope.common.lib.types.TaskType;
-import org.apache.syncope.common.lib.wrap.ResourceName;
+import org.apache.syncope.common.lib.wrap.ResourceKey;
 import org.apache.syncope.common.rest.api.CollectionWrapper;
 import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.syncope.core.misc.security.Encryptor;
@@ -290,7 +290,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
             for (GroupTO group : matchingGroups.getResult()) {
                 groupService.bulkDeassociation(group.getKey(),
                         ResourceDeassociationActionType.UNLINK,
-                        CollectionWrapper.wrap(RESOURCE_NAME_LDAP, ResourceName.class));
+                        CollectionWrapper.wrap(RESOURCE_NAME_LDAP, ResourceKey.class));
                 groupService.delete(group.getKey());
             }
         }
@@ -302,7 +302,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
             for (UserTO user : matchingUsers.getResult()) {
                 userService.bulkDeassociation(user.getKey(),
                         ResourceDeassociationActionType.UNLINK,
-                        CollectionWrapper.wrap(RESOURCE_NAME_LDAP, ResourceName.class));
+                        CollectionWrapper.wrap(RESOURCE_NAME_LDAP, ResourceKey.class));
                 userService.delete(user.getKey());
             }
         }

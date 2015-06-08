@@ -40,7 +40,7 @@ public final class CollectionWrapper {
     public static <E, T extends AbstractWrappable<E>> List<T> wrap(
             final Collection<E> collection, final Class<T> reference) {
 
-        List<T> response = new ArrayList<T>();
+        List<T> response = new ArrayList<>();
         for (E element : collection) {
             response.add(AbstractWrappable.getInstance(reference, element));
         }
@@ -48,7 +48,7 @@ public final class CollectionWrapper {
     }
 
     public static <T extends AbstractWrappable<String>> List<String> unwrap(final Collection<T> collection) {
-        List<String> response = new ArrayList<String>();
+        List<String> response = new ArrayList<>();
         for (T item : collection) {
             response.add(item.getElement());
         }
@@ -56,7 +56,7 @@ public final class CollectionWrapper {
     }
 
     public static List<AuditLoggerName> wrapLogger(final Collection<LoggerTO> logger) {
-        List<AuditLoggerName> respons = new ArrayList<AuditLoggerName>();
+        List<AuditLoggerName> respons = new ArrayList<>();
         for (LoggerTO l : logger) {
             try {
                 respons.add(AuditLoggerName.fromLoggerName(l.getKey()));

@@ -24,8 +24,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -38,7 +36,6 @@ import org.apache.syncope.common.lib.types.TraceLevel;
 
 @XmlRootElement(name = "notification")
 @XmlType
-@XmlAccessorType(XmlAccessType.FIELD)
 public class NotificationTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = -6145117115632592612L;

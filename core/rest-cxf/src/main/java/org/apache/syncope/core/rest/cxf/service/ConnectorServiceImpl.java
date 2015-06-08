@@ -31,6 +31,7 @@ import org.apache.syncope.common.lib.to.ConnIdObjectClassTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
+import org.apache.syncope.common.lib.wrap.BooleanWrap;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.ConnectorService;
 import org.apache.syncope.core.logic.ConnectorLogic;
@@ -121,8 +122,10 @@ public class ConnectorServiceImpl extends AbstractServiceImpl implements Connect
     }
 
     @Override
-    public boolean check(final ConnInstanceTO connInstanceTO) {
-        return logic.check(connInstanceTO);
+    public BooleanWrap check(final ConnInstanceTO connInstanceTO) {
+        BooleanWrap result = new BooleanWrap();
+        result.setElement(logic.check(connInstanceTO));
+        return result;
     }
 
     @Override

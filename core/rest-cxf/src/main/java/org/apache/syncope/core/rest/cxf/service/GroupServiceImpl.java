@@ -32,7 +32,7 @@ import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.types.ResourceAssociationActionType;
 import org.apache.syncope.common.lib.types.ResourceDeassociationActionType;
-import org.apache.syncope.common.lib.wrap.ResourceName;
+import org.apache.syncope.common.lib.wrap.ResourceKey;
 import org.apache.syncope.common.rest.api.CollectionWrapper;
 import org.apache.syncope.common.rest.api.beans.AnyListQuery;
 import org.apache.syncope.common.rest.api.beans.AnySearchQuery;
@@ -131,7 +131,7 @@ public class GroupServiceImpl extends AbstractServiceImpl implements GroupServic
 
     @Override
     public Response bulkDeassociation(
-            final Long groupKey, final ResourceDeassociationActionType type, final List<ResourceName> resourceNames) {
+            final Long groupKey, final ResourceDeassociationActionType type, final List<ResourceKey> resourceNames) {
 
         GroupTO group = logic.read(groupKey);
 
@@ -158,7 +158,7 @@ public class GroupServiceImpl extends AbstractServiceImpl implements GroupServic
         BulkActionResult result = new BulkActionResult();
 
         if (type == ResourceDeassociationActionType.UNLINK) {
-            for (ResourceName resourceName : resourceNames) {
+            for (ResourceKey resourceName : resourceNames) {
                 result.getResults().put(resourceName.getElement(),
                         updated.getResources().contains(resourceName.getElement())
                                 ? BulkActionResult.Status.FAILURE
@@ -176,7 +176,7 @@ public class GroupServiceImpl extends AbstractServiceImpl implements GroupServic
 
     @Override
     public Response bulkAssociation(
-            final Long groupKey, final ResourceAssociationActionType type, final List<ResourceName> resourceNames) {
+            final Long groupKey, final ResourceAssociationActionType type, final List<ResourceKey> resourceNames) {
 
         GroupTO group = logic.read(groupKey);
 
@@ -203,7 +203,7 @@ public class GroupServiceImpl extends AbstractServiceImpl implements GroupServic
         BulkActionResult result = new BulkActionResult();
 
         if (type == ResourceAssociationActionType.LINK) {
-            for (ResourceName resourceName : resourceNames) {
+            for (ResourceKey resourceName : resourceNames) {
                 result.getResults().put(resourceName.getElement(),
                         updated.getResources().contains(resourceName.getElement())
                                 ? BulkActionResult.Status.FAILURE

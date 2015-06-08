@@ -449,7 +449,7 @@ public class ConnectorITCase extends AbstractITCase {
         connectorTO.setDisplayName("H2Test");
 
         // set the connector configuration using PropertyTO
-        Set<ConnConfProperty> conf = new HashSet<ConnConfProperty>();
+        Set<ConnConfProperty> conf = new HashSet<>();
 
         ConnConfPropSchema jdbcDriverSchema = new ConnConfPropSchema();
         jdbcDriverSchema.setName("jdbcDriver");
@@ -517,14 +517,14 @@ public class ConnectorITCase extends AbstractITCase {
         // set connector configuration
         connectorTO.getConfiguration().addAll(conf);
 
-        assertTrue(connectorService.check(connectorTO));
+        assertTrue(connectorService.check(connectorTO).getElement());
 
         conf.remove(password);
         password.getValues().clear();
         password.getValues().add("password");
         conf.add(password);
 
-        assertFalse(connectorService.check(connectorTO));
+        assertFalse(connectorService.check(connectorTO).getElement());
     }
 
     @Test
@@ -594,7 +594,7 @@ public class ConnectorITCase extends AbstractITCase {
         connectorTO.setDisplayName("WSSoap");
 
         // set the connector configuration using PropertyTO
-        Set<ConnConfProperty> conf = new HashSet<ConnConfProperty>();
+        Set<ConnConfProperty> conf = new HashSet<>();
 
         ConnConfPropSchema userSchema = new ConnConfPropSchema();
         userSchema.setName("endpoint");
@@ -621,7 +621,7 @@ public class ConnectorITCase extends AbstractITCase {
         connectorTO.getConfiguration().addAll(conf);
 
         try {
-            assertFalse(connectorService.check(connectorTO));
+            assertFalse(connectorService.check(connectorTO).getElement());
 
             Response response = connectorService.create(connectorTO);
             if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
@@ -667,7 +667,7 @@ public class ConnectorITCase extends AbstractITCase {
             // ----------------------------------------
             // Check connection without saving the resource ....
             // ----------------------------------------
-            assertTrue(resourceService.check(resourceTO));
+            assertTrue(resourceService.check(resourceTO).getElement());
             // ----------------------------------------
         } finally {
             // Remove connector from db to make test re-runnable

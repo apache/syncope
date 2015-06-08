@@ -39,6 +39,7 @@ import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.ResourceDeassociationActionType;
 import org.apache.syncope.common.lib.wrap.AnyKey;
+import org.apache.syncope.common.lib.wrap.BooleanWrap;
 
 /**
  * REST operations for external resources.
@@ -123,8 +124,9 @@ public interface ResourceService extends JAXRSService {
      */
     @POST
     @Path("check")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    boolean check(@NotNull ResourceTO resourceTO);
+    BooleanWrap check(@NotNull ResourceTO resourceTO);
 
     /**
      * De-associate any objects from the given resource.

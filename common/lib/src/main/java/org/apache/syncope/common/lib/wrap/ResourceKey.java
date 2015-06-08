@@ -21,9 +21,9 @@ package org.apache.syncope.common.lib.wrap;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-@XmlRootElement(name = "resourceName")
+@XmlRootElement(name = "resourceKey")
 @XmlType
-public class ResourceName extends AbstractWrappable<String> {
+public class ResourceKey extends AbstractWrappable<String> {
 
     private static final long serialVersionUID = -175720097924079573L;
 

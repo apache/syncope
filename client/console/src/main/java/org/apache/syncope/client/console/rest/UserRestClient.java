@@ -34,7 +34,7 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceAssociationActionType;
 import org.apache.syncope.common.lib.types.ResourceDeassociationActionType;
-import org.apache.syncope.common.lib.wrap.ResourceName;
+import org.apache.syncope.common.lib.wrap.ResourceKey;
 import org.apache.syncope.common.rest.api.CollectionWrapper;
 import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.apache.syncope.common.rest.api.service.UserService;
@@ -152,7 +152,7 @@ public class UserRestClient extends AbstractAnyRestClient {
             UserService service = getService(etag, UserService.class);
             service.bulkDeassociation(userId, ResourceDeassociationActionType.UNLINK,
                     CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(),
-                            ResourceName.class));
+                            ResourceKey.class));
             resetClient(UserService.class);
         }
     }
@@ -162,9 +162,8 @@ public class UserRestClient extends AbstractAnyRestClient {
             UserService service = getService(etag, UserService.class);
 
             final ResourceAssociationMod associationMod = new ResourceAssociationMod();
-            associationMod.getTargetResources().addAll(
-                    CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(),
-                            ResourceName.class));
+            associationMod.getTargetResources().addAll(CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(),
+                            ResourceKey.class));
             service.bulkAssociation(userId, ResourceAssociationActionType.LINK, associationMod);
 
             resetClient(UserService.class);
@@ -177,7 +176,7 @@ public class UserRestClient extends AbstractAnyRestClient {
             UserService service = getService(etag, UserService.class);
             result = service.bulkDeassociation(userId, ResourceDeassociationActionType.DEPROVISION,
                     CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(),
-                            ResourceName.class)).
+                            ResourceKey.class)).
                     readEntity(BulkActionResult.class);
             resetClient(UserService.class);
         }
@@ -192,9 +191,8 @@ public class UserRestClient extends AbstractAnyRestClient {
             UserService service = getService(etag, UserService.class);
 
             final ResourceAssociationMod associationMod = new ResourceAssociationMod();
-            associationMod.getTargetResources().addAll(
-                    CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(),
-                            ResourceName.class));
+            associationMod.getTargetResources().addAll(CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(),
+                            ResourceKey.class));
             associationMod.setChangePwd(changepwd);
             associationMod.setPassword(password);
 
@@ -211,7 +209,7 @@ public class UserRestClient extends AbstractAnyRestClient {
             UserService service = getService(etag, UserService.class);
             result = service.bulkDeassociation(userId, ResourceDeassociationActionType.UNASSIGN,
                     CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(),
-                            ResourceName.class)).
+                            ResourceKey.class)).
                     readEntity(BulkActionResult.class);
             resetClient(UserService.class);
         }
@@ -226,9 +224,8 @@ public class UserRestClient extends AbstractAnyRestClient {
             UserService service = getService(etag, UserService.class);
 
             final ResourceAssociationMod associationMod = new ResourceAssociationMod();
-            associationMod.getTargetResources().addAll(
-                    CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(),
-                            ResourceName.class));
+            associationMod.getTargetResources().addAll(CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(),
+                            ResourceKey.class));
             associationMod.setChangePwd(changepwd);
             associationMod.setPassword(password);
 

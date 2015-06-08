@@ -42,6 +42,7 @@ import org.apache.syncope.common.lib.to.ConnIdObjectClassTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
+import org.apache.syncope.common.lib.wrap.BooleanWrap;
 
 /**
  * REST operations for connector bundles and instances.
@@ -178,7 +179,7 @@ public interface ConnectorService extends JAXRSService {
     @Path("check")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    boolean check(@NotNull ConnInstanceTO connInstanceTO);
+    BooleanWrap check(@NotNull ConnInstanceTO connInstanceTO);
 
     /**
      * Reload all connector bundles and instances.

@@ -62,7 +62,7 @@ import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.ResourceAssociationActionType;
 import org.apache.syncope.common.lib.types.ResourceDeassociationActionType;
 import org.apache.syncope.common.lib.types.SchemaType;
-import org.apache.syncope.common.lib.wrap.ResourceName;
+import org.apache.syncope.common.lib.wrap.ResourceKey;
 import org.apache.syncope.common.rest.api.CollectionWrapper;
 import org.apache.syncope.common.rest.api.Preference;
 import org.apache.syncope.common.rest.api.RESTHeaders;
@@ -326,7 +326,7 @@ public class GroupITCase extends AbstractITCase {
 
         assertNotNull(groupService.bulkDeassociation(actual.getKey(),
                 ResourceDeassociationActionType.UNLINK,
-                CollectionWrapper.wrap(RESOURCE_NAME_LDAP, ResourceName.class)).
+                CollectionWrapper.wrap(RESOURCE_NAME_LDAP, ResourceKey.class)).
                 readEntity(BulkActionResult.class));
 
         actual = groupService.read(actual.getKey());
@@ -353,7 +353,7 @@ public class GroupITCase extends AbstractITCase {
 
         assertNotNull(groupService.bulkAssociation(actual.getKey(),
                 ResourceAssociationActionType.LINK,
-                CollectionWrapper.wrap(RESOURCE_NAME_LDAP, ResourceName.class)).
+                CollectionWrapper.wrap(RESOURCE_NAME_LDAP, ResourceKey.class)).
                 readEntity(BulkActionResult.class));
 
         actual = groupService.read(actual.getKey());
@@ -376,7 +376,7 @@ public class GroupITCase extends AbstractITCase {
 
         assertNotNull(groupService.bulkDeassociation(actual.getKey(),
                 ResourceDeassociationActionType.UNASSIGN,
-                CollectionWrapper.wrap(RESOURCE_NAME_LDAP, ResourceName.class)).
+                CollectionWrapper.wrap(RESOURCE_NAME_LDAP, ResourceKey.class)).
                 readEntity(BulkActionResult.class));
 
         actual = groupService.read(actual.getKey());
@@ -408,7 +408,7 @@ public class GroupITCase extends AbstractITCase {
 
         assertNotNull(groupService.bulkAssociation(actual.getKey(),
                 ResourceAssociationActionType.ASSIGN,
-                CollectionWrapper.wrap(RESOURCE_NAME_LDAP, ResourceName.class)).
+                CollectionWrapper.wrap(RESOURCE_NAME_LDAP, ResourceKey.class)).
                 readEntity(BulkActionResult.class));
 
         actual = groupService.read(actual.getKey());
@@ -426,7 +426,7 @@ public class GroupITCase extends AbstractITCase {
 
         assertNotNull(groupService.bulkDeassociation(actual.getKey(),
                 ResourceDeassociationActionType.DEPROVISION,
-                CollectionWrapper.wrap(RESOURCE_NAME_LDAP, ResourceName.class)).
+                CollectionWrapper.wrap(RESOURCE_NAME_LDAP, ResourceKey.class)).
                 readEntity(BulkActionResult.class));
 
         actual = groupService.read(actual.getKey());
@@ -458,7 +458,7 @@ public class GroupITCase extends AbstractITCase {
 
         assertNotNull(groupService.bulkAssociation(actual.getKey(),
                 ResourceAssociationActionType.PROVISION,
-                CollectionWrapper.wrap(RESOURCE_NAME_LDAP, ResourceName.class)).
+                CollectionWrapper.wrap(RESOURCE_NAME_LDAP, ResourceKey.class)).
                 readEntity(BulkActionResult.class));
 
         actual = groupService.read(actual.getKey());
@@ -484,7 +484,7 @@ public class GroupITCase extends AbstractITCase {
 
         assertNotNull(groupService.bulkAssociation(actual.getKey(),
                 ResourceAssociationActionType.PROVISION,
-                CollectionWrapper.wrap("resource-ldap", ResourceName.class)).
+                CollectionWrapper.wrap("resource-ldap", ResourceKey.class)).
                 readEntity(BulkActionResult.class));
 
         actual = groupService.read(actual.getKey());
@@ -494,7 +494,7 @@ public class GroupITCase extends AbstractITCase {
 
         assertNotNull(groupService.bulkDeassociation(actual.getKey(),
                 ResourceDeassociationActionType.DEPROVISION,
-                CollectionWrapper.wrap(RESOURCE_NAME_LDAP, ResourceName.class)).
+                CollectionWrapper.wrap(RESOURCE_NAME_LDAP, ResourceKey.class)).
                 readEntity(BulkActionResult.class));
 
         actual = groupService.read(actual.getKey());

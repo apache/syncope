@@ -26,7 +26,7 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.lib.AbstractBaseBean;
-import org.apache.syncope.common.lib.wrap.ResourceName;
+import org.apache.syncope.common.lib.wrap.ResourceKey;
 
 /**
  * This class is used to specify the willing to create associations between user and external references.
@@ -43,7 +43,7 @@ public class ResourceAssociationMod extends AbstractBaseBean {
     /**
      * Target external resources.
      */
-    private final List<ResourceName> targetResources = new ArrayList<ResourceName>();
+    private final List<ResourceKey> targetResources = new ArrayList<ResourceKey>();
 
     /**
      * Indicate the willing to change password on target external resources.
@@ -58,7 +58,7 @@ public class ResourceAssociationMod extends AbstractBaseBean {
     @XmlElementWrapper(name = "resources")
     @XmlElement(name = "resource")
     @JsonProperty("resources")
-    public List<ResourceName> getTargetResources() {
+    public List<ResourceKey> getTargetResources() {
         return targetResources;
     }
 

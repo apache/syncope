@@ -73,7 +73,7 @@ import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.lib.types.ResourceAssociationActionType;
 import org.apache.syncope.common.lib.types.ResourceDeassociationActionType;
 import org.apache.syncope.common.lib.types.TaskType;
-import org.apache.syncope.common.lib.wrap.ResourceName;
+import org.apache.syncope.common.lib.wrap.ResourceKey;
 import org.apache.syncope.common.rest.api.CollectionWrapper;
 import org.apache.syncope.common.rest.api.Preference;
 import org.apache.syncope.common.rest.api.RESTHeaders;
@@ -1766,7 +1766,7 @@ public class UserITCase extends AbstractITCase {
 
         assertNotNull(userService.bulkDeassociation(actual.getKey(),
                 ResourceDeassociationActionType.UNLINK,
-                CollectionWrapper.wrap(RESOURCE_NAME_CSV, ResourceName.class)).
+                CollectionWrapper.wrap(RESOURCE_NAME_CSV, ResourceKey.class)).
                 readEntity(BulkActionResult.class));
 
         actual = userService.read(actual.getKey());
@@ -1798,7 +1798,7 @@ public class UserITCase extends AbstractITCase {
         }
 
         final ResourceAssociationMod associationMod = new ResourceAssociationMod();
-        associationMod.getTargetResources().addAll(CollectionWrapper.wrap(RESOURCE_NAME_CSV, ResourceName.class));
+        associationMod.getTargetResources().addAll(CollectionWrapper.wrap(RESOURCE_NAME_CSV, ResourceKey.class));
 
         assertNotNull(userService.bulkAssociation(
                 actual.getKey(), ResourceAssociationActionType.LINK, associationMod).readEntity(BulkActionResult.class));
@@ -1832,7 +1832,7 @@ public class UserITCase extends AbstractITCase {
 
         assertNotNull(userService.bulkDeassociation(actual.getKey(),
                 ResourceDeassociationActionType.UNASSIGN,
-                CollectionWrapper.wrap(RESOURCE_NAME_CSV, ResourceName.class)).
+                CollectionWrapper.wrap(RESOURCE_NAME_CSV, ResourceKey.class)).
                 readEntity(BulkActionResult.class));
 
         actual = userService.read(actual.getKey());
@@ -1869,7 +1869,7 @@ public class UserITCase extends AbstractITCase {
         }
 
         final ResourceAssociationMod associationMod = new ResourceAssociationMod();
-        associationMod.getTargetResources().addAll(CollectionWrapper.wrap(RESOURCE_NAME_CSV, ResourceName.class));
+        associationMod.getTargetResources().addAll(CollectionWrapper.wrap(RESOURCE_NAME_CSV, ResourceKey.class));
         associationMod.setChangePwd(true);
         associationMod.setPassword("password");
 
@@ -1899,7 +1899,7 @@ public class UserITCase extends AbstractITCase {
 
         assertNotNull(userService.bulkDeassociation(actual.getKey(),
                 ResourceDeassociationActionType.DEPROVISION,
-                CollectionWrapper.wrap(RESOURCE_NAME_CSV, ResourceName.class)).
+                CollectionWrapper.wrap(RESOURCE_NAME_CSV, ResourceKey.class)).
                 readEntity(BulkActionResult.class));
 
         actual = userService.read(actual.getKey());
@@ -1936,7 +1936,7 @@ public class UserITCase extends AbstractITCase {
         }
 
         final ResourceAssociationMod associationMod = new ResourceAssociationMod();
-        associationMod.getTargetResources().addAll(CollectionWrapper.wrap(RESOURCE_NAME_CSV, ResourceName.class));
+        associationMod.getTargetResources().addAll(CollectionWrapper.wrap(RESOURCE_NAME_CSV, ResourceKey.class));
         associationMod.setChangePwd(true);
         associationMod.setPassword("password");
 
@@ -1972,7 +1972,7 @@ public class UserITCase extends AbstractITCase {
         }
 
         final ResourceAssociationMod associationMod = new ResourceAssociationMod();
-        associationMod.getTargetResources().addAll(CollectionWrapper.wrap(RESOURCE_NAME_CSV, ResourceName.class));
+        associationMod.getTargetResources().addAll(CollectionWrapper.wrap(RESOURCE_NAME_CSV, ResourceKey.class));
         associationMod.setChangePwd(true);
         associationMod.setPassword("password");
 
@@ -1987,7 +1987,7 @@ public class UserITCase extends AbstractITCase {
 
         assertNotNull(userService.bulkDeassociation(actual.getKey(),
                 ResourceDeassociationActionType.DEPROVISION,
-                CollectionWrapper.wrap(RESOURCE_NAME_CSV, ResourceName.class)).
+                CollectionWrapper.wrap(RESOURCE_NAME_CSV, ResourceKey.class)).
                 readEntity(BulkActionResult.class));
 
         actual = userService.read(actual.getKey());

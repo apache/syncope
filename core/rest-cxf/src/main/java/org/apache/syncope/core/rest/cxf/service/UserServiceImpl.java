@@ -35,7 +35,7 @@ import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.ResourceAssociationActionType;
 import org.apache.syncope.common.lib.types.ResourceDeassociationActionType;
-import org.apache.syncope.common.lib.wrap.ResourceName;
+import org.apache.syncope.common.lib.wrap.ResourceKey;
 import org.apache.syncope.common.rest.api.CollectionWrapper;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.AnyListQuery;
@@ -155,7 +155,7 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService 
 
     @Override
     public Response bulkDeassociation(
-            final Long userKey, final ResourceDeassociationActionType type, final List<ResourceName> resourceNames) {
+            final Long userKey, final ResourceDeassociationActionType type, final List<ResourceKey> resourceNames) {
 
         final UserTO user = logic.read(userKey);
 
@@ -182,7 +182,7 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService 
         BulkActionResult result = new BulkActionResult();
 
         if (type == ResourceDeassociationActionType.UNLINK) {
-            for (ResourceName resourceName : resourceNames) {
+            for (ResourceKey resourceName : resourceNames) {
                 result.getResults().put(
                         resourceName.getElement(), updated.getResources().contains(resourceName.getElement())
                                 ? BulkActionResult.Status.FAILURE
@@ -237,7 +237,7 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService 
         BulkActionResult result = new BulkActionResult();
 
         if (type == ResourceAssociationActionType.LINK) {
-            for (ResourceName resourceName : associationMod.getTargetResources()) {
+            for (ResourceKey resourceName : associationMod.getTargetResources()) {
                 result.getResults().put(resourceName.getElement(),
                         updated.getResources().contains(resourceName.getElement())
                                 ? BulkActionResult.Status.FAILURE

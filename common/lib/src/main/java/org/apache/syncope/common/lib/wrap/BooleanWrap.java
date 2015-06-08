@@ -21,10 +21,10 @@ package org.apache.syncope.common.lib.wrap;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-@XmlRootElement(name = "anyKey")
+@XmlRootElement(name = "booleanWrap")
 @XmlType
-public class AnyKey extends AbstractWrappable<Long> {
+public class BooleanWrap extends AbstractWrappable<Boolean> {
 
-    private static final long serialVersionUID = -8664228651057889297L;
+    private static final long serialVersionUID = 3762310846902669241L;
 
 }

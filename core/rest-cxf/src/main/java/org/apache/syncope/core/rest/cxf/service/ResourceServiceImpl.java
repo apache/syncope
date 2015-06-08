@@ -31,6 +31,7 @@ import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceDeassociationActionType;
 import org.apache.syncope.common.lib.wrap.AnyKey;
+import org.apache.syncope.common.lib.wrap.BooleanWrap;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.apache.syncope.core.logic.AbstractResourceAssociator;
@@ -92,8 +93,10 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
     }
 
     @Override
-    public boolean check(final ResourceTO resourceTO) {
-        return logic.check(resourceTO);
+    public BooleanWrap check(final ResourceTO resourceTO) {
+        BooleanWrap result = new BooleanWrap();
+        result.setElement(logic.check(resourceTO));
+        return result;
     }
 
     @Override
