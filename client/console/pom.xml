@@ -110,6 +110,18 @@ under the License.
       <groupId>org.webjars</groupId>
       <artifactId>codemirror</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.webjars</groupId>
+      <artifactId>jsplumb</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.webjars</groupId>
+      <artifactId>jquery-cookie</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.webjars</groupId>
+      <artifactId>jquery-ui</artifactId>
+    </dependency>
   </dependencies>
   
   <build>

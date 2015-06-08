@@ -22,6 +22,7 @@ import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.init.MIMETypesLoader;
 import org.apache.syncope.client.console.panels.NotificationPanel;
 import org.apache.syncope.client.console.rest.ConfigurationRestClient;
+import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.rest.ReportRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.rest.GroupRestClient;
@@ -51,6 +52,8 @@ public class AbstractBasePage extends WebPage {
 
     protected static final String APPLY = "apply";
 
+    protected static final String FORM = "form";
+
     protected final HeaderItem meta = new MetaHeaderItem("X-UA-Compatible", "IE=edge");
 
     @SpringBean
@@ -70,6 +73,9 @@ public class AbstractBasePage extends WebPage {
 
     @SpringBean
     protected ResourceRestClient resourceRestClient;
+
+    @SpringBean
+    protected ConnectorRestClient connectorRestClient;
 
     @SpringBean
     protected ReportRestClient reportRestClient;

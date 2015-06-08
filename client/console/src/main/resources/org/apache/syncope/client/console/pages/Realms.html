@@ -22,10 +22,12 @@ under the License.
   <wicket:extend>
 
     <div class="wrapper">
-      <div class="admin-content-page content-margin-layout">
+      <div class="admin-content-page content-margin-layout" wicket:id="content">
         <div class="box box-solid box-primary">
           <div class="box-header with-border">
-            <h3 class="box-title">Realm 5</h3>
+            <h3 class="box-title">
+              <wicket:container wicket:id="header"></wicket:container>
+            </h3>
             <div class="box-tools pull-right">
               <ul class="nav navbar-nav actions">
                 <li><a href="#"><i class="fa fa-plus"></i></a></li>
@@ -35,78 +37,43 @@ under the License.
             </div><!-- /.box-tools -->
           </div><!-- /.box-header -->
           <div class="box-body">
-            <div class="realms">body</div>
+            <div class="realms">
+              <wicket:container wicket:id="body"></wicket:container>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- The Right Sidebar -->
       <aside class="control-sidebar control-sidebar-dark control-sidebar-open block-sidebar">
         <section class="sidebar">
           <ul class="sidebar-menu">
-            <li><a href="#"><i class="fa fa-dashboard"></i><span>Realm 1</span></a></li>
-            <li><a href="#"><i class="fa fa-users"></i><span>Realm 2</span></a></li>
-            <li><a href="#"><i class="fa fa-th"></i><span>Realm 3</span></a></li>
-            <li><a href="#"><i class="fa fa-pie-chart"></i><span>Realm 4</span></a></li>
-            <li class="treeview">
-              <a href="#"><i class="fa fa-edit"></i><span>Realm 5</span> <i class="fa fa-angle-left pull-right"></i></a>
-              <ul class="treeview-menu">
-                <li><a href="#"><i class="fa fa-circle-o"></i>Realm 5.1</a></li>
-                <li><a href="#"><i class="fa fa-circle-o"></i>Realm 5.2</a></li>
-                <li class="treeview">
-                  <a href="#"><i class="fa fa-edit"></i><span>Realm 5.3</span> <i class="fa fa-angle-left pull-right"></i></a>
-                  <ul class="treeview-menu">
-                    <li><a href="#"><i class="fa fa-circle-o"></i>Realm 5.3.1</a></li>
-                    <li><a href="#"><i class="fa fa-circle-o"></i>Realm 5.3.2</a></li>
-                    <li class="treeview">
-                      <a href="#"><i class="fa fa-edit"></i><span>Realm 5.3.2</span> <i class="fa fa-angle-left pull-right"></i></a>
-                      <ul class="treeview-menu">
-                        <li><a href="#"><i class="fa fa-circle-o"></i>Realm 5.3.2.1</a></li>
-                        <li><a href="#"><i class="fa fa-circle-o"></i>Realm 5.3.2.2</a></li>
-                        <li class="treeview">
-                          <a href="#"><i class="fa fa-edit"></i><span>Realm 5.3.2.3</span> <i class="fa fa-angle-left pull-right"></i></a>
-                          <ul class="treeview-menu">
-                            <li><a href="#"><i class="fa fa-circle-o"></i>Realm 5.3.2.3.1</a></li>
-                            <li><a href="#"><i class="fa fa-circle-o"></i>Realm 5.3.2.3.2</a></li>
-                            <li class="treeview">
-                              <a href="#"><i class="fa fa-edit"></i><span>Realm 5.3.2.3.3</span> <i class="fa fa-angle-left pull-right"></i></a>
-                              <ul class="treeview-menu">
-                                <li><a href="#"><i class="fa fa-circle-o"></i>Realm 5.3.2.3.3.1</a></li>
-                                <li><a href="#"><i class="fa fa-circle-o"></i>Realm 5.3.2.3.3.2</a></li>
-                                <li class="treeview">
-                                  <a href="#"><i class="fa fa-edit"></i><span>Realm 5.3.2.3.3.3</span> <i class="fa fa-angle-left pull-right"></i></a>
-                                  <ul class="treeview-menu">
-                                    <li><a href="#"><i class="fa fa-circle-o"></i>Realm 5.3.2.3.3.3.1</a></li>
-                                    <li><a href="#"><i class="fa fa-circle-o"></i>Realm 5.3.2.3.3.3.2</a></li>
-                                  </ul>
-                                </li>
-                              </ul>
-                            </li>
-                          </ul>
-                        </li>
-                      </ul>
-                    </li>
-                  </ul>
-                </li>
-                <li><a href="#"><i class="fa fa-circle-o"></i>Realm 5.4</a></li>
-                <li><a href="#"><i class="fa fa-circle-o"></i>Realm 5.5</a></li>
-                <li><a href="#"><i class="fa fa-circle-o"></i>Realm 5.6</a></li>
-                <li><a href="#"><i class="fa fa-circle-o"></i>Realm 5.7</a></li>
-              </ul>
-            </li>
-            <li class="treeview">
-              <a href="#"><i class="fa fa-laptop"></i><span>Realm 6</span> <i class="fa fa-angle-left pull-right"></i></a>
-              <ul class="treeview-menu">
-                <li><a href="#"><i class="fa fa-circle-o"></i>Realm 6.1</a></li>
-              </ul>
-            </li>
+            <wicket:container wicket:id="list"></wicket:container>
           </ul>
         </section>
       </aside>
-      <!-- The sidebar's background -->
-      <!-- This div must placed right after the sidebar for it to work-->
       <div class="control-sidebar-bg inner-control-sidebar"></div>
     </div>
 
+    <wicket:fragment wicket:id="withChildren">
+      <li class="treeview">
+        <a href="#" wicket:id="link"><i class="fa fa-folder-o">
+          </i><span wicket:id="name">[ITEM NAME]</span>
+        </a>
+        <a haref="#" class="angle">
+          <i class="fa fa-angle-left pull-right"></i>
+        </a>
+        <ul class="treeview-menu">
+          <wicket:container wicket:id="list"></wicket:container>
+        </ul>
+      </li>
+    </wicket:fragment>
+
+    <wicket:fragment wicket:id="withoutChildren">
+      <li>
+        <a href="#" wicket:id="link">
+          <i class="fa fa-leaf"></i><span wicket:id="name">[ITEM NAME]</span>
+        </a>
+      </li>
+    </wicket:fragment>
   </wicket:extend>
 </html>

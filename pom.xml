@@ -373,12 +373,14 @@ under the License.
     
     <jquery.version>2.1.3</jquery.version>
     <jquery-ui.version>1.11.4</jquery-ui.version>
+    <jquery-cookie.version>1.4.1-1</jquery-cookie.version>
     <bootstrap.version>3.3.4</bootstrap.version>
     <bootstrap-select.version>1.6.3</bootstrap-select.version>
     <font-awesome.version>4.3.0</font-awesome.version>
     <ionicons.version>2.0.1</ionicons.version>
     <highlightjs.version>8.4-4</highlightjs.version>
     <codemirror.version>5.1</codemirror.version>
+    <jsplumb.version>1.6.4</jsplumb.version>
     
     <wicket.version>7.0.0-M5</wicket.version>
     <wicket-jqueryui.version>7.0.0-M5</wicket-jqueryui.version>
@@ -947,6 +949,17 @@ under the License.
         <artifactId>codemirror</artifactId>
         <version>${codemirror.version}</version>
       </dependency>
+      <dependency>
+        <groupId>org.webjars</groupId>
+        <artifactId>jsplumb</artifactId>
+        <version>${jsplumb.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.webjars</groupId>
+        <artifactId>jquery-cookie</artifactId>
+        <version>${jquery-cookie.version}</version>
+      </dependency>
+      
       
       <dependency>
         <groupId>com.beust</groupId>

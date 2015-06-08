@@ -1,0 +1,52 @@
+  <!DOCTYPE html>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
+  <wicket:head>
+    <script type="text/javascript" src="webjars/jsplumb/${jsplumb.version}/dom.jsPlumb-${jsplumb.version}-min.js"></script>
+    <script type="text/javascript" src="webjars/jquery-cookie/${jquery-cookie.version}/jquery.cookie.js"></script>
+    <script type="text/javascript" src="js/topology.js"></script>
+    <link href="css/topology.css" rel="stylesheet"/>
+  </wicket:head>
+  <wicket:extend>
+    <div id="zoom" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
+      <span wicket:id="zoom">[Actions]</span>
+    </div>
+    <div id="topology">
+      <div id="drawing">
+        <div class="window topology_root" wicket:id="syncope" onmouseup="refreshPosition(this)">[syncope]</div>
+        <span wicket:id="connectorServers">
+          <div class="window topology_cs" wicket:id="cs" onmouseup="refreshPosition(this)">[resource]</div>
+        </span>
+        <span wicket:id="conn1">
+          <div class="window topology_conn" wicket:id="conn" onmouseup="refreshPosition(this)">[resource]</div>
+        </span>
+        <span wicket:id="conn2">
+          <div class="window topology_conn" wicket:id="conn" onmouseup="refreshPosition(this)">[resource]</div>
+        </span>
+        <span wicket:id="resources">
+          <span wicket:id="resources">
+            <div class="window topology_res" wicket:id="res" onmouseup="refreshPosition(this)">[resource]</div>
+          </span>
+        </span>
+        <span wicket:id="jsPlace"></span>
+      </div>
+    </div>
+  </wicket:extend>
+</html>

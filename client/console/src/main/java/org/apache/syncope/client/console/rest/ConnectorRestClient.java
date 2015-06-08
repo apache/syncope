@@ -125,14 +125,14 @@ public class ConnectorRestClient extends BaseRestClient {
     }
 
     private Set<ConnConfProperty> filterProperties(final Set<ConnConfProperty> properties) {
-        Set<ConnConfProperty> newProperties = new HashSet<ConnConfProperty>();
+        Set<ConnConfProperty> newProperties = new HashSet<>();
 
         for (ConnConfProperty property : properties) {
             ConnConfProperty prop = new ConnConfProperty();
             prop.setSchema(property.getSchema());
             prop.setOverridable(property.isOverridable());
 
-            final List<Object> parsed = new ArrayList<Object>();
+            final List<Object> parsed = new ArrayList<>();
             if (property.getValues() != null) {
                 for (Object obj : property.getValues()) {
                     if (obj != null && !obj.toString().isEmpty()) {
@@ -179,7 +179,7 @@ public class ConnectorRestClient extends BaseRestClient {
     }
 
     public List<String> getSchemaNames(final ConnInstanceTO connectorTO) {
-        List<String> schemaNames = new ArrayList<String>();
+        List<String> schemaNames = new ArrayList<>();
         try {
             List<PlainSchemaTO> response = getService(ConnectorService.class).
                     getSchemaNames(connectorTO.getKey(), connectorTO, false);

@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.pages;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.rest.UserWorkflowRestClient;
+import org.apache.syncope.client.console.topology.Topology;
 import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
@@ -92,6 +93,10 @@ public class BasePage extends AbstractBasePage implements IAjaxIndicatorAware {
         add(liContainer);
         liContainer.add(new BookmarkablePageLink<>("realms", Realms.class));
         
+        liContainer = new WebMarkupContainer(getLIContainerId("topology"));
+        add(liContainer);
+        liContainer.add(new BookmarkablePageLink<>("topology", Topology.class));
+        
         add(new BookmarkablePageLink<Page>("logout", Logout.class));
 
         // set 'active' menu item
@@ -150,7 +155,7 @@ public class BasePage extends AbstractBasePage implements IAjaxIndicatorAware {
      * @param window window
      * @param container container
      */
-    protected void setWindowClosedCallback(final ModalWindow window, final WebMarkupContainer container) {
+    public void setWindowClosedCallback(final ModalWindow window, final WebMarkupContainer container) {
         window.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
 
             private static final long serialVersionUID = 8804221891699487139L;
