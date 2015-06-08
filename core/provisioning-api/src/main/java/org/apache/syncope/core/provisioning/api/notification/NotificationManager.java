@@ -18,7 +18,9 @@
  */
 package org.apache.syncope.core.provisioning.api.notification;
 
+import java.util.List;
 import org.apache.syncope.common.lib.types.AuditElements;
+import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 
 /**
@@ -40,7 +42,7 @@ public interface NotificationManager {
     /**
      * Create notification tasks for each notification matching the given user id and (some of) tasks performed.
      */
-    void createTasks(AuditElements.EventCategoryType type, String category, String subcategory,
+    List<NotificationTask> createTasks(AuditElements.EventCategoryType type, String category, String subcategory,
             String event, AuditElements.Result condition, Object before, Object output, Object... input);
 
     long getMaxRetries();
