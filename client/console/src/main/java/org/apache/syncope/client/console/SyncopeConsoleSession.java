@@ -157,7 +157,8 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
 
     public <T> T getService(final String etag, final Class<T> serviceClass) {
         T serviceInstance = getCachedService(serviceClass);
-        WebClient.client(serviceInstance).match(new EntityTag(etag), false);
+        WebClient.client(serviceInstance).match(new EntityTag(etag), false).
+                type(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON);
 
         return serviceInstance;
     }

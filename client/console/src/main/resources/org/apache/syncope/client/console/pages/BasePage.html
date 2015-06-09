@@ -33,10 +33,13 @@ under the License.
     <link href="css/AdminLTE.css" rel="stylesheet" type="text/css" />
     <link href="css/AdminLTE_skins/skin-green.css" rel="stylesheet" type="text/css" />
     <link href="css/syncopeConsole.css" rel="stylesheet" type="text/css" />
+    <link href="css/fieldstyle.css" rel="stylesheet" type="text/css" />
 
+    <script type="text/javascript" src="webjars/jquery-ui/${jquery-ui.version}/jquery-ui.min.js"></script>
     <script type="text/javascript" src="webjars/bootstrap/${bootstrap.version}/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="webjars/bootstrap-select/${bootstrap-select.version}/dist/js/bootstrap-select.min.js"></script>
     <script type="text/javascript" src="js/AdminLTE-app.min.js"></script>
+    
     <script type="text/javascript">
       var notificationShownTimes = 0;
       function showNotification(componentId, messagecount) {
@@ -51,8 +54,8 @@ under the License.
 
     <div class="wrapper">
 
-      <header class="main-header">
-        <div class="logo">
+      <header class="main-header block-header">
+        <div class="logo logo-pos">
           <img src="img/logo.png"/>
         </div>
 
@@ -96,13 +99,12 @@ under the License.
         </nav>
       </header>
 
-      <aside class="main-sidebar">
+      <aside class="main-sidebar block-sidebar">
         <section class="sidebar">
           <ul class="sidebar-menu">
-            <li class="header">&nbsp;</li>
             <li wicket:id="dashboardLI"><a href="#" wicket:id="dashboard"><i class="fa fa-dashboard"></i><span>Dashboard</span></a></li>
-            <li><a href="#"><i class="fa fa-users"></i><span>Realms</span></a></li>
-            <li><a href="#"><i class="fa fa-th"></i><span>Resources</span></a></li>
+            <li wicket:id="realmsLI"><a href="#" wicket:id="realms"><i class="fa fa-folder-o"></i><span>Realms</span></a></li>
+            <li wicket:id="topologyLI"><a href="#" wicket:id="topology"><i class="fa fa-database"></i><span>Topology</span></a></li>
             <li><a href="#"><i class="fa fa-pie-chart"></i><span>Reports</span></a></li>
             <li wicket:id="configurationLI" class="treeview">
               <a href="#"><i class="fa fa-edit"></i><span>Configuration</span> <i class="fa fa-angle-left pull-right"></i></a>
@@ -132,7 +134,7 @@ under the License.
         <wicket:child />
       </div>
 
-      <footer class="main-footer">
+      <footer class="main-footer block-footer">
         <div class="pull-right hidden-xs">
           Version <label wicket:id="version"/>
         </div>

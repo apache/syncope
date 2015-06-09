@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<html xmlns="http://www.w3.org/1999/xhtml" 
+      xmlns:wicket="http://xmlns.jcp.org/jsf/composite">
+  <wicket:extend>
+
+    <div class="wrapper">
+      <div class="admin-content-page content-margin-layout" wicket:id="content">
+        <div class="box box-solid box-primary">
+          <div class="box-header with-border">
+            <h3 class="box-title">
+              <wicket:container wicket:id="header"></wicket:container>
+            </h3>
+            <div class="box-tools pull-right">
+              <ul class="nav navbar-nav actions">
+                <li><a href="#"><i class="fa fa-plus"></i></a></li>
+                <li><a href="#"><i class="fa fa-minus"></i></a></li>
+                <li><a href="#"><i class="fa fa-pencil-square-o"></i></a></li>
+              </ul>
+            </div><!-- /.box-tools -->
+          </div><!-- /.box-header -->
+          <div class="box-body">
+            <div class="realms">
+              <wicket:container wicket:id="body"></wicket:container>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <aside class="control-sidebar control-sidebar-dark control-sidebar-open block-sidebar">
+        <section class="sidebar">
+          <ul class="sidebar-menu">
+            <wicket:container wicket:id="list"></wicket:container>
+          </ul>
+        </section>
+      </aside>
+      <div class="control-sidebar-bg inner-control-sidebar"></div>
+    </div>
+
+    <wicket:fragment wicket:id="withChildren">
+      <li class="treeview">
+        <a href="#" wicket:id="link"><i class="fa fa-folder-o">
+          </i><span wicket:id="name">[ITEM NAME]</span>
+        </a>
+        <a haref="#" class="angle">
+          <i class="fa fa-angle-left pull-right"></i>
+        </a>
+        <ul class="treeview-menu">
+          <wicket:container wicket:id="list"></wicket:container>
+        </ul>
+      </li>
+    </wicket:fragment>
+
+    <wicket:fragment wicket:id="withoutChildren">
+      <li>
+        <a href="#" wicket:id="link">
+          <i class="fa fa-leaf"></i><span wicket:id="name">[ITEM NAME]</span>
+        </a>
+      </li>
+    </wicket:fragment>
+  </wicket:extend>
+</html>

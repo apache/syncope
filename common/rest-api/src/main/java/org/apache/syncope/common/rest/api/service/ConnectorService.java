@@ -177,7 +177,6 @@ public interface ConnectorService extends JAXRSService {
      */
     @POST
     @Path("check")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     BooleanWrap check(@NotNull ConnInstanceTO connInstanceTO);
 

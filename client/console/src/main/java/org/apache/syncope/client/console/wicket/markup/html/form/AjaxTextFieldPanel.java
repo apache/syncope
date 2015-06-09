@@ -53,7 +53,7 @@ public class AjaxTextFieldPanel extends FieldPanel<String> implements Cloneable 
             protected Iterator<String> getChoices(final String input) {
                 final Pattern pattern = Pattern.compile(".*" + Pattern.quote(input) + ".*", Pattern.CASE_INSENSITIVE);
 
-                final List<String> result = new ArrayList<String>();
+                final List<String> result = new ArrayList<>();
 
                 for (String choice : choices) {
                     if (pattern.matcher(choice).matches()) {
@@ -64,7 +64,7 @@ public class AjaxTextFieldPanel extends FieldPanel<String> implements Cloneable 
                 return result.iterator();
             }
         };
-        add(field.setLabel(new Model<String>(name)).setOutputMarkupId(true));
+        add(field.setLabel(new Model<>(name)).setOutputMarkupId(true));
 
         if (!isReadOnly()) {
             field.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
