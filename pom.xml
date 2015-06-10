@@ -330,7 +330,7 @@ under the License.
 
     <camel.version>2.15.2</camel.version>	
 
-    <jackson.version>2.5.3</jackson.version>
+    <jackson.version>2.5.4</jackson.version>
 
     <spring.version>4.1.6.RELEASE</spring.version>
     <spring-security.version>4.0.1.RELEASE</spring-security.version>
