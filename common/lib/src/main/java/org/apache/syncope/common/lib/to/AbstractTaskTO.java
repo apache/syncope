@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.ws.rs.PathParam;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -47,6 +48,7 @@ public abstract class AbstractTaskTO extends AbstractStartEndBean {
         return key;
     }
 
+    @PathParam("key")
     public void setKey(final long key) {
         this.key = key;
     }

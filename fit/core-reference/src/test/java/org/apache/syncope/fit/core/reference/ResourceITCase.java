@@ -329,7 +329,7 @@ public class ResourceITCase extends AbstractITCase {
         try {
             ResourceTO resourceTO = new ResourceTO();
             resourceTO.setKey("resourcenotfound");
-            resourceService.update(resourceTO.getKey(), resourceTO);
+            resourceService.update(resourceTO);
 
             fail();
         } catch (SyncopeClientException e) {
@@ -378,7 +378,7 @@ public class ResourceITCase extends AbstractITCase {
         item.setPurpose(MappingPurpose.BOTH);
         mapping.setConnObjectKeyItem(item);
 
-        resourceService.update(resourceTO.getKey(), resourceTO);
+        resourceService.update(resourceTO);
         ResourceTO actual = resourceService.read(resourceTO.getKey());
         assertNotNull(actual);
 
@@ -408,7 +408,7 @@ public class ResourceITCase extends AbstractITCase {
         resourceService.create(pre);
 
         pre.getProvision(AnyTypeKind.USER.name()).setSyncToken(null);
-        resourceService.update(pre.getKey(), pre);
+        resourceService.update(pre);
         ResourceTO actual = resourceService.read(pre.getKey());
         // check that the synctoken has been reset
         assertNull(actual.getProvision(AnyTypeKind.USER.name()).getSyncToken());
@@ -511,7 +511,7 @@ public class ResourceITCase extends AbstractITCase {
         assertNotNull(resource.getProvision(AnyTypeKind.USER.name()).getMapping());
 
         resource.getProvision(AnyTypeKind.USER.name()).setMapping(null);
-        resourceService.update(name, resource);
+        resourceService.update(resource);
 
         resource = resourceService.read(name);
         assertNotNull(resource);

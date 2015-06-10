@@ -19,6 +19,7 @@
 package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import javax.ws.rs.PathParam;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
@@ -38,6 +39,7 @@ public abstract class AbstractSchemaTO extends AbstractBaseBean {
         return key;
     }
 
+    @PathParam("key")
     public void setKey(final String key) {
         this.key = key;
     }

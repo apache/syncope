@@ -141,7 +141,7 @@ public class PolicyITCase extends AbstractITCase {
         policy.setSpecification(policySpec);
 
         // update new password policy
-        policyService.update(policy.getKey(), policy);
+        policyService.update(policy);
         policy = policyService.read(policy.getKey());
 
         assertNotNull(policy);

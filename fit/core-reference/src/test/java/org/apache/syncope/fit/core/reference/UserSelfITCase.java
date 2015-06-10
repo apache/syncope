@@ -148,10 +148,11 @@ public class UserSelfITCase extends AbstractITCase {
 
         // 2. self-update (username) - works
         UserMod userMod = new UserMod();
+        userMod.setKey(created.getKey());
         userMod.setUsername(created.getUsername() + "XX");
 
         SyncopeClient authClient = clientFactory.create(created.getUsername(), "password123");
-        UserTO updated = authClient.getService(UserSelfService.class).update(created.getKey(), userMod).
+        UserTO updated = authClient.getService(UserSelfService.class).update(userMod).
                 readEntity(UserTO.class);
         assertNotNull(updated);
         assertEquals(ActivitiDetector.isActivitiEnabledForUsers(syncopeService)
@@ -170,6 +171,7 @@ public class UserSelfITCase extends AbstractITCase {
 
         // 2. self-update (username + memberships + resource) - works but needs approval
         UserMod userMod = new UserMod();
+        userMod.setKey(created.getKey());
         userMod.setUsername(created.getUsername() + "XX");
         userMod.getMembershipsToAdd().add(7L);
         userMod.getResourcesToAdd().add(RESOURCE_NAME_TESTDB);
@@ -180,7 +182,7 @@ public class UserSelfITCase extends AbstractITCase {
         userMod.setPwdPropRequest(statusMod);
 
         SyncopeClient authClient = clientFactory.create(created.getUsername(), "password123");
-        UserTO updated = authClient.getService(UserSelfService.class).update(created.getKey(), userMod).
+        UserTO updated = authClient.getService(UserSelfService.class).update(userMod).
                 readEntity(UserTO.class);
         assertNotNull(updated);
         assertEquals("updateApproval", updated.getStatus());

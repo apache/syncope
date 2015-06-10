@@ -281,7 +281,7 @@ public class VirAttrITCase extends AbstractITCase {
                 }
             }
 
-            resourceService.update(csv.getKey(), csv);
+            resourceService.update(csv);
             csv = resourceService.read(RESOURCE_NAME_CSV);
             assertNotNull(csv.getProvisions().get(0).getMapping());
 
@@ -337,7 +337,7 @@ public class VirAttrITCase extends AbstractITCase {
         } finally {
             // restore mapping of resource-csv
             csv.getProvisions().get(0).setMapping(origMapping);
-            resourceService.update(csv.getKey(), csv);
+            resourceService.update(csv);
         }
     }
 
@@ -376,7 +376,7 @@ public class VirAttrITCase extends AbstractITCase {
             }
         }
 
-        connectorService.update(connInstanceBean.getKey(), connInstanceBean);
+        connectorService.update(connInstanceBean);
 
         UserMod userMod = new UserMod();
         userMod.setKey(actual.getKey());
@@ -421,7 +421,7 @@ public class VirAttrITCase extends AbstractITCase {
             }
         }
 
-        connectorService.update(connInstanceBean.getKey(), connInstanceBean);
+        connectorService.update(connInstanceBean);
         // ----------------------------------------
 
         actual = userService.read(actual.getKey());

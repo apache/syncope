@@ -54,8 +54,7 @@ public class AnyTypeServiceImpl extends AbstractServiceImpl implements AnyTypeSe
     }
 
     @Override
-    public void update(final String key, final AnyTypeTO anyTypeTO) {
-        anyTypeTO.setKey(key);
+    public void update(final AnyTypeTO anyTypeTO) {
         logic.update(anyTypeTO);
     }
 

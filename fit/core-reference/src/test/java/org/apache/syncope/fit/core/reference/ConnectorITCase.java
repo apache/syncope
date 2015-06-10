@@ -172,8 +172,8 @@ public class ConnectorITCase extends AbstractITCase {
         assertEquals(Integer.valueOf(15), actual.getConnRequestTimeout());
         assertEquals(connectorTO.getCapabilities(), actual.getCapabilities());
         assertNotNull(actual.getPoolConf());
-        assertEquals(1534, actual.getPoolConf().getMaxObjects().intValue());
-        assertEquals(10, actual.getPoolConf().getMaxIdle().intValue());
+        assertEquals(1534, actual.getPoolConf().getMaxObjects(), 0);
+        assertEquals(10, actual.getPoolConf().getMaxIdle(), 0);
 
         Throwable t = null;
 
@@ -182,7 +182,7 @@ public class ConnectorITCase extends AbstractITCase {
         actual.getPoolConf().setMaxObjects(null);
 
         try {
-            connectorService.update(actual.getKey(), actual);
+            connectorService.update(actual);
             actual = connectorService.read(actual.getKey());
         } catch (SyncopeClientException e) {
             LOG.error("update failed", e);
@@ -255,7 +255,7 @@ public class ConnectorITCase extends AbstractITCase {
         // set connector configuration
         connectorTO.getConfiguration().addAll(conf);
 
-        connectorService.update(connectorTO.getKey(), connectorTO);
+        connectorService.update(connectorTO);
         ConnInstanceTO actual = connectorService.read(connectorTO.getKey());
 
         assertNotNull(actual);
@@ -348,7 +348,7 @@ public class ConnectorITCase extends AbstractITCase {
         // ----------------------------------
         connInstanceTO.getCapabilities().add(ConnectorCapability.AUTHENTICATE);
 
-        connectorService.update(connInstanceTO.getKey(), connInstanceTO);
+        connectorService.update(connInstanceTO);
         ConnInstanceTO actual = connectorService.read(connInstanceTO.getKey());
         assertNotNull(actual);
         assertTrue(connInstanceTO.getCapabilities().contains(ConnectorCapability.AUTHENTICATE));
@@ -732,7 +732,7 @@ public class ConnectorITCase extends AbstractITCase {
         assertTrue(connectorInstanceTO.getCapabilities().isEmpty());
 
         connectorInstanceTO.getCapabilities().add(ConnectorCapability.SEARCH);
-        connectorService.update(connectorInstanceTO.getKey(), connectorInstanceTO);
+        connectorService.update(connectorInstanceTO);
 
         ConnInstanceTO updatedCapabilities = connectorService.read(connectorInstanceTO.getKey());
         assertNotNull(updatedCapabilities.getCapabilities());

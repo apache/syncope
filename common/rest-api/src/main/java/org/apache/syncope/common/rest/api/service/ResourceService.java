@@ -98,13 +98,12 @@ public interface ResourceService extends JAXRSService {
     /**
      * Updates the resource matching the given name.
      *
-     * @param key name of resource to be updated
      * @param resourceTO resource to be stored
      */
     @PUT
     @Path("{key}")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    void update(@NotNull @PathParam("key") String key, @NotNull ResourceTO resourceTO);
+    void update(@NotNull ResourceTO resourceTO);
 
     /**
      * Deletes the resource matching the given name.

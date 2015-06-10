@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.common.lib.to;
 
+import javax.ws.rs.PathParam;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.lib.AbstractBaseBean;
@@ -68,6 +69,7 @@ public class RealmTO extends AbstractBaseBean {
         return fullPath;
     }
 
+    @PathParam("fullPath")
     public void setFullPath(final String fullPath) {
         this.fullPath = fullPath;
     }

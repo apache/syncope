@@ -21,6 +21,7 @@ package org.apache.syncope.common.lib.to;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.List;
+import javax.ws.rs.PathParam;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -44,6 +45,7 @@ public class AnyTypeTO extends AbstractBaseBean {
         return key;
     }
 
+    @PathParam("key")
     public void setKey(final String key) {
         this.key = key;
     }

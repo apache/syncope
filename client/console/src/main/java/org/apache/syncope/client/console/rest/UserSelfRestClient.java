@@ -52,7 +52,7 @@ public class UserSelfRestClient extends BaseRestClient {
     }
 
     public void update(final UserMod userMod) {
-        getService(UserSelfService.class).update(userMod.getKey(), userMod);
+        getService(UserSelfService.class).update(userMod);
     }
 
     public void delete() {

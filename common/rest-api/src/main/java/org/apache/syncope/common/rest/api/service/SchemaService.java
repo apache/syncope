@@ -23,6 +23,7 @@ import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.MatrixParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -43,18 +44,18 @@ import org.apache.syncope.common.lib.types.SchemaType;
 public interface SchemaService extends JAXRSService {
 
     /**
-     * Returns schema matching the given kind, type and name.
+     * Returns schema matching the given type and key.
      *
      * @param <T> actual SchemaTO
      * @param type type for schemas to be read
-     * @param schemaKey name of schema to be read
+     * @param key name of schema to be read
      * @return schema matching the given kind, type and name
      */
     @GET
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     <T extends AbstractSchemaTO> T read(
-            @NotNull @PathParam("type") SchemaType type, @NotNull @PathParam("key") String schemaKey);
+            @NotNull @PathParam("type") SchemaType type, @NotNull @PathParam("key") String key);
 
     /**
      * Returns a list of schemas with matching kind and type.
@@ -65,7 +66,7 @@ public interface SchemaService extends JAXRSService {
      */
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    <T extends AbstractSchemaTO> List<T> list(@NotNull @PathParam("type") SchemaType type);
+    <T extends AbstractSchemaTO> List<T> list(@NotNull @MatrixParam("type") SchemaType type);
 
     /**
      * Creates a new schema.
@@ -80,33 +81,27 @@ public interface SchemaService extends JAXRSService {
     })
     @POST
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    <T extends AbstractSchemaTO> Response create(
-            @NotNull @PathParam("type") SchemaType type, @NotNull T schemaTO);
+    <T extends AbstractSchemaTO> Response create(@NotNull @PathParam("type") SchemaType type, @NotNull T schemaTO);
 
     /**
-     * Updates the schema matching the given kind, type and name.
+     * Updates the schema matching the given type and key.
      *
      * @param <T> actual SchemaTO
      * @param type type for schemas to be updated
-     * @param schemaKey name of schema to be updated
      * @param schemaTO updated schema to be stored
      */
     @PUT
     @Path("{key}")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    <T extends AbstractSchemaTO> void update(
-            @NotNull @PathParam("type") SchemaType type,
-            @NotNull @PathParam("key") String schemaKey, @NotNull T schemaTO);
+    <T extends AbstractSchemaTO> void update(@NotNull @PathParam("type") SchemaType type, @NotNull T schemaTO);
 
     /**
-     * Deletes the schema matching the given kind, type and name.
+     * Deletes the schema matching the given type and key.
      *
      * @param type type for schema to be deleted
-     * @param schemaKey name of schema to be deleted
+     * @param key name of schema to be deleted
      */
     @DELETE
     @Path("{key}")
-    void delete(
-            @NotNull @PathParam("type") SchemaType type,
-            @NotNull @PathParam("key") String schemaKey);
+    void delete(@NotNull @PathParam("type") SchemaType type, @NotNull @PathParam("key") String key);
 }

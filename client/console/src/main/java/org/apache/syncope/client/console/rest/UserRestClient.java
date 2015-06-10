@@ -73,7 +73,7 @@ public class UserRestClient extends AbstractAnyRestClient {
         UserTO result;
         synchronized (this) {
             UserService service = getService(etag, UserService.class);
-            result = service.update(userMod.getKey(), userMod).readEntity(UserTO.class);
+            result = service.update(userMod).readEntity(UserTO.class);
             resetClient(UserService.class);
         }
         return result;

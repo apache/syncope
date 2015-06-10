@@ -131,11 +131,11 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
     }
 
     public void updateSchedTask(final SchedTaskTO taskTO) {
-        getService(TaskService.class).update(taskTO.getKey(), taskTO);
+        getService(TaskService.class).update(taskTO);
     }
 
     public void updateSyncTask(final SyncTaskTO taskTO) {
-        getService(TaskService.class).update(taskTO.getKey(), taskTO);
+        getService(TaskService.class).update(taskTO);
     }
 
     public BulkActionResult bulkAction(final BulkAction action) {

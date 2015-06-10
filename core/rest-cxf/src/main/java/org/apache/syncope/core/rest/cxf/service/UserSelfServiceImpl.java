@@ -63,8 +63,7 @@ public class UserSelfServiceImpl extends AbstractServiceImpl implements UserSelf
     }
 
     @Override
-    public Response update(final Long userKey, final UserMod userMod) {
-        userMod.setKey(userKey);
+    public Response update(final UserMod userMod) {
         UserTO updated = logic.updateSelf(userMod);
         return modificationResponse(updated);
     }

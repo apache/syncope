@@ -54,8 +54,7 @@ public class RoleServiceImpl extends AbstractServiceImpl implements RoleService 
     }
 
     @Override
-    public void update(final Long roleKey, final RoleTO roleTO) {
-        roleTO.setKey(roleKey);
+    public void update(final RoleTO roleTO) {
         logic.update(roleTO);
     }
 

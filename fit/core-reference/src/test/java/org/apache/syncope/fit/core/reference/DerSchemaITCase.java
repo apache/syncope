@@ -94,8 +94,7 @@ public class DerSchemaITCase extends AbstractITCase {
         try {
             schema.setExpression("mderived_sx + '.' + mderived_dx");
 
-            schemaService.update(SchemaType.DERIVED,
-                    schema.getKey(), schema);
+            schemaService.update(SchemaType.DERIVED, schema);
 
             schema = schemaService.read(SchemaType.DERIVED, "mderiveddata");
             assertNotNull(schema);
@@ -103,8 +102,7 @@ public class DerSchemaITCase extends AbstractITCase {
         } finally {
             // Set updated back to make test re-runnable
             schema.setExpression("mderived_sx + '-' + mderived_dx");
-            schemaService.update(SchemaType.DERIVED,
-                    schema.getKey(), schema);
+            schemaService.update(SchemaType.DERIVED, schema);
         }
     }
 

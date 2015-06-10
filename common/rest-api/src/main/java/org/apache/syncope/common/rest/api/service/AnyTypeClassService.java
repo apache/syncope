@@ -78,13 +78,12 @@ public interface AnyTypeClassService extends JAXRSService {
     /**
      * Updates the anyTypeClass matching the provided key.
      *
-     * @param key anyTypeClass key to be updated
      * @param anyTypeClassTO anyTypeClass to be stored
      */
     @PUT
     @Path("{key}")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    void update(@NotNull @PathParam("key") String key, @NotNull AnyTypeClassTO anyTypeClassTO);
+    void update(@NotNull AnyTypeClassTO anyTypeClassTO);
 
     /**
      * Deletes the anyTypeClass matching the provided key.

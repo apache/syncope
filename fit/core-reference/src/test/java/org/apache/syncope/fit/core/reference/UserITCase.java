@@ -617,7 +617,7 @@ public class UserITCase extends AbstractITCase {
         userMod.setKey(userTO.getKey());
         userMod.setPassword("pass");
 
-        userService.update(userMod.getKey(), userMod);
+        userService.update(userMod);
     }
 
     @Test(expected = SyncopeClientException.class)
@@ -632,7 +632,7 @@ public class UserITCase extends AbstractITCase {
         userMod.setKey(userTO.getKey());
         userMod.setPassword("password123");
 
-        userService.update(userMod.getKey(), userMod);
+        userService.update(userMod);
     }
 
     @Test
@@ -1145,9 +1145,10 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(user);
 
         UserMod userMod = new UserMod();
+        userMod.setKey(user.getKey());
         userMod.setPassword("password321");
 
-        response = noContentService.update(user.getKey(), userMod);
+        response = noContentService.update(userMod);
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
         assertEquals(Preference.RETURN_NO_CONTENT.toString(), response.getHeaderString(RESTHeaders.PREFERENCE_APPLIED));
         assertEquals(StringUtils.EMPTY, IOUtils.toString((InputStream) response.getEntity()));
@@ -1577,7 +1578,7 @@ public class UserITCase extends AbstractITCase {
                 item.setExtAttrName("uniqueMember");
             }
         }
-        resourceService.update(ldap.getKey(), ldap);
+        resourceService.update(ldap);
 
         // 1. create group with LDAP resource
         GroupTO groupTO = new GroupTO();
@@ -1625,7 +1626,7 @@ public class UserITCase extends AbstractITCase {
                 item.setExtAttrName("description");
             }
         }
-        resourceService.update(ldap.getKey(), ldap);
+        resourceService.update(ldap);
     }
 
     @Test
@@ -2026,8 +2027,9 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(userTO);
 
         UserMod userMod = new UserMod();
+        userMod.setKey(userTO.getKey());
         userMod.setPassword("anotherPassword123");
-        userTO = userService.update(userTO.getKey(), userMod).readEntity(UserTO.class);
+        userTO = userService.update(userMod).readEntity(UserTO.class);
         assertNotNull(userTO);
     }
 
@@ -2041,9 +2043,10 @@ public class UserITCase extends AbstractITCase {
 
         // 2. try to update user by subscribing a resource - works but propagation is not even attempted
         UserMod userMod = new UserMod();
+        userMod.setKey(userTO.getKey());
         userMod.getResourcesToAdd().add(RESOURCE_NAME_WS1);
 
-        userTO = userService.update(userTO.getKey(), userMod).readEntity(UserTO.class);
+        userTO = userService.update(userMod).readEntity(UserTO.class);
         assertEquals(Collections.singleton(RESOURCE_NAME_WS1), userTO.getResources());
         assertFalse(userTO.getPropagationStatusTOs().get(0).getStatus().isSuccessful());
         assertTrue(userTO.getPropagationStatusTOs().get(0).getFailureReason().
@@ -2064,7 +2067,7 @@ public class UserITCase extends AbstractITCase {
         UserMod userMod = new UserMod();
         userMod.setKey(userTO.getKey());
         userMod.setUsername(userTO.getUsername() + "XX");
-        userTO = userService.update(userMod.getKey(), userMod).readEntity(UserTO.class);
+        userTO = userService.update(userMod).readEntity(UserTO.class);
         assertTrue(userTO.getUsername().endsWith("XX"));
         EntityTag etag1 = adminClient.getLatestEntityTag(userService);
         assertFalse(etag.getValue().equals(etag1.getValue()));
@@ -2072,7 +2075,7 @@ public class UserITCase extends AbstractITCase {
         UserService ifMatchService = adminClient.ifMatch(UserService.class, etag);
         userMod.setUsername(userTO.getUsername() + "YY");
         try {
-            ifMatchService.update(userMod.getKey(), userMod);
+            ifMatchService.update(userMod);
             fail();
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.ConcurrentModification, e.getType());
@@ -2106,7 +2109,7 @@ public class UserITCase extends AbstractITCase {
         userMod.setPwdPropRequest(new StatusMod());
         userMod.getPlainAttrsToUpdate().add(attrMod("surname", "surname2"));
 
-        userService.update(userTO.getKey(), userMod);
+        userService.update(userMod);
 
         // 5. try (and succeed again) to perform simple LDAP binding: password has not changed
         assertNotNull(getLdapRemoteObject(
@@ -2145,7 +2148,7 @@ public class UserITCase extends AbstractITCase {
 
         ws1.getProvision(AnyTypeKind.USER.name()).setMapping(ws1NewUMapping);
 
-        resourceService.update(RESOURCE_NAME_WS1, ws1);
+        resourceService.update(ws1);
         ResourceTO newWs1 = resourceService.read(ws1.getKey());
         assertNotNull(newWs1);
 
@@ -2182,7 +2185,7 @@ public class UserITCase extends AbstractITCase {
 
         newWs1.getProvision(AnyTypeKind.USER.name()).setMapping(ws1NewUMapping);
 
-        resourceService.update(RESOURCE_NAME_WS1, newWs1);
+        resourceService.update(newWs1);
     }
 
     @Test
@@ -2198,7 +2201,7 @@ public class UserITCase extends AbstractITCase {
         ResourceTO resourceTO = resourceService.read(RESOURCE_NAME_TESTDB);
         assertNotNull(resourceTO);
         resourceTO.getPropagationActionsClassNames().add(DBPasswordPropagationActions.class.getName());
-        resourceService.update(RESOURCE_NAME_TESTDB, resourceTO);
+        resourceService.update(resourceTO);
 
         // 3. Add a db resource to the User
         UserMod userMod = new UserMod();
@@ -2224,7 +2227,7 @@ public class UserITCase extends AbstractITCase {
         resourceTO = resourceService.read(RESOURCE_NAME_TESTDB);
         assertNotNull(resourceTO);
         resourceTO.getPropagationActionsClassNames().remove(DBPasswordPropagationActions.class.getName());
-        resourceService.update(RESOURCE_NAME_TESTDB, resourceTO);
+        resourceService.update(resourceTO);
     }
 
     @Test
@@ -2241,7 +2244,7 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(resourceTO);
         resourceTO.getPropagationActionsClassNames().add(LDAPPasswordPropagationActions.class.getName());
         resourceTO.setRandomPwdIfNotProvided(false);
-        resourceService.update(RESOURCE_NAME_LDAP, resourceTO);
+        resourceService.update(resourceTO);
 
         // 3. Add a resource to the User
         UserMod userMod = new UserMod();
@@ -2271,7 +2274,7 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(resourceTO);
         resourceTO.getPropagationActionsClassNames().remove(LDAPPasswordPropagationActions.class.getName());
         resourceTO.setRandomPwdIfNotProvided(true);
-        resourceService.update(RESOURCE_NAME_LDAP, resourceTO);
+        resourceService.update(resourceTO);
     }
 
     @Test
@@ -2360,7 +2363,7 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(csv);
         try {
             csv.setPasswordPolicy(8L);
-            resourceService.update(RESOURCE_NAME_CSV, csv);
+            resourceService.update(csv);
             csv = resourceService.read(RESOURCE_NAME_CSV);
 
             userTO = getUniqueSampleTO("syncope391@syncope.apache.org");
@@ -2379,7 +2382,7 @@ public class UserITCase extends AbstractITCase {
         } finally {
             // resource csv with null password policy
             csv.setPasswordPolicy(null);
-            resourceService.update(RESOURCE_NAME_CSV, csv);
+            resourceService.update(csv);
         }
     }
 

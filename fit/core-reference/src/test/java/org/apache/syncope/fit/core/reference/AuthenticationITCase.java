@@ -152,7 +152,7 @@ public class AuthenticationITCase extends AbstractITCase {
 
         // 5. update the schema create above (as user) - failure
         try {
-            schemaService2.update(SchemaType.PLAIN, schemaName, schemaTO);
+            schemaService2.update(SchemaType.PLAIN, schemaTO);
             fail("Schemaupdate as user should not work");
         } catch (AccessControlException e) {
             // CXF Service will throw this exception

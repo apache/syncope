@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import javax.ws.rs.PathParam;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -98,6 +99,7 @@ public class ResourceTO extends AbstractAnnotatedBean {
         return key;
     }
 
+    @PathParam("key")
     public void setKey(final String key) {
         this.key = key;
     }

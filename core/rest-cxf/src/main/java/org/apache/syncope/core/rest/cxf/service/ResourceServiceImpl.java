@@ -67,8 +67,7 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
     }
 
     @Override
-    public void update(final String key, final ResourceTO resourceTO) {
-        resourceTO.setKey(key);
+    public void update(final ResourceTO resourceTO) {
         logic.update(resourceTO);
     }
 

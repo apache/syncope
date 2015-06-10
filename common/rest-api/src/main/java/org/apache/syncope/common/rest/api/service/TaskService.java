@@ -58,14 +58,14 @@ public interface TaskService extends JAXRSService {
     /**
      * Returns the task matching the given key.
      *
-     * @param taskKey key of task to be read
+     * @param key key of task to be read
      * @param <T> type of taskTO
      * @return task with matching id
      */
     @GET
-    @Path("{taskKey}")
+    @Path("{key}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    <T extends AbstractTaskTO> T read(@NotNull @PathParam("taskKey") Long taskKey);
+    <T extends AbstractTaskTO> T read(@NotNull @PathParam("key") Long key);
 
     /**
      * Returns the task execution with the given id.
@@ -109,22 +109,21 @@ public interface TaskService extends JAXRSService {
     /**
      * Updates the task matching the provided key.
      *
-     * @param taskKey key of task to be updated
      * @param taskTO updated task to be stored
      */
     @PUT
-    @Path("{taskKey}")
+    @Path("{key}")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    void update(@NotNull @PathParam("taskKey") Long taskKey, @NotNull AbstractTaskTO taskTO);
+    void update(@NotNull AbstractTaskTO taskTO);
 
     /**
      * Deletes the task matching the provided key.
      *
-     * @param taskKey key of task to be deleted
+     * @param key key of task to be deleted
      */
     @DELETE
-    @Path("{taskKey}")
-    void delete(@NotNull @PathParam("taskKey") Long taskKey);
+    @Path("{key}")
+    void delete(@NotNull @PathParam("key") Long key);
 
     /**
      * Deletes the task execution matching the provided key.
@@ -138,14 +137,14 @@ public interface TaskService extends JAXRSService {
     /**
      * Executes the task matching the given id.
      *
-     * @param taskKey key of task to be executed
+     * @param key key of task to be executed
      * @param dryRun if true, task will only be simulated
      * @return execution report for the task matching the given id
      */
     @POST
-    @Path("{taskKey}/execute")
+    @Path("{key}/execute")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    TaskExecTO execute(@NotNull @PathParam("taskKey") Long taskKey,
+    TaskExecTO execute(@NotNull @PathParam("key") Long key,
             @QueryParam("dryRun") @DefaultValue("false") boolean dryRun);
 
     /**
@@ -185,10 +184,10 @@ public interface TaskService extends JAXRSService {
     /**
      * Executes an action on an existing task's job.
      *
-     * @param taskKey task key
+     * @param key task key
      * @param action
      */
     @POST
-    @Path("{taskKey}")
-    void actionJob(@PathParam("taskKey") Long taskKey, @QueryParam("action") JobAction action);
+    @Path("{key}")
+    void actionJob(@PathParam("key") Long key, @QueryParam("action") JobAction action);
 }

@@ -77,7 +77,7 @@ public class ReportRestClient extends BaseRestClient implements ExecutionRestCli
     }
 
     public void update(final ReportTO reportTO) {
-        getService(ReportService.class).update(reportTO.getKey(), reportTO);
+        getService(ReportService.class).update(reportTO);
     }
 
     /**

@@ -64,13 +64,13 @@ public interface ReportService extends JAXRSService {
     /**
      * Returns report with matching key.
      *
-     * @param reportKey key of report to be read
+     * @param key key of report to be read
      * @return report with matching key
      */
     @GET
-    @Path("{reportKey}")
+    @Path("{key}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    ReportTO read(@NotNull @PathParam("reportKey") Long reportKey);
+    ReportTO read(@NotNull @PathParam("key") Long key);
 
     /**
      * Returns report execution with matching key.
@@ -109,22 +109,21 @@ public interface ReportService extends JAXRSService {
     /**
      * Updates report with matching key.
      *
-     * @param reportKey id for report to be updated
      * @param reportTO report to be stored
      */
     @PUT
-    @Path("{reportKey}")
+    @Path("{key}")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    void update(@NotNull @PathParam("reportKey") Long reportKey, ReportTO reportTO);
+    void update(@NotNull ReportTO reportTO);
 
     /**
      * Deletes report with matching key.
      *
-     * @param reportKey Deletes report with matching key
+     * @param key Deletes report with matching key
      */
     @DELETE
-    @Path("{reportKey}")
-    void delete(@NotNull @PathParam("reportKey") Long reportKey);
+    @Path("{key}")
+    void delete(@NotNull @PathParam("key") Long key);
 
     /**
      * Deletes report execution with matching key.
@@ -138,13 +137,13 @@ public interface ReportService extends JAXRSService {
     /**
      * Executes the report with matching key.
      *
-     * @param reportKey key of report to be executed
+     * @param key key of report to be executed
      * @return report execution result
      */
     @POST
-    @Path("{reportKey}/execute")
+    @Path("{key}/execute")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    ReportExecTO execute(@NotNull @PathParam("reportKey") Long reportKey);
+    ReportExecTO execute(@NotNull @PathParam("key") Long key);
 
     /**
      * Exports the report execution with matching key in the requested format.
@@ -173,10 +172,10 @@ public interface ReportService extends JAXRSService {
     /**
      * Executes an action on an existing report's job.
      *
-     * @param reportKey report key
+     * @param key report key
      * @param action
      */
     @POST
-    @Path("{reportKey}")
-    void actionJob(@PathParam("reportKey") Long reportKey, @QueryParam("action") JobAction action);
+    @Path("{key}")
+    void actionJob(@PathParam("key") Long key, @QueryParam("action") JobAction action);
 }

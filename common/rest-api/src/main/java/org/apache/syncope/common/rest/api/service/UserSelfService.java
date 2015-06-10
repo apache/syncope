@@ -25,7 +25,6 @@ import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
@@ -74,8 +73,7 @@ public interface UserSelfService extends JAXRSService {
     /**
      * Self-updates user.
      *
-     * @param userKey id of user to be updated
-     * @param userMod modification to be applied to user matching the provided userKey
+     * @param userMod modification to be applied to user matching the provided key
      * @return <tt>Response</tt> object featuring the updated user - {@link UserTO} as <tt>Entity</tt>
      */
     @Descriptions({
@@ -83,10 +81,10 @@ public interface UserSelfService extends JAXRSService {
                 value = "Featuring the updated user - <tt>UserTO</tt> as <tt>Entity</tt>")
     })
     @POST
-    @Path("{userKey}")
+    @Path("{key}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    Response update(@NotNull @PathParam("userKey") Long userKey, @NotNull UserMod userMod);
+    Response update(@NotNull UserMod userMod);
 
     /**
      * Self-deletes user.

@@ -116,7 +116,7 @@ public class ReportITCase extends AbstractITCase {
 
         report.getReportletConfs().add(new UserReportletConf("last"));
 
-        reportService.update(report.getKey(), report);
+        reportService.update(report);
         ReportTO updated = reportService.read(report.getKey());
         assertNotNull(updated);
         assertEquals(3, updated.getReportletConfs().size());

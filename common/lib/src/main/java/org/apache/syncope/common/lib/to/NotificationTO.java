@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.ws.rs.PathParam;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -91,6 +92,7 @@ public class NotificationTO extends AbstractBaseBean {
         return key;
     }
 
+    @PathParam("key")
     public void setKey(final Long key) {
         this.key = key;
     }

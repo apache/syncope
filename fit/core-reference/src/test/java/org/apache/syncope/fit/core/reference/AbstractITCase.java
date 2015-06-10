@@ -292,7 +292,7 @@ public abstract class AbstractITCase {
     }
 
     protected UserTO updateUser(final UserMod userMod) {
-        return userService.update(userMod.getKey(), userMod).readEntity(UserTO.class);
+        return userService.update(userMod).readEntity(UserTO.class);
     }
 
     protected UserTO deleteUser(final Long key) {
@@ -342,7 +342,7 @@ public abstract class AbstractITCase {
     }
 
     protected AnyObjectTO updateAnyObject(final AnyObjectMod anyObjectMod) {
-        return anyObjectService.update(anyObjectMod.getKey(), anyObjectMod).readEntity(AnyObjectTO.class);
+        return anyObjectService.update(anyObjectMod).readEntity(AnyObjectTO.class);
     }
 
     protected AnyObjectTO deleteAnyObject(final Long key) {
@@ -361,7 +361,7 @@ public abstract class AbstractITCase {
     }
 
     protected GroupTO updateGroup(final GroupMod groupMod) {
-        return groupService.update(groupMod.getKey(), groupMod).readEntity(GroupTO.class);
+        return groupService.update(groupMod).readEntity(GroupTO.class);
     }
 
     protected GroupTO deleteGroup(final Long key) {

@@ -85,7 +85,7 @@ public class ConnectorRestClient extends BaseRestClient {
         Set<ConnConfProperty> filteredConf = filterProperties(connectorTO.getConfiguration());
         connectorTO.getConfiguration().clear();
         connectorTO.getConfiguration().addAll(filteredConf);
-        getService(ConnectorService.class).update(connectorTO.getKey(), connectorTO);
+        getService(ConnectorService.class).update(connectorTO);
     }
 
     public ConnInstanceTO delete(final Long id) {

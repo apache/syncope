@@ -46,14 +46,14 @@ public interface PolicyService extends JAXRSService {
     /**
      * Returns the policy matching the given key.
      *
-     * @param policyKey key of requested policy
+     * @param key key of requested policy
      * @param <T> response type (extending PolicyTO)
      * @return policy with matching id
      */
     @GET
-    @Path("{policyKey}")
+    @Path("{key}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    <T extends AbstractPolicyTO> T read(@NotNull @PathParam("policyKey") Long policyKey);
+    <T extends AbstractPolicyTO> T read(@NotNull @PathParam("key") Long key);
 
     /**
      * Returns a list of policies of the matching type.
@@ -83,23 +83,22 @@ public interface PolicyService extends JAXRSService {
     /**
      * Updates policy matching the given key.
      *
-     * @param policyKey key of policy to be updated
      * @param policyTO Policy to replace existing policy
      * @param <T> response type (extending PolicyTO)
      */
     @PUT
-    @Path("{policyKey}")
+    @Path("{key}")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    <T extends AbstractPolicyTO> void update(@NotNull @PathParam("policyKey") Long policyKey, @NotNull T policyTO);
+    <T extends AbstractPolicyTO> void update(@NotNull T policyTO);
 
     /**
      * Delete policy matching the given key.
      *
-     * @param policyKey key of policy to be deleted
+     * @param key key of policy to be deleted
      * @param <T> response type (extending PolicyTO)
      */
     @DELETE
-    @Path("{policyKey}")
-    <T extends AbstractPolicyTO> void delete(@NotNull @PathParam("policyKey") Long policyKey);
+    @Path("{key}")
+    <T extends AbstractPolicyTO> void delete(@NotNull @PathParam("key") Long key);
 
 }

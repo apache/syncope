@@ -44,13 +44,13 @@ public interface NotificationService extends JAXRSService {
     /**
      * Returns notification with matching id.
      *
-     * @param notificationKey key of notification to be read
+     * @param key key of notification to be read
      * @return notification with matching key
      */
     @GET
-    @Path("{notificationKey}")
+    @Path("{key}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    NotificationTO read(@NotNull @PathParam("notificationKey") Long notificationKey);
+    NotificationTO read(@NotNull @PathParam("key") Long key);
 
     /**
      * Returns a list of all notifications.
@@ -78,20 +78,19 @@ public interface NotificationService extends JAXRSService {
     /**
      * Updates the notification matching the given key.
      *
-     * @param notificationKey key of notification to be updated
      * @param notificationTO notification to be stored
      */
     @PUT
-    @Path("{notificationKey}")
+    @Path("{key}")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    void update(@NotNull @PathParam("notificationKey") Long notificationKey, @NotNull NotificationTO notificationTO);
+    void update(@NotNull NotificationTO notificationTO);
 
     /**
      * Deletes the notification matching the given key.
      *
-     * @param notificationKey key for notification to be deleted
+     * @param key key for notification to be deleted
      */
     @DELETE
-    @Path("{notificationKey}")
-    void delete(@NotNull @PathParam("notificationKey") Long notificationKey);
+    @Path("{key}")
+    void delete(@NotNull @PathParam("key") Long key);
 }

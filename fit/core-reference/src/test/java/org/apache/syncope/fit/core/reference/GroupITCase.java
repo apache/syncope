@@ -272,7 +272,7 @@ public class GroupITCase extends AbstractITCase {
         GroupService groupService2 = clientFactory.create("verdi", ADMIN_PWD).getService(GroupService.class);
 
         try {
-            groupService2.update(groupMod.getKey(), groupMod);
+            groupService2.update(groupMod);
             fail();
         } catch (SyncopeClientException e) {
             assertEquals(Response.Status.UNAUTHORIZED, e.getType().getResponseStatus());
@@ -283,7 +283,7 @@ public class GroupITCase extends AbstractITCase {
         // 4. update as puccini, owner of group 6 - success
         GroupService groupService3 = clientFactory.create("puccini", ADMIN_PWD).getService(GroupService.class);
 
-        groupTO = groupService3.update(groupMod.getKey(), groupMod).readEntity(GroupTO.class);
+        groupTO = groupService3.update(groupMod).readEntity(GroupTO.class);
         assertEquals("Director", groupTO.getName());
 
         // issue SYNCOPE-15
@@ -531,7 +531,7 @@ public class GroupITCase extends AbstractITCase {
         String typeClassName = type.getClasses().get(0);
         AnyTypeClassTO typeClass = anyTypeClassService.read(typeClassName);
         typeClass.getPlainSchemas().add(badge.getKey());
-        anyTypeClassService.update(typeClassName, typeClass);
+        anyTypeClassService.update(typeClass);
         typeClass = anyTypeClassService.read(typeClassName);
         assertTrue(typeClass.getPlainSchemas().contains(badge.getKey()));
 
@@ -556,7 +556,7 @@ public class GroupITCase extends AbstractITCase {
         } finally {
             // restore the original group class
             typeClass.getPlainSchemas().remove(badge.getKey());
-            anyTypeClassService.update(typeClassName, typeClass);
+            anyTypeClassService.update(typeClass);
             typeClass = anyTypeClassService.read(typeClassName);
             assertFalse(typeClass.getPlainSchemas().contains(badge.getKey()));
         }
@@ -595,9 +595,10 @@ public class GroupITCase extends AbstractITCase {
         assertNotNull(group);
 
         GroupMod groupMod = new GroupMod();
+        groupMod.setKey(group.getKey());
         groupMod.getPlainAttrsToUpdate().add(attrMod("badge", "xxxxxxxxxx"));
 
-        response = noContentService.update(group.getKey(), groupMod);
+        response = noContentService.update(groupMod);
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
         assertEquals(Preference.RETURN_NO_CONTENT.toString(), response.getHeaderString(RESTHeaders.PREFERENCE_APPLIED));
         assertEquals(StringUtils.EMPTY, IOUtils.toString((InputStream) response.getEntity()));
@@ -705,7 +706,7 @@ public class GroupITCase extends AbstractITCase {
         GroupMod mod = new GroupMod();
         mod.setKey(group.getKey());
         mod.setUDynMembershipCond("cool==false");
-        groupService.update(mod.getKey(), mod);
+        groupService.update(mod);
 
         assertTrue(userService.read(4L).getDynGroups().isEmpty());
     }

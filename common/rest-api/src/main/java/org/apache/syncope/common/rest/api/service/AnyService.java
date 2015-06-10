@@ -100,7 +100,6 @@ public interface AnyService<TO extends AnyTO, MOD extends AnyMod> extends JAXRSS
     /**
      * Updates any object matching the provided key.
      *
-     * @param key key of any object to be updated
      * @param anyMod modification to be applied to any object matching the provided key
      * @return <tt>Response</tt> object featuring the updated any object enriched with propagation status information
      * - {@link AnyTO} as <tt>Entity</tt>
@@ -114,7 +113,7 @@ public interface AnyService<TO extends AnyTO, MOD extends AnyMod> extends JAXRSS
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    Response update(@NotNull @PathParam("key") Long key, @NotNull MOD anyMod);
+    Response update(@NotNull MOD anyMod);
 
     /**
      * Deletes any object matching provided key.

@@ -93,7 +93,7 @@ public class NotificationITCase extends AbstractITCase {
         NotificationTO notificationTO = notificationService.read(10L);
         notificationTO.setRecipients(SyncopeClient.getUserSearchConditionBuilder().inGroups(7L).query());
 
-        notificationService.update(notificationTO.getKey(), notificationTO);
+        notificationService.update(notificationTO);
         NotificationTO actual = notificationService.read(notificationTO.getKey());
         assertNotNull(actual);
         assertEquals(actual, notificationTO);

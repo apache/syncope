@@ -69,7 +69,7 @@ public class ResourceRestClient extends BaseRestClient {
     }
 
     public void update(final ResourceTO resourceTO) {
-        getService(ResourceService.class).update(resourceTO.getKey(), resourceTO);
+        getService(ResourceService.class).update(resourceTO);
     }
 
     public void delete(final String name) {

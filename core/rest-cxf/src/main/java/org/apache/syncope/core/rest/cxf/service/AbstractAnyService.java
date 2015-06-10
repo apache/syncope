@@ -107,12 +107,11 @@ public abstract class AbstractAnyService<TO extends AnyTO, MOD extends AnyMod>
     }
 
     @Override
-    public Response update(final Long key, final MOD anyMod) {
-        TO any = getAnyLogic().read(key);
+    public Response update(final MOD anyMod) {
+        TO any = getAnyLogic().read(anyMod.getKey());
 
         checkETag(any.getETagValue());
 
-        anyMod.setKey(key);
         TO updated = getAnyLogic().update(anyMod);
         return modificationResponse(updated);
     }

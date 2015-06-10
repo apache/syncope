@@ -78,13 +78,12 @@ public interface RoleService extends JAXRSService {
     /**
      * Updates the role matching the provided key.
      *
-     * @param key role key to be updated
      * @param roleTO role to be stored
      */
     @PUT
     @Path("{key}")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    void update(@NotNull @PathParam("key") Long key, @NotNull RoleTO roleTO);
+    void update(@NotNull RoleTO roleTO);
 
     /**
      * Deletes the role matching the provided key.

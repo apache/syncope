@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import javax.ws.rs.PathParam;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -71,6 +72,7 @@ public class ConnInstanceTO extends AbstractBaseBean {
         return key;
     }
 
+    @PathParam("key")
     public void setKey(final long key) {
         this.key = key;
     }

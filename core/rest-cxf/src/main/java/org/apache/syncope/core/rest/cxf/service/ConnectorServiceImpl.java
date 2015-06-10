@@ -112,8 +112,7 @@ public class ConnectorServiceImpl extends AbstractServiceImpl implements Connect
     }
 
     @Override
-    public void update(final Long key, final ConnInstanceTO connInstanceTO) {
-        connInstanceTO.setKey(key);
+    public void update(final ConnInstanceTO connInstanceTO) {
         logic.update(connInstanceTO);
     }
 

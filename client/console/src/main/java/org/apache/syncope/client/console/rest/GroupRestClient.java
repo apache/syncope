@@ -98,7 +98,7 @@ public class GroupRestClient extends AbstractAnyRestClient {
         GroupTO result;
         synchronized (this) {
             GroupService service = getService(etag, GroupService.class);
-            result = service.update(groupMod.getKey(), groupMod).readEntity(GroupTO.class);
+            result = service.update(groupMod).readEntity(GroupTO.class);
             resetClient(GroupService.class);
         }
         return result;

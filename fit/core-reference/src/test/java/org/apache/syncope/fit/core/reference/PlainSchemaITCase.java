@@ -184,13 +184,13 @@ public class PlainSchemaITCase extends AbstractITCase {
         PlainSchemaTO schemaTO = schemaService.read(SchemaType.PLAIN, "icon");
         assertNotNull(schemaTO);
 
-        schemaService.update(SchemaType.PLAIN, schemaTO.getKey(), schemaTO);
+        schemaService.update(SchemaType.PLAIN, schemaTO);
         PlainSchemaTO updatedTO = schemaService.read(SchemaType.PLAIN, "icon");
         assertEquals(schemaTO, updatedTO);
 
         updatedTO.setType(AttrSchemaType.Date);
         try {
-            schemaService.update(SchemaType.PLAIN, schemaTO.getKey(), updatedTO);
+            schemaService.update(SchemaType.PLAIN, updatedTO);
             fail("This should not be reacheable");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidPlainSchema, e.getType());
@@ -220,7 +220,7 @@ public class PlainSchemaITCase extends AbstractITCase {
 
         schemaTO.setType(AttrSchemaType.Long);
         try {
-            schemaService.update(SchemaType.PLAIN, schemaTO.getKey(), schemaTO);
+            schemaService.update(SchemaType.PLAIN, schemaTO);
             fail("This should not be reacheable");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidPlainSchema, e.getType());
@@ -253,7 +253,7 @@ public class PlainSchemaITCase extends AbstractITCase {
 
         UserMod userMod = AnyOperations.diff(newUserTO, userTO);
 
-        userTO = userService.update(userMod.getKey(), userMod).readEntity(UserTO.class);
+        userTO = userService.update(userMod).readEntity(UserTO.class);
         assertNotNull(userTO);
     }
 
@@ -278,7 +278,7 @@ public class PlainSchemaITCase extends AbstractITCase {
 
         schemaTO.setUniqueConstraint(false);
         try {
-            schemaService.update(SchemaType.PLAIN, schemaTO.getKey(), schemaTO);
+            schemaService.update(SchemaType.PLAIN, schemaTO);
             fail("This should not be reacheable");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidPlainSchema, e.getType());

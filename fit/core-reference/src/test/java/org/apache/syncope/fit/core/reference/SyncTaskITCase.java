@@ -78,7 +78,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
     public static void testSyncActionsSetup() {
         SyncTaskTO syncTask = taskService.read(SYNC_TASK_ID);
         syncTask.getActionsClassNames().add(TestSyncActions.class.getName());
-        taskService.update(SYNC_TASK_ID, syncTask);
+        taskService.update(syncTask);
     }
 
     @Test
@@ -362,7 +362,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         assertNotNull(provision);
 
         provision.setSyncToken(null);
-        resourceService.update(resource.getKey(), resource);
+        resourceService.update(resource);
 
         // 1. create printer on external resource
         AnyObjectTO anyObjectTO = AnyObjectITCase.getSampleTO("sync");
@@ -449,7 +449,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
 
             task.getTemplates().put(AnyTypeKind.USER.name(), template);
 
-            taskService.update(task.getKey(), task);
+            taskService.update(task);
             SyncTaskTO actual = taskService.read(task.getKey());
             assertNotNull(actual);
             assertEquals(task.getKey(), actual.getKey());
@@ -514,7 +514,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         }
         item.setJavaRule(TestSyncRule.class.getName());
 
-        policyService.update(policyTO.getKey(), policyTO);
+        policyService.update(policyTO);
         // -----------------------------
 
         SyncTaskTO task = new SyncTaskTO();
@@ -548,7 +548,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         userMod.getPlainAttrsToRemove().add("email");
         userMod.getPlainAttrsToUpdate().add(attrMod("email", "s258@apache.org"));
 
-        userService.update(userMod.getKey(), userMod);
+        userService.update(userMod);
 
         execProvisioningTask(actual.getKey(), 50, false);
 
@@ -622,7 +622,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
 
         task.getTemplates().put(AnyTypeKind.USER.name(), template);
 
-        taskService.update(task.getKey(), task);
+        taskService.update(task);
         execProvisioningTask(task.getKey(), 50, false);
 
         // check for sync policy
@@ -736,7 +736,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         ConnConfProperty property = resourceConnector.getConfigurationMap().get("retrievePasswordsWithSearch");
         property.getValues().clear();
         property.getValues().add(Boolean.TRUE);
-        connectorService.update(ldapResource.getConnector(), resourceConnector);
+        connectorService.update(resourceConnector);
 
         // 6. Sync the user from the resource
         SyncTaskTO syncTask = new SyncTaskTO();
@@ -771,7 +771,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         taskService.delete(syncTask.getKey());
         property.getValues().clear();
         property.getValues().add(Boolean.FALSE);
-        connectorService.update(ldapResource.getConnector(), resourceConnector);
+        connectorService.update(resourceConnector);
         deleteUser(updatedUser.getKey());
     }
 }

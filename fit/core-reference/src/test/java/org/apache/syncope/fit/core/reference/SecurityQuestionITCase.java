@@ -72,7 +72,7 @@ public class SecurityQuestionITCase extends AbstractITCase {
         SecurityQuestionTO securityQuestionTO = securityQuestionService.read(1L);
         securityQuestionTO.setContent("What is your favorite color?");
 
-        securityQuestionService.update(securityQuestionTO.getKey(), securityQuestionTO);
+        securityQuestionService.update(securityQuestionTO);
         SecurityQuestionTO actual = securityQuestionService.read(securityQuestionTO.getKey());
         assertNotNull(actual);
         assertEquals(actual, securityQuestionTO);

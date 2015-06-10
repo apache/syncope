@@ -85,7 +85,7 @@ public class AnyTypeITCase extends AbstractITCase {
         assertTrue(newType.getClasses().contains("csv"));
 
         newType.getClasses().remove("generic membership");
-        anyTypeService.update(newType.getKey(), newType);
+        anyTypeService.update(newType);
 
         newType = anyTypeService.read(newType.getKey());
         assertNotNull(newType);
@@ -154,7 +154,7 @@ public class AnyTypeITCase extends AbstractITCase {
         assertNotNull(other);
 
         other.getClasses().add(newClass.getKey());
-        anyTypeService.update(other.getKey(), other);
+        anyTypeService.update(other);
 
         other = anyTypeService.read(other.getKey());
         assertNotNull(other);

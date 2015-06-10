@@ -95,7 +95,7 @@ public class RoleITCase extends AbstractITCase {
         role.getEntitlements().add(Entitlement.WORKFLOW_TASK_LIST);
         role.getRealms().add("/even/two");
 
-        roleService.update(role.getKey(), role);
+        roleService.update(role);
 
         actual = roleService.read(role.getKey());
         assertTrue(actual.getEntitlements().contains(Entitlement.WORKFLOW_TASK_LIST));
@@ -133,7 +133,7 @@ public class RoleITCase extends AbstractITCase {
         assertTrue(userService.read(4L).getDynRoles().contains(role.getKey()));
 
         role.setDynMembershipCond("cool==false");
-        roleService.update(role.getKey(), role);
+        roleService.update(role);
 
         assertTrue(userService.read(4L).getDynGroups().isEmpty());
     }

@@ -153,7 +153,7 @@ public class SchemaRestClient extends BaseRestClient {
     }
 
     public void updatePlainSchema(final PlainSchemaTO schemaTO) {
-        getService(SchemaService.class).update(SchemaType.PLAIN, schemaTO.getKey(), schemaTO);
+        getService(SchemaService.class).update(SchemaType.PLAIN, schemaTO);
     }
 
     public PlainSchemaTO deletePlainSchema(final String name) {
@@ -177,7 +177,7 @@ public class SchemaRestClient extends BaseRestClient {
     }
 
     public void updateVirSchema(final VirSchemaTO schemaTO) {
-        getService(SchemaService.class).update(SchemaType.VIRTUAL, schemaTO.getKey(), schemaTO);
+        getService(SchemaService.class).update(SchemaType.VIRTUAL, schemaTO);
     }
 
     public DerSchemaTO deleteDerSchema(final String name) {
@@ -191,7 +191,7 @@ public class SchemaRestClient extends BaseRestClient {
     }
 
     public void updateDerSchema(final DerSchemaTO schemaTO) {
-        getService(SchemaService.class).update(SchemaType.DERIVED, schemaTO.getKey(), schemaTO);
+        getService(SchemaService.class).update(SchemaType.DERIVED, schemaTO);
     }
 
     public VirSchemaTO deleteVirSchema(final String name) {

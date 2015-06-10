@@ -72,7 +72,7 @@ public class AnyTypeClassITCase extends AbstractITCase {
         assertTrue(newClass.getVirSchemas().isEmpty());
 
         newClass.getDerSchemas().add("cn");
-        anyTypeClassService.update(newClass.getKey(), newClass);
+        anyTypeClassService.update(newClass);
 
         newClass = anyTypeClassService.read(newClass.getKey());
         assertNotNull(newClass);

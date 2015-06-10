@@ -51,15 +51,15 @@ public interface SecurityQuestionService extends JAXRSService {
     List<SecurityQuestionTO> list();
 
     /**
-     * Returns security question with matching id.
+     * Returns security question with matching key.
      *
-     * @param securityQuestionId security question id to be read
-     * @return security question with matching id
+     * @param key security question key to be read
+     * @return security question with matching key
      */
     @GET
-    @Path("{securityQuestionId}")
+    @Path("{key}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    SecurityQuestionTO read(@NotNull @PathParam("securityQuestionId") Long securityQuestionId);
+    SecurityQuestionTO read(@NotNull @PathParam("key") Long key);
 
     /**
      * Creates a new security question.
@@ -76,25 +76,23 @@ public interface SecurityQuestionService extends JAXRSService {
     Response create(@NotNull SecurityQuestionTO securityQuestionTO);
 
     /**
-     * Updates the security question matching the provided id.
+     * Updates the security question matching the provided key.
      *
-     * @param securityQuestionId security question id to be updated
      * @param securityQuestionTO security question to be stored
      */
     @PUT
-    @Path("{securityQuestionId}")
+    @Path("{key}")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    void update(@NotNull @PathParam("securityQuestionId") Long securityQuestionId,
-            @NotNull SecurityQuestionTO securityQuestionTO);
+    void update(@NotNull SecurityQuestionTO securityQuestionTO);
 
     /**
-     * Deletes the security question matching the provided id.
+     * Deletes the security question matching the provided key.
      *
-     * @param securityQuestionId security question id to be deleted
+     * @param key security question key to be deleted
      */
     @DELETE
-    @Path("{securityQuestionId}")
-    void delete(@NotNull @PathParam("securityQuestionId") Long securityQuestionId);
+    @Path("{key}")
+    void delete(@NotNull @PathParam("key") Long key);
 
     /**
      * Ask for security question configured for the user matching the given username, if any.

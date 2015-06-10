@@ -57,8 +57,7 @@ public class ReportServiceImpl extends AbstractServiceImpl implements ReportServ
     }
 
     @Override
-    public void update(final Long reportKey, final ReportTO reportTO) {
-        reportTO.setKey(reportKey);
+    public void update(final ReportTO reportTO) {
         logic.update(reportTO);
     }
 
@@ -80,8 +79,8 @@ public class ReportServiceImpl extends AbstractServiceImpl implements ReportServ
     }
 
     @Override
-    public ReportTO read(final Long reportKey) {
-        return logic.read(reportKey);
+    public ReportTO read(final Long key) {
+        return logic.read(key);
     }
 
     @Override
@@ -108,13 +107,13 @@ public class ReportServiceImpl extends AbstractServiceImpl implements ReportServ
     }
 
     @Override
-    public ReportExecTO execute(final Long reportKey) {
-        return logic.execute(reportKey);
+    public ReportExecTO execute(final Long key) {
+        return logic.execute(key);
     }
 
     @Override
-    public void delete(final Long reportKey) {
-        logic.delete(reportKey);
+    public void delete(final Long key) {
+        logic.delete(key);
     }
 
     @Override
@@ -128,7 +127,7 @@ public class ReportServiceImpl extends AbstractServiceImpl implements ReportServ
     }
 
     @Override
-    public void actionJob(final Long reportKey, final JobAction action) {
-        logic.actionJob(reportKey, action);
+    public void actionJob(final Long key, final JobAction action) {
+        logic.actionJob(key, action);
     }
 }

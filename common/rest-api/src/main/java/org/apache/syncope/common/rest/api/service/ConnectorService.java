@@ -154,13 +154,12 @@ public interface ConnectorService extends JAXRSService {
     /**
      * Updates the connector instance matching the provided key.
      *
-     * @param key connector instance key to be updated
      * @param connInstanceTO connector instance to be stored
      */
     @PUT
     @Path("{key}")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    void update(@NotNull @PathParam("key") Long key, @NotNull ConnInstanceTO connInstanceTO);
+    void update(@NotNull ConnInstanceTO connInstanceTO);
 
     /**
      * Deletes the connector instance matching the provided key.

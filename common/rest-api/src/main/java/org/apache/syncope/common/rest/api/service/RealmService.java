@@ -80,13 +80,12 @@ public interface RealmService extends JAXRSService {
     /**
      * Updates the realm under the given path.
      *
-     * @param fullPath full path of the realm
      * @param realmTO realm to be stored
      */
     @PUT
     @Path("{fullPath:.*}")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    void update(@NotNull @PathParam("fullPath") String fullPath, @NotNull RealmTO realmTO);
+    void update(@NotNull RealmTO realmTO);
 
     /**
      * Deletes the notification matching the given key.

@@ -91,7 +91,7 @@ public class RealmITCase extends AbstractITCase {
         // 2. update setting policies
         actual.setAccountPolicy(6L);
         actual.setPasswordPolicy(4L);
-        realmService.update(actual.getFullPath(), actual);
+        realmService.update(actual);
 
         actual = getRealm(actual.getFullPath());
         assertNotNull(actual.getAccountPolicy());
@@ -99,7 +99,7 @@ public class RealmITCase extends AbstractITCase {
 
         // 3. update changing parent
         actual.setParent(getRealm("/odd").getKey());
-        realmService.update(actual.getFullPath(), actual);
+        realmService.update(actual);
 
         actual = getRealm("/odd/last");
         assertNotNull(actual);

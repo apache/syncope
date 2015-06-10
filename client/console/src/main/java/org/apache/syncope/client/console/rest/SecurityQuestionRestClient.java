@@ -37,11 +37,11 @@ public class SecurityQuestionRestClient extends BaseRestClient {
     }
 
     public void update(final SecurityQuestionTO securityQuestionTO) {
-        getService(SecurityQuestionService.class).update(securityQuestionTO.getKey(), securityQuestionTO);
+        getService(SecurityQuestionService.class).update(securityQuestionTO);
     }
 
-    public void delete(final Long securityQuestionId) {
-        getService(SecurityQuestionService.class).delete(securityQuestionId);
+    public void delete(final Long securityQuestionKey) {
+        getService(SecurityQuestionService.class).delete(securityQuestionKey);
     }
 
     public SecurityQuestionTO readByUser(final String username) {

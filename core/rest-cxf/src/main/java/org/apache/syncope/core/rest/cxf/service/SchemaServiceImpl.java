@@ -46,8 +46,8 @@ public class SchemaServiceImpl extends AbstractServiceImpl implements SchemaServ
     }
 
     @Override
-    public void delete(final SchemaType schemaType, final String schemaKey) {
-        logic.delete(schemaType, schemaKey);
+    public void delete(final SchemaType schemaType, final String key) {
+        logic.delete(schemaType, key);
     }
 
     @Override
@@ -56,15 +56,12 @@ public class SchemaServiceImpl extends AbstractServiceImpl implements SchemaServ
     }
 
     @Override
-    public <T extends AbstractSchemaTO> T read(final SchemaType schemaType, final String schemaKey) {
-        return logic.read(schemaType, schemaKey);
+    public <T extends AbstractSchemaTO> T read(final SchemaType schemaType, final String key) {
+        return logic.read(schemaType, key);
     }
 
     @Override
-    public <T extends AbstractSchemaTO> void update(
-            final SchemaType schemaType, final String schemaKey, final T schemaTO) {
-
-        schemaTO.setKey(schemaKey);
+    public <T extends AbstractSchemaTO> void update(final SchemaType schemaType, final T schemaTO) {
         logic.update(schemaType, schemaTO);
     }
 }

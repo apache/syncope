@@ -48,8 +48,8 @@ public class PolicyServiceImpl extends AbstractServiceImpl implements PolicyServ
     }
 
     @Override
-    public void delete(final Long policyKey) {
-        logic.delete(policyKey);
+    public void delete(final Long key) {
+        logic.delete(key);
     }
 
     @Override
@@ -58,14 +58,12 @@ public class PolicyServiceImpl extends AbstractServiceImpl implements PolicyServ
     }
 
     @Override
-    public <T extends AbstractPolicyTO> T read(final Long policyKey) {
-        return logic.read(policyKey);
+    public <T extends AbstractPolicyTO> T read(final Long key) {
+        return logic.read(key);
     }
 
     @Override
-    public <T extends AbstractPolicyTO> void update(final Long policyKey, final T policyTO) {
-        policyTO.setKey(policyKey);
-
+    public <T extends AbstractPolicyTO> void update(final T policyTO) {
         switch (policyTO.getType()) {
             case ACCOUNT:
                 logic.update((AccountPolicyTO) policyTO);

@@ -56,8 +56,8 @@ public class RealmServiceImpl extends AbstractServiceImpl implements RealmServic
     }
 
     @Override
-    public void update(final String fullPath, final RealmTO realmTO) {
-        realmTO.setFullPath(StringUtils.prependIfMissing(fullPath, SyncopeConstants.ROOT_REALM));
+    public void update(final RealmTO realmTO) {
+        realmTO.setFullPath(StringUtils.prependIfMissing(realmTO.getFullPath(), SyncopeConstants.ROOT_REALM));
         logic.update(realmTO);
     }
 
