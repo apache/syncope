@@ -88,7 +88,7 @@ public class RoleTest extends AbstractTest {
         User user = entityFactory.newEntity(User.class);
         user.setUsername("username");
         user.setRealm(realmDAO.find("/even/two"));
-        user.add(anyTypeClassDAO.find("minimal other"));
+        user.add(anyTypeClassDAO.find("other"));
 
         UPlainAttr attr = entityFactory.newEntity(UPlainAttr.class);
         attr.setOwner(user);

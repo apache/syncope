@@ -53,7 +53,7 @@ public class BulkActionModalPage<T, S> extends BaseModalPage {
             final List<IColumn<T, S>> columns,
             final Collection<ActionLink.ActionType> actions,
             final BaseRestClient bulkActionExecutor,
-            final String idFieldName,
+            final String keyFieldName,
             final String pageId) {
 
         super();
@@ -92,9 +92,9 @@ public class BulkActionModalPage<T, S> extends BaseModalPage {
             final BulkAction bulkAction = new BulkAction();
             for (T item : items) {
                 try {
-                    bulkAction.getTargets().add(getTargetId(item, idFieldName).toString());
+                    bulkAction.getTargets().add(getTargetId(item, keyFieldName).toString());
                 } catch (IllegalAccessException | InvocationTargetException e) {
-                    LOG.error("Error retrieving item id {}", idFieldName, e);
+                    LOG.error("Error retrieving item id {}", keyFieldName, e);
                 }
             }
 
@@ -128,7 +128,7 @@ public class BulkActionModalPage<T, S> extends BaseModalPage {
                         final BulkActionResult res = (BulkActionResult) bulkActionExecutor.getClass().
                                 getMethod("bulkAction", BulkAction.class).invoke(bulkActionExecutor, bulkAction);
 
-                        setResponsePage(new BulkActionResultModalPage<>(window, items, columns, res, idFieldName));
+                        setResponsePage(new BulkActionResultModalPage<>(window, items, columns, res, keyFieldName));
                     } catch (NoSuchMethodException | SecurityException | IllegalAccessException 
                             | IllegalArgumentException | InvocationTargetException e) {
                         error(getString(Constants.ERROR)

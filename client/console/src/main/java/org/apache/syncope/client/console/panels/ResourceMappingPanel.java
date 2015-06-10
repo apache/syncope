@@ -36,12 +36,12 @@ import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownCho
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MappingPurposePanel;
-import org.apache.syncope.common.lib.to.ConnIdObjectClassTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.MappingItemTO;
 import org.apache.syncope.common.lib.to.MappingTO;
+import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
-import org.apache.syncope.common.lib.types.AttributableType;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
@@ -122,37 +122,28 @@ public class ResourceMappingPanel extends Panel {
     /**
      * User / group.
      */
-    private final AttributableType attrType;
+    private final AnyTypeKind anyTypeKind;
 
     /**
      * Mapping container.
      */
     private final WebMarkupContainer mappingContainer;
 
-    /**
-     * AccountLink container.
-     */
-    private final WebMarkupContainer accountLinkContainer;
+    private final WebMarkupContainer connObjectLinkContainer;
 
-    private final AjaxCheckBoxPanel accountLinkCheckbox;
+    private final AjaxCheckBoxPanel connObjectLinkCheckbox;
 
     private MappingTO getMapping() {
-        MappingTO result = null;
-
-        if (AttributableType.USER == this.attrType) {
-            if (this.resourceTO.getUmapping() == null) {
-                this.resourceTO.setUmapping(new MappingTO());
-            }
-            result = this.resourceTO.getUmapping();
+        ProvisionTO provision = resourceTO.getProvision(this.anyTypeKind.name());
+        if (provision == null) {
+            provision = new ProvisionTO();
+            resourceTO.getProvisions().add(provision);
         }
-        if (AttributableType.GROUP == this.attrType) {
-            if (this.resourceTO.getGmapping() == null) {
-                this.resourceTO.setGmapping(new MappingTO());
-            }
-            result = this.resourceTO.getGmapping();
+        if (provision.getMapping() == null) {
+            provision.setMapping(new MappingTO());
         }
 
-        return result;
+        return provision.getMapping();
     }
 
     /**
@@ -160,25 +151,25 @@ public class ResourceMappingPanel extends Panel {
      *
      * @param id panel id
      * @param resourceTO external resource
-     * @param attrType USER / GROUP
+     * @param anyTypeKind USER / GROUP
      */
-    public ResourceMappingPanel(final String id, final ResourceTO resourceTO, final AttributableType attrType) {
+    public ResourceMappingPanel(final String id, final ResourceTO resourceTO, final AnyTypeKind anyTypeKind) {
         super(id);
         setOutputMarkupId(true);
 
         this.resourceTO = resourceTO;
-        this.attrType = attrType;
+        this.anyTypeKind = anyTypeKind;
 
         this.mappingContainer = new WebMarkupContainer("mappingContainer");
         this.mappingContainer.setOutputMarkupId(true);
         add(this.mappingContainer);
 
-        this.accountLinkContainer = new WebMarkupContainer("accountLinkContainer");
-        this.accountLinkContainer.setOutputMarkupId(true);
-        add(this.accountLinkContainer);
+        this.connObjectLinkContainer = new WebMarkupContainer("connObjectLinkContainer");
+        this.connObjectLinkContainer.setOutputMarkupId(true);
+        add(this.connObjectLinkContainer);
 
-        if (this.resourceTO.getConnectorId() != null && this.resourceTO.getConnectorId() > 0) {
-            schemaNames = getSchemaNames(this.resourceTO.getConnectorId(), this.resourceTO.getConnConfProperties());
+        if (this.resourceTO.getConnector() != null && this.resourceTO.getConnector() > 0) {
+            schemaNames = getSchemaNames(this.resourceTO.getConnector(), this.resourceTO.getConnConfProperties());
 
             setEnabled();
         } else {
@@ -193,7 +184,7 @@ public class ResourceMappingPanel extends Panel {
 
         final Label passwordLabel = new Label("passwordLabel", new ResourceModel("password"));
         mappingContainer.add(passwordLabel);
-        if (AttributableType.USER != ResourceMappingPanel.this.attrType) {
+        if (AnyTypeKind.USER != ResourceMappingPanel.this.anyTypeKind) {
             passwordLabel.setVisible(false);
         }
 
@@ -213,8 +204,8 @@ public class ResourceMappingPanel extends Panel {
                 } else if (left.getPurpose() != MappingPurpose.BOTH && right.getPurpose() == MappingPurpose.BOTH) {
                     compared = 1;
                 } else if (left.getPurpose() == MappingPurpose.PROPAGATION
-                        && (right.getPurpose() == MappingPurpose.SYNCHRONIZATION || right.getPurpose()
-                        == MappingPurpose.NONE)) {
+                        && (right.getPurpose() == MappingPurpose.SYNCHRONIZATION
+                        || right.getPurpose() == MappingPurpose.NONE)) {
                     compared = -1;
                 } else if (left.getPurpose() == MappingPurpose.SYNCHRONIZATION
                         && right.getPurpose() == MappingPurpose.PROPAGATION) {
@@ -225,9 +216,9 @@ public class ResourceMappingPanel extends Panel {
                 } else if (left.getPurpose() == MappingPurpose.NONE
                         && right.getPurpose() != MappingPurpose.NONE) {
                     compared = 1;
-                } else if (left.isAccountid()) {
+                } else if (left.isConnObjectKey()) {
                     compared = -1;
-                } else if (right.isAccountid()) {
+                } else if (right.isConnObjectKey()) {
                     compared = 1;
                 } else if (left.isPassword()) {
                     compared = -1;
@@ -251,14 +242,12 @@ public class ResourceMappingPanel extends Panel {
                     mapItem.setPurpose(MappingPurpose.BOTH);
                 }
 
-                AttributableType entity = null;
+                AnyTypeKind entity = null;
                 if (mapItem.getIntMappingType() != null) {
-                    entity = mapItem.getIntMappingType().getAttributableType();
+                    entity = mapItem.getIntMappingType().getAnyTypeKind();
                 }
 
-                final List<IntMappingType> attrTypes = new ArrayList<IntMappingType>(getAttributeTypes(entity));
-
-                item.add(new AjaxDecoratedCheckbox("toRemove", new Model<Boolean>(Boolean.FALSE)) {
+                item.add(new AjaxDecoratedCheckbox("toRemove", new Model<>(Boolean.FALSE)) {
 
                     private static final long serialVersionUID = 7170946748485726506L;
 
@@ -282,7 +271,7 @@ public class ResourceMappingPanel extends Panel {
                     protected void updateAjaxAttributes(final AjaxRequestAttributes attributes) {
                         super.updateAjaxAttributes(attributes);
 
-                        final AjaxCallListener ajaxCallListener = new AjaxCallListener() {
+                        AjaxCallListener ajaxCallListener = new AjaxCallListener() {
 
                             private static final long serialVersionUID = 7160235486520935153L;
 
@@ -296,7 +285,7 @@ public class ResourceMappingPanel extends Panel {
                 });
 
                 final AjaxDropDownChoicePanel<String> intAttrNames =
-                        new AjaxDropDownChoicePanel<String>("intAttrNames", getString("intAttrNames"),
+                        new AjaxDropDownChoicePanel<>("intAttrNames", getString("intAttrNames"),
                                 new PropertyModel<String>(mapItem, "intAttrName"), false);
                 intAttrNames.setChoices(schemaNames);
                 intAttrNames.setRequired(true);
@@ -311,8 +300,9 @@ public class ResourceMappingPanel extends Panel {
                 });
                 item.add(intAttrNames);
 
+                final List<IntMappingType> attrTypes = new ArrayList<>(getAttributeTypes(entity));
                 final AjaxDropDownChoicePanel<IntMappingType> intMappingTypes =
-                        new AjaxDropDownChoicePanel<IntMappingType>("intMappingTypes",
+                        new AjaxDropDownChoicePanel<>("intMappingTypes",
                                 new ResourceModel("intMappingTypes", "intMappingTypes").getObject(),
                                 new PropertyModel<IntMappingType>(mapItem, "intMappingType"));
                 intMappingTypes.setRequired(true);
@@ -320,13 +310,13 @@ public class ResourceMappingPanel extends Panel {
                 intMappingTypes.setStyleSheet(FIELD_STYLE);
                 item.add(intMappingTypes);
 
-                final AjaxDropDownChoicePanel<AttributableType> entitiesPanel =
-                        new AjaxDropDownChoicePanel<AttributableType>("entities",
-                                new ResourceModel("entities", "entities").getObject(), new Model<AttributableType>(
-                                        entity));
-                entitiesPanel.setChoices(attrType == AttributableType.GROUP
-                        ? Collections.<AttributableType>singletonList(AttributableType.GROUP)
-                        : Arrays.asList(AttributableType.values()));
+                final AjaxDropDownChoicePanel<AnyTypeKind> entitiesPanel =
+                        new AjaxDropDownChoicePanel<>("entities",
+                                new ResourceModel("entities", "entities").getObject(),
+                                new Model<>(entity));
+                entitiesPanel.setChoices(anyTypeKind == AnyTypeKind.GROUP
+                        ? Collections.<AnyTypeKind>singletonList(AnyTypeKind.GROUP)
+                        : Arrays.asList(AnyTypeKind.values()));
                 entitiesPanel.setStyleSheet(DEF_FIELD_STYLE);
                 entitiesPanel.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
@@ -369,16 +359,16 @@ public class ResourceMappingPanel extends Panel {
                 mandatory.setStyleSheet(SHORT_FIELD_STYLE);
                 item.add(mandatory);
 
-                final AjaxCheckBoxPanel accountId = new AjaxCheckBoxPanel("accountId",
-                        new ResourceModel("accountId", "accountId").getObject(),
-                        new PropertyModel<Boolean>(mapItem, "accountid"));
-                accountId.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+                final AjaxCheckBoxPanel connObjectKey = new AjaxCheckBoxPanel("connObjectKey",
+                        new ResourceModel("connObjectKey", "connObjectKey").getObject(),
+                        new PropertyModel<Boolean>(mapItem, "connObjectKey"));
+                connObjectKey.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
                     private static final long serialVersionUID = -1107858522700306810L;
 
                     @Override
                     protected void onUpdate(final AjaxRequestTarget target) {
-                        if (accountId.getModelObject()) {
+                        if (connObjectKey.getModelObject()) {
                             mapItem.setMandatoryCondition("true");
                             mandatory.setEnabled(false);
                         } else {
@@ -388,7 +378,7 @@ public class ResourceMappingPanel extends Panel {
                         target.add(mandatory);
                     }
                 });
-                item.add(accountId);
+                item.add(connObjectKey);
 
                 final AjaxCheckBoxPanel password = new AjaxCheckBoxPanel("password",
                         new ResourceModel("password", "password").getObject(),
@@ -399,17 +389,17 @@ public class ResourceMappingPanel extends Panel {
 
                     @Override
                     protected void onUpdate(final AjaxRequestTarget target) {
-                        extAttrNames.setEnabled(!mapItem.isAccountid() && !password.getModelObject());
+                        extAttrNames.setEnabled(!mapItem.isConnObjectKey() && !password.getModelObject());
                         extAttrNames.setModelObject(null);
                         extAttrNames.setRequired(!password.getModelObject());
                         target.add(extAttrNames);
 
-                        setAccountId(intMappingTypes.getModelObject(), accountId, password);
-                        target.add(accountId);
+                        setConnObjectKey(intMappingTypes.getModelObject(), connObjectKey, password);
+                        target.add(connObjectKey);
                     }
                 });
                 item.add(password);
-                if (AttributableType.USER != ResourceMappingPanel.this.attrType) {
+                if (AnyTypeKind.USER != ResourceMappingPanel.this.anyTypeKind) {
                     password.setVisible(false);
                 }
 
@@ -432,13 +422,13 @@ public class ResourceMappingPanel extends Panel {
                         setAttrNames(intMappingTypes.getModelObject(), intAttrNames);
                         target.add(intAttrNames);
 
-                        setAccountId(intMappingTypes.getModelObject(), accountId, password);
-                        target.add(accountId);
+                        setConnObjectKey(intMappingTypes.getModelObject(), connObjectKey, password);
+                        target.add(connObjectKey);
                     }
                 });
 
                 setAttrNames(mapItem.getIntMappingType(), intAttrNames);
-                setAccountId(mapItem.getIntMappingType(), accountId, password);
+                setConnObjectKey(mapItem.getIntMappingType(), connObjectKey, password);
             }
         };
 
@@ -456,41 +446,41 @@ public class ResourceMappingPanel extends Panel {
             }
         };
         addMappingBtn.setDefaultFormProcessing(false);
-        addMappingBtn.setEnabled(this.resourceTO.getConnectorId() != null && this.resourceTO.getConnectorId() > 0);
+        addMappingBtn.setEnabled(this.resourceTO.getConnector() != null && this.resourceTO.getConnector() > 0);
         mappingContainer.add(addMappingBtn);
 
-        boolean accountLinkEnabled = false;
-        if (getMapping().getAccountLink() != null) {
-            accountLinkEnabled = true;
+        boolean connObjectLinkEnabled = false;
+        if (getMapping().getConnObjectLink() != null) {
+            connObjectLinkEnabled = true;
         }
-        accountLinkCheckbox = new AjaxCheckBoxPanel("accountLinkCheckbox",
-                new ResourceModel("accountLinkCheckbox", "accountLinkCheckbox").getObject(),
-                new Model<Boolean>(Boolean.valueOf(accountLinkEnabled)));
-        accountLinkCheckbox.setEnabled(true);
+        connObjectLinkCheckbox = new AjaxCheckBoxPanel("connObjectLinkCheckbox",
+                new ResourceModel("connObjectLinkCheckbox", "connObjectLinkCheckbox").getObject(),
+                new Model<>(connObjectLinkEnabled));
+        connObjectLinkCheckbox.setEnabled(true);
 
-        accountLinkContainer.add(accountLinkCheckbox);
+        connObjectLinkContainer.add(connObjectLinkCheckbox);
 
-        final AjaxTextFieldPanel accountLink = new AjaxTextFieldPanel("accountLink",
-                new ResourceModel("accountLink", "accountLink").getObject(),
-                new PropertyModel<String>(getMapping(), "accountLink"));
-        accountLink.setEnabled(accountLinkEnabled);
-        accountLinkContainer.add(accountLink);
+        final AjaxTextFieldPanel connObjectLink = new AjaxTextFieldPanel("connObjectLink",
+                new ResourceModel("connObjectLink", "connObjectLink").getObject(),
+                new PropertyModel<String>(getMapping(), "connObjectLink"));
+        connObjectLink.setEnabled(connObjectLinkEnabled);
+        connObjectLinkContainer.add(connObjectLink);
 
-        accountLinkCheckbox.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+        connObjectLinkCheckbox.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                if (accountLinkCheckbox.getModelObject()) {
-                    accountLink.setEnabled(Boolean.TRUE);
-                    accountLink.setModelObject("");
+                if (connObjectLinkCheckbox.getModelObject()) {
+                    connObjectLink.setEnabled(Boolean.TRUE);
+                    connObjectLink.setModelObject("");
                 } else {
-                    accountLink.setEnabled(Boolean.FALSE);
-                    accountLink.setModelObject("");
+                    connObjectLink.setEnabled(Boolean.FALSE);
+                    connObjectLink.setModelObject("");
                 }
 
-                target.add(accountLink);
+                target.add(connObjectLink);
             }
         });
     }
@@ -504,25 +494,22 @@ public class ResourceMappingPanel extends Panel {
     }
 
     private void setEnabled() {
-        final ConnInstanceTO connInstanceTO = new ConnInstanceTO();
-        connInstanceTO.setKey(this.resourceTO.getConnectorId());
+        ConnInstanceTO connInstanceTO = new ConnInstanceTO();
+        connInstanceTO.setKey(this.resourceTO.getConnector());
         connInstanceTO.getConfiguration().addAll(this.resourceTO.getConnConfProperties());
 
-        List<ConnIdObjectClassTO> objectClasses = connRestClient.getSupportedObjectClasses(connInstanceTO);
+        boolean enabled = resourceTO.getProvision(anyTypeKind.name()) != null;
 
-        boolean enabled = objectClasses.isEmpty()
-                || (AttributableType.USER == attrType && objectClasses.contains(ConnIdObjectClassTO.ACCOUNT))
-                || (AttributableType.GROUP == attrType && objectClasses.contains(ConnIdObjectClassTO.GROUP));
         this.mappingContainer.setEnabled(enabled);
         this.mappingContainer.setVisible(enabled);
-        this.accountLinkContainer.setEnabled(enabled);
-        this.accountLinkContainer.setVisible(enabled);
+        this.connObjectLinkContainer.setEnabled(enabled);
+        this.connObjectLinkContainer.setVisible(enabled);
 
         if (!enabled) {
             getMapping().getItems().clear();
-            getMapping().setAccountLink(null);
-            if (this.accountLinkCheckbox != null) {
-                this.accountLinkCheckbox.setModelObject(null);
+            getMapping().setConnObjectLink(null);
+            if (this.connObjectLinkCheckbox != null) {
+                this.connObjectLinkCheckbox.setModelObject(null);
             }
         }
     }
@@ -536,10 +523,10 @@ public class ResourceMappingPanel extends Panel {
 
             mappings.removeAll();
 
-            addMappingBtn.setEnabled(resourceTO.getConnectorId() != null && resourceTO.getConnectorId() > 0);
+            addMappingBtn.setEnabled(resourceTO.getConnector() != null && resourceTO.getConnector() > 0);
 
             schemaNames.clear();
-            schemaNames.addAll(getSchemaNames(resourceTO.getConnectorId(), new HashSet<ConnConfProperty>(conf)));
+            schemaNames.addAll(getSchemaNames(resourceTO.getConnector(), new HashSet<ConnConfProperty>(conf)));
 
             setEnabled();
 
@@ -557,34 +544,35 @@ public class ResourceMappingPanel extends Panel {
         toBeUpdated.setRequired(true);
         toBeUpdated.setEnabled(true);
 
-        if (type == null || type.getAttributableType() == null) {
+        if (type == null || type.getAnyTypeKind() == null) {
             toBeUpdated.setChoices(Collections.<String>emptyList());
         } else {
             switch (type) {
                 // user attribute names
                 case UserPlainSchema:
                 case GroupPlainSchema:
-                case MembershipPlainSchema:
-                    toBeUpdated.setChoices(schemaRestClient.getPlainSchemaNames(type.getAttributableType()));
+                case AnyObjectPlainSchema:
+                    toBeUpdated.setChoices(schemaRestClient.getPlainSchemaNames());
                     break;
 
                 case UserDerivedSchema:
                 case GroupDerivedSchema:
-                case MembershipDerivedSchema:
-                    toBeUpdated.setChoices(schemaRestClient.getDerSchemaNames(type.getAttributableType()));
+                case AnyObjectDerivedSchema:
+                    toBeUpdated.setChoices(schemaRestClient.getDerSchemaNames());
                     break;
 
                 case UserVirtualSchema:
                 case GroupVirtualSchema:
-                case MembershipVirtualSchema:
-                    toBeUpdated.setChoices(schemaRestClient.getVirSchemaNames(type.getAttributableType()));
+                case AnyObjectVirtualSchema:
+                    toBeUpdated.setChoices(schemaRestClient.getVirSchemaNames());
                     break;
 
-                case UserId:
+                case UserKey:
                 case Password:
                 case Username:
-                case GroupId:
+                case GroupKey:
                 case GroupName:
+                case AnyObjectKey:
                 default:
                     toBeUpdated.setRequired(false);
                     toBeUpdated.setEnabled(false);
@@ -594,33 +582,33 @@ public class ResourceMappingPanel extends Panel {
     }
 
     /**
-     * Enable/Disable accountId checkbox.
+     * Enable/Disable connObjectKey checkbox.
      *
      * @param type attribute type.
-     * @param accountId accountId checkbox.
+     * @param connObjectKey connObjectKey checkbox.
      * @param password password checkbox.
      */
-    private void setAccountId(final IntMappingType type, final AjaxCheckBoxPanel accountId,
-            final AjaxCheckBoxPanel password) {
+    private void setConnObjectKey(
+            final IntMappingType type, final AjaxCheckBoxPanel connObjectKey, final AjaxCheckBoxPanel password) {
 
-        if (type != null && type.getAttributableType() != null) {
+        if (type != null && type.getAnyTypeKind() != null) {
             switch (type) {
                 case UserVirtualSchema:
                 case GroupVirtualSchema:
-                case MembershipVirtualSchema:
-                // Virtual accountId is not permitted
+                case AnyObjectVirtualSchema:
+                // Virtual connObjectKey is not permitted
                 case Password:
-                    // AccountId cannot be derived from password.
-                    accountId.setReadOnly(true);
-                    accountId.setModelObject(false);
+                    // connObjectKey cannot be derived from password.
+                    connObjectKey.setReadOnly(true);
+                    connObjectKey.setModelObject(false);
                     break;
 
                 default:
                     if (password.getModelObject()) {
-                        accountId.setReadOnly(true);
-                        accountId.setModelObject(false);
+                        connObjectKey.setReadOnly(true);
+                        connObjectKey.setModelObject(false);
                     } else {
-                        accountId.setReadOnly(false);
+                        connObjectKey.setReadOnly(false);
                     }
             }
         }
@@ -632,11 +620,11 @@ public class ResourceMappingPanel extends Panel {
      * @param entity entity.
      * @return all attribute types.
      */
-    private List<IntMappingType> getAttributeTypes(final AttributableType entity) {
+    private List<IntMappingType> getAttributeTypes(final AnyTypeKind entity) {
         final List<IntMappingType> res = new ArrayList<>();
 
         if (entity != null) {
-            res.addAll(IntMappingType.getAttributeTypes(AttributableType.valueOf(entity.name())));
+            res.addAll(IntMappingType.getAttributeTypes(entity));
         }
 
         return res;

@@ -45,6 +45,7 @@ public class AnyListQueryBuilder extends ListQueryBuilder {
         if (instance.getRealms() == null) {
             instance.setRealms(new ArrayList<String>());
         }
+        instance.getRealms().add(realm);
 
         return this;
     }

@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -33,6 +34,9 @@ import org.apache.syncope.core.misc.security.AuthContextUtils;
 import org.apache.syncope.core.misc.security.UnauthorizedException;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.search.AnyTypeCond;
+import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
+import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ARelationship;
@@ -43,7 +47,6 @@ import org.apache.syncope.core.persistence.api.entity.user.URelationship;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyUtilsFactory;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAADynGroupMembership;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAARelationship;
-import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAURelationship;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -77,12 +80,21 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
     }
 
     @Override
-    public List<AnyObject> findByAnyType(final String anyTypeName) {
-        TypedQuery<AnyObject> query = entityManager.createQuery(
-                "SELECT e FROM " + JPAAnyObject.class.getSimpleName() + " e WHERE e.type.name=:name", AnyObject.class);
-        query.setParameter("name", anyTypeName);
+    public final List<AnyObject> findAll(final String anyTypeName,
+            final Set<String> adminRealms, final int page, final int itemsPerPage) {
 
-        return query.getResultList();
+        return findAll(anyTypeName, adminRealms, page, itemsPerPage, Collections.<OrderByClause>emptyList());
+    }
+
+    @Override
+    public final List<AnyObject> findAll(final String anyTypeName,
+            final Set<String> adminRealms, final int page, final int itemsPerPage, final List<OrderByClause> orderBy) {
+
+        AnyTypeCond anyTypeCond = new AnyTypeCond();
+        anyTypeCond.setAnyTypeName(anyTypeName);
+
+        return searchDAO.search(adminRealms, SearchCond.getLeafCond(anyTypeCond), page, itemsPerPage, orderBy,
+                getAnyUtils().getAnyTypeKind());
     }
 
     @Override

@@ -25,6 +25,7 @@ import org.apache.commons.collections4.Predicate;
 public enum SpecialAttr {
 
     NULL("$null"),
+    TYPE("$type"),
     RESOURCES("$resources"),
     GROUPS("$groups"),
     ROLES("$roles");

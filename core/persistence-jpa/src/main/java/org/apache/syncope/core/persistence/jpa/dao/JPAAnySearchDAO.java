@@ -53,6 +53,7 @@ import org.apache.syncope.core.persistence.api.dao.search.ResourceCond;
 import org.apache.syncope.core.persistence.api.dao.search.RoleCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
+import org.apache.syncope.core.persistence.api.dao.search.AnyTypeCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
@@ -420,6 +421,10 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?, ?, ?>, Long> implements 
 
             case LEAF:
             case NOT_LEAF:
+                if (nodeCond.getAnyTypeCond() != null && AnyTypeKind.ANY_OBJECT == type) {
+                    query.append(getQuery(nodeCond.getAnyTypeCond(),
+                            nodeCond.getType() == SearchCond.Type.NOT_LEAF, parameters, svs));
+                }
                 if (nodeCond.getRelationshipCond() != null
                         && (AnyTypeKind.USER == type || AnyTypeKind.ANY_OBJECT == type)) {
 
@@ -468,6 +473,23 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?, ?, ?>, Long> implements 
         }
 
         return query;
+    }
+
+    private String getQuery(final AnyTypeCond cond, final boolean not, final List<Object> parameters,
+            final SearchSupport svs) {
+
+        StringBuilder query = new StringBuilder("SELECT DISTINCT any_id FROM ").
+                append(svs.field().name).append(" WHERE type_name");
+
+        if (not) {
+            query.append("<>");
+        } else {
+            query.append('=');
+        }
+
+        query.append('?').append(setParameter(parameters, cond.getAnyTypeName()));
+
+        return query.toString();
     }
 
     private String getQuery(final RelationshipCond cond, final boolean not, final List<Object> parameters,

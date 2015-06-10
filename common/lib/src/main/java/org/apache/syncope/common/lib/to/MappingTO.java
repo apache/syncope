@@ -61,7 +61,7 @@ public class MappingTO extends AbstractBaseBean {
     protected boolean addConnObjectKeyItem(final MappingItemTO connObjectItem) {
         if (IntMappingType.UserVirtualSchema == connObjectItem.getIntMappingType()
                 || IntMappingType.GroupVirtualSchema == connObjectItem.getIntMappingType()
-                || IntMappingType.AnyVirtualSchema == connObjectItem.getIntMappingType()
+                || IntMappingType.AnyObjectVirtualSchema == connObjectItem.getIntMappingType()
                 || IntMappingType.Password == connObjectItem.getIntMappingType()) {
 
             throw new IllegalArgumentException("Virtual attributes cannot be set as connObjectKey");

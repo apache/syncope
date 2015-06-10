@@ -67,9 +67,6 @@ import org.springframework.util.ClassUtils;
 
 public class ConnectorFacadeProxy implements Connector {
 
-    /**
-     * Logger.
-     */
     private static final Logger LOG = LoggerFactory.getLogger(ConnectorFacadeProxy.class);
 
     /**
@@ -138,7 +135,7 @@ public class ConnectorFacadeProxy implements Connector {
         Uid result = null;
 
         if (activeConnInstance.getCapabilities().contains(ConnectorCapability.AUTHENTICATE)) {
-            final Future<Uid> future = asyncFacade.authenticate(
+            Future<Uid> future = asyncFacade.authenticate(
                     connector, username, new GuardedString(password.toCharArray()), options);
             try {
                 result = future.get(activeConnInstance.getConnRequestTimeout(), TimeUnit.SECONDS);
@@ -173,7 +170,7 @@ public class ConnectorFacadeProxy implements Connector {
 
             propagationAttempted.add("create");
 
-            final Future<Uid> future = asyncFacade.create(connector, objectClass, attrs, options);
+            Future<Uid> future = asyncFacade.create(connector, objectClass, attrs, options);
             try {
                 result = future.get(activeConnInstance.getConnRequestTimeout(), TimeUnit.SECONDS);
             } catch (java.util.concurrent.TimeoutException e) {
@@ -207,7 +204,7 @@ public class ConnectorFacadeProxy implements Connector {
 
             propagationAttempted.add("update");
 
-            final Future<Uid> future = asyncFacade.update(connector, objectClass, uid, attrs, options);
+            Future<Uid> future = asyncFacade.update(connector, objectClass, uid, attrs, options);
 
             try {
                 result = future.get(activeConnInstance.getConnRequestTimeout(), TimeUnit.SECONDS);
@@ -241,7 +238,7 @@ public class ConnectorFacadeProxy implements Connector {
 
             propagationAttempted.add("delete");
 
-            final Future<Uid> future = asyncFacade.delete(connector, objectClass, uid, options);
+            Future<Uid> future = asyncFacade.delete(connector, objectClass, uid, options);
 
             try {
                 future.get(activeConnInstance.getConnRequestTimeout(), TimeUnit.SECONDS);
@@ -279,7 +276,7 @@ public class ConnectorFacadeProxy implements Connector {
         SyncToken result = null;
 
         if (activeConnInstance.getCapabilities().contains(ConnectorCapability.SYNC)) {
-            final Future<SyncToken> future = asyncFacade.getLatestSyncToken(connector, objectClass);
+            Future<SyncToken> future = asyncFacade.getLatestSyncToken(connector, objectClass);
 
             try {
                 result = future.get(activeConnInstance.getConnRequestTimeout(), TimeUnit.SECONDS);
@@ -350,7 +347,9 @@ public class ConnectorFacadeProxy implements Connector {
         try {
             return future == null ? null : future.get(activeConnInstance.getConnRequestTimeout(), TimeUnit.SECONDS);
         } catch (java.util.concurrent.TimeoutException e) {
-            future.cancel(true);
+            if (future != null) {
+                future.cancel(true);
+            }
             throw new TimeoutException("Request timeout");
         } catch (Exception e) {
             LOG.error("Connector request execution failure", e);
@@ -363,8 +362,8 @@ public class ConnectorFacadeProxy implements Connector {
     }
 
     @Override
-    public List<ConnectorObject> search(final ObjectClass objectClass, final Filter filter,
-            final OperationOptions options) {
+    public List<ConnectorObject> search(
+            final ObjectClass objectClass, final Filter filter, final OperationOptions options) {
 
         final List<ConnectorObject> result = new ArrayList<>();
 
@@ -401,8 +400,8 @@ public class ConnectorFacadeProxy implements Connector {
     public Attribute getObjectAttribute(final ObjectClass objectClass, final Uid uid, final OperationOptions options,
             final String attributeName) {
 
-        final Future<Attribute> future = asyncFacade.getObjectAttribute(connector, objectClass, uid, options,
-                attributeName);
+        Future<Attribute> future = asyncFacade.getObjectAttribute(
+                connector, objectClass, uid, options, attributeName);
         try {
             return future.get(activeConnInstance.getConnRequestTimeout(), TimeUnit.SECONDS);
         } catch (java.util.concurrent.TimeoutException e) {
@@ -422,7 +421,7 @@ public class ConnectorFacadeProxy implements Connector {
     public Set<Attribute> getObjectAttributes(final ObjectClass objectClass, final Uid uid,
             final OperationOptions options) {
 
-        final Future<Set<Attribute>> future = asyncFacade.getObjectAttributes(connector, objectClass, uid, options);
+        Future<Set<Attribute>> future = asyncFacade.getObjectAttributes(connector, objectClass, uid, options);
         try {
             return future.get(activeConnInstance.getConnRequestTimeout(), TimeUnit.SECONDS);
         } catch (java.util.concurrent.TimeoutException e) {
@@ -440,7 +439,7 @@ public class ConnectorFacadeProxy implements Connector {
 
     @Override
     public Set<String> getSchemaNames(final boolean includeSpecial) {
-        final Future<Set<String>> future = asyncFacade.getSchemaNames(connector, includeSpecial);
+        Future<Set<String>> future = asyncFacade.getSchemaNames(connector, includeSpecial);
         try {
             return future.get(activeConnInstance.getConnRequestTimeout(), TimeUnit.SECONDS);
         } catch (java.util.concurrent.TimeoutException e) {
@@ -458,7 +457,7 @@ public class ConnectorFacadeProxy implements Connector {
 
     @Override
     public Set<ObjectClass> getSupportedObjectClasses() {
-        final Future<Set<ObjectClass>> future = asyncFacade.getSupportedObjectClasses(connector);
+        Future<Set<ObjectClass>> future = asyncFacade.getSupportedObjectClasses(connector);
         try {
             return future.get(activeConnInstance.getConnRequestTimeout(), TimeUnit.SECONDS);
         } catch (java.util.concurrent.TimeoutException e) {
@@ -476,7 +475,7 @@ public class ConnectorFacadeProxy implements Connector {
 
     @Override
     public void validate() {
-        final Future<String> future = asyncFacade.test(connector);
+        Future<String> future = asyncFacade.test(connector);
         try {
             future.get(activeConnInstance.getConnRequestTimeout(), TimeUnit.SECONDS);
         } catch (java.util.concurrent.TimeoutException e) {
@@ -494,7 +493,7 @@ public class ConnectorFacadeProxy implements Connector {
 
     @Override
     public void test() {
-        final Future<String> future = asyncFacade.test(connector);
+        Future<String> future = asyncFacade.test(connector);
         try {
             future.get(activeConnInstance.getConnRequestTimeout(), TimeUnit.SECONDS);
         } catch (java.util.concurrent.TimeoutException e) {

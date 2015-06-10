@@ -28,11 +28,11 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ConnBundleTO;
-import org.apache.syncope.common.lib.to.ConnIdObjectClassTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
+import org.apache.syncope.common.lib.wrap.ConnIdObjectClass;
 import org.apache.syncope.common.rest.api.service.ConnectorService;
 import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.springframework.beans.BeanUtils;
@@ -196,8 +196,8 @@ public class ConnectorRestClient extends BaseRestClient {
         return schemaNames;
     }
 
-    public List<ConnIdObjectClassTO> getSupportedObjectClasses(final ConnInstanceTO connectorTO) {
-        List<ConnIdObjectClassTO> result = Collections.emptyList();
+    public List<ConnIdObjectClass> getSupportedObjectClasses(final ConnInstanceTO connectorTO) {
+        List<ConnIdObjectClass> result = Collections.emptyList();
         try {
             result = getService(ConnectorService.class).getSupportedObjectClasses(connectorTO.getKey(), connectorTO);
         } catch (Exception e) {

@@ -321,7 +321,7 @@ public class JPAAnyUtils implements AnyUtils {
                 break;
 
             case ANY_OBJECT:
-                result = IntMappingType.AnyPlainSchema;
+                result = IntMappingType.AnyObjectPlainSchema;
                 break;
 
             case USER:
@@ -344,7 +344,7 @@ public class JPAAnyUtils implements AnyUtils {
                 break;
 
             case ANY_OBJECT:
-                result = IntMappingType.AnyDerivedSchema;
+                result = IntMappingType.AnyObjectDerivedSchema;
                 break;
 
             case USER:
@@ -367,7 +367,7 @@ public class JPAAnyUtils implements AnyUtils {
                 break;
 
             case ANY_OBJECT:
-                result = IntMappingType.AnyVirtualSchema;
+                result = IntMappingType.AnyObjectVirtualSchema;
                 break;
 
             case USER:

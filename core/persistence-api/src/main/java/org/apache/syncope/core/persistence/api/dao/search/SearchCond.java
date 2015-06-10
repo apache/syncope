@@ -35,6 +35,8 @@ public class SearchCond extends AbstractSearchCond {
 
     private Type type;
 
+    private AnyTypeCond anyTypeCond;
+
     private AnyCond anyCond;
 
     private AttributeCond attributeCond;
@@ -50,6 +52,15 @@ public class SearchCond extends AbstractSearchCond {
     private SearchCond leftNodeCond;
 
     private SearchCond rightNodeCond;
+
+    public static SearchCond getLeafCond(final AnyTypeCond anyTypeCond) {
+        SearchCond nodeCond = new SearchCond();
+
+        nodeCond.type = Type.LEAF;
+        nodeCond.anyTypeCond = anyTypeCond;
+
+        return nodeCond;
+    }
 
     public static SearchCond getLeafCond(final AttributeCond attributeCond) {
         SearchCond nodeCond = new SearchCond();
@@ -173,6 +184,14 @@ public class SearchCond extends AbstractSearchCond {
         }
     }
 
+    public AnyTypeCond getAnyTypeCond() {
+        return anyTypeCond;
+    }
+
+    public void setAnyTypeCond(final AnyTypeCond anyTypeCond) {
+        this.anyTypeCond = anyTypeCond;
+    }
+
     public AnyCond getAnyCond() {
         return anyCond;
     }
@@ -256,9 +275,10 @@ public class SearchCond extends AbstractSearchCond {
         switch (type) {
             case LEAF:
             case NOT_LEAF:
-                isValid = (anyCond != null || attributeCond != null
+                isValid = (anyTypeCond != null || anyCond != null || attributeCond != null
                         || relationshipCond != null || membershipCond != null
                         || roleCond != null || resourceCond != null)
+                        && (anyTypeCond == null || anyTypeCond.isValid())
                         && (anyCond == null || anyCond.isValid())
                         && (attributeCond == null || attributeCond.isValid())
                         && (membershipCond == null || membershipCond.isValid())

@@ -20,7 +20,7 @@ package org.apache.syncope.client.console.panels;
 
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.common.lib.to.AbstractAnnotatedBean;
-import org.apache.syncope.common.lib.to.AbstractAttributableTO;
+import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
@@ -29,7 +29,7 @@ public class AnnotatedBeanPanel extends Panel {
 
     private static final long serialVersionUID = 4228064224811390809L;
 
-    public <T extends AbstractAttributableTO> AnnotatedBeanPanel(
+    public <T extends AnyTO> AnnotatedBeanPanel(
             final String id, final AbstractAnnotatedBean sysInfoTO) {
 
         super(id);

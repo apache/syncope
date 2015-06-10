@@ -37,10 +37,16 @@ INSERT INTO test2 VALUES ('verdi', 'password321', 'true');
 
 -- this table is for issueSYNCOPE230
 DROP TABLE testsync IF EXISTS;
-CREATE TABLE TESTSYNC (
+CREATE TABLE testsync (
 id NUMBER(10) PRIMARY KEY,
 username VARCHAR(80),
 surname VARCHAR(80),
 email VARCHAR(80));
 
 INSERT INTO testsync VALUES (965, 'issuesyncope230', 'Surname', 'syncope230@syncope.apache.org');
+
+DROP TABLE testPRINTER IF EXISTS;
+CREATE TABLE testPRINTER (
+id NUMBER(10) PRIMARY KEY,
+location VARCHAR(80),
+lastModification TIMESTAMP);

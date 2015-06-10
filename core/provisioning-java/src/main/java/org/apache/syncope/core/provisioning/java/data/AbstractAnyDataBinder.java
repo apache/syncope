@@ -93,7 +93,7 @@ abstract class AbstractAnyDataBinder {
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractAnyDataBinder.class);
 
     private static final IntMappingType[] FOR_MANDATORY = new IntMappingType[] {
-        IntMappingType.AnyPlainSchema, IntMappingType.AnyDerivedSchema,
+        IntMappingType.AnyObjectPlainSchema, IntMappingType.AnyObjectDerivedSchema,
         IntMappingType.UserPlainSchema, IntMappingType.UserDerivedSchema,
         IntMappingType.GroupPlainSchema, IntMappingType.GroupDerivedSchema };
 

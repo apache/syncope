@@ -70,6 +70,7 @@ public class PropagationManagerImpl implements PropagationManager {
 
     protected static final Logger LOG = LoggerFactory.getLogger(PropagationManager.class);
 
+    @Autowired
     protected AnyObjectDAO anyObjectDAO;
 
     /**

@@ -20,6 +20,7 @@ package org.apache.syncope.core.misc.search;
 
 import static org.junit.Assert.assertEquals;
 
+import org.apache.syncope.common.lib.search.AnyObjectFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.search.SpecialAttr;
 import org.apache.syncope.common.lib.search.UserFiqlSearchConditionBuilder;
 import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
@@ -28,6 +29,7 @@ import org.apache.syncope.core.persistence.api.dao.search.ResourceCond;
 import org.apache.syncope.core.persistence.api.dao.search.RoleCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
+import org.apache.syncope.core.persistence.api.dao.search.AnyTypeCond;
 import org.junit.Test;
 
 public class SearchCondConverterTest {
@@ -114,6 +116,18 @@ public class SearchCondConverterTest {
         ResourceCond resCond = new ResourceCond();
         resCond.setResourceName("resource-ldap");
         SearchCond simpleCond = SearchCond.getLeafCond(resCond);
+
+        assertEquals(simpleCond, SearchCondConverter.convert(fiqlExpression));
+    }
+
+    @Test
+    public void type() {
+        String fiqlExpression = new AnyObjectFiqlSearchConditionBuilder().type("PRINTER").query();
+        assertEquals(SpecialAttr.TYPE + "==PRINTER", fiqlExpression);
+
+        AnyTypeCond acond = new AnyTypeCond();
+        acond.setAnyTypeName("PRINTER");
+        SearchCond simpleCond = SearchCond.getLeafCond(acond);
 
         assertEquals(simpleCond, SearchCondConverter.convert(fiqlExpression));
     }

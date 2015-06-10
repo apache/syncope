@@ -30,8 +30,8 @@ import org.apache.syncope.core.misc.RealmUtils;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 
-public abstract class AbstractAnyLogic<T extends AnyTO, V extends AnyMod>
-        extends AbstractResourceAssociator<T> {
+public abstract class AbstractAnyLogic<TO extends AnyTO, MOD extends AnyMod>
+        extends AbstractResourceAssociator<TO> {
 
     private static class StartsWithPredicate implements Predicate<String> {
 
@@ -67,17 +67,19 @@ public abstract class AbstractAnyLogic<T extends AnyTO, V extends AnyMod>
         return effective;
     }
 
-    public abstract T read(Long key);
+    public abstract TO read(Long key);
 
     public abstract int count(List<String> realms);
 
-    public abstract T update(V anyMod);
+    public abstract TO create(TO anyTO);
 
-    public abstract T delete(Long key);
+    public abstract TO update(MOD anyMod);
 
-    public abstract List<T> list(int page, int size, List<OrderByClause> orderBy, List<String> realms);
+    public abstract TO delete(Long key);
 
-    public abstract List<T> search(
+    public abstract List<TO> list(int page, int size, List<OrderByClause> orderBy, List<String> realms);
+
+    public abstract List<TO> search(
             SearchCond searchCondition, int page, int size, List<OrderByClause> orderBy, List<String> realms);
 
     public abstract int searchCount(SearchCond searchCondition, List<String> realms);

@@ -25,7 +25,9 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
@@ -96,7 +98,13 @@ public class AnyTypeLogic extends AbstractTransactionalLogic<AnyTypeTO> {
         }
 
         AnyTypeTO deleted = binder.getAnyTypeTO(anyType);
-        anyTypeDAO.delete(key);
+        try {
+            anyTypeDAO.delete(key);
+        } catch (IllegalArgumentException e) {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidAnyType);
+            sce.getElements().add(e.getMessage());
+            throw sce;
+        }
         return deleted;
     }
 

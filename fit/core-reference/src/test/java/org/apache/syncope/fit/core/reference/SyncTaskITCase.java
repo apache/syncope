@@ -37,6 +37,7 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.mod.StatusMod;
 import org.apache.syncope.common.lib.mod.UserMod;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
+import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
@@ -44,6 +45,7 @@ import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.SyncPolicyTO;
 import org.apache.syncope.common.lib.to.SyncTaskTO;
 import org.apache.syncope.common.lib.to.TaskExecTO;
@@ -350,6 +352,49 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         assertEquals("true", groupTO.getPlainAttrMap().get("show").getValues().get(0));
         assertEquals(matchingUsers.getResult().iterator().next().getKey(), groupTO.getUserOwner(), 0);
         assertNull(groupTO.getGroupOwner());
+    }
+
+    @Test
+    public void reconcileFromScriptedSQL() {
+        // 0. reset sync token
+        ResourceTO resource = resourceService.read(RESOURCE_NAME_DBSCRIPTED);
+        ProvisionTO provision = resource.getProvision("PRINTER");
+        assertNotNull(provision);
+
+        provision.setSyncToken(null);
+        resourceService.update(resource.getKey(), resource);
+
+        // 1. create printer on external resource
+        AnyObjectTO anyObjectTO = AnyObjectITCase.getSampleTO("sync");
+        anyObjectTO = createAnyObject(anyObjectTO);
+        assertNotNull(anyObjectTO);
+
+        // 2. unlink any existing printer and delete from Syncope (printer is now only on external resource)
+        PagedResult<AnyObjectTO> matchingPrinters = anyObjectService.search(
+                SyncopeClient.getAnySearchQueryBuilder().realm(SyncopeConstants.ROOT_REALM).
+                fiql(SyncopeClient.getAnyObjectSearchConditionBuilder().type("PRINTER").and().
+                        is("location").equalTo("sync*").query()).build());
+        assertTrue(matchingPrinters.getSize() > 0);
+        for (AnyObjectTO printer : matchingPrinters.getResult()) {
+            anyObjectService.bulkDeassociation(printer.getKey(),
+                    ResourceDeassociationActionType.UNLINK,
+                    CollectionWrapper.wrap(RESOURCE_NAME_DBSCRIPTED, ResourceKey.class));
+            anyObjectService.delete(printer.getKey());
+        }
+
+        // 3. synchronize
+        execProvisioningTask(28L, 50, false);
+
+        // 4. verify that printer was re-created in Syncope
+        matchingPrinters = anyObjectService.search(
+                SyncopeClient.getAnySearchQueryBuilder().realm(SyncopeConstants.ROOT_REALM).
+                fiql(SyncopeClient.getAnyObjectSearchConditionBuilder().type("PRINTER").and().
+                        is("location").equalTo("sync*").query()).build());
+        assertTrue(matchingPrinters.getSize() > 0);
+
+        // 5. verify that synctoken was updated
+        assertNotNull(
+                resourceService.read(RESOURCE_NAME_DBSCRIPTED).getProvision(anyObjectTO.getType()).getSyncToken());
     }
 
     @Test

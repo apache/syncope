@@ -21,12 +21,12 @@ package org.apache.syncope.client.console.panels;
 import java.util.Collection;
 import java.util.List;
 import org.apache.syncope.client.console.PreferenceManager;
-import org.apache.syncope.client.console.commons.AttributableDataProvider;
+import org.apache.syncope.client.console.commons.AnyDataProvider;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.AbstractBasePage;
-import org.apache.syncope.client.console.rest.AbstractSubjectRestClient;
+import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
-import org.apache.syncope.common.lib.to.AbstractAttributableTO;
+import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
@@ -89,7 +89,7 @@ public abstract class AbstractSearchResultPanel extends Panel implements IEventS
     @SpringBean
     protected PreferenceManager prefMan;
 
-    protected final AbstractSubjectRestClient restClient;
+    protected final AbstractAnyRestClient restClient;
 
     /**
      * Number of rows per page.
@@ -120,12 +120,12 @@ public abstract class AbstractSearchResultPanel extends Panel implements IEventS
     /**
      * Result table.
      */
-    private AjaxDataTablePanel<AbstractAttributableTO, String> resultTable;
+    private AjaxDataTablePanel<AnyTO, String> resultTable;
 
     /**
      * Data provider used to search for users.
      */
-    private AttributableDataProvider dataProvider;
+    private AnyDataProvider dataProvider;
 
     /**
      * Modal window to be used for user profile editing. Global visibility is required ...
@@ -147,8 +147,8 @@ public abstract class AbstractSearchResultPanel extends Panel implements IEventS
      */
     protected final AbstractBasePage page;
 
-    protected <T extends AbstractAttributableTO> AbstractSearchResultPanel(final String id, final boolean filtered,
-            final String fiql, final PageReference pageRef, final AbstractSubjectRestClient restClient) {
+    protected <T extends AnyTO> AbstractSearchResultPanel(final String id, final boolean filtered,
+            final String fiql, final PageReference pageRef, final AbstractAnyRestClient restClient) {
 
         super(id);
 
@@ -238,7 +238,7 @@ public abstract class AbstractSearchResultPanel extends Panel implements IEventS
     }
 
     private void updateResultTable(final boolean create, final int rows) {
-        dataProvider = new AttributableDataProvider(restClient, rows, filtered);
+        dataProvider = new AnyDataProvider(restClient, rows, filtered);
         dataProvider.setFIQL(fiql);
 
         final int currentPage = resultTable != null
@@ -265,7 +265,7 @@ public abstract class AbstractSearchResultPanel extends Panel implements IEventS
         container.addOrReplace(resultTable);
     }
 
-    protected abstract List<IColumn<AbstractAttributableTO, String>> getColumns();
+    protected abstract List<IColumn<AnyTO, String>> getColumns();
 
     @Override
     public void onEvent(final IEvent<?> event) {
@@ -340,7 +340,7 @@ public abstract class AbstractSearchResultPanel extends Panel implements IEventS
         }
     }
 
-    protected abstract <T extends AbstractAttributableTO> Collection<ActionLink.ActionType> getBulkActions();
+    protected abstract <T extends AnyTO> Collection<ActionLink.ActionType> getBulkActions();
 
     protected abstract String getPageId();
 }

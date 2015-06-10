@@ -282,7 +282,7 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
                 ? IntMappingType.UserVirtualSchema
                 : any.getType().getKind() == AnyTypeKind.GROUP
                         ? IntMappingType.GroupVirtualSchema
-                        : IntMappingType.AnyVirtualSchema;
+                        : IntMappingType.AnyObjectVirtualSchema;
 
         Map<String, ConnectorObject> resources = new HashMap<>();
 

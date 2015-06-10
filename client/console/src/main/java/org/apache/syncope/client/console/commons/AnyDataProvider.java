@@ -21,18 +21,18 @@ package org.apache.syncope.client.console.commons;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.syncope.client.console.rest.AbstractSubjectRestClient;
-import org.apache.syncope.common.lib.to.AbstractAttributableTO;
+import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
+import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 
-public class AttributableDataProvider extends SortableDataProvider<AbstractAttributableTO, String> {
+public class AnyDataProvider extends SortableDataProvider<AnyTO, String> {
 
     private static final long serialVersionUID = 6267494272884913376L;
 
-    private final SortableAttributableProviderComparator comparator;
+    private final SortableAnyProviderComparator comparator;
 
     private String fiql = null;
 
@@ -40,13 +40,11 @@ public class AttributableDataProvider extends SortableDataProvider<AbstractAttri
 
     private final boolean filtered;
 
-    private final AbstractSubjectRestClient restClient;
+    private final AbstractAnyRestClient restClient;
 
     private final String realm = "/";
 
-    public AttributableDataProvider(final AbstractSubjectRestClient restClient,
-            final int paginatorRows, final boolean filtered) {
-
+    public AnyDataProvider(final AbstractAnyRestClient restClient, final int paginatorRows, final boolean filtered) {
         super();
 
         this.restClient = restClient;
@@ -56,7 +54,7 @@ public class AttributableDataProvider extends SortableDataProvider<AbstractAttri
         // default sorting
         setSort("key", SortOrder.ASCENDING);
 
-        this.comparator = new SortableAttributableProviderComparator(this);
+        this.comparator = new SortableAnyProviderComparator(this);
     }
 
     public void setFIQL(final String fiql) {
@@ -64,14 +62,14 @@ public class AttributableDataProvider extends SortableDataProvider<AbstractAttri
     }
 
     @Override
-    public Iterator<? extends AbstractAttributableTO> iterator(final long first, final long count) {
-        List<? extends AbstractAttributableTO> result;
+    public Iterator<? extends AnyTO> iterator(final long first, final long count) {
+        List<? extends AnyTO> result;
 
         final int page = ((int) first / paginatorRows);
 
         if (filtered) {
             result = fiql == null
-                    ? Collections.<AbstractAttributableTO>emptyList()
+                    ? Collections.<AnyTO>emptyList()
                     : restClient.search(realm, fiql, (page < 0 ? 0 : page) + 1, paginatorRows, getSort());
         } else {
             result = restClient.list(realm, (page < 0 ? 0 : page) + 1, paginatorRows, getSort());
@@ -97,7 +95,7 @@ public class AttributableDataProvider extends SortableDataProvider<AbstractAttri
     }
 
     @Override
-    public IModel<AbstractAttributableTO> model(final AbstractAttributableTO object) {
+    public IModel<AnyTO> model(final AnyTO object) {
         return new CompoundPropertyModel<>(object);
     }
 }

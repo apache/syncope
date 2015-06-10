@@ -29,14 +29,12 @@ import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.sync.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.api.sync.SyncActions;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.provisioning.api.job.SyncJob;
 import org.apache.syncope.core.provisioning.api.sync.AnyObjectSyncResultHandler;
 import org.apache.syncope.core.provisioning.api.sync.GroupSyncResultHandler;
 import org.apache.syncope.core.provisioning.api.sync.UserSyncResultHandler;
 import org.apache.syncope.core.workflow.api.GroupWorkflowAdapter;
-import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.SyncResultsHandler;
 import org.identityconnectors.framework.common.objects.SyncToken;
 import org.quartz.JobExecutionException;
@@ -133,8 +131,8 @@ public class SyncJobImpl extends AbstractProvisioningJob<SyncTask, SyncActions> 
             }
         }
 
-        try {
-            for (Provision provision : syncTask.getResource().getProvisions()) {
+        for (Provision provision : syncTask.getResource().getProvisions()) {
+            if (provision.getMapping() != null) {
                 SyncResultsHandler handler;
                 switch (provision.getAnyType().getKind()) {
                     case USER:
@@ -150,37 +148,32 @@ public class SyncJobImpl extends AbstractProvisioningJob<SyncTask, SyncActions> 
                         handler = ahandler;
                 }
 
-                SyncToken latestSyncToken = null;
-                if (provision.getMapping() != null && !syncTask.isFullReconciliation()) {
-                    latestSyncToken = connector.getLatestSyncToken(ObjectClass.ACCOUNT);
-                }
+                try {
+                    SyncToken latestSyncToken = null;
+                    if (!syncTask.isFullReconciliation()) {
+                        latestSyncToken = connector.getLatestSyncToken(provision.getObjectClass());
+                    }
 
-                if (syncTask.isFullReconciliation()) {
-                    if (provision.getMapping() != null) {
+                    if (syncTask.isFullReconciliation()) {
                         connector.getAllObjects(provision.getObjectClass(), handler,
                                 connector.getOperationOptions(provision.getMapping().getItems()));
-                    }
-                } else {
-                    if (provision.getMapping() != null) {
+                    } else {
                         connector.sync(provision.getObjectClass(), provision.getSyncToken(), handler,
                                 connector.getOperationOptions(provision.getMapping().getItems()));
                     }
-                }
 
-                if (!dryRun && !syncTask.isFullReconciliation()) {
-                    try {
-                        ExternalResource resource = resourceDAO.find(syncTask.getResource().getKey());
-                        if (provision.getMapping() != null) {
+                    if (!dryRun && !syncTask.isFullReconciliation()) {
+                        try {
                             provision.setSyncToken(latestSyncToken);
+                            resourceDAO.save(provision.getResource());
+                        } catch (Exception e) {
+                            throw new JobExecutionException("While updating SyncToken", e);
                         }
-                        resourceDAO.save(resource);
-                    } catch (Exception e) {
-                        throw new JobExecutionException("While updating SyncToken", e);
                     }
+                } catch (Throwable t) {
+                    throw new JobExecutionException("While syncing on connector", t);
                 }
             }
-        } catch (Throwable t) {
-            throw new JobExecutionException("While syncing on connector", t);
         }
 
         try {

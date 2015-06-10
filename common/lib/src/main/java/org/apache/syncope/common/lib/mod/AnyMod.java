@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.common.lib.mod;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.HashSet;
 import java.util.Set;
@@ -144,6 +145,7 @@ public abstract class AnyMod extends AbstractBaseBean {
     /**
      * @return true is all backing collections are empty.
      */
+    @JsonIgnore
     public boolean isEmpty() {
         return plainAttrsToUpdate.isEmpty() && plainAttrsToRemove.isEmpty()
                 && derAttrsToAdd.isEmpty() && derAttrsToRemove.isEmpty()

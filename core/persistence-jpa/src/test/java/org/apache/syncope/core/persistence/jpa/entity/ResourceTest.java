@@ -82,7 +82,7 @@ public class ResourceTest extends AbstractTest {
     public void findAll() {
         List<ExternalResource> resources = resourceDAO.findAll();
         assertNotNull(resources);
-        assertEquals(18, resources.size());
+        assertEquals(19, resources.size());
     }
 
     @Test
@@ -294,7 +294,7 @@ public class ResourceTest extends AbstractTest {
         item = entityFactory.newEntity(MappingItem.class);
         item.setIntAttrName("mderiveddata");
         item.setExtAttrName("mderiveddata");
-        item.setIntMappingType(IntMappingType.AnyDerivedSchema);
+        item.setIntMappingType(IntMappingType.AnyObjectDerivedSchema);
         item.setPurpose(MappingPurpose.BOTH);
         mapping.add(item);
 

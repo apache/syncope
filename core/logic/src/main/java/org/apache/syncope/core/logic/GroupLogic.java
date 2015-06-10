@@ -166,6 +166,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupMod> {
     }
 
     @PreAuthorize("hasRole('" + Entitlement.GROUP_CREATE + "')")
+    @Override
     public GroupTO create(final GroupTO groupTO) {
         if (groupTO.getRealm() == null) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRealm);

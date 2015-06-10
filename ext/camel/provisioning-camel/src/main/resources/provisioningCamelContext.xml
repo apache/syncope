@@ -33,7 +33,11 @@ under the License.
     <property name="primary" value="file:${camel.directory}/groupRoutes.xml"/>
     <property name="fallback" value="classpath:groupRoutes.xml"/>
   </bean>
-    
+  <bean id="anyObjectRoutes" class="org.apache.syncope.core.misc.spring.ResourceWithFallbackLoader">
+    <property name="primary" value="file:${camel.directory}/anyObjectRoutes.xml"/>
+    <property name="fallback" value="classpath:anyObjectRoutes.xml"/>
+  </bean>
+      
   <context:component-scan base-package="org.apache.syncope.core.provisioning.camel"/>
 
 </beans>

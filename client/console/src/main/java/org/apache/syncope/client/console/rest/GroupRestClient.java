@@ -25,6 +25,7 @@ import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.syncope.client.console.commons.status.StatusUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.mod.GroupMod;
+import org.apache.syncope.common.lib.mod.ResourceAssociationMod;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
@@ -119,31 +120,34 @@ public class GroupRestClient extends AbstractAnyRestClient {
         return getService(GroupService.class).bulk(action);
     }
 
-    public void unlink(final String etag, final long groupId, final List<StatusBean> statuses) {
+    public void unlink(final String etag, final long groupKey, final List<StatusBean> statuses) {
         synchronized (this) {
             GroupService service = getService(etag, GroupService.class);
-            service.bulkDeassociation(groupId, ResourceDeassociationActionType.UNLINK,
+            service.bulkDeassociation(groupKey, ResourceDeassociationActionType.UNLINK,
                     CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(),
                             ResourceKey.class));
             resetClient(GroupService.class);
         }
     }
 
-    public void link(final String etag, final long groupId, final List<StatusBean> statuses) {
+    public void link(final String etag, final long groupKey, final List<StatusBean> statuses) {
         synchronized (this) {
             GroupService service = getService(etag, GroupService.class);
-            service.bulkAssociation(groupId, ResourceAssociationActionType.LINK,
-                    CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(),
-                            ResourceKey.class));
+
+            ResourceAssociationMod associationMod = new ResourceAssociationMod();
+            associationMod.getTargetResources().addAll(
+                    CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(), ResourceKey.class));
+            service.bulkAssociation(groupKey, ResourceAssociationActionType.LINK, associationMod);
+
             resetClient(GroupService.class);
         }
     }
 
-    public BulkActionResult deprovision(final String etag, final long groupId, final List<StatusBean> statuses) {
+    public BulkActionResult deprovision(final String etag, final long groupKey, final List<StatusBean> statuses) {
         BulkActionResult result;
         synchronized (this) {
             GroupService service = getService(etag, GroupService.class);
-            result = service.bulkDeassociation(groupId, ResourceDeassociationActionType.DEPROVISION,
+            result = service.bulkDeassociation(groupKey, ResourceDeassociationActionType.DEPROVISION,
                     CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(),
                             ResourceKey.class)).
                     readEntity(BulkActionResult.class);
@@ -152,11 +156,27 @@ public class GroupRestClient extends AbstractAnyRestClient {
         return result;
     }
 
-    public BulkActionResult provision(final String etag, final long groupId, final List<StatusBean> statuses) {
+    public BulkActionResult provision(final String etag, final long groupKey, final List<StatusBean> statuses) {
         BulkActionResult result;
         synchronized (this) {
             GroupService service = getService(etag, GroupService.class);
-            result = service.bulkAssociation(groupId, ResourceAssociationActionType.PROVISION,
+
+            ResourceAssociationMod associationMod = new ResourceAssociationMod();
+            associationMod.getTargetResources().addAll(
+                    CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(), ResourceKey.class));
+
+            result = service.bulkAssociation(groupKey, ResourceAssociationActionType.PROVISION, associationMod).
+                    readEntity(BulkActionResult.class);
+            resetClient(GroupService.class);
+        }
+        return result;
+    }
+
+    public BulkActionResult unassign(final String etag, final long groupKey, final List<StatusBean> statuses) {
+        BulkActionResult result;
+        synchronized (this) {
+            GroupService service = getService(etag, GroupService.class);
+            result = service.bulkDeassociation(groupKey, ResourceDeassociationActionType.UNASSIGN,
                     CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(),
                             ResourceKey.class)).
                     readEntity(BulkActionResult.class);
@@ -165,27 +185,18 @@ public class GroupRestClient extends AbstractAnyRestClient {
         return result;
     }
 
-    public BulkActionResult unassign(final String etag, final long groupId, final List<StatusBean> statuses) {
+    public BulkActionResult assign(final String etag, final long groupKey, final List<StatusBean> statuses) {
         BulkActionResult result;
         synchronized (this) {
             GroupService service = getService(etag, GroupService.class);
-            result = service.bulkDeassociation(groupId, ResourceDeassociationActionType.UNASSIGN,
-                    CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(),
-                            ResourceKey.class)).
-                    readEntity(BulkActionResult.class);
-            resetClient(GroupService.class);
-        }
-        return result;
-    }
 
-    public BulkActionResult assign(final String etag, final long groupId, final List<StatusBean> statuses) {
-        BulkActionResult result;
-        synchronized (this) {
-            GroupService service = getService(etag, GroupService.class);
-            result = service.bulkAssociation(groupId, ResourceAssociationActionType.ASSIGN,
-                    CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(),
-                            ResourceKey.class)).
+            ResourceAssociationMod associationMod = new ResourceAssociationMod();
+            associationMod.getTargetResources().addAll(
+                    CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(), ResourceKey.class));
+
+            result = service.bulkAssociation(groupKey, ResourceAssociationActionType.ASSIGN, associationMod).
                     readEntity(BulkActionResult.class);
+
             resetClient(GroupService.class);
         }
         return result;

@@ -115,7 +115,7 @@ public class JPAMapping extends AbstractEntity<Long> implements Mapping {
     protected boolean addConnObjectKeyItem(final MappingItem connObjectKeyItem) {
         if (IntMappingType.UserVirtualSchema == connObjectKeyItem.getIntMappingType()
                 || IntMappingType.GroupVirtualSchema == connObjectKeyItem.getIntMappingType()
-                || IntMappingType.AnyVirtualSchema == connObjectKeyItem.getIntMappingType()
+                || IntMappingType.AnyObjectVirtualSchema == connObjectKeyItem.getIntMappingType()
                 || IntMappingType.Password == connObjectKeyItem.getIntMappingType()) {
 
             throw new IllegalArgumentException("Virtual attributes cannot be set as ConnObjectKey");

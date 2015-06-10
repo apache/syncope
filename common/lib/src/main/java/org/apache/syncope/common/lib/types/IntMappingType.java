@@ -53,10 +53,10 @@ public enum IntMappingType {
     // -------------------------
     // Any attribute types (the same in AnyMappingType)
     // -------------------------
-    AnyPlainSchema(AnyTypeKind.ANY_OBJECT),
-    AnyDerivedSchema(AnyTypeKind.ANY_OBJECT),
-    AnyVirtualSchema(AnyTypeKind.ANY_OBJECT),
-    AnyKey(AnyTypeKind.ANY_OBJECT);
+    AnyObjectPlainSchema(AnyTypeKind.ANY_OBJECT),
+    AnyObjectDerivedSchema(AnyTypeKind.ANY_OBJECT),
+    AnyObjectVirtualSchema(AnyTypeKind.ANY_OBJECT),
+    AnyObjectKey(AnyTypeKind.ANY_OBJECT);
 
     private final AnyTypeKind anyTypeKind;
 
@@ -119,7 +119,7 @@ public enum IntMappingType {
     public static Set<IntMappingType> getEmbedded() {
         return EnumSet.of(IntMappingType.UserKey, IntMappingType.Username, IntMappingType.Password,
                 IntMappingType.GroupKey, IntMappingType.GroupName, IntMappingType.GroupOwnerSchema,
-                IntMappingType.AnyKey);
+                IntMappingType.AnyObjectKey);
     }
 
     /**
@@ -192,10 +192,10 @@ public enum IntMappingType {
      */
     private enum AnyMappingType {
 
-        AnyPlainSchema,
-        AnyDerivedSchema,
-        AnyVirtualSchema,
-        AnyKey;
+        AnyObjectPlainSchema,
+        AnyObjectDerivedSchema,
+        AnyObjectVirtualSchema,
+        AnyObjectKey;
 
     }
 }

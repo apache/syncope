@@ -49,6 +49,7 @@ public abstract class AbstractFiqlSearchConditionBuilder extends FiqlSearchCondi
         return new Builder(properties);
     }
 
+    @Override
     public SyncopeProperty is(final String property) {
         return newBuilderInstance().is(property);
     }

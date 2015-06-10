@@ -154,7 +154,7 @@ public final class MappingUtils {
             try {
                 if (mapping.getIntMappingType() == IntMappingType.UserVirtualSchema
                         || mapping.getIntMappingType() == IntMappingType.GroupVirtualSchema
-                        || mapping.getIntMappingType() == IntMappingType.AnyVirtualSchema) {
+                        || mapping.getIntMappingType() == IntMappingType.AnyObjectVirtualSchema) {
 
                     LOG.debug("Expire entry cache {}-{}", any.getKey(), mapping.getIntAttrName());
                     virAttrCache.expire(any.getType().getKey(), any.getKey(), mapping.getIntAttrName());
@@ -270,7 +270,7 @@ public final class MappingUtils {
         switch (mapItem.getIntMappingType()) {
             case UserPlainSchema:
             case GroupPlainSchema:
-            case AnyPlainSchema:
+            case AnyObjectPlainSchema:
                 final PlainSchemaDAO plainSchemaDAO = context.getBean(PlainSchemaDAO.class);
                 schema = plainSchemaDAO.find(mapItem.getIntAttrName());
                 schemaType = schema == null ? AttrSchemaType.String : schema.getType();
@@ -278,7 +278,7 @@ public final class MappingUtils {
 
             case UserVirtualSchema:
             case GroupVirtualSchema:
-            case AnyVirtualSchema:
+            case AnyObjectVirtualSchema:
                 VirSchemaDAO virSchemaDAO = context.getBean(VirSchemaDAO.class);
                 VirSchema virSchema = virSchemaDAO.find(mapItem.getIntAttrName());
                 readOnlyVirSchema = (virSchema != null && virSchema.isReadonly());
@@ -442,7 +442,7 @@ public final class MappingUtils {
         switch (mappingItem.getIntMappingType()) {
             case UserPlainSchema:
             case GroupPlainSchema:
-            case AnyPlainSchema:
+            case AnyObjectPlainSchema:
                 for (Any<?, ?, ?> any : anys) {
                     PlainAttr<?> attr = any.getPlainAttr(mappingItem.getIntAttrName());
                     if (attr != null) {
@@ -464,7 +464,7 @@ public final class MappingUtils {
 
             case UserVirtualSchema:
             case GroupVirtualSchema:
-            case AnyVirtualSchema:
+            case AnyObjectVirtualSchema:
                 for (Any<?, ?, ?> any : anys) {
                     AnyUtils anyUtils = anyUtilsFactory.getInstance(any);
                     VirAttr<?> virAttr = any.getVirAttr(mappingItem.getIntAttrName());
@@ -501,7 +501,7 @@ public final class MappingUtils {
 
             case UserDerivedSchema:
             case GroupDerivedSchema:
-            case AnyDerivedSchema:
+            case AnyObjectDerivedSchema:
                 for (Any<?, ?, ?> any : anys) {
                     AnyUtils anyUtils = anyUtilsFactory.getInstance(any);
                     DerAttr<?> derAttr = any.getDerAttr(mappingItem.getIntAttrName());
@@ -521,7 +521,7 @@ public final class MappingUtils {
 
             case UserKey:
             case GroupKey:
-            case AnyKey:
+            case AnyObjectKey:
                 for (Any<?, ?, ?> any : anys) {
                     AnyUtils anyUtils = anyUtilsFactory.getInstance(any);
                     attrValue = anyUtils.newPlainAttrValue();

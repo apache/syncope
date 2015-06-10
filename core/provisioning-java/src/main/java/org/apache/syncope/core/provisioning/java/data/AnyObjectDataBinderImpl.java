@@ -33,14 +33,18 @@ import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.misc.spring.BeanUtils;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ARelationship;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.provisioning.api.data.AnyObjectDataBinder;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,6 +57,9 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
         "plainAttrs", "derAttrs", "virAttrs", "resources"
     };
 
+    @Autowired
+    private AnyTypeDAO anyTypeDAO;
+
     @Transactional(readOnly = true)
     @Override
     public AnyObjectTO getAnyObjectTO(final Long key) {
@@ -62,6 +69,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
     @Override
     public AnyObjectTO getAnyObjectTO(final AnyObject anyObject) {
         AnyObjectTO anyObjectTO = new AnyObjectTO();
+        anyObjectTO.setType(anyObject.getType().getKey());
 
         BeanUtils.copyProperties(anyObject, anyObjectTO, IGNORE_PROPERTIES);
 
@@ -103,6 +111,14 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
 
     @Override
     public void create(final AnyObject anyObject, final AnyObjectTO anyObjectTO) {
+        AnyType type = anyTypeDAO.find(anyObjectTO.getType());
+        if (type == null) {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidAnyType);
+            sce.getElements().add(anyObjectTO.getType());
+            throw sce;
+        }
+        anyObject.setType(type);
+
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
 
         // relationships

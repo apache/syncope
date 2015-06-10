@@ -20,6 +20,8 @@ package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
+import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ARelationship;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
@@ -28,7 +30,11 @@ import org.apache.syncope.core.persistence.api.entity.user.URelationship;
 
 public interface AnyObjectDAO extends AnyDAO<AnyObject> {
 
-    List<AnyObject> findByAnyType(String anyTypeName);
+    List<AnyObject> findAll(String anyTypeName,
+            Set<String> adminRealms, int page, int itemsPerPage);
+
+    List<AnyObject> findAll(String anyTypeName,
+            Set<String> adminRealms, int page, int itemsPerPage, List<OrderByClause> orderBy);
 
     List<Group> findDynGroupMemberships(AnyObject anyObject);
 

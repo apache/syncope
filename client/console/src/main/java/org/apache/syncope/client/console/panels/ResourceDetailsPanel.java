@@ -222,7 +222,7 @@ public class ResourceDetailsPanel extends Panel {
                 new ResourceModel("connector", "connector").getObject(),
                 new PropertyModel<ConnInstanceTO>(this, "connInstanceTO"));
         conn.setChoices(connectors.getObject());
-        conn.setChoiceRenderer(new ChoiceRenderer("displayName", "key"));
+        conn.setChoiceRenderer(new ChoiceRenderer<String>("displayName", "key"));
 
         conn.getField().setModel(new IModel<ConnInstanceTO>() {
 
@@ -235,7 +235,7 @@ public class ResourceDetailsPanel extends Panel {
 
             @Override
             public void setObject(final ConnInstanceTO connector) {
-                resourceTO.setConnectorId(connector.getKey());
+                resourceTO.setConnector(connector.getKey());
                 connInstanceTO = connector;
             }
 
@@ -270,20 +270,20 @@ public class ResourceDetailsPanel extends Panel {
      */
     private ConnInstanceTO getConectorInstanceTO(final List<ConnInstanceTO> connectorTOs, final ResourceTO resourceTO) {
         if (connectorTOs.isEmpty()) {
-            resourceTO.setConnectorId(null);
+            resourceTO.setConnector(null);
             return null;
         } else {
             // use the first element as default
             ConnInstanceTO res = connectorTOs.get(0);
 
             for (ConnInstanceTO to : connectorTOs) {
-                if (Long.valueOf(to.getKey()).equals(resourceTO.getConnectorId())) {
+                if (Long.valueOf(to.getKey()).equals(resourceTO.getConnector())) {
                     res = to;
                 }
             }
 
             // in case of no match
-            resourceTO.setConnectorId(res.getKey());
+            resourceTO.setConnector(res.getKey());
 
             return res;
         }

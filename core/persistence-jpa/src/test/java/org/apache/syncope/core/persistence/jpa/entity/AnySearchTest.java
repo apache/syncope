@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
-import org.apache.cxf.ws.addressing.v200403.Relationship;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
@@ -44,6 +43,7 @@ import org.apache.syncope.core.persistence.api.dao.search.ResourceCond;
 import org.apache.syncope.core.persistence.api.dao.search.RoleCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
+import org.apache.syncope.core.persistence.api.dao.search.AnyTypeCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipCond;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
@@ -72,7 +72,7 @@ public class AnySearchTest extends AbstractTest {
     public void anyObjectMatch() {
         AnyObject anyObject = anyObjectDAO.find(1L);
         assertNotNull(anyObject);
-        
+
         RelationshipCond cond = new RelationshipCond();
         cond.setAnyObjectKey(2L);
         assertTrue(searchDAO.matches(anyObject, SearchCond.getLeafCond(cond), AnyTypeKind.ANY_OBJECT));
@@ -382,6 +382,26 @@ public class AnySearchTest extends AbstractTest {
                 return user.getKey() == 4;
             }
         }));
+    }
+
+    @Test
+    public void searchByType() {
+        AnyTypeCond tcond = new AnyTypeCond();
+        tcond.setAnyTypeName("PRINTER");
+
+        SearchCond searchCondition = SearchCond.getLeafCond(tcond);
+        assertTrue(searchCondition.isValid());
+
+        List<AnyObject> printers = searchDAO.search(
+                SyncopeConstants.FULL_ADMIN_REALMS, searchCondition, AnyTypeKind.ANY_OBJECT);
+        assertNotNull(printers);
+        assertEquals(2, printers.size());
+
+        tcond.setAnyTypeName("UNEXISTING");
+        printers = searchDAO.search(
+                SyncopeConstants.FULL_ADMIN_REALMS, searchCondition, AnyTypeKind.ANY_OBJECT);
+        assertNotNull(printers);
+        assertTrue(printers.isEmpty());
     }
 
     @Test

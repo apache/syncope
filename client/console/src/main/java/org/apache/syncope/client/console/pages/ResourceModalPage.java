@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.client.console.pages;
 
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.AnnotatedBeanPanel;
 import org.apache.syncope.client.console.panels.ResourceConnConfPanel;
@@ -25,8 +27,9 @@ import org.apache.syncope.client.console.panels.ResourceDetailsPanel;
 import org.apache.syncope.client.console.panels.ResourceMappingPanel;
 import org.apache.syncope.client.console.panels.ResourceSecurityPanel;
 import org.apache.syncope.common.lib.to.MappingItemTO;
+import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
-import org.apache.syncope.common.lib.types.AttributableType;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -66,8 +69,8 @@ public class ResourceModalPage extends BaseModalPage {
         //--------------------------------
         // Resource mapping panels
         //--------------------------------
-        form.add(new ResourceMappingPanel("umapping", resourceTO, AttributableType.USER));
-        form.add(new ResourceMappingPanel("gmapping", resourceTO, AttributableType.GROUP));
+        form.add(new ResourceMappingPanel("umapping", resourceTO, AnyTypeKind.USER));
+        form.add(new ResourceMappingPanel("gmapping", resourceTO, AnyTypeKind.GROUP));
         //--------------------------------
 
         //--------------------------------
@@ -84,7 +87,7 @@ public class ResourceModalPage extends BaseModalPage {
         form.add(new ResourceSecurityPanel("security", resourceTO));
         //--------------------------------
 
-        final AjaxButton submit = new IndicatingAjaxButton(APPLY, new ResourceModel(SUBMIT, SUBMIT)) {
+        AjaxButton submit = new IndicatingAjaxButton(APPLY, new ResourceModel(SUBMIT, SUBMIT)) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
@@ -92,34 +95,29 @@ public class ResourceModalPage extends BaseModalPage {
             protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                 final ResourceTO resourceTO = (ResourceTO) form.getDefaultModelObject();
 
-                boolean accountIdError = false;
+                boolean connObjectKeyError = false;
 
-                if (resourceTO.getUmapping() == null || resourceTO.getUmapping().getItems().isEmpty()) {
-                    resourceTO.setUmapping(null);
-                } else {
-                    int uAccountIdCount = 0;
-                    for (MappingItemTO item : resourceTO.getUmapping().getItems()) {
-                        if (item.isAccountid()) {
-                            uAccountIdCount++;
+                for (ProvisionTO provision : resourceTO.getProvisions()) {
+                    if (provision != null) {
+                        if (provision.getMapping() == null || provision.getMapping().getItems().isEmpty()) {
+                            resourceTO.getProvisions().remove(provision);
+                        } else {
+                            int uConnObjectKeyCount = CollectionUtils.countMatches(
+                                    provision.getMapping().getItems(), new Predicate<MappingItemTO>() {
+
+                                        @Override
+                                        public boolean evaluate(final MappingItemTO item) {
+                                            return item.isConnObjectKey();
+                                        }
+                                    });
+
+                            connObjectKeyError = uConnObjectKeyCount != 1;
                         }
                     }
-                    accountIdError = uAccountIdCount != 1;
                 }
 
-                if (resourceTO.getGmapping() == null || resourceTO.getGmapping().getItems().isEmpty()) {
-                    resourceTO.setGmapping(null);
-                } else {
-                    int rAccountIdCount = 0;
-                    for (MappingItemTO item : resourceTO.getGmapping().getItems()) {
-                        if (item.isAccountid()) {
-                            rAccountIdCount++;
-                        }
-                    }
-                    accountIdError |= rAccountIdCount != 1;
-                }
-
-                if (accountIdError) {
-                    error(getString("accountIdValidation"));
+                if (connObjectKeyError) {
+                    error(getString("connObjectKeyValidation"));
                     feedbackPanel.refresh(target);
                 } else {
                     try {
@@ -142,6 +140,7 @@ public class ResourceModalPage extends BaseModalPage {
             }
 
             @Override
+
             protected void onError(final AjaxRequestTarget target, final Form<?> form) {
                 feedbackPanel.refresh(target);
             }
@@ -171,6 +170,7 @@ public class ResourceModalPage extends BaseModalPage {
 
         MetaDataRoleAuthorizationStrategy.authorize(
                 submit, ENABLE, createFlag ? Entitlement.RESOURCE_CREATE : Entitlement.RESOURCE_UPDATE);
+
     }
 
     /**

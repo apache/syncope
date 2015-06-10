@@ -37,6 +37,7 @@ import org.apache.syncope.core.persistence.api.dao.search.ResourceCond;
 import org.apache.syncope.core.persistence.api.dao.search.RoleCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
+import org.apache.syncope.core.persistence.api.dao.search.AnyTypeCond;
 
 /**
  * Converts CXF's <tt>SearchCondition</tt> into internal <tt>SearchCond</tt>.
@@ -98,6 +99,12 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
                     leaf = SearchCond.getLeafCond(attributeCond);
                 } else {
                     switch (specialAttrName) {
+                        case TYPE:
+                            AnyTypeCond typeCond = new AnyTypeCond();
+                            typeCond.setAnyTypeName(value);
+                            leaf = SearchCond.getLeafCond(typeCond);
+                            break;
+
                         case GROUPS:
                             MembershipCond groupCond = new MembershipCond();
                             groupCond.setGroupKey(Long.valueOf(value));

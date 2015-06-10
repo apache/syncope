@@ -43,7 +43,7 @@ under the License.
                 </span>
               </a>
             </th>
-            <th><wicket:message key="accountId"/></th>
+            <th><wicket:message key="connObjectKey"/></th>
             <th><label wicket:id="passwordLabel"/></th>
             <th><wicket:message key="purpose"/></th>
           </tr>
@@ -67,7 +67,7 @@ under the License.
               <span wicket:id="mandatoryCondition">[mandatoryCondition]</span>
             </td>
             <td>
-              <span wicket:id="accountId">[accountId]</span>
+              <span wicket:id="connObjectKey">[connObjectKey]</span>
             </td>
             <td>
               <span wicket:id="password">[password]</span>
@@ -90,21 +90,21 @@ under the License.
         </tfoot>
       </table>
 
-      <table id="accountLinkTable"
+      <table id="connObjectLinkTable"
              class="table"
              style="font-size: 1em;margin-top:2px;"
-             wicket:id="accountLinkContainer">
+             wicket:id="connObjectLinkContainer">
         <tbody>
           <tr>
             <th width="10%" align="left"><wicket:message key="enable"/></th>
-            <th align="left"><wicket:message key="accountLink"/></th>
+            <th align="left"><wicket:message key="connObjectLink"/></th>
           </tr>
           <tr>
             <td width="10%">
-              <span wicket:id="accountLinkCheckbox">[accountLinkCheckbox]</span>
+              <span wicket:id="connObjectLinkCheckbox">[connObjectLinkCheckbox]</span>
             </td>
             <td>
-              <span wicket:id="accountLink">[accountLink]</span>
+              <span wicket:id="connObjectLink">[connObjectLink]</span>
             </td>
           </tr>
         </tbody>

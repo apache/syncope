@@ -158,7 +158,7 @@ public class GroupTest extends AbstractTest {
         User user = entityFactory.newEntity(User.class);
         user.setUsername("username");
         user.setRealm(realmDAO.find("/even/two"));
-        user.add(anyTypeClassDAO.find("minimal other"));
+        user.add(anyTypeClassDAO.find("other"));
 
         UPlainAttr attr = entityFactory.newEntity(UPlainAttr.class);
         attr.setOwner(user);
@@ -250,13 +250,13 @@ public class GroupTest extends AbstractTest {
     public void adynMembership() {
         // 0. create any object matching the condition below
         AnyObject anyObject = entityFactory.newEntity(AnyObject.class);
-        anyObject.setType(anyTypeDAO.find("OTHER"));
+        anyObject.setType(anyTypeDAO.find("PRINTER"));
         anyObject.setRealm(realmDAO.find("/even/two"));
 
         APlainAttr attr = entityFactory.newEntity(APlainAttr.class);
         attr.setOwner(anyObject);
-        attr.setSchema(plainSchemaDAO.find("cool"));
-        attr.add("true", anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT));
+        attr.setSchema(plainSchemaDAO.find("model"));
+        attr.add("Canon MFC8030", anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT));
         anyObject.add(attr);
 
         anyObject = anyObjectDAO.save(anyObject);
@@ -269,7 +269,7 @@ public class GroupTest extends AbstractTest {
         group.setName("new");
 
         ADynGroupMembership dynMembership = entityFactory.newEntity(ADynGroupMembership.class);
-        dynMembership.setFIQLCond("cool==true");
+        dynMembership.setFIQLCond("model==Canon MFC8030");
         dynMembership.setGroup(group);
 
         group.setADynMembership(dynMembership);
@@ -288,7 +288,7 @@ public class GroupTest extends AbstractTest {
 
         // 3. verify that expected any objects have the created group dynamically assigned
         assertEquals(2, actual.getADynMembership().getMembers().size());
-        assertEquals(new HashSet<>(Arrays.asList(2L, newAnyObjectKey)),
+        assertEquals(new HashSet<>(Arrays.asList(1L, newAnyObjectKey)),
                 CollectionUtils.collect(actual.getADynMembership().getMembers(), new Transformer<AnyObject, Long>() {
 
                     @Override
@@ -297,7 +297,7 @@ public class GroupTest extends AbstractTest {
                     }
                 }, new HashSet<Long>()));
 
-        anyObject = anyObjectDAO.find(2L);
+        anyObject = anyObjectDAO.find(1L);
         assertNotNull(anyObject);
         Collection<Group> dynGroupMemberships = findDynGroupMemberships(anyObject);
         assertEquals(1, dynGroupMemberships.size());
@@ -310,7 +310,7 @@ public class GroupTest extends AbstractTest {
 
         actual = groupDAO.find(actual.getKey());
         assertEquals(1, actual.getADynMembership().getMembers().size());
-        assertEquals(2L, actual.getADynMembership().getMembers().get(0).getKey(), 0);
+        assertEquals(1L, actual.getADynMembership().getMembers().get(0).getKey(), 0);
 
         // 5. delete group and verify that dynamic membership was also removed
         Long dynMembershipKey = actual.getADynMembership().getKey();

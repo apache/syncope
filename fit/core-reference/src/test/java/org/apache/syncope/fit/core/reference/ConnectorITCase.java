@@ -40,7 +40,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.ConnBundleTO;
-import org.apache.syncope.common.lib.to.ConnIdObjectClassTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ConnPoolConfTO;
 import org.apache.syncope.common.lib.to.MappingItemTO;
@@ -53,6 +52,7 @@ import org.apache.syncope.common.lib.types.ConnConfPropSchema;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.syncope.common.lib.types.IntMappingType;
+import org.apache.syncope.common.lib.wrap.ConnIdObjectClass;
 import org.apache.syncope.common.rest.api.service.ConnectorService;
 import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.identityconnectors.common.security.GuardedString;
@@ -88,7 +88,7 @@ public class ConnectorITCase extends AbstractITCase {
             }
 
             connidSoapVersion = props.getProperty("connid.soap.version");
-            connidDbTableVersion = props.getProperty("connid.db.table.version");
+            connidDbTableVersion = props.getProperty("connid.database.version");
 
             testJDBCURL = props.getProperty("testdb.url");
         } catch (Exception e) {
@@ -557,11 +557,13 @@ public class ConnectorITCase extends AbstractITCase {
         ConnInstanceTO ldap = connectorService.read(105L);
         assertNotNull(ldap);
 
-        List<ConnIdObjectClassTO> objectClasses = connectorService.getSupportedObjectClasses(ldap.getKey(), ldap);
+        List<ConnIdObjectClass> objectClasses = connectorService.getSupportedObjectClasses(ldap.getKey(), ldap);
         assertNotNull(objectClasses);
         assertEquals(2, objectClasses.size());
-        assertTrue(objectClasses.contains(ConnIdObjectClassTO.ACCOUNT));
-        assertTrue(objectClasses.contains(ConnIdObjectClassTO.GROUP));
+        assertTrue(objectClasses.contains(
+                ConnIdObjectClass.getInstance(ConnIdObjectClass.class, ObjectClass.ACCOUNT_NAME)));
+        assertTrue(objectClasses.contains(
+                ConnIdObjectClass.getInstance(ConnIdObjectClass.class, ObjectClass.GROUP_NAME)));
 
         ConnInstanceTO csv = connectorService.read(104L);
         assertNotNull(csv);
@@ -569,7 +571,8 @@ public class ConnectorITCase extends AbstractITCase {
         objectClasses = connectorService.getSupportedObjectClasses(csv.getKey(), csv);
         assertNotNull(objectClasses);
         assertEquals(1, objectClasses.size());
-        assertTrue(objectClasses.contains(ConnIdObjectClassTO.ACCOUNT));
+        assertTrue(objectClasses.contains(
+                ConnIdObjectClass.getInstance(ConnIdObjectClass.class, ObjectClass.ACCOUNT_NAME)));
     }
 
     @Test

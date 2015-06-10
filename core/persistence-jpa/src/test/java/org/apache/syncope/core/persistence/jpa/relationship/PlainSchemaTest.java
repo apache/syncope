@@ -79,7 +79,9 @@ public class PlainSchemaTest extends AbstractTest {
         // check for associated mappings
         Set<MappingItem> mapItems = new HashSet<>();
         for (ExternalResource resource : resourceDAO.findAll()) {
-            if (resource.getProvision(anyTypeDAO.findUser()).getMapping() != null) {
+            if (resource.getProvision(anyTypeDAO.findUser()) != null
+                    && resource.getProvision(anyTypeDAO.findUser()).getMapping() != null) {
+
                 for (MappingItem mapItem : resource.getProvision(anyTypeDAO.findUser()).getMapping().getItems()) {
                     if (schema.getKey().equals(mapItem.getIntAttrName())) {
                         mapItems.add(mapItem);
@@ -103,7 +105,9 @@ public class PlainSchemaTest extends AbstractTest {
         // check for mappings deletion
         mapItems = new HashSet<>();
         for (ExternalResource resource : resourceDAO.findAll()) {
-            if (resource.getProvision(anyTypeDAO.findUser()).getMapping() != null) {
+            if (resource.getProvision(anyTypeDAO.findUser()) != null
+                    && resource.getProvision(anyTypeDAO.findUser()).getMapping() != null) {
+
                 for (MappingItem mapItem : resource.getProvision(anyTypeDAO.findUser()).getMapping().getItems()) {
                     if ("fullname".equals(mapItem.getIntAttrName())) {
                         mapItems.add(mapItem);
@@ -128,7 +132,9 @@ public class PlainSchemaTest extends AbstractTest {
         // check for associated mappings
         Set<MappingItem> mappings = new HashSet<>();
         for (ExternalResource resource : resourceDAO.findAll()) {
-            if (resource.getProvision(anyTypeDAO.findUser()).getMapping() != null) {
+            if (resource.getProvision(anyTypeDAO.findUser()) != null
+                    && resource.getProvision(anyTypeDAO.findUser()).getMapping() != null) {
+
                 for (MappingItem mapItem : resource.getProvision(anyTypeDAO.findUser()).getMapping().getItems()) {
                     if (schema.getKey().equals(mapItem.getIntAttrName())) {
                         mappings.add(mapItem);

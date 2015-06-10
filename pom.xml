@@ -321,12 +321,12 @@ under the License.
 
     <connid.version>1.4.1.0</connid.version>
     <connid.soap.version>1.3.0</connid.soap.version>
-    <connid.db.table.version>2.2.2</connid.db.table.version>
+    <connid.database.version>2.2.2</connid.database.version>
     <connid.csvdir.version>0.8.2</connid.csvdir.version>
     <connid.ldap.version>1.4.0</connid.ldap.version>
     <connid.ad.version>1.2.3</connid.ad.version>
 
-    <cxf.version>3.1.0</cxf.version>
+    <cxf.version>3.1.2-SNAPSHOT</cxf.version>
 
     <camel.version>2.15.2</camel.version>	
 
@@ -1126,8 +1126,13 @@ under the License.
               <dependency>
                 <groupId>net.tirasa.connid.bundles.db</groupId>
                 <artifactId>net.tirasa.connid.bundles.db.table</artifactId>
-                <version>${connid.db.table.version}</version>
+                <version>${connid.database.version}</version>
               </dependency>   
+              <dependency>
+                <groupId>net.tirasa.connid.bundles.db</groupId>
+                <artifactId>net.tirasa.connid.bundles.db.scriptedsql</artifactId>
+                <version>${connid.database.version}</version>
+              </dependency>  
               <artifactItem>
                 <groupId>net.tirasa.connid.bundles</groupId>
                 <artifactId>net.tirasa.connid.bundles.ldap</artifactId>

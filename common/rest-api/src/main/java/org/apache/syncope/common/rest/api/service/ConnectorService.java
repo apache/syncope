@@ -38,11 +38,11 @@ import org.apache.cxf.jaxrs.model.wadl.DocTarget;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ConnBundleTO;
-import org.apache.syncope.common.lib.to.ConnIdObjectClassTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.wrap.BooleanWrap;
+import org.apache.syncope.common.lib.wrap.ConnIdObjectClass;
 
 /**
  * REST operations for connector bundles and instances.
@@ -100,7 +100,7 @@ public interface ConnectorService extends JAXRSService {
     @Path("{key}/supportedObjectClasses")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    List<ConnIdObjectClassTO> getSupportedObjectClasses(
+    List<ConnIdObjectClass> getSupportedObjectClasses(
             @NotNull @PathParam("key") Long key,
             @NotNull ConnInstanceTO connInstanceTO);
 

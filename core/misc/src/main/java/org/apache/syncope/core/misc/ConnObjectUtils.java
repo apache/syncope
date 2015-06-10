@@ -196,6 +196,7 @@ public class ConnObjectUtils {
             final SyncTask syncTask, final Provision provision, final AnyUtils anyUtils) {
 
         T anyTO = anyUtils.newAnyTO();
+        anyTO.setType(provision.getAnyType().getKey());
 
         // 1. fill with data from connector object
         anyTO.setRealm(syncTask.getDestinatioRealm().getFullPath());
@@ -206,6 +207,7 @@ public class ConnObjectUtils {
             switch (item.getIntMappingType()) {
                 case UserKey:
                 case GroupKey:
+                case AnyObjectKey:
                     break;
 
                 case Password:
@@ -252,6 +254,7 @@ public class ConnObjectUtils {
 
                 case UserPlainSchema:
                 case GroupPlainSchema:
+                case AnyObjectPlainSchema:
                     attrTO = new AttrTO();
                     attrTO.setSchema(item.getIntAttrName());
 
@@ -292,6 +295,7 @@ public class ConnObjectUtils {
 
                 case UserDerivedSchema:
                 case GroupDerivedSchema:
+                case AnyObjectDerivedSchema:
                     attrTO = new AttrTO();
                     attrTO.setSchema(item.getIntAttrName());
                     anyTO.getDerAttrs().add(attrTO);
@@ -299,6 +303,7 @@ public class ConnObjectUtils {
 
                 case UserVirtualSchema:
                 case GroupVirtualSchema:
+                case AnyObjectVirtualSchema:
                     attrTO = new AttrTO();
                     attrTO.setSchema(item.getIntAttrName());
 

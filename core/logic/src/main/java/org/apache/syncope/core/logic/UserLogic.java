@@ -183,6 +183,12 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserMod> {
     }
 
     @PreAuthorize("hasRole('" + Entitlement.USER_CREATE + "')")
+    @Override
+    public UserTO create(final UserTO userTO) {
+        return create(userTO, true);
+    }
+
+    @PreAuthorize("hasRole('" + Entitlement.USER_CREATE + "')")
     public UserTO create(final UserTO userTO, final boolean storePassword) {
         if (userTO.getRealm() == null) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRealm);

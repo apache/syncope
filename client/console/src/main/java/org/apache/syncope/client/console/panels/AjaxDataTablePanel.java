@@ -52,7 +52,7 @@ public class AjaxDataTablePanel<T, S> extends DataTablePanel<T, S> {
             final int rowsPerPage,
             final Collection<ActionLink.ActionType> actions,
             final BaseRestClient bulkActionExecutor,
-            final String itemIdField,
+            final String itemKeyField,
             final String pageId,
             final PageReference pageRef) {
 
@@ -130,7 +130,7 @@ public class AjaxDataTablePanel<T, S> extends DataTablePanel<T, S> {
                                 columns,
                                 actions,
                                 bulkActionExecutor,
-                                itemIdField,
+                                itemKeyField,
                                 pageId);
                     }
                 });

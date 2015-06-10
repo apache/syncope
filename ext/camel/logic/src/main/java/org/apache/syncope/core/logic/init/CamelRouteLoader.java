@@ -56,6 +56,9 @@ public class CamelRouteLoader implements SyncopeLoader {
     @javax.annotation.Resource(name = "groupRoutes")
     private ResourceWithFallbackLoader groupRoutesLoader;
 
+    @javax.annotation.Resource(name = "anyObjectRoutes")
+    private ResourceWithFallbackLoader anyObjectRoutesLoader;
+
     @Autowired
     private DataSource dataSource;
 
@@ -76,6 +79,7 @@ public class CamelRouteLoader implements SyncopeLoader {
             if (!loaded) {
                 loadRoutes(userRoutesLoader.getResource(), AnyTypeKind.USER);
                 loadRoutes(groupRoutesLoader.getResource(), AnyTypeKind.GROUP);
+                loadRoutes(anyObjectRoutesLoader.getResource(), AnyTypeKind.ANY_OBJECT);
                 loaded = true;
             }
         }

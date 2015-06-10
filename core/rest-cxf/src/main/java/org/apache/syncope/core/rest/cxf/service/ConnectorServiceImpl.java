@@ -27,11 +27,12 @@ import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ConnBundleTO;
-import org.apache.syncope.common.lib.to.ConnIdObjectClassTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.wrap.BooleanWrap;
+import org.apache.syncope.common.lib.wrap.ConnIdObjectClass;
+import org.apache.syncope.common.rest.api.CollectionWrapper;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.ConnectorService;
 import org.apache.syncope.core.logic.ConnectorLogic;
@@ -87,17 +88,12 @@ public class ConnectorServiceImpl extends AbstractServiceImpl implements Connect
     }
 
     @Override
-    public List<ConnIdObjectClassTO> getSupportedObjectClasses(final Long key,
+    public List<ConnIdObjectClass> getSupportedObjectClasses(final Long key,
             final ConnInstanceTO connInstanceTO) {
 
         connInstanceTO.setKey(key);
 
-        List<String> objectClasses = logic.getSupportedObjectClasses(connInstanceTO);
-        List<ConnIdObjectClassTO> result = new ArrayList<>(objectClasses.size());
-        for (String objectClass : objectClasses) {
-            result.add(new ConnIdObjectClassTO(objectClass));
-        }
-        return result;
+        return CollectionWrapper.wrap(logic.getSupportedObjectClasses(connInstanceTO), ConnIdObjectClass.class);
     }
 
     @Override

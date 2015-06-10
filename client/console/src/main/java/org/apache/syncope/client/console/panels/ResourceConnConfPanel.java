@@ -57,9 +57,9 @@ public class ResourceConnConfPanel extends Panel {
 
     private List<ConnConfProperty> connConfProperties;
 
-    private WebMarkupContainer connConfPropContainer;
+    private final WebMarkupContainer connConfPropContainer;
 
-    private AjaxButton check;
+    private final AjaxButton check;
 
     public ResourceConnConfPanel(final String id, final ResourceTO resourceTO, final boolean createFlag) {
         super(id);
@@ -103,7 +103,7 @@ public class ResourceConnConfPanel extends Panel {
 
         check.setEnabled(!connConfProperties.isEmpty());
         check.setVisible(!connConfProperties.isEmpty());
-        
+
         connConfPropContainer.add(check);
     }
 
@@ -113,10 +113,10 @@ public class ResourceConnConfPanel extends Panel {
      * @return overridable properties.
      */
     private List<ConnConfProperty> getConnConfProperties() {
-        final List<ConnConfProperty> props = new ArrayList<ConnConfProperty>();
-        final Long connectorId = resourceTO.getConnectorId();
-        if (connectorId != null && connectorId > 0) {
-            for (ConnConfProperty property : restClient.getConnectorProperties(connectorId)) {
+        List<ConnConfProperty> props = new ArrayList<>();
+        Long connectorKey = resourceTO.getConnector();
+        if (connectorKey != null && connectorKey > 0) {
+            for (ConnConfProperty property : restClient.getConnectorProperties(connectorKey)) {
                 if (property.isOverridable()) {
                     props.add(property);
                 }
@@ -125,7 +125,7 @@ public class ResourceConnConfPanel extends Panel {
         if (createFlag || resourceTO.getConnConfProperties().isEmpty()) {
             resourceTO.getConnConfProperties().clear();
         } else {
-            Map<String, ConnConfProperty> valuedProps = new HashMap<String, ConnConfProperty>();
+            Map<String, ConnConfProperty> valuedProps = new HashMap<>();
             for (ConnConfProperty prop : resourceTO.getConnConfProperties()) {
                 valuedProps.put(prop.getSchema().getName(), prop);
             }
@@ -169,7 +169,7 @@ public class ResourceConnConfPanel extends Panel {
      */
     public static class ConnConfModEvent extends ResourceEvent {
 
-        private List<ConnConfProperty> configuration;
+        private final List<ConnConfProperty> configuration;
 
         /**
          * Constructor.

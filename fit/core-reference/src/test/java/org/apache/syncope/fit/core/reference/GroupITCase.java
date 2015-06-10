@@ -44,6 +44,7 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.mod.ReferenceMod;
 import org.apache.syncope.common.lib.mod.GroupMod;
+import org.apache.syncope.common.lib.mod.ResourceAssociationMod;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.BulkActionResult;
@@ -68,7 +69,6 @@ import org.apache.syncope.common.rest.api.Preference;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.GroupService;
 import org.junit.FixMethodOrder;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
@@ -92,7 +92,6 @@ public class GroupITCase extends AbstractITCase {
     }
 
     @Test
-    @Ignore
     public void create() {
         GroupTO groupTO = getSampleTO("lastGroup");
         groupTO.getVirAttrs().add(attrTO("rvirtualdata", "rvirtualvalue"));
@@ -351,9 +350,9 @@ public class GroupITCase extends AbstractITCase {
             assertNotNull(e);
         }
 
-        assertNotNull(groupService.bulkAssociation(actual.getKey(),
-                ResourceAssociationActionType.LINK,
-                CollectionWrapper.wrap(RESOURCE_NAME_LDAP, ResourceKey.class)).
+        ResourceAssociationMod associationMod = new ResourceAssociationMod();
+        associationMod.getTargetResources().addAll(CollectionWrapper.wrap(RESOURCE_NAME_LDAP, ResourceKey.class));
+        assertNotNull(groupService.bulkAssociation(actual.getKey(), ResourceAssociationActionType.LINK, associationMod).
                 readEntity(BulkActionResult.class));
 
         actual = groupService.read(actual.getKey());
@@ -406,9 +405,10 @@ public class GroupITCase extends AbstractITCase {
             assertNotNull(e);
         }
 
+        ResourceAssociationMod associationMod = new ResourceAssociationMod();
+        associationMod.getTargetResources().addAll(CollectionWrapper.wrap(RESOURCE_NAME_LDAP, ResourceKey.class));
         assertNotNull(groupService.bulkAssociation(actual.getKey(),
-                ResourceAssociationActionType.ASSIGN,
-                CollectionWrapper.wrap(RESOURCE_NAME_LDAP, ResourceKey.class)).
+                ResourceAssociationActionType.ASSIGN, associationMod).
                 readEntity(BulkActionResult.class));
 
         actual = groupService.read(actual.getKey());
@@ -456,9 +456,10 @@ public class GroupITCase extends AbstractITCase {
             assertNotNull(e);
         }
 
+        ResourceAssociationMod associationMod = new ResourceAssociationMod();
+        associationMod.getTargetResources().addAll(CollectionWrapper.wrap(RESOURCE_NAME_LDAP, ResourceKey.class));
         assertNotNull(groupService.bulkAssociation(actual.getKey(),
-                ResourceAssociationActionType.PROVISION,
-                CollectionWrapper.wrap(RESOURCE_NAME_LDAP, ResourceKey.class)).
+                ResourceAssociationActionType.PROVISION, associationMod).
                 readEntity(BulkActionResult.class));
 
         actual = groupService.read(actual.getKey());
@@ -482,9 +483,10 @@ public class GroupITCase extends AbstractITCase {
             assertNotNull(e);
         }
 
+        ResourceAssociationMod associationMod = new ResourceAssociationMod();
+        associationMod.getTargetResources().addAll(CollectionWrapper.wrap(RESOURCE_NAME_LDAP, ResourceKey.class));
         assertNotNull(groupService.bulkAssociation(actual.getKey(),
-                ResourceAssociationActionType.PROVISION,
-                CollectionWrapper.wrap("resource-ldap", ResourceKey.class)).
+                ResourceAssociationActionType.PROVISION, associationMod).
                 readEntity(BulkActionResult.class));
 
         actual = groupService.read(actual.getKey());

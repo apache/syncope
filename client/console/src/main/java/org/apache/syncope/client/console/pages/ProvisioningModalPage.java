@@ -31,15 +31,13 @@ import org.apache.syncope.client.console.commons.status.StatusUtils;
 import org.apache.syncope.client.console.panels.ActionDataTablePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.lib.SyncopeClient;
-import org.apache.syncope.common.lib.to.AbstractAttributableTO;
-import org.apache.syncope.common.lib.to.AbstractSubjectTO;
+import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ResourceTO;
-import org.apache.syncope.common.lib.to.GroupTO;
-import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceDeassociationActionType;
 import org.apache.syncope.common.lib.wrap.AbstractWrappable;
-import org.apache.syncope.common.lib.wrap.SubjectKey;
+import org.apache.syncope.common.lib.wrap.AnyKey;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
@@ -54,7 +52,7 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.StringResourceModel;
 
-public class ProvisioningModalPage<T extends AbstractAttributableTO> extends AbstractStatusModalPage {
+public class ProvisioningModalPage<T extends AnyTO> extends AbstractStatusModalPage {
 
     private static final long serialVersionUID = -4285220460543213901L;
 
@@ -62,7 +60,7 @@ public class ProvisioningModalPage<T extends AbstractAttributableTO> extends Abs
 
     private final ResourceTO resourceTO;
 
-    private final Class<? extends AbstractAttributableTO> typeRef;
+    private final AnyTypeKind anyTypeKind;
 
     private final PageReference pageRef;
 
@@ -76,16 +74,16 @@ public class ProvisioningModalPage<T extends AbstractAttributableTO> extends Abs
             final PageReference pageRef,
             final ModalWindow window,
             final ResourceTO resourceTO,
-            final Class<T> typeRef) {
+            final AnyTypeKind anyTypeKind) {
 
         super();
 
         this.pageRef = pageRef;
         this.window = window;
         this.resourceTO = resourceTO;
-        this.typeRef = typeRef;
+        this.anyTypeKind = anyTypeKind;
 
-        statusUtils = new StatusUtils((UserTO.class.isAssignableFrom(typeRef) ? userRestClient : groupRestClient));
+        statusUtils = new StatusUtils(anyTypeKind == AnyTypeKind.USER ? userRestClient : groupRestClient);
 
         add(new Label("displayName", StringUtils.EMPTY));
 
@@ -100,8 +98,8 @@ public class ProvisioningModalPage<T extends AbstractAttributableTO> extends Abs
                 new StringResourceModel("resourceName", this, null, "Resource name"),
                 "resourceName", "resourceName"));
         columns.add(new PropertyColumn<StatusBean, String>(
-                new StringResourceModel("accountLink", this, null, "Account link"),
-                "accountLink", "accountLink"));
+                new StringResourceModel("connObjectLink", this, null, "ConnObjectLink"),
+                "connObjectLink", "connObjectLink"));
         columns.add(new AbstractColumn<StatusBean, String>(
                 new StringResourceModel("status", this, null, "")) {
 
@@ -198,7 +196,7 @@ public class ProvisioningModalPage<T extends AbstractAttributableTO> extends Abs
             final String fiql = SyncopeClient.getUserSearchConditionBuilder().hasResources(resourceTO.getKey()).query();
 
             final List<T> subjects = new ArrayList<>();
-            if (UserTO.class.isAssignableFrom(typeRef)) {
+            if (anyTypeKind == AnyTypeKind.USER) {
                 subjects.addAll((List<T>) userRestClient.search(
                         realm, fiql, 1, ROWS_PER_PAGE, new SortParam<>("key", true)));
             } else {
@@ -207,16 +205,16 @@ public class ProvisioningModalPage<T extends AbstractAttributableTO> extends Abs
             }
 
             final List<ConnObjectWrapper> connObjects = statusUtils.getConnectorObjects(
-                    (List<AbstractSubjectTO>) subjects, Collections.<String>singleton(resourceTO.getKey()));
+                    (List<AnyTO>) subjects, Collections.<String>singleton(resourceTO.getKey()));
 
             final List<StatusBean> statusBeans = new ArrayList<>(connObjects.size() + 1);
             final LinkedHashMap<String, StatusBean> initialStatusBeanMap = new LinkedHashMap<>(connObjects.size());
 
             for (ConnObjectWrapper entry : connObjects) {
-                final StatusBean statusBean = statusUtils.getStatusBean(entry.getAttributable(),
+                StatusBean statusBean = statusUtils.getStatusBean(entry.getAny(),
                         entry.getResourceName(),
                         entry.getConnObjectTO(),
-                        GroupTO.class.isAssignableFrom(typeRef));
+                        anyTypeKind == AnyTypeKind.GROUP);
 
                 initialStatusBeanMap.put(entry.getResourceName(), statusBean);
                 statusBeans.add(statusBean);
@@ -233,21 +231,21 @@ public class ProvisioningModalPage<T extends AbstractAttributableTO> extends Abs
             final List<IColumn<StatusBean, String>> columns) {
 
         final List<StatusBean> beans = new ArrayList<>(table.getModelObject());
-        List<SubjectKey> subjectKeys = new ArrayList<>();
+        List<AnyKey> subjectKeys = new ArrayList<>();
         for (StatusBean bean : beans) {
             LOG.debug("Selected bean {}", bean);
-            subjectKeys.add(AbstractWrappable.getInstance(SubjectKey.class, bean.getAttributableId()));
+            subjectKeys.add(AbstractWrappable.getInstance(AnyKey.class, bean.getAnyKey()));
         }
 
         if (beans.isEmpty()) {
             window.close(target);
         } else {
             final BulkActionResult res = resourceRestClient.bulkAssociationAction(
-                    resourceTO.getKey(), typeRef, type, subjectKeys);
+                    resourceTO.getKey(), anyTypeKind.name(), type, subjectKeys);
 
             ((BasePage) pageRef.getPage()).setModalResult(true);
 
-            setResponsePage(new BulkActionResultModalPage<>(window, beans, columns, res, "attributableKey"));
+            setResponsePage(new BulkActionResultModalPage<>(window, beans, columns, res, "anyKey"));
         }
     }
 }

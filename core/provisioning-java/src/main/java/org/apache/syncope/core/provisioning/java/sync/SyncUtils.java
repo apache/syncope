@@ -167,7 +167,7 @@ public class SyncUtils {
         switch (connObjectKeyItem.getIntMappingType()) {
             case UserPlainSchema:
             case GroupPlainSchema:
-            case AnyPlainSchema:
+            case AnyObjectPlainSchema:
                 PlainAttrValue value = anyUtils.newPlainAttrValue();
 
                 PlainSchema schema = plainSchemaDAO.find(connObjectKeyItem.getIntAttrName());
@@ -191,7 +191,7 @@ public class SyncUtils {
 
             case UserDerivedSchema:
             case GroupDerivedSchema:
-            case AnyDerivedSchema:
+            case AnyObjectDerivedSchema:
                 anys = getAnyDAO(connObjectKeyItem).findByDerAttrValue(connObjectKeyItem.getIntAttrName(), uid);
                 for (Any<?, ?, ?> any : anys) {
                     result.add(any.getKey());
@@ -200,7 +200,7 @@ public class SyncUtils {
 
             case UserKey:
             case GroupKey:
-            case AnyKey:
+            case AnyObjectKey:
                 Any<?, ?, ?> any = getAnyDAO(connObjectKeyItem).find(Long.parseLong(uid));
                 if (any != null) {
                     result.add(any.getKey());

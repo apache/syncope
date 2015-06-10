@@ -29,6 +29,7 @@ import javax.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.mod.AnyObjectMod;
@@ -107,9 +108,19 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectMod> 
     public List<AnyObjectTO> list(
             final int page, final int size, final List<OrderByClause> orderBy, final List<String> realms) {
 
-        return CollectionUtils.collect(anyObjectDAO.findAll(
-                getEffectiveRealms(SyncopeConstants.FULL_ADMIN_REALMS, realms),
-                page, size, orderBy),
+        return list(null, page, size, orderBy, realms);
+    }
+
+    @PreAuthorize("hasRole('" + Entitlement.ANY_OBJECT_LIST + "')")
+    @Transactional(readOnly = true)
+    public List<AnyObjectTO> list(final String type,
+            final int page, final int size, final List<OrderByClause> orderBy, final List<String> realms) {
+
+        Set<String> effectiveRealms = getEffectiveRealms(SyncopeConstants.FULL_ADMIN_REALMS, realms);
+
+        return CollectionUtils.collect(StringUtils.isBlank(type)
+                ? anyObjectDAO.findAll(effectiveRealms, page, size, orderBy)
+                : anyObjectDAO.findAll(type, effectiveRealms, page, size, orderBy),
                 new Transformer<AnyObject, AnyObjectTO>() {
 
                     @Override
@@ -147,10 +158,10 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectMod> 
     }
 
     @PreAuthorize("hasRole('" + Entitlement.ANY_OBJECT_CREATE + "')")
+    @Override
     public AnyObjectTO create(final AnyObjectTO anyObjectTO) {
         if (anyObjectTO.getRealm() == null) {
-            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
-            throw sce;
+            throw SyncopeClientException.build(ClientExceptionType.InvalidRealm);
         }
         Set<String> effectiveRealms = getEffectiveRealms(
                 AuthContextUtils.getAuthorizations().get(Entitlement.ANY_OBJECT_CREATE),
@@ -162,6 +173,10 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectMod> 
         // Any transformation (if configured)
         AnyObjectTO actual = attrTransformer.transform(anyObjectTO);
         LOG.debug("Transformed: {}", actual);
+
+        if (anyObjectTO.getType() == null) {
+            throw SyncopeClientException.build(ClientExceptionType.InvalidAnyType);
+        }
 
         /*
          * Actual operations: workflow, propagation
@@ -181,7 +196,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectMod> 
         }
         Set<String> effectiveRealms = getEffectiveRealms(
                 AuthContextUtils.getAuthorizations().get(Entitlement.ANY_OBJECT_UPDATE),
-                Collections.singleton(anyObjectMod.getRealm()));
+                Collections.singleton(anyObject.getRealm().getFullPath()));
         if (effectiveRealms.isEmpty()) {
             throw new UnauthorizedException(AnyTypeKind.ANY_OBJECT, anyObject.getKey());
         }

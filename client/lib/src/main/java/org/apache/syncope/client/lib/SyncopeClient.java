@@ -33,6 +33,7 @@ import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.lib.builders.ListQueryBuilder;
 import org.apache.syncope.client.lib.builders.AnyListQueryBuilder;
 import org.apache.syncope.client.lib.builders.AnySearchQueryBuilder;
+import org.apache.syncope.common.lib.search.AnyObjectFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.search.OrderByClauseBuilder;
 import org.apache.syncope.common.lib.search.GroupFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.search.UserFiqlSearchConditionBuilder;
@@ -89,6 +90,15 @@ public class SyncopeClient {
     }
 
     /**
+     * Returns a new instance of {@link AnyObjectFiqlSearchConditionBuilder}, for assisted building of FIQL queries.
+     *
+     * @return default instance of {@link AnyObjectFiqlSearchConditionBuilder}
+     */
+    public static AnyObjectFiqlSearchConditionBuilder getAnyObjectSearchConditionBuilder() {
+        return new AnyObjectFiqlSearchConditionBuilder();
+    }
+
+    /**
      * Returns a new instance of {@link OrderByClauseBuilder}, for assisted building of {@link orderby} clauses.
      *
      * @return default instance of {@link OrderByClauseBuilder}
@@ -119,8 +129,7 @@ public class SyncopeClient {
 
     /**
      * Returns a new instance of {@link AnySearchQueryBuilder}, for assisted building of some service's
-     * {@code search()}
-     * arguments.
+     * {@code search()} arguments.
      *
      * @return default instance of {@link AnySearchQueryBuilder}
      */

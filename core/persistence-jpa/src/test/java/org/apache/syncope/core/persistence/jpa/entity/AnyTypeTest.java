@@ -57,10 +57,10 @@ public class AnyTypeTest extends AbstractTest {
         assertEquals(AnyTypeKind.GROUP.name(), groupType.getKey());
         assertFalse(groupType.getClasses().isEmpty());
 
-        AnyType otherType = anyTypeDAO.find("OTHER");
+        AnyType otherType = anyTypeDAO.find("PRINTER");
         assertNotNull(otherType);
         assertEquals(AnyTypeKind.ANY_OBJECT, otherType.getKind());
-        assertEquals("OTHER", otherType.getKey());
+        assertEquals("PRINTER", otherType.getKey());
     }
 
     @Test
@@ -100,11 +100,11 @@ public class AnyTypeTest extends AbstractTest {
 
     @Test
     public void delete() {
-        AnyType otherType = anyTypeDAO.find("OTHER");
+        AnyType otherType = anyTypeDAO.find("PRINTER");
         assertNotNull(otherType);
 
         anyTypeDAO.delete(otherType.getKey());
-        assertNull(anyTypeDAO.find("OTHER"));
+        assertNull(anyTypeDAO.find("PRINTER"));
     }
 
     @Test(expected = IllegalArgumentException.class)

@@ -85,10 +85,16 @@ under the License.
     <dependency>
       <groupId>net.tirasa.connid.bundles.db</groupId>
       <artifactId>net.tirasa.connid.bundles.db.table</artifactId>
-      <version>${connid.db.table.version}</version>
+      <version>${connid.database.version}</version>
       <scope>runtime</scope>
     </dependency>
-    
+    <dependency>
+      <groupId>net.tirasa.connid.bundles.db</groupId>
+      <artifactId>net.tirasa.connid.bundles.db.scriptedsql</artifactId>
+      <version>${connid.database.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+        
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>

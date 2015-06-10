@@ -37,19 +37,16 @@ public class ActionResultColumn<T, S> extends AbstractColumn<T, S> {
 
     private static final long serialVersionUID = 7955560320949560716L;
 
-    /**
-     * Logger.
-     */
     private static final Logger LOG = LoggerFactory.getLogger(ActionResultColumn.class);
 
     private final BulkActionResult results;
 
-    private final String idFieldName;
+    private final String keyFieldName;
 
-    public ActionResultColumn(final BulkActionResult results, final String idFieldName) {
+    public ActionResultColumn(final BulkActionResult results, final String keyFieldName) {
         super(new Model<String>());
         this.results = results;
-        this.idFieldName = idFieldName;
+        this.keyFieldName = keyFieldName;
     }
 
     @Override
@@ -65,10 +62,10 @@ public class ActionResultColumn<T, S> extends AbstractColumn<T, S> {
     @Override
     public void populateItem(final Item<ICellPopulator<T>> item, final String componentId, final IModel<T> rowModel) {
         try {
-            final PropertyDescriptor propDesc = BeanUtils.getPropertyDescriptor(rowModel.getObject().getClass(),
-                    idFieldName);
-            final Object id = propDesc.getReadMethod().invoke(rowModel.getObject(), new Object[0]);
-            final Status status = id == null ? null : results.getResultMap().get(id.toString());
+            PropertyDescriptor propDesc =
+                    BeanUtils.getPropertyDescriptor(rowModel.getObject().getClass(), keyFieldName);
+            Object id = propDesc.getReadMethod().invoke(rowModel.getObject(), new Object[0]);
+            Status status = id == null ? null : results.getResults().get(id.toString());
             item.add(new Label(componentId, status == null ? Status.SUCCESS : status.toString()));
         } catch (Exception e) {
             LOG.error("Errore retrieving target id value", e);

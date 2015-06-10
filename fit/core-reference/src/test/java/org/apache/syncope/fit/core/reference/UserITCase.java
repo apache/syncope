@@ -1909,8 +1909,8 @@ public class UserITCase extends AbstractITCase {
         try {
             resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey());
             fail();
-        } catch (Exception e) {
-            assertNotNull(e);
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.NotFound, e.getType());
         }
     }
 

@@ -35,11 +35,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
+import org.apache.syncope.common.lib.mod.AnyObjectMod;
 import org.apache.syncope.common.lib.mod.AttrMod;
 import org.apache.syncope.common.lib.mod.GroupMod;
 import org.apache.syncope.common.lib.mod.UserMod;
 import org.apache.syncope.common.lib.to.AbstractPolicyTO;
 import org.apache.syncope.common.lib.to.AbstractSchemaTO;
+import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.GroupTO;
@@ -48,6 +50,7 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.service.AnyObjectService;
 import org.apache.syncope.common.rest.api.service.AnyTypeClassService;
 import org.apache.syncope.common.rest.api.service.AnyTypeService;
 import org.apache.syncope.common.rest.api.service.CamelRouteService;
@@ -141,6 +144,8 @@ public abstract class AbstractITCase {
 
     protected static final String RESOURCE_NAME_CREATE_NONE = "ws-target-resource-create-none";
 
+    protected static final String RESOURCE_NAME_DBSCRIPTED = "resource-db-scripted";
+
     protected static String ANONYMOUS_UNAME;
 
     protected static String ANONYMOUS_KEY;
@@ -154,6 +159,8 @@ public abstract class AbstractITCase {
     protected static AnyTypeService anyTypeService;
 
     protected static RealmService realmService;
+
+    protected static AnyObjectService anyObjectService;
 
     protected static RoleService roleService;
 
@@ -226,6 +233,7 @@ public abstract class AbstractITCase {
         anyTypeClassService = adminClient.getService(AnyTypeClassService.class);
         anyTypeService = adminClient.getService(AnyTypeService.class);
         realmService = adminClient.getService(RealmService.class);
+        anyObjectService = adminClient.getService(AnyObjectService.class);
         roleService = adminClient.getService(RoleService.class);
         userService = adminClient.getService(UserService.class);
         userSelfService = adminClient.getService(UserSelfService.class);
@@ -287,8 +295,8 @@ public abstract class AbstractITCase {
         return userService.update(userMod.getKey(), userMod).readEntity(UserTO.class);
     }
 
-    protected UserTO deleteUser(final Long id) {
-        return userService.delete(id).readEntity(UserTO.class);
+    protected UserTO deleteUser(final Long key) {
+        return userService.delete(key).readEntity(UserTO.class);
     }
 
     public <T> T getObject(final URI location, final Class<?> serviceClass, final Class<T> resultClass) {
@@ -322,6 +330,25 @@ public abstract class AbstractITCase {
         return getObject(response.getLocation(), RoleService.class, RoleTO.class);
     }
 
+    protected AnyObjectTO createAnyObject(final AnyObjectTO anyObjectTO) {
+        Response response = anyObjectService.create(anyObjectTO);
+        if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
+            Exception ex = clientFactory.getExceptionMapper().fromResponse(response);
+            if (ex != null) {
+                throw (RuntimeException) ex;
+            }
+        }
+        return getObject(response.getLocation(), AnyObjectService.class, AnyObjectTO.class);
+    }
+
+    protected AnyObjectTO updateAnyObject(final AnyObjectMod anyObjectMod) {
+        return anyObjectService.update(anyObjectMod.getKey(), anyObjectMod).readEntity(AnyObjectTO.class);
+    }
+
+    protected AnyObjectTO deleteAnyObject(final Long key) {
+        return anyObjectService.delete(key).readEntity(AnyObjectTO.class);
+    }
+
     protected GroupTO createGroup(final GroupTO groupTO) {
         Response response = groupService.create(groupTO);
         if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
@@ -337,8 +364,8 @@ public abstract class AbstractITCase {
         return groupService.update(groupMod.getKey(), groupMod).readEntity(GroupTO.class);
     }
 
-    protected GroupTO deleteGroup(final Long id) {
-        return groupService.delete(id).readEntity(GroupTO.class);
+    protected GroupTO deleteGroup(final Long key) {
+        return groupService.delete(key).readEntity(GroupTO.class);
     }
 
     @SuppressWarnings("unchecked")

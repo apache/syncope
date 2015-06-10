@@ -36,14 +36,12 @@ import org.apache.wicket.model.IModel;
 
 /**
  * Show user or group status after performing a successful operation.
+ *
  * @param <T>
  * @param <S>
  */
 public class BulkActionResultModalPage<T, S> extends BaseModalPage {
 
-    /**
-     * Serial version id.
-     */
     private static final long serialVersionUID = 2646115294319713724L;
 
     public BulkActionResultModalPage(
@@ -51,12 +49,12 @@ public class BulkActionResultModalPage<T, S> extends BaseModalPage {
             final Collection<T> items,
             final List<IColumn<T, S>> columns,
             final BulkActionResult results,
-            final String idFieldName) {
+            final String keyFieldName) {
 
         super();
 
         final List<IColumn<T, S>> newColumnList = new ArrayList<>(columns.subList(1, columns.size() - 1));
-        newColumnList.add(newColumnList.size(), new ActionResultColumn<T, S>(results, idFieldName));
+        newColumnList.add(newColumnList.size(), new ActionResultColumn<T, S>(results, keyFieldName));
 
         final SortableDataProvider<T, S> dataProvider = new SortableDataProvider<T, S>() {
 
