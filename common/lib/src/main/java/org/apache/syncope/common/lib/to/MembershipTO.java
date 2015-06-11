@@ -30,9 +30,19 @@ public class MembershipTO extends RelationshipTO {
 
     private String groupName;
 
-    public MembershipTO() {
-        super();
-        super.setRightType(AnyTypeKind.GROUP.name());
+    @Override
+    public String getRelationshipType() {
+        return "Membership";
+    }
+
+    @Override
+    public void setRelationshipType(final String relationshipType) {
+        // ignore
+    }
+
+    @Override
+    public String getRightType() {
+        return AnyTypeKind.GROUP.name();
     }
 
     @Override

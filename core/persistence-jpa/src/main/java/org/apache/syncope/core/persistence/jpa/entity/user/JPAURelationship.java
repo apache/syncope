@@ -20,17 +20,23 @@ package org.apache.syncope.core.persistence.jpa.entity.user;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
+import org.apache.syncope.core.persistence.api.entity.MembershipType;
+import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.user.URelationship;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractEntity;
+import org.apache.syncope.core.persistence.jpa.entity.JPARelationshipType;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
 
 @Entity
-@Table(name = JPAURelationship.TABLE)
+@Table(name = JPAURelationship.TABLE, uniqueConstraints =
+        @UniqueConstraint(columnNames = { "type_name", "user_id", "anyObject_id" }))
 public class JPAURelationship extends AbstractEntity<Long> implements URelationship {
 
     private static final long serialVersionUID = 2778494939240083204L;
@@ -39,6 +45,9 @@ public class JPAURelationship extends AbstractEntity<Long> implements URelations
 
     @Id
     private Long id;
+
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    private JPARelationshipType type;
 
     @ManyToOne
     @Column(name = "user_id")
@@ -51,6 +60,20 @@ public class JPAURelationship extends AbstractEntity<Long> implements URelations
     @Override
     public Long getKey() {
         return id;
+    }
+
+    @Override
+    public RelationshipType getType() {
+        return type;
+    }
+
+    @Override
+    public void setType(final RelationshipType type) {
+        if (MembershipType.getInstance().getKey().equalsIgnoreCase(type.getKey())) {
+            throw new IllegalArgumentException("This is not a membership");
+        }
+        checkType(type, JPARelationshipType.class);
+        this.type = (JPARelationshipType) type;
     }
 
     @Override

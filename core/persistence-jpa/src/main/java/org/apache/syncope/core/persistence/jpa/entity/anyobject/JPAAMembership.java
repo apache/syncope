@@ -23,6 +23,8 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import org.apache.syncope.core.persistence.api.entity.MembershipType;
+import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
@@ -51,6 +53,16 @@ public class JPAAMembership extends AbstractEntity<Long> implements AMembership 
     @Override
     public Long getKey() {
         return id;
+    }
+
+    @Override
+    public MembershipType getType() {
+        return MembershipType.getInstance();
+    }
+
+    @Override
+    public void setType(final RelationshipType type) {
+        // cannot be changed
     }
 
     @Override

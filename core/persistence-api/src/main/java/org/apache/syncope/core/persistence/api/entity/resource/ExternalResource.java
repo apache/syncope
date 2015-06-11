@@ -33,7 +33,7 @@ import org.identityconnectors.framework.common.objects.ObjectClass;
 
 public interface ExternalResource extends AnnotatedEntity<String> {
 
-    void setKey(String name);
+    void setKey(String key);
 
     ConnInstance getConnector();
 

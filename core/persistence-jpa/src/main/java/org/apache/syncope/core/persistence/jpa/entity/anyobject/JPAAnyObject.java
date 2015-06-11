@@ -36,6 +36,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
+import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ADerAttr;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttr;
@@ -195,6 +196,17 @@ public class JPAAnyObject extends AbstractAny<APlainAttr, ADerAttr, AVirAttr> im
     public boolean remove(final ARelationship relationship) {
         checkType(relationship, JPAARelationship.class);
         return this.relationships.remove((JPAARelationship) relationship);
+    }
+
+    @Override
+    public ARelationship getRelationship(final RelationshipType relationshipType) {
+        return CollectionUtils.find(getRelationships(), new Predicate<ARelationship>() {
+
+            @Override
+            public boolean evaluate(final ARelationship relationship) {
+                return relationshipType != null && relationshipType.equals(relationship.getType());
+            }
+        });
     }
 
     @Override

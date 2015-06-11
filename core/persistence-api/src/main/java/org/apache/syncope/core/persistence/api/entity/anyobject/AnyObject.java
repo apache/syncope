@@ -20,12 +20,15 @@ package org.apache.syncope.core.persistence.api.entity.anyobject;
 
 import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 
 public interface AnyObject extends Any<APlainAttr, ADerAttr, AVirAttr> {
 
     boolean add(ARelationship relationship);
 
     boolean remove(ARelationship relationship);
+
+    ARelationship getRelationship(RelationshipType relationshipType);
 
     ARelationship getRelationship(Long relationshipKey);
 

@@ -56,6 +56,16 @@ public final class Entitlement {
 
     public static final String ANYTYPE_DELETE = "ANYTYPE_DELETE";
 
+    public static final String RELATIONSHIPTYPE_LIST = "RELATIONSHIPTYPE_LIST";
+
+    public static final String RELATIONSHIPTYPE_CREATE = "RELATIONSHIPTYPE_CREATE";
+
+    public static final String RELATIONSHIPTYPE_READ = "RELATIONSHIPTYPE_READ";
+
+    public static final String RELATIONSHIPTYPE_UPDATE = "RELATIONSHIPTYPE_UPDATE";
+
+    public static final String RELATIONSHIPTYPE_DELETE = "RELATIONSHIPTYPE_DELETE";
+
     public static final String ROLE_LIST = "ROLE_LIST";
 
     public static final String ROLE_CREATE = "ROLE_CREATE";

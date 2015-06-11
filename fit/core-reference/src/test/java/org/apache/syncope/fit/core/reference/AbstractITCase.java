@@ -63,6 +63,7 @@ import org.apache.syncope.common.rest.api.service.ReportService;
 import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.apache.syncope.common.rest.api.service.GroupService;
 import org.apache.syncope.common.rest.api.service.RealmService;
+import org.apache.syncope.common.rest.api.service.RelationshipTypeService;
 import org.apache.syncope.common.rest.api.service.RoleService;
 import org.apache.syncope.common.rest.api.service.SchemaService;
 import org.apache.syncope.common.rest.api.service.SecurityQuestionService;
@@ -158,6 +159,8 @@ public abstract class AbstractITCase {
 
     protected static AnyTypeService anyTypeService;
 
+    protected static RelationshipTypeService relationshipTypeService;
+
     protected static RealmService realmService;
 
     protected static AnyObjectService anyObjectService;
@@ -232,6 +235,7 @@ public abstract class AbstractITCase {
         syncopeService = adminClient.getService(SyncopeService.class);
         anyTypeClassService = adminClient.getService(AnyTypeClassService.class);
         anyTypeService = adminClient.getService(AnyTypeService.class);
+        relationshipTypeService = adminClient.getService(RelationshipTypeService.class);
         realmService = adminClient.getService(RealmService.class);
         anyObjectService = adminClient.getService(AnyObjectService.class);
         roleService = adminClient.getService(RoleService.class);

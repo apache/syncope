@@ -27,9 +27,6 @@ import org.slf4j.LoggerFactory;
 
 public abstract class AbstractValidator<A extends Annotation, T> implements ConstraintValidator<A, T> {
 
-    /**
-     * Logger.
-     */
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractValidator.class);
 
     protected static final Pattern NAME_PATTERN =

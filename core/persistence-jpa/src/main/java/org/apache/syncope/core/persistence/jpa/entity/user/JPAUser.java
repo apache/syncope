@@ -64,6 +64,7 @@ import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
+import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.URelationship;
@@ -534,6 +535,17 @@ public class JPAUser extends AbstractAny<UPlainAttr, UDerAttr, UVirAttr> impleme
     public boolean remove(final URelationship relationship) {
         checkType(relationship, JPAURelationship.class);
         return this.relationships.remove((JPAURelationship) relationship);
+    }
+
+    @Override
+    public URelationship getRelationship(final RelationshipType relationshipType) {
+        return CollectionUtils.find(getRelationships(), new Predicate<URelationship>() {
+
+            @Override
+            public boolean evaluate(final URelationship relationship) {
+                return relationshipType != null && relationshipType.equals(relationship.getType());
+            }
+        });
     }
 
     @Override

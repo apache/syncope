@@ -20,6 +20,10 @@ package org.apache.syncope.core.persistence.api.entity;
 
 public interface Relationship<L extends Any<?, ?, ?>, R extends Any<?, ?, ?>> extends Entity<Long> {
 
+    RelationshipType getType();
+
+    void setType(RelationshipType type);
+
     L getLeftEnd();
 
     void setLeftEnd(L leftEnd);

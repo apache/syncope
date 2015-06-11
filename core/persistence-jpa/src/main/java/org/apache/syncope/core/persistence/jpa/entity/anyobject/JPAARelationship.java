@@ -20,15 +20,21 @@ package org.apache.syncope.core.persistence.jpa.entity.anyobject;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
+import org.apache.syncope.core.persistence.api.entity.MembershipType;
+import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ARelationship;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractEntity;
+import org.apache.syncope.core.persistence.jpa.entity.JPARelationshipType;
 
 @Entity
-@Table(name = JPAARelationship.TABLE)
+@Table(name = JPAARelationship.TABLE, uniqueConstraints =
+        @UniqueConstraint(columnNames = { "type_name", "left_anyObject_id", "right_anyObject_id" }))
 public class JPAARelationship extends AbstractEntity<Long> implements ARelationship {
 
     private static final long serialVersionUID = 6608821135023815357L;
@@ -37,6 +43,9 @@ public class JPAARelationship extends AbstractEntity<Long> implements ARelations
 
     @Id
     private Long id;
+
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    private JPARelationshipType type;
 
     @ManyToOne
     @Column(name = "left_anyObject_id")
@@ -49,6 +58,20 @@ public class JPAARelationship extends AbstractEntity<Long> implements ARelations
     @Override
     public Long getKey() {
         return id;
+    }
+
+    @Override
+    public RelationshipType getType() {
+        return type;
+    }
+
+    @Override
+    public void setType(final RelationshipType type) {
+        if (MembershipType.getInstance().getKey().equalsIgnoreCase(type.getKey())) {
+            throw new IllegalArgumentException("This is not a membership");
+        }
+        checkType(type, JPARelationshipType.class);
+        this.type = (JPARelationshipType) type;
     }
 
     @Override
