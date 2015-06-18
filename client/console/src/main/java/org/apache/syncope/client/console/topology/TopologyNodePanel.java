@@ -46,7 +46,7 @@ public class TopologyNodePanel extends Panel {
 
     protected static final Logger LOG = LoggerFactory.getLogger(TopologyNodePanel.class);
 
-    final ModalWindow modal;
+    private final ModalWindow modal;
 
     @SpringBean
     private ResourceRestClient resourceRestClient;

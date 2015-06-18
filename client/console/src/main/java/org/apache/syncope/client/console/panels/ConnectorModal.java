@@ -30,7 +30,6 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.BasePage;
-import org.apache.syncope.client.console.panels.ModalContent;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.SpinnerFieldPanel;
@@ -177,7 +176,7 @@ public class ConnectorModal extends ModalContent {
         version.setChoices(bundleTO == null
                 ? new ArrayList<String>()
                 : new ArrayList<>(mapConnBundleTOs.get(connInstanceTO.getLocation()).
-                        get(connInstanceTO.getBundleName()).keySet()));
+                get(connInstanceTO.getBundleName()).keySet()));
         version.setRequired(true);
         version.addRequiredLabel();
         version.setEnabled(connInstanceTO.getBundleName() != null);
@@ -314,16 +313,16 @@ public class ConnectorModal extends ModalContent {
         connectorPropForm.add(check);
 
         // form - third tab (capabilities)
-        final IModel<List<ConnectorCapability>> capabilities
-                = new LoadableDetachableModel<List<ConnectorCapability>>() {
+        final IModel<List<ConnectorCapability>> capabilities =
+                new LoadableDetachableModel<List<ConnectorCapability>>() {
 
-                    private static final long serialVersionUID = 5275935387613157437L;
+            private static final long serialVersionUID = 5275935387613157437L;
 
-                    @Override
-                    protected List<ConnectorCapability> load() {
-                        return Arrays.asList(ConnectorCapability.values());
-                    }
-                };
+            @Override
+            protected List<ConnectorCapability> load() {
+                return Arrays.asList(ConnectorCapability.values());
+            }
+        };
         CheckBoxMultipleChoice<ConnectorCapability> capabilitiesPalette = new CheckBoxMultipleChoice<>(
                 "capabilitiesPalette",
                 new PropertyModel<List<ConnectorCapability>>(this, "selectedCapabilities"), capabilities);
