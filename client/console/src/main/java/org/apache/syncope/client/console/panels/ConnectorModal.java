@@ -16,7 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.pages;
+package org.apache.syncope.client.console.panels;
+
+import static org.apache.wicket.Component.ENABLE;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,7 +29,8 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.rest.ConnectorRestClient;
+import org.apache.syncope.client.console.pages.BasePage;
+import org.apache.syncope.client.console.panels.ModalContent;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.SpinnerFieldPanel;
@@ -60,18 +63,14 @@ import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.validation.validator.RangeValidator;
 
 /**
  * Modal window with Connector form.
  */
-public class ConnectorModalPage extends BaseModalPage {
+public class ConnectorModal extends ModalContent {
 
     private static final long serialVersionUID = -2025535531121434050L;
-
-    @SpringBean
-    private ConnectorRestClient restClient;
 
     private final Map<String, Map<String, Map<String, ConnBundleTO>>> mapConnBundleTOs;
 
@@ -83,10 +82,10 @@ public class ConnectorModalPage extends BaseModalPage {
 
     private final WebMarkupContainer propertiesContainer;
 
-    public ConnectorModalPage(final PageReference pageRef, final ModalWindow window,
-            final ConnInstanceTO connInstanceTO) {
+    public ConnectorModal(
+            final ModalWindow window, final PageReference pageRef, final ConnInstanceTO connInstanceTO) {
 
-        super();
+        super(window, pageRef);
 
         this.add(new Label("new", connInstanceTO.getKey() == 0
                 ? new ResourceModel("new")
@@ -101,7 +100,7 @@ public class ConnectorModalPage extends BaseModalPage {
                 : connInstanceTO.getCapabilities());
 
         mapConnBundleTOs = new HashMap<>();
-        for (ConnBundleTO connBundleTO : restClient.getAllBundles()) {
+        for (ConnBundleTO connBundleTO : connectorRestClient.getAllBundles()) {
             // by location
             if (!mapConnBundleTOs.containsKey(connBundleTO.getLocation())) {
                 mapConnBundleTOs.put(connBundleTO.getLocation(), new HashMap<String, Map<String, ConnBundleTO>>());
@@ -303,7 +302,7 @@ public class ConnectorModalPage extends BaseModalPage {
                 conn.setVersion(bundleTO.getVersion());
                 conn.setConnectorName(bundleTO.getConnectorName());
 
-                if (restClient.check(conn)) {
+                if (connectorRestClient.check(conn)) {
                     info(getString("success_connection"));
                 } else {
                     error(getString("error_connection"));
@@ -374,9 +373,9 @@ public class ConnectorModalPage extends BaseModalPage {
 
                 try {
                     if (connInstanceTO.getKey() == 0) {
-                        restClient.create(conn);
+                        connectorRestClient.create(conn);
                     } else {
-                        restClient.update(conn);
+                        connectorRestClient.update(conn);
                     }
 
                     ((BasePage) pageRef.getPage()).setModalResult(true);

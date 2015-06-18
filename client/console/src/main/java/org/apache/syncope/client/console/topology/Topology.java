@@ -20,25 +20,26 @@ package org.apache.syncope.client.console.topology;
 
 import static org.apache.syncope.client.console.topology.TopologyNode.Status.FAILURE;
 import static org.apache.syncope.client.console.topology.TopologyNode.Status.REACHABLE;
-import static org.apache.syncope.client.console.topology.TopologyNode.Status.UNKNOWN;
 import static org.apache.syncope.client.console.topology.TopologyNode.Status.UNREACHABLE;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.io.Serializable;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.pages.BasePage;
+import org.apache.syncope.client.console.panels.ResourceModal.ResourceCreateEvent;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
@@ -49,6 +50,8 @@ import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AbstractAjaxTimerBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.behavior.Behavior;
+import org.apache.wicket.event.IEvent;
+import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -57,6 +60,9 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.protocol.ws.api.WebSocketBehavior;
+import org.apache.wicket.protocol.ws.api.WebSocketRequestHandler;
+import org.apache.wicket.protocol.ws.api.message.TextMessage;
 import org.apache.wicket.util.time.Duration;
 
 public class Topology extends BasePage {
@@ -68,6 +74,12 @@ public class Topology extends BasePage {
     private final int origX = 3100;
 
     private final int origY = 2800;
+
+    private static final int RESOURCE_MODAL_WIN_HEIGHT = 700;
+
+    private static final int RESOURCE_MODAL_WIN_WIDTH = 1000;
+
+    final ModalWindow modal;
 
     private final LoadableDetachableModel<List<ResourceTO>> resModel
             = new LoadableDetachableModel<List<ResourceTO>>() {
@@ -121,7 +133,74 @@ public class Topology extends BasePage {
         }
     };
 
+    private enum SupportedOperation {
+
+        CHECK_RESOURCE,
+        CHECK_CONNECTOR,
+        ADD_ENDPOINT;
+
+    }
+
     public Topology() {
+        modal = new ModalWindow("modal");
+        add(modal);
+
+        modal.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
+        modal.setInitialHeight(RESOURCE_MODAL_WIN_HEIGHT);
+        modal.setInitialWidth(RESOURCE_MODAL_WIN_WIDTH);
+        modal.setCookieName("resource-modal");
+
+        add(new WebSocketBehavior() {
+
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            protected void onMessage(final WebSocketRequestHandler handler, final TextMessage message) {
+                try {
+                    final ObjectMapper mapper = new ObjectMapper();
+                    final JsonNode obj = mapper.readTree(message.getText());
+
+                    switch (SupportedOperation.valueOf(obj.get("kind").asText())) {
+                        case CHECK_CONNECTOR:
+                            try {
+                                final ConnInstanceTO connector = connectorRestClient.read(obj.get("target").asLong());
+                                handler.push(String.format("{ \"status\": \"%s\", \"target\": \"%s\"}",
+                                        connectorRestClient.check(connector) ? REACHABLE : UNREACHABLE,
+                                        obj.get("target").asLong()));
+                            } catch (Exception e) {
+                                handler.push(String.format("{ \"status\": \"%s\", \"target\": \"%s\"}",
+                                        FAILURE,
+                                        obj.get("target").asLong()));
+                            }
+                            break;
+                        case CHECK_RESOURCE:
+                            try {
+                                final ResourceTO resource = resourceRestClient.read(obj.get("target").asText());
+                                handler.push(String.format("{ \"status\": \"%s\", \"target\": \"%s\"}",
+                                        connectorRestClient.check(resource) ? REACHABLE : UNREACHABLE,
+                                        obj.get("target").asText()));
+                            } catch (Exception e) {
+                                handler.push(String.format("{ \"status\": \"%s\", \"target\": \"%s\"}",
+                                        FAILURE,
+                                        obj.get("target").asText()));
+                            }
+                            break;
+                        case ADD_ENDPOINT:
+                            handler.appendJavaScript(String.format("addEndpoint('%s', '%s', '%s');",
+                                    obj.get("source").asText(),
+                                    obj.get("target").asText(),
+                                    obj.get("scope").asText()));
+                            break;
+                        default:
+                    }
+
+                } catch (IOException ex) {
+                    Logger.getLogger(Topology.class.getName()).log(Level.SEVERE, null, ex);
+                }
+
+            }
+        });
+
         // -----------------------------------------
         // Add Zoom panel
         // -----------------------------------------
@@ -148,8 +227,6 @@ public class Topology extends BasePage {
         }, ActionLink.ActionType.ZOOM_OUT, Entitlement.RESOURCE_LIST);
         // -----------------------------------------
 
-        final WebMarkupContainer jsPlace = new WebMarkupContainer("jsPlace");
-
         // -----------------------------------------
         // Add Syncope (root topologynode)
         // -----------------------------------------
@@ -161,16 +238,16 @@ public class Topology extends BasePage {
         syncopeTopologyNode.setHost(uri.getHost());
         syncopeTopologyNode.setPort(uri.getPort());
 
-        add(topologyNodePanel("syncope", syncopeTopologyNode, null, false));
+        add(topologyNodePanel("syncope", syncopeTopologyNode));
 
-        final Map<String, Map<String, TopologyNode>> connections = new HashMap<>();
-        final Map<String, TopologyNode> syncopeConnections = new HashMap<>();
-        connections.put(syncopeTopologyNode.getDisplayName(), syncopeConnections);
+        final Map<Serializable, Map<Serializable, TopologyNode>> connections = new HashMap<>();
+        final Map<Serializable, TopologyNode> syncopeConnections = new HashMap<>();
+        connections.put(syncopeTopologyNode.getKey(), syncopeConnections);
 
         // required to retrieve parent positions
         final Map<String, TopologyNode> servers = new HashMap<>();
-        final Map<String, TopologyNode> connectors = new HashMap<>();
-            // -----------------------------------------
+        final Map<Long, TopologyNode> connectors = new HashMap<>();
+        // -----------------------------------------
 
         // -----------------------------------------
         // Add Connector Servers
@@ -198,18 +275,18 @@ public class Topology extends BasePage {
                 topologynode.setX(x);
                 topologynode.setY(y);
 
-                servers.put(topologynode.getDisplayName(), topologynode);
+                servers.put(String.class.cast(topologynode.getKey()), topologynode);
 
-                item.add(topologyNodePanel("cs", topologynode, syncopeTopologyNode, false));
+                item.add(topologyNodePanel("cs", topologynode));
 
                 syncopeConnections.put(url, topologynode);
-                connections.put(url, new HashMap<String, TopologyNode>());
+                connections.put(url, new HashMap<Serializable, TopologyNode>());
             }
         };
 
         connectorServers.setOutputMarkupId(true);
         add(connectorServers);
-            // -----------------------------------------
+        // -----------------------------------------
 
         // -----------------------------------------
         // Add Connector Intances (first level)
@@ -235,12 +312,12 @@ public class Topology extends BasePage {
                         topologynode.setX(x);
                         topologynode.setY(y);
 
-                        connectors.put(topologynode.getDisplayName(), topologynode);
+                        connectors.put(Long.class.cast(topologynode.getKey()), topologynode);
 
-                        item.add(topologyNodePanel("conn", topologynode, syncopeTopologyNode, true));
+                        item.add(topologyNodePanel("conn", topologynode));
 
                         if (conn.getLocation().startsWith(CONNECTOR_SERVER_LOCATION_PREFIX)) {
-                            final Map<String, TopologyNode> remoteConnections;
+                            final Map<Serializable, TopologyNode> remoteConnections;
 
                             if (connections.containsKey(conn.getLocation())) {
                                 remoteConnections = connections.get(conn.getLocation());
@@ -248,9 +325,9 @@ public class Topology extends BasePage {
                                 remoteConnections = new HashMap<>();
                                 connections.put(conn.getLocation(), remoteConnections);
                             }
-                            remoteConnections.put(conn.getDisplayName(), topologynode);
+                            remoteConnections.put(conn.getKey(), topologynode);
                         } else {
-                            syncopeConnections.put(conn.getDisplayName(), topologynode);
+                            syncopeConnections.put(conn.getKey(), topologynode);
                         }
                     }
                 };
@@ -288,12 +365,12 @@ public class Topology extends BasePage {
                         topologynode.setX(x);
                         topologynode.setY(y);
 
-                        connectors.put(topologynode.getDisplayName(), topologynode);
+                        connectors.put(Long.class.cast(topologynode.getKey()), topologynode);
 
-                        item.add(topologyNodePanel("conn", topologynode, parent, true));
+                        item.add(topologyNodePanel("conn", topologynode));
 
                         if (conn.getLocation().startsWith(CONNECTOR_SERVER_LOCATION_PREFIX)) {
-                            final Map<String, TopologyNode> remoteConnections;
+                            final Map<Serializable, TopologyNode> remoteConnections;
 
                             if (connections.containsKey(conn.getLocation())) {
                                 remoteConnections = connections.get(conn.getLocation());
@@ -301,9 +378,9 @@ public class Topology extends BasePage {
                                 remoteConnections = new HashMap<>();
                                 connections.put(conn.getLocation(), remoteConnections);
                             }
-                            remoteConnections.put(conn.getDisplayName(), topologynode);
+                            remoteConnections.put(conn.getKey(), topologynode);
                         } else {
-                            syncopeConnections.put(conn.getDisplayName(), topologynode);
+                            syncopeConnections.put(conn.getKey(), topologynode);
                         }
                     }
                 };
@@ -315,39 +392,39 @@ public class Topology extends BasePage {
         // -----------------------------------------
         // Add Resources
         // -----------------------------------------
-        final List<String> connToBeProcessed = new ArrayList<>();
+        final List<Long> connToBeProcessed = new ArrayList<>();
         for (ResourceTO resourceTO : resModel.getObject()) {
             final TopologyNode topologynode = new TopologyNode(
                     resourceTO.getKey(), resourceTO.getKey(), TopologyNode.Kind.RESOURCE);
             topologynode.setX(origX);
             topologynode.setY(origY);
 
-            final Map<String, TopologyNode> remoteConnections;
+            final Map<Serializable, TopologyNode> remoteConnections;
 
-            if (connections.containsKey(resourceTO.getConnectorDisplayName())) {
-                remoteConnections = connections.get(resourceTO.getConnectorDisplayName());
+            if (connections.containsKey(resourceTO.getConnector())) {
+                remoteConnections = connections.get(resourceTO.getConnector());
             } else {
                 remoteConnections = new HashMap<>();
-                connections.put(resourceTO.getConnectorDisplayName(), remoteConnections);
+                connections.put(resourceTO.getConnector(), remoteConnections);
             }
 
-            remoteConnections.put(topologynode.getDisplayName(), topologynode);
+            remoteConnections.put(topologynode.getKey(), topologynode);
 
-            if (!connToBeProcessed.contains(resourceTO.getConnectorDisplayName())) {
-                connToBeProcessed.add(resourceTO.getConnectorDisplayName());
+            if (!connToBeProcessed.contains(resourceTO.getConnector())) {
+                connToBeProcessed.add(resourceTO.getConnector());
             }
         }
 
-        final ListView<String> resources = new ListView<String>("resources", connToBeProcessed) {
+        final ListView<Long> resources = new ListView<Long>("resources", connToBeProcessed) {
 
             private static final long serialVersionUID = 697862187148836038L;
 
             @Override
-            protected void populateItem(final ListItem<String> item) {
-                final String connectorDisplayName = item.getModelObject();
+            protected void populateItem(final ListItem<Long> item) {
+                final Long connectorId = item.getModelObject();
 
                 final ListView<TopologyNode> innerListView = new ListView<TopologyNode>("resources",
-                        new ArrayList<>(connections.get(connectorDisplayName).values())) {
+                        new ArrayList<>(connections.get(connectorId).values())) {
 
                             private static final long serialVersionUID = 1L;
 
@@ -356,7 +433,7 @@ public class Topology extends BasePage {
                             @Override
                             protected void populateItem(final ListItem<TopologyNode> item) {
                                 final TopologyNode topologynode = item.getModelObject();
-                                final TopologyNode parent = connectors.get(connectorDisplayName);
+                                final TopologyNode parent = connectors.get(connectorId);
 
                                 final double k;
 
@@ -377,11 +454,7 @@ public class Topology extends BasePage {
                                 topologynode.setX(x);
                                 topologynode.setY(y);
 
-                                final Panel panel = new TopologyNodePanel(
-                                        "res", topologynode, getPageReference(), resourceRestClient);
-                                panel.setMarkupId(topologynode.getDisplayName());
-                                panel.setOutputMarkupId(true);
-                                item.add(topologyNodePanel("res", topologynode, parent, true));
+                                item.add(topologyNodePanel("res", topologynode));
                             }
                         };
 
@@ -392,11 +465,15 @@ public class Topology extends BasePage {
 
         resources.setOutputMarkupId(true);
         add(resources);
-            // -----------------------------------------
+        // -----------------------------------------
 
         // -----------------------------------------
         // Create connections
         // -----------------------------------------
+        final WebMarkupContainer jsPlace = new WebMarkupContainer("jsPlace");
+        jsPlace.setOutputMarkupId(true);
+        add(jsPlace);
+
         jsPlace.add(new Behavior() {
 
             private static final long serialVersionUID = 2661717818979056044L;
@@ -414,33 +491,40 @@ public class Topology extends BasePage {
             }
         });
 
-        jsPlace.setOutputMarkupId(true);
-        add(jsPlace);
+        jsPlace.add(new AbstractAjaxTimerBehavior(Duration.seconds(2)) {
+
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            protected void onTimer(final AjaxRequestTarget target) {
+                target.appendJavaScript("checkConnection()");
+
+                if (getUpdateInterval().seconds() < 60.0) {
+                    setUpdateInterval(Duration.seconds(60));
+                }
+            }
+        });
         // -----------------------------------------
     }
 
-    @Override
-    public String getAjaxIndicatorMarkupId() {
-        return StringUtils.EMPTY;
-    }
-
-    private List<String> createConnections(final Map<String, Map<String, TopologyNode>> targets) {
+    private List<String> createConnections(final Map<Serializable, Map<Serializable, TopologyNode>> targets) {
         List<String> list = new ArrayList<>();
 
-        for (Map.Entry<String, Map<String, TopologyNode>> source : targets.entrySet()) {
-            for (Map.Entry<String, TopologyNode> target : source.getValue().entrySet()) {
-                list.add(String.format("jsPlumb.connect({source:'%s',target:'%s'},def);",
+        for (Map.Entry<Serializable, Map<Serializable, TopologyNode>> source : targets.entrySet()) {
+            for (Map.Entry<Serializable, TopologyNode> target : source.getValue().entrySet()) {
+                list.add(String.format("connect('%s','%s','%s');",
                         source.getKey(),
-                        target.getKey()));
+                        target.getKey(),
+                        target.getValue().getKind()));
             }
         }
         return list;
     }
 
-    private Panel topologyNodePanel(
-            final String id, final TopologyNode node, final TopologyNode parent, final boolean active) {
-        final Panel panel = new TopologyNodePanel(id, node, getPageReference(), resourceRestClient);
-        panel.setMarkupId(node.getDisplayName());
+    private Panel topologyNodePanel(final String id, final TopologyNode node) {
+
+        final Panel panel = new TopologyNodePanel(id, node, getPageReference(), modal);
+        panel.setMarkupId(String.valueOf(node.getKey()));
         panel.setOutputMarkupId(true);
 
         panel.add(new Behavior() {
@@ -450,72 +534,32 @@ public class Topology extends BasePage {
             @Override
             public void renderHead(final Component component, final IHeaderResponse response) {
                 response.render(OnDomReadyHeaderItem.forScript(String.format("setPosition('%s', %d, %d)",
-                        node.getDisplayName(), node.getX(), node.getY())));
+                        node.getKey(), node.getX(), node.getY())));
             }
         });
 
-        final WebMarkupContainer timer = new WebMarkupContainer("timer");
-        timer.setOutputMarkupId(true);
-        panel.add(timer);
-
-        if (active) {
-            timer.add(new AbstractAjaxTimerBehavior(Duration.seconds(2)) {
-
-                private static final long serialVersionUID = 1L;
-
-                @Override
-                protected void onTimer(final AjaxRequestTarget target) {
-                    final List<TopologyReloadBehavior> behaviors = panel.getBehaviors(TopologyReloadBehavior.class);
-                    for (TopologyReloadBehavior behavior : behaviors) {
-                        panel.remove(behavior);
-                    }
-
-                    TopologyNode.Status status;
-
-                    final FutureTask<TopologyNode.Status> future = new FutureTask<>(
-                            new Callable<TopologyNode.Status>() {
-
-                                @Override
-                                public TopologyNode.Status call() throws Exception {
-                                    switch (node.getKind()) {
-                                        case CONNECTOR:
-                                            final ConnInstanceTO connector = connectorRestClient.
-                                            read(Long.class.cast(node.getKey()));
-                                            return connectorRestClient.check(connector) ? REACHABLE : UNREACHABLE;
-                                        case RESOURCE:
-                                            final ResourceTO resource = resourceRestClient.
-                                            read(String.class.cast(node.getKey()));
-                                            return connectorRestClient.check(resource) ? REACHABLE : UNREACHABLE;
-                                        default:
-                                            return UNKNOWN;
-                                    }
-                                }
-                            });
-
-                    future.run();
-
-                    try {
-                        status = future.get(10, TimeUnit.SECONDS);
-                    } catch (TimeoutException te) {
-                        LOG.warn("Check connection timed out");
-                        status = UNKNOWN;
-                    } catch (InterruptedException | ExecutionException ie) {
-                        // ignore
-                        LOG.warn("Check connection failed", ie);
-                        status = FAILURE;
-                    }
-
-                    timer.add(new TopologyReloadBehavior(parent.getDisplayName(), node.getDisplayName(), status));
-
-                    if (getUpdateInterval().seconds() < 60.0) {
-                        setUpdateInterval(Duration.seconds(60));
-                    }
-
-                    target.add(timer);
-                }
-            });
-        }
-
         return panel;
+    }
+
+    @Override
+    public void onEvent(final IEvent<?> event) {
+        super.onEvent(event);
+
+        if (event.getPayload() instanceof ResourceCreateEvent) {
+            final ResourceCreateEvent resourceCreateEvent = ResourceCreateEvent.class.cast(event.getPayload());
+            resourceCreateEvent.getTarget().appendJavaScript(String.format(
+                    "window.Wicket.WebSocket.send('"
+                    + "{\"kind\":\"%s\",\"target\":\"%s\",\"source\":\"%s\",\"scope\":\"%s\"}"
+                    + "');",
+                    SupportedOperation.ADD_ENDPOINT,
+                    resourceCreateEvent.getResourceTO().getKey(),
+                    resourceCreateEvent.getResourceTO().getConnector(),
+                    TopologyNode.Kind.RESOURCE));
+        }
+    }
+
+    @Override
+    public String getAjaxIndicatorMarkupId() {
+        return StringUtils.EMPTY;
     }
 }

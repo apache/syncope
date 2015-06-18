@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.syncope.client.console.pages.BaseModalPage;
-import org.apache.syncope.client.console.pages.ResourceModalPage.ResourceEvent;
+import org.apache.syncope.client.console.panels.ModalContent.ModalEvent;
 import org.apache.syncope.client.console.panels.ResourceDetailsPanel.DetailsModEvent;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel.MultiValueSelectorEvent;
@@ -148,7 +148,7 @@ public class ResourceConnConfPanel extends Panel {
         AjaxRequestTarget target = null;
         if (event.getPayload() instanceof DetailsModEvent) {
             // connector change: update properties and forward event
-            target = ((ResourceEvent) event.getPayload()).getTarget();
+            target = ((ModalEvent) event.getPayload()).getTarget();
 
             connConfProperties = getConnConfProperties();
             check.setEnabled(!connConfProperties.isEmpty());
@@ -167,7 +167,7 @@ public class ResourceConnConfPanel extends Panel {
     /**
      * Connector configuration properties modification event.
      */
-    public static class ConnConfModEvent extends ResourceEvent {
+    public static class ConnConfModEvent extends ModalEvent {
 
         private final List<ConnConfProperty> configuration;
 

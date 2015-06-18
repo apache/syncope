@@ -21,21 +21,22 @@ package org.apache.syncope.client.console.topology;
 import java.text.MessageFormat;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.pages.ResourceModalPage;
-import org.apache.syncope.client.console.rest.BaseRestClient;
+import org.apache.syncope.client.console.panels.ConnectorModal;
+import org.apache.syncope.client.console.panels.ResourceModal;
+import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
+import org.apache.syncope.client.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.Page;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,12 +46,19 @@ public class TopologyNodePanel extends Panel {
 
     protected static final Logger LOG = LoggerFactory.getLogger(TopologyNodePanel.class);
 
-    private static final int RESOURCE_MODAL_WIN_HEIGHT = 600;
+    final ModalWindow modal;
 
-    private static final int RESOURCE_MODAL_WIN_WIDTH = 800;
+    @SpringBean
+    private ResourceRestClient resourceRestClient;
+
+    @SpringBean
+    private ConnectorRestClient connectorRestClient;
 
     public TopologyNodePanel(
-            final String id, final TopologyNode node, final PageReference pageRef, final BaseRestClient restClient) {
+            final String id,
+            final TopologyNode node,
+            final PageReference pageRef,
+            final ModalWindow modal) {
         super(id);
 
         final String resourceName = node.getDisplayName().length() > 20
@@ -64,20 +72,20 @@ public class TopologyNodePanel extends Panel {
         switch (node.getKind()) {
             case SYNCOPE:
                 title = "";
-                add(getSyncopeFragment(node, (ResourceRestClient) restClient, pageRef));
+                add(getSyncopeFragment(node, pageRef));
                 break;
             case CONNECTOR_SERVER:
                 title = node.getDisplayName();
-                add(getConnectorServerFragment(node, (ResourceRestClient) restClient, pageRef));
+                add(getConnectorServerFragment(node, pageRef));
                 break;
             case CONNECTOR:
                 title = (StringUtils.isBlank(node.getConnectionDisplayName())
                         ? "" : node.getConnectionDisplayName() + ":") + node.getDisplayName();
-                add(getConnectorFragment(node, (ResourceRestClient) restClient, pageRef));
+                add(getConnectorFragment(node, pageRef));
                 break;
             default:
                 title = node.getDisplayName().length() > 20 ? node.getDisplayName() : "";
-                add(getResurceFragment(node, (ResourceRestClient) restClient, pageRef));
+                add(getResurceFragment(node, pageRef));
         }
 
         if (StringUtils.isNotEmpty(title)) {
@@ -85,87 +93,34 @@ public class TopologyNodePanel extends Panel {
         }
 
         this.setMarkupId(node.getDisplayName());
+
+        this.modal = modal;
     }
 
-    private Fragment getSyncopeFragment(
-            final TopologyNode node, final ResourceRestClient restClient, final PageReference pageRef) {
+    private Fragment getSyncopeFragment(final TopologyNode node, final PageReference pageRef) {
         final Fragment fragment = new Fragment("actions", "syncopeActions", this);
-
-        final ModalWindow createWin = new ModalWindow("createWin");
-        fragment.add(createWin);
-
-        createWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
-        createWin.setInitialHeight(RESOURCE_MODAL_WIN_HEIGHT);
-        createWin.setInitialWidth(RESOURCE_MODAL_WIN_WIDTH);
-        createWin.setTitle(new ResourceModel("connector.new"));
-        createWin.setCookieName("connector-modal");
-
+        fragment.setOutputMarkupId(true);
         return fragment;
     }
 
-    private Fragment getConnectorServerFragment(
-            final TopologyNode node, final ResourceRestClient restClient, final PageReference pageRef) {
+    private Fragment getConnectorServerFragment(final TopologyNode node, final PageReference pageRef) {
         final Fragment fragment = new Fragment("actions", "syncopeActions", this);
-
-        final ModalWindow createWin = new ModalWindow("createWin");
-        fragment.add(createWin);
-
-        createWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
-        createWin.setInitialHeight(RESOURCE_MODAL_WIN_HEIGHT);
-        createWin.setInitialWidth(RESOURCE_MODAL_WIN_WIDTH);
-        createWin.setCookieName("connector-modal");
-        createWin.setTitle(new ResourceModel("connector.new"));
-
         return fragment;
     }
 
-    private Fragment getConnectorFragment(
-            final TopologyNode node, final ResourceRestClient restClient, final PageReference pageRef) {
+    private Fragment getConnectorFragment(final TopologyNode node, final PageReference pageRef) {
         final Fragment fragment = new Fragment("actions", "connectorWithNoResourceActions", this);
+        fragment.setOutputMarkupId(true);
 
-        final ModalWindow createWin = new ModalWindow("createWin");
-        fragment.add(createWin);
-
-        createWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
-        createWin.setInitialHeight(RESOURCE_MODAL_WIN_HEIGHT);
-        createWin.setInitialWidth(RESOURCE_MODAL_WIN_WIDTH);
-        createWin.setCookieName("resource-modal");
-        createWin.setTitle(new ResourceModel("resource.new"));
-
-        final ModalWindow editWin = new ModalWindow("editWin");
-        fragment.add(editWin);
-
-        editWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
-        editWin.setInitialHeight(RESOURCE_MODAL_WIN_HEIGHT);
-        editWin.setInitialWidth(RESOURCE_MODAL_WIN_WIDTH);
-        editWin.setCookieName("connector-modal");
-        editWin.setTitle(MessageFormat.format(getString("connector.edit"), node.getKey()));
-
-        return fragment;
-    }
-
-    private Fragment getResurceFragment(
-            final TopologyNode node, final ResourceRestClient restClient, final PageReference pageRef) {
-        final Fragment fragment = new Fragment("actions", "resourceActions", this);
-
-        final ModalWindow editWin = new ModalWindow("editWin");
-        fragment.add(editWin);
-
-        editWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
-        editWin.setInitialHeight(RESOURCE_MODAL_WIN_HEIGHT);
-        editWin.setInitialWidth(RESOURCE_MODAL_WIN_WIDTH);
-        editWin.setCookieName("resource-modal");
-        editWin.setTitle(MessageFormat.format(getString("resource.edit"), node.getKey()));
-
-        final AjaxLink<String> delete = new IndicatingAjaxLink<String>("delete") {
+        final AjaxLink<String> delete = new ClearIndicatingAjaxLink<String>("delete", pageRef) {
 
             private static final long serialVersionUID = 3776750333491622263L;
 
             @Override
-            public void onClick(final AjaxRequestTarget target) {
+            public void onClickInternal(final AjaxRequestTarget target) {
                 try {
-                    restClient.delete(node.getKey().toString());
-                    target.appendJavaScript(String.format("jsPlumb.remove('%s');", node.getDisplayName()));
+                    connectorRestClient.delete(Long.class.cast(node.getKey()));
+                    target.appendJavaScript(String.format("jsPlumb.remove('%s');", node.getKey()));
                     info(getString(Constants.OPERATION_SUCCEEDED));
                 } catch (SyncopeClientException e) {
                     error(getString(Constants.ERROR) + ": " + e.getMessage());
@@ -175,27 +130,81 @@ public class TopologyNodePanel extends Panel {
         };
         fragment.add(delete);
 
-        final AjaxLink<String> edit = new IndicatingAjaxLink<String>("edit") {
+        final AjaxLink<String> create = new ClearIndicatingAjaxLink<String>("create", pageRef) {
 
             private static final long serialVersionUID = 3776750333491622263L;
 
             @Override
-            public void onClick(final AjaxRequestTarget target) {
-                editWin.setPageCreator(new ModalWindow.PageCreator() {
+            public void onClickInternal(final AjaxRequestTarget target) {
+                final ResourceTO resourceTO = new ResourceTO();
+                resourceTO.setConnector(Long.class.cast(node.getKey()));
+                resourceTO.setConnectorDisplayName(node.getDisplayName());
 
-                    private static final long serialVersionUID = -7834632442532690940L;
+                modal.setContent(new ResourceModal(modal, pageRef, resourceTO, true));
 
-                    @Override
-                    public Page createPage() {
-                        return new ResourceModalPage(
-                                pageRef,
-                                editWin,
-                                restClient.read(node.getKey().toString()),
-                                false);
-                    }
-                });
+                modal.setTitle(getString("resource.new"));
+                modal.show(target);
+            }
+        };
+        fragment.add(create);
 
-                editWin.show(target);
+        final AjaxLink<String> edit = new ClearIndicatingAjaxLink<String>("edit", pageRef) {
+
+            private static final long serialVersionUID = 3776750333491622263L;
+
+            @Override
+            public void onClickInternal(final AjaxRequestTarget target) {
+
+                modal.setContent(new ConnectorModal(
+                        modal,
+                        pageRef,
+                        connectorRestClient.read(Long.class.cast(node.getKey()))));
+
+                modal.setTitle(MessageFormat.format(getString("connector.edit"), node.getKey()));
+                modal.show(target);
+            }
+        };
+        fragment.add(edit);
+
+        return fragment;
+    }
+
+    private Fragment getResurceFragment(final TopologyNode node, final PageReference pageRef) {
+        final Fragment fragment = new Fragment("actions", "resourceActions", this);
+
+        final AjaxLink<String> delete = new ClearIndicatingAjaxLink<String>("delete", pageRef) {
+
+            private static final long serialVersionUID = 3776750333491622263L;
+
+            @Override
+            public void onClickInternal(final AjaxRequestTarget target) {
+                try {
+                    resourceRestClient.delete(node.getKey().toString());
+                    target.appendJavaScript(String.format("jsPlumb.remove('%s');", node.getKey()));
+                    info(getString(Constants.OPERATION_SUCCEEDED));
+                } catch (SyncopeClientException e) {
+                    error(getString(Constants.ERROR) + ": " + e.getMessage());
+                    LOG.error("While deleting resource {}", node.getKey(), e);
+                }
+            }
+        };
+        fragment.add(delete);
+
+        final AjaxLink<String> edit = new ClearIndicatingAjaxLink<String>("edit", pageRef) {
+
+            private static final long serialVersionUID = 3776750333491622263L;
+
+            @Override
+            public void onClickInternal(final AjaxRequestTarget target) {
+
+                modal.setContent(new ResourceModal(
+                        modal,
+                        pageRef,
+                        resourceRestClient.read(node.getKey().toString()),
+                        false));
+
+                modal.setTitle(MessageFormat.format(getString("resource.edit"), node.getKey()));
+                modal.show(target);
             }
         };
         fragment.add(edit);

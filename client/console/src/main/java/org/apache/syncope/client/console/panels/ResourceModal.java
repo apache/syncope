@@ -16,16 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.pages;
+package org.apache.syncope.client.console.panels;
 
+import static org.apache.wicket.Component.ENABLE;
+
+import java.util.ArrayList;
+import java.util.Collection;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.panels.AnnotatedBeanPanel;
-import org.apache.syncope.client.console.panels.ResourceConnConfPanel;
-import org.apache.syncope.client.console.panels.ResourceDetailsPanel;
-import org.apache.syncope.client.console.panels.ResourceMappingPanel;
-import org.apache.syncope.client.console.panels.ResourceSecurityPanel;
+import org.apache.syncope.client.console.pages.AbstractBasePage;
 import org.apache.syncope.common.lib.to.MappingItemTO;
 import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
@@ -35,6 +35,7 @@ import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.form.Form;
@@ -44,15 +45,18 @@ import org.apache.wicket.model.ResourceModel;
 /**
  * Modal window with Resource form.
  */
-public class ResourceModalPage extends BaseModalPage {
+public class ResourceModal extends ModalContent {
 
     private static final long serialVersionUID = 1734415311027284221L;
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public ResourceModalPage(final PageReference pageRef, final ModalWindow window, final ResourceTO resourceTO,
+    public ResourceModal(
+            final ModalWindow window,
+            final PageReference pageRef,
+            final ResourceTO resourceTO,
             final boolean createFlag) {
 
-        super();
+        super(window, pageRef);
 
         final Form<ResourceTO> form = new Form<>(FORM);
         form.setModel(new CompoundPropertyModel<>(resourceTO));
@@ -97,7 +101,9 @@ public class ResourceModalPage extends BaseModalPage {
 
                 boolean connObjectKeyError = false;
 
-                for (ProvisionTO provision : resourceTO.getProvisions()) {
+                final Collection<ProvisionTO> provisions = new ArrayList<>(resourceTO.getProvisions());
+
+                for (ProvisionTO provision : provisions) {
                     if (provision != null) {
                         if (provision.getMapping() == null || provision.getMapping().getItems().isEmpty()) {
                             resourceTO.getProvisions().remove(provision);
@@ -123,11 +129,12 @@ public class ResourceModalPage extends BaseModalPage {
                     try {
                         if (createFlag) {
                             resourceRestClient.create(resourceTO);
+                            send(pageRef.getPage(), Broadcast.BREADTH, new ResourceCreateEvent(target, resourceTO));
                         } else {
                             resourceRestClient.update(resourceTO);
                         }
 
-                        if (pageRef != null && pageRef.getPage() instanceof AbstractBasePage) {
+                        if (pageRef.getPage() instanceof AbstractBasePage) {
                             ((AbstractBasePage) pageRef.getPage()).setModalResult(true);
                         }
                         window.close(target);
@@ -170,35 +177,28 @@ public class ResourceModalPage extends BaseModalPage {
 
         MetaDataRoleAuthorizationStrategy.authorize(
                 submit, ENABLE, createFlag ? Entitlement.RESOURCE_CREATE : Entitlement.RESOURCE_UPDATE);
-
     }
 
-    /**
-     * Generic resource event.
-     */
-    public static class ResourceEvent {
+    public NotificationPanel getFeedbackPanel() {
+        return feedbackPanel;
+    }
 
-        /**
-         * Request target.
-         */
-        private final AjaxRequestTarget target;
+    public static class ResourceCreateEvent extends ModalEvent {
 
-        /**
-         * Constructor.
-         *
-         * @param target request target.
-         */
-        public ResourceEvent(final AjaxRequestTarget target) {
-            this.target = target;
+        private final ResourceTO resourceTO;
+
+        public ResourceCreateEvent(final AjaxRequestTarget target, final ResourceTO resourceTO) {
+            super(target);
+            this.resourceTO = resourceTO;
         }
 
         /**
-         * Target getter.
+         * Create resource getter.
          *
-         * @return request target.
+         * @return created resource.
          */
-        public AjaxRequestTarget getTarget() {
-            return target;
+        public ResourceTO getResourceTO() {
+            return resourceTO;
         }
     }
 }

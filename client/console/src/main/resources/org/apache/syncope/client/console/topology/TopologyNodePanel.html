@@ -28,11 +28,7 @@ under the License.
 
     <p class="text-center text-primary" wicket:id="label"/>
 
-    <span wicket:id="timer" />
-
     <wicket:fragment wicket:id="connectorWithResourceActions">
-      <div wicket:id="createWin">[createWin]</div>
-      <div wicket:id="editWin">[editWin]</div>
       <ul role="menu" class="dropdown-menu">
         <li><a href="#"><i class="fa fa-plus"></i></a></li>
         <li><a href="#"><i class="fa fa-pencil"></i></a></li>
@@ -40,17 +36,14 @@ under the License.
     </wicket:fragment>
 
     <wicket:fragment wicket:id="connectorWithNoResourceActions">
-      <div wicket:id="createWin">[createWin]</div>
-      <div wicket:id="editWin">[editWin]</div>
       <ul role="menu" class="dropdown-menu">
-        <li><a href="#"><i class="fa fa-plus"></i></a></li>
-        <li><a href="#"><i class="fa fa-minus"></i></a></li>
-        <li><a href="#"><i class="fa fa-pencil"></i></a></li>
+        <li><a href="#" wicket:id="create"><i class="fa fa-plus"></i></a></li>
+        <li><a href="#" wicket:id="delete"><i class="fa fa-minus"></i></a></li>
+        <li><a href="#" wicket:id="edit"><i class="fa fa-pencil"></i></a></li>
       </ul>
     </wicket:fragment>
 
     <wicket:fragment wicket:id="resourceActions">
-      <div wicket:id="editWin">[editWin]</div>
       <ul role="menu" class="dropdown-menu">
         <li><a href="#" wicket:id="delete"><i class="fa fa-minus"></i></a></li>
         <li><a href="#" wicket:id="edit"><i class="fa fa-pencil"></i></a></li>
@@ -58,7 +51,6 @@ under the License.
     </wicket:fragment>
 
     <wicket:fragment wicket:id="syncopeActions">
-      <div wicket:id="createWin">[createWin]</div>
       <ul role="menu" class="dropdown-menu">
         <li><a href="#"><i class="fa fa-plus"></i></a></li>
       </ul>

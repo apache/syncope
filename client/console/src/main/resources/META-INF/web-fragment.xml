@@ -44,7 +44,7 @@ under the License.
     
   <filter>
     <filter-name>SyncopeConsole</filter-name>
-    <filter-class>org.apache.wicket.protocol.http.WicketFilter</filter-class>
+    <filter-class>org.apache.wicket.protocol.ws.javax.JavaxWebSocketFilter</filter-class>
     <init-param>
       <param-name>filterMappingUrlPattern</param-name>
       <param-value>/*</param-value>

@@ -47,15 +47,8 @@ var failedConnectorStyle = {
     outlineWidth: 1
 };
 
-var disabledConnectorStyle = {
-    lineWidth: 2,
-    strokeStyle: "rgba(255, 69, 0, 1)",
-    outlineColor: "#666",
-    outlineWidth: 1
-};
-
-var disabledConnectorHoverStyle = {
-    strokeStyle: "#FF8C00" 
+var failedConnectorHoverStyle = {
+    strokeStyle: "#FFFFFF" 
 };
 
 var failedEndpointStyle = {
@@ -67,6 +60,17 @@ var failedEndpointStyle = {
 	innerRadius: 3.5
     },
     radius: 3.5
+};
+
+var disabledConnectorStyle = {
+    lineWidth: 2,
+    strokeStyle: "rgba(255, 69, 0, 1)",
+    outlineColor: "#666",
+    outlineWidth: 1
+};
+
+var disabledConnectorHoverStyle = {
+    strokeStyle: "#FF8C00" 
 };
 
 var disabledEndpointStyle = {
@@ -102,22 +106,22 @@ var enabledEndpointStyle = {
     radius: 3.5
 };
 
-function disable(sourceName, targetName){
-    jsPlumb.select({target:targetName}).setPaintStyle(disabledConnectorStyle).setHoverPaintStyle({strokeStyle: "#FF8C00" });
+window.disable = function(targetName){
+    jsPlumb.select({target:targetName}).setPaintStyle(disabledConnectorStyle).setHoverPaintStyle(disabledConnectorHoverStyle);
     jsPlumb.selectEndpoints({element: [targetName]}).setPaintStyle(disabledEndpointStyle);
 }
 
-function enable(sourceName, targetName){
-    jsPlumb.select({target:targetName}).setPaintStyle(enabledConnectorStyle).setHoverPaintStyle({strokeStyle: "#00FF00" });
+window.enable = function(targetName){
+    jsPlumb.select({target:targetName}).setPaintStyle(enabledConnectorStyle).setHoverPaintStyle(enabledConnectorHoverStyle);
     jsPlumb.selectEndpoints({element: [targetName]}).setPaintStyle(enabledEndpointStyle);
 }
 
-function failure(sourceName, targetName){
-    jsPlumb.select({target:targetName}).setPaintStyle(failedConnectorStyle).setHoverPaintStyle({strokeStyle: "#FFFFFF" });
+window.failure = function(targetName){
+    jsPlumb.select({target:targetName}).setPaintStyle(failedConnectorStyle).setHoverPaintStyle(failedConnectorHoverStyle);
     jsPlumb.selectEndpoints({element: [targetName]}).setPaintStyle(failedEndpointStyle);
 }
 
-function unknown(sourceName, targetName){
+window.unknown = function(targetName){
 }
 
 function getTopology(){
@@ -216,6 +220,12 @@ window.zoomOut = function(el, instance, transformOrigin) {
     $.cookie("topology", JSON.stringify(val), { expires: 9999 });
 };
 
+window.connect = function(source, target, scope){
+    if(jsPlumb.select({source:source, target:target, scope: scope}) !=null){
+	jsPlumb.connect({source:source, target:target, scope: scope}, def);
+    }
+}
+
 window.activate = function(zoom){
     jsPlumb.draggable(jsPlumb.getSelector(".window"));
     jsPlumb.setContainer("drawing");
@@ -228,9 +238,44 @@ window.activate = function(zoom){
     var val = getTopology();
     if(val.__zoom__ == null){
 	setZoom($("#drawing")[0], zoom);
-    }else{
+    } else {
 	setZoom($("#drawing")[0], val.__zoom__);
     }
+}
+
+window.checkConnection = function() {
+    jsPlumb.select({scope:"CONNECTOR"}).each(function(connection) {
+        Wicket.WebSocket.send("{ \"kind\":\"CHECK_CONNECTOR\", \"target\":\"" + connection.target.id + "\" }");
+    });
+    jsPlumb.select({scope:"RESOURCE"}).each(function(connection) {
+        Wicket.WebSocket.send("{ \"kind\":\"CHECK_RESOURCE\", \"target\":\"" + connection.target.id + "\" }");
+    });
+}
+
+window.addEndpoint = function(source, target, scope) {
+    var sourceElement = $('#' + source);
+    var element = sourceElement.clone();
+    element.attr('id', target);
+    element.removeAttr('data-original-title');
+    
+    var top = parseFloat(sourceElement.css("top")) + 10;
+    var left = parseFloat(sourceElement.css("left")) - 150;
+
+    if(scope == 'RESOURCE'){
+	var style = 'topology_res';
+    }else{
+	var style = 'topology_conn';
+    }
+    
+    element.attr('class', 'window jsplumb-draggable _jsPlumb_endpoint_anchor_ ' + style);
+    
+    element.find('p').text(target);
+    
+    $('#drawing').append(element);
+    setPosition(target, left, top);
+    
+    jsPlumb.draggable(element);
+    jsPlumb.connect({ source:source, target:target, scope:scope }, def);
 }
 
 jsPlumb.importDefaults({
@@ -240,5 +285,27 @@ jsPlumb.importDefaults({
 	zIndex: 2000
     },
     HoverClass: "connector-hover"
+});
+
+jQuery(function($) {
+    Wicket.Event.subscribe("/websocket/message", function(jqEvent, message) {
+	var val = JSON.parse(decodeURIComponent(message));
+	switch (val.status) {
+	case 'UNKNOWN':
+	    unknown(val.target);
+	    break;
+        case 'REACHABLE':
+	    enable(val.target);
+	    break;
+	case 'UNREACHABLE':
+	    disable(val.target);
+	    break;
+        case 'FAILURE':
+	    failure(val.target);
+	    break;
+	default:
+	    break;
+	}
+    });
 });
 

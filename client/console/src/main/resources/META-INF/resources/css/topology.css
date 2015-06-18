@@ -60,12 +60,6 @@
     filter:alpha(opacity=60);
 }
 
-.active {
-    border:1px dotted green;
-}
-.hover {
-    border:1px dotted red;
-}
 ._jsPlumb_dragging { 
     z-index:4000;
 }
@@ -116,6 +110,7 @@ div#drawing {
 div#zoom {
     padding : 10px;
     text-align: right;
+    width: 100%;
 }
 
 div#zoom .fa{

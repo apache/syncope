@@ -22,7 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.pages.ResourceModalPage.ResourceEvent;
+import org.apache.syncope.client.console.panels.ModalContent.ModalEvent;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
@@ -89,9 +89,9 @@ public class ResourceDetailsPanel extends Panel {
                         "propagationPrimary"));
         add(propagationPrimary);
 
-        final SpinnerFieldPanel<Integer> propagationPriority =
-                new SpinnerFieldPanel<>("propagationPriority", "propagationPriority", Integer.class,
-                        new PropertyModel<Integer>(resourceTO, "propagationPriority"), null, null);
+        final SpinnerFieldPanel<Integer> propagationPriority = new SpinnerFieldPanel<>("propagationPriority",
+                "propagationPriority", Integer.class,
+                new PropertyModel<Integer>(resourceTO, "propagationPriority"), null, null);
         add(propagationPriority);
 
         final AjaxDropDownChoicePanel<PropagationMode> propagationMode = new AjaxDropDownChoicePanel<>(
@@ -152,7 +152,7 @@ public class ResourceDetailsPanel extends Panel {
                         actionsClass.setRequired(true);
                         item.add(actionsClass);
 
-                        AjaxLink<Void> minus = new IndicatingAjaxLink<Void>("drop") {
+                        final AjaxLink<Void> minus = new IndicatingAjaxLink<Void>("drop") {
 
                             private static final long serialVersionUID = -7978723352517770644L;
 
@@ -222,7 +222,7 @@ public class ResourceDetailsPanel extends Panel {
                 new ResourceModel("connector", "connector").getObject(),
                 new PropertyModel<ConnInstanceTO>(this, "connInstanceTO"));
         conn.setChoices(connectors.getObject());
-        conn.setChoiceRenderer(new ChoiceRenderer<String>("displayName", "key"));
+        conn.setChoiceRenderer(new ChoiceRenderer<>("displayName", "key"));
 
         conn.getField().setModel(new IModel<ConnInstanceTO>() {
 
@@ -245,7 +245,7 @@ public class ResourceDetailsPanel extends Panel {
         });
 
         conn.addRequiredLabel();
-        conn.setEnabled(createFlag);
+        conn.setEnabled(false);
 
         conn.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
@@ -292,7 +292,7 @@ public class ResourceDetailsPanel extends Panel {
     /**
      * Connector instance modification event.
      */
-    public static class DetailsModEvent extends ResourceEvent {
+    public static class DetailsModEvent extends ModalEvent {
 
         /**
          * Constructor.

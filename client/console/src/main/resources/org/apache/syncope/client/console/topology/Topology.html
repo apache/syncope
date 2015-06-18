@@ -1,4 +1,4 @@
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <!--
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
@@ -23,6 +23,20 @@ under the License.
     <script type="text/javascript" src="webjars/jquery-cookie/${jquery-cookie.version}/jquery.cookie.js"></script>
     <script type="text/javascript" src="js/topology.js"></script>
     <link href="css/topology.css" rel="stylesheet"/>
+
+    <style type="text/css">
+      legend {
+        font-weight: bold;
+      }
+      #sentMessages {
+        display: none;
+      }
+      #messages {
+        margin: 5px;
+        padding: 5px;
+        border: 2px groove #f5f5f5;
+      }
+    </style>
   </wicket:head>
   <wicket:extend>
     <div id="zoom" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only">
@@ -45,8 +59,9 @@ under the License.
             <div class="window topology_res" wicket:id="res" onmouseup="refreshPosition(this)">[resource]</div>
           </span>
         </span>
-        <span wicket:id="jsPlace"></span>
       </div>
+      <span wicket:id="jsPlace"></span>
     </div>
+    <div wicket:id="modal">[modal]</div>
   </wicket:extend>
 </html>
