@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+
+-->
+<document xmlns="http://maven.apache.org/XDOC/2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/XDOC/2.0 http://maven.apache.org/xsd/xdoc-2.0.xsd">
+
+  <properties>
+    <title>Mailing Lists</title>
+    <author email="dev@syncope.apache.org">Apache Syncope Documentation Team</author>
+  </properties>
+
+  <body>
+    
+    <p>
+      Feel free to participate in Apache Syncope mailing lists and IRC channel.
+    </p>
+    
+    <section name="Mailing Lists">
+      <table border="0" class="table table-striped">
+        <tbody>
+          <tr class="a">
+            <th>Name</th>
+            <th>Subscribe</th>
+            <th>Unsubscribe</th>
+            <th>Post</th>
+            <th>Archive</th>
+            <th>Other Archives</th>
+          </tr>
+          <tr class="b">
+            <td>Syncope User List</td>
+            <td>
+              <a href="mailto:user-subscribe@syncope.apache.org">Subscribe</a>
+            </td>
+            <td>
+              <a href="mailto:user-unsubscribe@syncope.apache.org">Unsubscribe</a>
+            </td>
+            <td>
+              <a href="mailto:user@syncope.apache.org">Post</a>
+            </td>
+            <td>
+              <a href="http://mail-archives.apache.org/mod_mbox/syncope-user/">mail-archives.apache.org</a>
+            </td>
+            <td>
+              <a href="http://syncope.markmail.org/">syncope.markmail.org</a>
+            </td>
+          </tr>
+          <tr class="a">
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>
+              <a href="http://syncope-user.1051894.n5.nabble.com/">syncope-user.1051894.n5.nabble.com</a>
+            </td>
+          </tr>
+          <tr class="b">
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>
+              <a href="http://www.mail-archive.com/user@syncope.apache.org/">www.mail-archive.com</a>
+            </td>
+          </tr>
+          <tr class="a">
+            <td>Syncope Developer List</td>
+            <td>
+              <a href="mailto:dev-subscribe@syncope.apache.org">Subscribe</a>
+            </td>
+            <td>
+              <a href="mailto:dev-unsubscribe@syncope.apache.org">Unsubscribe</a>
+            </td>
+            <td>
+              <a href="mailto:dev@syncope.apache.org">Post</a>
+            </td>
+            <td>
+              <a href="http://mail-archives.apache.org/mod_mbox/syncope-dev/">mail-archives.apache.org</a>
+            </td>
+            <td>
+              <a href="http://syncope.markmail.org/">syncope.markmail.org</a>
+            </td>
+          </tr>
+          <tr class="b">
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>
+              <a href="http://syncope-dev.1063484.n5.nabble.com/">syncope-dev.1063484.n5.nabble.com</a>
+            </td>
+          </tr>
+          <tr class="a">
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>
+              <a href="http://www.mail-archive.com/dev@syncope.apache.org/">www.mail-archive.com</a>
+            </td>
+          </tr>
+          <tr class="b">
+            <td>Syncope Commits List</td>
+            <td>
+              <a href="mailto:commits-subscribe@syncope.apache.org">Subscribe</a>
+            </td>
+            <td>
+              <a href="mailto:commits-unsubscribe@syncope.apache.org">Unsubscribe</a>
+            </td>
+            <td>
+              <a href="mailto:commits@syncope.apache.org">Post</a>
+            </td>
+            <td>
+              <a href="http://mail-archives.apache.org/mod_mbox/syncope-commits/">mail-archives.apache.org</a>
+            </td>
+            <td>
+              <a href="http://syncope.markmail.org/">syncope.markmail.org</a>
+            </td>
+          </tr>
+          <tr class="a">
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>-</td>
+            <td>
+              <a href="http://www.mail-archive.com/commits@syncope.apache.org/">www.mail-archive.com</a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      
+      <p>
+        To keep the mailing list archives useful for searching, please use the syncope-user's list for any questions 
+        related to using Apache Syncope.<br/>
+        The developers on syncope-dev are also on syncope-user, along with many other readers who can also provide help
+        for your question.<br/>
+        The syncope-dev list is just for programming the internals of Apache Syncope itself.
+      </p>
+    </section>
+
+    <section name="IRC">
+      <p>
+        Join the <strong>#apache-syncope</strong> channel on FreeNode.
+      </p>
+      <p>
+        Communication archives are <a href="http://wilderness.apache.org/channels/#logs-%23apache-syncope">available</a>
+        for reference.
+      </p>
+    </section>
+  </body>
+</document>

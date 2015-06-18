@@ -74,7 +74,7 @@ under the License.
     </menu>
   
     <menu name="Community">
-      <item name="Mailing Lists" href="mail-lists.html"/>
+      <item name="Mailing Lists" href="mailing-lists.html"/>
       <item name="Project Team" href="team-list.html"/>
       <item name="Roadmap" href="http://cwiki.apache.org/confluence/display/SYNCOPE/Roadmap"/>
       <item name="Documentation" href="http://cwiki.apache.org/confluence/display/SYNCOPE/Index"/>
