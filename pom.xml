@@ -1510,7 +1510,6 @@ under the License.
                   </configuration>
                   <reports>
                     <report>index</report>
-                    <report>mailing-list</report>
                     <report>project-team</report>
                     <report>issue-tracking</report>
                     <report>license</report>
