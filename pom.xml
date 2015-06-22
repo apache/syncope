@@ -341,7 +341,7 @@ under the License.
 
     <activiti.version>5.16.4</activiti.version>
 
-    <aspectj.version>1.8.5</aspectj.version>
+    <aspectj.version>1.8.6</aspectj.version>
 
     <cxf.version>3.0.5</cxf.version>	
     <spring.version>4.0.9.RELEASE</spring.version>
@@ -358,7 +358,7 @@ under the License.
 
     <cocoon.version>3.0.0-alpha-3</cocoon.version>
 
-    <wicket.version>6.19.0</wicket.version>
+    <wicket.version>6.20.0</wicket.version>
 
     <groovy.version>2.3.10</groovy.version>
 
@@ -369,7 +369,7 @@ under the License.
     <disruptor.version>3.3.2</disruptor.version>
 
     <junit.version>4.11</junit.version>
-    <selenium.version>2.45.0</selenium.version>
+    <selenium.version>2.46.0</selenium.version>
 
     <apacheds.version>1.5.7</apacheds.version>
     
@@ -1552,7 +1552,6 @@ under the License.
                   </configuration>
                   <reports>
                     <report>index</report>
-                    <report>mailing-list</report>
                     <report>project-team</report>
                     <report>issue-tracking</report>
                     <report>license</report>
