@@ -71,12 +71,17 @@ under the License.
   <CAttr id="9" owner_id="1" schema_name="authentication.statuses"/>
   <CAttrValue id="9" attribute_id="9" stringValue="created"/>
   <CAttrValue id="10" attribute_id="9" stringValue="active"/>
-
+  
   <!-- Save user login date upon successful authentication -->
   <CSchema name="log.lastlogindate" type="Boolean"
            mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
   <CAttr id="11" owner_id="1" schema_name="log.lastlogindate"/>
   <CAttrValue id="11" attribute_id="11" booleanValue="1"/>
+  
+  <CSchema name="tasks.interruptMaxRetries" type="Long"
+               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <CAttr id="12" owner_id="1" schema_name="tasks.interruptMaxRetries"/>
+  <CAttrValue id="12" attribute_id="12" longValue="20"/>
 
   <!-- For usage with admin console -->
   <CSchema name="admin.user.layout" type="String"
