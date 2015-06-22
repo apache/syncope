@@ -18,11 +18,8 @@
  */
 package org.apache.syncope.core.provisioning.java.job;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Locale;
 import java.util.concurrent.atomic.AtomicReference;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
@@ -32,6 +29,7 @@ import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.provisioning.api.job.TaskJob;
 import org.apache.syncope.core.misc.AuditManager;
+import org.apache.syncope.core.misc.DataFormat;
 import org.apache.syncope.core.misc.ExceptionUtils2;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
@@ -200,22 +198,19 @@ public abstract class AbstractTaskJob implements TaskJob {
     @Override
     public void interrupt() throws UnableToInterruptJobException {
         Thread thread = this.runningThread.getAndSet(null);
-        if (thread != null) {
-            LOG.info("Interrupting job time {} ", (new SimpleDateFormat(SyncopeConstants.DEFAULT_DATE_PATTERN, Locale.
-                    getDefault())).format(new Date()));
-            thread.interrupt();
-            if (thread.isAlive()) {
-                long maxRetry = confDAO.find("tasks.interruptMaxRetries", "0").getValues().get(0).getLongValue();
-                for (int i = 0; i <= maxRetry && thread.isAlive(); i++) {
-                    thread.interrupt();
-                }
-                //if the thread is still alive, it should be available in the next stop
-                if (thread.isAlive()) {
-                    this.runningThread.set(thread);
-                }
-            }
+        if (thread == null) {
+            LOG.warn("Unable to retrieve the thread of the current job execution");
         } else {
-            LOG.warn("Unable to retrieve the right thread related to the current job execution");
+            LOG.info("Interrupting job from thread {} at {} ", thread.getId(), DataFormat.format(new Date()));
+
+            long maxRetry = confDAO.find("tasks.interruptMaxRetries", "1").getValues().get(0).getLongValue();
+            for (int i = 0; i < maxRetry && thread.isAlive(); i++) {
+                thread.interrupt();
+            }
+            // if the thread is still alive, it should be available in the next stop
+            if (thread.isAlive()) {
+                this.runningThread.set(thread);
+            }
         }
     }
 }
