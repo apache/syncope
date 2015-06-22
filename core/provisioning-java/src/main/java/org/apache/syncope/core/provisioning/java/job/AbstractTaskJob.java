@@ -33,6 +33,7 @@ import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.provisioning.api.job.TaskJob;
 import org.apache.syncope.core.misc.AuditManager;
 import org.apache.syncope.core.misc.ExceptionUtils2;
+import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionContext;
@@ -79,6 +80,12 @@ public abstract class AbstractTaskJob implements TaskJob {
      */
     @Autowired
     private TaskExecDAO taskExecDAO;
+
+    /**
+     * Configuration DAO.
+     */
+    @Autowired
+    private ConfDAO confDAO;
 
     /**
      * Notification manager.
@@ -197,6 +204,16 @@ public abstract class AbstractTaskJob implements TaskJob {
             LOG.info("Interrupting job time {} ", (new SimpleDateFormat(SyncopeConstants.DEFAULT_DATE_PATTERN, Locale.
                     getDefault())).format(new Date()));
             thread.interrupt();
+            if (thread.isAlive()) {
+                long maxRetry = confDAO.find("tasks.interruptMaxRetries", "0").getValues().get(0).getLongValue();
+                for (int i = 0; i <= maxRetry && thread.isAlive(); i++) {
+                    thread.interrupt();
+                }
+                //if the thread is still alive, it should be available in the next stop
+                if (thread.isAlive()) {
+                    this.runningThread.set(thread);
+                }
+            }
         } else {
             LOG.warn("Unable to retrieve the right thread related to the current job execution");
         }

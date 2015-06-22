@@ -78,6 +78,11 @@ under the License.
   <CPlainAttr id="11" owner_id="1" schema_name="log.lastlogindate"/>
   <CPlainAttrValue id="11" attribute_id="11" booleanValue="1"/>
 
+  <PlainSchema name="tasks.interruptMaxRetries" type="Long"
+               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <CPlainAttr id="12" owner_id="1" schema_name="tasks.interruptMaxRetries"/>
+  <CPlainAttrValue id="12" attribute_id="12" longValue="20"/>
+
   <!-- For usage with admin console -->
   <PlainSchema name="admin.user.layout" type="String"
                mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
