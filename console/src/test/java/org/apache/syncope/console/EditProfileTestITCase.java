@@ -42,7 +42,7 @@ public class EditProfileTestITCase extends AbstractTest {
 
     @Test
     public void selfRegistration() {
-        seleniumDriver.findElement(By.xpath("//div/div[2]/div[1]/span/a/span")).click();
+        seleniumDriver.findElement(By.xpath("//div[1]/div[2]/div[1]/span/a")).click();                                             
 
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//iframe")));
         seleniumDriver.switchTo().frame(0);

@@ -158,21 +158,20 @@ public class RoleController extends AbstractSubjectController<RoleTO, RoleMod> {
         return result;
     }
 
-    @PreAuthorize("hasRole('ROLE_READ')")
+    @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     public List<RoleTO> children(final Long roleId) {
-        SyncopeRole role = binder.getRoleFromId(roleId);
-
-        Set<Long> allowedRoleIds = EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames());
-
-        List<SyncopeRole> children = roleDAO.findChildren(role);
+        List<SyncopeRole> children;
+        if (roleId == 0) {
+            children = roleDAO.findChildren(null);
+        } else {
+            SyncopeRole role = roleDAO.find(roleId);
+            children = roleDAO.findChildren(role);
+        }
         List<RoleTO> childrenTOs = new ArrayList<RoleTO>(children.size());
         for (SyncopeRole child : children) {
-            if (allowedRoleIds.contains(child.getId())) {
-                childrenTOs.add(binder.getRoleTO(child));
-            }
+            childrenTOs.add(binder.getRoleTO(child));
         }
-
         return childrenTOs;
     }
 

@@ -42,7 +42,7 @@ public class UserTestITCase extends AbstractTest {
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//span[contains(text(),'Attributes')]")));
 
         seleniumDriver.findElement(By.xpath("//div/form/div[3]/div[1]/span[2]/div/div[2]/span")).click();
-        
+
         seleniumDriver.findElement(By.xpath("//div[@id='tabs']/ul/li[2]/a/span")).click();
         seleniumDriver.findElement(By.xpath("//div[@id='tabs']/ul/li[3]/a/span")).click();
         seleniumDriver.findElement(By.xpath("//div[@id='tabs']/ul/li[4]/a/span")).click();
@@ -113,11 +113,11 @@ public class UserTestITCase extends AbstractTest {
         Alert alert = seleniumDriver.switchTo().alert();
         assertTrue(alert.getText().equals("Do you really want to delete the selected item(s)?"));
         alert.accept();
-        
+
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//iframe")));
         seleniumDriver.switchTo().frame(0);
-        
-        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='propagation']/span")));       
+
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='propagation']/span")));
 
         seleniumDriver.findElement(By.xpath("//*[@id=\"users-contain\"]/a")).click();
 
@@ -135,10 +135,10 @@ public class UserTestITCase extends AbstractTest {
 
         //Edit vivaldi
         seleniumDriver.findElement(By.xpath("//*[@id=\"users-contain\"]//*[div=3]/../td[5]/div/span[2]/a")).click();
-        
+
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//iframe")));
         seleniumDriver.switchTo().frame(0);
-        
+
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//td[div='ws-target-resource-1']")));
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//td[div='resource-testdb']")));
 
@@ -175,7 +175,13 @@ public class UserTestITCase extends AbstractTest {
         seleniumDriver.findElement(By.xpath("//div[@id='tabs']/ul/li[5]/a/span")).click();
         seleniumDriver.findElement(By.xpath("//div[@id='tabs']/ul/li[6]/a/span")).click();
 
-        seleniumDriver.findElement(By.xpath("//span[2]/a/span")).click();
+        seleniumDriver.findElement(By.xpath("//span/div/form/div[3]/div[6]/span/div[1]/div/div/div/a")).click();
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(
+                "//span/div/form/div[3]/div[6]/span/div[1]/div/div/div[2]/div[1]/div/a")));
+        seleniumDriver.findElement(By.xpath("//span/div/form/div[3]/div[6]/span/div[1]/div/div/div[2]/div[1]/div/a")).
+                click();
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//span[2]/a/span")));
+                seleniumDriver.findElement(By.xpath("//span[2]/a/span")).click();
 
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@class='infolabel']")));
         seleniumDriver.switchTo().defaultContent();

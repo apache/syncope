@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.console.wicket.markup.html.tree;
 
+import java.util.ArrayList;
 import javax.swing.tree.DefaultMutableTreeNode;
 import org.apache.syncope.console.commons.RoleTreeBuilder;
 import org.apache.wicket.extensions.markup.html.repeater.util.TreeModelProvider;
@@ -34,6 +35,13 @@ public class TreeRoleProvider extends TreeModelProvider<DefaultMutableTreeNode> 
 
     public TreeRoleProvider(final RoleTreeBuilder roleTreeBuilder, final boolean rootVisible) {
         super(roleTreeBuilder.build(), rootVisible);
+    }
+
+    public void update(final DefaultMutableTreeNode treeNode,final RoleTreeBuilder roleTreeBuilder, final long roleId) {
+        roleTreeBuilder.update(treeNode,roleId);
+        ArrayList<DefaultMutableTreeNode> nodes = new ArrayList<DefaultMutableTreeNode>();
+        nodes.add(treeNode);
+        nodeUpdate(nodes.toArray());
     }
 
     @Override

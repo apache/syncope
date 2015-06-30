@@ -100,7 +100,9 @@ public class MembershipsPanel extends Panel {
             protected Component newContentComponent(final String id, final IModel<DefaultMutableTreeNode> node) {
                 final DefaultMutableTreeNode treeNode = node.getObject();
                 final RoleTO roleTO = (RoleTO) treeNode.getUserObject();
-
+                                
+                ((TreeRoleProvider)treeProvider).update(treeNode, roleTreeBuilder,roleTO.getId());                
+                
                 return new Folder<DefaultMutableTreeNode>(id, MembershipsPanel.this.tree, node) {
 
                     private static final long serialVersionUID = 9046323319920426493L;
@@ -147,7 +149,7 @@ public class MembershipsPanel extends Panel {
         tree.add(new WindowsTheme());
         tree.setOutputMarkupId(true);
 
-        DefaultMutableTreeNodeExpansion.get().expandAll();
+        DefaultMutableTreeNodeExpansion.get().collapseAll();
 
         this.add(tree);
 

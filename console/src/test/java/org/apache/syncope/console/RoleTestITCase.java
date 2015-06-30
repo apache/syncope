@@ -41,7 +41,7 @@ public class RoleTestITCase extends AbstractTest {
 
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//iframe")));
         seleniumDriver.switchTo().frame(0);
-        
+
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//span[contains(text(),'Attributes')]")));
 
         seleniumDriver.switchTo().defaultContent();
@@ -53,6 +53,11 @@ public class RoleTestITCase extends AbstractTest {
         seleniumDriver.findElement(By.xpath("//img[@alt=\"Roles\"]")).click();
 
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='navigationPane']")));
+
+        seleniumDriver.findElement(By.xpath("//div[3]/div[1]/div[1]/span[1]/div/div/div/div/div/a")).click();
+
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(
+                "//div/div/span/div/div/div/div/div[2]/div/div/span/a")));
 
         seleniumDriver.findElement(By.xpath("//div/div/span/div/div/div/div/div[2]/div/div/span/a")).click();
 
@@ -83,6 +88,11 @@ public class RoleTestITCase extends AbstractTest {
 
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='navigationPane']")));
 
+        seleniumDriver.findElement(By.xpath("//div[3]/div[1]/div[1]/span[1]/div/div/div/div/div/a")).click();
+
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(
+                "//div/div/span/div/div/div/div/div[2]/div/div/span/a")));
+
         seleniumDriver.findElement(By.xpath("//div/div/span/div/div/div/div/div[2]/div/div/span/a")).click();
 
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//img[@alt='edit icon']")));
@@ -112,6 +122,11 @@ public class RoleTestITCase extends AbstractTest {
 
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='navigationPane']")));
 
+        seleniumDriver.findElement(By.xpath("//div[3]/div[1]/div[1]/span[1]/div/div/div/div/div/a")).click();
+
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(
+                "//div/div/span/div/div/div/div/div[2]/div/div/span/a")));
+
         seleniumDriver.findElement(By.xpath("//div/div/span/div/div/div/div/div[2]/div/div/span/a")).click();
 
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div/form/div[2]/ul/li[7]/a")));
@@ -128,6 +143,11 @@ public class RoleTestITCase extends AbstractTest {
 
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='navigationPane']")));
 
+        seleniumDriver.findElement(By.xpath("//div[3]/div[1]/div[1]/span[1]/div/div/div/div/div/a")).click();
+
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(
+                "//div/div/span/div/div/div/div/div[2]/div/div/span/a")));
+
         seleniumDriver.findElement(By.xpath("//div/div/span/div/div/div/div/div[2]/div/div/span/a")).click();
 
         wait.until(ExpectedConditions.presenceOfElementLocated(
@@ -143,7 +163,7 @@ public class RoleTestITCase extends AbstractTest {
 
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//iframe")));
         seleniumDriver.switchTo().frame(0);
-        
+
         wait.until(ExpectedConditions.presenceOfElementLocated(
                 By.xpath("//form/div[3]/div/span/div/div/div[contains(text(),'Username')]")));
 
@@ -156,6 +176,11 @@ public class RoleTestITCase extends AbstractTest {
         seleniumDriver.findElement(By.xpath("//img[@alt=\"Roles\"]")).click();
 
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='navigationPane']")));
+
+        seleniumDriver.findElement(By.xpath("//div[3]/div[1]/div[1]/span[1]/div/div/div/div/div/a")).click();
+
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(
+                "//div/div/span/div/div/div/div/div[2]/div/div/span/a")));
 
         seleniumDriver.findElement(By.xpath("//div/div/span/div/div/div/div/div[2]/div/div/span/a")).click();
 
@@ -174,6 +199,21 @@ public class RoleTestITCase extends AbstractTest {
         seleniumDriver.findElement(By.xpath("//img[@alt=\"Roles\"]")).click();
 
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='navigationPane']")));
+        seleniumDriver.findElement(By.xpath("//div[3]/div[1]/div[1]/span[1]/div/div/div/div/div/a")).click();
+
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(
+                "//div[3]/div[1]/div[1]/span[1]/div/div/div/div/div[2]/div[2]/div/a")));
+        seleniumDriver.findElement(By.xpath("//div[3]/div[1]/div[1]/span[1]/div/div/div/div/div[2]/div[2]/div/a")).
+                click();
+
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(
+                "//div[3]/div[1]/div[1]/span[1]/div/div/div/div/div[2]/div[2]/div[2]/div/div/a")));
+
+        seleniumDriver.findElement(By.xpath(
+                "//div[3]/div[1]/div[1]/span[1]/div/div/div/div/div[2]/div[2]/div[2]/div/div/a")).click();
+
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(
+                "//div/div/span/div/div/div/div/div[2]/div[2]/div[2]/div/div[2]/div[3]/div/span[2]/a/span")));
 
         seleniumDriver.findElement(By.xpath(
                 "//div/div/span/div/div/div/div/div[2]/div[2]/div[2]/div/div[2]/div[3]/div/span[2]/a/span")).click();
@@ -193,7 +233,7 @@ public class RoleTestITCase extends AbstractTest {
 
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//span[contains(text(),'Search')]")));
 
-        seleniumDriver.findElement(By.xpath("//span[contains(text(),'Search')]")).click() ;
+        seleniumDriver.findElement(By.xpath("//span[contains(text(),'Search')]")).click();
         Select select = new Select(seleniumDriver.findElement(By.xpath("//td[2]/select")));
         select.selectByVisibleText("RESOURCE");
 
