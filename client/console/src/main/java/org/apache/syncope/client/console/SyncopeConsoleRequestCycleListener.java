@@ -39,39 +39,33 @@ import org.slf4j.LoggerFactory;
 
 public class SyncopeConsoleRequestCycleListener extends AbstractRequestCycleListener {
 
-    /**
-     * Logger.
-     */
     private static final Logger LOG = LoggerFactory.getLogger(SyncopeConsoleRequestCycleListener.class);
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public IRequestHandler onException(final RequestCycle cycle, final Exception e) {
         LOG.error("Exception found", e);
 
         PageParameters errorParameters = new PageParameters();
-        errorParameters.add("errorTitle", new StringResourceModel("alert", null).getString());
+        errorParameters.add("errorTitle", new StringResourceModel("alert").getString());
 
         final Page errorPage;
         if (e instanceof UnauthorizedInstantiationException) {
             errorParameters.add("errorMessage",
-                    new StringResourceModel("unauthorizedInstantiationException", null).getString());
+                    new StringResourceModel("unauthorizedInstantiationException").getString());
 
             errorPage = new ErrorPage(errorParameters);
         } else if (e.getCause() instanceof AccessControlException) {
-            errorParameters.add("errorMessage", new StringResourceModel("accessControlException", null).getString());
+            errorParameters.add("errorMessage", new StringResourceModel("accessControlException").getString());
 
             errorPage = new ErrorPage(errorParameters);
         } else if (e instanceof PageExpiredException || !(SyncopeConsoleSession.get()).isSignedIn()) {
-            errorParameters.add("errorMessage", new StringResourceModel("pageExpiredException", null).getString());
+            errorParameters.add("errorMessage", new StringResourceModel("pageExpiredException").getString());
 
             errorPage = new ErrorPage(errorParameters);
         } else if (e.getCause() instanceof BadRequestException || e.getCause() instanceof WebServiceException
                 || e.getCause() instanceof SyncopeClientException) {
 
-            errorParameters.add("errorMessage", new StringResourceModel("restClientException", null).getString());
+            errorParameters.add("errorMessage", new StringResourceModel("restClientException").getString());
 
             errorPage = new ErrorPage(errorParameters);
         } else {

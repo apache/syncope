@@ -89,19 +89,19 @@ public class ProvisioningModalPage<T extends AnyTO> extends AbstractStatusModalP
 
         final List<IColumn<StatusBean, String>> columns = new ArrayList<>();
         columns.add(new PropertyColumn<StatusBean, String>(
-                new StringResourceModel("key", this, null, "Attributable key"),
+                new StringResourceModel("key", this).setDefaultValue("Attributable key"),
                 "attributableKey", "attributableKey"));
         columns.add(new PropertyColumn<StatusBean, String>(
-                new StringResourceModel("name", this, null, "Attributable name"),
+                new StringResourceModel("name", this).setDefaultValue("Attributable name"),
                 "attributableName", "attributableName"));
         columns.add(new PropertyColumn<StatusBean, String>(
-                new StringResourceModel("resourceName", this, null, "Resource name"),
+                new StringResourceModel("resourceName", this).setDefaultValue("Resource name"),
                 "resourceName", "resourceName"));
         columns.add(new PropertyColumn<StatusBean, String>(
-                new StringResourceModel("connObjectLink", this, null, "ConnObjectLink"),
+                new StringResourceModel("connObjectLink", this).setDefaultValue("ConnObjectLink"),
                 "connObjectLink", "connObjectLink"));
         columns.add(new AbstractColumn<StatusBean, String>(
-                new StringResourceModel("status", this, null, "")) {
+                new StringResourceModel("status", this).setDefaultValue(StringUtils.EMPTY)) {
 
                     private static final long serialVersionUID = -3503023501954863131L;
 
