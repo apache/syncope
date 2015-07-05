@@ -37,7 +37,7 @@ public class DateTimeFieldPanel extends DateFieldPanel {
 
     private static final long serialVersionUID = -428975732068281726L;
 
-    private Form form = null;
+    private Form<?> form = null;
 
     public DateTimeFieldPanel(final String id, final String name, final IModel<Date> model, final String datePattern) {
         super(id, name, model, datePattern);
@@ -50,6 +50,7 @@ public class DateTimeFieldPanel extends DateFieldPanel {
 
             private static final long serialVersionUID = -1107858522700306810L;
 
+            @SuppressWarnings("deprecation")
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
                 final Integer hours = ((DateTimeField) field).getHours();
@@ -64,6 +65,7 @@ public class DateTimeFieldPanel extends DateFieldPanel {
 
             private static final long serialVersionUID = -1107858522700306810L;
 
+            @SuppressWarnings("deprecation")
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
                 final Integer minutes = ((DateTimeField) field).getMinutes();
@@ -78,6 +80,7 @@ public class DateTimeFieldPanel extends DateFieldPanel {
 
             private static final long serialVersionUID = -1107858522700306810L;
 
+            @SuppressWarnings("deprecation")
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
                 final Date date = ((DateTimeField) field).getDate();
@@ -85,7 +88,8 @@ public class DateTimeFieldPanel extends DateFieldPanel {
                     field.setModelObject(null);
                 } else {
                     cal.setTime(date);
-                    cal.set(Calendar.AM_PM, "PM".equals("" + ((DateTimeField) field).getAmOrPm()) ? Calendar.PM
+                    cal.set(Calendar.AM_PM, "PM".equals("" + ((DateTimeField) field).getAmOrPm())
+                            ? Calendar.PM
                             : Calendar.AM);
                     field.setModelObject(cal.getTime());
                 }
@@ -96,6 +100,7 @@ public class DateTimeFieldPanel extends DateFieldPanel {
 
             private static final long serialVersionUID = -1107858522700306810L;
 
+            @SuppressWarnings("deprecation")
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
                 cal.set(Calendar.AM_PM, "PM".equals("" + ((DateTimeField) field).getAmOrPm()) ? Calendar.PM
@@ -114,18 +119,18 @@ public class DateTimeFieldPanel extends DateFieldPanel {
 
         private static final long serialVersionUID = 6842264694946633582L;
 
-        private FormComponent[] dateTimeComponents;
+        private FormComponent<?>[] dateTimeComponents;
 
         public DateTimeFormValidator(final DateTimeField dateTimeComponent) {
             if (dateTimeComponent == null) {
                 throw new IllegalArgumentException("argument dateTimeComponent cannot be null");
             }
 
-            dateTimeComponents = new FormComponent[] { dateTimeComponent };
+            dateTimeComponents = new FormComponent<?>[] { dateTimeComponent };
         }
 
         @Override
-        public FormComponent[] getDependentFormComponents() {
+        public FormComponent<?>[] getDependentFormComponents() {
             return dateTimeComponents;
         }
 
@@ -134,8 +139,9 @@ public class DateTimeFieldPanel extends DateFieldPanel {
          *
          * @param form
          */
+        @SuppressWarnings("deprecation")
         @Override
-        public void validate(final Form form) {
+        public void validate(final Form<?> form) {
             final DateTimeField dateTimeField = (DateTimeField) dateTimeComponents[0];
 
             if (!(dateTimeField.getDate() != null && dateTimeField.getHours() != null
@@ -150,7 +156,7 @@ public class DateTimeFieldPanel extends DateFieldPanel {
     }
 
     @SuppressWarnings("rawtypes")
-    public FieldPanel<Date> setFormValidator(final Form form) {
+    public FieldPanel<Date> setFormValidator(final Form<?> form) {
         if (field == null) {
             LOG.error("Error setting form validator");
         } else {
