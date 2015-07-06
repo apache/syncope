@@ -36,4 +36,6 @@ public interface JAXRSService {
 
     final String PARAM_ORDERBY = "orderby";
 
+    final String PARAM_DETAILS = "details";
+
 }

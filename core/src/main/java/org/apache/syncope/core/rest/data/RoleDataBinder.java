@@ -369,9 +369,7 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
 
     @SuppressWarnings("unchecked")
     @Transactional(readOnly = true)
-    public RoleTO getRoleTO(final SyncopeRole role) {
-        connObjectUtil.retrieveVirAttrValues(role, AttributableUtil.getInstance(AttributableType.ROLE));
-
+    public RoleTO getRoleTO(final SyncopeRole role, final boolean details) {
         RoleTO roleTO = new RoleTO();
 
         // set sys info
@@ -405,41 +403,6 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
             roleTO.setRoleOwner(role.getRoleOwner().getId());
         }
 
-        // -------------------------
-        // Retrieve all [derived/virtual] attributes (inherited and not)
-        // -------------------------        
-        final List<RAttr> allAttributes = role.findLastInheritedAncestorAttributes();
-
-        final List<RDerAttr> allDerAttributes = role.findLastInheritedAncestorDerivedAttributes();
-
-        final List<RVirAttr> allVirAttributes = role.findLastInheritedAncestorVirtualAttributes();
-        // -------------------------
-
-        fillTO(roleTO, allAttributes, allDerAttributes, allVirAttributes, role.getResources());
-
-        for (Entitlement entitlement : role.getEntitlements()) {
-            roleTO.getEntitlements().add(entitlement.getName());
-        }
-
-        for (RAttrTemplate template : role.findInheritedTemplates(RAttrTemplate.class)) {
-            roleTO.getRAttrTemplates().add(template.getSchema().getName());
-        }
-        for (RDerAttrTemplate template : role.findInheritedTemplates(RDerAttrTemplate.class)) {
-            roleTO.getRDerAttrTemplates().add(template.getSchema().getName());
-        }
-        for (RVirAttrTemplate template : role.findInheritedTemplates(RVirAttrTemplate.class)) {
-            roleTO.getRVirAttrTemplates().add(template.getSchema().getName());
-        }
-        for (MAttrTemplate template : role.findInheritedTemplates(MAttrTemplate.class)) {
-            roleTO.getMAttrTemplates().add(template.getSchema().getName());
-        }
-        for (MDerAttrTemplate template : role.findInheritedTemplates(MDerAttrTemplate.class)) {
-            roleTO.getMDerAttrTemplates().add(template.getSchema().getName());
-        }
-        for (MVirAttrTemplate template : role.findInheritedTemplates(MVirAttrTemplate.class)) {
-            roleTO.getMVirAttrTemplates().add(template.getSchema().getName());
-        }
-
         roleTO.setPasswordPolicy(role.getPasswordPolicy() == null
                 ? null
                 : role.getPasswordPolicy().getId());
@@ -447,11 +410,50 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
                 ? null
                 : role.getAccountPolicy().getId());
 
+        if (details) {
+            // -------------------------
+            // Retrieve all [derived/virtual] attributes (inherited and not)
+            // -------------------------        
+            connObjectUtil.retrieveVirAttrValues(role, AttributableUtil.getInstance(AttributableType.ROLE));
+
+            final List<RAttr> allAttributes = role.findLastInheritedAncestorAttributes();
+
+            final List<RDerAttr> allDerAttributes = role.findLastInheritedAncestorDerivedAttributes();
+
+            final List<RVirAttr> allVirAttributes = role.findLastInheritedAncestorVirtualAttributes();
+            // -------------------------
+
+            fillTO(roleTO, allAttributes, allDerAttributes, allVirAttributes, role.getResources());
+
+            for (Entitlement entitlement : role.getEntitlements()) {
+                roleTO.getEntitlements().add(entitlement.getName());
+            }
+
+            for (RAttrTemplate template : role.findInheritedTemplates(RAttrTemplate.class)) {
+                roleTO.getRAttrTemplates().add(template.getSchema().getName());
+            }
+            for (RDerAttrTemplate template : role.findInheritedTemplates(RDerAttrTemplate.class)) {
+                roleTO.getRDerAttrTemplates().add(template.getSchema().getName());
+            }
+            for (RVirAttrTemplate template : role.findInheritedTemplates(RVirAttrTemplate.class)) {
+                roleTO.getRVirAttrTemplates().add(template.getSchema().getName());
+            }
+            for (MAttrTemplate template : role.findInheritedTemplates(MAttrTemplate.class)) {
+                roleTO.getMAttrTemplates().add(template.getSchema().getName());
+            }
+            for (MDerAttrTemplate template : role.findInheritedTemplates(MDerAttrTemplate.class)) {
+                roleTO.getMDerAttrTemplates().add(template.getSchema().getName());
+            }
+            for (MVirAttrTemplate template : role.findInheritedTemplates(MVirAttrTemplate.class)) {
+                roleTO.getMVirAttrTemplates().add(template.getSchema().getName());
+            }
+        }
+
         return roleTO;
     }
 
     @Transactional(readOnly = true)
     public RoleTO getRoleTO(final Long roleId) {
-        return getRoleTO(getRoleFromId(roleId));
+        return getRoleTO(getRoleFromId(roleId), true);
     }
 }

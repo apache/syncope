@@ -46,7 +46,7 @@ public class RolePushResultHandler extends AbstractSubjectPushResultHandler {
 
     @Override
     protected AbstractSubject deprovision(final AbstractSubject sbj) {
-        final RoleTO before = roleDataBinder.getRoleTO(SyncopeRole.class.cast(sbj));
+        final RoleTO before = roleDataBinder.getRoleTO(SyncopeRole.class.cast(sbj), true);
 
         final List<String> noPropResources = new ArrayList<String>(before.getResources());
         noPropResources.remove(profile.getSyncTask().getResource().getName());
@@ -58,7 +58,7 @@ public class RolePushResultHandler extends AbstractSubjectPushResultHandler {
 
     @Override
     protected AbstractSubject provision(final AbstractSubject sbj, final Boolean enabled) {
-        final RoleTO before = roleDataBinder.getRoleTO(SyncopeRole.class.cast(sbj));
+        final RoleTO before = roleDataBinder.getRoleTO(SyncopeRole.class.cast(sbj), true);
 
         final List<String> noPropResources = new ArrayList<String>(before.getResources());
         noPropResources.remove(profile.getSyncTask().getResource().getName());

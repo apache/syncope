@@ -79,23 +79,25 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService 
 
     @Override
     public PagedResult<UserTO> list() {
-        return list(DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE, null);
+        return list(DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE, null, true);
     }
 
     @Override
     public PagedResult<UserTO> list(final String orderBy) {
-        return list(DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE, orderBy);
+        return list(DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE, orderBy, true);
     }
 
     @Override
     public PagedResult<UserTO> list(final Integer page, final Integer size) {
-        return list(page, size, null);
+        return list(page, size, null, true);
     }
 
     @Override
-    public PagedResult<UserTO> list(final Integer page, final Integer size, final String orderBy) {
+    public PagedResult<UserTO> list(
+            final Integer page, final Integer size, final String orderBy, final boolean details) {
+
         List<OrderByClause> orderByClauses = getOrderByClauses(orderBy);
-        return buildPagedResult(controller.list(page, size, orderByClauses), page, size, controller.count());
+        return buildPagedResult(controller.list(page, size, orderByClauses, details), page, size, controller.count());
     }
 
     @Override
@@ -105,25 +107,27 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService 
 
     @Override
     public PagedResult<UserTO> search(final String fiql) {
-        return search(fiql, DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE, null);
+        return search(fiql, DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE, null, true);
     }
 
     @Override
     public PagedResult<UserTO> search(final String fiql, final String orderBy) {
-        return search(fiql, DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE, orderBy);
+        return search(fiql, DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE, orderBy, true);
     }
 
     @Override
     public PagedResult<UserTO> search(final String fiql, final Integer page, final Integer size) {
-        return search(fiql, page, size, null);
+        return search(fiql, page, size, null, true);
     }
 
     @Override
-    public PagedResult<UserTO> search(final String fiql, final Integer page, final Integer size, final String orderBy) {
+    public PagedResult<UserTO> search(
+            final String fiql, final Integer page, final Integer size, final String orderBy, final boolean details) {
+
         SearchCond cond = getSearchCond(fiql);
         List<OrderByClause> orderByClauses = getOrderByClauses(orderBy);
         return buildPagedResult(
-                controller.search(cond, page, size, orderByClauses), page, size, controller.searchCount(cond));
+                controller.search(cond, page, size, orderByClauses, details), page, size, controller.searchCount(cond));
     }
 
     @Override

@@ -69,8 +69,6 @@ public class UserSearchResultPanel extends AbstractSearchResultPanel {
 
     private final List<String> dSchemaNames;
 
-    private final List<String> vSchemaNames;
-
     public <T extends AbstractAttributableTO> UserSearchResultPanel(final String id, final boolean filtered,
             final String fiql, final PageReference callerRef, final AbstractSubjectRestClient restClient) {
 
@@ -78,7 +76,6 @@ public class UserSearchResultPanel extends AbstractSearchResultPanel {
 
         this.schemaNames = schemaRestClient.getSchemaNames(AttributableType.USER);
         this.dSchemaNames = schemaRestClient.getDerSchemaNames(AttributableType.USER);
-        this.vSchemaNames = schemaRestClient.getVirSchemaNames(AttributableType.USER);
 
         initResultTable();
     }
@@ -110,12 +107,6 @@ public class UserSearchResultPanel extends AbstractSearchResultPanel {
         for (String name : prefMan.getList(getRequest(), Constants.PREF_USERS_DERIVED_ATTRIBUTES_VIEW)) {
             if (dSchemaNames.contains(name)) {
                 columns.add(new AttrColumn(name, SchemaType.DERIVED));
-            }
-        }
-
-        for (String name : prefMan.getList(getRequest(), Constants.PREF_USERS_VIRTUAL_ATTRIBUTES_VIEW)) {
-            if (vSchemaNames.contains(name)) {
-                columns.add(new AttrColumn(name, SchemaType.VIRTUAL));
             }
         }
 
@@ -252,8 +243,8 @@ public class UserSearchResultPanel extends AbstractSearchResultPanel {
 
                             @Override
                             public Page createPage() {
-                                return new DisplayAttributesModalPage(page.getPageReference(), displaymodal,
-                                        schemaNames, dSchemaNames, vSchemaNames);
+                                return new DisplayAttributesModalPage(
+                                        page.getPageReference(), displaymodal, schemaNames, dSchemaNames);
                             }
                         });
 

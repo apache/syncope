@@ -231,7 +231,7 @@ public class RoleReportlet extends AbstractReportlet<RoleReportletConf> {
 
             // Using RoleTO for attribute values, since the conversion logic of
             // values to String is already encapsulated there
-            RoleTO roleTO = roleDataBinder.getRoleTO(role);
+            RoleTO roleTO = roleDataBinder.getRoleTO(role, true);
 
             doExtractAttributes(handler, roleTO, conf.getAttrs(), conf.getDerAttrs(), conf.getVirAttrs());
 

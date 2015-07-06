@@ -30,7 +30,7 @@ public class ReportTestITCase extends AbstractTest {
         seleniumDriver.findElement(By.xpath("//img[@alt=\"Reports\"]")).click();        
 
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='tabs']")));
-        seleniumDriver.findElement(By.xpath("//table/tbody/tr/td[8]/div/span[13]/a")).click();
+        seleniumDriver.findElement(By.xpath("//table/tbody/tr/td[9]/div/span[13]/a")).click();
         
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//iframe")));
         seleniumDriver.switchTo().frame(0);
@@ -72,7 +72,7 @@ public class ReportTestITCase extends AbstractTest {
 
         wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@id='tabs']")));
 
-        seleniumDriver.findElement(By.xpath("//table/tbody/tr/td[8]/div/span[6]/a")).click();
+        seleniumDriver.findElement(By.xpath("//table/tbody/tr/td[9]/div/span[6]/a")).click();
 
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("feedback")));
         assertTrue(seleniumDriver.findElement(By.tagName("body")).getText().contains("Operation executed successfully"));

@@ -35,9 +35,10 @@ public abstract class AbstractSubjectController<T extends AbstractSubjectTO, V e
 
     public abstract T delete(Long id);
 
-    public abstract List<T> list(int page, int size, List<OrderByClause> orderBy);
+    public abstract List<T> list(int page, int size, List<OrderByClause> orderBy, boolean includeDetails);
 
-    public abstract List<T> search(SearchCond searchCondition, int page, int size, List<OrderByClause> orderBy);
+    public abstract List<T> search(SearchCond searchCondition,
+            int page, int size, List<OrderByClause> orderBy, boolean includeDetails);
 
     public abstract int searchCount(SearchCond searchCondition);
 }
