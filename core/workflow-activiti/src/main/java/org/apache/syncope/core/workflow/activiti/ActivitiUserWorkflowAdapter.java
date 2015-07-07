@@ -88,9 +88,9 @@ import org.springframework.transaction.annotation.Transactional;
  */
 public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ActivitiUserWorkflowAdapter.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(ActivitiUserWorkflowAdapter.class);
 
-    private static final String[] PROPERTY_IGNORE_PROPS = { "type" };
+    protected static final String[] PROPERTY_IGNORE_PROPS = { "type" };
 
     public static final String WF_PROCESS_ID = "userWorkflow";
 
@@ -133,35 +133,35 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     public static final String EVENT = "event";
 
     @Resource(name = "adminUser")
-    private String adminUser;
+    protected String adminUser;
 
     @Autowired
-    private RuntimeService runtimeService;
+    protected RuntimeService runtimeService;
 
     @Autowired
-    private TaskService taskService;
+    protected TaskService taskService;
 
     @Autowired
-    private FormService formService;
+    protected FormService formService;
 
     @Autowired
-    private HistoryService historyService;
+    protected HistoryService historyService;
 
     @Autowired
-    private RepositoryService repositoryService;
+    protected RepositoryService repositoryService;
 
     @Autowired
-    private ActivitiImportUtils importUtils;
+    protected ActivitiImportUtils importUtils;
 
     @Autowired
-    private UserDataBinder userDataBinder;
+    protected UserDataBinder userDataBinder;
 
     @Override
     public String getPrefix() {
         return "ACT_";
     }
 
-    private void throwException(final ActivitiException e, final String defaultMessage) {
+    protected void throwException(final ActivitiException e, final String defaultMessage) {
         if (e.getCause() != null) {
             if (e.getCause().getCause() instanceof SyncopeClientException) {
                 throw (SyncopeClientException) e.getCause().getCause();
@@ -175,7 +175,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         throw new WorkflowException(defaultMessage, e);
     }
 
-    private void updateStatus(final User user) {
+    protected void updateStatus(final User user) {
         List<Task> tasks = taskService.createTaskQuery().processInstanceId(user.getWorkflowId()).list();
         if (tasks.isEmpty() || tasks.size() > 1) {
             LOG.warn("While setting user status: unexpected task number ({})", tasks.size());
@@ -184,7 +184,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         }
     }
 
-    private String getFormTask(final User user) {
+    protected String getFormTask(final User user) {
         String result = null;
 
         List<Task> tasks = taskService.createTaskQuery().processInstanceId(user.getWorkflowId()).list();
@@ -204,7 +204,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         return result;
     }
 
-    private Set<String> getPerformedTasks(final User user) {
+    protected Set<String> getPerformedTasks(final User user) {
         final Set<String> result = new HashSet<>();
 
         for (HistoricActivityInstance task
@@ -219,9 +219,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     /**
      * Saves resources to be propagated and password for later - after form submission - propagation.
      */
-    private void saveForFormSubmit(final User user, final String password,
-            final PropagationByResource propByRes) {
-
+    protected void saveForFormSubmit(final User user, final String password, final PropagationByResource propByRes) {
         String formTaskId = getFormTask(user);
         if (formTaskId != null) {
             // SYNCOPE-238: This is needed to simplify the task query in this.getForms()
@@ -297,7 +295,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
                 new ImmutablePair<>(user.getKey(), propagateEnable), propByRes, getPerformedTasks(user));
     }
 
-    private Set<String> doExecuteTask(final User user, final String task, final Map<String, Object> moreVariables) {
+    protected Set<String> doExecuteTask(final User user, final String task, final Map<String, Object> moreVariables) {
         Set<String> preTasks = getPerformedTasks(user);
 
         final Map<String, Object> variables = new HashMap<>();
@@ -548,7 +546,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         }
     }
 
-    private WorkflowFormPropertyType fromActivitiFormType(final FormType activitiFormType) {
+    protected WorkflowFormPropertyType fromActivitiFormType(final FormType activitiFormType) {
         WorkflowFormPropertyType result = WorkflowFormPropertyType.String;
 
         if ("string".equals(activitiFormType.getName())) {
@@ -570,11 +568,11 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         return result;
     }
 
-    private WorkflowFormTO getFormTO(final Task task) {
+    protected WorkflowFormTO getFormTO(final Task task) {
         return getFormTO(task, formService.getTaskFormData(task.getId()));
     }
 
-    private WorkflowFormTO getFormTO(final Task task, final TaskFormData fd) {
+    protected WorkflowFormTO getFormTO(final Task task, final TaskFormData fd) {
         final WorkflowFormTO formTO =
                 getFormTO(task.getProcessInstanceId(), task.getId(), fd.getFormKey(), fd.getFormProperties());
 
@@ -582,7 +580,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         return formTO;
     }
 
-    private WorkflowFormTO getFormTO(final HistoricTaskInstance task) {
+    protected WorkflowFormTO getFormTO(final HistoricTaskInstance task) {
         final List<HistoricFormPropertyEntity> props = new ArrayList<>();
 
         for (HistoricDetail historicDetail : historyService.createHistoricDetailQuery().taskId(task.getId()).list()) {
@@ -607,7 +605,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         return formTO;
     }
 
-    private WorkflowFormTO getHistoricFormTO(
+    protected WorkflowFormTO getHistoricFormTO(
             final String processInstanceId,
             final String taskId,
             final String formKey,
@@ -636,7 +634,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @SuppressWarnings("unchecked")
-    private WorkflowFormTO getFormTO(
+    protected WorkflowFormTO getFormTO(
             final String processInstanceId,
             final String taskId,
             final String formKey,
@@ -716,7 +714,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         return forms;
     }
 
-    private <T extends Query<?, ?>, U extends Object> List<WorkflowFormTO> getForms(final Query<T, U> query) {
+    protected <T extends Query<?, ?>, U extends Object> List<WorkflowFormTO> getForms(final Query<T, U> query) {
         List<WorkflowFormTO> forms = new ArrayList<>();
 
         for (U obj : query.list()) {
@@ -762,7 +760,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         return result;
     }
 
-    private Pair<Task, TaskFormData> checkTask(final String taskId, final String authUser) {
+    protected Pair<Task, TaskFormData> checkTask(final String taskId, final String authUser) {
         Task task;
         try {
             task = taskService.createTaskQuery().taskId(taskId).singleResult();
