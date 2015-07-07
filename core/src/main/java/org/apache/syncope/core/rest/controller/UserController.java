@@ -147,13 +147,15 @@ public class UserController extends AbstractSubjectController<UserTO, UserMod> {
     @PreAuthorize("hasRole('USER_LIST')")
     @Transactional(readOnly = true, rollbackFor = { Throwable.class })
     @Override
-    public List<UserTO> list(final int page, final int size, final List<OrderByClause> orderBy) {
+    public List<UserTO> list(
+            final int page, final int size, final List<OrderByClause> orderBy, final boolean details) {
+
         Set<Long> adminRoleIds = EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames());
 
         List<SyncopeUser> users = userDAO.findAll(adminRoleIds, page, size, orderBy);
         List<UserTO> userTOs = new ArrayList<UserTO>(users.size());
         for (SyncopeUser user : users) {
-            userTOs.add(binder.getUserTO(user));
+            userTOs.add(binder.getUserTO(user, details));
         }
 
         return userTOs;
@@ -177,7 +179,7 @@ public class UserController extends AbstractSubjectController<UserTO, UserMod> {
     @Transactional(readOnly = true)
     @Override
     public List<UserTO> search(final SearchCond searchCondition, final int page, final int size,
-            final List<OrderByClause> orderBy) {
+            final List<OrderByClause> orderBy, final boolean details) {
 
         final List<SyncopeUser> matchingUsers = searchDAO.search(
                 EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames()),
@@ -185,7 +187,7 @@ public class UserController extends AbstractSubjectController<UserTO, UserMod> {
 
         final List<UserTO> result = new ArrayList<UserTO>(matchingUsers.size());
         for (SyncopeUser user : matchingUsers) {
-            result.add(binder.getUserTO(user));
+            result.add(binder.getUserTO(user, details));
         }
 
         return result;
@@ -600,7 +602,7 @@ public class UserController extends AbstractSubjectController<UserTO, UserMod> {
             propagationReporter.onPrimaryResourceFailure(tasks);
         }
 
-        final UserTO updatedUserTO = binder.getUserTO(user);
+        final UserTO updatedUserTO = binder.getUserTO(user, true);
         updatedUserTO.getPropagationStatusTOs().addAll(propagationReporter.getStatuses());
         return updatedUserTO;
     }

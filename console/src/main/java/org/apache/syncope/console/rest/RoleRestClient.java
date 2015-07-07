@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.console.rest;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.ws.rs.core.Response;
@@ -53,12 +54,17 @@ public class RoleRestClient extends AbstractSubjectRestClient {
     }
 
     public List<RoleTO> list() {
-        return getService(RoleService.class).list(1, 1000).getResult();
+        final List<RoleTO> allRoles = new ArrayList<RoleTO>();
+        final int count = count();
+        for (int page = 1; page <= (count / 100) + 1; page++) {
+            allRoles.addAll(getService(RoleService.class).list(page, 100, null, false).getResult());
+        }
+        return allRoles;
     }
 
     @Override
     public List<RoleTO> list(final int page, final int size, final SortParam<String> sort) {
-        return getService(RoleService.class).list(page, size, toOrderBy(sort)).getResult();
+        return getService(RoleService.class).list(page, size, toOrderBy(sort), false).getResult();
     }
 
     @Override
@@ -68,7 +74,7 @@ public class RoleRestClient extends AbstractSubjectRestClient {
 
     @Override
     public List<RoleTO> search(final String fiql, final int page, final int size, final SortParam<String> sort) {
-        return getService(RoleService.class).search(fiql, page, size, toOrderBy(sort)).getResult();
+        return getService(RoleService.class).search(fiql, page, size, toOrderBy(sort), false).getResult();
     }
 
     @Override
@@ -184,7 +190,7 @@ public class RoleRestClient extends AbstractSubjectRestClient {
     }
 
     public List<RoleTO> children(final long parentId) {
-        return getService(RoleService.class).children(parentId);
+        return getService(RoleService.class).children(parentId, false);
     }
 
     public RoleTO parent(final Long roleId) {

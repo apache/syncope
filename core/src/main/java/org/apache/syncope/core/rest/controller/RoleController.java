@@ -111,7 +111,7 @@ public class RoleController extends AbstractSubjectController<RoleTO, RoleMod> {
             throw new NotFoundException("Role " + roleId);
         }
 
-        return binder.getRoleTO(role);
+        return binder.getRoleTO(role, true);
     }
 
     @PreAuthorize("isAuthenticated() "
@@ -138,7 +138,7 @@ public class RoleController extends AbstractSubjectController<RoleTO, RoleMod> {
             throw new UnauthorizedRoleException(role.getId());
         }
 
-        return binder.getRoleTO(role);
+        return binder.getRoleTO(role, true);
     }
 
     @PreAuthorize("hasRole('ROLE_READ')")
@@ -153,24 +153,18 @@ public class RoleController extends AbstractSubjectController<RoleTO, RoleMod> {
 
         RoleTO result = role.getParent() == null
                 ? null
-                : binder.getRoleTO(role.getParent());
+                : binder.getRoleTO(role.getParent(), true);
 
         return result;
     }
 
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
-    public List<RoleTO> children(final Long roleId) {
-        List<SyncopeRole> children;
-        if (roleId == 0) {
-            children = roleDAO.findChildren(null);
-        } else {
-            SyncopeRole role = roleDAO.find(roleId);
-            children = roleDAO.findChildren(role);
-        }
+    public List<RoleTO> children(final Long roleId, final boolean details) {
+        List<SyncopeRole> children = roleDAO.findChildren(roleId == 0 ? null : roleDAO.find(roleId));
         List<RoleTO> childrenTOs = new ArrayList<RoleTO>(children.size());
         for (SyncopeRole child : children) {
-            childrenTOs.add(binder.getRoleTO(child));
+            childrenTOs.add(binder.getRoleTO(child, details));
         }
         return childrenTOs;
     }
@@ -185,12 +179,14 @@ public class RoleController extends AbstractSubjectController<RoleTO, RoleMod> {
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     @Override
-    public List<RoleTO> list(final int page, final int size, final List<OrderByClause> orderBy) {
+    public List<RoleTO> list(
+            final int page, final int size, final List<OrderByClause> orderBy, final boolean details) {
+
         List<SyncopeRole> roles = roleDAO.findAll(page, size, orderBy);
 
         List<RoleTO> roleTOs = new ArrayList<RoleTO>(roles.size());
         for (SyncopeRole role : roles) {
-            roleTOs.add(binder.getRoleTO(role));
+            roleTOs.add(binder.getRoleTO(role, details));
         }
 
         return roleTOs;
@@ -208,7 +204,7 @@ public class RoleController extends AbstractSubjectController<RoleTO, RoleMod> {
     @Transactional(readOnly = true, rollbackFor = { Throwable.class })
     @Override
     public List<RoleTO> search(final SearchCond searchCondition, final int page, final int size,
-            final List<OrderByClause> orderBy) {
+            final List<OrderByClause> orderBy, final boolean details) {
 
         final List<SyncopeRole> matchingRoles = searchDAO.search(
                 EntitlementUtil.getRoleIds(EntitlementUtil.getOwnedEntitlementNames()),
@@ -216,7 +212,7 @@ public class RoleController extends AbstractSubjectController<RoleTO, RoleMod> {
 
         final List<RoleTO> result = new ArrayList<RoleTO>(matchingRoles.size());
         for (SyncopeRole role : matchingRoles) {
-            result.add(binder.getRoleTO(role));
+            result.add(binder.getRoleTO(role, details));
         }
 
         return result;
@@ -425,7 +421,7 @@ public class RoleController extends AbstractSubjectController<RoleTO, RoleMod> {
             propagationReporter.onPrimaryResourceFailure(tasks);
         }
 
-        final RoleTO updatedTO = binder.getRoleTO(role);
+        final RoleTO updatedTO = binder.getRoleTO(role, true);
         updatedTO.getPropagationStatusTOs().addAll(propagationReporter.getStatuses());
         return updatedTO;
     }

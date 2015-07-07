@@ -45,8 +45,8 @@ public class RoleServiceImpl extends AbstractServiceImpl implements RoleService 
     private RoleController controller;
 
     @Override
-    public List<RoleTO> children(final Long roleId) {
-        return controller.children(roleId);
+    public List<RoleTO> children(final Long roleId, final boolean details) {
+        return controller.children(roleId, details);
     }
 
     @Override
@@ -67,23 +67,25 @@ public class RoleServiceImpl extends AbstractServiceImpl implements RoleService 
 
     @Override
     public PagedResult<RoleTO> list() {
-        return list(DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE, null);
+        return list(DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE, null, true);
     }
 
     @Override
     public PagedResult<RoleTO> list(final String orderBy) {
-        return list(DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE, orderBy);
+        return list(DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE, orderBy, true);
     }
 
     @Override
     public PagedResult<RoleTO> list(final Integer page, final Integer size) {
-        return list(page, size, null);
+        return list(page, size, null, true);
     }
 
     @Override
-    public PagedResult<RoleTO> list(final Integer page, final Integer size, final String orderBy) {
+    public PagedResult<RoleTO> list(
+            final Integer page, final Integer size, final String orderBy, final boolean details) {
+
         List<OrderByClause> orderByClauses = getOrderByClauses(orderBy);
-        return buildPagedResult(controller.list(page, size, orderByClauses), page, size, controller.count());
+        return buildPagedResult(controller.list(page, size, orderByClauses, details), page, size, controller.count());
     }
 
     @Override
@@ -98,25 +100,27 @@ public class RoleServiceImpl extends AbstractServiceImpl implements RoleService 
 
     @Override
     public PagedResult<RoleTO> search(final String fiql) {
-        return search(fiql, DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE, null);
+        return search(fiql, DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE, null, true);
     }
 
     @Override
     public PagedResult<RoleTO> search(final String fiql, final String orderBy) {
-        return search(fiql, DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE, orderBy);
+        return search(fiql, DEFAULT_PARAM_PAGE_VALUE, DEFAULT_PARAM_SIZE_VALUE, orderBy, true);
     }
 
     @Override
     public PagedResult<RoleTO> search(final String fiql, final Integer page, final Integer size) {
-        return search(fiql, page, size, null);
+        return search(fiql, page, size, null, true);
     }
 
     @Override
-    public PagedResult<RoleTO> search(final String fiql, final Integer page, final Integer size, final String orderBy) {
+    public PagedResult<RoleTO> search(
+            final String fiql, final Integer page, final Integer size, final String orderBy, final boolean details) {
+
         SearchCond cond = getSearchCond(fiql);
         List<OrderByClause> orderByClauses = getOrderByClauses(orderBy);
         return buildPagedResult(
-                controller.search(cond, page, size, orderByClauses), page, size, controller.searchCount(cond));
+                controller.search(cond, page, size, orderByClauses, details), page, size, controller.searchCount(cond));
     }
 
     @Override

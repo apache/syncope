@@ -202,7 +202,7 @@ public class NotificationManager {
                 LOG.warn("{} cannot be notified: {} not found", recipient, notification.getRecipientAttrName());
             } else {
                 recipientEmails.add(email);
-                recipientTOs.add(userDataBinder.getUserTO(recipient));
+                recipientTOs.add(userDataBinder.getUserTO(recipient, true));
             }
         }
 
@@ -324,20 +324,20 @@ public class NotificationManager {
                     model.put("input", input);
 
                     if (subject instanceof SyncopeUser) {
-                        model.put("user", userDataBinder.getUserTO((SyncopeUser) subject));
+                        model.put("user", userDataBinder.getUserTO((SyncopeUser) subject, true));
                     } else if (subject instanceof SyncopeRole) {
-                        model.put("role", roleDataBinder.getRoleTO((SyncopeRole) subject));
+                        model.put("role", roleDataBinder.getRoleTO((SyncopeRole) subject, true));
                     }
                     NotificationTask notificationTask = getNotificationTask(notification, subject, model);
                     notificationTask = taskDAO.save(notificationTask);
-                    notificationList.add(notificationTask);                    
+                    notificationList.add(notificationTask);
                 }
             } else {
                 LOG.debug("Notification {}, userAbout {}, roleAbout {} is deactivated, "
                         + "notification task will not be created", notification.getId(),
                         notification.getUserAbout(), notification.getRoleAbout());
             }
-        }        
+        }
         return notificationList;
     }
 

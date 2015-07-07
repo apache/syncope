@@ -163,7 +163,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
             authUserTO.setUsername(adminUser);
         } else {
             SyncopeUser authUser = userDAO.find(authUsername);
-            authUserTO = getUserTO(authUser);
+            authUserTO = getUserTO(authUser, true);
         }
 
         return authUserTO;
@@ -327,7 +327,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
                 // of the user object currently in memory (which has potentially
                 // some modifications compared to the one stored in the DB
                 membership = user.getMembership(membership.getSyncopeRole().getId());
-                if (membershipToBeAddedRoleIds.contains(membership.getSyncopeRole().getId())) {
+                if (membership != null && membershipToBeAddedRoleIds.contains(membership.getSyncopeRole().getId())) {
                     Set<Long> attributeIds = new HashSet<Long>(membership.getAttrs().size());
                     for (AbstractAttr attribute : membership.getAttrs()) {
                         attributeIds.add(attribute.getId());
@@ -413,7 +413,7 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
     }
 
     @Transactional(readOnly = true)
-    public UserTO getUserTO(final SyncopeUser user) {
+    public UserTO getUserTO(final SyncopeUser user, final boolean details) {
         UserTO userTO = new UserTO();
 
         BeanUtils.copyProperties(user, userTO, IGNORE_USER_PROPERTIES);
@@ -422,31 +422,36 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
             userTO.setSecurityQuestion(user.getSecurityQuestion().getId());
         }
 
-        connObjectUtil.retrieveVirAttrValues(user, AttributableUtil.getInstance(AttributableType.USER));
+        if (details) {
+            connObjectUtil.retrieveVirAttrValues(user, AttributableUtil.getInstance(AttributableType.USER));
+        }
+
         fillTO(userTO, user.getAttrs(), user.getDerAttrs(), user.getVirAttrs(), user.getResources());
 
-        MembershipTO membershipTO;
-        for (Membership membership : user.getMemberships()) {
-            membershipTO = new MembershipTO();
+        if (details) {
+            for (Membership membership : user.getMemberships()) {
+                MembershipTO membershipTO = new MembershipTO();
 
-            // set sys info
-            membershipTO.setCreator(membership.getCreator());
-            membershipTO.setCreationDate(membership.getCreationDate());
-            membershipTO.setLastModifier(membership.getLastModifier());
-            membershipTO.setLastChangeDate(membership.getLastChangeDate());
+                // set sys info
+                membershipTO.setCreator(membership.getCreator());
+                membershipTO.setCreationDate(membership.getCreationDate());
+                membershipTO.setLastModifier(membership.getLastModifier());
+                membershipTO.setLastChangeDate(membership.getLastChangeDate());
 
-            membershipTO.setId(membership.getId());
-            membershipTO.setRoleId(membership.getSyncopeRole().getId());
-            membershipTO.setRoleName(membership.getSyncopeRole().getName());
+                membershipTO.setId(membership.getId());
+                membershipTO.setRoleId(membership.getSyncopeRole().getId());
+                membershipTO.setRoleName(membership.getSyncopeRole().getName());
 
-            // SYNCOPE-458 retrieve also membership virtual attributes
-            connObjectUtil.retrieveVirAttrValues(membership, AttributableUtil.getInstance(AttributableType.MEMBERSHIP));
+                // SYNCOPE-458 retrieve also membership virtual attributes
+                connObjectUtil.retrieveVirAttrValues(membership, AttributableUtil.getInstance(
+                        AttributableType.MEMBERSHIP));
 
-            fillTO(membershipTO,
-                    membership.getAttrs(), membership.getDerAttrs(), membership.getVirAttrs(),
-                    Collections.<ExternalResource>emptyList());
+                fillTO(membershipTO,
+                        membership.getAttrs(), membership.getDerAttrs(), membership.getVirAttrs(),
+                        Collections.<ExternalResource>emptyList());
 
-            userTO.getMemberships().add(membershipTO);
+                userTO.getMemberships().add(membershipTO);
+            }
         }
 
         return userTO;
@@ -454,12 +459,12 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
     @Transactional(readOnly = true)
     public UserTO getUserTO(final String username) {
-        return getUserTO(getUserFromUsername(username));
+        return getUserTO(getUserFromUsername(username), true);
     }
 
     @Transactional(readOnly = true)
     public UserTO getUserTO(final Long userId) {
-        return getUserTO(getUserFromId(userId));
+        return getUserTO(getUserFromId(userId), true);
     }
 
     /**

@@ -269,7 +269,7 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
 
             // Using UserTO for attribute values, since the conversion logic of
             // values to String is already encapsulated there
-            UserTO userTO = userDataBinder.getUserTO(user);
+            UserTO userTO = userDataBinder.getUserTO(user, true);
 
             doExtractAttributes(handler, userTO, conf.getAttrs(), conf.getDerAttrs(), conf.getVirAttrs());
 
@@ -293,7 +293,7 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
                             LOG.warn("Unexpected: cannot find membership for role {} for user {}", memb.getRoleId(),
                                     user);
                         } else {
-                            doExtractResources(handler, roleDataBinder.getRoleTO(actualMemb.getSyncopeRole()));
+                            doExtractResources(handler, roleDataBinder.getRoleTO(actualMemb.getSyncopeRole(), true));
                         }
                     }
 

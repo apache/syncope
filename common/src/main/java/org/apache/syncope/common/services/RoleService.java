@@ -54,12 +54,14 @@ public interface RoleService extends JAXRSService {
      * Returns children roles of given role.
      *
      * @param roleId id of role to get children from
+     * @param details whether include all details or not, defaults to true
      * @return children roles of given role
      */
     @GET
     @Path("{roleId}/children")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    List<RoleTO> children(@NotNull @PathParam("roleId") Long roleId);
+    List<RoleTO> children(@NotNull @PathParam("roleId") Long roleId,
+            @QueryParam(PARAM_DETAILS) @DefaultValue("true") boolean details);
 
     /**
      * Returns parent role of the given role (or null if no parent exists).
@@ -138,6 +140,7 @@ public interface RoleService extends JAXRSService {
      * @param page result page number
      * @param size number of entries per page
      * @param orderBy list of ordering clauses, separated by comma
+     * @param details whether include all details or not, defaults to true
      * @return paged list of existing roles matching page/size conditions
      */
     @GET
@@ -145,7 +148,8 @@ public interface RoleService extends JAXRSService {
     PagedResult<RoleTO> list(
             @NotNull @Min(1) @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) Integer page,
             @NotNull @Min(1) @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) Integer size,
-            @QueryParam(PARAM_ORDERBY) String orderBy);
+            @QueryParam(PARAM_ORDERBY) String orderBy,
+            @QueryParam(PARAM_DETAILS) @DefaultValue("true") boolean details);
 
     /**
      * Returns a paged list of roles matching the provided FIQL search condition.
@@ -193,6 +197,7 @@ public interface RoleService extends JAXRSService {
      * @param page result page number
      * @param size number of entries per page
      * @param orderBy list of ordering clauses, separated by comma
+     * @param details whether include all details or not, defaults to true
      * @return paged list of roles matching the provided FIQL search condition
      */
     @GET
@@ -201,7 +206,8 @@ public interface RoleService extends JAXRSService {
     PagedResult<RoleTO> search(@QueryParam(PARAM_FIQL) String fiql,
             @NotNull @Min(1) @QueryParam(PARAM_PAGE) @DefaultValue(DEFAULT_PARAM_PAGE) Integer page,
             @NotNull @Min(1) @QueryParam(PARAM_SIZE) @DefaultValue(DEFAULT_PARAM_SIZE) Integer size,
-            @QueryParam(PARAM_ORDERBY) String orderBy);
+            @QueryParam(PARAM_ORDERBY) String orderBy,
+            @QueryParam(PARAM_DETAILS) @DefaultValue("true") boolean details);
 
     /**
      * Creates a new role.
