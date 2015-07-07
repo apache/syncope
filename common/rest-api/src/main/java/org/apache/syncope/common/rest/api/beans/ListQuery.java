@@ -38,6 +38,8 @@ public class ListQuery implements Serializable {
 
     private String orderBy;
 
+    private Boolean details;
+
     public Integer getPage() {
         return page;
     }
@@ -67,6 +69,16 @@ public class ListQuery implements Serializable {
 
     public void setOrderBy(final String orderBy) {
         this.orderBy = orderBy;
+    }
+
+    @QueryParam(JAXRSService.PARAM_DETAILS)
+    @DefaultValue("true")
+    public boolean isDetails() {
+        return details == null ? true : details;
+    }
+
+    public void setDetails(final boolean details) {
+        this.details = details;
     }
 
     @Override

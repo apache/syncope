@@ -99,7 +99,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             authUserTO.setUsername(adminUser);
         } else {
             User authUser = userDAO.find(authUsername);
-            authUserTO = getUserTO(authUser);
+            authUserTO = getUserTO(authUser, true);
         }
 
         return authUserTO;
@@ -393,7 +393,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
     @Transactional(readOnly = true)
     @Override
-    public UserTO getUserTO(final User user) {
+    public UserTO getUserTO(final User user, final boolean details) {
         UserTO userTO = new UserTO();
 
         BeanUtils.copyProperties(user, userTO, IGNORE_PROPERTIES);
@@ -402,53 +402,58 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             userTO.setSecurityQuestion(user.getSecurityQuestion().getKey());
         }
 
-        virAttrHander.retrieveVirAttrValues(user);
+        if (details) {
+            virAttrHander.retrieveVirAttrValues(user);
+        }
+
         fillTO(userTO, user.getRealm().getFullPath(), user.getAuxClasses(),
                 user.getPlainAttrs(), user.getDerAttrs(), user.getVirAttrs(), userDAO.findAllResources(user));
 
-        // roles
-        CollectionUtils.collect(user.getRoles(), new Transformer<Role, Long>() {
+        if (details) {
+            // roles
+            CollectionUtils.collect(user.getRoles(), new Transformer<Role, Long>() {
 
-            @Override
-            public Long transform(final Role role) {
-                return role.getKey();
-            }
-        }, userTO.getRoles());
+                @Override
+                public Long transform(final Role role) {
+                    return role.getKey();
+                }
+            }, userTO.getRoles());
 
-        // relationships
-        CollectionUtils.collect(user.getRelationships(), new Transformer<URelationship, RelationshipTO>() {
+            // relationships
+            CollectionUtils.collect(user.getRelationships(), new Transformer<URelationship, RelationshipTO>() {
 
-            @Override
-            public RelationshipTO transform(final URelationship relationship) {
-                return UserDataBinderImpl.this.getRelationshipTO(relationship);
-            }
+                @Override
+                public RelationshipTO transform(final URelationship relationship) {
+                    return UserDataBinderImpl.this.getRelationshipTO(relationship);
+                }
 
-        }, userTO.getRelationships());
+            }, userTO.getRelationships());
 
-        // memberships
-        CollectionUtils.collect(user.getMemberships(), new Transformer<UMembership, MembershipTO>() {
+            // memberships
+            CollectionUtils.collect(user.getMemberships(), new Transformer<UMembership, MembershipTO>() {
 
-            @Override
-            public MembershipTO transform(final UMembership membership) {
-                return UserDataBinderImpl.this.getMembershipTO(membership);
-            }
-        }, userTO.getMemberships());
+                @Override
+                public MembershipTO transform(final UMembership membership) {
+                    return UserDataBinderImpl.this.getMembershipTO(membership);
+                }
+            }, userTO.getMemberships());
 
-        // dynamic memberships
-        CollectionUtils.collect(userDAO.findDynRoleMemberships(user), new Transformer<Role, Long>() {
+            // dynamic memberships
+            CollectionUtils.collect(userDAO.findDynRoleMemberships(user), new Transformer<Role, Long>() {
 
-            @Override
-            public Long transform(final Role role) {
-                return role.getKey();
-            }
-        }, userTO.getDynRoles());
-        CollectionUtils.collect(userDAO.findDynGroupMemberships(user), new Transformer<Group, Long>() {
+                @Override
+                public Long transform(final Role role) {
+                    return role.getKey();
+                }
+            }, userTO.getDynRoles());
+            CollectionUtils.collect(userDAO.findDynGroupMemberships(user), new Transformer<Group, Long>() {
 
-            @Override
-            public Long transform(final Group group) {
-                return group.getKey();
-            }
-        }, userTO.getDynGroups());
+                @Override
+                public Long transform(final Group group) {
+                    return group.getKey();
+                }
+            }, userTO.getDynGroups());
+        }
 
         return userTO;
     }
@@ -456,13 +461,13 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
     @Transactional(readOnly = true)
     @Override
     public UserTO getUserTO(final String username) {
-        return getUserTO(userDAO.authFind(username));
+        return getUserTO(userDAO.authFind(username), true);
     }
 
     @Transactional(readOnly = true)
     @Override
     public UserTO getUserTO(final Long key) {
-        return getUserTO(userDAO.authFind(key));
+        return getUserTO(userDAO.authFind(key), true);
     }
 
 }

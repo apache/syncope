@@ -266,7 +266,7 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
 
             // Using UserTO for attribute values, since the conversion logic of
             // values to String is already encapsulated there
-            UserTO userTO = userDataBinder.getUserTO(user);
+            UserTO userTO = userDataBinder.getUserTO(user, true);
 
             doExtractAttributes(handler, userTO, conf.getPlainAttrs(), conf.getDerAttrs(), conf.getVirAttrs());
 
@@ -286,7 +286,8 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
                             LOG.warn("Unexpected: cannot find relationship for any object {} for user {}",
                                     rel.getRightKey(), user);
                         } else {
-                            doExtractResources(handler, anyObjectDataBinder.getAnyObjectTO(actualRel.getRightEnd()));
+                            doExtractResources(
+                                    handler, anyObjectDataBinder.getAnyObjectTO(actualRel.getRightEnd(), true));
                         }
                     }
 
@@ -313,7 +314,7 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
                             LOG.warn("Unexpected: cannot find membership for group {} for user {}",
                                     memb.getRightKey(), user);
                         } else {
-                            doExtractResources(handler, groupDataBinder.getGroupTO(actualMemb.getRightEnd()));
+                            doExtractResources(handler, groupDataBinder.getGroupTO(actualMemb.getRightEnd(), true));
                         }
                     }
 

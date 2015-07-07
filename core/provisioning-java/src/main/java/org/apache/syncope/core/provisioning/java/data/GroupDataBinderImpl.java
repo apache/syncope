@@ -187,9 +187,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
     @SuppressWarnings("unchecked")
     @Transactional(readOnly = true)
     @Override
-    public GroupTO getGroupTO(final Group group) {
-        virAttrHander.retrieveVirAttrValues(group);
-
+    public GroupTO getGroupTO(final Group group, final boolean details) {
         GroupTO groupTO = new GroupTO();
 
         // set sys info
@@ -208,6 +206,10 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
             groupTO.setGroupOwner(group.getGroupOwner().getKey());
         }
 
+        if (details) {
+            virAttrHander.retrieveVirAttrValues(group);
+        }
+
         fillTO(groupTO, group.getRealm().getFullPath(), group.getAuxClasses(),
                 group.getPlainAttrs(), group.getDerAttrs(), group.getVirAttrs(), group.getResources());
 
@@ -224,6 +226,6 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
     @Transactional(readOnly = true)
     @Override
     public GroupTO getGroupTO(final Long key) {
-        return getGroupTO(groupDAO.authFind(key));
+        return getGroupTO(groupDAO.authFind(key), true);
     }
 }

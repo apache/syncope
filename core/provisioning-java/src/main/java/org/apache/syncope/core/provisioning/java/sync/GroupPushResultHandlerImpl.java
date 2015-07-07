@@ -46,7 +46,7 @@ public class GroupPushResultHandlerImpl extends AbstractPushResultHandler implem
 
     @Override
     protected Any<?, ?, ?> deprovision(final Any<?, ?, ?> sbj) {
-        GroupTO before = groupDataBinder.getGroupTO(Group.class.cast(sbj));
+        GroupTO before = groupDataBinder.getGroupTO(Group.class.cast(sbj), true);
 
         List<String> noPropResources = new ArrayList<>(before.getResources());
         noPropResources.remove(profile.getTask().getResource().getKey());
@@ -58,7 +58,7 @@ public class GroupPushResultHandlerImpl extends AbstractPushResultHandler implem
 
     @Override
     protected Any<?, ?, ?> provision(final Any<?, ?, ?> sbj, final Boolean enabled) {
-        GroupTO before = groupDataBinder.getGroupTO(Group.class.cast(sbj));
+        GroupTO before = groupDataBinder.getGroupTO(Group.class.cast(sbj), true);
 
         List<String> noPropResources = new ArrayList<>(before.getResources());
         noPropResources.remove(profile.getTask().getResource().getKey());

@@ -63,48 +63,53 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
     @Transactional(readOnly = true)
     @Override
     public AnyObjectTO getAnyObjectTO(final Long key) {
-        return getAnyObjectTO(anyObjectDAO.authFind(key));
+        return getAnyObjectTO(anyObjectDAO.authFind(key), true);
     }
 
     @Override
-    public AnyObjectTO getAnyObjectTO(final AnyObject anyObject) {
+    public AnyObjectTO getAnyObjectTO(final AnyObject anyObject, final boolean details) {
         AnyObjectTO anyObjectTO = new AnyObjectTO();
         anyObjectTO.setType(anyObject.getType().getKey());
 
         BeanUtils.copyProperties(anyObject, anyObjectTO, IGNORE_PROPERTIES);
 
-        virAttrHander.retrieveVirAttrValues(anyObject);
+        if (details) {
+            virAttrHander.retrieveVirAttrValues(anyObject);
+        }
+
         fillTO(anyObjectTO, anyObject.getRealm().getFullPath(), anyObject.getAuxClasses(),
                 anyObject.getPlainAttrs(), anyObject.getDerAttrs(), anyObject.getVirAttrs(),
                 anyObjectDAO.findAllResources(anyObject));
 
-        // relationships
-        CollectionUtils.collect(anyObject.getRelationships(), new Transformer<ARelationship, RelationshipTO>() {
+        if (details) {
+            // relationships
+            CollectionUtils.collect(anyObject.getRelationships(), new Transformer<ARelationship, RelationshipTO>() {
 
-            @Override
-            public RelationshipTO transform(final ARelationship relationship) {
-                return AnyObjectDataBinderImpl.this.getRelationshipTO(relationship);
-            }
+                @Override
+                public RelationshipTO transform(final ARelationship relationship) {
+                    return AnyObjectDataBinderImpl.this.getRelationshipTO(relationship);
+                }
 
-        }, anyObjectTO.getRelationships());
+            }, anyObjectTO.getRelationships());
 
-        // memberships
-        CollectionUtils.collect(anyObject.getMemberships(), new Transformer<AMembership, MembershipTO>() {
+            // memberships
+            CollectionUtils.collect(anyObject.getMemberships(), new Transformer<AMembership, MembershipTO>() {
 
-            @Override
-            public MembershipTO transform(final AMembership membership) {
-                return AnyObjectDataBinderImpl.this.getMembershipTO(membership);
-            }
-        }, anyObjectTO.getMemberships());
+                @Override
+                public MembershipTO transform(final AMembership membership) {
+                    return AnyObjectDataBinderImpl.this.getMembershipTO(membership);
+                }
+            }, anyObjectTO.getMemberships());
 
-        // dynamic memberships
-        CollectionUtils.collect(anyObjectDAO.findDynGroupMemberships(anyObject), new Transformer<Group, Long>() {
+            // dynamic memberships
+            CollectionUtils.collect(anyObjectDAO.findDynGroupMemberships(anyObject), new Transformer<Group, Long>() {
 
-            @Override
-            public Long transform(final Group group) {
-                return group.getKey();
-            }
-        }, anyObjectTO.getDynGroups());
+                @Override
+                public Long transform(final Group group) {
+                    return group.getKey();
+                }
+            }, anyObjectTO.getDynGroups());
+        }
 
         return anyObjectTO;
     }

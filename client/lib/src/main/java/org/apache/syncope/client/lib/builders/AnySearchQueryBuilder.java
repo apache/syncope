@@ -45,6 +45,11 @@ public class AnySearchQueryBuilder extends AnyListQueryBuilder {
         return AnySearchQueryBuilder.class.cast(super.orderBy(orderBy));
     }
 
+    @Override
+    public AnySearchQueryBuilder details(final boolean details) {
+        return AnySearchQueryBuilder.class.cast(super.details(details));
+    }
+
     public AnySearchQueryBuilder fiql(final String fiql) {
         instance.setFiql(fiql);
 
@@ -58,6 +63,7 @@ public class AnySearchQueryBuilder extends AnyListQueryBuilder {
         instance.setPage(slq.getPage());
         instance.setSize(slq.getSize());
         instance.setOrderBy(slq.getOrderBy());
+        instance.setDetails(slq.isDetails());
 
         return instance;
     }

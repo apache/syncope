@@ -26,20 +26,51 @@ under the License.
   <entry key="UPlainAttrValue_longvalueIndex">CREATE INDEX UAttrValue_longvalueIndex ON UPlainAttrValue(longvalue)</entry>
   <entry key="UPlainAttrValue_doublevalueIndex">CREATE INDEX UAttrValue_doublevalueIndex ON UPlainAttrValue(doublevalue)</entry>
   <entry key="UPlainAttrValue_booleanvalueIndex">CREATE INDEX UAttrValue_booleanvalueIndex ON UPlainAttrValue(booleanvalue)</entry>
+
   <entry key="APlainAttrValue_stringvalueIndex">CREATE INDEX AAttrValue_stringvalueIndex ON APlainAttrValue(stringvalue)</entry>
   <entry key="APlainAttrValue_datevalueIndex">CREATE INDEX AAttrValue_datevalueIndex ON APlainAttrValue(datevalue)</entry>
   <entry key="APlainAttrValue_longvalueIndex">CREATE INDEX AAttrValue_longvalueIndex ON APlainAttrValue(longvalue)</entry>
   <entry key="APlainAttrValue_doublevalueIndex">CREATE INDEX AAttrValue_doublevalueIndex ON APlainAttrValue(doublevalue)</entry>
   <entry key="APlainAttrValue_booleanvalueIndex">CREATE INDEX AAttrValue_booleanvalueIndex ON APlainAttrValue(booleanvalue)</entry>
+
   <entry key="GPlainAttrValue_stringvalueIndex">CREATE INDEX GAttrValue_stringvalueIndex ON GPlainAttrValue(stringvalue)</entry>
   <entry key="GPlainAttrValue_datevalueIndex">CREATE INDEX GAttrValue_datevalueIndex ON GPlainAttrValue(datevalue)</entry>
   <entry key="GPlainAttrValue_longvalueIndex">CREATE INDEX GAttrValue_longvalueIndex ON GPlainAttrValue(longvalue)</entry>
   <entry key="GPlainAttrValue_doublevalueIndex">CREATE INDEX GAttrValue_doublevalueIndex ON GPlainAttrValue(doublevalue)</entry>
   <entry key="GPlainAttrValue_booleanvalueIndex">CREATE INDEX GAttrValue_booleanvalueIndex ON GPlainAttrValue(booleanvalue)</entry>
+
   <entry key="CPlainAttrValue_stringvalueIndex">CREATE INDEX CAttrValue_stringvalueIndex ON CPlainAttrValue(stringvalue)</entry>
   <entry key="CPlainAttrValue_datevalueIndex">CREATE INDEX CAttrValue_datevalueIndex ON CPlainAttrValue(datevalue)</entry>
   <entry key="CPlainAttrValue_longvalueIndex">CREATE INDEX CAttrValue_longvalueIndex ON CPlainAttrValue(longvalue)</entry>
   <entry key="CPlainAttrValue_doublevalueIndex">CREATE INDEX CAttrValue_doublevalueIndex ON CPlainAttrValue(doublevalue)</entry>
   <entry key="CPlainAttrValue_booleanvalueIndex">CREATE INDEX CAttrValue_booleanvalueIndex ON CPlainAttrValue(booleanvalue)</entry>
+
+  <entry key="UMembership_GroupIndex">CREATE INDEX UMembership_GroupIndex ON UMembership(group_id)</entry>
+  <entry key="UMembership_UserIndex">CREATE INDEX UMembership_UserIndex ON UMembership(user_id)</entry>
+  <entry key="AMembership_GroupIndex">CREATE INDEX AMembership_GroupIndex ON AMembership(group_id)</entry>
+  <entry key="AMembership_AnyObjectIndex">CREATE INDEX AMembership_AnyObjectIndex ON AMembership(anyObject_id)</entry>
+
+  <entry key="URelationship_RightIndex">CREATE INDEX URelationship_RightIndex ON URelationship(anyObject_id)</entry>
+  <entry key="URelationship_LeftIndex">CREATE INDEX URelationship_LeftIndex ON URelationship(user_id)</entry>
+  <entry key="ARelationship_RightIndex">CREATE INDEX ARelationship_RightIndex ON ARelationship(right_anyObject_id)</entry>
+  <entry key="ARelationship_AnyObjectIndex">CREATE INDEX ARelationship_AnyObjectIndex ON ARelationship(left_anyObject_id)</entry>
+
+  <entry key="UPlainAttrValue_attributeIdIndex">CREATE INDEX UPlainAttrValue_attributeIdIndex on UPlainAttrValue(attribute_id)</entry>
+  <entry key="GPlainAttrValue_attributeIdIndex">CREATE INDEX GPlainAttrValue_attributeIdIndex on GPlainAttrValue(attribute_id)</entry>
+  <entry key="APlainAttrValue_attributeIdIndex">CREATE INDEX APlainAttrValue_attributeIdIndex on APlainAttrValue(attribute_id)</entry>
+  <entry key="CPlainAttrValue_attributeIdIndex">CREATE INDEX CPlainAttrValue_attributeIdIndex on CPlainAttrValue(attribute_id)</entry>
+
+  <entry key="UPlainAttr_owner_id_index">CREATE INDEX UPlainAttr_owner_id_index on UPlainAttr(owner_id)</entry>
+  <entry key="GPlainAttr_owner_id_index">CREATE INDEX GPlainAttr_owner_id_index on GPlainAttr(owner_id)</entry>
+  <entry key="APlainAttr_owner_id_index">CREATE INDEX APlainAttr_owner_id_index on APlainAttr(owner_id)</entry>
+
+  <entry key="UDerAttr_owner_id_index">CREATE INDEX UDerAttr_owner_id_index on UDerAttr(owner_id)</entry>
+  <entry key="GDerAttr_owner_id_index">CREATE INDEX GDerAttr_owner_id_index on GDerAttr(owner_id)</entry>
+  <entry key="ADerAttr_owner_id_index">CREATE INDEX ADerAttr_owner_id_index on ADerAttr(owner_id)</entry>
+
+  <entry key="UVirAttr_owner_id_index">CREATE INDEX UVirAttr_owner_id_index on UVirAttr(owner_id)</entry>
+  <entry key="GVirAttr_owner_id_index">CREATE INDEX GVirAttr_owner_id_index on GVirAttr(owner_id)</entry>
+  <entry key="AVirAttr_owner_id_index">CREATE INDEX AVirAttr_owner_id_index on AVirAttr(owner_id)</entry>
+
   <entry key="Task_executedIndex">CREATE INDEX Task_executedIndex ON Task(executed)</entry>
 </properties>

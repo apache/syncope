@@ -41,6 +41,11 @@ public class AnyListQueryBuilder extends ListQueryBuilder {
         return AnyListQueryBuilder.class.cast(super.orderBy(orderBy));
     }
 
+    @Override
+    public AnyListQueryBuilder details(final boolean details) {
+        return AnyListQueryBuilder.class.cast(super.details(details));
+    }
+
     public AnyListQueryBuilder realm(final String realm) {
         if (instance.getRealms() == null) {
             instance.setRealms(new ArrayList<String>());
@@ -56,6 +61,7 @@ public class AnyListQueryBuilder extends ListQueryBuilder {
         instance.setPage(lq.getPage());
         instance.setSize(lq.getSize());
         instance.setOrderBy(lq.getOrderBy());
+        instance.setDetails(lq.isDetails());
 
         return instance;
     }

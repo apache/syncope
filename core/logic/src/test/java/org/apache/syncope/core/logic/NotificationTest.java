@@ -223,10 +223,10 @@ public class NotificationTest extends AbstractTest {
         inbox.open(Folder.READ_WRITE);
 
         Message[] messages = inbox.getMessages();
-        for (int i = 0; i < messages.length; i++) {
-            if (sender.equals(messages[i].getFrom()[0].toString()) && subject.equals(messages[i].getSubject())) {
+        for (Message message : messages) {
+            if (sender.equals(message.getFrom()[0].toString()) && subject.equals(message.getSubject())) {
                 found = true;
-                messages[i].setFlag(Flag.DELETED, true);
+                message.setFlag(Flag.DELETED, true);
             }
         }
 
@@ -534,6 +534,7 @@ public class NotificationTest extends AbstractTest {
 
         assertNotNull(taskId);
         assertNotNull(textBody);
+        assertNotNull(recipients);
         assertTrue(recipients.contains("syncope445@syncope.apache.org"));
 
         // 5. execute Notification task and verify e-mail

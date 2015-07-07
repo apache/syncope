@@ -63,7 +63,8 @@ public class AnyObjectServiceImpl extends AbstractAnyService<AnyObjectTO, AnyObj
                         listQuery.getPage(),
                         listQuery.getSize(),
                         getOrderByClauses(listQuery.getOrderBy()),
-                        listQuery.getRealms()),
+                        listQuery.getRealms(),
+                        listQuery.isDetails()),
                 listQuery.getPage(),
                 listQuery.getSize(),
                 getAnyLogic().count(listQuery.getRealms()));

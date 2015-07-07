@@ -71,7 +71,8 @@ public abstract class AbstractAnyService<TO extends AnyTO, MOD extends AnyMod>
                         listQuery.getPage(),
                         listQuery.getSize(),
                         getOrderByClauses(listQuery.getOrderBy()),
-                        listQuery.getRealms()),
+                        listQuery.getRealms(),
+                        listQuery.isDetails()),
                 listQuery.getPage(),
                 listQuery.getSize(),
                 getAnyLogic().count(listQuery.getRealms()));
@@ -94,7 +95,8 @@ public abstract class AbstractAnyService<TO extends AnyTO, MOD extends AnyMod>
                         searchQuery.getPage(),
                         searchQuery.getSize(),
                         getOrderByClauses(searchQuery.getOrderBy()),
-                        searchQuery.getRealms()),
+                        searchQuery.getRealms(),
+                        searchQuery.isDetails()),
                 searchQuery.getPage(),
                 searchQuery.getSize(),
                 getAnyLogic().searchCount(cond, searchQuery.getRealms()));

@@ -47,7 +47,7 @@ public class AnyObjectPushResultHandlerImpl extends AbstractPushResultHandler im
 
     @Override
     protected Any<?, ?, ?> deprovision(final Any<?, ?, ?> sbj) {
-        AnyObjectTO before = anyObjectDataBinder.getAnyObjectTO(AnyObject.class.cast(sbj));
+        AnyObjectTO before = anyObjectDataBinder.getAnyObjectTO(AnyObject.class.cast(sbj), true);
 
         List<String> noPropResources = new ArrayList<>(before.getResources());
         noPropResources.remove(profile.getTask().getResource().getKey());
@@ -59,7 +59,7 @@ public class AnyObjectPushResultHandlerImpl extends AbstractPushResultHandler im
 
     @Override
     protected Any<?, ?, ?> provision(final Any<?, ?, ?> sbj, final Boolean enabled) {
-        AnyObjectTO before = anyObjectDataBinder.getAnyObjectTO(AnyObject.class.cast(sbj));
+        AnyObjectTO before = anyObjectDataBinder.getAnyObjectTO(AnyObject.class.cast(sbj), true);
 
         List<String> noPropResources = new ArrayList<>(before.getResources());
         noPropResources.remove(profile.getTask().getResource().getKey());

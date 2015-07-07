@@ -59,7 +59,7 @@ public class GroupRestClient extends AbstractAnyRestClient {
     public List<GroupTO> list(final String realm, final int page, final int size, final SortParam<String> sort) {
         return getService(GroupService.class).
                 list(SyncopeClient.getAnyListQueryBuilder().realm(realm).page(page).size(size).
-                        orderBy(toOrderBy(sort)).build()).
+                        orderBy(toOrderBy(sort)).details(false).build()).
                 getResult();
     }
 
@@ -76,7 +76,7 @@ public class GroupRestClient extends AbstractAnyRestClient {
 
         return getService(GroupService.class).
                 search(SyncopeClient.getAnySearchQueryBuilder().realm(realm).fiql(fiql).page(page).size(size).
-                        orderBy(toOrderBy(sort)).build()).
+                        orderBy(toOrderBy(sort)).details(false).build()).
                 getResult();
     }
 

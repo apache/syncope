@@ -55,7 +55,7 @@ public class UserRestClient extends AbstractSubjectRestClient {
 
     @Override
     public List<UserTO> list(final int page, final int size, final SortParam<String> sort) {
-        return getService(UserService.class).list(page, size, toOrderBy(sort)).getResult();
+        return getService(UserService.class).list(page, size, toOrderBy(sort), false).getResult();
     }
 
     public UserTO create(final UserTO userTO, final boolean storePassword) {
@@ -101,7 +101,7 @@ public class UserRestClient extends AbstractSubjectRestClient {
 
     @Override
     public List<UserTO> search(final String fiql, final int page, final int size, final SortParam<String> sort) {
-        return getService(UserService.class).search(fiql, page, size, toOrderBy(sort)).getResult();
+        return getService(UserService.class).search(fiql, page, size, toOrderBy(sort), false).getResult();
     }
 
     @Override

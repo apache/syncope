@@ -108,7 +108,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupMod> {
 
                     @Override
                     public GroupTO transform(final Group input) {
-                        return binder.getGroupTO(input);
+                        return binder.getGroupTO(input, true);
                     }
                 }, new ArrayList<GroupTO>());
     }
@@ -124,7 +124,8 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupMod> {
     @Transactional(readOnly = true)
     @Override
     public List<GroupTO> list(
-            final int page, final int size, final List<OrderByClause> orderBy, final List<String> realms) {
+            final int page, final int size, final List<OrderByClause> orderBy,
+            final List<String> realms, final boolean details) {
 
         return CollectionUtils.collect(groupDAO.findAll(
                 getEffectiveRealms(SyncopeConstants.FULL_ADMIN_REALMS, realms),
@@ -133,7 +134,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupMod> {
 
                     @Override
                     public GroupTO transform(final Group input) {
-                        return binder.getGroupTO(input);
+                        return binder.getGroupTO(input, details);
                     }
                 }, new ArrayList<GroupTO>());
     }
@@ -151,7 +152,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupMod> {
     @Transactional(readOnly = true, rollbackFor = { Throwable.class })
     @Override
     public List<GroupTO> search(final SearchCond searchCondition, final int page, final int size,
-            final List<OrderByClause> orderBy, final List<String> realms) {
+            final List<OrderByClause> orderBy, final List<String> realms, final boolean details) {
 
         final List<Group> matchingGroups = searchDAO.search(
                 getEffectiveRealms(AuthContextUtils.getAuthorizations().get(Entitlement.GROUP_SEARCH), realms),
@@ -160,7 +161,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupMod> {
 
             @Override
             public GroupTO transform(final Group input) {
-                return binder.getGroupTO(input);
+                return binder.getGroupTO(input, details);
             }
         }, new ArrayList<GroupTO>());
     }
@@ -306,7 +307,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupMod> {
 
         List<PropagationStatus> statuses = provisioningManager.deprovision(groupKey, resources);
 
-        GroupTO updatedTO = binder.getGroupTO(group);
+        GroupTO updatedTO = binder.getGroupTO(group, true);
         updatedTO.getPropagationStatusTOs().addAll(statuses);
         return updatedTO;
     }

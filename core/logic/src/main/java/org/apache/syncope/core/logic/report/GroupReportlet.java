@@ -223,7 +223,7 @@ public class GroupReportlet extends AbstractReportlet<GroupReportletConf> {
 
             // Using GroupTO for attribute values, since the conversion logic of
             // values to String is already encapsulated there
-            GroupTO groupTO = groupDataBinder.getGroupTO(group);
+            GroupTO groupTO = groupDataBinder.getGroupTO(group, true);
 
             doExtractAttributes(handler, groupTO, conf.getPlainAttrs(), conf.getDerAttrs(), conf.getVirAttrs());
 

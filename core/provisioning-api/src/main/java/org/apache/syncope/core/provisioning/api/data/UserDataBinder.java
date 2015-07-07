@@ -31,7 +31,7 @@ public interface UserDataBinder {
 
     UserTO getUserTO(Long key);
 
-    UserTO getUserTO(User user);
+    UserTO getUserTO(User user, boolean details);
 
     void create(User user, UserTO userTO, boolean storePassword);
 

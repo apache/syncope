@@ -77,10 +77,16 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, MOD extends AnyMod>
 
     public abstract TO delete(Long key);
 
-    public abstract List<TO> list(int page, int size, List<OrderByClause> orderBy, List<String> realms);
+    public abstract List<TO> list(
+            int page, int size, List<OrderByClause> orderBy,
+            List<String> realms,
+            boolean details);
 
     public abstract List<TO> search(
-            SearchCond searchCondition, int page, int size, List<OrderByClause> orderBy, List<String> realms);
+            SearchCond searchCondition,
+            int page, int size, List<OrderByClause> orderBy,
+            List<String> realms,
+            boolean details);
 
     public abstract int searchCount(SearchCond searchCondition, List<String> realms);
 }

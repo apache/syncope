@@ -387,7 +387,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     @Override
     protected void doRequestPasswordReset(final User user) {
         Map<String, Object> variables = new HashMap<>(2);
-        variables.put(USER_TO, userDataBinder.getUserTO(user));
+        variables.put(USER_TO, userDataBinder.getUserTO(user, true));
         variables.put(EVENT, "requestPasswordReset");
 
         doExecuteTask(user, "requestPasswordReset", variables);
@@ -399,7 +399,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         Map<String, Object> variables = new HashMap<>(4);
         variables.put(TOKEN, token);
         variables.put(PASSWORD, password);
-        variables.put(USER_TO, userDataBinder.getUserTO(user));
+        variables.put(USER_TO, userDataBinder.getUserTO(user, true));
         variables.put(EVENT, "confirmPasswordReset");
 
         doExecuteTask(user, "confirmPasswordReset", variables);

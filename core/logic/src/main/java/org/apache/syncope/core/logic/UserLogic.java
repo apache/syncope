@@ -121,7 +121,8 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserMod> {
     @Transactional(readOnly = true, rollbackFor = { Throwable.class })
     @Override
     public List<UserTO> list(
-            final int page, final int size, final List<OrderByClause> orderBy, final List<String> realms) {
+            final int page, final int size, final List<OrderByClause> orderBy,
+            final List<String> realms, final boolean details) {
 
         return CollectionUtils.collect(userDAO.findAll(
                 getEffectiveRealms(AuthContextUtils.getAuthorizations().get(Entitlement.USER_LIST), realms),
@@ -130,7 +131,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserMod> {
 
                     @Override
                     public UserTO transform(final User input) {
-                        return binder.getUserTO(input);
+                        return binder.getUserTO(input, details);
                     }
                 }, new ArrayList<UserTO>());
     }
@@ -163,7 +164,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserMod> {
     @Transactional(readOnly = true, rollbackFor = { Throwable.class })
     @Override
     public List<UserTO> search(final SearchCond searchCondition, final int page, final int size,
-            final List<OrderByClause> orderBy, final List<String> realms) {
+            final List<OrderByClause> orderBy, final List<String> realms, final boolean details) {
 
         List<User> matchingUsers = searchDAO.search(
                 getEffectiveRealms(AuthContextUtils.getAuthorizations().get(Entitlement.USER_SEARCH), realms),
@@ -172,7 +173,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserMod> {
 
             @Override
             public UserTO transform(final User input) {
-                return binder.getUserTO(input);
+                return binder.getUserTO(input, details);
             }
         }, new ArrayList<UserTO>());
     }
@@ -404,11 +405,11 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserMod> {
     @Transactional(rollbackFor = { Throwable.class })
     @Override
     public UserTO deprovision(final Long key, final Collection<String> resources) {
-        final User user = userDAO.authFind(key);
+        User user = userDAO.authFind(key);
 
         List<PropagationStatus> statuses = provisioningManager.deprovision(key, resources);
 
-        final UserTO updatedUserTO = binder.getUserTO(user);
+        final UserTO updatedUserTO = binder.getUserTO(user, true);
         updatedUserTO.getPropagationStatusTOs().addAll(statuses);
         return updatedUserTO;
     }

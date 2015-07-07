@@ -28,4 +28,6 @@ public interface JAXRSService {
 
     String PARAM_ORDERBY = "orderby";
 
+    String PARAM_DETAILS = "details";
+
 }

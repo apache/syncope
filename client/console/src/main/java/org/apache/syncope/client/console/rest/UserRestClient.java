@@ -60,7 +60,7 @@ public class UserRestClient extends AbstractAnyRestClient {
     public List<UserTO> list(final String realm, final int page, final int size, final SortParam<String> sort) {
         return getService(UserService.class).
                 list(SyncopeClient.getAnyListQueryBuilder().realm(realm).page(page).size(size).
-                        orderBy(toOrderBy(sort)).build()).
+                        orderBy(toOrderBy(sort)).details(false).build()).
                 getResult();
     }
 
@@ -113,7 +113,7 @@ public class UserRestClient extends AbstractAnyRestClient {
 
         return getService(UserService.class).
                 search(SyncopeClient.getAnySearchQueryBuilder().realm(realm).fiql(fiql).page(page).size(size).
-                        orderBy(toOrderBy(sort)).build()).
+                        orderBy(toOrderBy(sort)).details(false).build()).
                 getResult();
     }
 

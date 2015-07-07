@@ -27,7 +27,7 @@ public interface GroupDataBinder {
 
     GroupTO getGroupTO(Long key);
 
-    GroupTO getGroupTO(Group group);
+    GroupTO getGroupTO(Group group, boolean details);
 
     Group create(Group group, GroupTO groupTO);
 

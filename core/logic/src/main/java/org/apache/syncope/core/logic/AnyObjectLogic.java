@@ -106,15 +106,17 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectMod> 
     @Transactional(readOnly = true)
     @Override
     public List<AnyObjectTO> list(
-            final int page, final int size, final List<OrderByClause> orderBy, final List<String> realms) {
+            final int page, final int size, final List<OrderByClause> orderBy,
+            final List<String> realms, final boolean details) {
 
-        return list(null, page, size, orderBy, realms);
+        return list(null, page, size, orderBy, realms, details);
     }
 
     @PreAuthorize("hasRole('" + Entitlement.ANY_OBJECT_LIST + "')")
     @Transactional(readOnly = true)
     public List<AnyObjectTO> list(final String type,
-            final int page, final int size, final List<OrderByClause> orderBy, final List<String> realms) {
+            final int page, final int size, final List<OrderByClause> orderBy,
+            final List<String> realms, final boolean details) {
 
         Set<String> effectiveRealms = getEffectiveRealms(SyncopeConstants.FULL_ADMIN_REALMS, realms);
 
@@ -125,7 +127,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectMod> 
 
                     @Override
                     public AnyObjectTO transform(final AnyObject input) {
-                        return binder.getAnyObjectTO(input);
+                        return binder.getAnyObjectTO(input, details);
                     }
                 }, new ArrayList<AnyObjectTO>());
     }
@@ -143,7 +145,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectMod> 
     @Transactional(readOnly = true, rollbackFor = { Throwable.class })
     @Override
     public List<AnyObjectTO> search(final SearchCond searchCondition, final int page, final int size,
-            final List<OrderByClause> orderBy, final List<String> realms) {
+            final List<OrderByClause> orderBy, final List<String> realms, final boolean details) {
 
         List<AnyObject> matchingAnyObjects = searchDAO.search(
                 getEffectiveRealms(AuthContextUtils.getAuthorizations().get(Entitlement.ANY_OBJECT_SEARCH), realms),
@@ -152,7 +154,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectMod> 
 
             @Override
             public AnyObjectTO transform(final AnyObject input) {
-                return binder.getAnyObjectTO(input);
+                return binder.getAnyObjectTO(input, details);
             }
         }, new ArrayList<AnyObjectTO>());
     }
@@ -288,7 +290,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectMod> 
 
         List<PropagationStatus> statuses = provisioningManager.deprovision(anyObjectKey, resources);
 
-        AnyObjectTO updatedTO = binder.getAnyObjectTO(anyObject);
+        AnyObjectTO updatedTO = binder.getAnyObjectTO(anyObject, true);
         updatedTO.getPropagationStatusTOs().addAll(statuses);
         return updatedTO;
     }

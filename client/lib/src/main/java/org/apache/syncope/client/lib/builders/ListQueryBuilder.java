@@ -42,6 +42,12 @@ public class ListQueryBuilder {
         return this;
     }
 
+    public ListQueryBuilder details(final boolean details) {
+        instance.setDetails(details);
+
+        return this;
+    }
+
     public ListQuery build() {
         return instance;
     }

@@ -48,9 +48,6 @@ import org.slf4j.LoggerFactory;
 
 abstract class AbstractServiceImpl implements JAXRSService {
 
-    /**
-     * Logger.
-     */
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractServiceImpl.class);
 
     protected static final String OPTIONS_ALLOW = "GET,POST,OPTIONS,HEAD";

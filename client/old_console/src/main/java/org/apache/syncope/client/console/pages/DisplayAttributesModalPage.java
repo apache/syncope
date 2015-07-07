@@ -68,10 +68,8 @@ public class DisplayAttributesModalPage extends BaseModalPage {
 
     private final List<String> selectedDerSchemas;
 
-    private final List<String> selectedVirSchemas;
-
     public DisplayAttributesModalPage(final PageReference pageRef, final ModalWindow window,
-            final List<String> schemaNames, final List<String> dSchemaNames, final List<String> vSchemaNames) {
+            final List<String> schemaNames, final List<String> dSchemaNames) {
 
         super();
 
@@ -105,16 +103,6 @@ public class DisplayAttributesModalPage extends BaseModalPage {
             }
         };
 
-        final IModel<List<String>> vsnames = new LoadableDetachableModel<List<String>>() {
-
-            private static final long serialVersionUID = 5275935387613157437L;
-
-            @Override
-            protected List<String> load() {
-                return vSchemaNames;
-            }
-        };
-
         final Form form = new Form(FORM);
         form.setModel(new CompoundPropertyModel(this));
 
@@ -123,8 +111,6 @@ public class DisplayAttributesModalPage extends BaseModalPage {
         selectedPlainSchemas = prefMan.getList(getRequest(), Constants.PREF_USERS_ATTRIBUTES_VIEW);
 
         selectedDerSchemas = prefMan.getList(getRequest(), Constants.PREF_USERS_DERIVED_ATTRIBUTES_VIEW);
-
-        selectedVirSchemas = prefMan.getList(getRequest(), Constants.PREF_USERS_VIRTUAL_ATTRIBUTES_VIEW);
 
         final CheckGroup dgroup = new CheckGroup("dCheckGroup", new PropertyModel(this, "selectedDetails"));
         form.add(dgroup);
@@ -191,53 +177,25 @@ public class DisplayAttributesModalPage extends BaseModalPage {
             dsgroup.add(derSchemas);
         }
 
-        if (vsnames.getObject() == null || vsnames.getObject().isEmpty()) {
-            final Fragment fragment = new Fragment("vschemas", "emptyFragment", form);
-            form.add(fragment);
-
-            selectedVirSchemas.clear();
-        } else {
-            final Fragment fragment = new Fragment("vschemas", "vsfragment", form);
-            form.add(fragment);
-
-            final CheckGroup vsgroup = new CheckGroup("vsCheckGroup", new PropertyModel(this, "selectedVirSchemas"));
-            fragment.add(vsgroup);
-
-            final ListView<String> virSchemas = new ListView<String>("virSchemas", vsnames) {
-
-                private static final long serialVersionUID = 9101744072914090143L;
-
-                @Override
-                protected void populateItem(ListItem<String> item) {
-                    item.add(new Check("vscheck", item.getModel()));
-                    item.add(new Label("vsname", new ResourceModel(item.getModelObject(), item.getModelObject())));
-                }
-            };
-            vsgroup.add(virSchemas);
-        }
-
         final AjaxButton submit = new IndicatingAjaxButton(SUBMIT, new ResourceModel(SUBMIT)) {
 
             private static final long serialVersionUID = -4804368561204623354L;
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-                if (selectedDetails.size() + selectedPlainSchemas.size() + selectedVirSchemas.size() + selectedDerSchemas.
-                        size()
+                if (selectedDetails.size() + selectedPlainSchemas.size() + selectedDerSchemas.size()
                         > MAX_SELECTIONS) {
 
                     error(getString("tooManySelections"));
                     onError(target, form);
                 } else {
-                    final Map<String, List<String>> prefs = new HashMap<String, List<String>>();
+                    final Map<String, List<String>> prefs = new HashMap<>();
 
                     prefs.put(Constants.PREF_USERS_DETAILS_VIEW, selectedDetails);
 
                     prefs.put(Constants.PREF_USERS_ATTRIBUTES_VIEW, selectedPlainSchemas);
 
                     prefs.put(Constants.PREF_USERS_DERIVED_ATTRIBUTES_VIEW, selectedDerSchemas);
-
-                    prefs.put(Constants.PREF_USERS_VIRTUAL_ATTRIBUTES_VIEW, selectedVirSchemas);
 
                     prefMan.setList(getRequest(), getResponse(), prefs);
 

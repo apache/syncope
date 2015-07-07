@@ -27,7 +27,7 @@ public interface AnyObjectDataBinder {
 
     AnyObjectTO getAnyObjectTO(Long key);
 
-    AnyObjectTO getAnyObjectTO(AnyObject anyObject);
+    AnyObjectTO getAnyObjectTO(AnyObject anyObject, boolean details);
 
     void create(AnyObject anyObject, AnyObjectTO anyObjectTO);
 

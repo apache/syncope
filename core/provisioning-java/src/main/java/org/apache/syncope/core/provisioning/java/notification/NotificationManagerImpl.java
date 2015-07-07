@@ -199,7 +199,7 @@ public class NotificationManagerImpl implements NotificationManager {
                 LOG.warn("{} cannot be notified: {} not found", recipient, notification.getRecipientAttrName());
             } else {
                 recipientEmails.add(email);
-                recipientTOs.add(userDataBinder.getUserTO(recipient));
+                recipientTOs.add(userDataBinder.getUserTO(recipient, true));
             }
         }
 
@@ -316,9 +316,9 @@ public class NotificationManagerImpl implements NotificationManager {
                     model.put("input", input);
 
                     if (any instanceof User) {
-                        model.put("user", userDataBinder.getUserTO((User) any));
+                        model.put("user", userDataBinder.getUserTO((User) any, true));
                     } else if (any instanceof Group) {
-                        model.put("group", groupDataBinder.getGroupTO((Group) any));
+                        model.put("group", groupDataBinder.getGroupTO((Group) any, true));
                     }
 
                     NotificationTask notificationTask = getNotificationTask(notification, any, model);
