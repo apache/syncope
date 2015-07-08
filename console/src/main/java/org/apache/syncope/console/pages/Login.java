@@ -129,7 +129,7 @@ public class Login extends WebPage {
 
                     authenticate(userIdField.getRawInput(), passwordField.getRawInput());
 
-                    setResponsePage(WelcomePage.class, parameters);
+                    setResponsePage(getApplication().getHomePage(), parameters);
                 } catch (AccessControlException e) {
                     error(getString("login-error"));
                     feedbackPanel.refresh(target);
