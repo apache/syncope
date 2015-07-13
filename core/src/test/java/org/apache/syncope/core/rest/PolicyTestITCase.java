@@ -227,12 +227,27 @@ public class PolicyTestITCase extends AbstractTest {
     public void issueSYNCOPE553() {
         AccountPolicyTO policy = new AccountPolicyTO(false);
         policy.setDescription("SYNCOPE553");
-        
+
         final AccountPolicySpec accountPolicySpec = new AccountPolicySpec();
         accountPolicySpec.setMinLength(3);
         accountPolicySpec.setMaxLength(8);
         policy.setSpecification(accountPolicySpec);
-        
+
+        policy = createPolicy(policy);
+        assertNotNull(policy);
+    }
+
+    @Test
+    public void issueSYNCOPE682() {
+        AccountPolicyTO policy = new AccountPolicyTO(false);
+        policy.setDescription("SYNCOPE682");
+        policy.getResources().add(RESOURCE_NAME_LDAP);
+
+        final AccountPolicySpec accountPolicySpec = new AccountPolicySpec();
+        accountPolicySpec.setMinLength(3);
+        accountPolicySpec.setMaxLength(8);
+        policy.setSpecification(accountPolicySpec);
+
         policy = createPolicy(policy);
         assertNotNull(policy);
     }

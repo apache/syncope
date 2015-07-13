@@ -44,11 +44,10 @@ public class AccountPolicy extends Policy {
             inverseJoinColumns =
             @JoinColumn(name = "resource_name"))
     @Valid
-    private Set<ExternalResource> resources;
+    private Set<ExternalResource> resources = new HashSet<ExternalResource>();
 
     public AccountPolicy() {
         this(false);
-        this.resources = new HashSet<ExternalResource>();
     }
 
     public AccountPolicy(final boolean global) {
