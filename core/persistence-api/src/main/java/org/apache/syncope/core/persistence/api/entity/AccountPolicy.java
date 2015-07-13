@@ -23,9 +23,9 @@ import java.util.Set;
 
 public interface AccountPolicy extends Policy {
 
-    boolean addResource(ExternalResource resource);
+    boolean add(ExternalResource resource);
 
-    boolean removeResource(ExternalResource resource);
+    boolean remove(ExternalResource resource);
 
     Set<String> getResourceNames();
 

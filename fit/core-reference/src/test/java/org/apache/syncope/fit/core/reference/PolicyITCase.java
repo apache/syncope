@@ -185,4 +185,19 @@ public class PolicyITCase extends AbstractITCase {
         policy = createPolicy(policy);
         assertNotNull(policy);
     }
+
+    @Test
+    public void issueSYNCOPE682() {
+        AccountPolicyTO policy = new AccountPolicyTO();
+        policy.setDescription("SYNCOPE682");
+        policy.getResources().add(RESOURCE_NAME_LDAP);
+
+        final AccountPolicySpec accountPolicySpec = new AccountPolicySpec();
+        accountPolicySpec.setMinLength(3);
+        accountPolicySpec.setMaxLength(8);
+        policy.setSpecification(accountPolicySpec);
+
+        policy = createPolicy(policy);
+        assertNotNull(policy);
+    }
 }

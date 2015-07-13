@@ -55,13 +55,13 @@ public class JPAAccountPolicy extends JPAPolicy implements AccountPolicy {
     }
 
     @Override
-    public boolean addResource(final ExternalResource resource) {
+    public boolean add(final ExternalResource resource) {
         checkType(resource, JPAExternalResource.class);
         return resources.add((JPAExternalResource) resource);
     }
 
     @Override
-    public boolean removeResource(final ExternalResource resource) {
+    public boolean remove(final ExternalResource resource) {
         checkType(resource, JPAExternalResource.class);
         return resources.remove((JPAExternalResource) resource);
     }

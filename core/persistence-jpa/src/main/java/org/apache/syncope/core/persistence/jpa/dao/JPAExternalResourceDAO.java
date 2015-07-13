@@ -204,7 +204,7 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource, String
             group.remove(resource);
         }
         for (AccountPolicy policy : policyDAO.findByResource(resource)) {
-            policy.removeResource(resource);
+            policy.remove(resource);
         }
 
         if (resource.getConnector() != null && resource.getConnector().getResources() != null
