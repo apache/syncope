@@ -36,6 +36,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * Generate random passwords according to given policies.
+ * When no minimum and / or maximum length are specified, default values are set.
  *
  * @see PasswordPolicy
  */
@@ -43,6 +44,12 @@ import org.springframework.stereotype.Component;
 public class PasswordGenerator {
 
     private static final char[] SPECIAL_CHARS = { '!', '£', '%', '&', '(', ')', '?', '#', '$' };
+
+    private static final int VERY_MIN_LENGTH = 0;
+
+    private static final int VERY_MAX_LENGTH = 64;
+
+    private static final int MIN_LENGTH_IF_ZERO = 6;
 
     @Autowired
     private PolicyDAO policyDAO;
@@ -90,8 +97,8 @@ public class PasswordGenerator {
 
     private PasswordPolicySpec merge(final List<PasswordPolicySpec> ppSpecs) {
         PasswordPolicySpec fpps = new PasswordPolicySpec();
-        fpps.setMinLength(0);
-        fpps.setMaxLength(1000);
+        fpps.setMinLength(VERY_MIN_LENGTH);
+        fpps.setMaxLength(VERY_MAX_LENGTH);
 
         for (PasswordPolicySpec policySpec : ppSpecs) {
             if (policySpec.getMinLength() > fpps.getMinLength()) {
@@ -158,15 +165,17 @@ public class PasswordGenerator {
                 fpps.setMustntEndWithAlpha(policySpec.isMustntEndWithAlpha());
             }
         }
+
+        if (fpps.getMinLength() == 0) {
+            fpps.setMinLength(fpps.getMaxLength() < MIN_LENGTH_IF_ZERO ? fpps.getMaxLength() : MIN_LENGTH_IF_ZERO);
+        }
+
         return fpps;
     }
 
     private void check(final PasswordPolicySpec policySpec)
             throws InvalidPasswordPolicySpecException {
 
-        if (policySpec.getMinLength() == 0) {
-            throw new InvalidPasswordPolicySpecException("Minimum length is zero");
-        }
         if (policySpec.isMustEndWithAlpha() && policySpec.isMustntEndWithAlpha()) {
             throw new InvalidPasswordPolicySpecException(
                     "mustEndWithAlpha and mustntEndWithAlpha are both true");

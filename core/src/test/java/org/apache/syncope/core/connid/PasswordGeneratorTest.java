@@ -23,6 +23,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.apache.syncope.common.types.CipherAlgorithm;
 import org.apache.syncope.common.types.PasswordPolicySpec;
@@ -45,9 +46,9 @@ public class PasswordGeneratorTest extends AbstractNonDAOTest {
     private UserDAO userDAO;
 
     @Test
-    public void issueSYNCOPE226() {
+    public void forUser() {
         SyncopeUser user = userDAO.find(5L);
-        String password = "";
+        String password = null;
         try {
             password = passwordGenerator.generate(user);
         } catch (InvalidPasswordPolicySpecException ex) {
@@ -55,93 +56,8 @@ public class PasswordGeneratorTest extends AbstractNonDAOTest {
         }
         assertNotNull(password);
 
-        user.setPassword(password, CipherAlgorithm.AES);
-
-        SyncopeUser actual = userDAO.save(user);
-        assertNotNull(actual);
-    }
-
-    @Test
-    public void testPasswordGenerator() {
-        SyncopeUser user = userDAO.find(5L);
-
-        String password = "";
-        try {
-            password = passwordGenerator.generate(user);
-
-        } catch (InvalidPasswordPolicySpecException ex) {
-            fail(ex.getMessage());
-        }
-        assertNotNull(password);
         user.setPassword(password, CipherAlgorithm.SHA);
         userDAO.save(user);
-    }
-
-    @Test
-    public void startEndWithDigit()
-            throws InvalidPasswordPolicySpecException {
-
-        PasswordPolicySpec passwordPolicySpec = createBasePasswordPolicySpec();
-        passwordPolicySpec.setMustStartWithDigit(true);
-
-        PasswordPolicySpec passwordPolicySpec2 = createBasePasswordPolicySpec();
-        passwordPolicySpec.setMustEndWithDigit(true);
-        List<PasswordPolicySpec> passwordPolicySpecs = new ArrayList<PasswordPolicySpec>();
-        passwordPolicySpecs.add(passwordPolicySpec);
-        passwordPolicySpecs.add(passwordPolicySpec2);
-        String generatedPassword = passwordGenerator.generate(passwordPolicySpecs);
-        assertTrue(Character.isDigit(generatedPassword.charAt(0)));
-        assertTrue(Character.isDigit(generatedPassword.charAt(generatedPassword.length() - 1)));
-    }
-
-    @Test
-    public void startWithDigitAndWithAlpha()
-            throws InvalidPasswordPolicySpecException {
-
-        PasswordPolicySpec passwordPolicySpec = createBasePasswordPolicySpec();
-        passwordPolicySpec.setMustStartWithDigit(true);
-
-        PasswordPolicySpec passwordPolicySpec2 = createBasePasswordPolicySpec();
-        passwordPolicySpec.setMustEndWithAlpha(true);
-        List<PasswordPolicySpec> passwordPolicySpecs = new ArrayList<PasswordPolicySpec>();
-        passwordPolicySpecs.add(passwordPolicySpec);
-        passwordPolicySpecs.add(passwordPolicySpec2);
-        String generatedPassword = passwordGenerator.generate(passwordPolicySpecs);
-        assertTrue(Character.isDigit(generatedPassword.charAt(0)));
-        assertTrue(Character.isLetter(generatedPassword.charAt(generatedPassword.length() - 1)));
-    }
-
-    @Test
-    public void passwordWithNonAlpha()
-            throws InvalidPasswordPolicySpecException {
-
-        PasswordPolicySpec passwordPolicySpec = createBasePasswordPolicySpec();
-        passwordPolicySpec.setNonAlphanumericRequired(true);
-
-        PasswordPolicySpec passwordPolicySpec2 = createBasePasswordPolicySpec();
-        passwordPolicySpec.setMustEndWithAlpha(true);
-        List<PasswordPolicySpec> passwordPolicySpecs = new ArrayList<PasswordPolicySpec>();
-        passwordPolicySpecs.add(passwordPolicySpec);
-        passwordPolicySpecs.add(passwordPolicySpec2);
-        String generatedPassword = passwordGenerator.generate(passwordPolicySpecs);
-        assertTrue(PolicyPattern.NON_ALPHANUMERIC.matcher(generatedPassword).matches());
-        assertTrue(Character.isLetter(generatedPassword.charAt(generatedPassword.length() - 1)));
-    }
-
-    @Test(expected = InvalidPasswordPolicySpecException.class)
-    public void incopatiblePolicies()
-            throws InvalidPasswordPolicySpecException {
-
-        PasswordPolicySpec passwordPolicySpec = createBasePasswordPolicySpec();
-        passwordPolicySpec.setMinLength(12);
-
-        PasswordPolicySpec passwordPolicySpec2 = createBasePasswordPolicySpec();
-        passwordPolicySpec.setMaxLength(10);
-
-        List<PasswordPolicySpec> passwordPolicySpecs = new ArrayList<PasswordPolicySpec>();
-        passwordPolicySpecs.add(passwordPolicySpec);
-        passwordPolicySpecs.add(passwordPolicySpec2);
-        passwordGenerator.generate(passwordPolicySpecs);
     }
 
     private PasswordPolicySpec createBasePasswordPolicySpec() {
@@ -166,5 +82,102 @@ public class PasswordGeneratorTest extends AbstractNonDAOTest {
         basePasswordPolicySpec.setNonAlphanumericRequired(false);
         basePasswordPolicySpec.setUppercaseRequired(false);
         return basePasswordPolicySpec;
+    }
+
+    @Test
+    public void startEndWithDigit() throws InvalidPasswordPolicySpecException {
+        PasswordPolicySpec passwordPolicySpec = createBasePasswordPolicySpec();
+        passwordPolicySpec.setMustStartWithDigit(true);
+
+        PasswordPolicySpec passwordPolicySpec2 = createBasePasswordPolicySpec();
+        passwordPolicySpec.setMustEndWithDigit(true);
+        List<PasswordPolicySpec> passwordPolicySpecs = new ArrayList<PasswordPolicySpec>();
+        passwordPolicySpecs.add(passwordPolicySpec);
+        passwordPolicySpecs.add(passwordPolicySpec2);
+        String generatedPassword = passwordGenerator.generate(passwordPolicySpecs);
+        assertTrue(Character.isDigit(generatedPassword.charAt(0)));
+        assertTrue(Character.isDigit(generatedPassword.charAt(generatedPassword.length() - 1)));
+    }
+
+    @Test
+    public void startWithDigitAndWithAlpha() throws InvalidPasswordPolicySpecException {
+        PasswordPolicySpec passwordPolicySpec = createBasePasswordPolicySpec();
+        passwordPolicySpec.setMustStartWithDigit(true);
+
+        PasswordPolicySpec passwordPolicySpec2 = createBasePasswordPolicySpec();
+        passwordPolicySpec.setMustEndWithAlpha(true);
+        List<PasswordPolicySpec> passwordPolicySpecs = new ArrayList<PasswordPolicySpec>();
+        passwordPolicySpecs.add(passwordPolicySpec);
+        passwordPolicySpecs.add(passwordPolicySpec2);
+        String generatedPassword = passwordGenerator.generate(passwordPolicySpecs);
+        assertTrue(Character.isDigit(generatedPassword.charAt(0)));
+        assertTrue(Character.isLetter(generatedPassword.charAt(generatedPassword.length() - 1)));
+    }
+
+    @Test
+    public void passwordWithNonAlpha() throws InvalidPasswordPolicySpecException {
+        PasswordPolicySpec passwordPolicySpec = createBasePasswordPolicySpec();
+        passwordPolicySpec.setNonAlphanumericRequired(true);
+
+        PasswordPolicySpec passwordPolicySpec2 = createBasePasswordPolicySpec();
+        passwordPolicySpec.setMustEndWithAlpha(true);
+        List<PasswordPolicySpec> passwordPolicySpecs = new ArrayList<PasswordPolicySpec>();
+        passwordPolicySpecs.add(passwordPolicySpec);
+        passwordPolicySpecs.add(passwordPolicySpec2);
+        String generatedPassword = passwordGenerator.generate(passwordPolicySpecs);
+        assertTrue(PolicyPattern.NON_ALPHANUMERIC.matcher(generatedPassword).matches());
+        assertTrue(Character.isLetter(generatedPassword.charAt(generatedPassword.length() - 1)));
+    }
+
+    @Test(expected = InvalidPasswordPolicySpecException.class)
+    public void incopatiblePolicies() throws InvalidPasswordPolicySpecException {
+        PasswordPolicySpec passwordPolicySpec = createBasePasswordPolicySpec();
+        passwordPolicySpec.setMinLength(12);
+
+        PasswordPolicySpec passwordPolicySpec2 = createBasePasswordPolicySpec();
+        passwordPolicySpec.setMaxLength(10);
+
+        List<PasswordPolicySpec> passwordPolicySpecs = new ArrayList<PasswordPolicySpec>();
+        passwordPolicySpecs.add(passwordPolicySpec);
+        passwordPolicySpecs.add(passwordPolicySpec2);
+        passwordGenerator.generate(passwordPolicySpecs);
+    }
+
+    @Test
+    public void issueSYNCOPE226() {
+        SyncopeUser user = userDAO.find(5L);
+        String password = null;
+        try {
+            password = passwordGenerator.generate(user);
+        } catch (InvalidPasswordPolicySpecException e) {
+            fail(e.getMessage());
+        }
+        assertNotNull(password);
+
+        user.setPassword(password, CipherAlgorithm.AES);
+
+        SyncopeUser actual = userDAO.save(user);
+        assertNotNull(actual);
+    }
+
+    @Test
+    public void issueSYNCOPE678() {
+        String password = null;
+        try {
+            password = passwordGenerator.generate(Collections.<PasswordPolicySpec>emptyList());
+        } catch (InvalidPasswordPolicySpecException e) {
+            fail(e.getMessage());
+        }
+        assertNotNull(password);
+
+        PasswordPolicySpec ppSpec = createBasePasswordPolicySpec();
+        ppSpec.setMinLength(0);
+        password = null;
+        try {
+            password = passwordGenerator.generate(Collections.singletonList(ppSpec));
+        } catch (InvalidPasswordPolicySpecException e) {
+            fail(e.getMessage());
+        }
+        assertNotNull(password);
     }
 }
