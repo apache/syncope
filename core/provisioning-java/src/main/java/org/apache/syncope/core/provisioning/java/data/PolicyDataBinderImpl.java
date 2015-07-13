@@ -144,7 +144,7 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
                     ExternalResource resource = getResource(resourceName);
 
                     if (resource != null) {
-                        ((AccountPolicy) result).addResource(resource);
+                        ((AccountPolicy) result).add(resource);
                     }
                 }
                 break;
