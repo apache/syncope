@@ -59,17 +59,17 @@ public class RoleTO extends AbstractSubjectTO {
 
     private final List<String> entitlements = new ArrayList<String>();
 
-    private List<String> rAttrTemplates = new ArrayList<String>();
+    private final List<String> rAttrTemplates = new ArrayList<String>();
 
-    private List<String> rDerAttrTemplates = new ArrayList<String>();
+    private final List<String> rDerAttrTemplates = new ArrayList<String>();
 
-    private List<String> rVirAttrTemplates = new ArrayList<String>();
+    private final List<String> rVirAttrTemplates = new ArrayList<String>();
 
-    private List<String> mAttrTemplates = new ArrayList<String>();
+    private final List<String> mAttrTemplates = new ArrayList<String>();
 
-    private List<String> mDerAttrTemplates = new ArrayList<String>();
+    private final List<String> mDerAttrTemplates = new ArrayList<String>();
 
-    private List<String> mVirAttrTemplates = new ArrayList<String>();
+    private final List<String> mVirAttrTemplates = new ArrayList<String>();
 
     private Long passwordPolicy;
 

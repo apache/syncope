@@ -118,7 +118,7 @@ public final class AttributableOperations {
             final boolean incremental) {
 
         // 1. check same id
-        if (updated.getId() != original.getId()) {
+        if (!(result instanceof MembershipMod) && updated.getId() != original.getId()) {
             throw new IllegalArgumentException("AttributableTO's id must be the same");
         }
         result.setId(updated.getId());
