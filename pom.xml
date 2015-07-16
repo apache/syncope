@@ -345,7 +345,7 @@ under the License.
 
     <cocoon.version>3.0.0-alpha-3</cocoon.version>
 
-    <groovy.version>2.4.3</groovy.version>
+    <groovy.version>2.4.4</groovy.version>
 
     <activiti.version>5.17.0</activiti.version>
 
@@ -385,7 +385,7 @@ under the License.
     <wicket.version>7.0.0-M6</wicket.version>
     <wicket-jqueryui.version>7.0.0-M6</wicket-jqueryui.version>
 
-    <izpack.version>5.0.0-rc5</izpack.version>
+    <izpack.version>5.0.0</izpack.version>
     <httpclient.version>4.3.6</httpclient.version>
     <maven-invoker.version>2.1.1</maven-invoker.version>
 
@@ -1251,7 +1251,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-shade-plugin</artifactId>
-          <version>2.4</version>
+          <version>2.4.1</version>
         </plugin>
         
         <plugin>
