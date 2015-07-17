@@ -85,6 +85,7 @@ under the License.
     <property name="useJaxbContextForQnames" value="true"/>
     <property name="ignoreMessageWriters" value="true"/>
     <property name="addResourceAndMethodIds" value="true"/>
+    <property name="usePathParamsToCompareOperations" value="false"/>
     <property name="javaDocPath" value="/WEB-INF/lib/syncope-common-rest-api-${syncope.version}-javadoc.jar"/>
   </bean>
   
