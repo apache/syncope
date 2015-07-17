@@ -16,19 +16,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.dao;
+package org.apache.syncope.core.persistence.jpa.slice;
 
-import org.apache.syncope.core.persistence.api.entity.Entity;
+import java.util.List;
+import org.apache.openjpa.slice.FinderTargetPolicy;
+import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.core.misc.security.AuthContextUtils;
+import org.apache.syncope.core.persistence.jpa.entity.JPADomain;
 
-public interface DAO<E extends Entity<KEY>, KEY> {
+public class DomainFinderTargetPolicy implements FinderTargetPolicy {
 
-    String getDomain(E entity);
+    @Override
+    public String[] getTargets(final Class<?> cls, final Object oid, final List<String> slices, final Object context) {
+        return new String[] {
+            JPADomain.class.equals(cls)
+            ? SyncopeConstants.MASTER_DOMAIN
+            : AuthContextUtils.getDomain()
+        };
+    }
 
-    void refresh(E entity);
-
-    void detach(E entity);
-
-    void flush();
-
-    void clear();
 }

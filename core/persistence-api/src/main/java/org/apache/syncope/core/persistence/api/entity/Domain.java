@@ -16,19 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.dao;
+package org.apache.syncope.core.persistence.api.entity;
 
-import org.apache.syncope.core.persistence.api.entity.Entity;
+import org.apache.syncope.common.lib.types.CipherAlgorithm;
 
-public interface DAO<E extends Entity<KEY>, KEY> {
+public interface Domain extends Entity<String> {
 
-    String getDomain(E entity);
+    void setKey(String name);
 
-    void refresh(E entity);
+    String getAdminPwd();
 
-    void detach(E entity);
+    CipherAlgorithm getAdminCipherAlgorithm();
 
-    void flush();
-
-    void clear();
+    void setPassword(String password, CipherAlgorithm cipherAlgoritm);
 }

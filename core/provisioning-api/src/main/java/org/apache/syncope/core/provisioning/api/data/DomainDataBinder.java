@@ -16,19 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.dao;
+package org.apache.syncope.core.provisioning.api.data;
 
-import org.apache.syncope.core.persistence.api.entity.Entity;
+import org.apache.syncope.common.lib.to.DomainTO;
+import org.apache.syncope.core.persistence.api.entity.Domain;
 
-public interface DAO<E extends Entity<KEY>, KEY> {
+public interface DomainDataBinder {
 
-    String getDomain(E entity);
+    Domain create(DomainTO domainTO);
 
-    void refresh(E entity);
+    void update(Domain domain, DomainTO domainTO);
 
-    void detach(E entity);
-
-    void flush();
-
-    void clear();
+    DomainTO getDomainTO(Domain domain);
 }

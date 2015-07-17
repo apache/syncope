@@ -24,11 +24,13 @@ import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import javax.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.common.lib.types.TraceLevel;
+import org.apache.syncope.core.misc.security.SyncopeAuthenticationDetails;
 import org.apache.syncope.core.misc.security.SyncopeGrantedAuthority;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
@@ -49,7 +51,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 
 /**
  * Job for executing synchronization tasks.
@@ -60,6 +61,9 @@ import org.springframework.security.core.userdetails.UserDetails;
  */
 public abstract class AbstractProvisioningJob<T extends ProvisioningTask, A extends ProvisioningActions>
         extends AbstractTaskJob {
+
+    @Resource(name = "adminUser")
+    protected String adminUser;
 
     /**
      * ConnInstance loader.
@@ -404,10 +408,10 @@ public abstract class AbstractProvisioningJob<T extends ProvisioningTask, A exte
                     }
                 }, new ArrayList<GrantedAuthority>());
 
-        UserDetails userDetails = new User("admin", "FAKE_PASSWORD", authorities);
-
-        SecurityContextHolder.getContext().setAuthentication(
-                new UsernamePasswordAuthenticationToken(userDetails, "FAKE_PASSWORD", authorities));
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+                new User(adminUser, "FAKE_PASSWORD", authorities), "FAKE_PASSWORD", authorities);
+        auth.setDetails(new SyncopeAuthenticationDetails(taskDAO.getDomain(task)));
+        SecurityContextHolder.getContext().setAuthentication(auth);
 
         try {
             Class<T> clazz = getTaskClassReference();
@@ -415,16 +419,14 @@ public abstract class AbstractProvisioningJob<T extends ProvisioningTask, A exte
                 throw new JobExecutionException("Task " + taskId + " isn't a SyncTask");
             }
 
-            T provisioningTask = clazz.cast(this.task);
+            T provisioningTask = clazz.cast(task);
 
             Connector connector;
             try {
                 connector = connFactory.getConnector(provisioningTask.getResource());
             } catch (Exception e) {
-                final String msg = String.
-                        format("Connector instance bean for resource %s and connInstance %s not found",
-                                provisioningTask.getResource(), provisioningTask.getResource().getConnector());
-
+                String msg = String.format("Connector instance bean for resource %s and connInstance %s not found",
+                        provisioningTask.getResource(), provisioningTask.getResource().getConnector());
                 throw new JobExecutionException(msg, e);
             }
 

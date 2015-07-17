@@ -16,19 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.dao;
+package org.apache.syncope.core.misc.security;
 
-import org.apache.syncope.core.persistence.api.entity.Entity;
+import javax.servlet.http.HttpServletRequest;
+import org.springframework.security.authentication.AuthenticationDetailsSource;
 
-public interface DAO<E extends Entity<KEY>, KEY> {
+public class SyncopeAuthenticationDetailsSource
+        implements AuthenticationDetailsSource<HttpServletRequest, SyncopeAuthenticationDetails> {
 
-    String getDomain(E entity);
+    @Override
+    public SyncopeAuthenticationDetails buildDetails(final HttpServletRequest context) {
+        return new SyncopeAuthenticationDetails(context);
+    }
 
-    void refresh(E entity);
-
-    void detach(E entity);
-
-    void flush();
-
-    void clear();
 }

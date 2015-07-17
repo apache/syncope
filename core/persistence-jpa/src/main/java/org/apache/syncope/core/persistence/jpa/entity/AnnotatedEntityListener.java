@@ -33,7 +33,7 @@ public class AnnotatedEntityListener {
     @PrePersist
     @PreUpdate
     public void setSysInfo(final AnnotatedEntity<?> entity) {
-        final String username = AuthContextUtils.getAuthenticatedUsername();
+        final String username = AuthContextUtils.getUsername();
         LOG.debug("Set system properties for '{}'", entity);
 
         final Date now = new Date();

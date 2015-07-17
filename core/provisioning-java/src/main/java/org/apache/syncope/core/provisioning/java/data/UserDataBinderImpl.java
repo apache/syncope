@@ -88,7 +88,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
     public UserTO getAuthenticatedUserTO() {
         final UserTO authUserTO;
 
-        final String authUsername = AuthContextUtils.getAuthenticatedUsername();
+        final String authUsername = AuthContextUtils.getUsername();
         if (anonymousUser.equals(authUsername)) {
             authUserTO = new UserTO();
             authUserTO.setKey(-2);
@@ -244,8 +244,12 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         if (userMod.getUsername() != null && !userMod.getUsername().equals(user.getUsername())) {
             propByRes.addAll(ResourceOperation.UPDATE, currentResources);
 
+            String oldUsername = user.getUsername();
             user.setUsername(userMod.getUsername());
-            AuthContextUtils.updateAuthenticatedUsername(userMod.getUsername());
+
+            if (oldUsername.equals(AuthContextUtils.getUsername())) {
+                AuthContextUtils.updateUsername(userMod.getUsername());
+            }
         }
 
         // security question / answer:

@@ -38,6 +38,12 @@ under the License.
   </properties>
 
   <dependencies>
+    <dependency> 
+      <groupId>javax.servlet</groupId> 
+      <artifactId>javax.servlet-api</artifactId> 
+      <scope>provided</scope>
+    </dependency>
+
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-context-support</artifactId>

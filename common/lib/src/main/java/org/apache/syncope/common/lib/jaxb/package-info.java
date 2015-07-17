@@ -16,19 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.dao;
+@XmlSchema(namespace = SyncopeConstants.NAMESPACE)
+package org.apache.syncope.common.lib.jaxb;
 
-import org.apache.syncope.core.persistence.api.entity.Entity;
-
-public interface DAO<E extends Entity<KEY>, KEY> {
-
-    String getDomain(E entity);
-
-    void refresh(E entity);
-
-    void detach(E entity);
-
-    void flush();
-
-    void clear();
-}
+import javax.xml.bind.annotation.XmlSchema;
+import org.apache.syncope.common.lib.SyncopeConstants;

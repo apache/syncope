@@ -23,14 +23,14 @@ import java.util.Iterator;
 import java.util.Set;
 import javax.annotation.Resource;
 import org.apache.commons.collections4.SetUtils;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttr;
@@ -39,7 +39,10 @@ import org.apache.syncope.core.provisioning.api.ConnectorFactory;
 import org.apache.syncope.core.misc.AuditManager;
 import org.apache.syncope.core.misc.MappingUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
+import org.apache.syncope.core.persistence.api.dao.DomainDAO;
+import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.entity.Domain;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.slf4j.Logger;
@@ -57,13 +60,13 @@ import org.springframework.transaction.annotation.Transactional;
 @Configurable
 public class SyncopeAuthenticationProvider implements AuthenticationProvider {
 
-    /**
-     * Logger.
-     */
     protected static final Logger LOG = LoggerFactory.getLogger(SyncopeAuthenticationProvider.class);
 
     @Autowired
     protected AuditManager auditManager;
+
+    @Autowired
+    protected DomainDAO domainDAO;
 
     @Autowired
     protected ConfDAO confDAO;
@@ -131,18 +134,36 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
     @Transactional(noRollbackFor = { BadCredentialsException.class, DisabledException.class })
     public Authentication authenticate(final Authentication authentication) {
         boolean authenticated = false;
-        User user = null;
 
-        String username = authentication.getName();
-        if (anonymousUser.equals(username)) {
+        String domainKey = authentication.getDetails() instanceof SyncopeAuthenticationDetails
+                ? SyncopeAuthenticationDetails.class.cast(authentication.getDetails()).getDomain()
+                : null;
+        if (StringUtils.isBlank(domainKey)) {
+            domainKey = SyncopeConstants.MASTER_DOMAIN;
+        }
+        SyncopeAuthenticationDetails.class.cast(authentication.getDetails()).setDomain(domainKey);
+
+        if (anonymousUser.equals(authentication.getName())) {
             authenticated = authentication.getCredentials().toString().equals(anonymousKey);
-        } else if (adminUser.equals(username)) {
-            authenticated = encryptor.verify(
-                    authentication.getCredentials().toString(),
-                    CipherAlgorithm.valueOf(adminPasswordAlgorithm),
-                    adminPassword);
+        } else if (adminUser.equals(authentication.getName())) {
+            if (SyncopeConstants.MASTER_DOMAIN.equals(domainKey)) {
+                authenticated = encryptor.verify(
+                        authentication.getCredentials().toString(),
+                        CipherAlgorithm.valueOf(adminPasswordAlgorithm),
+                        adminPassword);
+            } else {
+                Domain domain = domainDAO.find(domainKey);
+                if (domain == null) {
+                    throw new NotFoundException("Could not find domain " + domainKey);
+                }
+
+                authenticated = encryptor.verify(
+                        authentication.getCredentials().toString(),
+                        domain.getAdminCipherAlgorithm(),
+                        domain.getAdminPwd());
+            }
         } else {
-            user = userDAO.find(username);
+            User user = userDAO.find(authentication.getName());
 
             if (user != null) {
                 if (user.isSuspended() != null && user.isSuspended()) {
@@ -166,7 +187,6 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
                     authentication.getPrincipal(),
                     null,
                     userDetailsService.loadUserByUsername(authentication.getPrincipal().toString()).getAuthorities());
-
             token.setDetails(authentication.getDetails());
 
             auditManager.audit(
@@ -257,7 +277,6 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
         boolean authenticated = encryptor.verify(password, user.getCipherAlgorithm(), user.getPassword());
         LOG.debug("{} authenticated on internal storage: {}", user.getUsername(), authenticated);
 
-        AnyUtils attrUtils = attrUtilsFactory.getInstance(AnyTypeKind.USER);
         for (Iterator<? extends ExternalResource> itor = getPassthroughResources(user).iterator();
                 itor.hasNext() && !authenticated;) {
 

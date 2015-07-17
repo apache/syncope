@@ -16,19 +16,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.dao;
+package org.apache.syncope.core.persistence.jpa.slice;
 
-import org.apache.syncope.core.persistence.api.entity.Entity;
+import java.util.List;
+import org.apache.openjpa.slice.DistributionPolicy;
+import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.core.misc.security.AuthContextUtils;
+import org.apache.syncope.core.persistence.api.entity.Domain;
 
-public interface DAO<E extends Entity<KEY>, KEY> {
+public class DomainDistributionPolicy implements DistributionPolicy {
 
-    String getDomain(E entity);
+    @Override
+    public String distribute(final Object pc, final List<String> slices, final Object context) {
+        return (pc instanceof Domain)
+                ? SyncopeConstants.MASTER_DOMAIN
+                : AuthContextUtils.getDomain();
+    }
 
-    void refresh(E entity);
-
-    void detach(E entity);
-
-    void flush();
-
-    void clear();
 }

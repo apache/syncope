@@ -18,17 +18,16 @@
  */
 package org.apache.syncope.core.persistence.api.dao;
 
-import org.apache.syncope.core.persistence.api.entity.Entity;
+import java.util.List;
+import org.apache.syncope.core.persistence.api.entity.Domain;
 
-public interface DAO<E extends Entity<KEY>, KEY> {
+public interface DomainDAO extends DAO<Domain, String> {
 
-    String getDomain(E entity);
+    Domain find(String key);
 
-    void refresh(E entity);
+    List<Domain> findAll();
 
-    void detach(E entity);
+    Domain save(Domain domain);
 
-    void flush();
-
-    void clear();
+    void delete(String key);
 }

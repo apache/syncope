@@ -27,6 +27,8 @@ public final class SyncopeConstants {
 
     public static final String NAMESPACE = "http://syncope.apache.org/2.0";
 
+    public static final String MASTER_DOMAIN = "Master";
+
     public static final String ROOT_REALM = "/";
 
     public static final Set<String> FULL_ADMIN_REALMS = Collections.singleton("/");

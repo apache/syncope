@@ -42,11 +42,11 @@ public class AnyTypeClassLogic extends AbstractTransactionalLogic<AnyTypeClassTO
     private AnyTypeClassDataBinder binder;
 
     @Autowired
-    private AnyTypeClassDAO anyTypeDAO;
+    private AnyTypeClassDAO anyTypeClassDAO;
 
     @PreAuthorize("hasRole('" + Entitlement.ANYTYPECLASS_READ + "')")
     public AnyTypeClassTO read(final String key) {
-        AnyTypeClass anyType = anyTypeDAO.find(key);
+        AnyTypeClass anyType = anyTypeClassDAO.find(key);
         if (anyType == null) {
             LOG.error("Could not find anyType '" + key + "'");
 
@@ -58,7 +58,7 @@ public class AnyTypeClassLogic extends AbstractTransactionalLogic<AnyTypeClassTO
 
     @PreAuthorize("hasRole('" + Entitlement.ANYTYPECLASS_LIST + "')")
     public List<AnyTypeClassTO> list() {
-        return CollectionUtils.collect(anyTypeDAO.findAll(), new Transformer<AnyTypeClass, AnyTypeClassTO>() {
+        return CollectionUtils.collect(anyTypeClassDAO.findAll(), new Transformer<AnyTypeClass, AnyTypeClassTO>() {
 
             @Override
             public AnyTypeClassTO transform(final AnyTypeClass input) {
@@ -68,35 +68,35 @@ public class AnyTypeClassLogic extends AbstractTransactionalLogic<AnyTypeClassTO
     }
 
     @PreAuthorize("hasRole('" + Entitlement.ANYTYPECLASS_CREATE + "')")
-    public AnyTypeClassTO create(final AnyTypeClassTO anyTypeTO) {
-        return binder.getAnyTypeClassTO(anyTypeDAO.save(binder.create(anyTypeTO)));
+    public AnyTypeClassTO create(final AnyTypeClassTO anyTypeClassTO) {
+        return binder.getAnyTypeClassTO(anyTypeClassDAO.save(binder.create(anyTypeClassTO)));
     }
 
     @PreAuthorize("hasRole('" + Entitlement.ANYTYPECLASS_UPDATE + "')")
-    public AnyTypeClassTO update(final AnyTypeClassTO anyTypeTO) {
-        AnyTypeClass anyType = anyTypeDAO.find(anyTypeTO.getKey());
+    public AnyTypeClassTO update(final AnyTypeClassTO anyTypeClassTO) {
+        AnyTypeClass anyType = anyTypeClassDAO.find(anyTypeClassTO.getKey());
         if (anyType == null) {
-            LOG.error("Could not find anyType '" + anyTypeTO.getKey() + "'");
-            throw new NotFoundException(String.valueOf(anyTypeTO.getKey()));
+            LOG.error("Could not find anyTypeClass '" + anyTypeClassTO.getKey() + "'");
+            throw new NotFoundException(String.valueOf(anyTypeClassTO.getKey()));
         }
 
-        binder.update(anyType, anyTypeTO);
-        anyType = anyTypeDAO.save(anyType);
+        binder.update(anyType, anyTypeClassTO);
+        anyType = anyTypeClassDAO.save(anyType);
 
         return binder.getAnyTypeClassTO(anyType);
     }
 
     @PreAuthorize("hasRole('" + Entitlement.ANYTYPECLASS_DELETE + "')")
     public AnyTypeClassTO delete(final String key) {
-        AnyTypeClass anyType = anyTypeDAO.find(key);
-        if (anyType == null) {
-            LOG.error("Could not find anyType '" + key + "'");
+        AnyTypeClass anyTypeClass = anyTypeClassDAO.find(key);
+        if (anyTypeClass == null) {
+            LOG.error("Could not find anyTypeClass '" + key + "'");
 
             throw new NotFoundException(String.valueOf(key));
         }
 
-        AnyTypeClassTO deleted = binder.getAnyTypeClassTO(anyType);
-        anyTypeDAO.delete(key);
+        AnyTypeClassTO deleted = binder.getAnyTypeClassTO(anyTypeClass);
+        anyTypeClassDAO.delete(key);
         return deleted;
     }
 
@@ -108,7 +108,7 @@ public class AnyTypeClassLogic extends AbstractTransactionalLogic<AnyTypeClassTO
 
         if (ArrayUtils.isNotEmpty(args)) {
             for (int i = 0; key == null && i < args.length; i++) {
-                if (args[i] instanceof Long) {
+                if (args[i] instanceof String) {
                     key = (String) args[i];
                 } else if (args[i] instanceof AnyTypeClassTO) {
                     key = ((AnyTypeClassTO) args[i]).getKey();
@@ -118,7 +118,7 @@ public class AnyTypeClassLogic extends AbstractTransactionalLogic<AnyTypeClassTO
 
         if (StringUtils.isNotBlank(key)) {
             try {
-                return binder.getAnyTypeClassTO(anyTypeDAO.find(key));
+                return binder.getAnyTypeClassTO(anyTypeClassDAO.find(key));
             } catch (Throwable ignore) {
                 LOG.debug("Unresolved reference", ignore);
                 throw new UnresolvedReferenceException(ignore);

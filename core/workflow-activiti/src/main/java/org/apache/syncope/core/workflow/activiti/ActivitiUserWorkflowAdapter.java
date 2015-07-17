@@ -252,7 +252,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
             final Boolean enabled, final boolean storePassword) {
 
         Map<String, Object> variables = new HashMap<>();
-        variables.put(WF_EXECUTOR, AuthContextUtils.getAuthenticatedUsername());
+        variables.put(WF_EXECUTOR, AuthContextUtils.getUsername());
         variables.put(USER_TO, userTO);
         variables.put(ENABLED, enabled);
         variables.put(STORE_PASSWORD, storePassword);
@@ -299,7 +299,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         Set<String> preTasks = getPerformedTasks(user);
 
         final Map<String, Object> variables = new HashMap<>();
-        variables.put(WF_EXECUTOR, AuthContextUtils.getAuthenticatedUsername());
+        variables.put(WF_EXECUTOR, AuthContextUtils.getUsername());
         variables.put(TASK, task);
 
         // using BeanUtils to access all user's properties and trigger lazy loading - we are about to
@@ -674,7 +674,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     public List<WorkflowFormTO> getForms() {
         List<WorkflowFormTO> forms = new ArrayList<>();
 
-        final String authUser = AuthContextUtils.getAuthenticatedUsername();
+        final String authUser = AuthContextUtils.getUsername();
         if (adminUser.equals(authUser)) {
             forms.addAll(getForms(taskService.createTaskQuery().
                     taskVariableValueEquals(TASK_IS_FORM, Boolean.TRUE)));
@@ -788,7 +788,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     @Transactional
     @Override
     public WorkflowFormTO claimForm(final String taskId) {
-        final String authUser = AuthContextUtils.getAuthenticatedUsername();
+        final String authUser = AuthContextUtils.getUsername();
         Pair<Task, TaskFormData> checked = checkTask(taskId, authUser);
 
         if (!adminUser.equals(authUser)) {
@@ -813,7 +813,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     @Transactional
     @Override
     public WorkflowResult<UserMod> submitForm(final WorkflowFormTO form) {
-        final String authUser = AuthContextUtils.getAuthenticatedUsername();
+        final String authUser = AuthContextUtils.getUsername();
         Pair<Task, TaskFormData> checked = checkTask(form.getTaskId(), authUser);
 
         if (!checked.getKey().getOwner().equals(authUser)) {

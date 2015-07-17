@@ -74,8 +74,8 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
     protected void securityChecks(final User user) {
         // Allows anonymous (during self-registration) and self (during self-update) to read own user,
         // otherwise goes through security checks to see if required entitlements are owned
-        if (!AuthContextUtils.getAuthenticatedUsername().equals(anonymousUser)
-                && !AuthContextUtils.getAuthenticatedUsername().equals(user.getUsername())) {
+        if (!AuthContextUtils.getUsername().equals(anonymousUser)
+                && !AuthContextUtils.getUsername().equals(user.getUsername())) {
 
             Set<String> authRealms = AuthContextUtils.getAuthorizations().get(Entitlement.USER_READ);
             boolean authorized = CollectionUtils.exists(authRealms, new Predicate<String>() {

@@ -21,7 +21,7 @@ under the License.
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
                            http://www.springframework.org/schema/beans/spring-beans.xsd">
-
+  
   <bean id="entityManagerFactory"
         class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
     <property name="packagesToScan" value="org.apache.syncope.core.persistence.jpa.entity"/>
@@ -47,19 +47,41 @@ under the License.
     </property>
     <property name="jpaPropertyMap">
       <map>
+        <entry key="openjpa.Log" value="DefaultLevel=INFO, Runtime=TRACE, Tool=TRACE, SQL=TRACE"/>
+        
         <!--<entry key="openjpa.Log" value="SQL=TRACE"/>
         <entry key="openjpa.ConnectionFactoryProperties" 
         value="PrintParameters=true, PrettyPrint=true, PrettyPrintLineLength=80"/>-->
-                                
+        
         <entry key="openjpa.NontransactionalWrite" value="false"/>
         <entry key="openjpa.AutoDetach" value="close, commit, nontx-read, rollback"/>
 
         <entry key="openjpa.jdbc.SchemaFactory" value="native(ForeignKeys=true)"/>
-        <entry key="openjpa.jdbc.MappingDefaults" value="ForeignKeyDeleteAction=restrict, JoinForeignKeyDeleteAction=restrict"/>
-                
+        <entry key="openjpa.jdbc.MappingDefaults" 
+               value="ForeignKeyDeleteAction=restrict, JoinForeignKeyDeleteAction=restrict"/>
+                        
         <entry key="openjpa.DataCache" value="true"/>
-        <entry key="openjpa.QueryCache" value="true"/>
+        <entry key="openjpa.QueryCache" value="false"/>
+        <entry key="openjpa.QueryCompilationCache" value="false"/>
         <entry key="openjpa.RemoteCommitProvider" value="sjvm"/>
+        
+        <entry key="openjpa.BrokerFactory" value="slice"/>       
+        <entry key="openjpa.BrokerImpl" value="org.apache.openjpa.slice.DistributedBrokerImpl"/> 
+        <entry key="openjpa.slice.Lenient" value="false"/>
+        
+        <entry key="openjpa.slice.DistributionPolicy" 
+               value="org.apache.syncope.core.persistence.jpa.slice.DomainDistributionPolicy"/>
+        <entry key="openjpa.slice.QueryTargetPolicy" 
+               value="org.apache.syncope.core.persistence.jpa.slice.DomainQueryTargetPolicy"/>
+        <entry key="openjpa.slice.FinderTargetPolicy" 
+               value="org.apache.syncope.core.persistence.jpa.slice.DomainFinderTargetPolicy"/>
+
+        <entry key="openjpa.slice.Names" value="Master"/>        
+        <entry key="openjpa.slice.Master"  value="Master"/>
+        <entry key="openjpa.slice.Lenient" value="false"/>
+        
+        <entry key="openjpa.slice.Master.ConnectionFactory" value-ref="dataSource"/>
+        <entry key="openjpa.slice.Master.jdbc.DBDictionary" value="${jpa.dialect}"/>
       </map>
     </property>
   </bean>

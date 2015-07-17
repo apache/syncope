@@ -103,7 +103,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupMod> {
     @Transactional(readOnly = true)
     public List<GroupTO> own() {
         return CollectionUtils.collect(
-                userDAO.findAllGroups(userDAO.find(AuthContextUtils.getAuthenticatedUsername())),
+                userDAO.findAllGroups(userDAO.find(AuthContextUtils.getUsername())),
                 new Transformer<Group, GroupTO>() {
 
                     @Override

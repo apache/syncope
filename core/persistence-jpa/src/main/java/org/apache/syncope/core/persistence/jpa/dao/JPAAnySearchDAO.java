@@ -387,12 +387,9 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?, ?, ?>, Long> implements 
         List<T> result = new ArrayList<>();
 
         for (Object anyKey : query.getResultList()) {
-            long actualKey;
-            if (anyKey instanceof Object[]) {
-                actualKey = ((Number) ((Object[]) anyKey)[0]).longValue();
-            } else {
-                actualKey = ((Number) anyKey).longValue();
-            }
+            long actualKey = anyKey instanceof Object[]
+                    ? ((Number) ((Object[]) anyKey)[0]).longValue()
+                    : ((Number) anyKey).longValue();
 
             T any = typeKind == AnyTypeKind.USER
                     ? (T) userDAO.find(actualKey)

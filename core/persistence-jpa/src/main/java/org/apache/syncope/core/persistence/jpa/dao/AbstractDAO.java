@@ -25,6 +25,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceContextType;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.openjpa.slice.SlicePersistence;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.dao.DAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.Entity;
@@ -90,6 +92,16 @@ public abstract class AbstractDAO<E extends Entity<KEY>, KEY> implements DAO<E, 
             statement.insert(0, "ORDER BY ");
         }
         return statement.toString();
+    }
+
+    @Override
+    public String getDomain(final E entity) {
+        try {
+            return SlicePersistence.getSlice(entity);
+        } catch (Exception e) {
+            LOG.debug("While fetching slice for {}", entity, e);
+            return SyncopeConstants.MASTER_DOMAIN;
+        }
     }
 
     @Override

@@ -16,19 +16,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.dao;
+package org.apache.syncope.core.persistence.jpa.slice;
 
-import org.apache.syncope.core.persistence.api.entity.Entity;
+import java.util.List;
+import java.util.Map;
+import org.apache.openjpa.slice.QueryTargetPolicy;
+import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.core.misc.security.AuthContextUtils;
+import org.apache.syncope.core.persistence.jpa.entity.JPADomain;
 
-public interface DAO<E extends Entity<KEY>, KEY> {
+public class DomainQueryTargetPolicy implements QueryTargetPolicy {
 
-    String getDomain(E entity);
+    @Override
+    public String[] getTargets(final String query, final Map<Object, Object> params, final String language,
+            final List<String> slices, final Object context) {
 
-    void refresh(E entity);
+        return new String[] {
+            query.contains(JPADomain.class.getSimpleName())
+            ? SyncopeConstants.MASTER_DOMAIN
+            : AuthContextUtils.getDomain()
+        };
+    }
 
-    void detach(E entity);
-
-    void flush();
-
-    void clear();
 }

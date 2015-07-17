@@ -16,35 +16,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.rest.cxf.service;
+package org.apache.syncope.core.rest.cxf;
 
 import java.io.IOException;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
-import javax.ws.rs.core.EntityTag;
-import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.ext.Provider;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.lib.to.AbstractAnnotatedBean;
+import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.core.misc.security.AuthContextUtils;
 
 /**
- * Adds the <tt>ETag</tt> filter to any response containing an instance of <tt>AbstractSysInfoTO</tt> as entity.
- * The actual ETag value is computed on the basis of last change date (or creation date if not available).
- *
- * @see AbstractSysInfoTO
+ * Adds the domain header to all responses.
  */
 @Provider
-public class AddETagFilter implements ContainerResponseFilter {
+public class AddDomainFilter implements ContainerResponseFilter {
 
     @Override
     public void filter(final ContainerRequestContext reqCtx, final ContainerResponseContext resCtx) throws IOException {
-        if (resCtx.getEntity() instanceof AbstractAnnotatedBean && resCtx.getEntityTag() == null) {
-            AbstractAnnotatedBean sysInfo = (AbstractAnnotatedBean) resCtx.getEntity();
-            String etagValue = sysInfo.getETagValue();
-            if (StringUtils.isNotBlank(etagValue)) {
-                resCtx.getHeaders().add(HttpHeaders.ETAG, new EntityTag(etagValue).toString());
-            }
-        }
+        resCtx.getHeaders().add(RESTHeaders.DOMAIN, AuthContextUtils.getDomain());
     }
 }

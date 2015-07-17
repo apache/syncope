@@ -16,19 +16,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.dao;
+package org.apache.syncope.core.persistence.jpa.validation.entity;
 
-import org.apache.syncope.core.persistence.api.entity.Entity;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-public interface DAO<E extends Entity<KEY>, KEY> {
+import javax.validation.Constraint;
+import javax.validation.Payload;
 
-    String getDomain(E entity);
+@Target({ ElementType.TYPE })
+@Retention(RetentionPolicy.RUNTIME)
+@Constraint(validatedBy = DomainValidator.class)
+@Documented
+public @interface DomainCheck {
 
-    void refresh(E entity);
+    String message() default "{org.apache.syncope.core.persistence.validation.domain}";
 
-    void detach(E entity);
+    Class<?>[] groups() default {};
 
-    void flush();
-
-    void clear();
+    Class<? extends Payload>[] payload() default {};
 }
