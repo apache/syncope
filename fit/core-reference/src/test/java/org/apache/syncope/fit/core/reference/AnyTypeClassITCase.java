@@ -21,6 +21,7 @@ package org.apache.syncope.fit.core.reference;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -28,6 +29,7 @@ import java.util.List;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
+import org.apache.syncope.common.lib.to.DerSchemaTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -58,9 +60,21 @@ public class AnyTypeClassITCase extends AbstractITCase {
 
     @Test
     public void crud() {
+        // 1. create sample schemas
+        PlainSchemaTO plainSchema = new PlainSchemaTO();
+        plainSchema.setKey("new_plain_schema" + getUUIDString());
+        plainSchema.setType(AttrSchemaType.String);
+        plainSchema = createSchema(SchemaType.PLAIN, plainSchema);
+
+        DerSchemaTO derSchema = new DerSchemaTO();
+        derSchema.setKey("new_der_schema" + getUUIDString());
+        derSchema.setExpression(plainSchema.getKey() + " + '_' + derived_dx");
+        derSchema = createSchema(SchemaType.DERIVED, derSchema);
+
+        // 2. actual CRUD
         AnyTypeClassTO newClass = new AnyTypeClassTO();
         newClass.setKey("new class" + getUUIDString());
-        newClass.getPlainSchemas().add("firstname");
+        newClass.getPlainSchemas().add(plainSchema.getKey());
 
         Response response = anyTypeClassService.create(newClass);
         assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatusInfo().getStatusCode());
@@ -71,7 +85,7 @@ public class AnyTypeClassITCase extends AbstractITCase {
         assertTrue(newClass.getDerSchemas().isEmpty());
         assertTrue(newClass.getVirSchemas().isEmpty());
 
-        newClass.getDerSchemas().add("cn");
+        newClass.getDerSchemas().add(derSchema.getKey());
         anyTypeClassService.update(newClass);
 
         newClass = anyTypeClassService.read(newClass.getKey());
@@ -79,6 +93,9 @@ public class AnyTypeClassITCase extends AbstractITCase {
         assertFalse(newClass.getPlainSchemas().isEmpty());
         assertFalse(newClass.getDerSchemas().isEmpty());
         assertTrue(newClass.getVirSchemas().isEmpty());
+
+        assertEquals(newClass.getKey(), schemaService.read(SchemaType.PLAIN, plainSchema.getKey()).getAnyTypeClass());
+        assertEquals(newClass.getKey(), schemaService.read(SchemaType.DERIVED, derSchema.getKey()).getAnyTypeClass());
 
         anyTypeClassService.delete(newClass.getKey());
 
@@ -88,6 +105,9 @@ public class AnyTypeClassITCase extends AbstractITCase {
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
         }
+
+        assertNull(schemaService.read(SchemaType.PLAIN, plainSchema.getKey()).getAnyTypeClass());
+        assertNull(schemaService.read(SchemaType.DERIVED, derSchema.getKey()).getAnyTypeClass());
     }
 
     @Test

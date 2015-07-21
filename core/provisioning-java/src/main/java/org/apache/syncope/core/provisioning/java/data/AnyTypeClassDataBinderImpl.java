@@ -63,31 +63,46 @@ public class AnyTypeClassDataBinderImpl implements AnyTypeClassDataBinder {
             anyTypeClass.setKey(anyTypeClassTO.getKey());
         }
 
+        for (PlainSchema schema : plainSchemaDAO.findByAnyTypeClass(anyTypeClass)) {
+            schema.setAnyTypeClass(null);
+        }
+
         anyTypeClass.getPlainSchemas().clear();
         for (String schemaName : anyTypeClassTO.getPlainSchemas()) {
             PlainSchema schema = plainSchemaDAO.find(schemaName);
-            if (schema == null) {
-                LOG.debug("Invalid " + PlainSchema.class.getSimpleName() + "{}, ignoring...", schemaName);
+            if (schema == null || schema.getAnyTypeClass() != null) {
+                LOG.debug("Invalid or already in use" + PlainSchema.class.getSimpleName()
+                        + "{}, ignoring...", schemaName);
             } else {
                 anyTypeClass.add(schema);
             }
+        }
+
+        for (DerSchema schema : derSchemaDAO.findByAnyTypeClass(anyTypeClass)) {
+            schema.setAnyTypeClass(null);
         }
 
         anyTypeClass.getDerSchemas().clear();
         for (String schemaName : anyTypeClassTO.getDerSchemas()) {
             DerSchema schema = derSchemaDAO.find(schemaName);
-            if (schema == null) {
-                LOG.debug("Invalid " + DerSchema.class.getSimpleName() + "{}, ignoring...", schemaName);
+            if (schema == null || schema.getAnyTypeClass() != null) {
+                LOG.debug("Invalid or already in use" + DerSchema.class.getSimpleName()
+                        + "{}, ignoring...", schemaName);
             } else {
                 anyTypeClass.add(schema);
             }
         }
 
+        for (VirSchema schema : virSchemaDAO.findByAnyTypeClass(anyTypeClass)) {
+            schema.setAnyTypeClass(null);
+        }
+
         anyTypeClass.getVirSchemas().clear();
         for (String schemaName : anyTypeClassTO.getVirSchemas()) {
             VirSchema schema = virSchemaDAO.find(schemaName);
-            if (schema == null) {
-                LOG.debug("Invalid " + VirSchema.class.getSimpleName() + "{}, ignoring...", schemaName);
+            if (schema == null || schema.getAnyTypeClass() != null) {
+                LOG.debug("Invalid or already in use" + VirSchema.class.getSimpleName()
+                        + "{}, ignoring...", schemaName);
             } else {
                 anyTypeClass.add(schema);
             }

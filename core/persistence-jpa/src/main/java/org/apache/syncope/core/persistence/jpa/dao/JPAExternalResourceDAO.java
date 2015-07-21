@@ -33,7 +33,6 @@ import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AccountPolicy;
-import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.Policy;
@@ -69,9 +68,6 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource, String
 
     @Autowired
     private ConnectorRegistry connRegistry;
-
-    @Autowired
-    private AnyUtilsFactory anyUtilsFactory;
 
     @Override
     public ExternalResource find(final String name) {

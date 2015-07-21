@@ -39,7 +39,6 @@ import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
-import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.provisioning.api.data.SchemaDataBinder;
@@ -61,9 +60,6 @@ public class SchemaLogic extends AbstractTransactionalLogic<AbstractSchemaTO> {
 
     @Autowired
     private SchemaDataBinder binder;
-
-    @Autowired
-    private EntityFactory entityFactory;
 
     private boolean doesSchemaExist(final SchemaType schemaType, final String name) {
         boolean found;
@@ -104,27 +100,19 @@ public class SchemaLogic extends AbstractTransactionalLogic<AbstractSchemaTO> {
         T created;
         switch (schemaType) {
             case VIRTUAL:
-                VirSchema virSchema = entityFactory.newEntity(VirSchema.class);
-                binder.create((VirSchemaTO) schemaTO, virSchema);
-                virSchema = virSchemaDAO.save(virSchema);
+                VirSchema virSchema = virSchemaDAO.save(binder.create((VirSchemaTO) schemaTO));
                 created = (T) binder.getVirSchemaTO(virSchema);
                 break;
 
             case DERIVED:
-                DerSchema derSchema = entityFactory.newEntity(DerSchema.class);
-                binder.create((DerSchemaTO) schemaTO, derSchema);
-                derSchema = derSchemaDAO.save(derSchema);
-
+                DerSchema derSchema = derSchemaDAO.save(binder.create((DerSchemaTO) schemaTO));
                 created = (T) binder.getDerSchemaTO(derSchema);
                 break;
 
             case PLAIN:
             default:
-                PlainSchema normalSchema = entityFactory.newEntity(PlainSchema.class);
-                binder.create((PlainSchemaTO) schemaTO, normalSchema);
-                normalSchema = plainSchemaDAO.save(normalSchema);
-
-                created = (T) binder.getPlainSchemaTO(normalSchema);
+                PlainSchema plainSchema = plainSchemaDAO.save(binder.create((PlainSchemaTO) schemaTO));
+                created = (T) binder.getPlainSchemaTO(plainSchema);
         }
         return created;
     }
@@ -241,8 +229,7 @@ public class SchemaLogic extends AbstractTransactionalLogic<AbstractSchemaTO> {
                     throw new NotFoundException("Virtual Schema '" + schemaTO.getKey() + "'");
                 }
 
-                binder.update((VirSchemaTO) schemaTO, virSchema);
-                virSchemaDAO.save(virSchema);
+                virSchemaDAO.save(binder.update((VirSchemaTO) schemaTO, virSchema));
                 break;
 
             case DERIVED:
@@ -251,19 +238,17 @@ public class SchemaLogic extends AbstractTransactionalLogic<AbstractSchemaTO> {
                     throw new NotFoundException("Derived schema '" + schemaTO.getKey() + "'");
                 }
 
-                binder.update((DerSchemaTO) schemaTO, derSchema);
-                derSchemaDAO.save(derSchema);
+                derSchemaDAO.save(binder.update((DerSchemaTO) schemaTO, derSchema));
                 break;
 
             case PLAIN:
             default:
-                PlainSchema schema = plainSchemaDAO.find(schemaTO.getKey());
-                if (schema == null) {
+                PlainSchema plainSchema = plainSchemaDAO.find(schemaTO.getKey());
+                if (plainSchema == null) {
                     throw new NotFoundException("Schema '" + schemaTO.getKey() + "'");
                 }
 
-                binder.update((PlainSchemaTO) schemaTO, schema);
-                plainSchemaDAO.save(schema);
+                plainSchemaDAO.save(binder.update((PlainSchemaTO) schemaTO, plainSchema));
         }
     }
 

@@ -63,7 +63,19 @@ public class JPAAnyTypeClassDAO extends AbstractDAO<AnyTypeClass, String> implem
 
     @Override
     public AnyTypeClass save(final AnyTypeClass anyTypeClass) {
-        return entityManager.merge(anyTypeClass);
+        AnyTypeClass merge = entityManager.merge(anyTypeClass);
+
+        for (PlainSchema schema : merge.getPlainSchemas()) {
+            schema.setAnyTypeClass(merge);
+        }
+        for (DerSchema schema : merge.getDerSchemas()) {
+            schema.setAnyTypeClass(merge);
+        }
+        for (VirSchema schema : merge.getVirSchemas()) {
+            schema.setAnyTypeClass(merge);
+        }
+
+        return merge;
     }
 
     @Override

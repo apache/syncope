@@ -35,6 +35,8 @@ public abstract class AbstractSchemaTO extends AbstractBaseBean {
 
     private String key;
 
+    private String anyTypeClass;
+
     public String getKey() {
         return key;
     }
@@ -43,4 +45,13 @@ public abstract class AbstractSchemaTO extends AbstractBaseBean {
     public void setKey(final String key) {
         this.key = key;
     }
+
+    public String getAnyTypeClass() {
+        return anyTypeClass;
+    }
+
+    public void setAnyTypeClass(final String anyTypeClass) {
+        this.anyTypeClass = anyTypeClass;
+    }
+
 }

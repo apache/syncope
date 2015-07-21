@@ -335,7 +335,7 @@ under the License.
     <spring.version>4.1.7.RELEASE</spring.version>
     <spring-security.version>4.0.2.RELEASE</spring-security.version>
 
-    <openjpa.version>2.4.1-SNAPSHOT</openjpa.version>
+    <openjpa.version>2.4.0</openjpa.version>
     <commons-dbcp.version>2.1</commons-dbcp.version>
     <hibernate-validator.version>5.2.1.Final</hibernate-validator.version>
 
@@ -531,11 +531,6 @@ under the License.
       <dependency>
         <groupId>org.apache.openjpa</groupId>
         <artifactId>openjpa-persistence-jdbc</artifactId>
-        <version>${openjpa.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.openjpa</groupId>
-        <artifactId>openjpa-slice</artifactId>
         <version>${openjpa.version}</version>
       </dependency>
     
@@ -1109,6 +1104,12 @@ under the License.
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
           <version>2.10.3</version>          
+        </plugin>
+        
+        <plugin>
+          <groupId>org.apache.cxf</groupId>
+          <artifactId>cxf-java2wadl-plugin</artifactId>
+          <version>${cxf.version}</version>
         </plugin>
         
         <plugin>

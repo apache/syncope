@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.jpa.entity;
 import javax.persistence.Basic;
 import javax.persistence.Cacheable;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -44,7 +45,7 @@ public class JPAVirSchema extends AbstractEntity<String> implements VirSchema {
     @Id
     private String name;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.EAGER)
     private JPAAnyTypeClass anyTypeClass;
 
     @Basic
