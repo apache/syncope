@@ -48,13 +48,13 @@ public class UserTemplateModalPage extends UserModalPage {
     }
 
     @Override
-    protected void submitAction(final AjaxRequestTarget target, final Form form) {
+    protected void submitAction(final AjaxRequestTarget target, final Form<?> form) {
         syncTaskTO.setUserTemplate((UserTO) form.getModelObject());
         taskRestClient.updateSyncTask(syncTaskTO);
     }
 
     @Override
-    protected void closeAction(final AjaxRequestTarget target, final Form form) {
+    protected void closeAction(final AjaxRequestTarget target, final Form<?> form) {
         window.close(target);
     }
 }

@@ -20,8 +20,6 @@ package org.apache.syncope.console.pages.panels;
 
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.console.commons.JexlHelpUtil;
-import org.apache.syncope.console.pages.UserModalPage;
-import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxPasswordFieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.FieldPanel;
@@ -43,7 +41,7 @@ public class UserDetailsPanel extends Panel {
 
     private static final long serialVersionUID = 6592027822510220463L;
 
-    public UserDetailsPanel(final String id, final UserTO userTO, final Form form, final boolean resetPassword,
+    public UserDetailsPanel(final String id, final UserTO userTO, final Form<?> form, final boolean resetPassword,
             final boolean templateMode) {
 
         super(id);

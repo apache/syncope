@@ -19,6 +19,8 @@
 package org.apache.syncope.console.pages;
 
 import org.apache.commons.lang3.SerializationUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.mod.StatusMod;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.util.AttributableOperations;
@@ -50,13 +52,21 @@ public class UserSelfModalPage extends UserModalPage {
     }
 
     @Override
-    protected void submitAction(final AjaxRequestTarget target, final Form form) {
+    protected void submitAction(final AjaxRequestTarget target, final Form<?> form) {
         final UserTO updatedUserTO = (UserTO) form.getModelObject();
 
         if (updatedUserTO.getId() == 0) {
             restClient.create(updatedUserTO, storePassword.getModelObject());
         } else {
             final UserMod userMod = AttributableOperations.diff(updatedUserTO, initialUserTO);
+
+            if (StringUtils.isNotBlank(userMod.getPassword())) {
+                StatusMod pwdPropRequest = new StatusMod();
+                pwdPropRequest.setOnSyncope(true);
+                pwdPropRequest.getResourceNames().addAll(updatedUserTO.getResources());
+
+                userMod.setPwdPropRequest(pwdPropRequest);
+            }
 
             // update user only if it has changed
             if (!userMod.isEmpty()) {
@@ -66,7 +76,7 @@ public class UserSelfModalPage extends UserModalPage {
     }
 
     @Override
-    protected void closeAction(final AjaxRequestTarget target, final Form form) {
+    protected void closeAction(final AjaxRequestTarget target, final Form<?> form) {
         setResponsePage(new ResultStatusModalPage.Builder(window, userTO).mode(mode).build());
     }
 }

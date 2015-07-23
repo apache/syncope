@@ -43,7 +43,7 @@ public class ViewUserModalPage extends EditUserModalPage {
     }
 
     @Override
-    protected void submitAction(final AjaxRequestTarget target, final Form form) {
+    protected void submitAction(final AjaxRequestTarget target, final Form<?> form) {
         // No submit allowed, read-only form
     }
 }
