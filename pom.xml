@@ -345,7 +345,7 @@ under the License.
 
     <cxf.version>3.0.5</cxf.version>	
     <spring.version>4.0.9.RELEASE</spring.version>
-    <spring-security.version>3.2.7.RELEASE</spring-security.version>
+    <spring-security.version>3.2.8.RELEASE</spring-security.version>
     <jackson.version>2.4.6</jackson.version>
     <velocity.version>1.7</velocity.version>
     <velocitytools.version>2.0</velocitytools.version>
@@ -384,7 +384,7 @@ under the License.
     <highlightjs.version>8.0</highlightjs.version>
     <codemirror.version>3.23</codemirror.version>
 
-    <izpack.version>5.0.0</izpack.version>
+    <izpack.version>5.0.1</izpack.version>
     <maven-invoker.version>2.1.1</maven-invoker.version>
     
     <jdeb.version>1.4</jdeb.version>
