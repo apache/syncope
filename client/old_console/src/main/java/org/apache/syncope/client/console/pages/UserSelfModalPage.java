@@ -24,6 +24,7 @@ import org.apache.syncope.client.console.rest.UserSelfRestClient;
 import org.apache.syncope.common.lib.AttributableOperations;
 import org.apache.syncope.common.lib.mod.UserMod;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
@@ -57,6 +58,14 @@ public class UserSelfModalPage extends UserModalPage {
             restClient.create(updatedUserTO, storePassword.getModelObject());
         } else {
             final UserMod userMod = AttributableOperations.diff(updatedUserTO, initialUserTO);
+
+            if (StringUtils.isNotBlank(userMod.getPassword())) {
+                StatusMod pwdPropRequest = new StatusMod();
+                pwdPropRequest.setOnSyncope(true);
+                pwdPropRequest.getResourceNames().addAll(updatedUserTO.getResources());
+
+                userMod.setPwdPropRequest(pwdPropRequest);
+            }
 
             // update user only if it has changed
             if (!userMod.isEmpty()) {

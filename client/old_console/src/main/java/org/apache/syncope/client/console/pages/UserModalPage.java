@@ -79,8 +79,7 @@ public abstract class UserModalPage extends BaseModalPage {
         fragment.setOutputMarkupId(true);
         add(fragment);
 
-        storePassword = new AjaxCheckBoxPanel("storePassword", "storePassword",
-                new Model<Boolean>(Boolean.TRUE));
+        storePassword = new AjaxCheckBoxPanel("storePassword", "storePassword", new Model<Boolean>(Boolean.TRUE));
     }
 
     public UserTO getUserTO() {
@@ -91,18 +90,17 @@ public abstract class UserModalPage extends BaseModalPage {
         this.userTO = userTO;
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    protected Form setupEditPanel() {
-        fragment.add(new Label("id", userTO.getKey() == 0
+    protected Form<UserTO> setupEditPanel() {
+        fragment.add(new Label("id", userTO.getId() == 0
                 ? StringUtils.EMPTY
                 : userTO.getUsername()));
 
         fragment.add(new Label("new", userTO.getKey() == 0
                 ? new ResourceModel("new")
-                : new Model(StringUtils.EMPTY)));
+                : new Model<String>(StringUtils.EMPTY)));
 
-        final Form form = new Form("UserForm");
-        form.setModel(new CompoundPropertyModel(userTO));
+        final Form<UserTO> form = new Form<UserTO>("UserForm");
+        form.setModel(new CompoundPropertyModel<UserTO>(userTO));
 
         //--------------------------------
         // User details

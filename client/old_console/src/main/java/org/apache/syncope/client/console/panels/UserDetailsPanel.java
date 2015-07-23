@@ -41,7 +41,7 @@ public class UserDetailsPanel extends Panel {
 
     private static final long serialVersionUID = 6592027822510220463L;
 
-    public UserDetailsPanel(final String id, final UserTO userTO, final Form form, final boolean resetPassword,
+    public UserDetailsPanel(final String id, final UserTO userTO, final Form<?> form, final boolean resetPassword,
             final boolean templateMode) {
 
         super(id);
