@@ -333,7 +333,7 @@ under the License.
     <jackson.version>2.6.0</jackson.version>
 
     <spring.version>4.1.7.RELEASE</spring.version>
-    <spring-security.version>4.0.1.RELEASE</spring-security.version>
+    <spring-security.version>4.0.2.RELEASE</spring-security.version>
 
     <openjpa.version>2.4.0</openjpa.version>
     <commons-dbcp.version>2.1</commons-dbcp.version>
@@ -385,7 +385,7 @@ under the License.
     <wicket.version>7.0.0-M6</wicket.version>
     <wicket-jqueryui.version>7.0.0-M6</wicket-jqueryui.version>
 
-    <izpack.version>5.0.0</izpack.version>
+    <izpack.version>5.0.1</izpack.version>
     <httpclient.version>4.3.6</httpclient.version>
     <maven-invoker.version>2.1.1</maven-invoker.version>
 
