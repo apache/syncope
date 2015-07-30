@@ -18,24 +18,32 @@
  */
 package org.apache.syncope.client.console.rest;
 
+import java.util.ArrayList;
 import java.util.List;
-import org.apache.syncope.common.lib.to.RealmTO;
-import org.apache.syncope.common.rest.api.service.RealmService;
+import org.apache.syncope.common.lib.to.AnyTypeClassTO;
+import org.apache.syncope.common.lib.to.AnyTypeTO;
+import org.apache.syncope.common.rest.api.service.AnyTypeClassService;
+import org.apache.syncope.common.rest.api.service.AnyTypeService;
 import org.springframework.stereotype.Component;
 
 /**
- * Console client for invoking Rest Group's services.
+ * Console client for invoking Rest any type class services.
  */
 @Component
-public class RealmRestClient extends BaseRestClient {
+public class AnyTypeRestClient extends BaseRestClient {
 
-    private static final long serialVersionUID = -8549081557283519638L;
+    private static final long serialVersionUID = -8874495991295283249L;
 
-    public List<RealmTO> list() {
-        return getService(RealmService.class).list();
+    public List<AnyTypeTO> list() {
+        return getService(AnyTypeService.class).list();
     }
 
-    public void create(final String parentPath, final RealmTO realmTO) {
-        getService(RealmService.class).create(parentPath, realmTO);         
+    public List<AnyTypeClassTO> getAnyTypeClass(final List<String> anyTypeClassNames) {
+        List<AnyTypeClassTO> anyTypeClassTOs = new ArrayList<AnyTypeClassTO>();
+        for (String anyTypeClass : anyTypeClassNames) {
+            anyTypeClassTOs.add(getService(AnyTypeClassService.class).read(anyTypeClass));
+        }
+        return anyTypeClassTOs;
     }
+
 }

@@ -21,10 +21,8 @@ package org.apache.syncope.client.console.pages;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.commons.PreferenceManager;
+import org.apache.syncope.client.console.PreferenceManager;
 import org.apache.syncope.common.lib.search.SearchableFields;
-import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -48,7 +46,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
  * Modal window with Display attributes form.
  */
 @SuppressWarnings({ "unchecked", "rawtypes" })
-public class DisplayAttributesModalPage extends BaseModalPage {
+public abstract class DisplayAttributesModalPage extends BaseModalPage {
 
     private static final long serialVersionUID = -4274117450918385110L;
 
@@ -56,8 +54,6 @@ public class DisplayAttributesModalPage extends BaseModalPage {
      * Max allowed selections.
      */
     private static final int MAX_SELECTIONS = 9;
-
-        public static final String[] DEFAULT_SELECTION = { "key", "username", "status" };
 
     @SpringBean
     private PreferenceManager prefMan;
@@ -79,7 +75,7 @@ public class DisplayAttributesModalPage extends BaseModalPage {
 
             @Override
             protected List<String> load() {
-                return SearchableFields.get(UserTO.class);
+                return SearchableFields.get(getTOClass());
             }
         };
 
@@ -106,11 +102,11 @@ public class DisplayAttributesModalPage extends BaseModalPage {
         final Form form = new Form(FORM);
         form.setModel(new CompoundPropertyModel(this));
 
-        selectedDetails = prefMan.getList(getRequest(), Constants.PREF_USERS_DETAILS_VIEW);
+        selectedDetails = prefMan.getList(getRequest(), getPrefDetailView());
 
-        selectedPlainSchemas = prefMan.getList(getRequest(), Constants.PREF_USERS_ATTRIBUTES_VIEW);
+        selectedPlainSchemas = prefMan.getList(getRequest(), getPrefAttributeView());
 
-        selectedDerSchemas = prefMan.getList(getRequest(), Constants.PREF_USERS_DERIVED_ATTRIBUTES_VIEW);
+        selectedDerSchemas = prefMan.getList(getRequest(), getPrefDerivedAttributeView());
 
         final CheckGroup dgroup = new CheckGroup("dCheckGroup", new PropertyModel(this, "selectedDetails"));
         form.add(dgroup);
@@ -169,7 +165,7 @@ public class DisplayAttributesModalPage extends BaseModalPage {
                 private static final long serialVersionUID = 9101744072914090143L;
 
                 @Override
-                protected void populateItem(ListItem<String> item) {
+                protected void populateItem(final ListItem<String> item) {
                     item.add(new Check("dscheck", item.getModel()));
                     item.add(new Label("dsname", new ResourceModel(item.getModelObject(), item.getModelObject())));
                 }
@@ -191,11 +187,11 @@ public class DisplayAttributesModalPage extends BaseModalPage {
                 } else {
                     final Map<String, List<String>> prefs = new HashMap<>();
 
-                    prefs.put(Constants.PREF_USERS_DETAILS_VIEW, selectedDetails);
+                    prefs.put(getPrefDetailView(), selectedDetails);
 
-                    prefs.put(Constants.PREF_USERS_ATTRIBUTES_VIEW, selectedPlainSchemas);
+                    prefs.put(getPrefAttributeView(), selectedPlainSchemas);
 
-                    prefs.put(Constants.PREF_USERS_DERIVED_ATTRIBUTES_VIEW, selectedDerSchemas);
+                    prefs.put(getPrefDerivedAttributeView(), selectedDerSchemas);
 
                     prefMan.setList(getRequest(), getResponse(), prefs);
 
@@ -228,4 +224,13 @@ public class DisplayAttributesModalPage extends BaseModalPage {
 
         add(form);
     }
+
+    public abstract String getPrefDetailView();
+
+    public abstract String getPrefAttributeView();
+
+    public abstract String getPrefDerivedAttributeView();
+    
+    public abstract Class getTOClass();
+
 }

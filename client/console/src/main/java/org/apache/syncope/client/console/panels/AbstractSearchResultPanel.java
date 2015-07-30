@@ -147,8 +147,19 @@ public abstract class AbstractSearchResultPanel extends Panel implements IEventS
      */
     protected final AbstractBasePage page;
 
+    /**
+     * Realm related to current panel.
+     */
+    private final String realm;
+
+    /**
+     * Any type related to current panel.
+     */
+    private final String type;
+
     protected <T extends AnyTO> AbstractSearchResultPanel(final String id, final boolean filtered,
-            final String fiql, final PageReference pageRef, final AbstractAnyRestClient restClient) {
+            final String fiql, final PageReference pageRef, final AbstractAnyRestClient restClient,
+            final String realm, final String type) {
 
         super(id);
 
@@ -186,6 +197,9 @@ public abstract class AbstractSearchResultPanel extends Panel implements IEventS
         add(container);
 
         rows = prefMan.getPaginatorRows(getRequest(), Constants.PREF_USERS_PAGINATOR_ROWS);
+
+        this.realm = realm;
+        this.type = type;
     }
 
     protected void initResultTable() {
@@ -238,7 +252,7 @@ public abstract class AbstractSearchResultPanel extends Panel implements IEventS
     }
 
     private void updateResultTable(final boolean create, final int rows) {
-        dataProvider = new AnyDataProvider(restClient, rows, filtered);
+        dataProvider = new AnyDataProvider(restClient, rows, filtered, realm, type);
         dataProvider.setFIQL(fiql);
 
         final int currentPage = resultTable != null

@@ -1,0 +1,70 @@
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
+  <head>
+    <title></title>
+
+    <link href="webjars/bootstrap/${bootstrap.version}/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="webjars/bootstrap-select/${bootstrap-select.version}/dist/css/bootstrap-select.min.css" rel="stylesheet" type="text/css" />
+    <link href="webjars/font-awesome/${font-awesome.version}/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+    <link href="webjars/ionicons/${ionicons.version}/css/ionicons.min.css" rel="stylesheet" type="text/css" />
+    <link href="css/AdminLTE.css" rel="stylesheet" type="text/css" />
+    <link href="css/AdminLTE_skins/skin-green.css" rel="stylesheet" type="text/css" />
+    <link href="css/syncopeConsole.css" rel="stylesheet" type="text/css" />
+    <link href="css/fieldstyle.css" rel="stylesheet" type="text/css" />
+
+    <script type="text/javascript" src="webjars/jquery-ui/${jquery-ui.version}/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="webjars/bootstrap/${bootstrap.version}/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="webjars/bootstrap-select/${bootstrap-select.version}/dist/js/bootstrap-select.min.js"></script>
+    <script type="text/javascript" src="js/AdminLTE-app.min.js"></script>
+
+    <script type="text/javascript">
+      var notificationShownTimes = 0;
+
+      function showNotification(componentId, messagecount) {
+        notificationShownTimes++;
+        timeout = 1700 + (messagecount * 500) + notificationShownTimes * 200;
+        $('div#' + componentId).fadeTo('normal', 1.0);
+        setTimeout("$('div#" + componentId + "').fadeOut('normal')", timeout);
+      }
+    </script>
+
+    <style type="text/css">
+      table.palette td.header {
+        background:url("images/ui-bg_glass_75_e6e6e6_1x400.png")
+          repeat-x scroll 50% 50% #E6E6E6 !important;
+      }
+    </style>
+  </head>
+  <body onload="setTimeout('window.focus();', 0);">
+    <div wicket:id="feedback"/>
+    <form data-example-id="simple-input-groups" class="bs-example bs-example-form" wicket:id="RealmForm">
+      <wicket:container wicket:id="details"/>
+      <wicket:child />
+      <div style="margin: 20px 10px 0">
+        <input type="submit"
+               class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+               wicket:id="apply"/>
+        <input type="button"
+               class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+               wicket:id="cancel"/>
+      </div>
+    </form>
+  </body>
+</html>

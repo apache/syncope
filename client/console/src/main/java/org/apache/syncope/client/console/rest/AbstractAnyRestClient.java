@@ -32,12 +32,12 @@ public abstract class AbstractAnyRestClient extends BaseRestClient {
     public abstract int count(String realm);
 
     public abstract List<? extends AnyTO> list(
-            String realm, int page, int size, final SortParam<String> sort);
+            String realm, int page, int size, final SortParam<String> sort, final String type);
 
-    public abstract int searchCount(String realm, String fiql);
+    public abstract int searchCount(String realm, String fiql, final String type);
 
     public abstract List<? extends AnyTO> search(
-            String realm, String fiql, int page, int size, final SortParam<String> sort);
+            String realm, String fiql, int page, int size, final SortParam<String> sort, final String type);
 
     public abstract ConnObjectTO readConnObject(String resourceName, Long key);
 

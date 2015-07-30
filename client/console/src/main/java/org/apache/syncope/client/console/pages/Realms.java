@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.client.console.pages;
 
+import static org.apache.wicket.Component.ENABLE;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,14 +27,20 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.panels.Realm;
 import org.apache.syncope.client.console.rest.RealmRestClient;
+import org.apache.syncope.client.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
 import org.apache.syncope.common.lib.to.RealmTO;
+import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.wicket.MarkupContainer;
+import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.event.IEvent;
+import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Fragment;
@@ -54,9 +62,13 @@ public class Realms extends BasePage {
 
     private final WebMarkupContainer content;
 
+    private final ModalWindow editModalWin;
+
+    protected RealmTO currentRealm;
+
     public Realms(final PageParameters parameters) {
         super(parameters);
-
+        
         final List<RealmTO> realms = realmRestClient.list();
         Collections.sort(realms, new RealmNameComparator());
 
@@ -68,6 +80,40 @@ public class Realms extends BasePage {
 
         content.add(new Label("header", "Root realm"));
         content.add(new Label("body", "Root realm"));
+
+        //create new realms                
+        final AjaxLink<Void> createLink = new ClearIndicatingAjaxLink<Void>("createLink", getPageReference()) {
+
+            private static final long serialVersionUID = -7978723352517770644L;
+
+            @Override
+            protected void onClickInternal(final AjaxRequestTarget target) {
+                editModalWin.setPageCreator(new ModalWindow.PageCreator() {
+
+                    private static final long serialVersionUID = -7834632442532690940L;
+
+                    @Override
+                    public Page createPage() {
+                        return new RealmModalPage(Realms.this.getPageReference(), editModalWin, new RealmTO(),
+                                Realms.this.getCurrentRealm().getFullPath(), Entitlement.REALM_CREATE);
+                    }
+                });
+
+                editModalWin.show(target);
+            }
+        };
+        if (SyncopeConsoleSession.get().owns(Entitlement.REALM_CREATE)) {
+            MetaDataRoleAuthorizationStrategy.authorize(createLink, ENABLE, Entitlement.REALM_CREATE);
+        }
+        content.add(createLink);
+
+        // Modal window for editing realms
+        editModalWin = new ModalWindow("editModal");
+        editModalWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
+        editModalWin.setCookieName("edit-modal");
+
+        content.add(editModalWin);
+        setCurrentRealm(realms.get(0));
     }
 
     private void add(final Map<Long, List<RealmTO>> parentMap, final Long key, final MarkupContainer container) {
@@ -83,6 +129,7 @@ public class Realms extends BasePage {
 
                 @Override
                 public void onClick(final AjaxRequestTarget target) {
+                    Realms.this.setCurrentRealm(realm);
                     send(Realms.this, Broadcast.EXACT, new ControlSidebarClick<>(realm, target));
                 }
             };
@@ -148,9 +195,42 @@ public class Realms extends BasePage {
             @SuppressWarnings("unchecked")
             final ControlSidebarClick<RealmTO> controlSidebarClick = ControlSidebarClick.class.cast(event.getPayload());
             content.addOrReplace(new Label("header", controlSidebarClick.getObj().getName()));
-            content.addOrReplace(new Realm("body", controlSidebarClick.getObj()));
+            content.addOrReplace(new Realm("body", controlSidebarClick.getObj(), getPageReference()));
             controlSidebarClick.getTarget().add(content);
         }
+    }
+
+    public void setCurrentRealm(final RealmTO realmTO) {
+        this.currentRealm = realmTO;
+        setupEditModalPage(currentRealm);
+    }
+
+    public RealmTO getCurrentRealm() {
+        return this.currentRealm;
+    }
+
+    public void setupEditModalPage(final RealmTO realmTO) {
+        final AjaxLink<Void> edit = new ClearIndicatingAjaxLink<Void>("edit", getPageReference()) {
+
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            protected void onClickInternal(final AjaxRequestTarget target) {
+                editModalWin.setPageCreator(new ModalWindow.PageCreator() {
+
+                    private static final long serialVersionUID = -7834632442532690940L;
+
+                    @Override
+                    public Page createPage() {
+                        return new EditRealmModalPage(Realms.this.getPageReference(), editModalWin, realmTO,
+                                Realms.this.getCurrentRealm().getFullPath(), Entitlement.REALM_UPDATE);
+                    }
+                });
+
+                editModalWin.show(target);
+            }
+        };
+        content.addOrReplace(edit);
     }
 
     private static class ControlSidebarClick<T> {

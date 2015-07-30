@@ -16,20 +16,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.panels;
+package org.apache.syncope.client.console.pages;
 
-import org.apache.wicket.markup.html.panel.Panel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.common.lib.to.RealmTO;
+import org.apache.wicket.PageReference;
+import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 
-public class Any extends Panel {
+public class EditRealmModalPage<T extends AnyTO> extends RealmModalPage {
 
-    private static final long serialVersionUID = -1100228004207271270L;
+    private static final long serialVersionUID = -4285220460543213901L;
 
-    protected static final Logger LOG = LoggerFactory.getLogger(Any.class);
+    public EditRealmModalPage(
+            final PageReference pageRef,
+            final ModalWindow window,
+            final RealmTO realmTO,
+            final String parentPath,
+            final String entitlement) {
 
-    public Any(final String id) {
-        super(id);
+        super(pageRef, window, realmTO, parentPath, entitlement);
+
     }
 
 }

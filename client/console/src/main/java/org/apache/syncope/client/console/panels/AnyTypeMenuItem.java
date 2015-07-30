@@ -18,25 +18,26 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import org.apache.syncope.common.lib.to.RealmTO;
-import org.apache.wicket.markup.html.form.TextField;
+import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.PropertyModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RealmDetails extends Panel {
+public class AnyTypeMenuItem extends Panel {
 
     private static final long serialVersionUID = -1100228004207271270L;
 
-    protected static final Logger LOG = LoggerFactory.getLogger(RealmDetails.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(AnyTypeMenuItem.class);
 
-    public RealmDetails(final String id, final RealmTO realmTO) {
-        super(id);
-        add(new TextField<>("name", new PropertyModel<>(realmTO, "name")));
-        add(new TextField<>("path", new PropertyModel<>(realmTO, "fullPath")));
-        add(new TextField<>("accountPolicy", new PropertyModel<>(realmTO, "accountPolicy")));
-        add(new TextField<>("passwordPolicy", new PropertyModel<>(realmTO, "passwordPolicy")));
+    public AnyTypeMenuItem(final String label, final String href) {
+        super("anytype-menuitem");
+
+        WebMarkupContainer myLink = new WebMarkupContainer("tabLink");
+        myLink.add(new AttributeModifier("href", "#" + href));
+        myLink.add(new Label("tabLabel", label));
+        add(myLink);
     }
 
 }

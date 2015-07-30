@@ -23,23 +23,27 @@ under the License.
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://xmlns.jcp.org/jsf/composite">
   <body>
     <wicket:panel>
+      <div class="input-group">
+        <span id="basic-addon1" class="input-group-addon">Name</span>
+        <input type="text" aria-describedby="basic-addon1" placeholder="name" class="form-control" wicket:id="name" />
+      </div>
       <br />
-      <form data-example-id="simple-input-groups" class="bs-example bs-example-form">
-        <div class="input-group">
-          <span id="basic-addon1" class="input-group-addon">Id</span>
-          <input type="text" aria-describedby="basic-addon1" placeholder="id" class="form-control" wicket:id="id" />
-        </div>
-        <br />
-        <div class="input-group">
-          <span id="basic-addon1" class="input-group-addon">Name</span>
-          <input type="text" aria-describedby="basic-addon1" placeholder="name" class="form-control" wicket:id="name" />
-        </div>
-        <br />
-        <div class="input-group">
-          <span id="basic-addon1" class="input-group-addon">Path</span>
-          <input type="text" aria-describedby="basic-addon1" placeholder="path" class="form-control" wicket:id="path" />
-        </div>
-      </form>
+      <div class="input-group">
+        <span id="basic-addon1" class="input-group-addon">Path</span>
+        <input type="text" aria-describedby="basic-addon1" placeholder="path" class="form-control" wicket:id="path" />
+      </div>
+      <br />
+      <div class="input-group">
+        <span id="basic-addon1" class="input-group-addon">Account Policy</span>
+        <input type="text" aria-describedby="basic-addon1" placeholder="accountPolicy" class="form-control" 
+               wicket:id="accountPolicy" />
+      </div>
+      <br />
+      <div class="input-group">
+        <span id="basic-addon1" class="input-group-addon">Password Policy</span>
+        <input type="text" aria-describedby="basic-addon1" placeholder="passwordPolicy" class="form-control" 
+               wicket:id="passwordPolicy" />
+      </div>
     </wicket:panel>
   </body>
 </html>

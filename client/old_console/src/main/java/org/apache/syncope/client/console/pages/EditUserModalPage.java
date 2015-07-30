@@ -98,6 +98,6 @@ public class EditUserModalPage extends UserModalPage {
 
     @Override
     protected void closeAction(final AjaxRequestTarget target, final Form<?> form) {
-        setResponsePage(new ResultStatusModalPage.Builder(window, userTO).mode(mode).build());
+        setResponsePage(new Realms.Builder(window, userTO).mode(mode).build());
     }
 }

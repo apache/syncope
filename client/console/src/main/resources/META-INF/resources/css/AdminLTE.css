@@ -4360,3 +4360,7 @@ fieldset[disabled] .btn-vk.active {
     white-space: normal!important;
   }
 }
+
+i{
+  margin-right: 5px;
+}

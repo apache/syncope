@@ -28,6 +28,7 @@ import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.CheckGroupColumn;
 import org.apache.syncope.client.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
 import org.apache.syncope.client.console.pages.BulkActionModalPage;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -110,6 +111,9 @@ public class AjaxDataTablePanel<T, S> extends DataTablePanel<T, S> {
 
         columns.add(0, new CheckGroupColumn<T, S>(group));
         dataTable = new AjaxFallbackDefaultDataTable<>("dataTable", columns, dataProvider, rowsPerPage);
+        dataTable.add(new AttributeModifier("class",
+                "ui-widget ui-widget-content table-hover table table-striped table-bordered"));
+
         group.add(dataTable);
 
         fragment.add(new ClearIndicatingAjaxButton("bulkActionLink", bulkActionForm, pageRef) {
