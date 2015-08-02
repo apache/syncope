@@ -32,6 +32,7 @@ import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.PropagationByResource;
+import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.provisioning.api.AnyObjectProvisioningManager;
@@ -81,7 +82,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
         List<PropagationTask> tasks = propagationManager.getAnyObjectCreateTasks(
                 created, anyObjectTO.getVirAttrs(), excludedResources);
         PropagationReporter propagationReporter =
-                ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
+                ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
         try {
             taskExecutor.execute(tasks, propagationReporter);
         } catch (PropagationException e) {
@@ -118,7 +119,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
         }
 
         PropagationReporter propagationReporter =
-                ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
+                ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
         try {
             taskExecutor.execute(tasks, propagationReporter);
         } catch (PropagationException e) {
@@ -130,20 +131,20 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
     }
 
     @Override
-    public List<PropagationStatus> delete(final Long anyObjectKey) {
-        return delete(anyObjectKey, Collections.<String>emptySet());
+    public List<PropagationStatus> delete(final Long key) {
+        return delete(key, Collections.<String>emptySet());
     }
 
     @Override
-    public List<PropagationStatus> delete(final Long anyObjectKey, final Set<String> excludedResources) {
+    public List<PropagationStatus> delete(final Long key, final Set<String> excludedResources) {
         List<PropagationTask> tasks = new ArrayList<>();
 
-        AnyObject anyObject = anyObjectDAO.authFind(anyObjectKey);
+        AnyObject anyObject = anyObjectDAO.authFind(key);
         if (anyObject != null) {
             tasks.addAll(propagationManager.getAnyObjectDeleteTasks(anyObject.getKey()));
         }
 
-        PropagationReporter propagationReporter = ApplicationContextProvider.getApplicationContext().
+        PropagationReporter propagationReporter = ApplicationContextProvider.getBeanFactory().
                 getBean(PropagationReporter.class);
         try {
             taskExecutor.execute(tasks, propagationReporter);
@@ -152,7 +153,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
             propagationReporter.onPrimaryResourceFailure(tasks);
         }
 
-        awfAdapter.delete(anyObjectKey);
+        awfAdapter.delete(key);
 
         return propagationReporter.getStatuses();
     }
@@ -168,15 +169,36 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
     }
 
     @Override
-    public List<PropagationStatus> deprovision(final Long anyObjectKey, final Collection<String> resources) {
-        AnyObject anyObject = anyObjectDAO.authFind(anyObjectKey);
+    public List<PropagationStatus> provision(final Long key, final Collection<String> resources) {
+        PropagationByResource propByRes = new PropagationByResource();
+        for (String resource : resources) {
+            propByRes.add(ResourceOperation.UPDATE, resource);
+        }
+
+        WorkflowResult<Long> wfResult = new WorkflowResult<>(key, propByRes, "update");
+
+        List<PropagationTask> tasks = propagationManager.getAnyObjectUpdateTasks(wfResult, null, null, null);
+        PropagationReporter propagationReporter =
+                ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
+        try {
+            taskExecutor.execute(tasks, propagationReporter);
+        } catch (PropagationException e) {
+            LOG.error("Error propagation primary resource", e);
+            propagationReporter.onPrimaryResourceFailure(tasks);
+        }
+        return propagationReporter.getStatuses();
+    }
+
+    @Override
+    public List<PropagationStatus> deprovision(final Long key, final Collection<String> resources) {
+        AnyObject anyObject = anyObjectDAO.authFind(key);
 
         Collection<String> noPropResourceName = CollectionUtils.removeAll(anyObject.getResourceNames(), resources);
 
         List<PropagationTask> tasks = propagationManager.getAnyObjectDeleteTasks(
-                anyObjectKey, new HashSet<>(resources), noPropResourceName);
+                key, new HashSet<>(resources), noPropResourceName);
         PropagationReporter propagationReporter =
-                ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
+                ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
         try {
             taskExecutor.execute(tasks, propagationReporter);
         } catch (PropagationException e) {

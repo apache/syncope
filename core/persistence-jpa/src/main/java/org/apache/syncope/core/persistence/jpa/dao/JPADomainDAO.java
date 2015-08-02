@@ -30,19 +30,19 @@ public class JPADomainDAO extends AbstractDAO<Domain, String> implements DomainD
 
     @Override
     public Domain find(final String key) {
-        return entityManager.find(JPADomain.class, key);
+        return entityManager().find(JPADomain.class, key);
     }
 
     @Override
     public List<Domain> findAll() {
-        TypedQuery<Domain> query = entityManager.createQuery(
+        TypedQuery<Domain> query = entityManager().createQuery(
                 "SELECT e FROM " + JPADomain.class.getSimpleName() + " e ", Domain.class);
         return query.getResultList();
     }
 
     @Override
     public Domain save(final Domain anyTypeClass) {
-        return entityManager.merge(anyTypeClass);
+        return entityManager().merge(anyTypeClass);
     }
 
     @Override
@@ -52,6 +52,6 @@ public class JPADomainDAO extends AbstractDAO<Domain, String> implements DomainD
             return;
         }
 
-        entityManager.remove(domain);
+        entityManager().remove(domain);
     }
 }

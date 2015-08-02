@@ -26,7 +26,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.mod.UserMod;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
-import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationException;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
@@ -50,10 +49,10 @@ public class UserConfirmPwdResetProcessor implements Processor {
 
     @Override
     public void process(final Exchange exchange) {
-        User user = exchange.getProperty("user", User.class);
+        Long key = exchange.getProperty("userKey", Long.class);
 
         UserMod userMod = new UserMod();
-        userMod.setKey(user.getKey());
+        userMod.setKey(key);
         userMod.setPassword(exchange.getProperty("password", String.class));
 
         List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(
@@ -61,7 +60,7 @@ public class UserConfirmPwdResetProcessor implements Processor {
                         new ImmutablePair<UserMod, Boolean>(userMod, null), null, "confirmPasswordReset"),
                 true, null);
         PropagationReporter propReporter =
-                ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
+                ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
         try {
             taskExecutor.execute(tasks, propReporter);
         } catch (PropagationException e) {

@@ -147,19 +147,19 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
 
     @Override
     @SuppressWarnings("unchecked")
-    public Pair<Long, List<PropagationStatus>> activate(final User user, final StatusMod statusMod) {
+    public Pair<Long, List<PropagationStatus>> activate(final StatusMod statusMod) {
         PollingConsumer pollingConsumer = getConsumer("direct:statusPort");
 
         Map<String, Object> props = new HashMap<>();
         props.put("token", statusMod.getToken());
-        props.put("user", user);
+        props.put("userKey", statusMod.getKey());
         props.put("statusMod", statusMod);
 
         if (statusMod.isOnSyncope()) {
-            sendMessage("direct:activateUser", user.getKey(), props);
+            sendMessage("direct:activateUser", statusMod.getKey(), props);
         } else {
             WorkflowResult<Long> updated =
-                    new WorkflowResult<>(user.getKey(), null, statusMod.getType().name().toLowerCase());
+                    new WorkflowResult<>(statusMod.getKey(), null, statusMod.getType().name().toLowerCase());
             sendMessage("direct:userStatusPropagation", updated, props);
         }
 
@@ -174,18 +174,18 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
 
     @Override
     @SuppressWarnings("unchecked")
-    public Pair<Long, List<PropagationStatus>> reactivate(final User user, final StatusMod statusMod) {
+    public Pair<Long, List<PropagationStatus>> reactivate(final StatusMod statusMod) {
         PollingConsumer pollingConsumer = getConsumer("direct:statusPort");
 
         Map<String, Object> props = new HashMap<>();
-        props.put("user", user);
+        props.put("userKey", statusMod.getKey());
         props.put("statusMod", statusMod);
 
         if (statusMod.isOnSyncope()) {
-            sendMessage("direct:reactivateUser", user.getKey(), props);
+            sendMessage("direct:reactivateUser", statusMod.getKey(), props);
         } else {
             WorkflowResult<Long> updated =
-                    new WorkflowResult<>(user.getKey(), null, statusMod.getType().name().toLowerCase());
+                    new WorkflowResult<>(statusMod.getKey(), null, statusMod.getType().name().toLowerCase());
             sendMessage("direct:userStatusPropagation", updated, props);
         }
 
@@ -200,18 +200,18 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
 
     @Override
     @SuppressWarnings("unchecked")
-    public Pair<Long, List<PropagationStatus>> suspend(final User user, final StatusMod statusMod) {
+    public Pair<Long, List<PropagationStatus>> suspend(final StatusMod statusMod) {
         PollingConsumer pollingConsumer = getConsumer("direct:statusPort");
 
         Map<String, Object> props = new HashMap<>();
-        props.put("user", user);
+        props.put("userKey", statusMod.getKey());
         props.put("statusMod", statusMod);
 
         if (statusMod.isOnSyncope()) {
-            sendMessage("direct:suspendUser", user.getKey(), props);
+            sendMessage("direct:suspendUser", statusMod.getKey(), props);
         } else {
             WorkflowResult<Long> updated =
-                    new WorkflowResult<>(user.getKey(), null, statusMod.getType().name().toLowerCase());
+                    new WorkflowResult<>(statusMod.getKey(), null, statusMod.getType().name().toLowerCase());
             sendMessage("direct:userStatusPropagation", updated, props);
         }
 
@@ -242,6 +242,30 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
 
     @Override
     @SuppressWarnings("unchecked")
+    public List<PropagationStatus> provision(
+            final Long key, final boolean changePwd, final String password, final Collection<String> resources) {
+
+        PollingConsumer pollingConsumer = getConsumer("direct:provisionPort");
+
+        Map<String, Object> props = new HashMap<>();
+        props.put("key", key);
+        props.put("changePwd", changePwd);
+        props.put("password", password);
+        props.put("resources", resources);
+
+        sendMessage("direct:provisionUser", key, props);
+
+        Exchange exchange = pollingConsumer.receive();
+
+        if (exchange.getProperty(Exchange.EXCEPTION_CAUGHT) != null) {
+            throw (RuntimeException) exchange.getProperty(Exchange.EXCEPTION_CAUGHT);
+        }
+
+        return exchange.getIn().getBody(List.class);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
     public List<PropagationStatus> deprovision(final Long user, final Collection<String> resources) {
         PollingConsumer pollingConsumer = getConsumer("direct:deprovisionPort");
 
@@ -268,7 +292,7 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
         PollingConsumer pollingConsumer = getConsumer("direct:updateInSyncPort");
 
         Map<String, Object> props = new HashMap<>();
-        props.put("key", key);
+        props.put("userKey", key);
         props.put("result", result);
         props.put("enabled", enabled);
         props.put("excludedResources", excludedResources);
@@ -301,7 +325,7 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
         Map<String, Object> props = new HashMap<>();
         props.put("propagate", propagate);
 
-        sendMessage("direct:innerSuspendUser", user, props);
+        sendMessage("direct:innerSuspendUser", user.getKey(), props);
 
         Exchange exchange = pollingConsumer.receive();
 
@@ -324,16 +348,15 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
     }
 
     @Override
-    public void confirmPasswordReset(final User user, final String token, final String password) {
+    public void confirmPasswordReset(final Long key, final String token, final String password) {
         PollingConsumer pollingConsumer = getConsumer("direct:confirmPwdResetPort");
 
         Map<String, Object> props = new HashMap<>();
-        props.put("user", user);
-        props.put("userKey", user.getKey());
+        props.put("userKey", key);
         props.put("token", token);
         props.put("password", password);
 
-        sendMessage("direct:confirmPwdReset", user, props);
+        sendMessage("direct:confirmPwdReset", key, props);
 
         Exchange exchange = pollingConsumer.receive();
 

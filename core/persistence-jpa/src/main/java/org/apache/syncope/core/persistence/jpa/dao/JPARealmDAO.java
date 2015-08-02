@@ -50,7 +50,7 @@ public class JPARealmDAO extends AbstractDAO<Realm, Long> implements RealmDAO {
 
     @Override
     public Realm getRoot() {
-        TypedQuery<Realm> query = entityManager.createQuery(
+        TypedQuery<Realm> query = entityManager().createQuery(
                 "SELECT e FROM " + JPARealm.class.getSimpleName() + " e WHERE e.parent IS NULL", Realm.class);
 
         Realm result = null;
@@ -65,7 +65,7 @@ public class JPARealmDAO extends AbstractDAO<Realm, Long> implements RealmDAO {
 
     @Override
     public Realm find(final Long key) {
-        return entityManager.find(JPARealm.class, key);
+        return entityManager().find(JPARealm.class, key);
     }
 
     @Override
@@ -126,7 +126,7 @@ public class JPARealmDAO extends AbstractDAO<Realm, Long> implements RealmDAO {
                 append(JPARealm.class.getSimpleName()).append(" e WHERE e.").
                 append(policy instanceof AccountPolicy ? "accountPolicy" : "passwordPolicy").append("=:policy");
 
-        TypedQuery<Realm> query = entityManager.createQuery(queryString.toString(), Realm.class);
+        TypedQuery<Realm> query = entityManager().createQuery(queryString.toString(), Realm.class);
         query.setParameter("policy", policy);
 
         List<Realm> result = new ArrayList<>();
@@ -154,7 +154,7 @@ public class JPARealmDAO extends AbstractDAO<Realm, Long> implements RealmDAO {
 
     @Override
     public List<Realm> findChildren(final Realm realm) {
-        TypedQuery<Realm> query = entityManager.createQuery(
+        TypedQuery<Realm> query = entityManager().createQuery(
                 "SELECT e FROM " + JPARealm.class.getSimpleName() + " e WHERE e.parent=:realm", Realm.class);
         query.setParameter("realm", realm);
 
@@ -180,14 +180,14 @@ public class JPARealmDAO extends AbstractDAO<Realm, Long> implements RealmDAO {
 
     @Override
     public List<Realm> findAll() {
-        TypedQuery<Realm> query = entityManager.createQuery(
+        TypedQuery<Realm> query = entityManager().createQuery(
                 "SELECT e FROM " + JPARealm.class.getSimpleName() + " e ", Realm.class);
         return query.getResultList();
     }
 
     @Override
     public Realm save(final Realm realm) {
-        return entityManager.merge(realm);
+        return entityManager().merge(realm);
     }
 
     @Override
@@ -199,7 +199,7 @@ public class JPARealmDAO extends AbstractDAO<Realm, Long> implements RealmDAO {
 
             toBeDeleted.setParent(null);
 
-            entityManager.remove(toBeDeleted);
+            entityManager().remove(toBeDeleted);
         }
     }
 

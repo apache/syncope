@@ -215,7 +215,7 @@ public class PasswordGenerator {
         String[] generatedPassword = new String[policySpec.getMinLength()];
 
         for (int i = 0; i < generatedPassword.length; i++) {
-            generatedPassword[i] = "";
+            generatedPassword[i] = StringUtils.EMPTY;
         }
 
         checkStartChar(generatedPassword, policySpec);
@@ -224,7 +224,6 @@ public class PasswordGenerator {
 
         checkRequired(generatedPassword, policySpec);
 
-        //filled empty chars
         for (int firstEmptyChar = firstEmptyChar(generatedPassword);
                 firstEmptyChar < generatedPassword.length - 1; firstEmptyChar++) {
 
@@ -252,6 +251,10 @@ public class PasswordGenerator {
         if (policySpec.isMustntStartWithNonAlpha()) {
             generatedPassword[0] = SecureRandomUtils.generateRandomLetter();
         }
+
+        if (StringUtils.EMPTY.equals(generatedPassword[0])) {
+            generatedPassword[0] = SecureRandomUtils.generateRandomLetter();
+        }
     }
 
     private void checkEndChar(final String[] generatedPassword, final PasswordPolicySpec policySpec) {
@@ -269,6 +272,10 @@ public class PasswordGenerator {
             generatedPassword[policySpec.getMinLength() - 1] = SecureRandomUtils.generateRandomLetter();
         }
         if (policySpec.isMustntEndWithNonAlpha()) {
+            generatedPassword[policySpec.getMinLength() - 1] = SecureRandomUtils.generateRandomLetter();
+        }
+
+        if (StringUtils.EMPTY.equals(generatedPassword[policySpec.getMinLength() - 1])) {
             generatedPassword[policySpec.getMinLength() - 1] = SecureRandomUtils.generateRandomLetter();
         }
     }

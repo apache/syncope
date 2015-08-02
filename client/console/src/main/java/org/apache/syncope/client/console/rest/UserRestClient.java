@@ -32,7 +32,7 @@ import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.ResourceAssociationActionType;
+import org.apache.syncope.common.lib.types.ResourceAssociationAction;
 import org.apache.syncope.common.lib.types.ResourceDeassociationActionType;
 import org.apache.syncope.common.lib.wrap.ResourceKey;
 import org.apache.syncope.common.rest.api.CollectionWrapper;
@@ -150,7 +150,7 @@ public class UserRestClient extends AbstractAnyRestClient {
     public void unlink(final String etag, final long userKey, final List<StatusBean> statuses) {
         synchronized (this) {
             UserService service = getService(etag, UserService.class);
-            service.bulkDeassociation(userKey, ResourceDeassociationActionType.UNLINK,
+            service.deassociate(userKey, ResourceDeassociationActionType.UNLINK,
                     CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(),
                             ResourceKey.class));
             resetClient(UserService.class);
@@ -164,7 +164,7 @@ public class UserRestClient extends AbstractAnyRestClient {
             ResourceAssociationMod associationMod = new ResourceAssociationMod();
             associationMod.getTargetResources().addAll(
                     CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(), ResourceKey.class));
-            service.bulkAssociation(userKey, ResourceAssociationActionType.LINK, associationMod);
+            service.associate(userKey, ResourceAssociationAction.LINK, associationMod);
 
             resetClient(UserService.class);
         }
@@ -174,7 +174,7 @@ public class UserRestClient extends AbstractAnyRestClient {
         BulkActionResult result;
         synchronized (this) {
             UserService service = getService(etag, UserService.class);
-            result = service.bulkDeassociation(userKey, ResourceDeassociationActionType.DEPROVISION,
+            result = service.deassociate(userKey, ResourceDeassociationActionType.DEPROVISION,
                     CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(),
                             ResourceKey.class)).
                     readEntity(BulkActionResult.class);
@@ -196,7 +196,7 @@ public class UserRestClient extends AbstractAnyRestClient {
             associationMod.setChangePwd(changepwd);
             associationMod.setPassword(password);
 
-            result = service.bulkAssociation(userKey, ResourceAssociationActionType.PROVISION, associationMod).
+            result = service.associate(userKey, ResourceAssociationAction.PROVISION, associationMod).
                     readEntity(BulkActionResult.class);
             resetClient(UserService.class);
         }
@@ -207,7 +207,7 @@ public class UserRestClient extends AbstractAnyRestClient {
         BulkActionResult result;
         synchronized (this) {
             UserService service = getService(etag, UserService.class);
-            result = service.bulkDeassociation(userKey, ResourceDeassociationActionType.UNASSIGN,
+            result = service.deassociate(userKey, ResourceDeassociationActionType.UNASSIGN,
                     CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(),
                             ResourceKey.class)).
                     readEntity(BulkActionResult.class);
@@ -229,7 +229,7 @@ public class UserRestClient extends AbstractAnyRestClient {
             associationMod.setChangePwd(changepwd);
             associationMod.setPassword(password);
 
-            result = service.bulkAssociation(userKey, ResourceAssociationActionType.ASSIGN, associationMod).
+            result = service.associate(userKey, ResourceAssociationAction.ASSIGN, associationMod).
                     readEntity(BulkActionResult.class);
             resetClient(UserService.class);
         }

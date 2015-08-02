@@ -36,19 +36,19 @@ public class JPASecurityQuestionDAO extends AbstractDAO<SecurityQuestion, Long> 
 
     @Override
     public SecurityQuestion find(final Long key) {
-        return entityManager.find(JPASecurityQuestion.class, key);
+        return entityManager().find(JPASecurityQuestion.class, key);
     }
 
     @Override
     public List<SecurityQuestion> findAll() {
-        final TypedQuery<SecurityQuestion> query = entityManager.createQuery(
+        final TypedQuery<SecurityQuestion> query = entityManager().createQuery(
                 "SELECT e FROM " + JPASecurityQuestion.class.getSimpleName() + " e ", SecurityQuestion.class);
         return query.getResultList();
     }
 
     @Override
     public SecurityQuestion save(final SecurityQuestion securityQuestion) {
-        return entityManager.merge(securityQuestion);
+        return entityManager().merge(securityQuestion);
     }
 
     @Override
@@ -64,7 +64,7 @@ public class JPASecurityQuestionDAO extends AbstractDAO<SecurityQuestion, Long> 
             userDAO.save(user);
         }
 
-        entityManager.remove(securityQuestion);
+        entityManager().remove(securityQuestion);
     }
 
 }

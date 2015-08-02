@@ -185,7 +185,13 @@ under the License.
     <process ref="userStatusPropagationProcessor"/>
     <to uri="direct:statusPort"/> 
   </route>
-        
+    
+  <route id="provisionUser">
+    <from uri="direct:provisionUser"/>            
+    <process ref="userProvisionProcessor"/>
+    <to uri="direct:provisionPort"/>              
+  </route>
+                
   <route id="deprovisionUser">
     <from uri="direct:deprovisionUser"/>            
     <process ref="userDeprovisionProcessor"/>

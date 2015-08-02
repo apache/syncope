@@ -132,7 +132,7 @@ public class ConnectorServiceImpl extends AbstractServiceImpl implements Connect
     public BulkActionResult bulk(final BulkAction bulkAction) {
         BulkActionResult result = new BulkActionResult();
 
-        if (bulkAction.getOperation() == BulkAction.Type.DELETE) {
+        if (bulkAction.getType() == BulkAction.Type.DELETE) {
             for (String key : bulkAction.getTargets()) {
                 try {
                     result.getResults().put(

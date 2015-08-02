@@ -38,11 +38,11 @@ public class JPATaskExecDAO extends AbstractDAO<TaskExec, Long> implements TaskE
 
     @Override
     public TaskExec find(final Long key) {
-        return entityManager.find(JPATaskExec.class, key);
+        return entityManager().find(JPATaskExec.class, key);
     }
 
     private <T extends Task> TaskExec findLatest(final T task, final String field) {
-        TypedQuery<TaskExec> query = entityManager.createQuery(
+        TypedQuery<TaskExec> query = entityManager().createQuery(
                 "SELECT e FROM " + JPATaskExec.class.getSimpleName() + " e "
                 + "WHERE e.task=:task "
                 + "ORDER BY e." + field + " DESC", TaskExec.class);
@@ -71,13 +71,13 @@ public class JPATaskExecDAO extends AbstractDAO<TaskExec, Long> implements TaskE
                 append(" e WHERE e.task IN (").append("SELECT t FROM ").
                 append(taskDAO.getEntityReference(type).getSimpleName()).append(" t)");
 
-        TypedQuery<TaskExec> query = entityManager.createQuery(queryString.toString(), TaskExec.class);
+        TypedQuery<TaskExec> query = entityManager().createQuery(queryString.toString(), TaskExec.class);
         return query.getResultList();
     }
 
     @Override
     public TaskExec save(final TaskExec execution) {
-        return entityManager.merge(execution);
+        return entityManager().merge(execution);
     }
 
     /**
@@ -111,6 +111,6 @@ public class JPATaskExecDAO extends AbstractDAO<TaskExec, Long> implements TaskE
             execution.getTask().removeExec(execution);
         }
 
-        entityManager.remove(execution);
+        entityManager().remove(execution);
     }
 }

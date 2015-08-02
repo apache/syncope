@@ -28,7 +28,6 @@ import org.apache.syncope.common.lib.mod.StatusMod;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
-import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationException;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
@@ -52,22 +51,22 @@ public class UserStatusPropagationProcessor implements Processor {
 
     @Autowired
     protected UserDAO userDAO;
-    
+
     @SuppressWarnings("unchecked")
     @Override
     public void process(final Exchange exchange) {
         WorkflowResult<Long> updated = (WorkflowResult) exchange.getIn().getBody();
 
-        User user = exchange.getProperty("user", User.class);
+        Long key = exchange.getProperty("userKey", Long.class);
         StatusMod statusMod = exchange.getProperty("statusMod", StatusMod.class);
 
-        Collection<String> resourcesToBeExcluded =
-                CollectionUtils.removeAll(userDAO.findAllResourceNames(user), statusMod.getResourceNames());
+        Collection<String> resourcesToBeExcluded = CollectionUtils.removeAll(
+                userDAO.findAllResourceNames(userDAO.find(key)), statusMod.getResourceNames());
 
         List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(
-                user, statusMod.getType() != StatusMod.ModType.SUSPEND, resourcesToBeExcluded);
+                key, statusMod.getType() != StatusMod.ModType.SUSPEND, resourcesToBeExcluded);
         PropagationReporter propReporter =
-                ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
+                ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
         try {
             taskExecutor.execute(tasks, propReporter);
         } catch (PropagationException e) {

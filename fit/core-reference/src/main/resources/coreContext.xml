@@ -29,6 +29,7 @@ under the License.
     <property name="locations">
       <list>
         <value>file:${conf.directory}/persistence.properties</value>
+        <value>file:${conf.directory}/domains/*.properties</value>
         <value>file:${conf.directory}/security.properties</value>
         <value>file:${conf.directory}/connid.properties</value>
         <value>file:${conf.directory}/mail.properties</value>
@@ -42,6 +43,7 @@ under the License.
     <property name="locations">
       <list>
         <value>classpath:persistence.properties</value>
+        <value>classpath:domains/*.properties</value>
         <value>classpath:security.properties</value>
         <value>classpath:connid.properties</value>
         <value>classpath:mail.properties</value>

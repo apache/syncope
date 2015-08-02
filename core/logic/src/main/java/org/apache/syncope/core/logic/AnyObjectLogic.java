@@ -55,7 +55,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.interceptor.TransactionInterceptor;
 
 /**
  * Note that this controller does not extend {@link AbstractTransactionalLogic}, hence does not provide any
@@ -96,7 +95,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectMod> 
     }
 
     @PreAuthorize("isAuthenticated()")
-    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
+    @Transactional(readOnly = true)
     @Override
     public int count(final List<String> realms) {
         return anyObjectDAO.count(getEffectiveRealms(SyncopeConstants.FULL_ADMIN_REALMS, realms));
@@ -133,7 +132,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectMod> 
     }
 
     @PreAuthorize("hasRole('" + Entitlement.ANY_OBJECT_SEARCH + "')")
-    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
+    @Transactional(readOnly = true)
     @Override
     public int searchCount(final SearchCond searchCondition, final List<String> realms) {
         return searchDAO.count(
@@ -142,7 +141,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectMod> 
     }
 
     @PreAuthorize("hasRole('" + Entitlement.ANY_OBJECT_SEARCH + "')")
-    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
+    @Transactional(readOnly = true)
     @Override
     public List<AnyObjectTO> search(final SearchCond searchCondition, final int page, final int size,
             final List<OrderByClause> orderBy, final List<String> realms, final boolean details) {
@@ -239,29 +238,26 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectMod> 
     }
 
     @PreAuthorize("hasRole('" + Entitlement.ANY_OBJECT_UPDATE + "')")
-    @Transactional(rollbackFor = { Throwable.class })
     @Override
     public AnyObjectTO unlink(final Long anyObjectKey, final Collection<String> resources) {
         AnyObjectMod anyObjectMod = new AnyObjectMod();
         anyObjectMod.setKey(anyObjectKey);
         anyObjectMod.getResourcesToRemove().addAll(resources);
-        final Long updatedResult = provisioningManager.unlink(anyObjectMod);
 
-        return binder.getAnyObjectTO(updatedResult);
+        return binder.getAnyObjectTO(provisioningManager.unlink(anyObjectMod));
     }
 
     @PreAuthorize("hasRole('" + Entitlement.ANY_OBJECT_UPDATE + "')")
-    @Transactional(rollbackFor = { Throwable.class })
     @Override
     public AnyObjectTO link(final Long anyObjectKey, final Collection<String> resources) {
         AnyObjectMod anyObjectMod = new AnyObjectMod();
         anyObjectMod.setKey(anyObjectKey);
         anyObjectMod.getResourcesToAdd().addAll(resources);
+
         return binder.getAnyObjectTO(provisioningManager.link(anyObjectMod));
     }
 
     @PreAuthorize("hasRole('" + Entitlement.ANY_OBJECT_UPDATE + "')")
-    @Transactional(rollbackFor = { Throwable.class })
     @Override
     public AnyObjectTO unassign(final Long anyObjectKey, final Collection<String> resources) {
         AnyObjectMod anyObjectMod = new AnyObjectMod();
@@ -271,44 +267,41 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectMod> 
     }
 
     @PreAuthorize("hasRole('" + Entitlement.ANY_OBJECT_UPDATE + "')")
-    @Transactional(rollbackFor = { Throwable.class })
     @Override
-    public AnyObjectTO assign(final Long anyObjectKey, final Collection<String> resources,
-            final boolean changePwd, final String password) {
+    public AnyObjectTO assign(
+            final Long key,
+            final Collection<String> resources,
+            final boolean changepwd,
+            final String password) {
 
-        AnyObjectMod userMod = new AnyObjectMod();
-        userMod.setKey(anyObjectKey);
-        userMod.getResourcesToAdd().addAll(resources);
-        return update(userMod);
+        AnyObjectMod anyObjectMod = new AnyObjectMod();
+        anyObjectMod.setKey(key);
+        anyObjectMod.getResourcesToAdd().addAll(resources);
+
+        return update(anyObjectMod);
     }
 
     @PreAuthorize("hasRole('" + Entitlement.ANY_OBJECT_UPDATE + "')")
-    @Transactional(rollbackFor = { Throwable.class })
     @Override
-    public AnyObjectTO deprovision(final Long anyObjectKey, final Collection<String> resources) {
-        AnyObject anyObject = anyObjectDAO.authFind(anyObjectKey);
+    public AnyObjectTO deprovision(final Long key, final Collection<String> resources) {
+        List<PropagationStatus> statuses = provisioningManager.deprovision(key, resources);
 
-        List<PropagationStatus> statuses = provisioningManager.deprovision(anyObjectKey, resources);
-
-        AnyObjectTO updatedTO = binder.getAnyObjectTO(anyObject, true);
+        AnyObjectTO updatedTO = binder.getAnyObjectTO(key);
         updatedTO.getPropagationStatusTOs().addAll(statuses);
         return updatedTO;
     }
 
     @PreAuthorize("hasRole('" + Entitlement.ANY_OBJECT_UPDATE + "')")
-    @Transactional(rollbackFor = { Throwable.class })
     @Override
-    public AnyObjectTO provision(final Long anyObjectKey, final Collection<String> resources,
-            final boolean changePwd, final String password) {
+    public AnyObjectTO provision(
+            final Long key,
+            final Collection<String> resources,
+            final boolean changePwd,
+            final String password) {
 
-        AnyObjectTO original = binder.getAnyObjectTO(anyObjectKey);
+        AnyObjectTO original = binder.getAnyObjectTO(key);
+        original.getPropagationStatusTOs().addAll(provisioningManager.provision(key, resources));
 
-        //trick: assign and retrieve propagation statuses ...
-        original.getPropagationStatusTOs().addAll(
-                assign(anyObjectKey, resources, changePwd, password).getPropagationStatusTOs());
-
-        // .... rollback.
-        TransactionInterceptor.currentTransactionStatus().setRollbackOnly();
         return original;
     }
 

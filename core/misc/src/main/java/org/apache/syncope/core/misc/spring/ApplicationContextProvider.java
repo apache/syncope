@@ -27,12 +27,22 @@ public class ApplicationContextProvider implements ApplicationContextAware {
 
     private static ConfigurableApplicationContext CTX;
 
+    private static DefaultListableBeanFactory BEAN_FACTORY;
+
     public static ConfigurableApplicationContext getApplicationContext() {
         return CTX;
     }
 
     public static DefaultListableBeanFactory getBeanFactory() {
-        return (DefaultListableBeanFactory) CTX.getBeanFactory();
+        return BEAN_FACTORY == null
+                ? CTX == null
+                        ? null
+                        : (DefaultListableBeanFactory) CTX.getBeanFactory()
+                : BEAN_FACTORY;
+    }
+
+    public static void setBeanFactory(final DefaultListableBeanFactory beanFactory) {
+        BEAN_FACTORY = beanFactory;
     }
 
     /**

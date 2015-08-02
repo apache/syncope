@@ -19,20 +19,20 @@
 package org.apache.syncope.core.provisioning.api.job;
 
 import java.text.ParseException;
+import java.util.Map;
 import org.apache.syncope.core.persistence.api.entity.Report;
+import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.quartz.SchedulerException;
 
 public interface JobInstanceLoader {
 
-    void registerJob(Task task, String jobClassName, String cronExpression)
-            throws ClassNotFoundException, SchedulerException, ParseException;
+    String DOMAIN = "domain";
 
-    void registerJob(Report report) throws SchedulerException, ParseException;
+    Map<String, Object> registerJob(final SchedTask task, final long interruptMaxRetries)
+            throws SchedulerException, ParseException;
 
-    void registerReportJob(Long reportKey) throws SchedulerException, ParseException;
-
-    void registerTaskJob(Long taskKey) throws ClassNotFoundException, SchedulerException, ParseException;
+    void registerJob(final Report report) throws SchedulerException, ParseException;
 
     void unregisterJob(Task task);
 

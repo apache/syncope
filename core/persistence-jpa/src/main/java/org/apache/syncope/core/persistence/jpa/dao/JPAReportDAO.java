@@ -32,12 +32,13 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 public class JPAReportDAO extends AbstractDAO<Report, Long> implements ReportDAO {
 
-    @Override
     @Transactional(readOnly = true)
+    @Override
     public Report find(final Long key) {
-        return entityManager.find(JPAReport.class, key);
+        return entityManager().find(JPAReport.class, key);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<Report> findAll() {
         return findAll(-1, -1, Collections.<OrderByClause>emptyList());
@@ -45,7 +46,7 @@ public class JPAReportDAO extends AbstractDAO<Report, Long> implements ReportDAO
 
     @Override
     public List<Report> findAll(final int page, final int itemsPerPage, final List<OrderByClause> orderByClauses) {
-        final TypedQuery<Report> query = entityManager.createQuery(
+        final TypedQuery<Report> query = entityManager().createQuery(
                 "SELECT e FROM " + JPAReport.class.getSimpleName() + " e "
                 + toOrderByStatement(Report.class, "e", orderByClauses), Report.class);
 
@@ -62,14 +63,14 @@ public class JPAReportDAO extends AbstractDAO<Report, Long> implements ReportDAO
 
     @Override
     public int count() {
-        Query countQuery = entityManager.createNativeQuery("SELECT COUNT(id) FROM " + JPAReport.TABLE);
+        Query countQuery = entityManager().createNativeQuery("SELECT COUNT(id) FROM " + JPAReport.TABLE);
         return ((Number) countQuery.getSingleResult()).intValue();
     }
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public Report save(final Report report) {
-        return entityManager.merge(report);
+        return entityManager().merge(report);
     }
 
     @Override
@@ -84,6 +85,6 @@ public class JPAReportDAO extends AbstractDAO<Report, Long> implements ReportDAO
 
     @Override
     public void delete(final Report report) {
-        entityManager.remove(report);
+        entityManager().remove(report);
     }
 }

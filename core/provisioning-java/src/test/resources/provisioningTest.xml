@@ -26,6 +26,7 @@ under the License.
     <property name="locations">
       <list>
         <value>classpath:persistence.properties</value>
+        <value>classpath:domains/*.properties</value>
         <value>classpath:security.properties</value>
         <value>classpath:connid.properties</value>
         <value>classpath:mail.properties</value>
@@ -36,11 +37,5 @@ under the License.
     <property name="ignoreResourceNotFound" value="true"/>
     <property name="ignoreUnresolvablePlaceholders" value="true"/>
   </bean>
-  
-  <bean id="contentXML" class="org.apache.syncope.core.misc.spring.ResourceWithFallbackLoader">
-    <property name="primary" value="file:${conf.directory}/content.xml"/>
-    <property name="fallback" value="classpath:content.xml"/>
-  </bean>
-  <bean class="org.apache.syncope.core.persistence.jpa.content.XMLContentLoader" init-method="load"/>
   
 </beans>

@@ -46,19 +46,19 @@ public class BulkAction extends AbstractBaseBean {
 
     }
 
-    private Type operation;
+    private Type type;
 
     /**
      * Serialized identifiers.
      */
     private final List<String> targets = new ArrayList<>();
 
-    public Type getOperation() {
-        return operation;
+    public Type getType() {
+        return type;
     }
 
-    public void setOperation(final Type operation) {
-        this.operation = operation;
+    public void setType(final Type type) {
+        this.type = type;
     }
 
     @XmlElementWrapper(name = "targets")

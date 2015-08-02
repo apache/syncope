@@ -40,7 +40,6 @@ import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.task.SyncTask;
-import org.apache.syncope.core.provisioning.api.job.SyncJob;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.task.AnyTemplate;
 import org.apache.syncope.core.persistence.jpa.entity.JPARealm;
@@ -73,7 +72,7 @@ public class JPASyncTask extends AbstractProvisioningTask implements SyncTask {
      * Default constructor.
      */
     public JPASyncTask() {
-        super(TaskType.SYNCHRONIZATION, SyncJob.class.getName());
+        super(TaskType.SYNCHRONIZATION, null);
     }
 
     @Override

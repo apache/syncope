@@ -22,8 +22,6 @@ import org.apache.syncope.core.persistence.api.entity.Entity;
 
 public interface DAO<E extends Entity<KEY>, KEY> {
 
-    String getDomain(E entity);
-
     void refresh(E entity);
 
     void detach(E entity);

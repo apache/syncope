@@ -37,6 +37,7 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.common.lib.types.PropagationByResource;
+import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationException;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
@@ -87,12 +88,8 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
     public Pair<Long, List<PropagationStatus>> create(final UserTO userTO, final boolean storePassword,
             final boolean disablePwdPolicyCheck, final Boolean enabled, final Set<String> excludedResources) {
 
-        WorkflowResult<Pair<Long, Boolean>> created;
-        try {
-            created = uwfAdapter.create(userTO, disablePwdPolicyCheck, enabled, storePassword);
-        } catch (PropagationException e) {
-            throw e;
-        }
+        WorkflowResult<Pair<Long, Boolean>> created =
+                uwfAdapter.create(userTO, disablePwdPolicyCheck, enabled, storePassword);
 
         List<PropagationTask> tasks = propagationManager.getUserCreateTasks(
                 created.getResult().getKey(),
@@ -102,7 +99,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
                 userTO.getVirAttrs(),
                 excludedResources);
         PropagationReporter propagationReporter =
-                ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
+                ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
         try {
             taskExecutor.execute(tasks, propagationReporter);
         } catch (PropagationException e) {
@@ -129,7 +126,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
                     ? propagationManager.getUserUpdateTasks(updated, false, null)
                     : Collections.<PropagationTask>emptyList());
         }
-        PropagationReporter propagationReporter = ApplicationContextProvider.getApplicationContext().
+        PropagationReporter propagationReporter = ApplicationContextProvider.getBeanFactory().
                 getBean(PropagationReporter.class);
         if (!tasks.isEmpty()) {
             try {
@@ -140,9 +137,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
             }
         }
 
-        Pair<Long, List<PropagationStatus>> result = new ImmutablePair<>(
-                updated.getResult().getKey().getKey(), propagationReporter.getStatuses());
-        return result;
+        return new ImmutablePair<>(updated.getResult().getKey().getKey(), propagationReporter.getStatuses());
     }
 
     @Override
@@ -191,7 +186,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
 
         List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(
                 updated, updated.getResult().getKey().getPassword() != null, excludedResources);
-        PropagationReporter propagationReporter = ApplicationContextProvider.getApplicationContext().
+        PropagationReporter propagationReporter = ApplicationContextProvider.getBeanFactory().
                 getBean(PropagationReporter.class);
         try {
             taskExecutor.execute(tasks, propagationReporter);
@@ -204,21 +199,21 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
     }
 
     @Override
-    public List<PropagationStatus> delete(final Long userKey) {
-        return delete(userKey, Collections.<String>emptySet());
+    public List<PropagationStatus> delete(final Long key) {
+        return delete(key, Collections.<String>emptySet());
     }
 
     @Override
-    public List<PropagationStatus> delete(final Long anyId, final Set<String> excludedResources) {
+    public List<PropagationStatus> delete(final Long key, final Set<String> excludedResources) {
         // Note here that we can only notify about "delete", not any other
         // task defined in workflow process definition: this because this
         // information could only be available after uwfAdapter.delete(), which
         // will also effectively remove user from db, thus making virtually
         // impossible by NotificationManager to fetch required user information
-        List<PropagationTask> tasks = propagationManager.getUserDeleteTasks(anyId, excludedResources);
+        List<PropagationTask> tasks = propagationManager.getUserDeleteTasks(key, excludedResources);
 
         PropagationReporter propagationReporter =
-                ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
+                ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
         try {
             taskExecutor.execute(tasks, propagationReporter);
         } catch (PropagationException e) {
@@ -227,7 +222,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
         }
 
         try {
-            uwfAdapter.delete(anyId);
+            uwfAdapter.delete(key);
         } catch (PropagationException e) {
             throw e;
         }
@@ -247,40 +242,40 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
     }
 
     @Override
-    public Pair<Long, List<PropagationStatus>> activate(final User user, final StatusMod statusMod) {
+    public Pair<Long, List<PropagationStatus>> activate(final StatusMod statusMod) {
         WorkflowResult<Long> updated = statusMod.isOnSyncope()
-                ? uwfAdapter.activate(user.getKey(), statusMod.getToken())
-                : new WorkflowResult<>(user.getKey(), null, statusMod.getType().name().toLowerCase());
+                ? uwfAdapter.activate(statusMod.getKey(), statusMod.getToken())
+                : new WorkflowResult<>(statusMod.getKey(), null, statusMod.getType().name().toLowerCase());
 
-        return new ImmutablePair<>(updated.getResult(), propagateStatus(user, statusMod));
+        return new ImmutablePair<>(updated.getResult(), propagateStatus(statusMod));
     }
 
     @Override
-    public Pair<Long, List<PropagationStatus>> reactivate(final User user, final StatusMod statusMod) {
+    public Pair<Long, List<PropagationStatus>> reactivate(final StatusMod statusMod) {
         WorkflowResult<Long> updated = statusMod.isOnSyncope()
-                ? uwfAdapter.reactivate(user.getKey())
-                : new WorkflowResult<>(user.getKey(), null, statusMod.getType().name().toLowerCase());
+                ? uwfAdapter.reactivate(statusMod.getKey())
+                : new WorkflowResult<>(statusMod.getKey(), null, statusMod.getType().name().toLowerCase());
 
-        return new ImmutablePair<>(updated.getResult(), propagateStatus(user, statusMod));
+        return new ImmutablePair<>(updated.getResult(), propagateStatus(statusMod));
     }
 
     @Override
-    public Pair<Long, List<PropagationStatus>> suspend(final User user, final StatusMod statusMod) {
+    public Pair<Long, List<PropagationStatus>> suspend(final StatusMod statusMod) {
         WorkflowResult<Long> updated = statusMod.isOnSyncope()
-                ? uwfAdapter.suspend(user.getKey())
-                : new WorkflowResult<>(user.getKey(), null, statusMod.getType().name().toLowerCase());
+                ? uwfAdapter.suspend(statusMod.getKey())
+                : new WorkflowResult<>(statusMod.getKey(), null, statusMod.getType().name().toLowerCase());
 
-        return new ImmutablePair<>(updated.getResult(), propagateStatus(user, statusMod));
+        return new ImmutablePair<>(updated.getResult(), propagateStatus(statusMod));
     }
 
-    protected List<PropagationStatus> propagateStatus(final User user, final StatusMod statusMod) {
-        Collection<String> noPropResourceNames =
-                CollectionUtils.removeAll(userDAO.findAllResourceNames(user), statusMod.getResourceNames());
+    protected List<PropagationStatus> propagateStatus(final StatusMod statusMod) {
+        Collection<String> noPropResourceNames = CollectionUtils.removeAll(
+                userDAO.findAllResourceNames(userDAO.find(statusMod.getKey())), statusMod.getResourceNames());
 
         List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(
-                user, statusMod.getType() != StatusMod.ModType.SUSPEND, noPropResourceNames);
+                statusMod.getKey(), statusMod.getType() != StatusMod.ModType.SUSPEND, noPropResourceNames);
         PropagationReporter propReporter =
-                ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
+                ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
         try {
             taskExecutor.execute(tasks, propReporter);
         } catch (PropagationException e) {
@@ -311,15 +306,30 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
     }
 
     @Override
-    public List<PropagationStatus> deprovision(final Long userKey, final Collection<String> resources) {
-        final User user = userDAO.authFind(userKey);
+    public List<PropagationStatus> provision(
+            final Long key, final boolean changePwd, final String password, final Collection<String> resources) {
 
-        List<PropagationTask> tasks = propagationManager.getUserDeleteTasks(
-                userKey,
-                new HashSet<>(resources),
-                CollectionUtils.removeAll(userDAO.findAllResourceNames(user), resources));
+        UserMod userMod = new UserMod();
+        userMod.setKey(key);
+        userMod.getResourcesToAdd().addAll(resources);
+
+        if (changePwd) {
+            StatusMod statusMod = new StatusMod();
+            statusMod.setOnSyncope(false);
+            statusMod.getResourceNames().addAll(resources);
+            userMod.setPwdPropRequest(statusMod);
+            userMod.setPassword(password);
+        }
+
+        PropagationByResource propByRes = new PropagationByResource();
+        propByRes.addAll(ResourceOperation.UPDATE, resources);
+
+        WorkflowResult<Pair<UserMod, Boolean>> wfResult = new WorkflowResult<Pair<UserMod, Boolean>>(
+                ImmutablePair.of(userMod, (Boolean) null), propByRes, "update");
+
+        List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(wfResult, changePwd, null);
         PropagationReporter propagationReporter =
-                ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
+                ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
         try {
             taskExecutor.execute(tasks, propagationReporter);
         } catch (PropagationException e) {
@@ -331,16 +341,36 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
     }
 
     @Override
-    public void requestPasswordReset(final Long id) {
-        uwfAdapter.requestPasswordReset(id);
+    public List<PropagationStatus> deprovision(final Long key, final Collection<String> resources) {
+        User user = userDAO.authFind(key);
+
+        List<PropagationTask> tasks = propagationManager.getUserDeleteTasks(
+                key,
+                new HashSet<>(resources),
+                CollectionUtils.removeAll(userDAO.findAllResourceNames(user), resources));
+        PropagationReporter propagationReporter =
+                ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
+        try {
+            taskExecutor.execute(tasks, propagationReporter);
+        } catch (PropagationException e) {
+            LOG.error("Error propagation primary resource", e);
+            propagationReporter.onPrimaryResourceFailure(tasks);
+        }
+
+        return propagationReporter.getStatuses();
     }
 
     @Override
-    public void confirmPasswordReset(final User user, final String token, final String password) {
-        uwfAdapter.confirmPasswordReset(user.getKey(), token, password);
+    public void requestPasswordReset(final Long key) {
+        uwfAdapter.requestPasswordReset(key);
+    }
+
+    @Override
+    public void confirmPasswordReset(final Long key, final String token, final String password) {
+        uwfAdapter.confirmPasswordReset(key, token, password);
 
         UserMod userMod = new UserMod();
-        userMod.setKey(user.getKey());
+        userMod.setKey(key);
         userMod.setPassword(password);
 
         List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(
@@ -348,7 +378,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
                         new ImmutablePair<UserMod, Boolean>(userMod, null), null, "confirmPasswordReset"),
                 true, null);
         PropagationReporter propReporter =
-                ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
+                ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
         try {
             taskExecutor.execute(tasks, propReporter);
         } catch (PropagationException e) {

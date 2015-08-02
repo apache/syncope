@@ -19,6 +19,7 @@
 package org.apache.syncope.common.lib.types;
 
 import javax.xml.bind.annotation.XmlEnum;
+import org.apache.commons.lang3.StringUtils;
 
 @XmlEnum
 public enum LoggerType {
@@ -26,7 +27,7 @@ public enum LoggerType {
     /**
      * This type describes a common logger used to handle system and application events.
      */
-    LOG(""),
+    LOG(StringUtils.EMPTY),
     /**
      * Audit logger only focus on security related events, usually logging how did what and when.
      * In case of a security incident audit loggers should allow an administrator to recall all
@@ -34,7 +35,7 @@ public enum LoggerType {
      */
     AUDIT("syncope.audit");
 
-    private String prefix;
+    private final String prefix;
 
     LoggerType(final String prefix) {
         this.prefix = prefix;

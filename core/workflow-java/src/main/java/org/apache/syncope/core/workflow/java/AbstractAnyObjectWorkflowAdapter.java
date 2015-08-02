@@ -26,9 +26,10 @@ import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.data.AnyObjectDataBinder;
 import org.apache.syncope.core.workflow.api.AnyObjectWorkflowAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional(rollbackFor = { Throwable.class })
+@Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = { Throwable.class })
 public abstract class AbstractAnyObjectWorkflowAdapter implements AnyObjectWorkflowAdapter {
 
     @Autowired

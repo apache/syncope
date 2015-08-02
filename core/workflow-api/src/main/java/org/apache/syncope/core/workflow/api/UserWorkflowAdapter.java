@@ -90,15 +90,15 @@ public interface UserWorkflowAdapter extends WorkflowAdapter {
     /**
      * Suspend an user.
      *
-     * @param userKey user to be suspended
+     * @param key to be suspended
      * @return user just suspended
      */
-    WorkflowResult<Long> suspend(Long userKey);
+    WorkflowResult<Long> suspend(Long key);
 
     /**
      * Suspend an user.
      *
-     * @param user to be suspended
+     * @param user user to be suspended
      * @return user just suspended
      */
     WorkflowResult<Long> suspend(User user);

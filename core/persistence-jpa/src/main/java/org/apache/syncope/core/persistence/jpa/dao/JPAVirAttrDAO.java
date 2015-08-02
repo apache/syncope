@@ -49,19 +49,19 @@ public class JPAVirAttrDAO extends AbstractDAO<VirAttr<?>, Long> implements VirA
 
     @Override
     public <T extends VirAttr<?>> T find(final Long key, final Class<T> reference) {
-        return reference.cast(entityManager.find(getJPAEntityReference(reference), key));
+        return reference.cast(entityManager().find(getJPAEntityReference(reference), key));
     }
 
     @Override
     public <T extends VirAttr<?>> List<T> findAll(final Class<T> reference) {
-        TypedQuery<T> query = entityManager.createQuery(
+        TypedQuery<T> query = entityManager().createQuery(
                 "SELECT e FROM " + getJPAEntityReference(reference).getSimpleName() + " e", reference);
         return query.getResultList();
     }
 
     @Override
     public <T extends VirAttr<?>> T save(final T virAttr) {
-        return entityManager.merge(virAttr);
+        return entityManager().merge(virAttr);
     }
 
     @Override
@@ -81,6 +81,6 @@ public class JPAVirAttrDAO extends AbstractDAO<VirAttr<?>, Long> implements VirA
             ((Any<?, ?, T>) virAttr.getOwner()).remove(virAttr);
         }
 
-        entityManager.remove(virAttr);
+        entityManager().remove(virAttr);
     }
 }

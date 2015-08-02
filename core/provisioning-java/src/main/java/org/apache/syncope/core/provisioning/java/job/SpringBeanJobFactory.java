@@ -26,6 +26,10 @@ import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 
+/**
+ * An implementation of SpringBeanJobFactory that retrieves the bean from the Spring context so that autowiring and
+ * transactions work.
+ */
 public class SpringBeanJobFactory extends org.springframework.scheduling.quartz.SpringBeanJobFactory {
 
     private String[] ignoredUnknownProperties;
@@ -33,7 +37,7 @@ public class SpringBeanJobFactory extends org.springframework.scheduling.quartz.
     private SchedulerContext schedulerContext;
 
     @Override
-    public void setIgnoredUnknownProperties(final String[] ignoredUnknownProperties) {
+    public void setIgnoredUnknownProperties(final String... ignoredUnknownProperties) {
         String[] defensiveCopy = ignoredUnknownProperties.clone();
         super.setIgnoredUnknownProperties(defensiveCopy);
         this.ignoredUnknownProperties = defensiveCopy;
@@ -45,12 +49,6 @@ public class SpringBeanJobFactory extends org.springframework.scheduling.quartz.
         this.schedulerContext = schedulerContext;
     }
 
-    /**
-     * An implementation of SpringBeanJobFactory that retrieves the bean from the Spring context so that autowiring and
-     * transactions work.
-     *
-     * {@inheritDoc}
-     */
     @Override
     protected Object createJobInstance(final TriggerFiredBundle bundle) throws Exception {
         final ApplicationContext ctx = ((ConfigurableApplicationContext) schedulerContext.get("applicationContext"));

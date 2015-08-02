@@ -23,7 +23,6 @@ import static org.junit.Assert.assertNotNull;
 
 import static org.junit.Assert.assertTrue;
 
-import javax.persistence.EntityManager;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
@@ -42,9 +41,6 @@ public class AnyTypeClassTest extends AbstractTest {
 
     @Autowired
     private AnyTypeClassDAO anyTypeClassDAO;
-
-    @Autowired
-    private EntityManager entityManager;
 
     @Test
     public void create() {

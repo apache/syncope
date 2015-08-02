@@ -85,6 +85,12 @@ under the License.
   <CPlainAttr id="12" owner_id="1" schema_name="tasks.interruptMaxRetries"/>
   <CPlainAttrValue id="12" attribute_id="12" longValue="20"/>
 
+  <AnyType name="USER" kind="USER"/>
+  <AnyTypeClass name="BaseUser"/>
+  <AnyType_AnyTypeClass anyType_name="USER" anyTypeClass_name="BaseUser"/>
+
+  <AnyType name="GROUP" kind="GROUP"/>
+  
   <!-- For usage with admin console -->
   <PlainSchema name="admin.user.layout" type="String"
                mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
@@ -99,19 +105,20 @@ under the License.
   <PlainSchema name="self.membership.layout" type="String"
                mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
         
-  <PlainSchema name="email" type="String"
+  <PlainSchema name="email" type="String" anyTypeClass_name="BaseUser"
                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
                validatorClass="org.apache.syncope.core.persistence.jpa.attrvalue.validation.EmailAddressValidator"/>
   
   <!-- Password reset notifications -->
   <Notification id="1" active="1" recipientAttrName="email" recipientAttrType="UserPlainSchema" selfAsRecipient="1" 
                 sender="admin@syncope.apache.org" subject="Password Reset request" template="requestPasswordReset" 
-                traceLevel="FAILURES" userAbout="token!=$null"/> 
+                traceLevel="FAILURES"/> 
+  <AnyAbout id="1" anyType_name="USER" notification_id="1" about="token!=$null"/>
   <Notification_events Notification_id="1" event="[CUSTOM]:[]:[]:[requestPasswordReset]:[SUCCESS]"/>
   
   <Notification id="2" active="1" recipientAttrName="email" recipientAttrType="UserPlainSchema" selfAsRecipient="1" 
                 sender="admin@syncope.apache.org" subject="Password Reset successful" template="confirmPasswordReset" 
-                traceLevel="FAILURES" userAbout="token!=$null"/> 
+                traceLevel="FAILURES"/> 
   <Notification_events Notification_id="2" event="[CUSTOM]:[]:[]:[confirmPasswordReset]:[SUCCESS]"/>
 
 </dataset>

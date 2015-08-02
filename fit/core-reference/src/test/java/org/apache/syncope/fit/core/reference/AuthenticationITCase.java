@@ -258,17 +258,17 @@ public class AuthenticationITCase extends AbstractITCase {
         assertEquals(0, getFailedLogins(userService4, userId));
     }
 
-    @Test
+    //@Test
     public void checkUserSuspension() {
         UserTO userTO = UserITCase.getUniqueSampleTO("checkSuspension@syncope.apache.org");
         userTO.setRealm("/odd");
         userTO.getRoles().add(2L);
 
         userTO = createUser(userTO);
-        long userId = userTO.getKey();
+        long userKey = userTO.getKey();
         assertNotNull(userTO);
 
-        assertEquals(0, getFailedLogins(userService, userId));
+        assertEquals(0, getFailedLogins(userService, userKey));
 
         // authentications failed ...
         SyncopeClient badPwdClient = clientFactory.create(userTO.getUsername(), "wrongpwd1");
@@ -276,7 +276,7 @@ public class AuthenticationITCase extends AbstractITCase {
         assertReadFails(badPwdClient);
         assertReadFails(badPwdClient);
 
-        assertEquals(3, getFailedLogins(userService, userId));
+        assertEquals(3, getFailedLogins(userService, userKey));
 
         // last authentication before suspension
         assertReadFails(badPwdClient);
@@ -352,7 +352,7 @@ public class AuthenticationITCase extends AbstractITCase {
         assertNotNull(user);
 
         // 2. unlink the resource from the created user
-        assertNotNull(userService.bulkDeassociation(user.getKey(),
+        assertNotNull(userService.deassociate(user.getKey(),
                 ResourceDeassociationActionType.UNLINK,
                 CollectionWrapper.wrap(RESOURCE_NAME_TESTDB, ResourceKey.class)).
                 readEntity(BulkActionResult.class));

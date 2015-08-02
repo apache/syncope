@@ -126,7 +126,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         task = taskService.read(actual.getKey());
         assertNotNull(task);
         assertEquals(actual.getKey(), task.getKey());
-        assertEquals(actual.getJobClassName(), task.getJobClassName());
+        assertEquals(actual.getJobDelegateClassName(), task.getJobDelegateClassName());
         assertEquals(userTemplate, task.getTemplates().get(AnyTypeKind.USER.name()));
         assertEquals(groupTemplate, task.getTemplates().get(AnyTypeKind.GROUP.name()));
     }
@@ -231,14 +231,11 @@ public class SyncTaskITCase extends AbstractTaskITCase {
             assertNotNull(userTO);
             assertEquals("active", userTO.getStatus());
 
-            // SYNCOPE-317
-            execProvisioningTask(SYNC_TASK_ID, 50, false);
+            Set<Long> otherSyncTaskKeys = new HashSet<>();
+            otherSyncTaskKeys.add(25L);
+            otherSyncTaskKeys.add(26L);
+            execProvisioningTasks(otherSyncTaskKeys, 50, false);
 
-            final Set<Long> pushTaskIds = new HashSet<>();
-            pushTaskIds.add(25L);
-            pushTaskIds.add(26L);
-
-            execProvisioningTasks(pushTaskIds, 50, false);
             // Matching --> UNLINK
             assertFalse(readUser("test9").getResources().contains(RESOURCE_NAME_CSV));
             assertFalse(readUser("test7").getResources().contains(RESOURCE_NAME_CSV));
@@ -290,7 +287,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
                 build());
         if (matchingGroups.getSize() > 0) {
             for (GroupTO group : matchingGroups.getResult()) {
-                groupService.bulkDeassociation(group.getKey(),
+                groupService.deassociate(group.getKey(),
                         ResourceDeassociationActionType.UNLINK,
                         CollectionWrapper.wrap(RESOURCE_NAME_LDAP, ResourceKey.class));
                 groupService.delete(group.getKey());
@@ -302,7 +299,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
                 build());
         if (matchingUsers.getSize() > 0) {
             for (UserTO user : matchingUsers.getResult()) {
-                userService.bulkDeassociation(user.getKey(),
+                userService.deassociate(user.getKey(),
                         ResourceDeassociationActionType.UNLINK,
                         CollectionWrapper.wrap(RESOURCE_NAME_LDAP, ResourceKey.class));
                 userService.delete(user.getKey());
@@ -352,6 +349,9 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         assertEquals("true", groupTO.getPlainAttrMap().get("show").getValues().get(0));
         assertEquals(matchingUsers.getResult().iterator().next().getKey(), groupTO.getUserOwner(), 0);
         assertNull(groupTO.getGroupOwner());
+
+        // SYNCOPE-317
+        execProvisioningTask(11L, 50, false);
     }
 
     @Test
@@ -376,7 +376,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
                         is("location").equalTo("sync*").query()).build());
         assertTrue(matchingPrinters.getSize() > 0);
         for (AnyObjectTO printer : matchingPrinters.getResult()) {
-            anyObjectService.bulkDeassociation(printer.getKey(),
+            anyObjectService.deassociate(printer.getKey(),
                     ResourceDeassociationActionType.UNLINK,
                     CollectionWrapper.wrap(RESOURCE_NAME_DBSCRIPTED, ResourceKey.class));
             anyObjectService.delete(printer.getKey());
@@ -678,7 +678,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         syncTask = taskService.read(actual.getKey());
         assertNotNull(syncTask);
         assertEquals(actual.getKey(), syncTask.getKey());
-        assertEquals(actual.getJobClassName(), syncTask.getJobClassName());
+        assertEquals(actual.getJobDelegateClassName(), syncTask.getJobDelegateClassName());
 
         TaskExecTO execution = execProvisioningTask(syncTask.getKey(), 50, false);
         final String status = execution.getStatus();
@@ -755,7 +755,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         syncTask = taskService.read(actual.getKey());
         assertNotNull(syncTask);
         assertEquals(actual.getKey(), syncTask.getKey());
-        assertEquals(actual.getJobClassName(), syncTask.getJobClassName());
+        assertEquals(actual.getJobDelegateClassName(), syncTask.getJobDelegateClassName());
 
         TaskExecTO execution = execProvisioningTask(syncTask.getKey(), 50, false);
         String status = execution.getStatus();

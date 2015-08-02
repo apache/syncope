@@ -57,9 +57,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class ResourceTest extends AbstractTest {
 
     @Autowired
-    private EntityManager entityManager;
-
-    @Autowired
     private ExternalResourceDAO resourceDAO;
 
     @Autowired
@@ -279,7 +276,7 @@ public class ResourceTest extends AbstractTest {
         resourceDAO.flush();
 
         for (Long itemId : itemKeys) {
-            assertNull(entityManager.find(JPAMappingItem.class, itemId));
+            assertNull(entityManager().find(JPAMappingItem.class, itemId));
         }
     }
 

@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans.xsd                           
+                           http://www.springframework.org/schema/tx
+                           http://www.springframework.org/schema/tx/spring-tx.xsd
+                           http://www.springframework.org/schema/util
+                           http://www.springframework.org/schema/util/spring-util.xsd">
+  
+  <bean id="TwoContentXML" class="org.apache.syncope.core.misc.spring.ResourceWithFallbackLoader">
+    <property name="primary" value="file:${content.directory}/domains/TwoContent.xml"/>
+    <property name="fallback" value="classpath:domains/TwoContent.xml"/>
+  </bean>
+  <bean id="TwoProperties" class="org.apache.syncope.core.misc.spring.ResourceWithFallbackLoader">
+    <property name="primary" value="file:${content.directory}/domains/Two.properties"/>
+    <property name="fallback" value="classpath:domains/Two.properties"/>
+  </bean>
+  <bean id="TwoDatabaseSchema" class="java.lang.String">
+    <constructor-arg value="${Two.schema}"/>
+  </bean>
+
+  <!-- Use JNDI datasource as default but, when not available, revert to
+  local datasource, with different properties for execution and testing. 
+  In any case, get all JDBC connections with a determined isolation level. -->
+  <bean id="TwoDataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
+    <property name="jndiName" value="java:comp/env/jdbc/syncopeTwoDataSource"/>
+    <property name="defaultObject" ref="localTwoDataSource"/>
+  </bean>
+
+  <bean id="localTwoDataSource" class="org.apache.commons.dbcp2.BasicDataSource" destroy-method="close">
+    <property name="driverClassName" value="${Two.driverClassName}"/>
+    <property name="url" value="${Two.url}"/>
+    <property name="username" value="${Two.username}"/>
+    <property name="password" value="${Two.password}"/>
+    <!-- connection pool configuration - transaction isolation, default READ_COMMITTED (see SYNCOPE-202) -->
+    <property name="defaultTransactionIsolation">
+      <util:constant static-field="${Two.pool.defaultTransactionIsolation:java.sql.Connection.TRANSACTION_READ_COMMITTED}"/>
+    </property>
+    <!-- connection pool configuration - default values taken from BasicDataSource default values -->
+    <property name="initialSize" value="${Two.pool.initialSize:0}"/>
+    <property name="maxTotal" value="${Two.pool.maxActive:8}"/>
+    <property name="maxIdle" value="${Two.pool.maxIdle:8}"/>
+    <property name="minIdle" value="${Two.pool.minIdle:0}"/>
+    <property name="maxWaitMillis" value="${Two.pool.maxWait:-1}"/>
+    <!--<property name="validationQuery" value="${Two.pool.validationQuery}"/>-->
+    <property name="validationQueryTimeout" value="${Two.pool.validationQueryTimeout:-1}"/>
+    <property name="testOnBorrow" value="${Two.pool.testOnBorrow:true}"/>
+    <property name="testOnReturn" value="${Two.pool.testOnReturn:false}"/>
+    <property name="testWhileIdle" value="${Two.pool.testWhileIdle:false}"/>
+    <property name="timeBetweenEvictionRunsMillis" value="${Two.pool.timeBetweenEvictionRunsMillis:-1}"/>
+    <property name="numTestsPerEvictionRun" value="${Two.pool.numTestsPerEvictionRun:3}"/>
+    <property name="minEvictableIdleTimeMillis" value="${Two.pool.minEvictableIdleTimeMillis:1800000}"/>
+    <property name="removeAbandonedOnBorrow" value="${Two.pool.removeAbandoned:false}"/>
+    <property name="removeAbandonedOnMaintenance" value="${Two.pool.removeAbandoned:false}"/>
+    <property name="removeAbandonedTimeout" value="${Two.pool.removeAbandonedTimeout:300}"/>
+    <property name="logAbandoned" value="${Two.pool.logAbandoned:false}"/>
+  </bean>
+  
+  <bean class="org.springframework.jdbc.datasource.init.DataSourceInitializer">
+    <property name="dataSource" ref="TwoDataSource"/>
+    <property name="enabled" value="true"/>
+    <property name="databasePopulator">
+      <bean class="org.springframework.jdbc.datasource.init.ResourceDatabasePopulator">
+        <property name="continueOnError" value="true"/>
+        <property name="ignoreFailedDrops" value="true"/>
+        <property name="sqlScriptEncoding" value="UTF-8"/>
+        <property name="scripts">
+          <array>
+            <value type="org.springframework.core.io.Resource">
+              classpath:/audit/${Two.audit.sql}
+            </value>
+          </array>
+        </property>
+      </bean>
+    </property>
+  </bean>
+  
+  <bean id="TwoEntityManagerFactory"
+        class="org.apache.syncope.core.persistence.jpa.spring.DomainEntityManagerFactoryBean">
+    <property name="mappingResources">
+      <list>
+        <value>${Two.orm}</value>
+      </list>
+    </property>
+    <property name="persistenceUnitName" value="Two"/>
+    <property name="dataSource" ref="TwoDataSource"/>
+    <property name="jpaVendorAdapter">
+      <bean class="org.springframework.orm.jpa.vendor.OpenJpaVendorAdapter">
+        <property name="showSql" value="false"/>
+        <property name="generateDdl" value="true"/>
+        <property name="databasePlatform" value="${Two.databasePlatform}"/>
+      </bean>
+    </property>
+    <property name="commonEntityManagerFactoryConf" ref="commonEMFConf"/>
+  </bean>  
+
+  <bean id="TwoTransactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+    <property name="entityManagerFactory" ref="TwoEntityManagerFactory"/>
+    <qualifier value="Two"/>
+  </bean>
+  
+  <tx:annotation-driven transaction-manager="TwoTransactionManager"/>
+
+</beans>

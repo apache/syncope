@@ -21,32 +21,20 @@ under the License.
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
                            http://www.springframework.org/schema/beans/spring-beans.xsd">
-
-  <bean id="entityManagerFactory"
-        class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+  
+  <import resource="classpath*:domains/*Domain.xml"/>
+    
+  <bean id="commonEMFConf" class="org.apache.syncope.core.persistence.jpa.spring.CommonEntityManagerFactoryConf">
     <property name="packagesToScan" value="org.apache.syncope.core.persistence.jpa.entity"/>
     <property name="validationMode" value="NONE"/>
-    <property name="mappingResources">
-      <list>
-        <value>${jpa.orm}</value>
-      </list>
-    </property>
-    <property name="persistenceUnitName" value="syncopePersistenceUnit"/>
     <property name="persistenceUnitPostProcessors">
       <list>
         <bean class="org.apache.syncope.core.persistence.jpa.spring.MultiJarAwarePersistenceUnitPostProcessor"/>
       </list>
     </property>
-    <property name="dataSource" ref="dataSource"/>
-    <property name="jpaVendorAdapter">
-      <bean class="org.springframework.orm.jpa.vendor.OpenJpaVendorAdapter">
-        <property name="showSql" value="false"/>
-        <property name="generateDdl" value="true"/>
-        <property name="databasePlatform" value="${jpa.dialect}"/>
-      </bean>
-    </property>
     <property name="jpaPropertyMap">
       <map>
+        <entry key="openjpa.Log" value="slf4j"/>
         <!--<entry key="openjpa.Log" value="SQL=TRACE"/>
         <entry key="openjpa.ConnectionFactoryProperties" 
         value="PrintParameters=true, PrettyPrint=true, PrettyPrintLineLength=80"/>-->
@@ -62,7 +50,7 @@ under the License.
         <entry key="openjpa.QueryCache" value="true"/>
         <entry key="openjpa.RemoteCommitProvider" value="sjvm"/>
       </map>
-    </property>
+    </property>    
   </bean>
-
+  
 </beans>

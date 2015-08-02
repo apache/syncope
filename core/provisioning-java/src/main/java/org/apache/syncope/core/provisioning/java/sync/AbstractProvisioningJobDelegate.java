@@ -18,20 +18,12 @@
  */
 package org.apache.syncope.core.provisioning.java.sync;
 
-import static org.apache.syncope.common.lib.types.AnyTypeKind.USER;
-
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import javax.annotation.Resource;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
-import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.common.lib.types.TraceLevel;
-import org.apache.syncope.core.misc.security.SyncopeAuthenticationDetails;
-import org.apache.syncope.core.misc.security.SyncopeGrantedAuthority;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
@@ -42,25 +34,14 @@ import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.ConnectorFactory;
-import org.apache.syncope.core.provisioning.api.sync.ProvisioningActions;
 import org.apache.syncope.core.provisioning.api.sync.ProvisioningResult;
-import org.apache.syncope.core.provisioning.java.job.AbstractTaskJob;
+import org.apache.syncope.core.provisioning.java.job.AbstractSchedTaskJobDelegate;
+import org.apache.syncope.core.provisioning.java.job.TaskJob;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 
-/**
- * Job for executing synchronization tasks.
- *
- * @see AbstractTaskJob
- * @see org.apache.syncope.core.persistence.api.entity.task.SyncTask
- * @see org.apache.syncope.core.persistence.api.entity.task.PushTask
- */
-public abstract class AbstractProvisioningJob<T extends ProvisioningTask, A extends ProvisioningActions>
-        extends AbstractTaskJob {
+public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask>
+        extends AbstractSchedTaskJobDelegate {
 
     @Resource(name = "adminUser")
     protected String adminUser;
@@ -85,15 +66,6 @@ public abstract class AbstractProvisioningJob<T extends ProvisioningTask, A exte
      */
     @Autowired
     protected PolicyDAO policyDAO;
-
-    /**
-     * SyncJob actions.
-     */
-    protected List<A> actions;
-
-    public void setActions(final List<A> actions) {
-        this.actions = actions;
-    }
 
     /**
      * Create a textual report of the synchronization, based on the trace level.
@@ -398,25 +370,10 @@ public abstract class AbstractProvisioningJob<T extends ProvisioningTask, A exte
 
     @Override
     protected String doExecute(final boolean dryRun) throws JobExecutionException {
-        // PRE: grant all authorities (i.e. setup the SecurityContextHolder)
-        List<GrantedAuthority> authorities = CollectionUtils.collect(Entitlement.values(),
-                new Transformer<String, GrantedAuthority>() {
-
-                    @Override
-                    public GrantedAuthority transform(final String entitlement) {
-                        return new SyncopeGrantedAuthority(entitlement, SyncopeConstants.ROOT_REALM);
-                    }
-                }, new ArrayList<GrantedAuthority>());
-
-        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-                new User(adminUser, "FAKE_PASSWORD", authorities), "FAKE_PASSWORD", authorities);
-        auth.setDetails(new SyncopeAuthenticationDetails(taskDAO.getDomain(task)));
-        SecurityContextHolder.getContext().setAuthentication(auth);
-
         try {
             Class<T> clazz = getTaskClassReference();
             if (!clazz.isAssignableFrom(task.getClass())) {
-                throw new JobExecutionException("Task " + taskId + " isn't a SyncTask");
+                throw new JobExecutionException("Task " + task.getKey() + " isn't a ProvisioningTask");
             }
 
             T provisioningTask = clazz.cast(task);
@@ -445,20 +402,17 @@ public abstract class AbstractProvisioningJob<T extends ProvisioningTask, A exte
                 return "No mapping configured for both users and groups: aborting...";
             }
 
-            return executeWithSecurityContext(
+            return doExecuteProvisioning(
                     provisioningTask,
                     connector,
                     dryRun);
         } catch (Throwable t) {
             LOG.error("While executing provisioning job {}", getClass().getName(), t);
             throw t;
-        } finally {
-            // POST: clean up the SecurityContextHolder
-            SecurityContextHolder.clearContext();
         }
     }
 
-    protected abstract String executeWithSecurityContext(
+    protected abstract String doExecuteProvisioning(
             final T task,
             final Connector connector,
             final boolean dryRun) throws JobExecutionException;
@@ -468,7 +422,7 @@ public abstract class AbstractProvisioningJob<T extends ProvisioningTask, A exte
         final ProvisioningTask provTask = (ProvisioningTask) task;
 
         // True if either failed and failures have to be registered, or if ALL has to be registered.
-        return (Status.valueOf(execution.getStatus()) == Status.FAILURE
+        return (TaskJob.Status.valueOf(execution.getStatus()) == TaskJob.Status.FAILURE
                 && provTask.getResource().getSyncTraceLevel().ordinal() >= TraceLevel.FAILURES.ordinal())
                 || provTask.getResource().getSyncTraceLevel().ordinal() >= TraceLevel.SUMMARY.ordinal();
     }

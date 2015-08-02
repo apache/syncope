@@ -686,7 +686,7 @@ public class ConnectorITCase extends AbstractITCase {
     @Test
     public void bulkAction() {
         final BulkAction bulkAction = new BulkAction();
-        bulkAction.setOperation(BulkAction.Type.DELETE);
+        bulkAction.setType(BulkAction.Type.DELETE);
 
         ConnInstanceTO conn = connectorService.read(101L);
 

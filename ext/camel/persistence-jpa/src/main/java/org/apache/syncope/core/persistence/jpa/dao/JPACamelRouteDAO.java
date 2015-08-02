@@ -32,13 +32,13 @@ public class JPACamelRouteDAO extends AbstractDAO<CamelRoute, String> implements
 
     @Override
     public CamelRoute find(final String key) {
-        return entityManager.find(JPACamelRoute.class, key);
+        return entityManager().find(JPACamelRoute.class, key);
     }
 
     @Transactional(readOnly = true)
     @Override
     public List<CamelRoute> find(final AnyTypeKind anyTypeKind) {
-        TypedQuery<CamelRoute> query = entityManager.createQuery(
+        TypedQuery<CamelRoute> query = entityManager().createQuery(
                 "SELECT e FROM " + JPACamelRoute.class.getSimpleName()
                 + " e WHERE e.anyTypeKind = :anyTypeKind", CamelRoute.class);
         query.setParameter("anyTypeKind", anyTypeKind);
@@ -49,21 +49,21 @@ public class JPACamelRouteDAO extends AbstractDAO<CamelRoute, String> implements
     @Transactional(readOnly = true)
     @Override
     public List<CamelRoute> findAll() {
-        TypedQuery<CamelRoute> query = entityManager.createQuery(
+        TypedQuery<CamelRoute> query = entityManager().createQuery(
                 "SELECT e FROM " + JPACamelRoute.class.getSimpleName() + " e ", CamelRoute.class);
         return query.getResultList();
     }
 
     @Override
     public CamelRoute save(final CamelRoute route) {
-        return entityManager.merge(route);
+        return entityManager().merge(route);
     }
 
     @Override
     public void delete(final String key) {
         CamelRoute route = find(key);
         if (route != null) {
-            entityManager.remove(route);
+            entityManager().remove(route);
         }
     }
 

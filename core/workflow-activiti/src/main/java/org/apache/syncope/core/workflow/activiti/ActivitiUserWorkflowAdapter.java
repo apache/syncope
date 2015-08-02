@@ -38,11 +38,7 @@ import org.activiti.bpmn.model.BpmnModel;
 import org.activiti.editor.constants.ModelDataJsonConstants;
 import org.activiti.editor.language.json.converter.BpmnJsonConverter;
 import org.activiti.engine.ActivitiException;
-import org.activiti.engine.FormService;
-import org.activiti.engine.HistoryService;
-import org.activiti.engine.RepositoryService;
-import org.activiti.engine.RuntimeService;
-import org.activiti.engine.TaskService;
+import org.activiti.engine.ProcessEngine;
 import org.activiti.engine.form.FormProperty;
 import org.activiti.engine.form.FormType;
 import org.activiti.engine.form.TaskFormData;
@@ -136,22 +132,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     protected String adminUser;
 
     @Autowired
-    protected RuntimeService runtimeService;
-
-    @Autowired
-    protected TaskService taskService;
-
-    @Autowired
-    protected FormService formService;
-
-    @Autowired
-    protected HistoryService historyService;
-
-    @Autowired
-    protected RepositoryService repositoryService;
-
-    @Autowired
-    protected ActivitiImportUtils importUtils;
+    protected ProcessEngine engine;
 
     @Autowired
     protected UserDataBinder userDataBinder;
@@ -176,7 +157,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     protected void updateStatus(final User user) {
-        List<Task> tasks = taskService.createTaskQuery().processInstanceId(user.getWorkflowId()).list();
+        List<Task> tasks = engine.getTaskService().createTaskQuery().processInstanceId(user.getWorkflowId()).list();
         if (tasks.isEmpty() || tasks.size() > 1) {
             LOG.warn("While setting user status: unexpected task number ({})", tasks.size());
         } else {
@@ -187,12 +168,12 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     protected String getFormTask(final User user) {
         String result = null;
 
-        List<Task> tasks = taskService.createTaskQuery().processInstanceId(user.getWorkflowId()).list();
+        List<Task> tasks = engine.getTaskService().createTaskQuery().processInstanceId(user.getWorkflowId()).list();
         if (tasks.isEmpty() || tasks.size() > 1) {
             LOG.warn("While checking if form task: unexpected task number ({})", tasks.size());
         } else {
             try {
-                TaskFormData formData = formService.getTaskFormData(tasks.get(0).getId());
+                TaskFormData formData = engine.getFormService().getTaskFormData(tasks.get(0).getId());
                 if (formData != null && !formData.getFormProperties().isEmpty()) {
                     result = tasks.get(0).getId();
                 }
@@ -207,8 +188,8 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     protected Set<String> getPerformedTasks(final User user) {
         final Set<String> result = new HashSet<>();
 
-        for (HistoricActivityInstance task
-                : historyService.createHistoricActivityInstanceQuery().executionId(user.getWorkflowId()).list()) {
+        for (HistoricActivityInstance task : engine.getHistoryService().createHistoricActivityInstanceQuery().
+                executionId(user.getWorkflowId()).list()) {
 
             result.add(task.getActivityId());
         }
@@ -223,14 +204,14 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         String formTaskId = getFormTask(user);
         if (formTaskId != null) {
             // SYNCOPE-238: This is needed to simplify the task query in this.getForms()
-            taskService.setVariableLocal(formTaskId, TASK_IS_FORM, Boolean.TRUE);
-            runtimeService.setVariable(user.getWorkflowId(), PROP_BY_RESOURCE, propByRes);
+            engine.getTaskService().setVariableLocal(formTaskId, TASK_IS_FORM, Boolean.TRUE);
+            engine.getRuntimeService().setVariable(user.getWorkflowId(), PROP_BY_RESOURCE, propByRes);
             if (propByRes != null) {
                 propByRes.clear();
             }
 
             if (StringUtils.isNotBlank(password)) {
-                runtimeService.setVariable(user.getWorkflowId(), ENCRYPTED_PWD, encrypt(password));
+                engine.getRuntimeService().setVariable(user.getWorkflowId(), ENCRYPTED_PWD, encrypt(password));
             }
         }
     }
@@ -259,15 +240,15 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
         ProcessInstance processInstance = null;
         try {
-            processInstance = runtimeService.startProcessInstanceByKey(WF_PROCESS_ID, variables);
+            processInstance = engine.getRuntimeService().startProcessInstanceByKey(WF_PROCESS_ID, variables);
         } catch (ActivitiException e) {
             throwException(e, "While starting " + WF_PROCESS_ID + " instance");
         }
 
-        User user = runtimeService.getVariable(processInstance.getProcessInstanceId(), USER, User.class);
+        User user = engine.getRuntimeService().getVariable(processInstance.getProcessInstanceId(), USER, User.class);
 
         Boolean updatedEnabled =
-                runtimeService.getVariable(processInstance.getProcessInstanceId(), ENABLED, Boolean.class);
+                engine.getRuntimeService().getVariable(processInstance.getProcessInstanceId(), ENABLED, Boolean.class);
         if (updatedEnabled != null) {
             user.setSuspended(!updatedEnabled);
         }
@@ -280,8 +261,8 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         updateStatus(user);
         user = userDAO.save(user);
 
-        Boolean propagateEnable =
-                runtimeService.getVariable(processInstance.getProcessInstanceId(), PROPAGATE_ENABLE, Boolean.class);
+        Boolean propagateEnable = engine.getRuntimeService().getVariable(
+                processInstance.getProcessInstanceId(), PROPAGATE_ENABLE, Boolean.class);
         if (propagateEnable == null) {
             propagateEnable = enabled;
         }
@@ -315,10 +296,10 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
             throw new WorkflowException(new NotFoundException("Empty workflow id for " + user));
         }
 
-        List<Task> tasks = taskService.createTaskQuery().processInstanceId(user.getWorkflowId()).list();
+        List<Task> tasks = engine.getTaskService().createTaskQuery().processInstanceId(user.getWorkflowId()).list();
         if (tasks.size() == 1) {
             try {
-                taskService.complete(tasks.get(0).getId(), variables);
+                engine.getTaskService().complete(tasks.get(0).getId(), variables);
             } catch (ActivitiException e) {
                 throwException(e, "While completing task '" + tasks.get(0).getName() + "' for " + user);
             }
@@ -349,14 +330,15 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         updateStatus(user);
         User updated = userDAO.save(user);
 
-        PropagationByResource propByRes =
-                runtimeService.getVariable(user.getWorkflowId(), PROP_BY_RESOURCE, PropagationByResource.class);
-        UserMod updatedMod =
-                runtimeService.getVariable(user.getWorkflowId(), USER_MOD, UserMod.class);
+        PropagationByResource propByRes = engine.getRuntimeService().getVariable(
+                user.getWorkflowId(), PROP_BY_RESOURCE, PropagationByResource.class);
+        UserMod updatedMod = engine.getRuntimeService().getVariable(
+                user.getWorkflowId(), USER_MOD, UserMod.class);
 
         saveForFormSubmit(updated, updatedMod.getPassword(), propByRes);
 
-        Boolean propagateEnable = runtimeService.getVariable(user.getWorkflowId(), PROPAGATE_ENABLE, Boolean.class);
+        Boolean propagateEnable = engine.getRuntimeService().getVariable(
+                user.getWorkflowId(), PROPAGATE_ENABLE, Boolean.class);
 
         return new WorkflowResult<Pair<UserMod, Boolean>>(
                 new ImmutablePair<>(updatedMod, propagateEnable), propByRes, tasks);
@@ -413,15 +395,15 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
         saveForFormSubmit(user, null, propByRes);
 
-        if (runtimeService.createProcessInstanceQuery().
+        if (engine.getRuntimeService().createProcessInstanceQuery().
                 processInstanceId(user.getWorkflowId()).active().list().isEmpty()) {
 
             userDAO.delete(user.getKey());
 
-            if (!historyService.createHistoricProcessInstanceQuery().
+            if (!engine.getHistoryService().createHistoricProcessInstanceQuery().
                     processInstanceId(user.getWorkflowId()).list().isEmpty()) {
 
-                historyService.deleteHistoricProcessInstance(user.getWorkflowId());
+                engine.getHistoryService().deleteHistoricProcessInstance(user.getWorkflowId());
             }
         } else {
             updateStatus(user);
@@ -445,7 +427,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
     protected ProcessDefinition getProcessDefinition() {
         try {
-            return repositoryService.createProcessDefinitionQuery().processDefinitionKey(
+            return engine.getRepositoryService().createProcessDefinitionQuery().processDefinitionKey(
                     ActivitiUserWorkflowAdapter.WF_PROCESS_ID).latestVersion().singleResult();
         } catch (ActivitiException e) {
             throw new WorkflowException("While accessing process " + ActivitiUserWorkflowAdapter.WF_PROCESS_ID, e);
@@ -455,7 +437,8 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
     protected Model getModel(final ProcessDefinition procDef) {
         try {
-            Model model = repositoryService.createModelQuery().deploymentId(procDef.getDeploymentId()).singleResult();
+            Model model = engine.getRepositoryService().createModelQuery().
+                    deploymentId(procDef.getDeploymentId()).singleResult();
             if (model == null) {
                 throw new NotFoundException("Could not find Model for deployment " + procDef.getDeploymentId());
             }
@@ -468,7 +451,8 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     protected void exportProcessResource(final String resourceName, final OutputStream os) {
         ProcessDefinition procDef = getProcessDefinition();
 
-        InputStream procDefIS = repositoryService.getResourceAsStream(procDef.getDeploymentId(), resourceName);
+        InputStream procDefIS = engine.getRepositoryService().getResourceAsStream(procDef.getDeploymentId(),
+                resourceName);
         try {
             IOUtils.copy(procDefIS, os);
         } catch (IOException e) {
@@ -486,7 +470,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
             ObjectNode modelNode = (ObjectNode) objectMapper.readTree(model.getMetaInfo());
             modelNode.put(ModelDataJsonConstants.MODEL_ID, model.getId());
             modelNode.replace(MODEL_DATA_JSON_MODEL,
-                    objectMapper.readTree(repositoryService.getModelEditorSource(model.getId())));
+                    objectMapper.readTree(engine.getRepositoryService().getModelEditorSource(model.getId())));
 
             os.write(modelNode.toString().getBytes());
         } catch (IOException e) {
@@ -529,20 +513,21 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
                     }
 
                     BpmnModel bpmnModel = new BpmnJsonConverter().convertToBpmnModel(definitionNode);
-                    importUtils.fromXML(new BpmnXMLConverter().convertToXML(bpmnModel));
+                    ActivitiImportUtils.fromXML(engine, new BpmnXMLConverter().convertToXML(bpmnModel));
                 } catch (Exception e) {
                     throw new WorkflowException("While updating process "
                             + ActivitiUserWorkflowAdapter.WF_PROCESS_RESOURCE, e);
                 }
 
-                importUtils.fromJSON(definitionNode.toString().getBytes(), getProcessDefinition(), model);
+                ActivitiImportUtils.fromJSON(
+                        engine, definitionNode.toString().getBytes(), getProcessDefinition(), model);
                 break;
 
             case XML:
             default:
-                importUtils.fromXML(definition.getBytes());
+                ActivitiImportUtils.fromXML(engine, definition.getBytes());
 
-                importUtils.fromJSON(getProcessDefinition(), model);
+                ActivitiImportUtils.fromJSON(engine, getProcessDefinition(), model);
         }
     }
 
@@ -569,7 +554,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     protected WorkflowFormTO getFormTO(final Task task) {
-        return getFormTO(task, formService.getTaskFormData(task.getId()));
+        return getFormTO(task, engine.getFormService().getTaskFormData(task.getId()));
     }
 
     protected WorkflowFormTO getFormTO(final Task task, final TaskFormData fd) {
@@ -583,7 +568,8 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     protected WorkflowFormTO getFormTO(final HistoricTaskInstance task) {
         final List<HistoricFormPropertyEntity> props = new ArrayList<>();
 
-        for (HistoricDetail historicDetail : historyService.createHistoricDetailQuery().taskId(task.getId()).list()) {
+        for (HistoricDetail historicDetail
+                : engine.getHistoryService().createHistoricDetailQuery().taskId(task.getId()).list()) {
 
             if (historicDetail instanceof HistoricFormPropertyEntity) {
                 props.add((HistoricFormPropertyEntity) historicDetail);
@@ -594,7 +580,8 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
                 task.getProcessInstanceId(), task.getId(), task.getFormKey(), props);
         BeanUtils.copyProperties(task, formTO);
 
-        final HistoricActivityInstance historicActivityInstance = historyService.createHistoricActivityInstanceQuery().
+        final HistoricActivityInstance historicActivityInstance = engine.getHistoryService().
+                createHistoricActivityInstanceQuery().
                 executionId(task.getExecutionId()).activityType("userTask").activityName(task.getName()).singleResult();
 
         if (historicActivityInstance != null) {
@@ -676,7 +663,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
         final String authUser = AuthContextUtils.getUsername();
         if (adminUser.equals(authUser)) {
-            forms.addAll(getForms(taskService.createTaskQuery().
+            forms.addAll(getForms(engine.getTaskService().createTaskQuery().
                     taskVariableValueEquals(TASK_IS_FORM, Boolean.TRUE)));
         } else {
             User user = userDAO.find(authUser);
@@ -684,7 +671,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
                 throw new NotFoundException("Syncope User " + authUser);
             }
 
-            forms.addAll(getForms(taskService.createTaskQuery().
+            forms.addAll(getForms(engine.getTaskService().createTaskQuery().
                     taskVariableValueEquals(TASK_IS_FORM, Boolean.TRUE).
                     taskCandidateOrAssigned(user.getKey().toString())));
 
@@ -693,7 +680,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
                 candidateGroups.add(groupId.toString());
             }
             if (!candidateGroups.isEmpty()) {
-                forms.addAll(getForms(taskService.createTaskQuery().
+                forms.addAll(getForms(engine.getTaskService().createTaskQuery().
                         taskVariableValueEquals(TASK_IS_FORM, Boolean.TRUE).
                         taskCandidateGroupIn(candidateGroups)));
             }
@@ -705,10 +692,10 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     @Override
     public List<WorkflowFormTO> getForms(final String workflowId, final String name) {
         List<WorkflowFormTO> forms = getForms(
-                taskService.createTaskQuery().processInstanceId(workflowId).taskName(name).
+                engine.getTaskService().createTaskQuery().processInstanceId(workflowId).taskName(name).
                 taskVariableValueEquals(TASK_IS_FORM, Boolean.TRUE));
 
-        forms.addAll(getForms(historyService.createHistoricTaskInstanceQuery().taskName(name).
+        forms.addAll(getForms(engine.getHistoryService().createHistoricTaskInstanceQuery().taskName(name).
                 taskVariableValueEquals(TASK_IS_FORM, Boolean.TRUE)));
 
         return forms;
@@ -739,14 +726,14 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     public WorkflowFormTO getForm(final String workflowId) {
         Task task;
         try {
-            task = taskService.createTaskQuery().processInstanceId(workflowId).singleResult();
+            task = engine.getTaskService().createTaskQuery().processInstanceId(workflowId).singleResult();
         } catch (ActivitiException e) {
             throw new WorkflowException("While reading form for workflow instance " + workflowId, e);
         }
 
         TaskFormData formData;
         try {
-            formData = formService.getTaskFormData(task.getId());
+            formData = engine.getFormService().getTaskFormData(task.getId());
         } catch (ActivitiException e) {
             LOG.debug("No form found for task {}", task.getId(), e);
             formData = null;
@@ -763,14 +750,14 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     protected Pair<Task, TaskFormData> checkTask(final String taskId, final String authUser) {
         Task task;
         try {
-            task = taskService.createTaskQuery().taskId(taskId).singleResult();
+            task = engine.getTaskService().createTaskQuery().taskId(taskId).singleResult();
         } catch (ActivitiException e) {
             throw new NotFoundException("Activiti Task " + taskId, e);
         }
 
         TaskFormData formData;
         try {
-            formData = formService.getTaskFormData(task.getId());
+            formData = engine.getFormService().getTaskFormData(task.getId());
         } catch (ActivitiException e) {
             throw new NotFoundException("Form for Activiti Task " + taskId, e);
         }
@@ -792,7 +779,8 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         Pair<Task, TaskFormData> checked = checkTask(taskId, authUser);
 
         if (!adminUser.equals(authUser)) {
-            List<Task> tasksForUser = taskService.createTaskQuery().taskId(taskId).taskCandidateUser(authUser).list();
+            List<Task> tasksForUser = engine.getTaskService().createTaskQuery().taskId(taskId).taskCandidateUser(
+                    authUser).list();
             if (tasksForUser.isEmpty()) {
                 throw new WorkflowException(
                         new IllegalArgumentException(authUser + " is not candidate for task " + taskId));
@@ -801,8 +789,8 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
         Task task;
         try {
-            taskService.setOwner(taskId, authUser);
-            task = taskService.createTaskQuery().taskId(taskId).singleResult();
+            engine.getTaskService().setOwner(taskId, authUser);
+            task = engine.getTaskService().createTaskQuery().taskId(taskId).singleResult();
         } catch (ActivitiException e) {
             throw new WorkflowException("While reading task " + taskId, e);
         }
@@ -828,8 +816,8 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
         Set<String> preTasks = getPerformedTasks(user);
         try {
-            formService.submitTaskFormData(form.getTaskId(), form.getPropertiesForSubmit());
-            runtimeService.setVariable(user.getWorkflowId(), FORM_SUBMITTER, authUser);
+            engine.getFormService().submitTaskFormData(form.getTaskId(), form.getPropertiesForSubmit());
+            engine.getRuntimeService().setVariable(user.getWorkflowId(), FORM_SUBMITTER, authUser);
         } catch (ActivitiException e) {
             throwException(e, "While submitting form for task " + form.getTaskId());
         }
@@ -842,12 +830,12 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         User updated = userDAO.save(user);
 
         // see if there is any propagation to be done
-        PropagationByResource propByRes =
-                runtimeService.getVariable(user.getWorkflowId(), PROP_BY_RESOURCE, PropagationByResource.class);
+        PropagationByResource propByRes = engine.getRuntimeService().getVariable(
+                user.getWorkflowId(), PROP_BY_RESOURCE, PropagationByResource.class);
 
         // fetch - if available - the encrypted password
         String clearPassword = null;
-        String encryptedPwd = runtimeService.getVariable(user.getWorkflowId(), ENCRYPTED_PWD, String.class);
+        String encryptedPwd = engine.getRuntimeService().getVariable(user.getWorkflowId(), ENCRYPTED_PWD, String.class);
         if (StringUtils.isNotBlank(encryptedPwd)) {
             clearPassword = decrypt(encryptedPwd);
         }
@@ -855,7 +843,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         // supports approval chains
         saveForFormSubmit(user, clearPassword, propByRes);
 
-        UserMod userMod = runtimeService.getVariable(user.getWorkflowId(), USER_MOD, UserMod.class);
+        UserMod userMod = engine.getRuntimeService().getVariable(user.getWorkflowId(), USER_MOD, UserMod.class);
         if (userMod == null) {
             userMod = new UserMod();
             userMod.setKey(updated.getKey());

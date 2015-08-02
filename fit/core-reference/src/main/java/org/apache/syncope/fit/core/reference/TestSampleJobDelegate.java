@@ -21,7 +21,7 @@ package org.apache.syncope.fit.core.reference;
 import java.util.Date;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
-import org.apache.syncope.core.provisioning.java.job.AbstractTaskJob;
+import org.apache.syncope.core.provisioning.java.job.AbstractSchedTaskJobDelegate;
 import org.quartz.JobExecutionException;
 
 /**
@@ -29,12 +29,12 @@ import org.quartz.JobExecutionException;
  *
  * @see SchedTask
  */
-public class TestSampleJob extends AbstractTaskJob {
+public class TestSampleJobDelegate extends AbstractSchedTaskJobDelegate {
 
     @Override
     protected String doExecute(final boolean dryRun) throws JobExecutionException {
         if (!(task instanceof SchedTask)) {
-            throw new JobExecutionException("Task " + taskId + " isn't a SchedTask");
+            throw new JobExecutionException("Task " + task.getKey() + " isn't a SchedTask");
         }
 
         for (int i = 0; i < 10; i++) {

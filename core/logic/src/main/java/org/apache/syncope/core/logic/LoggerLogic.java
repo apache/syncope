@@ -46,6 +46,7 @@ import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.LoggerDAO;
@@ -55,8 +56,9 @@ import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Logger;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
-import org.apache.syncope.core.persistence.api.entity.task.SyncTask;
 import org.apache.syncope.core.misc.spring.BeanUtils;
+import org.apache.syncope.core.provisioning.java.sync.PushJobDelegate;
+import org.apache.syncope.core.provisioning.java.sync.SyncJobDelegate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
@@ -255,10 +257,10 @@ public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
                 }
             }
 
-            //SYNCOPE-608
+            // SYNCOPE-608
             EventCategoryTO authenticationControllerEvents = new EventCategoryTO();
-            authenticationControllerEvents.setCategory("AuthenticationController");
-            authenticationControllerEvents.getEvents().add("login");
+            authenticationControllerEvents.setCategory(AuditElements.AUTHENTICATION_CATEGORY);
+            authenticationControllerEvents.getEvents().add(AuditElements.LOGIN_EVENT);
             events.add(authenticationControllerEvents);
 
             events.add(new EventCategoryTO(EventCategoryType.PROPAGATION));
@@ -305,15 +307,17 @@ public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
 
             for (SchedTask task : taskDAO.<SchedTask>findAll(TaskType.SCHEDULED)) {
                 EventCategoryTO eventCategoryTO = new EventCategoryTO(EventCategoryType.TASK);
-                eventCategoryTO.setCategory(Class.forName(task.getJobClassName()).getSimpleName());
+                eventCategoryTO.setCategory(Class.forName(task.getJobDelegateClassName()).getSimpleName());
                 events.add(eventCategoryTO);
             }
 
-            for (SyncTask task : taskDAO.<SyncTask>findAll(TaskType.SYNCHRONIZATION)) {
-                EventCategoryTO eventCategoryTO = new EventCategoryTO(EventCategoryType.TASK);
-                eventCategoryTO.setCategory(Class.forName(task.getJobClassName()).getSimpleName());
-                events.add(eventCategoryTO);
-            }
+            EventCategoryTO eventCategoryTO = new EventCategoryTO(EventCategoryType.TASK);
+            eventCategoryTO.setCategory(SyncJobDelegate.class.getSimpleName());
+            events.add(eventCategoryTO);
+
+            eventCategoryTO = new EventCategoryTO(EventCategoryType.TASK);
+            eventCategoryTO.setCategory(PushJobDelegate.class.getSimpleName());
+            events.add(eventCategoryTO);
         } catch (Exception e) {
             LOG.error("Failure retrieving audit/notification events", e);
         }

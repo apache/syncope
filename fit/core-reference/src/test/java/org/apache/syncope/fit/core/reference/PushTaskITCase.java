@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.fit.core.reference;
 
-import static org.apache.syncope.fit.core.reference.AbstractITCase.anyTypeClassService;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -109,7 +108,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
         task = taskService.read(actual.getKey());
         assertNotNull(task);
         assertEquals(task.getKey(), actual.getKey());
-        assertEquals(task.getJobClassName(), actual.getJobClassName());
+        assertEquals(task.getJobDelegateClassName(), actual.getJobDelegateClassName());
         assertEquals(task.getFilters().get(AnyTypeKind.USER.name()),
                 actual.getFilters().get(AnyTypeKind.USER.name()));
         assertEquals(task.getFilters().get(AnyTypeKind.GROUP.name()),
@@ -194,7 +193,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
         assertTrue(userService.read(1L).getResources().contains(RESOURCE_NAME_TESTDB2));
         assertFalse(userService.read(2L).getResources().contains(RESOURCE_NAME_TESTDB2));
 
-        final JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
         assertEquals(1, jdbcTemplate.queryForList("SELECT ID FROM test2 WHERE ID='verdi'").size());
         assertEquals(1, jdbcTemplate.queryForList("SELECT ID FROM test2 WHERE ID='rossini'").size());
 

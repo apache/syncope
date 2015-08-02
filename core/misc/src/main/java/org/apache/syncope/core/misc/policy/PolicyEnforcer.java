@@ -23,5 +23,13 @@ import org.apache.syncope.common.lib.types.PolicyType;
 
 public interface PolicyEnforcer<T extends PolicySpec, E> {
 
-    void enforce(final T policy, final PolicyType type, final E object);
+    /**
+     * Check the given entity to see if it conforms with the indicated policy.
+     *
+     * @param policy
+     * @param type
+     * @param entity
+     * @return whether user is to be suspended
+     */
+    boolean enforce(final T policy, final PolicyType type, final E entity);
 }

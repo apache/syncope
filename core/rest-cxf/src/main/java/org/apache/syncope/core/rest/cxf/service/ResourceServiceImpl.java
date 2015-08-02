@@ -144,7 +144,7 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
     public BulkActionResult bulk(final BulkAction bulkAction) {
         BulkActionResult result = new BulkActionResult();
 
-        if (bulkAction.getOperation() == BulkAction.Type.DELETE) {
+        if (bulkAction.getType() == BulkAction.Type.DELETE) {
             for (String name : bulkAction.getTargets()) {
                 try {
                     result.getResults().put(logic.delete(name).getKey(), BulkActionResult.Status.SUCCESS);

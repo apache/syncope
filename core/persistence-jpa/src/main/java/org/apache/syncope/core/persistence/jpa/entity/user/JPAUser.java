@@ -55,7 +55,6 @@ import org.apache.syncope.core.persistence.api.entity.user.UDerAttr;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.UVirAttr;
 import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.apache.syncope.core.persistence.jpa.validation.entity.UserCheck;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAExternalResource;
 import org.apache.syncope.core.persistence.jpa.entity.JPASecurityQuestion;
 import org.apache.syncope.core.misc.security.Encryptor;
@@ -75,7 +74,6 @@ import org.apache.syncope.core.persistence.jpa.entity.JPARole;
 @Entity
 @Table(name = JPAUser.TABLE)
 @Cacheable
-@UserCheck
 public class JPAUser extends AbstractAny<UPlainAttr, UDerAttr, UVirAttr> implements User {
 
     private static final long serialVersionUID = -3905046855521446823L;
@@ -212,7 +210,7 @@ public class JPAUser extends AbstractAny<UPlainAttr, UDerAttr, UVirAttr> impleme
 
     @Override
     public AnyType getType() {
-        return ApplicationContextProvider.getApplicationContext().getBean(AnyTypeDAO.class).findUser();
+        return ApplicationContextProvider.getBeanFactory().getBean(AnyTypeDAO.class).findUser();
     }
 
     @Override
@@ -252,9 +250,13 @@ public class JPAUser extends AbstractAny<UPlainAttr, UDerAttr, UVirAttr> impleme
         return clearPassword;
     }
 
+    public void setClearPassword(final String clearPassword) {
+        this.clearPassword = clearPassword;
+    }
+
     @Override
     public void removeClearPassword() {
-        clearPassword = null;
+        setClearPassword(null);
     }
 
     @Override

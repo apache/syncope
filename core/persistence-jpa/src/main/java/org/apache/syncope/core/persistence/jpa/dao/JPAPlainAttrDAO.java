@@ -51,7 +51,7 @@ public class JPAPlainAttrDAO extends AbstractDAO<PlainAttr<?>, Long> implements 
 
     @Override
     public <T extends PlainAttr<?>> T find(final Long key, final Class<T> reference) {
-        return reference.cast(entityManager.find(getJPAEntityReference(reference), key));
+        return reference.cast(entityManager().find(getJPAEntityReference(reference), key));
     }
 
     @Override
@@ -71,6 +71,6 @@ public class JPAPlainAttrDAO extends AbstractDAO<PlainAttr<?>, Long> implements 
             ((Any<T, ?, ?>) plainAttr.getOwner()).remove(plainAttr);
         }
 
-        entityManager.remove(plainAttr);
+        entityManager().remove(plainAttr);
     }
 }

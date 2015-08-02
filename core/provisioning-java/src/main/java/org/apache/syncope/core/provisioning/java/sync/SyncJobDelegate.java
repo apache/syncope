@@ -18,54 +18,52 @@
  */
 package org.apache.syncope.core.provisioning.java.sync;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.lib.mod.ReferenceMod;
-import org.apache.syncope.common.lib.mod.GroupMod;
 import org.apache.syncope.common.lib.types.SyncPolicySpec;
+import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.NotFoundException;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
+import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
 import org.apache.syncope.core.persistence.api.entity.task.SyncTask;
 import org.apache.syncope.core.provisioning.api.Connector;
-import org.apache.syncope.core.provisioning.api.sync.ProvisioningProfile;
-import org.apache.syncope.core.provisioning.api.sync.SyncActions;
-import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
-import org.apache.syncope.core.persistence.api.entity.resource.Provision;
-import org.apache.syncope.core.provisioning.api.job.SyncJob;
 import org.apache.syncope.core.provisioning.api.sync.AnyObjectSyncResultHandler;
 import org.apache.syncope.core.provisioning.api.sync.GroupSyncResultHandler;
+import org.apache.syncope.core.provisioning.api.sync.ProvisioningProfile;
+import org.apache.syncope.core.provisioning.api.sync.SyncActions;
 import org.apache.syncope.core.provisioning.api.sync.UserSyncResultHandler;
-import org.apache.syncope.core.workflow.api.GroupWorkflowAdapter;
 import org.identityconnectors.framework.common.objects.SyncResultsHandler;
 import org.identityconnectors.framework.common.objects.SyncToken;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 
-/**
- * Job for executing synchronization (from external resource) tasks.
- *
- * @see AbstractProvisioningJob
- * @see SyncTask
- */
-public class SyncJobImpl extends AbstractProvisioningJob<SyncTask, SyncActions> implements SyncJob {
+public class SyncJobDelegate extends AbstractProvisioningJobDelegate<SyncTask> {
 
-    /**
-     * Group workflow adapter.
-     */
     @Autowired
-    private GroupWorkflowAdapter gwfAdapter;
+    private UserDAO userDAO;
+
+    @Autowired
+    private GroupDAO groupDAO;
 
     @Autowired
     protected SyncUtils syncUtils;
 
     protected void setGroupOwners(final GroupSyncResultHandler ghandler) {
         for (Map.Entry<Long, String> entry : ghandler.getGroupOwnerMap().entrySet()) {
-            GroupMod groupMod = new GroupMod();
-            groupMod.setKey(entry.getKey());
+            Group group = groupDAO.find(entry.getKey());
+            if (group == null) {
+                throw new NotFoundException("Group " + entry.getKey());
+            }
 
             if (StringUtils.isBlank(entry.getValue())) {
-                groupMod.setGroupOwner(null);
-                groupMod.setUserOwner(null);
+                group.setGroupOwner(null);
+                group.setUserOwner(null);
             } else {
                 Long userKey = syncUtils.findMatchingAnyKey(
                         anyTypeDAO.findUser(),
@@ -81,51 +79,62 @@ public class SyncJobImpl extends AbstractProvisioningJob<SyncTask, SyncActions> 
                             ghandler.getProfile().getConnector());
 
                     if (groupKey != null) {
-                        groupMod.setGroupOwner(new ReferenceMod(groupKey));
+                        group.setGroupOwner(groupDAO.find(groupKey));
                     }
                 } else {
-                    groupMod.setUserOwner(new ReferenceMod(userKey));
+                    group.setUserOwner(userDAO.find(userKey));
                 }
             }
 
-            gwfAdapter.update(groupMod);
+            groupDAO.save(group);
         }
     }
 
     @Override
-    protected String executeWithSecurityContext(
+    protected String doExecuteProvisioning(
             final SyncTask syncTask,
             final Connector connector,
             final boolean dryRun) throws JobExecutionException {
 
         LOG.debug("Executing sync on {}", syncTask.getResource());
 
-        ProvisioningProfile<SyncTask, SyncActions> profile = new ProvisioningProfile<>(connector, syncTask);
-        if (actions != null) {
-            profile.getActions().addAll(actions);
+        List<SyncActions> actions = new ArrayList<>();
+        for (String className : syncTask.getActionsClassNames()) {
+            try {
+                Class<?> actionsClass = Class.forName(className);
+                SyncActions syncActions = (SyncActions) ApplicationContextProvider.getBeanFactory().
+                        createBean(actionsClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true);
+
+                actions.add(syncActions);
+            } catch (Exception e) {
+                LOG.info("Class '{}' not found", className, e);
+            }
         }
+
+        ProvisioningProfile<SyncTask, SyncActions> profile = new ProvisioningProfile<>(connector, syncTask);
+        profile.getActions().addAll(actions);
         profile.setDryRun(dryRun);
         profile.setResAct(getSyncPolicySpec(syncTask).getConflictResolutionAction());
 
         // Prepare handler for SyncDelta objects (any objects)
         AnyObjectSyncResultHandler ahandler =
-                (AnyObjectSyncResultHandler) ApplicationContextProvider.getApplicationContext().getBeanFactory().
+                (AnyObjectSyncResultHandler) ApplicationContextProvider.getBeanFactory().
                 createBean(AnyObjectSyncResultHandlerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
         ahandler.setProfile(profile);
 
         // Prepare handler for SyncDelta objects (users)
         UserSyncResultHandler uhandler =
-                (UserSyncResultHandler) ApplicationContextProvider.getApplicationContext().getBeanFactory().
+                (UserSyncResultHandler) ApplicationContextProvider.getBeanFactory().
                 createBean(UserSyncResultHandlerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
         uhandler.setProfile(profile);
 
         // Prepare handler for SyncDelta objects (groups)
         GroupSyncResultHandler ghandler =
-                (GroupSyncResultHandler) ApplicationContextProvider.getApplicationContext().getBeanFactory().
+                (GroupSyncResultHandler) ApplicationContextProvider.getBeanFactory().
                 createBean(GroupSyncResultHandlerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
         ghandler.setProfile(profile);
 
-        if (actions != null && !profile.isDryRun()) {
+        if (!profile.isDryRun()) {
             for (SyncActions action : actions) {
                 action.beforeAll(profile);
             }
@@ -182,7 +191,7 @@ public class SyncJobImpl extends AbstractProvisioningJob<SyncTask, SyncActions> 
             LOG.error("While setting group owners", e);
         }
 
-        if (actions != null && !profile.isDryRun()) {
+        if (!profile.isDryRun()) {
             for (SyncActions action : actions) {
                 action.afterAll(profile);
             }

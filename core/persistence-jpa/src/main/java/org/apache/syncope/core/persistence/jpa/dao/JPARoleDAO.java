@@ -43,12 +43,12 @@ public class JPARoleDAO extends AbstractDAO<Role, Long> implements RoleDAO {
 
     @Override
     public Role find(final Long key) {
-        return entityManager.find(JPARole.class, key);
+        return entityManager().find(JPARole.class, key);
     }
 
     @Override
     public Role find(final String name) {
-        TypedQuery<Role> query = entityManager.createQuery(
+        TypedQuery<Role> query = entityManager().createQuery(
                 "SELECT e FROM " + JPARole.class.getSimpleName() + " e WHERE e.name=:name", Role.class);
         query.setParameter("name", name);
 
@@ -64,7 +64,7 @@ public class JPARoleDAO extends AbstractDAO<Role, Long> implements RoleDAO {
 
     @Override
     public List<Role> findByRealm(final Realm realm) {
-        TypedQuery<Role> query = entityManager.createQuery(
+        TypedQuery<Role> query = entityManager().createQuery(
                 "SELECT e FROM " + JPARole.class.getSimpleName() + " e WHERE :realm MEMBER OF e.realms", Role.class);
         query.setParameter("realm", realm);
         return query.getResultList();
@@ -72,7 +72,7 @@ public class JPARoleDAO extends AbstractDAO<Role, Long> implements RoleDAO {
 
     @Override
     public List<Role> findAll() {
-        TypedQuery<Role> query = entityManager.createQuery(
+        TypedQuery<Role> query = entityManager().createQuery(
                 "SELECT e FROM " + JPARole.class.getSimpleName() + " e ", Role.class);
         return query.getResultList();
     }
@@ -90,12 +90,12 @@ public class JPARoleDAO extends AbstractDAO<Role, Long> implements RoleDAO {
             }
         }
 
-        return entityManager.merge(role);
+        return entityManager().merge(role);
     }
 
     @Override
     public void delete(final Role role) {
-        entityManager.remove(role);
+        entityManager().remove(role);
     }
 
     @Override

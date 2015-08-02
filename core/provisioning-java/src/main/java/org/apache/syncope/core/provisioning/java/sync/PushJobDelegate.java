@@ -18,42 +18,35 @@
  */
 package org.apache.syncope.core.provisioning.java.sync;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.core.persistence.api.dao.GroupDAO;
-import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
-import org.apache.syncope.core.persistence.api.entity.task.PushTask;
-import org.apache.syncope.core.provisioning.api.Connector;
-import org.apache.syncope.core.provisioning.api.sync.ProvisioningProfile;
-import org.apache.syncope.core.provisioning.api.sync.PushActions;
-import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.misc.search.SearchCondConverter;
+import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
-import org.apache.syncope.core.provisioning.api.job.PushJob;
+import org.apache.syncope.core.persistence.api.entity.task.PushTask;
+import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.sync.AnyObjectPushResultHandler;
 import org.apache.syncope.core.provisioning.api.sync.GroupPushResultHandler;
+import org.apache.syncope.core.provisioning.api.sync.ProvisioningProfile;
+import org.apache.syncope.core.provisioning.api.sync.PushActions;
 import org.apache.syncope.core.provisioning.api.sync.SyncopePushResultHandler;
 import org.apache.syncope.core.provisioning.api.sync.UserPushResultHandler;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 
-/**
- * Job for executing synchronization (towards external resource) tasks.
- *
- * @see AbstractProvisioningJob
- * @see PushTask
- * @see PushActions
- */
-public class PushJobImpl extends AbstractProvisioningJob<PushTask, PushActions> implements PushJob {
+public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
 
     private static final int PAGE_SIZE = 1000;
 
@@ -98,36 +91,46 @@ public class PushJobImpl extends AbstractProvisioningJob<PushTask, PushActions> 
     }
 
     @Override
-    protected String executeWithSecurityContext(
+    protected String doExecuteProvisioning(
             final PushTask pushTask,
             final Connector connector,
             final boolean dryRun) throws JobExecutionException {
 
         LOG.debug("Executing push on {}", pushTask.getResource());
 
-        ProvisioningProfile<PushTask, PushActions> profile = new ProvisioningProfile<>(connector, pushTask);
-        if (actions != null) {
-            profile.getActions().addAll(actions);
+        List<PushActions> actions = new ArrayList<>();
+        for (String className : pushTask.getActionsClassNames()) {
+            try {
+                Class<?> actionsClass = Class.forName(className);
+
+                PushActions syncActions = (PushActions) ApplicationContextProvider.getBeanFactory().
+                        createBean(actionsClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true);
+                actions.add(syncActions);
+            } catch (Exception e) {
+                LOG.info("Class '{}' not found", className, e);
+            }
         }
+
+        ProvisioningProfile<PushTask, PushActions> profile = new ProvisioningProfile<>(connector, pushTask);
         profile.setDryRun(dryRun);
         profile.setResAct(null);
 
         AnyObjectPushResultHandler ahandler =
-                (AnyObjectPushResultHandler) ApplicationContextProvider.getApplicationContext().getBeanFactory().
+                (AnyObjectPushResultHandler) ApplicationContextProvider.getBeanFactory().
                 createBean(AnyObjectPushResultHandlerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
         ahandler.setProfile(profile);
 
         UserPushResultHandler uhandler =
-                (UserPushResultHandler) ApplicationContextProvider.getApplicationContext().getBeanFactory().
+                (UserPushResultHandler) ApplicationContextProvider.getBeanFactory().
                 createBean(UserPushResultHandlerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
         uhandler.setProfile(profile);
 
         GroupPushResultHandler ghandler =
-                (GroupPushResultHandler) ApplicationContextProvider.getApplicationContext().getBeanFactory().
+                (GroupPushResultHandler) ApplicationContextProvider.getBeanFactory().
                 createBean(GroupPushResultHandlerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
         ghandler.setProfile(profile);
 
-        if (actions != null && !profile.isDryRun()) {
+        if (!profile.isDryRun()) {
             for (PushActions action : actions) {
                 action.beforeAll(profile);
             }
@@ -176,7 +179,7 @@ public class PushJobImpl extends AbstractProvisioningJob<PushTask, PushActions> 
             }
         }
 
-        if (actions != null && !profile.isDryRun()) {
+        if (!profile.isDryRun()) {
             for (PushActions action : actions) {
                 action.afterAll(profile);
             }

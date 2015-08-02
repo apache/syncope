@@ -16,11 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.api.job;
+package org.apache.syncope.core.persistence.api;
 
-import org.apache.syncope.core.persistence.api.entity.task.SyncTask;
-import org.apache.syncope.core.provisioning.api.sync.SyncActions;
+import java.util.Map;
+import javax.sql.DataSource;
 
-public interface SyncJob extends ProvisioningJob<SyncTask, SyncActions> {
+public interface DomainsHolder {
 
+    Map<String, DataSource> getDomains();
 }

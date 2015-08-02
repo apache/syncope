@@ -33,7 +33,7 @@ public class SchedTaskTO extends AbstractTaskTO {
 
     private String cronExpression;
 
-    private String jobClassName;
+    private String jobDelegateClassName;
 
     private String name;
 
@@ -51,12 +51,12 @@ public class SchedTaskTO extends AbstractTaskTO {
         this.cronExpression = cronExpression;
     }
 
-    public String getJobClassName() {
-        return jobClassName;
+    public String getJobDelegateClassName() {
+        return jobDelegateClassName;
     }
 
-    public void setJobClassName(final String jobClassName) {
-        this.jobClassName = jobClassName;
+    public void setJobDelegateClassName(final String jobDelegateClassName) {
+        this.jobDelegateClassName = jobDelegateClassName;
     }
 
     @SuppressWarnings("CPD-START")

@@ -26,6 +26,10 @@ public final class AuditElements implements Serializable {
 
     private static final long serialVersionUID = -4385059255522273254L;
 
+    public static final String AUTHENTICATION_CATEGORY = "Authentication";
+
+    public static final String LOGIN_EVENT = "login";
+
     @XmlEnum
     public enum EventCategoryType {
 
@@ -54,5 +58,9 @@ public final class AuditElements implements Serializable {
         SUCCESS,
         FAILURE
 
+    }
+
+    private AuditElements() {
+        // private constructor for static utility class
     }
 }

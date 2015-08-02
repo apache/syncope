@@ -16,11 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.api.job;
+package org.apache.syncope.core.provisioning.java;
 
-import org.apache.syncope.core.persistence.api.entity.task.PushTask;
-import org.apache.syncope.core.provisioning.api.sync.PushActions;
+import org.apache.syncope.core.persistence.api.content.ContentLoader;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-public interface PushJob extends ProvisioningJob<PushTask, PushActions> {
+@Component
+public class TestInitializer implements InitializingBean {
+
+    @Autowired
+    private ContentLoader contentLoader;
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        contentLoader.load();
+    }
 
 }

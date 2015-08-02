@@ -31,7 +31,9 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.identityconnectors.framework.common.objects.Name;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
+@Transactional
 public class MappingTest extends AbstractTest {
 
     @Autowired

@@ -56,7 +56,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.interceptor.TransactionInterceptor;
 
 /**
  * Note that this controller does not extend {@link AbstractTransactionalLogic}, hence does not provide any
@@ -114,7 +113,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupMod> {
     }
 
     @PreAuthorize("isAuthenticated()")
-    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
+    @Transactional(readOnly = true)
     @Override
     public int count(final List<String> realms) {
         return groupDAO.count(getEffectiveRealms(SyncopeConstants.FULL_ADMIN_REALMS, realms));
@@ -140,7 +139,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupMod> {
     }
 
     @PreAuthorize("hasRole('" + Entitlement.GROUP_SEARCH + "')")
-    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
+    @Transactional(readOnly = true)
     @Override
     public int searchCount(final SearchCond searchCondition, final List<String> realms) {
         return searchDAO.count(
@@ -149,7 +148,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupMod> {
     }
 
     @PreAuthorize("hasRole('" + Entitlement.GROUP_SEARCH + "')")
-    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
+    @Transactional(readOnly = true)
     @Override
     public List<GroupTO> search(final SearchCond searchCondition, final int page, final int size,
             final List<OrderByClause> orderBy, final List<String> realms, final boolean details) {
@@ -256,75 +255,70 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupMod> {
     }
 
     @PreAuthorize("hasRole('" + Entitlement.GROUP_UPDATE + "')")
-    @Transactional(rollbackFor = { Throwable.class })
     @Override
     public GroupTO unlink(final Long groupKey, final Collection<String> resources) {
-        final GroupMod groupMod = new GroupMod();
+        GroupMod groupMod = new GroupMod();
         groupMod.setKey(groupKey);
         groupMod.getResourcesToRemove().addAll(resources);
-        final Long updatedResult = provisioningManager.unlink(groupMod);
 
-        return binder.getGroupTO(updatedResult);
+        return binder.getGroupTO(provisioningManager.unlink(groupMod));
     }
 
     @PreAuthorize("hasRole('" + Entitlement.GROUP_UPDATE + "')")
-    @Transactional(rollbackFor = { Throwable.class })
     @Override
     public GroupTO link(final Long groupKey, final Collection<String> resources) {
-        final GroupMod groupMod = new GroupMod();
+        GroupMod groupMod = new GroupMod();
         groupMod.setKey(groupKey);
         groupMod.getResourcesToAdd().addAll(resources);
+
         return binder.getGroupTO(provisioningManager.link(groupMod));
     }
 
     @PreAuthorize("hasRole('" + Entitlement.GROUP_UPDATE + "')")
-    @Transactional(rollbackFor = { Throwable.class })
     @Override
     public GroupTO unassign(final Long groupKey, final Collection<String> resources) {
-        final GroupMod groupMod = new GroupMod();
+        GroupMod groupMod = new GroupMod();
         groupMod.setKey(groupKey);
         groupMod.getResourcesToRemove().addAll(resources);
         return update(groupMod);
     }
 
     @PreAuthorize("hasRole('" + Entitlement.GROUP_UPDATE + "')")
-    @Transactional(rollbackFor = { Throwable.class })
     @Override
     public GroupTO assign(
-            final Long groupKey, final Collection<String> resources, final boolean changePwd, final String password) {
+            final Long key,
+            final Collection<String> resources,
+            final boolean changepwd,
+            final String password) {
 
-        final GroupMod userMod = new GroupMod();
-        userMod.setKey(groupKey);
-        userMod.getResourcesToAdd().addAll(resources);
-        return update(userMod);
+        GroupMod groupMod = new GroupMod();
+        groupMod.setKey(key);
+        groupMod.getResourcesToAdd().addAll(resources);
+
+        return update(groupMod);
     }
 
     @PreAuthorize("hasRole('" + Entitlement.GROUP_UPDATE + "')")
-    @Transactional(rollbackFor = { Throwable.class })
     @Override
-    public GroupTO deprovision(final Long groupKey, final Collection<String> resources) {
-        final Group group = groupDAO.authFind(groupKey);
+    public GroupTO deprovision(final Long key, final Collection<String> resources) {
+        List<PropagationStatus> statuses = provisioningManager.deprovision(key, resources);
 
-        List<PropagationStatus> statuses = provisioningManager.deprovision(groupKey, resources);
-
-        GroupTO updatedTO = binder.getGroupTO(group, true);
+        GroupTO updatedTO = binder.getGroupTO(key);
         updatedTO.getPropagationStatusTOs().addAll(statuses);
         return updatedTO;
     }
 
     @PreAuthorize("hasRole('" + Entitlement.GROUP_UPDATE + "')")
-    @Transactional(rollbackFor = { Throwable.class })
     @Override
     public GroupTO provision(
-            final Long groupKey, final Collection<String> resources, final boolean changePwd, final String password) {
-        GroupTO original = binder.getGroupTO(groupKey);
+            final Long key,
+            final Collection<String> resources,
+            final boolean changePwd,
+            final String password) {
 
-        //trick: assign and retrieve propagation statuses ...
-        original.getPropagationStatusTOs().addAll(
-                assign(groupKey, resources, changePwd, password).getPropagationStatusTOs());
+        GroupTO original = binder.getGroupTO(key);
+        original.getPropagationStatusTOs().addAll(provisioningManager.provision(key, resources));
 
-        // .... rollback.
-        TransactionInterceptor.currentTransactionStatus().setRollbackOnly();
         return original;
     }
 

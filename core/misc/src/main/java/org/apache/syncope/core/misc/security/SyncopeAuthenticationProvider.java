@@ -191,23 +191,23 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
 
             auditManager.audit(
                     AuditElements.EventCategoryType.REST,
-                    "AuthenticationController",
+                    AuditElements.AUTHENTICATION_CATEGORY,
                     null,
-                    "login",
+                    AuditElements.LOGIN_EVENT,
                     Result.SUCCESS,
                     null,
                     authenticated,
                     authentication,
-                    "Successfully authenticated, with groups: " + token.getAuthorities());
+                    "Successfully authenticated, with entitlements: " + token.getAuthorities());
 
             LOG.debug("User {} successfully authenticated, with groups {}",
                     authentication.getPrincipal(), token.getAuthorities());
         } else {
             auditManager.audit(
                     AuditElements.EventCategoryType.REST,
-                    "AuthenticationController",
+                    AuditElements.AUTHENTICATION_CATEGORY,
                     null,
-                    "login",
+                    AuditElements.LOGIN_EVENT,
                     Result.FAILURE,
                     null,
                     authenticated,

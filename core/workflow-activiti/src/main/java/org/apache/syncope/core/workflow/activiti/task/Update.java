@@ -35,9 +35,11 @@ public class Update extends AbstractActivitiServiceTask {
 
     @Override
     protected void doExecute(final String executionId) {
-        User user = runtimeService.getVariable(executionId, ActivitiUserWorkflowAdapter.USER, User.class);
+        User user = engine.getRuntimeService().
+                getVariable(executionId, ActivitiUserWorkflowAdapter.USER, User.class);
         UserMod userMod =
-                runtimeService.getVariable(executionId, ActivitiUserWorkflowAdapter.USER_MOD, UserMod.class);
+                engine.getRuntimeService().
+                getVariable(executionId, ActivitiUserWorkflowAdapter.USER_MOD, UserMod.class);
 
         // update password internally only if required
         UserMod updatedMod = SerializationUtils.clone(userMod);
@@ -50,8 +52,8 @@ public class Update extends AbstractActivitiServiceTask {
         updatedMod.setPassword(updatedPwd);
 
         // report updated user and propagation by resource as result
-        runtimeService.setVariable(executionId, ActivitiUserWorkflowAdapter.USER, user);
-        runtimeService.setVariable(executionId, ActivitiUserWorkflowAdapter.USER_MOD, updatedMod);
-        runtimeService.setVariable(executionId, ActivitiUserWorkflowAdapter.PROP_BY_RESOURCE, propByRes);
+        engine.getRuntimeService().setVariable(executionId, ActivitiUserWorkflowAdapter.USER, user);
+        engine.getRuntimeService().setVariable(executionId, ActivitiUserWorkflowAdapter.USER_MOD, updatedMod);
+        engine.getRuntimeService().setVariable(executionId, ActivitiUserWorkflowAdapter.PROP_BY_RESOURCE, propByRes);
     }
 }

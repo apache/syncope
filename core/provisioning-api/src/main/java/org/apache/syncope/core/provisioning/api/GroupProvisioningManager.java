@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.api;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -30,5 +31,7 @@ public interface GroupProvisioningManager extends ProvisioningManager<GroupTO, G
 
     Pair<Long, List<PropagationStatus>> create(
             GroupTO groupTO, Map<Long, String> groupOwnerMap, Set<String> excludedResources);
+
+    List<PropagationStatus> provision(Long key, Collection<String> resources);
 
 }

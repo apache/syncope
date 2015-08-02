@@ -21,18 +21,18 @@ package org.apache.syncope.common.lib.types;
 import javax.xml.bind.annotation.XmlEnum;
 
 @XmlEnum
-public enum ResourceAssociationActionType {
+public enum ResourceAssociationAction {
 
     /**
-     * Add association between user/group on Syncope and external resource(s) without any propagation.
+     * Link user/group/any object on Syncope and external resource(s) without any propagation.
      */
     LINK,
     /**
-     * Add user/group into external resource(s).
+     * Send user/group/any object data to external resource(s).
      */
     PROVISION,
     /**
-     * Assign (link + provision) external resource(s) with user/group.
+     * Assign (link + provision) external resource(s) to user/group/any object.
      */
     ASSIGN
 

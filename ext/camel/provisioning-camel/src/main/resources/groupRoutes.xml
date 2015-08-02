@@ -131,6 +131,12 @@ under the License.
     </doTry>            
   </route>
         
+  <route id="provisionGroup">
+    <from uri="direct:provisionGroup"/>            
+    <process ref="groupProvisionProcessor"/>
+    <to uri="direct:provisionGroupPort"/>              
+  </route>
+
   <route id="deprovisionGroup">
     <from uri="direct:deprovisionGroup"/>            
     <process ref="groupDeprovisionProcessor"/>

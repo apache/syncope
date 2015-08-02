@@ -18,15 +18,21 @@
  */
 package org.apache.syncope.core.persistence.jpa;
 
+import javax.persistence.EntityManager;
+import org.apache.syncope.core.misc.security.AuthContextUtils;
+import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.orm.jpa.EntityManagerFactoryUtils;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.transaction.TransactionConfiguration;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:persistenceTest.xml" })
+@TransactionConfiguration(transactionManager = "MasterTransactionManager")
 public abstract class AbstractTest {
 
     @Autowired
@@ -35,4 +41,14 @@ public abstract class AbstractTest {
     @Autowired
     protected AnyUtilsFactory anyUtilsFactory;
 
+    protected EntityManager entityManager() {
+        EntityManager entityManager = EntityManagerFactoryUtils.getTransactionalEntityManager(
+                EntityManagerFactoryUtils.findEntityManagerFactory(
+                        ApplicationContextProvider.getBeanFactory(), AuthContextUtils.getDomain()));
+        if (entityManager == null) {
+            throw new IllegalStateException("Could not find EntityManager for domain " + AuthContextUtils.getDomain());
+        }
+
+        return entityManager;
+    }
 }

@@ -142,6 +142,7 @@ public class UserTest extends AbstractTest {
         User user = entityFactory.newEntity(User.class);
         user.setUsername("username");
         user.setRealm(realmDAO.find("/even/two"));
+        user.setCreator("admin");
         user.setCreationDate(new Date());
 
         user.setPassword("pass", CipherAlgorithm.SHA256);
@@ -153,7 +154,7 @@ public class UserTest extends AbstractTest {
             assertNotNull(e);
         }
 
-        user.setPassword("password", CipherAlgorithm.SHA256);
+        user.setPassword("password123", CipherAlgorithm.SHA256);
 
         user.setUsername("username!");
 
@@ -186,6 +187,7 @@ public class UserTest extends AbstractTest {
         User user = entityFactory.newEntity(User.class);
         user.setUsername("username");
         user.setRealm(realmDAO.find("/even/two"));
+        user.setCreator("admin");
         user.setCreationDate(new Date());
 
         user.setPassword("password123", CipherAlgorithm.AES);

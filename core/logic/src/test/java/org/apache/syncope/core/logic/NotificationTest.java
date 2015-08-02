@@ -79,7 +79,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.transaction.annotation.Transactional;
 
+@Transactional
 public class NotificationTest extends AbstractTest {
 
     private static final String SMTP_HOST = "localhost";
@@ -164,7 +166,7 @@ public class NotificationTest extends AbstractTest {
     }
 
     private static UserTO getSampleTO(final String email) {
-        String uid = email;
+        String uid = UUID.randomUUID().toString().substring(0, 8) + email;
         UserTO userTO = new UserTO();
         userTO.setPassword("password123");
         userTO.setUsername(uid);
@@ -175,7 +177,7 @@ public class NotificationTest extends AbstractTest {
         userTO.getPlainAttrs().add(attributeTO("surname", "surname"));
         userTO.getPlainAttrs().add(attributeTO("type", "a type"));
         userTO.getPlainAttrs().add(attributeTO("userId", uid));
-        userTO.getPlainAttrs().add(attributeTO("email", uid));
+        userTO.getPlainAttrs().add(attributeTO("email", email));
         userTO.getPlainAttrs().add(attributeTO("loginDate", new SimpleDateFormat("yyyy-MM-dd").format(new Date())));
         userTO.getDerAttrs().add(attributeTO("cn", null));
         userTO.getVirAttrs().add(attributeTO("virtualdata", "virtualvalue"));

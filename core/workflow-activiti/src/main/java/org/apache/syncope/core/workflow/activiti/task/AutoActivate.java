@@ -26,6 +26,6 @@ public class AutoActivate extends AbstractActivitiServiceTask {
 
     @Override
     protected void doExecute(final String executionId) {
-        runtimeService.setVariable(executionId, ActivitiUserWorkflowAdapter.PROPAGATE_ENABLE, Boolean.TRUE);
+        engine.getRuntimeService().setVariable(executionId, ActivitiUserWorkflowAdapter.PROPAGATE_ENABLE, Boolean.TRUE);
     }
 }

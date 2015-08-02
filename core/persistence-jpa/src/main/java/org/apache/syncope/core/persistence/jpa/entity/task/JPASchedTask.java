@@ -34,8 +34,7 @@ public class JPASchedTask extends JPATask implements SchedTask {
 
     protected String cronExpression;
 
-    @NotNull
-    protected String jobClassName;
+    protected String jobDelegateClassName;
 
     @NotNull
     protected String name;
@@ -58,13 +57,13 @@ public class JPASchedTask extends JPATask implements SchedTask {
     }
 
     @Override
-    public String getJobClassName() {
-        return jobClassName;
+    public String getJobDelegateClassName() {
+        return jobDelegateClassName;
     }
 
     @Override
-    public void setJobClassName(final String jobClassName) {
-        this.jobClassName = jobClassName;
+    public void setJobDelegateClassName(final String jobDelegateClassName) {
+        this.jobDelegateClassName = jobDelegateClassName;
     }
 
     @Override

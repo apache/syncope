@@ -45,7 +45,7 @@ public class JPAPlainSchemaDAO extends AbstractDAO<PlainSchema, String> implemen
 
     @Override
     public PlainSchema find(final String key) {
-        return entityManager.find(JPAPlainSchema.class, key);
+        return entityManager().find(JPAPlainSchema.class, key);
     }
 
     @Override
@@ -54,7 +54,7 @@ public class JPAPlainSchemaDAO extends AbstractDAO<PlainSchema, String> implemen
                 append(JPAPlainSchema.class.getSimpleName()).
                 append(" e WHERE e.anyTypeClass=:anyTypeClass");
 
-        TypedQuery<PlainSchema> query = entityManager.createQuery(queryString.toString(), PlainSchema.class);
+        TypedQuery<PlainSchema> query = entityManager().createQuery(queryString.toString(), PlainSchema.class);
         query.setParameter("anyTypeClass", anyTypeClass);
 
         return query.getResultList();
@@ -62,7 +62,7 @@ public class JPAPlainSchemaDAO extends AbstractDAO<PlainSchema, String> implemen
 
     @Override
     public List<PlainSchema> findAll() {
-        TypedQuery<PlainSchema> query = entityManager.createQuery(
+        TypedQuery<PlainSchema> query = entityManager().createQuery(
                 "SELECT e FROM " + JPAPlainSchema.class.getSimpleName() + " e", PlainSchema.class);
         return query.getResultList();
     }
@@ -73,7 +73,7 @@ public class JPAPlainSchemaDAO extends AbstractDAO<PlainSchema, String> implemen
                 append(((JPAPlainAttrDAO) plainAttrDAO).getJPAEntityReference(reference).getSimpleName()).
                 append(" e WHERE e.schema=:schema");
 
-        TypedQuery<T> query = entityManager.createQuery(queryString.toString(), reference);
+        TypedQuery<T> query = entityManager().createQuery(queryString.toString(), reference);
         query.setParameter("schema", schema);
 
         return query.getResultList();
@@ -81,7 +81,7 @@ public class JPAPlainSchemaDAO extends AbstractDAO<PlainSchema, String> implemen
 
     @Override
     public PlainSchema save(final PlainSchema schema) {
-        return entityManager.merge(schema);
+        return entityManager().merge(schema);
     }
 
     @Override
@@ -106,6 +106,6 @@ public class JPAPlainSchemaDAO extends AbstractDAO<PlainSchema, String> implemen
             schema.getAnyTypeClass().remove(schema);
         }
 
-        entityManager.remove(schema);
+        entityManager().remove(schema);
     }
 }

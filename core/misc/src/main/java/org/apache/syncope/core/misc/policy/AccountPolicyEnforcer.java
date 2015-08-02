@@ -22,8 +22,6 @@ import java.util.regex.Pattern;
 import org.apache.syncope.common.lib.types.AccountPolicySpec;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.apache.syncope.core.provisioning.api.UserSuspender;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -31,11 +29,8 @@ public class AccountPolicyEnforcer implements PolicyEnforcer<AccountPolicySpec, 
 
     private static final Pattern DEFAULT_PATTERN = Pattern.compile("[a-zA-Z0-9-_@. ]+");
 
-    @Autowired(required = false)
-    private UserSuspender userSuspender;
-
     @Override
-    public void enforce(final AccountPolicySpec policy, final PolicyType type, final User user) {
+    public boolean enforce(final AccountPolicySpec policy, final PolicyType type, final User user) {
         if (user.getUsername() == null) {
             throw new PolicyEnforceException("Invalid account");
         }
@@ -90,11 +85,7 @@ public class AccountPolicyEnforcer implements PolicyEnforcer<AccountPolicySpec, 
         }
 
         // check for subsequent failed logins
-        if (userSuspender != null
-                && user.getFailedLogins() != null && policy.getMaxAuthenticationAttempts() > 0
-                && user.getFailedLogins() > policy.getMaxAuthenticationAttempts() && !user.isSuspended()) {
-
-            userSuspender.suspend(user, policy.isPropagateSuspension());
-        }
+        return (user.getFailedLogins() != null && policy.getMaxAuthenticationAttempts() > 0
+                && user.getFailedLogins() > policy.getMaxAuthenticationAttempts() && !user.isSuspended());
     }
 }

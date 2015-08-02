@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.core.provisioning.java;
 
-import org.apache.syncope.core.provisioning.api.UserSuspender;
 import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.provisioning.api.UserSuspender;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -143,7 +143,7 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?, ?, ?>, Long> implements 
         queryString.insert(0, "SELECT COUNT(any_id) FROM (");
         queryString.append(") count_any_id");
 
-        Query countQuery = entityManager.createNativeQuery(queryString.toString());
+        Query countQuery = entityManager().createNativeQuery(queryString.toString());
         fillWithParameters(countQuery, parameters);
 
         return ((Number) countQuery.getSingleResult()).intValue();
@@ -208,7 +208,7 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?, ?, ?>, Long> implements 
             queryString.append(") u WHERE any_id=?").append(setParameter(parameters, any.getKey()));
 
             // 3. prepare the search query
-            Query query = entityManager.createNativeQuery(queryString.toString());
+            Query query = entityManager().createNativeQuery(queryString.toString());
 
             // 4. populate the search query with parameter values
             fillWithParameters(query, parameters);
@@ -371,7 +371,7 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?, ?, ?>, Long> implements 
                 append(buildOrderBy(orderBySupport));
 
         // 3. prepare the search query
-        Query query = entityManager.createNativeQuery(queryString.toString());
+        Query query = entityManager().createNativeQuery(queryString.toString());
 
         // 4. page starts from 1, while setFirtResult() starts from 0
         query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));

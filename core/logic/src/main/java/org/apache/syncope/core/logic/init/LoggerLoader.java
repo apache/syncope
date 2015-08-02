@@ -18,24 +18,38 @@
  */
 package org.apache.syncope.core.logic.init;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
+import javax.sql.DataSource;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.appender.db.jdbc.ColumnConfig;
+import org.apache.logging.log4j.core.appender.db.jdbc.ConnectionSource;
+import org.apache.logging.log4j.core.appender.db.jdbc.JdbcAppender;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.LoggerLevel;
 import org.apache.syncope.common.lib.types.LoggerType;
+import org.apache.syncope.core.misc.AuditManager;
+import org.apache.syncope.core.persistence.api.DomainsHolder;
 import org.apache.syncope.core.persistence.api.SyncopeLoader;
 import org.apache.syncope.core.persistence.api.dao.LoggerDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class LoggerLoader implements SyncopeLoader {
+
+    @Autowired
+    private DomainsHolder domainsHolder;
 
     @Autowired
     private LoggerDAO loggerDAO;
@@ -51,6 +65,39 @@ public class LoggerLoader implements SyncopeLoader {
     @Transactional
     @Override
     public void load() {
+        LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+
+        // 1. Audit table and DataSource for each configured domain
+        ColumnConfig[] columns = {
+            ColumnConfig.createColumnConfig(ctx.getConfiguration(), "EVENT_DATE", null, null, "true", null, null),
+            ColumnConfig.createColumnConfig(ctx.getConfiguration(), "LOGGER_LEVEL", "%level", null, null, null, null),
+            ColumnConfig.createColumnConfig(ctx.getConfiguration(), "LOGGER", "%logger", null, null, null, null),
+            ColumnConfig.createColumnConfig(ctx.getConfiguration(), "MESSAGE", "%message", null, null, null, null),
+            ColumnConfig.createColumnConfig(ctx.getConfiguration(), "THROWABLE", "%ex{full}", null, null, null, null)
+        };
+        for (Map.Entry<String, DataSource> entry : domainsHolder.getDomains().entrySet()) {
+            Appender appender = ctx.getConfiguration().getAppender("audit_for_" + entry.getKey());
+            if (appender == null) {
+                appender = JdbcAppender.createAppender(
+                        "audit_for_" + entry.getKey(),
+                        "false",
+                        null,
+                        new DataSourceConnectionSource(entry.getValue()),
+                        "0",
+                        "SYNCOPEAUDIT",
+                        columns);
+                appender.start();
+                ctx.getConfiguration().addAppender(appender);
+            }
+
+            LoggerConfig logConf = new LoggerConfig(
+                    AuditManager.getDomainAuditLoggerName(entry.getKey()), null, false);
+            logConf.addAppender(appender, Level.DEBUG, null);
+            ctx.getConfiguration().addLogger(AuditManager.getDomainAuditLoggerName(entry.getKey()), logConf);
+        }
+        ctx.updateLoggers();
+
+        // 2. Aligning log4j conf with database content
         Map<String, Logger> syncopeLoggers = new HashMap<>();
         for (Logger syncopeLogger : loggerDAO.findAll(LoggerType.LOG)) {
             syncopeLoggers.put(syncopeLogger.getKey(), syncopeLogger);
@@ -59,8 +106,6 @@ public class LoggerLoader implements SyncopeLoader {
         for (Logger syncopeLogger : loggerDAO.findAll(LoggerType.AUDIT)) {
             syncopeLoggers.put(syncopeLogger.getKey(), syncopeLogger);
         }
-
-        LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
 
         /*
          * Traverse all defined log4j loggers: if there is a matching SyncopeLogger, set log4j level accordingly,
@@ -94,5 +139,20 @@ public class LoggerLoader implements SyncopeLoader {
         }
 
         ctx.updateLoggers();
+    }
+
+    private static class DataSourceConnectionSource implements ConnectionSource {
+
+        private final DataSource dataSource;
+
+        public DataSourceConnectionSource(final DataSource dataSource) {
+            this.dataSource = dataSource;
+        }
+
+        @Override
+        public Connection getConnection() throws SQLException {
+            return DataSourceUtils.getConnection(dataSource);
+        }
+
     }
 }

@@ -29,9 +29,10 @@ import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
 import org.identityconnectors.common.Base64;
 import org.identityconnectors.common.security.EncryptorFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional(rollbackFor = { Throwable.class })
+@Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = { Throwable.class })
 public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter {
 
     @Autowired

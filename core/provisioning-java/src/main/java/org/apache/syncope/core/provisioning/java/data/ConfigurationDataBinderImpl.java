@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
-import static org.apache.syncope.core.provisioning.java.data.AbstractAnyDataBinder.LOG;
-
 import org.apache.syncope.core.provisioning.api.data.ConfigurationDataBinder;
 import java.util.Collections;
 import java.util.List;

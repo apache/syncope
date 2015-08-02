@@ -27,7 +27,8 @@ public class Delete extends AbstractActivitiServiceTask {
 
     @Override
     protected void doExecute(final String executionId) {
-        User user = runtimeService.getVariable(executionId, ActivitiUserWorkflowAdapter.USER, User.class);
+        User user = engine.getRuntimeService().
+                getVariable(executionId, ActivitiUserWorkflowAdapter.USER, User.class);
 
         // Do something with user...
         if (user != null) {
@@ -35,6 +36,6 @@ public class Delete extends AbstractActivitiServiceTask {
         }
 
         // remove user variable
-        runtimeService.removeVariable(executionId, ActivitiUserWorkflowAdapter.USER);
+        engine.getRuntimeService().removeVariable(executionId, ActivitiUserWorkflowAdapter.USER);
     }
 }

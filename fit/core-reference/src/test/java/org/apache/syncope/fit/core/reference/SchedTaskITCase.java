@@ -38,7 +38,6 @@ import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.JobStatusType;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.service.TaskService;
-import org.apache.syncope.core.provisioning.api.job.SyncJob;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -86,7 +85,7 @@ public class SchedTaskITCase extends AbstractTaskITCase {
         SchedTaskTO task = new SchedTaskTO();
         task.setName("issueSYNCOPE144");
         task.setDescription("issueSYNCOPE144 Description");
-        task.setJobClassName(SyncJob.class.getName());
+        task.setJobDelegateClassName(TestSampleJobDelegate.class.getName());
 
         Response response = taskService.create(task);
         SchedTaskTO actual = getObject(response.getLocation(), TaskService.class, SchedTaskTO.class);
@@ -117,7 +116,7 @@ public class SchedTaskITCase extends AbstractTaskITCase {
         SchedTaskTO task = new SchedTaskTO();
         task.setName("issueSYNCOPE660");
         task.setDescription("issueSYNCOPE660 Description");
-        task.setJobClassName(TestSampleJob.class.getName());
+        task.setJobDelegateClassName(TestSampleJobDelegate.class.getName());
 
         Response response = taskService.create(task);
         task = getObject(response.getLocation(), TaskService.class, SchedTaskTO.class);

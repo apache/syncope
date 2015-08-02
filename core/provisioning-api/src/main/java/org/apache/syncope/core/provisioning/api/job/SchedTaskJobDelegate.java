@@ -16,26 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.jpa.validation.entity;
+package org.apache.syncope.core.provisioning.api.job;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.quartz.JobExecutionException;
 
-import javax.validation.Constraint;
-import javax.validation.Payload;
+public interface SchedTaskJobDelegate {
 
-@Target({ ElementType.TYPE })
-@Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = UserValidator.class)
-@Documented
-public @interface UserCheck {
-
-    String message() default "{org.apache.syncope.core.persistence.validation.user}";
-
-    Class<?>[] groups() default {};
-
-    Class<? extends Payload>[] payload() default {};
+    void execute(Long taskKey, boolean dryRun) throws JobExecutionException;
 }

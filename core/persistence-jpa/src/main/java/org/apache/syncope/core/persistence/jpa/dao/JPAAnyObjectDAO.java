@@ -99,7 +99,7 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
 
     @Override
     public List<ARelationship> findARelationships(final AnyObject anyObject) {
-        TypedQuery<ARelationship> query = entityManager.createQuery(
+        TypedQuery<ARelationship> query = entityManager().createQuery(
                 "SELECT e FROM " + JPAARelationship.class.getSimpleName()
                 + " e WHERE e.rightEnd=:anyObject", ARelationship.class);
         query.setParameter("anyObject", anyObject);
@@ -109,7 +109,7 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
 
     @Override
     public List<URelationship> findURelationships(final AnyObject anyObject) {
-        TypedQuery<URelationship> query = entityManager.createQuery(
+        TypedQuery<URelationship> query = entityManager().createQuery(
                 "SELECT e FROM " + JPAURelationship.class.getSimpleName()
                 + " e WHERE e.rightEnd=:anyObject", URelationship.class);
         query.setParameter("anyObject", anyObject);
@@ -132,13 +132,13 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
             group.getADynMembership().remove(any);
         }
 
-        entityManager.remove(any);
+        entityManager().remove(any);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     @Override
     public List<Group> findDynGroupMemberships(final AnyObject anyObject) {
-        TypedQuery<Group> query = entityManager.createQuery(
+        TypedQuery<Group> query = entityManager().createQuery(
                 "SELECT e.group FROM " + JPAADynGroupMembership.class.getSimpleName()
                 + " e WHERE :anyObject MEMBER OF e.anyObjects", Group.class);
         query.setParameter("anyObject", anyObject);

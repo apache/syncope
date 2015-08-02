@@ -131,7 +131,7 @@ public class SyncopeLogic extends AbstractLogic<SyncopeTO> {
         syncopeTO.getReportlets().addAll(
                 classNamesLoader.getClassNames(ImplementationClassNamesLoader.Type.REPORTLET));
         syncopeTO.getTaskJobs().addAll(
-                classNamesLoader.getClassNames(ImplementationClassNamesLoader.Type.TASKJOB));
+                classNamesLoader.getClassNames(ImplementationClassNamesLoader.Type.TASKJOBDELEGATE));
         syncopeTO.getPropagationActions().addAll(
                 classNamesLoader.getClassNames(ImplementationClassNamesLoader.Type.PROPAGATION_ACTIONS));
         syncopeTO.getSyncActions().addAll(

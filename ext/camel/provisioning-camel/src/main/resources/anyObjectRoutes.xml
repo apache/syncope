@@ -112,6 +112,12 @@ under the License.
     </doTry>            
   </route>
         
+  <route id="provisionAnyObject">
+    <from uri="direct:provisionAnyObject"/>            
+    <process ref="anyObjectProvisionProcessor"/>
+    <to uri="direct:provisionAnyObjectPort"/>              
+  </route>
+
   <route id="deprovisionAnyObject">
     <from uri="direct:deprovisionAnyObject"/>            
     <process ref="anyObjectDeprovisionProcessor"/>

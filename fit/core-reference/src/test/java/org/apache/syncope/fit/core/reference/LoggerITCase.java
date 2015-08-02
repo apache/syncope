@@ -197,7 +197,7 @@ public class LoggerITCase extends AbstractITCase {
         found = false;
         for (EventCategoryTO eventCategoryTO : events) {
             if (EventCategoryType.TASK == eventCategoryTO.getType()
-                    && "SampleJob".equals(eventCategoryTO.getCategory())) {
+                    && "TestSampleJobDelegate".equals(eventCategoryTO.getCategory())) {
                 found = true;
             }
         }
@@ -206,7 +206,7 @@ public class LoggerITCase extends AbstractITCase {
         found = false;
         for (EventCategoryTO eventCategoryTO : events) {
             if (EventCategoryType.TASK == eventCategoryTO.getType()
-                    && "SyncJob".equals(eventCategoryTO.getCategory())) {
+                    && "SyncJobDelegate".equals(eventCategoryTO.getCategory())) {
                 found = true;
             }
         }

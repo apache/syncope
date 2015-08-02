@@ -80,15 +80,15 @@ public abstract class AbstractProvisioningTask extends JPASchedTask implements P
     @Enumerated(EnumType.STRING)
     protected MatchingRule matchingRule;
 
-    public AbstractProvisioningTask(final TaskType type, final String jobClassName) {
+    public AbstractProvisioningTask(final TaskType type, final String jobDelegateClassName) {
         super();
 
         this.type = type;
-        super.setJobClassName(jobClassName);
+        super.setJobDelegateClassName(jobDelegateClassName);
     }
 
     @Override
-    public void setJobClassName(final String jobClassName) {
+    public void setJobDelegateClassName(final String jobClassName) {
         // fixed to SyncJob, cannot be changed
     }
 

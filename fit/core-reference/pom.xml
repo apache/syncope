@@ -261,7 +261,7 @@ under the License.
             </deployable>
             <deployable>
               <location>${project.build.directory}/${project.build.finalName}</location>
-              <pingURL>http://localhost:${cargo.servlet.port}/syncope/db.jsp</pingURL>
+              <pingURL>http://localhost:${cargo.servlet.port}/syncope/cacheStats.jsp</pingURL>
               <pingTimeout>60000</pingTimeout>
               <properties>
                 <context>syncope</context>
@@ -310,11 +310,15 @@ under the License.
         <filtering>true</filtering>
       </resource>
       <resource>
-        <directory>${basedir}/../../core/persistence-jpa/src/test/resources</directory>
+        <directory>${basedir}/../../core/persistence-jpa/src/main/resources</directory>
         <includes>
-          <include>content.xml</include>
           <include>persistence.properties</include>
         </includes>
+        <filtering>true</filtering>
+      </resource>
+      <resource>
+        <directory>${basedir}/../../core/persistence-jpa/src/test/resources/domains</directory>
+        <targetPath>${project.build.directory}/classes/domains</targetPath>
         <filtering>true</filtering>
       </resource>
       <resource>
@@ -803,7 +807,7 @@ under the License.
                 <transformationSet>
                   <dir>${project.build.directory}/classes</dir>
                   <includes>
-                    <include>content.xml</include>
+                    <include>domains/MasterContent.xml</include>
                   </includes>
                   <outputDir>${project.build.directory}/classes</outputDir>
                   <stylesheet>${basedir}/src/test/resources/addActivitiToContent.xsl</stylesheet>

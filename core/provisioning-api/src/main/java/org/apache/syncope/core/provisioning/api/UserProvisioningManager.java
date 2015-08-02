@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.api;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
@@ -30,11 +31,11 @@ import org.apache.syncope.core.provisioning.api.sync.ProvisioningResult;
 
 public interface UserProvisioningManager extends ProvisioningManager<UserTO, UserMod> {
 
-    Pair<Long, List<PropagationStatus>> activate(User user, StatusMod statusMod);
+    Pair<Long, List<PropagationStatus>> activate(StatusMod statusMod);
 
-    Pair<Long, List<PropagationStatus>> reactivate(User user, StatusMod statusMod);
+    Pair<Long, List<PropagationStatus>> reactivate(StatusMod statusMod);
 
-    Pair<Long, List<PropagationStatus>> suspend(User user, StatusMod statusMod);
+    Pair<Long, List<PropagationStatus>> suspend(StatusMod statusMod);
 
     void innerSuspend(User user, boolean propagate);
 
@@ -48,6 +49,8 @@ public interface UserProvisioningManager extends ProvisioningManager<UserTO, Use
 
     void requestPasswordReset(Long key);
 
-    void confirmPasswordReset(User user, String token, String password);
+    void confirmPasswordReset(Long key, String token, String password);
+
+    List<PropagationStatus> provision(Long key, boolean changePwd, String password, Collection<String> resources);
 
 }

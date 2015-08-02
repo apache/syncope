@@ -481,7 +481,7 @@ public class ResourceITCase extends AbstractITCase {
         assertNotNull(resourceService.read("forBulk2"));
 
         final BulkAction bulkAction = new BulkAction();
-        bulkAction.setOperation(BulkAction.Type.DELETE);
+        bulkAction.setType(BulkAction.Type.DELETE);
 
         bulkAction.getTargets().add(String.valueOf("forBulk1"));
         bulkAction.getTargets().add(String.valueOf("forBulk2"));

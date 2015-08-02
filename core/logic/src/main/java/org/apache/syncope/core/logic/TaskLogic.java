@@ -22,6 +22,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.ArrayUtils;
@@ -51,15 +52,15 @@ import org.apache.syncope.core.persistence.api.entity.task.TaskUtils;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
 import org.apache.syncope.core.provisioning.api.data.TaskDataBinder;
 import org.apache.syncope.core.provisioning.api.job.JobNamer;
-import org.apache.syncope.core.provisioning.api.job.TaskJob;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.provisioning.api.job.JobInstanceLoader;
-import org.apache.syncope.core.logic.notification.NotificationJob;
+import org.apache.syncope.core.logic.notification.NotificationJobDelegate;
+import org.apache.syncope.core.persistence.api.dao.ConfDAO;
+import org.apache.syncope.core.provisioning.java.job.TaskJob;
 import org.quartz.JobDataMap;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
@@ -73,19 +74,19 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
     private TaskExecDAO taskExecDAO;
 
     @Autowired
+    private ConfDAO confDAO;
+
+    @Autowired
     private TaskDataBinder binder;
 
     @Autowired
     private PropagationTaskExecutor taskExecutor;
 
     @Autowired
-    private NotificationJob notificationJob;
+    private NotificationJobDelegate notificationJobDelegate;
 
     @Autowired
     private JobInstanceLoader jobInstanceLoader;
-
-    @Autowired
-    private SchedulerFactoryBean scheduler;
 
     @Autowired
     private TaskUtilsFactory taskUtilsFactory;
@@ -98,7 +99,9 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
         task = taskDAO.save(task);
 
         try {
-            jobInstanceLoader.registerJob(task, task.getJobClassName(), task.getCronExpression());
+            jobInstanceLoader.registerJob(
+                    task,
+                    confDAO.find("tasks.interruptMaxRetries", "1").getValues().get(0).getLongValue());
         } catch (Exception e) {
             LOG.error("While registering quartz job for task " + task.getKey(), e);
 
@@ -128,7 +131,9 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
         task = taskDAO.save(task);
 
         try {
-            jobInstanceLoader.registerJob(task, task.getJobClassName(), task.getCronExpression());
+            jobInstanceLoader.registerJob(
+                    task,
+                    confDAO.find("tasks.interruptMaxRetries", "1").getValues().get(0).getLongValue());
         } catch (Exception e) {
             LOG.error("While registering quartz job for task " + task.getKey(), e);
 
@@ -163,28 +168,28 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
     }
 
     @PreAuthorize("hasRole('" + Entitlement.TASK_READ + "')")
-    public <T extends AbstractTaskTO> T read(final Long taskId) {
-        Task task = taskDAO.find(taskId);
+    public <T extends AbstractTaskTO> T read(final Long taskKey) {
+        Task task = taskDAO.find(taskKey);
         if (task == null) {
-            throw new NotFoundException("Task " + taskId);
+            throw new NotFoundException("Task " + taskKey);
         }
         return binder.getTaskTO(task, taskUtilsFactory.getInstance(task));
     }
 
     @PreAuthorize("hasRole('" + Entitlement.TASK_READ + "')")
-    public TaskExecTO readExecution(final Long executionId) {
-        TaskExec taskExec = taskExecDAO.find(executionId);
+    public TaskExecTO readExecution(final Long execKey) {
+        TaskExec taskExec = taskExecDAO.find(execKey);
         if (taskExec == null) {
-            throw new NotFoundException("Task execution " + executionId);
+            throw new NotFoundException("Task execution " + execKey);
         }
         return binder.getTaskExecTO(taskExec);
     }
 
     @PreAuthorize("hasRole('" + Entitlement.TASK_EXECUTE + "')")
-    public TaskExecTO execute(final Long taskId, final boolean dryRun) {
-        Task task = taskDAO.find(taskId);
+    public TaskExecTO execute(final Long taskKey, final boolean dryRun) {
+        Task task = taskDAO.find(taskKey);
         if (task == null) {
-            throw new NotFoundException("Task " + taskId);
+            throw new NotFoundException("Task " + taskKey);
         }
         TaskUtils taskUtils = taskUtilsFactory.getInstance(task);
 
@@ -196,7 +201,7 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
                 break;
 
             case NOTIFICATION:
-                final TaskExec notExec = notificationJob.executeSingle((NotificationTask) task);
+                final TaskExec notExec = notificationJobDelegate.executeSingle((NotificationTask) task);
                 result = binder.getTaskExecTO(notExec);
                 break;
 
@@ -204,15 +209,14 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
             case SYNCHRONIZATION:
             case PUSH:
                 try {
-                    jobInstanceLoader.registerJob(task,
-                            ((SchedTask) task).getJobClassName(),
-                            ((SchedTask) task).getCronExpression());
+                    Map<String, Object> jobDataMap = jobInstanceLoader.registerJob(
+                            (SchedTask) task,
+                            confDAO.find("tasks.interruptMaxRetries", "1").getValues().get(0).getLongValue());
 
-                    JobDataMap map = new JobDataMap();
-                    map.put(TaskJob.DRY_RUN_JOBDETAIL_KEY, dryRun);
-
+                    jobDataMap.put(TaskJob.DRY_RUN_JOBDETAIL_KEY, dryRun);
                     scheduler.getScheduler().triggerJob(
-                            new JobKey(JobNamer.getJobName(task), Scheduler.DEFAULT_GROUP), map);
+                            new JobKey(JobNamer.getJobName(task), Scheduler.DEFAULT_GROUP),
+                            new JobDataMap(jobDataMap));
                 } catch (Exception e) {
                     LOG.error("While executing task {}", task, e);
 
@@ -222,7 +226,7 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
                 }
 
                 result = new TaskExecTO();
-                result.setTask(taskId);
+                result.setTask(taskKey);
                 result.setStartDate(new Date());
                 result.setStatus("JOB_FIRED");
                 result.setMessage("Job fired; waiting for results...");
@@ -235,10 +239,10 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
     }
 
     @PreAuthorize("hasRole('" + Entitlement.TASK_READ + "')")
-    public TaskExecTO report(final Long executionId, final PropagationTaskExecStatus status, final String message) {
-        TaskExec exec = taskExecDAO.find(executionId);
+    public TaskExecTO report(final Long execKey, final PropagationTaskExecStatus status, final String message) {
+        TaskExec exec = taskExecDAO.find(execKey);
         if (exec == null) {
-            throw new NotFoundException("Task execution " + executionId);
+            throw new NotFoundException("Task execution " + execKey);
         }
 
         SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidPropagationTaskExecReport);
@@ -277,10 +281,10 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
     }
 
     @PreAuthorize("hasRole('" + Entitlement.TASK_DELETE + "')")
-    public <T extends AbstractTaskTO> T delete(final Long taskId) {
-        Task task = taskDAO.find(taskId);
+    public <T extends AbstractTaskTO> T delete(final Long taskKey) {
+        Task task = taskDAO.find(taskKey);
         if (task == null) {
-            throw new NotFoundException("Task " + taskId);
+            throw new NotFoundException("Task " + taskKey);
         }
         TaskUtils taskUtils = taskUtilsFactory.getInstance(task);
 
@@ -298,10 +302,10 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
     }
 
     @PreAuthorize("hasRole('" + Entitlement.TASK_DELETE + "')")
-    public TaskExecTO deleteExecution(final Long executionId) {
-        TaskExec taskExec = taskExecDAO.find(executionId);
+    public TaskExecTO deleteExecution(final Long execKey) {
+        TaskExec taskExec = taskExecDAO.find(execKey);
         if (taskExec == null) {
-            throw new NotFoundException("Task execution " + executionId);
+            throw new NotFoundException("Task execution " + execKey);
         }
 
         TaskExecTO taskExecutionToDelete = binder.getTaskExecTO(taskExec);

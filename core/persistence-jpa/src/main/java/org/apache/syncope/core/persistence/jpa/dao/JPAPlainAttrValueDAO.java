@@ -68,19 +68,19 @@ public class JPAPlainAttrValueDAO extends AbstractDAO<PlainAttrValue, Long> impl
 
     @Override
     public <T extends PlainAttrValue> T find(final Long key, final Class<T> reference) {
-        return reference.cast(entityManager.find(getJPAEntityReference(reference), key));
+        return reference.cast(entityManager().find(getJPAEntityReference(reference), key));
     }
 
     @Override
     public <T extends PlainAttrValue> List<T> findAll(final Class<T> reference) {
-        TypedQuery<T> query = entityManager.createQuery(
+        TypedQuery<T> query = entityManager().createQuery(
                 "SELECT e FROM " + getJPAEntityReference(reference).getSimpleName() + " e", reference);
         return query.getResultList();
     }
 
     @Override
     public <T extends PlainAttrValue> T save(final T attributeValue) {
-        return entityManager.merge(attributeValue);
+        return entityManager().merge(attributeValue);
     }
 
     @Override
@@ -99,6 +99,6 @@ public class JPAPlainAttrValueDAO extends AbstractDAO<PlainAttrValue, Long> impl
             attrValue.getAttr().remove(attrValue);
         }
 
-        entityManager.remove(attrValue);
+        entityManager().remove(attrValue);
     }
 }

@@ -60,7 +60,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.interceptor.TransactionInterceptor;
 
 /**
  * Note that this controller does not extend {@link AbstractTransactionalLogic}, hence does not provide any
@@ -100,17 +99,19 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserMod> {
     protected SyncopeLogic syncopeLogic;
 
     @PreAuthorize("hasRole('" + Entitlement.USER_READ + "')")
+    @Transactional(readOnly = true)
     public String getUsername(final Long key) {
         return binder.getUserTO(key).getUsername();
     }
 
     @PreAuthorize("hasRole('" + Entitlement.USER_READ + "')")
+    @Transactional(readOnly = true)
     public Long getKey(final String username) {
         return binder.getUserTO(username).getKey();
     }
 
     @PreAuthorize("hasRole('" + Entitlement.USER_LIST + "')")
-    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
+    @Transactional(readOnly = true)
     @Override
     public int count(final List<String> realms) {
         return userDAO.count(
@@ -118,7 +119,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserMod> {
     }
 
     @PreAuthorize("hasRole('" + Entitlement.USER_LIST + "')")
-    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
+    @Transactional(readOnly = true)
     @Override
     public List<UserTO> list(
             final int page, final int size, final List<OrderByClause> orderBy,
@@ -152,7 +153,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserMod> {
     }
 
     @PreAuthorize("hasRole('" + Entitlement.USER_SEARCH + "')")
-    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
+    @Transactional(readOnly = true)
     @Override
     public int searchCount(final SearchCond searchCondition, final List<String> realms) {
         return searchDAO.count(
@@ -161,7 +162,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserMod> {
     }
 
     @PreAuthorize("hasRole('" + Entitlement.USER_SEARCH + "')")
-    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
+    @Transactional(readOnly = true)
     @Override
     public List<UserTO> search(final SearchCond searchCondition, final int page, final int size,
             final List<OrderByClause> orderBy, final List<String> realms, final boolean details) {
@@ -242,22 +243,21 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserMod> {
         return updatedTO;
     }
 
-    protected Map.Entry<Long, List<PropagationStatus>> setStatusOnWfAdapter(final User user,
-            final StatusMod statusMod) {
+    protected Map.Entry<Long, List<PropagationStatus>> setStatusOnWfAdapter(final StatusMod statusMod) {
         Map.Entry<Long, List<PropagationStatus>> updated;
 
         switch (statusMod.getType()) {
             case SUSPEND:
-                updated = provisioningManager.suspend(user, statusMod);
+                updated = provisioningManager.suspend(statusMod);
                 break;
 
             case REACTIVATE:
-                updated = provisioningManager.reactivate(user, statusMod);
+                updated = provisioningManager.reactivate(statusMod);
                 break;
 
             case ACTIVATE:
             default:
-                updated = provisioningManager.activate(user, statusMod);
+                updated = provisioningManager.activate(statusMod);
                 break;
 
         }
@@ -266,11 +266,8 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserMod> {
     }
 
     @PreAuthorize("hasRole('" + Entitlement.USER_UPDATE + "')")
-    @Transactional(rollbackFor = { Throwable.class })
     public UserTO status(final StatusMod statusMod) {
-        User user = userDAO.authFind(statusMod.getKey());
-
-        Map.Entry<Long, List<PropagationStatus>> updated = setStatusOnWfAdapter(user, statusMod);
+        Map.Entry<Long, List<PropagationStatus>> updated = setStatusOnWfAdapter(statusMod);
         final UserTO savedTO = binder.getUserTO(updated.getKey());
         savedTO.getPropagationStatusTOs().addAll(updated.getValue());
         return savedTO;
@@ -304,7 +301,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserMod> {
         if (user == null) {
             throw new NotFoundException("User with token " + token);
         }
-        provisioningManager.confirmPasswordReset(user, token, password);
+        provisioningManager.confirmPasswordReset(user.getKey(), token, password);
     }
 
     @PreAuthorize("isAuthenticated() and not(hasRole('" + Entitlement.ANONYMOUS + "'))")
@@ -332,9 +329,8 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserMod> {
 
         List<PropagationStatus> statuses = provisioningManager.delete(key);
 
-        final UserTO deletedTO;
-        User deleted = userDAO.find(key);
-        if (deleted == null) {
+        UserTO deletedTO;
+        if (userDAO.find(key) == null) {
             deletedTO = new UserTO();
             deletedTO.setKey(key);
         } else {
@@ -346,39 +342,35 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserMod> {
     }
 
     @PreAuthorize("hasRole('" + Entitlement.USER_UPDATE + "')")
-    @Transactional(rollbackFor = { Throwable.class })
     @Override
     public UserTO unlink(final Long key, final Collection<String> resources) {
-        final UserMod userMod = new UserMod();
+        UserMod userMod = new UserMod();
         userMod.setKey(key);
         userMod.getResourcesToRemove().addAll(resources);
-        Long updatedKey = provisioningManager.unlink(userMod);
 
-        return binder.getUserTO(updatedKey);
+        return binder.getUserTO(provisioningManager.unlink(userMod));
     }
 
     @PreAuthorize("hasRole('" + Entitlement.USER_UPDATE + "')")
-    @Transactional(rollbackFor = { Throwable.class })
     @Override
     public UserTO link(final Long key, final Collection<String> resources) {
-        final UserMod userMod = new UserMod();
+        UserMod userMod = new UserMod();
         userMod.setKey(key);
         userMod.getResourcesToAdd().addAll(resources);
+
         return binder.getUserTO(provisioningManager.link(userMod));
     }
 
     @PreAuthorize("hasRole('" + Entitlement.USER_UPDATE + "')")
-    @Transactional(rollbackFor = { Throwable.class })
     @Override
     public UserTO unassign(final Long key, final Collection<String> resources) {
-        final UserMod userMod = new UserMod();
+        UserMod userMod = new UserMod();
         userMod.setKey(key);
         userMod.getResourcesToRemove().addAll(resources);
         return update(userMod);
     }
 
     @PreAuthorize("hasRole('" + Entitlement.USER_UPDATE + "')")
-    @Transactional(rollbackFor = { Throwable.class })
     @Override
     public UserTO assign(
             final Long key,
@@ -386,7 +378,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserMod> {
             final boolean changepwd,
             final String password) {
 
-        final UserMod userMod = new UserMod();
+        UserMod userMod = new UserMod();
         userMod.setKey(key);
         userMod.getResourcesToAdd().addAll(resources);
 
@@ -402,20 +394,16 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserMod> {
     }
 
     @PreAuthorize("hasRole('" + Entitlement.USER_UPDATE + "')")
-    @Transactional(rollbackFor = { Throwable.class })
     @Override
     public UserTO deprovision(final Long key, final Collection<String> resources) {
-        User user = userDAO.authFind(key);
-
         List<PropagationStatus> statuses = provisioningManager.deprovision(key, resources);
 
-        final UserTO updatedUserTO = binder.getUserTO(user, true);
-        updatedUserTO.getPropagationStatusTOs().addAll(statuses);
-        return updatedUserTO;
+        UserTO updatedTO = binder.getUserTO(key);
+        updatedTO.getPropagationStatusTOs().addAll(statuses);
+        return updatedTO;
     }
 
     @PreAuthorize("hasRole('" + Entitlement.USER_UPDATE + "')")
-    @Transactional(readOnly = true)
     @Override
     public UserTO provision(
             final Long key,
@@ -423,14 +411,9 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserMod> {
             final boolean changePwd,
             final String password) {
 
-        final UserTO original = binder.getUserTO(key);
+        UserTO original = binder.getUserTO(key);
+        original.getPropagationStatusTOs().addAll(provisioningManager.provision(key, changePwd, password, resources));
 
-        //trick: assign and retrieve propagation statuses ...
-        original.getPropagationStatusTOs().addAll(
-                assign(key, resources, changePwd, password).getPropagationStatusTOs());
-
-        // .... rollback.
-        TransactionInterceptor.currentTransactionStatus().setRollbackOnly();
         return original;
     }
 

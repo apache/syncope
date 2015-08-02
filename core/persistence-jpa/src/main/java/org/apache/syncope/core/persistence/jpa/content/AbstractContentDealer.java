@@ -18,17 +18,10 @@
  */
 package org.apache.syncope.core.persistence.jpa.content;
 
-import java.io.IOException;
-import java.util.Properties;
-import javax.annotation.Resource;
-import javax.sql.DataSource;
-import org.apache.syncope.core.misc.spring.ResourceWithFallbackLoader;
+import org.apache.syncope.core.persistence.api.DomainsHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.support.PropertiesLoaderUtils;
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
 
 public abstract class AbstractContentDealer {
 
@@ -36,53 +29,7 @@ public abstract class AbstractContentDealer {
 
     protected static final String ROOT_ELEMENT = "dataset";
 
-    @Resource(name = "database.schema")
-    protected String dbSchema;
-
-    @Resource(name = "indexesXML")
-    private ResourceWithFallbackLoader indexesXML;
-
-    @Resource(name = "viewsXML")
-    private ResourceWithFallbackLoader viewsXML;
-
     @Autowired
-    protected DataSource dataSource;
+    protected DomainsHolder domainsHolder;
 
-    protected void createIndexes() throws IOException {
-        LOG.debug("Creating indexes");
-
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-
-        Properties indexes = PropertiesLoaderUtils.loadProperties(indexesXML.getResource());
-        for (String idx : indexes.stringPropertyNames()) {
-            LOG.debug("Creating index {}", indexes.get(idx).toString());
-
-            try {
-                jdbcTemplate.execute(indexes.get(idx).toString());
-            } catch (DataAccessException e) {
-                LOG.error("Could not create index ", e);
-            }
-        }
-
-        LOG.debug("Indexes created");
-    }
-
-    protected void createViews() throws IOException {
-        LOG.debug("Creating views");
-
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-
-        Properties views = PropertiesLoaderUtils.loadProperties(viewsXML.getResource());
-        for (String idx : views.stringPropertyNames()) {
-            LOG.debug("Creating view {}", views.get(idx).toString());
-
-            try {
-                jdbcTemplate.execute(views.get(idx).toString().replaceAll("\\n", " "));
-            } catch (DataAccessException e) {
-                LOG.error("Could not create view ", e);
-            }
-        }
-
-        LOG.debug("Views created");
-    }
 }

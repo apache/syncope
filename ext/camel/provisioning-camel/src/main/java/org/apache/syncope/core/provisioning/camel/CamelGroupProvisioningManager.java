@@ -163,13 +163,32 @@ public class CamelGroupProvisioningManager
 
     @Override
     @SuppressWarnings("unchecked")
-    public List<PropagationStatus> deprovision(final Long groupKey, final Collection<String> resources) {
+    public List<PropagationStatus> provision(final Long key, final Collection<String> resources) {
+        PollingConsumer pollingConsumer = getConsumer("direct:provisionGroupPort");
+
+        Map<String, Object> props = new HashMap<>();
+        props.put("resources", resources);
+
+        sendMessage("direct:provisionGroup", key, props);
+
+        Exchange exchange = pollingConsumer.receive();
+
+        if (exchange.getProperty(Exchange.EXCEPTION_CAUGHT) != null) {
+            throw (RuntimeException) exchange.getProperty(Exchange.EXCEPTION_CAUGHT);
+        }
+
+        return exchange.getIn().getBody(List.class);
+    }
+    
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<PropagationStatus> deprovision(final Long key, final Collection<String> resources) {
         PollingConsumer pollingConsumer = getConsumer("direct:deprovisionGroupPort");
 
         Map<String, Object> props = new HashMap<>();
         props.put("resources", resources);
 
-        sendMessage("direct:deprovisionGroup", groupKey, props);
+        sendMessage("direct:deprovisionGroup", key, props);
 
         Exchange exchange = pollingConsumer.receive();
 

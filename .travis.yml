@@ -13,13 +13,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+cache:
+  directories:
+  - $HOME/.m2
 language: java
 jdk:
   - openjdk7
 # default install is mvn install --quiet -DskipTests=true
 install: mvn --show-version --quiet -P all,skipTests
 #invoker.streamLogs: we cannot access to log files through Travis web ui, so display everything in the console
-#script: mvn --show-version --quiet clean install -Dinvoker.streamLogs=true
-script: mvn --show-version --quiet -PskipTests -Dinvoker.streamLogs=true
+script:
+  - sudo rm /etc/mavenrc
+  - export MAVEN_OPTS="-Xmx2469m -XX:MaxPermSize=512m"
+  - mvn --show-version --quiet clean install -Dinvoker.streamLogs=true
 notifications:
   webhooks: http://rovere.tirasa.net/cgi-bin/travis.cgi

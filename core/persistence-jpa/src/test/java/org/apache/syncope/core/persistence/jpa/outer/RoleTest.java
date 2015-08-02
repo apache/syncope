@@ -26,7 +26,6 @@ import static org.junit.Assert.assertTrue;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
-import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
@@ -51,9 +50,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class RoleTest extends AbstractTest {
 
     @Autowired
-    private EntityManager entityManager;
-
-    @Autowired
     private RoleDAO roleDAO;
 
     @Autowired
@@ -74,7 +70,7 @@ public class RoleTest extends AbstractTest {
      * this test class is architected.
      */
     private Collection<Role> findDynRoleMemberships(final User user) {
-        TypedQuery<Role> query = entityManager.createQuery(
+        TypedQuery<Role> query = entityManager().createQuery(
                 "SELECT e.role FROM " + JPADynRoleMembership.class.getSimpleName()
                 + " e WHERE :user MEMBER OF e.users", Role.class);
         query.setParameter("user", user);
@@ -159,7 +155,7 @@ public class RoleTest extends AbstractTest {
 
         roleDAO.flush();
 
-        assertNull(entityManager.find(JPADynRoleMembership.class, dynMembershipKey));
+        assertNull(entityManager().find(JPADynRoleMembership.class, dynMembershipKey));
 
         dynRoleMemberships = findDynRoleMemberships(user);
         assertTrue(dynRoleMemberships.isEmpty());

@@ -20,17 +20,16 @@ package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.util.List;
 import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.PersistenceContextType;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.core.misc.security.AuthContextUtils;
+import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.DAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Configurable;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.orm.jpa.EntityManagerFactoryUtils;
 import org.springframework.util.ReflectionUtils;
 
 @Configurable
@@ -38,9 +37,16 @@ public abstract class AbstractDAO<E extends Entity<KEY>, KEY> implements DAO<E, 
 
     protected static final Logger LOG = LoggerFactory.getLogger(DAO.class);
 
-    @Value("#{entityManager}")
-    @PersistenceContext(type = PersistenceContextType.TRANSACTION)
-    protected EntityManager entityManager;
+    protected EntityManager entityManager() {
+        EntityManager entityManager = EntityManagerFactoryUtils.getTransactionalEntityManager(
+                EntityManagerFactoryUtils.findEntityManagerFactory(
+                        ApplicationContextProvider.getBeanFactory(), AuthContextUtils.getDomain()));
+        if (entityManager == null) {
+            throw new IllegalStateException("Could not find EntityManager for domain " + AuthContextUtils.getDomain());
+        }
+
+        return entityManager;
+    }
 
     protected String toOrderByStatement(final Class<? extends Entity<KEY>> beanClass, final String prefix,
             final List<OrderByClause> orderByClauses) {
@@ -64,27 +70,22 @@ public abstract class AbstractDAO<E extends Entity<KEY>, KEY> implements DAO<E, 
     }
 
     @Override
-    public String getDomain(final E entity) {
-        return SyncopeConstants.MASTER_DOMAIN;
-    }
-
-    @Override
     public void refresh(final E entity) {
-        entityManager.refresh(entity);
+        entityManager().refresh(entity);
     }
 
     @Override
     public void detach(final E entity) {
-        entityManager.detach(entity);
+        entityManager().detach(entity);
     }
 
     @Override
     public void flush() {
-        entityManager.flush();
+        entityManager().flush();
     }
 
     @Override
     public void clear() {
-        entityManager.clear();
+        entityManager().clear();
     }
 }

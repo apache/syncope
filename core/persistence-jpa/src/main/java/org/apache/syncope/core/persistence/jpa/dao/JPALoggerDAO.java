@@ -32,12 +32,12 @@ public class JPALoggerDAO extends AbstractDAO<Logger, String> implements LoggerD
 
     @Override
     public Logger find(final String key) {
-        return entityManager.find(JPALogger.class, key);
+        return entityManager().find(JPALogger.class, key);
     }
 
     @Override
     public List<Logger> findAll(final LoggerType type) {
-        TypedQuery<Logger> query = entityManager.createQuery(
+        TypedQuery<Logger> query = entityManager().createQuery(
                 "SELECT e FROM " + JPALogger.class.getSimpleName() + " e WHERE e.type=:type", Logger.class);
         query.setParameter("type", type);
         return query.getResultList();
@@ -49,12 +49,12 @@ public class JPALoggerDAO extends AbstractDAO<Logger, String> implements LoggerD
         if (LoggerType.AUDIT == logger.getType() && LoggerLevel.OFF != logger.getLevel()) {
             logger.setLevel(LoggerLevel.DEBUG);
         }
-        return entityManager.merge(logger);
+        return entityManager().merge(logger);
     }
 
     @Override
     public void delete(final Logger logger) {
-        entityManager.remove(logger);
+        entityManager().remove(logger);
     }
 
     @Override

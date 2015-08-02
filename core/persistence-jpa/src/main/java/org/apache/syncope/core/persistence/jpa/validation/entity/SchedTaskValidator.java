@@ -21,39 +21,43 @@ package org.apache.syncope.core.persistence.jpa.validation.entity;
 import java.text.ParseException;
 
 import javax.validation.ConstraintValidatorContext;
+import org.apache.commons.lang3.ClassUtils;
 import org.apache.syncope.common.lib.types.EntityViolationType;
+import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
+import org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate;
 import org.quartz.CronExpression;
-import org.quartz.Job;
 
 public class SchedTaskValidator extends AbstractValidator<SchedTaskCheck, SchedTask> {
 
     @Override
-    public boolean isValid(final SchedTask object, final ConstraintValidatorContext context) {
-        boolean isValid;
+    public boolean isValid(final SchedTask task, final ConstraintValidatorContext context) {
+        boolean isValid = true;
 
-        Class<?> jobClass = null;
-        try {
-            jobClass = Class.forName(object.getJobClassName());
-            isValid = Job.class.isAssignableFrom(jobClass);
-        } catch (Exception e) {
-            LOG.error("Invalid Job class specified", e);
-            isValid = false;
-        }
-        if (jobClass == null || !isValid) {
-            isValid = false;
-
-            context.disableDefaultConstraintViolation();
-            context.buildConstraintViolationWithTemplate(
-                    getTemplate(EntityViolationType.InvalidSchedTask, "Invalid job class name")).
-                    addPropertyNode("jobClassName").addConstraintViolation();
-        }
-
-        if (isValid && object.getCronExpression() != null) {
+        if (!(task instanceof ProvisioningTask)) {
+            Class<?> jobDelegateClass = null;
             try {
-                new CronExpression(object.getCronExpression());
+                jobDelegateClass = ClassUtils.getClass(task.getJobDelegateClassName());
+                isValid = SchedTaskJobDelegate.class.isAssignableFrom(jobDelegateClass);
+            } catch (Exception e) {
+                LOG.error("Invalid JobDelegate class specified", e);
+                isValid = false;
+            }
+            if (jobDelegateClass == null || !isValid) {
+                isValid = false;
+
+                context.disableDefaultConstraintViolation();
+                context.buildConstraintViolationWithTemplate(
+                        getTemplate(EntityViolationType.InvalidSchedTask, "Invalid job delegate class name")).
+                        addPropertyNode("jobDelegateClassName").addConstraintViolation();
+            }
+        }
+
+        if (isValid && task.getCronExpression() != null) {
+            try {
+                new CronExpression(task.getCronExpression());
             } catch (ParseException e) {
-                LOG.error("Invalid cron expression '" + object.getCronExpression() + "'", e);
+                LOG.error("Invalid cron expression '" + task.getCronExpression() + "'", e);
                 isValid = false;
 
                 context.disableDefaultConstraintViolation();

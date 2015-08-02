@@ -18,73 +18,27 @@
  */
 package org.apache.syncope.core.logic.report;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.Date;
-import java.util.zip.Deflater;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.sax.SAXTransformerFactory;
-import javax.xml.transform.sax.TransformerHandler;
-import javax.xml.transform.stream.StreamResult;
-import org.apache.commons.io.IOUtils;
-import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.report.ReportletConf;
-import org.apache.syncope.common.lib.types.ReportExecStatus;
-import org.apache.syncope.core.persistence.api.dao.ReportDAO;
-import org.apache.syncope.core.persistence.api.dao.ReportExecDAO;
-import org.apache.syncope.core.persistence.api.entity.EntityFactory;
-import org.apache.syncope.core.persistence.api.entity.Report;
-import org.apache.syncope.core.persistence.api.entity.ReportExec;
-import org.apache.syncope.core.logic.ReportLogic;
-import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
-import org.apache.syncope.core.misc.ExceptionUtils2;
+import org.apache.syncope.core.misc.security.AuthContextUtils;
+import org.apache.syncope.core.provisioning.api.job.JobInstanceLoader;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.support.AbstractBeanDefinition;
-import org.xml.sax.helpers.AttributesImpl;
 
 /**
  * Quartz job for executing a given report.
  */
-@SuppressWarnings("unchecked")
 @DisallowConcurrentExecution
 public class ReportJob implements Job {
-
-    /**
-     * Logger.
-     */
-    private static final Logger LOG = LoggerFactory.getLogger(ReportJob.class);
-
-    /**
-     * Report DAO.
-     */
-    @Autowired
-    private ReportDAO reportDAO;
-
-    /**
-     * Report execution DAO.
-     */
-    @Autowired
-    private ReportExecDAO reportExecDAO;
-
-    @Autowired
-    private ReportLogic dataBinder;
-
-    @Autowired
-    private EntityFactory entityFactory;
 
     /**
      * Key, set by the caller, for identifying the report to be executed.
      */
     private Long reportKey;
+
+    @Autowired
+    private ReportJobDelegate delegate;
 
     /**
      * Report id setter.
@@ -95,109 +49,15 @@ public class ReportJob implements Job {
         this.reportKey = reportKey;
     }
 
-    @SuppressWarnings("rawtypes")
     @Override
     public void execute(final JobExecutionContext context) throws JobExecutionException {
-        Report report = reportDAO.find(reportKey);
-        if (report == null) {
-            throw new JobExecutionException("Report " + reportKey + " not found");
-        }
-
-        // 1. create execution
-        ReportExec execution = entityFactory.newEntity(ReportExec.class);
-        execution.setStatus(ReportExecStatus.STARTED);
-        execution.setStartDate(new Date());
-        execution.setReport(report);
-        execution = reportExecDAO.save(execution);
-
-        report.addExec(execution);
-        report = reportDAO.save(report);
-
-        // 2. define a SAX handler for generating result as XML
-        TransformerHandler handler;
-
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ZipOutputStream zos = new ZipOutputStream(baos);
-        zos.setLevel(Deflater.BEST_COMPRESSION);
+        AuthContextUtils.setFakeAuth(context.getMergedJobDataMap().getString(JobInstanceLoader.DOMAIN));
         try {
-            SAXTransformerFactory tFactory = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
-            handler = tFactory.newTransformerHandler();
-            Transformer serializer = handler.getTransformer();
-            serializer.setOutputProperty(OutputKeys.ENCODING, SyncopeConstants.DEFAULT_ENCODING);
-            serializer.setOutputProperty(OutputKeys.INDENT, "yes");
-
-            // a single ZipEntry in the ZipOutputStream
-            zos.putNextEntry(new ZipEntry(report.getName()));
-
-            // streaming SAX handler in a compressed byte array stream
-            handler.setResult(new StreamResult(zos));
+            delegate.execute(reportKey);
         } catch (Exception e) {
-            throw new JobExecutionException("While configuring for SAX generation", e, true);
-        }
-
-        execution.setStatus(ReportExecStatus.RUNNING);
-        execution = reportExecDAO.save(execution);
-
-        // 3. actual report execution
-        StringBuilder reportExecutionMessage = new StringBuilder();
-        try {
-            // report header
-            handler.startDocument();
-            AttributesImpl atts = new AttributesImpl();
-            atts.addAttribute("", "", ReportXMLConst.ATTR_NAME, ReportXMLConst.XSD_STRING, report.getName());
-            handler.startElement("", "", ReportXMLConst.ELEMENT_REPORT, atts);
-
-            // iterate over reportlet instances defined for this report
-            for (ReportletConf reportletConf : report.getReportletConfs()) {
-                Class<Reportlet> reportletClass =
-                        dataBinder.findReportletClassHavingConfClass(reportletConf.getClass());
-                if (reportletClass != null) {
-                    Reportlet<ReportletConf> autowired =
-                            (Reportlet<ReportletConf>) ApplicationContextProvider.getBeanFactory().
-                            createBean(reportletClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
-                    autowired.setConf(reportletConf);
-
-                    // invoke reportlet
-                    try {
-                        autowired.extract(handler);
-                    } catch (Exception e) {
-                        execution.setStatus(ReportExecStatus.FAILURE);
-
-                        Throwable t = e instanceof ReportException
-                                ? e.getCause()
-                                : e;
-                        reportExecutionMessage.
-                                append(ExceptionUtils2.getFullStackTrace(t)).
-                                append("\n==================\n");
-                    }
-                }
-            }
-
-            // report footer
-            handler.endElement("", "", ReportXMLConst.ELEMENT_REPORT);
-            handler.endDocument();
-
-            if (!ReportExecStatus.FAILURE.name().equals(execution.getStatus())) {
-                execution.setStatus(ReportExecStatus.SUCCESS);
-            }
-        } catch (Exception e) {
-            execution.setStatus(ReportExecStatus.FAILURE);
-            reportExecutionMessage.append(ExceptionUtils2.getFullStackTrace(e));
-
-            throw new JobExecutionException(e, true);
+            throw new JobExecutionException(e);
         } finally {
-            try {
-                zos.closeEntry();
-                IOUtils.closeQuietly(zos);
-                IOUtils.closeQuietly(baos);
-            } catch (IOException e) {
-                LOG.error("While closing StreamResult's backend", e);
-            }
-
-            execution.setExecResult(baos.toByteArray());
-            execution.setMessage(reportExecutionMessage.toString());
-            execution.setEndDate(new Date());
-            reportExecDAO.save(execution);
+            AuthContextUtils.clearFakeAuth();
         }
     }
 }

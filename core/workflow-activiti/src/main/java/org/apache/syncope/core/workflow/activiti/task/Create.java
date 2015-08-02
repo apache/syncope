@@ -37,15 +37,17 @@ public class Create extends AbstractActivitiServiceTask {
 
     @Override
     protected void doExecute(final String executionId) {
-        UserTO userTO = runtimeService.getVariable(executionId, ActivitiUserWorkflowAdapter.USER_TO, UserTO.class);
+        UserTO userTO = engine.getRuntimeService().
+                getVariable(executionId, ActivitiUserWorkflowAdapter.USER_TO, UserTO.class);
         Boolean storePassword =
-                runtimeService.getVariable(executionId, ActivitiUserWorkflowAdapter.STORE_PASSWORD, Boolean.class);
+                engine.getRuntimeService().
+                getVariable(executionId, ActivitiUserWorkflowAdapter.STORE_PASSWORD, Boolean.class);
         // create and set workflow id
         User user = entityFactory.newEntity(User.class);
         dataBinder.create(user, userTO, storePassword == null ? true : storePassword);
         user.setWorkflowId(executionId);
 
         // report user as result
-        runtimeService.setVariable(executionId, ActivitiUserWorkflowAdapter.USER, user);
+        engine.getRuntimeService().setVariable(executionId, ActivitiUserWorkflowAdapter.USER, user);
     }
 }

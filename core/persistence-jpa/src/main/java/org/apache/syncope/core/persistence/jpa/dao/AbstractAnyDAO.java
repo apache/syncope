@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
-import static org.apache.syncope.core.persistence.jpa.dao.AbstractDAO.LOG;
-
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -54,6 +52,7 @@ import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractPlainAttrValue;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 public abstract class AbstractAnyDAO<A extends Any<?, ?, ?>> extends AbstractDAO<A, Long> implements AnyDAO<A> {
 
@@ -81,6 +80,7 @@ public abstract class AbstractAnyDAO<A extends Any<?, ?, ?>> extends AbstractDAO
 
     protected abstract void securityChecks(A any);
 
+    @Transactional(readOnly = true)
     @Override
     public A authFind(final Long key) {
         if (key == null) {
@@ -98,16 +98,17 @@ public abstract class AbstractAnyDAO<A extends Any<?, ?, ?>> extends AbstractDAO
         return any;
     }
 
+    @Transactional(readOnly = true)
     @Override
     @SuppressWarnings("unchecked")
     public A find(final Long key) {
-        return (A) entityManager.find(getAnyUtils().anyClass(), key);
+        return (A) entityManager().find(getAnyUtils().anyClass(), key);
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public A findByWorkflowId(final String workflowId) {
-        Query query = entityManager.createQuery("SELECT e FROM " + getAnyUtils().anyClass().getSimpleName()
+        Query query = entityManager().createQuery("SELECT e FROM " + getAnyUtils().anyClass().getSimpleName()
                 + " e WHERE e.workflowId = :workflowId", User.class);
         query.setParameter("workflowId", workflowId);
 
@@ -122,7 +123,7 @@ public abstract class AbstractAnyDAO<A extends Any<?, ?, ?>> extends AbstractDAO
     }
 
     private Query findByAttrValueQuery(final String entityName) {
-        return entityManager.createQuery("SELECT e FROM " + entityName + " e"
+        return entityManager().createQuery("SELECT e FROM " + entityName + " e"
                 + " WHERE e.attribute.schema.name = :schemaName AND (e.stringValue IS NOT NULL"
                 + " AND e.stringValue = :stringValue)"
                 + " OR (e.booleanValue IS NOT NULL AND e.booleanValue = :booleanValue)"
@@ -362,7 +363,7 @@ public abstract class AbstractAnyDAO<A extends Any<?, ?, ?>> extends AbstractDAO
             }
         }
 
-        Query query = entityManager.createNativeQuery(querystring.toString());
+        Query query = entityManager().createNativeQuery(querystring.toString());
 
         List<A> result = new ArrayList<>();
         for (Object anyKey : query.getResultList()) {
@@ -378,7 +379,7 @@ public abstract class AbstractAnyDAO<A extends Any<?, ?, ?>> extends AbstractDAO
     @SuppressWarnings("unchecked")
     @Override
     public List<A> findByResource(final ExternalResource resource) {
-        Query query = entityManager.createQuery(
+        Query query = entityManager().createQuery(
                 "SELECT e FROM " + getAnyUtils().anyClass().getSimpleName() + " e "
                 + "WHERE :resource MEMBER OF e.resources");
         query.setParameter("resource", resource);
@@ -414,7 +415,7 @@ public abstract class AbstractAnyDAO<A extends Any<?, ?, ?>> extends AbstractDAO
 
     @Override
     public A save(final A any) {
-        A merged = entityManager.merge(any);
+        A merged = entityManager().merge(any);
         for (VirAttr<?> virAttr : merged.getVirAttrs()) {
             virAttr.getValues().clear();
             virAttr.getValues().addAll(any.getVirAttr(virAttr.getSchema().getKey()).getValues());

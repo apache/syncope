@@ -25,9 +25,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.core.provisioning.api.job.PushJob;
-import org.apache.syncope.core.provisioning.api.job.SyncJob;
-import org.apache.syncope.core.provisioning.api.job.TaskJob;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
 import org.apache.syncope.core.provisioning.api.sync.PushActions;
 import org.apache.syncope.core.provisioning.api.sync.SyncActions;
@@ -35,6 +32,9 @@ import org.apache.syncope.core.provisioning.api.sync.SyncCorrelationRule;
 import org.apache.syncope.core.logic.report.Reportlet;
 import org.apache.syncope.core.persistence.api.SyncopeLoader;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.Validator;
+import org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate;
+import org.apache.syncope.core.provisioning.java.sync.PushJobDelegate;
+import org.apache.syncope.core.provisioning.java.sync.SyncJobDelegate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -52,7 +52,7 @@ public class ImplementationClassNamesLoader implements SyncopeLoader {
     public enum Type {
 
         REPORTLET,
-        TASKJOB,
+        TASKJOBDELEGATE,
         PROPAGATION_ACTIONS,
         SYNC_ACTIONS,
         PUSH_ACTIONS,
@@ -83,7 +83,7 @@ public class ImplementationClassNamesLoader implements SyncopeLoader {
 
         ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(false);
         scanner.addIncludeFilter(new AssignableTypeFilter(Reportlet.class));
-        scanner.addIncludeFilter(new AssignableTypeFilter(TaskJob.class));
+        scanner.addIncludeFilter(new AssignableTypeFilter(SchedTaskJobDelegate.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(SyncActions.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(PushActions.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(SyncCorrelationRule.class));
@@ -102,11 +102,11 @@ public class ImplementationClassNamesLoader implements SyncopeLoader {
                     classNames.get(Type.REPORTLET).add(clazz.getName());
                 }
 
-                if (TaskJob.class.isAssignableFrom(clazz) && !isAbsractClazz
-                        && !SyncJob.class.isAssignableFrom(clazz)
-                        && !PushJob.class.isAssignableFrom(clazz)) {
+                if (SchedTaskJobDelegate.class.isAssignableFrom(clazz) && !isAbsractClazz
+                        && !SyncJobDelegate.class.isAssignableFrom(clazz)
+                        && !PushJobDelegate.class.isAssignableFrom(clazz)) {
 
-                    classNames.get(Type.TASKJOB).add(bd.getBeanClassName());
+                    classNames.get(Type.TASKJOBDELEGATE).add(bd.getBeanClassName());
                 }
 
                 if (SyncActions.class.isAssignableFrom(clazz) && !isAbsractClazz) {
