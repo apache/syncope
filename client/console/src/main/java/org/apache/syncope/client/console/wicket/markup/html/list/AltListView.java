@@ -32,11 +32,11 @@ public abstract class AltListView<T> extends ListView<T> {
         super(id);
     }
 
-    public AltListView(final String id, final IModel<? extends List<? extends T>> model) {
+    public AltListView(final String id, final IModel<? extends List<T>> model) {
         super(id, model);
     }
 
-    public AltListView(final String id, final List<? extends T> list) {
+    public AltListView(final String id, final List<T> list) {
         super(id, list);
     }
 

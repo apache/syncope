@@ -2,6 +2,28 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 1.2.5
+================================================================================
+
+** Bug
+    * [SYNCOPE-668] - JobInstanceLoader class is not able to return the correct Task id or Report id from its job name 
+    * [SYNCOPE-669] - Search filter in the notifications doesn't work properly
+    * [SYNCOPE-670] - Prpagation miss all UserMod's changes performed by the Activiti update service task
+    * [SYNCOPE-671] - Changed password value is not propagated to external resources on successful password reset
+    * [SYNCOPE-672] - Console doesn't display the right condition when configuring a search filter with a resource
+    * [SYNCOPE-673] - Null ids in SyncJob report
+    * [SYNCOPE-677] - Cannot override console's landing page
+    * [SYNCOPE-678] - Password generation fails with no password policy or no min / max length
+    * [SYNCOPE-682] - NPE when defining resources for pass-through authentication
+    * [SYNCOPE-683] - Cannot unassign and reassign role with membership attrs to user
+    * [SYNCOPE-684] - Password not updated on external resources from self-service
+
+** Improvement
+    * [SYNCOPE-660] - Extend control over asynchronous job execution
+    * [SYNCOPE-667] - simplification of admin roles filter query used in search
+    * [SYNCOPE-674] - NotificationManager should be able to return a list of created task ids
+    * [SYNCOPE-676] - Option for getting simplified list of users and roles
+
 Release Notes - Syncope - Version 1.2.4
 ================================================================================
 
