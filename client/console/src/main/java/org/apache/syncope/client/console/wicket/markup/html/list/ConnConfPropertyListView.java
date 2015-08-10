@@ -50,7 +50,7 @@ public class ConnConfPropertyListView extends AltListView<ConnConfProperty> {
 
     private final Set<ConnConfProperty> configuration;
 
-    public ConnConfPropertyListView(final String id, final IModel<? extends List<? extends ConnConfProperty>> model,
+    public ConnConfPropertyListView(final String id, final IModel<? extends List<ConnConfProperty>> model,
             final boolean withOverridable, final Set<ConnConfProperty> configuration) {
 
         super(id, model);
