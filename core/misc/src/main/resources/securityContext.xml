@@ -62,6 +62,8 @@ under the License.
     <security:csrf disabled="true"/>
   </security:http>
 
+  <bean class="org.apache.syncope.core.misc.security.AuthDataAccessor"/>
+
   <bean id="syncopeUserDetailsService" class="org.apache.syncope.core.misc.security.SyncopeUserDetailsService"/>
 
   <bean id="syncopeAuthenticationProvider" class="org.apache.syncope.core.misc.security.SyncopeAuthenticationProvider">

@@ -288,19 +288,18 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
     }
 
     @Override
-    public void innerSuspend(final User user, final boolean propagate) {
-        final WorkflowResult<Long> updated = uwfAdapter.suspend(user);
+    public void internalSuspend(final Long key) {
+        Pair<WorkflowResult<Long>, Boolean> updated = uwfAdapter.internalSuspend(key);
 
         // propagate suspension if and only if it is required by policy
-        if (propagate) {
+        if (updated != null && updated.getValue()) {
             UserMod userMod = new UserMod();
-            userMod.setKey(updated.getResult());
+            userMod.setKey(updated.getKey().getResult());
 
-            final List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(
+            List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(
                     new WorkflowResult<Pair<UserMod, Boolean>>(
                             new ImmutablePair<>(userMod, Boolean.FALSE),
-                            updated.getPropByRes(), updated.getPerformedTasks()));
-
+                            updated.getKey().getPropByRes(), updated.getKey().getPerformedTasks()));
             taskExecutor.execute(tasks);
         }
     }

@@ -818,9 +818,10 @@ public class UserITCase extends AbstractITCase {
         assertEquals("created", userTO.getStatus());
 
         StatusMod statusMod = new StatusMod();
+        statusMod.setKey(userTO.getKey());
         statusMod.setType(StatusMod.ModType.ACTIVATE);
         statusMod.setToken(userTO.getToken());
-        userTO = userService.status(userTO.getKey(), statusMod).readEntity(UserTO.class);
+        userTO = userService.status(statusMod).readEntity(UserTO.class);
 
         assertNotNull(userTO);
         assertNull(userTO.getToken());
@@ -844,14 +845,16 @@ public class UserITCase extends AbstractITCase {
                 : "created", userTO.getStatus());
 
         StatusMod statusMod = new StatusMod();
+        statusMod.setKey(userTO.getKey());
         statusMod.setType(StatusMod.ModType.SUSPEND);
-        userTO = userService.status(userTO.getKey(), statusMod).readEntity(UserTO.class);
+        userTO = userService.status(statusMod).readEntity(UserTO.class);
         assertNotNull(userTO);
         assertEquals("suspended", userTO.getStatus());
 
         statusMod = new StatusMod();
+        statusMod.setKey(userTO.getKey());
         statusMod.setType(StatusMod.ModType.REACTIVATE);
-        userTO = userService.status(userTO.getKey(), statusMod).readEntity(UserTO.class);
+        userTO = userService.status(statusMod).readEntity(UserTO.class);
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());
     }
@@ -875,50 +878,53 @@ public class UserITCase extends AbstractITCase {
         assertEquals(ActivitiDetector.isActivitiEnabledForUsers(syncopeService)
                 ? "active"
                 : "created", userTO.getStatus());
-        long userId = userTO.getKey();
+        long userKey = userTO.getKey();
 
         // Suspend with effect on syncope, ldap and db => user should be suspended in syncope and all resources
         StatusMod statusMod = new StatusMod();
+        statusMod.setKey(userKey);
         statusMod.setType(StatusMod.ModType.SUSPEND);
         statusMod.setOnSyncope(true);
         statusMod.getResourceNames().add(RESOURCE_NAME_TESTDB);
         statusMod.getResourceNames().add(RESOURCE_NAME_LDAP);
-        userTO = userService.status(userId, statusMod).readEntity(UserTO.class);
+        userTO = userService.status(statusMod).readEntity(UserTO.class);
         assertNotNull(userTO);
         assertEquals("suspended", userTO.getStatus());
 
         ConnObjectTO connObjectTO =
-                resourceService.readConnObject(RESOURCE_NAME_TESTDB, AnyTypeKind.USER.name(), userId);
+                resourceService.readConnObject(RESOURCE_NAME_TESTDB, AnyTypeKind.USER.name(), userKey);
         assertFalse(getBooleanAttribute(connObjectTO, OperationalAttributes.ENABLE_NAME));
 
-        connObjectTO = resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), userId);
+        connObjectTO = resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), userKey);
         assertNotNull(connObjectTO);
 
         // Suspend and reactivate only on ldap => db and syncope should still show suspended
         statusMod = new StatusMod();
+        statusMod.setKey(userKey);
         statusMod.setType(StatusMod.ModType.SUSPEND);
         statusMod.setOnSyncope(false);
         statusMod.getResourceNames().add(RESOURCE_NAME_LDAP);
-        userService.status(userId, statusMod);
+        userService.status(statusMod);
         statusMod.setType(StatusMod.ModType.REACTIVATE);
-        userTO = userService.status(userId, statusMod).readEntity(UserTO.class);
+        userTO = userService.status(statusMod).readEntity(UserTO.class);
         assertNotNull(userTO);
         assertEquals("suspended", userTO.getStatus());
 
-        connObjectTO = resourceService.readConnObject(RESOURCE_NAME_TESTDB, AnyTypeKind.USER.name(), userId);
+        connObjectTO = resourceService.readConnObject(RESOURCE_NAME_TESTDB, AnyTypeKind.USER.name(), userKey);
         assertFalse(getBooleanAttribute(connObjectTO, OperationalAttributes.ENABLE_NAME));
 
         // Reactivate on syncope and db => syncope and db should show the user as active
         statusMod = new StatusMod();
+        statusMod.setKey(userKey);
         statusMod.setType(StatusMod.ModType.REACTIVATE);
         statusMod.setOnSyncope(true);
         statusMod.getResourceNames().add(RESOURCE_NAME_TESTDB);
 
-        userTO = userService.status(userId, statusMod).readEntity(UserTO.class);
+        userTO = userService.status(statusMod).readEntity(UserTO.class);
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());
 
-        connObjectTO = resourceService.readConnObject(RESOURCE_NAME_TESTDB, AnyTypeKind.USER.name(), userId);
+        connObjectTO = resourceService.readConnObject(RESOURCE_NAME_TESTDB, AnyTypeKind.USER.name(), userKey);
         assertTrue(getBooleanAttribute(connObjectTO, OperationalAttributes.ENABLE_NAME));
     }
 
@@ -1795,7 +1801,8 @@ public class UserITCase extends AbstractITCase {
         final ResourceAssociationMod associationMod = new ResourceAssociationMod();
         associationMod.getTargetResources().addAll(CollectionWrapper.wrap(RESOURCE_NAME_CSV, ResourceKey.class));
 
-        assertNotNull(userService.associate(actual.getKey(), ResourceAssociationAction.LINK, associationMod).readEntity(BulkActionResult.class));
+        assertNotNull(userService.associate(actual.getKey(), ResourceAssociationAction.LINK, associationMod).readEntity(
+                BulkActionResult.class));
 
         actual = userService.read(actual.getKey());
         assertNotNull(actual);

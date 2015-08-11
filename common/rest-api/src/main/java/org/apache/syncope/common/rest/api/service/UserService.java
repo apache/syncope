@@ -107,5 +107,5 @@ public interface UserService extends AnyService<UserTO, UserMod> {
     @Path("{key}/status")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    Response status(@NotNull @PathParam("key") Long key, @NotNull StatusMod statusMod);
+    Response status(@NotNull StatusMod statusMod);
 }

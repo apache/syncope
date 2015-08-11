@@ -68,7 +68,7 @@ abstract class AbstractCamelProvisioningManager {
         template.send(uri, exchange);
     }
 
-    protected void sendMessage(final String uri, final Object obj, final Map<String, Object> properties) {
+    protected void sendMessage(final String uri, final Object body, final Map<String, Object> properties) {
         Exchange exchange = new DefaultExchange(getContext());
 
         for (Map.Entry<String, Object> property : properties.entrySet()) {
@@ -77,7 +77,7 @@ abstract class AbstractCamelProvisioningManager {
         }
 
         DefaultMessage message = new DefaultMessage();
-        message.setBody(obj);
+        message.setBody(body);
         exchange.setIn(message);
         ProducerTemplate template = getContext().createProducerTemplate();
         template.send(uri, exchange);

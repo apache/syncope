@@ -26,7 +26,6 @@ import org.apache.syncope.common.lib.mod.StatusMod;
 import org.apache.syncope.common.lib.mod.UserMod;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.sync.ProvisioningResult;
 
 public interface UserProvisioningManager extends ProvisioningManager<UserTO, UserMod> {
@@ -37,7 +36,7 @@ public interface UserProvisioningManager extends ProvisioningManager<UserTO, Use
 
     Pair<Long, List<PropagationStatus>> suspend(StatusMod statusMod);
 
-    void innerSuspend(User user, boolean propagate);
+    void internalSuspend(Long key);
 
     Pair<Long, List<PropagationStatus>> create(UserTO userTO, boolean storePassword);
 

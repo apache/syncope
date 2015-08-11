@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.workflow.java;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.mod.UserMod;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -28,12 +29,16 @@ import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
 import org.identityconnectors.common.Base64;
 import org.identityconnectors.common.security.EncryptorFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = { Throwable.class })
 public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter {
+
+    protected static final Logger LOG = LoggerFactory.getLogger(UserWorkflowAdapter.class);
 
     @Autowired
     protected UserDataBinder dataBinder;
@@ -62,8 +67,8 @@ public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter
     protected abstract WorkflowResult<Long> doActivate(User user, String token);
 
     @Override
-    public WorkflowResult<Long> activate(final Long userKey, final String token) {
-        return doActivate(userDAO.authFind(userKey), token);
+    public WorkflowResult<Long> activate(final Long key, final String token) {
+        return doActivate(userDAO.authFind(key), token);
     }
 
     protected abstract WorkflowResult<Pair<UserMod, Boolean>> doUpdate(User user, UserMod userMod);
@@ -76,23 +81,42 @@ public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter
     protected abstract WorkflowResult<Long> doSuspend(User user);
 
     @Override
-    public WorkflowResult<Long> suspend(final Long userKey) {
-        return suspend(userDAO.authFind(userKey));
-    }
+    public WorkflowResult<Long> suspend(final Long key) {
+        User user = userDAO.authFind(key);
 
-    @Override
-    public WorkflowResult<Long> suspend(final User user) {
         // set suspended flag
         user.setSuspended(Boolean.TRUE);
 
         return doSuspend(user);
     }
 
+    @Override
+    public Pair<WorkflowResult<Long>, Boolean> internalSuspend(final Long key) {
+        User user = userDAO.authFind(key);
+
+        Pair<WorkflowResult<Long>, Boolean> result = null;
+
+        Pair<Boolean, Boolean> enforce = userDAO.enforcePolicies(user);
+        if (enforce.getKey()) {
+            LOG.debug("User {} {} is over the max failed logins", user.getKey(), user.getUsername());
+
+            // reduce failed logins number to avoid multiple request       
+            user.setFailedLogins(user.getFailedLogins() - 1);
+
+            // set suspended flag
+            user.setSuspended(Boolean.TRUE);
+
+            result = ImmutablePair.of(doSuspend(user), enforce.getValue());
+        }
+
+        return result;
+    }
+
     protected abstract WorkflowResult<Long> doReactivate(User user);
 
     @Override
-    public WorkflowResult<Long> reactivate(final Long userKey) {
-        final User user = userDAO.authFind(userKey);
+    public WorkflowResult<Long> reactivate(final Long key) {
+        User user = userDAO.authFind(key);
 
         // reset failed logins
         user.setFailedLogins(0);
@@ -106,21 +130,21 @@ public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter
     protected abstract void doRequestPasswordReset(User user);
 
     @Override
-    public void requestPasswordReset(final Long userKey) {
-        doRequestPasswordReset(userDAO.authFind(userKey));
+    public void requestPasswordReset(final Long key) {
+        doRequestPasswordReset(userDAO.authFind(key));
     }
 
     protected abstract void doConfirmPasswordReset(User user, String token, String password);
 
     @Override
-    public void confirmPasswordReset(final Long userKey, final String token, final String password) {
-        doConfirmPasswordReset(userDAO.authFind(userKey), token, password);
+    public void confirmPasswordReset(final Long key, final String token, final String password) {
+        doConfirmPasswordReset(userDAO.authFind(key), token, password);
     }
 
     protected abstract void doDelete(User user);
 
     @Override
-    public void delete(final Long userKey) {
-        doDelete(userDAO.authFind(userKey));
+    public void delete(final Long key) {
+        doDelete(userDAO.authFind(key));
     }
 }

@@ -258,7 +258,7 @@ public class AuthenticationITCase extends AbstractITCase {
         assertEquals(0, getFailedLogins(userService4, userId));
     }
 
-    //@Test
+    @Test
     public void checkUserSuspension() {
         UserTO userTO = UserITCase.getUniqueSampleTO("checkSuspension@syncope.apache.org");
         userTO.setRealm("/odd");
@@ -292,8 +292,9 @@ public class AuthenticationITCase extends AbstractITCase {
         assertReadFails(goodPwdClient);
 
         StatusMod reactivate = new StatusMod();
+        reactivate.setKey(userTO.getKey());
         reactivate.setType(StatusMod.ModType.REACTIVATE);
-        userTO = userService.status(userTO.getKey(), reactivate).readEntity(UserTO.class);
+        userTO = userService.status(reactivate).readEntity(UserTO.class);
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());
 

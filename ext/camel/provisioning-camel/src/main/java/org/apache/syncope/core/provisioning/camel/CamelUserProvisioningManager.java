@@ -34,7 +34,6 @@ import org.apache.syncope.common.lib.mod.UserMod;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.PropagationByResource;
-import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.sync.ProvisioningResult;
@@ -319,13 +318,10 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
     }
 
     @Override
-    public void innerSuspend(final User user, final boolean propagate) {
-        PollingConsumer pollingConsumer = getConsumer("direct:innerSuspendUserPort");
+    public void internalSuspend(final Long key) {
+        PollingConsumer pollingConsumer = getConsumer("direct:internalSuspendUserPort");
 
-        Map<String, Object> props = new HashMap<>();
-        props.put("propagate", propagate);
-
-        sendMessage("direct:innerSuspendUser", user.getKey(), props);
+        sendMessage("direct:internalSuspendUser", key);
 
         Exchange exchange = pollingConsumer.receive();
 

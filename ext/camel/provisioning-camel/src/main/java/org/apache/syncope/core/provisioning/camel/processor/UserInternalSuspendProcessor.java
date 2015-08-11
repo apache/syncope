@@ -32,7 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class UserInnerSuspendProcessor implements Processor {
+public class UserInternalSuspendProcessor implements Processor {
 
     @Autowired
     protected PropagationManager propagationManager;
@@ -43,17 +43,17 @@ public class UserInnerSuspendProcessor implements Processor {
     @Override
     public void process(final Exchange exchange) {
         @SuppressWarnings("unchecked")
-        WorkflowResult<Long> updated = (WorkflowResult) exchange.getIn().getBody();
-        Boolean propagate = exchange.getProperty("propagate", Boolean.class);
+        Pair<WorkflowResult<Long>, Boolean> updated = (Pair) exchange.getIn().getBody();
 
-        if (propagate) {
+        // propagate suspension if and only if it is required by policy
+        if (updated != null && updated.getValue()) {
             UserMod userMod = new UserMod();
-            userMod.setKey(updated.getResult());
+            userMod.setKey(updated.getKey().getResult());
 
             List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(
                     new WorkflowResult<Pair<UserMod, Boolean>>(
                             new ImmutablePair<>(userMod, Boolean.FALSE),
-                            updated.getPropByRes(), updated.getPerformedTasks()));
+                            updated.getKey().getPropByRes(), updated.getKey().getPerformedTasks()));
             taskExecutor.execute(tasks);
         }
     }

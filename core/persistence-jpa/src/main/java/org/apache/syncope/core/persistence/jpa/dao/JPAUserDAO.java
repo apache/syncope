@@ -63,7 +63,6 @@ import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyUtilsFactory;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPADynRoleMembership;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUDynGroupMembership;
-import org.apache.syncope.core.provisioning.api.UserSuspender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
@@ -95,9 +94,6 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
 
     @Autowired
     private AccountPolicyEnforcer apEnforcer;
-
-    @Autowired(required = false)
-    private UserSuspender suspender;
 
     @Override
     protected AnyUtils init() {
@@ -210,11 +206,9 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
     private List<AccountPolicy> getAccountPolicies(final User user) {
         List<AccountPolicy> policies = new ArrayList<>();
 
-        AccountPolicy policy;
-
         // add resource policies        
         for (ExternalResource resource : findAllResources(user)) {
-            policy = resource.getAccountPolicy();
+            AccountPolicy policy = resource.getAccountPolicy();
             if (policy != null) {
                 policies.add(policy);
             }
@@ -222,7 +216,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
 
         // add realm policies
         for (Realm realm : realmDAO.findAncestors(user.getRealm())) {
-            policy = realm.getAccountPolicy();
+            AccountPolicy policy = realm.getAccountPolicy();
             if (policy != null) {
                 policies.add(policy);
             }
@@ -231,7 +225,9 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
         return policies;
     }
 
-    private Pair<Boolean, Boolean> enforcePolicies(final User user) {
+    @Transactional(readOnly = true)
+    @Override
+    public Pair<Boolean, Boolean> enforcePolicies(final User user) {
         // ------------------------------
         // Verify password policies
         // ------------------------------
@@ -310,16 +306,11 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
         JPAUser.class.cast(merged).setClearPassword(clearPwd);
 
         // 4. enforce password and account policies
-        Pair<Boolean, Boolean> enforceSuspend = null;
         try {
-            enforceSuspend = enforcePolicies(merged);
+            enforcePolicies(merged);
         } catch (InvalidEntityException e) {
             entityManager().remove(merged);
             throw e;
-        }
-
-        if (suspender != null && enforceSuspend.getKey()) {
-            suspender.suspend(user, enforceSuspend.getValue());
         }
 
         roleDAO.refreshDynMemberships(merged);

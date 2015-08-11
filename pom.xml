@@ -336,7 +336,7 @@ under the License.
     <spring-security.version>4.0.2.RELEASE</spring-security.version>
 
     <openjpa.version>2.4.0</openjpa.version>
-    <commons-dbcp.version>2.1</commons-dbcp.version>
+    <commons-dbcp.version>2.1.1</commons-dbcp.version>
     <hibernate-validator.version>5.2.1.Final</hibernate-validator.version>
 
     <jasypt.version>1.9.2</jasypt.version>

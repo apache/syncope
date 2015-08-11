@@ -62,12 +62,11 @@ public class UserServiceImpl extends AbstractAnyService<UserTO, UserMod> impleme
     }
 
     @Override
-    public Response status(final Long key, final StatusMod statusMod) {
-        UserTO user = logic.read(key);
+    public Response status(final StatusMod statusMod) {
+        UserTO user = logic.read(statusMod.getKey());
 
         checkETag(user.getETagValue());
 
-        statusMod.setKey(key);
         UserTO updated = logic.status(statusMod);
         return modificationResponse(updated);
     }

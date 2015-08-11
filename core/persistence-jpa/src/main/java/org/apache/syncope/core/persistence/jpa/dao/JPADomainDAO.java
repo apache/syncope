@@ -24,10 +24,12 @@ import org.apache.syncope.core.persistence.api.dao.DomainDAO;
 import org.apache.syncope.core.persistence.api.entity.Domain;
 import org.apache.syncope.core.persistence.jpa.entity.JPADomain;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class JPADomainDAO extends AbstractDAO<Domain, String> implements DomainDAO {
 
+    @Transactional(readOnly = true)
     @Override
     public Domain find(final String key) {
         return entityManager().find(JPADomain.class, key);

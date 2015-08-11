@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.Collection;
 import java.util.List;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
@@ -49,4 +50,6 @@ public interface UserDAO extends AnyDAO<User> {
     Collection<ExternalResource> findAllResources(User user);
 
     Collection<String> findAllResourceNames(User user);
+
+    Pair<Boolean, Boolean> enforcePolicies(User user);
 }

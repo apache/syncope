@@ -124,20 +124,22 @@ public class UserRestClient extends AbstractAnyRestClient {
 
     public void suspend(final String etag, final long userKey, final List<StatusBean> statuses) {
         StatusMod statusMod = StatusUtils.buildStatusMod(statuses, false);
+        statusMod.setKey(userKey);
         statusMod.setType(StatusMod.ModType.SUSPEND);
         synchronized (this) {
             UserService service = getService(etag, UserService.class);
-            service.status(userKey, statusMod);
+            service.status(statusMod);
             resetClient(UserService.class);
         }
     }
 
     public void reactivate(final String etag, final long userKey, final List<StatusBean> statuses) {
         StatusMod statusMod = StatusUtils.buildStatusMod(statuses, true);
+        statusMod.setKey(userKey);
         statusMod.setType(StatusMod.ModType.REACTIVATE);
         synchronized (this) {
             UserService service = getService(etag, UserService.class);
-            service.status(userKey, statusMod);
+            service.status(statusMod);
             resetClient(UserService.class);
         }
     }

@@ -22,7 +22,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.common.lib.mod.UserMod;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.core.persistence.api.entity.user.User;
 
 /**
  * Interface for calling underlying workflow implementations.
@@ -96,12 +95,12 @@ public interface UserWorkflowAdapter extends WorkflowAdapter {
     WorkflowResult<Long> suspend(Long key);
 
     /**
-     * Suspend an user.
+     * Suspend an user (used by internal authentication process)
      *
-     * @param user user to be suspended
-     * @return user just suspended
+     * @param key to be suspended
+     * @return user just suspended and information whether to propagate suspension
      */
-    WorkflowResult<Long> suspend(User user);
+    Pair<WorkflowResult<Long>, Boolean> internalSuspend(Long key);
 
     /**
      * Reactivate an user.

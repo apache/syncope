@@ -88,7 +88,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
     public UserTO getAuthenticatedUserTO() {
         final UserTO authUserTO;
 
-        final String authUsername = AuthContextUtils.getUsername();
+        String authUsername = AuthContextUtils.getUsername();
         if (anonymousUser.equals(authUsername)) {
             authUserTO = new UserTO();
             authUserTO.setKey(-2);

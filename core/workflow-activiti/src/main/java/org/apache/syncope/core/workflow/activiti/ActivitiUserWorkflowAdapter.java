@@ -74,8 +74,6 @@ import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.workflow.api.WorkflowDefinitionFormat;
 import org.apache.syncope.core.workflow.api.WorkflowException;
 import org.apache.syncope.core.workflow.java.AbstractUserWorkflowAdapter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -83,8 +81,6 @@ import org.springframework.transaction.annotation.Transactional;
  * Activiti {@link http://www.activiti.org/} based implementation.
  */
 public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
-
-    protected static final Logger LOG = LoggerFactory.getLogger(ActivitiUserWorkflowAdapter.class);
 
     protected static final String[] PROPERTY_IGNORE_PROPS = { "type" };
 
@@ -279,7 +275,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     protected Set<String> doExecuteTask(final User user, final String task, final Map<String, Object> moreVariables) {
         Set<String> preTasks = getPerformedTasks(user);
 
-        final Map<String, Object> variables = new HashMap<>();
+        Map<String, Object> variables = new HashMap<>();
         variables.put(WF_EXECUTOR, AuthContextUtils.getUsername());
         variables.put(TASK, task);
 
@@ -345,7 +341,6 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    @Transactional(rollbackFor = { Throwable.class })
     protected WorkflowResult<Long> doSuspend(final User user) {
         Set<String> performedTasks = doExecuteTask(user, "suspend", null);
         updateStatus(user);
@@ -661,7 +656,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     public List<WorkflowFormTO> getForms() {
         List<WorkflowFormTO> forms = new ArrayList<>();
 
-        final String authUser = AuthContextUtils.getUsername();
+        String authUser = AuthContextUtils.getUsername();
         if (adminUser.equals(authUser)) {
             forms.addAll(getForms(engine.getTaskService().createTaskQuery().
                     taskVariableValueEquals(TASK_IS_FORM, Boolean.TRUE)));
@@ -772,10 +767,9 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         return new ImmutablePair<>(task, formData);
     }
 
-    @Transactional
     @Override
     public WorkflowFormTO claimForm(final String taskId) {
-        final String authUser = AuthContextUtils.getUsername();
+        String authUser = AuthContextUtils.getUsername();
         Pair<Task, TaskFormData> checked = checkTask(taskId, authUser);
 
         if (!adminUser.equals(authUser)) {
@@ -798,10 +792,9 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         return getFormTO(task, checked.getValue());
     }
 
-    @Transactional
     @Override
     public WorkflowResult<UserMod> submitForm(final WorkflowFormTO form) {
-        final String authUser = AuthContextUtils.getUsername();
+        String authUser = AuthContextUtils.getUsername();
         Pair<Task, TaskFormData> checked = checkTask(form.getTaskId(), authUser);
 
         if (!checked.getKey().getOwner().equals(authUser)) {

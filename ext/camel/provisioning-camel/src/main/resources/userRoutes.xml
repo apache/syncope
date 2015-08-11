@@ -198,18 +198,18 @@ under the License.
     <to uri="direct:deprovisionPort"/>              
   </route>
     
-  <route id="innerSuspendUser">
-    <from uri="direct:innerSuspendUser"/>
+  <route id="internalSuspendUser">
+    <from uri="direct:internalSuspendUser"/>
     <doTry>
-      <bean ref="uwfAdapter" method="suspend(${body})"/>
-      <process ref="userInnerSuspendProcessor"/>
-      <to uri="direct:innerSuspendUserPort"/>
+      <bean ref="uwfAdapter" method="internalSuspend(${body})"/>
+      <process ref="userInternalSuspendProcessor"/>
+      <to uri="direct:internalSuspendUserPort"/>
       <doCatch>        
         <exception>java.lang.RuntimeException</exception>
         <handled>
           <constant>false</constant>
         </handled>
-        <to uri="direct:innerSuspendUserPort"/>
+        <to uri="direct:internalSuspendUserPort"/>
       </doCatch>
     </doTry>  
   </route>
