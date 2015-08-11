@@ -24,8 +24,8 @@ import java.util.Set;
 
 public final class RealmUtils {
 
-    public static String getGroupOwnerRealm(final String realmPath, final Long groupId) {
-        return realmPath + "@" + groupId;
+    public static String getGroupOwnerRealm(final String realmPath, final Long groupKey) {
+        return realmPath + "@" + groupKey;
     }
 
     public static boolean normalizingAddTo(final Set<String> realms, final String newRealm) {

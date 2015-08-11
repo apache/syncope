@@ -25,6 +25,9 @@ public class UnauthorizedException extends RuntimeException {
     private static final long serialVersionUID = 7540587364235915081L;
 
     public UnauthorizedException(final AnyTypeKind type, final Long key) {
-        super("Missing entitlement or realm administration for " + type + " " + key);
+        super("Missing entitlement or realm administration for "
+                + (key == null
+                        ? "new " + type
+                        : type + " " + key));
     }
 }

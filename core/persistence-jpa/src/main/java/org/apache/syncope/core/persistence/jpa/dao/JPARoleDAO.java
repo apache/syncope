@@ -30,6 +30,7 @@ import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.JPARole;
+import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
@@ -95,6 +96,14 @@ public class JPARoleDAO extends AbstractDAO<Role, Long> implements RoleDAO {
 
     @Override
     public void delete(final Role role) {
+        TypedQuery<User> query = entityManager().createQuery(
+                "SELECT e FROM " + JPAUser.class.getSimpleName() + " e WHERE :role MEMBER OF e.roles", User.class);
+        query.setParameter("role", role);
+
+        for (User user : query.getResultList()) {
+            user.remove(role);
+        }
+
         entityManager().remove(role);
     }
 

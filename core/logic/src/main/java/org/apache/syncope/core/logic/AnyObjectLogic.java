@@ -22,6 +22,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -46,9 +47,7 @@ import org.apache.syncope.core.provisioning.api.data.AnyObjectDataBinder;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.misc.security.AuthContextUtils;
-import org.apache.syncope.core.misc.security.UnauthorizedException;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
-import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.provisioning.api.AnyTransformer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,8 +89,8 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectMod> 
     @PreAuthorize("hasRole('" + Entitlement.ANY_OBJECT_READ + "')")
     @Transactional(readOnly = true)
     @Override
-    public AnyObjectTO read(final Long anyObjectKey) {
-        return binder.getAnyObjectTO(anyObjectKey);
+    public AnyObjectTO read(final Long key) {
+        return binder.getAnyObjectTO(key);
     }
 
     @PreAuthorize("isAuthenticated()")
@@ -164,12 +163,11 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectMod> 
         if (anyObjectTO.getRealm() == null) {
             throw SyncopeClientException.build(ClientExceptionType.InvalidRealm);
         }
+        // security checks
         Set<String> effectiveRealms = getEffectiveRealms(
                 AuthContextUtils.getAuthorizations().get(Entitlement.ANY_OBJECT_CREATE),
                 Collections.singleton(anyObjectTO.getRealm()));
-        if (effectiveRealms.isEmpty()) {
-            throw new UnauthorizedException(AnyTypeKind.ANY_OBJECT, null);
-        }
+        securityChecks(effectiveRealms, anyObjectTO.getRealm(), null);
 
         // Any transformation (if configured)
         AnyObjectTO actual = attrTransformer.transform(anyObjectTO);
@@ -191,20 +189,24 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectMod> 
     @PreAuthorize("hasRole('" + Entitlement.ANY_OBJECT_UPDATE + "')")
     @Override
     public AnyObjectTO update(final AnyObjectMod anyObjectMod) {
-        AnyObject anyObject = anyObjectDAO.authFind(anyObjectMod.getKey());
-        if (anyObject == null) {
-            throw new NotFoundException("AnyObject with key " + anyObjectMod.getKey());
-        }
-        Set<String> effectiveRealms = getEffectiveRealms(
-                AuthContextUtils.getAuthorizations().get(Entitlement.ANY_OBJECT_UPDATE),
-                Collections.singleton(anyObject.getRealm().getFullPath()));
-        if (effectiveRealms.isEmpty()) {
-            throw new UnauthorizedException(AnyTypeKind.ANY_OBJECT, anyObject.getKey());
-        }
-
         // Any transformation (if configured)
         AnyObjectMod actual = attrTransformer.transform(anyObjectMod);
         LOG.debug("Transformed: {}", actual);
+
+        // security checks
+        AnyObjectTO toUpdate = binder.getAnyObjectTO(anyObjectMod.getKey());
+        Set<String> requestedRealms = new HashSet<>();
+        requestedRealms.add(toUpdate.getRealm());
+        if (StringUtils.isNotBlank(actual.getRealm())) {
+            requestedRealms.add(actual.getRealm());
+        }
+        Set<String> effectiveRealms = getEffectiveRealms(
+                AuthContextUtils.getAuthorizations().get(Entitlement.ANY_OBJECT_UPDATE),
+                requestedRealms);
+        securityChecks(effectiveRealms, toUpdate.getRealm(), toUpdate.getKey());
+        if (StringUtils.isNotBlank(actual.getRealm())) {
+            securityChecks(effectiveRealms, actual.getRealm(), toUpdate.getKey());
+        }
 
         Map.Entry<Long, List<PropagationStatus>> updated = provisioningManager.update(anyObjectMod);
 
@@ -215,22 +217,18 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectMod> 
 
     @PreAuthorize("hasRole('" + Entitlement.ANY_OBJECT_DELETE + "')")
     @Override
-    public AnyObjectTO delete(final Long anyObjectKey) {
-        AnyObject anyObject = anyObjectDAO.authFind(anyObjectKey);
-        if (anyObject == null) {
-            throw new NotFoundException("AnyObject with key " + anyObjectKey);
-        }
+    public AnyObjectTO delete(final Long key) {
+        // security checks
+        AnyObjectTO toDelete = binder.getAnyObjectTO(key);
         Set<String> effectiveRealms = getEffectiveRealms(
-                AuthContextUtils.getAuthorizations().get(Entitlement.ANY_OBJECT_UPDATE),
-                Collections.singleton(anyObject.getRealm().getFullPath()));
-        if (effectiveRealms.isEmpty()) {
-            throw new UnauthorizedException(AnyTypeKind.ANY_OBJECT, anyObject.getKey());
-        }
+                AuthContextUtils.getAuthorizations().get(Entitlement.ANY_OBJECT_DELETE),
+                Collections.singleton(toDelete.getRealm()));
+        securityChecks(effectiveRealms, toDelete.getRealm(), toDelete.getKey());
 
-        List<PropagationStatus> statuses = provisioningManager.delete(anyObjectKey);
+        List<PropagationStatus> statuses = provisioningManager.delete(key);
 
         AnyObjectTO anyObjectTO = new AnyObjectTO();
-        anyObjectTO.setKey(anyObjectKey);
+        anyObjectTO.setKey(key);
 
         anyObjectTO.getPropagationStatusTOs().addAll(statuses);
 
@@ -239,9 +237,16 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectMod> 
 
     @PreAuthorize("hasRole('" + Entitlement.ANY_OBJECT_UPDATE + "')")
     @Override
-    public AnyObjectTO unlink(final Long anyObjectKey, final Collection<String> resources) {
+    public AnyObjectTO unlink(final Long key, final Collection<String> resources) {
+        // security checks
+        AnyObjectTO anyObject = binder.getAnyObjectTO(key);
+        Set<String> effectiveRealms = getEffectiveRealms(
+                AuthContextUtils.getAuthorizations().get(Entitlement.ANY_OBJECT_UPDATE),
+                Collections.singleton(anyObject.getRealm()));
+        securityChecks(effectiveRealms, anyObject.getRealm(), anyObject.getKey());
+
         AnyObjectMod anyObjectMod = new AnyObjectMod();
-        anyObjectMod.setKey(anyObjectKey);
+        anyObjectMod.setKey(key);
         anyObjectMod.getResourcesToRemove().addAll(resources);
 
         return binder.getAnyObjectTO(provisioningManager.unlink(anyObjectMod));
@@ -249,9 +254,16 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectMod> 
 
     @PreAuthorize("hasRole('" + Entitlement.ANY_OBJECT_UPDATE + "')")
     @Override
-    public AnyObjectTO link(final Long anyObjectKey, final Collection<String> resources) {
+    public AnyObjectTO link(final Long key, final Collection<String> resources) {
+        // security checks
+        AnyObjectTO anyObject = binder.getAnyObjectTO(key);
+        Set<String> effectiveRealms = getEffectiveRealms(
+                AuthContextUtils.getAuthorizations().get(Entitlement.ANY_OBJECT_UPDATE),
+                Collections.singleton(anyObject.getRealm()));
+        securityChecks(effectiveRealms, anyObject.getRealm(), anyObject.getKey());
+
         AnyObjectMod anyObjectMod = new AnyObjectMod();
-        anyObjectMod.setKey(anyObjectKey);
+        anyObjectMod.setKey(key);
         anyObjectMod.getResourcesToAdd().addAll(resources);
 
         return binder.getAnyObjectTO(provisioningManager.link(anyObjectMod));
@@ -259,9 +271,16 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectMod> 
 
     @PreAuthorize("hasRole('" + Entitlement.ANY_OBJECT_UPDATE + "')")
     @Override
-    public AnyObjectTO unassign(final Long anyObjectKey, final Collection<String> resources) {
+    public AnyObjectTO unassign(final Long key, final Collection<String> resources) {
+        // security checks
+        AnyObjectTO anyObject = binder.getAnyObjectTO(key);
+        Set<String> effectiveRealms = getEffectiveRealms(
+                AuthContextUtils.getAuthorizations().get(Entitlement.ANY_OBJECT_UPDATE),
+                Collections.singleton(anyObject.getRealm()));
+        securityChecks(effectiveRealms, anyObject.getRealm(), anyObject.getKey());
+
         AnyObjectMod anyObjectMod = new AnyObjectMod();
-        anyObjectMod.setKey(anyObjectKey);
+        anyObjectMod.setKey(key);
         anyObjectMod.getResourcesToRemove().addAll(resources);
         return update(anyObjectMod);
     }
@@ -274,6 +293,13 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectMod> 
             final boolean changepwd,
             final String password) {
 
+        // security checks
+        AnyObjectTO anyObject = binder.getAnyObjectTO(key);
+        Set<String> effectiveRealms = getEffectiveRealms(
+                AuthContextUtils.getAuthorizations().get(Entitlement.ANY_OBJECT_UPDATE),
+                Collections.singleton(anyObject.getRealm()));
+        securityChecks(effectiveRealms, anyObject.getRealm(), anyObject.getKey());
+
         AnyObjectMod anyObjectMod = new AnyObjectMod();
         anyObjectMod.setKey(key);
         anyObjectMod.getResourcesToAdd().addAll(resources);
@@ -284,6 +310,13 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectMod> 
     @PreAuthorize("hasRole('" + Entitlement.ANY_OBJECT_UPDATE + "')")
     @Override
     public AnyObjectTO deprovision(final Long key, final Collection<String> resources) {
+        // security checks
+        AnyObjectTO anyObject = binder.getAnyObjectTO(key);
+        Set<String> effectiveRealms = getEffectiveRealms(
+                AuthContextUtils.getAuthorizations().get(Entitlement.ANY_OBJECT_UPDATE),
+                Collections.singleton(anyObject.getRealm()));
+        securityChecks(effectiveRealms, anyObject.getRealm(), anyObject.getKey());
+
         List<PropagationStatus> statuses = provisioningManager.deprovision(key, resources);
 
         AnyObjectTO updatedTO = binder.getAnyObjectTO(key);
@@ -299,10 +332,15 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectMod> 
             final boolean changePwd,
             final String password) {
 
-        AnyObjectTO original = binder.getAnyObjectTO(key);
-        original.getPropagationStatusTOs().addAll(provisioningManager.provision(key, resources));
+        // security checks
+        AnyObjectTO anyObject = binder.getAnyObjectTO(key);
+        Set<String> effectiveRealms = getEffectiveRealms(
+                AuthContextUtils.getAuthorizations().get(Entitlement.ANY_OBJECT_UPDATE),
+                Collections.singleton(anyObject.getRealm()));
+        securityChecks(effectiveRealms, anyObject.getRealm(), anyObject.getKey());
 
-        return original;
+        anyObject.getPropagationStatusTOs().addAll(provisioningManager.provision(key, resources));
+        return anyObject;
     }
 
     @Override

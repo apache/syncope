@@ -160,4 +160,37 @@ public class RoleTest extends AbstractTest {
         dynRoleMemberships = findDynRoleMemberships(user);
         assertTrue(dynRoleMemberships.isEmpty());
     }
+
+    @Test
+    public void delete() {
+        // 0. create role
+        Role role = entityFactory.newEntity(Role.class);
+        role.setName("new");
+        role.addRealm(realmDAO.getRoot());
+        role.addRealm(realmDAO.find("/even/two"));
+        role.getEntitlements().add(Entitlement.LOG_LIST);
+        role.getEntitlements().add(Entitlement.LOG_SET_LEVEL);
+
+        role = roleDAO.save(role);
+        assertNotNull(role);
+
+        // 1. create user and assign that role
+        User user = entityFactory.newEntity(User.class);
+        user.setUsername("username");
+        user.setRealm(realmDAO.find("/even/two"));
+        user.add(role);
+
+        user = userDAO.save(user);
+        assertNotNull(user);
+
+        // 2. remove role
+        roleDAO.delete(role);
+
+        userDAO.flush();
+
+        // 3. verify that role was removed from user
+        user = userDAO.find(user.getKey());
+        assertNotNull(user);
+        assertTrue(user.getRoles().isEmpty());
+    }
 }

@@ -23,12 +23,14 @@ import java.security.AccessControlException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -51,7 +53,6 @@ import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.misc.security.AuthContextUtils;
-import org.apache.syncope.core.misc.security.UnauthorizedException;
 import org.apache.syncope.core.misc.serialization.POJOHelper;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.provisioning.api.AnyTransformer;
@@ -180,7 +181,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserMod> {
     }
 
     @PreAuthorize("isAnonymous() or hasRole('" + Entitlement.ANONYMOUS + "')")
-    public UserTO createSelf(final UserTO userTO, final boolean storePassword) {
+    public UserTO selfCreate(final UserTO userTO, final boolean storePassword) {
         return doCreate(userTO, storePassword);
     }
 
@@ -193,15 +194,13 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserMod> {
     @PreAuthorize("hasRole('" + Entitlement.USER_CREATE + "')")
     public UserTO create(final UserTO userTO, final boolean storePassword) {
         if (userTO.getRealm() == null) {
-            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
-            throw sce;
+            throw SyncopeClientException.build(ClientExceptionType.InvalidRealm);
         }
+        // security checks
         Set<String> effectiveRealms = getEffectiveRealms(
                 AuthContextUtils.getAuthorizations().get(Entitlement.USER_CREATE),
                 Collections.singleton(userTO.getRealm()));
-        if (effectiveRealms.isEmpty()) {
-            throw new UnauthorizedException(AnyTypeKind.USER, null);
-        }
+        securityChecks(effectiveRealms, userTO.getRealm(), null);
 
         return doCreate(userTO, storePassword);
     }
@@ -219,14 +218,14 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserMod> {
     }
 
     @PreAuthorize("isAuthenticated() and not(hasRole('" + Entitlement.ANONYMOUS + "'))")
-    public UserTO updateSelf(final UserMod userMod) {
+    public UserTO selfUpdate(final UserMod userMod) {
         UserTO userTO = binder.getAuthenticatedUserTO();
 
         if (userTO.getKey() != userMod.getKey()) {
             throw new AccessControlException("Not allowed for user with key " + userMod.getKey());
         }
 
-        return update(userMod);
+        return doUpdate(userMod);
     }
 
     @PreAuthorize("hasRole('" + Entitlement.USER_UPDATE + "')")
@@ -236,7 +235,26 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserMod> {
         UserMod actual = anyTransformer.transform(userMod);
         LOG.debug("Transformed: {}", actual);
 
-        Map.Entry<Long, List<PropagationStatus>> updated = provisioningManager.update(actual);
+        // security checks
+        UserTO toUpdate = binder.getUserTO(userMod.getKey());
+        Set<String> requestedRealms = new HashSet<>();
+        requestedRealms.add(toUpdate.getRealm());
+        if (StringUtils.isNotBlank(actual.getRealm())) {
+            requestedRealms.add(actual.getRealm());
+        }
+        Set<String> effectiveRealms = getEffectiveRealms(
+                AuthContextUtils.getAuthorizations().get(Entitlement.USER_UPDATE),
+                requestedRealms);
+        securityChecks(effectiveRealms, toUpdate.getRealm(), toUpdate.getKey());
+        if (StringUtils.isNotBlank(actual.getRealm())) {
+            securityChecks(effectiveRealms, actual.getRealm(), toUpdate.getKey());
+        }
+
+        return doUpdate(actual);
+    }
+
+    protected UserTO doUpdate(final UserMod userMod) {
+        Map.Entry<Long, List<PropagationStatus>> updated = provisioningManager.update(userMod);
 
         UserTO updatedTO = binder.getUserTO(updated.getKey());
         updatedTO.getPropagationStatusTOs().addAll(updated.getValue());
@@ -267,8 +285,15 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserMod> {
 
     @PreAuthorize("hasRole('" + Entitlement.USER_UPDATE + "')")
     public UserTO status(final StatusMod statusMod) {
+        // security checks
+        UserTO toUpdate = binder.getUserTO(statusMod.getKey());
+        Set<String> effectiveRealms = getEffectiveRealms(
+                AuthContextUtils.getAuthorizations().get(Entitlement.USER_UPDATE),
+                Collections.singleton(toUpdate.getRealm()));
+        securityChecks(effectiveRealms, toUpdate.getRealm(), toUpdate.getKey());
+
         Map.Entry<Long, List<PropagationStatus>> updated = setStatusOnWfAdapter(statusMod);
-        final UserTO savedTO = binder.getUserTO(updated.getKey());
+        UserTO savedTO = binder.getUserTO(updated.getKey());
         savedTO.getPropagationStatusTOs().addAll(updated.getValue());
         return savedTO;
     }
@@ -305,15 +330,26 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserMod> {
     }
 
     @PreAuthorize("isAuthenticated() and not(hasRole('" + Entitlement.ANONYMOUS + "'))")
-    public UserTO deleteSelf() {
+    public UserTO selfDelete() {
         UserTO userTO = binder.getAuthenticatedUserTO();
 
-        return delete(userTO.getKey());
+        return doDelete(userTO.getKey());
     }
 
     @PreAuthorize("hasRole('" + Entitlement.USER_DELETE + "')")
     @Override
     public UserTO delete(final Long key) {
+        // security checks
+        UserTO toDelete = binder.getUserTO(key);
+        Set<String> effectiveRealms = getEffectiveRealms(
+                AuthContextUtils.getAuthorizations().get(Entitlement.USER_DELETE),
+                Collections.singleton(toDelete.getRealm()));
+        securityChecks(effectiveRealms, toDelete.getRealm(), toDelete.getKey());
+
+        return doDelete(key);
+    }
+
+    protected UserTO doDelete(final Long key) {
         List<Group> ownedGroups = groupDAO.findOwnedByUser(key);
         if (!ownedGroups.isEmpty()) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.GroupOwnership);
@@ -344,6 +380,13 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserMod> {
     @PreAuthorize("hasRole('" + Entitlement.USER_UPDATE + "')")
     @Override
     public UserTO unlink(final Long key, final Collection<String> resources) {
+        // security checks
+        UserTO user = binder.getUserTO(key);
+        Set<String> effectiveRealms = getEffectiveRealms(
+                AuthContextUtils.getAuthorizations().get(Entitlement.USER_UPDATE),
+                Collections.singleton(user.getRealm()));
+        securityChecks(effectiveRealms, user.getRealm(), user.getKey());
+
         UserMod userMod = new UserMod();
         userMod.setKey(key);
         userMod.getResourcesToRemove().addAll(resources);
@@ -354,6 +397,13 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserMod> {
     @PreAuthorize("hasRole('" + Entitlement.USER_UPDATE + "')")
     @Override
     public UserTO link(final Long key, final Collection<String> resources) {
+        // security checks
+        UserTO user = binder.getUserTO(key);
+        Set<String> effectiveRealms = getEffectiveRealms(
+                AuthContextUtils.getAuthorizations().get(Entitlement.USER_UPDATE),
+                Collections.singleton(user.getRealm()));
+        securityChecks(effectiveRealms, user.getRealm(), user.getKey());
+
         UserMod userMod = new UserMod();
         userMod.setKey(key);
         userMod.getResourcesToAdd().addAll(resources);
@@ -364,6 +414,13 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserMod> {
     @PreAuthorize("hasRole('" + Entitlement.USER_UPDATE + "')")
     @Override
     public UserTO unassign(final Long key, final Collection<String> resources) {
+        // security checks
+        UserTO user = binder.getUserTO(key);
+        Set<String> effectiveRealms = getEffectiveRealms(
+                AuthContextUtils.getAuthorizations().get(Entitlement.USER_UPDATE),
+                Collections.singleton(user.getRealm()));
+        securityChecks(effectiveRealms, user.getRealm(), user.getKey());
+
         UserMod userMod = new UserMod();
         userMod.setKey(key);
         userMod.getResourcesToRemove().addAll(resources);
@@ -377,6 +434,13 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserMod> {
             final Collection<String> resources,
             final boolean changepwd,
             final String password) {
+
+        // security checks
+        UserTO user = binder.getUserTO(key);
+        Set<String> effectiveRealms = getEffectiveRealms(
+                AuthContextUtils.getAuthorizations().get(Entitlement.USER_UPDATE),
+                Collections.singleton(user.getRealm()));
+        securityChecks(effectiveRealms, user.getRealm(), user.getKey());
 
         UserMod userMod = new UserMod();
         userMod.setKey(key);
@@ -396,6 +460,13 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserMod> {
     @PreAuthorize("hasRole('" + Entitlement.USER_UPDATE + "')")
     @Override
     public UserTO deprovision(final Long key, final Collection<String> resources) {
+        // security checks
+        UserTO user = binder.getUserTO(key);
+        Set<String> effectiveRealms = getEffectiveRealms(
+                AuthContextUtils.getAuthorizations().get(Entitlement.USER_UPDATE),
+                Collections.singleton(user.getRealm()));
+        securityChecks(effectiveRealms, user.getRealm(), user.getKey());
+
         List<PropagationStatus> statuses = provisioningManager.deprovision(key, resources);
 
         UserTO updatedTO = binder.getUserTO(key);
@@ -411,10 +482,15 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserMod> {
             final boolean changePwd,
             final String password) {
 
-        UserTO original = binder.getUserTO(key);
-        original.getPropagationStatusTOs().addAll(provisioningManager.provision(key, changePwd, password, resources));
+        // security checks
+        UserTO user = binder.getUserTO(key);
+        Set<String> effectiveRealms = getEffectiveRealms(
+                AuthContextUtils.getAuthorizations().get(Entitlement.USER_UPDATE),
+                Collections.singleton(user.getRealm()));
+        securityChecks(effectiveRealms, user.getRealm(), user.getKey());
 
-        return original;
+        user.getPropagationStatusTOs().addAll(provisioningManager.provision(key, changePwd, password, resources));
+        return user;
     }
 
     @Override

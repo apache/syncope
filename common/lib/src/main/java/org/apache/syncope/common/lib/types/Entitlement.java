@@ -108,8 +108,6 @@ public final class Entitlement {
 
     public static final String USER_DELETE = "USER_DELETE";
 
-    public static final String USER_VIEW = "USER_VIEW";
-
     public static final String GROUP_SEARCH = "GROUP_SEARCH";
 
     public static final String GROUP_CREATE = "GROUP_CREATE";
