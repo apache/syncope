@@ -16,9 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.java.data;
-
-import org.apache.syncope.core.provisioning.java.AbstractTest;
+package org.apache.syncope.core.provisioning.java;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;

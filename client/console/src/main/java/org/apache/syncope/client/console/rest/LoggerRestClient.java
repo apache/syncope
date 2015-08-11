@@ -59,19 +59,18 @@ public class LoggerRestClient extends BaseRestClient {
         return result;
     }
 
-    public void setLogLevel(final String name, final LoggerLevel level) {
+    public void setLogLevel(final String key, final LoggerLevel level) {
         LoggerTO loggerTO = new LoggerTO();
-        loggerTO.setKey(name);
+        loggerTO.setKey(key);
         loggerTO.setLevel(level);
-        getService(LoggerService.class).update(LoggerType.LOG, name, loggerTO);
+        getService(LoggerService.class).update(LoggerType.LOG, loggerTO);
     }
 
     public void enableAudit(final AuditLoggerName auditLoggerName) {
-        String name = auditLoggerName.toLoggerName();
         LoggerTO loggerTO = new LoggerTO();
-        loggerTO.setKey(name);
+        loggerTO.setKey(auditLoggerName.toLoggerName());
         loggerTO.setLevel(LoggerLevel.DEBUG);
-        getService(LoggerService.class).update(LoggerType.AUDIT, name, loggerTO);
+        getService(LoggerService.class).update(LoggerType.AUDIT, loggerTO);
     }
 
     public void deleteLog(final String name) {

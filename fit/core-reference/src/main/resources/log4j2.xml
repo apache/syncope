@@ -103,6 +103,9 @@ under the License.
       <appender-ref ref="connid"/>
     </asyncLogger>
     
+    <asyncLogger name="org.apache.syncope" additivity="false" level="ERROR">
+      <appender-ref ref="main"/>
+    </asyncLogger>
     <asyncLogger name="org.apache.syncope.core.provisioning" additivity="false" level="INFO">
       <appender-ref ref="main"/>
     </asyncLogger>
@@ -113,6 +116,9 @@ under the License.
       <appender-ref ref="main"/>
     </asyncLogger>
     <asyncLogger name="org.quartz" additivity="false" level="INFO">
+      <appender-ref ref="main"/>
+    </asyncLogger>
+    <asyncLogger name="org.activiti" additivity="false" level="ERROR">
       <appender-ref ref="main"/>
     </asyncLogger>
     <asyncLogger name="org.apache.camel" additivity="false" level="ERROR">

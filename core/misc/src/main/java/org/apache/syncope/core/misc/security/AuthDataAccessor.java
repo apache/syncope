@@ -64,6 +64,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Domain-sensible (via {@code @Transactional} access to authentication / authorization data.
+ *
+ * @see SyncopeAuthenticationProvider
+ * @see SyncopeAuthenticationDetails
+ */
 public class AuthDataAccessor {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AuthDataAccessor.class);

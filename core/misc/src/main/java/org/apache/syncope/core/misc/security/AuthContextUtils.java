@@ -39,6 +39,11 @@ import org.springframework.security.core.userdetails.User;
 
 public final class AuthContextUtils {
 
+    public interface Executable<T> {
+
+        T exec();
+    }
+
     public static String getUsername() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return authentication == null ? SyncopeConstants.UNAUTHENTICATED : authentication.getName();
@@ -104,6 +109,17 @@ public final class AuthContextUtils {
 
     public static void clearFakeAuth() {
         SecurityContextHolder.clearContext();
+    }
+
+    public static <T> T execWithAuthContext(final String domainKey, final Executable<T> executable) {
+        SecurityContext ctx = SecurityContextHolder.getContext();
+        setFakeAuth(domainKey);
+        try {
+            return executable.exec();
+        } finally {
+            clearFakeAuth();
+            SecurityContextHolder.setContext(ctx);
+        }
     }
 
     /**

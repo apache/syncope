@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.common.lib.to;
 
+import javax.ws.rs.PathParam;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.lib.AbstractBaseBean;
@@ -41,6 +42,7 @@ public class LoggerTO extends AbstractBaseBean {
         this.level = level;
     }
 
+    @PathParam("key")
     public String getKey() {
         return key;
     }

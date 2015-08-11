@@ -30,7 +30,6 @@ import org.springframework.test.context.transaction.TransactionConfiguration;
     "classpath:provisioningContext.xml",
     "classpath:logicContext.xml",
     "classpath:workflowContext.xml",
-    "classpath:persistenceTest.xml",
     "classpath:logicTest.xml"
 })
 @TransactionConfiguration(transactionManager = "MasterTransactionManager")

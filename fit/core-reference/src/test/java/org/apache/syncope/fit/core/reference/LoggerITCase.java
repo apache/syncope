@@ -76,7 +76,7 @@ public class LoggerITCase extends AbstractITCase {
         LoggerTO logger = new LoggerTO();
         logger.setKey("TEST");
         logger.setLevel(LoggerLevel.INFO);
-        loggerService.update(LoggerType.LOG, logger.getKey(), logger);
+        loggerService.update(LoggerType.LOG, logger);
         logger = loggerService.read(LoggerType.LOG, logger.getKey());
         assertNotNull(logger);
         assertEquals(LoggerLevel.INFO, logger.getLevel());
@@ -106,10 +106,9 @@ public class LoggerITCase extends AbstractITCase {
         assertFalse(audits.contains(auditLoggerName));
 
         LoggerTO loggerTO = new LoggerTO();
-        String name = auditLoggerName.toLoggerName();
-        loggerTO.setKey(name);
+        loggerTO.setKey(auditLoggerName.toLoggerName());
         loggerTO.setLevel(LoggerLevel.DEBUG);
-        loggerService.update(LoggerType.AUDIT, name, loggerTO);
+        loggerService.update(LoggerType.AUDIT, loggerTO);
 
         audits = CollectionWrapper.wrapLogger(loggerService.list(LoggerType.AUDIT));
         assertNotNull(audits);

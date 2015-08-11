@@ -48,9 +48,7 @@ public class LoggerServiceImpl extends AbstractServiceImpl implements LoggerServ
             case AUDIT:
                 try {
                     logic.disableAudit(AuditLoggerName.fromLoggerName(name));
-                } catch (IllegalArgumentException e) {
-                    throw new BadRequestException(e);
-                } catch (ParseException e) {
+                } catch (IllegalArgumentException | ParseException e) {
                     throw new BadRequestException(e);
                 }
                 break;
@@ -88,15 +86,15 @@ public class LoggerServiceImpl extends AbstractServiceImpl implements LoggerServ
     }
 
     @Override
-    public void update(final LoggerType type, final String name, final LoggerTO logger) {
+    public void update(final LoggerType type, final LoggerTO logger) {
         switch (type) {
             case LOG:
-                logic.setLogLevel(name, logger.getLevel().getLevel());
+                logic.setLogLevel(logger.getKey(), logger.getLevel().getLevel());
                 break;
 
             case AUDIT:
                 try {
-                    logic.enableAudit(AuditLoggerName.fromLoggerName(name));
+                    logic.enableAudit(AuditLoggerName.fromLoggerName(logger.getKey()));
                 } catch (Exception e) {
                     throw new BadRequestException(e);
                 }
