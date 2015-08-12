@@ -16,25 +16,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.wicket.markup.html.form;
+package org.apache.syncope.client.console.panels;
 
-import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.IModel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.Serializable;
+import org.apache.wicket.PageReference;
+import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 
-public abstract class AbstractFieldPanel<T> extends Panel {
+/**
+ * Modal window with Resource form.
+ */
+public abstract class BeanReflectionModal extends ModalContent {
 
-    /**
-     * Logger.
-     */
-    protected static final Logger LOG = LoggerFactory.getLogger(AbstractFieldPanel.class);
+    private static final long serialVersionUID = 1734415311027284222L;
 
-    private static final long serialVersionUID = 5958017546318855690L;
-
-    public AbstractFieldPanel(final String id, final IModel<T> model) {
-        super(id, model);
+    public BeanReflectionModal(final Serializable bean, final ModalWindow window, final PageReference pageRef) {
+        super(window, pageRef);
+        add(new BeanReflectionPanel("bean", bean));
     }
-
-    public abstract AbstractFieldPanel<T> setModelObject(T object);
 }

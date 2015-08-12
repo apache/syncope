@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.pages;
 
+import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -39,7 +40,6 @@ import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvid
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.springframework.beans.BeanUtils;
 
@@ -85,7 +85,8 @@ public class BulkActionModalPage<T, S> extends BaseModalPage {
                 Integer.MAX_VALUE).setVisible(items != null && !items.isEmpty()));
 
         @SuppressWarnings("rawtypes")
-        final ActionLinksPanel actionPanel = new ActionLinksPanel("actions", new Model(), getPageReference());
+        final ActionLinksPanel<Serializable> actionPanel
+                = ActionLinksPanel.builder(getPageReference()).build("actions");
         add(actionPanel);
 
         for (ActionLink.ActionType action : actions) {
@@ -118,12 +119,12 @@ public class BulkActionModalPage<T, S> extends BaseModalPage {
                     LOG.error("Bulk action type not supported");
             }
 
-            actionPanel.add(new ActionLink() {
+            actionPanel.add(new ActionLink<Serializable>() {
 
                 private static final long serialVersionUID = -3722207913631435501L;
 
                 @Override
-                public void onClick(final AjaxRequestTarget target) {
+                public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                     try {
                         final BulkActionResult res = (BulkActionResult) bulkActionExecutor.getClass().
                                 getMethod("bulkAction", BulkAction.class).invoke(bulkActionExecutor, bulkAction);

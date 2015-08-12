@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import org.apache.syncope.client.console.commons.ActionTableCheckGroup;
@@ -37,7 +38,6 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.ISortableDataProvider;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 
 public class ActionDataTablePanel<T, S> extends DataTablePanel<T, S> {
@@ -48,7 +48,7 @@ public class ActionDataTablePanel<T, S> extends DataTablePanel<T, S> {
 
     private final Form<T> bulkActionForm;
 
-    private final ActionLinksPanel actionPanel;
+    private final ActionLinksPanel<Serializable> actionPanel;
 
     private final PageReference pageRef;
 
@@ -93,7 +93,7 @@ public class ActionDataTablePanel<T, S> extends DataTablePanel<T, S> {
         final WebMarkupContainer actionPanelContainer = new WebMarkupContainer("actionPanelContainer");
         bulkActionForm.add(actionPanelContainer);
 
-        actionPanel = new ActionLinksPanel("actions", new Model(), pageRef);
+        actionPanel = ActionLinksPanel.builder(pageRef).build("actions");
         actionPanelContainer.add(actionPanel);
 
         if (dataTable.getRowCount() == 0) {
@@ -111,11 +111,13 @@ public class ActionDataTablePanel<T, S> extends DataTablePanel<T, S> {
         }.setVisible(false).setEnabled(false));
     }
 
-    public void addAction(final ActionLink action, final ActionType type, final String entitlements) {
-        actionPanel.add(action, type, entitlements);
+    public void addAction(
+            final ActionLink<Serializable> action, final ActionType type, final String entitlements) {
+        actionPanel.add(action, type, entitlements, true);
     }
 
-    public void addAction(final ActionLink action, final ActionType type, final String pageId, final boolean enabled) {
+    public void addAction(
+            final ActionLink<Serializable> action, final ActionType type, final String pageId, final boolean enabled) {
         actionPanel.add(action, type, pageId, enabled);
     }
 

@@ -90,6 +90,11 @@ pre {
   padding-bottom: 5px !important;
 }
 
+div.listview-actions a{
+  float:left; 
+  padding-right:8px
+}
+
 .block-header {
   position: fixed;
   width: 100%;

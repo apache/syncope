@@ -54,9 +54,9 @@ public class ModalContent extends Panel {
 
     protected NotificationPanel feedbackPanel;
 
-    private final PageReference pageRef;
+    protected final PageReference pageRef;
 
-    private final ModalWindow window;
+    protected final ModalWindow window;
 
     public ModalContent(final ModalWindow window, final PageReference pageRef) {
         super(window.getContentId());
@@ -66,6 +66,10 @@ public class ModalContent extends Panel {
         feedbackPanel = new NotificationPanel(Constants.FEEDBACK);
         feedbackPanel.setOutputMarkupId(true);
         add(feedbackPanel);
+    }
+
+    public NotificationPanel getFeedbackPanel() {
+        return feedbackPanel;
     }
 
     /**

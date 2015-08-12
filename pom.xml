@@ -376,11 +376,11 @@ under the License.
     <jquery-cookie.version>1.4.1-1</jquery-cookie.version>
     <bootstrap.version>3.3.5</bootstrap.version>
     <bootstrap-select.version>1.6.3</bootstrap-select.version>
-    <font-awesome.version>4.3.0</font-awesome.version>
+    <font-awesome.version>4.4.0</font-awesome.version>
     <ionicons.version>2.0.1</ionicons.version>
     <highlightjs.version>8.4-4</highlightjs.version>
     <codemirror.version>5.5</codemirror.version>
-    <jsplumb.version>1.6.4</jsplumb.version>
+    <jsplumb.version>1.7.5</jsplumb.version>
     
     <wicket.version>7.0.0</wicket.version>
     <wicket-jqueryui.version>7.0.0</wicket-jqueryui.version>
@@ -1081,6 +1081,7 @@ under the License.
           <configuration>
             <source>${targetJdk}</source>
             <target>${targetJdk}</target>
+	    <useIncrementalCompilation>false</useIncrementalCompilation>
             <showWarnings>true</showWarnings>
             <showDeprecation>true</showDeprecation>
             <!--<compilerArgument>-Xlint:unchecked</compilerArgument>-->

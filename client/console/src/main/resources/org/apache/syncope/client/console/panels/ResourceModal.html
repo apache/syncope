@@ -22,8 +22,7 @@ under the License.
       <div class="tabbable tabs-left">
         <ul class="nav nav-tabs">
           <li class="active"><a  data-toggle="tab" href="#resource"><span><wicket:message key="resource"/></span></a></li>
-          <li><a  data-toggle="tab" href="#umapping"><span><wicket:message key="umapping"/></span></a></li>
-          <li><a  data-toggle="tab" href="#gmapping"><span><wicket:message key="gmapping"/></span></a></li>
+          <li><a  data-toggle="tab" href="#provisions"><span><wicket:message key="provisions"/></span></a></li>
           <li><a  data-toggle="tab" href="#connectorProperties"><span><wicket:message key="connectorProperties"/></span></a></li>
           <li><a  data-toggle="tab" href="#security"><span><wicket:message key="security"/></span></a></li>
         </ul>
@@ -32,11 +31,10 @@ under the License.
             <span wicket:id="details">[details]</span>
             <span wicket:id="systeminformation">[System Information]</span>
           </div>
-          <div id="umapping" class="tab-pane">
-            <span wicket:id="umapping">[umapping]</span>
-          </div>
-          <div id="gmapping" class="tab-pane">
-            <span wicket:id="gmapping">[gmapping]</span>
+          <div id="provisions" class="tab-pane">
+            <span wicket:id="pcontainer">
+              <span wicket:id="provisions">[provisions]</span>
+            </span>
           </div>
           <div id="connectorProperties" class="tab-pane">
             <span wicket:id="connconf">[connconf]</span>
@@ -50,7 +48,7 @@ under the License.
       <div class="modal-footer">
         <input type="submit" class="btn btn-primary" wicket:id="apply"/>
         <input type="button" class="btn btn-default" wicket:id="cancel"/>
-      </div> 
+      </div>
     </form>
   </wicket:extend>
 </html>
