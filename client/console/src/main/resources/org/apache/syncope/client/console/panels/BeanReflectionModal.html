@@ -16,10 +16,15 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<html>
-  <wicket:panel>
-    <div class="form-group">
-      <span wicket:id="checkBoxMultipleChoice" />
-    </div>
-  </wicket:panel>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
+  <wicket:extend>
+    <form wicket:id="form">
+      <div class="bean">
+        <span wicket:id="bean">[Complex]</span>
+        <div class="modal-footer">
+          <input type="submit" class="btn btn-primary" wicket:id="apply"/>
+          <input type="button" class="btn btn-default" wicket:id="cancel"/>
+        </div>
+    </form>
+  </wicket:extend>
 </html>

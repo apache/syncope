@@ -44,21 +44,28 @@ under the License.
     </div>
     <div id="topology">
       <div id="drawing">
-        <div class="window topology_root" wicket:id="syncope" onmouseup="refreshPosition(this)">[syncope]</div>
+        <div class="window" wicket:id="syncope" onmouseup="refreshPosition(this)">[syncope]</div>
         <span wicket:id="connectorServers">
-          <div class="window topology_cs" wicket:id="cs" onmouseup="refreshPosition(this)">[resource]</div>
+          <div class="window" wicket:id="cs" onmouseup="refreshPosition(this)">[connector server]</div>
         </span>
-        <span wicket:id="conn1">
-          <div class="window topology_conn" wicket:id="conn" onmouseup="refreshPosition(this)">[resource]</div>
+        <span wicket:id="filePaths">
+          <div class="window" wicket:id="fp" onmouseup="refreshPosition(this)">[file path]</div>
         </span>
-        <span wicket:id="conn2">
-          <div class="window topology_conn" wicket:id="conn" onmouseup="refreshPosition(this)">[resource]</div>
+        <span wicket:id="conns">
+          <span wicket:id="conns">
+            <div class="window" wicket:id="conn" onmouseup="refreshPosition(this)">[connector]</div>
+          </span>
         </span>
         <span wicket:id="resources">
           <span wicket:id="resources">
-            <div class="window topology_res" wicket:id="res" onmouseup="refreshPosition(this)">[resource]</div>
+            <div class="window" wicket:id="res" onmouseup="refreshPosition(this)">[resource]</div>
           </span>
         </span>
+        <div wicket:id="newlyCreatedContainer">
+          <span wicket:id="newlyCreated">
+            <div class="window" wicket:id="el" onmouseup="refreshPosition(this)">[resource]</div>
+          </span>
+        </div>
       </div>
       <span wicket:id="jsPlace"></span>
     </div>

@@ -18,18 +18,15 @@ under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
   <wicket:extend>
-    <p class="ui-widget ui-corner-all ui-widget-header">
-        <span wicket:id="new"/>&nbsp;<wicket:message key="title"/>&nbsp;<span wicket:id="key"/>
-    </p>
-    <div style="margin: 5px;">
-      <form wicket:id="form">
-        <div id="tabs">
-          <ul>
-            <li class="tabs-selected"><a href="#tabs-1"><span><wicket:message key="tab1"/></span></a></li>
-            <li><a href="#tabs-2"><span><wicket:message key="tab2"/></span></a></li>
-            <li><a href="#tabs-3"><span><wicket:message key="tab3"/></span></a></li>
-          </ul>
-          <div id="tabs-1">
+    <form wicket:id="form">
+      <div class="tabbable tabs-left">
+        <ul class="nav nav-tabs">
+          <li class="active"><a  data-toggle="tab" href="#tabs-1"><span><wicket:message key="tab1"/></span></a></li>
+          <li><a  data-toggle="tab" href="#tabs-2"><span><wicket:message key="tab2"/></span></a></li>
+          <li><a  data-toggle="tab" href="#tabs-3"><span><wicket:message key="tab3"/></span></a></li>
+        </ul>
+        <div class="tab-content">
+          <div id="tabs-1" class="tab-pane active">
             <div id="formtable">
               <div class="tablerow alt">
                 <div class="tablecolumn_label short_dynamicsize">
@@ -112,7 +109,7 @@ under the License.
               </div>
             </div>
           </div>
-          <div id="tabs-2">
+          <div id="tabs-2" class="tab-pane">
             <div id="formtable">
               <span wicket:id="container">
                 <div style="border-bottom: 10px">
@@ -142,20 +139,16 @@ under the License.
               </span>
             </div>
           </div>
-          <div id="tabs-3">
+          <div id="tabs-3" class="tab-pane">
             <span wicket:id="capabilitiesPalette"/>
           </div>
         </div>
+      </div>
 
-        <div style="margin: 20px 10px 0">
-          <input type="submit"
-                 class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
-                 wicket:id="apply"/>
-          <input type="button"
-                 class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
-                 wicket:id="cancel"/>
-        </div>
-      </form>
-    </div>
+      <div class="modal-footer">
+        <input type="submit" class="btn btn-primary" wicket:id="apply"/>
+        <input type="button" class="btn btn-default" wicket:id="cancel"/>
+      </div>
+    </form>
   </wicket:extend>
 </html>

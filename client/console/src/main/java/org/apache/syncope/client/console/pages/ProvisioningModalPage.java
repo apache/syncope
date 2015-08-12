@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.pages;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -129,12 +130,12 @@ public class ProvisioningModalPage<T extends AnyTO> extends AbstractStatusModalP
 
         final String pageId = "Resources";
 
-        table.addAction(new ActionLink() {
+        table.addAction(new ActionLink<Serializable>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
             @Override
-            public void onClick(final AjaxRequestTarget target) {
+            public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                 try {
                     bulkAssociationAction(target, ResourceDeassociationActionType.UNLINK, table, columns);
                 } catch (Exception e) {
@@ -145,12 +146,12 @@ public class ProvisioningModalPage<T extends AnyTO> extends AbstractStatusModalP
             }
         }, ActionLink.ActionType.UNLINK, pageId);
 
-        table.addAction(new ActionLink() {
+        table.addAction(new ActionLink<Serializable>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
             @Override
-            public void onClick(final AjaxRequestTarget target) {
+            public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                 try {
                     bulkAssociationAction(target, ResourceDeassociationActionType.DEPROVISION, table, columns);
                 } catch (Exception e) {
@@ -161,12 +162,12 @@ public class ProvisioningModalPage<T extends AnyTO> extends AbstractStatusModalP
             }
         }, ActionLink.ActionType.DEPROVISION, pageId);
 
-        table.addAction(new ActionLink() {
+        table.addAction(new ActionLink<Serializable>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
             @Override
-            public void onClick(final AjaxRequestTarget target) {
+            public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                 try {
                     bulkAssociationAction(target, ResourceDeassociationActionType.UNASSIGN, table, columns);
                 } catch (Exception e) {

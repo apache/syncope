@@ -34,6 +34,10 @@ under the License.
     <span wicket:id="panelExecute">[plus]</span>
     <span wicket:id="panelEnable">[plus]</span>
     <span wicket:id="panelSearch">[plus]</span>
+    <span wicket:id="panelMapping">[plus]</span>
+    <span wicket:id="panelAccountLink">[plus]</span>
+    <span wicket:id="panelResetTime">[plus]</span>
+    <span wicket:id="panelClone">[plus]</span>
     <span wicket:id="panelCreate">[plus]</span>
     <span wicket:id="panelUserTemplate">[plus]</span>
     <span wicket:id="panelGroupTemplate">[plus]</span>
@@ -71,8 +75,24 @@ under the License.
       <a href="#" wicket:id="manageGroupsLink"><img id="actionLink" src="img/actions/groups-icon.png" alt="manage groups icon" title="Manage groups"/></a>
     </wicket:fragment>
 
+    <wicket:fragment wicket:id="fragmentMapping">
+      <a href="#" wicket:id="mappingLink" title="Mapping"><i class="fa fa-exchange"></i></a>
+    </wicket:fragment>
+
+    <wicket:fragment wicket:id="fragmentAccountLink">
+      <a href="#" wicket:id="accountLinkLink" title="Account Link"><i class="fa fa-external-link"></i></a>
+    </wicket:fragment>
+
+    <wicket:fragment wicket:id="fragmentResetTime">
+      <a href="#" wicket:id="resetTimeLink" title="Reset Time"><i class="fa fa-hourglass-start"></i></a>
+    </wicket:fragment>
+
+    <wicket:fragment wicket:id="fragmentClone">
+      <a href="#" wicket:id="cloneLink" title="Clone"><i class="fa fa-clone"></i></a>
+    </wicket:fragment>
+
     <wicket:fragment wicket:id="fragmentCreate">
-      <a href="#" wicket:id="createLink"><img id="actionLink" src="img/actions/create.png" alt="create icon" title="Create"/></a>
+      <a href="#" wicket:id="createLink" title="Create"><i class="fa fa-create"></i></a>
     </wicket:fragment>
 
     <wicket:fragment wicket:id="fragmentSearch">
@@ -100,7 +120,7 @@ under the License.
     </wicket:fragment>
 
     <wicket:fragment wicket:id="fragmentDelete">
-      <a href="#" wicket:id="deleteLink"><img id="actionLink" src="img/actions/delete.png" alt="delete icon" title="Delete"/></a>
+      <a href="#" wicket:id="deleteLink" title="Delete"><i class="fa fa-minus"></i></a>
     </wicket:fragment>
 
     <wicket:fragment wicket:id="fragmentDryRun">
@@ -160,13 +180,13 @@ under the License.
     </wicket:fragment>
 
     <wicket:fragment wicket:id="fragmentZoomIn">
-      <a href="#" wicket:id="zoomInLink"><i class="fa fa-search-plus"></i></a>
+      <a href="#" wicket:id="zoomInLink" title="Zoom In"><i class="fa fa-search-plus"></i></a>
     </wicket:fragment>
-    
+
     <wicket:fragment wicket:id="fragmentZoomOut">
-      <a href="#" wicket:id="zoomOutLink"><i class="fa fa-search-minus"></i></a>
+      <a href="#" wicket:id="zoomOutLink" title="Zoom Out"><i class="fa fa-search-minus"></i></a>
     </wicket:fragment>
-    
+
     <wicket:fragment wicket:id="emptyFragment">
     </wicket:fragment>
   </wicket:panel>

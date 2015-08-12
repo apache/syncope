@@ -18,6 +18,11 @@
  */
 package org.apache.syncope.client.console.wicket.markup.html.form;
 
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.client.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
 import org.apache.syncope.client.console.wicket.ajax.markup.html.IndicatingOnConfirmAjaxLink;
 import org.apache.wicket.PageReference;
@@ -26,24 +31,34 @@ import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDa
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 
 /**
  * This empty class must exist because there not seems to be alternative to provide specialized HTML for edit links.
+ *
+ * @param <T> model object type.
  */
-public class ActionLinksPanel extends Panel {
+public final class ActionLinksPanel<T extends Serializable> extends Panel {
 
     private static final long serialVersionUID = 322966537010107771L;
 
     private final PageReference pageRef;
 
-    public ActionLinksPanel(final String componentId, final IModel<?> model, final PageReference pageRef) {
+    private final IModel<T> model;
+
+    private ActionLinksPanel(final String componentId, final IModel<T> model, final PageReference pageRef) {
         super(componentId, model);
+        this.model = model;
         this.pageRef = pageRef;
 
         super.add(new Fragment("panelClaim", "emptyFragment", this));
         super.add(new Fragment("panelManageResources", "emptyFragment", this));
         super.add(new Fragment("panelManageUsers", "emptyFragment", this));
         super.add(new Fragment("panelManageGroups", "emptyFragment", this));
+        super.add(new Fragment("panelMapping", "emptyFragment", this));
+        super.add(new Fragment("panelAccountLink", "emptyFragment", this));
+        super.add(new Fragment("panelResetTime", "emptyFragment", this));
+        super.add(new Fragment("panelClone", "emptyFragment", this));
         super.add(new Fragment("panelCreate", "emptyFragment", this));
         super.add(new Fragment("panelEdit", "emptyFragment", this));
         super.add(new Fragment("panelReset", "emptyFragment", this));
@@ -68,29 +83,13 @@ public class ActionLinksPanel extends Panel {
         super.add(new Fragment("panelProvision", "emptyFragment", this));
         super.add(new Fragment("panelZoomIn", "emptyFragment", this));
         super.add(new Fragment("panelZoomOut", "emptyFragment", this));
-
     }
 
-    public ActionLinksPanel add(
-            final ActionLink link, final ActionLink.ActionType type, final String entitlements) {
-
-        return addWithRoles(link, type, entitlements, true);
-    }
-
-    public ActionLinksPanel add(
-            final ActionLink link, final ActionLink.ActionType type, final String entitlement, final boolean enabled) {
-
-        return addWithRoles(link, type, entitlement, enabled);
-    }
-
-    public ActionLinksPanel addWithRoles(
-            final ActionLink link, final ActionLink.ActionType type, final String entitlements) {
-
-        return addWithRoles(link, type, entitlements, true);
-    }
-
-    public ActionLinksPanel addWithRoles(
-            final ActionLink link, final ActionLink.ActionType type, final String entitlements, final boolean enabled) {
+    public ActionLinksPanel<T> add(
+            final ActionLink<T> link,
+            final ActionLink.ActionType type,
+            final String entitlements,
+            final boolean enabled) {
 
         Fragment fragment = null;
 
@@ -105,7 +104,7 @@ public class ActionLinksPanel extends Panel {
 
                     @Override
                     protected void onClickInternal(final AjaxRequestTarget target) {
-                        link.onClick(target);
+                        link.onClick(target, model.getObject());
                     }
                 }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
@@ -119,7 +118,7 @@ public class ActionLinksPanel extends Panel {
 
                     @Override
                     protected void onClickInternal(final AjaxRequestTarget target) {
-                        link.onClick(target);
+                        link.onClick(target, model.getObject());
                     }
                 }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
@@ -133,7 +132,7 @@ public class ActionLinksPanel extends Panel {
 
                     @Override
                     protected void onClickInternal(final AjaxRequestTarget target) {
-                        link.onClick(target);
+                        link.onClick(target, model.getObject());
                     }
                 }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
@@ -147,7 +146,63 @@ public class ActionLinksPanel extends Panel {
 
                     @Override
                     protected void onClickInternal(final AjaxRequestTarget target) {
-                        link.onClick(target);
+                        link.onClick(target, model.getObject());
+                    }
+                }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
+                break;
+
+            case MAPPING:
+                fragment = new Fragment("panelMapping", "fragmentMapping", this);
+
+                fragment.addOrReplace(new ClearIndicatingAjaxLink<Void>("mappingLink", pageRef) {
+
+                    private static final long serialVersionUID = -7978723352517770644L;
+
+                    @Override
+                    protected void onClickInternal(final AjaxRequestTarget target) {
+                        link.onClick(target, model.getObject());
+                    }
+                }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
+                break;
+
+            case ACCOUNT_LINK:
+                fragment = new Fragment("panelAccountLink", "fragmentAccountLink", this);
+
+                fragment.addOrReplace(new ClearIndicatingAjaxLink<Void>("accountLinkLink", pageRef) {
+
+                    private static final long serialVersionUID = -7978723352517770644L;
+
+                    @Override
+                    protected void onClickInternal(final AjaxRequestTarget target) {
+                        link.onClick(target, model.getObject());
+                    }
+                }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
+                break;
+
+            case RESET_TIME:
+                fragment = new Fragment("panelResetTime", "fragmentResetTime", this);
+
+                fragment.addOrReplace(new ClearIndicatingAjaxLink<Void>("resetTimeLink", pageRef) {
+
+                    private static final long serialVersionUID = -7978723352517770644L;
+
+                    @Override
+                    protected void onClickInternal(final AjaxRequestTarget target) {
+                        link.onClick(target, model.getObject());
+                    }
+                }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
+                break;
+
+            case CLONE:
+                fragment = new Fragment("panelClone", "fragmentClone", this);
+
+                fragment.addOrReplace(new ClearIndicatingAjaxLink<Void>("cloneLink", pageRef) {
+
+                    private static final long serialVersionUID = -7978723352517770644L;
+
+                    @Override
+                    protected void onClickInternal(final AjaxRequestTarget target) {
+                        link.onClick(target, model.getObject());
                     }
                 }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
@@ -161,7 +216,7 @@ public class ActionLinksPanel extends Panel {
 
                     @Override
                     protected void onClickInternal(final AjaxRequestTarget target) {
-                        link.onClick(target);
+                        link.onClick(target, model.getObject());
                     }
                 }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
@@ -175,7 +230,7 @@ public class ActionLinksPanel extends Panel {
 
                     @Override
                     protected void onClickInternal(final AjaxRequestTarget target) {
-                        link.onClick(target);
+                        link.onClick(target, model.getObject());
                     }
                 });
                 break;
@@ -189,7 +244,7 @@ public class ActionLinksPanel extends Panel {
 
                     @Override
                     protected void onClickInternal(final AjaxRequestTarget target) {
-                        link.onClick(target);
+                        link.onClick(target, model.getObject());
                     }
                 }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
@@ -203,7 +258,7 @@ public class ActionLinksPanel extends Panel {
 
                     @Override
                     protected void onClickInternal(final AjaxRequestTarget target) {
-                        link.onClick(target);
+                        link.onClick(target, model.getObject());
                     }
                 }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
@@ -217,7 +272,7 @@ public class ActionLinksPanel extends Panel {
 
                     @Override
                     protected void onClickInternal(final AjaxRequestTarget target) {
-                        link.onClick(target);
+                        link.onClick(target, model.getObject());
                     }
                 }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
@@ -231,7 +286,7 @@ public class ActionLinksPanel extends Panel {
 
                     @Override
                     protected void onClickInternal(final AjaxRequestTarget target) {
-                        link.onClick(target);
+                        link.onClick(target, model.getObject());
                     }
                 }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
@@ -245,7 +300,7 @@ public class ActionLinksPanel extends Panel {
 
                     @Override
                     protected void onClickInternal(final AjaxRequestTarget target) {
-                        link.onClick(target);
+                        link.onClick(target, model.getObject());
                     }
                 }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
@@ -259,7 +314,7 @@ public class ActionLinksPanel extends Panel {
 
                     @Override
                     protected void onClickInternal(final AjaxRequestTarget target) {
-                        link.onClick(target);
+                        link.onClick(target, model.getObject());
                     }
                 }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
@@ -273,7 +328,7 @@ public class ActionLinksPanel extends Panel {
 
                     @Override
                     protected void onClickInternal(final AjaxRequestTarget target) {
-                        link.onClick(target);
+                        link.onClick(target, model.getObject());
                     }
                 }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
@@ -287,7 +342,7 @@ public class ActionLinksPanel extends Panel {
 
                     @Override
                     protected void onClickInternal(final AjaxRequestTarget target) {
-                        link.onClick(target);
+                        link.onClick(target, model.getObject());
                     }
                 }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
 
@@ -302,7 +357,7 @@ public class ActionLinksPanel extends Panel {
 
                     @Override
                     protected void onClickInternal(final AjaxRequestTarget target) {
-                        link.onClick(target);
+                        link.onClick(target, model.getObject());
                     }
                 }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
 
@@ -317,7 +372,7 @@ public class ActionLinksPanel extends Panel {
 
                     @Override
                     protected void onClickInternal(final AjaxRequestTarget target) {
-                        link.onClick(target);
+                        link.onClick(target, model.getObject());
                     }
                 }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
@@ -331,7 +386,7 @@ public class ActionLinksPanel extends Panel {
 
                     @Override
                     protected void onClickInternal(final AjaxRequestTarget target) {
-                        link.onClick(target);
+                        link.onClick(target, model.getObject());
                     }
                 }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
@@ -345,7 +400,7 @@ public class ActionLinksPanel extends Panel {
 
                     @Override
                     protected void onClickInternal(final AjaxRequestTarget target) {
-                        link.onClick(target);
+                        link.onClick(target, model.getObject());
                     }
                 }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
@@ -359,7 +414,7 @@ public class ActionLinksPanel extends Panel {
 
                     @Override
                     protected void onClickInternal(final AjaxRequestTarget target) {
-                        link.onClick(target);
+                        link.onClick(target, model.getObject());
                     }
                 }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
@@ -373,7 +428,7 @@ public class ActionLinksPanel extends Panel {
 
                     @Override
                     protected void onClickInternal(final AjaxRequestTarget target) {
-                        link.onClick(target);
+                        link.onClick(target, model.getObject());
                     }
                 }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
@@ -388,7 +443,7 @@ public class ActionLinksPanel extends Panel {
 
                             @Override
                             protected void onClickInternal(final AjaxRequestTarget target) {
-                                link.onClick(target);
+                                link.onClick(target, model.getObject());
                             }
                         }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
@@ -402,7 +457,7 @@ public class ActionLinksPanel extends Panel {
 
                     @Override
                     protected void onClickInternal(final AjaxRequestTarget target) {
-                        link.onClick(target);
+                        link.onClick(target, model.getObject());
                     }
                 }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
@@ -417,7 +472,7 @@ public class ActionLinksPanel extends Panel {
 
                             @Override
                             protected void onClickInternal(final AjaxRequestTarget target) {
-                                link.onClick(target);
+                                link.onClick(target, model.getObject());
                             }
                         }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
@@ -431,7 +486,7 @@ public class ActionLinksPanel extends Panel {
 
                     @Override
                     protected void onClickInternal(final AjaxRequestTarget target) {
-                        link.onClick(target);
+                        link.onClick(target, model.getObject());
                     }
                 }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
@@ -446,7 +501,7 @@ public class ActionLinksPanel extends Panel {
 
                             @Override
                             protected void onClickInternal(final AjaxRequestTarget target) {
-                                link.onClick(target);
+                                link.onClick(target, model.getObject());
                             }
                         }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
@@ -460,7 +515,7 @@ public class ActionLinksPanel extends Panel {
 
                     @Override
                     protected void onClickInternal(final AjaxRequestTarget target) {
-                        link.onClick(target);
+                        link.onClick(target, model.getObject());
                     }
                 }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
@@ -473,7 +528,7 @@ public class ActionLinksPanel extends Panel {
 
                     @Override
                     protected void onClickInternal(final AjaxRequestTarget target) {
-                        link.onClick(target);
+                        link.onClick(target, model.getObject());
                     }
                 }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
@@ -486,7 +541,7 @@ public class ActionLinksPanel extends Panel {
 
                     @Override
                     protected void onClickInternal(final AjaxRequestTarget target) {
-                        link.onClick(target);
+                        link.onClick(target, model.getObject());
                     }
                 }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
@@ -519,6 +574,22 @@ public class ActionLinksPanel extends Panel {
 
             case MANAGE_GROUPS:
                 super.addOrReplace(new Fragment("panelManageGroups", "emptyFragment", this));
+                break;
+
+            case MAPPING:
+                super.addOrReplace(new Fragment("panelMapping", "emptyFragment", this));
+                break;
+
+            case ACCOUNT_LINK:
+                super.addOrReplace(new Fragment("panelAccountLink", "emptyFragment", this));
+                break;
+
+            case RESET_TIME:
+                super.addOrReplace(new Fragment("panelResetTime", "emptyFragment", this));
+                break;
+
+            case CLONE:
+                super.addOrReplace(new Fragment("panelClone", "emptyFragment", this));
                 break;
 
             case CREATE:
@@ -604,6 +675,94 @@ public class ActionLinksPanel extends Panel {
                 break;
             default:
             // do nothing
+        }
+    }
+
+    public static <T extends Serializable> Builder<T> builder(final PageReference pageRef) {
+        return new Builder<T>(pageRef);
+    }
+
+    /**
+     * ActionLinksPanel builder.
+     *
+     * @param <T> model object type.
+     */
+    public static final class Builder<T extends Serializable> implements Serializable {
+
+        private static final long serialVersionUID = 1L;
+
+        private final Map<ActionLink.ActionType, Triple<ActionLink<T>, String, Boolean>> actions = new HashMap<>();
+
+        private final PageReference pageRef;
+
+        private Builder(final PageReference pageRef) {
+            this.pageRef = pageRef;
+        }
+
+        public Builder<T> add(
+                final ActionLink<T> link,
+                final ActionLink.ActionType type,
+                final String entitlements) {
+
+            return addWithRoles(link, type, entitlements, true);
+        }
+
+        public Builder<T> add(
+                final ActionLink<T> link,
+                final ActionLink.ActionType type,
+                final String entitlement,
+                final boolean enabled) {
+
+            return addWithRoles(link, type, entitlement, enabled);
+        }
+
+        public Builder<T> addWithRoles(
+                final ActionLink<T> link,
+                final ActionLink.ActionType type,
+                final String entitlements) {
+
+            return addWithRoles(link, type, entitlements, true);
+        }
+
+        public Builder<T> addWithRoles(
+                final ActionLink<T> link,
+                final ActionLink.ActionType type,
+                final String entitlements,
+                final boolean enabled) {
+            actions.put(type, Triple.of(link, entitlements, enabled));
+            return this;
+        }
+
+        /**
+         * Use this method to build an ation panel without any model reference.
+         *
+         * @param id Component id.
+         * @return Action link panel.
+         */
+        public ActionLinksPanel<T> build(final String id) {
+            return build(id, null);
+        }
+
+        /**
+         * Use this methos to build an action panel including a model reference.
+         *
+         * @param id Component id.
+         * @param modelObject model object.
+         * @return Action link panel.
+         */
+        public ActionLinksPanel<T> build(final String id, final T modelObject) {
+            final ActionLinksPanel<T> panel = modelObject == null
+                    ? new ActionLinksPanel<T>(id, new Model<T>(), this.pageRef)
+                    : new ActionLinksPanel<T>(id, new Model<T>(modelObject), this.pageRef);
+
+            for (Entry<ActionLink.ActionType, Triple<ActionLink<T>, String, Boolean>> action : actions.entrySet()) {
+                panel.add(
+                        action.getValue().getLeft(),
+                        action.getKey(),
+                        action.getValue().getMiddle(),
+                        action.getValue().getRight());
+            }
+            return panel;
         }
     }
 }

@@ -27,11 +27,13 @@ import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Fragment;
@@ -72,20 +74,29 @@ public class TopologyNodePanel extends Panel {
         switch (node.getKind()) {
             case SYNCOPE:
                 title = "";
-                add(getSyncopeFragment(node, pageRef));
+                add(getSyncopeFragment());
+                add(new AttributeAppender("class", "topology_root", " "));
                 break;
             case CONNECTOR_SERVER:
                 title = node.getDisplayName();
-                add(getConnectorServerFragment(node, pageRef));
+                add(getLocationFragment(node, pageRef));
+                add(new AttributeAppender("class", "topology_cs", " "));
+                break;
+            case FS_PATH:
+                title = node.getDisplayName();
+                add(getLocationFragment(node, pageRef));
+                add(new AttributeAppender("class", "topology_cs", " "));
                 break;
             case CONNECTOR:
                 title = (StringUtils.isBlank(node.getConnectionDisplayName())
                         ? "" : node.getConnectionDisplayName() + ":") + node.getDisplayName();
                 add(getConnectorFragment(node, pageRef));
+                add(new AttributeAppender("class", "topology_conn", " "));
                 break;
             default:
                 title = node.getDisplayName().length() > 20 ? node.getDisplayName() : "";
                 add(getResurceFragment(node, pageRef));
+                add(new AttributeAppender("class", "topology_res", " "));
         }
 
         if (StringUtils.isNotEmpty(title)) {
@@ -97,20 +108,34 @@ public class TopologyNodePanel extends Panel {
         this.modal = modal;
     }
 
-    private Fragment getSyncopeFragment(final TopologyNode node, final PageReference pageRef) {
-        final Fragment fragment = new Fragment("actions", "syncopeActions", this);
-        fragment.setOutputMarkupId(true);
-        return fragment;
+    private Fragment getSyncopeFragment() {
+        return new Fragment("actions", "syncopeActions", this);
     }
 
-    private Fragment getConnectorServerFragment(final TopologyNode node, final PageReference pageRef) {
-        final Fragment fragment = new Fragment("actions", "syncopeActions", this);
+    private Fragment getLocationFragment(final TopologyNode node, final PageReference pageRef) {
+        final Fragment fragment = new Fragment("actions", "locationActions", this);
+
+        final AjaxLink<String> create = new ClearIndicatingAjaxLink<String>("create", pageRef) {
+
+            private static final long serialVersionUID = 3776750333491622263L;
+
+            @Override
+            public void onClickInternal(final AjaxRequestTarget target) {
+
+                final ConnInstanceTO connectorTO = new ConnInstanceTO();
+                connectorTO.setLocation(node.getKey().toString());
+                modal.setContent(new ConnectorModal(modal, pageRef, connectorTO));
+                modal.setTitle(MessageFormat.format(getString("connector.new"), node.getKey()));
+                modal.show(target);
+            }
+        };
+        fragment.add(create);
+
         return fragment;
     }
 
     private Fragment getConnectorFragment(final TopologyNode node, final PageReference pageRef) {
-        final Fragment fragment = new Fragment("actions", "connectorWithNoResourceActions", this);
-        fragment.setOutputMarkupId(true);
+        final Fragment fragment = new Fragment("actions", "connectorActions", this);
 
         final AjaxLink<String> delete = new ClearIndicatingAjaxLink<String>("delete", pageRef) {
 
@@ -139,9 +164,7 @@ public class TopologyNodePanel extends Panel {
                 final ResourceTO resourceTO = new ResourceTO();
                 resourceTO.setConnector(Long.class.cast(node.getKey()));
                 resourceTO.setConnectorDisplayName(node.getDisplayName());
-
                 modal.setContent(new ResourceModal(modal, pageRef, resourceTO, true));
-
                 modal.setTitle(getString("resource.new"));
                 modal.show(target);
             }

@@ -26,10 +26,12 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.AbstractBasePage;
+import org.apache.syncope.client.console.topology.TopologyNode;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
+import org.apache.syncope.client.console.wizards.ProvisionWizard;
 import org.apache.syncope.common.lib.to.MappingItemTO;
 import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -38,6 +40,7 @@ import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDa
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.ResourceModel;
@@ -45,7 +48,7 @@ import org.apache.wicket.model.ResourceModel;
 /**
  * Modal window with Resource form.
  */
-public class ResourceModal extends ModalContent {
+public class ResourceModal extends AbstractResourceModal {
 
     private static final long serialVersionUID = 1734415311027284221L;
 
@@ -71,10 +74,61 @@ public class ResourceModal extends ModalContent {
         //--------------------------------
 
         //--------------------------------
-        // Resource mapping panels
+        // Resource provision panels
         //--------------------------------
-        form.add(new ResourceMappingPanel("umapping", resourceTO, AnyTypeKind.USER));
-        form.add(new ResourceMappingPanel("gmapping", resourceTO, AnyTypeKind.GROUP));
+        final WebMarkupContainer provisions = new WebMarkupContainer("pcontainer");
+        form.add(provisions.setOutputMarkupId(true));
+
+        final ListViewPanel.Builder<ProvisionTO> builder = ListViewPanel.builder(ProvisionTO.class, pageRef);
+        builder.setItems(resourceTO.getProvisions());
+        builder.includes("anyType", "objectClass");
+
+        builder.addAction(new ActionLink<ProvisionTO>() {
+
+            private static final long serialVersionUID = -3722207913631435504L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final ProvisionTO provisionTO) {
+
+            }
+        }, ActionLink.ActionType.MAPPING, Entitlement.RESOURCE_UPDATE).addAction(new ActionLink<ProvisionTO>() {
+
+            private static final long serialVersionUID = -3722207913631435514L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final ProvisionTO provisionTO) {
+
+            }
+        }, ActionLink.ActionType.ACCOUNT_LINK, Entitlement.RESOURCE_UPDATE).addAction(new ActionLink<ProvisionTO>() {
+
+            private static final long serialVersionUID = -3722207913631435524L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final ProvisionTO provisionTO) {
+
+            }
+        }, ActionLink.ActionType.RESET_TIME, Entitlement.RESOURCE_UPDATE).addAction(new ActionLink<ProvisionTO>() {
+
+            private static final long serialVersionUID = -3722207913631435534L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final ProvisionTO provisionTO) {
+
+            }
+        }, ActionLink.ActionType.CLONE, Entitlement.RESOURCE_CREATE).addAction(new ActionLink<ProvisionTO>() {
+
+            private static final long serialVersionUID = -3722207913631435544L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final ProvisionTO provisionTO) {
+                resourceTO.getProvisions().remove(provisionTO);
+                target.add(provisions);
+
+            }
+        }, ActionLink.ActionType.DELETE, Entitlement.RESOURCE_DELETE);
+
+        builder.addNewItemPanel(new ProvisionWizard("wizard", resourceTO, pageRef));
+        provisions.add(builder.build("provisions"));
         //--------------------------------
 
         //--------------------------------
@@ -129,7 +183,12 @@ public class ResourceModal extends ModalContent {
                     try {
                         if (createFlag) {
                             resourceRestClient.create(resourceTO);
-                            send(pageRef.getPage(), Broadcast.BREADTH, new ResourceCreateEvent(target, resourceTO));
+                            send(pageRef.getPage(), Broadcast.BREADTH, new CreateEvent(
+                                    resourceTO.getKey(),
+                                    resourceTO.getKey(),
+                                    TopologyNode.Kind.RESOURCE,
+                                    resourceTO.getConnector(),
+                                    target));
                         } else {
                             resourceRestClient.update(resourceTO);
                         }
@@ -177,28 +236,5 @@ public class ResourceModal extends ModalContent {
 
         MetaDataRoleAuthorizationStrategy.authorize(
                 submit, ENABLE, createFlag ? Entitlement.RESOURCE_CREATE : Entitlement.RESOURCE_UPDATE);
-    }
-
-    public NotificationPanel getFeedbackPanel() {
-        return feedbackPanel;
-    }
-
-    public static class ResourceCreateEvent extends ModalEvent {
-
-        private final ResourceTO resourceTO;
-
-        public ResourceCreateEvent(final AjaxRequestTarget target, final ResourceTO resourceTO) {
-            super(target);
-            this.resourceTO = resourceTO;
-        }
-
-        /**
-         * Create resource getter.
-         *
-         * @return created resource.
-         */
-        public ResourceTO getResourceTO() {
-            return resourceTO;
-        }
     }
 }

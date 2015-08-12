@@ -19,6 +19,9 @@
 package org.apache.syncope.client.console.wicket.markup.html.form;
 
 import java.util.List;
+import org.apache.wicket.Component;
+import org.apache.wicket.behavior.Behavior;
+import org.apache.wicket.markup.html.form.AbstractChoice;
 
 import org.apache.wicket.markup.html.form.CheckBoxMultipleChoice;
 import org.apache.wicket.model.IModel;
@@ -35,12 +38,20 @@ public class CheckBoxMultipleChoiceFieldPanel<E> extends AbstractFieldPanel<List
         super(id, model);
 
         field = new CheckBoxMultipleChoice<E>("checkBoxMultipleChoice", model, choices);
-        add(field);
+        add(field.
+                setPrefix("<div class=\"checkbox\">").
+                setSuffix("</div>").
+                setLabelPosition(AbstractChoice.LabelPosition.WRAP_AFTER));
     }
 
     @Override
     public AbstractFieldPanel<List<E>> setModelObject(final List<E> object) {
         field.setModelObject(object);
         return this;
+    }
+
+    @Override
+    public Component add(final Behavior... behaviors) {
+        return field.add(behaviors);
     }
 }

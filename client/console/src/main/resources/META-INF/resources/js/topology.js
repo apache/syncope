@@ -107,18 +107,24 @@ var enabledEndpointStyle = {
 };
 
 window.disable = function(targetName){
-    jsPlumb.select({target:targetName}).setPaintStyle(disabledConnectorStyle).setHoverPaintStyle(disabledConnectorHoverStyle);
-    jsPlumb.selectEndpoints({element: [targetName]}).setPaintStyle(disabledEndpointStyle);
+    jsPlumb.ready(function(){
+	jsPlumb.select({target:targetName}).setPaintStyle(disabledConnectorStyle).setHoverPaintStyle(disabledConnectorHoverStyle);
+	jsPlumb.selectEndpoints({element: [targetName]}).setPaintStyle(disabledEndpointStyle);
+    });
 }
 
 window.enable = function(targetName){
-    jsPlumb.select({target:targetName}).setPaintStyle(enabledConnectorStyle).setHoverPaintStyle(enabledConnectorHoverStyle);
-    jsPlumb.selectEndpoints({element: [targetName]}).setPaintStyle(enabledEndpointStyle);
+    jsPlumb.ready(function(){
+	jsPlumb.select({target:targetName}).setPaintStyle(enabledConnectorStyle).setHoverPaintStyle(enabledConnectorHoverStyle);
+	jsPlumb.selectEndpoints({element: [targetName]}).setPaintStyle(enabledEndpointStyle);
+    });
 }
 
 window.failure = function(targetName){
-    jsPlumb.select({target:targetName}).setPaintStyle(failedConnectorStyle).setHoverPaintStyle(failedConnectorHoverStyle);
-    jsPlumb.selectEndpoints({element: [targetName]}).setPaintStyle(failedEndpointStyle);
+    jsPlumb.ready(function(){
+	jsPlumb.select({target:targetName}).setPaintStyle(failedConnectorStyle).setHoverPaintStyle(failedConnectorHoverStyle);
+	jsPlumb.selectEndpoints({element: [targetName]}).setPaintStyle(failedEndpointStyle);
+    });
 }
 
 window.unknown = function(targetName){
@@ -221,61 +227,57 @@ window.zoomOut = function(el, instance, transformOrigin) {
 };
 
 window.connect = function(source, target, scope){
-    if(jsPlumb.select({source:source, target:target, scope: scope}) !=null){
-	jsPlumb.connect({source:source, target:target, scope: scope}, def);
-    }
+    jsPlumb.ready(function(){
+	if(jsPlumb.select({source:source, target:target, scope: scope}) != null){
+	    jsPlumb.connect({source:source, target:target, scope: scope}, def);
+	}
+    });
 }
 
 window.activate = function(zoom){
-    jsPlumb.draggable(jsPlumb.getSelector(".window"));
-    jsPlumb.setContainer("drawing");
-
-    $("#drawing").draggable({
-	containment: 'topology',
-	cursor: 'move'
+    jsPlumb.ready(function(){
+	jsPlumb.draggable(jsPlumb.getSelector(".window"));
+	jsPlumb.setContainer("drawing");
+	
+	jsPlumb.Defaults.MaxConnections = 1000;
+	
+	$("#drawing").draggable({
+	    containment: 'topology',
+	    cursor: 'move'
+	});
+	
+	var val = getTopology();
+	if(val.__zoom__ == null){
+	    setZoom($("#drawing")[0], zoom);
+	} else {
+	    setZoom($("#drawing")[0], val.__zoom__);
+	}
     });
-
-    var val = getTopology();
-    if(val.__zoom__ == null){
-	setZoom($("#drawing")[0], zoom);
-    } else {
-	setZoom($("#drawing")[0], val.__zoom__);
-    }
 }
 
 window.checkConnection = function() {
-    jsPlumb.select({scope:"CONNECTOR"}).each(function(connection) {
-        Wicket.WebSocket.send("{ \"kind\":\"CHECK_CONNECTOR\", \"target\":\"" + connection.target.id + "\" }");
-    });
-    jsPlumb.select({scope:"RESOURCE"}).each(function(connection) {
-        Wicket.WebSocket.send("{ \"kind\":\"CHECK_RESOURCE\", \"target\":\"" + connection.target.id + "\" }");
+    jsPlumb.ready(function(){
+	jsPlumb.select({scope:"CONNECTOR"}).each(function(connection) {
+            Wicket.WebSocket.send("{ \"kind\":\"CHECK_CONNECTOR\", \"target\":\"" + connection.target.id + "\" }");
+	});
+	jsPlumb.select({scope:"RESOURCE"}).each(function(connection) {
+            Wicket.WebSocket.send("{ \"kind\":\"CHECK_RESOURCE\", \"target\":\"" + connection.target.id + "\" }");
+	});
     });
 }
 
 window.addEndpoint = function(source, target, scope) {
     var sourceElement = $('#' + source);
-    var element = sourceElement.clone();
-    element.attr('id', target);
-    element.removeAttr('data-original-title');
     
     var top = parseFloat(sourceElement.css("top")) + 10;
     var left = parseFloat(sourceElement.css("left")) - 150;
 
-    if(scope == 'RESOURCE'){
-	var style = 'topology_res';
-    }else{
-	var style = 'topology_conn';
-    }
-    
-    element.attr('class', 'window jsplumb-draggable _jsPlumb_endpoint_anchor_ ' + style);
-    
-    element.find('p').text(target);
-    
-    $('#drawing').append(element);
     setPosition(target, left, top);
-    
-    jsPlumb.draggable(element);
-    jsPlumb.connect({ source:source, target:target, scope:scope }, def);
+
+    jsPlumb.ready(function(){
+	jsPlumb.draggable(jsPlumb.getSelector("#" + target));
+	jsPlumb.connect({ source:source, target:target, scope:scope }, def);
+    });
 }
 
 jsPlumb.importDefaults({

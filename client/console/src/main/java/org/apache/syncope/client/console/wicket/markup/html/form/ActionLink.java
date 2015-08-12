@@ -21,14 +21,27 @@ package org.apache.syncope.client.console.wicket.markup.html.form;
 import java.io.Serializable;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 
-public abstract class ActionLink implements Serializable {
+public abstract class ActionLink<T> implements Serializable {
 
     private static final long serialVersionUID = 7031329706998320639L;
 
     private boolean reloadFeedbackPanel = true;
 
+    private T modelObject;
+
+    public ActionLink() {
+    }
+
+    public ActionLink(final T modelObject) {
+        this.modelObject = modelObject;
+    }
+
     public enum ActionType {
 
+        MAPPING("update"),
+        ACCOUNT_LINK("update"),
+        RESET_TIME("update"),
+        CLONE("create"),
         CREATE("create"),
         EDIT("read"),
         USER_TEMPLATE("read"),
@@ -69,7 +82,11 @@ public abstract class ActionLink implements Serializable {
         }
     }
 
-    public abstract void onClick(final AjaxRequestTarget target);
+    public T getModelObject() {
+        return modelObject;
+    }
+
+    public abstract void onClick(final AjaxRequestTarget target, final T modelObject);
 
     public void postClick() {
     }
@@ -78,7 +95,7 @@ public abstract class ActionLink implements Serializable {
         return reloadFeedbackPanel;
     }
 
-    public ActionLink feedbackPanelAutomaticReload(final boolean reloadFeedbackPanel) {
+    public ActionLink<T> feedbackPanelAutomaticReload(final boolean reloadFeedbackPanel) {
         this.reloadFeedbackPanel = reloadFeedbackPanel;
         return this;
     }

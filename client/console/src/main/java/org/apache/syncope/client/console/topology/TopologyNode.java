@@ -27,6 +27,7 @@ public class TopologyNode implements Serializable {
         RESOURCE,
         CONNECTOR,
         CONNECTOR_SERVER,
+        FS_PATH,
         SYNCOPE
 
     }
@@ -76,8 +77,8 @@ public class TopologyNode implements Serializable {
         return connectionDisplayName;
     }
 
-    public void setConnectinDisplayName(final String connectinDisplayName) {
-        this.connectionDisplayName = connectinDisplayName;
+    public void setConnectionDisplayName(final String connectionDisplayName) {
+        this.connectionDisplayName = connectionDisplayName;
     }
 
     public Kind getKind() {

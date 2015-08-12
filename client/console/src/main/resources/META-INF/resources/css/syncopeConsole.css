@@ -17,129 +17,134 @@
  * under the License.
  */
 .feedbackPanel {
-    padding-left: 0px;
-    text-align: center;
+  padding-left: 0px;
+  text-align: center;
 }
 
 .notificationpanel_row {  
-    list-style-type: none;
+  list-style-type: none;
 }  
 
 .notificationpanel_row span {  
-    border:0 none;
+  border:0 none;
 }    
 pre {
-    white-space: -moz-pre-wrap; /* Mozilla, supported since 1999 */
-    white-space: -pre-wrap; /* Opera */
-    white-space: -o-pre-wrap; /* Opera */
-    white-space: pre-wrap; /* CSS3 - Text module (Candidate Recommendation) http://www.w3.org/TR/css3-text/#white-space */
-    word-wrap: break-word; /* IE 5.5+ */
+  white-space: -moz-pre-wrap; /* Mozilla, supported since 1999 */
+  white-space: -pre-wrap; /* Opera */
+  white-space: -o-pre-wrap; /* Opera */
+  white-space: pre-wrap; /* CSS3 - Text module (Candidate Recommendation) http://www.w3.org/TR/css3-text/#white-space */
+  word-wrap: break-word; /* IE 5.5+ */
 }
 
 #veil {
-    display:none;
-    position:absolute;
-    top:0;
-    left:0;
-    z-index:99999;
-    background-color:black;
-    width:100%;
-    height:20000px;
-    color:white;
-    opacity:0.3;
-    filter:alpha(opacity=30);
+  display:none;
+  position:absolute;
+  top:0;
+  left:0;
+  z-index:99999;
+  background-color:black;
+  width:100%;
+  height:20000px;
+  color:white;
+  opacity:0.3;
+  filter:alpha(opacity=30);
 }
 
 #veil img {
-    position:absolute;
-    top:300px;
-    left:50%;
-    margin-left:-75px;
-    width:150px;
+  position:absolute;
+  top:300px;
+  left:50%;
+  margin-left:-75px;
+  width:150px;
 }
 
 .block-sidebar {
-    max-height: 100%; 
-    overflow: auto; 
-    padding-top: 90px; 
-    padding-bottom: 50px; 
-    position: fixed;
+  max-height: 100%; 
+  overflow: auto; 
+  padding-top: 90px; 
+  padding-bottom: 50px; 
+  position: fixed;
 }
 
 .inner-control-sidebar {
-    position: fixed; 
-    height: auto;
+  position: fixed; 
+  height: auto;
 }
 
 .content-margin-layout {
-    margin: 0px 230px 0px 0px !important;
-    padding: 20px !important;
+  margin: 0px 230px 0px 0px !important;
+  padding: 20px !important;
 }
 
 .admin-content-page {
-    padding: 20px;
-    background: #ecf0f5
+  padding: 20px;
+  background: #ecf0f5
 }
 
 .realms {
-    min-height: 554px
+  min-height: 554px
 }
 
 .actions > li > a {
-    padding-top: 5px !important;
-    padding-bottom: 5px !important;
+  padding-top: 5px !important;
+  padding-bottom: 5px !important;
+}
+
+div.listview-actions a{
+  float:left; 
+  padding-right:8px
 }
 
 .block-header {
-    position: fixed;
-    width: 100%;
-    top: 0;
+  position: fixed;
+  width: 100%;
+  top: 0;
 }
 
 .block-footer {
-    position: fixed;
-    width: 100%;
-    bottom: 0px;
+  position: fixed;
+  width: 100%;
+  bottom: 0px;
 }
 
 .logo-pos {
-    padding-top: 4px !important;
-    overflow: visible !important;
+  padding-top: 4px !important;
+  overflow: visible !important;
 }
 
 .angle {
-    border: medium none !important;
-    cursor: pointer;
-    display: inline-table !important;
-    float: right;
-    height: 30px;
-    overflow: hidden;
-    position: relative !important;
-    right: 0;
-    top: -30px;
-    width: 25%;
-    z-index: 3;
+  border: medium none !important;
+  cursor: pointer;
+  display: inline-table !important;
+  float: right;
+  height: 30px;
+  overflow: hidden;
+  position: relative !important;
+  right: 0;
+  top: -30px;
+  width: 25%;
+  z-index: 3;
 }
 
 @media (min-width: 768px) {
-    .main-header .logo {
-	height: 54px;
-    }
+  .main-header .logo {
+    height: 54px;
+  }
 }
 
 .w_caption h3 {
-    font-size: 16px;
+  font-size: 16px;
 }
 
 div.wicket-modal div.w_content_3 {
-    border: 1px solid #eee;
-    border-radius: 20px;
-    padding: 5px;
+  border: 1px solid #eee;
+  border-radius: 20px;
+  padding: 5px;
 }
 
 .tab-content {
-    margin-bottom: 10px;
-    margin-top: 10px;
+  margin-bottom: 10px;
+  margin-top: 10px;
 }
 
 a.help {

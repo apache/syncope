@@ -30,8 +30,11 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.BasePage;
+import org.apache.syncope.client.console.topology.Topology;
+import org.apache.syncope.client.console.topology.TopologyNode;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.CheckBoxMultipleChoiceFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.SpinnerFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.list.ConnConfPropertyListView;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -48,11 +51,11 @@ import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.CheckBoxMultipleChoice;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.list.ListView;
@@ -67,7 +70,7 @@ import org.apache.wicket.validation.validator.RangeValidator;
 /**
  * Modal window with Connector form.
  */
-public class ConnectorModal extends ModalContent {
+public class ConnectorModal extends AbstractResourceModal {
 
     private static final long serialVersionUID = -2025535531121434050L;
 
@@ -143,14 +146,14 @@ public class ConnectorModal extends ModalContent {
         connectorForm.add(displayName);
 
         final AjaxDropDownChoicePanel<String> location = new AjaxDropDownChoicePanel<>("location", "location",
-                new Model<>(bundleTO == null ? null : bundleTO.getLocation()));
+                new Model<>(bundleTO == null ? connInstanceTO.getLocation() : bundleTO.getLocation()));
         ((DropDownChoice<String>) location.getField()).setNullValid(true);
         location.setStyleSheet("long_dynamicsize");
         location.setChoices(new ArrayList<>(mapConnBundleTOs.keySet()));
         location.setRequired(true);
         location.addRequiredLabel();
         location.setOutputMarkupId(true);
-        location.setEnabled(connInstanceTO.getKey() == 0);
+        location.setEnabled(connInstanceTO.getKey() == 0 && StringUtils.isBlank(connInstanceTO.getLocation()));
         location.getField().setOutputMarkupId(true);
         connectorForm.add(location);
 
@@ -160,11 +163,12 @@ public class ConnectorModal extends ModalContent {
         ((DropDownChoice<String>) connectorName.getField()).setNullValid(true);
         connectorName.setStyleSheet("long_dynamicsize");
         connectorName.setChoices(bundleTO == null
-                ? new ArrayList<String>()
-                : new ArrayList<>(mapConnBundleTOs.get(connInstanceTO.getLocation()).keySet()));
+                ? StringUtils.isBlank(connInstanceTO.getLocation())
+                        ? new ArrayList<String>()
+                        : new ArrayList<>(mapConnBundleTOs.get(connInstanceTO.getLocation()).keySet())
+                : new ArrayList<>(mapConnBundleTOs.get(bundleTO.getLocation()).keySet()));
         connectorName.setRequired(true);
         connectorName.addRequiredLabel();
-        connectorName.setEnabled(connInstanceTO.getLocation() != null);
         connectorName.setOutputMarkupId(true);
         connectorName.setEnabled(connInstanceTO.getKey() == 0);
         connectorName.getField().setOutputMarkupId(true);
@@ -176,7 +180,7 @@ public class ConnectorModal extends ModalContent {
         version.setChoices(bundleTO == null
                 ? new ArrayList<String>()
                 : new ArrayList<>(mapConnBundleTOs.get(connInstanceTO.getLocation()).
-                get(connInstanceTO.getBundleName()).keySet()));
+                        get(connInstanceTO.getBundleName()).keySet()));
         version.setRequired(true);
         version.addRequiredLabel();
         version.setEnabled(connInstanceTO.getBundleName() != null);
@@ -313,19 +317,20 @@ public class ConnectorModal extends ModalContent {
         connectorPropForm.add(check);
 
         // form - third tab (capabilities)
-        final IModel<List<ConnectorCapability>> capabilities =
-                new LoadableDetachableModel<List<ConnectorCapability>>() {
+        final IModel<List<ConnectorCapability>> capabilities
+                = new LoadableDetachableModel<List<ConnectorCapability>>() {
 
-            private static final long serialVersionUID = 5275935387613157437L;
+                    private static final long serialVersionUID = 5275935387613157437L;
 
-            @Override
-            protected List<ConnectorCapability> load() {
-                return Arrays.asList(ConnectorCapability.values());
-            }
-        };
-        CheckBoxMultipleChoice<ConnectorCapability> capabilitiesPalette = new CheckBoxMultipleChoice<>(
-                "capabilitiesPalette",
-                new PropertyModel<List<ConnectorCapability>>(this, "selectedCapabilities"), capabilities);
+                    @Override
+                    protected List<ConnectorCapability> load() {
+                        return Arrays.asList(ConnectorCapability.values());
+                    }
+                };
+        CheckBoxMultipleChoiceFieldPanel<ConnectorCapability> capabilitiesPalette
+                = new CheckBoxMultipleChoiceFieldPanel<>(
+                        "capabilitiesPalette",
+                        new PropertyModel<List<ConnectorCapability>>(this, "selectedCapabilities"), capabilities);
 
         capabilitiesPalette.add(new AjaxFormChoiceComponentUpdatingBehavior() {
 
@@ -373,6 +378,13 @@ public class ConnectorModal extends ModalContent {
                 try {
                     if (connInstanceTO.getKey() == 0) {
                         connectorRestClient.create(conn);
+                        send(pageRef.getPage(), Broadcast.BREADTH, new CreateEvent(
+                                conn.getKey(),
+                                conn.getDisplayName(),
+                                TopologyNode.Kind.CONNECTOR,
+                                conn.getLocation().startsWith(Topology.CONNECTOR_SERVER_LOCATION_PREFIX)
+                                        ? conn.getLocation() : Topology.ROOT_NAME,
+                                target));
                     } else {
                         connectorRestClient.update(conn);
                     }

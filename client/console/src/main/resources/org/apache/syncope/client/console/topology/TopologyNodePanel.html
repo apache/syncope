@@ -19,41 +19,44 @@ under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
   <wicket:panel>
-    <div class="node-action-link btn-group">
-      <a href="javascript:void(0);" data-toggle="dropdown">
-        <i class="fa fa-sliders"></i>
-      </a>
-      <wicket:container wicket:id="actions" />
-    </div>
-
+    <wicket:container wicket:id="actions" />
     <p class="text-center text-primary" wicket:id="label"/>
 
-    <wicket:fragment wicket:id="connectorWithResourceActions">
-      <ul role="menu" class="dropdown-menu">
-        <li><a href="#"><i class="fa fa-plus"></i></a></li>
-        <li><a href="#"><i class="fa fa-pencil"></i></a></li>
-      </ul>
-    </wicket:fragment>
-
-    <wicket:fragment wicket:id="connectorWithNoResourceActions">
-      <ul role="menu" class="dropdown-menu">
-        <li><a href="#" wicket:id="create"><i class="fa fa-plus"></i></a></li>
-        <li><a href="#" wicket:id="delete"><i class="fa fa-minus"></i></a></li>
-        <li><a href="#" wicket:id="edit"><i class="fa fa-pencil"></i></a></li>
-      </ul>
+    <wicket:fragment wicket:id="connectorActions">
+      <div class="node-action-link btn-group">
+        <a href="javascript:void(0);" data-toggle="dropdown">
+          <i class="fa fa-sliders"></i>
+        </a>
+        <ul role="menu" class="dropdown-menu">
+          <li><a href="#" wicket:id="create"><i class="fa fa-plus"></i></a></li>
+          <li><a href="#" wicket:id="delete"><i class="fa fa-minus"></i></a></li>
+          <li><a href="#" wicket:id="edit"><i class="fa fa-pencil"></i></a></li>
+        </ul>
+      </div>
     </wicket:fragment>
 
     <wicket:fragment wicket:id="resourceActions">
-      <ul role="menu" class="dropdown-menu">
-        <li><a href="#" wicket:id="delete"><i class="fa fa-minus"></i></a></li>
-        <li><a href="#" wicket:id="edit"><i class="fa fa-pencil"></i></a></li>
-      </ul>
+      <div class="node-action-link btn-group">
+        <a href="javascript:void(0);" data-toggle="dropdown">
+          <i class="fa fa-sliders"></i>
+        </a>
+        <ul role="menu" class="dropdown-menu">
+          <li><a href="#" wicket:id="delete"><i class="fa fa-minus"></i></a></li>
+          <li><a href="#" wicket:id="edit"><i class="fa fa-pencil"></i></a></li>
+        </ul>
+      </div>
     </wicket:fragment>
 
-    <wicket:fragment wicket:id="syncopeActions">
-      <ul role="menu" class="dropdown-menu">
-        <li><a href="#"><i class="fa fa-plus"></i></a></li>
-      </ul>
+    <wicket:fragment wicket:id="locationActions">
+      <div class="node-action-link btn-group">
+        <a href="javascript:void(0);" data-toggle="dropdown">
+          <i class="fa fa-sliders"></i>
+        </a>
+        <ul role="menu" class="dropdown-menu">
+          <li><a href="#" wicket:id="create"><i class="fa fa-plus"></i></a></li>
+        </ul>
+      </div>
     </wicket:fragment>
+    <wicket:fragment wicket:id="syncopeActions" />
   </wicket:panel>
 </html>

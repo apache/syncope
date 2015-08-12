@@ -120,9 +120,9 @@ public class ResourceMappingPanel extends Panel {
     private final ResourceTO resourceTO;
 
     /**
-     * User / group.
+     * External resource provisioning configuration instance to be updated.
      */
-    private final AnyTypeKind anyTypeKind;
+    private final ProvisionTO provisionTO;
 
     /**
      * Mapping container.
@@ -134,31 +134,26 @@ public class ResourceMappingPanel extends Panel {
     private final AjaxCheckBoxPanel connObjectLinkCheckbox;
 
     private MappingTO getMapping() {
-        ProvisionTO provision = resourceTO.getProvision(this.anyTypeKind.name());
-        if (provision == null) {
-            provision = new ProvisionTO();
-            resourceTO.getProvisions().add(provision);
-        }
-        if (provision.getMapping() == null) {
-            provision.setMapping(new MappingTO());
+        if (provisionTO.getMapping() == null) {
+            provisionTO.setMapping(new MappingTO());
         }
 
-        return provision.getMapping();
+        return provisionTO.getMapping();
     }
 
     /**
      * Attribute Mapping Panel.
      *
      * @param id panel id
-     * @param resourceTO external resource
-     * @param anyTypeKind USER / GROUP
+     * @param resourceTO external resource to be updated.
+     * @param provisionTO external resource provisioning configuration instance.
      */
-    public ResourceMappingPanel(final String id, final ResourceTO resourceTO, final AnyTypeKind anyTypeKind) {
+    public ResourceMappingPanel(final String id, final ResourceTO resourceTO, final ProvisionTO provisionTO) {
         super(id);
         setOutputMarkupId(true);
 
         this.resourceTO = resourceTO;
-        this.anyTypeKind = anyTypeKind;
+        this.provisionTO = provisionTO == null ? new ProvisionTO() : provisionTO;
 
         this.mappingContainer = new WebMarkupContainer("mappingContainer");
         this.mappingContainer.setOutputMarkupId(true);
@@ -168,9 +163,8 @@ public class ResourceMappingPanel extends Panel {
         this.connObjectLinkContainer.setOutputMarkupId(true);
         add(this.connObjectLinkContainer);
 
-        if (this.resourceTO.getConnector() != null && this.resourceTO.getConnector() > 0) {
-            schemaNames = getSchemaNames(this.resourceTO.getConnector(), this.resourceTO.getConnConfProperties());
-
+        if (resourceTO.getConnector() != null && resourceTO.getConnector() > 0) {
+            schemaNames = getSchemaNames(resourceTO.getConnector(), resourceTO.getConnConfProperties());
             setEnabled();
         } else {
             schemaNames = Collections.<String>emptyList();
@@ -184,7 +178,8 @@ public class ResourceMappingPanel extends Panel {
 
         final Label passwordLabel = new Label("passwordLabel", new ResourceModel("password"));
         mappingContainer.add(passwordLabel);
-        if (AnyTypeKind.USER != ResourceMappingPanel.this.anyTypeKind) {
+
+        if (!AnyTypeKind.USER.name().equals(this.provisionTO.getAnyType())) {
             passwordLabel.setVisible(false);
         }
 
@@ -284,9 +279,9 @@ public class ResourceMappingPanel extends Panel {
                     }
                 });
 
-                final AjaxDropDownChoicePanel<String> intAttrNames =
-                        new AjaxDropDownChoicePanel<>("intAttrNames", getString("intAttrNames"),
-                                new PropertyModel<String>(mapItem, "intAttrName"), false);
+                final AjaxDropDownChoicePanel<String> intAttrNames = new AjaxDropDownChoicePanel<>("intAttrNames",
+                        getString("intAttrNames"),
+                        new PropertyModel<String>(mapItem, "intAttrName"), false);
                 intAttrNames.setChoices(schemaNames);
                 intAttrNames.setRequired(true);
                 intAttrNames.setStyleSheet(FIELD_STYLE);
@@ -301,22 +296,23 @@ public class ResourceMappingPanel extends Panel {
                 item.add(intAttrNames);
 
                 final List<IntMappingType> attrTypes = new ArrayList<>(getAttributeTypes(entity));
-                final AjaxDropDownChoicePanel<IntMappingType> intMappingTypes =
-                        new AjaxDropDownChoicePanel<>("intMappingTypes",
-                                new ResourceModel("intMappingTypes", "intMappingTypes").getObject(),
-                                new PropertyModel<IntMappingType>(mapItem, "intMappingType"));
+                final AjaxDropDownChoicePanel<IntMappingType> intMappingTypes = new AjaxDropDownChoicePanel<>(
+                        "intMappingTypes",
+                        new ResourceModel("intMappingTypes", "intMappingTypes").getObject(),
+                        new PropertyModel<IntMappingType>(mapItem, "intMappingType"));
                 intMappingTypes.setRequired(true);
                 intMappingTypes.setChoices(attrTypes);
                 intMappingTypes.setStyleSheet(FIELD_STYLE);
                 item.add(intMappingTypes);
 
-                final AjaxDropDownChoicePanel<AnyTypeKind> entitiesPanel =
-                        new AjaxDropDownChoicePanel<>("entities",
-                                new ResourceModel("entities", "entities").getObject(),
-                                new Model<>(entity));
-                entitiesPanel.setChoices(anyTypeKind == AnyTypeKind.GROUP
+                final AjaxDropDownChoicePanel<AnyTypeKind> entitiesPanel = new AjaxDropDownChoicePanel<>("entities",
+                        new ResourceModel("entities", "entities").getObject(),
+                        new Model<>(entity));
+
+                entitiesPanel.setChoices(provisionTO.getAnyType().equals(AnyTypeKind.GROUP.name())
                         ? Collections.<AnyTypeKind>singletonList(AnyTypeKind.GROUP)
                         : Arrays.asList(AnyTypeKind.values()));
+
                 entitiesPanel.setStyleSheet(DEF_FIELD_STYLE);
                 entitiesPanel.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
@@ -399,7 +395,7 @@ public class ResourceMappingPanel extends Panel {
                     }
                 });
                 item.add(password);
-                if (AnyTypeKind.USER != ResourceMappingPanel.this.anyTypeKind) {
+                if (!AnyTypeKind.USER.name().equals(provisionTO.getAnyType())) {
                     password.setVisible(false);
                 }
 
@@ -446,7 +442,7 @@ public class ResourceMappingPanel extends Panel {
             }
         };
         addMappingBtn.setDefaultFormProcessing(false);
-        addMappingBtn.setEnabled(this.resourceTO.getConnector() != null && this.resourceTO.getConnector() > 0);
+        addMappingBtn.setEnabled(resourceTO.getConnector() != null && resourceTO.getConnector() > 0);
         mappingContainer.add(addMappingBtn);
 
         boolean connObjectLinkEnabled = false;
@@ -495,10 +491,10 @@ public class ResourceMappingPanel extends Panel {
 
     private void setEnabled() {
         ConnInstanceTO connInstanceTO = new ConnInstanceTO();
-        connInstanceTO.setKey(this.resourceTO.getConnector());
-        connInstanceTO.getConfiguration().addAll(this.resourceTO.getConnConfProperties());
+        connInstanceTO.setKey(resourceTO.getConnector());
+        connInstanceTO.getConfiguration().addAll(resourceTO.getConnConfProperties());
 
-        boolean enabled = resourceTO.getProvision(anyTypeKind.name()) != null;
+        boolean enabled = provisionTO != null;
 
         this.mappingContainer.setEnabled(enabled);
         this.mappingContainer.setVisible(enabled);
