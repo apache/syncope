@@ -27,6 +27,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.to.DomainTO;
 import org.apache.syncope.common.lib.types.Entitlement;
+import org.apache.syncope.core.persistence.api.DomainsHolder;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.DomainDAO;
 import org.apache.syncope.core.persistence.api.entity.Domain;
@@ -37,6 +38,9 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class DomainLogic extends AbstractTransactionalLogic<DomainTO> {
+
+    @Autowired
+    private DomainsHolder domainsHolder;
 
     @Autowired
     private DomainDataBinder binder;
@@ -57,8 +61,7 @@ public class DomainLogic extends AbstractTransactionalLogic<DomainTO> {
         return binder.getDomainTO(domain);
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.DOMAIN_LIST + "') and authentication.details.domain == "
-            + "T(org.apache.syncope.common.lib.SyncopeConstants).MASTER_DOMAIN")
+    @PreAuthorize("isAuthenticated()")
     public List<DomainTO> list() {
         return CollectionUtils.collect(domainDAO.findAll(), new Transformer<Domain, DomainTO>() {
 
@@ -72,6 +75,10 @@ public class DomainLogic extends AbstractTransactionalLogic<DomainTO> {
     @PreAuthorize("hasRole('" + Entitlement.DOMAIN_CREATE + "') and authentication.details.domain == "
             + "T(org.apache.syncope.common.lib.SyncopeConstants).MASTER_DOMAIN")
     public DomainTO create(final DomainTO domainTO) {
+        if (!domainsHolder.getDomains().keySet().contains(domainTO.getKey())) {
+            throw new NotFoundException("No configuration is available for domain '" + domainTO.getKey());
+        }
+
         return binder.getDomainTO(domainDAO.save(binder.create(domainTO)));
     }
 

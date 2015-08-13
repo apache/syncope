@@ -24,9 +24,8 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.springframework.stereotype.Component;
 
 @Component
-public class PasswordPolicyEnforcer implements PolicyEnforcer<PasswordPolicySpec, User> {
+public class PasswordPolicyEnforcer {
 
-    @Override
     public boolean enforce(final PasswordPolicySpec policy, final PolicyType type, final User user) {
         final String clearPassword = user.getClearPassword();
         final String password = user.getPassword();

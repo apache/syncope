@@ -28,8 +28,6 @@ public final class Entitlement {
 
     public static final String ANONYMOUS = "ANONYMOUS";
 
-    public static final String DOMAIN_LIST = "DOMAIN_LIST";
-
     public static final String DOMAIN_CREATE = "DOMAIN_CREATE";
 
     public static final String DOMAIN_READ = "DOMAIN_READ";

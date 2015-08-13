@@ -56,6 +56,7 @@ import org.apache.syncope.common.rest.api.service.AnyTypeService;
 import org.apache.syncope.common.rest.api.service.CamelRouteService;
 import org.apache.syncope.common.rest.api.service.ConfigurationService;
 import org.apache.syncope.common.rest.api.service.ConnectorService;
+import org.apache.syncope.common.rest.api.service.DomainService;
 import org.apache.syncope.common.rest.api.service.LoggerService;
 import org.apache.syncope.common.rest.api.service.NotificationService;
 import org.apache.syncope.common.rest.api.service.PolicyService;
@@ -86,20 +87,15 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @ContextConfiguration(locations = { "classpath:testJDBCContext.xml" })
 public abstract class AbstractITCase {
 
-    /**
-     * Logger.
-     */
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractITCase.class);
 
     protected static final String ADMIN_UNAME = "admin";
 
     protected static final String ADMIN_PWD = "password";
 
-    private static final String ADDRESS = "http://localhost:9080/syncope/rest";
+    protected static final String ADDRESS = "http://localhost:9080/syncope/rest";
 
-    private static final String ENV_KEY_CONTENT_TYPE = "jaxrsContentType";
-
-    protected static final SyncopeClientFactoryBean clientFactory = new SyncopeClientFactoryBean().setAddress(ADDRESS);
+    protected static final String ENV_KEY_CONTENT_TYPE = "jaxrsContentType";
 
     protected static final String RESOURCE_NAME_WS1 = "ws-target-resource-1";
 
@@ -151,9 +147,13 @@ public abstract class AbstractITCase {
 
     protected static String ANONYMOUS_KEY;
 
+    protected static SyncopeClientFactoryBean clientFactory;
+
     protected static SyncopeClient adminClient;
 
     protected static SyncopeService syncopeService;
+
+    protected static DomainService domainService;
 
     protected static AnyTypeClassService anyTypeClassService;
 
@@ -224,7 +224,9 @@ public abstract class AbstractITCase {
 
     @BeforeClass
     public static void restSetup() {
-        final String envContentType = System.getProperty(ENV_KEY_CONTENT_TYPE);
+        clientFactory = new SyncopeClientFactoryBean().setAddress(ADDRESS);
+
+        String envContentType = System.getProperty(ENV_KEY_CONTENT_TYPE);
         if (StringUtils.isNotBlank(envContentType)) {
             clientFactory.setContentType(envContentType);
         }
@@ -233,6 +235,7 @@ public abstract class AbstractITCase {
         adminClient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
 
         syncopeService = adminClient.getService(SyncopeService.class);
+        domainService = adminClient.getService(DomainService.class);
         anyTypeClassService = adminClient.getService(AnyTypeClassService.class);
         anyTypeService = adminClient.getService(AnyTypeService.class);
         relationshipTypeService = adminClient.getService(RelationshipTypeService.class);

@@ -19,19 +19,27 @@
 package org.apache.syncope.client.console;
 
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.MediaType;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Transformer;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
+import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.to.DomainTO;
 import org.apache.syncope.common.lib.to.SyncopeTO;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.rest.api.service.DomainService;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.wicket.Session;
 import org.apache.wicket.authroles.authentication.AuthenticatedWebSession;
@@ -51,11 +59,15 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
 
     private static final Logger LOG = LoggerFactory.getLogger(SyncopeConsoleSession.class);
 
-    private final SyncopeClientFactoryBean clientFactory;
-
     private final String version;
 
     private final SyncopeTO syncopeTO;
+
+    private final List<String> domains;
+
+    private String domain;
+
+    private final SyncopeClientFactoryBean clientFactory;
 
     private final Map<Class<?>, Object> services = Collections.synchronizedMap(new HashMap<Class<?>, Object>());
 
@@ -88,7 +100,18 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
 
         version = ctx.getBean("version", String.class);
 
-        syncopeTO = clientFactory.create(anonymousUser, anonymousKey).getService(SyncopeService.class).info();
+        SyncopeClient anonymousClient = clientFactory.create(anonymousUser, anonymousKey);
+        syncopeTO = anonymousClient.getService(SyncopeService.class).info();
+        domains = new ArrayList<>();
+        domains.add(SyncopeConstants.MASTER_DOMAIN);
+        CollectionUtils.collect(anonymousClient.getService(DomainService.class).list(),
+                new Transformer<DomainTO, String>() {
+
+                    @Override
+                    public String transform(final DomainTO domain) {
+                        return domain.getKey();
+                    }
+                }, domains);
     }
 
     public String getVersion() {
@@ -99,12 +122,24 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
         return syncopeTO;
     }
 
+    public List<String> getDomains() {
+        return domains;
+    }
+
+    public void setDomain(final String domain) {
+        this.domain = domain;
+    }
+
+    public String getDomain() {
+        return StringUtils.isBlank(domain) ? SyncopeConstants.MASTER_DOMAIN : domain;
+    }
+
     @Override
     public boolean authenticate(final String username, final String password) {
         boolean authenticated = false;
 
         try {
-            client = clientFactory.create(username, password);
+            client = clientFactory.setDomain(getDomain()).create(username, password);
 
             Pair<Map<String, Set<String>>, UserTO> self = client.self();
             auth = self.getKey();

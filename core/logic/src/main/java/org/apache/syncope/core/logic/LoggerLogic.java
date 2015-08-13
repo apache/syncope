@@ -99,7 +99,8 @@ public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
         }, new ArrayList<LoggerTO>());
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.LOG_LIST + "')")
+    @PreAuthorize("hasRole('" + Entitlement.LOG_LIST + "') and authentication.details.domain == "
+            + "T(org.apache.syncope.common.lib.SyncopeConstants).MASTER_DOMAIN")
     @Transactional(readOnly = true)
     public List<LoggerTO> listLogs() {
         return list(LoggerType.LOG);
@@ -165,7 +166,8 @@ public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
         return result;
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.LOG_SET_LEVEL + "')")
+    @PreAuthorize("hasRole('" + Entitlement.LOG_SET_LEVEL + "') and authentication.details.domain == "
+            + "T(org.apache.syncope.common.lib.SyncopeConstants).MASTER_DOMAIN")
     public LoggerTO setLogLevel(final String name, final Level level) {
         return setLevel(name, level, LoggerType.LOG);
     }
@@ -206,7 +208,8 @@ public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
         return loggerToDelete;
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.LOG_DELETE + "')")
+    @PreAuthorize("hasRole('" + Entitlement.LOG_DELETE + "') and authentication.details.domain == "
+            + "T(org.apache.syncope.common.lib.SyncopeConstants).MASTER_DOMAIN")
     public LoggerTO deleteLog(final String name) {
         return delete(name, LoggerType.LOG);
     }

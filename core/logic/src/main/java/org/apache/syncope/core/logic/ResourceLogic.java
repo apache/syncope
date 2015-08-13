@@ -50,7 +50,6 @@ import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
-import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
@@ -88,9 +87,6 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
 
     @Autowired
     private ConnectorFactory connFactory;
-
-    @Autowired
-    private AnyUtilsFactory anyUtilsFactory;
 
     @PreAuthorize("hasRole('" + Entitlement.RESOURCE_CREATE + "')")
     public ResourceTO create(final ResourceTO resourceTO) {

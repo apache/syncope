@@ -44,7 +44,6 @@ import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.DomainDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
-import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Domain;
@@ -59,6 +58,7 @@ import org.identityconnectors.framework.common.objects.Uid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -110,7 +110,7 @@ public class AuthDataAccessor {
     public Domain findDomain(final String key) {
         Domain domain = domainDAO.find(key);
         if (domain == null) {
-            throw new NotFoundException("Could not find domain " + key);
+            throw new AuthenticationServiceException("Could not find domain " + key);
         }
         return domain;
     }

@@ -193,7 +193,7 @@ public class ConnectorITCase extends AbstractITCase {
         assertNotNull(actual);
         assertEquals(EnumSet.of(ConnectorCapability.ONE_PHASE_CREATE, ConnectorCapability.TWO_PHASES_CREATE),
                 actual.getCapabilities());
-        assertEquals(10, actual.getPoolConf().getMaxObjects().intValue());
+        assertEquals(10, actual.getPoolConf().getMaxObjects(), 0);
 
         // check also for the deletion of the created object
         try {
@@ -232,7 +232,7 @@ public class ConnectorITCase extends AbstractITCase {
         connectorTO.setConnRequestTimeout(20);
 
         // set the connector configuration using PropertyTO
-        Set<ConnConfProperty> conf = new HashSet<ConnConfProperty>();
+        Set<ConnConfProperty> conf = new HashSet<>();
 
         ConnConfPropSchema endpointSchema = new ConnConfPropSchema();
         endpointSchema.setName("endpoint");
@@ -685,7 +685,7 @@ public class ConnectorITCase extends AbstractITCase {
 
     @Test
     public void bulkAction() {
-        final BulkAction bulkAction = new BulkAction();
+        BulkAction bulkAction = new BulkAction();
         bulkAction.setType(BulkAction.Type.DELETE);
 
         ConnInstanceTO conn = connectorService.read(101L);
@@ -727,7 +727,6 @@ public class ConnectorITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE605() {
-
         ConnInstanceTO connectorInstanceTO = connectorService.read(103L);
         assertTrue(connectorInstanceTO.getCapabilities().isEmpty());
 

@@ -56,9 +56,7 @@ public class PasswordGenerator {
     @Autowired
     private RealmDAO realmDAO;
 
-    public String generate(final List<PasswordPolicySpec> ppSpecs)
-            throws InvalidPasswordPolicySpecException {
-
+    public String generate(final List<PasswordPolicySpec> ppSpecs) throws InvalidPasswordPolicySpecException {
         PasswordPolicySpec policySpec = merge(ppSpecs);
 
         check(policySpec);

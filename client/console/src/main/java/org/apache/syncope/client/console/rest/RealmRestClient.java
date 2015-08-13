@@ -25,7 +25,7 @@ import org.apache.syncope.common.rest.api.service.RealmService;
 import org.springframework.stereotype.Component;
 
 /**
- * Console client for invoking Rest Group's services.
+ * Console client for invoking REST Realm's services.
  */
 @Component
 public class RealmRestClient extends BaseRestClient {

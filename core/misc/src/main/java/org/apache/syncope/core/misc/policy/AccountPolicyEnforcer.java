@@ -25,11 +25,10 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.springframework.stereotype.Component;
 
 @Component
-public class AccountPolicyEnforcer implements PolicyEnforcer<AccountPolicySpec, User> {
+public class AccountPolicyEnforcer {
 
     private static final Pattern DEFAULT_PATTERN = Pattern.compile("[a-zA-Z0-9-_@. ]+");
 
-    @Override
     public boolean enforce(final AccountPolicySpec policy, final PolicyType type, final User user) {
         if (user.getUsername() == null) {
             throw new PolicyEnforceException("Invalid account");

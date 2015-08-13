@@ -163,7 +163,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
                     page(1).size(1).build()).getTotalCount();
             assertNotNull(usersPre);
 
-            execProvisioningTask(SYNC_TASK_ID, 50, false);
+            execProvisioningTask(taskService, SYNC_TASK_ID, 50, false);
 
             // after execution of the sync task the user data should have been synced from CSV
             // and processed by user template
@@ -234,7 +234,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
             Set<Long> otherSyncTaskKeys = new HashSet<>();
             otherSyncTaskKeys.add(25L);
             otherSyncTaskKeys.add(26L);
-            execProvisioningTasks(otherSyncTaskKeys, 50, false);
+            execProvisioningTasks(taskService, otherSyncTaskKeys, 50, false);
 
             // Matching --> UNLINK
             assertFalse(readUser("test9").getResources().contains(RESOURCE_NAME_CSV));
@@ -246,7 +246,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void dryRun() {
-        TaskExecTO execution = execProvisioningTask(SYNC_TASK_ID, 50, true);
+        TaskExecTO execution = execProvisioningTask(taskService, SYNC_TASK_ID, 50, true);
         assertEquals("Execution of task " + execution.getTask() + " failed with message " + execution.getMessage(),
                 "SUCCESS", execution.getStatus());
     }
@@ -254,7 +254,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
     @Test
     public void reconcileFromDB() {
         // update sync task
-        TaskExecTO execution = execProvisioningTask(7L, 50, false);
+        TaskExecTO execution = execProvisioningTask(taskService, 7L, 50, false);
         assertNotNull(execution.getStatus());
         assertTrue(PropagationTaskExecStatus.valueOf(execution.getStatus()).isSuccessful());
 
@@ -268,7 +268,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         jdbcTemplate.execute("UPDATE TEST SET STATUS=TRUE");
 
         // re-execute the same SyncTask: now user must be active
-        execution = execProvisioningTask(7L, 50, false);
+        execution = execProvisioningTask(taskService, 7L, 50, false);
         assertNotNull(execution.getStatus());
         assertTrue(PropagationTaskExecStatus.valueOf(execution.getStatus()).isSuccessful());
 
@@ -313,14 +313,14 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         ldapCleanup();
 
         // 0. synchronize
-        TaskExecTO execution = execProvisioningTask(11L, 50, false);
+        TaskExecTO execution = execProvisioningTask(taskService, 11L, 50, false);
 
         // 1. verify execution status
         String status = execution.getStatus();
         assertNotNull(status);
         assertTrue(PropagationTaskExecStatus.valueOf(status).isSuccessful());
 
-        // 2. verify that synchronized group is found, with expected attributes
+        // 2. verify that synchronized group is found
         PagedResult<GroupTO> matchingGroups = groupService.search(
                 SyncopeClient.getAnySearchQueryBuilder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getGroupSearchConditionBuilder().is("name").equalTo("testLDAPGroup").query()).
@@ -328,6 +328,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         assertNotNull(matchingGroups);
         assertEquals(1, matchingGroups.getResult().size());
 
+        // 3. verify that synchronized user is found
         PagedResult<UserTO> matchingUsers = userService.search(
                 SyncopeClient.getAnySearchQueryBuilder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("syncFromLDAP").query()).
@@ -351,7 +352,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         assertNull(groupTO.getGroupOwner());
 
         // SYNCOPE-317
-        execProvisioningTask(11L, 50, false);
+        execProvisioningTask(taskService, 11L, 50, false);
     }
 
     @Test
@@ -383,7 +384,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         }
 
         // 3. synchronize
-        execProvisioningTask(28L, 50, false);
+        execProvisioningTask(taskService, 28L, 50, false);
 
         // 4. verify that printer was re-created in Syncope
         matchingPrinters = anyObjectService.search(
@@ -456,7 +457,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
             assertFalse(actual.getTemplates().get(AnyTypeKind.USER.name()).getResources().isEmpty());
             assertFalse(((UserTO) actual.getTemplates().get(AnyTypeKind.USER.name())).getMemberships().isEmpty());
 
-            TaskExecTO execution = execProvisioningTask(actual.getKey(), 50, false);
+            TaskExecTO execution = execProvisioningTask(taskService, actual.getKey(), 50, false);
             final String status = execution.getStatus();
             assertNotNull(status);
             assertTrue(PropagationTaskExecStatus.valueOf(status).isSuccessful());
@@ -475,7 +476,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
     @Test
     public void issueSYNCOPE230() {
         // 1. read SyncTask for resource-db-sync (table TESTSYNC on external H2)
-        execProvisioningTask(10L, 50, false);
+        execProvisioningTask(taskService, 10L, 50, false);
 
         // 3. read e-mail address for user created by the SyncTask first execution
         UserTO userTO = readUser("issuesyncope230");
@@ -488,7 +489,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         jdbcTemplate.execute("UPDATE TESTSYNC SET email='updatedSYNCOPE230@syncope.apache.org'");
 
         // 5. re-execute the SyncTask
-        execProvisioningTask(10L, 50, false);
+        execProvisioningTask(taskService, 10L, 50, false);
 
         // 6. verify that the e-mail was updated
         userTO = readUser("issuesyncope230");
@@ -550,7 +551,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
 
         userService.update(userMod);
 
-        execProvisioningTask(actual.getKey(), 50, false);
+        execProvisioningTask(taskService, actual.getKey(), 50, false);
 
         SyncTaskTO executed = taskService.read(actual.getKey());
         assertEquals(1, executed.getExecutions().size());
@@ -574,7 +575,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
             assertEquals(1, userTO.getPropagationStatusTOs().size());
             assertTrue(userTO.getPropagationStatusTOs().get(0).getStatus().isSuccessful());
 
-            TaskExecTO taskExecTO = execProvisioningTask(24L, 50, false);
+            TaskExecTO taskExecTO = execProvisioningTask(taskService, 24L, 50, false);
 
             assertNotNull(taskExecTO.getStatus());
             assertTrue(PropagationTaskExecStatus.valueOf(taskExecTO.getStatus()).isSuccessful());
@@ -623,7 +624,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         task.getTemplates().put(AnyTypeKind.USER.name(), template);
 
         taskService.update(task);
-        execProvisioningTask(task.getKey(), 50, false);
+        execProvisioningTask(taskService, task.getKey(), 50, false);
 
         // check for sync policy
         userTO = userService.read(userTO.getKey());
@@ -680,7 +681,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         assertEquals(actual.getKey(), syncTask.getKey());
         assertEquals(actual.getJobDelegateClassName(), syncTask.getJobDelegateClassName());
 
-        TaskExecTO execution = execProvisioningTask(syncTask.getKey(), 50, false);
+        TaskExecTO execution = execProvisioningTask(taskService, syncTask.getKey(), 50, false);
         final String status = execution.getStatus();
         assertNotNull(status);
         assertTrue(PropagationTaskExecStatus.valueOf(status).isSuccessful());
@@ -757,7 +758,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         assertEquals(actual.getKey(), syncTask.getKey());
         assertEquals(actual.getJobDelegateClassName(), syncTask.getJobDelegateClassName());
 
-        TaskExecTO execution = execProvisioningTask(syncTask.getKey(), 50, false);
+        TaskExecTO execution = execProvisioningTask(taskService, syncTask.getKey(), 50, false);
         String status = execution.getStatus();
         assertNotNull(status);
         assertTrue(PropagationTaskExecStatus.valueOf(status).isSuccessful());
