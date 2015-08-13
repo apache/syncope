@@ -53,31 +53,31 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.ReflectionUtils;
 
 public class AnySearchResultPanel extends AbstractSearchResultPanel {
-    
+
     private static final long serialVersionUID = -1100228004207271270L;
-    
+
     protected static final Logger LOG = LoggerFactory.getLogger(AnySearchResultPanel.class);
-    
+
     private String customMarkupId;
-    
+
     @SpringBean
     protected SchemaRestClient schemaRestClient;
-    
+
     protected final List<String> schemaNames;
-    
+
     protected final List<String> dSchemaNames;
-    
+
     protected final String pageID = "Any";
-    
+
     private final String entitlement = "USER_LIST";
-    
+
     public AnySearchResultPanel(final String type, final String parentId, final String markupId, final boolean filtered,
             final String fiql, final PageReference callerRef, final AbstractAnyRestClient restClient,
             final List<AnyTypeClassTO> anyTypeClassTOs, final String realm) {
         super(parentId, filtered, fiql, callerRef, restClient, realm, type);
         setCustomMarkupId(markupId);
         add(new Label("name", type));
-        
+
         this.schemaNames = new ArrayList<String>();
         for (AnyTypeClassTO anyTypeClassTO : anyTypeClassTOs) {
             this.schemaNames.addAll(anyTypeClassTO.getPlainSchemas());
@@ -86,27 +86,27 @@ public class AnySearchResultPanel extends AbstractSearchResultPanel {
         for (AnyTypeClassTO anyTypeClassTO : anyTypeClassTOs) {
             this.dSchemaNames.addAll(anyTypeClassTO.getDerSchemas());
         }
-        
+
         initResultTable();
     }
-    
+
     public String getCustomMarkupId() {
         return customMarkupId;
     }
-    
+
     public void setCustomMarkupId(final String markupId) {
         this.customMarkupId = markupId;
     }
-    
+
     @Override
     protected List<IColumn<AnyTO, String>> getColumns() {
-        
+
         final List<IColumn<AnyTO, String>> columns =
                 new ArrayList<IColumn<AnyTO, String>>();
-        
+
         for (String name : prefMan.getList(getRequest(), Constants.PREF_ANY_DETAILS_VIEW)) {
             final Field field = ReflectionUtils.findField(AnyObjectTO.class, name);
-            
+
             if ("token".equalsIgnoreCase(name)) {
                 columns.add(new PropertyColumn<AnyTO, String>(new ResourceModel(name, name), name, name));
             } else if (field != null && field.getType().equals(Date.class)) {
@@ -116,13 +116,13 @@ public class AnySearchResultPanel extends AbstractSearchResultPanel {
                         new PropertyColumn<AnyTO, String>(new ResourceModel(name, name), name, name));
             }
         }
-        
+
         for (String name : prefMan.getList(getRequest(), Constants.PREF_ANY_ATTRIBUTES_VIEW)) {
             if (schemaNames.contains(name)) {
                 columns.add(new AttrColumn(name, SchemaType.PLAIN));
             }
         }
-        
+
         for (String name : prefMan.getList(getRequest(), Constants.PREF_ANY_DERIVED_ATTRIBUTES_VIEW)) {
             if (dSchemaNames.contains(name)) {
                 columns.add(new AttrColumn(name, SchemaType.DERIVED));
@@ -135,28 +135,28 @@ public class AnySearchResultPanel extends AbstractSearchResultPanel {
                 columns.add(
                         new PropertyColumn<AnyTO, String>(new ResourceModel(name, name), name, name));
             }
-            
+
         }
-        
+
         columns.add(new ActionColumn<AnyTO, String>(new ResourceModel("actions", "")) {
-            
+
             private static final long serialVersionUID = -3503023501954863131L;
-            
+
             @Override
             public ActionLinksPanel getActions(final String componentId, final IModel<AnyTO> model) {
-                
+
                 final ActionLinksPanel.Builder<AnyTO> panel = ActionLinksPanel.builder(page.getPageReference());
-                
+
                 panel.add(new ActionLink<AnyTO>() {
-                    
+
                     private static final long serialVersionUID = -7978723352517770644L;
-                    
+
                     @Override
                     public void onClick(final AjaxRequestTarget target, final AnyTO anyTO) {
                         editmodal.setPageCreator(new ModalWindow.PageCreator() {
-                            
+
                             private static final long serialVersionUID = -7834632442532690940L;
-                            
+
                             @Override
                             public Page createPage() {
                                 // SYNCOPE-294: re-read anyTO before edit
@@ -164,31 +164,31 @@ public class AnySearchResultPanel extends AbstractSearchResultPanel {
                                 return null;
                             }
                         });
-                        
+
                         editmodal.show(target);
                     }
                 }, ActionLink.ActionType.EDIT, entitlement).add(new ActionLink<AnyTO>() {
-                    
+
                     private static final long serialVersionUID = -7978723352517770644L;
-                    
+
                     @Override
                     public void onClick(final AjaxRequestTarget target, final AnyTO anyTO) {
                         try {
                             AnyTO deleteAnyTO =
                                     restClient.delete(model.getObject().getETagValue(), model.getObject().getKey());
-                            
+
                             page.setModalResult(true);
-                            
+
                             editmodal.setPageCreator(new ModalWindow.PageCreator() {
-                                
+
                                 private static final long serialVersionUID = -7834632442532690940L;
-                                
+
                                 @Override
                                 public Page createPage() {
                                     return null;
                                 }
                             });
-                            
+
                             editmodal.show(target);
                         } catch (SyncopeClientException scce) {
                             error(getString(Constants.OPERATION_ERROR) + ": " + scce.getMessage());
@@ -196,37 +196,37 @@ public class AnySearchResultPanel extends AbstractSearchResultPanel {
                         }
                     }
                 }, ActionLink.ActionType.DELETE, entitlement);
-                
+
                 return panel.build(componentId);
             }
-            
+
             @Override
             public ActionLinksPanel getHeader(final String componentId) {
                 final ActionLinksPanel.Builder<Serializable> panel = ActionLinksPanel.builder(page.getPageReference());
-                
+
                 panel.add(new ActionLink<Serializable>() {
-                    
+
                     private static final long serialVersionUID = -7978723352517770644L;
-                    
+
                     @Override
                     public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                         displaymodal.setPageCreator(new ModalWindow.PageCreator() {
-                            
+
                             private static final long serialVersionUID = -7834632442532690940L;
-                            
+
                             @Override
                             public Page createPage() {
                                 return new AnyDisplayAttributesModalPage(
                                         page.getPageReference(), displaymodal, schemaNames, dSchemaNames);
                             }
                         });
-                        
+
                         displaymodal.show(target);
                     }
                 }, ActionLink.ActionType.CHANGE_VIEW, entitlement).add(new ActionLink<Serializable>() {
-                    
+
                     private static final long serialVersionUID = -7978723352517770644L;
-                    
+
                     @Override
                     public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                         if (target != null) {
@@ -234,25 +234,25 @@ public class AnySearchResultPanel extends AbstractSearchResultPanel {
                         }
                     }
                 }, ActionLink.ActionType.RELOAD, entitlement);
-                
+
                 return panel.build(componentId);
             }
         });
-        
+
         return columns;
     }
-    
+
     @Override
     protected <T extends AnyTO> Collection<ActionLink.ActionType> getBulkActions() {
         final List<ActionLink.ActionType> bulkActions = new ArrayList<ActionLink.ActionType>();
-        
+
         bulkActions.add(ActionLink.ActionType.DELETE);
         bulkActions.add(ActionLink.ActionType.SUSPEND);
         bulkActions.add(ActionLink.ActionType.REACTIVATE);
-        
+
         return bulkActions;
     }
-    
+
     @Override
     protected String getPageId() {
         return pageID;
