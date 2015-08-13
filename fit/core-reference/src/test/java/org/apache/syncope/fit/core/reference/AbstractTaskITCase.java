@@ -50,8 +50,6 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
 
     protected static class ThreadExec implements Callable<TaskExecTO> {
 
-        private final AbstractTaskITCase test;
-
         private final TaskService taskService;
 
         private final Long taskKey;
@@ -60,10 +58,9 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
 
         private final boolean dryRun;
 
-        public ThreadExec(final AbstractTaskITCase test, final TaskService taskService, final Long taskKey,
-                final int maxWaitSeconds, final boolean dryRun) {
+        public ThreadExec(
+                final TaskService taskService, final Long taskKey, final int maxWaitSeconds, final boolean dryRun) {
 
-            this.test = test;
             this.taskService = taskService;
             this.taskKey = taskKey;
             this.maxWaitSeconds = maxWaitSeconds;
@@ -72,7 +69,7 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
 
         @Override
         public TaskExecTO call() throws Exception {
-            return test.execProvisioningTask(taskService, taskKey, maxWaitSeconds, dryRun);
+            return execProvisioningTask(taskService, taskKey, maxWaitSeconds, dryRun);
         }
     }
 
@@ -132,7 +129,12 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
         List<Future<TaskExecTO>> futures = new ArrayList<>();
 
         for (Long key : taskKeys) {
-            futures.add(service.submit(new ThreadExec(this, taskService, key, maxWaitSeconds, dryRun)));
+            futures.add(service.submit(new ThreadExec(taskService, key, maxWaitSeconds, dryRun)));
+            // avoid flooding the test server
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+            }
         }
 
         Map<Long, TaskExecTO> res = new HashMap<>();
