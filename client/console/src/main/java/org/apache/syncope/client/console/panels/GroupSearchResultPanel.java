@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,7 +46,6 @@ import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -115,14 +115,14 @@ public class GroupSearchResultPanel extends AnySearchResultPanel {
             @Override
             public ActionLinksPanel getActions(final String componentId, final IModel<AnyTO> model) {
 
-                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model, page.getPageReference());
-
-                panel.add(new ActionLink() {
+                final ActionLinksPanel.Builder<AnyTO> panel = ActionLinksPanel.builder(page.getPageReference());
+                
+                panel.add(new ActionLink<AnyTO>() {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
                     @Override
-                    public void onClick(final AjaxRequestTarget target) {
+                    public void onClick(final AjaxRequestTarget target, final AnyTO anyTO) {
                         editmodal.setPageCreator(new ModalWindow.PageCreator() {
 
                             private static final long serialVersionUID = -7834632442532690940L;
@@ -137,14 +137,12 @@ public class GroupSearchResultPanel extends AnySearchResultPanel {
 
                         editmodal.show(target);
                     }
-                }, ActionLink.ActionType.EDIT, entitlement);
-
-                panel.add(new ActionLink() {
+                }, ActionLink.ActionType.EDIT, entitlement).add(new ActionLink<AnyTO>() {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
                     @Override
-                    public void onClick(final AjaxRequestTarget target) {
+                    public void onClick(final AjaxRequestTarget target, final AnyTO anyTO) {
                         try {
                             final GroupTO groupTO = (GroupTO) restClient.
                                     delete(model.getObject().getETagValue(), model.getObject().getKey());
@@ -169,19 +167,19 @@ public class GroupSearchResultPanel extends AnySearchResultPanel {
                     }
                 }, ActionLink.ActionType.DELETE, entitlement);
 
-                return panel;
+                return panel.build(componentId);
             }
 
             @Override
             public ActionLinksPanel getHeader(final String componentId) {
-                final ActionLinksPanel panel = new ActionLinksPanel(componentId, new Model(), page.getPageReference());
+                final ActionLinksPanel.Builder<Serializable> panel = ActionLinksPanel.builder(page.getPageReference());
 
-                panel.add(new ActionLink() {
+                panel.add(new ActionLink<Serializable>() {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
                     @Override
-                    public void onClick(final AjaxRequestTarget target) {
+                    public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                         displaymodal.setPageCreator(new ModalWindow.PageCreator() {
 
                             private static final long serialVersionUID = -7834632442532690940L;
@@ -197,19 +195,19 @@ public class GroupSearchResultPanel extends AnySearchResultPanel {
                     }
                 }, ActionLink.ActionType.CHANGE_VIEW, entitlement);
 
-                panel.add(new ActionLink() {
+                panel.add(new ActionLink<Serializable>() {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
                     @Override
-                    public void onClick(final AjaxRequestTarget target) {
+                    public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                         if (target != null) {
                             target.add(container);
                         }
                     }
                 }, ActionLink.ActionType.RELOAD, entitlement);
 
-                return panel;
+                return panel.build(componentId);
             }
         });
 

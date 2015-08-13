@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.pages;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -255,12 +256,12 @@ public class StatusModalPage<T extends AnyTO> extends AbstractStatusModalPage {
         pwdMgtForm.add(goon);
 
         if (statusOnly) {
-            table.addAction(new ActionLink() {
+            table.addAction(new ActionLink<Serializable>() {
 
                 private static final long serialVersionUID = -3722207913631435501L;
 
                 @Override
-                public void onClick(final AjaxRequestTarget target) {
+                public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                     try {
                         userRestClient.reactivate(
                                 anyTO.getETagValue(),
@@ -278,12 +279,12 @@ public class StatusModalPage<T extends AnyTO> extends AbstractStatusModalPage {
                 }
             }, ActionLink.ActionType.REACTIVATE, pageId);
 
-            table.addAction(new ActionLink() {
+            table.addAction(new ActionLink<Serializable>() {
 
                 private static final long serialVersionUID = -3722207913631435501L;
 
                 @Override
-                public void onClick(final AjaxRequestTarget target) {
+                public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                     try {
                         userRestClient.suspend(
                                 anyTO.getETagValue(),
@@ -303,12 +304,12 @@ public class StatusModalPage<T extends AnyTO> extends AbstractStatusModalPage {
                 }
             }, ActionLink.ActionType.SUSPEND, pageId);
         } else {
-            table.addAction(new ActionLink() {
+            table.addAction(new ActionLink<Serializable>() {
 
                 private static final long serialVersionUID = -3722207913631435501L;
 
                 @Override
-                public void onClick(final AjaxRequestTarget target) {
+                public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                     try {
                         if (anyTO instanceof UserTO) {
                             userRestClient.unlink(
@@ -332,12 +333,12 @@ public class StatusModalPage<T extends AnyTO> extends AbstractStatusModalPage {
                 }
             }, ActionLink.ActionType.UNLINK, pageId);
 
-            table.addAction(new ActionLink() {
+            table.addAction(new ActionLink<Serializable>() {
 
                 private static final long serialVersionUID = -3722207913631435501L;
 
                 @Override
-                public void onClick(final AjaxRequestTarget target) {
+                public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                     try {
                         if (anyTO instanceof UserTO) {
                             userRestClient.link(
@@ -361,12 +362,12 @@ public class StatusModalPage<T extends AnyTO> extends AbstractStatusModalPage {
                 }
             }, ActionLink.ActionType.LINK, pageId);
 
-            table.addAction(new ActionLink() {
+            table.addAction(new ActionLink<Serializable>() {
 
                 private static final long serialVersionUID = -3722207913631435501L;
 
                 @Override
-                public void onClick(final AjaxRequestTarget target) {
+                public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                     try {
                         BulkActionResult bulkActionResult;
                         if (anyTO instanceof UserTO) {
@@ -391,12 +392,12 @@ public class StatusModalPage<T extends AnyTO> extends AbstractStatusModalPage {
                 }
             }, ActionLink.ActionType.DEPROVISION, pageId);
 
-            table.addAction(new ActionLink() {
+            table.addAction(new ActionLink<Serializable>() {
 
                 private static final long serialVersionUID = -3722207913631435501L;
 
                 @Override
-                public void onClick(final AjaxRequestTarget target) {
+                public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
 
                     if (anyTO instanceof UserTO) {
                         StatusModalPage.this.passwordManagement(
@@ -419,12 +420,12 @@ public class StatusModalPage<T extends AnyTO> extends AbstractStatusModalPage {
                 }
             }.feedbackPanelAutomaticReload(!(anyTO instanceof UserTO)), ActionLink.ActionType.PROVISION, pageId);
 
-            table.addAction(new ActionLink() {
+            table.addAction(new ActionLink<Serializable>() {
 
                 private static final long serialVersionUID = -3722207913631435501L;
 
                 @Override
-                public void onClick(final AjaxRequestTarget target) {
+                public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                     try {
                         final BulkActionResult bulkActionResult;
                         if (anyTO instanceof UserTO) {
@@ -449,12 +450,12 @@ public class StatusModalPage<T extends AnyTO> extends AbstractStatusModalPage {
                 }
             }, ActionLink.ActionType.UNASSIGN, pageId);
 
-            table.addAction(new ActionLink() {
+            table.addAction(new ActionLink<Serializable>() {
 
                 private static final long serialVersionUID = -3722207913631435501L;
 
                 @Override
-                public void onClick(final AjaxRequestTarget target) {
+                public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                     if (anyTO instanceof UserTO) {
                         StatusModalPage.this.passwordManagement(
                                 target, ResourceAssociationActionType.ASSIGN, table.getModelObject());

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,7 +47,6 @@ import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,7 +88,7 @@ public class UserSearchResultPanel extends AnySearchResultPanel {
 
         for (String name : prefMan.getList(getRequest(), Constants.PREF_USERS_ATTRIBUTES_VIEW)) {
             if (schemaNames.contains(name)) {
-                columns.add(new AttrColumn(name, SchemaType.PLAIN));                
+                columns.add(new AttrColumn(name, SchemaType.PLAIN));
             }
         }
 
@@ -116,56 +116,52 @@ public class UserSearchResultPanel extends AnySearchResultPanel {
             @Override
             public ActionLinksPanel getActions(final String componentId, final IModel<AnyTO> model) {
 
-                final ActionLinksPanel panel = new ActionLinksPanel(componentId, model, page.getPageReference());
+                final ActionLinksPanel.Builder<AnyTO> panel = ActionLinksPanel.builder(page.getPageReference());
 
-                panel.add(new ActionLink() {
+                panel.add(new ActionLink<AnyTO>() {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
                     @Override
-                    public void onClick(final AjaxRequestTarget target) {
+                    public void onClick(final AjaxRequestTarget target, final AnyTO anyTO) {
                         statusmodal.setPageCreator(new ModalWindow.PageCreator() {
 
                             private static final long serialVersionUID = -7834632442532690940L;
 
                             @Override
                             public Page createPage() {
-                                return new StatusModalPage<UserTO>(
+                                return new StatusModalPage<>(
                                         page.getPageReference(), statusmodal, (UserTO) model.getObject());
                             }
                         });
 
                         statusmodal.show(target);
                     }
-                }, ActionLink.ActionType.MANAGE_RESOURCES, entitlement);
-
-                panel.add(new ActionLink() {
+                }, ActionLink.ActionType.MANAGE_RESOURCES, entitlement).add(new ActionLink<AnyTO>() {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
                     @Override
-                    public void onClick(final AjaxRequestTarget target) {
+                    public void onClick(final AjaxRequestTarget target, final AnyTO anyTO) {
                         statusmodal.setPageCreator(new ModalWindow.PageCreator() {
 
                             private static final long serialVersionUID = -7834632442532690940L;
 
                             @Override
                             public Page createPage() {
-                                return new StatusModalPage<UserTO>(
+                                return new StatusModalPage<>(
                                         page.getPageReference(), statusmodal, (UserTO) model.getObject(), true);
                             }
                         });
 
                         statusmodal.show(target);
                     }
-                }, ActionLink.ActionType.ENABLE, entitlement);
-
-                panel.add(new ActionLink() {
+                }, ActionLink.ActionType.ENABLE, entitlement).add(new ActionLink<AnyTO>() {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
                     @Override
-                    public void onClick(final AjaxRequestTarget target) {
+                    public void onClick(final AjaxRequestTarget target, final AnyTO anyTO) {
                         editmodal.setPageCreator(new ModalWindow.PageCreator() {
 
                             private static final long serialVersionUID = -7834632442532690940L;
@@ -180,17 +176,14 @@ public class UserSearchResultPanel extends AnySearchResultPanel {
 
                         editmodal.show(target);
                     }
-                }, ActionLink.ActionType.EDIT, entitlement);
-
-                panel.add(new ActionLink() {
+                }, ActionLink.ActionType.EDIT, entitlement).add(new ActionLink<AnyTO>() {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
                     @Override
-                    public void onClick(final AjaxRequestTarget target) {
+                    public void onClick(final AjaxRequestTarget target, final AnyTO anyTO) {
                         try {
-                            final UserTO userTO = (UserTO) restClient.
-                                    delete(model.getObject().getETagValue(), model.getObject().getKey());
+                            restClient.delete(model.getObject().getETagValue(), model.getObject().getKey());
 
                             page.setModalResult(true);
 
@@ -212,19 +205,19 @@ public class UserSearchResultPanel extends AnySearchResultPanel {
                     }
                 }, ActionLink.ActionType.DELETE, entitlement);
 
-                return panel;
+                return panel.build(componentId, model.getObject());
             }
 
             @Override
             public ActionLinksPanel getHeader(final String componentId) {
-                final ActionLinksPanel panel = new ActionLinksPanel(componentId, new Model(), page.getPageReference());
+                final ActionLinksPanel.Builder<Serializable> panel = ActionLinksPanel.builder(page.getPageReference());
 
-                panel.add(new ActionLink() {
+                panel.add(new ActionLink<Serializable>() {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
                     @Override
-                    public void onClick(final AjaxRequestTarget target) {
+                    public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                         displaymodal.setPageCreator(new ModalWindow.PageCreator() {
 
                             private static final long serialVersionUID = -7834632442532690940L;
@@ -238,21 +231,19 @@ public class UserSearchResultPanel extends AnySearchResultPanel {
 
                         displaymodal.show(target);
                     }
-                }, ActionLink.ActionType.CHANGE_VIEW, entitlement);
-
-                panel.add(new ActionLink() {
+                }, ActionLink.ActionType.CHANGE_VIEW, entitlement).add(new ActionLink<Serializable>() {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
                     @Override
-                    public void onClick(final AjaxRequestTarget target) {
+                    public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                         if (target != null) {
                             target.add(container);
                         }
                     }
                 }, ActionLink.ActionType.RELOAD, entitlement);
 
-                return panel;
+                return panel.build(componentId);
             }
         });
 
@@ -261,7 +252,7 @@ public class UserSearchResultPanel extends AnySearchResultPanel {
 
     @Override
     protected <T extends AnyTO> Collection<ActionLink.ActionType> getBulkActions() {
-        final List<ActionType> bulkActions = new ArrayList<ActionType>();
+        final List<ActionType> bulkActions = new ArrayList<>();
 
         bulkActions.add(ActionType.DELETE);
         bulkActions.add(ActionType.SUSPEND);
