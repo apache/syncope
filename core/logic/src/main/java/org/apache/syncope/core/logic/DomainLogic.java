@@ -76,7 +76,7 @@ public class DomainLogic extends AbstractTransactionalLogic<DomainTO> {
             + "T(org.apache.syncope.common.lib.SyncopeConstants).MASTER_DOMAIN")
     public DomainTO create(final DomainTO domainTO) {
         if (!domainsHolder.getDomains().keySet().contains(domainTO.getKey())) {
-            throw new NotFoundException("No configuration is available for domain '" + domainTO.getKey());
+            throw new NotFoundException("No configuration is available for domain " + domainTO.getKey());
         }
 
         return binder.getDomainTO(domainDAO.save(binder.create(domainTO)));

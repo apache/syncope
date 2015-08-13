@@ -25,7 +25,6 @@ import static org.junit.Assert.fail;
 
 import java.security.AccessControlException;
 import java.util.List;
-import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.DomainTO;
@@ -63,11 +62,18 @@ public class DomainITCase extends AbstractITCase {
         }
     }
 
+    private void restoreTwo() {
+        DomainTO two = new DomainTO();
+        two.setKey("Two");
+        two.setAdminCipherAlgorithm(CipherAlgorithm.SHA);
+        two.setAdminPwd("password2");
+        domainService.create(two);
+    }
+
     @Test
     public void update() {
         DomainTO two = domainService.read("Two");
         assertNotNull(two);
-        DomainTO origTwo = SerializationUtils.clone(two);
 
         try {
             // 1. change admin pwd for domain Two
@@ -87,8 +93,7 @@ public class DomainITCase extends AbstractITCase {
             new SyncopeClientFactoryBean().setAddress(ADDRESS).setDomain("Two").
                     create(ADMIN_UNAME, "password3").self();
         } finally {
-            // restore old password
-            domainService.create(origTwo);
+            restoreTwo();
         }
     }
 
@@ -107,9 +112,7 @@ public class DomainITCase extends AbstractITCase {
                 assertEquals(ClientExceptionType.NotFound, e.getType());
             }
         } finally {
-            // restore old password
-            two.setAdminPwd("password2");
-            domainService.create(two);
+            restoreTwo();
         }
     }
 }
