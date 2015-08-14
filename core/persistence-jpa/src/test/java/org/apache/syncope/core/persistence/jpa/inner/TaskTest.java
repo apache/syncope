@@ -22,7 +22,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -33,8 +35,10 @@ import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
+import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.identityconnectors.framework.common.objects.Attribute;
@@ -60,6 +64,29 @@ public class TaskTest extends AbstractTest {
         List<PropagationTask> tasks = taskDAO.findToExec(TaskType.PROPAGATION);
         assertNotNull(tasks);
         assertEquals(3, tasks.size());
+    }
+
+    @Test
+    public void findPaginated() {
+        List<Task> tasks = taskDAO.findAll(1, 2, Collections.<OrderByClause>emptyList(), TaskType.PROPAGATION);
+        assertNotNull(tasks);
+        assertEquals(2, tasks.size());
+
+        for (Task task : tasks) {
+            assertNotNull(task);
+        }
+
+        tasks = taskDAO.findAll(2, 2, Collections.<OrderByClause>emptyList(), TaskType.PROPAGATION);
+        assertNotNull(tasks);
+        assertEquals(2, tasks.size());
+
+        for (Task task : tasks) {
+            assertNotNull(task);
+        }
+
+        tasks = taskDAO.findAll(1000, 2, Collections.<OrderByClause>emptyList(), TaskType.PROPAGATION);
+        assertNotNull(tasks);
+        assertTrue(tasks.isEmpty());
     }
 
     @Test

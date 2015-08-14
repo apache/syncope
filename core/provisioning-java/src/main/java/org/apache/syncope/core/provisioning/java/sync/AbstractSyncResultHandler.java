@@ -44,7 +44,9 @@ import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.identityconnectors.framework.common.objects.SyncDeltaType;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
+@Transactional(rollbackFor = Throwable.class)
 public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHandler<SyncTask, SyncActions>
         implements SyncopeSyncResultHandler {
 
@@ -614,9 +616,7 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
      * @param provision provisioning info
      * @throws JobExecutionException in case of synchronization failure.
      */
-    protected void doHandle(final SyncDelta delta, final Provision provision)
-            throws JobExecutionException {
-
+    protected void doHandle(final SyncDelta delta, final Provision provision) throws JobExecutionException {
         AnyUtils anyUtils = getAnyUtils();
 
         LOG.debug("Process {} for {} as {}",

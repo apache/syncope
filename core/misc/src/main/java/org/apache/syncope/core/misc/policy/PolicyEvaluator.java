@@ -34,9 +34,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class PolicyEvaluator {
 
-    /**
-     * Logger.
-     */
     private static final Logger LOG = LoggerFactory.getLogger(PolicyEvaluator.class);
 
     @SuppressWarnings("unchecked")
@@ -54,7 +51,7 @@ public class PolicyEvaluator {
                 BeanUtils.copyProperties(ppSpec, evaluatedPPSpec, new String[] { "schemasNotPermitted" });
 
                 for (String schema : ppSpec.getSchemasNotPermitted()) {
-                    PlainAttr attr = any.getPlainAttr(schema);
+                    PlainAttr<?> attr = any.getPlainAttr(schema);
                     if (attr != null) {
                         List<String> values = attr.getValuesAsStrings();
                         if (values != null && !values.isEmpty()) {

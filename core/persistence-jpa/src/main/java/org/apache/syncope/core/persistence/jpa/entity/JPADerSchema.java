@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.jpa.entity;
 import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -42,7 +43,7 @@ public class JPADerSchema extends AbstractEntity<String> implements DerSchema {
     @Id
     private String name;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.EAGER)
     private JPAAnyTypeClass anyTypeClass;
 
     @Column(nullable = false)

@@ -54,7 +54,7 @@ public class UserTest extends AbstractTest {
     @Test
     public void findAll() {
         List<User> list = userDAO.findAll(SyncopeConstants.FULL_ADMIN_REALMS, 1, 100);
-        assertEquals("did not get expected number of users ", 5, list.size());
+        assertEquals("did not get expected number of users", 5, list.size());
     }
 
     @Test
@@ -68,25 +68,25 @@ public class UserTest extends AbstractTest {
     public void findAllByPageAndSize() {
         // get first page
         List<User> list = userDAO.findAll(SyncopeConstants.FULL_ADMIN_REALMS, 1, 2);
-        assertEquals("did not get expected number of users ", 2, list.size());
+        assertEquals("did not get expected number of users", 2, list.size());
 
         // get second page
         list = userDAO.findAll(SyncopeConstants.FULL_ADMIN_REALMS, 2, 2);
-        assertEquals("did not get expected number of users ", 2, list.size());
+        assertEquals("did not get expected number of users", 2, list.size());
 
         // get second page with uncomplete set
         list = userDAO.findAll(SyncopeConstants.FULL_ADMIN_REALMS, 2, 3);
-        assertEquals("did not get expected number of users ", 2, list.size());
+        assertEquals("did not get expected number of users", 2, list.size());
 
         // get unexistent page
         list = userDAO.findAll(SyncopeConstants.FULL_ADMIN_REALMS, 3, 2);
-        assertEquals("did not get expected number of users ", 1, list.size());
+        assertEquals("did not get expected number of users", 1, list.size());
     }
 
     @Test
     public void findByDerAttributeValue() {
         final List<User> list = userDAO.findByDerAttrValue("cn", "Vivaldi, Antonio");
-        assertEquals("did not get expected number of users ", 1, list.size());
+        assertEquals("did not get expected number of users", 1, list.size());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -105,7 +105,7 @@ public class UserTest extends AbstractTest {
         fullnameValue.setStringValue("Gioacchino Rossini");
 
         final List<User> list = userDAO.findByAttrValue("fullname", fullnameValue);
-        assertEquals("did not get expected number of users ", 1, list.size());
+        assertEquals("did not get expected number of users", 1, list.size());
     }
 
     @Test
@@ -114,7 +114,7 @@ public class UserTest extends AbstractTest {
         coolValue.setBooleanValue(true);
 
         final List<User> list = userDAO.findByAttrValue("cool", coolValue);
-        assertEquals("did not get expected number of users ", 1, list.size());
+        assertEquals("did not get expected number of users", 1, list.size());
     }
 
     @Test
@@ -142,6 +142,7 @@ public class UserTest extends AbstractTest {
         User user = entityFactory.newEntity(User.class);
         user.setUsername("username");
         user.setRealm(realmDAO.find("/even/two"));
+        user.setCreator("admin");
         user.setCreationDate(new Date());
 
         user.setPassword("pass", CipherAlgorithm.SHA256);
@@ -153,7 +154,7 @@ public class UserTest extends AbstractTest {
             assertNotNull(e);
         }
 
-        user.setPassword("password", CipherAlgorithm.SHA256);
+        user.setPassword("password123", CipherAlgorithm.SHA256);
 
         user.setUsername("username!");
 
@@ -186,6 +187,7 @@ public class UserTest extends AbstractTest {
         User user = entityFactory.newEntity(User.class);
         user.setUsername("username");
         user.setRealm(realmDAO.find("/even/two"));
+        user.setCreator("admin");
         user.setCreationDate(new Date());
 
         user.setPassword("password123", CipherAlgorithm.AES);

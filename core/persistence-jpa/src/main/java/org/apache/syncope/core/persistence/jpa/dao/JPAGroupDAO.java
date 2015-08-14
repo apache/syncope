@@ -88,7 +88,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
 
     @Override
     public Group find(final String name) {
-        TypedQuery<Group> query = entityManager.createQuery(
+        TypedQuery<Group> query = entityManager().createQuery(
                 "SELECT e FROM " + JPAGroup.class.getSimpleName() + " e WHERE e.name = :name", Group.class);
         query.setParameter("name", name);
 
@@ -116,7 +116,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
             queryString.append("OR e.groupOwner.id=").append(groupKey).append(' ');
         }
 
-        TypedQuery<Group> query = entityManager.createQuery(queryString.toString(), Group.class);
+        TypedQuery<Group> query = entityManager().createQuery(queryString.toString(), Group.class);
         query.setParameter("owner", owner);
 
         return query.getResultList();
@@ -133,7 +133,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
         StringBuilder queryString = new StringBuilder("SELECT e FROM ").append(JPAGroup.class.getSimpleName()).
                 append(" e WHERE e.groupOwner=:owner ");
 
-        TypedQuery<Group> query = entityManager.createQuery(queryString.toString(), Group.class);
+        TypedQuery<Group> query = entityManager().createQuery(queryString.toString(), Group.class);
         query.setParameter("owner", owner);
 
         return query.getResultList();
@@ -141,7 +141,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
 
     @Override
     public List<AMembership> findAMemberships(final Group group) {
-        TypedQuery<AMembership> query = entityManager.createQuery(
+        TypedQuery<AMembership> query = entityManager().createQuery(
                 "SELECT e FROM " + JPAAMembership.class.getSimpleName()
                 + " e WHERE e.rightEnd=:group", AMembership.class);
         query.setParameter("group", group);
@@ -151,7 +151,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
 
     @Override
     public List<UMembership> findUMemberships(final Group group) {
-        TypedQuery<UMembership> query = entityManager.createQuery(
+        TypedQuery<UMembership> query = entityManager().createQuery(
                 "SELECT e FROM " + JPAUMembership.class.getSimpleName()
                 + " e WHERE e.rightEnd=:group", UMembership.class);
         query.setParameter("group", group);
@@ -190,16 +190,16 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
             membership.getLeftEnd().remove(membership);
             anyObjectDAO.save(membership.getLeftEnd());
 
-            entityManager.remove(membership);
+            entityManager().remove(membership);
         }
         for (UMembership membership : findUMemberships(group)) {
             membership.getLeftEnd().remove(membership);
             userDAO.save(membership.getLeftEnd());
 
-            entityManager.remove(membership);
+            entityManager().remove(membership);
         }
 
-        entityManager.remove(group);
+        entityManager().remove(group);
     }
 
     private void populateTransitiveResources(

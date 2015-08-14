@@ -85,12 +85,14 @@ under the License.
     <property name="useJaxbContextForQnames" value="true"/>
     <property name="ignoreMessageWriters" value="true"/>
     <property name="addResourceAndMethodIds" value="true"/>
+    <property name="usePathParamsToCompareOperations" value="false"/>
     <property name="javaDocPath" value="/WEB-INF/lib/syncope-common-rest-api-${syncope.version}-javadoc.jar"/>
   </bean>
   
-  <bean id="addETagFilter" class="org.apache.syncope.core.rest.cxf.service.AddETagFilter"/>
+  <bean id="addDomainFilter" class="org.apache.syncope.core.rest.cxf.AddDomainFilter"/>
+  <bean id="addETagFilter" class="org.apache.syncope.core.rest.cxf.AddETagFilter"/>
   
-  <jaxrs:server id="restContainer" address="/" 
+  <jaxrs:server id="restContainer" address="/"
                 basePackages="org.apache.syncope.common.rest.api.service, org.apache.syncope.core.rest.cxf.service" 
                 staticSubresourceResolution="true">
     <jaxrs:properties> 
@@ -108,6 +110,7 @@ under the License.
       <ref bean="exceptionMapper"/>
       <ref bean="searchContextProvider"/>
       <ref bean="wadlGenerator"/>
+      <ref bean="addDomainFilter"/>
       <ref bean="addETagFilter"/>
     </jaxrs:providers>
     <jaxrs:extensionMappings>

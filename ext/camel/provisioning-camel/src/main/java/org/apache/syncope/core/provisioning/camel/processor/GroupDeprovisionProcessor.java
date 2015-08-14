@@ -40,7 +40,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class GroupDeprovisionProcessor implements Processor {
 
-    private static final Logger LOG = LoggerFactory.getLogger(UserDeprovisionProcessor.class);
+    private static final Logger LOG = LoggerFactory.getLogger(GroupDeprovisionProcessor.class);
 
     @Autowired
     protected PropagationManager propagationManager;
@@ -64,7 +64,7 @@ public class GroupDeprovisionProcessor implements Processor {
         List<PropagationTask> tasks =
                 propagationManager.getGroupDeleteTasks(groupKey, new HashSet<>(resources), noPropResourceNames);
         PropagationReporter propagationReporter =
-                ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
+                ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
         try {
             taskExecutor.execute(tasks, propagationReporter);
         } catch (PropagationException e) {

@@ -30,7 +30,6 @@ under the License.
         } catch (SQLException e) {
             getServletConfig().getServletContext().log("Could not start H2 web console (datastore)", e);
         }
-
-        response.sendRedirect("http://localhost:8082");
     }
+    response.sendRedirect("http://localhost:8082");
 %>

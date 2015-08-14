@@ -37,7 +37,6 @@ import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.task.AnyFilter;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
-import org.apache.syncope.core.provisioning.api.job.PushJob;
 
 @Entity
 @DiscriminatorValue("PushTask")
@@ -59,7 +58,7 @@ public class JPAPushTask extends AbstractProvisioningTask implements PushTask {
      * Default constructor.
      */
     public JPAPushTask() {
-        super(TaskType.PUSH, PushJob.class.getName());
+        super(TaskType.PUSH, null);
     }
 
     @Override

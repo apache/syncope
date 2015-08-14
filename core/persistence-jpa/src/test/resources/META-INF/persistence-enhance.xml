@@ -23,7 +23,7 @@ under the License.
                                  http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
              version="2.0">
   
-  <persistence-unit name="syncopePersistenceUnit">
+  <persistence-unit name="Master">
     <mapping-file>META-INF/spring-orm.xml</mapping-file>
     <validation-mode>NONE</validation-mode>    
   </persistence-unit>

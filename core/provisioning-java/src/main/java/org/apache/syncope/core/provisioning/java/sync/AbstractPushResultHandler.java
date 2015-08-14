@@ -50,6 +50,7 @@ import org.apache.syncope.core.provisioning.api.sync.SyncopePushResultHandler;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.quartz.JobExecutionException;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHandler<PushTask, PushActions>
@@ -71,7 +72,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
 
     protected abstract ConnectorObject getRemoteObject(String connObjectKey, ObjectClass objectClass);
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     public boolean handle(final long anyKey) {
         Any<?, ?, ?> any = null;

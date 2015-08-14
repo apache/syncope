@@ -49,19 +49,19 @@ public class JPADerAttrDAO extends AbstractDAO<DerAttr<?>, Long> implements DerA
 
     @Override
     public <T extends DerAttr<?>> T find(final Long key, final Class<T> reference) {
-        return reference.cast(entityManager.find(getJPAEntityReference(reference), key));
+        return reference.cast(entityManager().find(getJPAEntityReference(reference), key));
     }
 
     @Override
     public <T extends DerAttr<?>> List<T> findAll(final Class<T> reference) {
-        TypedQuery<T> query = entityManager.createQuery(
+        TypedQuery<T> query = entityManager().createQuery(
                 "SELECT e FROM " + getJPAEntityReference(reference).getSimpleName() + " e", reference);
         return query.getResultList();
     }
 
     @Override
     public <T extends DerAttr<?>> T save(final T derAttr) {
-        return entityManager.merge(derAttr);
+        return entityManager().merge(derAttr);
     }
 
     @Override
@@ -81,6 +81,6 @@ public class JPADerAttrDAO extends AbstractDAO<DerAttr<?>, Long> implements DerA
             ((Any<?, T, ?>) derAttr.getOwner()).remove(derAttr);
         }
 
-        entityManager.remove(derAttr);
+        entityManager().remove(derAttr);
     }
 }

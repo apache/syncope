@@ -28,6 +28,14 @@ public final class Entitlement {
 
     public static final String ANONYMOUS = "ANONYMOUS";
 
+    public static final String DOMAIN_CREATE = "DOMAIN_CREATE";
+
+    public static final String DOMAIN_READ = "DOMAIN_READ";
+
+    public static final String DOMAIN_UPDATE = "DOMAIN_UPDATE";
+
+    public static final String DOMAIN_DELETE = "DOMAIN_DELETE";
+
     public static final String REALM_LIST = "REALM_LIST";
 
     public static final String REALM_CREATE = "REALM_CREATE";
@@ -97,8 +105,6 @@ public final class Entitlement {
     public static final String USER_UPDATE = "USER_UPDATE";
 
     public static final String USER_DELETE = "USER_DELETE";
-
-    public static final String USER_VIEW = "USER_VIEW";
 
     public static final String GROUP_SEARCH = "GROUP_SEARCH";
 

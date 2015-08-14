@@ -40,6 +40,7 @@ import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.TaskExecTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.TaskType;
+import org.apache.syncope.common.rest.api.service.TaskService;
 
 public abstract class AbstractTaskITCase extends AbstractITCase {
 
@@ -49,7 +50,7 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
 
     protected static class ThreadExec implements Callable<TaskExecTO> {
 
-        private final AbstractTaskITCase test;
+        private final TaskService taskService;
 
         private final Long taskKey;
 
@@ -58,9 +59,9 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
         private final boolean dryRun;
 
         public ThreadExec(
-                final AbstractTaskITCase test, final Long taskKey, final int maxWaitSeconds, final boolean dryRun) {
+                final TaskService taskService, final Long taskKey, final int maxWaitSeconds, final boolean dryRun) {
 
-            this.test = test;
+            this.taskService = taskService;
             this.taskKey = taskKey;
             this.maxWaitSeconds = maxWaitSeconds;
             this.dryRun = dryRun;
@@ -68,7 +69,7 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
 
         @Override
         public TaskExecTO call() throws Exception {
-            return test.execProvisioningTask(taskKey, maxWaitSeconds, dryRun);
+            return execProvisioningTask(taskService, taskKey, maxWaitSeconds, dryRun);
         }
     }
 
@@ -87,7 +88,9 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
         }
     }
 
-    protected TaskExecTO execProvisioningTask(final Long taskKey, final int maxWaitSeconds, final boolean dryRun) {
+    public static TaskExecTO execProvisioningTask(
+            final TaskService taskService, final Long taskKey, final int maxWaitSeconds, final boolean dryRun) {
+
         AbstractTaskTO taskTO = taskService.read(taskKey);
         assertNotNull(taskTO);
         assertNotNull(taskTO.getExecutions());
@@ -119,14 +122,19 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
         return taskTO.getExecutions().get(taskTO.getExecutions().size() - 1);
     }
 
-    protected Map<Long, TaskExecTO> execProvisioningTasks(
+    protected Map<Long, TaskExecTO> execProvisioningTasks(final TaskService taskService,
             final Set<Long> taskKeys, final int maxWaitSeconds, final boolean dryRun) throws Exception {
 
         ExecutorService service = Executors.newFixedThreadPool(taskKeys.size());
         List<Future<TaskExecTO>> futures = new ArrayList<>();
 
         for (Long key : taskKeys) {
-            futures.add(service.submit(new ThreadExec(this, key, maxWaitSeconds, dryRun)));
+            futures.add(service.submit(new ThreadExec(taskService, key, maxWaitSeconds, dryRun)));
+            // avoid flooding the test server
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+            }
         }
 
         Map<Long, TaskExecTO> res = new HashMap<>();

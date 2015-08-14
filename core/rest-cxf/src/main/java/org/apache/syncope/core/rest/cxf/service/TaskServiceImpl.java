@@ -124,7 +124,7 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService 
     public BulkActionResult bulk(final BulkAction bulkAction) {
         BulkActionResult result = new BulkActionResult();
 
-        switch (bulkAction.getOperation()) {
+        switch (bulkAction.getType()) {
             case DELETE:
                 for (String key : bulkAction.getTargets()) {
                     try {

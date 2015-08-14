@@ -32,12 +32,13 @@ public class GenerateToken extends AbstractActivitiServiceTask {
 
     @Override
     protected void doExecute(final String executionId) {
-        User user = runtimeService.getVariable(executionId, ActivitiUserWorkflowAdapter.USER, User.class);
+        User user = engine.getRuntimeService().
+                getVariable(executionId, ActivitiUserWorkflowAdapter.USER, User.class);
 
         user.generateToken(
                 confDAO.find("token.length", "256").getValues().get(0).getLongValue().intValue(),
                 confDAO.find("token.expireTime", "60").getValues().get(0).getLongValue().intValue());
 
-        runtimeService.setVariable(executionId, ActivitiUserWorkflowAdapter.USER, user);
+        engine.getRuntimeService().setVariable(executionId, ActivitiUserWorkflowAdapter.USER, user);
     }
 }

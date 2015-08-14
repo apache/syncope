@@ -28,7 +28,7 @@ import java.security.AccessControlException;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
+import javax.ws.rs.core.Response;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.collections4.Transformer;
@@ -54,6 +54,7 @@ import org.apache.syncope.common.lib.types.ResourceDeassociationActionType;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.lib.wrap.ResourceKey;
 import org.apache.syncope.common.rest.api.CollectionWrapper;
+import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.SchemaService;
 import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.syncope.core.misc.security.Encryptor;
@@ -234,6 +235,94 @@ public class AuthenticationITCase extends AbstractITCase {
     }
 
     @Test
+    public void delegatedUserCRUD() {
+        Long roleKey = null;
+        Long delegatedAdminKey = null;
+        try {
+            // 1. create role for full user administration, under realm /even/two
+            RoleTO role = new RoleTO();
+            role.setName("Delegated user admin");
+            role.getEntitlements().add(Entitlement.USER_CREATE);
+            role.getEntitlements().add(Entitlement.USER_UPDATE);
+            role.getEntitlements().add(Entitlement.USER_DELETE);
+            role.getEntitlements().add(Entitlement.USER_LIST);
+            role.getEntitlements().add(Entitlement.USER_READ);
+            role.getRealms().add("/even/two");
+
+            roleKey = Long.valueOf(roleService.create(role).getHeaderString(RESTHeaders.RESOURCE_KEY));
+            assertNotNull(roleKey);
+
+            // 2. as admin, create delegated admin user, and assign the role just created
+            UserTO delegatedAdmin = UserITCase.getUniqueSampleTO("admin@syncope.apache.org");
+            delegatedAdmin.getRoles().add(roleKey);
+            delegatedAdmin = createUser(delegatedAdmin);
+            delegatedAdminKey = delegatedAdmin.getKey();
+
+            // 3. instantiate a delegate user service client, for further operatins
+            UserService delegatedUserService =
+                    clientFactory.create(delegatedAdmin.getUsername(), "password123").getService(UserService.class);
+
+            // 4. as delegated, create user under realm / -> fail
+            UserTO user = UserITCase.getUniqueSampleTO("delegated@syncope.apache.org");
+            try {
+                delegatedUserService.create(user);
+                fail();
+            } catch (SyncopeClientException e) {
+                assertEquals(ClientExceptionType.Unauthorized, e.getType());
+            }
+
+            // 5. set realm to /even/two -> succeed
+            user.setRealm("/even/two");
+
+            Response response = delegatedUserService.create(user);
+            assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
+
+            user = response.readEntity(UserTO.class);
+            assertEquals("surname", user.getPlainAttrMap().get("surname").getValues().get(0));
+
+            // 5. as delegated, update user attempting to move under realm / -> fail
+            UserMod userMod = new UserMod();
+            userMod.setKey(user.getKey());
+            userMod.setRealm("/odd");
+            userMod.getPlainAttrsToRemove().add("surname");
+            userMod.getPlainAttrsToUpdate().add(attrMod("surname", "surname2"));
+
+            try {
+                delegatedUserService.update(userMod);
+                fail();
+            } catch (SyncopeClientException e) {
+                assertEquals(ClientExceptionType.Unauthorized, e.getType());
+            }
+
+            // 6. revert realm change -> succeed
+            userMod.setRealm(null);
+
+            response = delegatedUserService.update(userMod);
+            assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+            user = response.readEntity(UserTO.class);
+            assertEquals("surname2", user.getPlainAttrMap().get("surname").getValues().get(0));
+
+            // 7. as delegated, delete user
+            delegatedUserService.delete(user.getKey());
+
+            try {
+                userService.read(user.getKey());
+                fail();
+            } catch (SyncopeClientException e) {
+                assertEquals(ClientExceptionType.NotFound, e.getType());
+            }
+        } finally {
+            if (roleKey != null) {
+                roleService.delete(roleKey);
+            }
+            if (delegatedAdminKey != null) {
+                userService.delete(delegatedAdminKey);
+            }
+        }
+    }
+
+    @Test
     public void checkFailedLogins() {
         UserTO userTO = UserITCase.getUniqueSampleTO("checkFailedLogin@syncope.apache.org");
         userTO.getRoles().add(2L);
@@ -265,10 +354,10 @@ public class AuthenticationITCase extends AbstractITCase {
         userTO.getRoles().add(2L);
 
         userTO = createUser(userTO);
-        long userId = userTO.getKey();
+        long userKey = userTO.getKey();
         assertNotNull(userTO);
 
-        assertEquals(0, getFailedLogins(userService, userId));
+        assertEquals(0, getFailedLogins(userService, userKey));
 
         // authentications failed ...
         SyncopeClient badPwdClient = clientFactory.create(userTO.getUsername(), "wrongpwd1");
@@ -276,7 +365,7 @@ public class AuthenticationITCase extends AbstractITCase {
         assertReadFails(badPwdClient);
         assertReadFails(badPwdClient);
 
-        assertEquals(3, getFailedLogins(userService, userId));
+        assertEquals(3, getFailedLogins(userService, userKey));
 
         // last authentication before suspension
         assertReadFails(badPwdClient);
@@ -292,8 +381,9 @@ public class AuthenticationITCase extends AbstractITCase {
         assertReadFails(goodPwdClient);
 
         StatusMod reactivate = new StatusMod();
+        reactivate.setKey(userTO.getKey());
         reactivate.setType(StatusMod.ModType.REACTIVATE);
-        userTO = userService.status(userTO.getKey(), reactivate).readEntity(UserTO.class);
+        userTO = userService.status(reactivate).readEntity(UserTO.class);
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());
 
@@ -352,7 +442,7 @@ public class AuthenticationITCase extends AbstractITCase {
         assertNotNull(user);
 
         // 2. unlink the resource from the created user
-        assertNotNull(userService.bulkDeassociation(user.getKey(),
+        assertNotNull(userService.deassociate(user.getKey(),
                 ResourceDeassociationActionType.UNLINK,
                 CollectionWrapper.wrap(RESOURCE_NAME_TESTDB, ResourceKey.class)).
                 readEntity(BulkActionResult.class));

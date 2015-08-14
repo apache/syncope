@@ -37,11 +37,11 @@ public class ProvisioningTaskValidator extends AbstractValidator<ProvisioningTas
     }
 
     @Override
-    public boolean isValid(final ProvisioningTask object, final ConstraintValidatorContext context) {
-        boolean isValid = schedV.isValid(object, context);
+    public boolean isValid(final ProvisioningTask task, final ConstraintValidatorContext context) {
+        boolean isValid = schedV.isValid(task, context);
 
         if (isValid) {
-            isValid = object.getResource() != null;
+            isValid = task.getResource() != null;
             if (!isValid) {
                 LOG.error("Resource is null");
 
@@ -51,15 +51,15 @@ public class ProvisioningTaskValidator extends AbstractValidator<ProvisioningTas
                         addPropertyNode("resource").addConstraintViolation();
             }
 
-            if (!object.getActionsClassNames().isEmpty()) {
-                for (String className : object.getActionsClassNames()) {
+            if (!task.getActionsClassNames().isEmpty()) {
+                for (String className : task.getActionsClassNames()) {
                     Class<?> actionsClass = null;
                     boolean isAssignable = false;
                     try {
                         actionsClass = Class.forName(className);
-                        isAssignable = object instanceof JPASyncTask
+                        isAssignable = task instanceof JPASyncTask
                                 ? SyncActions.class.isAssignableFrom(actionsClass)
-                                : object instanceof JPAPushTask
+                                : task instanceof JPAPushTask
                                         ? PushActions.class.isAssignableFrom(actionsClass)
                                         : false;
                     } catch (Exception e) {

@@ -76,14 +76,12 @@ public interface LoggerService extends JAXRSService {
      * Creates or updates (if existing) the logger with matching name.
      *
      * @param type LoggerType to be selected
-     * @param name Logger name to be updated
      * @param logger Logger to be created or updated
      */
     @PUT
-    @Path("{type}/{name}")
+    @Path("{type}/{key}")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    void update(@NotNull @PathParam("type") LoggerType type, @NotNull @PathParam("name") String name,
-            @NotNull LoggerTO logger);
+    void update(@NotNull @PathParam("type") LoggerType type, @NotNull LoggerTO logger);
 
     /**
      * Deletes the logger with matching name.

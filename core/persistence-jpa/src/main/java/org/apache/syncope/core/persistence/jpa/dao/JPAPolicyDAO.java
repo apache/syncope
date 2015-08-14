@@ -43,7 +43,7 @@ public class JPAPolicyDAO extends AbstractDAO<Policy, Long> implements PolicyDAO
     @Override
     @SuppressWarnings("unchecked")
     public <T extends Policy> T find(final Long key) {
-        final Query query = entityManager.createQuery(
+        final Query query = entityManager().createQuery(
                 "SELECT e FROM " + JPAPolicy.class.getSimpleName() + " e WHERE e.id=:id");
         query.setParameter("id", key);
 
@@ -56,7 +56,7 @@ public class JPAPolicyDAO extends AbstractDAO<Policy, Long> implements PolicyDAO
     @Override
     @SuppressWarnings("unchecked")
     public <T extends Policy> List<T> find(final PolicyType type) {
-        final Query query = entityManager.createQuery(
+        final Query query = entityManager().createQuery(
                 "SELECT e FROM " + JPAPolicy.class.getSimpleName() + " e WHERE e.type=:type");
         query.setParameter("type", type);
 
@@ -65,7 +65,7 @@ public class JPAPolicyDAO extends AbstractDAO<Policy, Long> implements PolicyDAO
 
     @Override
     public List<AccountPolicy> findByResource(final ExternalResource resource) {
-        TypedQuery<AccountPolicy> query = entityManager.createQuery(
+        TypedQuery<AccountPolicy> query = entityManager().createQuery(
                 "SELECT e FROM " + JPAAccountPolicy.class.getSimpleName() + " e "
                 + "WHERE :resource MEMBER OF e.resources", AccountPolicy.class);
         query.setParameter("resource", resource);
@@ -75,14 +75,14 @@ public class JPAPolicyDAO extends AbstractDAO<Policy, Long> implements PolicyDAO
 
     @Override
     public List<Policy> findAll() {
-        TypedQuery<Policy> query = entityManager.createQuery(
+        TypedQuery<Policy> query = entityManager().createQuery(
                 "SELECT e FROM " + JPAPolicy.class.getSimpleName() + " e", Policy.class);
         return query.getResultList();
     }
 
     @Override
     public <T extends Policy> T save(final T policy) {
-        return entityManager.merge(policy);
+        return entityManager().merge(policy);
     }
 
     @Override
@@ -95,6 +95,6 @@ public class JPAPolicyDAO extends AbstractDAO<Policy, Long> implements PolicyDAO
             }
         }
 
-        entityManager.remove(policy);
+        entityManager().remove(policy);
     }
 }

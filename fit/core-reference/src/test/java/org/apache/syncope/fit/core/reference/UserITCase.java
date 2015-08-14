@@ -47,7 +47,6 @@ import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.mod.AttrMod;
 import org.apache.syncope.common.lib.mod.ResourceAssociationMod;
 import org.apache.syncope.common.lib.mod.StatusMod;
 import org.apache.syncope.common.lib.mod.UserMod;
@@ -70,7 +69,7 @@ import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
-import org.apache.syncope.common.lib.types.ResourceAssociationActionType;
+import org.apache.syncope.common.lib.types.ResourceAssociationAction;
 import org.apache.syncope.common.lib.types.ResourceDeassociationActionType;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.wrap.ResourceKey;
@@ -436,7 +435,7 @@ public class UserITCase extends AbstractITCase {
             createUser(userTO);
             fail();
         } catch (SyncopeClientException e) {
-            assertEquals(ClientExceptionType.DataIntegrityViolation, e.getType());
+            assertEquals(ClientExceptionType.GenericPersistence, e.getType());
         }
     }
 
@@ -819,9 +818,10 @@ public class UserITCase extends AbstractITCase {
         assertEquals("created", userTO.getStatus());
 
         StatusMod statusMod = new StatusMod();
+        statusMod.setKey(userTO.getKey());
         statusMod.setType(StatusMod.ModType.ACTIVATE);
         statusMod.setToken(userTO.getToken());
-        userTO = userService.status(userTO.getKey(), statusMod).readEntity(UserTO.class);
+        userTO = userService.status(statusMod).readEntity(UserTO.class);
 
         assertNotNull(userTO);
         assertNull(userTO.getToken());
@@ -845,14 +845,16 @@ public class UserITCase extends AbstractITCase {
                 : "created", userTO.getStatus());
 
         StatusMod statusMod = new StatusMod();
+        statusMod.setKey(userTO.getKey());
         statusMod.setType(StatusMod.ModType.SUSPEND);
-        userTO = userService.status(userTO.getKey(), statusMod).readEntity(UserTO.class);
+        userTO = userService.status(statusMod).readEntity(UserTO.class);
         assertNotNull(userTO);
         assertEquals("suspended", userTO.getStatus());
 
         statusMod = new StatusMod();
+        statusMod.setKey(userTO.getKey());
         statusMod.setType(StatusMod.ModType.REACTIVATE);
-        userTO = userService.status(userTO.getKey(), statusMod).readEntity(UserTO.class);
+        userTO = userService.status(statusMod).readEntity(UserTO.class);
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());
     }
@@ -876,55 +878,59 @@ public class UserITCase extends AbstractITCase {
         assertEquals(ActivitiDetector.isActivitiEnabledForUsers(syncopeService)
                 ? "active"
                 : "created", userTO.getStatus());
-        long userId = userTO.getKey();
+        long userKey = userTO.getKey();
 
         // Suspend with effect on syncope, ldap and db => user should be suspended in syncope and all resources
         StatusMod statusMod = new StatusMod();
+        statusMod.setKey(userKey);
         statusMod.setType(StatusMod.ModType.SUSPEND);
         statusMod.setOnSyncope(true);
         statusMod.getResourceNames().add(RESOURCE_NAME_TESTDB);
         statusMod.getResourceNames().add(RESOURCE_NAME_LDAP);
-        userTO = userService.status(userId, statusMod).readEntity(UserTO.class);
+        userTO = userService.status(statusMod).readEntity(UserTO.class);
         assertNotNull(userTO);
         assertEquals("suspended", userTO.getStatus());
 
         ConnObjectTO connObjectTO =
-                resourceService.readConnObject(RESOURCE_NAME_TESTDB, AnyTypeKind.USER.name(), userId);
+                resourceService.readConnObject(RESOURCE_NAME_TESTDB, AnyTypeKind.USER.name(), userKey);
         assertFalse(getBooleanAttribute(connObjectTO, OperationalAttributes.ENABLE_NAME));
 
-        connObjectTO = resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), userId);
+        connObjectTO = resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), userKey);
         assertNotNull(connObjectTO);
 
         // Suspend and reactivate only on ldap => db and syncope should still show suspended
         statusMod = new StatusMod();
+        statusMod.setKey(userKey);
         statusMod.setType(StatusMod.ModType.SUSPEND);
         statusMod.setOnSyncope(false);
         statusMod.getResourceNames().add(RESOURCE_NAME_LDAP);
-        userService.status(userId, statusMod);
+        userService.status(statusMod);
         statusMod.setType(StatusMod.ModType.REACTIVATE);
-        userTO = userService.status(userId, statusMod).readEntity(UserTO.class);
+        userTO = userService.status(statusMod).readEntity(UserTO.class);
         assertNotNull(userTO);
         assertEquals("suspended", userTO.getStatus());
 
-        connObjectTO = resourceService.readConnObject(RESOURCE_NAME_TESTDB, AnyTypeKind.USER.name(), userId);
+        connObjectTO = resourceService.readConnObject(RESOURCE_NAME_TESTDB, AnyTypeKind.USER.name(), userKey);
         assertFalse(getBooleanAttribute(connObjectTO, OperationalAttributes.ENABLE_NAME));
 
         // Reactivate on syncope and db => syncope and db should show the user as active
         statusMod = new StatusMod();
+        statusMod.setKey(userKey);
         statusMod.setType(StatusMod.ModType.REACTIVATE);
         statusMod.setOnSyncope(true);
         statusMod.getResourceNames().add(RESOURCE_NAME_TESTDB);
 
-        userTO = userService.status(userId, statusMod).readEntity(UserTO.class);
+        userTO = userService.status(statusMod).readEntity(UserTO.class);
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());
 
-        connObjectTO = resourceService.readConnObject(RESOURCE_NAME_TESTDB, AnyTypeKind.USER.name(), userId);
+        connObjectTO = resourceService.readConnObject(RESOURCE_NAME_TESTDB, AnyTypeKind.USER.name(), userKey);
         assertTrue(getBooleanAttribute(connObjectTO, OperationalAttributes.ENABLE_NAME));
     }
 
+    @Test
     public void updateMultivalueAttribute() {
-        UserTO userTO = getSampleTO("multivalue@syncope.apache.org");
+        UserTO userTO = getUniqueSampleTO("multivalue@syncope.apache.org");
         userTO.getResources().clear();
         userTO.getDerAttrs().clear();
         userTO.getVirAttrs().clear();
@@ -938,11 +944,8 @@ public class UserITCase extends AbstractITCase {
 
         UserMod userMod = new UserMod();
 
-        AttrMod loginDateMod = new AttrMod();
-        loginDateMod.getValuesToBeAdded().add("2000-01-01");
-
         userMod.setKey(userTO.getKey());
-        userMod.getPlainAttrsToUpdate().add(loginDateMod);
+        userMod.getPlainAttrsToUpdate().add(attrMod("loginDate", "2000-01-01"));
 
         userTO = updateUser(userMod);
         assertNotNull(userTO);
@@ -1519,18 +1522,15 @@ public class UserITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE265() {
-        for (long i = 1; i <= 5; i++) {
+        for (long key = 1; key <= 5; key++) {
             UserMod userMod = new UserMod();
-            userMod.setKey(i);
-
-            AttrMod attributeMod = new AttrMod();
-            attributeMod.setSchema("type");
-            attributeMod.getValuesToBeAdded().add("a type");
+            userMod.setKey(key);
 
             userMod.getPlainAttrsToRemove().add("type");
-            userMod.getPlainAttrsToUpdate().add(attributeMod);
+            userMod.getPlainAttrsToUpdate().add(attrMod("type", "a type"));
 
             UserTO userTO = updateUser(userMod);
+
             assertEquals("a type", userTO.getPlainAttrMap().get("type").getValues().get(0));
         }
     }
@@ -1549,21 +1549,21 @@ public class UserITCase extends AbstractITCase {
 
         assertEquals(11, bulkAction.getTargets().size());
 
-        bulkAction.setOperation(BulkAction.Type.SUSPEND);
+        bulkAction.setType(BulkAction.Type.SUSPEND);
         BulkActionResult res = userService.bulk(bulkAction);
         assertEquals(10, res.getResultByStatus(Status.SUCCESS).size());
         assertEquals(1, res.getResultByStatus(Status.FAILURE).size());
         assertEquals("suspended", userService.read(
                 Long.parseLong(res.getResultByStatus(Status.SUCCESS).get(3))).getStatus());
 
-        bulkAction.setOperation(BulkAction.Type.REACTIVATE);
+        bulkAction.setType(BulkAction.Type.REACTIVATE);
         res = userService.bulk(bulkAction);
         assertEquals(10, res.getResultByStatus(Status.SUCCESS).size());
         assertEquals(1, res.getResultByStatus(Status.FAILURE).size());
         assertEquals("active", userService.read(
                 Long.parseLong(res.getResultByStatus(Status.SUCCESS).get(3))).getStatus());
 
-        bulkAction.setOperation(BulkAction.Type.DELETE);
+        bulkAction.setType(BulkAction.Type.DELETE);
         res = userService.bulk(bulkAction);
         assertEquals(10, res.getResultByStatus(Status.SUCCESS).size());
         assertEquals(1, res.getResultByStatus(Status.FAILURE).size());
@@ -1765,7 +1765,7 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(actual);
         assertNotNull(resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey()));
 
-        assertNotNull(userService.bulkDeassociation(actual.getKey(),
+        assertNotNull(userService.deassociate(actual.getKey(),
                 ResourceDeassociationActionType.UNLINK,
                 CollectionWrapper.wrap(RESOURCE_NAME_CSV, ResourceKey.class)).
                 readEntity(BulkActionResult.class));
@@ -1801,8 +1801,8 @@ public class UserITCase extends AbstractITCase {
         final ResourceAssociationMod associationMod = new ResourceAssociationMod();
         associationMod.getTargetResources().addAll(CollectionWrapper.wrap(RESOURCE_NAME_CSV, ResourceKey.class));
 
-        assertNotNull(userService.bulkAssociation(
-                actual.getKey(), ResourceAssociationActionType.LINK, associationMod).readEntity(BulkActionResult.class));
+        assertNotNull(userService.associate(actual.getKey(), ResourceAssociationAction.LINK, associationMod).readEntity(
+                BulkActionResult.class));
 
         actual = userService.read(actual.getKey());
         assertNotNull(actual);
@@ -1831,7 +1831,7 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(actual);
         assertNotNull(resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey()));
 
-        assertNotNull(userService.bulkDeassociation(actual.getKey(),
+        assertNotNull(userService.deassociate(actual.getKey(),
                 ResourceDeassociationActionType.UNASSIGN,
                 CollectionWrapper.wrap(RESOURCE_NAME_CSV, ResourceKey.class)).
                 readEntity(BulkActionResult.class));
@@ -1869,12 +1869,12 @@ public class UserITCase extends AbstractITCase {
             assertNotNull(e);
         }
 
-        final ResourceAssociationMod associationMod = new ResourceAssociationMod();
+        ResourceAssociationMod associationMod = new ResourceAssociationMod();
         associationMod.getTargetResources().addAll(CollectionWrapper.wrap(RESOURCE_NAME_CSV, ResourceKey.class));
         associationMod.setChangePwd(true);
         associationMod.setPassword("password");
 
-        assertNotNull(userService.bulkAssociation(actual.getKey(), ResourceAssociationActionType.ASSIGN, associationMod)
+        assertNotNull(userService.associate(actual.getKey(), ResourceAssociationAction.ASSIGN, associationMod)
                 .readEntity(BulkActionResult.class));
 
         actual = userService.read(actual.getKey());
@@ -1898,7 +1898,7 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(actual);
         assertNotNull(resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey()));
 
-        assertNotNull(userService.bulkDeassociation(actual.getKey(),
+        assertNotNull(userService.deassociate(actual.getKey(),
                 ResourceDeassociationActionType.DEPROVISION,
                 CollectionWrapper.wrap(RESOURCE_NAME_CSV, ResourceKey.class)).
                 readEntity(BulkActionResult.class));
@@ -1936,14 +1936,13 @@ public class UserITCase extends AbstractITCase {
             assertNotNull(e);
         }
 
-        final ResourceAssociationMod associationMod = new ResourceAssociationMod();
+        ResourceAssociationMod associationMod = new ResourceAssociationMod();
         associationMod.getTargetResources().addAll(CollectionWrapper.wrap(RESOURCE_NAME_CSV, ResourceKey.class));
         associationMod.setChangePwd(true);
         associationMod.setPassword("password");
 
-        assertNotNull(userService.bulkAssociation(actual.getKey(), ResourceAssociationActionType.PROVISION,
-                associationMod)
-                .readEntity(BulkActionResult.class));
+        assertNotNull(userService.associate(actual.getKey(), ResourceAssociationAction.PROVISION, associationMod).
+                readEntity(BulkActionResult.class));
 
         actual = userService.read(actual.getKey());
         assertNotNull(actual);
@@ -1977,7 +1976,7 @@ public class UserITCase extends AbstractITCase {
         associationMod.setChangePwd(true);
         associationMod.setPassword("password");
 
-        assertNotNull(userService.bulkAssociation(actual.getKey(), ResourceAssociationActionType.PROVISION,
+        assertNotNull(userService.associate(actual.getKey(), ResourceAssociationAction.PROVISION,
                 associationMod)
                 .readEntity(BulkActionResult.class));
 
@@ -1986,7 +1985,7 @@ public class UserITCase extends AbstractITCase {
         assertTrue(actual.getResources().isEmpty());
         assertNotNull(resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey()));
 
-        assertNotNull(userService.bulkDeassociation(actual.getKey(),
+        assertNotNull(userService.deassociate(actual.getKey(),
                 ResourceDeassociationActionType.DEPROVISION,
                 CollectionWrapper.wrap(RESOURCE_NAME_CSV, ResourceKey.class)).
                 readEntity(BulkActionResult.class));

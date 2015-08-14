@@ -143,6 +143,25 @@ public class CamelAnyObjectProvisioningManager
 
     @Override
     @SuppressWarnings("unchecked")
+    public List<PropagationStatus> provision(final Long key, final Collection<String> resources) {
+        PollingConsumer pollingConsumer = getConsumer("direct:provisionAnyObjectPort");
+
+        Map<String, Object> props = new HashMap<>();
+        props.put("resources", resources);
+
+        sendMessage("direct:provisionAnyObject", key, props);
+
+        Exchange exchange = pollingConsumer.receive();
+
+        if (exchange.getProperty(Exchange.EXCEPTION_CAUGHT) != null) {
+            throw (RuntimeException) exchange.getProperty(Exchange.EXCEPTION_CAUGHT);
+        }
+
+        return exchange.getIn().getBody(List.class);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
     public List<PropagationStatus> deprovision(final Long anyObjectKey, final Collection<String> resources) {
         PollingConsumer pollingConsumer = getConsumer("direct:deprovisionAnyObjectPort");
 

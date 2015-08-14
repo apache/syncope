@@ -19,11 +19,13 @@
 package org.apache.syncope.core.logic.init;
 
 import java.text.ParseException;
-import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -37,17 +39,17 @@ import org.apache.syncope.core.persistence.api.entity.task.SyncTask;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.apache.syncope.core.provisioning.api.job.JobInstanceLoader;
 import org.apache.syncope.core.provisioning.api.job.JobNamer;
-import org.apache.syncope.core.provisioning.api.job.SyncJob;
-import org.apache.syncope.core.provisioning.api.job.TaskJob;
-import org.apache.syncope.core.provisioning.api.sync.SyncActions;
 import org.apache.syncope.core.logic.notification.NotificationJob;
 import org.apache.syncope.core.logic.report.ReportJob;
+import org.apache.syncope.core.misc.security.AuthContextUtils;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.SyncopeLoader;
-import org.apache.syncope.core.provisioning.api.job.PushJob;
-import org.apache.syncope.core.provisioning.java.sync.PushJobImpl;
-import org.apache.syncope.core.provisioning.java.sync.SyncJobImpl;
+import org.apache.syncope.core.persistence.api.DomainsHolder;
+import org.apache.syncope.core.provisioning.java.job.TaskJob;
+import org.apache.syncope.core.provisioning.java.sync.PushJobDelegate;
+import org.apache.syncope.core.provisioning.java.sync.SyncJobDelegate;
 import org.quartz.Job;
+import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
@@ -70,6 +72,9 @@ public class JobInstanceLoaderImpl implements JobInstanceLoader, SyncopeLoader {
     private static final Logger LOG = LoggerFactory.getLogger(JobInstanceLoader.class);
 
     @Autowired
+    private DomainsHolder domainsHolder;
+
+    @Autowired
     private SchedulerFactoryBean scheduler;
 
     @Autowired
@@ -81,7 +86,8 @@ public class JobInstanceLoaderImpl implements JobInstanceLoader, SyncopeLoader {
     @Autowired
     private ConfDAO confDAO;
 
-    private void registerJob(final String jobName, final Job jobInstance, final String cronExpression)
+    private void registerJob(
+            final String jobName, final Job jobInstance, final String cronExpression, final Map<String, Object> jobMap)
             throws SchedulerException, ParseException {
 
         synchronized (scheduler.getScheduler()) {
@@ -112,6 +118,7 @@ public class JobInstanceLoaderImpl implements JobInstanceLoader, SyncopeLoader {
         jobDetail.setName(jobName);
         jobDetail.setGroup(Scheduler.DEFAULT_GROUP);
         jobDetail.setJobClass(jobInstance.getClass());
+        jobDetail.setJobDataMap(new JobDataMap(jobMap));
 
         // 3. Trigger
         if (cronExpression == null) {
@@ -127,12 +134,13 @@ public class JobInstanceLoaderImpl implements JobInstanceLoader, SyncopeLoader {
         }
     }
 
-    private Job createSpringBean(final Class<?> jobClass) {
-        Job jobInstance = null;
+    @SuppressWarnings("unchecked")
+    private <T> T createSpringBean(final Class<T> jobClass) {
+        T jobInstance = null;
         for (int i = 0; i < 5 && jobInstance == null; i++) {
             LOG.debug("{} attempt to create Spring bean for {}", i, jobClass);
             try {
-                jobInstance = (Job) ApplicationContextProvider.getBeanFactory().
+                jobInstance = (T) ApplicationContextProvider.getBeanFactory().
                         createBean(jobClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
                 LOG.debug("{} attempt to create Spring bean for {} succeeded", i, jobClass);
             } catch (BeanCreationException e) {
@@ -151,75 +159,43 @@ public class JobInstanceLoaderImpl implements JobInstanceLoader, SyncopeLoader {
         return jobInstance;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public void registerJob(final Task task, final String jobClassName, final String cronExpression)
-            throws ClassNotFoundException, SchedulerException, ParseException {
+    public Map<String, Object> registerJob(final SchedTask task, final long interruptMaxRetries)
+            throws SchedulerException, ParseException {
 
-        Class<?> jobClass = Class.forName(jobClassName);
-        if (SyncJob.class.equals(jobClass)) {
-            jobClass = SyncJobImpl.class;
-        } else if (PushJob.class.equals(jobClass)) {
-            jobClass = PushJobImpl.class;
-        }
+        TaskJob job = createSpringBean(TaskJob.class);
+        job.setTaskKey(task.getKey());
 
-        Job jobInstance = createSpringBean(jobClass);
-        if (jobInstance instanceof TaskJob) {
-            ((TaskJob) jobInstance).setTaskId(task.getKey());
-        }
+        String jobDelegateClassName = task instanceof SyncTask
+                ? SyncJobDelegate.class.getName()
+                : task instanceof PushTask
+                        ? PushJobDelegate.class.getName()
+                        : task.getJobDelegateClassName();
 
-        // In case of synchronization job/task retrieve and set synchronization actions:
-        // actions cannot be changed at runtime but connector and synchronization policies (reloaded at execution time).
-        if (jobInstance instanceof SyncJob && task instanceof SyncTask) {
-            final List<SyncActions> actions = new ArrayList<>();
-            for (String className : ((SyncTask) task).getActionsClassNames()) {
-                try {
-                    Class<?> actionsClass = Class.forName(className);
+        Map<String, Object> jobMap = new HashMap<>();
+        jobMap.put(JobInstanceLoader.DOMAIN, AuthContextUtils.getDomain());
+        jobMap.put(TaskJob.DELEGATE_CLASS_KEY, jobDelegateClassName);
+        jobMap.put(TaskJob.INTERRUPT_MAX_RETRIES_KEY, interruptMaxRetries);
 
-                    SyncActions syncActions = (SyncActions) ApplicationContextProvider.getBeanFactory().
-                            createBean(actionsClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true);
-                    actions.add(syncActions);
-                } catch (Exception e) {
-                    LOG.info("Class '{}' not found", className, e);
-                }
-            }
-
-            ((SyncJob) jobInstance).setActions(actions);
-        }
-
-        registerJob(JobNamer.getJobName(task), jobInstance, cronExpression);
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public void registerTaskJob(final Long taskKey)
-            throws ClassNotFoundException, SchedulerException, ParseException {
-
-        SchedTask task = taskDAO.find(taskKey);
-        if (task == null) {
-            throw new NotFoundException("Task " + taskKey);
-        } else {
-            registerJob(task, task.getJobClassName(), task.getCronExpression());
-        }
+        registerJob(JobNamer.getJobName(task), job, task.getCronExpression(), jobMap);
+        return jobMap;
     }
 
     @Override
     public void registerJob(final Report report) throws SchedulerException, ParseException {
-        Job jobInstance = createSpringBean(ReportJob.class);
-        ((ReportJob) jobInstance).setReportKey(report.getKey());
+        ReportJob job = createSpringBean(ReportJob.class);
+        job.setReportKey(report.getKey());
 
-        registerJob(JobNamer.getJobName(report), jobInstance, report.getCronExpression());
+        Map<String, Object> jobMap = new HashMap<>();
+        jobMap.put(JobInstanceLoader.DOMAIN, AuthContextUtils.getDomain());
+
+        registerJob(JobNamer.getJobName(report), job, report.getCronExpression(), jobMap);
     }
 
-    @Transactional(readOnly = true)
-    @Override
-    public void registerReportJob(final Long reportKey) throws SchedulerException, ParseException {
-        Report report = reportDAO.find(reportKey);
-        if (report == null) {
-            throw new NotFoundException("Report " + reportKey);
-        } else {
-            registerJob(report);
-        }
+    private void registerNotificationJob(final String cronExpression) throws SchedulerException, ParseException {
+        NotificationJob job = createSpringBean(NotificationJob.class);
+
+        registerJob("taskNotificationJob", job, cronExpression, Collections.<String, Object>emptyMap());
     }
 
     private void unregisterJob(final String jobName) {
@@ -253,40 +229,61 @@ public class JobInstanceLoaderImpl implements JobInstanceLoader, SyncopeLoader {
     @Transactional
     @Override
     public void load() {
-        // 1. jobs for SchedTasks
-        Set<SchedTask> tasks = new HashSet<>(taskDAO.<SchedTask>findAll(TaskType.SCHEDULED));
-        tasks.addAll(taskDAO.<SyncTask>findAll(TaskType.SYNCHRONIZATION));
-        tasks.addAll(taskDAO.<PushTask>findAll(TaskType.PUSH));
-        for (SchedTask task : tasks) {
+        AuthContextUtils.setFakeAuth(SyncopeConstants.MASTER_DOMAIN);
+        String notificationJobCronExpression = StringUtils.EMPTY;
+        long interruptMaxRetries = 1;
+        try {
+            CPlainAttr notificationJobCronExp =
+                    confDAO.find("notificationjob.cronExpression", NotificationJob.DEFAULT_CRON_EXP);
+            if (!notificationJobCronExp.getValuesAsStrings().isEmpty()) {
+                notificationJobCronExpression = notificationJobCronExp.getValuesAsStrings().get(0);
+            }
+
+            interruptMaxRetries = confDAO.find("tasks.interruptMaxRetries", "1").getValues().get(0).getLongValue();
+        } finally {
+            AuthContextUtils.clearFakeAuth();
+        }
+
+        for (String domain : domainsHolder.getDomains().keySet()) {
+            AuthContextUtils.setFakeAuth(domain);
+
             try {
-                registerJob(task, task.getJobClassName(), task.getCronExpression());
-            } catch (Exception e) {
-                LOG.error("While loading job instance for task " + task.getKey(), e);
+                // 1. jobs for SchedTasks
+                Set<SchedTask> tasks = new HashSet<>(taskDAO.<SchedTask>findAll(TaskType.SCHEDULED));
+                tasks.addAll(taskDAO.<SyncTask>findAll(TaskType.SYNCHRONIZATION));
+                tasks.addAll(taskDAO.<PushTask>findAll(TaskType.PUSH));
+                for (SchedTask task : tasks) {
+                    try {
+                        registerJob(task, interruptMaxRetries);
+                    } catch (Exception e) {
+                        LOG.error("While loading job instance for task " + task.getKey(), e);
+                    }
+                }
+
+                // 2. ReportJobs
+                for (Report report : reportDAO.findAll()) {
+                    try {
+                        registerJob(report);
+                    } catch (Exception e) {
+                        LOG.error("While loading job instance for report " + report.getName(), e);
+                    }
+                }
+            } finally {
+                AuthContextUtils.clearFakeAuth();
             }
         }
 
-        // 2. NotificationJob
-        CPlainAttr notificationJobCronExp =
-                confDAO.find("notificationjob.cronExpression", NotificationJob.DEFAULT_CRON_EXP);
-        if (StringUtils.isBlank(notificationJobCronExp.getValuesAsStrings().get(0))) {
+        // 3. NotificationJob
+        if (StringUtils.isBlank(notificationJobCronExpression)) {
             LOG.debug("Empty value provided for NotificationJob's cron, not registering anything on Quartz");
         } else {
             LOG.debug("NotificationJob's cron expression: {} - registering Quartz job and trigger",
-                    notificationJobCronExp);
+                    notificationJobCronExpression);
 
             try {
-                registerJob(null, NotificationJob.class.getName(), notificationJobCronExp.getValuesAsStrings().get(0));
+                registerNotificationJob(notificationJobCronExpression);
             } catch (Exception e) {
                 LOG.error("While loading NotificationJob instance", e);
-            }
-        }
-
-        // 3. ReportJobs
-        for (Report report : reportDAO.findAll()) {
-            try {
-                registerJob(report);
-            } catch (Exception e) {
-                LOG.error("While loading job instance for report " + report.getName(), e);
             }
         }
     }

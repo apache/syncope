@@ -141,7 +141,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         assertFalse(after.isEmpty());
 
         BulkAction bulkAction = new BulkAction();
-        bulkAction.setOperation(BulkAction.Type.DELETE);
+        bulkAction.setType(BulkAction.Type.DELETE);
 
         for (PropagationTaskTO taskTO : after) {
             bulkAction.getTargets().add(String.valueOf(taskTO.getKey()));

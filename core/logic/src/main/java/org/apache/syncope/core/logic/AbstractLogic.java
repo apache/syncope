@@ -31,9 +31,6 @@ import org.springframework.transaction.annotation.Transactional;
  */
 abstract class AbstractLogic<T extends AbstractBaseBean> {
 
-    /**
-     * Logger.
-     */
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractLogic.class);
 
     /**

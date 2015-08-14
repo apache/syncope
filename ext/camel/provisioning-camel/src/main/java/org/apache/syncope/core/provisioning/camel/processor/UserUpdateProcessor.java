@@ -74,7 +74,7 @@ public class UserUpdateProcessor implements Processor {
         }
 
         PropagationReporter propagationReporter =
-                ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
+                ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
         if (!tasks.isEmpty()) {
             try {
                 taskExecutor.execute(tasks, propagationReporter);

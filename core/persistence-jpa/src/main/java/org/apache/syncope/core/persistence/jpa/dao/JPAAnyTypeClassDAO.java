@@ -51,19 +51,31 @@ public class JPAAnyTypeClassDAO extends AbstractDAO<AnyTypeClass, String> implem
 
     @Override
     public AnyTypeClass find(final String key) {
-        return entityManager.find(JPAAnyTypeClass.class, key);
+        return entityManager().find(JPAAnyTypeClass.class, key);
     }
 
     @Override
     public List<AnyTypeClass> findAll() {
-        TypedQuery<AnyTypeClass> query = entityManager.createQuery(
+        TypedQuery<AnyTypeClass> query = entityManager().createQuery(
                 "SELECT e FROM " + JPAAnyTypeClass.class.getSimpleName() + " e ", AnyTypeClass.class);
         return query.getResultList();
     }
 
     @Override
     public AnyTypeClass save(final AnyTypeClass anyTypeClass) {
-        return entityManager.merge(anyTypeClass);
+        AnyTypeClass merge = entityManager().merge(anyTypeClass);
+
+        for (PlainSchema schema : merge.getPlainSchemas()) {
+            schema.setAnyTypeClass(merge);
+        }
+        for (DerSchema schema : merge.getDerSchemas()) {
+            schema.setAnyTypeClass(merge);
+        }
+        for (VirSchema schema : merge.getVirSchemas()) {
+            schema.setAnyTypeClass(merge);
+        }
+
+        return merge;
     }
 
     @Override
@@ -87,7 +99,7 @@ public class JPAAnyTypeClassDAO extends AbstractDAO<AnyTypeClass, String> implem
             type.remove(anyTypeClass);
         }
 
-        entityManager.remove(anyTypeClass);
+        entityManager().remove(anyTypeClass);
     }
 
 }

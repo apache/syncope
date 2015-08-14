@@ -27,7 +27,6 @@ import org.apache.syncope.common.lib.mod.UserMod;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 
@@ -149,12 +148,12 @@ public interface PropagationManager {
     /**
      * Performs update on each resource associated to the user excluding the specified into 'resourceNames' parameter.
      *
-     * @param user to be propagated
+     * @param key to be propagated
      * @param enable whether user must be enabled or not
      * @param noPropResourceNames external resource names not to be considered for propagation
      * @return list of propagation tasks
      */
-    List<PropagationTask> getUserUpdateTasks(User user, Boolean enable, Collection<String> noPropResourceNames);
+    List<PropagationTask> getUserUpdateTasks(Long key, Boolean enable, Collection<String> noPropResourceNames);
 
     /**
      * Performs update on each resource associated to the user.

@@ -57,7 +57,7 @@ public class GroupCreateProcessor implements Processor {
         List<PropagationTask> tasks =
                 propagationManager.getGroupCreateTasks(created, any.getVirAttrs(), excludedResource);
         PropagationReporter propagationReporter =
-                ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
+                ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
         try {
             taskExecutor.execute(tasks, propagationReporter);
         } catch (PropagationException e) {

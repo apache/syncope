@@ -21,8 +21,8 @@ under the License.
 
   <appenders>
     
-    <RollingRandomAccessFile name="main" fileName="${log.directory}/server.log"
-                             filePattern="${log.directory}/server-%d{yyyy-MM-dd}.log.gz"
+    <RollingRandomAccessFile name="main" fileName="${log.directory}/core.log"
+                             filePattern="${log.directory}/core-%d{yyyy-MM-dd}.log.gz"
                              immediateFlush="false" append="true">
       <PatternLayout>
         <pattern>%d{HH:mm:ss.SSS} %-5level %logger - %msg%n</pattern>
@@ -33,8 +33,8 @@ under the License.
       </Policies>
     </RollingRandomAccessFile>
 
-    <RollingRandomAccessFile name="persistence" fileName="${log.directory}/server-persistence.log"
-                             filePattern="${log.directory}/server-persistence-%d{yyyy-MM-dd}.log.gz"
+    <RollingRandomAccessFile name="persistence" fileName="${log.directory}/core-persistence.log"
+                             filePattern="${log.directory}/core-persistence-%d{yyyy-MM-dd}.log.gz"
                              immediateFlush="false" append="true">
       <PatternLayout>
         <pattern>%d{HH:mm:ss.SSS} %-5level %logger - %msg%n</pattern>
@@ -45,8 +45,8 @@ under the License.
       </Policies>
     </RollingRandomAccessFile>
 
-    <RollingRandomAccessFile name="rest" fileName="${log.directory}/server-rest.log"
-                             filePattern="${log.directory}/server-rest-%d{yyyy-MM-dd}.log.gz"
+    <RollingRandomAccessFile name="rest" fileName="${log.directory}/core-rest.log"
+                             filePattern="${log.directory}/core-rest-%d{yyyy-MM-dd}.log.gz"
                              immediateFlush="false" append="true">
       <PatternLayout>
         <pattern>%d{HH:mm:ss.SSS} %-5level %logger - %msg%n</pattern>
@@ -57,8 +57,8 @@ under the License.
       </Policies>
     </RollingRandomAccessFile>
 
-    <RollingRandomAccessFile name="connid" fileName="${log.directory}/server-connid.log"
-                             filePattern="${log.directory}/server-connid-%d{yyyy-MM-dd}.log.gz"
+    <RollingRandomAccessFile name="connid" fileName="${log.directory}/core-connid.log"
+                             filePattern="${log.directory}/core-connid-%d{yyyy-MM-dd}.log.gz"
                              immediateFlush="false" append="true">
       <PatternLayout>
         <pattern>%d{HH:mm:ss.SSS} %-5level %msg%n</pattern>
@@ -68,17 +68,7 @@ under the License.
         <SizeBasedTriggeringPolicy size="250 MB"/>
       </Policies>
     </RollingRandomAccessFile>
-
-    <!-- Audit -->    
-    <Jdbc name="audit" tableName="SYNCOPEAUDIT">
-      <ConnectionFactory class="org.apache.syncope.core.logic.audit.AuditConnectionFactory" method="getConnection"/>
-      <Column name="EVENT_DATE" isEventTimestamp="true"/>
-      <Column name="LOGGER_LEVEL" pattern="%level" isUnicode="false"/>
-      <Column name="LOGGER" pattern="%logger" isUnicode="false"/>
-      <Column name="MESSAGE" pattern="%message" isUnicode="false"/>
-      <Column name="THROWABLE" pattern="%ex{full}" isUnicode="false"/>
-    </Jdbc>
-
+    
   </appenders>
   
   <loggers>
@@ -113,6 +103,9 @@ under the License.
       <appender-ref ref="connid"/>
     </asyncLogger>
     
+    <asyncLogger name="org.apache.syncope" additivity="false" level="ERROR">
+      <appender-ref ref="main"/>
+    </asyncLogger>
     <asyncLogger name="org.apache.syncope.core.provisioning" additivity="false" level="INFO">
       <appender-ref ref="main"/>
     </asyncLogger>
@@ -122,13 +115,15 @@ under the License.
     <asyncLogger name="org.springframework" additivity="false" level="INFO">
       <appender-ref ref="main"/>
     </asyncLogger>
+    <asyncLogger name="org.quartz" additivity="false" level="INFO">
+      <appender-ref ref="main"/>
+    </asyncLogger>
+    <asyncLogger name="org.activiti" additivity="false" level="ERROR">
+      <appender-ref ref="main"/>
+    </asyncLogger>
     <asyncLogger name="org.apache.camel" additivity="false" level="ERROR">
       <appender-ref ref="main"/>
     </asyncLogger>
-         
-    <logger name="syncope.audit" additivity="false" level="DEBUG">
-      <appender-ref ref="audit"/>
-    </logger>
     
     <root level="INFO">
       <appender-ref ref="main"/>

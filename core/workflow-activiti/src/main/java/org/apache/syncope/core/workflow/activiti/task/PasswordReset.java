@@ -28,9 +28,12 @@ public class PasswordReset extends AbstractActivitiServiceTask {
 
     @Override
     protected void doExecute(final String executionId) {
-        User user = runtimeService.getVariable(executionId, ActivitiUserWorkflowAdapter.USER, User.class);
-        String token = runtimeService.getVariable(executionId, ActivitiUserWorkflowAdapter.TOKEN, String.class);
-        String password = runtimeService.getVariable(executionId, ActivitiUserWorkflowAdapter.PASSWORD, String.class);
+        User user = engine.getRuntimeService().
+                getVariable(executionId, ActivitiUserWorkflowAdapter.USER, User.class);
+        String token = engine.getRuntimeService().
+                getVariable(executionId, ActivitiUserWorkflowAdapter.TOKEN, String.class);
+        String password = engine.getRuntimeService().
+                getVariable(executionId, ActivitiUserWorkflowAdapter.PASSWORD, String.class);
 
         if (!user.checkToken(token)) {
             throw new WorkflowException(new IllegalArgumentException("Wrong token: " + token + " for " + user));
@@ -38,7 +41,7 @@ public class PasswordReset extends AbstractActivitiServiceTask {
 
         user.removeToken();
         user.setPassword(password, user.getCipherAlgorithm());
-        runtimeService.setVariable(executionId, ActivitiUserWorkflowAdapter.USER, user);
+        engine.getRuntimeService().setVariable(executionId, ActivitiUserWorkflowAdapter.USER, user);
     }
 
 }

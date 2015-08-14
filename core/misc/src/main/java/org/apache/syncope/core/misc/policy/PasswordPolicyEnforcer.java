@@ -24,10 +24,9 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.springframework.stereotype.Component;
 
 @Component
-public class PasswordPolicyEnforcer implements PolicyEnforcer<PasswordPolicySpec, User> {
+public class PasswordPolicyEnforcer {
 
-    @Override
-    public void enforce(final PasswordPolicySpec policy, final PolicyType type, final User user) {
+    public boolean enforce(final PasswordPolicySpec policy, final PolicyType type, final User user) {
         final String clearPassword = user.getClearPassword();
         final String password = user.getPassword();
 
@@ -147,6 +146,8 @@ public class PasswordPolicyEnforcer implements PolicyEnforcer<PasswordPolicySpec
                 throw new PasswordPolicyException("Password mustn't end with a non-alphanumeric character");
             }
         }
+
+        return false;
     }
 
     private boolean checkForDigit(final String str) {

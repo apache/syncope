@@ -32,7 +32,7 @@ public class JPAAnyTypeDAO extends AbstractDAO<AnyType, String> implements AnyTy
 
     @Override
     public AnyType find(final String key) {
-        return entityManager.find(JPAAnyType.class, key);
+        return entityManager().find(JPAAnyType.class, key);
     }
 
     @Override
@@ -50,7 +50,7 @@ public class JPAAnyTypeDAO extends AbstractDAO<AnyType, String> implements AnyTy
                 append(JPAAnyType.class.getSimpleName()).
                 append(" e WHERE :anyTypeClass MEMBER OF e.classes");
 
-        TypedQuery<AnyType> query = entityManager.createQuery(queryString.toString(), AnyType.class);
+        TypedQuery<AnyType> query = entityManager().createQuery(queryString.toString(), AnyType.class);
         query.setParameter("anyTypeClass", anyTypeClass);
 
         return query.getResultList();
@@ -58,14 +58,14 @@ public class JPAAnyTypeDAO extends AbstractDAO<AnyType, String> implements AnyTy
 
     @Override
     public List<AnyType> findAll() {
-        TypedQuery<AnyType> query = entityManager.createQuery(
+        TypedQuery<AnyType> query = entityManager().createQuery(
                 "SELECT e FROM " + JPAAnyType.class.getSimpleName() + " e ", AnyType.class);
         return query.getResultList();
     }
 
     @Override
     public AnyType save(final AnyType anyType) {
-        return entityManager.merge(anyType);
+        return entityManager().merge(anyType);
     }
 
     @Override
@@ -79,7 +79,7 @@ public class JPAAnyTypeDAO extends AbstractDAO<AnyType, String> implements AnyTy
             throw new IllegalArgumentException(key + " cannot be deleted");
         }
 
-        entityManager.remove(anyType);
+        entityManager().remove(anyType);
     }
 
 }

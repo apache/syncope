@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.workflow.activiti.task;
 
-import org.activiti.engine.RuntimeService;
+import org.activiti.engine.ProcessEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,13 +31,10 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 public abstract class AbstractActivitiServiceTask {
 
-    /**
-     * Logger.
-     */
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractActivitiServiceTask.class);
 
     @Autowired
-    protected RuntimeService runtimeService;
+    protected ProcessEngine engine;
 
     @Transactional(rollbackFor = { Throwable.class })
     public void execute(final String executionId) {

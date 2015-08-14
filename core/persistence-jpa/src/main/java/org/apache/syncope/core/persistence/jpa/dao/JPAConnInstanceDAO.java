@@ -44,19 +44,19 @@ public class JPAConnInstanceDAO extends AbstractDAO<ConnInstance, Long> implemen
 
     @Override
     public ConnInstance find(final Long key) {
-        return entityManager.find(JPAConnInstance.class, key);
+        return entityManager().find(JPAConnInstance.class, key);
     }
 
     @Override
     public List<ConnInstance> findAll() {
-        TypedQuery<ConnInstance> query = entityManager.createQuery(
+        TypedQuery<ConnInstance> query = entityManager().createQuery(
                 "SELECT e FROM " + JPAConnInstance.class.getSimpleName() + " e", ConnInstance.class);
         return query.getResultList();
     }
 
     @Override
     public ConnInstance save(final ConnInstance connector) {
-        final ConnInstance merged = entityManager.merge(connector);
+        final ConnInstance merged = entityManager().merge(connector);
 
         for (ExternalResource resource : merged.getResources()) {
             try {
@@ -86,7 +86,7 @@ public class JPAConnInstanceDAO extends AbstractDAO<ConnInstance, Long> implemen
 
                 });
 
-        entityManager.remove(connInstance);
+        entityManager().remove(connInstance);
 
         connRegistry.unregisterConnector(key.toString());
     }

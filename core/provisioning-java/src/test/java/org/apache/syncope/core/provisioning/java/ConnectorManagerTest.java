@@ -65,7 +65,7 @@ public class ConnectorManagerTest extends AbstractTest {
         }
 
         assertEquals(expected,
-                ApplicationContextProvider.getApplicationContext().
+                ApplicationContextProvider.getBeanFactory().
                 getBeanNamesForType(Connector.class, false, true).length);
     }
 }

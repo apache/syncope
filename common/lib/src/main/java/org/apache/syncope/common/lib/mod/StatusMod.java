@@ -21,6 +21,7 @@ package org.apache.syncope.common.lib.mod;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.List;
+import javax.ws.rs.PathParam;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlEnum;
@@ -66,6 +67,7 @@ public class StatusMod extends AbstractBaseBean {
      */
     private final List<String> resourceNames = new ArrayList<>();
 
+    @PathParam("key")
     public long getKey() {
         return key;
     }

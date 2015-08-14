@@ -26,7 +26,9 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.mod.AnyMod;
 import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.misc.RealmUtils;
+import org.apache.syncope.core.misc.security.UnauthorizedException;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 
@@ -57,14 +59,33 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, MOD extends AnyMod>
     protected Set<String> getEffectiveRealms(
             final Set<String> allowedRealms, final Collection<String> requestedRealms) {
 
-        final Set<String> allowed = RealmUtils.normalize(allowedRealms);
-        final Set<String> requested = RealmUtils.normalize(requestedRealms);
+        Set<String> allowed = RealmUtils.normalize(allowedRealms);
+        Set<String> requested = RealmUtils.normalize(requestedRealms);
 
         Set<String> effective = new HashSet<>();
         CollectionUtils.select(requested, new StartsWithPredicate(allowed), effective);
         CollectionUtils.select(allowed, new StartsWithPredicate(requested), effective);
 
         return effective;
+    }
+
+    protected void securityChecks(final Set<String> effectiveRealms, final String realm, final Long key) {
+        if (!CollectionUtils.exists(effectiveRealms, new Predicate<String>() {
+
+            @Override
+            public boolean evaluate(final String ownedRealm) {
+                return realm.startsWith(ownedRealm);
+            }
+        })) {
+
+            throw new UnauthorizedException(
+                    this instanceof UserLogic
+                            ? AnyTypeKind.USER
+                            : this instanceof GroupLogic
+                                    ? AnyTypeKind.GROUP
+                                    : AnyTypeKind.ANY_OBJECT,
+                    key);
+        }
     }
 
     public abstract TO read(Long key);

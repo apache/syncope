@@ -73,7 +73,7 @@ import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 
 public final class MappingUtils {
 
@@ -141,9 +141,9 @@ public final class MappingUtils {
         LOG.debug("Preparing resource attributes for {} with provision {} for attributes {}",
                 any, provision, any.getPlainAttrs());
 
-        ConfigurableApplicationContext context = ApplicationContextProvider.getApplicationContext();
-        VirAttrCache virAttrCache = context.getBean(VirAttrCache.class);
-        PasswordGenerator passwordGenerator = context.getBean(PasswordGenerator.class);
+        DefaultListableBeanFactory beanFactory = ApplicationContextProvider.getBeanFactory();
+        VirAttrCache virAttrCache = beanFactory.getBean(VirAttrCache.class);
+        PasswordGenerator passwordGenerator = beanFactory.getBean(PasswordGenerator.class);
 
         Set<Attribute> attributes = new HashSet<>();
         String connObjectKey = null;
@@ -227,9 +227,9 @@ public final class MappingUtils {
 
         List<Any<?, ?, ?>> anys = new ArrayList<>();
 
-        ConfigurableApplicationContext context = ApplicationContextProvider.getApplicationContext();
-        AnyUtilsFactory anyUtilsFactory = context.getBean(AnyUtilsFactory.class);
-        VirAttrHandler virAttrHandler = context.getBean(VirAttrHandler.class);
+        DefaultListableBeanFactory beanFactory = ApplicationContextProvider.getBeanFactory();
+        AnyUtilsFactory anyUtilsFactory = beanFactory.getBean(AnyUtilsFactory.class);
+        VirAttrHandler virAttrHandler = beanFactory.getBean(VirAttrHandler.class);
 
         switch (mapItem.getIntMappingType().getAnyTypeKind()) {
             case USER:
@@ -240,7 +240,7 @@ public final class MappingUtils {
 
             case GROUP:
                 if (any instanceof User) {
-                    UserDAO userDAO = context.getBean(UserDAO.class);
+                    UserDAO userDAO = beanFactory.getBean(UserDAO.class);
                     for (Group group : userDAO.findAllGroups((User) any)) {
                         virAttrHandler.retrieveVirAttrValues(group);
                         anys.add(group);
@@ -271,7 +271,7 @@ public final class MappingUtils {
             case UserPlainSchema:
             case GroupPlainSchema:
             case AnyObjectPlainSchema:
-                final PlainSchemaDAO plainSchemaDAO = context.getBean(PlainSchemaDAO.class);
+                PlainSchemaDAO plainSchemaDAO = beanFactory.getBean(PlainSchemaDAO.class);
                 schema = plainSchemaDAO.find(mapItem.getIntAttrName());
                 schemaType = schema == null ? AttrSchemaType.String : schema.getType();
                 break;
@@ -279,7 +279,7 @@ public final class MappingUtils {
             case UserVirtualSchema:
             case GroupVirtualSchema:
             case AnyObjectVirtualSchema:
-                VirSchemaDAO virSchemaDAO = context.getBean(VirSchemaDAO.class);
+                VirSchemaDAO virSchemaDAO = beanFactory.getBean(VirSchemaDAO.class);
                 VirSchema virSchema = virSchemaDAO.find(mapItem.getIntAttrName());
                 readOnlyVirSchema = (virSchema != null && virSchema.isReadonly());
                 schemaType = AttrSchemaType.String;
@@ -434,9 +434,9 @@ public final class MappingUtils {
         LOG.debug("Get attributes for '{}' and mapping type '{}'", anys, mappingItem.getIntMappingType());
 
         EntityFactory entityFactory =
-                ApplicationContextProvider.getApplicationContext().getBean(EntityFactory.class);
+                ApplicationContextProvider.getBeanFactory().getBean(EntityFactory.class);
         AnyUtilsFactory anyUtilsFactory =
-                ApplicationContextProvider.getApplicationContext().getBean(AnyUtilsFactory.class);
+                ApplicationContextProvider.getBeanFactory().getBean(AnyUtilsFactory.class);
         List<PlainAttrValue> values = new ArrayList<>();
         PlainAttrValue attrValue;
         switch (mappingItem.getIntMappingType()) {
@@ -551,7 +551,7 @@ public final class MappingUtils {
                 break;
 
             case GroupOwnerSchema:
-                AnyTypeDAO anyTypeDAO = ApplicationContextProvider.getApplicationContext().getBean(AnyTypeDAO.class);
+                AnyTypeDAO anyTypeDAO = ApplicationContextProvider.getBeanFactory().getBean(AnyTypeDAO.class);
                 Mapping uMapping = provision.getAnyType().equals(anyTypeDAO.findUser())
                         ? null
                         : provision.getMapping();

@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.fit.core.reference;
 
-import static org.apache.syncope.fit.core.reference.AbstractITCase.anyTypeClassService;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -105,7 +104,7 @@ public class ExceptionMapperITCase extends AbstractITCase {
             fail();
         } catch (Exception e) {
             String message = ERROR_MESSAGES.getProperty("errMessage.UniqueConstraintViolation");
-            assertEquals(e.getMessage(), "DataIntegrityViolation [" + message + "]");
+            assertEquals("EntityExists [" + message + "]", e.getMessage());
         }
     }
 

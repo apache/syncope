@@ -48,7 +48,7 @@ public class UserSelfServiceImpl extends AbstractServiceImpl implements UserSelf
             throw sce;
         }
 
-        UserTO created = logic.createSelf(userTO, storePassword);
+        UserTO created = logic.selfCreate(userTO, storePassword);
         return createResponse(created.getKey(), created);
     }
 
@@ -64,13 +64,13 @@ public class UserSelfServiceImpl extends AbstractServiceImpl implements UserSelf
 
     @Override
     public Response update(final UserMod userMod) {
-        UserTO updated = logic.updateSelf(userMod);
+        UserTO updated = logic.selfUpdate(userMod);
         return modificationResponse(updated);
     }
 
     @Override
     public Response delete() {
-        UserTO deleted = logic.deleteSelf();
+        UserTO deleted = logic.selfDelete();
         return modificationResponse(deleted);
     }
 

@@ -101,19 +101,19 @@ public class BulkActionModalPage<T, S> extends BaseModalPage {
 
             switch (action) {
                 case DELETE:
-                    bulkAction.setOperation(BulkAction.Type.DELETE);
+                    bulkAction.setType(BulkAction.Type.DELETE);
                     break;
                 case SUSPEND:
-                    bulkAction.setOperation(BulkAction.Type.SUSPEND);
+                    bulkAction.setType(BulkAction.Type.SUSPEND);
                     break;
                 case REACTIVATE:
-                    bulkAction.setOperation(BulkAction.Type.REACTIVATE);
+                    bulkAction.setType(BulkAction.Type.REACTIVATE);
                     break;
                 case EXECUTE:
-                    bulkAction.setOperation(BulkAction.Type.EXECUTE);
+                    bulkAction.setType(BulkAction.Type.EXECUTE);
                     break;
                 case DRYRUN:
-                    bulkAction.setOperation(BulkAction.Type.DRYRUN);
+                    bulkAction.setType(BulkAction.Type.DRYRUN);
                     break;
                 default:
                     LOG.error("Bulk action type not supported");
@@ -133,7 +133,7 @@ public class BulkActionModalPage<T, S> extends BaseModalPage {
                     } catch (NoSuchMethodException | SecurityException | IllegalAccessException 
                             | IllegalArgumentException | InvocationTargetException e) {
                         error(getString(Constants.ERROR)
-                                + ": Operation " + bulkAction.getOperation() + " not supported");
+                                + ": Operation " + bulkAction.getType() + " not supported");
                         feedbackPanel.refresh(target);
                     }
 

@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.fit.core.reference;
 
-import static org.apache.syncope.fit.core.reference.AbstractITCase.getUUIDString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;

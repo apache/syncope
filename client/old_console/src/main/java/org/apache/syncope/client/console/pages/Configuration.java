@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.console.pages;
 
-import static org.apache.syncope.client.console.pages.AbstractBasePage.LOG;
-
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;

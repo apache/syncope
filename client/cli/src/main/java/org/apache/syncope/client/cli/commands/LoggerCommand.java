@@ -105,7 +105,7 @@ public class LoggerCommand extends AbstractCommand {
                 final LoggerTO loggerTO = loggerService.read(LoggerType.LOG, log.getKey());
                 try {
                     loggerTO.setLevel(LoggerLevel.valueOf(log.getValue()));
-                    loggerService.update(LoggerType.LOG, loggerTO.getKey(), loggerTO);
+                    loggerService.update(LoggerType.LOG, loggerTO);
                     System.out.println(" - Logger " + loggerTO.getKey() + " new level -> " + loggerTO.getLevel());
                 } catch (final SyncopeClientException ex) {
                     System.out.println(" - Error: " + ex.getMessage());
@@ -121,7 +121,7 @@ public class LoggerCommand extends AbstractCommand {
             for (final LoggerTO loggerTO : loggerService.list(LoggerType.LOG)) {
                 try {
                     loggerTO.setLevel(LoggerLevel.valueOf(logLevel));
-                    loggerService.update(LoggerType.LOG, loggerTO.getKey(), loggerTO);
+                    loggerService.update(LoggerType.LOG, loggerTO);
                     System.out.println(" - Logger " + loggerTO.getKey() + " new level -> " + loggerTO.getLevel());
                 } catch (final SyncopeClientException ex) {
                     System.out.println(" - Error: " + ex.getMessage());
@@ -140,7 +140,7 @@ public class LoggerCommand extends AbstractCommand {
                 try {
                     loggerTO.setKey(entrySet.getKey());
                     loggerTO.setLevel(LoggerLevel.valueOf(entrySet.getValue()));
-                    loggerService.update(LoggerType.LOG, loggerTO.getKey(), loggerTO);
+                    loggerService.update(LoggerType.LOG, loggerTO);
                     System.out.println(" - Logger " + loggerTO.getKey() + " created with level -> " + loggerTO.
                             getLevel());
                 } catch (final SyncopeClientException ex) {

@@ -23,12 +23,14 @@ import java.security.AccessControlException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -51,7 +53,6 @@ import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.misc.security.AuthContextUtils;
-import org.apache.syncope.core.misc.security.UnauthorizedException;
 import org.apache.syncope.core.misc.serialization.POJOHelper;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.provisioning.api.AnyTransformer;
@@ -60,7 +61,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.interceptor.TransactionInterceptor;
 
 /**
  * Note that this controller does not extend {@link AbstractTransactionalLogic}, hence does not provide any
@@ -100,17 +100,19 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserMod> {
     protected SyncopeLogic syncopeLogic;
 
     @PreAuthorize("hasRole('" + Entitlement.USER_READ + "')")
+    @Transactional(readOnly = true)
     public String getUsername(final Long key) {
         return binder.getUserTO(key).getUsername();
     }
 
     @PreAuthorize("hasRole('" + Entitlement.USER_READ + "')")
+    @Transactional(readOnly = true)
     public Long getKey(final String username) {
         return binder.getUserTO(username).getKey();
     }
 
     @PreAuthorize("hasRole('" + Entitlement.USER_LIST + "')")
-    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
+    @Transactional(readOnly = true)
     @Override
     public int count(final List<String> realms) {
         return userDAO.count(
@@ -118,7 +120,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserMod> {
     }
 
     @PreAuthorize("hasRole('" + Entitlement.USER_LIST + "')")
-    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
+    @Transactional(readOnly = true)
     @Override
     public List<UserTO> list(
             final int page, final int size, final List<OrderByClause> orderBy,
@@ -152,7 +154,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserMod> {
     }
 
     @PreAuthorize("hasRole('" + Entitlement.USER_SEARCH + "')")
-    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
+    @Transactional(readOnly = true)
     @Override
     public int searchCount(final SearchCond searchCondition, final List<String> realms) {
         return searchDAO.count(
@@ -161,7 +163,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserMod> {
     }
 
     @PreAuthorize("hasRole('" + Entitlement.USER_SEARCH + "')")
-    @Transactional(readOnly = true, rollbackFor = { Throwable.class })
+    @Transactional(readOnly = true)
     @Override
     public List<UserTO> search(final SearchCond searchCondition, final int page, final int size,
             final List<OrderByClause> orderBy, final List<String> realms, final boolean details) {
@@ -179,7 +181,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserMod> {
     }
 
     @PreAuthorize("isAnonymous() or hasRole('" + Entitlement.ANONYMOUS + "')")
-    public UserTO createSelf(final UserTO userTO, final boolean storePassword) {
+    public UserTO selfCreate(final UserTO userTO, final boolean storePassword) {
         return doCreate(userTO, storePassword);
     }
 
@@ -192,15 +194,13 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserMod> {
     @PreAuthorize("hasRole('" + Entitlement.USER_CREATE + "')")
     public UserTO create(final UserTO userTO, final boolean storePassword) {
         if (userTO.getRealm() == null) {
-            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
-            throw sce;
+            throw SyncopeClientException.build(ClientExceptionType.InvalidRealm);
         }
+        // security checks
         Set<String> effectiveRealms = getEffectiveRealms(
                 AuthContextUtils.getAuthorizations().get(Entitlement.USER_CREATE),
                 Collections.singleton(userTO.getRealm()));
-        if (effectiveRealms.isEmpty()) {
-            throw new UnauthorizedException(AnyTypeKind.USER, null);
-        }
+        securityChecks(effectiveRealms, userTO.getRealm(), null);
 
         return doCreate(userTO, storePassword);
     }
@@ -218,14 +218,14 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserMod> {
     }
 
     @PreAuthorize("isAuthenticated() and not(hasRole('" + Entitlement.ANONYMOUS + "'))")
-    public UserTO updateSelf(final UserMod userMod) {
+    public UserTO selfUpdate(final UserMod userMod) {
         UserTO userTO = binder.getAuthenticatedUserTO();
 
         if (userTO.getKey() != userMod.getKey()) {
             throw new AccessControlException("Not allowed for user with key " + userMod.getKey());
         }
 
-        return update(userMod);
+        return doUpdate(userMod);
     }
 
     @PreAuthorize("hasRole('" + Entitlement.USER_UPDATE + "')")
@@ -235,29 +235,47 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserMod> {
         UserMod actual = anyTransformer.transform(userMod);
         LOG.debug("Transformed: {}", actual);
 
-        Map.Entry<Long, List<PropagationStatus>> updated = provisioningManager.update(actual);
+        // security checks
+        UserTO toUpdate = binder.getUserTO(userMod.getKey());
+        Set<String> requestedRealms = new HashSet<>();
+        requestedRealms.add(toUpdate.getRealm());
+        if (StringUtils.isNotBlank(actual.getRealm())) {
+            requestedRealms.add(actual.getRealm());
+        }
+        Set<String> effectiveRealms = getEffectiveRealms(
+                AuthContextUtils.getAuthorizations().get(Entitlement.USER_UPDATE),
+                requestedRealms);
+        securityChecks(effectiveRealms, toUpdate.getRealm(), toUpdate.getKey());
+        if (StringUtils.isNotBlank(actual.getRealm())) {
+            securityChecks(effectiveRealms, actual.getRealm(), toUpdate.getKey());
+        }
+
+        return doUpdate(actual);
+    }
+
+    protected UserTO doUpdate(final UserMod userMod) {
+        Map.Entry<Long, List<PropagationStatus>> updated = provisioningManager.update(userMod);
 
         UserTO updatedTO = binder.getUserTO(updated.getKey());
         updatedTO.getPropagationStatusTOs().addAll(updated.getValue());
         return updatedTO;
     }
 
-    protected Map.Entry<Long, List<PropagationStatus>> setStatusOnWfAdapter(final User user,
-            final StatusMod statusMod) {
+    protected Map.Entry<Long, List<PropagationStatus>> setStatusOnWfAdapter(final StatusMod statusMod) {
         Map.Entry<Long, List<PropagationStatus>> updated;
 
         switch (statusMod.getType()) {
             case SUSPEND:
-                updated = provisioningManager.suspend(user, statusMod);
+                updated = provisioningManager.suspend(statusMod);
                 break;
 
             case REACTIVATE:
-                updated = provisioningManager.reactivate(user, statusMod);
+                updated = provisioningManager.reactivate(statusMod);
                 break;
 
             case ACTIVATE:
             default:
-                updated = provisioningManager.activate(user, statusMod);
+                updated = provisioningManager.activate(statusMod);
                 break;
 
         }
@@ -266,12 +284,16 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserMod> {
     }
 
     @PreAuthorize("hasRole('" + Entitlement.USER_UPDATE + "')")
-    @Transactional(rollbackFor = { Throwable.class })
     public UserTO status(final StatusMod statusMod) {
-        User user = userDAO.authFind(statusMod.getKey());
+        // security checks
+        UserTO toUpdate = binder.getUserTO(statusMod.getKey());
+        Set<String> effectiveRealms = getEffectiveRealms(
+                AuthContextUtils.getAuthorizations().get(Entitlement.USER_UPDATE),
+                Collections.singleton(toUpdate.getRealm()));
+        securityChecks(effectiveRealms, toUpdate.getRealm(), toUpdate.getKey());
 
-        Map.Entry<Long, List<PropagationStatus>> updated = setStatusOnWfAdapter(user, statusMod);
-        final UserTO savedTO = binder.getUserTO(updated.getKey());
+        Map.Entry<Long, List<PropagationStatus>> updated = setStatusOnWfAdapter(statusMod);
+        UserTO savedTO = binder.getUserTO(updated.getKey());
         savedTO.getPropagationStatusTOs().addAll(updated.getValue());
         return savedTO;
     }
@@ -304,19 +326,30 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserMod> {
         if (user == null) {
             throw new NotFoundException("User with token " + token);
         }
-        provisioningManager.confirmPasswordReset(user, token, password);
+        provisioningManager.confirmPasswordReset(user.getKey(), token, password);
     }
 
     @PreAuthorize("isAuthenticated() and not(hasRole('" + Entitlement.ANONYMOUS + "'))")
-    public UserTO deleteSelf() {
+    public UserTO selfDelete() {
         UserTO userTO = binder.getAuthenticatedUserTO();
 
-        return delete(userTO.getKey());
+        return doDelete(userTO.getKey());
     }
 
     @PreAuthorize("hasRole('" + Entitlement.USER_DELETE + "')")
     @Override
     public UserTO delete(final Long key) {
+        // security checks
+        UserTO toDelete = binder.getUserTO(key);
+        Set<String> effectiveRealms = getEffectiveRealms(
+                AuthContextUtils.getAuthorizations().get(Entitlement.USER_DELETE),
+                Collections.singleton(toDelete.getRealm()));
+        securityChecks(effectiveRealms, toDelete.getRealm(), toDelete.getKey());
+
+        return doDelete(key);
+    }
+
+    protected UserTO doDelete(final Long key) {
         List<Group> ownedGroups = groupDAO.findOwnedByUser(key);
         if (!ownedGroups.isEmpty()) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.GroupOwnership);
@@ -332,9 +365,8 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserMod> {
 
         List<PropagationStatus> statuses = provisioningManager.delete(key);
 
-        final UserTO deletedTO;
-        User deleted = userDAO.find(key);
-        if (deleted == null) {
+        UserTO deletedTO;
+        if (userDAO.find(key) == null) {
             deletedTO = new UserTO();
             deletedTO.setKey(key);
         } else {
@@ -346,39 +378,56 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserMod> {
     }
 
     @PreAuthorize("hasRole('" + Entitlement.USER_UPDATE + "')")
-    @Transactional(rollbackFor = { Throwable.class })
     @Override
     public UserTO unlink(final Long key, final Collection<String> resources) {
-        final UserMod userMod = new UserMod();
+        // security checks
+        UserTO user = binder.getUserTO(key);
+        Set<String> effectiveRealms = getEffectiveRealms(
+                AuthContextUtils.getAuthorizations().get(Entitlement.USER_UPDATE),
+                Collections.singleton(user.getRealm()));
+        securityChecks(effectiveRealms, user.getRealm(), user.getKey());
+
+        UserMod userMod = new UserMod();
         userMod.setKey(key);
         userMod.getResourcesToRemove().addAll(resources);
-        Long updatedKey = provisioningManager.unlink(userMod);
 
-        return binder.getUserTO(updatedKey);
+        return binder.getUserTO(provisioningManager.unlink(userMod));
     }
 
     @PreAuthorize("hasRole('" + Entitlement.USER_UPDATE + "')")
-    @Transactional(rollbackFor = { Throwable.class })
     @Override
     public UserTO link(final Long key, final Collection<String> resources) {
-        final UserMod userMod = new UserMod();
+        // security checks
+        UserTO user = binder.getUserTO(key);
+        Set<String> effectiveRealms = getEffectiveRealms(
+                AuthContextUtils.getAuthorizations().get(Entitlement.USER_UPDATE),
+                Collections.singleton(user.getRealm()));
+        securityChecks(effectiveRealms, user.getRealm(), user.getKey());
+
+        UserMod userMod = new UserMod();
         userMod.setKey(key);
         userMod.getResourcesToAdd().addAll(resources);
+
         return binder.getUserTO(provisioningManager.link(userMod));
     }
 
     @PreAuthorize("hasRole('" + Entitlement.USER_UPDATE + "')")
-    @Transactional(rollbackFor = { Throwable.class })
     @Override
     public UserTO unassign(final Long key, final Collection<String> resources) {
-        final UserMod userMod = new UserMod();
+        // security checks
+        UserTO user = binder.getUserTO(key);
+        Set<String> effectiveRealms = getEffectiveRealms(
+                AuthContextUtils.getAuthorizations().get(Entitlement.USER_UPDATE),
+                Collections.singleton(user.getRealm()));
+        securityChecks(effectiveRealms, user.getRealm(), user.getKey());
+
+        UserMod userMod = new UserMod();
         userMod.setKey(key);
         userMod.getResourcesToRemove().addAll(resources);
         return update(userMod);
     }
 
     @PreAuthorize("hasRole('" + Entitlement.USER_UPDATE + "')")
-    @Transactional(rollbackFor = { Throwable.class })
     @Override
     public UserTO assign(
             final Long key,
@@ -386,7 +435,14 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserMod> {
             final boolean changepwd,
             final String password) {
 
-        final UserMod userMod = new UserMod();
+        // security checks
+        UserTO user = binder.getUserTO(key);
+        Set<String> effectiveRealms = getEffectiveRealms(
+                AuthContextUtils.getAuthorizations().get(Entitlement.USER_UPDATE),
+                Collections.singleton(user.getRealm()));
+        securityChecks(effectiveRealms, user.getRealm(), user.getKey());
+
+        UserMod userMod = new UserMod();
         userMod.setKey(key);
         userMod.getResourcesToAdd().addAll(resources);
 
@@ -402,20 +458,23 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserMod> {
     }
 
     @PreAuthorize("hasRole('" + Entitlement.USER_UPDATE + "')")
-    @Transactional(rollbackFor = { Throwable.class })
     @Override
     public UserTO deprovision(final Long key, final Collection<String> resources) {
-        User user = userDAO.authFind(key);
+        // security checks
+        UserTO user = binder.getUserTO(key);
+        Set<String> effectiveRealms = getEffectiveRealms(
+                AuthContextUtils.getAuthorizations().get(Entitlement.USER_UPDATE),
+                Collections.singleton(user.getRealm()));
+        securityChecks(effectiveRealms, user.getRealm(), user.getKey());
 
         List<PropagationStatus> statuses = provisioningManager.deprovision(key, resources);
 
-        final UserTO updatedUserTO = binder.getUserTO(user, true);
-        updatedUserTO.getPropagationStatusTOs().addAll(statuses);
-        return updatedUserTO;
+        UserTO updatedTO = binder.getUserTO(key);
+        updatedTO.getPropagationStatusTOs().addAll(statuses);
+        return updatedTO;
     }
 
     @PreAuthorize("hasRole('" + Entitlement.USER_UPDATE + "')")
-    @Transactional(readOnly = true)
     @Override
     public UserTO provision(
             final Long key,
@@ -423,15 +482,15 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserMod> {
             final boolean changePwd,
             final String password) {
 
-        final UserTO original = binder.getUserTO(key);
+        // security checks
+        UserTO user = binder.getUserTO(key);
+        Set<String> effectiveRealms = getEffectiveRealms(
+                AuthContextUtils.getAuthorizations().get(Entitlement.USER_UPDATE),
+                Collections.singleton(user.getRealm()));
+        securityChecks(effectiveRealms, user.getRealm(), user.getKey());
 
-        //trick: assign and retrieve propagation statuses ...
-        original.getPropagationStatusTOs().addAll(
-                assign(key, resources, changePwd, password).getPropagationStatusTOs());
-
-        // .... rollback.
-        TransactionInterceptor.currentTransactionStatus().setRollbackOnly();
-        return original;
+        user.getPropagationStatusTOs().addAll(provisioningManager.provision(key, changePwd, password, resources));
+        return user;
     }
 
     @Override

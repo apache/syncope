@@ -21,6 +21,7 @@ package org.apache.syncope.core.provisioning.java;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.transaction.TransactionConfiguration;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
@@ -29,5 +30,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
     "classpath:workflowContext.xml",
     "classpath:provisioningTest.xml"
 })
+@TransactionConfiguration(transactionManager = "MasterTransactionManager")
 public abstract class AbstractTest {
 }

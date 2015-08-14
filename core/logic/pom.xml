@@ -153,12 +153,41 @@ under the License.
         <filtering>true</filtering>
       </testResource>
       <testResource>
+        <directory>${basedir}/../persistence-jpa/src/main/resources</directory>
+        <includes>
+          <include>persistence.properties</include>
+        </includes>
+        <filtering>true</filtering>
+      </testResource>
+      <testResource>
         <directory>${basedir}/../persistence-jpa/src/test/resources</directory>
+        <filtering>true</filtering>
+      </testResource>
+      <testResource>
+        <directory>${basedir}/../provisioning-java/src/main/resources</directory>
+        <includes>
+          <include>connid.properties</include>
+        </includes>
         <filtering>true</filtering>
       </testResource>
     </testResources>
     
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <inherited>true</inherited>
+        <executions>
+          <execution>
+            <id>set-bundles</id>
+            <phase>process-test-resources</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>

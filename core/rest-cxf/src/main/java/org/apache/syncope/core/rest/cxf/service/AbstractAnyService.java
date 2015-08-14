@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.rest.cxf.service;
 
-import static org.apache.syncope.core.rest.cxf.service.AbstractServiceImpl.LOG;
-
 import java.util.List;
 import javax.ws.rs.core.Response;
 import org.apache.commons.collections4.CollectionUtils;
@@ -34,7 +32,7 @@ import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.PropagationStatus;
-import org.apache.syncope.common.lib.types.ResourceAssociationActionType;
+import org.apache.syncope.common.lib.types.ResourceAssociationAction;
 import org.apache.syncope.common.lib.types.ResourceDeassociationActionType;
 import org.apache.syncope.common.lib.wrap.ResourceKey;
 import org.apache.syncope.common.rest.api.CollectionWrapper;
@@ -129,7 +127,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, MOD extends AnyMod>
     }
 
     @Override
-    public Response bulkDeassociation(
+    public Response deassociate(
             final Long key, final ResourceDeassociationActionType type, final List<ResourceKey> resourceNames) {
 
         TO any = getAnyLogic().read(key);
@@ -174,8 +172,8 @@ public abstract class AbstractAnyService<TO extends AnyTO, MOD extends AnyMod>
     }
 
     @Override
-    public Response bulkAssociation(
-            final Long key, final ResourceAssociationActionType type, final ResourceAssociationMod associationMod) {
+    public Response associate(
+            final Long key, final ResourceAssociationAction type, final ResourceAssociationMod associationMod) {
 
         TO any = getAnyLogic().read(key);
 
@@ -211,7 +209,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, MOD extends AnyMod>
 
         BulkActionResult result = new BulkActionResult();
 
-        if (type == ResourceAssociationActionType.LINK) {
+        if (type == ResourceAssociationAction.LINK) {
             for (ResourceKey resourceName : associationMod.getTargetResources()) {
                 result.getResults().put(resourceName.getElement(),
                         updated.getResources().contains(resourceName.getElement())
@@ -234,7 +232,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, MOD extends AnyMod>
 
         BulkActionResult result = new BulkActionResult();
 
-        switch (bulkAction.getOperation()) {
+        switch (bulkAction.getType()) {
             case DELETE:
                 for (String key : bulkAction.getTargets()) {
                     try {

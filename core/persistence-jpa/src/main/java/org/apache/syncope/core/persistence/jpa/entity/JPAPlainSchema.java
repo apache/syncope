@@ -24,6 +24,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.OneToOne;
@@ -54,7 +55,7 @@ public class JPAPlainSchema extends AbstractEntity<String> implements PlainSchem
     @Id
     private String name;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.EAGER)
     private JPAAnyTypeClass anyTypeClass;
 
     @Column(nullable = false)

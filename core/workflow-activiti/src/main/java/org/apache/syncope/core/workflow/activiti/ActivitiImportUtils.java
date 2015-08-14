@@ -28,53 +28,50 @@ import org.activiti.bpmn.converter.BpmnXMLConverter;
 import org.activiti.bpmn.model.BpmnModel;
 import org.activiti.editor.language.json.converter.BpmnJsonConverter;
 import org.activiti.engine.ActivitiException;
-import org.activiti.engine.RepositoryService;
+import org.activiti.engine.ProcessEngine;
 import org.activiti.engine.repository.Model;
 import org.activiti.engine.repository.ProcessDefinition;
 import org.apache.commons.io.IOUtils;
 import org.apache.syncope.core.workflow.api.WorkflowException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-@Component
-public class ActivitiImportUtils {
+public final class ActivitiImportUtils {
 
-    @Autowired
-    private RepositoryService repositoryService;
-
-    public void fromXML(final byte[] definition) {
+    public static void fromXML(final ProcessEngine engine, final byte[] definition) {
         try {
-            repositoryService.createDeployment().addInputStream(ActivitiUserWorkflowAdapter.WF_PROCESS_RESOURCE,
-                    new ByteArrayInputStream(definition)).deploy();
+            engine.getRepositoryService().createDeployment().
+                    addInputStream(ActivitiUserWorkflowAdapter.WF_PROCESS_RESOURCE,
+                            new ByteArrayInputStream(definition)).deploy();
         } catch (ActivitiException e) {
             throw new WorkflowException("While updating process " + ActivitiUserWorkflowAdapter.WF_PROCESS_RESOURCE, e);
         }
     }
 
-    public void fromJSON(final byte[] definition, final ProcessDefinition procDef, final Model model) {
+    public static void fromJSON(
+            final ProcessEngine engine, final byte[] definition, final ProcessDefinition procDef, final Model model) {
+
         try {
             model.setVersion(procDef.getVersion());
             model.setDeploymentId(procDef.getDeploymentId());
-            repositoryService.saveModel(model);
+            engine.getRepositoryService().saveModel(model);
 
-            repositoryService.addModelEditorSource(model.getId(), definition);
+            engine.getRepositoryService().addModelEditorSource(model.getId(), definition);
         } catch (Exception e) {
             throw new WorkflowException("While updating process " + ActivitiUserWorkflowAdapter.WF_PROCESS_RESOURCE, e);
         }
     }
 
-    public void fromJSON(final ProcessDefinition procDef, final Model model) {
+    public static void fromJSON(final ProcessEngine engine, final ProcessDefinition procDef, final Model model) {
         InputStream bpmnStream = null;
         InputStreamReader isr = null;
         XMLStreamReader xtr = null;
         try {
-            bpmnStream = repositoryService.getResourceAsStream(
+            bpmnStream = engine.getRepositoryService().getResourceAsStream(
                     procDef.getDeploymentId(), procDef.getResourceName());
             isr = new InputStreamReader(bpmnStream);
             xtr = XMLInputFactory.newInstance().createXMLStreamReader(isr);
             BpmnModel bpmnModel = new BpmnXMLConverter().convertToBpmnModel(xtr);
 
-            fromJSON(new BpmnJsonConverter().convertToJson(bpmnModel).toString().getBytes(), procDef, model);
+            fromJSON(engine, new BpmnJsonConverter().convertToJson(bpmnModel).toString().getBytes(), procDef, model);
         } catch (Exception e) {
             throw new WorkflowException("While updating process " + ActivitiUserWorkflowAdapter.WF_PROCESS_RESOURCE, e);
         } finally {
@@ -88,5 +85,9 @@ public class ActivitiImportUtils {
             IOUtils.closeQuietly(isr);
             IOUtils.closeQuietly(bpmnStream);
         }
+    }
+
+    private ActivitiImportUtils() {
+        // private constructor for static utility class
     }
 }

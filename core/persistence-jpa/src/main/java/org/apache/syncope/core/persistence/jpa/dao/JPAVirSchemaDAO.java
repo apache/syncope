@@ -45,7 +45,7 @@ public class JPAVirSchemaDAO extends AbstractDAO<VirSchema, String> implements V
 
     @Override
     public VirSchema find(final String key) {
-        return entityManager.find(JPAVirSchema.class, key);
+        return entityManager().find(JPAVirSchema.class, key);
     }
 
     @Override
@@ -54,7 +54,7 @@ public class JPAVirSchemaDAO extends AbstractDAO<VirSchema, String> implements V
                 append(JPAVirSchema.class.getSimpleName()).
                 append(" e WHERE e.anyTypeClass=:anyTypeClass");
 
-        TypedQuery<VirSchema> query = entityManager.createQuery(queryString.toString(), VirSchema.class);
+        TypedQuery<VirSchema> query = entityManager().createQuery(queryString.toString(), VirSchema.class);
         query.setParameter("anyTypeClass", anyTypeClass);
 
         return query.getResultList();
@@ -62,7 +62,7 @@ public class JPAVirSchemaDAO extends AbstractDAO<VirSchema, String> implements V
 
     @Override
     public List<VirSchema> findAll() {
-        TypedQuery<VirSchema> query = entityManager.createQuery(
+        TypedQuery<VirSchema> query = entityManager().createQuery(
                 "SELECT e FROM " + JPAVirSchema.class.getSimpleName() + " e", VirSchema.class);
         return query.getResultList();
     }
@@ -73,7 +73,7 @@ public class JPAVirSchemaDAO extends AbstractDAO<VirSchema, String> implements V
                 append(((JPAVirAttrDAO) virAttrDAO).getJPAEntityReference(reference).getSimpleName()).
                 append(" e WHERE e.schema=:schema");
 
-        TypedQuery<T> query = entityManager.createQuery(queryString.toString(), reference);
+        TypedQuery<T> query = entityManager().createQuery(queryString.toString(), reference);
         query.setParameter("schema", schema);
 
         return query.getResultList();
@@ -81,7 +81,7 @@ public class JPAVirSchemaDAO extends AbstractDAO<VirSchema, String> implements V
 
     @Override
     public VirSchema save(final VirSchema virSchema) {
-        return entityManager.merge(virSchema);
+        return entityManager().merge(virSchema);
     }
 
     @Override
@@ -106,6 +106,6 @@ public class JPAVirSchemaDAO extends AbstractDAO<VirSchema, String> implements V
             schema.getAnyTypeClass().remove(schema);
         }
 
-        entityManager.remove(schema);
+        entityManager().remove(schema);
     }
 }

@@ -48,14 +48,10 @@ import org.apache.wicket.markup.repeater.RepeatingView;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class Realms extends BasePage {
 
     private static final long serialVersionUID = -1100228004207271270L;
-
-    protected static final Logger LOG = LoggerFactory.getLogger(Realms.class);
 
     @SpringBean
     private RealmRestClient realmRestClient;

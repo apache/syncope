@@ -29,7 +29,7 @@ public final class JobNamer {
 
     private static final Logger LOG = LoggerFactory.getLogger(JobNamer.class);
 
-    private static Long getIdFromJobName(final String name, final String pattern, final int prefixLength) {
+    private static Long getKeyFromJobName(final String name, final String pattern, final int prefixLength) {
         Long result = null;
 
         Matcher jobMatcher = Pattern.compile(pattern).matcher(name);
@@ -45,17 +45,15 @@ public final class JobNamer {
     }
 
     public static Long getTaskKeyFromJobName(final String name) {
-        return getIdFromJobName(name, "taskJob[0-9]+", 7);
+        return getKeyFromJobName(name, "taskJob[0-9]+", 7);
     }
 
     public static Long getReportKeyFromJobName(final String name) {
-        return getIdFromJobName(name, "reportJob[0-9]+", 9);
+        return getKeyFromJobName(name, "reportJob[0-9]+", 9);
     }
 
     public static String getJobName(final Task task) {
-        return task == null
-                ? "taskNotificationJob"
-                : "taskJob" + task.getKey();
+        return "taskJob" + task.getKey();
     }
 
     public static String getJobName(final Report report) {

@@ -116,7 +116,7 @@ public class AnyTypeLogic extends AbstractTransactionalLogic<AnyTypeTO> {
 
         if (ArrayUtils.isNotEmpty(args)) {
             for (int i = 0; key == null && i < args.length; i++) {
-                if (args[i] instanceof Long) {
+                if (args[i] instanceof String) {
                     key = (String) args[i];
                 } else if (args[i] instanceof AnyTypeTO) {
                     key = ((AnyTypeTO) args[i]).getKey();

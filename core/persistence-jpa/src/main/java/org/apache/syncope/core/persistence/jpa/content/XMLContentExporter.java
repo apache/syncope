@@ -40,6 +40,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import javax.sql.DataSource;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
@@ -50,6 +51,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.misc.DataFormat;
+import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.content.ContentExporter;
 import org.apache.syncope.core.persistence.jpa.entity.JPAReportExec;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAADerAttr;
@@ -91,30 +93,13 @@ public class XMLContentExporter extends AbstractContentDealer implements Content
                 JPAARelationship.TABLE, JPAAMembership.TABLE, JPAURelationship.TABLE, JPAUMembership.TABLE
             }));
 
-    protected static final Set<String> TABLE_SUFFIXES_TO_BE_INCLUDED =
-            new HashSet<>(Arrays.asList(new String[] { "TEMPLATE" }));
-
     protected static final Map<String, String> TABLES_TO_BE_FILTERED =
             Collections.singletonMap("TASK", "DTYPE <> 'PropagationTask'");
 
     protected static final Map<String, Set<String>> COLUMNS_TO_BE_NULLIFIED =
             Collections.singletonMap("SYNCOPEGROUP", Collections.singleton("USEROWNER_ID"));
 
-    private boolean isTableAllowed(final String tableName) {
-        boolean allowed = true;
-        for (String prefix : TABLE_PREFIXES_TO_BE_EXCLUDED) {
-            if (tableName.toUpperCase().startsWith(prefix)) {
-                for (String suffix : TABLE_SUFFIXES_TO_BE_INCLUDED) {
-                    if (!tableName.toUpperCase().endsWith(suffix)) {
-                        allowed = false;
-                    }
-                }
-            }
-        }
-        return allowed;
-    }
-
-    private List<String> sortByForeignKeys(final Connection conn, final Set<String> tableNames)
+    private List<String> sortByForeignKeys(final String dbSchema, final Connection conn, final Set<String> tableNames)
             throws SQLException {
 
         Set<MultiParentNode<String>> roots = new HashSet<>();
@@ -325,7 +310,7 @@ public class XMLContentExporter extends AbstractContentDealer implements Content
     }
 
     @Override
-    public void export(final OutputStream os, final String uwfPrefix, final String rwfPrefix)
+    public void export(final String domain, final OutputStream os, final String uwfPrefix, final String rwfPrefix)
             throws SAXException, TransformerConfigurationException {
 
         if (StringUtils.isNotBlank(uwfPrefix)) {
@@ -346,6 +331,13 @@ public class XMLContentExporter extends AbstractContentDealer implements Content
         handler.startDocument();
         handler.startElement("", "", ROOT_ELEMENT, new AttributesImpl());
 
+        DataSource dataSource = domainsHolder.getDomains().get(domain);
+        if (dataSource == null) {
+            throw new IllegalArgumentException("Could not find DataSource for domain " + domain);
+        }
+
+        String dbSchema = ApplicationContextProvider.getBeanFactory().getBean(domain + "DatabaseSchema", String.class);
+
         Connection conn = null;
         ResultSet rs = null;
         try {
@@ -359,15 +351,13 @@ public class XMLContentExporter extends AbstractContentDealer implements Content
             while (rs.next()) {
                 String tableName = rs.getString("TABLE_NAME");
                 LOG.debug("Found table {}", tableName);
-                if (isTableAllowed(tableName)) {
-                    tableNames.add(tableName);
-                }
+                tableNames.add(tableName);
             }
 
             LOG.debug("Tables to be exported {}", tableNames);
 
             // then sort tables based on foreign keys and dump
-            for (String tableName : sortByForeignKeys(conn, tableNames)) {
+            for (String tableName : sortByForeignKeys(dbSchema, conn, tableNames)) {
                 try {
                     doExportTable(handler, conn, tableName, TABLES_TO_BE_FILTERED.get(tableName.toUpperCase()));
                 } catch (Exception e) {

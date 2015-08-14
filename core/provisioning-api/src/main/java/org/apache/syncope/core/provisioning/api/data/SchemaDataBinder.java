@@ -27,22 +27,22 @@ import org.apache.syncope.core.persistence.api.entity.VirSchema;
 
 public interface SchemaDataBinder {
 
-    <T extends PlainSchema> void create(PlainSchemaTO schemaTO, T schema);
+    PlainSchema create(PlainSchemaTO schemaTO);
 
-    <T extends DerSchema> T create(DerSchemaTO derSchemaTO, T derSchema);
+    DerSchema create(DerSchemaTO schemaTO);
 
-    <T extends VirSchema> T create(VirSchemaTO virSchemaTO, T virSchema);
+    VirSchema create(VirSchemaTO schemaTO);
 
-    <T extends DerSchema> DerSchemaTO getDerSchemaTO(T derSchema);
+    DerSchemaTO getDerSchemaTO(DerSchema schema);
 
-    <T extends PlainSchema> PlainSchemaTO getPlainSchemaTO(T schema);
+    PlainSchemaTO getPlainSchemaTO(PlainSchema schema);
 
-    <T extends VirSchema> VirSchemaTO getVirSchemaTO(T virSchema);
+    VirSchemaTO getVirSchemaTO(VirSchema schema);
 
-    <T extends PlainSchema> void update(PlainSchemaTO schemaTO, T schema);
+    PlainSchema update(PlainSchemaTO schemaTO, PlainSchema schema);
 
-    <T extends DerSchema> T update(DerSchemaTO derSchemaTO, T derSchema);
+    DerSchema update(DerSchemaTO schemaTO, DerSchema derSchema);
 
-    <T extends VirSchema> T update(VirSchemaTO virSchemaTO, T virSchema);
+    VirSchema update(VirSchemaTO schemaTO, VirSchema virSchema);
 
 }

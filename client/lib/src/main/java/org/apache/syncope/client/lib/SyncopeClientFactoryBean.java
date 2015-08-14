@@ -20,6 +20,7 @@ package org.apache.syncope.client.lib;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +32,7 @@ import org.apache.cxf.feature.LoggingFeature;
 import org.apache.cxf.jaxrs.provider.JAXBElementProvider;
 import org.apache.cxf.staxutils.DocumentDepthProperties;
 import org.apache.syncope.common.lib.to.AbstractPolicyTO;
+import org.apache.syncope.common.rest.api.RESTHeaders;
 
 /**
  * Factory bean for creating instances of {@link SyncopeClient}.
@@ -62,8 +64,7 @@ public class SyncopeClientFactoryBean {
 
     private JacksonJaxbJsonProvider jsonProvider;
 
-    @SuppressWarnings("rawtypes")
-    private JAXBElementProvider jaxbProvider;
+    private JAXBElementProvider<?> jaxbProvider;
 
     private RestClientExceptionMapper exceptionMapper;
 
@@ -71,21 +72,23 @@ public class SyncopeClientFactoryBean {
 
     private ContentType contentType;
 
+    private String domain;
+
     private RestClientFactoryBean restClientFactoryBean;
 
     protected JacksonJaxbJsonProvider defaultJsonProvider() {
         return new JacksonJaxbJsonProvider();
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    protected JAXBElementProvider defaultJAXBProvider() {
-        JAXBElementProvider defaultJAXBProvider = new JAXBElementProvider();
+    @SuppressWarnings({ "rawtypes" })
+    protected JAXBElementProvider<?> defaultJAXBProvider() {
+        JAXBElementProvider<?> defaultJAXBProvider = new JAXBElementProvider();
 
         DocumentDepthProperties depthProperties = new DocumentDepthProperties();
         depthProperties.setInnerElementCountThreshold(500);
         defaultJAXBProvider.setDepthProperties(depthProperties);
 
-        Map marshallerProperties = new HashMap();
+        Map<String, Object> marshallerProperties = new HashMap<>();
         marshallerProperties.put(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
         defaultJAXBProvider.setMarshallerProperties(marshallerProperties);
 
@@ -107,6 +110,10 @@ public class SyncopeClientFactoryBean {
             throw new IllegalArgumentException("Property 'address' is missing");
         }
         defaultRestClientFactoryBean.setAddress(address);
+
+        if (StringUtils.isNotBlank(domain)) {
+            defaultRestClientFactoryBean.setHeaders(Collections.singletonMap(RESTHeaders.DOMAIN, domain));
+        }
 
         defaultRestClientFactoryBean.setThreadSafe(true);
         defaultRestClientFactoryBean.setInheritHeaders(true);
@@ -134,13 +141,13 @@ public class SyncopeClientFactoryBean {
         this.jsonProvider = jsonProvider;
     }
 
-    public JAXBElementProvider getJaxbProvider() {
+    public JAXBElementProvider<?> getJaxbProvider() {
         return jaxbProvider == null
                 ? defaultJAXBProvider()
                 : jaxbProvider;
     }
 
-    public SyncopeClientFactoryBean setJaxbProvider(final JAXBElementProvider jaxbProvider) {
+    public SyncopeClientFactoryBean setJaxbProvider(final JAXBElementProvider<?> jaxbProvider) {
         this.jaxbProvider = jaxbProvider;
         return this;
     }
@@ -178,6 +185,15 @@ public class SyncopeClientFactoryBean {
 
     public SyncopeClientFactoryBean setContentType(final String contentType) {
         this.contentType = ContentType.fromString(contentType);
+        return this;
+    }
+
+    public String getDomain() {
+        return domain;
+    }
+
+    public SyncopeClientFactoryBean setDomain(final String domain) {
+        this.domain = domain;
         return this;
     }
 

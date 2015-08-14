@@ -134,8 +134,9 @@ public class VirAttrITCase extends AbstractITCase {
         // suspend/reactivate user and check virtual attribute value (unchanged)
         // ----------------------------------
         StatusMod statusMod = new StatusMod();
+        statusMod.setKey(userTO.getKey());
         statusMod.setType(StatusMod.ModType.SUSPEND);
-        userTO = userService.status(userTO.getKey(), statusMod).readEntity(UserTO.class);
+        userTO = userService.status(statusMod).readEntity(UserTO.class);
         assertEquals("suspended", userTO.getStatus());
 
         connObjectTO = resourceService.readConnObject(RESOURCE_NAME_WS2, AnyTypeKind.USER.name(), userTO.getKey());
@@ -144,8 +145,9 @@ public class VirAttrITCase extends AbstractITCase {
         assertEquals("virtualvalue2", connObjectTO.getPlainAttrMap().get("NAME").getValues().get(0));
 
         statusMod = new StatusMod();
+        statusMod.setKey(userTO.getKey());
         statusMod.setType(StatusMod.ModType.REACTIVATE);
-        userTO = userService.status(userTO.getKey(), statusMod).readEntity(UserTO.class);
+        userTO = userService.status(statusMod).readEntity(UserTO.class);
         assertEquals("active", userTO.getStatus());
 
         connObjectTO = resourceService.readConnObject(RESOURCE_NAME_WS2, AnyTypeKind.USER.name(), userTO.getKey());

@@ -24,7 +24,7 @@ public interface SchedTask extends Task {
 
     String getDescription();
 
-    String getJobClassName();
+    String getJobDelegateClassName();
 
     String getName();
 
@@ -32,7 +32,7 @@ public interface SchedTask extends Task {
 
     void setDescription(String description);
 
-    void setJobClassName(String jobClassName);
+    void setJobDelegateClassName(String jobDelegateClassName);
 
     void setName(String name);
 }

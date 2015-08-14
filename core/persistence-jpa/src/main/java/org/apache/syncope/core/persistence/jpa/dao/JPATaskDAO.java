@@ -75,7 +75,7 @@ public class JPATaskDAO extends AbstractDAO<Task, Long> implements TaskDAO {
     @SuppressWarnings("unchecked")
     @Override
     public <T extends Task> T find(final Long key) {
-        return (T) entityManager.find(JPATask.class, key);
+        return (T) entityManager().find(JPATask.class, key);
     }
 
     private <T extends Task> StringBuilder buildfindAllQuery(final TaskType type) {
@@ -96,7 +96,7 @@ public class JPATaskDAO extends AbstractDAO<Task, Long> implements TaskDAO {
         }
         queryString.append("ORDER BY e.id DESC");
 
-        Query query = entityManager.createQuery(queryString.toString());
+        Query query = entityManager().createQuery(queryString.toString());
         query.setParameter("type", type);
         return query.getResultList();
     }
@@ -106,13 +106,14 @@ public class JPATaskDAO extends AbstractDAO<Task, Long> implements TaskDAO {
     public <T extends Task> List<T> findAll(final ExternalResource resource, final TaskType type) {
         StringBuilder queryString = buildfindAllQuery(type).append("AND e.resource=:resource ORDER BY e.id DESC");
 
-        final Query query = entityManager.createQuery(queryString.toString());
+        final Query query = entityManager().createQuery(queryString.toString());
         query.setParameter("type", type);
         query.setParameter("resource", resource);
 
         return query.getResultList();
     }
 
+    @Transactional(readOnly = true)
     @Override
     public <T extends Task> List<T> findAll(final TaskType type) {
         return findAll(-1, -1, Collections.<OrderByClause>emptyList(), type);
@@ -128,7 +129,7 @@ public class JPATaskDAO extends AbstractDAO<Task, Long> implements TaskDAO {
                 ? "ORDER BY e.id DESC"
                 : toOrderByStatement(getEntityReference(type), "e", orderByClauses));
 
-        Query query = entityManager.createQuery(queryString.toString());
+        Query query = entityManager().createQuery(queryString.toString());
         query.setParameter("type", type);
 
         query.setFirstResult(itemsPerPage * (page <= 0
@@ -144,7 +145,7 @@ public class JPATaskDAO extends AbstractDAO<Task, Long> implements TaskDAO {
 
     @Override
     public int count(final TaskType type) {
-        Query countQuery = entityManager.createNativeQuery("SELECT COUNT(id) FROM Task WHERE TYPE=?1");
+        Query countQuery = entityManager().createNativeQuery("SELECT COUNT(id) FROM Task WHERE TYPE=?1");
         countQuery.setParameter(1, type.name());
         return ((Number) countQuery.getSingleResult()).intValue();
     }
@@ -152,7 +153,7 @@ public class JPATaskDAO extends AbstractDAO<Task, Long> implements TaskDAO {
     @Transactional(rollbackFor = { Throwable.class })
     @Override
     public <T extends Task> T save(final T task) {
-        return entityManager.merge(task);
+        return entityManager().merge(task);
     }
 
     @Override
@@ -167,7 +168,7 @@ public class JPATaskDAO extends AbstractDAO<Task, Long> implements TaskDAO {
 
     @Override
     public void delete(final Task task) {
-        entityManager.remove(task);
+        entityManager().remove(task);
     }
 
     @Override

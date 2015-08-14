@@ -16,6 +16,7 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 --%>
+<%@page import="org.springframework.beans.factory.support.DefaultListableBeanFactory"%>
 <%@page import="org.apache.syncope.common.lib.SyncopeConstants"%>
 <%@page import="org.apache.syncope.core.misc.spring.ApplicationContextProvider"%>
 <%@page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
@@ -72,9 +73,9 @@ under the License.
   <body>
     <p/>
     <%
-        ConfigurableApplicationContext context = ApplicationContextProvider.getApplicationContext();
+        DefaultListableBeanFactory beanFactory = ApplicationContextProvider.getBeanFactory();
 
-        EntityManagerFactory emf = context.getBean(EntityManagerFactory.class);
+        EntityManagerFactory emf = beanFactory.getBean("MasterEntityManagerFactory", EntityManagerFactory.class);
         OpenJPAEntityManagerFactory oemf = OpenJPAPersistence.cast(emf);
 
         QueryStatistics<QueryKey> queryStatistics =

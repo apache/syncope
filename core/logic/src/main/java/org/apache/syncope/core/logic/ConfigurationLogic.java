@@ -23,6 +23,7 @@ import java.lang.reflect.Method;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.ConfTO;
 import org.apache.syncope.common.lib.types.Entitlement;
+import org.apache.syncope.core.misc.security.AuthContextUtils;
 import org.apache.syncope.core.persistence.api.content.ContentExporter;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -97,7 +98,7 @@ public class ConfigurationLogic extends AbstractTransactionalLogic<ConfTO> {
     @Transactional(readOnly = true)
     public void export(final OutputStream os) {
         try {
-            exporter.export(os, uwfAdapter.getPrefix(), gwfAdapter.getPrefix());
+            exporter.export(AuthContextUtils.getDomain(), os, uwfAdapter.getPrefix(), gwfAdapter.getPrefix());
             LOG.debug("Database content successfully exported");
         } catch (Exception e) {
             LOG.error("While exporting database content", e);

@@ -345,8 +345,8 @@ abstract class AbstractAnyDataBinder {
         Set<ExternalResource> resources = getAllResources(any);
 
         // 5. attributes to be removed
-        for (String attributeToBeRemoved : anyMod.getPlainAttrsToRemove()) {
-            PlainSchema schema = getPlainSchema(attributeToBeRemoved);
+        for (String attrToRemove : anyMod.getPlainAttrsToRemove()) {
+            PlainSchema schema = getPlainSchema(attrToRemove);
             if (schema != null) {
                 PlainAttr<?> attr = any.getPlainAttr(schema.getKey());
                 if (attr == null) {
@@ -388,8 +388,8 @@ abstract class AbstractAnyDataBinder {
         LOG.debug("Attributes to be removed:\n{}", propByRes);
 
         // 6. attributes to be updated
-        for (AttrMod attributeMod : anyMod.getPlainAttrsToUpdate()) {
-            PlainSchema schema = getPlainSchema(attributeMod.getSchema());
+        for (AttrMod attrMod : anyMod.getPlainAttrsToUpdate()) {
+            PlainSchema schema = getPlainSchema(attrMod.getSchema());
             PlainAttr attr = null;
             if (schema != null) {
                 attr = any.getPlainAttr(schema.getKey());
@@ -407,7 +407,7 @@ abstract class AbstractAnyDataBinder {
 
                 // 1.1 remove values
                 Set<Long> valuesToBeRemoved = new HashSet<>();
-                for (String valueToBeRemoved : attributeMod.getValuesToBeRemoved()) {
+                for (String valueToBeRemoved : attrMod.getValuesToBeRemoved()) {
                     if (attr.getSchema().isUniqueConstraint()) {
                         if (attr.getUniqueValue() != null
                                 && valueToBeRemoved.equals(attr.getUniqueValue().getValueAsString())) {
@@ -422,17 +422,17 @@ abstract class AbstractAnyDataBinder {
                         }
                     }
                 }
-                for (Long attributeValueId : valuesToBeRemoved) {
-                    plainAttrValueDAO.delete(attributeValueId, anyUtils.plainAttrValueClass());
+                for (Long attrValueKey : valuesToBeRemoved) {
+                    plainAttrValueDAO.delete(attrValueKey, anyUtils.plainAttrValueClass());
                 }
 
                 // 1.2 add values
-                List<String> valuesToBeAdded = attributeMod.getValuesToBeAdded();
+                List<String> valuesToBeAdded = attrMod.getValuesToBeAdded();
                 if (valuesToBeAdded != null && !valuesToBeAdded.isEmpty()
                         && (!schema.isUniqueConstraint() || attr.getUniqueValue() == null
                         || !valuesToBeAdded.iterator().next().equals(attr.getUniqueValue().getValueAsString()))) {
 
-                    fillAttribute(attributeMod.getValuesToBeAdded(), anyUtils, schema, attr, invalidValues);
+                    fillAttribute(attrMod.getValuesToBeAdded(), anyUtils, schema, attr, invalidValues);
                 }
 
                 // if no values are in, the attribute can be safely removed

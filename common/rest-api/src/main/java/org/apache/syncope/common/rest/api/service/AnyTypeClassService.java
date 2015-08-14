@@ -38,7 +38,7 @@ import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 /**
  * REST operations for any type classes.
  */
-@Path("anyTypeClassClasses")
+@Path("anyTypeClasses")
 public interface AnyTypeClassService extends JAXRSService {
 
     /**

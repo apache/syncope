@@ -55,7 +55,7 @@ public class UserUpdateInSyncProcessor implements Processor {
         Set<String> excludedResources = exchange.getProperty("excludedResources", Set.class);
 
         PropagationReporter propagationReporter =
-                ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
+                ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
 
         List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(updated, updated.getResult().getKey().
                 getPassword() != null, excludedResources);

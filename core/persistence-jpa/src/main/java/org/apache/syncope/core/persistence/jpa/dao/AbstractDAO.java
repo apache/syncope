@@ -19,19 +19,17 @@
 package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.util.List;
-import javax.persistence.CacheRetrieveMode;
-import javax.persistence.CacheStoreMode;
 import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.PersistenceContextType;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.core.misc.security.AuthContextUtils;
+import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.DAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Configurable;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.orm.jpa.EntityManagerFactoryUtils;
 import org.springframework.util.ReflectionUtils;
 
 @Configurable
@@ -39,36 +37,15 @@ public abstract class AbstractDAO<E extends Entity<KEY>, KEY> implements DAO<E, 
 
     protected static final Logger LOG = LoggerFactory.getLogger(DAO.class);
 
-    private static final String CACHE_STORE_MODE = "javax.persistence.cache.storeMode";
-
-    private static final String CACHE_RETRIEVE_MODE = "javax.persistence.cache.retrieveMode";
-
-    @Value("#{entityManager}")
-    @PersistenceContext(type = PersistenceContextType.TRANSACTION)
-    protected EntityManager entityManager;
-
-    protected CacheRetrieveMode getCacheRetrieveMode() {
-        return entityManager.getProperties().containsKey(CACHE_RETRIEVE_MODE)
-                ? (CacheRetrieveMode) entityManager.getProperties().get(CACHE_RETRIEVE_MODE)
-                : CacheRetrieveMode.BYPASS;
-    }
-
-    protected void setCacheRetrieveMode(final CacheRetrieveMode retrieveMode) {
-        if (retrieveMode != null) {
-            entityManager.getProperties().put(CACHE_RETRIEVE_MODE, retrieveMode);
+    protected EntityManager entityManager() {
+        EntityManager entityManager = EntityManagerFactoryUtils.getTransactionalEntityManager(
+                EntityManagerFactoryUtils.findEntityManagerFactory(
+                        ApplicationContextProvider.getBeanFactory(), AuthContextUtils.getDomain()));
+        if (entityManager == null) {
+            throw new IllegalStateException("Could not find EntityManager for domain " + AuthContextUtils.getDomain());
         }
-    }
 
-    protected CacheStoreMode getCacheStoreMode() {
-        return entityManager.getProperties().containsKey(CACHE_STORE_MODE)
-                ? (CacheStoreMode) entityManager.getProperties().get(CACHE_STORE_MODE)
-                : CacheStoreMode.BYPASS;
-    }
-
-    protected void setCacheStoreMode(final CacheStoreMode storeMode) {
-        if (storeMode != null) {
-            entityManager.getProperties().put(CACHE_STORE_MODE, storeMode);
-        }
+        return entityManager;
     }
 
     protected String toOrderByStatement(final Class<? extends Entity<KEY>> beanClass, final String prefix,
@@ -94,21 +71,21 @@ public abstract class AbstractDAO<E extends Entity<KEY>, KEY> implements DAO<E, 
 
     @Override
     public void refresh(final E entity) {
-        entityManager.refresh(entity);
+        entityManager().refresh(entity);
     }
 
     @Override
     public void detach(final E entity) {
-        entityManager.detach(entity);
+        entityManager().detach(entity);
     }
 
     @Override
     public void flush() {
-        entityManager.flush();
+        entityManager().flush();
     }
 
     @Override
     public void clear() {
-        entityManager.clear();
+        entityManager().clear();
     }
 }

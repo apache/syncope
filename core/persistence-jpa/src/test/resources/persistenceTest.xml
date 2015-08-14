@@ -29,6 +29,7 @@ under the License.
     <property name="locations">
       <list>
         <value>classpath:persistence.properties</value>
+        <value>classpath:domains/*.properties</value>
         <value>classpath:security.properties</value>
       </list>
     </property>

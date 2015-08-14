@@ -39,7 +39,7 @@ import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.PagedResult;
-import org.apache.syncope.common.lib.types.ResourceAssociationActionType;
+import org.apache.syncope.common.lib.types.ResourceAssociationAction;
 import org.apache.syncope.common.lib.types.ResourceDeassociationActionType;
 import org.apache.syncope.common.lib.wrap.ResourceKey;
 import org.apache.syncope.common.rest.api.beans.AnyListQuery;
@@ -150,7 +150,7 @@ public interface AnyService<TO extends AnyTO, MOD extends AnyMod> extends JAXRSS
     @Path("{key}/deassociate/{type}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    Response bulkDeassociation(
+    Response deassociate(
             @NotNull @PathParam("key") Long key,
             @NotNull @PathParam("type") ResourceDeassociationActionType type,
             @NotNull List<ResourceKey> resourceNames);
@@ -171,9 +171,9 @@ public interface AnyService<TO extends AnyTO, MOD extends AnyMod> extends JAXRSS
     @Path("{key}/associate/{type}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    Response bulkAssociation(
+    Response associate(
             @NotNull @PathParam("key") Long key,
-            @NotNull @PathParam("type") ResourceAssociationActionType type,
+            @NotNull @PathParam("type") ResourceAssociationAction type,
             @NotNull ResourceAssociationMod associationMod);
 
     /**

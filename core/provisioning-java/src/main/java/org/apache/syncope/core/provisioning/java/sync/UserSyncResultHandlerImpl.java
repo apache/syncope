@@ -107,12 +107,11 @@ public class UserSyncResultHandlerImpl extends AbstractSyncResultHandler impleme
             final Long key,
             final boolean unlink) {
 
-        taskExecutor.execute(
-                propagationManager.getUserDeleteTasks(
-                        key, Collections.singleton(profile.getTask().getResource().getKey())));
+        taskExecutor.execute(propagationManager.getUserDeleteTasks(
+                key, Collections.singleton(profile.getTask().getResource().getKey())));
 
         if (unlink) {
-            final UserMod userMod = new UserMod();
+            UserMod userMod = new UserMod();
             userMod.setKey(key);
             userMod.getResourcesToRemove().add(profile.getTask().getResource().getKey());
         }

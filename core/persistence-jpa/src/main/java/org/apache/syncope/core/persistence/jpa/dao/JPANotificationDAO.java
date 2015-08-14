@@ -30,23 +30,23 @@ public class JPANotificationDAO extends AbstractDAO<Notification, Long> implemen
 
     @Override
     public Notification find(final Long key) {
-        return entityManager.find(JPANotification.class, key);
+        return entityManager().find(JPANotification.class, key);
     }
 
     @Override
     public List<Notification> findAll() {
-        TypedQuery<Notification> query = entityManager.createQuery(
+        TypedQuery<Notification> query = entityManager().createQuery(
                 "SELECT e FROM " + JPANotification.class.getSimpleName() + " e", Notification.class);
         return query.getResultList();
     }
 
     @Override
     public Notification save(final Notification notification) {
-        return entityManager.merge(notification);
+        return entityManager().merge(notification);
     }
 
     @Override
     public void delete(final Long key) {
-        entityManager.remove(find(key));
+        entityManager().remove(find(key));
     }
 }

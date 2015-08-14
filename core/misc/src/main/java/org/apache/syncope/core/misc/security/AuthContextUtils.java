@@ -18,11 +18,18 @@
  */
 package org.apache.syncope.core.misc.security;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.collections4.Transformer;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.types.Entitlement;
+import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -32,24 +39,30 @@ import org.springframework.security.core.userdetails.User;
 
 public final class AuthContextUtils {
 
-    public static String getAuthenticatedUsername() {
+    public interface Executable<T> {
+
+        T exec();
+    }
+
+    public static String getUsername() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return authentication == null ? SyncopeConstants.UNAUTHENTICATED : authentication.getName();
     }
 
-    public static void updateAuthenticatedUsername(final String newUsername) {
+    public static void updateUsername(final String newUsername) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-        Authentication newAuth = new UsernamePasswordAuthenticationToken(
+        UsernamePasswordAuthenticationToken newAuth = new UsernamePasswordAuthenticationToken(
                 new User(newUsername, "FAKE_PASSWORD", auth.getAuthorities()),
                 auth.getCredentials(), auth.getAuthorities());
+        newAuth.setDetails(auth.getDetails());
         SecurityContextHolder.getContext().setAuthentication(newAuth);
     }
 
     public static Map<String, Set<String>> getAuthorizations() {
         Map<String, Set<String>> result = null;
 
-        final SecurityContext ctx = SecurityContextHolder.getContext();
+        SecurityContext ctx = SecurityContextHolder.getContext();
         if (ctx != null && ctx.getAuthentication() != null && ctx.getAuthentication().getAuthorities() != null) {
             result = new HashMap<>();
             for (GrantedAuthority authority : ctx.getAuthentication().getAuthorities()) {
@@ -62,6 +75,51 @@ public final class AuthContextUtils {
         }
 
         return MapUtils.emptyIfNull(result);
+    }
+
+    public static String getDomain() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        String domainKey = auth != null && auth.getDetails() instanceof SyncopeAuthenticationDetails
+                ? SyncopeAuthenticationDetails.class.cast(auth.getDetails()).getDomain()
+                : null;
+        if (StringUtils.isBlank(domainKey)) {
+            domainKey = SyncopeConstants.MASTER_DOMAIN;
+        }
+
+        return domainKey;
+    }
+
+    public static void setFakeAuth(final String domain) {
+        List<GrantedAuthority> authorities = CollectionUtils.collect(Entitlement.values(),
+                new Transformer<String, GrantedAuthority>() {
+
+                    @Override
+                    public GrantedAuthority transform(final String entitlement) {
+                        return new SyncopeGrantedAuthority(entitlement, SyncopeConstants.ROOT_REALM);
+                    }
+                }, new ArrayList<GrantedAuthority>());
+
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+                new User(ApplicationContextProvider.getBeanFactory().getBean("adminUser", String.class),
+                        "FAKE_PASSWORD", authorities), "FAKE_PASSWORD", authorities);
+        auth.setDetails(new SyncopeAuthenticationDetails(domain));
+        SecurityContextHolder.getContext().setAuthentication(auth);
+    }
+
+    public static void clearFakeAuth() {
+        SecurityContextHolder.clearContext();
+    }
+
+    public static <T> T execWithAuthContext(final String domainKey, final Executable<T> executable) {
+        SecurityContext ctx = SecurityContextHolder.getContext();
+        setFakeAuth(domainKey);
+        try {
+            return executable.exec();
+        } finally {
+            clearFakeAuth();
+            SecurityContextHolder.setContext(ctx);
+        }
     }
 
     /**

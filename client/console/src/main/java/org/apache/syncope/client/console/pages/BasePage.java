@@ -92,11 +92,12 @@ public class BasePage extends AbstractBasePage implements IAjaxIndicatorAware {
         liContainer = new WebMarkupContainer(getLIContainerId("realms"));
         add(liContainer);
         liContainer.add(new BookmarkablePageLink<>("realms", Realms.class));
-        
+
         liContainer = new WebMarkupContainer(getLIContainerId("topology"));
         add(liContainer);
         liContainer.add(new BookmarkablePageLink<>("topology", Topology.class));
-        
+
+        add(new Label("domain", SyncopeConsoleSession.get().getDomain()));
         add(new BookmarkablePageLink<Page>("logout", Logout.class));
 
         // set 'active' menu item

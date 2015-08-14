@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.fit.core.reference;
 
-import static org.apache.syncope.fit.core.reference.AbstractITCase.anyTypeClassService;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -46,7 +45,7 @@ public class CamelRouteITCase extends AbstractITCase {
 
         List<CamelRouteTO> userRoutes = camelRouteService.list(AnyTypeKind.USER);
         assertNotNull(userRoutes);
-        assertEquals(15, userRoutes.size());
+        assertEquals(16, userRoutes.size());
         for (CamelRouteTO route : userRoutes) {
             assertNotNull(route.getContent());
         }
@@ -58,7 +57,7 @@ public class CamelRouteITCase extends AbstractITCase {
 
         List<CamelRouteTO> groupRoutes = camelRouteService.list(AnyTypeKind.GROUP);
         assertNotNull(groupRoutes);
-        assertEquals(7, groupRoutes.size());
+        assertEquals(8, groupRoutes.size());
         for (CamelRouteTO route : groupRoutes) {
             assertNotNull(route.getContent());
         }

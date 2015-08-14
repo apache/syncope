@@ -1,0 +1,1131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<dataset>
+  <SyncopeDomain name="Two" adminCipherAlgorithm="SHA" adminPwd="2AA60A8FF7FCD473D321E0146AFD9E26DF395147"/>  
+  
+  <SyncopeConf id="1" 
+               creator="admin" lastModifier="admin"
+               creationDate="2014-06-20 11:00:00" lastChangeDate="2014-06-20 11:00:00"/>
+
+  <PlainSchema name="password.cipher.algorithm" type="String"
+               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <CPlainAttr id="1" owner_id="1" schema_name="password.cipher.algorithm"/>
+  <CPlainAttrValue id="1" attribute_id="1" stringValue="SHA1"/>
+
+  <!-- notificationjob.cronExpression:
+  + not existing: NotificationJob runs according to Notification.DEFAULT_CRON_EXP
+  + provided as empty string: NotificationJob disabled
+  + provided as non-empty string: NotificationJob runs according to the given value -->
+  <PlainSchema name="notificationjob.cronExpression" type="String"
+               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <CPlainAttr id="2" owner_id="1" schema_name="notificationjob.cronExpression"/>
+  <CPlainAttrValue id="2" attribute_id="2" stringValue=""/>
+  
+  <PlainSchema name="notification.maxRetries" type="Long"
+               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <CPlainAttr id="3" owner_id="1" schema_name="notification.maxRetries"/>
+  <CPlainAttrValue id="3" attribute_id="3" longValue="3"/>
+
+  <PlainSchema name="token.length" type="Long"
+               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <CPlainAttr id="4" owner_id="1" schema_name="token.length"/>
+  <CPlainAttrValue id="4" attribute_id="4" longValue="256"/>
+
+  <PlainSchema name="token.expireTime" type="Long"
+               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <CPlainAttr id="5" owner_id="1" schema_name="token.expireTime"/>
+  <CPlainAttrValue id="5" attribute_id="5" longValue="60"/>
+
+  <PlainSchema name="selfRegistration.allowed" type="Boolean"
+               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <CPlainAttr id="6" owner_id="1" schema_name="selfRegistration.allowed"/>
+  <CPlainAttrValue id="6" attribute_id="6" booleanValue="1"/>
+
+  <PlainSchema name="passwordReset.allowed" type="Boolean"
+               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <CPlainAttr id="7" owner_id="1" schema_name="passwordReset.allowed"/>
+  <CPlainAttrValue id="7" attribute_id="7" booleanValue="1"/>
+
+  <PlainSchema name="passwordReset.securityQuestion" type="Boolean"
+               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <CPlainAttr id="8" owner_id="1" schema_name="passwordReset.securityQuestion"/>
+  <CPlainAttrValue id="8" attribute_id="8" booleanValue="1"/>
+
+  <PlainSchema name="authentication.statuses" type="String"
+               mandatoryCondition="true" multivalue="1" uniqueConstraint="0" readonly="0"/>
+  <CPlainAttr id="9" owner_id="1" schema_name="authentication.statuses"/>
+  <CPlainAttrValue id="9" attribute_id="9" stringValue="created"/>
+  <CPlainAttrValue id="10" attribute_id="9" stringValue="active"/>
+
+  <!-- Save user login date upon successful authentication -->
+  <PlainSchema name="log.lastlogindate" type="Boolean"
+               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <CPlainAttr id="11" owner_id="1" schema_name="log.lastlogindate"/>
+  <CPlainAttrValue id="11" attribute_id="11" booleanValue="1"/>
+
+  <PlainSchema name="tasks.interruptMaxRetries" type="Long"
+               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <CPlainAttr id="12" owner_id="1" schema_name="tasks.interruptMaxRetries"/>
+  <CPlainAttrValue id="12" attribute_id="12" longValue="20"/>
+
+  <!-- For usage with admin console -->
+  <PlainSchema name="admin.user.layout" type="String"
+               mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
+  <PlainSchema name="self.user.layout" type="String"
+               mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
+  <PlainSchema name="admin.group.layout" type="String"
+               mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
+  <PlainSchema name="self.group.layout" type="String"
+               mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
+  <PlainSchema name="admin.membership.layout" type="String"
+               mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
+  <PlainSchema name="self.membership.layout" type="String"
+               mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
+  
+  <!-- sample policies -->
+  <Policy DTYPE="SyncPolicy" id="1" description="a sync policy" type="SYNC" 
+          specification='{"conflictResolutionAction":"IGNORE","items":[]}'/>
+  <Policy DTYPE="PasswordPolicy" id="2" description="a password policy" type="PASSWORD" 
+          specification='{"historyLength":1,"maxLength":0,"minLength":8,"nonAlphanumericRequired":false,"alphanumericRequired":false,"digitRequired":false,"lowercaseRequired":false,"uppercaseRequired":false,"mustStartWithDigit":false,"mustntStartWithDigit":false,"mustEndWithDigit":false,"mustntEndWithDigit":false,"mustStartWithNonAlpha":false,"mustStartWithAlpha":false,"mustntStartWithNonAlpha":false,"mustntStartWithAlpha":false,"mustEndWithNonAlpha":false,"mustEndWithAlpha":false,"mustntEndWithNonAlpha":false,"mustntEndWithAlpha":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[],"allowNullPassword":true}'/>
+  <Policy DTYPE="SyncPolicy" id="3" description="sync policy 2" type="SYNC" 
+          specification='{"conflictResolutionAction":"ALL","items":[{"anyTypeKey":"USER","javaRule":null,"altSearchSchemas":["username","firstname"]}]}'/>
+  <Policy DTYPE="PasswordPolicy" id="4" description="sample password policy" type="PASSWORD" 
+          specification='{"historyLength":0,"maxLength":0,"minLength":10,"nonAlphanumericRequired":false,"alphanumericRequired":false,"digitRequired":true,"lowercaseRequired":false,"uppercaseRequired":false,"mustStartWithDigit":false,"mustntStartWithDigit":false,"mustEndWithDigit":false,"mustntEndWithDigit":false,"mustStartWithNonAlpha":false,"mustStartWithAlpha":false,"mustntStartWithNonAlpha":false,"mustntStartWithAlpha":false,"mustEndWithNonAlpha":false,"mustEndWithAlpha":false,"mustntEndWithNonAlpha":false,"mustntEndWithAlpha":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[], "allowNullPassword":true}'/>
+  <Policy DTYPE="AccountPolicy" id="5" description="an account policy" type="ACCOUNT" 
+          specification='{"maxLength":0,"minLength":0,"pattern":null,"allUpperCase":false,"allLowerCase":false,"propagateSuspension":false,"maxAuthenticationAttempts":0,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":[],"suffixesNotPermitted":[]}'/>
+  <Policy DTYPE="AccountPolicy" id="6" description="sample account policy" type="ACCOUNT" 
+          specification='{"maxLength":0,"minLength":4,"pattern":null,"allUpperCase":false,"allLowerCase":false,"propagateSuspension":false,"maxAuthenticationAttempts":3,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[]}'/>
+  <Policy DTYPE="SyncPolicy" id="7" description="sync policy 1" type="SYNC" 
+          specification='{"conflictResolutionAction":"IGNORE","items":[]}'/>
+  <Policy DTYPE="PasswordPolicy" id="8" description="sample password policy" type="PASSWORD" 
+          specification='{"historyLength":0,"maxLength":0,"minLength":10,"nonAlphanumericRequired":true,"alphanumericRequired":false,"digitRequired":true,"lowercaseRequired":true,"uppercaseRequired":true,"mustStartWithDigit":true,"mustntStartWithDigit":false,"mustEndWithDigit":true,"mustntEndWithDigit":false,"mustStartWithNonAlpha":false,"mustStartWithAlpha":false,"mustntStartWithNonAlpha":false,"mustntStartWithAlpha":false,"mustEndWithNonAlpha":false,"mustEndWithAlpha":false,"mustntEndWithNonAlpha":false,"mustntEndWithAlpha":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[],"allowNullPassword":false}'/>
+  <Policy DTYPE="SyncPolicy" id="9" description="sync policy for java rule" type="SYNC" 
+          specification='{"conflictResolutionAction":"IGNORE","items":[]}'/>
+
+  <RelationshipType name="inclusion" description="Models the act that an object is included in another"/>
+  <RelationshipType name="neighborhood"/>
+  
+  <AnyTypeClass name="generic membership"/>
+
+  <AnyType name="USER" kind="USER"/>
+  <AnyTypeClass name="minimal user"/>
+  <AnyType_AnyTypeClass anyType_name="USER" anyTypeClass_name="minimal user"/>
+  <AnyTypeClass name="other"/>
+  <AnyType_AnyTypeClass anyType_name="USER" anyTypeClass_name="other"/>
+
+  <AnyType name="GROUP" kind="GROUP"/>
+  <AnyTypeClass name="minimal group"/>
+  <AnyType_AnyTypeClass anyType_name="GROUP" anyTypeClass_name="minimal group"/>
+  
+  <AnyType name="PRINTER" kind="ANY_OBJECT"/>
+  <AnyTypeClass name="minimal printer"/>
+  <AnyType_AnyTypeClass anyType_name="PRINTER" anyTypeClass_name="minimal printer"/>
+      
+  <AnyTypeClass name="csv"/>
+
+  <Realm id="1" name="/" passwordPolicy_id="4"/>
+  <Realm id="2" name="odd" parent_id="1" accountPolicy_id="6"/>
+  <Realm id="3" name="even" parent_id="1"/>
+  <Realm id="4" name="two" parent_id="3" accountPolicy_id="5" passwordPolicy_id="2"/>
+  
+  <AnyObject id="1" realm_id="1" type_name="PRINTER"
+             creator="admin" lastModifier="admin" 
+             creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+  <AnyObject id="2" realm_id="1" type_name="PRINTER"
+             creator="admin" lastModifier="admin" 
+             creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+  
+  <ARelationship id="1" left_anyObject_id="1" right_anyObject_id="2" type_name="neighborhood"/>
+  
+  <SyncopeRole id="1" name="User reviewer"/>
+  <SyncopeRole_entitlements entitlement="USER_READ" role_id="1"/>
+  <SyncopeRole_entitlements entitlement="USER_LIST" role_id="1"/>
+  <SyncopeRole_entitlements entitlement="USER_SEARCH" role_id="1"/>
+  <SyncopeRole_Realm role_id="1" realm_id="2"/>
+  <SyncopeRole_Realm role_id="1" realm_id="3"/>
+  
+  <SyncopeRole id="2" name="User manager"/>
+  <SyncopeRole_entitlements entitlement="USER_READ" role_id="2"/>
+  <SyncopeRole_entitlements entitlement="USER_LIST" role_id="2"/>
+  <SyncopeRole_entitlements entitlement="USER_SEARCH" role_id="2"/>
+  <SyncopeRole_entitlements entitlement="WORKFLOW_FORM_CLAIM" role_id="2"/>
+  <SyncopeRole_entitlements entitlement="WORKFLOW_FORM_SUBMIT" role_id="2"/>
+  <SyncopeRole_Realm role_id="2" realm_id="1"/>
+
+  <SyncopeRole id="3" name="Other"/>
+  <SyncopeRole_entitlements entitlement="SCHEMA_READ" role_id="3"/>
+  <SyncopeRole_entitlements entitlement="GROUP_READ" role_id="3"/>
+  <SyncopeRole_entitlements entitlement="WORKFLOW_FORM_CLAIM" role_id="3"/>
+  <SyncopeRole_Realm role_id="3" realm_id="2"/>
+  
+  <SyncopeRole id="4" name="Search for /even/two"/>
+  <SyncopeRole_entitlements entitlement="USER_READ" role_id="4"/>
+  <SyncopeRole_entitlements entitlement="USER_SEARCH" role_id="4"/>
+  <SyncopeRole_Realm role_id="4" realm_id="4"/>
+
+  <SyncopeUser id="1" workflowId="4" status="active" password="5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8" cipherAlgorithm="SHA1"
+               realm_id="3"
+               username="rossini" creator="admin" lastModifier="admin"
+               creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00" suspended="0"/>
+  <SyncopeUser_SyncopeRole user_id="1" role_id="3"/>
+  <SyncopeUser id="2" workflowId="6" status="active" password="5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8" cipherAlgorithm="SHA1"
+               realm_id="1"
+               username="verdi" creator="admin" lastModifier="admin"
+               creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00" suspended="0"/>
+  <SyncopeUser id="3" workflowId="8" status="active" password="5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8" cipherAlgorithm="SHA1"
+               realm_id="1"
+               username="vivaldi" creator="admin" lastModifier="admin"
+               creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00" suspended="0"/>
+  <SyncopeUser id="4" workflowId="10" status="active" password="5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8" cipherAlgorithm="SHA1"
+               realm_id="1"
+               username="bellini" creator="admin" lastModifier="admin"
+               creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00" suspended="0"/>
+  <SyncopeUser_SyncopeRole user_id="4" role_id="1"/>
+  <SyncopeUser_SyncopeRole user_id="4" role_id="2"/>
+  <SyncopeUser id="5" workflowId="12" status="active" password="5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8" cipherAlgorithm="SHA1"
+               realm_id="1"
+               username="puccini" creator="admin" lastModifier="admin" 
+               creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00" suspended="0"/>
+  <SyncopeUser_SyncopeRole user_id="5" role_id="4"/>
+  
+  <SyncopeGroup id="1" name="root"
+                realm_id="1"
+                creator="admin" lastModifier="admin" 
+                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+  <SyncopeGroup id="2" name="child"
+                realm_id="1"
+                creator="admin" lastModifier="admin" 
+                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+  <SyncopeGroup id="3" name="citizen"
+                realm_id="1"
+                creator="admin" lastModifier="admin" 
+                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+  <SyncopeGroup id="4" name="employee"
+                realm_id="1"
+                creator="admin" lastModifier="admin" 
+                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+  <SyncopeGroup id="5" name="secretary"
+                realm_id="1"
+                creator="admin" lastModifier="admin" 
+                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+  <SyncopeGroup id="6" name="director" userOwner_id="5"
+                realm_id="1"
+                creator="admin" lastModifier="admin" 
+                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+  <SyncopeGroup id="7" name="managingDirector"
+                realm_id="1"
+                creator="admin" lastModifier="admin" 
+                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+  <SyncopeGroup id="8" name="otherchild"
+                realm_id="1"
+                creator="admin" lastModifier="admin" 
+                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+  <SyncopeGroup id="9" name="groupForWorkflowApproval"
+                realm_id="1"
+                creator="admin" lastModifier="admin" 
+                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+  <SyncopeGroup id="10" name="managingConsultant"
+                realm_id="1"
+                creator="admin" lastModifier="admin" 
+                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+  <SyncopeGroup id="11" name="groupForWorkflowOptIn"
+                realm_id="1"
+                creator="admin" lastModifier="admin" 
+                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+  <SyncopeGroup id="12" name="aGroupForPropagation"
+                realm_id="1"
+                creator="admin" lastModifier="admin" 
+                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+  <SyncopeGroup_AnyTypeClass group_id="12" anyTypeClass_name="csv"/>  
+  <SyncopeGroup id="13" name="bGroupForPropagation"
+                realm_id="1"
+                creator="admin" lastModifier="admin" 
+                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+  <SyncopeGroup_AnyTypeClass group_id="13" anyTypeClass_name="csv"/>  
+  <SyncopeGroup id="14" name="artDirector"
+                realm_id="1"
+                creator="admin" lastModifier="admin" 
+                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+  
+  <URelationship id="1" user_id="4" anyObject_id="1" type_name="neighborhood"/>
+
+  <UMembership id="1" user_id="1" group_id="1"/>
+  <UMembership id="2" user_id="2" group_id="1"/>
+  <UMembership id="3" user_id="2" group_id="2"/>
+  <UMembership id="4" user_id="4" group_id="7"/>
+  <UMembership id="5" user_id="1" group_id="8"/>
+  <UMembership id="6" user_id="2" group_id="3"/>
+  <UMembership id="7" user_id="5" group_id="14"/>
+
+  <PlainSchema name="fullname" type="String" anyTypeClass_name="minimal user"
+               mandatoryCondition="true" multivalue="0" uniqueConstraint="1" readonly="0"/>
+  <PlainSchema name="userId" type="String" anyTypeClass_name="minimal user"
+               mandatoryCondition="true" multivalue="0" uniqueConstraint="1" readonly="0"
+               validatorClass="org.apache.syncope.core.persistence.jpa.attrvalue.validation.EmailAddressValidator"/>
+  <PlainSchema name="loginDate" type="Date" anyTypeClass_name="other"
+               mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"
+               conversionPattern="yyyy-MM-dd"/>
+  <PlainSchema name="firstname" type="String" anyTypeClass_name="minimal user"
+               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <PlainSchema name="surname" type="String" anyTypeClass_name="minimal user"
+               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <PlainSchema name="type" type="String" anyTypeClass_name="other"
+               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <PlainSchema name="email" type="String" anyTypeClass_name="minimal user"
+               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
+               validatorClass="org.apache.syncope.core.persistence.jpa.attrvalue.validation.EmailAddressValidator"/>
+  <PlainSchema name="activationDate" type="Date" anyTypeClass_name="other"
+               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
+               conversionPattern="yyyy-MM-dd'T'HH:mm:ss.SSSZ"/>
+  <PlainSchema name="uselessReadonly" type="String" anyTypeClass_name="other"
+               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="1"/>
+  <PlainSchema name="cool" type="Boolean" anyTypeClass_name="other" 
+               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <PlainSchema name="gender" type="Enum" anyTypeClass_name="other"
+               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
+               enumerationValues="M;F"/>
+  <PlainSchema name="aLong" type="Long" anyTypeClass_name="other"
+               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <PlainSchema name="makeItDouble" type="Long" anyTypeClass_name="other"
+               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <PlainSchema name="obscure" type="Encrypted" anyTypeClass_name="other"
+               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
+               secretKey="7abcdefghilmnopqrstuvz9#" cipherAlgorithm="SHA"/>
+  <PlainSchema name="photo" type="Binary" anyTypeClass_name="other"
+               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
+               mimeType="image/jpeg"/>
+
+  <DerSchema name="csvuserid" expression="firstname + ',' + surname" anyTypeClass_name="csv"/>
+  <DerSchema name="cn" expression="surname + ', ' + firstname" anyTypeClass_name="minimal user"/>
+  <DerSchema name="noschema" expression="surname + ', ' + notfound" anyTypeClass_name="other"/>
+
+  <VirSchema name="virtualdata" anyTypeClass_name="minimal user"/>
+  <VirSchema name="virtualReadOnly" READONLY="1"  anyTypeClass_name="minimal user"/>
+
+  <PlainSchema name="icon" type="String" anyTypeClass_name="minimal group"
+               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>                
+  <PlainSchema name="show" type="Boolean" anyTypeClass_name="minimal group"
+               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <PlainSchema name="rderived_sx" type="String" anyTypeClass_name="minimal group"
+               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <PlainSchema name="rderived_dx" type="String" anyTypeClass_name="minimal group"
+               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>           
+  <PlainSchema name="title" type="String" anyTypeClass_name="minimal group"
+               mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
+
+  <DerSchema name="rderiveddata" expression="rderived_sx + '-' + rderived_dx"
+             anyTypeClass_name="minimal group"/>
+  <DerSchema name="displayProperty" expression="icon + ': ' + show"
+             anyTypeClass_name="minimal group"/>
+  <DerSchema name="rderToBePropagated" expression="rderived_sx + '-' + rderived_dx"
+             anyTypeClass_name="minimal group"/>
+
+  <VirSchema name="rvirtualdata" anyTypeClass_name="minimal group"/>
+
+  <DerSchema name="rderivedschema" expression="rderived_sx + '-' + rderived_dx"  anyTypeClass_name="minimal group"/>
+
+  <PlainSchema name="subscriptionDate" type="Date" anyTypeClass_name="generic membership"
+               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
+               conversionPattern="yyyy-MM-dd'T'HH:mm:ss.SSSZ"/>
+  <PlainSchema name="mderived_sx" type="String" anyTypeClass_name="generic membership"
+               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <PlainSchema name="mderived_dx" type="String" anyTypeClass_name="generic membership"
+               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>          
+  <PlainSchema name="postalAddress" type="String" anyTypeClass_name="generic membership"
+               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+
+  <DerSchema name="mderiveddata" expression="mderived_sx + '-' + mderived_dx"/>
+  <DerSchema name="mderToBePropagated" expression="mderived_sx + '-' + mderived_dx" 
+             anyTypeClass_name="generic membership"/>
+
+  <VirSchema name="mvirtualdata"/>
+        
+  <PlainSchema name="model" type="String" anyTypeClass_name="minimal printer"
+               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <PlainSchema name="location" type="String" anyTypeClass_name="minimal printer"
+               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+    
+  <APlainAttr id="1" owner_id="1" schema_name="model"/>
+  <APlainAttrValue id="1" attribute_id="1" stringValue="Canon MFC8030"/>
+  <APlainAttr id="2" owner_id="1" schema_name="location"/>
+  <APlainAttrValue id="2" attribute_id="2" stringValue="1st floor"/>
+    
+  <APlainAttr id="3" owner_id="2" schema_name="model"/>
+  <APlainAttrValue id="3" attribute_id="3" stringValue="HP Laserjet 1300n"/>
+  <APlainAttr id="4" owner_id="2" schema_name="location"/>
+  <APlainAttrValue id="4" attribute_id="4" stringValue="2nd floor"/>
+
+  <UPlainAttr id="99" owner_id="1" schema_name="type"/>
+  <UPlainAttrValue id="9" attribute_id="99" stringValue="G"/>
+  <UPlainAttr id="100" owner_id="1" schema_name="fullname"/>
+  <UPlainAttrUniqueValue id="10" attribute_id="100" schema_name="fullname" stringValue="Gioacchino Rossini"/>
+  <UPlainAttr id="101" owner_id="1" schema_name="firstname"/>
+  <UPlainAttrValue id="11" attribute_id="101" stringValue="Gioacchino"/>
+  <UPlainAttr id="102" owner_id="1" schema_name="surname"/>
+  <UPlainAttrValue id="12" attribute_id="102" stringValue="Rossini"/>
+  <UPlainAttr id="103" owner_id="1" schema_name="userId"/>
+  <UPlainAttrUniqueValue id="13" attribute_id="103" schema_name="userId" stringValue="rossini@apache.org"/>
+  <UPlainAttr id="104" owner_id="1" schema_name="loginDate"/>
+  <UPlainAttrValue id="14" attribute_id="104" dateValue="2009-05-26"/>
+  <UPlainAttrValue id="15" attribute_id="104" dateValue="2010-05-26 15:40:04"/>
+
+  <UPlainAttr id="105" owner_id="2" schema_name="fullname"/>
+  <UPlainAttrUniqueValue id="16" attribute_id="105" schema_name="fullname" stringValue="Giuseppe Verdi"/>
+  <UPlainAttr id="106" owner_id="2" schema_name="firstname"/>
+  <UPlainAttrValue id="17" attribute_id="106" stringValue="Giuseppe"/>
+  <UPlainAttr id="107" owner_id="2" schema_name="surname"/>
+  <UPlainAttrValue id="18" attribute_id="107" stringValue="Verdi"/>
+  <UPlainAttr id="108" owner_id="2" schema_name="userId"/>
+  <UPlainAttrUniqueValue id="19" attribute_id="108" schema_name="userId" stringValue="verdi@apache.org"/>
+
+  <UPlainAttr id="109" owner_id="3" schema_name="firstname"/>
+  <UPlainAttrValue id="20" attribute_id="109" stringValue="Antonio"/>
+  <UPlainAttr id="110" owner_id="3" schema_name="surname"/>
+  <UPlainAttrValue id="21" attribute_id="110" stringValue="Vivaldi"/>
+  <UPlainAttr id="111" owner_id="3" schema_name="fullname"/>
+  <UPlainAttrUniqueValue id="22" attribute_id="111" schema_name="fullname" stringValue="Antonio Vivaldi"/>
+  <UPlainAttr id="112" owner_id="3" schema_name="userId"/>
+  <UPlainAttrUniqueValue id="23" attribute_id="112" schema_name="userId" stringValue="vivaldi@apache.org"/>
+
+  <UPlainAttr id="113" owner_id="4" schema_name="firstname"/>
+  <UPlainAttrValue id="24" attribute_id="113" stringValue="Vincenzo"/>
+  <UPlainAttr id="114" owner_id="4" schema_name="surname"/>
+  <UPlainAttrValue id="25" attribute_id="114" stringValue="Bellini"/>
+  <UPlainAttr id="115" owner_id="4" schema_name="fullname"/>
+  <UPlainAttrUniqueValue id="26" attribute_id="115" schema_name="fullname" stringValue="Vincenzo Bellini"/>
+  <UPlainAttr id="116" owner_id="4" schema_name="userId"/>
+  <UPlainAttrUniqueValue id="27" attribute_id="116" schema_name="userId" stringValue="bellini@apache.org"/>
+  <UPlainAttr id="117" owner_id="4" schema_name="loginDate"/>
+  <UPlainAttrValue id="28" attribute_id="117" dateValue="2009-06-24"/>
+  <UPlainAttr id="118" owner_id="4" schema_name="cool"/>
+  <UPlainAttrValue id="29" attribute_id="118" booleanValue="1"/>
+  <UPlainAttr id="119" owner_id="4" schema_name="gender"/>
+  <UPlainAttrValue id="30" attribute_id="119" stringValue="M"/>
+  
+  <UPlainAttr id="120" owner_id="5" schema_name="firstname"/>
+  <UPlainAttrValue id="31" attribute_id="120" stringValue="Giacomo"/>
+  <UPlainAttr id="121" owner_id="5" schema_name="surname"/>
+  <UPlainAttrValue id="32" attribute_id="121" stringValue="Puccini"/>
+  <UPlainAttr id="122" owner_id="5" schema_name="fullname"/>
+  <UPlainAttrUniqueValue id="33" attribute_id="122" schema_name="fullname" stringValue="Giacomo Puccini"/>
+  <UPlainAttr id="123" owner_id="5" schema_name="userId"/>
+  <UPlainAttrUniqueValue id="34" attribute_id="123" schema_name="userId" stringValue="puccini@apache.org"/>
+  
+  <UPlainAttr id="124" owner_id="2" schema_name="email"/>
+  <UPlainAttrValue id="35" attribute_id="124" stringValue="verdi@syncope.org"/>
+  <UPlainAttr id="125" owner_id="3" schema_name="email"/>
+  <UPlainAttrValue id="36" attribute_id="125" stringValue="vivaldi@syncope.org"/>
+  <UPlainAttr id="126" owner_id="3" schema_name="type"/>
+  <UPlainAttrValue id="37" attribute_id="126" stringValue="F"/>
+    
+  <UVirAttr id="100" schema_name="virtualdata" owner_id="3"/>
+  
+  <UDerAttr id="100" schema_name="cn" owner_id="3"/>
+  <UDerAttr id="101" schema_name="cn" owner_id="1"/>
+
+  <GPlainAttr id="600" owner_id="1" schema_name="icon"/>
+  <GPlainAttrValue attribute_id="600" id="40" stringValue="niceIcon"/>
+
+  <GPlainAttr id="700" owner_id="2" schema_name="icon"/>
+  <GPlainAttrValue attribute_id="700" id="41" stringValue="badIcon"/>
+
+  <GPlainAttr id="800" owner_id="1"  schema_name="show"/>
+  <GPlainAttrValue attribute_id="800" id="42" booleanValue="1"/>
+
+  <GPlainAttr id="900" owner_id="6" schema_name="icon"/>
+  <GPlainAttrValue attribute_id="900" id="43" stringValue="icon6"/>
+
+  <GPlainAttr id="950" owner_id="4" schema_name="icon"/>
+  <GPlainAttrValue attribute_id="950" id="44" stringValue="icon4"/>
+
+  <GPlainAttr id="992" owner_id="1" schema_name="rderived_sx"/>
+  <GPlainAttrValue attribute_id="992" id="92" stringValue="sx"/>
+
+  <GPlainAttr id="993" owner_id="1" schema_name="rderived_dx"/>
+  <GPlainAttrValue attribute_id="993" id="93" stringValue="dx"/>
+
+  <GPlainAttr id="994" owner_id="12" schema_name="title"/>
+  <GPlainAttrValue attribute_id="994" id="94" stringValue="r12"/>
+  
+  <GPlainAttr id="995" owner_id="13" schema_name="title"/>
+  <GPlainAttrValue attribute_id="995" id="95" stringValue="r13"/>
+
+  <GDerAttr id="100" owner_id="1" schema_name="rderiveddata"/>
+    
+  <GDerAttr id="101" owner_id="1" schema_name="displayProperty"/>
+  
+  <GDerAttr id="102" owner_id="4" schema_name="displayProperty"/>
+
+  <GDerAttr id="103" owner_id="1" schema_name="rderToBePropagated"/>    
+
+  <GVirAttr id="98" owner_id="4" schema_name="rvirtualdata"/>
+
+  <ConnInstance id="100" displayName="ConnInstance100"
+                location="${connid.location}"
+                bundleName="net.tirasa.connid.bundles.soap"
+                connectorName="net.tirasa.connid.bundles.soap.WebServiceConnector"
+                version="${connid.soap.version}"
+                jsonConf='[{"schema":{"name":"endpoint","displayName":null,"helpMessage":null,"type":"java.lang.String","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["http://localhost:${cargo.servlet.port}/wssample/services/provisioning"]},{"schema":{"name":"servicename","displayName":null,"helpMessage":null,"type":"java.lang.String","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["net.tirasa.connid.bundles.soap.provisioning.interfaces.Provisioning"]}]'/>
+  <ConnInstance_capabilities ConnInstance_id="100" capability="ONE_PHASE_CREATE"/>
+  <ConnInstance_capabilities ConnInstance_id="100" capability="ONE_PHASE_UPDATE"/>
+  <ConnInstance_capabilities ConnInstance_id="100" capability="ONE_PHASE_DELETE"/>
+  <ConnInstance_capabilities ConnInstance_id="100" capability="TWO_PHASES_CREATE"/>
+  <ConnInstance_capabilities ConnInstance_id="100" capability="TWO_PHASES_UPDATE"/>
+  <ConnInstance_capabilities ConnInstance_id="100" capability="TWO_PHASES_DELETE"/>
+  <ConnInstance_capabilities ConnInstance_id="100" capability="SEARCH"/>
+
+  <ConnInstance id="101" displayName="H2"
+                location="connid://${testconnectorserver.key}@localhost:${testconnectorserver.port}"
+                bundleName="net.tirasa.connid.bundles.db.table"
+                connectorName="net.tirasa.connid.bundles.db.table.DatabaseTableConnector"
+                version="${connid.database.version}"
+                jsonConf='[{"schema":{"name":"disabledStatusValue","displayName":null,"helpMessage":null,"type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["false"]},{"schema":{"name":"user","displayName":null,"helpMessage":null,"type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["sa"]},{"schema":{"name":"keyColumn","displayName":null,"helpMessage":null,"type":"java.lang.String","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["id"]},{"schema":{"name":"retrievePassword","displayName":null,"helpMessage":null,"type":"boolean","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["true"]},{"schema":{"name":"cipherAlgorithm","displayName":null,"helpMessage":null,"type":"java.lang.String","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["SHA1"]},{"schema":{"name":"enabledStatusValue","displayName":null,"helpMessage":null,"type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["true"]},{"schema":{"name":"passwordColumn","displayName":null,"helpMessage":null,"type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["password"]},{"schema":{"name":"jdbcDriver","displayName":null,"helpMessage":null,"type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["org.h2.Driver"]},{"schema":{"name":"defaultStatusValue","displayName":null,"helpMessage":null,"type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["true"]},{"schema":{"name":"table","displayName":null,"helpMessage":null,"type":"java.lang.String","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["test"]},{"schema":{"name":"password","displayName":null,"helpMessage":null,"type":"org.identityconnectors.common.security.GuardedString","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["sa"]},{"schema":{"name":"statusColumn","displayName":null,"helpMessage":null,"type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["status"]},{"schema":{"name":"jdbcUrlTemplate","displayName":null,"helpMessage":null,"type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["${testdb.url}"]}]'/>
+  <ConnInstance_capabilities ConnInstance_id="101" capability="AUTHENTICATE"/>
+  <ConnInstance_capabilities ConnInstance_id="101" capability="ONE_PHASE_CREATE"/>
+  <ConnInstance_capabilities ConnInstance_id="101" capability="ONE_PHASE_UPDATE"/>
+  <ConnInstance_capabilities ConnInstance_id="101" capability="ONE_PHASE_DELETE"/>
+  <ConnInstance_capabilities ConnInstance_id="101" capability="TWO_PHASES_CREATE"/>
+  <ConnInstance_capabilities ConnInstance_id="101" capability="TWO_PHASES_UPDATE"/>
+  <ConnInstance_capabilities ConnInstance_id="101" capability="TWO_PHASES_DELETE"/>
+  <ConnInstance_capabilities ConnInstance_id="101" capability="SEARCH"/>
+  <ConnInstance_capabilities ConnInstance_id="101" capability="SYNC"/>
+
+  <ConnInstance id="102" displayName="ConnInstance102"
+                location="${connid.location}"
+                bundleName="net.tirasa.connid.bundles.soap"
+                connectorName="net.tirasa.connid.bundles.soap.WebServiceConnector"
+                version="${connid.soap.version}"
+                connRequestTimeout="10"
+                jsonConf='[{"schema":{"name":"servicename","displayName":null,"helpMessage":null,"type":"java.lang.String","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["net.tirasa.connid.bundles.soap.provisioning.interfaces.Provisioning"]},{"schema":{"name":"endpoint","displayName":null,"helpMessage":null,"type":"java.lang.String","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":true,"values":["http://localhost:${cargo.servlet.port}/wssample/services/provisioning"]}]'/>
+  <ConnInstance_capabilities ConnInstance_id="102" capability="ONE_PHASE_CREATE"/>
+  <ConnInstance_capabilities ConnInstance_id="102" capability="ONE_PHASE_UPDATE"/>
+  <ConnInstance_capabilities ConnInstance_id="102" capability="ONE_PHASE_DELETE"/>
+  <ConnInstance_capabilities ConnInstance_id="102" capability="TWO_PHASES_CREATE"/>
+  <ConnInstance_capabilities ConnInstance_id="102" capability="TWO_PHASES_UPDATE"/>
+  <ConnInstance_capabilities ConnInstance_id="102" capability="TWO_PHASES_DELETE"/>
+  <ConnInstance_capabilities ConnInstance_id="102" capability="SEARCH"/>
+
+  <ConnInstance id="103" displayName="ConnInstance103"
+                location="${connid.location}"
+                bundleName="net.tirasa.connid.bundles.soap"
+                connectorName="net.tirasa.connid.bundles.soap.WebServiceConnector"
+                version="${connid.soap.version}"
+                jsonConf='[{"schema":{"name":"endpoint","displayName":null,"helpMessage":null,"type":"java.lang.String","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["http://localhost:${cargo.servlet.port}/wssample/services/provisioning"]},{"schema":{"name":"servicename","displayName":null,"helpMessage":null,"type":"java.lang.String","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["net.tirasa.connid.bundles.soap.provisioning.interfaces.Provisioning"]}]'/>
+
+  <ConnInstance id="104" displayName="CSVDir"
+                location="${connid.location}"
+                bundleName="net.tirasa.connid.bundles.csvdir"
+                connectorName="net.tirasa.connid.bundles.csvdir.CSVDirConnector"
+                version="${connid.csvdir.version}"
+                jsonConf='[{"schema":{"name":"fields","displayName":"fields","helpMessage":"Column names separated by comma","type":"[Ljava.lang.String;","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["id","name","surname","email","password","theirgroup","membership","status","deleted"]},{"schema":{"name":"keyColumnNames","displayName":"Key column name","helpMessage":"Name of the column used to identify user uniquely","type":"[Ljava.lang.String;","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["name","surname"]},{"schema":{"name":"deleteColumnName","displayName":"Delete column name","helpMessage":"Name of the column used to specify users to be deleted","type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["deleted"]},{"schema":{"name":"passwordColumnName","displayName":"Password column name","helpMessage":"Name of the column used to specify user password","type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["password"]},{"schema":{"name":"keyseparator","displayName":"Key separator","helpMessage":"Character used to separate keys in a multi-key scenario","type":"java.lang.String","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":[","]},{"schema":{"name":"ignoreHeader","displayName":"Ignore header","helpMessage":"Specify it first line file must be ignored","type":"java.lang.Boolean","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":[false]},{"schema":{"name":"fieldDelimiter","displayName":"fieldDelimiter","helpMessage":"fieldDelimiter","type":"char","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":[","]},{"schema":{"name":"quotationRequired","displayName":"Value quotation required","helpMessage":"Specify if value quotation is required","type":"java.lang.Boolean","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":[false]},{"schema":{"name":"statusColumn","displayName":"statusColumn","helpMessage":"Status column","type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["status"]},{"schema":{"name":"sourcePath","displayName":"Source path","helpMessage":"Absolute path of a directory where are located CSV files to be processed","type":"java.lang.String","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["${test.csvdir.path}"]},{"schema":{"name":"fileMask","displayName":"File mask","helpMessage":"Regular expression describing files to be processed","type":"java.lang.String","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["test.csv"]}]'/>
+  <ConnInstance_capabilities ConnInstance_id="104" capability="ONE_PHASE_CREATE"/>
+  <ConnInstance_capabilities ConnInstance_id="104" capability="ONE_PHASE_UPDATE"/>
+  <ConnInstance_capabilities ConnInstance_id="104" capability="ONE_PHASE_DELETE"/>
+  <ConnInstance_capabilities ConnInstance_id="104" capability="TWO_PHASES_CREATE"/>
+  <ConnInstance_capabilities ConnInstance_id="104" capability="TWO_PHASES_UPDATE"/>
+  <ConnInstance_capabilities ConnInstance_id="104" capability="TWO_PHASES_DELETE"/>
+  <ConnInstance_capabilities ConnInstance_id="104" capability="SEARCH"/>
+  <ConnInstance_capabilities ConnInstance_id="104" capability="SYNC"/>
+    
+  <ConnInstance id="105" bundleName="net.tirasa.connid.bundles.ldap" displayName="ApacheDS"
+                location="${connid.location}"
+                connectorName="net.tirasa.connid.bundles.ldap.LdapConnector"
+                version="${connid.ldap.version}" 
+                jsonConf='[{"schema":{"name":"synchronizePasswords","displayName":"Enable Password Synchronization","helpMessage":"If true, the connector will synchronize passwords. The Password Capture Plugin needs to be installed for password synchronization to work.","type":"boolean","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["false"]},{"schema":{"name":"maintainLdapGroupMembership","displayName":"Maintain LDAP Group Membership","helpMessage":"When enabled and a user is renamed or deleted, update any LDAP groups to which the user belongs to reflect the new name. Otherwise, the LDAP resource must maintain referential integrity with respect to group membership.","type":"boolean","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["true"]},{"schema":{"name":"host","displayName":"Host","helpMessage":"The name or IP address of the host where the LDAP server is running.","type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["localhost"]},{"schema":{"name":"passwordHashAlgorithm","displayName":"Password Hash Algorithm","helpMessage":"Indicates the algorithm that the Identity system should use to hash the password. Currently supported values are SSHA, SHA, SSHA1, and SHA1. A blank value indicates that the system will not hash passwords. This will cause cleartext passwords to be stored in LDAP unless the LDAP server performs the hash (Netscape Directory Server and iPlanet Directory Server do).","type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["SHA"]},{"schema":{"name":"blockSize","displayName":"Block Size","helpMessage":"The maximum number of accounts that can be in a block when retrieving accounts in blocks.","type":"int","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":[]},{"schema":{"name":"useBlocks","displayName":"Use Blocks","helpMessage":"When performing operations on large numbers of accounts, the accounts are processed in blocks to reduce the amount of memory used by the operation. Select this option to process accounts in blocks.","type":"boolean","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":[false]},{"schema":{"name":"usePagedResultControl","displayName":"Use Paged Result Control","helpMessage":"When enabled, the LDAP Paged Results control is preferred over the VLV control when retrieving accounts.","type":"boolean","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["false"]},{"schema":{"name":"port","displayName":"TCP Port","helpMessage":"TCP/IP port number used to communicate with the LDAP server.","type":"int","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":[1389]},{"schema":{"name":"vlvSortAttribute","displayName":"VLV Sort Attribute","helpMessage":"Specify the sort attribute to use for VLV indexes on the resource.","type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":[]},{"schema":{"name":"statusManagementClass","displayName":"Status management class ","helpMessage":"Class to be used to manage enabled/disabled status. If no class is specified then identity status management wont be possible.","type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["net.tirasa.connid.bundles.ldap.commons.AttributeStatusManagement"]},{"schema":{"name":"accountObjectClasses","displayName":"Account Object Classes","helpMessage":"The object class or classes that will be used when creating new user objects in the LDAP tree. When entering more than one object class, each entry should be on its own line; do not use commas or semi-colons to separate multiple object classes. Some object classes may require that you specify all object classes in the class hierarchy.","type":"[Ljava.lang.String;","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["inetOrgPerson"]},{"schema":{"name":"accountUserNameAttributes","displayName":"Account User Name Attributes","helpMessage":"Attribute or attributes which holds the account user name. They will be used when authenticating to find the LDAP entry for the user name to authenticate.","type":"[Ljava.lang.String;","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["uid"]},{"schema":{"name":"baseContextsToSynchronize","displayName":"Base Contexts to Synchronize","helpMessage":"One or more starting points in the LDAP tree that will be used to determine if a change should be synchronized. The base contexts attribute will be used to synchronize a change if this property is not set.","type":"[Ljava.lang.String;","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["ou=people,o=isp","ou=groups,o=isp"]},{"schema":{"name":"accountSynchronizationFilter","displayName":"LDAP Filter for Accounts to Synchronize","helpMessage":"An optional LDAP filter for the objects to synchronize. Because the change log is for all objects, this filter updates only objects that match the specified filter. If you specify a filter, an object will be synchronized only if it matches the filter and includes a synchronized object class.","type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":[]},{"schema":{"name":"removeLogEntryObjectClassFromFilter","displayName":"Remove Log Entry Object Class from Filter","helpMessage":"If this property is set (the default), the filter used to fetch change log entries does not contain the \"changeLogEntry\" object class, expecting that there are no entries of other object types in the change log.","type":"boolean","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["false"]},{"schema":{"name":"passwordDecryptionKey","displayName":"Password Decryption Key","helpMessage":"The key to decrypt passwords with when performing password synchronization.","type":"org.identityconnectors.common.security.GuardedByteArray","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":[]},{"schema":{"name":"readSchema","displayName":"Read Schema","helpMessage":"If true, the connector will read the schema from the server. If false, the connector will provide a default schema based on the object classes in the configuration. This property must be true in order to use extended object classes.","type":"boolean","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["false"]},{"schema":{"name":"ssl","displayName":"SSL","helpMessage":"Select the check box to connect to the LDAP server using SSL.","type":"boolean","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["false"]},{"schema":{"name":"passwordAttributeToSynchronize","displayName":"Password Attribute to Synchronize","helpMessage":"The name of the password attribute to synchronize when performing password synchronization.","type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":[]},{"schema":{"name":"accountSearchFilter","displayName":"LDAP Filter for Retrieving Accounts","helpMessage":"An optional LDAP filter to control which accounts are returned from the LDAP resource. If no filter is specified, only accounts that include all specified object classes are returned.","type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["uid=*"]},{"schema":{"name":"passwordDecryptionInitializationVector","displayName":"Password Decryption Initialization Vector","helpMessage":"The initialization vector to decrypt passwords with when performing password synchronization.","type":"org.identityconnectors.common.security.GuardedByteArray","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":[]},{"schema":{"name":"groupMemberAttribute","displayName":"Group Member Attribute","helpMessage":"The name of the group attribute that will be updated with the distinguished name of the user when the user is added to the group.","type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":[]},{"schema":{"name":"failover","displayName":"Failover Servers","helpMessage":"List all servers that should be used for failover in case the preferred server fails. If the preferred server fails, JNDI will connect to the next available server in the list. List all servers in the form of \"ldap://ldap.example.com:389/\", which follows the standard LDAP v3 URLs described in RFC 2255. Only the host and port parts of the URL are relevant in this setting.","type":"[Ljava.lang.String;","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":[]},{"schema":{"name":"modifiersNamesToFilterOut","displayName":"Filter Out Changes By","helpMessage":"The names (DNs) of directory administrators to filter from the changes. Changes with the attribute \"modifiersName\" that match entries in this list will be filtered out. The standard value is the administrator name used by this adapter, to prevent loops. Entries should be of the format \"cn=Directory Manager\".","type":"[Ljava.lang.String;","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":[]},{"schema":{"name":"groupNameAttributes","displayName":"Group Name Attributes","helpMessage":"Attribute or attributes which holds the group name.","type":"[Ljava.lang.String;","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["cn"]},{"schema":{"name":"uidAttribute","displayName":"Uid Attribute","helpMessage":"The name of the LDAP attribute which is mapped to the Uid attribute.","type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["cn"]},{"schema":{"name":"respectResourcePasswordPolicyChangeAfterReset","displayName":"Respect Resource Password Policy Change-After-Reset","helpMessage":"When this resource is specified in a Login Module (i.e., this resource is a pass-through authentication target) and the resource password policy is configured for change-after-reset, a user whose resource account password has been administratively reset will be required to change that password after successfully authenticating.","type":"boolean","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["false"]},{"schema":{"name":"filterWithOrInsteadOfAnd","displayName":"Filter with Or Instead of And","helpMessage":"Normally the the filter used to fetch change log entries is an and-based filter retrieving an interval of change entries. If this property is set, the filter will or together the required change numbers instead.","type":"boolean","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["false"]},{"schema":{"name":"principal","displayName":"Principal","helpMessage":"The distinguished name with which to authenticate to the LDAP server.","type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["uid=admin,ou=system"]},{"schema":{"name":"changeLogBlockSize","displayName":"Change Log Block Size","helpMessage":"The number of change log entries to fetch per query.","type":"int","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":[100]},{"schema":{"name":"baseContexts","displayName":"Base Contexts","helpMessage":"One or more starting points in the LDAP tree that will be used when searching the tree. Searches are performed when discovering users from the LDAP server or when looking for the groups of which a user is a member.","type":"[Ljava.lang.String;","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["ou=people,o=isp","ou=groups,o=isp"]},{"schema":{"name":"passwordAttribute","displayName":"Password Attribute","helpMessage":"The name of the LDAP attribute which holds the password. When changing an user password, the new password is set to this attribute.","type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["userpassword"]},{"schema":{"name":"changeNumberAttribute","displayName":"Change Number Attribute","helpMessage":"The name of the change number attribute in the change log entry.","type":"java.lang.String","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["changeNumber"]},{"schema":{"name":"objectClassesToSynchronize","displayName":"Object Classes to Synchronize","helpMessage":"The object classes to synchronize. The change log is for all objects; this filters updates to just the listed object classes. You should not list the superclasses of an object class unless you intend to synchronize objects with any of the superclass values. For example, if only \"inetOrgPerson\" objects should be synchronized, but the superclasses of \"inetOrgPerson\" (\"person\", \"organizationalperson\" and \"top\") should be filtered out, then list only \"inetOrgPerson\" here. All objects in LDAP are subclassed from \"top\". For this reason, you should never list \"top\", otherwise no object would be filtered.","type":"[Ljava.lang.String;","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["inetOrgPerson","groupOfUniqueNames"]},{"schema":{"name":"credentials","displayName":"Password","helpMessage":"Password for the principal.","type":"org.identityconnectors.common.security.GuardedString","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["secret"]},{"schema":{"name":"attributesToSynchronize","displayName":"Attributes to Synchronize","helpMessage":"The names of the attributes to synchronize. This ignores updates from the change log if they do not update any of the named attributes. For example, if only \"department\" is listed, then only changes that affect \"department\" will be processed. All other updates are ignored. If blank (the default), then all changes are processed.","type":"[Ljava.lang.String;","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":[]},{"schema":{"name":"maintainPosixGroupMembership","displayName":"Maintain POSIX Group Membership","helpMessage":"When enabled and a user is renamed or deleted, update any POSIX groups to which the user belongs to reflect the new name. Otherwise, the LDAP resource must maintain referential integrity with respect to group membership.","type":"boolean","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["truemaintainLdapGroupMembership"]}]'/>
+  <ConnInstance_capabilities ConnInstance_id="105" capability="ONE_PHASE_CREATE"/>
+  <ConnInstance_capabilities ConnInstance_id="105" capability="ONE_PHASE_UPDATE"/>
+  <ConnInstance_capabilities ConnInstance_id="105" capability="ONE_PHASE_DELETE"/>
+  <ConnInstance_capabilities ConnInstance_id="105" capability="SEARCH"/>
+  
+  <ConnInstance id="106" displayName="H2-test2"
+                location="connid://${testconnectorserver.key}@localhost:${testconnectorserver.port}"
+                bundleName="net.tirasa.connid.bundles.db.table"
+                connectorName="net.tirasa.connid.bundles.db.table.DatabaseTableConnector"
+                version="${connid.database.version}"
+                jsonConf='[{"schema":{"name":"disabledStatusValue","displayName":null,"helpMessage":null,"type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["false"]},{"schema":{"name":"user","displayName":null,"helpMessage":null,"type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["sa"]},{"schema":{"name":"keyColumn","displayName":null,"helpMessage":null,"type":"java.lang.String","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["id"]},{"schema":{"name":"cipherAlgorithm","displayName":null,"helpMessage":null,"type":"java.lang.String","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["SHA1"]},{"schema":{"name":"enabledStatusValue","displayName":null,"helpMessage":null,"type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["true"]},{"schema":{"name":"passwordColumn","displayName":null,"helpMessage":null,"type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["password"]},{"schema":{"name":"jdbcDriver","displayName":null,"helpMessage":null,"type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["org.h2.Driver"]},{"schema":{"name":"retrievePassword","displayName":null,"helpMessage":null,"type":"java.lang.Boolean","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["true"]},{"schema":{"name":"defaultStatusValue","displayName":null,"helpMessage":null,"type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["true"]},{"schema":{"name":"password","displayName":null,"helpMessage":null,"type":"org.identityconnectors.common.security.GuardedString","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["sa"]},{"schema":{"name":"statusColumn","displayName":null,"helpMessage":null,"type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["status"]},{"schema":{"name":"jdbcUrlTemplate","displayName":null,"helpMessage":null,"type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["${testdb.url}"]},{"schema":{"name":"table","displayName":null,"helpMessage":null,"type":"java.lang.String","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["test2"]}]'/>
+  <ConnInstance_capabilities ConnInstance_id="106" capability="ONE_PHASE_CREATE"/>
+  <ConnInstance_capabilities ConnInstance_id="106" capability="ONE_PHASE_UPDATE"/>
+  <ConnInstance_capabilities ConnInstance_id="106" capability="SEARCH"/>
+  <ConnInstance_capabilities ConnInstance_id="106" capability="SYNC"/>
+  
+  <ConnInstance id="107" bundleName="net.tirasa.connid.bundles.db.table" 
+                location="connid://${testconnectorserver.key}@localhost:${testconnectorserver.port}"
+                connectorName="net.tirasa.connid.bundles.db.table.DatabaseTableConnector" 
+                displayName="H2-testsync" version="${connid.database.version}"
+                jsonConf='[{"schema":{"name":"changeLogColumn","displayName":"Change Log Column (Sync)","helpMessage":"=&lt;b&gt;Change Log Column&lt;/b&gt;&lt;br&gt;The change log column store the latest change time. Providing this value the Sync capabilities are activated.","type":"java.lang.String","required":false,"order":21,"confidential":false,"defaultValues":null},"overridable":false,"values":[]},{"schema":{"name":"nativeTimestamps","displayName":"Native Timestamps ","helpMessage":"&lt;b&gt;Native Timestamps&lt;/b&gt;&lt;br&gt;Select to retrieve Timestamp data type of the columns in java.sql.Timestamp format from the database table.","type":"boolean","required":false,"order":18,"confidential":false,"defaultValues":null},"overridable":false,"values":["false"]},{"schema":{"name":"cipherAlgorithm","displayName":"Password cipher algorithm (defaults to CLEARTEXT)","helpMessage":"Cipher algorithm used to encode password before to store it onto the database table.\nSpecify one of the values among CLEARTEXT,AES, MD5, SHA1, SHA256 or a custom implementation identified by its class name.","type":"java.lang.String","required":false,"order":24,"confidential":false,"defaultValues":null},"overridable":false,"values":[]},{"schema":{"name":"enabledStatusValue","displayName":"Enabled Status Value","helpMessage":"&lt;b&gt;Enabled Status Value&lt;/b&gt;&lt;br&gt;Enter the value for enabled status.","type":"java.lang.String","required":false,"order":12,"confidential":false,"defaultValues":null},"overridable":false,"values":[]},{"schema":{"name":"retrievePassword","displayName":"Retrieve password","helpMessage":"Specify if password must be retrieved by default.","type":"boolean","required":true,"order":27,"confidential":false,"defaultValues":null},"overridable":false,"values":["false"]},{"schema":{"name":"datasource","displayName":"Datasource Path","helpMessage":"&lt;b&gt;JDBC Data Source Name/Path&lt;/b&gt;&lt;br&gt;Enter the JDBC Data Source Name/Path to connect to the Oracle server. If specified, connector will only try to connect using Datasource and ignore other resource parameters specified.&lt;br&gt;the example value is: &lt;CODE&gt;jdbc/SampleDataSourceName&lt;/CODE&gt;","type":"java.lang.String","required":false,"order":22,"confidential":false,"defaultValues":null},"overridable":false,"values":[]},{"schema":{"name":"allNative","displayName":"All native","helpMessage":"&lt;b&gt;All native&lt;/b&gt;&lt;br&gt;Select to retrieve all data type of the columns in a native format from the database table.","type":"boolean","required":false,"order":19,"confidential":false,"defaultValues":null},"overridable":false,"values":["false"]},{"schema":{"name":"user","displayName":"User","helpMessage":"&lt;b&gt;User&lt;/b&gt;&lt;br&gt;Enter the name of the mandatory Database user with permission to account table.","type":"java.lang.String","required":false,"order":4,"confidential":false,"defaultValues":null},"overridable":false,"values":["sa"]},{"schema":{"name":"pwdEncodeToLowerCase","displayName":"Force password encoding to lower case","helpMessage":"Force password encoding to lower case.","type":"boolean","required":false,"order":26,"confidential":false,"defaultValues":null},"overridable":false,"values":["false"]},{"schema":{"name":"jdbcUrlTemplate","displayName":"JDBC Connection URL","helpMessage":"&lt;b&gt;JDBC Connection URL&lt;/b&gt;&lt;br&gt;Specify the JDBC Driver Connection URL.&lt;br&gt; Oracle template is jdbc:oracle:thin:@[host]:[port(1521)]:[DB].&lt;br&gt;  MySQL template is jdbc:mysql://[host]:[port(3306)]/[db], for more info, read the JDBC driver documentation.&lt;br&gt;Could be empty if datasource is provided.","type":"java.lang.String","required":false,"order":15,"confidential":false,"defaultValues":null},"overridable":false,"values":["${testdb.url}"]},{"schema":{"name":"keyColumn","displayName":"Key Column","helpMessage":"&lt;b&gt;Key Column&lt;/b&gt;&lt;br&gt;This mandatory column value will be used as the unique identifier for rows in the table.&lt;br&gt;","type":"java.lang.String","required":true,"order":8,"confidential":false,"defaultValues":null},"overridable":false,"values":["id"]},{"schema":{"name":"validConnectionQuery","displayName":"Validate Connection Query","helpMessage":"&lt;b&gt;Validate Connection Query&lt;/b&gt;&lt;br&gt;There can be specified the check connection alive query. If empty, default implementation will test it using the switch on/off the autocommit. Some select 1 from dummy table could be more efficient.","type":"java.lang.String","required":false,"order":20,"confidential":false,"defaultValues":null},"overridable":false,"values":[]},{"schema":{"name":"rethrowAllSQLExceptions","displayName":"Rethrow all SQLExceptions","helpMessage":"If this is not checked, SQL statements which throw SQLExceptions with a 0 ErrorCode will be have the exception caught and suppressed. Check it to have exceptions with 0 ErrorCodes rethrown.","type":"boolean","required":false,"order":17,"confidential":false,"defaultValues":null},"overridable":false,"values":["false"]},{"schema":{"name":"passwordColumn","displayName":"Password Column","helpMessage":"&lt;b&gt;Password Column&lt;/b&gt;&lt;br&gt;Enter the name of the column in the table that will hold the password values. If empty, no validation on resource and passwords are activated.","type":"java.lang.String","required":false,"order":9,"confidential":false,"defaultValues":null},"overridable":false,"values":[]},{"schema":{"name":"jndiProperties","displayName":"Initial JNDI Properties","helpMessage":"&lt;b&gt;Initial JNDI Properties&lt;/b&gt;&lt;br&gt;Could be empty or enter the JDBC JNDI Initial context factory, context provider in a format: key = value.","type":"[Ljava.lang.String;","required":false,"order":23,"confidential":false,"defaultValues":null},"overridable":false,"values":[]},{"schema":{"name":"password","displayName":"User Password","helpMessage":"&lt;b&gt;User Password&lt;/b&gt;&lt;br&gt;Enter a user account that has permission to access accounts table.","type":"org.identityconnectors.common.security.GuardedString","required":false,"order":5,"confidential":true,"defaultValues":null},"overridable":false,"values":["sa"]},{"schema":{"name":"host","displayName":"Host","helpMessage":"&lt;b&gt;Host&lt;/b&gt;&lt;br&gt;Enter the name of the host where the database is running.","type":"java.lang.String","required":false,"order":2,"confidential":false,"defaultValues":null},"overridable":false,"values":[]},{"schema":{"name":"port","displayName":"Port","helpMessage":"&lt;b&gt;TCP Port&lt;/b&gt;&lt;br&gt;Enter the port number the database server is listening on.","type":"java.lang.String","required":false,"order":3,"confidential":false,"defaultValues":null},"overridable":false,"values":[]},{"schema":{"name":"statusColumn","displayName":"Status Column","helpMessage":"&lt;b&gt;Status Column&lt;/b&gt;&lt;br&gt;Enter the name of the column in the table that will hold the status values. If empty enabled and disabled operation wont be performed.","type":"java.lang.String","required":false,"order":10,"confidential":false,"defaultValues":null},"overridable":false,"values":[]},{"schema":{"name":"pwdEncodeToUpperCase","displayName":"Force password encoding to upper case","helpMessage":"Force password encoding to upper case.","type":"boolean","required":false,"order":25,"confidential":false,"defaultValues":null},"overridable":false,"values":["false"]},{"schema":{"name":"enableEmptyString","displayName":"Enable writing empty string","helpMessage":"&lt;b&gt;Enable writing empty string&lt;/b&gt;&lt;br&gt;Select to enable support for writing an empty strings, instead of a NULL value, in character based columns defined as not-null in the table schema. This option does not influence the way strings are written for Oracle based tables. By default empty strings are written as a NULL value.","type":"boolean","required":false,"order":16,"confidential":false,"defaultValues":null},"overridable":false,"values":["false"]},{"schema":{"name":"database","displayName":"Database","helpMessage":"&lt;b&gt;Database&lt;/b&gt;&lt;br&gt;Enter the name of the database on the database server that contains the table.","type":"java.lang.String","required":false,"order":6,"confidential":false,"defaultValues":null},"overridable":false,"values":[]},{"schema":{"name":"defaultStatusValue","displayName":"Default Status Value","helpMessage":"&lt;b&gt;Default Status Value&lt;/b&gt;&lt;br&gt;Enter the value for status in case of status not specified.","type":"java.lang.String","required":false,"order":13,"confidential":false,"defaultValues":null},"overridable":false,"values":[]},{"schema":{"name":"table","displayName":"Table","helpMessage":"&lt;b&gt;Table&lt;/b&gt;&lt;br&gt;Enter the name of the table in the database that contains the accounts.","type":"java.lang.String","required":true,"order":7,"confidential":false,"defaultValues":null},"overridable":false,"values":["testsync"]},{"schema":{"name":"disabledStatusValue","displayName":"Disabled Status Value","helpMessage":"&lt;b&gt;Disabled Status Value&lt;/b&gt;&lt;br&gt;Enter the value for disabled status.","type":"java.lang.String","required":false,"order":11,"confidential":false,"defaultValues":null},"overridable":false,"values":[]},{"schema":{"name":"jdbcDriver","displayName":"JDBC Driver","helpMessage":"&lt;b&gt;JDBC Driver&lt;/b&gt;&lt;br&gt;Specify the JDBC Driver class name. Oracle is oracle.jdbc.driver.OracleDriver. MySQL is org.gjt.mm.mysql.Driver.&lt;br&gt;Could be empty if datasource is provided.","type":"java.lang.String","required":false,"order":14,"confidential":false,"defaultValues":null},"overridable":false,"values":["org.h2.Driver"]},{"schema":{"name":"quoting","displayName":"Name Quoting","helpMessage":"&lt;b&gt;Name Quoting&lt;/b&gt;&lt;br&gt;Select whether database column names for this resource should be quoted, and the quoting characters. By default, database column names are not quoted (None). For other selections (Single, Double, Back, or Brackets), column names will appear between single quotes, double quotes, back quotes, or brackets in the SQL generated to access the database.","type":"java.lang.String","required":false,"order":1,"confidential":false,"defaultValues":null},"overridable":false,"values":[]},{"schema":{"name":"cipherKey","displayName":"Password cipher key","helpMessage":"Specify key in case of reversible algorithm.","type":"java.lang.String","required":false,"order":25,"confidential":false,"defaultValues":null},"overridable":false,"values":[]}]'/>
+  <ConnInstance_capabilities ConnInstance_id="107" capability="ONE_PHASE_CREATE"/>
+  <ConnInstance_capabilities ConnInstance_id="107" capability="TWO_PHASES_CREATE"/>
+  <ConnInstance_capabilities ConnInstance_id="107" capability="ONE_PHASE_UPDATE"/>
+  <ConnInstance_capabilities ConnInstance_id="107" capability="TWO_PHASES_UPDATE"/>
+  <ConnInstance_capabilities ConnInstance_id="107" capability="ONE_PHASE_DELETE"/>
+  <ConnInstance_capabilities ConnInstance_id="107" capability="TWO_PHASES_DELETE"/>
+  <ConnInstance_capabilities ConnInstance_id="107" capability="SEARCH"/>
+  
+  <ConnInstance id="108" bundleName="net.tirasa.connid.bundles.db.scriptedsql" 
+                location="connid://${testconnectorserver.key}@localhost:${testconnectorserver.port}"
+                connectorName="net.tirasa.connid.bundles.db.scriptedsql.ScriptedSQLConnector"
+                displayName="Scripted SQL" version="${connid.database.version}"
+                jsonConf='[{&quot;schema&quot;:{&quot;name&quot;:&quot;updateScriptFileName&quot;,&quot;displayName&quot;:&quot;updateScriptFileName&quot;,&quot;helpMessage&quot;:&quot;updateScriptFileName&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:0,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[]},&quot;overridable&quot;:false,&quot;values&quot;:[&quot;${basedir}/src/main/resources/scriptedsql/UpdateScript.groovy&quot;]},{&quot;schema&quot;:{&quot;name&quot;:&quot;testScript&quot;,&quot;displayName&quot;:&quot;testScript&quot;,&quot;helpMessage&quot;:&quot;testScript&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:0,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[&quot;&quot;]},&quot;overridable&quot;:false,&quot;values&quot;:[]},{&quot;schema&quot;:{&quot;name&quot;:&quot;host&quot;,&quot;displayName&quot;:&quot;Host&quot;,&quot;helpMessage&quot;:&quot;&lt;b&gt;Host&lt;/b&gt;&lt;br/&gt;Enter the name of the host where the database is running.&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:2,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[&quot;localhost&quot;]},&quot;overridable&quot;:false},{&quot;schema&quot;:{&quot;name&quot;:&quot;port&quot;,&quot;displayName&quot;:&quot;Port&quot;,&quot;helpMessage&quot;:&quot;&lt;b&gt;TCP Port&lt;/b&gt;&lt;br/&gt;Enter the port number the database server is listening on.&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:3,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[&quot;3306&quot;]},&quot;overridable&quot;:false},{&quot;schema&quot;:{&quot;name&quot;:&quot;database&quot;,&quot;displayName&quot;:&quot;Database&quot;,&quot;helpMessage&quot;:&quot;&lt;b&gt;Database&lt;/b&gt;&lt;br/&gt;Enter the name of the database on the database server that contains the table.&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:6,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[&quot;&quot;]},&quot;overridable&quot;:false},{&quot;schema&quot;:{&quot;name&quot;:&quot;createScript&quot;,&quot;displayName&quot;:&quot;createScript&quot;,&quot;helpMessage&quot;:&quot;createScript&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:0,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[&quot;&quot;]},&quot;overridable&quot;:false,&quot;values&quot;:[]},{&quot;schema&quot;:{&quot;name&quot;:&quot;jdbcUrlTemplate&quot;,&quot;displayName&quot;:&quot;JDBC Connection URL&quot;,&quot;helpMessage&quot;:&quot;&lt;b&gt;JDBC Connection URL&lt;/b&gt;&lt;br/&gt;Specify the JDBC Driver Connection URL.&lt;br/&gt; Oracle template is jdbc:oracle:thin:@[host]:[port(1521)]:[DB].&lt;br/&gt;  MySQL template is jdbc:mysql://[host]:[port(3306)]/[db], for more info, read the JDBC driver documentation.&lt;br/&gt;Could be empty if datasource is provided.&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:11,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[&quot;jdbc:mysql://%h:%p/%d&quot;]},&quot;overridable&quot;:false,&quot;values&quot;:[&quot;${testdb.url}&quot;]},{&quot;schema&quot;:{&quot;name&quot;:&quot;jndiProperties&quot;,&quot;displayName&quot;:&quot;Initial JNDI Properties&quot;,&quot;helpMessage&quot;:&quot;&lt;b&gt;Initial JNDI Properties&lt;/b&gt;&lt;br/&gt;Could be empty or enter the JDBC JNDI Initial context factory, context provider in a format: key = value.&quot;,&quot;type&quot;:&quot;[Ljava.lang.String;&quot;,&quot;required&quot;:false,&quot;order&quot;:21,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[]},&quot;overridable&quot;:false,&quot;values&quot;:[]},{&quot;schema&quot;:{&quot;name&quot;:&quot;enableEmptyString&quot;,&quot;displayName&quot;:&quot;Enable writing empty string&quot;,&quot;helpMessage&quot;:&quot;&lt;b&gt;Enable writing empty string&lt;/b&gt;&lt;br/&gt;Select to enable support for writing an empty strings, instead of a NULL value, in character based columns defined as not-null in the table schema. This option does not influence the way strings are written for Oracle based tables. By default empty strings are written as a NULL value.&quot;,&quot;type&quot;:&quot;boolean&quot;,&quot;required&quot;:false,&quot;order&quot;:12,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[false]},&quot;overridable&quot;:false,&quot;values&quot;:[&quot;false&quot;]},{&quot;schema&quot;:{&quot;name&quot;:&quot;allNative&quot;,&quot;displayName&quot;:&quot;All native&quot;,&quot;helpMessage&quot;:&quot;&lt;b&gt;All native&lt;/b&gt;&lt;br/&gt;Select to retrieve all data type of the columns in a native format from the database table.&quot;,&quot;type&quot;:&quot;boolean&quot;,&quot;required&quot;:false,&quot;order&quot;:16,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[false]},&quot;overridable&quot;:false,&quot;values&quot;:[false]},{&quot;schema&quot;:{&quot;name&quot;:&quot;password&quot;,&quot;displayName&quot;:&quot;User Password&quot;,&quot;helpMessage&quot;:&quot;&lt;b&gt;User Password&lt;/b&gt;&lt;br/&gt;Enter a user account that has permission to access accounts table.&quot;,&quot;type&quot;:&quot;org.identityconnectors.common.security.GuardedString&quot;,&quot;required&quot;:false,&quot;order&quot;:5,&quot;confidential&quot;:true,&quot;defaultValues&quot;:[]},&quot;overridable&quot;:false,&quot;values&quot;:[&quot;${testdb.password}&quot;]},{&quot;schema&quot;:{&quot;name&quot;:&quot;validConnectionQuery&quot;,&quot;displayName&quot;:&quot;Validate Connection Query&quot;,&quot;helpMessage&quot;:&quot;&lt;b&gt;Validate Connection Query&lt;/b&gt;&lt;br/&gt;There can be specified the check connection alive query. If empty, default implementation will test it using the switch on/off the autocommit. Some select 1 from dummy table could be more efficient.&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:17,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[]},&quot;overridable&quot;:false,&quot;values&quot;:[]},{&quot;schema&quot;:{&quot;name&quot;:&quot;reloadScriptOnExecution&quot;,&quot;displayName&quot;:&quot;reloadScriptOnExecution&quot;,&quot;helpMessage&quot;:&quot;reloadScriptOnExecution&quot;,&quot;type&quot;:&quot;boolean&quot;,&quot;required&quot;:false,&quot;order&quot;:0,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[false]},&quot;overridable&quot;:false,&quot;values&quot;:[&quot;true&quot;]},{&quot;schema&quot;:{&quot;name&quot;:&quot;schemaScriptFileName&quot;,&quot;displayName&quot;:&quot;schemaScriptFileName&quot;,&quot;helpMessage&quot;:&quot;schemaScriptFileName&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:0,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[]},&quot;overridable&quot;:true,&quot;values&quot;:[&quot;${basedir}/src/main/resources/scriptedsql/SchemaScript.groovy&quot;]},{&quot;schema&quot;:{&quot;name&quot;:&quot;jdbcDriver&quot;,&quot;displayName&quot;:&quot;JDBC Driver&quot;,&quot;helpMessage&quot;:&quot;&lt;b&gt;JDBC Driver&lt;/b&gt;&lt;br/&gt;Specify the JDBC Driver class name. Oracle is oracle.jdbc.driver.OracleDriver. MySQL is org.gjt.mm.mysql.Driver.&lt;br/&gt;Could be empty if datasource is provided.&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:10,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[&quot;com.mysql.jdbc.Driver&quot;]},&quot;overridable&quot;:false,&quot;values&quot;:[&quot;${testdb.driver}&quot;]},{&quot;schema&quot;:{&quot;name&quot;:&quot;testScriptFileName&quot;,&quot;displayName&quot;:&quot;testScriptFileName&quot;,&quot;helpMessage&quot;:&quot;testScriptFileName&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:0,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[]},&quot;overridable&quot;:true,&quot;values&quot;:[&quot;${basedir}/src/main/resources/scriptedsql/TestScript.groovy&quot;]},{&quot;schema&quot;:{&quot;name&quot;:&quot;quoting&quot;,&quot;displayName&quot;:&quot;Name Quoting&quot;,&quot;helpMessage&quot;:&quot;&lt;b&gt;Name Quoting&lt;/b&gt;&lt;br/&gt;Select whether database column names for this resource should be quoted, and the quoting characters. By default, database column names are not quoted (None). For other selections (Single, Double, Back, or Brackets), column names will appear between single quotes, double quotes, back quotes, or brackets in the SQL generated to access the database.&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:-1,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[&quot;&quot;]},&quot;overridable&quot;:false,&quot;values&quot;:[]},{&quot;schema&quot;:{&quot;name&quot;:&quot;createScriptFileName&quot;,&quot;displayName&quot;:&quot;createScriptFileName&quot;,&quot;helpMessage&quot;:&quot;createScriptFileName&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:0,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[]},&quot;overridable&quot;:false,&quot;values&quot;:[&quot;${basedir}/src/main/resources/scriptedsql/CreateScript.groovy&quot;]},{&quot;schema&quot;:{&quot;name&quot;:&quot;clearTextPasswordToScript&quot;,&quot;displayName&quot;:&quot;clearTextPasswordToScript&quot;,&quot;helpMessage&quot;:&quot;clearTextPasswordToScript&quot;,&quot;type&quot;:&quot;boolean&quot;,&quot;required&quot;:false,&quot;order&quot;:0,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[true]},&quot;overridable&quot;:false,&quot;values&quot;:[&quot;false&quot;]},{&quot;schema&quot;:{&quot;name&quot;:&quot;nativeTimestamps&quot;,&quot;displayName&quot;:&quot;Native Timestamps&quot;,&quot;helpMessage&quot;:&quot;&lt;b&gt;Native Timestamps&lt;/b&gt;&lt;br/&gt;Select to retrieve Timestamp data type of the columns in java.sql.Timestamp format from the database table.&quot;,&quot;type&quot;:&quot;boolean&quot;,&quot;required&quot;:false,&quot;order&quot;:15,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[false]},&quot;overridable&quot;:false,&quot;values&quot;:[false]},{&quot;schema&quot;:{&quot;name&quot;:&quot;syncScript&quot;,&quot;displayName&quot;:&quot;syncScript&quot;,&quot;helpMessage&quot;:&quot;syncScript&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:0,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[&quot;&quot;]},&quot;overridable&quot;:false,&quot;values&quot;:[]},{&quot;schema&quot;:{&quot;name&quot;:&quot;autoCommit&quot;,&quot;displayName&quot;:&quot;autoCommit&quot;,&quot;helpMessage&quot;:&quot;autoCommit&quot;,&quot;type&quot;:&quot;boolean&quot;,&quot;required&quot;:false,&quot;order&quot;:0,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[true]},&quot;overridable&quot;:false,&quot;values&quot;:[true]},{&quot;schema&quot;:{&quot;name&quot;:&quot;scriptingLanguage&quot;,&quot;displayName&quot;:&quot;scriptingLanguage&quot;,&quot;helpMessage&quot;:&quot;scriptingLanguage&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:0,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[&quot;GROOVY&quot;]},&quot;overridable&quot;:false,&quot;values&quot;:[&quot;GROOVY&quot;]},{&quot;schema&quot;:{&quot;name&quot;:&quot;datasource&quot;,&quot;displayName&quot;:&quot;Datasource Path&quot;,&quot;helpMessage&quot;:&quot;&lt;b&gt;JDBC Data Source Name/Path&lt;/b&gt;&lt;br/&gt;Enter the JDBC Data Source Name/Path to connect to the Oracle server. If specified, connector will only try to connect using Datasource and ignore other resource parameters specified.&lt;br/&gt;the example value is: &lt;CODE&gt;jdbc/SampleDataSourceName&lt;/CODE&gt;&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:20,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[&quot;&quot;]},&quot;overridable&quot;:false,&quot;values&quot;:[]},{&quot;schema&quot;:{&quot;name&quot;:&quot;deleteScript&quot;,&quot;displayName&quot;:&quot;deleteScript&quot;,&quot;helpMessage&quot;:&quot;deleteScript&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:0,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[&quot;&quot;]},&quot;overridable&quot;:false,&quot;values&quot;:[]},{&quot;schema&quot;:{&quot;name&quot;:&quot;rethrowAllSQLExceptions&quot;,&quot;displayName&quot;:&quot;Rethrow all SQLExceptions&quot;,&quot;helpMessage&quot;:&quot;If this is not checked, SQL statements which throw SQLExceptions with a 0 ErrorCode will be have the exception caught and suppressed. Check it to have exceptions with 0 ErrorCodes rethrown.&quot;,&quot;type&quot;:&quot;boolean&quot;,&quot;required&quot;:false,&quot;order&quot;:14,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[true]},&quot;overridable&quot;:false,&quot;values&quot;:[true]},{&quot;schema&quot;:{&quot;name&quot;:&quot;syncScriptFileName&quot;,&quot;displayName&quot;:&quot;syncScriptFileName&quot;,&quot;helpMessage&quot;:&quot;syncScriptFileName&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:0,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[]},&quot;overridable&quot;:true,&quot;values&quot;:[&quot;${basedir}/src/main/resources/scriptedsql/SyncScript.groovy&quot;]},{&quot;schema&quot;:{&quot;name&quot;:&quot;updateScript&quot;,&quot;displayName&quot;:&quot;updateScript&quot;,&quot;helpMessage&quot;:&quot;updateScript&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:0,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[&quot;&quot;]},&quot;overridable&quot;:false,&quot;values&quot;:[]},{&quot;schema&quot;:{&quot;name&quot;:&quot;user&quot;,&quot;displayName&quot;:&quot;User&quot;,&quot;helpMessage&quot;:&quot;&lt;b&gt;User&lt;/b&gt;&lt;br/&gt;Enter the name of the mandatory Database user with permission to account table.&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:4,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[&quot;&quot;]},&quot;overridable&quot;:false,&quot;values&quot;:[&quot;${testdb.username}&quot;]},{&quot;schema&quot;:{&quot;name&quot;:&quot;deleteScriptFileName&quot;,&quot;displayName&quot;:&quot;deleteScriptFileName&quot;,&quot;helpMessage&quot;:&quot;deleteScriptFileName&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:0,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[]},&quot;overridable&quot;:false,&quot;values&quot;:[&quot;${basedir}/src/main/resources/scriptedsql/DeleteScript.groovy&quot;]},{&quot;schema&quot;:{&quot;name&quot;:&quot;searchScriptFileName&quot;,&quot;displayName&quot;:&quot;searchScriptFileName&quot;,&quot;helpMessage&quot;:&quot;searchScriptFileName&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:0,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[]},&quot;overridable&quot;:true,&quot;values&quot;:[&quot;${basedir}/src/main/resources/scriptedsql/SearchScript.groovy&quot;]},{&quot;schema&quot;:{&quot;name&quot;:&quot;searchScript&quot;,&quot;displayName&quot;:&quot;searchScript&quot;,&quot;helpMessage&quot;:&quot;searchScript&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:0,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[&quot;&quot;]},&quot;overridable&quot;:false,&quot;values&quot;:[]}]'/>
+  <ConnInstance_capabilities ConnInstance_id="108" capability="ONE_PHASE_CREATE"/>
+  <ConnInstance_capabilities ConnInstance_id="108" capability="ONE_PHASE_UPDATE"/>
+  <ConnInstance_capabilities ConnInstance_id="108" capability="ONE_PHASE_DELETE"/>
+  <ConnInstance_capabilities ConnInstance_id="108" capability="SEARCH"/>
+  <ConnInstance_capabilities ConnInstance_id="108" capability="SYNC"/>
+  
+  <ExternalResource name="ws-target-resource-1" connector_id="100"
+                    randomPwdIfNotProvided="0" enforceMandatoryCondition="0" propagationMode="TWO_PHASES"
+                    propagationPriority="0" propagationPrimary="1" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"
+                    creator="admin" lastModifier="admin" 
+                    creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+  <ExternalResource name="ws-target-resource-2" connector_id="100"
+                    randomPwdIfNotProvided="0" enforceMandatoryCondition="1" propagationMode="TWO_PHASES"
+                    propagationPriority="0" propagationPrimary="0" createTraceLevel="FAILURES" deleteTraceLevel="NONE" updateTraceLevel="ALL" syncTraceLevel="ALL"
+                    syncPolicy_id="9"
+                    creator="admin" lastModifier="admin" 
+                    creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+  <ExternalResource name="ws-target-resource-timeout" connector_id="102"
+                    randomPwdIfNotProvided="0" enforceMandatoryCondition="1" propagationMode="TWO_PHASES"
+                    propagationPriority="0" propagationPrimary="1" createTraceLevel="FAILURES" deleteTraceLevel="NONE" updateTraceLevel="ALL" syncTraceLevel="ALL"
+                    jsonConf='[{"schema":{"name":"endpoint","displayName":null,"helpMessage":null,"type":"java.lang.String","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":true,"values":["http://localhost:${cargo.servlet.port}/syncope-fit-build-tools/services/provisioning"]}]'
+                    creator="admin" lastModifier="admin" 
+                    creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+  <ExternalResource name="ws-target-resource-list-mappings-1" connector_id="100"
+                    randomPwdIfNotProvided="0" enforceMandatoryCondition="0" propagationMode="TWO_PHASES"
+                    propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"
+                    creator="admin" lastModifier="admin" 
+                    creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+  <ExternalResource name="ws-target-resource-list-mappings-2" connector_id="100"
+                    randomPwdIfNotProvided="0" enforceMandatoryCondition="1" propagationMode="TWO_PHASES"
+                    propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"
+                    creator="admin" lastModifier="admin" 
+                    creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+  <ExternalResource name="ws-target-resource-delete" connector_id="102"
+                    randomPwdIfNotProvided="0" enforceMandatoryCondition="0" propagationMode="TWO_PHASES"
+                    propagationPriority="2" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"
+                    creator="admin" lastModifier="admin" 
+                    creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+  <ExternalResource name="ws-target-resource-update" connector_id="100"
+                    randomPwdIfNotProvided="0" enforceMandatoryCondition="1" propagationMode="TWO_PHASES"
+                    propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"
+                    creator="admin" lastModifier="admin" 
+                    creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+  <ExternalResource name="resource-testdb" connector_id="101"
+                    randomPwdIfNotProvided="0" enforceMandatoryCondition="1" propagationMode="ONE_PHASE"
+                    propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"
+                    creator="admin" lastModifier="admin" 
+                    creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+  <ExternalResource name="resource-testdb2" connector_id="106"
+                    randomPwdIfNotProvided="1" enforceMandatoryCondition="1" propagationMode="ONE_PHASE"
+                    propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"
+                    creator="admin" lastModifier="admin" 
+                    creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+  <ExternalResource name="resource-csv" connector_id="104"
+                    randomPwdIfNotProvided="0" enforceMandatoryCondition="0" propagationMode="ONE_PHASE" syncPolicy_id="3"
+                    propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"
+                    creator="admin" lastModifier="admin" 
+                    creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+  <ExternalResource name="ws-target-resource-update-resetsynctoken" connector_id="100" enforceMandatoryCondition="1" propagationMode="TWO_PHASES"
+                    randomPwdIfNotProvided="0" propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"
+                    creator="admin" lastModifier="admin" 
+                    creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+  <ExternalResource name="resource-ldap" connector_id="105"
+                    randomPwdIfNotProvided="1" enforceMandatoryCondition="1" propagationMode="ONE_PHASE"
+                    propagationPriority="0" propagationPrimary="1"
+                    createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"
+                    creator="admin" lastModifier="admin" 
+                    creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+  <ExternalResource_PropActions resource_name="resource-ldap"
+                                actionClassName="org.apache.syncope.core.provisioning.java.propagation.LDAPMembershipPropagationActions"/>
+  <ExternalResource name="ws-target-resource-nopropagation" connector_id="103"
+                    randomPwdIfNotProvided="0" enforceMandatoryCondition="1" propagationMode="TWO_PHASES"
+                    propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL" 
+                    passwordPolicy_id="4"
+                    creator="admin" lastModifier="admin" 
+                    creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+  
+  <!-- The following three resources has been added to verify the issue SYNCOPE-68 -->
+  <ExternalResource name="ws-target-resource-nopropagation2" connector_id="103" enforceMandatoryCondition="1" propagationMode="TWO_PHASES"
+                    randomPwdIfNotProvided="0" propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"
+                    creator="admin" lastModifier="admin" 
+                    creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+  <ExternalResource name="ws-target-resource-nopropagation3" connector_id="103" enforceMandatoryCondition="1" propagationMode="TWO_PHASES"
+                    randomPwdIfNotProvided="0" propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"
+                    creator="admin" lastModifier="admin" 
+                    creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+  <ExternalResource name="ws-target-resource-nopropagation4" connector_id="103" enforceMandatoryCondition="1" propagationMode="TWO_PHASES"
+                    randomPwdIfNotProvided="0" propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"
+                    creator="admin" lastModifier="admin" 
+                    creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+                    
+  <!-- External resource for issue SYNCOPE-230 -->
+  <ExternalResource name="resource-db-sync" connector_id="107"
+                    randomPwdIfNotProvided="0" createTraceLevel="ALL" deleteTraceLevel="ALL" syncTraceLevel="ALL" updateTraceLevel="ALL"
+                    enforceMandatoryCondition="0" 
+                    propagationMode="TWO_PHASES" propagationPrimary="0" propagationPriority="0"
+                    creator="admin" lastModifier="admin" 
+                    creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+                    
+  <!-- External resource for issue SYNCOPE-267 -->
+  <ExternalResource name="resource-db-virattr" connector_id="107"
+                    randomPwdIfNotProvided="0" createTraceLevel="ALL" deleteTraceLevel="ALL" syncTraceLevel="ALL" updateTraceLevel="ALL"
+                    enforceMandatoryCondition="0" 
+                    propagationMode="TWO_PHASES" propagationPrimary="0" propagationPriority="0"
+                    creator="admin" lastModifier="admin" 
+                    creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+
+  <ExternalResource name="resource-db-scripted" connector_id="108"
+                    randomPwdIfNotProvided="0" createTraceLevel="ALL" deleteTraceLevel="ALL" syncTraceLevel="ALL" updateTraceLevel="ALL"
+                    enforceMandatoryCondition="0"
+                    propagationMode="ONE_PHASE" propagationPrimary="0" propagationPriority="0"
+                    creator="admin" lastModifier="admin" 
+                    creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+
+  <!-- Use resource-testdb for passthrough authentication (SYNCOPE-164) -->
+  <Policy_ExternalResource accountPolicy_id="5" resource_name="resource-testdb"/>
+    
+  <SyncopeUser_ExternalResource user_id="1" resource_name="resource-testdb2"/>
+  <SyncopeUser_ExternalResource user_id="3" resource_name="ws-target-resource-delete"/>
+  <SyncopeUser_ExternalResource user_id="3" resource_name="ws-target-resource-2"/>
+  <SyncopeUser_ExternalResource user_id="3" resource_name="ws-target-resource-1"/>
+  <SyncopeUser_ExternalResource user_id="5" resource_name="resource-testdb2"/>
+  <SyncopeGroup_ExternalResource group_id="3" resource_name="ws-target-resource-list-mappings-1"/>
+  <SyncopeGroup_ExternalResource group_id="8" resource_name="ws-target-resource-2"/>
+  <SyncopeGroup_ExternalResource group_id="3" resource_name="ws-target-resource-list-mappings-2"/>
+  <SyncopeGroup_ExternalResource group_id="7" resource_name="ws-target-resource-nopropagation"/>
+  <SyncopeGroup_ExternalResource group_id="10" resource_name="ws-target-resource-nopropagation3"/>
+  <SyncopeGroup_ExternalResource group_id="12" resource_name="resource-csv"/>
+  <SyncopeGroup_ExternalResource group_id="13" resource_name="resource-csv"/>
+     
+  <Provision id="15" resource_name="ws-target-resource-1" anyType_name="USER" objectClass="__ACCOUNT__"/>
+  <Mapping id="15" provision_id="15"/>
+  <MappingItem id="99" mapping_id="15" extAttrName="userId"
+               intMappingType="UserKey" mandatoryCondition="true"
+               connObjectKey="1" password="0" purpose="PROPAGATION"/>
+  <MappingItem id="100" extAttrName="email" mapping_id="15"
+               intAttrName="email" intMappingType="UserPlainSchema" mandatoryCondition="true"
+               connObjectKey="0" password="0" purpose="PROPAGATION"/>
+  <MappingItem id="101" extAttrName="surname" mapping_id="15"
+               intAttrName="surname" intMappingType="UserPlainSchema" mandatoryCondition="true"
+               connObjectKey="0" password="0" purpose="PROPAGATION"/>
+  <MappingItem id="102" mapping_id="15"
+               extAttrName="__PASSWORD__" intMappingType="Password" mandatoryCondition="true"
+               connObjectKey="0" password="1" purpose="PROPAGATION"/>
+  <MappingItem id="335" mapping_id="15" 
+               extAttrName="fullname" intAttrName="surname" intMappingType="UserPlainSchema" mandatoryCondition="true"
+               connObjectKey="0" password="0" purpose="PROPAGATION"/>
+  <MappingItem id="336" mapping_id="15"
+               extAttrName="type" intAttrName="type" intMappingType="UserPlainSchema" mandatoryCondition="true"
+               connObjectKey="0" password="0" purpose="PROPAGATION"/>
+  <MappingItem id="337" mapping_id="15"
+               extAttrName="name" intAttrName="firstname" intMappingType="UserPlainSchema" mandatoryCondition="false"
+               connObjectKey="0" password="0" purpose="NONE"/>
+  
+  <Provision id="12" resource_name="ws-target-resource-list-mappings-1" anyType_name="USER" objectClass="__ACCOUNT__"/>
+  <Mapping id="12" provision_id="12"/>
+  <MappingItem id="103" mapping_id="12"
+               extAttrName="email" intAttrName="email" intMappingType="UserPlainSchema" mandatoryCondition="true"
+               connObjectKey="1" password="0" purpose="PROPAGATION"/>
+  <MappingItem id="104" extAttrName="surname" mapping_id="12"
+               intAttrName="surname" intMappingType="UserPlainSchema" mandatoryCondition="true"
+               connObjectKey="0" password="0" purpose="PROPAGATION"/>
+
+  <Provision id="13" resource_name="ws-target-resource-list-mappings-2" anyType_name="USER" objectClass="__ACCOUNT__"/>
+  <Mapping id="13" provision_id="13"/>
+  <MappingItem id="105" mapping_id="13"
+               extAttrName="userId" intAttrName="userId" intMappingType="UserPlainSchema" mandatoryCondition="true"
+               connObjectKey="1" password="0" purpose="PROPAGATION"/>
+
+  <Provision id="1" resource_name="ws-target-resource-2" anyType_name="USER" objectClass="__ACCOUNT__"/>
+  <Mapping id="1" provision_id="1"/>
+  <MappingItem id="106" mapping_id="1" extAttrName="fullname"
+               intAttrName="fullname" intMappingType="UserPlainSchema" mandatoryCondition="true"
+               connObjectKey="1" password="0" purpose="BOTH"/>
+  <MappingItem id="107" mapping_id="1"
+               extAttrName="__PASSWORD__" intMappingType="Password" mandatoryCondition="true"
+               connObjectKey="0" password="1" purpose="BOTH"/>
+  <MappingItem id="108" extAttrName="type" mapping_id="1"
+               intAttrName="type" intMappingType="UserPlainSchema" mandatoryCondition="true"
+               connObjectKey="0" password="0" purpose="BOTH"/>
+  <MappingItem id="109" extAttrName="surname" mapping_id="1"
+               intAttrName="surname" intMappingType="UserPlainSchema" mandatoryCondition="type == 'F'"
+               connObjectKey="0" password="0" purpose="BOTH"/>
+  <MappingItem id="110" extAttrName="name" mapping_id="1"
+               intAttrName="virtualdata" intMappingType="UserVirtualSchema" mandatoryCondition="type == 'F'"
+               connObjectKey="0" password="0" purpose="BOTH"/>
+  <MappingItem id="111" extAttrName="fullname" mapping_id="1"
+               intAttrName="cn" intMappingType="UserDerivedSchema" mandatoryCondition="true"
+               connObjectKey="0" password="0" purpose="BOTH"/>
+    
+  <Provision id="2" resource_name="ws-target-resource-update" anyType_name="USER" objectClass="__ACCOUNT__"/>
+  <Mapping id="2" provision_id="2"/>
+  <MappingItem id="112" extAttrName="email" mapping_id="2"
+               intAttrName="email" intMappingType="UserPlainSchema" mandatoryCondition="false"
+               connObjectKey="0" password="0" purpose="PROPAGATION"/>
+  <MappingItem id="113" extAttrName="userId" mapping_id="2"
+               intAttrName="userId" intMappingType="UserPlainSchema" mandatoryCondition="false"
+               connObjectKey="1" password="0" purpose="PROPAGATION"/>
+  <MappingItem id="114" extAttrName="test3" mapping_id="2" 
+               intAttrName="fullname" intMappingType="UserPlainSchema" mandatoryCondition="false"
+               connObjectKey="0" password="0" purpose="PROPAGATION"/>
+    
+  <Provision id="3" resource_name="ws-target-resource-nopropagation" anyType_name="USER" objectClass="__ACCOUNT__"/>
+  <Mapping id="3" provision_id="3"/>
+  <MappingItem id="115" mapping_id="3" extAttrName="fullname" 
+               intAttrName="fullname" intMappingType="UserPlainSchema" mandatoryCondition="true"
+               connObjectKey="1" password="0" purpose="PROPAGATION"/>
+                     
+  <Provision id="4" resource_name="ws-target-resource-nopropagation2" anyType_name="USER" objectClass="__ACCOUNT__"/>
+  <Mapping id="4" provision_id="4"/>
+  <MappingItem id="116" mapping_id="4" extAttrName="fullname" 
+               intAttrName="fullname" intMappingType="UserPlainSchema" mandatoryCondition="true"
+               connObjectKey="1" password="0" purpose="PROPAGATION"/>
+                     
+  <Provision id="5" resource_name="ws-target-resource-nopropagation3" anyType_name="USER" objectClass="__ACCOUNT__"/>
+  <Mapping id="5" provision_id="5"/>
+  <MappingItem id="117" mapping_id="5" extAttrName="fullname"
+               intAttrName="fullname" intMappingType="UserPlainSchema" mandatoryCondition="true"
+               connObjectKey="1" password="0" purpose="PROPAGATION"/>
+                     
+  <Provision id="6" resource_name="ws-target-resource-nopropagation4" anyType_name="USER" objectClass="__ACCOUNT__"/>
+  <Mapping id="6" provision_id="6"/>
+  <MappingItem id="118" mapping_id="6"
+               extAttrName="fullname" intAttrName="fullname" intMappingType="UserPlainSchema" mandatoryCondition="true"
+               connObjectKey="1" password="0" purpose="PROPAGATION"/>
+                       
+  <Provision id="7" resource_name="resource-testdb" anyType_name="USER" objectClass="__ACCOUNT__"/>
+  <Mapping id="7" provision_id="7"/>
+  <MappingItem id="119" mapping_id="7"
+               extAttrName="id" intMappingType="Username" mandatoryCondition="true"
+               connObjectKey="1" password="0" purpose="BOTH"/>
+  <MappingItem id="120" mapping_id="7"
+               extAttrName="__PASSWORD__" intMappingType="Password" mandatoryCondition="true"
+               connObjectKey="0" password="1" purpose="BOTH"/>
+                     
+  <Provision id="8" resource_name="resource-testdb2" anyType_name="USER" objectClass="__ACCOUNT__"/>
+  <Mapping id="8" provision_id="8"/>
+  <MappingItem id="121" mapping_id="8" extAttrName="id" 
+               intMappingType="Username" mandatoryCondition="true"
+               connObjectKey="1" password="0" purpose="PROPAGATION"/>
+  <MappingItem id="122" mapping_id="8" extAttrName="__PASSWORD__" 
+               intMappingType="Password" mandatoryCondition="true"
+               connObjectKey="0" password="1" purpose="PROPAGATION"/>
+                         
+  <Provision id="9" resource_name="resource-csv" anyType_name="USER" objectClass="__ACCOUNT__"/>
+  <Mapping id="9" provision_id="9"/>
+  <MappingItem id="200" extAttrName="id" mapping_id="9"
+               intMappingType="Username" mandatoryCondition="true"
+               connObjectKey="0" password="0" purpose="BOTH"/>
+  <MappingItem id="201" extAttrName="id" mapping_id="9"
+               intAttrName="fullname" intMappingType="UserPlainSchema" mandatoryCondition="true"
+               connObjectKey="0" password="0" purpose="BOTH"/>
+  <MappingItem id="202" mapping_id="9"
+               extAttrName="__PASSWORD__" intMappingType="Password" mandatoryCondition="true"
+               connObjectKey="0" password="1" purpose="BOTH"/>
+  <MappingItem id="203" extAttrName="name" mapping_id="9"
+               intAttrName="firstname" intMappingType="UserPlainSchema" mandatoryCondition="false"
+               connObjectKey="0" password="0" purpose="BOTH"/>
+  <MappingItem id="204" extAttrName="surname" mapping_id="9"
+               intAttrName="surname" intMappingType="UserPlainSchema" mandatoryCondition="false"
+               connObjectKey="0" password="0" purpose="BOTH"/>
+  <MappingItem id="205" extAttrName="email" mapping_id="9"
+               intAttrName="userId" intMappingType="UserPlainSchema" mandatoryCondition="true"
+               connObjectKey="0" password="0" purpose="SYNCHRONIZATION"/>
+  <MappingItem id="206" extAttrName="email" mapping_id="9"
+               intAttrName="email" intMappingType="UserPlainSchema" mandatoryCondition="true"
+               connObjectKey="0" password="0" purpose="SYNCHRONIZATION"/>
+  <MappingItem id="207" extAttrName="__NAME__" mapping_id="9"
+               intAttrName="csvuserid" intMappingType="UserDerivedSchema" mandatoryCondition="true"
+               connObjectKey="1" password="0" purpose="BOTH"/>
+  <MappingItem id="208" extAttrName="theirgroup" mapping_id="9"
+               intAttrName="rderToBePropagated" intMappingType="GroupDerivedSchema" mandatoryCondition="false"
+               connObjectKey="0" password="0" purpose="PROPAGATION"/>
+  <MappingItem id="209" extAttrName="membership" mapping_id="9"
+               intAttrName="mderToBePropagated" intMappingType="AnyObjectDerivedSchema" mandatoryCondition="false"
+               connObjectKey="0" password="0" purpose="PROPAGATION"/>
+                         
+  <Provision id="10" resource_name="ws-target-resource-update-resetsynctoken" anyType_name="USER" objectClass="__ACCOUNT__"
+             serializedSyncToken='{"value":null}'/>
+  <Mapping id="10" provision_id="10"/>
+  <MappingItem id="300" mapping_id="10"
+               extAttrName="userId" intAttrName="userId" intMappingType="UserPlainSchema" mandatoryCondition="false"
+               connObjectKey="1" password="0" purpose="BOTH"/>
+  <MappingItem id="301" mapping_id="10"
+               extAttrName="__PASSWORD__" intAttrName="fullname" intMappingType="UserPlainSchema" mandatoryCondition="false"
+               connObjectKey="0" password="1" purpose="BOTH"/>
+
+  <Provision id="11" resource_name="resource-ldap" anyType_name="USER" objectClass="__ACCOUNT__"/>
+  <Mapping id="11" provision_id="11"
+           connObjectLink="&apos;uid=&apos; + username + &apos;,ou=people,o=isp&apos;"/>
+  <MappingItem id="311" connObjectKey="1" password="0" mapping_id="11"
+               extAttrName="cn" intAttrName="Username" intMappingType="Username"
+               mandatoryCondition="true" purpose="BOTH"/>
+  <MappingItem id="312" connObjectKey="0" password="1" mapping_id="11"
+               extAttrName="__PASSWORD__" intAttrName="Password" intMappingType="Password"
+               mandatoryCondition="true" purpose="BOTH"/>
+  <MappingItem id="313" connObjectKey="0" password="0" mapping_id="11"
+               extAttrName="sn" intAttrName="surname" intMappingType="UserPlainSchema"
+               mandatoryCondition="true" purpose="BOTH"/>
+  <MappingItem id="314" connObjectKey="0" password="0" mapping_id="11"
+               extAttrName="cn" intAttrName="fullname" intMappingType="UserPlainSchema"
+               mandatoryCondition="true" purpose="BOTH"/>
+  <MappingItem id="315" connObjectKey="0" password="0" mapping_id="11"
+               extAttrName="mail" intAttrName="email" intMappingType="UserPlainSchema"
+               mandatoryCondition="false" purpose="BOTH"/>
+  <MappingItem id="316" connObjectKey="0" password="0" mapping_id="11"
+               extAttrName="title" intAttrName="title" intMappingType="GroupPlainSchema"
+               mandatoryCondition="false" purpose="BOTH"/>
+  <MappingItem id="317" connObjectKey="0" password="0" mapping_id="11"
+               extAttrName="postalAddress" intAttrName="postalAddress" intMappingType="UserPlainSchema"
+               mandatoryCondition="false" purpose="BOTH"/>
+  <MappingItem id="318" connObjectKey="0" password="0" mapping_id="11"
+               extAttrName="mail" intAttrName="userId" intMappingType="UserPlainSchema"
+               mandatoryCondition="false" purpose="BOTH"/>
+  <MappingItem id="319" connObjectKey="0" password="0" mapping_id="11"
+               extAttrName="givenname" intAttrName="virtualReadOnly" intMappingType="UserVirtualSchema"
+               mandatoryCondition="false" purpose="BOTH"/>
+  <MappingItem id="320" connObjectKey="0" password="0" mapping_id="11"
+               extAttrName="registeredAddress" intAttrName="obscure" intMappingType="UserPlainSchema"
+               mandatoryCondition="false" purpose="BOTH"/>
+  <MappingItem id="321" connObjectKey="0" password="0" mapping_id="11"
+               extAttrName="jpegPhoto" intAttrName="photo" intMappingType="UserPlainSchema"
+               mandatoryCondition="false" purpose="BOTH"/>
+        
+  <Provision id="20" resource_name="resource-ldap" anyType_name="GROUP" objectClass="__GROUP__"/>
+  <Mapping id="20" provision_id="20"
+           connObjectLink="&apos;cn=&apos; + name + &apos;,ou=groups,o=isp&apos;"/>
+  <MappingItem id="1" connObjectKey="1" password="0" mapping_id="20"
+               extAttrName="cn" intAttrName="groupName" intMappingType="GroupName"
+               mandatoryCondition="true" purpose="BOTH"/>
+  <MappingItem id="2" connObjectKey="0" password="0" mapping_id="20"
+               extAttrName="owner" intAttrName="groupOwnerSchema" intMappingType="GroupOwnerSchema"
+               mandatoryCondition="false" purpose="BOTH"/>
+  <MappingItem id="3" connObjectKey="0" password="0" mapping_id="20"
+               extAttrName="description" intAttrName="title" intMappingType="GroupPlainSchema"
+               mandatoryCondition="false" purpose="BOTH"/>
+  <MappingItem id="4" extAttrName="businessCategory" mapping_id="20"
+               intAttrName="rvirtualdata" intMappingType="GroupVirtualSchema" mandatoryCondition="false"
+               connObjectKey="0" password="0" purpose="BOTH"/>
+  
+  <Provision id="16" resource_name="resource-db-sync" anyType_name="USER" objectClass="__ACCOUNT__"/>
+  <Mapping id="16" provision_id="16"/>
+  <MappingItem id="322" connObjectKey="0" mapping_id="16"
+               extAttrName="EMAIL" intAttrName="email" intMappingType="UserPlainSchema" 
+               mandatoryCondition="false" password="0" purpose="BOTH"/>
+  <MappingItem id="323" connObjectKey="0" mapping_id="16"
+               extAttrName="SURNAME" intAttrName="fullname" intMappingType="UserPlainSchema" 
+               mandatoryCondition="false" password="0" purpose="BOTH"/>
+  <MappingItem id="324" connObjectKey="1" mapping_id="16"
+               extAttrName="ID" intAttrName="aLong" intMappingType="UserPlainSchema" 
+               mandatoryCondition="false" password="0" purpose="BOTH"/>
+  <MappingItem id="325" connObjectKey="0" mapping_id="16"
+               extAttrName="SURNAME" intAttrName="surname" intMappingType="UserPlainSchema" 
+               mandatoryCondition="false" password="0" purpose="BOTH"/>
+  <MappingItem id="326" connObjectKey="0" mapping_id="16"
+               extAttrName="USERNAME" intAttrName="Username" intMappingType="Username" 
+               mandatoryCondition="false" password="0" purpose="BOTH"/>
+  <MappingItem id="327" connObjectKey="0" mapping_id="16"
+               extAttrName="EMAIL" intAttrName="userId" intMappingType="UserPlainSchema" 
+               mandatoryCondition="false" password="0" purpose="BOTH"/>
+              
+  <Provision id="17" resource_name="resource-db-virattr" anyType_name="USER" objectClass="__ACCOUNT__"/>
+  <Mapping id="17" provision_id="17"/>
+  <MappingItem id="331" mapping_id="17" connObjectKey="1" password="0"
+               extAttrName="id" intMappingType="UserKey" 
+               mandatoryCondition="true" purpose="BOTH"/>
+  <MappingItem id="332" mapping_id="17" connObjectKey="0" password="0" 
+               extAttrName="USERNAME" intAttrName="virtualdata" intMappingType="UserVirtualSchema"
+               mandatoryCondition="false" purpose="BOTH"/>
+                
+  <Provision id="18" resource_name="ws-target-resource-timeout" anyType_name="USER" objectClass="__ACCOUNT__"/>
+  <Mapping id="18" provision_id="18"/>
+  <MappingItem id="333" mapping_id="18" connObjectKey="1" password="0"
+               extAttrName="fullname" intAttrName="fullname" intMappingType="UserPlainSchema"
+               mandatoryCondition="true" purpose="PROPAGATION"/>
+  
+  <Provision id="19" resource_name="ws-target-resource-delete" anyType_name="USER" objectClass="__ACCOUNT__"/>
+  <Mapping id="19" provision_id="19"/>
+  <MappingItem id="334" mapping_id="19" extAttrName="userId" 
+               intMappingType="Username" mandatoryCondition="true"
+               connObjectKey="1" password="0" purpose="PROPAGATION"/>
+
+  <Provision id="21" resource_name="resource-db-scripted" anyType_name="PRINTER" objectClass="__PRINTER__"/>
+  <Mapping id="21" provision_id="21"/>
+  <MappingItem id="405" mapping_id="21" extAttrName="id" 
+               intMappingType="AnyObjectKey" mandatoryCondition="true"
+               connObjectKey="1" password="0" purpose="BOTH"/>
+  <MappingItem id="406" mapping_id="21" extAttrName="location" 
+               intAttrName="location" intMappingType="AnyObjectPlainSchema"
+               mandatoryCondition="false" connObjectKey="0" password="0" purpose="BOTH"/>
+    
+  <Task DTYPE="PropagationTask" type="PROPAGATION" id="1" propagationMode="TWO_PHASES" propagationOperation="UPDATE"
+        objectClassName="__ACCOUNT__" resource_name="ws-target-resource-2" anyTypeKind="USER" anyKey="1"
+        xmlAttributes='[{"name":"__PASSWORD__","value":[{"readOnly":false,"disposed":false,"encryptedBytes":"m9nh2US0Sa6m+cXccCq0Xw==","base64SHA1Hash":"GFJ69qfjxEOdrmt+9q+0Cw2uz60="}]},{"name":"__NAME__","value":["userId"],"nameValue":"userId"},{"name":"fullname","value":["fullname"]},{"name":"type","value":["type"]}]'/>
+  <TaskExec id="1" task_id="1" status="SUCCESS"/>
+  <Task DTYPE="PropagationTask" type="PROPAGATION" id="2" propagationMode="ONE_PHASE" propagationOperation="CREATE"
+        objectClassName="__ACCOUNT__" resource_name="ws-target-resource-2" anyTypeKind="USER" anyKey="1"
+        xmlAttributes='[{"name":"__PASSWORD__","value":[{"readOnly":false,"disposed":false,"encryptedBytes":"m9nh2US0Sa6m+cXccCq0Xw==","base64SHA1Hash":"GFJ69qfjxEOdrmt+9q+0Cw2uz60="}]},{"name":"__NAME__","value":["userId"],"nameValue":"userId"},{"name":"fullname","value":["fullname"]},{"name":"type","value":["type"]}]'/>
+  <Task DTYPE="PropagationTask" type="PROPAGATION" id="3" propagationMode="TWO_PHASES" propagationOperation="DELETE"
+        objectClassName="__ACCOUNT__" resource_name="ws-target-resource-2" anyTypeKind="USER" anyKey="1"
+        xmlAttributes='[{"name":"__PASSWORD__","value":[{"readOnly":false,"disposed":false,"encryptedBytes":"m9nh2US0Sa6m+cXccCq0Xw==","base64SHA1Hash":"GFJ69qfjxEOdrmt+9q+0Cw2uz60="}]},{"name":"__NAME__","value":["userId"],"nameValue":"userId"},{"name":"type","value":["type"]}]'/>
+  <Task DTYPE="SyncTask" type="SYNCHRONIZATION" id="4" name="CSV (update matching; assign unmatching)" resource_name="resource-csv"
+        destinationRealm_id="1" performCreate="1" performUpdate="1" performDelete="1" syncStatus="1" fullReconciliation="0"
+        unmatchingRule="ASSIGN" matchingRule="UPDATE"/>
+  <AnyTemplate id="41" syncTask_id="4" anyType_name="USER"
+               template='{"@class":"org.apache.syncope.common.lib.to.UserTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"type":"USER","realm":null,"status":null,"password":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"securityQuestion":null,"securityAnswer":null,"auxClasses":["csv"],"derAttrs":[{"schema":"cn","readonly":false,"values":[""]}],"virAttrs":[],"resources":["resource-testdb"],"propagationStatuses":[],"relationships":[],"memberships":[{"leftType":null,"leftKey":0,"rightType":"GROUP","rightKey":8,"groupName":null}],"dynGroups":[],"roles":[],"dynRoles":[],"plainAttrs":[{"schema":"type","readonly":false,"values":["email == &apos;test8@syncope.apache.org&apos;? &apos;TYPE_8&apos;: &apos;TYPE_OTHER&apos;"]}]}'/>
+  <AnyTemplate id="42" syncTask_id="4" anyType_name="GROUP"
+               template='{"@class":"org.apache.syncope.common.lib.to.GroupTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"type":"GROUP","realm":null,"status":null,"name":null,"userOwner":null,"groupOwner":null,"adynMembershipCond":null,"udynMembershipCond":null,"auxClasses":[],"derAttrs":[],"virAttrs":[],"resources":[],"propagationStatuses":[],"plainAttrs":[]}'/>
+  <Task DTYPE="SchedTask" type="SCHEDULED" id="5" name="SampleJob Task" 
+        jobDelegateClassName="org.apache.syncope.fit.core.reference.TestSampleJobDelegate" cronExpression="0 0 0 1 * ?"/>
+  <Task DTYPE="PropagationTask" type="PROPAGATION" id="6" propagationMode="TWO_PHASES" propagationOperation="UPDATE"
+        objectClassName="__ACCOUNT__" resource_name="ws-target-resource-nopropagation" anyTypeKind="USER" anyKey="1"
+        xmlAttributes='[{"name":"__PASSWORD__","value":[{"readOnly":false,"disposed":false,"encryptedBytes":"m9nh2US0Sa6m+cXccCq0Xw==","base64SHA1Hash":"GFJ69qfjxEOdrmt+9q+0Cw2uz60="}]},{"name":"__NAME__","value":["userId"],"nameValue":"userId"},{"name":"fullname","value":["fullname"]},{"name":"type","value":["type"]}]'/>
+  <TaskExec id="6" task_id="6" status="SUCCESS"/>
+  <Task DTYPE="SyncTask" type="SYNCHRONIZATION" id="7" name="TestDB Task" resource_name="resource-testdb"
+        destinationRealm_id="1" performCreate="1" performUpdate="1" performDelete="0" syncStatus="1" fullReconciliation="1"
+        unmatchingRule="PROVISION" matchingRule="UPDATE"/>
+  <AnyTemplate id="71" syncTask_id="7" anyType_name="USER"
+               template='{"@class":"org.apache.syncope.common.lib.to.UserTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"type":"USER","realm":null,"status":null,"password":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"securityQuestion":null,"securityAnswer":null,"auxClasses":[],"derAttrs":[],"virAttrs":[],"resources":[],"propagationStatuses":[],"relationships":[],"memberships":[],"dynGroups":[],"roles":[],"dynRoles":[],"plainAttrs":[{"schema":"type","readonly":false,"values":["&apos;type a&apos;"]},{"schema":"userId","readonly":false,"values":["&apos;reconciled@syncope.apache.org&apos;"]},{"schema":"fullname","readonly":false,"values":["&apos;reconciled fullname&apos;"]},{"schema":"surname","readonly":false,"values":["&apos;surname&apos;"]}]}'/>
+  <AnyTemplate id="72" syncTask_id="7" anyType_name="GROUP"
+               template='{"@class":"org.apache.syncope.common.lib.to.GroupTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"type":"GROUP","realm":null,"status":null,"name":null,"userOwner":null,"groupOwner":null,"adynMembershipCond":null,"udynMembershipCond":null,"auxClasses":[],"derAttrs":[],"virAttrs":[],"resources":[],"propagationStatuses":[],"plainAttrs":[]}'/>
+  <Task DTYPE="NotificationTask" type="NOTIFICATION" id="8" sender="admin@prova.org" subject="Notification for SYNCOPE-81" 
+        textBody="NOTIFICATION-81" htmlBody="NOTIFICATION-81" traceLevel="ALL"/>
+  <Task DTYPE="SyncTask" type="SYNCHRONIZATION" id="9" name="TestDB2 Task" resource_name="resource-testdb2"
+        destinationRealm_id="1" performCreate="1" performUpdate="1" performDelete="0" syncStatus="1" fullReconciliation="1"
+        unmatchingRule="PROVISION" matchingRule="UPDATE"/>
+  <Task DTYPE="SyncTask" type="SYNCHRONIZATION" id="10" name="TestDB Sync Task" resource_name="resource-db-sync"
+        destinationRealm_id="1" fullReconciliation="1" performCreate="1" performDelete="1" performUpdate="1" syncStatus="0"
+        unmatchingRule="PROVISION" matchingRule="UPDATE"/>
+  <Task DTYPE="SyncTask" type="SYNCHRONIZATION" id="11" name="LDAP Sync Task" resource_name="resource-ldap"
+        destinationRealm_id="1" fullReconciliation="1" performCreate="1" performDelete="1" performUpdate="1" syncStatus="0"
+        unmatchingRule="PROVISION" matchingRule="UPDATE"/>
+  <AnyTemplate id="1" syncTask_id="11" anyType_name="USER"
+               template='{"@class":"org.apache.syncope.common.lib.to.UserTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"type":"USER","realm":null,"status":null,"password":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"securityQuestion":null,"securityAnswer":null,"auxClasses":[],"derAttrs":[],"virAttrs":[{"schema":"virtualReadOnly","readonly":true,"values":[""]}],"resources":["resource-ldap"],"propagationStatuses":[],"roles":[],"dynRoles":[],"relationships":[],"memberships":[],"dynGroups":[],"plainAttrs":[]}'/>
+  <AnyTemplate id="2" syncTask_id="11" anyType_name="GROUP"
+               template='{"@class":"org.apache.syncope.common.lib.to.GroupTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"type":"GROUP","realm":null,"status":null,"name":null,"userOwner":null,"groupOwner":null,"adynMembershipCond":null,"udynMembershipCond":null,"auxClasses":[],"derAttrs":[],"virAttrs":[],"resources":[],"propagationStatuses":[],"plainAttrs":[{"schema":"show","readonly":false,"values":["true"]}]}'/>
+  <SyncTask_actionsClassNames SyncTask_id="11" actionClassName="org.apache.syncope.core.provisioning.java.sync.LDAPMembershipSyncActions"/>
+  <Task DTYPE="SyncTask" type="SYNCHRONIZATION" id="12" name="VirAttrCache test" resource_name="resource-csv"
+        destinationRealm_id="1" performCreate="0" performUpdate="1" performDelete="0" syncStatus="0" fullReconciliation="1"
+        unmatchingRule="PROVISION" matchingRule="UPDATE"/>
+  <Task DTYPE="PushTask" type="PUSH" id="13" name="Export on resource-testdb2" resource_name="resource-testdb2"
+        performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"         
+        unmatchingRule="ASSIGN" matchingRule="IGNORE"/>  
+  <AnyFilter id="131" anyType_name="USER" pushTask_id="13" filter="surname==Vivaldi"/>
+  <AnyFilter id="132" anyType_name="GROUP" pushTask_id="13" filter="name==_NO_ONE_"/>
+  <Task DTYPE="PushTask" type="PUSH" id="14" name="Export on resource-testdb2" resource_name="resource-testdb2"
+        performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"         
+        unmatchingRule="PROVISION" matchingRule="IGNORE"/>
+  <AnyFilter id="141" anyType_name="USER" pushTask_id="14" filter="surname==Bellini"/>
+  <AnyFilter id="142" anyType_name="GROUP" pushTask_id="14" filter="name==_NO_ONE_"/>
+  <Task DTYPE="PushTask" type="PUSH" id="15" name="Export on resource-testdb2" resource_name="resource-testdb2"
+        performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"        
+        unmatchingRule="UNLINK" matchingRule="IGNORE"/>
+  <AnyFilter id="151" anyType_name="USER" pushTask_id="15" filter="surname==Puccini"/>
+  <AnyFilter id="152" anyType_name="GROUP" pushTask_id="15" filter="name==_NO_ONE_"/>
+  <Task DTYPE="PushTask" type="PUSH" id="16" name="Export on resource-testdb2" resource_name="resource-testdb2"
+        performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"         
+        unmatchingRule="IGNORE" matchingRule="IGNORE"/>
+  <AnyFilter id="161" anyType_name="USER" pushTask_id="16" filter="surname==Verdi"/>
+  <AnyFilter id="162" anyType_name="GROUP" pushTask_id="16" filter="name==_NO_ONE_"/>
+  <Task DTYPE="PushTask" type="PUSH" id="17" name="Export on resource-testdb2" resource_name="resource-testdb2"
+        performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"        
+        unmatchingRule="ASSIGN" matchingRule="UPDATE"/>
+  <AnyFilter id="171" anyType_name="USER" pushTask_id="17" filter="username==_NO_ONE_"/>
+  <AnyFilter id="172" anyType_name="GROUP" pushTask_id="17" filter="name==_NO_ONE_"/>
+  <Task DTYPE="PushTask" type="PUSH" id="18" name="Export on resource-testdb2" resource_name="resource-testdb2"
+        performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"        
+        unmatchingRule="IGNORE" matchingRule="DEPROVISION"/>
+  <AnyFilter id="181" anyType_name="USER" pushTask_id="18" filter="surname==Verdi"/>
+  <AnyFilter id="182" anyType_name="GROUP" pushTask_id="18" filter="name==_NO_ONE_"/>
+  <Task DTYPE="PushTask" type="PUSH" id="19" name="Export on resource-testdb2" resource_name="resource-testdb2"
+        performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"        
+        unmatchingRule="IGNORE" matchingRule="UNASSIGN"/>
+  <AnyFilter id="191" anyType_name="USER" pushTask_id="19" filter="surname==Rossini"/>
+  <AnyFilter id="192" anyType_name="GROUP" pushTask_id="19" filter="name==_NO_ONE_"/>
+  <Task DTYPE="PushTask" type="PUSH" id="20" name="Export on resource-testdb2" resource_name="resource-testdb2"
+        performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"        
+        unmatchingRule="IGNORE" matchingRule="LINK"/>
+  <AnyFilter id="201" anyType_name="USER" pushTask_id="20" filter="surname==Verdi"/>
+  <AnyFilter id="202" anyType_name="GROUP" pushTask_id="20" filter="name==_NO_ONE_"/>
+  <Task DTYPE="PushTask" type="PUSH" id="21" name="Export on resource-testdb2" resource_name="resource-testdb2"
+        performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"        
+        unmatchingRule="IGNORE" matchingRule="UNLINK"/>
+  <AnyFilter id="211" anyType_name="USER" pushTask_id="21" filter="surname==Verdi"/>
+  <AnyFilter id="212" anyType_name="GROUP" pushTask_id="21" filter="name==_NO_ONE_"/>
+  <Task DTYPE="PushTask" type="PUSH" id="22" name="Export on resource-testdb2" resource_name="resource-testdb2"
+        performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"
+        
+        unmatchingRule="IGNORE" matchingRule="UPDATE"/>
+  <AnyFilter id="221" anyType_name="USER" pushTask_id="22" filter="surname==Verdi"/>
+  <AnyFilter id="222" anyType_name="GROUP" pushTask_id="22" filter="name==_NO_ONE_"/>
+  <Task DTYPE="PushTask" type="PUSH" id="23" name="Export on resource-ldap" resource_name="resource-ldap"
+        performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"        
+        unmatchingRule="ASSIGN" matchingRule="UNLINK"/>
+  <AnyFilter id="231" anyType_name="USER" pushTask_id="23" filter="username==_NO_ONE_"/>
+  <AnyFilter id="232" anyType_name="GROUP" pushTask_id="23" filter="name==citizen"/>
+  <Task DTYPE="SyncTask" type="SYNCHRONIZATION" id="24" name="CSV Task (update matching; provision unmatching)" resource_name="resource-csv"
+        destinationRealm_id="1" performCreate="1" performUpdate="1" performDelete="1" syncStatus="1" fullReconciliation="0"
+        unmatchingRule="PROVISION" matchingRule="UPDATE"/>
+  <AnyTemplate id="3" syncTask_id="24" anyType_name="USER"
+               template='{"@class":"org.apache.syncope.common.lib.to.UserTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"type":"USER","realm":null,"status":null,"password":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"securityQuestion":null,"securityAnswer":null,"auxClasses":[],"derAttrs":[],"virAttrs":[],"resources":["resource-testdb"],"propagationStatuses":[],"roles":[],"dynRoles":[],"relationships":[],"memberships":[],"dynGroups":[],"plainAttrs":[{"schema":"firstname","readonly":false,"values":[""]},{"schema":"userId","readonly":false,"values":["&apos;test&apos;"]},{"schema":"fullname","readonly":false,"values":["&apos;test&apos;"]},{"schema":"surname","readonly":false,"values":["&apos;test&apos;"]}]}'/>
+  <AnyTemplate id="4" syncTask_id="24" anyType_name="GROUP"
+               template='{"@class":"org.apache.syncope.common.lib.to.GroupTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":0,"type":"GROUP","realm":null,"status":null,"name":null,"userOwner":null,"groupOwner":null,"adynMembershipCond":null,"udynMembershipCond":null,"auxClasses":[],"derAttrs":[],"virAttrs":[],"resources":[],"propagationStatuses":[],"plainAttrs":[]}'/>
+  <Task DTYPE="SyncTask" type="SYNCHRONIZATION" id="25" name="CSV (unlink matching; ignore unmatching)" resource_name="resource-csv"
+        destinationRealm_id="1" performCreate="1" performUpdate="1" performDelete="1" syncStatus="1" fullReconciliation="0"
+        unmatchingRule="IGNORE" matchingRule="UNLINK"/>
+  <Task DTYPE="SyncTask" type="SYNCHRONIZATION" id="26" name="CSV (ignore matching; assign unmatching)" resource_name="resource-csv"
+        destinationRealm_id="1" performCreate="1" performUpdate="1" performDelete="1" syncStatus="1" fullReconciliation="0"
+        unmatchingRule="ASSIGN" matchingRule="IGNORE"/>
+  <Task DTYPE="PropagationTask" type="PROPAGATION" id="27" propagationMode="ONE_PHASE" propagationOperation="CREATE"
+        objectClassName="__ACCOUNT__" resource_name="resource-testdb" anyTypeKind="USER" anyKey="1"
+        xmlAttributes='[{"name":"__PASSWORD__","value":[{"readOnly":false,"disposed":false,"encryptedBytes":"m9nh2US0Sa6m+cXccCq0Xw==","base64SHA1Hash":"GFJ69qfjxEOdrmt+9q+0Cw2uz60="}]},{"name":"__NAME__","value":["userId"],"nameValue":"userId"},{"name":"fullname","value":["fullname"]},{"name":"type","value":["type"]}]'/>
+  <Task DTYPE="SyncTask" type="SYNCHRONIZATION" id="28" name="Scripted SQL" resource_name="resource-db-scripted"
+        destinationRealm_id="1" performCreate="1" performUpdate="1" performDelete="1" syncStatus="0" fullReconciliation="0"
+        unmatchingRule="PROVISION" matchingRule="UPDATE"/>
+
+  <Notification id="1" active="1" recipientAttrName="email" recipientAttrType="UserPlainSchema" selfAsRecipient="1" 
+                sender="admin@syncope.apache.org" subject="Password Reset request" template="requestPasswordReset" 
+                traceLevel="FAILURES"/> 
+  <AnyAbout id="1" anyType_name="USER" notification_id="1" about="token!=$null"/>
+  <Notification_events Notification_id="1" event="[CUSTOM]:[]:[]:[requestPasswordReset]:[SUCCESS]"/>
+  
+  <Notification id="2" active="1" recipientAttrName="email" recipientAttrType="UserPlainSchema" selfAsRecipient="1" 
+                sender="admin@syncope.apache.org" subject="Password Reset successful" template="confirmPasswordReset" 
+                traceLevel="FAILURES"/> 
+  <Notification_events Notification_id="2" event="[CUSTOM]:[]:[]:[confirmPasswordReset]:[SUCCESS]"/>
+
+  <Notification id="10" sender="test@syncope.apache.org" subject="Test subject" template="test" selfAsRecipient="0" 
+                traceLevel="FAILURES"
+                recipients="$groups==7"
+                recipientAttrType="UserPlainSchema" recipientAttrName="email" active="1"/>
+  <AnyAbout id="10" anyType_name="USER" notification_id="10" about="fullname==*o*;fullname==*i*"/>
+  <Notification_events Notification_id="10" event="[CUSTOM]:[]:[]:[unexisting1]:[FAILURE]"/>
+  <Notification_events Notification_id="10" event="[CUSTOM]:[]:[]:[unexisting2]:[SUCCESS]"/>
+    
+  <NotificationTask_recipients notificationtask_id="8" address="recipient@prova.org"/>  
+  
+  <Report id="1" name="test"/>
+  <ReportletConfInstance id="1" Report_id="1" 
+                         serializedInstance='{"@class":"org.apache.syncope.common.lib.report.UserReportletConf","name":"testUserReportlet","matchingCond":null,"plainAttrs":["fullname","gender"],"derAttrs":["cn"],"virAttrs":["virtualdata"],"features":["key","username","workflowId","status","creationDate","lastLoginDate","changePwdDate","passwordHistorySize","failedLoginCount","memberships","resources"]}'/>
+  <ReportExec Report_id="1" id="1" status="SUCCESS" startDate="2012-02-26 15:40:04" endDate="2012-02-26 15:41:04"/>
+  
+  <SyncopeLogger logName="syncope.audit.[REST]:[EntitlementLogic]:[]:[getOwn]:[SUCCESS]" logLevel="DEBUG" logType="AUDIT"/>
+  
+  <SecurityQuestion id="1" content="What's your mother's maiden name?"/>
+</dataset>

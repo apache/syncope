@@ -39,27 +39,27 @@ public class JPARelationshipTypeDAO extends AbstractDAO<RelationshipType, String
 
     @Override
     public RelationshipType find(final String key) {
-        return entityManager.find(JPARelationshipType.class, key);
+        return entityManager().find(JPARelationshipType.class, key);
     }
 
     @Override
     public List<RelationshipType> findAll() {
-        TypedQuery<RelationshipType> query = entityManager.createQuery(
+        TypedQuery<RelationshipType> query = entityManager().createQuery(
                 "SELECT e FROM " + JPARelationshipType.class.getSimpleName() + " e ", RelationshipType.class);
         return query.getResultList();
     }
 
     @Override
     public RelationshipType save(final RelationshipType anyType) {
-        return entityManager.merge(anyType);
+        return entityManager().merge(anyType);
     }
 
     private Collection<? extends Relationship<?, ?>> findRelationshipsByType(final RelationshipType type) {
-        TypedQuery<ARelationship> aquery = entityManager.createQuery(
+        TypedQuery<ARelationship> aquery = entityManager().createQuery(
                 "SELECT e FROM " + JPAARelationship.class.getSimpleName() + " e WHERE e.type=:type",
                 ARelationship.class);
         aquery.setParameter("type", type);
-        TypedQuery<URelationship> uquery = entityManager.createQuery(
+        TypedQuery<URelationship> uquery = entityManager().createQuery(
                 "SELECT e FROM " + JPAURelationship.class.getSimpleName() + " e WHERE e.type=:type",
                 URelationship.class);
         uquery.setParameter("type", type);
@@ -86,10 +86,10 @@ public class JPARelationshipTypeDAO extends AbstractDAO<RelationshipType, String
             }
 
             relationship.setLeftEnd(null);
-            entityManager.remove(relationship);
+            entityManager().remove(relationship);
         }
 
-        entityManager.remove(type);
+        entityManager().remove(type);
     }
 
 }

@@ -63,9 +63,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class GroupTest extends AbstractTest {
 
     @Autowired
-    private EntityManager entityManager;
-
-    @Autowired
     private AnyTypeDAO anyTypeDAO;
 
     @Autowired
@@ -144,7 +141,7 @@ public class GroupTest extends AbstractTest {
      * this test class is architected.
      */
     private Collection<Group> findDynGroupMemberships(final User user) {
-        TypedQuery<Group> query = entityManager.createQuery(
+        TypedQuery<Group> query = entityManager().createQuery(
                 "SELECT e.group FROM " + JPAUDynGroupMembership.class.getSimpleName()
                 + " e WHERE :user MEMBER OF e.users", Group.class);
         query.setParameter("user", user);
@@ -226,7 +223,7 @@ public class GroupTest extends AbstractTest {
 
         groupDAO.flush();
 
-        assertNull(entityManager.find(JPAUDynGroupMembership.class, dynMembershipKey));
+        assertNull(entityManager().find(JPAUDynGroupMembership.class, dynMembershipKey));
 
         dynGroupMemberships = findDynGroupMemberships(user);
         assertTrue(dynGroupMemberships.isEmpty());
@@ -238,7 +235,7 @@ public class GroupTest extends AbstractTest {
      * this test class is architected.
      */
     private List<Group> findDynGroupMemberships(final AnyObject anyObject) {
-        TypedQuery<Group> query = entityManager.createQuery(
+        TypedQuery<Group> query = entityManager().createQuery(
                 "SELECT e.group FROM " + JPAADynGroupMembership.class.getSimpleName()
                 + " e WHERE :anyObject MEMBER OF e.anyObjects", Group.class);
         query.setParameter("anyObject", anyObject);
@@ -319,7 +316,7 @@ public class GroupTest extends AbstractTest {
 
         groupDAO.flush();
 
-        assertNull(entityManager.find(JPAADynGroupMembership.class, dynMembershipKey));
+        assertNull(entityManager().find(JPAADynGroupMembership.class, dynMembershipKey));
 
         dynGroupMemberships = findDynGroupMemberships(anyObject);
         assertTrue(dynGroupMemberships.isEmpty());

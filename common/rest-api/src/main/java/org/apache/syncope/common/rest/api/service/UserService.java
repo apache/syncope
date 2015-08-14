@@ -91,9 +91,8 @@ public interface UserService extends AnyService<UserTO, UserMod> {
             @DefaultValue("true") @QueryParam("storePassword") boolean storePassword);
 
     /**
-     * Performs a status update on user matching provided key.
+     * Performs a status update on given.
      *
-     * @param key id of user to be subjected to status update
      * @param statusMod status update details
      * @return <tt>Response</tt> object featuring the updated user enriched with propagation status information
      * - {@link UserTO} as <tt>Entity</tt>
@@ -107,5 +106,5 @@ public interface UserService extends AnyService<UserTO, UserMod> {
     @Path("{key}/status")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    Response status(@NotNull @PathParam("key") Long key, @NotNull StatusMod statusMod);
+    Response status(@NotNull StatusMod statusMod);
 }

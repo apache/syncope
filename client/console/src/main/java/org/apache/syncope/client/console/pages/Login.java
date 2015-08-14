@@ -21,8 +21,10 @@ package org.apache.syncope.client.console.pages;
 import java.security.AccessControlException;
 import java.util.Locale;
 import org.apache.syncope.client.console.SyncopeConsoleApplication;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.NotificationPanel;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.authentication.IAuthenticationStrategy;
@@ -56,6 +58,8 @@ public class Login extends WebPage {
 
     private final DropDownChoice<Locale> languageSelect;
 
+    private final DropDownChoice<String> domainSelect;
+
     public Login(final PageParameters parameters) {
         super(parameters);
         setStatelessHint(true);
@@ -75,6 +79,12 @@ public class Login extends WebPage {
 
         languageSelect = new LocaleDropDown("language");
         form.add(languageSelect);
+
+        domainSelect = new DomainDropDown("domain");
+        if (SyncopeConsoleSession.get().getDomains().size() == 1) {
+            domainSelect.setOutputMarkupPlaceholderTag(true);
+        }
+        form.add(domainSelect);
 
         AjaxButton submitButton = new AjaxButton("submit", new Model<>(getString("submit"))) {
 
@@ -157,4 +167,43 @@ public class Login extends WebPage {
         }
     }
 
+    /**
+     * Inner class which implements (custom) Domain DropDownChoice component.
+     */
+    private class DomainDropDown extends DropDownChoice<String> {
+
+        private static final long serialVersionUID = -7401167913360133325L;
+
+        public DomainDropDown(final String id) {
+            super(id, SyncopeConsoleSession.get().getDomains());
+
+            setModel(new IModel<String>() {
+
+                private static final long serialVersionUID = -1124206668056084806L;
+
+                @Override
+                public String getObject() {
+                    return SyncopeConsoleSession.get().getDomain();
+                }
+
+                @Override
+                public void setObject(final String object) {
+                    SyncopeConsoleSession.get().setDomain(object);
+                }
+
+                @Override
+                public void detach() {
+                    // Empty.
+                }
+            });
+
+            // set default value to Master Domain
+            getModel().setObject(SyncopeConstants.MASTER_DOMAIN);
+        }
+
+        @Override
+        protected boolean wantOnSelectionChangedNotifications() {
+            return true;
+        }
+    }
 }

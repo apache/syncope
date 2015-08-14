@@ -45,7 +45,7 @@ public class JPADerSchemaDAO extends AbstractDAO<DerSchema, String> implements D
 
     @Override
     public DerSchema find(final String key) {
-        return entityManager.find(JPADerSchema.class, key);
+        return entityManager().find(JPADerSchema.class, key);
     }
 
     @Override
@@ -54,7 +54,7 @@ public class JPADerSchemaDAO extends AbstractDAO<DerSchema, String> implements D
                 append(JPADerSchema.class.getSimpleName()).
                 append(" e WHERE e.anyTypeClass=:anyTypeClass");
 
-        TypedQuery<DerSchema> query = entityManager.createQuery(queryString.toString(), DerSchema.class);
+        TypedQuery<DerSchema> query = entityManager().createQuery(queryString.toString(), DerSchema.class);
         query.setParameter("anyTypeClass", anyTypeClass);
 
         return query.getResultList();
@@ -62,7 +62,7 @@ public class JPADerSchemaDAO extends AbstractDAO<DerSchema, String> implements D
 
     @Override
     public List<DerSchema> findAll() {
-        TypedQuery<DerSchema> query = entityManager.createQuery(
+        TypedQuery<DerSchema> query = entityManager().createQuery(
                 "SELECT e FROM " + JPADerSchema.class.getSimpleName() + " e", DerSchema.class);
         return query.getResultList();
     }
@@ -73,7 +73,7 @@ public class JPADerSchemaDAO extends AbstractDAO<DerSchema, String> implements D
                 append(((JPADerAttrDAO) derAttrDAO).getJPAEntityReference(reference).getSimpleName()).
                 append(" e WHERE e.schema=:schema");
 
-        TypedQuery<T> query = entityManager.createQuery(queryString.toString(), reference);
+        TypedQuery<T> query = entityManager().createQuery(queryString.toString(), reference);
         query.setParameter("schema", schema);
 
         return query.getResultList();
@@ -81,7 +81,7 @@ public class JPADerSchemaDAO extends AbstractDAO<DerSchema, String> implements D
 
     @Override
     public DerSchema save(final DerSchema derSchema) {
-        return entityManager.merge(derSchema);
+        return entityManager().merge(derSchema);
     }
 
     @Override
@@ -106,6 +106,6 @@ public class JPADerSchemaDAO extends AbstractDAO<DerSchema, String> implements D
             schema.getAnyTypeClass().remove(schema);
         }
 
-        entityManager.remove(schema);
+        entityManager().remove(schema);
     }
 }

@@ -57,7 +57,7 @@ public class AnyObjectCreateProcessor implements Processor {
         List<PropagationTask> tasks =
                 propagationManager.getAnyObjectCreateTasks(created, any.getVirAttrs(), excludedResource);
         PropagationReporter propagationReporter =
-                ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
+                ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
         try {
             taskExecutor.execute(tasks, propagationReporter);
         } catch (PropagationException e) {

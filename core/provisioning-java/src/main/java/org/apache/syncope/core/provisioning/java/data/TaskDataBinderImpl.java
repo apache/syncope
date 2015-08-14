@@ -61,6 +61,8 @@ import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.task.AnyFilter;
 import org.apache.syncope.core.persistence.api.entity.task.AnyTemplate;
+import org.apache.syncope.core.provisioning.java.sync.PushJobDelegate;
+import org.apache.syncope.core.provisioning.java.sync.SyncJobDelegate;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
@@ -147,6 +149,8 @@ public class TaskDataBinderImpl implements TaskDataBinder {
             final PushTask pushTask = (PushTask) task;
             final PushTaskTO pushTaskTO = (PushTaskTO) taskTO;
 
+            pushTask.setJobDelegateClassName(PushJobDelegate.class.getName());
+
             pushTask.setMatchingRule(pushTaskTO.getMatchingRule() == null
                     ? MatchingRule.LINK : pushTaskTO.getMatchingRule());
             pushTask.setUnmatchingRule(pushTaskTO.getUnmatchingRule() == null
@@ -180,6 +184,8 @@ public class TaskDataBinderImpl implements TaskDataBinder {
             final SyncTaskTO syncTaskTO = (SyncTaskTO) taskTO;
 
             syncTask.setDestinationRealm(realmDAO.find(syncTaskTO.getDestinationRealm()));
+
+            syncTask.setJobDelegateClassName(SyncJobDelegate.class.getName());
 
             syncTask.setMatchingRule(syncTaskTO.getMatchingRule() == null
                     ? MatchingRule.UPDATE : syncTaskTO.getMatchingRule());
@@ -239,7 +245,7 @@ public class TaskDataBinderImpl implements TaskDataBinder {
         task.setDescription(taskTO.getDescription());
 
         if (taskUtils.getType() == TaskType.SCHEDULED) {
-            task.setJobClassName(taskTO.getJobClassName());
+            task.setJobDelegateClassName(taskTO.getJobDelegateClassName());
         } else if (taskTO instanceof AbstractProvisioningTaskTO) {
             AbstractProvisioningTaskTO provisioningTaskTO = (AbstractProvisioningTaskTO) taskTO;
 

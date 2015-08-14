@@ -42,12 +42,12 @@ public class JPAConfDAO extends AbstractDAO<Conf, Long> implements ConfDAO {
 
     @Override
     public Conf get() {
-        Conf instance = entityManager.find(JPAConf.class, 1L);
+        Conf instance = entityManager().find(JPAConf.class, 1L);
         if (instance == null) {
             instance = new JPAConf();
             instance.setKey(1L);
 
-            instance = entityManager.merge(instance);
+            instance = entityManager().merge(instance);
         }
 
         return instance;
@@ -97,7 +97,7 @@ public class JPAConfDAO extends AbstractDAO<Conf, Long> implements ConfDAO {
         instance.add(attr);
         attr.setOwner(instance);
 
-        return entityManager.merge(instance);
+        return entityManager().merge(instance);
     }
 
     @Override
@@ -106,7 +106,7 @@ public class JPAConfDAO extends AbstractDAO<Conf, Long> implements ConfDAO {
         CPlainAttr attr = instance.getPlainAttr(key);
         if (attr != null) {
             instance.remove(attr);
-            instance = entityManager.merge(instance);
+            instance = entityManager().merge(instance);
         }
 
         return instance;

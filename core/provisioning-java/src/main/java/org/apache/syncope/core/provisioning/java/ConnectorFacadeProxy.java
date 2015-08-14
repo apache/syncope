@@ -95,7 +95,7 @@ public class ConnectorFacadeProxy implements Connector {
         this.activeConnInstance = connInstance;
 
         ConnIdBundleManager connIdBundleManager =
-                ApplicationContextProvider.getApplicationContext().getBean(ConnIdBundleManager.class);
+                ApplicationContextProvider.getBeanFactory().getBean(ConnIdBundleManager.class);
         ConnectorInfo info = connIdBundleManager.getConnectorInfo(connInstance);
 
         // create default configuration

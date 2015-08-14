@@ -23,13 +23,18 @@ import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.common.lib.types.LoggerLevel;
+import org.apache.syncope.common.lib.types.LoggerType;
+import org.apache.syncope.core.misc.security.AuthContextUtils;
+import org.apache.syncope.core.misc.security.SyncopeAuthenticationDetails;
 import org.apache.syncope.core.persistence.api.dao.LoggerDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class AuditManager {
@@ -39,6 +44,11 @@ public class AuditManager {
     @Autowired
     private LoggerDAO loggerDAO;
 
+    public static String getDomainAuditLoggerName(final String domain) {
+        return LoggerType.AUDIT.getPrefix() + "." + domain;
+    }
+
+    @Transactional(readOnly = true)
     public void audit(
             final AuditElements.EventCategoryType type,
             final String category,
@@ -88,13 +98,22 @@ public class AuditManager {
             if (syncopeLogger != null && syncopeLogger.getLevel() == LoggerLevel.DEBUG) {
                 StringBuilder auditMessage = new StringBuilder();
 
-                final SecurityContext ctx = SecurityContextHolder.getContext();
+                SecurityContext ctx = SecurityContextHolder.getContext();
                 if (ctx != null && ctx.getAuthentication() != null) {
                     auditMessage.append('[').append(ctx.getAuthentication().getName()).append("] ");
                 }
                 auditMessage.append(message);
 
-                final Logger logger = LoggerFactory.getLogger(auditLoggerName.toLoggerName());
+                String domain = AuthContextUtils.getDomain();
+                if (input != null && input.length > 0 && input[0] instanceof UsernamePasswordAuthenticationToken) {
+                    UsernamePasswordAuthenticationToken token =
+                            UsernamePasswordAuthenticationToken.class.cast(input[0]);
+                    if (token.getDetails() instanceof SyncopeAuthenticationDetails) {
+                        domain = SyncopeAuthenticationDetails.class.cast(token.getDetails()).getDomain();
+                    }
+                }
+
+                Logger logger = LoggerFactory.getLogger(getDomainAuditLoggerName(domain));
                 if (throwable == null) {
                     logger.debug(auditMessage.toString());
                 } else {

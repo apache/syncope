@@ -195,11 +195,11 @@ public class PropagationManagerImpl implements PropagationManager {
     }
 
     @Override
-    public List<PropagationTask> getUserUpdateTasks(final User user, final Boolean enable,
+    public List<PropagationTask> getUserUpdateTasks(final Long key, final Boolean enable,
             final Collection<String> noPropResourceNames) {
 
         return getUpdateTasks(
-                user, // user to be updated on external resources
+                userDAO.find(key), // user to be updated on external resources
                 null, // no password
                 false,
                 enable, // status to be propagated
@@ -236,7 +236,7 @@ public class PropagationManagerImpl implements PropagationManager {
         } else {
             // b. generate the propagation task list in two phases: first the ones containing password,
             // the the rest (with no password)
-            final PropagationByResource origPropByRes = new PropagationByResource();
+            PropagationByResource origPropByRes = new PropagationByResource();
             origPropByRes.merge(wfResult.getPropByRes());
 
             Set<String> pwdResourceNames = new HashSet<>(userMod.getPwdPropRequest().getResourceNames());

@@ -32,11 +32,11 @@ public class JPAReportExecDAO extends AbstractDAO<ReportExec, Long> implements R
 
     @Override
     public ReportExec find(final Long key) {
-        return entityManager.find(JPAReportExec.class, key);
+        return entityManager().find(JPAReportExec.class, key);
     }
 
     private ReportExec findLatest(final Report report, final String field) {
-        TypedQuery<ReportExec> query = entityManager.createQuery(
+        TypedQuery<ReportExec> query = entityManager().createQuery(
                 "SELECT e FROM " + JPAReportExec.class.getSimpleName() + " e "
                 + "WHERE e.report=:report ORDER BY e." + field + " DESC", ReportExec.class);
         query.setParameter("report", report);
@@ -60,7 +60,7 @@ public class JPAReportExecDAO extends AbstractDAO<ReportExec, Long> implements R
 
     @Override
     public List<ReportExec> findAll() {
-        TypedQuery<ReportExec> query = entityManager.createQuery(
+        TypedQuery<ReportExec> query = entityManager().createQuery(
                 "SELECT e FROM " + JPAReportExec.class.getSimpleName() + " e", ReportExec.class);
         return query.getResultList();
     }
@@ -75,7 +75,7 @@ public class JPAReportExecDAO extends AbstractDAO<ReportExec, Long> implements R
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public ReportExec save(final ReportExec execution) {
-        return entityManager.merge(execution);
+        return entityManager().merge(execution);
     }
 
     @Override
@@ -94,6 +94,6 @@ public class JPAReportExecDAO extends AbstractDAO<ReportExec, Long> implements R
             execution.getReport().removeExec(execution);
         }
 
-        entityManager.remove(execution);
+        entityManager().remove(execution);
     }
 }

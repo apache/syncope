@@ -18,73 +18,36 @@
  */
 package org.apache.syncope.core.misc.security;
 
-import java.util.Date;
-import java.util.Iterator;
-import java.util.Set;
 import javax.annotation.Resource;
-import org.apache.commons.collections4.SetUtils;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
-import org.apache.syncope.core.persistence.api.dao.ConfDAO;
-import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
-import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.entity.AnyUtils;
-import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttr;
-import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.apache.syncope.core.provisioning.api.ConnectorFactory;
-import org.apache.syncope.core.misc.AuditManager;
-import org.apache.syncope.core.misc.MappingUtils;
-import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
-import org.apache.syncope.core.persistence.api.dao.RealmDAO;
-import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.identityconnectors.framework.common.objects.Uid;
+import org.apache.syncope.core.misc.security.AuthContextUtils.Executable;
+import org.apache.syncope.core.persistence.api.entity.Domain;
+import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.transaction.annotation.Transactional;
 
 @Configurable
 public class SyncopeAuthenticationProvider implements AuthenticationProvider {
 
-    /**
-     * Logger.
-     */
     protected static final Logger LOG = LoggerFactory.getLogger(SyncopeAuthenticationProvider.class);
 
     @Autowired
-    protected AuditManager auditManager;
+    protected AuthDataAccessor dataAccessor;
 
     @Autowired
-    protected ConfDAO confDAO;
-
-    @Autowired
-    protected RealmDAO realmDAO;
-
-    @Autowired
-    protected UserDAO userDAO;
-
-    @Autowired
-    protected PolicyDAO policyDAO;
-
-    @Autowired
-    protected AnyTypeDAO anyTypeDAO;
-
-    @Autowired
-    protected ConnectorFactory connFactory;
-
-    @Autowired
-    protected AnyUtilsFactory attrUtilsFactory;
+    protected UserProvisioningManager provisioningManager;
 
     @Resource(name = "adminUser")
     protected String adminUser;
@@ -128,71 +91,109 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
     }
 
     @Override
-    @Transactional(noRollbackFor = { BadCredentialsException.class, DisabledException.class })
     public Authentication authenticate(final Authentication authentication) {
-        boolean authenticated = false;
-        User user = null;
+        String domainKey = SyncopeAuthenticationDetails.class.cast(authentication.getDetails()).getDomain();
+        if (StringUtils.isBlank(domainKey)) {
+            domainKey = SyncopeConstants.MASTER_DOMAIN;
+        }
+        SyncopeAuthenticationDetails.class.cast(authentication.getDetails()).setDomain(domainKey);
 
-        String username = authentication.getName();
-        if (anonymousUser.equals(username)) {
+        boolean authenticated;
+        if (anonymousUser.equals(authentication.getName())) {
             authenticated = authentication.getCredentials().toString().equals(anonymousKey);
-        } else if (adminUser.equals(username)) {
-            authenticated = encryptor.verify(
-                    authentication.getCredentials().toString(),
-                    CipherAlgorithm.valueOf(adminPasswordAlgorithm),
-                    adminPassword);
+        } else if (adminUser.equals(authentication.getName())) {
+            if (SyncopeConstants.MASTER_DOMAIN.equals(domainKey)) {
+                authenticated = encryptor.verify(
+                        authentication.getCredentials().toString(),
+                        CipherAlgorithm.valueOf(adminPasswordAlgorithm),
+                        adminPassword);
+            } else {
+                final String domainToFind = domainKey;
+                authenticated = AuthContextUtils.execWithAuthContext(
+                        SyncopeConstants.MASTER_DOMAIN, new Executable<Boolean>() {
+
+                            @Override
+                            public Boolean exec() {
+                                Domain domain = dataAccessor.findDomain(domainToFind);
+
+                                return encryptor.verify(
+                                        authentication.getCredentials().toString(),
+                                        domain.getAdminCipherAlgorithm(),
+                                        domain.getAdminPwd());
+                            }
+                        });
+            }
         } else {
-            user = userDAO.find(username);
+            final Pair<Long, Boolean> authResult =
+                    AuthContextUtils.execWithAuthContext(domainKey, new Executable<Pair<Long, Boolean>>() {
 
-            if (user != null) {
-                if (user.isSuspended() != null && user.isSuspended()) {
-                    throw new DisabledException("User " + user.getUsername() + " is suspended");
-                }
+                        @Override
+                        public Pair<Long, Boolean> exec() {
+                            return dataAccessor.authenticate(authentication);
+                        }
+                    });
+            authenticated = authResult.getValue();
+            if (!authenticated) {
+                AuthContextUtils.execWithAuthContext(domainKey, new Executable<Void>() {
 
-                CPlainAttr authStatuses = confDAO.find("authentication.statuses");
-                if (authStatuses != null && !authStatuses.getValuesAsStrings().contains(user.getStatus())) {
-                    throw new DisabledException("User " + user.getUsername() + " not allowed to authenticate");
-                }
-
-                authenticated = authenticate(user, authentication.getCredentials().toString());
-
-                updateLoginAttributes(user, authenticated);
+                    @Override
+                    public Void exec() {
+                        provisioningManager.internalSuspend(authResult.getKey());
+                        return null;
+                    }
+                });
             }
         }
 
+        final boolean isAuthenticated = authenticated;
         UsernamePasswordAuthenticationToken token;
-        if (authenticated) {
-            token = new UsernamePasswordAuthenticationToken(
-                    authentication.getPrincipal(),
-                    null,
-                    userDetailsService.loadUserByUsername(authentication.getPrincipal().toString()).getAuthorities());
+        if (isAuthenticated) {
+            token = AuthContextUtils.execWithAuthContext(
+                    domainKey, new Executable<UsernamePasswordAuthenticationToken>() {
 
-            token.setDetails(authentication.getDetails());
+                        @Override
+                        public UsernamePasswordAuthenticationToken exec() {
+                            UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
+                                    authentication.getPrincipal(),
+                                    null,
+                                    userDetailsService.loadUserByUsername(authentication.getPrincipal().toString()).
+                                    getAuthorities());
+                            token.setDetails(authentication.getDetails());
 
-            auditManager.audit(
-                    AuditElements.EventCategoryType.REST,
-                    "AuthenticationController",
-                    null,
-                    "login",
-                    Result.SUCCESS,
-                    null,
-                    authenticated,
-                    authentication,
-                    "Successfully authenticated, with groups: " + token.getAuthorities());
+                            dataAccessor.audit(
+                                    AuditElements.EventCategoryType.REST,
+                                    AuditElements.AUTHENTICATION_CATEGORY,
+                                    null,
+                                    AuditElements.LOGIN_EVENT,
+                                    Result.SUCCESS,
+                                    null,
+                                    isAuthenticated,
+                                    authentication,
+                                    "Successfully authenticated, with entitlements: " + token.getAuthorities());
+                            return token;
+                        }
+                    });
 
-            LOG.debug("User {} successfully authenticated, with groups {}",
+            LOG.debug("User {} successfully authenticated, with entitlements {}",
                     authentication.getPrincipal(), token.getAuthorities());
         } else {
-            auditManager.audit(
-                    AuditElements.EventCategoryType.REST,
-                    "AuthenticationController",
-                    null,
-                    "login",
-                    Result.FAILURE,
-                    null,
-                    authenticated,
-                    authentication,
-                    "User " + authentication.getPrincipal() + " not authenticated");
+            AuthContextUtils.execWithAuthContext(domainKey, new Executable<Void>() {
+
+                @Override
+                public Void exec() {
+                    dataAccessor.audit(
+                            AuditElements.EventCategoryType.REST,
+                            AuditElements.AUTHENTICATION_CATEGORY,
+                            null,
+                            AuditElements.LOGIN_EVENT,
+                            Result.FAILURE,
+                            null,
+                            isAuthenticated,
+                            authentication,
+                            "User " + authentication.getPrincipal() + " not authenticated");
+                    return null;
+                }
+            });
 
             LOG.debug("User {} not authenticated", authentication.getPrincipal());
 
@@ -200,83 +201,6 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
         }
 
         return token;
-    }
-
-    protected void updateLoginAttributes(final User user, final boolean authenticated) {
-        boolean userModified = false;
-
-        if (authenticated) {
-            if (confDAO.find("log.lastlogindate", Boolean.toString(true)).getValues().get(0).getBooleanValue()) {
-                user.setLastLoginDate(new Date());
-                userModified = true;
-            }
-
-            if (user.getFailedLogins() != 0) {
-                user.setFailedLogins(0);
-                userModified = true;
-            }
-        } else {
-            user.setFailedLogins(user.getFailedLogins() + 1);
-            userModified = true;
-        }
-
-        if (userModified) {
-            userDAO.save(user);
-        }
-    }
-
-    protected Set<? extends ExternalResource> getPassthroughResources(final User user) {
-        Set<? extends ExternalResource> result = null;
-
-        // 1. look for assigned resources, pick the ones whose account policy has authentication resources
-        for (ExternalResource resource : userDAO.findAllResources(user)) {
-            if (resource.getAccountPolicy() != null && !resource.getAccountPolicy().getResources().isEmpty()) {
-                if (result == null) {
-                    result = resource.getAccountPolicy().getResources();
-                } else {
-                    result.retainAll(resource.getAccountPolicy().getResources());
-                }
-            }
-        }
-
-        // 2. look for realms, pick the ones whose account policy has authentication resources
-        for (Realm realm : realmDAO.findAncestors(user.getRealm())) {
-            if (realm.getAccountPolicy() != null && !realm.getAccountPolicy().getResources().isEmpty()) {
-                if (result == null) {
-                    result = realm.getAccountPolicy().getResources();
-                } else {
-                    result.retainAll(realm.getAccountPolicy().getResources());
-                }
-            }
-        }
-
-        return SetUtils.emptyIfNull(result);
-    }
-
-    protected boolean authenticate(final User user, final String password) {
-        boolean authenticated = encryptor.verify(password, user.getCipherAlgorithm(), user.getPassword());
-        LOG.debug("{} authenticated on internal storage: {}", user.getUsername(), authenticated);
-
-        AnyUtils attrUtils = attrUtilsFactory.getInstance(AnyTypeKind.USER);
-        for (Iterator<? extends ExternalResource> itor = getPassthroughResources(user).iterator();
-                itor.hasNext() && !authenticated;) {
-
-            ExternalResource resource = itor.next();
-            String connObjectKey = null;
-            try {
-                connObjectKey = MappingUtils.getConnObjectKeyValue(user, resource.getProvision(anyTypeDAO.findUser()));
-                Uid uid = connFactory.getConnector(resource).authenticate(connObjectKey, password, null);
-                if (uid != null) {
-                    authenticated = true;
-                }
-            } catch (Exception e) {
-                LOG.debug("Could not authenticate {} on {}", user.getUsername(), resource.getKey(), e);
-            }
-            LOG.debug("{} authenticated on {} as {}: {}",
-                    user.getUsername(), resource.getKey(), connObjectKey, authenticated);
-        }
-
-        return authenticated;
     }
 
     @Override

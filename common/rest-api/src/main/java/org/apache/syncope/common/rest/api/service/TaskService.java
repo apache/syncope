@@ -185,7 +185,7 @@ public interface TaskService extends JAXRSService {
      * Executes an action on an existing task's job.
      *
      * @param key task key
-     * @param action
+     * @param action action to execute
      */
     @POST
     @Path("{key}")

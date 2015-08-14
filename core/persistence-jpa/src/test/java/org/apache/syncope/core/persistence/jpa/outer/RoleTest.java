@@ -26,7 +26,6 @@ import static org.junit.Assert.assertTrue;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
-import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
@@ -51,9 +50,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class RoleTest extends AbstractTest {
 
     @Autowired
-    private EntityManager entityManager;
-
-    @Autowired
     private RoleDAO roleDAO;
 
     @Autowired
@@ -74,7 +70,7 @@ public class RoleTest extends AbstractTest {
      * this test class is architected.
      */
     private Collection<Role> findDynRoleMemberships(final User user) {
-        TypedQuery<Role> query = entityManager.createQuery(
+        TypedQuery<Role> query = entityManager().createQuery(
                 "SELECT e.role FROM " + JPADynRoleMembership.class.getSimpleName()
                 + " e WHERE :user MEMBER OF e.users", Role.class);
         query.setParameter("user", user);
@@ -159,9 +155,42 @@ public class RoleTest extends AbstractTest {
 
         roleDAO.flush();
 
-        assertNull(entityManager.find(JPADynRoleMembership.class, dynMembershipKey));
+        assertNull(entityManager().find(JPADynRoleMembership.class, dynMembershipKey));
 
         dynRoleMemberships = findDynRoleMemberships(user);
         assertTrue(dynRoleMemberships.isEmpty());
+    }
+
+    @Test
+    public void delete() {
+        // 0. create role
+        Role role = entityFactory.newEntity(Role.class);
+        role.setName("new");
+        role.addRealm(realmDAO.getRoot());
+        role.addRealm(realmDAO.find("/even/two"));
+        role.getEntitlements().add(Entitlement.LOG_LIST);
+        role.getEntitlements().add(Entitlement.LOG_SET_LEVEL);
+
+        role = roleDAO.save(role);
+        assertNotNull(role);
+
+        // 1. create user and assign that role
+        User user = entityFactory.newEntity(User.class);
+        user.setUsername("username");
+        user.setRealm(realmDAO.find("/even/two"));
+        user.add(role);
+
+        user = userDAO.save(user);
+        assertNotNull(user);
+
+        // 2. remove role
+        roleDAO.delete(role);
+
+        userDAO.flush();
+
+        // 3. verify that role was removed from user
+        user = userDAO.find(user.getKey());
+        assertNotNull(user);
+        assertTrue(user.getRoles().isEmpty());
     }
 }

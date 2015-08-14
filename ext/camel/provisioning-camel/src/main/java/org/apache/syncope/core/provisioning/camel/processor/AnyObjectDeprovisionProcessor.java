@@ -64,7 +64,7 @@ public class AnyObjectDeprovisionProcessor implements Processor {
         List<PropagationTask> tasks =
                 propagationManager.getAnyObjectDeleteTasks(anyObjectKey, new HashSet<>(resources), noPropResourceNames);
         PropagationReporter propagationReporter =
-                ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
+                ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
         try {
             taskExecutor.execute(tasks, propagationReporter);
         } catch (PropagationException e) {

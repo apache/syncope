@@ -20,17 +20,22 @@ package org.apache.syncope.core.persistence.jpa.content;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
+import java.util.Properties;
 import javax.annotation.Resource;
+import javax.sql.DataSource;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import org.apache.commons.io.IOUtils;
+import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
+import org.apache.syncope.core.misc.spring.ResourceWithFallbackLoader;
 import org.apache.syncope.core.persistence.api.content.ContentLoader;
 import org.apache.syncope.core.persistence.jpa.entity.conf.JPAConf;
-import org.apache.syncope.core.misc.spring.ResourceWithFallbackLoader;
+import org.springframework.core.io.support.PropertiesLoaderUtils;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.orm.jpa.EntityManagerFactoryUtils;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Initialize Database with default content if no data is present already.
@@ -38,47 +43,59 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 public class XMLContentLoader extends AbstractContentDealer implements ContentLoader {
 
-    @Resource(name = "contentXML")
-    private ResourceWithFallbackLoader contentXML;
+    @Resource(name = "indexesXML")
+    private ResourceWithFallbackLoader indexesXML;
+
+    @Resource(name = "viewsXML")
+    private ResourceWithFallbackLoader viewsXML;
 
     @Override
     public Integer getPriority() {
         return 0;
     }
 
-    @Transactional
     @Override
     public void load() {
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        for (Map.Entry<String, DataSource> entry : domainsHolder.getDomains().entrySet()) {
+            // create EntityManager so OpenJPA will build the SQL schema
+            EntityManagerFactoryUtils.findEntityManagerFactory(
+                    ApplicationContextProvider.getBeanFactory(), entry.getKey()).createEntityManager();
 
-        boolean existingData;
-        try {
-            existingData = jdbcTemplate.queryForObject("SELECT COUNT(0) FROM " + JPAConf.TABLE, Integer.class) > 0;
-        } catch (DataAccessException e) {
-            LOG.error("Could not access to table " + JPAConf.TABLE, e);
-            existingData = true;
-        }
-
-        if (existingData) {
-            LOG.info("Data found in the database, leaving untouched");
-        } else {
-            LOG.info("Empty database found, loading default content");
-
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(entry.getValue());
+            boolean existingData;
             try {
-                loadDefaultContent();
-            } catch (Exception e) {
-                LOG.error("While loading default content", e);
+                existingData = jdbcTemplate.queryForObject("SELECT COUNT(0) FROM " + JPAConf.TABLE, Integer.class) > 0;
+            } catch (DataAccessException e) {
+                LOG.error("[{}] Could not access to table " + JPAConf.TABLE, entry.getKey(), e);
+                existingData = true;
             }
-            try {
-                createIndexes();
-                createViews();
-            } catch (IOException e) {
-                LOG.error("While creating indexes and views", e);
+
+            if (existingData) {
+                LOG.info("[{}] Data found in the database, leaving untouched", entry.getKey());
+            } else {
+                LOG.info("[{}] Empty database found, loading default content", entry.getKey());
+
+                try {
+                    ResourceWithFallbackLoader contentXML = ApplicationContextProvider.getBeanFactory().
+                            getBean(entry.getKey() + "ContentXML", ResourceWithFallbackLoader.class);
+                    loadDefaultContent(entry.getKey(), contentXML, entry.getValue());
+                } catch (Exception e) {
+                    LOG.error("[{}] While loading default content", entry.getKey(), e);
+                }
+                try {
+                    createIndexes(entry.getKey(), entry.getValue());
+                    createViews(entry.getKey(), entry.getValue());
+                } catch (IOException e) {
+                    LOG.error("[{}] While creating indexes and views", entry.getKey(), e);
+                }
             }
         }
     }
 
-    private void loadDefaultContent() throws Exception {
+    private void loadDefaultContent(
+            final String domain, final ResourceWithFallbackLoader contentXML, final DataSource dataSource)
+            throws Exception {
+
         SAXParserFactory factory = SAXParserFactory.newInstance();
         InputStream in = null;
         try {
@@ -86,9 +103,47 @@ public class XMLContentLoader extends AbstractContentDealer implements ContentLo
 
             SAXParser parser = factory.newSAXParser();
             parser.parse(in, new ContentLoaderHandler(dataSource, ROOT_ELEMENT));
-            LOG.debug("Default content successfully loaded");
+            LOG.debug("[{}] Default content successfully loaded", domain);
         } finally {
             IOUtils.closeQuietly(in);
         }
+    }
+
+    private void createIndexes(final String domain, final DataSource dataSource) throws IOException {
+        LOG.debug("[{}] Creating indexes", domain);
+
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+
+        Properties indexes = PropertiesLoaderUtils.loadProperties(indexesXML.getResource());
+        for (String idx : indexes.stringPropertyNames()) {
+            LOG.debug("[{}] Creating index {}", domain, indexes.get(idx).toString());
+
+            try {
+                jdbcTemplate.execute(indexes.get(idx).toString());
+            } catch (DataAccessException e) {
+                LOG.error("[{}] Could not create index", domain, e);
+            }
+        }
+
+        LOG.debug("Indexes created");
+    }
+
+    private void createViews(final String domain, final DataSource dataSource) throws IOException {
+        LOG.debug("[{}] Creating views", domain);
+
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+
+        Properties views = PropertiesLoaderUtils.loadProperties(viewsXML.getResource());
+        for (String idx : views.stringPropertyNames()) {
+            LOG.debug("[{}] Creating view {}", domain, views.get(idx).toString());
+
+            try {
+                jdbcTemplate.execute(views.get(idx).toString().replaceAll("\\n", " "));
+            } catch (DataAccessException e) {
+                LOG.error("[{}] Could not create view", domain, e);
+            }
+        }
+
+        LOG.debug("Views created");
     }
 }

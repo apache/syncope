@@ -23,6 +23,7 @@ import static org.junit.Assert.assertNotNull;
 
 import static org.junit.Assert.assertTrue;
 
+import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
@@ -40,6 +41,37 @@ public class AnyTypeClassTest extends AbstractTest {
 
     @Autowired
     private AnyTypeClassDAO anyTypeClassDAO;
+
+    @Test
+    public void create() {
+        PlainSchema newSchema = entityFactory.newEntity(PlainSchema.class);
+        newSchema.setKey("new_plain_schema");
+        newSchema.setType(AttrSchemaType.String);
+
+        plainSchemaDAO.save(newSchema);
+
+        plainSchemaDAO.flush();
+
+        newSchema = plainSchemaDAO.find(newSchema.getKey());
+        assertNotNull(newSchema);
+
+        AnyTypeClass newClass = entityFactory.newEntity(AnyTypeClass.class);
+        newClass.setKey("new class");
+        newClass.add(newSchema);
+
+        anyTypeClassDAO.save(newClass);
+
+        anyTypeClassDAO.flush();
+
+        newClass = anyTypeClassDAO.find(newClass.getKey());
+        assertNotNull(newClass);
+        assertEquals(1, newClass.getPlainSchemas().size());
+        assertEquals(newSchema, newClass.getPlainSchemas().get(0));
+        assertEquals(newClass, newClass.getPlainSchemas().get(0).getAnyTypeClass());
+
+        newSchema = plainSchemaDAO.find(newSchema.getKey());
+        assertNotNull(newSchema.getAnyTypeClass());
+    }
 
     @Test
     public void delete() {

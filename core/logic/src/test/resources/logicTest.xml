@@ -19,13 +19,17 @@ under the License.
 -->
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
-                           http://www.springframework.org/schema/beans/spring-beans.xsd">
+                           http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/context
+                           http://www.springframework.org/schema/context/spring-context.xsd">
     
   <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
     <property name="locations">
       <list>
         <value>classpath:persistence.properties</value>
+        <value>classpath:domains/*.properties</value>
         <value>classpath:security.properties</value>
         <value>classpath:connid.properties</value>
         <value>classpath:mail.properties</value>
@@ -37,10 +41,19 @@ under the License.
     <property name="ignoreResourceNotFound" value="true"/>
     <property name="ignoreUnresolvablePlaceholders" value="true"/>
   </bean>
-  
-  <bean id="contentXML" class="org.apache.syncope.core.misc.spring.ResourceWithFallbackLoader">
-    <property name="primary" value="file:${conf.directory}/content.xml"/>
-    <property name="fallback" value="classpath:content.xml"/>
-  </bean>
 
+  <bean class="org.apache.syncope.core.misc.spring.ApplicationContextProvider"/>
+
+  <bean id="adminUser" class="java.lang.String">
+    <constructor-arg value="${adminUser}"/>
+  </bean>
+  <bean id="anonymousUser" class="java.lang.String">
+    <constructor-arg value="${anonymousUser}"/>
+  </bean>
+  
+  <context:component-scan base-package="org.apache.syncope.core.misc.policy"/>
+  <context:component-scan base-package="org.apache.syncope.core.misc.security"/>
+
+  <import resource="persistenceContext.xml"/>
+  
 </beans>

@@ -49,15 +49,20 @@ under the License.
     <constructor-arg ref="securityContextRepository"/>
   </bean>
 
+  <bean id="syncopeAuthenticationDetailsSource"
+        class="org.apache.syncope.core.misc.security.SyncopeAuthenticationDetailsSource"/>
+
   <security:http security-context-repository-ref="securityContextRepository" realm="Apache Syncope authentication" 
                  use-expressions="false" disable-url-rewriting="false">
-    <security:http-basic/>
+    <security:http-basic authentication-details-source-ref="syncopeAuthenticationDetailsSource"/>
     <security:anonymous username="${anonymousUser}"/>
     <security:intercept-url pattern="/**"/>
     
     <security:headers disabled="true"/>
     <security:csrf disabled="true"/>
   </security:http>
+
+  <bean class="org.apache.syncope.core.misc.security.AuthDataAccessor"/>
 
   <bean id="syncopeUserDetailsService" class="org.apache.syncope.core.misc.security.SyncopeUserDetailsService"/>
 

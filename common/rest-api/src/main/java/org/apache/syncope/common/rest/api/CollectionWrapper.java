@@ -57,9 +57,9 @@ public final class CollectionWrapper {
 
     public static List<AuditLoggerName> wrapLogger(final Collection<LoggerTO> logger) {
         List<AuditLoggerName> respons = new ArrayList<>();
-        for (LoggerTO l : logger) {
+        for (LoggerTO loggerTO : logger) {
             try {
-                respons.add(AuditLoggerName.fromLoggerName(l.getKey()));
+                respons.add(AuditLoggerName.fromLoggerName(loggerTO.getKey()));
             } catch (Exception ignore) {
                 // ignore
             }
@@ -69,9 +69,9 @@ public final class CollectionWrapper {
 
     public static List<LoggerTO> unwrapLogger(final Collection<AuditLoggerName> auditNames) {
         List<LoggerTO> respons = new ArrayList<>();
-        for (AuditLoggerName l : auditNames) {
+        for (AuditLoggerName name : auditNames) {
             LoggerTO loggerTO = new LoggerTO();
-            loggerTO.setKey(l.toLoggerName());
+            loggerTO.setKey(name.toLoggerName());
             loggerTO.setLevel(LoggerLevel.DEBUG);
             respons.add(loggerTO);
         }

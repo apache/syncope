@@ -23,6 +23,8 @@ package org.apache.syncope.common.rest.api;
  */
 public final class RESTHeaders {
 
+    public static final String DOMAIN = "X-Syncope-Domain";
+
     public static final String USER_KEY = "X-Syncope-User-Key";
 
     public static final String USERNAME = "X-Syncope-Username";
