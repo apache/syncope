@@ -39,7 +39,7 @@ import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.common.lib.types.ResourceAssociationActionType;
+import org.apache.syncope.common.lib.types.ResourceAssociationAction;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
@@ -401,7 +401,7 @@ public class StatusModalPage<T extends AnyTO> extends AbstractStatusModalPage {
 
                     if (anyTO instanceof UserTO) {
                         StatusModalPage.this.passwordManagement(
-                                target, ResourceAssociationActionType.PROVISION, table.getModelObject());
+                                target, ResourceAssociationAction.PROVISION, table.getModelObject());
                     } else {
                         try {
                             final BulkActionResult bulkActionResult = groupRestClient.provision(
@@ -458,7 +458,7 @@ public class StatusModalPage<T extends AnyTO> extends AbstractStatusModalPage {
                 public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                     if (anyTO instanceof UserTO) {
                         StatusModalPage.this.passwordManagement(
-                                target, ResourceAssociationActionType.ASSIGN, table.getModelObject());
+                                target, ResourceAssociationAction.ASSIGN, table.getModelObject());
                     } else {
                         try {
                             final BulkActionResult bulkActionResult = groupRestClient.assign(
@@ -546,7 +546,7 @@ public class StatusModalPage<T extends AnyTO> extends AbstractStatusModalPage {
 
     private void passwordManagement(
             final AjaxRequestTarget target,
-            final ResourceAssociationActionType type,
+            final ResourceAssociationAction type,
             final Collection<StatusBean> selection) {
 
         final ClearIndicatingAjaxButton goon =
