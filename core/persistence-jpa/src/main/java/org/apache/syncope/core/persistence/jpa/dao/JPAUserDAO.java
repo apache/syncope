@@ -239,7 +239,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
                 // evaluate policy
                 PasswordPolicySpec ppSpec = evaluator.evaluate(policy, user);
                 // enforce policy
-                ppEnforcer.enforce(ppSpec, policy.getType(), user);
+                ppEnforcer.enforce(ppSpec, user);
 
                 if (ppSpec.getHistoryLength() > maxPPSpecHistory) {
                     maxPPSpecHistory = ppSpec.getHistoryLength();
@@ -282,7 +282,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
                 AccountPolicySpec apSpec = evaluator.evaluate(policy, user);
 
                 // enforce policy
-                suspend |= apEnforcer.enforce(apSpec, policy.getType(), user);
+                suspend |= apEnforcer.enforce(apSpec, user);
                 propagateSuspension |= apSpec.isPropagateSuspension();
             }
         } catch (Exception e) {

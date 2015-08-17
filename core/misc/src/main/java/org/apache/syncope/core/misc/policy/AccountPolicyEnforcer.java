@@ -20,7 +20,6 @@ package org.apache.syncope.core.misc.policy;
 
 import java.util.regex.Pattern;
 import org.apache.syncope.common.lib.types.AccountPolicySpec;
-import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.springframework.stereotype.Component;
 
@@ -29,13 +28,9 @@ public class AccountPolicyEnforcer {
 
     private static final Pattern DEFAULT_PATTERN = Pattern.compile("[a-zA-Z0-9-_@. ]+");
 
-    public boolean enforce(final AccountPolicySpec policy, final PolicyType type, final User user) {
+    public boolean enforce(final AccountPolicySpec policy, final User user) {
         if (user.getUsername() == null) {
-            throw new PolicyEnforceException("Invalid account");
-        }
-
-        if (policy == null) {
-            throw new PolicyEnforceException("Invalid policy");
+            throw new AccountPolicyException("Invalid account");
         }
 
         // check min length

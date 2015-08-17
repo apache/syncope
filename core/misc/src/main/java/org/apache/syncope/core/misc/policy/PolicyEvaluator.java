@@ -38,11 +38,7 @@ public class PolicyEvaluator {
 
     @SuppressWarnings("unchecked")
     public <T extends PolicySpec> T evaluate(final Policy policy, final Any<?, ?, ?> any) {
-        if (policy == null) {
-            return null;
-        }
-
-        T result = null;
+        T result;
         switch (policy.getType()) {
             case PASSWORD:
                 PasswordPolicySpec ppSpec = policy.getSpecification(PasswordPolicySpec.class);
@@ -75,13 +71,13 @@ public class PolicyEvaluator {
                 break;
 
             case ACCOUNT:
-                final AccountPolicySpec spec = policy.getSpecification(AccountPolicySpec.class);
-                final AccountPolicySpec accountPolicy = new AccountPolicySpec();
+                AccountPolicySpec spec = policy.getSpecification(AccountPolicySpec.class);
+                AccountPolicySpec accountPolicy = new AccountPolicySpec();
 
                 BeanUtils.copyProperties(spec, accountPolicy, new String[] { "schemasNotPermitted" });
 
                 for (String schema : spec.getSchemasNotPermitted()) {
-                    PlainAttr attr = any.getPlainAttr(schema);
+                    PlainAttr<?> attr = any.getPlainAttr(schema);
                     if (attr != null) {
                         List<String> values = attr.getValuesAsStrings();
                         if (values != null && !values.isEmpty()) {
@@ -93,7 +89,6 @@ public class PolicyEvaluator {
                 result = (T) accountPolicy;
                 break;
 
-            case SYNC:
             default:
                 result = null;
         }

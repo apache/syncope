@@ -19,24 +19,21 @@
 package org.apache.syncope.core.misc.policy;
 
 import org.apache.syncope.common.lib.types.PasswordPolicySpec;
-import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.springframework.stereotype.Component;
 
 @Component
 public class PasswordPolicyEnforcer {
 
-    public boolean enforce(final PasswordPolicySpec policy, final PolicyType type, final User user) {
-        final String clearPassword = user.getClearPassword();
-        final String password = user.getPassword();
-
-        if (policy == null) {
-            throw new PolicyEnforceException("Invalid policy");
-        }
+    public boolean enforce(final PasswordPolicySpec policy, final User user) {
+        String clearPassword = user.getClearPassword();
+        String password = user.getPassword();
 
         if (password == null && !policy.isAllowNullPassword()) {
-            throw new PolicyEnforceException("Password mandatory");
-        } else if (password != null && clearPassword != null) {
+            throw new PasswordPolicyException("Password mandatory");
+        }
+        
+        if (password != null && clearPassword != null) {
             // check length
             if (policy.getMinLength() > 0 && policy.getMinLength() > clearPassword.length()) {
                 throw new PasswordPolicyException("Password too short");
