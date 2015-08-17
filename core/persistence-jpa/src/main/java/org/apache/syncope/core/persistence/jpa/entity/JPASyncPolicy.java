@@ -20,7 +20,9 @@ package org.apache.syncope.core.persistence.jpa.entity;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
+import org.apache.syncope.common.lib.types.SyncPolicySpec;
 import org.apache.syncope.common.lib.types.PolicyType;
+import org.apache.syncope.core.misc.serialization.POJOHelper;
 import org.apache.syncope.core.persistence.api.entity.SyncPolicy;
 
 @Entity
@@ -32,5 +34,15 @@ public class JPASyncPolicy extends JPAPolicy implements SyncPolicy {
     public JPASyncPolicy() {
         super();
         this.type = PolicyType.SYNC;
+    }
+
+    @Override
+    public SyncPolicySpec getSpecification() {
+        return POJOHelper.deserialize(specification, SyncPolicySpec.class);
+    }
+
+    @Override
+    public void setSpecification(final SyncPolicySpec policy) {
+        this.specification = POJOHelper.serialize(policy);
     }
 }

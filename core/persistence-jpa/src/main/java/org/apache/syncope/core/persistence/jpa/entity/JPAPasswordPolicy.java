@@ -20,7 +20,9 @@ package org.apache.syncope.core.persistence.jpa.entity;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
+import org.apache.syncope.common.lib.types.PasswordPolicySpec;
 import org.apache.syncope.common.lib.types.PolicyType;
+import org.apache.syncope.core.misc.serialization.POJOHelper;
 import org.apache.syncope.core.persistence.api.entity.PasswordPolicy;
 
 @Entity
@@ -32,5 +34,15 @@ public class JPAPasswordPolicy extends JPAPolicy implements PasswordPolicy {
     public JPAPasswordPolicy() {
         super();
         this.type = PolicyType.PASSWORD;
+    }
+
+    @Override
+    public PasswordPolicySpec getSpecification() {
+        return POJOHelper.deserialize(specification, PasswordPolicySpec.class);
+    }
+
+    @Override
+    public void setSpecification(final PasswordPolicySpec policy) {
+        this.specification = POJOHelper.serialize(policy);
     }
 }

@@ -123,9 +123,9 @@ public class ConnObjectUtils {
             if (realm != null) {
                 for (Realm ancestor : realmDAO.findAncestors(realm)) {
                     if (ancestor.getPasswordPolicy() != null
-                            && ancestor.getPasswordPolicy().getSpecification(PasswordPolicySpec.class) != null) {
+                            && ancestor.getPasswordPolicy().getSpecification() != null) {
 
-                        ppSpecs.add(ancestor.getPasswordPolicy().getSpecification(PasswordPolicySpec.class));
+                        ppSpecs.add(ancestor.getPasswordPolicy().getSpecification());
                     }
                 }
             }
@@ -133,9 +133,9 @@ public class ConnObjectUtils {
             for (String resName : userTO.getResources()) {
                 ExternalResource resource = resourceDAO.find(resName);
                 if (resource != null && resource.getPasswordPolicy() != null
-                        && resource.getPasswordPolicy().getSpecification(PasswordPolicySpec.class) != null) {
+                        && resource.getPasswordPolicy().getSpecification() != null) {
 
-                    ppSpecs.add(resource.getPasswordPolicy().getSpecification(PasswordPolicySpec.class));
+                    ppSpecs.add(resource.getPasswordPolicy().getSpecification());
                 }
             }
 

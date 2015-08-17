@@ -18,6 +18,12 @@
  */
 package org.apache.syncope.core.persistence.api.entity;
 
+import org.apache.syncope.common.lib.types.PasswordPolicySpec;
+
 public interface PasswordPolicy extends Policy {
-    
+
+    PasswordPolicySpec getSpecification();
+
+    void setSpecification(PasswordPolicySpec spec);
+
 }

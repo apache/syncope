@@ -71,17 +71,17 @@ public class PasswordGenerator {
 
         for (Realm ancestor : realmDAO.findAncestors(user.getRealm())) {
             if (ancestor.getPasswordPolicy() != null
-                    && ancestor.getPasswordPolicy().getSpecification(PasswordPolicySpec.class) != null) {
+                    && ancestor.getPasswordPolicy().getSpecification() != null) {
 
-                ppSpecs.add(ancestor.getPasswordPolicy().getSpecification(PasswordPolicySpec.class));
+                ppSpecs.add(ancestor.getPasswordPolicy().getSpecification());
             }
         }
 
         for (ExternalResource resource : userDAO.findAllResources(user)) {
             if (resource.getPasswordPolicy() != null
-                    && resource.getPasswordPolicy().getSpecification(PasswordPolicySpec.class) != null) {
+                    && resource.getPasswordPolicy().getSpecification() != null) {
 
-                ppSpecs.add(resource.getPasswordPolicy().getSpecification(PasswordPolicySpec.class));
+                ppSpecs.add(resource.getPasswordPolicy().getSpecification());
             }
         }
 

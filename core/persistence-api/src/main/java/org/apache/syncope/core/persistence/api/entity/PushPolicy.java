@@ -18,6 +18,11 @@
  */
 package org.apache.syncope.core.persistence.api.entity;
 
+import org.apache.syncope.common.lib.types.PushPolicySpec;
+
 public interface PushPolicy extends Policy {
-    
+
+    PushPolicySpec getSpecification();
+
+    void setSpecification(PushPolicySpec spec);
 }

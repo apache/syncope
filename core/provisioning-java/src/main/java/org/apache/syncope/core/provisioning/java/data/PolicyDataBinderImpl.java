@@ -24,10 +24,7 @@ import org.apache.syncope.common.lib.to.AbstractPolicyTO;
 import org.apache.syncope.common.lib.to.AccountPolicyTO;
 import org.apache.syncope.common.lib.to.PasswordPolicyTO;
 import org.apache.syncope.common.lib.to.SyncPolicyTO;
-import org.apache.syncope.common.lib.types.AccountPolicySpec;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.apache.syncope.common.lib.types.PasswordPolicySpec;
-import org.apache.syncope.common.lib.types.SyncPolicySpec;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.entity.AccountPolicy;
@@ -59,24 +56,23 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
     @SuppressWarnings("unchecked")
     @Override
     public <T extends AbstractPolicyTO> T getPolicyTO(final Policy policy) {
-        final T policyTO;
-
+        T policyTO;
         switch (policy.getType()) {
             case PASSWORD:
                 policyTO = (T) new PasswordPolicyTO();
-                ((PasswordPolicyTO) policyTO).setSpecification(policy.getSpecification(PasswordPolicySpec.class));
+                ((PasswordPolicyTO) policyTO).setSpecification(((PasswordPolicy) policy).getSpecification());
                 break;
 
             case ACCOUNT:
                 policyTO = (T) new AccountPolicyTO();
-                ((AccountPolicyTO) policyTO).setSpecification(policy.getSpecification(AccountPolicySpec.class));
+                ((AccountPolicyTO) policyTO).setSpecification(((AccountPolicy) policy).getSpecification());
                 ((AccountPolicyTO) policyTO).getResources().addAll(((AccountPolicy) policy).getResourceNames());
                 break;
 
             case SYNC:
             default:
                 policyTO = (T) new SyncPolicyTO();
-                ((SyncPolicyTO) policyTO).setSpecification(policy.getSpecification(SyncPolicySpec.class));
+                ((SyncPolicyTO) policyTO).setSpecification(((SyncPolicy) policy).getSpecification());
         }
 
         policyTO.setKey(policy.getKey());
@@ -120,7 +116,7 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
                 if (result == null) {
                     result = (T) entityFactory.newEntity(PasswordPolicy.class);
                 }
-                result.setSpecification(((PasswordPolicyTO) policyTO).getSpecification());
+                ((PasswordPolicy) result).setSpecification(((PasswordPolicyTO) policyTO).getSpecification());
                 break;
 
             case ACCOUNT:
@@ -131,7 +127,7 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
                 if (result == null) {
                     result = (T) entityFactory.newEntity(AccountPolicy.class);
                 }
-                result.setSpecification(((AccountPolicyTO) policyTO).getSpecification());
+                ((AccountPolicy) result).setSpecification(((AccountPolicyTO) policyTO).getSpecification());
 
                 if (((AccountPolicy) result).getResources() != null
                         && !((AccountPolicy) result).getResources().isEmpty()) {
@@ -155,7 +151,7 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
                 if (result == null) {
                     result = (T) entityFactory.newEntity(SyncPolicy.class);
                 }
-                result.setSpecification(((SyncPolicyTO) policyTO).getSpecification());
+                ((SyncPolicy) result).setSpecification(((SyncPolicyTO) policyTO).getSpecification());
         }
 
         result.setDescription(policyTO.getDescription());

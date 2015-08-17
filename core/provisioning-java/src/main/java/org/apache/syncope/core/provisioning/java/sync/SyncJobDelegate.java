@@ -210,7 +210,7 @@ public class SyncJobDelegate extends AbstractProvisioningJobDelegate<SyncTask> {
         if (task instanceof SyncTask) {
             syncPolicySpec = task.getResource().getSyncPolicy() == null
                     ? null
-                    : task.getResource().getSyncPolicy().getSpecification(SyncPolicySpec.class);
+                    : task.getResource().getSyncPolicy().getSpecification();
         } else {
             syncPolicySpec = null;
         }

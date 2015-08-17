@@ -28,7 +28,9 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
+import org.apache.syncope.common.lib.types.AccountPolicySpec;
 import org.apache.syncope.common.lib.types.PolicyType;
+import org.apache.syncope.core.misc.serialization.POJOHelper;
 import org.apache.syncope.core.persistence.api.entity.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAExternalResource;
@@ -52,6 +54,16 @@ public class JPAAccountPolicy extends JPAPolicy implements AccountPolicy {
     public JPAAccountPolicy() {
         super();
         this.type = PolicyType.ACCOUNT;
+    }
+
+    @Override
+    public AccountPolicySpec getSpecification() {
+        return POJOHelper.deserialize(specification, AccountPolicySpec.class);
+    }
+
+    @Override
+    public void setSpecification(final AccountPolicySpec policy) {
+        this.specification = POJOHelper.serialize(policy);
     }
 
     @Override

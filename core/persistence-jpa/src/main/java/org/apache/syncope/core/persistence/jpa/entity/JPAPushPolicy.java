@@ -20,6 +20,8 @@ package org.apache.syncope.core.persistence.jpa.entity;
 
 import javax.persistence.Entity;
 import org.apache.syncope.common.lib.types.PolicyType;
+import org.apache.syncope.common.lib.types.PushPolicySpec;
+import org.apache.syncope.core.misc.serialization.POJOHelper;
 import org.apache.syncope.core.persistence.api.entity.PushPolicy;
 
 @Entity
@@ -28,12 +30,18 @@ public class JPAPushPolicy extends JPAPolicy implements PushPolicy {
     private static final long serialVersionUID = -5875589156893921113L;
 
     public JPAPushPolicy() {
-        this(false);
-    }
-
-    public JPAPushPolicy(final boolean global) {
         super();
         this.type = PolicyType.PUSH;
+    }
+
+    @Override
+    public PushPolicySpec getSpecification() {
+        return POJOHelper.deserialize(specification, PushPolicySpec.class);
+    }
+
+    @Override
+    public void setSpecification(final PushPolicySpec policy) {
+        this.specification = POJOHelper.serialize(policy);
     }
 
 }

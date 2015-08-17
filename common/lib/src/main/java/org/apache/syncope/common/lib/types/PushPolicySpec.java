@@ -16,26 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.jpa.validation.entity;
+package org.apache.syncope.common.lib.types;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import javax.xml.bind.annotation.XmlType;
 
-import javax.validation.Constraint;
-import javax.validation.Payload;
+@XmlType
+public class PushPolicySpec implements PolicySpec {
 
-@Target({ ElementType.TYPE })
-@Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = PolicyValidator.class)
-@Documented
-public @interface PolicyCheck {
+    private static final long serialVersionUID = 3641030189482617497L;
 
-    String message() default "{org.apache.syncope.core.persistence.validation.policy}";
-
-    Class<?>[] groups() default {};
-
-    Class<? extends Payload>[] payload() default {};
 }

@@ -20,9 +20,14 @@ package org.apache.syncope.core.persistence.api.entity;
 
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import java.util.Set;
+import org.apache.syncope.common.lib.types.AccountPolicySpec;
 
 public interface AccountPolicy extends Policy {
 
+    AccountPolicySpec getSpecification();
+
+    void setSpecification(AccountPolicySpec spec);
+    
     boolean add(ExternalResource resource);
 
     boolean remove(ExternalResource resource);

@@ -18,6 +18,12 @@
  */
 package org.apache.syncope.core.persistence.api.entity;
 
+import org.apache.syncope.common.lib.types.SyncPolicySpec;
+
 public interface SyncPolicy extends Policy {
-    
+
+    SyncPolicySpec getSpecification();
+
+    void setSpecification(SyncPolicySpec spec);
+
 }

@@ -279,7 +279,7 @@ public class SyncUtils {
 
         SyncPolicySpec syncPolicySpec = null;
         if (provision.getResource().getSyncPolicy() != null) {
-            syncPolicySpec = provision.getResource().getSyncPolicy().getSpecification(SyncPolicySpec.class);
+            syncPolicySpec = provision.getResource().getSyncPolicy().getSpecification();
         }
 
         SyncCorrelationRule syncRule = null;

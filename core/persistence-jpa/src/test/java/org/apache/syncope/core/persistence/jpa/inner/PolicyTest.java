@@ -31,9 +31,9 @@ import org.apache.syncope.common.lib.types.PasswordPolicySpec;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.lib.types.SyncPolicySpec;
 import org.apache.syncope.core.misc.serialization.POJOHelper;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
+import org.apache.syncope.core.persistence.api.entity.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.Policy;
 import org.apache.syncope.core.persistence.api.entity.SyncPolicy;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
@@ -62,7 +62,7 @@ public class PolicyTest extends AbstractTest {
         SyncPolicy policy = policyDAO.find(3L);
         assertNotNull("findById did not work", policy);
 
-        SyncPolicySpec spec = policy.getSpecification(SyncPolicySpec.class);
+        SyncPolicySpec spec = policy.getSpecification();
         assertNotNull(spec);
 
         String rule = spec.getCorrelationRules().get(AnyTypeKind.USER.name());
@@ -79,19 +79,6 @@ public class PolicyTest extends AbstractTest {
         List<? extends Policy> policies = policyDAO.find(PolicyType.SYNC);
         assertNotNull("findById did not work", policies);
         assertFalse(policies.isEmpty());
-    }
-
-    @Test(expected = InvalidEntityException.class)
-    public void saveInvalidPolicy() {
-        PasswordPolicySpec passwordPolicy = new PasswordPolicySpec();
-        passwordPolicy.setMaxLength(8);
-        passwordPolicy.setMinLength(6);
-
-        SyncPolicy policy = entityFactory.newEntity(SyncPolicy.class);
-        policy.setSpecification(passwordPolicy);
-        policy.setDescription("sync policy");
-
-        policyDAO.save(policy);
     }
 
     @Test
@@ -113,10 +100,10 @@ public class PolicyTest extends AbstractTest {
 
         assertNotNull(policy);
         assertEquals(PolicyType.SYNC, policy.getType());
-        assertEquals(syncURuleName, (policy.getSpecification(SyncPolicySpec.class)).
-                getCorrelationRules().get(anyTypeDAO.findUser().getKey()));
-        assertEquals(syncGRuleName, (policy.getSpecification(SyncPolicySpec.class)).
-                getCorrelationRules().get(anyTypeDAO.findGroup().getKey()));
+        assertEquals(syncURuleName,
+                policy.getSpecification().getCorrelationRules().get(anyTypeDAO.findUser().getKey()));
+        assertEquals(syncGRuleName,
+                policy.getSpecification().getCorrelationRules().get(anyTypeDAO.findGroup().getKey()));
     }
 
     @Test
@@ -125,7 +112,7 @@ public class PolicyTest extends AbstractTest {
         specification.setMaxLength(8);
         specification.setMinLength(6);
 
-        Policy policy = policyDAO.find(2L);
+        PasswordPolicy policy = policyDAO.find(2L);
         assertNotNull(policy);
         policy.setSpecification(specification);
 
@@ -133,8 +120,8 @@ public class PolicyTest extends AbstractTest {
 
         assertNotNull(policy);
         assertEquals(PolicyType.PASSWORD, policy.getType());
-        assertEquals((policy.getSpecification(PasswordPolicySpec.class)).getMaxLength(), 8);
-        assertEquals((policy.getSpecification(PasswordPolicySpec.class)).getMinLength(), 6);
+        assertEquals(policy.getSpecification().getMaxLength(), 8);
+        assertEquals(policy.getSpecification().getMinLength(), 6);
     }
 
     @Test

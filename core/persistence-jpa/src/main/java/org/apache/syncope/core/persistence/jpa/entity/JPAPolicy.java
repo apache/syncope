@@ -28,17 +28,13 @@ import javax.persistence.InheritanceType;
 import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
-import org.apache.syncope.common.lib.types.PolicySpec;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.core.persistence.api.entity.Policy;
-import org.apache.syncope.core.persistence.jpa.validation.entity.PolicyCheck;
-import org.apache.syncope.core.misc.serialization.POJOHelper;
 
 @Entity
 @Table(name = JPAPolicy.TABLE)
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "DTYPE")
-@PolicyCheck
 public abstract class JPAPolicy extends AbstractEntity<Long> implements Policy {
 
     private static final long serialVersionUID = -5844833125843247458L;
@@ -56,7 +52,7 @@ public abstract class JPAPolicy extends AbstractEntity<Long> implements Policy {
     protected PolicyType type;
 
     @Lob
-    private String specification;
+    protected String specification;
 
     @Override
     public Long getKey() {
@@ -76,15 +72,5 @@ public abstract class JPAPolicy extends AbstractEntity<Long> implements Policy {
     @Override
     public PolicyType getType() {
         return type;
-    }
-
-    @Override
-    public <T extends PolicySpec> T getSpecification(final Class<T> reference) {
-        return POJOHelper.deserialize(specification, reference);
-    }
-
-    @Override
-    public void setSpecification(final PolicySpec policy) {
-        this.specification = POJOHelper.serialize(policy);
     }
 }

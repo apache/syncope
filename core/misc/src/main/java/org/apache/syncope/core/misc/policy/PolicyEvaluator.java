@@ -22,7 +22,9 @@ import java.util.List;
 import org.apache.syncope.common.lib.types.AccountPolicySpec;
 import org.apache.syncope.common.lib.types.PasswordPolicySpec;
 import org.apache.syncope.common.lib.types.PolicySpec;
+import org.apache.syncope.core.persistence.api.entity.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.Policy;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -41,7 +43,7 @@ public class PolicyEvaluator {
         T result;
         switch (policy.getType()) {
             case PASSWORD:
-                PasswordPolicySpec ppSpec = policy.getSpecification(PasswordPolicySpec.class);
+                PasswordPolicySpec ppSpec = ((PasswordPolicy) policy).getSpecification();
                 PasswordPolicySpec evaluatedPPSpec = new PasswordPolicySpec();
 
                 BeanUtils.copyProperties(ppSpec, evaluatedPPSpec, new String[] { "schemasNotPermitted" });
@@ -71,7 +73,7 @@ public class PolicyEvaluator {
                 break;
 
             case ACCOUNT:
-                AccountPolicySpec spec = policy.getSpecification(AccountPolicySpec.class);
+                AccountPolicySpec spec = ((AccountPolicy) policy).getSpecification();
                 AccountPolicySpec accountPolicy = new AccountPolicySpec();
 
                 BeanUtils.copyProperties(spec, accountPolicy, new String[] { "schemasNotPermitted" });
