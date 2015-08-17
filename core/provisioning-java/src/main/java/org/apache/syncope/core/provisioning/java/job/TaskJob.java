@@ -82,17 +82,29 @@ public class TaskJob implements InterruptableJob {
         this.runningThread.set(Thread.currentThread());
         this.interruptMaxRetries = context.getMergedJobDataMap().getLong(INTERRUPT_MAX_RETRIES_KEY);
 
-        AuthContextUtils.setFakeAuth(context.getMergedJobDataMap().getString(JobInstanceLoader.DOMAIN));
         try {
-            Class<?> delegateClass = ClassUtils.getClass(context.getMergedJobDataMap().getString(DELEGATE_CLASS_KEY));
+            AuthContextUtils.execWithAuthContext(context.getMergedJobDataMap().getString(JobInstanceLoader.DOMAIN),
+                    new AuthContextUtils.Executable<Void>() {
 
-            ((SchedTaskJobDelegate) ApplicationContextProvider.getBeanFactory().
-                    createBean(delegateClass, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false)).
-                    execute(taskKey, context.getMergedJobDataMap().getBoolean(DRY_RUN_JOBDETAIL_KEY));
-        } catch (Exception e) {
-            throw new JobExecutionException(e);
-        } finally {
-            AuthContextUtils.clearFakeAuth();
+                        @Override
+                        public Void exec() {
+                            try {
+                                Class<?> delegateClass =
+                                ClassUtils.getClass(context.getMergedJobDataMap().getString(DELEGATE_CLASS_KEY));
+
+                                ((SchedTaskJobDelegate) ApplicationContextProvider.getBeanFactory().
+                                createBean(delegateClass, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false)).
+                                execute(taskKey, context.getMergedJobDataMap().getBoolean(DRY_RUN_JOBDETAIL_KEY));
+                            } catch (Exception e) {
+                                throw new RuntimeException(e);
+                            }
+
+                            return null;
+                        }
+                    }
+            );
+        } catch (RuntimeException e) {
+            throw new JobExecutionException(e.getCause());
         }
     }
 

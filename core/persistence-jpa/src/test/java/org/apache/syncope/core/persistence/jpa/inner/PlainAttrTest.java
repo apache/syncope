@@ -46,7 +46,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.codec.Base64;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional
+@Transactional("Master")
 public class PlainAttrTest extends AbstractTest {
 
     @Autowired

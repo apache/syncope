@@ -42,11 +42,11 @@ public class LoggerTO extends AbstractBaseBean {
         this.level = level;
     }
 
-    @PathParam("key")
     public String getKey() {
         return key;
     }
 
+    @PathParam("key")
     public void setKey(final String key) {
         this.key = key;
     }

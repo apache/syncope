@@ -53,9 +53,9 @@ public class ConfigurationRestClient extends BaseRestClient {
         return conf;
     }
 
-    public AttrTO read(final String key) {
+    public AttrTO get(final String key) {
         try {
-            return getService(ConfigurationService.class).read(key);
+            return getService(ConfigurationService.class).get(key);
         } catch (SyncopeClientException e) {
             LOG.error("While reading a configuration schema", e);
         }
@@ -67,7 +67,7 @@ public class ConfigurationRestClient extends BaseRestClient {
             return null;
         }
 
-        AttrTO attrLayout = read(type.getConfKey());
+        AttrTO attrLayout = get(type.getConfKey());
         if (attrLayout == null) {
             attrLayout = new AttrTO();
             attrLayout.setSchema(type.getConfKey());
@@ -79,8 +79,8 @@ public class ConfigurationRestClient extends BaseRestClient {
         return attrLayout;
     }
 
-    public void set(final AttrTO attributeTO) {
-        getService(ConfigurationService.class).set(attributeTO.getSchema(), attributeTO);
+    public void set(final AttrTO attrTO) {
+        getService(ConfigurationService.class).set(attrTO);
     }
 
     public void delete(final String key) {

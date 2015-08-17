@@ -33,6 +33,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
 import org.apache.syncope.common.lib.to.NotificationTaskTO;
@@ -41,6 +43,7 @@ import org.apache.syncope.common.lib.to.TaskExecTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.service.TaskService;
+import org.apache.syncope.core.logic.notification.NotificationJob;
 
 public abstract class AbstractTaskITCase extends AbstractITCase {
 
@@ -88,8 +91,8 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
         }
     }
 
-    public static TaskExecTO execProvisioningTask(
-            final TaskService taskService, final Long taskKey, final int maxWaitSeconds, final boolean dryRun) {
+    protected static TaskExecTO execTask(final TaskService taskService, final Long taskKey, final String initialStatus,
+            final int maxWaitSeconds, final boolean dryRun) {
 
         AbstractTaskTO taskTO = taskService.read(taskKey);
         assertNotNull(taskTO);
@@ -97,12 +100,12 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
 
         int preSyncSize = taskTO.getExecutions().size();
         TaskExecTO execution = taskService.execute(taskTO.getKey(), dryRun);
-        assertEquals("JOB_FIRED", execution.getStatus());
+        assertEquals(initialStatus, execution.getStatus());
 
         int i = 0;
         int maxit = maxWaitSeconds;
 
-        // wait for sync completion (executions incremented)
+        // wait for completion (executions incremented)
         do {
             try {
                 Thread.sleep(1000);
@@ -120,6 +123,18 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
             fail("Timeout when executing task " + taskKey);
         }
         return taskTO.getExecutions().get(taskTO.getExecutions().size() - 1);
+    }
+
+    public static TaskExecTO execProvisioningTask(
+            final TaskService taskService, final Long taskKey, final int maxWaitSeconds, final boolean dryRun) {
+
+        return execTask(taskService, taskKey, "JOB_FIRED", maxWaitSeconds, dryRun);
+    }
+
+    protected static TaskExecTO execNotificationTask(
+            final TaskService taskService, final Long taskKey, final int maxWaitSeconds) {
+
+        return execTask(taskService, taskKey, NotificationJob.Status.SENT.name(), maxWaitSeconds, false);
     }
 
     protected Map<Long, TaskExecTO> execProvisioningTasks(final TaskService taskService,
@@ -154,13 +169,13 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
                 taskService.list(TaskType.NOTIFICATION, SyncopeClient.getListQueryBuilder().build());
         assertNotNull(tasks);
         assertFalse(tasks.getResult().isEmpty());
-        NotificationTaskTO taskTO = null;
-        for (NotificationTaskTO task : tasks.getResult()) {
-            if (sender.equals(task.getSender())) {
-                taskTO = task;
-            }
-        }
-        return taskTO;
-    }
 
+        return CollectionUtils.find(tasks.getResult(), new Predicate<NotificationTaskTO>() {
+
+            @Override
+            public boolean evaluate(final NotificationTaskTO task) {
+                return sender.equals(task.getSender());
+            }
+        });
+    }
 }

@@ -58,9 +58,9 @@ public class ConfigurationITCase extends AbstractITCase {
         conf.setSchema(testKey.getKey());
         conf.getValues().add("testValue");
 
-        configurationService.set(conf.getSchema(), conf);
+        configurationService.set(conf);
 
-        AttrTO actual = configurationService.read(conf.getSchema());
+        AttrTO actual = configurationService.get(conf.getSchema());
         assertEquals(actual, conf);
     }
 
@@ -72,18 +72,18 @@ public class ConfigurationITCase extends AbstractITCase {
             assertEquals(Response.Status.NOT_FOUND, e.getType().getResponseStatus());
         }
 
-        AttrTO tokenLength = configurationService.read("token.length");
+        AttrTO tokenLength = configurationService.get("token.length");
 
         configurationService.delete("token.length");
         try {
-            configurationService.read("token.length");
+            configurationService.get("token.length");
         } catch (SyncopeClientException e) {
             assertEquals(Response.Status.NOT_FOUND, e.getType().getResponseStatus());
         }
 
-        configurationService.set(tokenLength.getSchema(), tokenLength);
+        configurationService.set(tokenLength);
 
-        AttrTO actual = configurationService.read(tokenLength.getSchema());
+        AttrTO actual = configurationService.get(tokenLength.getSchema());
         assertEquals(actual, tokenLength);
     }
 
@@ -98,20 +98,20 @@ public class ConfigurationITCase extends AbstractITCase {
 
     @Test
     public void read() {
-        AttrTO conf = configurationService.read("token.expireTime");
+        AttrTO conf = configurationService.get("token.expireTime");
         assertNotNull(conf);
     }
 
     @Test
     public void update() {
-        AttrTO expireTime = configurationService.read("token.expireTime");
+        AttrTO expireTime = configurationService.get("token.expireTime");
         int value = Integer.parseInt(expireTime.getValues().get(0));
         value++;
         expireTime.getValues().set(0, value + "");
 
-        configurationService.set(expireTime.getSchema(), expireTime);
+        configurationService.set(expireTime);
 
-        AttrTO newConfigurationTO = configurationService.read(expireTime.getSchema());
+        AttrTO newConfigurationTO = configurationService.get(expireTime.getSchema());
         assertEquals(expireTime, newConfigurationTO);
     }
 

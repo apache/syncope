@@ -113,18 +113,17 @@ public class UserITCase extends AbstractITCase {
     }
 
     public static UserTO getSampleTO(final String email) {
-        String uid = email;
         UserTO userTO = new UserTO();
         userTO.setRealm(SyncopeConstants.ROOT_REALM);
         userTO.setPassword("password123");
-        userTO.setUsername(uid);
+        userTO.setUsername(email);
 
-        userTO.getPlainAttrs().add(attrTO("fullname", uid));
-        userTO.getPlainAttrs().add(attrTO("firstname", uid));
+        userTO.getPlainAttrs().add(attrTO("fullname", email));
+        userTO.getPlainAttrs().add(attrTO("firstname", email));
         userTO.getPlainAttrs().add(attrTO("surname", "surname"));
         userTO.getPlainAttrs().add(attrTO("type", "a type"));
-        userTO.getPlainAttrs().add(attrTO("userId", uid));
-        userTO.getPlainAttrs().add(attrTO("email", uid));
+        userTO.getPlainAttrs().add(attrTO("userId", email));
+        userTO.getPlainAttrs().add(attrTO("email", email));
         userTO.getPlainAttrs().add(attrTO("loginDate", DATE_FORMAT.get().format(new Date())));
         userTO.getDerAttrs().add(attrTO("cn", null));
         userTO.getVirAttrs().add(attrTO("virtualdata", "virtualvalue"));
@@ -1274,12 +1273,12 @@ public class UserITCase extends AbstractITCase {
 
     @Test()
     public void issueSYNCOPE51() {
-        AttrTO defaultCA = configurationService.read("password.cipher.algorithm");
+        AttrTO defaultCA = configurationService.get("password.cipher.algorithm");
         final String originalCAValue = defaultCA.getValues().get(0);
         defaultCA.getValues().set(0, "MD5");
-        configurationService.set(defaultCA.getSchema(), defaultCA);
+        configurationService.set(defaultCA);
 
-        AttrTO newCA = configurationService.read(defaultCA.getSchema());
+        AttrTO newCA = configurationService.get(defaultCA.getSchema());
         assertEquals(defaultCA, newCA);
 
         UserTO userTO = getSampleTO("syncope51@syncope.apache.org");
@@ -1294,9 +1293,9 @@ public class UserITCase extends AbstractITCase {
         }
 
         defaultCA.getValues().set(0, originalCAValue);
-        configurationService.set(defaultCA.getSchema(), defaultCA);
+        configurationService.set(defaultCA);
 
-        AttrTO oldCA = configurationService.read(defaultCA.getSchema());
+        AttrTO oldCA = configurationService.get(defaultCA.getSchema());
         assertEquals(defaultCA, oldCA);
     }
 
@@ -1428,12 +1427,12 @@ public class UserITCase extends AbstractITCase {
     @Test
     public void isseSYNCOPE136AES() {
         // 1. read configured cipher algorithm in order to be able to restore it at the end of test
-        AttrTO pwdCipherAlgo = configurationService.read("password.cipher.algorithm");
+        AttrTO pwdCipherAlgo = configurationService.get("password.cipher.algorithm");
         final String origpwdCipherAlgo = pwdCipherAlgo.getValues().get(0);
 
         // 2. set AES password cipher algorithm
         pwdCipherAlgo.getValues().set(0, "AES");
-        configurationService.set(pwdCipherAlgo.getSchema(), pwdCipherAlgo);
+        configurationService.set(pwdCipherAlgo);
 
         // 3. create user with no resources
         UserTO userTO = getUniqueSampleTO("syncope136_AES@apache.org");
@@ -1466,7 +1465,7 @@ public class UserITCase extends AbstractITCase {
 
         // 6. restore initial cipher algorithm
         pwdCipherAlgo.getValues().set(0, origpwdCipherAlgo);
-        configurationService.set(pwdCipherAlgo.getSchema(), pwdCipherAlgo);
+        configurationService.set(pwdCipherAlgo);
     }
 
     @Test

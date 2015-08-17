@@ -25,6 +25,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
@@ -229,59 +231,66 @@ public class JobInstanceLoaderImpl implements JobInstanceLoader, SyncopeLoader {
     @Transactional
     @Override
     public void load() {
-        AuthContextUtils.setFakeAuth(SyncopeConstants.MASTER_DOMAIN);
-        String notificationJobCronExpression = StringUtils.EMPTY;
-        long interruptMaxRetries = 1;
-        try {
-            CPlainAttr notificationJobCronExp =
-                    confDAO.find("notificationjob.cronExpression", NotificationJob.DEFAULT_CRON_EXP);
-            if (!notificationJobCronExp.getValuesAsStrings().isEmpty()) {
-                notificationJobCronExpression = notificationJobCronExp.getValuesAsStrings().get(0);
-            }
+        final Pair<String, Long> notificationConf = AuthContextUtils.execWithAuthContext(SyncopeConstants.MASTER_DOMAIN,
+                new AuthContextUtils.Executable<Pair<String, Long>>() {
 
-            interruptMaxRetries = confDAO.find("tasks.interruptMaxRetries", "1").getValues().get(0).getLongValue();
-        } finally {
-            AuthContextUtils.clearFakeAuth();
-        }
+                    @Override
+                    public Pair<String, Long> exec() {
+                        String notificationJobCronExpression = StringUtils.EMPTY;
+
+                        CPlainAttr notificationJobCronExp =
+                        confDAO.find("notificationjob.cronExpression", NotificationJob.DEFAULT_CRON_EXP);
+                        if (!notificationJobCronExp.getValuesAsStrings().isEmpty()) {
+                            notificationJobCronExpression = notificationJobCronExp.getValuesAsStrings().get(0);
+                        }
+
+                        long interruptMaxRetries = confDAO.find("tasks.interruptMaxRetries", "1").getValues().get(0).
+                        getLongValue();
+
+                        return ImmutablePair.of(notificationJobCronExpression, interruptMaxRetries);
+                    }
+                });
 
         for (String domain : domainsHolder.getDomains().keySet()) {
-            AuthContextUtils.setFakeAuth(domain);
+            AuthContextUtils.execWithAuthContext(domain, new AuthContextUtils.Executable<Void>() {
 
-            try {
-                // 1. jobs for SchedTasks
-                Set<SchedTask> tasks = new HashSet<>(taskDAO.<SchedTask>findAll(TaskType.SCHEDULED));
-                tasks.addAll(taskDAO.<SyncTask>findAll(TaskType.SYNCHRONIZATION));
-                tasks.addAll(taskDAO.<PushTask>findAll(TaskType.PUSH));
-                for (SchedTask task : tasks) {
-                    try {
-                        registerJob(task, interruptMaxRetries);
-                    } catch (Exception e) {
-                        LOG.error("While loading job instance for task " + task.getKey(), e);
+                @Override
+                public Void exec() {
+                    // 1. jobs for SchedTasks
+                    Set<SchedTask> tasks = new HashSet<>(taskDAO.<SchedTask>findAll(TaskType.SCHEDULED));
+                    tasks.addAll(taskDAO.<SyncTask>findAll(TaskType.SYNCHRONIZATION));
+                    tasks.addAll(taskDAO.<PushTask>findAll(TaskType.PUSH));
+                    for (SchedTask task : tasks) {
+                        try {
+                            registerJob(task, notificationConf.getRight());
+                        } catch (Exception e) {
+                            LOG.error("While loading job instance for task " + task.getKey(), e);
+                        }
                     }
-                }
 
-                // 2. ReportJobs
-                for (Report report : reportDAO.findAll()) {
-                    try {
-                        registerJob(report);
-                    } catch (Exception e) {
-                        LOG.error("While loading job instance for report " + report.getName(), e);
+                    // 2. ReportJobs
+                    for (Report report : reportDAO.findAll()) {
+                        try {
+                            registerJob(report);
+                        } catch (Exception e) {
+                            LOG.error("While loading job instance for report " + report.getName(), e);
+                        }
                     }
+
+                    return null;
                 }
-            } finally {
-                AuthContextUtils.clearFakeAuth();
-            }
+            });
         }
 
         // 3. NotificationJob
-        if (StringUtils.isBlank(notificationJobCronExpression)) {
+        if (StringUtils.isBlank(notificationConf.getLeft())) {
             LOG.debug("Empty value provided for NotificationJob's cron, not registering anything on Quartz");
         } else {
             LOG.debug("NotificationJob's cron expression: {} - registering Quartz job and trigger",
-                    notificationJobCronExpression);
+                    notificationConf.getLeft());
 
             try {
-                registerNotificationJob(notificationJobCronExpression);
+                registerNotificationJob(notificationConf.getLeft());
             } catch (Exception e) {
                 LOG.error("While loading NotificationJob instance", e);
             }

@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
+import org.apache.syncope.core.misc.security.AuthContextUtils;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
@@ -56,7 +57,8 @@ public class ConnectorManager implements ConnectorRegistry, ConnectorFactory {
     private ExternalResourceDAO resourceDAO;
 
     private String getBeanName(final ExternalResource resource) {
-        return String.format("connInstance-%d-%s", resource.getConnector().getKey(), resource.getKey());
+        return String.format("connInstance-%s-%d-%s",
+                AuthContextUtils.getDomain(), resource.getConnector().getKey(), resource.getKey());
     }
 
     @Override
@@ -71,7 +73,7 @@ public class ConnectorManager implements ConnectorRegistry, ConnectorFactory {
 
     @Override
     public Connector createConnector(final ConnInstance connInstance, final Set<ConnConfProperty> configuration) {
-        final ConnInstance connInstanceClone = SerializationUtils.clone(connInstance);
+        ConnInstance connInstanceClone = SerializationUtils.clone(connInstance);
 
         connInstanceClone.setConfiguration(configuration);
 
@@ -82,10 +84,11 @@ public class ConnectorManager implements ConnectorRegistry, ConnectorFactory {
     }
 
     @Override
-    public ConnInstance getOverriddenConnInstance(final ConnInstance connInstance,
-            final Set<ConnConfProperty> overridden) {
-        final Set<ConnConfProperty> configuration = new HashSet<>();
-        final Map<String, ConnConfProperty> overridable = new HashMap<>();
+    public ConnInstance getOverriddenConnInstance(
+            final ConnInstance connInstance, final Set<ConnConfProperty> overridden) {
+
+        Set<ConnConfProperty> configuration = new HashSet<>();
+        Map<String, ConnConfProperty> overridable = new HashMap<>();
 
         // add not overridable properties
         for (ConnConfProperty prop : connInstance.getConfiguration()) {
@@ -114,12 +117,12 @@ public class ConnectorManager implements ConnectorRegistry, ConnectorFactory {
 
     @Override
     public void registerConnector(final ExternalResource resource) {
-        final ConnInstance connInstance = getOverriddenConnInstance(
+        ConnInstance connInstance = getOverriddenConnInstance(
                 SerializationUtils.clone(resource.getConnector()), resource.getConnInstanceConfiguration());
-        final Connector connector = createConnector(resource.getConnector(), connInstance.getConfiguration());
+        Connector connector = createConnector(resource.getConnector(), connInstance.getConfiguration());
         LOG.debug("Connector to be registered: {}", connector);
 
-        final String beanName = getBeanName(resource);
+        String beanName = getBeanName(resource);
 
         if (ApplicationContextProvider.getBeanFactory().containsSingleton(beanName)) {
             unregisterConnector(beanName);
