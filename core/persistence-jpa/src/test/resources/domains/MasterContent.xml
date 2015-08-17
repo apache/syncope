@@ -101,11 +101,11 @@ under the License.
   
   <!-- sample policies -->
   <Policy DTYPE="SyncPolicy" id="1" description="a sync policy" type="SYNC" 
-          specification='{"conflictResolutionAction":"IGNORE","items":[]}'/>
+          specification='{"conflictResolutionAction":"IGNORE"'/>
   <Policy DTYPE="PasswordPolicy" id="2" description="a password policy" type="PASSWORD" 
           specification='{"historyLength":1,"maxLength":0,"minLength":8,"nonAlphanumericRequired":false,"alphanumericRequired":false,"digitRequired":false,"lowercaseRequired":false,"uppercaseRequired":false,"mustStartWithDigit":false,"mustntStartWithDigit":false,"mustEndWithDigit":false,"mustntEndWithDigit":false,"mustStartWithNonAlpha":false,"mustStartWithAlpha":false,"mustntStartWithNonAlpha":false,"mustntStartWithAlpha":false,"mustEndWithNonAlpha":false,"mustEndWithAlpha":false,"mustntEndWithNonAlpha":false,"mustntEndWithAlpha":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[],"allowNullPassword":true}'/>
   <Policy DTYPE="SyncPolicy" id="3" description="sync policy 2" type="SYNC" 
-          specification='{"conflictResolutionAction":"ALL","items":[{"anyTypeKey":"USER","javaRule":null,"altSearchSchemas":["username","firstname"]}]}'/>
+          specification='{"conflictResolutionAction":"ALL","correlationRules":{"USER":"[\"username\",\"firstname\"]"}}'/>
   <Policy DTYPE="PasswordPolicy" id="4" description="sample password policy" type="PASSWORD" 
           specification='{"historyLength":0,"maxLength":0,"minLength":10,"nonAlphanumericRequired":false,"alphanumericRequired":false,"digitRequired":true,"lowercaseRequired":false,"uppercaseRequired":false,"mustStartWithDigit":false,"mustntStartWithDigit":false,"mustEndWithDigit":false,"mustntEndWithDigit":false,"mustStartWithNonAlpha":false,"mustStartWithAlpha":false,"mustntStartWithNonAlpha":false,"mustntStartWithAlpha":false,"mustEndWithNonAlpha":false,"mustEndWithAlpha":false,"mustntEndWithNonAlpha":false,"mustntEndWithAlpha":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[], "allowNullPassword":true}'/>
   <Policy DTYPE="AccountPolicy" id="5" description="an account policy" type="ACCOUNT" 
@@ -113,11 +113,11 @@ under the License.
   <Policy DTYPE="AccountPolicy" id="6" description="sample account policy" type="ACCOUNT" 
           specification='{"maxLength":0,"minLength":4,"pattern":null,"allUpperCase":false,"allLowerCase":false,"propagateSuspension":false,"maxAuthenticationAttempts":3,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[]}'/>
   <Policy DTYPE="SyncPolicy" id="7" description="sync policy 1" type="SYNC" 
-          specification='{"conflictResolutionAction":"IGNORE","items":[]}'/>
+          specification='{"conflictResolutionAction":"IGNORE"}'/>
   <Policy DTYPE="PasswordPolicy" id="8" description="sample password policy" type="PASSWORD" 
           specification='{"historyLength":0,"maxLength":0,"minLength":10,"nonAlphanumericRequired":true,"alphanumericRequired":false,"digitRequired":true,"lowercaseRequired":true,"uppercaseRequired":true,"mustStartWithDigit":true,"mustntStartWithDigit":false,"mustEndWithDigit":true,"mustntEndWithDigit":false,"mustStartWithNonAlpha":false,"mustStartWithAlpha":false,"mustntStartWithNonAlpha":false,"mustntStartWithAlpha":false,"mustEndWithNonAlpha":false,"mustEndWithAlpha":false,"mustntEndWithNonAlpha":false,"mustntEndWithAlpha":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[],"allowNullPassword":false}'/>
   <Policy DTYPE="SyncPolicy" id="9" description="sync policy for java rule" type="SYNC" 
-          specification='{"conflictResolutionAction":"IGNORE","items":[]}'/>
+          specification='{"conflictResolutionAction":"IGNORE"}'/>
 
   <RelationshipType name="inclusion" description="Models the act that an object is included in another"/>
   <RelationshipType name="neighborhood"/>

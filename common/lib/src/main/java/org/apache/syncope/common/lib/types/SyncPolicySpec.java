@@ -18,26 +18,32 @@
  */
 package org.apache.syncope.common.lib.types;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.ArrayList;
-import java.util.List;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
+import java.util.HashMap;
+import java.util.Map;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Predicate;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import org.apache.syncope.common.lib.jaxb.XmlGenericMapAdapter;
 
 @XmlType
 public class SyncPolicySpec implements PolicySpec {
 
     private static final long serialVersionUID = -3144027171719498127L;
 
-    private final List<SyncPolicySpecItem> items = new ArrayList<>();
+    private ConflictResolutionAction conflictResolutionAction;
 
     /**
-     * Conflict resolution action.
+     * Associates anyTypeKey to either:
+     * <ol>
+     * <li>Java class name, implementing {@code SyncCorrelationRule}</li>
+     * <li>JSON array containing plain schema names - this will be used to feed
+     * {@code PlainAttrsSyncCorrelationRule}</li>
+     * </ol>
      */
-    private ConflictResolutionAction conflictResolutionAction;
+    @XmlJavaTypeAdapter(XmlGenericMapAdapter.class)
+    @JsonIgnore
+    private final Map<String, String> correlationRules = new HashMap<>();
 
     public ConflictResolutionAction getConflictResolutionAction() {
         return conflictResolutionAction == null
@@ -49,20 +55,8 @@ public class SyncPolicySpec implements PolicySpec {
         this.conflictResolutionAction = conflictResolutionAction;
     }
 
-    public SyncPolicySpecItem getItem(final String anyTypeKey) {
-        return CollectionUtils.find(items, new Predicate<SyncPolicySpecItem>() {
-
-            @Override
-            public boolean evaluate(final SyncPolicySpecItem item) {
-                return anyTypeKey != null && anyTypeKey.equals(item.getAnyTypeKey());
-            }
-        });
-    }
-
-    @XmlElementWrapper(name = "items")
-    @XmlElement(name = "item")
-    @JsonProperty("items")
-    public List<SyncPolicySpecItem> getItems() {
-        return items;
+    @JsonProperty
+    public Map<String, String> getCorrelationRules() {
+        return correlationRules;
     }
 }

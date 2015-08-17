@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.core.logic;
 
+import static org.apache.syncope.core.logic.init.ImplementationClassNamesLoader.Type;
+
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URI;
@@ -128,22 +130,14 @@ public class SyncopeLogic extends AbstractLogic<SyncopeTO> {
         syncopeTO.setGroupProvisioningManager(gProvisioningManager.getClass().getName());
         syncopeTO.setVirAttrCache(virAttrCache.getClass().getName());
 
-        syncopeTO.getReportlets().addAll(
-                classNamesLoader.getClassNames(ImplementationClassNamesLoader.Type.REPORTLET));
-        syncopeTO.getTaskJobs().addAll(
-                classNamesLoader.getClassNames(ImplementationClassNamesLoader.Type.TASKJOBDELEGATE));
-        syncopeTO.getPropagationActions().addAll(
-                classNamesLoader.getClassNames(ImplementationClassNamesLoader.Type.PROPAGATION_ACTIONS));
-        syncopeTO.getSyncActions().addAll(
-                classNamesLoader.getClassNames(ImplementationClassNamesLoader.Type.SYNC_ACTIONS));
-        syncopeTO.getPushActions().addAll(
-                classNamesLoader.getClassNames(ImplementationClassNamesLoader.Type.PUSH_ACTIONS));
-        syncopeTO.getSyncCorrelationRules().addAll(
-                classNamesLoader.getClassNames(ImplementationClassNamesLoader.Type.SYNC_CORRELATION_RULE));
-        syncopeTO.getPushCorrelationRules().addAll(
-                classNamesLoader.getClassNames(ImplementationClassNamesLoader.Type.PUSH_CORRELATION_RULE));
-        syncopeTO.getValidators().addAll(
-                classNamesLoader.getClassNames(ImplementationClassNamesLoader.Type.VALIDATOR));
+        syncopeTO.getReportlets().addAll(classNamesLoader.getClassNames(Type.REPORTLET));
+        syncopeTO.getTaskJobs().addAll(classNamesLoader.getClassNames(Type.TASKJOBDELEGATE));
+        syncopeTO.getPropagationActions().addAll(classNamesLoader.getClassNames(Type.PROPAGATION_ACTIONS));
+        syncopeTO.getSyncActions().addAll(classNamesLoader.getClassNames(Type.SYNC_ACTIONS));
+        syncopeTO.getPushActions().addAll(classNamesLoader.getClassNames(Type.PUSH_ACTIONS));
+        syncopeTO.getSyncCorrelationRules().addAll(classNamesLoader.getClassNames(Type.SYNC_CORRELATION_RULE));
+        syncopeTO.getPushCorrelationRules().addAll(classNamesLoader.getClassNames(Type.PUSH_CORRELATION_RULE));
+        syncopeTO.getValidators().addAll(classNamesLoader.getClassNames(Type.VALIDATOR));
 
         Set<String> htmlTemplates = new HashSet<>();
         Set<String> textTemplates = new HashSet<>();
