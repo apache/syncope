@@ -27,4 +27,5 @@ script:
   - export MAVEN_OPTS="-Xmx2469m -XX:MaxPermSize=512m -XX:+TieredCompilation -XX:TieredStopAtLevel=1"
   - mvn --show-version --quiet clean install -Dinvoker.streamLogs=true
 notifications:
-  webhooks: http://rovere.tirasa.net/cgi-bin/travis.cgi
+  email:
+    - dev@syncope.apache.org
