@@ -18,25 +18,13 @@
  */
 package org.apache.syncope.client.console.topology;
 
-import static org.apache.syncope.client.console.topology.TopologyNode.Status.FAILURE;
-import static org.apache.syncope.client.console.topology.TopologyNode.Status.REACHABLE;
-import static org.apache.syncope.client.console.topology.TopologyNode.Status.UNKNOWN;
-import static org.apache.syncope.client.console.topology.TopologyNode.Status.UNREACHABLE;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
 import java.io.Serializable;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.client.WebClient;
@@ -49,10 +37,7 @@ import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
-import org.apache.wicket.Application;
 import org.apache.wicket.Component;
-import org.apache.wicket.Session;
-import org.apache.wicket.ThreadContext;
 import org.apache.wicket.ajax.AbstractAjaxTimerBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.IAjaxIndicatorAware;
@@ -65,9 +50,6 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.LoadableDetachableModel;
-import org.apache.wicket.protocol.ws.api.WebSocketBehavior;
-import org.apache.wicket.protocol.ws.api.WebSocketRequestHandler;
-import org.apache.wicket.protocol.ws.api.message.TextMessage;
 import org.apache.wicket.util.time.Duration;
 
 public class Topology extends BasePage {
@@ -149,7 +131,7 @@ public class Topology extends BasePage {
                 }
             };
 
-    private enum SupportedOperation {
+    protected enum SupportedOperation {
 
         CHECK_RESOURCE,
         CHECK_CONNECTOR,
@@ -166,163 +148,7 @@ public class Topology extends BasePage {
         modal.setInitialWidth(RESOURCE_MODAL_WIN_WIDTH);
         modal.setCookieName("resource-modal");
 
-        add(new WebSocketBehavior() {
-
-            private static final long serialVersionUID = 1L;
-
-            final Map<String, String> resources = new HashMap<String, String>();
-
-            final Set<String> runningResCheck = new HashSet<>();
-
-            final Map<Long, String> connectors = new HashMap<Long, String>();
-
-            final Set<Long> runningConnCheck = new HashSet<>();
-
-            @Override
-            protected void onMessage(final WebSocketRequestHandler handler, final TextMessage message) {
-                try {
-                    final ObjectMapper mapper = new ObjectMapper();
-                    final JsonNode obj = mapper.readTree(message.getText());
-
-                    final ExecutorService executorService = Executors.newFixedThreadPool(1);
-
-                    switch (SupportedOperation.valueOf(obj.get("kind").asText())) {
-                        case CHECK_CONNECTOR:
-                            final Long ckey = obj.get("target").asLong();
-
-                            if (connectors.containsKey(ckey)) {
-                                handler.push(connectors.get(ckey));
-                            } else {
-                                handler.push(String.format("{ \"status\": \"%s\", \"target\": \"%s\"}", UNKNOWN, ckey));
-                            }
-
-                            synchronized (runningConnCheck) {
-                                if (runningConnCheck.contains(ckey)) {
-                                    LOG.debug("Running connection check for connector {}", ckey);
-                                } else {
-                                    runningConnCheck.add(ckey);
-                                }
-                            }
-
-                            executorService.execute(new ConnCheck(ckey));
-
-                            break;
-                        case CHECK_RESOURCE:
-                            final String rkey = obj.get("target").asText();
-
-                            if (resources.containsKey(rkey)) {
-                                handler.push(resources.get(rkey));
-                            } else {
-                                handler.push(String.format("{ \"status\": \"%s\", \"target\": \"%s\"}", UNKNOWN, rkey));
-                            }
-
-                            synchronized (runningResCheck) {
-                                if (runningResCheck.contains(rkey)) {
-                                    LOG.debug("Running connection check for resource {}", rkey);
-                                } else {
-                                    runningResCheck.add(rkey);
-                                }
-                            }
-
-                            executorService.execute(new ResCheck(rkey));
-
-                            break;
-                        case ADD_ENDPOINT:
-                            handler.appendJavaScript(String.format("addEndpoint('%s', '%s', '%s');",
-                                    obj.get("source").asText(),
-                                    obj.get("target").asText(),
-                                    obj.get("scope").asText()));
-                            break;
-                        default:
-                    }
-
-                    executorService.shutdown();
-
-                } catch (IOException e) {
-                    LOG.error("Eror managing websocket message", e);
-                }
-            }
-
-            class ConnCheck implements Runnable {
-
-                final Long key;
-
-                private final Application application;
-
-                private final Session session;
-
-                public ConnCheck(final Long key) {
-                    this.key = key;
-                    this.application = Application.get();
-                    this.session = Session.exists() ? Session.get() : null;
-                }
-
-                @Override
-                public void run() {
-                    try {
-                        ThreadContext.setApplication(application);
-                        ThreadContext.setSession(session);
-
-                        String res;
-                        try {
-                            final ConnInstanceTO connector = connectorRestClient.read(key);
-                            res = String.format("{ \"status\": \"%s\", \"target\": \"%s\"}",
-                                    connectorRestClient.check(connector) ? REACHABLE : UNREACHABLE, key);
-                        } catch (Exception e) {
-                            LOG.warn("Error checking connection for {}", key, e);
-                            res = String.format("{ \"status\": \"%s\", \"target\": \"%s\"}", FAILURE, key);
-                        }
-
-                        synchronized (runningConnCheck) {
-                            connectors.put(key, res);
-                            runningConnCheck.remove(key);
-                        }
-                    } finally {
-                        ThreadContext.detach();
-                    }
-                }
-            }
-
-            class ResCheck implements Runnable {
-
-                final String key;
-
-                private final Application application;
-
-                private final Session session;
-
-                public ResCheck(final String key) {
-                    this.key = key;
-                    this.application = Application.get();
-                    this.session = Session.exists() ? Session.get() : null;
-                }
-
-                @Override
-                public void run() {
-                    try {
-                        ThreadContext.setApplication(application);
-                        ThreadContext.setSession(session);
-
-                        String res;
-                        try {
-                            final ResourceTO resource = resourceRestClient.read(key);
-                            res = String.format("{ \"status\": \"%s\", \"target\": \"%s\"}",
-                                    connectorRestClient.check(resource) ? REACHABLE : UNREACHABLE, key);
-                        } catch (Exception e) {
-                            LOG.warn("Error checking connection for {}", key, e);
-                            res = String.format("{ \"status\": \"%s\", \"target\": \"%s\"}", FAILURE, key);
-                        }
-
-                        synchronized (runningResCheck) {
-                            resources.put(key, res);
-                            runningResCheck.remove(key);
-                        }
-                    } finally {
-                        ThreadContext.detach();
-                    }
-                }
-            }
-        });
+        add(new WebSocketBehavior());
 
         // -----------------------------------------
         // Add Zoom panel
@@ -713,7 +539,7 @@ public class Topology extends BasePage {
                     resourceCreateEvent.getDisplayName(),
                     resourceCreateEvent.getKind());
 
-            ((List<TopologyNode>) newlyCreated.getModelObject()).add(node);
+            newlyCreated.getModelObject().add(node);
             resourceCreateEvent.getTarget().add(newlyCreatedContainer);
 
             resourceCreateEvent.getTarget().appendJavaScript(String.format(

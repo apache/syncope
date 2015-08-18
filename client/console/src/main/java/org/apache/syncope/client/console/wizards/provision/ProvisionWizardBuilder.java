@@ -79,7 +79,7 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ProvisionTO> imple
                     }, res), new Predicate<String>() {
 
                         @Override
-                        public boolean evaluate(String key) {
+                        public boolean evaluate(final String key) {
                             return !currentlyAdded.contains(key);
                         }
                     });
