@@ -15,10 +15,10 @@
  */
 package org.apache.syncope.client.console.wizards;
 
+import org.apache.syncope.client.console.panels.NotificationPanel;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.wizard.IWizardModel;
 import org.apache.wicket.extensions.wizard.IWizardStep;
-import org.apache.wicket.extensions.wizard.Wizard;
 import org.apache.wicket.extensions.wizard.WizardButtonBar;
 import org.apache.wicket.markup.html.form.Form;
 
@@ -26,7 +26,7 @@ public class AjaxWizardButtonBar extends WizardButtonBar {
 
     private static final long serialVersionUID = 1L;
 
-    public AjaxWizardButtonBar(final String id, final Wizard wizard) {
+    public AjaxWizardButtonBar(final String id, final AjaxWizard<?> wizard, final boolean edit) {
         super(id, wizard);
 
         addOrReplace(new AjaxWizardButton("next", wizard, "next") {
@@ -53,8 +53,14 @@ public class AjaxWizardButtonBar extends WizardButtonBar {
             }
 
             @Override
+            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
+                super.onError(target, form);
+                NotificationPanel.class.cast(wizard.getFeedbackPanel()).refresh(target);
+            }
+
+            @Override
             public final boolean isEnabled() {
-                return super.isEnabled() && getWizardModel().isNextAvailable();
+                return !edit && super.isEnabled() && getWizardModel().isNextAvailable();
             }
         });
 
@@ -70,7 +76,7 @@ public class AjaxWizardButtonBar extends WizardButtonBar {
 
             @Override
             public final boolean isEnabled() {
-                return super.isEnabled() && getWizardModel().isPreviousAvailable();
+                return !edit && super.isEnabled() && getWizardModel().isPreviousAvailable();
             }
         });
 
@@ -101,9 +107,19 @@ public class AjaxWizardButtonBar extends WizardButtonBar {
             }
 
             @Override
+            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
+                super.onError(target, form);
+                NotificationPanel.class.cast(wizard.getFeedbackPanel()).refresh(target);
+            }
+
+            @Override
             public final boolean isEnabled() {
-                final IWizardStep activeStep = getWizardModel().getActiveStep();
-                return (activeStep != null) && getWizardModel().isLastStep(activeStep) && super.isEnabled();
+                if (edit) {
+                    return true;
+                } else {
+                    final IWizardStep activeStep = getWizardModel().getActiveStep();
+                    return (activeStep != null) && getWizardModel().isLastStep(activeStep) && super.isEnabled();
+                }
             }
         });
     }

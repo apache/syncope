@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.wicket.markup.html.form;
 import java.io.Serializable;
 import java.util.List;
 import org.apache.commons.lang3.SerializationUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.FormComponent;
@@ -61,11 +62,8 @@ public abstract class FieldPanel<T> extends AbstractFieldPanel<T> implements Clo
         return this;
     }
 
-    public FieldPanel<T> setStyleSheet(final String classes) {
-        field.add(AttributeModifier.replace("class", classes != null
-                ? classes
-                : ""));
-
+    public FieldPanel<T> setStyleSheet(final String... classes) {
+        field.add(AttributeModifier.replace("class", StringUtils.join(classes, ' ')));
         return this;
     }
 
