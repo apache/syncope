@@ -19,9 +19,9 @@
 package org.apache.syncope.core.misc.policy;
 
 import java.util.List;
+import org.apache.syncope.common.lib.types.AbstractPolicySpec;
 import org.apache.syncope.common.lib.types.AccountPolicySpec;
 import org.apache.syncope.common.lib.types.PasswordPolicySpec;
-import org.apache.syncope.common.lib.types.PolicySpec;
 import org.apache.syncope.core.persistence.api.entity.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.PasswordPolicy;
@@ -39,7 +39,7 @@ public class PolicyEvaluator {
     private static final Logger LOG = LoggerFactory.getLogger(PolicyEvaluator.class);
 
     @SuppressWarnings("unchecked")
-    public <T extends PolicySpec> T evaluate(final Policy policy, final Any<?, ?, ?> any) {
+    public <T extends AbstractPolicySpec> T evaluate(final Policy policy, final Any<?, ?, ?> any) {
         T result;
         switch (policy.getType()) {
             case PASSWORD:

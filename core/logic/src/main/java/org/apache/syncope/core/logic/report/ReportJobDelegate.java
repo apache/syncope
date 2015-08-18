@@ -87,7 +87,7 @@ public class ReportJobDelegate {
         execution.setReport(report);
         execution = reportExecDAO.save(execution);
 
-        report.addExec(execution);
+        report.add(execution);
         report = reportDAO.save(report);
 
         // 2. define a SAX handler for generating result as XML

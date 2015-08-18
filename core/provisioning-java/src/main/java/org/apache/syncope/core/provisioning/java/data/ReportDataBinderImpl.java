@@ -68,12 +68,12 @@ public class ReportDataBinderImpl implements ReportDataBinder {
             toRemove.add(conf);
         }
         for (ReportletConf conf : toRemove) {
-            report.removeReportletConf(conf);
+            report.remove(conf);
         }
 
         // 2. take all reportlet confs from reportTO
         for (ReportletConf conf : reportTO.getReportletConfs()) {
-            report.addReportletConf(conf);
+            report.add(conf);
         }
     }
 

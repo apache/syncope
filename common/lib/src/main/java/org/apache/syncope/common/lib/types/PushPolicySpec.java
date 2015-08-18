@@ -21,7 +21,7 @@ package org.apache.syncope.common.lib.types;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlType
-public class PushPolicySpec implements PolicySpec {
+public class PushPolicySpec {
 
     private static final long serialVersionUID = 3641030189482617497L;
 

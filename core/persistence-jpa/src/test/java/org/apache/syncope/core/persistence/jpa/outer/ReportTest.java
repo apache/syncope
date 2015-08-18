@@ -80,7 +80,7 @@ public class ReportTest extends AbstractTest {
         reportExec.setEndDate(new Date());
         reportExec.setStatus(ReportExecStatus.SUCCESS);
 
-        report.addExec(reportExec);
+        report.add(reportExec);
 
         reportExec = reportExecDAO.save(reportExec);
         assertNotNull(reportExec);

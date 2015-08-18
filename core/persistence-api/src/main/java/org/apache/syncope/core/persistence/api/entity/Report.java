@@ -25,21 +25,22 @@ public interface Report extends Entity<Long> {
 
     String getName();
 
-    boolean addExec(ReportExec exec);
+    void setName(String name);
 
-    boolean addReportletConf(ReportletConf reportletConf);
+    boolean add(ReportExec exec);
 
-    String getCronExpression();
+    boolean remove(ReportExec exec);
 
     List<? extends ReportExec> getExecs();
 
+    boolean add(ReportletConf reportletConf);
+
+    boolean remove(ReportletConf reportletConf);
+
     List<? extends ReportletConf> getReportletConfs();
 
-    boolean removeExec(ReportExec exec);
-
-    boolean removeReportletConf(ReportletConf reportletConf);
+    String getCronExpression();
 
     void setCronExpression(String cronExpression);
 
-    void setName(String name);
 }

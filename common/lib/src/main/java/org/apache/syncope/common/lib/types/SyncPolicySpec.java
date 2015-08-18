@@ -27,7 +27,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.apache.syncope.common.lib.jaxb.XmlGenericMapAdapter;
 
 @XmlType
-public class SyncPolicySpec implements PolicySpec {
+public class SyncPolicySpec {
 
     private static final long serialVersionUID = -3144027171719498127L;
 

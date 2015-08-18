@@ -24,7 +24,6 @@ import javax.xml.bind.annotation.XmlEnum;
 public enum EntityViolationType {
 
     Standard(""),
-    InvalidAccountPolicy("org.apache.syncope.core.persistence.validation.accountpolicy"),
     InvalidAnyType("org.apache.syncope.core.persistence.validation.anytype"),
     InvalidConnInstanceLocation("org.apache.syncope.core.persistence.validation.conninstance.location"),
     InvalidConnPoolConf("org.apache.syncope.core.persistence.validation.conninstance.poolConf"),
@@ -32,7 +31,6 @@ public enum EntityViolationType {
     InvalidName("org.apache.syncope.core.persistence.validation.name"),
     InvalidNotification("org.apache.syncope.core.persistence.validation.notification"),
     InvalidPassword("org.apache.syncope.core.persistence.validation.user.password"),
-    InvalidPasswordPolicy("org.apache.syncope.core.persistence.validation.passwordpolicy"),
     InvalidPolicy("org.apache.syncope.core.persistence.validation.policy"),
     InvalidPropagationTask("org.apache.syncope.core.persistence.validation.propagationtask"),
     InvalidRealm("org.apache.syncope.core.persistence.validation.realm"),
@@ -44,7 +42,6 @@ public enum EntityViolationType {
     InvalidSchemaMultivalueUnique("org.apache.syncope.core.persistence.validation.schema.multivalueUnique"),
     InvalidSchedTask("org.apache.syncope.core.persistence.validation.schedtask"),
     InvalidSyncTask("org.apache.syncope.core.persistence.validation.synctask"),
-    InvalidSyncPolicy("org.apache.syncope.core.persistence.validation.syncpolicy"),
     InvalidPlainSchema("org.apache.syncope.core.persistence.validation.attrvalue.plainSchema"),
     InvalidDerSchema("org.apache.syncope.core.persistence.validation.attrvalue.derSchema"),
     InvalidVirSchema("org.apache.syncope.core.persistence.validation.attrvalue.virSchema"),

@@ -82,13 +82,13 @@ public class JPAReport extends AbstractEntity<Long> implements Report {
     }
 
     @Override
-    public boolean addExec(final ReportExec exec) {
+    public boolean add(final ReportExec exec) {
         checkType(exec, JPAReportExec.class);
         return exec != null && !executions.contains((JPAReportExec) exec) && executions.add((JPAReportExec) exec);
     }
 
     @Override
-    public boolean removeExec(final ReportExec exec) {
+    public boolean remove(final ReportExec exec) {
         checkType(exec, JPAReportExec.class);
         return exec != null && executions.remove((JPAReportExec) exec);
     }
@@ -99,7 +99,7 @@ public class JPAReport extends AbstractEntity<Long> implements Report {
     }
 
     @Override
-    public boolean addReportletConf(final ReportletConf reportletConf) {
+    public boolean add(final ReportletConf reportletConf) {
         if (reportletConf == null) {
             return false;
         }
@@ -112,7 +112,7 @@ public class JPAReport extends AbstractEntity<Long> implements Report {
     }
 
     @Override
-    public boolean removeReportletConf(final ReportletConf reportletConf) {
+    public boolean remove(final ReportletConf reportletConf) {
         return CollectionUtils.filter(reportletConfs, new Predicate<JPAReportletConfInstance>() {
 
             @Override

@@ -30,7 +30,7 @@ import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
 @XmlType
-public abstract class AbstractPolicySpec implements PolicySpec {
+public abstract class AbstractPolicySpec {
 
     private static final long serialVersionUID = -6210646284287392063L;
 
