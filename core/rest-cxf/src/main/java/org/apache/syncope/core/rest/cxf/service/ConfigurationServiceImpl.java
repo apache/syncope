@@ -55,8 +55,8 @@ public class ConfigurationServiceImpl extends AbstractServiceImpl implements Con
     }
 
     @Override
-    public void delete(final String key) {
-        logic.delete(key);
+    public void delete(final String schema) {
+        logic.delete(schema);
     }
 
     @Override
@@ -65,13 +65,12 @@ public class ConfigurationServiceImpl extends AbstractServiceImpl implements Con
     }
 
     @Override
-    public AttrTO read(final String key) {
-        return logic.read(key);
+    public AttrTO get(final String schema) {
+        return logic.get(schema);
     }
 
     @Override
-    public void set(final String key, final AttrTO value) {
-        value.setSchema(key);
+    public void set(final AttrTO value) {
         logic.set(value);
     }
 }

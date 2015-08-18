@@ -55,7 +55,6 @@ import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.lib.types.ResourceDeassociationActionType;
-import org.apache.syncope.common.lib.types.SyncPolicySpecItem;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.wrap.ResourceKey;
 import org.apache.syncope.common.rest.api.CollectionWrapper;
@@ -505,16 +504,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         // Add a custom correlation rule
         // -----------------------------
         SyncPolicyTO policyTO = policyService.read(9L);
-
-        SyncPolicySpecItem item = policyTO.getSpecification().getItem(AnyTypeKind.USER.name());
-        if (item == null) {
-            item = new SyncPolicySpecItem();
-            item.setAnyTypeKey(AnyTypeKind.USER.name());
-
-            policyTO.getSpecification().getItems().add(item);
-        }
-        item.setJavaRule(TestSyncRule.class.getName());
-
+        policyTO.getSpecification().getCorrelationRules().put(AnyTypeKind.USER.name(), TestSyncRule.class.getName());
         policyService.update(policyTO);
         // -----------------------------
 

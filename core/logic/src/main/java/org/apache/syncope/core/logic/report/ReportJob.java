@@ -51,13 +51,23 @@ public class ReportJob implements Job {
 
     @Override
     public void execute(final JobExecutionContext context) throws JobExecutionException {
-        AuthContextUtils.setFakeAuth(context.getMergedJobDataMap().getString(JobInstanceLoader.DOMAIN));
         try {
-            delegate.execute(reportKey);
-        } catch (Exception e) {
-            throw new JobExecutionException(e);
-        } finally {
-            AuthContextUtils.clearFakeAuth();
+            AuthContextUtils.execWithAuthContext(context.getMergedJobDataMap().getString(JobInstanceLoader.DOMAIN),
+                    new AuthContextUtils.Executable<Void>() {
+
+                        @Override
+                        public Void exec() {
+                            try {
+                                delegate.execute(reportKey);
+                            } catch (Exception e) {
+                                throw new RuntimeException(e);
+                            }
+
+                            return null;
+                        }
+                    });
+        } catch (RuntimeException e) {
+            throw new JobExecutionException(e.getCause());
         }
     }
 }

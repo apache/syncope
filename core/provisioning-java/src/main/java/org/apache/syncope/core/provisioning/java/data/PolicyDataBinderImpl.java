@@ -45,9 +45,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class PolicyDataBinderImpl implements PolicyDataBinder {
 
-    /**
-     * Logger.
-     */
     private static final Logger LOG = LoggerFactory.getLogger(PolicyDataBinder.class);
 
     @Autowired

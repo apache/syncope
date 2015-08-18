@@ -113,7 +113,7 @@ public class ConfigurationCommand extends AbstractCommand {
         } else if (StringUtils.isNotBlank(confNameToRead)) {
             LOG.debug("- configuration read {} command", confNameToRead);
             try {
-                final AttrTO attrTO = configurationService.read(confNameToRead);
+                final AttrTO attrTO = configurationService.get(confNameToRead);
                 System.out.println(" - Conf " + attrTO.getSchema() + " has value(s) " + attrTO.getValues()
                         + " - readonly: " + attrTO.isReadonly());
             } catch (final SyncopeClientException ex) {
@@ -123,10 +123,10 @@ public class ConfigurationCommand extends AbstractCommand {
             LOG.debug("- configuration update command with params {}", updateConf);
             try {
                 for (final Map.Entry<String, String> entrySet : updateConf.entrySet()) {
-                    final AttrTO attrTO = configurationService.read(entrySet.getKey());
+                    final AttrTO attrTO = configurationService.get(entrySet.getKey());
                     attrTO.getValues().clear();
                     attrTO.getValues().add(entrySet.getValue());
-                    configurationService.set(entrySet.getKey(), attrTO);
+                    configurationService.set(attrTO);
                     System.out.println(" - Conf " + attrTO.getSchema() + " has value(s) " + attrTO.getValues()
                             + " - readonly: " + attrTO.isReadonly());
                 }
@@ -140,7 +140,7 @@ public class ConfigurationCommand extends AbstractCommand {
                     final AttrTO attrTO = new AttrTO();
                     attrTO.setSchema(entrySet.getKey());
                     attrTO.getValues().add(entrySet.getValue());
-                    configurationService.set(entrySet.getKey(), attrTO);
+                    configurationService.set(attrTO);
                     System.out.println(" - Conf " + attrTO.getSchema() + " created with value(s) " + attrTO.getValues()
                             + " - readonly: " + attrTO.isReadonly());
                 }

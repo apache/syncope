@@ -22,12 +22,15 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.List;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.PasswordPolicySpec;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.lib.types.SyncPolicySpec;
-import org.apache.syncope.common.lib.types.SyncPolicySpecItem;
+import org.apache.syncope.core.misc.serialization.POJOHelper;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
@@ -38,7 +41,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional
+@Transactional("Master")
 public class PolicyTest extends AbstractTest {
 
     @Autowired
@@ -55,9 +58,20 @@ public class PolicyTest extends AbstractTest {
     }
 
     @Test
-    public void findById() {
-        Policy policy = policyDAO.find(1L);
+    public void findByKey() {
+        SyncPolicy policy = policyDAO.find(3L);
         assertNotNull("findById did not work", policy);
+
+        SyncPolicySpec spec = policy.getSpecification(SyncPolicySpec.class);
+        assertNotNull(spec);
+
+        String rule = spec.getCorrelationRules().get(AnyTypeKind.USER.name());
+        assertNotNull(rule);
+        String[] plainSchemas = POJOHelper.deserialize(rule, String[].class);
+        assertNotNull(plainSchemas);
+        assertEquals(2, plainSchemas.length);
+        assertTrue(ArrayUtils.contains(plainSchemas, "username"));
+        assertTrue(ArrayUtils.contains(plainSchemas, "firstname"));
     }
 
     @Test
@@ -89,15 +103,8 @@ public class PolicyTest extends AbstractTest {
 
         SyncPolicySpec syncPolicySpec = new SyncPolicySpec();
 
-        SyncPolicySpecItem item = new SyncPolicySpecItem();
-        item.setAnyTypeKey(anyTypeDAO.findUser().getKey());
-        item.setJavaRule(syncURuleName);
-        syncPolicySpec.getItems().add(item);
-
-        item = new SyncPolicySpecItem();
-        item.setAnyTypeKey(anyTypeDAO.findGroup().getKey());
-        item.setJavaRule(syncGRuleName);
-        syncPolicySpec.getItems().add(item);
+        syncPolicySpec.getCorrelationRules().put(anyTypeDAO.findUser().getKey(), syncURuleName);
+        syncPolicySpec.getCorrelationRules().put(anyTypeDAO.findGroup().getKey(), syncGRuleName);
 
         policy.setSpecification(syncPolicySpec);
         policy.setDescription("Sync policy");
@@ -106,10 +113,10 @@ public class PolicyTest extends AbstractTest {
 
         assertNotNull(policy);
         assertEquals(PolicyType.SYNC, policy.getType());
-        assertEquals(syncURuleName,
-                (policy.getSpecification(SyncPolicySpec.class)).getItem(anyTypeDAO.findUser().getKey()).getJavaRule());
-        assertEquals(syncGRuleName,
-                (policy.getSpecification(SyncPolicySpec.class)).getItem(anyTypeDAO.findGroup().getKey()).getJavaRule());
+        assertEquals(syncURuleName, (policy.getSpecification(SyncPolicySpec.class)).
+                getCorrelationRules().get(anyTypeDAO.findUser().getKey()));
+        assertEquals(syncGRuleName, (policy.getSpecification(SyncPolicySpec.class)).
+                getCorrelationRules().get(anyTypeDAO.findGroup().getKey()));
     }
 
     @Test

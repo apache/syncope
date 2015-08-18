@@ -196,12 +196,12 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
         TaskExecTO result = null;
         switch (taskUtils.getType()) {
             case PROPAGATION:
-                final TaskExec propExec = taskExecutor.execute((PropagationTask) task);
+                TaskExec propExec = taskExecutor.execute((PropagationTask) task);
                 result = binder.getTaskExecTO(propExec);
                 break;
 
             case NOTIFICATION:
-                final TaskExec notExec = notificationJobDelegate.executeSingle((NotificationTask) task);
+                TaskExec notExec = notificationJobDelegate.executeSingle((NotificationTask) task);
                 result = binder.getTaskExecTO(notExec);
                 break;
 

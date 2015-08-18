@@ -44,11 +44,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
-@TransactionConfiguration(transactionManager = "TwoTransactionManager")
-@Transactional
+@Transactional("Two")
 public class MultitenancyTest extends AbstractTest {
 
     @Autowired
@@ -85,7 +83,7 @@ public class MultitenancyTest extends AbstractTest {
 
     @Test
     public void readPlainSchemas() {
-        assertEquals(18, plainSchemaDAO.findAll().size());
+        assertEquals(16, plainSchemaDAO.findAll().size());
     }
 
     @Test

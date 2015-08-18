@@ -90,7 +90,7 @@ public final class AuthContextUtils {
         return domainKey;
     }
 
-    public static void setFakeAuth(final String domain) {
+    private static void setFakeAuth(final String domain) {
         List<GrantedAuthority> authorities = CollectionUtils.collect(Entitlement.values(),
                 new Transformer<String, GrantedAuthority>() {
 
@@ -107,17 +107,13 @@ public final class AuthContextUtils {
         SecurityContextHolder.getContext().setAuthentication(auth);
     }
 
-    public static void clearFakeAuth() {
-        SecurityContextHolder.clearContext();
-    }
-
     public static <T> T execWithAuthContext(final String domainKey, final Executable<T> executable) {
         SecurityContext ctx = SecurityContextHolder.getContext();
         setFakeAuth(domainKey);
         try {
             return executable.exec();
         } finally {
-            clearFakeAuth();
+            SecurityContextHolder.clearContext();
             SecurityContextHolder.setContext(ctx);
         }
     }

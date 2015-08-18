@@ -60,13 +60,22 @@ public class NotificationJob implements Job {
         LOG.debug("Waking up...");
 
         for (String domain : domainsHolder.getDomains().keySet()) {
-            AuthContextUtils.setFakeAuth(domain);
             try {
-                delegate.execute();
-            } catch (Exception e) {
-                throw new JobExecutionException(e);
-            } finally {
-                AuthContextUtils.clearFakeAuth();
+                AuthContextUtils.execWithAuthContext(domain, new AuthContextUtils.Executable<Void>() {
+
+                    @Override
+                    public Void exec() {
+                        try {
+                            delegate.execute();
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+
+                        return null;
+                    }
+                });
+            } catch (RuntimeException e) {
+                throw new JobExecutionException(e.getCause());
             }
         }
 

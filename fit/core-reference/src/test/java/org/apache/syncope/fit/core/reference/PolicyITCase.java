@@ -36,7 +36,6 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PasswordPolicySpec;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.lib.types.SyncPolicySpec;
-import org.apache.syncope.common.lib.types.SyncPolicySpecItem;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -47,12 +46,8 @@ public class PolicyITCase extends AbstractITCase {
     private SyncPolicyTO buildSyncPolicyTO() {
         SyncPolicyTO policy = new SyncPolicyTO();
 
-        SyncPolicySpecItem item = new SyncPolicySpecItem();
-        item.setAnyTypeKey(AnyTypeKind.USER.name());
-        item.setJavaRule(TestSyncRule.class.getName());
-
         SyncPolicySpec spec = new SyncPolicySpec();
-        spec.getItems().add(item);
+        spec.getCorrelationRules().put(AnyTypeKind.USER.name(), TestSyncRule.class.getName());
 
         policy.setSpecification(spec);
         policy.setDescription("Sync policy");
@@ -116,7 +111,7 @@ public class PolicyITCase extends AbstractITCase {
         assertNotNull(policyTO);
         assertEquals(PolicyType.SYNC, policyTO.getType());
         assertEquals(TestSyncRule.class.getName(),
-                policyTO.getSpecification().getItem(AnyTypeKind.USER.name()).getJavaRule());
+                policyTO.getSpecification().getCorrelationRules().get(AnyTypeKind.USER.name()));
     }
 
     @Test
@@ -169,7 +164,7 @@ public class PolicyITCase extends AbstractITCase {
 
     @Test
     public void getCorrelationRules() {
-        assertEquals(1, syncopeService.info().getSyncCorrelationRules().size());
+        assertEquals(2, syncopeService.info().getSyncCorrelationRules().size());
     }
 
     @Test

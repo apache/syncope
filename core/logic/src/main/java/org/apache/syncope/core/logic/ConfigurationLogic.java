@@ -60,8 +60,8 @@ public class ConfigurationLogic extends AbstractTransactionalLogic<ConfTO> {
     private GroupWorkflowAdapter gwfAdapter;
 
     @PreAuthorize("hasRole('" + Entitlement.CONFIGURATION_DELETE + "')")
-    public void delete(final String key) {
-        confDAO.delete(key);
+    public void delete(final String schema) {
+        confDAO.delete(schema);
     }
 
     @PreAuthorize("hasRole('" + Entitlement.CONFIGURATION_LIST + "')")
@@ -70,18 +70,18 @@ public class ConfigurationLogic extends AbstractTransactionalLogic<ConfTO> {
     }
 
     @PreAuthorize("isAuthenticated()")
-    public AttrTO read(final String key) {
+    public AttrTO get(final String schema) {
         AttrTO result;
 
-        CPlainAttr conf = confDAO.find(key);
+        CPlainAttr conf = confDAO.find(schema);
         if (conf == null) {
-            PlainSchema schema = plainSchemaDAO.find(key);
-            if (schema == null) {
-                throw new NotFoundException("Configuration key " + key);
+            PlainSchema plainSchema = plainSchemaDAO.find(schema);
+            if (plainSchema == null) {
+                throw new NotFoundException("Configuration schema " + schema);
             }
 
             result = new AttrTO();
-            result.setSchema(key);
+            result.setSchema(schema);
         } else {
             result = binder.getAttrTO(conf);
         }

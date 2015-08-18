@@ -18,10 +18,12 @@
  */
 package org.apache.syncope.core.misc.spring;
 
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.transaction.interceptor.TransactionInterceptor;
 
 public class ApplicationContextProvider implements ApplicationContextAware {
 
@@ -41,8 +43,16 @@ public class ApplicationContextProvider implements ApplicationContextAware {
                 : BEAN_FACTORY;
     }
 
+    private static void enableDomainTransactionInterceptor() {
+        for (String name : getBeanFactory().getBeanNamesForType(TransactionInterceptor.class)) {
+            BeanDefinition bd = getBeanFactory().getBeanDefinition(name);
+            bd.setBeanClassName(DomainTransactionInterceptor.class.getName());
+        }
+    }
+
     public static void setBeanFactory(final DefaultListableBeanFactory beanFactory) {
         BEAN_FACTORY = beanFactory;
+        enableDomainTransactionInterceptor();
     }
 
     /**
@@ -53,5 +63,6 @@ public class ApplicationContextProvider implements ApplicationContextAware {
     @Override
     public void setApplicationContext(final ApplicationContext ctx) {
         CTX = (ConfigurableApplicationContext) ctx;
+        enableDomainTransactionInterceptor();
     }
 }

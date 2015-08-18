@@ -22,6 +22,7 @@ import org.apache.syncope.common.lib.AbstractBaseBean;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.List;
+import javax.ws.rs.PathParam;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -58,6 +59,7 @@ public class AttrTO extends AbstractBaseBean {
     /**
      * @param schema name to be set
      */
+    @PathParam("schema")
     public void setSchema(final String schema) {
         this.schema = schema;
 

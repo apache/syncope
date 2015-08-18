@@ -67,11 +67,11 @@ public class StatusMod extends AbstractBaseBean {
      */
     private final List<String> resourceNames = new ArrayList<>();
 
-    @PathParam("key")
     public long getKey() {
         return key;
     }
 
+    @PathParam("key")
     public void setKey(final long key) {
         this.key = key;
     }

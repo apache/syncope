@@ -31,7 +31,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional
+@Transactional("Master")
 public class RealmTest extends AbstractTest {
 
     @Autowired

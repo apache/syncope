@@ -20,15 +20,14 @@ package org.apache.syncope.core.provisioning.java.sync;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.SyncPolicySpec;
 import org.apache.syncope.core.misc.MappingUtils;
+import org.apache.syncope.core.misc.serialization.POJOHelper;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValidationException;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
@@ -36,10 +35,7 @@ import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
-import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
-import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
@@ -230,11 +226,15 @@ public class SyncUtils {
         return result;
     }
 
-    private List<Long> search(final SearchCond searchCond, final AnyTypeKind type) {
-        final List<Long> result = new ArrayList<>();
+    private List<Long> findByCorrelationRule(
+            final ConnectorObject connObj, final SyncCorrelationRule rule, final AnyTypeKind type) {
+
+        List<Long> result = new ArrayList<>();
 
         List<Any<?, ?, ?>> anys = searchDAO.search(
-                SyncopeConstants.FULL_ADMIN_REALMS, searchCond, Collections.<OrderByClause>emptyList(), type);
+                SyncopeConstants.FULL_ADMIN_REALMS,
+                rule.getSearchCond(connObj),
+                Collections.<OrderByClause>emptyList(), type);
         for (Any<?, ?, ?> any : anys) {
             result.add(any.getKey());
         }
@@ -242,101 +242,24 @@ public class SyncUtils {
         return result;
     }
 
-    private List<Long> findByCorrelationRule(
-            final ConnectorObject connObj, final SyncCorrelationRule rule, final AnyTypeKind type) {
-
-        return search(rule.getSearchCond(connObj), type);
-    }
-
-    private List<Long> findByAnySearch(
-            final ConnectorObject connObj,
-            final List<String> altSearchSchemas,
-            final Provision provision,
-            final AnyTypeKind anyTypeKind) {
-
-        // search for external attribute's name/value of each specified name
-        Map<String, Attribute> extValues = new HashMap<>();
-
-        for (MappingItem item : MappingUtils.getMappingItems(provision, MappingPurpose.SYNCHRONIZATION)) {
-            extValues.put(item.getIntAttrName(), connObj.getAttributeByName(item.getExtAttrName()));
-        }
-
-        // search for user/group by attribute(s) specified in the policy
-        SearchCond searchCond = null;
-
-        for (String schema : altSearchSchemas) {
-            Attribute value = extValues.get(schema);
-
-            if (value == null) {
-                throw new IllegalArgumentException(
-                        "Connector object does not contains the attributes to perform the search: " + schema);
-            }
-
-            AttributeCond.Type type;
-            String expression = null;
-
-            if (value.getValue() == null || value.getValue().isEmpty()
-                    || (value.getValue().size() == 1 && value.getValue().get(0) == null)) {
-
-                type = AttributeCond.Type.ISNULL;
-            } else {
-                type = AttributeCond.Type.EQ;
-                expression = value.getValue().size() > 1
-                        ? value.getValue().toString()
-                        : value.getValue().get(0).toString();
-            }
-
-            SearchCond nodeCond;
-            // users: just id or username can be selected to be used
-            // groups: just id or name can be selected to be used
-            if ("key".equalsIgnoreCase(schema)
-                    || "username".equalsIgnoreCase(schema) || "name".equalsIgnoreCase(schema)) {
-
-                AnyCond cond = new AnyCond();
-                cond.setSchema(schema);
-                cond.setType(type);
-                cond.setExpression(expression);
-
-                nodeCond = SearchCond.getLeafCond(cond);
-            } else {
-                AttributeCond cond = new AttributeCond();
-                cond.setSchema(schema);
-                cond.setType(type);
-                cond.setExpression(expression);
-
-                nodeCond = SearchCond.getLeafCond(cond);
-            }
-
-            searchCond = searchCond == null
-                    ? nodeCond
-                    : SearchCond.getAndCond(searchCond, nodeCond);
-        }
-
-        return search(searchCond, anyTypeKind);
-    }
-
     private SyncCorrelationRule getCorrelationRule(final Provision provision, final SyncPolicySpec policySpec) {
-        String clazz = policySpec.getItem(provision.getAnyType().getKey()) == null
-                ? null
-                : policySpec.getItem(provision.getAnyType().getKey()).getJavaRule();
+        SyncCorrelationRule result = null;
 
-        SyncCorrelationRule res = null;
-
-        if (StringUtils.isNotBlank(clazz)) {
-            try {
-                res = (SyncCorrelationRule) Class.forName(clazz).newInstance();
-            } catch (Exception e) {
-                LOG.error("Failure instantiating correlation rule class '{}'", clazz, e);
+        String syncCorrelationRule = policySpec.getCorrelationRules().get(provision.getAnyType().getKey());
+        if (StringUtils.isNotBlank(syncCorrelationRule)) {
+            if (syncCorrelationRule.charAt(0) == '[') {
+                result = new PlainAttrsSyncCorrelationRule(
+                        POJOHelper.deserialize(syncCorrelationRule, String[].class), provision);
+            } else {
+                try {
+                    result = (SyncCorrelationRule) Class.forName(syncCorrelationRule).newInstance();
+                } catch (Exception e) {
+                    LOG.error("Failure instantiating correlation rule class '{}'", syncCorrelationRule, e);
+                }
             }
         }
 
-        return res;
-    }
-
-    private List<String> getAltSearchSchemas(final Provision provision, final SyncPolicySpec policySpec) {
-        return policySpec.getItem(provision.getAnyType().getKey()) == null
-                ? Collections.<String>emptyList()
-                : policySpec.getItem(provision.getAnyType().getKey()).getAltSearchSchemas();
+        return result;
     }
 
     /**
@@ -360,17 +283,12 @@ public class SyncUtils {
         }
 
         SyncCorrelationRule syncRule = null;
-        List<String> altSearchSchemas = null;
-
         if (syncPolicySpec != null) {
             syncRule = getCorrelationRule(provision, syncPolicySpec);
-            altSearchSchemas = getAltSearchSchemas(provision, syncPolicySpec);
         }
 
         return syncRule == null
-                ? altSearchSchemas == null || altSearchSchemas.isEmpty()
-                        ? findByConnObjectKeyItem(uid, provision, anyUtils)
-                        : findByAnySearch(connObj, altSearchSchemas, provision, anyUtils.getAnyTypeKind())
+                ? findByConnObjectKeyItem(uid, provision, anyUtils)
                 : findByCorrelationRule(connObj, syncRule, anyUtils.getAnyTypeKind());
     }
 

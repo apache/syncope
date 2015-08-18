@@ -187,8 +187,9 @@ public class NotificationJobDelegate {
 
         if (hasToBeRegistered(execution)) {
             execution = notificationManager.storeExec(execution);
-            if (retryPossible && (NotificationJob.Status.valueOf(execution.getStatus())
-                    == NotificationJob.Status.NOT_SENT)) {
+            if (retryPossible
+                    && (NotificationJob.Status.valueOf(execution.getStatus()) == NotificationJob.Status.NOT_SENT)) {
+
                 handleRetries(execution);
             }
         } else {

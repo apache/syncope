@@ -29,20 +29,6 @@ under the License.
   <CPlainAttr id="1" owner_id="1" schema_name="password.cipher.algorithm"/>
   <CPlainAttrValue id="1" attribute_id="1" stringValue="SHA1"/>
 
-  <!-- notificationjob.cronExpression:
-  + not existing: NotificationJob runs according to Notification.DEFAULT_CRON_EXP
-  + provided as empty string: NotificationJob disabled
-  + provided as non-empty string: NotificationJob runs according to the given value -->
-  <PlainSchema name="notificationjob.cronExpression" type="String"
-               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
-  <CPlainAttr id="2" owner_id="1" schema_name="notificationjob.cronExpression"/>
-  <CPlainAttrValue id="2" attribute_id="2" stringValue=""/>
-
-  <PlainSchema name="notification.maxRetries" type="Long"
-               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
-  <CPlainAttr id="3" owner_id="1" schema_name="notification.maxRetries"/>
-  <CPlainAttrValue id="3" attribute_id="3" longValue="3"/>
-
   <PlainSchema name="token.length" type="Long"
                mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
   <CPlainAttr id="4" owner_id="1" schema_name="token.length"/>

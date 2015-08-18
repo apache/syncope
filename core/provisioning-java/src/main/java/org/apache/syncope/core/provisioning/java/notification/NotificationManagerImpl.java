@@ -375,21 +375,21 @@ public class NotificationManagerImpl implements NotificationManager {
         task.addExec(execution);
         task.setExecuted(true);
         taskDAO.save(task);
-        // this flush call is needed to generate a value for the execution id
+        // this flush call is needed to generate a value for the execution key
         taskDAO.flush();
         return execution;
     }
 
     @Override
-    public void setTaskExecuted(final Long taskId, final boolean executed) {
-        NotificationTask task = taskDAO.find(taskId);
+    public void setTaskExecuted(final Long taskKey, final boolean executed) {
+        NotificationTask task = taskDAO.find(taskKey);
         task.setExecuted(executed);
         taskDAO.save(task);
     }
 
     @Override
-    public long countExecutionsWithStatus(final Long taskId, final String status) {
-        NotificationTask task = taskDAO.find(taskId);
+    public long countExecutionsWithStatus(final Long taskKey, final String status) {
+        NotificationTask task = taskDAO.find(taskKey);
         long count = 0;
         for (TaskExec taskExec : task.getExecs()) {
             if (status == null) {

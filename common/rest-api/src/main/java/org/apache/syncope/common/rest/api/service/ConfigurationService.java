@@ -56,34 +56,33 @@ public interface ConfigurationService extends JAXRSService {
     ConfTO list();
 
     /**
-     * Returns configuration parameter with matching key.
+     * Returns configuration parameter with matching schema.
      *
-     * @param key identifier of configuration to be read
-     * @return configuration parameter with matching key
+     * @param schema identifier of configuration to be read
+     * @return configuration parameter with matching schema
      */
     @GET
-    @Path("{key}")
+    @Path("{schema}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    AttrTO read(@NotNull @PathParam("key") String key);
+    AttrTO get(@NotNull @PathParam("schema") String schema);
 
     /**
-     * Creates / updates the configuration parameter with the given key.
+     * Creates / updates the configuration parameter with the given schema.
      *
-     * @param key parameter key
      * @param value parameter value
      */
     @PUT
-    @Path("{key}")
+    @Path("{schema}")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    void set(@NotNull @PathParam("key") String key, @NotNull AttrTO value);
+    void set(@NotNull AttrTO value);
 
     /**
-     * Deletes the configuration parameter with matching key.
+     * Deletes the configuration parameter with matching schema.
      *
-     * @param key configuration parameter key
+     * @param schema configuration parameter schema
      */
     @DELETE
-    @Path("{key}")
+    @Path("{schema}")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    void delete(@NotNull @PathParam("key") String key);
+    void delete(@NotNull @PathParam("schema") String schema);
 }

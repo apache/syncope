@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.jpa.spring;
+package org.apache.syncope.core.misc.spring;
 
 import java.lang.reflect.Method;
 import org.aopalliance.intercept.MethodInvocation;

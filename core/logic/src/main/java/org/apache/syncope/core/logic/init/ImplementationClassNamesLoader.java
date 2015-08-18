@@ -62,9 +62,6 @@ public class ImplementationClassNamesLoader implements SyncopeLoader {
 
     }
 
-    /**
-     * Logger.
-     */
     private static final Logger LOG = LoggerFactory.getLogger(ImplementationClassNamesLoader.class);
 
     private Map<Type, Set<String>> classNames;
@@ -87,7 +84,7 @@ public class ImplementationClassNamesLoader implements SyncopeLoader {
         scanner.addIncludeFilter(new AssignableTypeFilter(SyncActions.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(PushActions.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(SyncCorrelationRule.class));
-        // Remove once SYNCOPE-631 is done
+        // Remove once SYNCOPE-470 is done
         //scanner.addIncludeFilter(new AssignableTypeFilter(PushCorrelationRule.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(PropagationActions.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(Validator.class));
@@ -121,7 +118,7 @@ public class ImplementationClassNamesLoader implements SyncopeLoader {
                     classNames.get(Type.SYNC_CORRELATION_RULE).add(bd.getBeanClassName());
                 }
 
-                // Uncomment when SYNCOPE-631 is done
+                // Uncomment when SYNCOPE-470 is done
                 /* if (PushCorrelationRule.class.isAssignableFrom(clazz) && !isAbsractClazz) {
                  * classNames.get(Type.PUSH_CORRELATION_RULES).add(metadata.getClassName());
                  * } */
