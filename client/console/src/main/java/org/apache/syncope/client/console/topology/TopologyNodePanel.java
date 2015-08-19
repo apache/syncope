@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.topology;
 import java.text.MessageFormat;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.ConnectorModal;
 import org.apache.syncope.client.console.panels.ResourceModal;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
@@ -32,6 +33,7 @@ import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.IAjaxIndicatorAware;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
@@ -42,7 +44,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TopologyNodePanel extends Panel {
+public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
 
     private static final long serialVersionUID = -8775095410207013913L;
 
@@ -106,6 +108,7 @@ public class TopologyNodePanel extends Panel {
         this.setMarkupId(node.getDisplayName());
 
         this.modal = modal;
+        BasePage.class.cast(pageRef.getPage()).setWindowClosedCallback(modal, null);
     }
 
     private Fragment getSyncopeFragment() {
@@ -233,5 +236,10 @@ public class TopologyNodePanel extends Panel {
         fragment.add(edit);
 
         return fragment;
+    }
+
+    @Override
+    public String getAjaxIndicatorMarkupId() {
+        return "veil";
     }
 }
