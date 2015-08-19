@@ -66,7 +66,7 @@ public class Realm extends Panel {
         List<AnyTypeMenuItem> anyMenu = new ArrayList<>();
         List<AnySearchResultPanel> anyList = new ArrayList<>();
 
-        for (AnyTypeTO anyTypeTO : anyTypeRestClient.list()) {
+        for (AnyTypeTO anyTypeTO : anyTypeRestClient.getAll()) {
             anyMenu.add(new AnyTypeMenuItem(anyTypeTO.getKey(), MARKUP_ID.toString()));
 
             switch (anyTypeTO.getKind()) {

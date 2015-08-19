@@ -39,6 +39,11 @@ public class AjaxTextFieldPanel extends FieldPanel<String> implements Cloneable 
     private List<String> choices = Collections.emptyList();
 
     public AjaxTextFieldPanel(final String id, final String name, final IModel<String> model) {
+        this(id, name, model, true);
+    }
+
+    public AjaxTextFieldPanel(
+            final String id, final String name, final IModel<String> model, final boolean enableOnChange) {
         super(id, model);
 
         final AutoCompleteSettings settings = new AutoCompleteSettings();
@@ -66,7 +71,7 @@ public class AjaxTextFieldPanel extends FieldPanel<String> implements Cloneable 
         };
         add(field.setLabel(new Model<>(name)).setOutputMarkupId(true));
 
-        if (!isReadOnly()) {
+        if (enableOnChange && !isReadOnly()) {
             field.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
                 private static final long serialVersionUID = -1107858522700306810L;

@@ -26,12 +26,15 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
+import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -55,13 +58,15 @@ public final class ListViewPanel<T extends Serializable> extends Panel {
 
     private final ClearIndicatingAjaxButton addButton;
 
-    private AjaxWizard<T> newItemPanel;
+    private AjaxWizardBuilder<T> newItemPanelBuilder;
 
     private final WebMarkupContainer container;
 
     private final Fragment initialFragment;
 
     private final List<T> listOfItems;
+
+    private NotificationPanel notificationPanel;
 
     /**
      * Table view of a list of beans.
@@ -141,12 +146,12 @@ public final class ListViewPanel<T extends Serializable> extends Panel {
                     @Override
                     protected void populateItem(final ListItem<String> fieldItem) {
                         try {
-                            LOG.error("Processing field {}", fieldItem.getModelObject());
+                            LOG.debug("Processing field {}", fieldItem.getModelObject());
 
                             final Object value = new PropertyDescriptor(fieldItem.getModelObject(), bean.getClass()).
                                     getReadMethod().invoke(bean);
 
-                            LOG.error("Field value {}", value);
+                            LOG.debug("Field value {}", value);
 
                             fieldItem.add(value == null
                                     ? new Label("field", StringUtils.EMPTY)
@@ -171,10 +176,7 @@ public final class ListViewPanel<T extends Serializable> extends Panel {
 
             @Override
             protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
-                final Fragment fragment = new Fragment("content", "wizard", ListViewPanel.this);
-                fragment.add(newItemPanel.clone());
-                container.addOrReplace(fragment);
-                target.add(container);
+                send(ListViewPanel.this, Broadcast.DEPTH, new AjaxWizard.NewItemActionEvent<T>(null, target));
             }
         };
 
@@ -185,31 +187,53 @@ public final class ListViewPanel<T extends Serializable> extends Panel {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void onEvent(final IEvent<?> event) {
         if (event.getPayload() instanceof AjaxWizard.NewItemEvent) {
             final AjaxRequestTarget target = AjaxWizard.NewItemEvent.class.cast(event.getPayload()).getTarget();
 
-            @SuppressWarnings("unchecked")
             final T item = ((AjaxWizard.NewItemEvent<T>) event.getPayload()).getItem();
 
-            if (event.getPayload() instanceof AjaxWizard.NewItemFinishEvent) {
-                this.listOfItems.add(item);
+            if (event.getPayload() instanceof AjaxWizard.NewItemActionEvent) {
+                final Fragment fragment = new Fragment("content", "wizard", ListViewPanel.this);
+                newItemPanelBuilder.setItem(item);
+
+                fragment.add(newItemPanelBuilder.build(
+                        ((AjaxWizard.NewItemActionEvent<T>) event.getPayload()).getIndex()));
+
+                container.addOrReplace(fragment);
+            } else {
+                if (event.getPayload() instanceof AjaxWizard.NewItemFinishEvent) {
+                    if (item != null && !this.listOfItems.contains(item)) {
+                        this.listOfItems.add(item);
+                    }
+
+                    if (notificationPanel != null) {
+                        getSession().info(getString(Constants.OPERATION_SUCCEEDED));
+                        notificationPanel.refresh(target);
+                    }
+                }
+                container.addOrReplace(initialFragment);
             }
 
-            container.addOrReplace(initialFragment);
             target.add(container);
         }
         super.onEvent(event);
     }
 
-    private ListViewPanel<T> addNewItemPanel(final AjaxWizard<T> panel) {
-        this.newItemPanel = panel;
+    private ListViewPanel<T> addNewItemPanelBuilder(final AjaxWizardBuilder<T> panelBuilder) {
+        this.newItemPanelBuilder = panelBuilder;
 
-        if (this.newItemPanel != null) {
+        if (this.newItemPanelBuilder != null) {
             addButton.setEnabled(true);
             addButton.setVisible(true);
         }
 
+        return this;
+    }
+
+    private ListViewPanel<T> addNotificationPanel(final NotificationPanel notificationPanel) {
+        this.notificationPanel = notificationPanel;
         return this;
     }
 
@@ -236,7 +260,9 @@ public final class ListViewPanel<T extends Serializable> extends Panel {
 
         private List<T> items;
 
-        private AjaxWizard<T> newItemPanel;
+        private AjaxWizardBuilder<T> newItemPanelBuilder;
+
+        private NotificationPanel notificationPanel;
 
         private Builder(final Class<T> reference, final PageReference pageRef) {
             this.pageRef = pageRef;
@@ -252,7 +278,8 @@ public final class ListViewPanel<T extends Serializable> extends Panel {
          * @return List view.
          */
         public ListViewPanel<T> build(final String id) {
-            return new ListViewPanel<T>(id, items, reference, includes, actions, pageRef).addNewItemPanel(newItemPanel);
+            return new ListViewPanel<T>(id, items, reference, includes, actions, pageRef).
+                    addNewItemPanelBuilder(newItemPanelBuilder).addNotificationPanel(notificationPanel);
         }
 
         /**
@@ -314,8 +341,13 @@ public final class ListViewPanel<T extends Serializable> extends Panel {
             return this;
         }
 
-        public Builder<T> addNewItemPanel(final AjaxWizard<T> panel) {
-            this.newItemPanel = panel;
+        public Builder<T> addNewItemPanelBuilder(final AjaxWizardBuilder<T> panelBuilder) {
+            this.newItemPanelBuilder = panelBuilder;
+            return this;
+        }
+
+        public Builder<T> addNotificationPanel(final NotificationPanel notificationPanel) {
+            this.notificationPanel = notificationPanel;
             return this;
         }
     }
