@@ -840,7 +840,7 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
         }
     }
 
-    private ActionLinksPanel<T> setDisableIndicator(boolean disableIndicator) {
+    private ActionLinksPanel<T> setDisableIndicator(final boolean disableIndicator) {
         this.disableIndicator = disableIndicator;
         return this;
     }
@@ -868,7 +868,7 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
             this.pageRef = pageRef;
         }
 
-        public Builder<T> setDisableIndicator(boolean disableIndicator) {
+        public Builder<T> setDisableIndicator(final boolean disableIndicator) {
             this.disableIndicator = disableIndicator;
             return this;
         }
