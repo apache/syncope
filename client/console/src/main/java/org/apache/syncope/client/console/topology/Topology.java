@@ -154,6 +154,7 @@ public class Topology extends BasePage {
         // Add Zoom panel
         // -----------------------------------------
         final ActionLinksPanel.Builder<Serializable> zoomActionPanel = ActionLinksPanel.builder(getPageReference());
+        zoomActionPanel.setDisableIndicator(true);
 
         zoomActionPanel.add(new ActionLink<Serializable>() {
 

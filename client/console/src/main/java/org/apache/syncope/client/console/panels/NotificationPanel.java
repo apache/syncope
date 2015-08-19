@@ -53,7 +53,7 @@ public class NotificationPanel extends FeedbackPanel {
         setOutputMarkupId(true);
 
         this.add(new AttributeModifier("class", new Model<>("alert")));
-        this.add(new AttributeModifier("style", new Model<>("opacity: 0;")));
+        this.add(new AttributeModifier("style", new Model<>("opacity: 1; display: none;")));
     }
 
     private String getCSSClass(final int level) {

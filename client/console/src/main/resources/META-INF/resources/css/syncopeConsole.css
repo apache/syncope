@@ -187,3 +187,7 @@ a.help span a {
   color: #463;
   text-decoration: none;
 }
+
+div.basepage-content{
+  margin-top: 55px;
+}
