@@ -33,12 +33,17 @@ public class AjaxCheckBoxPanel extends FieldPanel<Boolean> {
     private static final long serialVersionUID = 5664138233103884310L;
 
     public AjaxCheckBoxPanel(final String id, final String name, final IModel<Boolean> model) {
+        this(id, name, model, true);
+    }
+
+    public AjaxCheckBoxPanel(
+            final String id, final String name, final IModel<Boolean> model, final boolean enableOnChange) {
         super(id, model);
 
         field = new CheckBox("checkboxField", model);
         add(field.setLabel(new Model<String>(name)).setOutputMarkupId(true));
 
-        if (!isReadOnly()) {
+        if (enableOnChange && !isReadOnly()) {
             field.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
                 private static final long serialVersionUID = -1107858522700306810L;

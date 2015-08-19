@@ -129,10 +129,6 @@ public class ResourceMappingPanel extends Panel {
      */
     private final WebMarkupContainer mappingContainer;
 
-    private final WebMarkupContainer connObjectLinkContainer;
-
-    private final AjaxCheckBoxPanel connObjectLinkCheckbox;
-
     private MappingTO getMapping() {
         if (provisionTO.getMapping() == null) {
             provisionTO.setMapping(new MappingTO());
@@ -158,10 +154,6 @@ public class ResourceMappingPanel extends Panel {
         this.mappingContainer = new WebMarkupContainer("mappingContainer");
         this.mappingContainer.setOutputMarkupId(true);
         add(this.mappingContainer);
-
-        this.connObjectLinkContainer = new WebMarkupContainer("connObjectLinkContainer");
-        this.connObjectLinkContainer.setOutputMarkupId(true);
-        add(this.connObjectLinkContainer);
 
         if (resourceTO.getConnector() != null && resourceTO.getConnector() > 0) {
             schemaNames = getSchemaNames(resourceTO.getConnector(), resourceTO.getConnConfProperties());
@@ -444,41 +436,6 @@ public class ResourceMappingPanel extends Panel {
         addMappingBtn.setDefaultFormProcessing(false);
         addMappingBtn.setEnabled(resourceTO.getConnector() != null && resourceTO.getConnector() > 0);
         mappingContainer.add(addMappingBtn);
-
-        boolean connObjectLinkEnabled = false;
-        if (getMapping().getConnObjectLink() != null) {
-            connObjectLinkEnabled = true;
-        }
-        connObjectLinkCheckbox = new AjaxCheckBoxPanel("connObjectLinkCheckbox",
-                new ResourceModel("connObjectLinkCheckbox", "connObjectLinkCheckbox").getObject(),
-                new Model<>(connObjectLinkEnabled));
-        connObjectLinkCheckbox.setEnabled(true);
-
-        connObjectLinkContainer.add(connObjectLinkCheckbox);
-
-        final AjaxTextFieldPanel connObjectLink = new AjaxTextFieldPanel("connObjectLink",
-                new ResourceModel("connObjectLink", "connObjectLink").getObject(),
-                new PropertyModel<String>(getMapping(), "connObjectLink"));
-        connObjectLink.setEnabled(connObjectLinkEnabled);
-        connObjectLinkContainer.add(connObjectLink);
-
-        connObjectLinkCheckbox.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
-
-            private static final long serialVersionUID = -1107858522700306810L;
-
-            @Override
-            protected void onUpdate(final AjaxRequestTarget target) {
-                if (connObjectLinkCheckbox.getModelObject()) {
-                    connObjectLink.setEnabled(Boolean.TRUE);
-                    connObjectLink.setModelObject("");
-                } else {
-                    connObjectLink.setEnabled(Boolean.FALSE);
-                    connObjectLink.setModelObject("");
-                }
-
-                target.add(connObjectLink);
-            }
-        });
     }
 
     private List<String> getSchemaNames(final Long connectorId, final Set<ConnConfProperty> conf) {
@@ -498,15 +455,10 @@ public class ResourceMappingPanel extends Panel {
 
         this.mappingContainer.setEnabled(enabled);
         this.mappingContainer.setVisible(enabled);
-        this.connObjectLinkContainer.setEnabled(enabled);
-        this.connObjectLinkContainer.setVisible(enabled);
 
         if (!enabled) {
             getMapping().getItems().clear();
             getMapping().setConnObjectLink(null);
-            if (this.connObjectLinkCheckbox != null) {
-                this.connObjectLinkCheckbox.setModelObject(null);
-            }
         }
     }
 

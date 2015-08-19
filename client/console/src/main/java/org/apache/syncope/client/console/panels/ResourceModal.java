@@ -24,11 +24,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.AbstractBasePage;
 import org.apache.syncope.client.console.topology.TopologyNode;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
-import org.apache.syncope.client.console.wizards.ProvisionWizard;
+import org.apache.syncope.client.console.wizards.AjaxWizard;
+import org.apache.syncope.client.console.wizards.provision.ProvisionWizardBuilder;
 import org.apache.syncope.common.lib.to.MappingItemTO;
 import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
@@ -89,7 +91,8 @@ public class ResourceModal extends AbstractResourceModal {
 
             @Override
             public void onClick(final AjaxRequestTarget target, final ProvisionTO provisionTO) {
-
+                send(pageRef.getPage(), Broadcast.DEPTH,
+                        new AjaxWizard.NewItemActionEvent<ProvisionTO>(provisionTO, 2, target));
             }
         }, ActionLink.ActionType.MAPPING, Entitlement.RESOURCE_UPDATE).addAction(new ActionLink<ProvisionTO>() {
 
@@ -97,7 +100,8 @@ public class ResourceModal extends AbstractResourceModal {
 
             @Override
             public void onClick(final AjaxRequestTarget target, final ProvisionTO provisionTO) {
-
+                send(pageRef.getPage(), Broadcast.DEPTH,
+                        new AjaxWizard.NewItemActionEvent<ProvisionTO>(provisionTO, 3, target));
             }
         }, ActionLink.ActionType.ACCOUNT_LINK, Entitlement.RESOURCE_UPDATE).addAction(new ActionLink<ProvisionTO>() {
 
@@ -105,7 +109,9 @@ public class ResourceModal extends AbstractResourceModal {
 
             @Override
             public void onClick(final AjaxRequestTarget target, final ProvisionTO provisionTO) {
-
+                provisionTO.setSyncToken(null);
+                send(pageRef.getPage(), Broadcast.DEPTH,
+                        new AjaxWizard.NewItemFinishEvent<ProvisionTO>(provisionTO, target));
             }
         }, ActionLink.ActionType.RESET_TIME, Entitlement.RESOURCE_UPDATE).addAction(new ActionLink<ProvisionTO>() {
 
@@ -113,7 +119,8 @@ public class ResourceModal extends AbstractResourceModal {
 
             @Override
             public void onClick(final AjaxRequestTarget target, final ProvisionTO provisionTO) {
-
+                send(pageRef.getPage(), Broadcast.DEPTH,
+                        new AjaxWizard.NewItemActionEvent<ProvisionTO>(SerializationUtils.clone(provisionTO), target));
             }
         }, ActionLink.ActionType.CLONE, Entitlement.RESOURCE_CREATE).addAction(new ActionLink<ProvisionTO>() {
 
@@ -122,12 +129,14 @@ public class ResourceModal extends AbstractResourceModal {
             @Override
             public void onClick(final AjaxRequestTarget target, final ProvisionTO provisionTO) {
                 resourceTO.getProvisions().remove(provisionTO);
-                target.add(provisions);
-
+                send(pageRef.getPage(), Broadcast.DEPTH,
+                        new AjaxWizard.NewItemFinishEvent<ProvisionTO>(null, target));
             }
         }, ActionLink.ActionType.DELETE, Entitlement.RESOURCE_DELETE);
 
-        builder.addNewItemPanel(new ProvisionWizard("wizard", resourceTO, pageRef));
+        builder.addNewItemPanelBuilder(new ProvisionWizardBuilder("wizard", resourceTO, pageRef));
+        builder.addNotificationPanel(feedbackPanel);
+
         provisions.add(builder.build("provisions"));
         //--------------------------------
 

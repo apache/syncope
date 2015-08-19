@@ -16,12 +16,14 @@
 package org.apache.syncope.client.console.wizards;
 
 import java.io.Serializable;
-import org.apache.commons.lang3.SerializationUtils;
+import org.apache.syncope.client.console.panels.NotificationPanel;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.wizard.Wizard;
+import org.apache.wicket.extensions.wizard.WizardModel;
+import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.request.cycle.RequestCycle;
 
 public abstract class AjaxWizard<T extends Serializable> extends Wizard {
@@ -30,25 +32,50 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard {
 
     private final PageReference pageRef;
 
-    private final T item;
+    private T item;
+
+    private final boolean edit;
+
+    private NotificationPanel feedbackPanel;
 
     /**
      * Construct.
      *
-     * @param id The component id
-     * @param item
+     * @param id The component id.
+     * @param item model object.
+     * @param model
      * @param pageRef Caller page reference.
+     * @param edit <tt>true</tt> if edit mode.
      */
-    public AjaxWizard(final String id, final T item, final PageReference pageRef) {
+    public AjaxWizard(
+            final String id, final T item, final WizardModel model, final PageReference pageRef, final boolean edit) {
         super(id);
         this.item = item;
         this.pageRef = pageRef;
+        this.edit = edit;
+
         setOutputMarkupId(true);
+
+        setDefaultModel(new CompoundPropertyModel<AjaxWizard<T>>(this));
+
+        init(model);
     }
 
     @Override
     protected Component newButtonBar(final String id) {
-        return new AjaxWizardButtonBar(id, this);
+        return new AjaxWizardButtonBar(id, this, this.edit);
+    }
+
+    @Override
+    protected Component newFeedbackPanel(final String id) {
+        if (feedbackPanel == null) {
+            feedbackPanel = new NotificationPanel(id);
+        }
+        return feedbackPanel;
+    }
+
+    public NotificationPanel getFeedbackPanel() {
+        return feedbackPanel;
     }
 
     protected abstract void onCancelInternal();
@@ -79,7 +106,19 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard {
         return item;
     }
 
+    /**
+     * Replaces the default value provided with the constructor.
+     *
+     * @param item new value.
+     * @return the current wizard instance.
+     */
+    public AjaxWizard<T> setItem(final T item) {
+        this.item = item;
+        return this;
+    }
+
     public abstract static class NewItemEvent<T> {
+
         private final T item;
 
         private final AjaxRequestTarget target;
@@ -98,6 +137,25 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard {
         }
     }
 
+    public static class NewItemActionEvent<T> extends NewItemEvent<T> {
+
+        private int index = 0;
+
+        public NewItemActionEvent(final T item, final AjaxRequestTarget target) {
+            super(item, target);
+        }
+
+        public NewItemActionEvent(final T item, final int index, final AjaxRequestTarget target) {
+            super(item, target);
+            this.index = index;
+        }
+
+        public int getIndex() {
+            return index;
+        }
+
+    }
+
     public static class NewItemCancelEvent<T> extends NewItemEvent<T> {
 
         public NewItemCancelEvent(final T item, final AjaxRequestTarget target) {
@@ -112,14 +170,5 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard {
             super(item, target);
         }
 
-    }
-
-    /**
-     *
-     * @return
-     */
-    @Override
-    public AjaxWizard<T> clone() {
-        return SerializationUtils.clone(this);
     }
 }

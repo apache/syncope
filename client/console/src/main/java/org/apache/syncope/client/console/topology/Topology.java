@@ -18,13 +18,6 @@
  */
 package org.apache.syncope.client.console.topology;
 
-import static org.apache.syncope.client.console.topology.TopologyNode.Status.FAILURE;
-import static org.apache.syncope.client.console.topology.TopologyNode.Status.REACHABLE;
-import static org.apache.syncope.client.console.topology.TopologyNode.Status.UNREACHABLE;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
 import java.io.Serializable;
 import java.net.URI;
 import java.util.ArrayList;
@@ -32,8 +25,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.client.WebClient;
@@ -59,9 +50,6 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.LoadableDetachableModel;
-import org.apache.wicket.protocol.ws.api.WebSocketBehavior;
-import org.apache.wicket.protocol.ws.api.WebSocketRequestHandler;
-import org.apache.wicket.protocol.ws.api.message.TextMessage;
 import org.apache.wicket.util.time.Duration;
 
 public class Topology extends BasePage {
@@ -143,7 +131,7 @@ public class Topology extends BasePage {
                 }
             };
 
-    private enum SupportedOperation {
+    protected enum SupportedOperation {
 
         CHECK_RESOURCE,
         CHECK_CONNECTOR,
@@ -160,56 +148,7 @@ public class Topology extends BasePage {
         modal.setInitialWidth(RESOURCE_MODAL_WIN_WIDTH);
         modal.setCookieName("resource-modal");
 
-        add(new WebSocketBehavior() {
-
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            protected void onMessage(final WebSocketRequestHandler handler, final TextMessage message) {
-                try {
-                    final ObjectMapper mapper = new ObjectMapper();
-                    final JsonNode obj = mapper.readTree(message.getText());
-
-                    switch (SupportedOperation.valueOf(obj.get("kind").asText())) {
-                        case CHECK_CONNECTOR:
-                            try {
-                                final ConnInstanceTO connector = connectorRestClient.read(obj.get("target").asLong());
-                                handler.push(String.format("{ \"status\": \"%s\", \"target\": \"%s\"}",
-                                        connectorRestClient.check(connector) ? REACHABLE : UNREACHABLE,
-                                        obj.get("target").asLong()));
-                            } catch (Exception e) {
-                                handler.push(String.format("{ \"status\": \"%s\", \"target\": \"%s\"}",
-                                        FAILURE,
-                                        obj.get("target").asLong()));
-                            }
-                            break;
-                        case CHECK_RESOURCE:
-                            try {
-                                final ResourceTO resource = resourceRestClient.read(obj.get("target").asText());
-                                handler.push(String.format("{ \"status\": \"%s\", \"target\": \"%s\"}",
-                                        connectorRestClient.check(resource) ? REACHABLE : UNREACHABLE,
-                                        obj.get("target").asText()));
-                            } catch (Exception e) {
-                                handler.push(String.format("{ \"status\": \"%s\", \"target\": \"%s\"}",
-                                        FAILURE,
-                                        obj.get("target").asText()));
-                            }
-                            break;
-                        case ADD_ENDPOINT:
-                            handler.appendJavaScript(String.format("addEndpoint('%s', '%s', '%s');",
-                                    obj.get("source").asText(),
-                                    obj.get("target").asText(),
-                                    obj.get("scope").asText()));
-                            break;
-                        default:
-                    }
-
-                } catch (IOException ex) {
-                    Logger.getLogger(Topology.class.getName()).log(Level.SEVERE, null, ex);
-                }
-
-            }
-        });
+        add(new WebSocketBehavior());
 
         // -----------------------------------------
         // Add Zoom panel
@@ -517,7 +456,17 @@ public class Topology extends BasePage {
             protected void onTimer(final AjaxRequestTarget target) {
                 target.appendJavaScript("checkConnection()");
 
-                if (getUpdateInterval().seconds() < 60.0) {
+                if (getUpdateInterval().seconds() < 5.0) {
+                    setUpdateInterval(Duration.seconds(5));
+                } else if (getUpdateInterval().seconds() < 10.0) {
+                    setUpdateInterval(Duration.seconds(10));
+                } else if (getUpdateInterval().seconds() < 15.0) {
+                    setUpdateInterval(Duration.seconds(15));
+                } else if (getUpdateInterval().seconds() < 20.0) {
+                    setUpdateInterval(Duration.seconds(20));
+                } else if (getUpdateInterval().seconds() < 30.0) {
+                    setUpdateInterval(Duration.seconds(30));
+                } else if (getUpdateInterval().seconds() < 60.0) {
                     setUpdateInterval(Duration.seconds(60));
                 }
             }
@@ -590,7 +539,7 @@ public class Topology extends BasePage {
                     resourceCreateEvent.getDisplayName(),
                     resourceCreateEvent.getKind());
 
-            ((List<TopologyNode>) newlyCreated.getModelObject()).add(node);
+            newlyCreated.getModelObject().add(node);
             resourceCreateEvent.getTarget().add(newlyCreatedContainer);
 
             resourceCreateEvent.getTarget().appendJavaScript(String.format(

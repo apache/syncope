@@ -32,11 +32,11 @@ public class NotificationPanel extends FeedbackPanel {
     private static final long serialVersionUID = 5895940553202128621L;
 
     public NotificationPanel(final String id) {
-        this(id, null, null);
+        this(id, null);
     }
 
-    public NotificationPanel(final String id, final String additionalCSSClass,
-            final IFeedbackMessageFilter feedbackMessageFilter) {
+    public NotificationPanel(
+            final String id, final IFeedbackMessageFilter feedbackMessageFilter) {
 
         super(id, feedbackMessageFilter);
 
@@ -46,17 +46,14 @@ public class NotificationPanel extends FeedbackPanel {
 
             @Override
             protected void onEvent(final AjaxRequestTarget target) {
-                target.appendJavaScript(
-                        "setTimeout(\"$('div#" + getMarkupId() + "').fadeOut('normal')\", 0);");
+                target.appendJavaScript("setTimeout(\"$('div#" + getMarkupId() + "').fadeOut('normal')\", 0);");
             }
         });
 
-        // set custom markup id and ouput it, to find the component later on in the js function
-        setMarkupId(id);
         setOutputMarkupId(true);
 
-        add(new AttributeModifier("class", new Model<>("alert")));
-        add(new AttributeModifier("style", new Model<>("opacity: 0;")));
+        this.add(new AttributeModifier("class", new Model<>("alert")));
+        this.add(new AttributeModifier("style", new Model<>("opacity: 0;")));
     }
 
     private String getCSSClass(final int level) {
@@ -96,9 +93,9 @@ public class NotificationPanel extends FeedbackPanel {
             // refresh the panel and call the js function with the panel markup id 
             // and the total count of messages
             target.add(this);
+
             if (anyMessage(FeedbackMessage.ERROR)) {
-                target.appendJavaScript(
-                        "$('div#" + getMarkupId() + "').fadeTo('normal', 1.0);");
+                target.appendJavaScript("$('div#" + getMarkupId() + "').fadeTo('normal', 1.0);");
             } else {
                 target.appendJavaScript(
                         "showNotification('" + getMarkupId() + "', " + getCurrentMessages().size() + ");");

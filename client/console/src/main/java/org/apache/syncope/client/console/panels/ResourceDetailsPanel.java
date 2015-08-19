@@ -222,7 +222,7 @@ public class ResourceDetailsPanel extends Panel {
                 new ResourceModel("connector", "connector").getObject(),
                 new PropertyModel<ConnInstanceTO>(this, "connInstanceTO"));
         conn.setChoices(connectors.getObject());
-        conn.setChoiceRenderer(new ChoiceRenderer<>("displayName", "key"));
+        conn.setChoiceRenderer(new ChoiceRenderer<ConnInstanceTO>("displayName", "key"));
 
         conn.getField().setModel(new IModel<ConnInstanceTO>() {
 
