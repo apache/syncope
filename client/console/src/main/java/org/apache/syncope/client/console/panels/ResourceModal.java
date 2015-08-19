@@ -215,7 +215,6 @@ public class ResourceModal extends AbstractResourceModal {
             }
 
             @Override
-
             protected void onError(final AjaxRequestTarget target, final Form<?> form) {
                 feedbackPanel.refresh(target);
             }

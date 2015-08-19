@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.client.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
 import org.apache.syncope.client.console.wicket.ajax.markup.html.IndicatingOnConfirmAjaxLink;
@@ -45,6 +46,8 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
     private final PageReference pageRef;
 
     private final IModel<T> model;
+
+    private boolean disableIndicator = false;
 
     private ActionLinksPanel(final String componentId, final IModel<T> model, final PageReference pageRef) {
         super(componentId, model);
@@ -106,6 +109,11 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
                     protected void onClickInternal(final AjaxRequestTarget target) {
                         link.onClick(target, model.getObject());
                     }
+
+                    @Override
+                    public String getAjaxIndicatorMarkupId() {
+                        return disableIndicator ? StringUtils.EMPTY : super.getAjaxIndicatorMarkupId();
+                    }
                 }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
 
@@ -119,6 +127,11 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
                     @Override
                     protected void onClickInternal(final AjaxRequestTarget target) {
                         link.onClick(target, model.getObject());
+                    }
+
+                    @Override
+                    public String getAjaxIndicatorMarkupId() {
+                        return disableIndicator ? StringUtils.EMPTY : super.getAjaxIndicatorMarkupId();
                     }
                 }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
@@ -134,6 +147,11 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
                     protected void onClickInternal(final AjaxRequestTarget target) {
                         link.onClick(target, model.getObject());
                     }
+
+                    @Override
+                    public String getAjaxIndicatorMarkupId() {
+                        return disableIndicator ? StringUtils.EMPTY : super.getAjaxIndicatorMarkupId();
+                    }
                 }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
 
@@ -147,6 +165,11 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
                     @Override
                     protected void onClickInternal(final AjaxRequestTarget target) {
                         link.onClick(target, model.getObject());
+                    }
+
+                    @Override
+                    public String getAjaxIndicatorMarkupId() {
+                        return disableIndicator ? StringUtils.EMPTY : super.getAjaxIndicatorMarkupId();
                     }
                 }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
@@ -162,6 +185,11 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
                     protected void onClickInternal(final AjaxRequestTarget target) {
                         link.onClick(target, model.getObject());
                     }
+
+                    @Override
+                    public String getAjaxIndicatorMarkupId() {
+                        return disableIndicator ? StringUtils.EMPTY : super.getAjaxIndicatorMarkupId();
+                    }
                 }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
 
@@ -175,6 +203,11 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
                     @Override
                     protected void onClickInternal(final AjaxRequestTarget target) {
                         link.onClick(target, model.getObject());
+                    }
+
+                    @Override
+                    public String getAjaxIndicatorMarkupId() {
+                        return disableIndicator ? StringUtils.EMPTY : super.getAjaxIndicatorMarkupId();
                     }
                 }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
@@ -190,6 +223,11 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
                     protected void onClickInternal(final AjaxRequestTarget target) {
                         link.onClick(target, model.getObject());
                     }
+
+                    @Override
+                    public String getAjaxIndicatorMarkupId() {
+                        return disableIndicator ? StringUtils.EMPTY : super.getAjaxIndicatorMarkupId();
+                    }
                 }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
 
@@ -203,6 +241,11 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
                     @Override
                     protected void onClickInternal(final AjaxRequestTarget target) {
                         link.onClick(target, model.getObject());
+                    }
+
+                    @Override
+                    public String getAjaxIndicatorMarkupId() {
+                        return disableIndicator ? StringUtils.EMPTY : super.getAjaxIndicatorMarkupId();
                     }
                 }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
@@ -218,6 +261,11 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
                     protected void onClickInternal(final AjaxRequestTarget target) {
                         link.onClick(target, model.getObject());
                     }
+
+                    @Override
+                    public String getAjaxIndicatorMarkupId() {
+                        return disableIndicator ? StringUtils.EMPTY : super.getAjaxIndicatorMarkupId();
+                    }
                 }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
 
@@ -231,6 +279,11 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
                     @Override
                     protected void onClickInternal(final AjaxRequestTarget target) {
                         link.onClick(target, model.getObject());
+                    }
+
+                    @Override
+                    public String getAjaxIndicatorMarkupId() {
+                        return disableIndicator ? StringUtils.EMPTY : super.getAjaxIndicatorMarkupId();
                     }
                 });
                 break;
@@ -246,6 +299,11 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
                     protected void onClickInternal(final AjaxRequestTarget target) {
                         link.onClick(target, model.getObject());
                     }
+
+                    @Override
+                    public String getAjaxIndicatorMarkupId() {
+                        return disableIndicator ? StringUtils.EMPTY : super.getAjaxIndicatorMarkupId();
+                    }
                 }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
 
@@ -259,6 +317,11 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
                     @Override
                     protected void onClickInternal(final AjaxRequestTarget target) {
                         link.onClick(target, model.getObject());
+                    }
+
+                    @Override
+                    public String getAjaxIndicatorMarkupId() {
+                        return disableIndicator ? StringUtils.EMPTY : super.getAjaxIndicatorMarkupId();
                     }
                 }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
@@ -274,6 +337,11 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
                     protected void onClickInternal(final AjaxRequestTarget target) {
                         link.onClick(target, model.getObject());
                     }
+
+                    @Override
+                    public String getAjaxIndicatorMarkupId() {
+                        return disableIndicator ? StringUtils.EMPTY : super.getAjaxIndicatorMarkupId();
+                    }
                 }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
 
@@ -287,6 +355,11 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
                     @Override
                     protected void onClickInternal(final AjaxRequestTarget target) {
                         link.onClick(target, model.getObject());
+                    }
+
+                    @Override
+                    public String getAjaxIndicatorMarkupId() {
+                        return disableIndicator ? StringUtils.EMPTY : super.getAjaxIndicatorMarkupId();
                     }
                 }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
@@ -302,6 +375,11 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
                     protected void onClickInternal(final AjaxRequestTarget target) {
                         link.onClick(target, model.getObject());
                     }
+
+                    @Override
+                    public String getAjaxIndicatorMarkupId() {
+                        return disableIndicator ? StringUtils.EMPTY : super.getAjaxIndicatorMarkupId();
+                    }
                 }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
 
@@ -315,6 +393,11 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
                     @Override
                     protected void onClickInternal(final AjaxRequestTarget target) {
                         link.onClick(target, model.getObject());
+                    }
+
+                    @Override
+                    public String getAjaxIndicatorMarkupId() {
+                        return disableIndicator ? StringUtils.EMPTY : super.getAjaxIndicatorMarkupId();
                     }
                 }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
@@ -330,6 +413,11 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
                     protected void onClickInternal(final AjaxRequestTarget target) {
                         link.onClick(target, model.getObject());
                     }
+
+                    @Override
+                    public String getAjaxIndicatorMarkupId() {
+                        return disableIndicator ? StringUtils.EMPTY : super.getAjaxIndicatorMarkupId();
+                    }
                 }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
 
@@ -343,6 +431,11 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
                     @Override
                     protected void onClickInternal(final AjaxRequestTarget target) {
                         link.onClick(target, model.getObject());
+                    }
+
+                    @Override
+                    public String getAjaxIndicatorMarkupId() {
+                        return disableIndicator ? StringUtils.EMPTY : super.getAjaxIndicatorMarkupId();
                     }
                 }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
 
@@ -359,6 +452,11 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
                     protected void onClickInternal(final AjaxRequestTarget target) {
                         link.onClick(target, model.getObject());
                     }
+
+                    @Override
+                    public String getAjaxIndicatorMarkupId() {
+                        return disableIndicator ? StringUtils.EMPTY : super.getAjaxIndicatorMarkupId();
+                    }
                 }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
 
                 break;
@@ -374,6 +472,11 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
                     protected void onClickInternal(final AjaxRequestTarget target) {
                         link.onClick(target, model.getObject());
                     }
+
+                    @Override
+                    public String getAjaxIndicatorMarkupId() {
+                        return disableIndicator ? StringUtils.EMPTY : super.getAjaxIndicatorMarkupId();
+                    }
                 }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
 
@@ -387,6 +490,11 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
                     @Override
                     protected void onClickInternal(final AjaxRequestTarget target) {
                         link.onClick(target, model.getObject());
+                    }
+
+                    @Override
+                    public String getAjaxIndicatorMarkupId() {
+                        return disableIndicator ? StringUtils.EMPTY : super.getAjaxIndicatorMarkupId();
                     }
                 }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
@@ -402,6 +510,11 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
                     protected void onClickInternal(final AjaxRequestTarget target) {
                         link.onClick(target, model.getObject());
                     }
+
+                    @Override
+                    public String getAjaxIndicatorMarkupId() {
+                        return disableIndicator ? StringUtils.EMPTY : super.getAjaxIndicatorMarkupId();
+                    }
                 }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
 
@@ -415,6 +528,11 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
                     @Override
                     protected void onClickInternal(final AjaxRequestTarget target) {
                         link.onClick(target, model.getObject());
+                    }
+
+                    @Override
+                    public String getAjaxIndicatorMarkupId() {
+                        return disableIndicator ? StringUtils.EMPTY : super.getAjaxIndicatorMarkupId();
                     }
                 }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
@@ -430,22 +548,31 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
                     protected void onClickInternal(final AjaxRequestTarget target) {
                         link.onClick(target, model.getObject());
                     }
+
+                    @Override
+                    public String getAjaxIndicatorMarkupId() {
+                        return disableIndicator ? StringUtils.EMPTY : super.getAjaxIndicatorMarkupId();
+                    }
                 }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
 
             case UNLINK:
                 fragment = new Fragment("panelUnlink", "fragmentUnlink", this);
 
-                fragment.addOrReplace(
-                        new IndicatingOnConfirmAjaxLink<Void>("unlinkLink", pageRef, "confirmUnlink") {
+                fragment.addOrReplace(new IndicatingOnConfirmAjaxLink<Void>("unlinkLink", pageRef, "confirmUnlink") {
 
-                            private static final long serialVersionUID = -6957616042924610293L;
+                    private static final long serialVersionUID = -6957616042924610293L;
 
-                            @Override
-                            protected void onClickInternal(final AjaxRequestTarget target) {
-                                link.onClick(target, model.getObject());
-                            }
-                        }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
+                    @Override
+                    protected void onClickInternal(final AjaxRequestTarget target) {
+                        link.onClick(target, model.getObject());
+                    }
+
+                    @Override
+                    public String getAjaxIndicatorMarkupId() {
+                        return disableIndicator ? StringUtils.EMPTY : super.getAjaxIndicatorMarkupId();
+                    }
+                }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
 
             case LINK:
@@ -458,6 +585,11 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
                     @Override
                     protected void onClickInternal(final AjaxRequestTarget target) {
                         link.onClick(target, model.getObject());
+                    }
+
+                    @Override
+                    public String getAjaxIndicatorMarkupId() {
+                        return disableIndicator ? StringUtils.EMPTY : super.getAjaxIndicatorMarkupId();
                     }
                 }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
@@ -474,6 +606,11 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
                             protected void onClickInternal(final AjaxRequestTarget target) {
                                 link.onClick(target, model.getObject());
                             }
+
+                            @Override
+                            public String getAjaxIndicatorMarkupId() {
+                                return disableIndicator ? StringUtils.EMPTY : super.getAjaxIndicatorMarkupId();
+                            }
                         }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
 
@@ -487,6 +624,11 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
                     @Override
                     protected void onClickInternal(final AjaxRequestTarget target) {
                         link.onClick(target, model.getObject());
+                    }
+
+                    @Override
+                    public String getAjaxIndicatorMarkupId() {
+                        return disableIndicator ? StringUtils.EMPTY : super.getAjaxIndicatorMarkupId();
                     }
                 }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
@@ -503,6 +645,11 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
                             protected void onClickInternal(final AjaxRequestTarget target) {
                                 link.onClick(target, model.getObject());
                             }
+
+                            @Override
+                            public String getAjaxIndicatorMarkupId() {
+                                return disableIndicator ? StringUtils.EMPTY : super.getAjaxIndicatorMarkupId();
+                            }
                         }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
 
@@ -517,6 +664,11 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
                     protected void onClickInternal(final AjaxRequestTarget target) {
                         link.onClick(target, model.getObject());
                     }
+
+                    @Override
+                    public String getAjaxIndicatorMarkupId() {
+                        return disableIndicator ? StringUtils.EMPTY : super.getAjaxIndicatorMarkupId();
+                    }
                 }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
             case ZOOM_IN:
@@ -530,6 +682,11 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
                     protected void onClickInternal(final AjaxRequestTarget target) {
                         link.onClick(target, model.getObject());
                     }
+
+                    @Override
+                    public String getAjaxIndicatorMarkupId() {
+                        return disableIndicator ? StringUtils.EMPTY : super.getAjaxIndicatorMarkupId();
+                    }
                 }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
             case ZOOM_OUT:
@@ -542,6 +699,11 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
                     @Override
                     protected void onClickInternal(final AjaxRequestTarget target) {
                         link.onClick(target, model.getObject());
+                    }
+
+                    @Override
+                    public String getAjaxIndicatorMarkupId() {
+                        return disableIndicator ? StringUtils.EMPTY : super.getAjaxIndicatorMarkupId();
                     }
                 }.feedbackPanelAutomaticReload(link.feedbackPanelAutomaticReload()));
                 break;
@@ -678,6 +840,11 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
         }
     }
 
+    private ActionLinksPanel<T> setDisableIndicator(boolean disableIndicator) {
+        this.disableIndicator = disableIndicator;
+        return this;
+    }
+
     public static <T extends Serializable> Builder<T> builder(final PageReference pageRef) {
         return new Builder<T>(pageRef);
     }
@@ -695,8 +862,15 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
 
         private final PageReference pageRef;
 
+        private boolean disableIndicator = false;
+
         private Builder(final PageReference pageRef) {
             this.pageRef = pageRef;
+        }
+
+        public Builder<T> setDisableIndicator(boolean disableIndicator) {
+            this.disableIndicator = disableIndicator;
+            return this;
         }
 
         public Builder<T> add(
@@ -754,6 +928,8 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
             final ActionLinksPanel<T> panel = modelObject == null
                     ? new ActionLinksPanel<T>(id, new Model<T>(), this.pageRef)
                     : new ActionLinksPanel<T>(id, new Model<T>(modelObject), this.pageRef);
+
+            panel.setDisableIndicator(disableIndicator);
 
             for (Entry<ActionLink.ActionType, Triple<ActionLink<T>, String, Boolean>> action : actions.entrySet()) {
                 panel.add(
