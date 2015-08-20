@@ -28,12 +28,10 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.common.lib.report.ReportletConf;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
-import org.apache.syncope.core.persistence.api.entity.ReportletConfInstance;
 import org.apache.syncope.core.persistence.jpa.validation.entity.ReportCheck;
 
 @Entity
@@ -52,19 +50,12 @@ public class JPAReport extends AbstractEntity<Long> implements Report {
     private String name;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "report")
-    private List<JPAReportletConfInstance> reportletConfs;
+    private List<JPAReportletConfInstance> reportletConfs = new ArrayList<>();
 
     private String cronExpression;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "report")
-    private List<JPAReportExec> executions;
-
-    public JPAReport() {
-        super();
-
-        reportletConfs = new ArrayList<>();
-        executions = new ArrayList<>();
-    }
+    private List<JPAReportExec> executions = new ArrayList<>();
 
     @Override
     public Long getKey() {
@@ -112,22 +103,16 @@ public class JPAReport extends AbstractEntity<Long> implements Report {
     }
 
     @Override
-    public boolean remove(final ReportletConf reportletConf) {
-        return CollectionUtils.filter(reportletConfs, new Predicate<JPAReportletConfInstance>() {
-
-            @Override
-            public boolean evaluate(final JPAReportletConfInstance object) {
-                return reportletConf.equals(object.getInstance());
-            }
-        });
+    public void removeAllReportletConfs() {
+        reportletConfs.clear();
     }
 
     @Override
     public List<ReportletConf> getReportletConfs() {
-        return CollectionUtils.collect(reportletConfs, new Transformer<ReportletConfInstance, ReportletConf>() {
+        return CollectionUtils.collect(reportletConfs, new Transformer<JPAReportletConfInstance, ReportletConf>() {
 
             @Override
-            public ReportletConf transform(final ReportletConfInstance input) {
+            public ReportletConf transform(final JPAReportletConfInstance input) {
                 return input.getInstance();
             }
         }, new ArrayList<ReportletConf>());

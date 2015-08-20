@@ -31,7 +31,7 @@ import org.apache.cxf.feature.Feature;
 import org.apache.cxf.feature.LoggingFeature;
 import org.apache.cxf.jaxrs.provider.JAXBElementProvider;
 import org.apache.cxf.staxutils.DocumentDepthProperties;
-import org.apache.syncope.common.lib.to.AbstractPolicyTO;
+import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 
 /**

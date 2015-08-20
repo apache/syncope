@@ -28,7 +28,7 @@ import org.apache.syncope.core.persistence.jpa.validation.entity.SchedTaskCheck;
 @Entity
 @DiscriminatorValue("SchedTask")
 @SchedTaskCheck
-public class JPASchedTask extends JPATask implements SchedTask {
+public class JPASchedTask extends AbstractTask implements SchedTask {
 
     private static final long serialVersionUID = 7596236684832602180L;
 

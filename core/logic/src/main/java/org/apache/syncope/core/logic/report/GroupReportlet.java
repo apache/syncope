@@ -26,6 +26,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.report.GroupReportletConf;
 import org.apache.syncope.common.lib.report.GroupReportletConf.Feature;
+import org.apache.syncope.common.lib.report.ReportletConf;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.GroupTO;
@@ -43,7 +44,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 
 @ReportletConfClass(GroupReportletConf.class)
-public class GroupReportlet extends AbstractReportlet<GroupReportletConf> {
+public class GroupReportlet extends AbstractReportlet {
 
     private static final int PAGE_SIZE = 10;
 
@@ -55,6 +56,8 @@ public class GroupReportlet extends AbstractReportlet<GroupReportletConf> {
 
     @Autowired
     private GroupDataBinder groupDataBinder;
+
+    private GroupReportletConf conf;
 
     private List<Group> getPagedGroups(final int page) {
         List<Group> result;
@@ -296,7 +299,13 @@ public class GroupReportlet extends AbstractReportlet<GroupReportletConf> {
     }
 
     @Override
-    protected void doExtract(final ContentHandler handler) throws SAXException {
+    protected void doExtract(final ReportletConf conf, final ContentHandler handler) throws SAXException {
+        if (conf instanceof GroupReportletConf) {
+            this.conf = GroupReportletConf.class.cast(conf);
+        } else {
+            throw new ReportException(new IllegalArgumentException("Invalid configuration provided"));
+        }
+
         doExtractConf(handler);
         for (int i = 1; i <= (count() / PAGE_SIZE) + 1; i++) {
             doExtract(handler, getPagedGroups(i));

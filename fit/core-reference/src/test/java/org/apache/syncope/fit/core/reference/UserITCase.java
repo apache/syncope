@@ -38,6 +38,7 @@ import java.util.Map;
 import java.util.Set;
 import javax.naming.NamingException;
 import javax.ws.rs.core.EntityTag;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -50,6 +51,9 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.mod.ResourceAssociationMod;
 import org.apache.syncope.common.lib.mod.StatusMod;
 import org.apache.syncope.common.lib.mod.UserMod;
+import org.apache.syncope.common.lib.policy.AccountPolicyTO;
+import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
+import org.apache.syncope.common.lib.policy.PasswordPolicyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
@@ -63,6 +67,7 @@ import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
@@ -1159,6 +1164,66 @@ public class UserITCase extends AbstractITCase {
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
         assertEquals(Preference.RETURN_NO_CONTENT.toString(), response.getHeaderString(RESTHeaders.PREFERENCE_APPLIED));
         assertEquals(StringUtils.EMPTY, IOUtils.toString((InputStream) response.getEntity()));
+    }
+
+    @Test
+    public void customPolicyRules() {
+        // Using custom policy rules with application/xml requires to overwrite
+        // org.apache.syncope.common.lib.policy.AbstractAccountRuleConf's and / or
+        // org.apache.syncope.common.lib.policy.AbstractPasswordRuleConf's
+        // @XmlSeeAlso - the power of JAXB :-/
+        Assume.assumeTrue(MediaType.APPLICATION_JSON_TYPE.equals(clientFactory.getContentType().getMediaType()));
+
+        AccountPolicyTO accountPolicy = new AccountPolicyTO();
+        accountPolicy.setDescription("Account Policy with custom rules");
+        accountPolicy.getRuleConfs().add(new TestAccountRuleConf());
+        accountPolicy = createPolicy(accountPolicy);
+        assertNotNull(accountPolicy);
+
+        PasswordPolicyTO passwordPolicy = new PasswordPolicyTO();
+        passwordPolicy.setDescription("Password Policy with custom rules");
+        passwordPolicy.getRuleConfs().add(new TestPasswordRuleConf());
+        passwordPolicy = createPolicy(passwordPolicy);
+        assertNotNull(passwordPolicy);
+
+        RealmTO realm = realmService.list("/even/two").get(0);
+        Long oldAccountPolicy = realm.getAccountPolicy();
+        realm.setAccountPolicy(accountPolicy.getKey());
+        Long oldPasswordPolicy = realm.getPasswordPolicy();
+        realm.setPasswordPolicy(passwordPolicy.getKey());
+        realmService.update(realm);
+
+        try {
+            UserTO user = getUniqueSampleTO("custompolicyrules@syncope.apache.org");
+            user.setRealm(realm.getFullPath());
+            try {
+                createUser(user);
+                fail();
+            } catch (SyncopeClientException e) {
+                assertEquals(ClientExceptionType.InvalidUser, e.getType());
+                assertTrue(e.getElements().iterator().next().startsWith("InvalidPassword"));
+            }
+
+            user.setPassword(user.getPassword() + "XXX");
+            try {
+                createUser(user);
+                fail();
+            } catch (SyncopeClientException e) {
+                assertEquals(ClientExceptionType.InvalidUser, e.getType());
+                assertTrue(e.getElements().iterator().next().startsWith("InvalidUsername"));
+            }
+
+            user.setUsername("YYY" + user.getUsername());
+            user = createUser(user);
+            assertNotNull(user);
+        } finally {
+            realm.setAccountPolicy(oldAccountPolicy);
+            realm.setPasswordPolicy(oldPasswordPolicy);
+            realmService.update(realm);
+
+            policyService.delete(passwordPolicy.getKey());
+            policyService.delete(accountPolicy.getKey());
+        }
     }
 
     @Test
@@ -2417,5 +2482,46 @@ public class UserITCase extends AbstractITCase {
         connObjectTO = resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), actual.getKey());
         assertNotNull(connObjectTO);
         assertEquals("newPostalAddress", connObjectTO.getPlainAttrMap().get("postalAddress").getValues().get(0));
+    }
+
+    @Test
+    public void issueSYNCOPE626() {
+        PasswordPolicyTO passwordPolicy = new PasswordPolicyTO();
+        passwordPolicy.setDescription("Password Policy for SYNCOPE-626");
+
+        DefaultPasswordRuleConf ruleConf = new DefaultPasswordRuleConf();
+        ruleConf.setUsernameAllowed(false);
+        passwordPolicy.getRuleConfs().add(ruleConf);
+
+        passwordPolicy = createPolicy(passwordPolicy);
+        assertNotNull(passwordPolicy);
+
+        RealmTO realm = realmService.list("/even/two").get(0);
+        Long oldPasswordPolicy = realm.getPasswordPolicy();
+        realm.setPasswordPolicy(passwordPolicy.getKey());
+        realmService.update(realm);
+
+        try {
+            UserTO user = getUniqueSampleTO("syncope626@syncope.apache.org");
+            user.setRealm(realm.getFullPath());
+            user.setPassword(user.getUsername());
+            try {
+                createUser(user);
+                fail();
+            } catch (SyncopeClientException e) {
+                assertEquals(ClientExceptionType.InvalidUser, e.getType());
+                assertTrue(e.getElements().iterator().next().startsWith("InvalidPassword"));
+            }
+
+            user.setPassword("password123");
+            user = createUser(user);
+            assertNotNull(user);
+        } finally {
+            realm.setPasswordPolicy(oldPasswordPolicy);
+            realmService.update(realm);
+
+            policyService.delete(passwordPolicy.getKey());
+        }
+
     }
 }

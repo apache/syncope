@@ -25,22 +25,16 @@ import org.xml.sax.SAXException;
 /**
  * Interface for all elements that can be embedded in a report.
  *
- * @see org.apache.syncope.core.persistence.beans.Report
+ * @see org.apache.syncope.core.persistence.api.entity.Report
  */
-public interface Reportlet<T extends ReportletConf> {
-
-    /**
-     * Set this reportlet configuration.
-     *
-     * @param conf configuration
-     */
-    void setConf(T conf);
+public interface Reportlet {
 
     /**
      * Actual data extraction for reporting.
      *
+     * @param conf configuration
      * @param handler SAX content handler for streaming result
      * @throws SAXException if there is any problem in SAX handling
      */
-    void extract(ContentHandler handler) throws SAXException;
+    void extract(ReportletConf conf, ContentHandler handler) throws SAXException;
 }

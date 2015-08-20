@@ -31,8 +31,6 @@ import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.JobStatusType;
 import org.apache.syncope.common.lib.types.ReportExecExportFormat;
-import org.apache.syncope.common.lib.wrap.ReportletConfClass;
-import org.apache.syncope.common.rest.api.CollectionWrapper;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.ListQuery;
 import org.apache.syncope.common.rest.api.service.ReportService;
@@ -71,11 +69,6 @@ public class ReportServiceImpl extends AbstractServiceImpl implements ReportServ
                 listQuery.getPage(),
                 listQuery.getSize(),
                 logic.count());
-    }
-
-    @Override
-    public List<ReportletConfClass> getReportletConfClasses() {
-        return CollectionWrapper.wrap(logic.getReportletConfClasses(), ReportletConfClass.class);
     }
 
     @Override

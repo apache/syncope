@@ -18,12 +18,17 @@
  */
 package org.apache.syncope.common.lib.policy;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.ArrayList;
+import java.util.List;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "defaultPasswordRuleConf")
 @XmlType
-public class DefaultPasswordRuleConf extends AbstractRuleConf implements PasswordRuleConf {
+public class DefaultPasswordRuleConf extends AbstractPasswordRuleConf {
 
     private static final long serialVersionUID = -7988778083915548547L;
 
@@ -121,6 +126,31 @@ public class DefaultPasswordRuleConf extends AbstractRuleConf implements Passwor
      * Specify if mustn't end with a alphanumeric character.
      */
     private boolean mustntEndWithAlpha;
+
+    /**
+     * Specify if using username as password is allowed.
+     */
+    private boolean usernameAllowed;
+
+    /**
+     * Substrings not permitted.
+     */
+    private final List<String> wordsNotPermitted = new ArrayList<>();
+
+    /**
+     * User attribute values not permitted.
+     */
+    private final List<String> schemasNotPermitted = new ArrayList<>();
+
+    /**
+     * Substrings not permitted as prefix.
+     */
+    private final List<String> prefixesNotPermitted = new ArrayList<>();
+
+    /**
+     * Substrings not permitted as suffix.
+     */
+    private final List<String> suffixesNotPermitted = new ArrayList<>();
 
     public boolean isDigitRequired() {
         return digitRequired;
@@ -274,4 +304,39 @@ public class DefaultPasswordRuleConf extends AbstractRuleConf implements Passwor
         this.mustntStartWithAlpha = mustntStartWithAlpha;
     }
 
+    public boolean isUsernameAllowed() {
+        return usernameAllowed;
+    }
+
+    public void setUsernameAllowed(final boolean usernameAllowed) {
+        this.usernameAllowed = usernameAllowed;
+    }
+
+    @XmlElementWrapper(name = "wordsNotPermitted")
+    @XmlElement(name = "word")
+    @JsonProperty("wordsNotPermitted")
+    public List<String> getWordsNotPermitted() {
+        return wordsNotPermitted;
+    }
+
+    @XmlElementWrapper(name = "prefixesNotPermitted")
+    @XmlElement(name = "prefix")
+    @JsonProperty("prefixesNotPermitted")
+    public List<String> getPrefixesNotPermitted() {
+        return prefixesNotPermitted;
+    }
+
+    @XmlElementWrapper(name = "schemasNotPermitted")
+    @XmlElement(name = "schema")
+    @JsonProperty("schemasNotPermitted")
+    public List<String> getSchemasNotPermitted() {
+        return schemasNotPermitted;
+    }
+
+    @XmlElementWrapper(name = "suffixesNotPermitted")
+    @XmlElement(name = "suffix")
+    @JsonProperty("suffixesNotPermitted")
+    public List<String> getSuffixesNotPermitted() {
+        return suffixesNotPermitted;
+    }
 }

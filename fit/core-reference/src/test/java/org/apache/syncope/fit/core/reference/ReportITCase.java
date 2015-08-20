@@ -39,7 +39,6 @@ import org.apache.syncope.common.lib.to.ReportExecTO;
 import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.types.ReportExecExportFormat;
 import org.apache.syncope.common.lib.types.ReportExecStatus;
-import org.apache.syncope.common.lib.wrap.ReportletConfClass;
 import org.apache.syncope.common.rest.api.service.ReportService;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -56,9 +55,9 @@ public class ReportITCase extends AbstractITCase {
 
     @Test
     public void getReportletClasses() {
-        List<ReportletConfClass> reportletClasses = reportService.getReportletConfClasses();
-        assertNotNull(reportletClasses);
-        assertFalse(reportletClasses.isEmpty());
+        List<String> reportlets = syncopeService.info().getReportlets();
+        assertNotNull(reportlets);
+        assertFalse(reportlets.isEmpty());
     }
 
     @Test

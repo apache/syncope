@@ -19,9 +19,12 @@
 package org.apache.syncope.core.persistence.api.dao;
 
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
+import org.apache.syncope.core.persistence.api.entity.user.User;
 
-public interface AccountRule extends PolicyRule {
+/**
+ * Interface for enforcing a given account rule to user.
+ */
+public interface AccountRule {
 
-    void setConf(AccountRuleConf conf);
-
+    void enforce(AccountRuleConf conf, User user);
 }

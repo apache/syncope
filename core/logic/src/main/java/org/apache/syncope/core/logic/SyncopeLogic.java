@@ -28,6 +28,7 @@ import java.util.Set;
 import javax.annotation.Resource;
 import org.apache.syncope.common.lib.to.SyncopeTO;
 import org.apache.syncope.core.logic.init.ImplementationClassNamesLoader;
+import org.apache.syncope.core.misc.security.PasswordGenerator;
 import org.apache.syncope.core.misc.spring.ResourceWithFallbackLoader;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.provisioning.api.AnyObjectProvisioningManager;
@@ -83,6 +84,9 @@ public class SyncopeLogic extends AbstractLogic<SyncopeTO> {
     private VirAttrCache virAttrCache;
 
     @Autowired
+    private PasswordGenerator passwordGenerator;
+
+    @Autowired
     private ImplementationClassNamesLoader classNamesLoader;
 
     @Resource(name = "velocityResourceLoader")
@@ -129,8 +133,11 @@ public class SyncopeLogic extends AbstractLogic<SyncopeTO> {
         syncopeTO.setUserProvisioningManager(uProvisioningManager.getClass().getName());
         syncopeTO.setGroupProvisioningManager(gProvisioningManager.getClass().getName());
         syncopeTO.setVirAttrCache(virAttrCache.getClass().getName());
+        syncopeTO.setPasswordGenerator(passwordGenerator.getClass().getName());
 
         syncopeTO.getReportlets().addAll(classNamesLoader.getClassNames(Type.REPORTLET));
+        syncopeTO.getAccountRules().addAll(classNamesLoader.getClassNames(Type.ACCOUNT_RULE));
+        syncopeTO.getPasswordRules().addAll(classNamesLoader.getClassNames(Type.PASSWORD_RULE));
         syncopeTO.getTaskJobs().addAll(classNamesLoader.getClassNames(Type.TASKJOBDELEGATE));
         syncopeTO.getPropagationActions().addAll(classNamesLoader.getClassNames(Type.PROPAGATION_ACTIONS));
         syncopeTO.getSyncActions().addAll(classNamesLoader.getClassNames(Type.SYNC_ACTIONS));

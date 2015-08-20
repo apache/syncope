@@ -18,19 +18,20 @@
  */
 package org.apache.syncope.fit.core.reference;
 
-import org.apache.syncope.common.lib.AbstractBaseBean;
-import org.apache.syncope.common.lib.policy.AccountRuleConf;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+import org.apache.syncope.common.lib.policy.AbstractAccountRuleConf;
 
-public class TestAccountRuleConf extends AbstractBaseBean implements AccountRuleConf {
+@XmlRootElement(name = "testAccountRuleConf")
+@XmlType
+public class TestAccountRuleConf extends AbstractAccountRuleConf {
 
     private static final long serialVersionUID = -1803947511928491978L;
 
-    @Override
-    public String getName() {
-        return getClass().getName();
-    }
+    private String mustContainSubstring = "YYY";
 
     public String getMustContainSubstring() {
-        return "YYY";
+        return mustContainSubstring;
     }
+
 }

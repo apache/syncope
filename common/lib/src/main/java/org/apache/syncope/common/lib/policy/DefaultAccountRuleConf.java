@@ -18,12 +18,17 @@
  */
 package org.apache.syncope.common.lib.policy;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.ArrayList;
+import java.util.List;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "defaultAccountRuleConf")
 @XmlType
-public class DefaultAccountRuleConf extends AbstractRuleConf implements AccountRuleConf {
+public class DefaultAccountRuleConf extends AbstractAccountRuleConf implements AccountRuleConf {
 
     private static final long serialVersionUID = 3259256974414758406L;
 
@@ -51,6 +56,26 @@ public class DefaultAccountRuleConf extends AbstractRuleConf implements AccountR
      * Specify if one or more uppercase characters are permitted.
      */
     private boolean allLowerCase;
+
+    /**
+     * Substrings not permitted.
+     */
+    private final List<String> wordsNotPermitted = new ArrayList<>();
+
+    /**
+     * User attribute values not permitted.
+     */
+    private final List<String> schemasNotPermitted = new ArrayList<>();
+
+    /**
+     * Substrings not permitted as prefix.
+     */
+    private final List<String> prefixesNotPermitted = new ArrayList<>();
+
+    /**
+     * Substrings not permitted as suffix.
+     */
+    private final List<String> suffixesNotPermitted = new ArrayList<>();
 
     public boolean isAllLowerCase() {
         return allLowerCase;
@@ -90,5 +115,33 @@ public class DefaultAccountRuleConf extends AbstractRuleConf implements AccountR
 
     public void setPattern(final String pattern) {
         this.pattern = pattern;
+    }
+
+    @XmlElementWrapper(name = "wordsNotPermitted")
+    @XmlElement(name = "word")
+    @JsonProperty("wordsNotPermitted")
+    public List<String> getWordsNotPermitted() {
+        return wordsNotPermitted;
+    }
+
+    @XmlElementWrapper(name = "prefixesNotPermitted")
+    @XmlElement(name = "prefix")
+    @JsonProperty("prefixesNotPermitted")
+    public List<String> getPrefixesNotPermitted() {
+        return prefixesNotPermitted;
+    }
+
+    @XmlElementWrapper(name = "schemasNotPermitted")
+    @XmlElement(name = "schema")
+    @JsonProperty("schemasNotPermitted")
+    public List<String> getSchemasNotPermitted() {
+        return schemasNotPermitted;
+    }
+
+    @XmlElementWrapper(name = "suffixesNotPermitted")
+    @XmlElement(name = "suffix")
+    @JsonProperty("suffixesNotPermitted")
+    public List<String> getSuffixesNotPermitted() {
+        return suffixesNotPermitted;
     }
 }

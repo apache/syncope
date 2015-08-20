@@ -20,7 +20,7 @@ package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.List;
 import org.apache.syncope.common.lib.types.PolicyType;
-import org.apache.syncope.core.persistence.api.entity.AccountPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Policy;
 

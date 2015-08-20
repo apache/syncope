@@ -18,10 +18,13 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javax.annotation.Resource;
 import javax.persistence.NoResultException;
@@ -29,17 +32,16 @@ import javax.persistence.TypedQuery;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.collections4.Transformer;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.types.AccountPolicySpec;
+import org.apache.syncope.common.lib.policy.AccountRuleConf;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.common.lib.types.EntityViolationType;
-import org.apache.syncope.common.lib.types.PasswordPolicySpec;
-import org.apache.syncope.core.misc.policy.AccountPolicyEnforcer;
+import org.apache.syncope.common.lib.policy.PasswordRuleConf;
 import org.apache.syncope.core.misc.policy.AccountPolicyException;
-import org.apache.syncope.core.misc.policy.PasswordPolicyEnforcer;
-import org.apache.syncope.core.misc.policy.PolicyEvaluator;
+import org.apache.syncope.core.misc.policy.PasswordPolicyException;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -49,13 +51,17 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 import org.apache.syncope.core.misc.security.AuthContextUtils;
 import org.apache.syncope.core.misc.security.UnauthorizedException;
+import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
+import org.apache.syncope.core.persistence.api.dao.AccountRule;
+import org.apache.syncope.core.persistence.api.dao.AccountRuleConfClass;
+import org.apache.syncope.core.persistence.api.dao.PasswordRule;
+import org.apache.syncope.core.persistence.api.dao.PasswordRuleConfClass;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
-import org.apache.syncope.core.persistence.api.entity.AccountPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
-import org.apache.syncope.core.persistence.api.entity.PasswordPolicy;
-import org.apache.syncope.core.persistence.api.entity.Policy;
+import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
@@ -64,12 +70,54 @@ import org.apache.syncope.core.persistence.jpa.entity.JPAAnyUtilsFactory;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPADynRoleMembership;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUDynGroupMembership;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.support.AbstractBeanDefinition;
+import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
+import org.springframework.core.type.filter.AssignableTypeFilter;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ClassUtils;
 
 @Repository
 public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
+
+    private static final Map<Class<? extends AccountRuleConf>, Class<AccountRule>> ACCOUNT_RULES_CLASSES =
+            new HashMap<>();
+
+    private static final Map<Class<? extends PasswordRuleConf>, Class<PasswordRule>> PASSWORD_RULES_CLASSES =
+            new HashMap<>();
+
+    static {
+        initRules();
+    }
+
+    @SuppressWarnings("unchecked")
+    private static void initRules() {
+        ClassPathScanningCandidateComponentProvider scanner =
+                new ClassPathScanningCandidateComponentProvider(false);
+        scanner.addIncludeFilter(new AssignableTypeFilter(AccountRule.class));
+        scanner.addIncludeFilter(new AssignableTypeFilter(PasswordRule.class));
+
+        for (BeanDefinition bd : scanner.findCandidateComponents(StringUtils.EMPTY)) {
+            Class<?> clazz = ClassUtils.resolveClassName(
+                    bd.getBeanClassName(), ClassUtils.getDefaultClassLoader());
+            boolean isAbstract = Modifier.isAbstract(clazz.getModifiers());
+
+            if (AccountRule.class.isAssignableFrom(clazz) && !isAbstract) {
+                AccountRuleConfClass annotation = clazz.getAnnotation(AccountRuleConfClass.class);
+                if (annotation != null) {
+                    ACCOUNT_RULES_CLASSES.put(annotation.value(), (Class<AccountRule>) clazz);
+                }
+            }
+            if (PasswordRule.class.isAssignableFrom(clazz) && !isAbstract) {
+                PasswordRuleConfClass annotation = clazz.getAnnotation(PasswordRuleConfClass.class);
+                if (annotation != null) {
+                    PASSWORD_RULES_CLASSES.put(annotation.value(), (Class<PasswordRule>) clazz);
+                }
+            }
+        }
+    }
 
     @Autowired
     private RealmDAO realmDAO;
@@ -85,15 +133,6 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
 
     @Resource(name = "anonymousUser")
     private String anonymousUser;
-
-    @Autowired
-    private PolicyEvaluator evaluator;
-
-    @Autowired
-    private PasswordPolicyEnforcer ppEnforcer;
-
-    @Autowired
-    private AccountPolicyEnforcer apEnforcer;
 
     @Override
     protected AnyUtils init() {
@@ -235,14 +274,39 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
 
         try {
             int maxPPSpecHistory = 0;
-            for (Policy policy : getPasswordPolicies(user)) {
-                // evaluate policy
-                PasswordPolicySpec ppSpec = evaluator.evaluate(policy, user);
-                // enforce policy
-                ppEnforcer.enforce(ppSpec, user);
+            for (PasswordPolicy policy : getPasswordPolicies(user)) {
+                if (user.getPassword() == null && !policy.isAllowNullPassword()) {
+                    throw new PasswordPolicyException("Password mandatory");
+                }
 
-                if (ppSpec.getHistoryLength() > maxPPSpecHistory) {
-                    maxPPSpecHistory = ppSpec.getHistoryLength();
+                for (PasswordRuleConf ruleConf : policy.getRuleConfs()) {
+                    Class<PasswordRule> ruleClass = PASSWORD_RULES_CLASSES.get(ruleConf.getClass());
+                    if (ruleClass == null) {
+                        LOG.warn("Could not find matching password rule for {}", ruleConf.getClass());
+                    } else {
+                        // fetch (or create) rule
+                        PasswordRule rule;
+                        if (ApplicationContextProvider.getBeanFactory().containsSingleton(ruleClass.getName())) {
+                            rule = (PasswordRule) ApplicationContextProvider.getBeanFactory().
+                                    getSingleton(ruleClass.getName());
+                        } else {
+                            rule = (PasswordRule) ApplicationContextProvider.getBeanFactory().
+                                    createBean(ruleClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
+                            ApplicationContextProvider.getBeanFactory().
+                                    registerSingleton(ruleClass.getName(), rule);
+                        }
+
+                        // enforce rule
+                        rule.enforce(ruleConf, user);
+                    }
+                }
+
+                if (user.verifyPasswordHistory(user.getClearPassword(), policy.getHistoryLength())) {
+                    throw new PasswordPolicyException("Password value was used in the past: not allowed");
+                }
+
+                if (policy.getHistoryLength() > maxPPSpecHistory) {
+                    maxPPSpecHistory = policy.getHistoryLength();
                 }
             }
 
@@ -276,14 +340,32 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
                 throw new AccountPolicyException("Not allowed: " + user.getUsername());
             }
 
-            // invalid username
-            for (Policy policy : getAccountPolicies(user)) {
-                // evaluate policy
-                AccountPolicySpec apSpec = evaluator.evaluate(policy, user);
+            for (AccountPolicy policy : getAccountPolicies(user)) {
+                for (AccountRuleConf ruleConf : policy.getRuleConfs()) {
+                    Class<AccountRule> ruleClass = ACCOUNT_RULES_CLASSES.get(ruleConf.getClass());
+                    if (ruleClass == null) {
+                        LOG.warn("Could not find matching password rule for {}", ruleConf.getClass());
+                    } else {
+                        // fetch (or create) rule
+                        AccountRule rule;
+                        if (ApplicationContextProvider.getBeanFactory().containsSingleton(ruleClass.getName())) {
+                            rule = (AccountRule) ApplicationContextProvider.getBeanFactory().
+                                    getSingleton(ruleClass.getName());
+                        } else {
+                            rule = (AccountRule) ApplicationContextProvider.getBeanFactory().
+                                    createBean(ruleClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
+                            ApplicationContextProvider.getBeanFactory().
+                                    registerSingleton(ruleClass.getName(), rule);
+                        }
 
-                // enforce policy
-                suspend |= apEnforcer.enforce(apSpec, user);
-                propagateSuspension |= apSpec.isPropagateSuspension();
+                        // enforce rule
+                        rule.enforce(ruleConf, user);
+                    }
+                }
+
+                suspend |= user.getFailedLogins() != null && policy.getMaxAuthenticationAttempts() > 0
+                        && user.getFailedLogins() > policy.getMaxAuthenticationAttempts() && !user.isSuspended();
+                propagateSuspension |= policy.isPropagateSuspension();
             }
         } catch (Exception e) {
             LOG.error("Invalid username for {}", user, e);

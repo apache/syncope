@@ -20,22 +20,24 @@ package org.apache.syncope.fit.core.reference;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.Arrays;
 import java.util.List;
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.AccountPolicyTO;
-import org.apache.syncope.common.lib.to.PasswordPolicyTO;
-import org.apache.syncope.common.lib.to.SyncPolicyTO;
-import org.apache.syncope.common.lib.types.AccountPolicySpec;
+import org.apache.syncope.common.lib.policy.AccountPolicyTO;
+import org.apache.syncope.common.lib.policy.PasswordPolicyTO;
+import org.apache.syncope.common.lib.policy.SyncPolicyTO;
+import org.apache.syncope.common.lib.policy.DefaultAccountRuleConf;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.apache.syncope.common.lib.types.PasswordPolicySpec;
+import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
 import org.apache.syncope.common.lib.types.PolicyType;
-import org.apache.syncope.common.lib.types.SyncPolicySpec;
+import org.apache.syncope.common.lib.policy.SyncPolicySpec;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -116,24 +118,17 @@ public class PolicyITCase extends AbstractITCase {
 
     @Test
     public void update() {
-        // get global password
         PasswordPolicyTO globalPolicy = policyService.read(2L);
 
-        PasswordPolicyTO policy = new PasswordPolicyTO();
+        PasswordPolicyTO policy = SerializationUtils.clone(globalPolicy);
         policy.setDescription("A simple password policy");
-        policy.setSpecification(globalPolicy.getSpecification());
 
-        // create a new password policy using global password as a template
+        // create a new password policy using the former as a template
         policy = createPolicy(policy);
+        assertNotNull(policy);
+        assertNotEquals(2L, policy.getKey());
 
-        // read new password policy
-        policy = policyService.read(policy.getKey());
-
-        assertNotNull("find to update did not work", policy);
-
-        PasswordPolicySpec policySpec = policy.getSpecification();
-        policySpec.setMaxLength(22);
-        policy.setSpecification(policySpec);
+        ((DefaultPasswordRuleConf) policy.getRuleConfs().get(0)).setMaxLength(22);
 
         // update new password policy
         policyService.update(policy);
@@ -141,8 +136,8 @@ public class PolicyITCase extends AbstractITCase {
 
         assertNotNull(policy);
         assertEquals(PolicyType.PASSWORD, policy.getType());
-        assertEquals(22, policy.getSpecification().getMaxLength());
-        assertEquals(8, policy.getSpecification().getMinLength());
+        assertEquals(22, ((DefaultPasswordRuleConf) policy.getRuleConfs().get(0)).getMaxLength());
+        assertEquals(8, ((DefaultPasswordRuleConf) policy.getRuleConfs().get(0)).getMinLength());
     }
 
     @Test
@@ -172,10 +167,10 @@ public class PolicyITCase extends AbstractITCase {
         AccountPolicyTO policy = new AccountPolicyTO();
         policy.setDescription("SYNCOPE553");
 
-        final AccountPolicySpec accountPolicySpec = new AccountPolicySpec();
-        accountPolicySpec.setMinLength(3);
-        accountPolicySpec.setMaxLength(8);
-        policy.setSpecification(accountPolicySpec);
+        DefaultAccountRuleConf ruleConf = new DefaultAccountRuleConf();
+        ruleConf.setMinLength(3);
+        ruleConf.setMaxLength(8);
+        policy.getRuleConfs().add(ruleConf);
 
         policy = createPolicy(policy);
         assertNotNull(policy);
@@ -187,10 +182,10 @@ public class PolicyITCase extends AbstractITCase {
         policy.setDescription("SYNCOPE682");
         policy.getResources().add(RESOURCE_NAME_LDAP);
 
-        final AccountPolicySpec accountPolicySpec = new AccountPolicySpec();
-        accountPolicySpec.setMinLength(3);
-        accountPolicySpec.setMaxLength(8);
-        policy.setSpecification(accountPolicySpec);
+        DefaultAccountRuleConf ruleConf = new DefaultAccountRuleConf();
+        ruleConf.setMinLength(3);
+        ruleConf.setMaxLength(8);
+        policy.getRuleConfs().add(ruleConf);
 
         policy = createPolicy(policy);
         assertNotNull(policy);

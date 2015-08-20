@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
-import org.apache.syncope.core.persistence.api.entity.ReportletConfInstance;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Lob;
@@ -30,7 +29,7 @@ import org.apache.syncope.core.misc.serialization.POJOHelper;
 
 @Entity
 @Table(name = JPAReportletConfInstance.TABLE)
-public class JPAReportletConfInstance extends AbstractEntity<Long> implements ReportletConfInstance {
+public class JPAReportletConfInstance extends AbstractEntity<Long> {
 
     private static final long serialVersionUID = -2436055132955674610L;
 
@@ -50,25 +49,21 @@ public class JPAReportletConfInstance extends AbstractEntity<Long> implements Re
         return id;
     }
 
-    @Override
     public Report getReport() {
         return report;
     }
 
-    @Override
     public void setReport(final Report report) {
         checkType(report, JPAReport.class);
         this.report = (JPAReport) report;
     }
 
-    @Override
     public ReportletConf getInstance() {
         return serializedInstance == null
                 ? null
                 : POJOHelper.deserialize(serializedInstance, ReportletConf.class);
     }
 
-    @Override
     public void setInstance(final ReportletConf instance) {
         this.serializedInstance = instance == null
                 ? null

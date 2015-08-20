@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.api.data;
 
-import org.apache.syncope.common.lib.to.AbstractPolicyTO;
+import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
 import org.apache.syncope.core.persistence.api.entity.Policy;
 
 public interface PolicyDataBinder {

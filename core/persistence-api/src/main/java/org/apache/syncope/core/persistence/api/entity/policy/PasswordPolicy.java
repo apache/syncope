@@ -34,7 +34,7 @@ public interface PasswordPolicy extends Policy {
 
     boolean add(PasswordRuleConf passwordRuleConf);
 
-    boolean remove(PasswordRuleConf passwordRuleConf);
+    void removeAllRuleConfs();
 
     List<PasswordRuleConf> getRuleConfs();
 }

@@ -34,7 +34,6 @@ import javax.persistence.Table;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
 import org.apache.syncope.common.lib.types.PolicyType;
@@ -58,7 +57,7 @@ public class JPAAccountPolicy extends AbstractPolicy implements AccountPolicy {
     private int maxAuthenticationAttempts;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "accountPolicy")
-    private List<JPAAccountRuleConfInstance> ruleConfs;
+    private List<JPAAccountRuleConfInstance> ruleConfs = new ArrayList<>();
 
     /**
      * Resources for alternative user authentication: if empty, only internal storage will be used.
@@ -109,14 +108,8 @@ public class JPAAccountPolicy extends AbstractPolicy implements AccountPolicy {
     }
 
     @Override
-    public boolean remove(final AccountRuleConf accountRuleConf) {
-        return CollectionUtils.filter(ruleConfs, new Predicate<JPAAccountRuleConfInstance>() {
-
-            @Override
-            public boolean evaluate(final JPAAccountRuleConfInstance object) {
-                return accountRuleConf.equals(object.getInstance());
-            }
-        });
+    public void removeAllRuleConfs() {
+        ruleConfs.clear();
     }
 
     @Override

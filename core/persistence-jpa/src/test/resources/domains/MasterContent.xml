@@ -36,7 +36,7 @@ under the License.
   <PlainSchema name="notificationjob.cronExpression" type="String"
                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
   <CPlainAttr id="2" owner_id="1" schema_name="notificationjob.cronExpression"/>
-  <CPlainAttrValue id="2" attribute_id="2" stringValue="0/5 * * * * ?"/>
+  <CPlainAttrValue id="2" attribute_id="2" stringValue="0/20 * * * * ?"/>
   
   <PlainSchema name="notification.maxRetries" type="Long"
                mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
@@ -100,24 +100,34 @@ under the License.
                mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
   
   <!-- sample policies -->
-  <Policy DTYPE="SyncPolicy" id="1" description="a sync policy" type="SYNC" 
-          specification='{"conflictResolutionAction":"IGNORE"'/>
-  <Policy DTYPE="PasswordPolicy" id="2" description="a password policy" type="PASSWORD" 
-          specification='{"historyLength":1,"maxLength":0,"minLength":8,"nonAlphanumericRequired":false,"alphanumericRequired":false,"digitRequired":false,"lowercaseRequired":false,"uppercaseRequired":false,"mustStartWithDigit":false,"mustntStartWithDigit":false,"mustEndWithDigit":false,"mustntEndWithDigit":false,"mustStartWithNonAlpha":false,"mustStartWithAlpha":false,"mustntStartWithNonAlpha":false,"mustntStartWithAlpha":false,"mustEndWithNonAlpha":false,"mustEndWithAlpha":false,"mustntEndWithNonAlpha":false,"mustntEndWithAlpha":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[],"allowNullPassword":true}'/>
-  <Policy DTYPE="SyncPolicy" id="3" description="sync policy 2" type="SYNC" 
-          specification='{"conflictResolutionAction":"ALL","correlationRules":{"USER":"[\"username\",\"firstname\"]"}}'/>
-  <Policy DTYPE="PasswordPolicy" id="4" description="sample password policy" type="PASSWORD" 
-          specification='{"historyLength":0,"maxLength":0,"minLength":10,"nonAlphanumericRequired":false,"alphanumericRequired":false,"digitRequired":true,"lowercaseRequired":false,"uppercaseRequired":false,"mustStartWithDigit":false,"mustntStartWithDigit":false,"mustEndWithDigit":false,"mustntEndWithDigit":false,"mustStartWithNonAlpha":false,"mustStartWithAlpha":false,"mustntStartWithNonAlpha":false,"mustntStartWithAlpha":false,"mustEndWithNonAlpha":false,"mustEndWithAlpha":false,"mustntEndWithNonAlpha":false,"mustntEndWithAlpha":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[], "allowNullPassword":true}'/>
-  <Policy DTYPE="AccountPolicy" id="5" description="an account policy" type="ACCOUNT" 
-          specification='{"maxLength":0,"minLength":0,"pattern":null,"allUpperCase":false,"allLowerCase":false,"propagateSuspension":false,"maxAuthenticationAttempts":0,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":[],"suffixesNotPermitted":[]}'/>
-  <Policy DTYPE="AccountPolicy" id="6" description="sample account policy" type="ACCOUNT" 
-          specification='{"maxLength":0,"minLength":4,"pattern":null,"allUpperCase":false,"allLowerCase":false,"propagateSuspension":false,"maxAuthenticationAttempts":3,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[]}'/>
-  <Policy DTYPE="SyncPolicy" id="7" description="sync policy 1" type="SYNC" 
-          specification='{"conflictResolutionAction":"IGNORE"}'/>
-  <Policy DTYPE="PasswordPolicy" id="8" description="sample password policy" type="PASSWORD" 
-          specification='{"historyLength":0,"maxLength":0,"minLength":10,"nonAlphanumericRequired":true,"alphanumericRequired":false,"digitRequired":true,"lowercaseRequired":true,"uppercaseRequired":true,"mustStartWithDigit":true,"mustntStartWithDigit":false,"mustEndWithDigit":true,"mustntEndWithDigit":false,"mustStartWithNonAlpha":false,"mustStartWithAlpha":false,"mustntStartWithNonAlpha":false,"mustntStartWithAlpha":false,"mustEndWithNonAlpha":false,"mustEndWithAlpha":false,"mustntEndWithNonAlpha":false,"mustntEndWithAlpha":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[],"allowNullPassword":false}'/>
-  <Policy DTYPE="SyncPolicy" id="9" description="sync policy for java rule" type="SYNC" 
-          specification='{"conflictResolutionAction":"IGNORE"}'/>
+  <SyncPolicy id="1" description="a sync policy" type="SYNC" 
+              specification='{"conflictResolutionAction":"IGNORE"'/>
+  <PasswordPolicy id="2" description="a password policy" type="PASSWORD" 
+                  historyLength="1" allowNullPassword="1"/> 
+  <PasswordRuleConfInstance id="2" passwordPolicy_id="2"
+                            serializedInstance='{"@class":"org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf","maxLength":0,"minLength":8,"nonAlphanumericRequired":false,"alphanumericRequired":false,"digitRequired":false,"lowercaseRequired":false,"uppercaseRequired":false,"mustStartWithDigit":false,"mustntStartWithDigit":false,"mustEndWithDigit":false,"mustntEndWithDigit":false,"mustStartWithNonAlpha":false,"mustStartWithAlpha":false,"mustntStartWithNonAlpha":false,"mustntStartWithAlpha":false,"mustEndWithNonAlpha":false,"mustEndWithAlpha":false,"mustntEndWithNonAlpha":false,"mustntEndWithAlpha":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[]}'/>
+  <SyncPolicy id="3" description="sync policy 2" type="SYNC" 
+              specification='{"conflictResolutionAction":"ALL","correlationRules":{"USER":"[\"username\",\"firstname\"]"}}'/>
+  <PasswordPolicy id="4" description="sample password policy" type="PASSWORD"
+                  historyLength="0"  allowNullPassword="1"/> 
+  <PasswordRuleConfInstance id="4" passwordPolicy_id="4"
+                            serializedInstance='{"@class":"org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf","maxLength":0,"minLength":10,"nonAlphanumericRequired":false,"alphanumericRequired":false,"digitRequired":true,"lowercaseRequired":false,"uppercaseRequired":false,"mustStartWithDigit":false,"mustntStartWithDigit":false,"mustEndWithDigit":false,"mustntEndWithDigit":false,"mustStartWithNonAlpha":false,"mustStartWithAlpha":false,"mustntStartWithNonAlpha":false,"mustntStartWithAlpha":false,"mustEndWithNonAlpha":false,"mustEndWithAlpha":false,"mustntEndWithNonAlpha":false,"mustntEndWithAlpha":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[]}'/>
+  <AccountPolicy id="5" description="an account policy" type="ACCOUNT"
+                 propagateSuspension="0" maxAuthenticationAttempts="0"/>
+  <AccountRuleConfInstance id="5" accountPolicy_id="5"
+                           serializedInstance='{"@class":"org.apache.syncope.common.lib.policy.DefaultAccountRuleConf","maxLength":0,"minLength":0,"pattern":null,"allUpperCase":false,"allLowerCase":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":[],"suffixesNotPermitted":[]}'/>
+  <AccountPolicy id="6" description="sample account policy" type="ACCOUNT"
+                 propagateSuspension="0" maxAuthenticationAttempts="3"/>
+  <AccountRuleConfInstance id="6" accountPolicy_id="6"
+                           serializedInstance='{"@class":"org.apache.syncope.common.lib.policy.DefaultAccountRuleConf","maxLength":0,"minLength":4,"pattern":null,"allUpperCase":false,"allLowerCase":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[]}'/>
+  <SyncPolicy id="7" description="sync policy 1" type="SYNC" 
+              specification='{"conflictResolutionAction":"IGNORE"}'/>
+  <PasswordPolicy id="8" description="sample password policy" type="PASSWORD"
+                  historyLength="0" allowNullPassword="0"/> 
+  <PasswordRuleConfInstance id="8" passwordPolicy_id="8"
+                            serializedInstance='{"@class":"org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf","maxLength":0,"minLength":10,"nonAlphanumericRequired":true,"alphanumericRequired":false,"digitRequired":true,"lowercaseRequired":true,"uppercaseRequired":true,"mustStartWithDigit":true,"mustntStartWithDigit":false,"mustEndWithDigit":true,"mustntEndWithDigit":false,"mustStartWithNonAlpha":false,"mustStartWithAlpha":false,"mustntStartWithNonAlpha":false,"mustntStartWithAlpha":false,"mustEndWithNonAlpha":false,"mustEndWithAlpha":false,"mustntEndWithNonAlpha":false,"mustntEndWithAlpha":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[]}'/>
+  <SyncPolicy id="9" description="sync policy for java rule" type="SYNC" 
+              specification='{"conflictResolutionAction":"IGNORE"}'/>
 
   <RelationshipType name="inclusion" description="Models the act that an object is included in another"/>
   <RelationshipType name="neighborhood"/>
@@ -698,7 +708,7 @@ under the License.
                     creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
 
   <!-- Use resource-testdb for passthrough authentication (SYNCOPE-164) -->
-  <Policy_ExternalResource accountPolicy_id="5" resource_name="resource-testdb"/>
+  <AccountPolicy_ExternalResource accountPolicy_id="5" resource_name="resource-testdb"/>
     
   <SyncopeUser_ExternalResource user_id="1" resource_name="resource-testdb2"/>
   <SyncopeUser_ExternalResource user_id="3" resource_name="ws-target-resource-delete"/>

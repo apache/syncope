@@ -37,7 +37,7 @@ public class AccountPolicyTO extends AbstractPolicyTO {
 
     private int maxAuthenticationAttempts;
 
-    private final List<AccountRuleConf> ruleConfs = new ArrayList<>();
+    private final List<AbstractAccountRuleConf> ruleConfs = new ArrayList<>();
 
     private final List<String> resources = new ArrayList<>();
 
@@ -64,7 +64,7 @@ public class AccountPolicyTO extends AbstractPolicyTO {
     @XmlElementWrapper(name = "ruleConfs")
     @XmlElement(name = "ruleConf")
     @JsonProperty("ruleConfs")
-    public List<AccountRuleConf> getRuleConfs() {
+    public List<AbstractAccountRuleConf> getRuleConfs() {
         return ruleConfs;
     }
 

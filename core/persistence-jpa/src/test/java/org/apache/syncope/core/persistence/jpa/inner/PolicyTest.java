@@ -27,15 +27,15 @@ import static org.junit.Assert.assertTrue;
 import java.util.List;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.PasswordPolicySpec;
+import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
 import org.apache.syncope.common.lib.types.PolicyType;
-import org.apache.syncope.common.lib.types.SyncPolicySpec;
+import org.apache.syncope.common.lib.policy.SyncPolicySpec;
 import org.apache.syncope.core.misc.serialization.POJOHelper;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
-import org.apache.syncope.core.persistence.api.entity.PasswordPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.Policy;
-import org.apache.syncope.core.persistence.api.entity.SyncPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.SyncPolicy;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -108,20 +108,21 @@ public class PolicyTest extends AbstractTest {
 
     @Test
     public void update() {
-        PasswordPolicySpec specification = new PasswordPolicySpec();
-        specification.setMaxLength(8);
-        specification.setMinLength(6);
+        DefaultPasswordRuleConf ruleConf = new DefaultPasswordRuleConf();
+        ruleConf.setMaxLength(8);
+        ruleConf.setMinLength(6);
 
         PasswordPolicy policy = policyDAO.find(2L);
         assertNotNull(policy);
-        policy.setSpecification(specification);
+        assertEquals(1, policy.getRuleConfs().size());
+        policy.add(ruleConf);
 
         policy = policyDAO.save(policy);
 
         assertNotNull(policy);
         assertEquals(PolicyType.PASSWORD, policy.getType());
-        assertEquals(policy.getSpecification().getMaxLength(), 8);
-        assertEquals(policy.getSpecification().getMinLength(), 6);
+        assertEquals(((DefaultPasswordRuleConf) policy.getRuleConfs().get(1)).getMaxLength(), 8);
+        assertEquals(((DefaultPasswordRuleConf) policy.getRuleConfs().get(1)).getMinLength(), 6);
     }
 
     @Test

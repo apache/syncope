@@ -18,10 +18,9 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
-import java.util.HashSet;
-import java.util.Set;
-import org.apache.syncope.core.provisioning.api.data.ReportDataBinder;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.report.AbstractReportletConf;
+import org.apache.syncope.core.provisioning.api.data.ReportDataBinder;
 import org.apache.syncope.common.lib.report.ReportletConf;
 import org.apache.syncope.common.lib.to.ReportExecTO;
 import org.apache.syncope.common.lib.to.ReportTO;
@@ -43,9 +42,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class ReportDataBinderImpl implements ReportDataBinder {
 
-    /**
-     * Logger.
-     */
     private static final Logger LOG = LoggerFactory.getLogger(ReportDataBinder.class);
 
     private static final String[] IGNORE_REPORT_PROPERTIES = { "key", "reportlets", "executions" };
@@ -62,16 +58,7 @@ public class ReportDataBinderImpl implements ReportDataBinder {
     public void getReport(final Report report, final ReportTO reportTO) {
         BeanUtils.copyProperties(reportTO, report, IGNORE_REPORT_PROPERTIES);
 
-        // 1. remove all reportlet confs
-        Set<ReportletConf> toRemove = new HashSet<>();
-        for (ReportletConf conf : report.getReportletConfs()) {
-            toRemove.add(conf);
-        }
-        for (ReportletConf conf : toRemove) {
-            report.remove(conf);
-        }
-
-        // 2. take all reportlet confs from reportTO
+        report.removeAllReportletConfs();
         for (ReportletConf conf : reportTO.getReportletConfs()) {
             report.add(conf);
         }
@@ -83,11 +70,14 @@ public class ReportDataBinderImpl implements ReportDataBinder {
         reportTO.setKey(report.getKey());
         BeanUtils.copyProperties(report, reportTO, IGNORE_REPORT_PROPERTIES);
 
-        copyReportletConfs(report, reportTO);
+        reportTO.getReportletConfs().clear();
+        for (ReportletConf reportletConf : report.getReportletConfs()) {
+            reportTO.getReportletConfs().add((AbstractReportletConf) reportletConf);
+        }
 
         ReportExec latestExec = reportExecDAO.findLatestStarted(report);
         reportTO.setLatestExecStatus(latestExec == null
-                ? ""
+                ? StringUtils.EMPTY
                 : latestExec.getStatus());
 
         reportTO.setStartDate(latestExec == null
@@ -118,13 +108,6 @@ public class ReportDataBinderImpl implements ReportDataBinder {
         }
 
         return reportTO;
-    }
-
-    private void copyReportletConfs(final Report report, final ReportTO reportTO) {
-        reportTO.getReportletConfs().clear();
-        for (ReportletConf reportletConf : report.getReportletConfs()) {
-            reportTO.getReportletConfs().add((AbstractReportletConf) reportletConf);
-        }
     }
 
     @Override

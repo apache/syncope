@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.report;
+package org.apache.syncope.common.lib.policy;
 
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
@@ -24,19 +24,19 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.AbstractBaseBean;
 
 @XmlType
-@XmlSeeAlso({ StaticReportletConf.class, UserReportletConf.class, GroupReportletConf.class })
-public abstract class AbstractReportletConf extends AbstractBaseBean implements ReportletConf {
+@XmlSeeAlso({ DefaultAccountRuleConf.class })
+public abstract class AbstractAccountRuleConf extends AbstractBaseBean implements AccountRuleConf {
 
-    private static final long serialVersionUID = -6130008602014516608L;
+    private static final long serialVersionUID = -4080475005967851092L;
 
     private String name;
 
-    public AbstractReportletConf() {
+    public AbstractAccountRuleConf() {
         this(StringUtils.EMPTY);
         setName(getClass().getName());
     }
 
-    public AbstractReportletConf(final String name) {
+    public AbstractAccountRuleConf(final String name) {
         super();
         this.name = name;
     }

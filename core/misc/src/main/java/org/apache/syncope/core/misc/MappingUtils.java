@@ -18,8 +18,7 @@
  */
 package org.apache.syncope.core.misc;
 
-import org.apache.syncope.core.misc.policy.InvalidPasswordPolicySpecException;
-import org.apache.syncope.core.misc.security.PasswordGenerator;
+import org.apache.syncope.core.misc.policy.InvalidPasswordRuleConf;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -58,6 +57,7 @@ import org.apache.syncope.core.provisioning.api.cache.VirAttrCache;
 import org.apache.syncope.core.misc.security.Encryptor;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.misc.jexl.JexlUtils;
+import org.apache.syncope.core.misc.security.PasswordGenerator;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
@@ -329,7 +329,7 @@ public final class MappingUtils {
                     } else if (provision.getResource().isRandomPwdIfNotProvided()) {
                         try {
                             passwordAttrValue = passwordGenerator.generate(user);
-                        } catch (InvalidPasswordPolicySpecException e) {
+                        } catch (InvalidPasswordRuleConf e) {
                             LOG.error("Could not generate policy-compliant random password for {}", user, e);
                         }
                     }

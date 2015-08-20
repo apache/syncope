@@ -24,13 +24,13 @@ import javax.persistence.TypedQuery;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
-import org.apache.syncope.core.persistence.api.entity.AccountPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.PasswordPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.Policy;
 import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.persistence.jpa.entity.JPAPolicy;
-import org.apache.syncope.core.persistence.jpa.entity.JPAAccountPolicy;
+import org.apache.syncope.core.persistence.jpa.entity.policy.AbstractPolicy;
+import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAccountPolicy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -44,7 +44,7 @@ public class JPAPolicyDAO extends AbstractDAO<Policy, Long> implements PolicyDAO
     @SuppressWarnings("unchecked")
     public <T extends Policy> T find(final Long key) {
         final Query query = entityManager().createQuery(
-                "SELECT e FROM " + JPAPolicy.class.getSimpleName() + " e WHERE e.id=:id");
+                "SELECT e FROM " + AbstractPolicy.class.getSimpleName() + " e WHERE e.id=:id");
         query.setParameter("id", key);
 
         List<T> result = query.getResultList();
@@ -57,7 +57,7 @@ public class JPAPolicyDAO extends AbstractDAO<Policy, Long> implements PolicyDAO
     @SuppressWarnings("unchecked")
     public <T extends Policy> List<T> find(final PolicyType type) {
         final Query query = entityManager().createQuery(
-                "SELECT e FROM " + JPAPolicy.class.getSimpleName() + " e WHERE e.type=:type");
+                "SELECT e FROM " + AbstractPolicy.class.getSimpleName() + " e WHERE e.type=:type");
         query.setParameter("type", type);
 
         return (List<T>) query.getResultList();
@@ -76,7 +76,7 @@ public class JPAPolicyDAO extends AbstractDAO<Policy, Long> implements PolicyDAO
     @Override
     public List<Policy> findAll() {
         TypedQuery<Policy> query = entityManager().createQuery(
-                "SELECT e FROM " + JPAPolicy.class.getSimpleName() + " e", Policy.class);
+                "SELECT e FROM " + AbstractPolicy.class.getSimpleName() + " e", Policy.class);
         return query.getResultList();
     }
 

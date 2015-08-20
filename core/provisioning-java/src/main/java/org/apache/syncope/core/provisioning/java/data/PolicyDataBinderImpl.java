@@ -20,20 +20,24 @@ package org.apache.syncope.core.provisioning.java.data;
 
 import org.apache.syncope.core.provisioning.api.data.PolicyDataBinder;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.AbstractPolicyTO;
-import org.apache.syncope.common.lib.to.AccountPolicyTO;
-import org.apache.syncope.common.lib.to.PasswordPolicyTO;
-import org.apache.syncope.common.lib.to.SyncPolicyTO;
+import org.apache.syncope.common.lib.policy.AbstractAccountRuleConf;
+import org.apache.syncope.common.lib.policy.AbstractPasswordRuleConf;
+import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
+import org.apache.syncope.common.lib.policy.AccountPolicyTO;
+import org.apache.syncope.common.lib.policy.AccountRuleConf;
+import org.apache.syncope.common.lib.policy.PasswordPolicyTO;
+import org.apache.syncope.common.lib.policy.PasswordRuleConf;
+import org.apache.syncope.common.lib.policy.SyncPolicyTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
-import org.apache.syncope.core.persistence.api.entity.AccountPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.PasswordPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.Policy;
 import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.persistence.api.entity.SyncPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.SyncPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,14 +63,33 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
         T policyTO;
         switch (policy.getType()) {
             case PASSWORD:
-                policyTO = (T) new PasswordPolicyTO();
-                ((PasswordPolicyTO) policyTO).setSpecification(((PasswordPolicy) policy).getSpecification());
+                PasswordPolicy passwordPolicy = PasswordPolicy.class.cast(policy);
+                PasswordPolicyTO passwordPolicyTO = new PasswordPolicyTO();
+                policyTO = (T) passwordPolicyTO;
+
+                passwordPolicyTO.setAllowNullPassword(passwordPolicy.isAllowNullPassword());
+                passwordPolicyTO.setHistoryLength(passwordPolicy.getHistoryLength());
+
+                passwordPolicyTO.getRuleConfs().clear();
+                for (PasswordRuleConf ruleConf : passwordPolicy.getRuleConfs()) {
+                    passwordPolicyTO.getRuleConfs().add((AbstractPasswordRuleConf) ruleConf);
+                }
                 break;
 
             case ACCOUNT:
-                policyTO = (T) new AccountPolicyTO();
-                ((AccountPolicyTO) policyTO).setSpecification(((AccountPolicy) policy).getSpecification());
-                ((AccountPolicyTO) policyTO).getResources().addAll(((AccountPolicy) policy).getResourceNames());
+                AccountPolicy accountPolicy = AccountPolicy.class.cast(policy);
+                AccountPolicyTO accountPolicyTO = new AccountPolicyTO();
+                policyTO = (T) accountPolicyTO;
+
+                accountPolicyTO.setMaxAuthenticationAttempts(accountPolicy.getMaxAuthenticationAttempts());
+                accountPolicyTO.setPropagateSuspension(accountPolicy.isPropagateSuspension());
+
+                accountPolicyTO.getRuleConfs().clear();
+                for (AccountRuleConf ruleConf : accountPolicy.getRuleConfs()) {
+                    accountPolicyTO.getRuleConfs().add((AbstractAccountRuleConf) ruleConf);
+                }
+
+                accountPolicyTO.getResources().addAll(accountPolicy.getResourceNames());
                 break;
 
             case SYNC:
@@ -88,15 +111,6 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
         return policyTO;
     }
 
-    private ExternalResource getResource(final String resourceName) {
-        ExternalResource resource = resourceDAO.find(resourceName);
-        if (resource == null) {
-            LOG.debug("Ignoring invalid resource {} ", resourceName);
-        }
-
-        return resource;
-    }
-
     @SuppressWarnings("unchecked")
     @Override
     public <T extends Policy> T getPolicy(final T policy, final AbstractPolicyTO policyTO) {
@@ -116,7 +130,16 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
                 if (result == null) {
                     result = (T) entityFactory.newEntity(PasswordPolicy.class);
                 }
-                ((PasswordPolicy) result).setSpecification(((PasswordPolicyTO) policyTO).getSpecification());
+                PasswordPolicy passwordPolicy = PasswordPolicy.class.cast(result);
+                PasswordPolicyTO passwordPolicyTO = PasswordPolicyTO.class.cast(policyTO);
+
+                passwordPolicy.setAllowNullPassword(passwordPolicyTO.isAllowNullPassword());
+                passwordPolicy.setHistoryLength(passwordPolicyTO.getHistoryLength());
+
+                passwordPolicy.removeAllRuleConfs();
+                for (PasswordRuleConf conf : passwordPolicyTO.getRuleConfs()) {
+                    passwordPolicy.add(conf);
+                }
                 break;
 
             case ACCOUNT:
@@ -127,17 +150,24 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
                 if (result == null) {
                     result = (T) entityFactory.newEntity(AccountPolicy.class);
                 }
-                ((AccountPolicy) result).setSpecification(((AccountPolicyTO) policyTO).getSpecification());
+                AccountPolicy accountPolicy = AccountPolicy.class.cast(result);
+                AccountPolicyTO accountPolicyTO = AccountPolicyTO.class.cast(policyTO);
 
-                if (((AccountPolicy) result).getResources() != null
-                        && !((AccountPolicy) result).getResources().isEmpty()) {
-                    ((AccountPolicy) result).getResources().clear();
+                accountPolicy.setMaxAuthenticationAttempts(accountPolicyTO.getMaxAuthenticationAttempts());
+                accountPolicy.setPropagateSuspension(accountPolicyTO.isPropagateSuspension());
+
+                accountPolicy.removeAllRuleConfs();
+                for (AccountRuleConf conf : accountPolicyTO.getRuleConfs()) {
+                    accountPolicy.add(conf);
                 }
-                for (String resourceName : ((AccountPolicyTO) policyTO).getResources()) {
-                    ExternalResource resource = getResource(resourceName);
 
-                    if (resource != null) {
-                        ((AccountPolicy) result).add(resource);
+                accountPolicy.getResources().clear();
+                for (String resourceName : accountPolicyTO.getResources()) {
+                    ExternalResource resource = resourceDAO.find(resourceName);
+                    if (resource == null) {
+                        LOG.debug("Ignoring invalid resource {} ", resourceName);
+                    } else {
+                        accountPolicy.add(resource);
                     }
                 }
                 break;

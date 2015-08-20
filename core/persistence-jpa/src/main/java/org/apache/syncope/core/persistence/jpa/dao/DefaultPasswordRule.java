@@ -34,25 +34,22 @@ public class DefaultPasswordRule implements PasswordRule {
 
     private DefaultPasswordRuleConf conf;
 
+    @Transactional(readOnly = true)
     @Override
-    public void setConf(final PasswordRuleConf conf) {
+    public void enforce(final PasswordRuleConf conf, final User user) {
         if (conf instanceof DefaultPasswordRuleConf) {
             this.conf = (DefaultPasswordRuleConf) conf;
         } else {
             throw new IllegalArgumentException(
                     PasswordRuleConf.class.getName() + " expected, got " + conf.getClass().getName());
         }
-    }
 
-    @Transactional(readOnly = true)
-    @Override
-    public void isCompliant(final User user) {
-        for (String schema : conf.getSchemasNotPermitted()) {
+        for (String schema : this.conf.getSchemasNotPermitted()) {
             PlainAttr<?> attr = user.getPlainAttr(schema);
             if (attr != null) {
                 List<String> values = attr.getValuesAsStrings();
                 if (values != null && !values.isEmpty()) {
-                    conf.getWordsNotPermitted().add(values.get(0));
+                    this.conf.getWordsNotPermitted().add(values.get(0));
                 }
             }
         }
@@ -62,112 +59,118 @@ public class DefaultPasswordRule implements PasswordRule {
 
         if (password != null && clearPassword != null) {
             // check length
-            if (conf.getMinLength() > 0 && conf.getMinLength() > clearPassword.length()) {
+            if (this.conf.getMinLength() > 0 && this.conf.getMinLength() > clearPassword.length()) {
                 throw new PasswordPolicyException("Password too short");
             }
 
-            if (conf.getMaxLength() > 0 && conf.getMaxLength() < clearPassword.length()) {
+            if (this.conf.getMaxLength() > 0 && this.conf.getMaxLength() < clearPassword.length()) {
                 throw new PasswordPolicyException("Password too long");
             }
 
             // check words not permitted
-            for (String word : conf.getWordsNotPermitted()) {
+            for (String word : this.conf.getWordsNotPermitted()) {
                 if (clearPassword.contains(word)) {
                     throw new PasswordPolicyException("Used word(s) not permitted");
                 }
             }
 
             // check digits occurrence
-            if (conf.isDigitRequired() && !checkDigit(clearPassword)) {
+            if (this.conf.isDigitRequired() && !checkDigit(clearPassword)) {
                 throw new PasswordPolicyException("Password must contain digit(s)");
             }
 
             // check lowercase alphabetic characters occurrence
-            if (conf.isLowercaseRequired() && !checkLowercase(clearPassword)) {
+            if (this.conf.isLowercaseRequired() && !checkLowercase(clearPassword)) {
                 throw new PasswordPolicyException("Password must contain lowercase alphabetic character(s)");
             }
 
             // check uppercase alphabetic characters occurrence
-            if (conf.isUppercaseRequired() && !checkUppercase(clearPassword)) {
+            if (this.conf.isUppercaseRequired() && !checkUppercase(clearPassword)) {
                 throw new PasswordPolicyException("Password must contain uppercase alphabetic character(s)");
             }
 
             // check prefix
-            for (String prefix : conf.getPrefixesNotPermitted()) {
+            for (String prefix : this.conf.getPrefixesNotPermitted()) {
                 if (clearPassword.startsWith(prefix)) {
                     throw new PasswordPolicyException("Prefix not permitted");
                 }
             }
 
             // check suffix
-            for (String suffix : conf.getSuffixesNotPermitted()) {
+            for (String suffix : this.conf.getSuffixesNotPermitted()) {
                 if (clearPassword.endsWith(suffix)) {
                     throw new PasswordPolicyException("Suffix not permitted");
                 }
             }
 
             // check digit first occurrence
-            if (conf.isMustStartWithDigit() && !checkFirstDigit(clearPassword)) {
+            if (this.conf.isMustStartWithDigit() && !checkFirstDigit(clearPassword)) {
                 throw new PasswordPolicyException("Password must start with a digit");
             }
 
-            if (conf.isMustntStartWithDigit() && checkFirstDigit(clearPassword)) {
+            if (this.conf.isMustntStartWithDigit() && checkFirstDigit(clearPassword)) {
                 throw new PasswordPolicyException("Password mustn't start with a digit");
             }
 
             // check digit last occurrence
-            if (conf.isMustEndWithDigit() && !checkLastDigit(clearPassword)) {
+            if (this.conf.isMustEndWithDigit() && !checkLastDigit(clearPassword)) {
                 throw new PasswordPolicyException("Password must end with a digit");
             }
 
-            if (conf.isMustntEndWithDigit() && checkLastDigit(clearPassword)) {
+            if (this.conf.isMustntEndWithDigit() && checkLastDigit(clearPassword)) {
                 throw new PasswordPolicyException("Password mustn't end with a digit");
             }
 
             // check alphanumeric characters occurence
-            if (conf.isAlphanumericRequired() && !checkAlphanumeric(clearPassword)) {
+            if (this.conf.isAlphanumericRequired() && !checkAlphanumeric(clearPassword)) {
                 throw new PasswordPolicyException("Password must contain alphanumeric character(s)");
             }
 
             // check non alphanumeric characters occurence
-            if (conf.isNonAlphanumericRequired() && !checkNonAlphanumeric(clearPassword)) {
+            if (this.conf.isNonAlphanumericRequired() && !checkNonAlphanumeric(clearPassword)) {
                 throw new PasswordPolicyException("Password must contain non-alphanumeric character(s)");
             }
 
             // check alphanumeric character first occurrence
-            if (conf.isMustStartWithAlpha() && !checkFirstAlphanumeric(clearPassword)) {
+            if (this.conf.isMustStartWithAlpha() && !checkFirstAlphanumeric(clearPassword)) {
                 throw new PasswordPolicyException("Password must start with an alphanumeric character");
             }
 
-            if (conf.isMustntStartWithAlpha() && checkFirstAlphanumeric(clearPassword)) {
+            if (this.conf.isMustntStartWithAlpha() && checkFirstAlphanumeric(clearPassword)) {
                 throw new PasswordPolicyException("Password mustn't start with an alphanumeric character");
             }
 
             // check alphanumeric character last occurrence
-            if (conf.isMustEndWithAlpha() && !checkLastAlphanumeric(clearPassword)) {
+            if (this.conf.isMustEndWithAlpha() && !checkLastAlphanumeric(clearPassword)) {
                 throw new PasswordPolicyException("Password must end with an alphanumeric character");
             }
 
-            if (conf.isMustntEndWithAlpha() && checkLastAlphanumeric(clearPassword)) {
+            if (this.conf.isMustntEndWithAlpha() && checkLastAlphanumeric(clearPassword)) {
                 throw new PasswordPolicyException("Password mustn't end with an alphanumeric character");
             }
 
             // check non alphanumeric character first occurrence
-            if (conf.isMustStartWithNonAlpha() && !checkFirstNonAlphanumeric(clearPassword)) {
+            if (this.conf.isMustStartWithNonAlpha() && !checkFirstNonAlphanumeric(clearPassword)) {
                 throw new PasswordPolicyException("Password must start with a non-alphanumeric character");
             }
 
-            if (conf.isMustntStartWithNonAlpha() && checkFirstNonAlphanumeric(clearPassword)) {
+            if (this.conf.isMustntStartWithNonAlpha() && checkFirstNonAlphanumeric(clearPassword)) {
                 throw new PasswordPolicyException("Password mustn't start with a non-alphanumeric character");
             }
 
             // check non alphanumeric character last occurrence
-            if (conf.isMustEndWithNonAlpha() && !checkLastNonAlphanumeric(clearPassword)) {
+            if (this.conf.isMustEndWithNonAlpha() && !checkLastNonAlphanumeric(clearPassword)) {
                 throw new PasswordPolicyException("Password must end with a non-alphanumeric character");
             }
 
-            if (conf.isMustntEndWithNonAlpha() && checkLastNonAlphanumeric(clearPassword)) {
+            if (this.conf.isMustntEndWithNonAlpha() && checkLastNonAlphanumeric(clearPassword)) {
                 throw new PasswordPolicyException("Password mustn't end with a non-alphanumeric character");
+            }
+
+            if (!this.conf.isUsernameAllowed()
+                    && user.getUsername() != null && user.getUsername().equals(clearPassword)) {
+
+                throw new PasswordPolicyException("Password mustn't be equal to username");
             }
         }
     }

@@ -33,7 +33,6 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ReportExecTO;
 import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.types.ReportExecExportFormat;
-import org.apache.syncope.common.lib.wrap.ReportletConfClass;
 import org.apache.syncope.common.rest.api.service.ReportService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,9 +82,6 @@ public class ReportCommand extends AbstractCommand {
 
     @Parameter(names = { "-eer", "--export-execution-result" })
     private Long exportId = -1L;
-
-    @Parameter(names = { "-rc", "--reportlet-class" })
-    private boolean reportletClass = false;
 
     @Override
     public void execute() {
@@ -175,16 +171,6 @@ public class ReportCommand extends AbstractCommand {
             } catch (final SyncopeClientException ex) {
                 LOG.error("Error calling configuration service", ex);
                 System.out.println(" - Error calling configuration service " + ex.getMessage());
-            }
-        } else if (reportletClass) {
-            try {
-                LOG.debug("- reportlet configuration class list command");
-                System.out.println("Reportlet conf classes");
-                for (final ReportletConfClass reportletConfClass : reportService.getReportletConfClasses()) {
-                    System.out.println("  *** " + reportletConfClass.getElement());
-                }
-            } catch (final SyncopeClientException ex) {
-                System.out.println(" - Error: " + ex.getMessage());
             }
         } else {
             System.out.println(helpMessage);

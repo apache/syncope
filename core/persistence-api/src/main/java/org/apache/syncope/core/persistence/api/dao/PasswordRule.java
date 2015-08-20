@@ -19,9 +19,12 @@
 package org.apache.syncope.core.persistence.api.dao;
 
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
+import org.apache.syncope.core.persistence.api.entity.user.User;
 
-public interface PasswordRule extends PolicyRule {
+/**
+ * Interface for enforcing a given password rule to user.
+ */
+public interface PasswordRule {
 
-    void setConf(PasswordRuleConf conf);
-
+    void enforce(PasswordRuleConf conf, User user);
 }

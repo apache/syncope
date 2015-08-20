@@ -33,7 +33,7 @@ import org.apache.syncope.core.persistence.jpa.entity.task.JPAPropagationTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAPushTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPASchedTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPASyncTask;
-import org.apache.syncope.core.persistence.jpa.entity.task.JPATask;
+import org.apache.syncope.core.persistence.jpa.entity.task.AbstractTask;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -75,7 +75,7 @@ public class JPATaskDAO extends AbstractDAO<Task, Long> implements TaskDAO {
     @SuppressWarnings("unchecked")
     @Override
     public <T extends Task> T find(final Long key) {
-        return (T) entityManager().find(JPATask.class, key);
+        return (T) entityManager().find(AbstractTask.class, key);
     }
 
     private <T extends Task> StringBuilder buildfindAllQuery(final TaskType type) {

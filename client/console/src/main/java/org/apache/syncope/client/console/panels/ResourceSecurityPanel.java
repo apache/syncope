@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.apache.syncope.client.console.rest.PolicyRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
-import org.apache.syncope.common.lib.to.AbstractPolicyTO;
+import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.wicket.markup.html.WebMarkupContainer;

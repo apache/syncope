@@ -32,7 +32,7 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
-import org.apache.syncope.core.misc.policy.InvalidPasswordPolicySpecException;
+import org.apache.syncope.core.misc.policy.InvalidPasswordRuleConf;
 import org.apache.syncope.core.misc.security.PasswordGenerator;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.junit.Test;
@@ -214,7 +214,7 @@ public class UserTest extends AbstractTest {
         String password = "";
         try {
             password = passwordGenerator.generate(user);
-        } catch (InvalidPasswordPolicySpecException ex) {
+        } catch (InvalidPasswordRuleConf ex) {
             fail(ex.getMessage());
         }
         assertNotNull(password);
@@ -233,7 +233,7 @@ public class UserTest extends AbstractTest {
         try {
             password = passwordGenerator.generate(user);
 
-        } catch (InvalidPasswordPolicySpecException ex) {
+        } catch (InvalidPasswordRuleConf ex) {
             fail(ex.getMessage());
         }
         assertNotNull(password);

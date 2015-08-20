@@ -428,7 +428,7 @@ under the License.
     </attributes>
   </entity>
 
-  <entity class="org.apache.syncope.core.persistence.jpa.entity.task.JPATask">
+  <entity class="org.apache.syncope.core.persistence.jpa.entity.task.AbstractTask">
     <attributes>
       <id name="id">
         <generated-value generator="SEQ_Task" strategy="TABLE"/>
@@ -445,7 +445,7 @@ under the License.
     </attributes>
   </entity>
     
-  <entity class="org.apache.syncope.core.persistence.jpa.entity.JPAPolicy">
+  <entity class="org.apache.syncope.core.persistence.jpa.entity.policy.AbstractPolicy">
     <attributes>
       <id name="id">
         <generated-value generator="SEQ_Policy" strategy="TABLE"/>
@@ -453,7 +453,23 @@ under the License.
       </id>
     </attributes>
   </entity>
-
+  <entity class="org.apache.syncope.core.persistence.jpa.entity.policy.JPAAccountRuleConfInstance">
+    <attributes>
+      <id name="id">
+        <generated-value generator="SEQ_AccountRuleConfInstance" strategy="TABLE"/>
+        <table-generator name="SEQ_AccountRuleConfInstance" pk-column-value="SEQ_AccountRuleConfInstance" initial-value="100"/>
+      </id>
+    </attributes>
+  </entity>
+  <entity class="org.apache.syncope.core.persistence.jpa.entity.policy.JPAPasswordRuleConfInstance">
+    <attributes>
+      <id name="id">
+        <generated-value generator="SEQ_PasswordRuleConfInstance" strategy="TABLE"/>
+        <table-generator name="SEQ_PasswordRuleConfInstance" pk-column-value="SEQ_PasswordRuleConfInstance" initial-value="100"/>
+      </id>
+    </attributes>
+  </entity>
+    
   <entity class="org.apache.syncope.core.persistence.jpa.entity.JPAReport">
     <attributes>
       <id name="id">

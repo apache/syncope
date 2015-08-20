@@ -18,8 +18,7 @@
  */
 package org.apache.syncope.core.misc;
 
-import org.apache.syncope.core.misc.policy.InvalidPasswordPolicySpecException;
-import org.apache.syncope.core.misc.security.PasswordGenerator;
+import org.apache.syncope.core.misc.policy.InvalidPasswordRuleConf;
 import org.apache.syncope.core.misc.security.SecureRandomUtils;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,6 +29,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.mod.AnyMod;
+import org.apache.syncope.common.lib.policy.PasswordRuleConf;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
@@ -41,7 +41,6 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
-import org.apache.syncope.common.lib.types.PasswordPolicySpec;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValidationException;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
@@ -57,6 +56,7 @@ import org.apache.syncope.core.persistence.api.entity.task.SyncTask;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.misc.security.Encryptor;
 import org.apache.syncope.core.misc.jexl.JexlUtils;
+import org.apache.syncope.core.misc.security.PasswordGenerator;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
@@ -117,32 +117,28 @@ public class ConnObjectUtils {
         if (anyTO instanceof UserTO && StringUtils.isBlank(((UserTO) anyTO).getPassword())) {
             final UserTO userTO = (UserTO) anyTO;
 
-            List<PasswordPolicySpec> ppSpecs = new ArrayList<>();
+            List<PasswordRuleConf> ruleConfs = new ArrayList<>();
 
             Realm realm = realmDAO.find(userTO.getRealm());
             if (realm != null) {
                 for (Realm ancestor : realmDAO.findAncestors(realm)) {
-                    if (ancestor.getPasswordPolicy() != null
-                            && ancestor.getPasswordPolicy().getSpecification() != null) {
-
-                        ppSpecs.add(ancestor.getPasswordPolicy().getSpecification());
+                    if (ancestor.getPasswordPolicy() != null) {
+                        ruleConfs.addAll(ancestor.getPasswordPolicy().getRuleConfs());
                     }
                 }
             }
 
             for (String resName : userTO.getResources()) {
                 ExternalResource resource = resourceDAO.find(resName);
-                if (resource != null && resource.getPasswordPolicy() != null
-                        && resource.getPasswordPolicy().getSpecification() != null) {
-
-                    ppSpecs.add(resource.getPasswordPolicy().getSpecification());
+                if (resource != null && resource.getPasswordPolicy() != null) {
+                    ruleConfs.addAll(resource.getPasswordPolicy().getRuleConfs());
                 }
             }
 
             String password;
             try {
-                password = pwdGen.generate(ppSpecs);
-            } catch (InvalidPasswordPolicySpecException e) {
+                password = pwdGen.generate(ruleConfs);
+            } catch (InvalidPasswordRuleConf e) {
                 LOG.error("Could not generate policy-compliant random password for {}", userTO, e);
 
                 password = SecureRandomUtils.generateRandomPassword(16);

@@ -36,7 +36,7 @@ public interface AccountPolicy extends Policy {
 
     boolean add(AccountRuleConf accountRuleConf);
 
-    boolean remove(AccountRuleConf accountRuleConf);
+    void removeAllRuleConfs();
 
     List<AccountRuleConf> getRuleConfs();
 

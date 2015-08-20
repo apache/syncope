@@ -47,9 +47,6 @@ public abstract class AbstractTask extends AbstractEntity<Long> implements Task 
 
     public static final String TABLE = "Task";
 
-    /**
-     * Id.
-     */
     @Id
     private Long id;
 
@@ -58,13 +55,7 @@ public abstract class AbstractTask extends AbstractEntity<Long> implements Task 
     protected TaskType type;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "task")
-    private List<JPATaskExec> executions;
-
-    public AbstractTask() {
-        super();
-
-        executions = new ArrayList<>();
-    }
+    private List<JPATaskExec> executions = new ArrayList<>();
 
     @Override
     public Long getKey() {

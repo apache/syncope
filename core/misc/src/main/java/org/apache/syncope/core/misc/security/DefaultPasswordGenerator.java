@@ -88,81 +88,85 @@ public class DefaultPasswordGenerator implements PasswordGenerator {
     }
 
     private DefaultPasswordRuleConf merge(final List<DefaultPasswordRuleConf> defaultRuleConfs) {
-        DefaultPasswordRuleConf fpps = new DefaultPasswordRuleConf();
-        fpps.setMinLength(VERY_MIN_LENGTH);
-        fpps.setMaxLength(VERY_MAX_LENGTH);
+        DefaultPasswordRuleConf result = new DefaultPasswordRuleConf();
+        result.setMinLength(VERY_MIN_LENGTH);
+        result.setMaxLength(VERY_MAX_LENGTH);
 
         for (DefaultPasswordRuleConf ruleConf : defaultRuleConfs) {
-            if (ruleConf.getMinLength() > fpps.getMinLength()) {
-                fpps.setMinLength(ruleConf.getMinLength());
+            if (ruleConf.getMinLength() > result.getMinLength()) {
+                result.setMinLength(ruleConf.getMinLength());
             }
 
-            if ((ruleConf.getMaxLength() != 0) && ((ruleConf.getMaxLength() < fpps.getMaxLength()))) {
-                fpps.setMaxLength(ruleConf.getMaxLength());
+            if ((ruleConf.getMaxLength() != 0) && ((ruleConf.getMaxLength() < result.getMaxLength()))) {
+                result.setMaxLength(ruleConf.getMaxLength());
             }
-            fpps.getPrefixesNotPermitted().addAll(ruleConf.getPrefixesNotPermitted());
-            fpps.getSuffixesNotPermitted().addAll(ruleConf.getSuffixesNotPermitted());
+            result.getPrefixesNotPermitted().addAll(ruleConf.getPrefixesNotPermitted());
+            result.getSuffixesNotPermitted().addAll(ruleConf.getSuffixesNotPermitted());
 
-            if (!fpps.isNonAlphanumericRequired()) {
-                fpps.setNonAlphanumericRequired(ruleConf.isNonAlphanumericRequired());
-            }
-
-            if (!fpps.isAlphanumericRequired()) {
-                fpps.setAlphanumericRequired(ruleConf.isAlphanumericRequired());
-            }
-            if (!fpps.isDigitRequired()) {
-                fpps.setDigitRequired(ruleConf.isDigitRequired());
+            if (!result.isNonAlphanumericRequired()) {
+                result.setNonAlphanumericRequired(ruleConf.isNonAlphanumericRequired());
             }
 
-            if (!fpps.isLowercaseRequired()) {
-                fpps.setLowercaseRequired(ruleConf.isLowercaseRequired());
+            if (!result.isAlphanumericRequired()) {
+                result.setAlphanumericRequired(ruleConf.isAlphanumericRequired());
             }
-            if (!fpps.isUppercaseRequired()) {
-                fpps.setUppercaseRequired(ruleConf.isUppercaseRequired());
+            if (!result.isDigitRequired()) {
+                result.setDigitRequired(ruleConf.isDigitRequired());
             }
-            if (!fpps.isMustStartWithDigit()) {
-                fpps.setMustStartWithDigit(ruleConf.isMustStartWithDigit());
+
+            if (!result.isLowercaseRequired()) {
+                result.setLowercaseRequired(ruleConf.isLowercaseRequired());
             }
-            if (!fpps.isMustntStartWithDigit()) {
-                fpps.setMustntStartWithDigit(ruleConf.isMustntStartWithDigit());
+            if (!result.isUppercaseRequired()) {
+                result.setUppercaseRequired(ruleConf.isUppercaseRequired());
             }
-            if (!fpps.isMustEndWithDigit()) {
-                fpps.setMustEndWithDigit(ruleConf.isMustEndWithDigit());
+            if (!result.isMustStartWithDigit()) {
+                result.setMustStartWithDigit(ruleConf.isMustStartWithDigit());
             }
-            if (fpps.isMustntEndWithDigit()) {
-                fpps.setMustntEndWithDigit(ruleConf.isMustntEndWithDigit());
+            if (!result.isMustntStartWithDigit()) {
+                result.setMustntStartWithDigit(ruleConf.isMustntStartWithDigit());
             }
-            if (!fpps.isMustStartWithAlpha()) {
-                fpps.setMustStartWithAlpha(ruleConf.isMustStartWithAlpha());
+            if (!result.isMustEndWithDigit()) {
+                result.setMustEndWithDigit(ruleConf.isMustEndWithDigit());
             }
-            if (!fpps.isMustntStartWithAlpha()) {
-                fpps.setMustntStartWithAlpha(ruleConf.isMustntStartWithAlpha());
+            if (result.isMustntEndWithDigit()) {
+                result.setMustntEndWithDigit(ruleConf.isMustntEndWithDigit());
             }
-            if (!fpps.isMustStartWithNonAlpha()) {
-                fpps.setMustStartWithNonAlpha(ruleConf.isMustStartWithNonAlpha());
+            if (!result.isMustStartWithAlpha()) {
+                result.setMustStartWithAlpha(ruleConf.isMustStartWithAlpha());
             }
-            if (!fpps.isMustntStartWithNonAlpha()) {
-                fpps.setMustntStartWithNonAlpha(ruleConf.isMustntStartWithNonAlpha());
+            if (!result.isMustntStartWithAlpha()) {
+                result.setMustntStartWithAlpha(ruleConf.isMustntStartWithAlpha());
             }
-            if (!fpps.isMustEndWithNonAlpha()) {
-                fpps.setMustEndWithNonAlpha(ruleConf.isMustEndWithNonAlpha());
+            if (!result.isMustStartWithNonAlpha()) {
+                result.setMustStartWithNonAlpha(ruleConf.isMustStartWithNonAlpha());
             }
-            if (!fpps.isMustntEndWithNonAlpha()) {
-                fpps.setMustntEndWithNonAlpha(ruleConf.isMustntEndWithNonAlpha());
+            if (!result.isMustntStartWithNonAlpha()) {
+                result.setMustntStartWithNonAlpha(ruleConf.isMustntStartWithNonAlpha());
             }
-            if (!fpps.isMustEndWithAlpha()) {
-                fpps.setMustEndWithAlpha(ruleConf.isMustEndWithAlpha());
+            if (!result.isMustEndWithNonAlpha()) {
+                result.setMustEndWithNonAlpha(ruleConf.isMustEndWithNonAlpha());
             }
-            if (!fpps.isMustntEndWithAlpha()) {
-                fpps.setMustntEndWithAlpha(ruleConf.isMustntEndWithAlpha());
+            if (!result.isMustntEndWithNonAlpha()) {
+                result.setMustntEndWithNonAlpha(ruleConf.isMustntEndWithNonAlpha());
+            }
+            if (!result.isMustEndWithAlpha()) {
+                result.setMustEndWithAlpha(ruleConf.isMustEndWithAlpha());
+            }
+            if (!result.isMustntEndWithAlpha()) {
+                result.setMustntEndWithAlpha(ruleConf.isMustntEndWithAlpha());
+            }
+            if (!result.isUsernameAllowed()) {
+                result.setUsernameAllowed(ruleConf.isUsernameAllowed());
             }
         }
 
-        if (fpps.getMinLength() == 0) {
-            fpps.setMinLength(fpps.getMaxLength() < MIN_LENGTH_IF_ZERO ? fpps.getMaxLength() : MIN_LENGTH_IF_ZERO);
+        if (result.getMinLength() == 0) {
+            result.setMinLength(
+                    result.getMaxLength() < MIN_LENGTH_IF_ZERO ? result.getMaxLength() : MIN_LENGTH_IF_ZERO);
         }
 
-        return fpps;
+        return result;
     }
 
     private void check(final DefaultPasswordRuleConf defaultPasswordRuleConf)

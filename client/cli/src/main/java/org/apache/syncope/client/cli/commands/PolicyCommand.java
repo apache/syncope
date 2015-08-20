@@ -23,7 +23,7 @@ import com.beust.jcommander.Parameters;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.cli.SyncopeServices;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.AbstractPolicyTO;
+import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.rest.api.service.PolicyService;
 import org.slf4j.Logger;

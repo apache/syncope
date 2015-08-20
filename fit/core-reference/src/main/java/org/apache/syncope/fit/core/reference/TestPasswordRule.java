@@ -18,30 +18,30 @@
  */
 package org.apache.syncope.fit.core.reference;
 
-import org.apache.syncope.common.lib.policy.AccountRuleConf;
-import org.apache.syncope.core.misc.policy.AccountPolicyException;
-import org.apache.syncope.core.persistence.api.dao.AccountRule;
-import org.apache.syncope.core.persistence.api.dao.AccountRuleConfClass;
+import org.apache.syncope.common.lib.policy.PasswordRuleConf;
+import org.apache.syncope.core.misc.policy.PasswordPolicyException;
+import org.apache.syncope.core.persistence.api.dao.PasswordRule;
+import org.apache.syncope.core.persistence.api.dao.PasswordRuleConfClass;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.springframework.transaction.annotation.Transactional;
 
-@AccountRuleConfClass(TestAccountRuleConf.class)
-public class TestAccountRule implements AccountRule {
+@PasswordRuleConfClass(TestPasswordRuleConf.class)
+public class TestPasswordRule implements PasswordRule {
 
-    private TestAccountRuleConf conf;
+    private TestPasswordRuleConf conf;
 
     @Transactional(readOnly = true)
     @Override
-    public void enforce(final AccountRuleConf conf, final User user) {
-        if (conf instanceof TestAccountRuleConf) {
-            this.conf = TestAccountRuleConf.class.cast(conf);
+    public void enforce(final PasswordRuleConf conf, final User user) {
+        if (conf instanceof TestPasswordRuleConf) {
+            this.conf = TestPasswordRuleConf.class.cast(conf);
         } else {
             throw new IllegalArgumentException(
-                    AccountRuleConf.class.getName() + " expected, got " + conf.getClass().getName());
+                    PasswordRuleConf.class.getName() + " expected, got " + conf.getClass().getName());
         }
 
-        if (!user.getUsername().contains(this.conf.getMustContainSubstring())) {
-            throw new AccountPolicyException("Username not containing " + this.conf.getMustContainSubstring());
+        if (!user.getClearPassword().endsWith(this.conf.getMustEndWith())) {
+            throw new PasswordPolicyException("Password not ending with " + this.conf.getMustEndWith());
         }
     }
 

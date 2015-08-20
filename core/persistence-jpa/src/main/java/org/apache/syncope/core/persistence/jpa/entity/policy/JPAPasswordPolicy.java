@@ -29,7 +29,6 @@ import javax.persistence.Table;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
 import org.apache.syncope.common.lib.types.PolicyType;
@@ -51,7 +50,7 @@ public class JPAPasswordPolicy extends AbstractPolicy implements PasswordPolicy 
     private int historyLength;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "passwordPolicy")
-    private List<JPAPasswordRuleConfInstance> ruleConfs;
+    private List<JPAPasswordRuleConfInstance> ruleConfs = new ArrayList<>();
 
     public JPAPasswordPolicy() {
         super();
@@ -92,14 +91,8 @@ public class JPAPasswordPolicy extends AbstractPolicy implements PasswordPolicy 
     }
 
     @Override
-    public boolean remove(final PasswordRuleConf passwordRuleConf) {
-        return CollectionUtils.filter(ruleConfs, new Predicate<JPAPasswordRuleConfInstance>() {
-
-            @Override
-            public boolean evaluate(final JPAPasswordRuleConfInstance object) {
-                return passwordRuleConf.equals(object.getInstance());
-            }
-        });
+    public void removeAllRuleConfs() {
+        ruleConfs.clear();
     }
 
     @Override

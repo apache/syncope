@@ -46,20 +46,20 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.PropagationMode;
 import org.apache.syncope.common.lib.types.TraceLevel;
-import org.apache.syncope.core.persistence.api.entity.AccountPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
-import org.apache.syncope.core.persistence.api.entity.PasswordPolicy;
-import org.apache.syncope.core.persistence.api.entity.SyncPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.SyncPolicy;
 import org.apache.syncope.core.persistence.jpa.validation.entity.ExternalResourceCheck;
 import org.apache.syncope.core.misc.serialization.POJOHelper;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractAnnotatedEntity;
-import org.apache.syncope.core.persistence.jpa.entity.JPAAccountPolicy;
+import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAccountPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.JPAConnInstance;
-import org.apache.syncope.core.persistence.jpa.entity.JPAPasswordPolicy;
-import org.apache.syncope.core.persistence.jpa.entity.JPASyncPolicy;
+import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPasswordPolicy;
+import org.apache.syncope.core.persistence.jpa.entity.policy.JPASyncPolicy;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 
 /**

@@ -36,25 +36,22 @@ public class DefaultAccountRule implements AccountRule {
 
     private DefaultAccountRuleConf conf;
 
+    @Transactional(readOnly = true)
     @Override
-    public void setConf(final AccountRuleConf conf) {
+    public void enforce(final AccountRuleConf conf, final User user) {
         if (conf instanceof DefaultAccountRuleConf) {
-            this.conf = (DefaultAccountRuleConf) conf;
+            this.conf = DefaultAccountRuleConf.class.cast(conf);
         } else {
             throw new IllegalArgumentException(
                     AccountRuleConf.class.getName() + " expected, got " + conf.getClass().getName());
         }
-    }
 
-    @Transactional(readOnly = true)
-    @Override
-    public void isCompliant(final User user) {
-        for (String schema : conf.getSchemasNotPermitted()) {
+        for (String schema : this.conf.getSchemasNotPermitted()) {
             PlainAttr<?> attr = user.getPlainAttr(schema);
             if (attr != null) {
                 List<String> values = attr.getValuesAsStrings();
                 if (values != null && !values.isEmpty()) {
-                    conf.getWordsNotPermitted().add(values.get(0));
+                    this.conf.getWordsNotPermitted().add(values.get(0));
                 }
             }
         }
@@ -64,45 +61,45 @@ public class DefaultAccountRule implements AccountRule {
         }
 
         // check min length
-        if (conf.getMinLength() > 0 && conf.getMinLength() > user.getUsername().length()) {
+        if (this.conf.getMinLength() > 0 && this.conf.getMinLength() > user.getUsername().length()) {
             throw new AccountPolicyException("Username too short");
         }
 
         // check max length
-        if (conf.getMaxLength() > 0 && conf.getMaxLength() < user.getUsername().length()) {
+        if (this.conf.getMaxLength() > 0 && this.conf.getMaxLength() < user.getUsername().length()) {
             throw new AccountPolicyException("Username too long");
         }
 
         // check words not permitted
-        for (String word : conf.getWordsNotPermitted()) {
+        for (String word : this.conf.getWordsNotPermitted()) {
             if (user.getUsername().contains(word)) {
                 throw new AccountPolicyException("Used word(s) not permitted");
             }
         }
 
         // check case
-        if (conf.isAllUpperCase() && !user.getUsername().equals(user.getUsername().toUpperCase())) {
+        if (this.conf.isAllUpperCase() && !user.getUsername().equals(user.getUsername().toUpperCase())) {
             throw new AccountPolicyException("No lowercase characters permitted");
         }
-        if (conf.isAllLowerCase() && !user.getUsername().equals(user.getUsername().toLowerCase())) {
+        if (this.conf.isAllLowerCase() && !user.getUsername().equals(user.getUsername().toLowerCase())) {
             throw new AccountPolicyException("No uppercase characters permitted");
         }
 
         // check pattern
-        Pattern pattern = (conf.getPattern() == null) ? DEFAULT_PATTERN : Pattern.compile(conf.getPattern());
+        Pattern pattern = (this.conf.getPattern() == null) ? DEFAULT_PATTERN : Pattern.compile(this.conf.getPattern());
         if (!pattern.matcher(user.getUsername()).matches()) {
             throw new AccountPolicyException("Username does not match pattern");
         }
 
         // check prefix
-        for (String prefix : conf.getPrefixesNotPermitted()) {
+        for (String prefix : this.conf.getPrefixesNotPermitted()) {
             if (user.getUsername().startsWith(prefix)) {
                 throw new AccountPolicyException("Prefix not permitted");
             }
         }
 
         // check suffix
-        for (String suffix : conf.getSuffixesNotPermitted()) {
+        for (String suffix : this.conf.getSuffixesNotPermitted()) {
             if (user.getUsername().endsWith(suffix)) {
                 throw new AccountPolicyException("Suffix not permitted");
             }

@@ -29,7 +29,7 @@ import org.apache.syncope.core.persistence.jpa.entity.AbstractExec;
 /**
  * An execution (with result) of a Task.
  *
- * @see JPATask
+ * @see AbstractTask
  */
 @Entity
 @Table(name = JPATaskExec.TABLE)
@@ -39,9 +39,6 @@ public class JPATaskExec extends AbstractExec implements TaskExec {
 
     public static final String TABLE = "TaskExec";
 
-    /**
-     * Id.
-     */
     @Id
     private Long id;
 
@@ -49,7 +46,7 @@ public class JPATaskExec extends AbstractExec implements TaskExec {
      * The referred task.
      */
     @ManyToOne(optional = false)
-    private JPATask task;
+    private AbstractTask task;
 
     @Override
     public Long getKey() {
@@ -63,8 +60,8 @@ public class JPATaskExec extends AbstractExec implements TaskExec {
 
     @Override
     public void setTask(final Task task) {
-        checkType(task, JPATask.class);
-        this.task = (JPATask) task;
+        checkType(task, AbstractTask.class);
+        this.task = (AbstractTask) task;
     }
 
     @Override

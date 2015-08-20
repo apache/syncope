@@ -35,7 +35,7 @@ public interface Report extends Entity<Long> {
 
     boolean add(ReportletConf reportletConf);
 
-    boolean remove(ReportletConf reportletConf);
+    void removeAllReportletConfs();
 
     List<? extends ReportletConf> getReportletConfs();
 

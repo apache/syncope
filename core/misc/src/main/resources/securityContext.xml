@@ -32,6 +32,7 @@ under the License.
     <constructor-arg value="${anonymousUser}"/>
   </bean>
   
+  <bean class="${passwordGenerator}"/>
   <bean class="org.apache.syncope.core.misc.spring.DefaultRolesPrefixPostProcessor"/>
   
   <security:global-method-security pre-post-annotations="enabled"/>

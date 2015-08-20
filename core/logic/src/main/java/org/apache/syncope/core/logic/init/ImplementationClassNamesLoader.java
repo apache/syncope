@@ -32,6 +32,8 @@ import org.apache.syncope.core.provisioning.api.sync.SyncCorrelationRule;
 import org.apache.syncope.core.logic.report.Reportlet;
 import org.apache.syncope.core.persistence.api.SyncopeLoader;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.Validator;
+import org.apache.syncope.core.persistence.api.dao.AccountRule;
+import org.apache.syncope.core.persistence.api.dao.PasswordRule;
 import org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate;
 import org.apache.syncope.core.provisioning.java.sync.PushJobDelegate;
 import org.apache.syncope.core.provisioning.java.sync.SyncJobDelegate;
@@ -52,6 +54,8 @@ public class ImplementationClassNamesLoader implements SyncopeLoader {
     public enum Type {
 
         REPORTLET,
+        ACCOUNT_RULE,
+        PASSWORD_RULE,
         TASKJOBDELEGATE,
         PROPAGATION_ACTIONS,
         SYNC_ACTIONS,
@@ -80,6 +84,8 @@ public class ImplementationClassNamesLoader implements SyncopeLoader {
 
         ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(false);
         scanner.addIncludeFilter(new AssignableTypeFilter(Reportlet.class));
+        scanner.addIncludeFilter(new AssignableTypeFilter(AccountRule.class));
+        scanner.addIncludeFilter(new AssignableTypeFilter(PasswordRule.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(SchedTaskJobDelegate.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(SyncActions.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(PushActions.class));
@@ -97,6 +103,13 @@ public class ImplementationClassNamesLoader implements SyncopeLoader {
 
                 if (Reportlet.class.isAssignableFrom(clazz) && !isAbsractClazz) {
                     classNames.get(Type.REPORTLET).add(clazz.getName());
+                }
+
+                if (AccountRule.class.isAssignableFrom(clazz) && !isAbsractClazz) {
+                    classNames.get(Type.ACCOUNT_RULE).add(clazz.getName());
+                }
+                if (PasswordRule.class.isAssignableFrom(clazz) && !isAbsractClazz) {
+                    classNames.get(Type.PASSWORD_RULE).add(clazz.getName());
                 }
 
                 if (SchedTaskJobDelegate.class.isAssignableFrom(clazz) && !isAbsractClazz

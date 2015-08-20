@@ -37,7 +37,7 @@ public class PasswordPolicyTO extends AbstractPolicyTO {
 
     private int historyLength;
 
-    private final List<PasswordRuleConf> ruleConfs = new ArrayList<>();
+    private final List<AbstractPasswordRuleConf> ruleConfs = new ArrayList<>();
 
     public PasswordPolicyTO() {
         super(PolicyType.PASSWORD);
@@ -62,7 +62,7 @@ public class PasswordPolicyTO extends AbstractPolicyTO {
     @XmlElementWrapper(name = "ruleConfs")
     @XmlElement(name = "ruleConf")
     @JsonProperty("ruleConfs")
-    public List<PasswordRuleConf> getRuleConfs() {
+    public List<AbstractPasswordRuleConf> getRuleConfs() {
         return ruleConfs;
     }
 }

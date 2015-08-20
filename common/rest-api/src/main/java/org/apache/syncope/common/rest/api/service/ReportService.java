@@ -42,7 +42,6 @@ import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.JobStatusType;
 import org.apache.syncope.common.lib.types.ReportExecExportFormat;
-import org.apache.syncope.common.lib.wrap.ReportletConfClass;
 import org.apache.syncope.common.rest.api.beans.ListQuery;
 
 /**
@@ -50,16 +49,6 @@ import org.apache.syncope.common.rest.api.beans.ListQuery;
  */
 @Path("reports")
 public interface ReportService extends JAXRSService {
-
-    /**
-     * Returns a list of available classes for reportlet configuration.
-     *
-     * @return list of available classes for reportlet configuration
-     */
-    @GET
-    @Path("reportletConfClasses")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    List<ReportletConfClass> getReportletConfClasses();
 
     /**
      * Returns report with matching key.
