@@ -21,4 +21,5 @@ install: mvn --show-version --quiet -P skipTests
 #invoker.streamLogs: we cannot access to log files through Travis web ui, so display everything in the console
 script: mvn --show-version --quiet clean install -Dinvoker.streamLogs=true
 notifications:
-  webhooks: http://rovere.tirasa.net/cgi-bin/travis.cgi
+  email:
+    - dev@syncope.apache.org
