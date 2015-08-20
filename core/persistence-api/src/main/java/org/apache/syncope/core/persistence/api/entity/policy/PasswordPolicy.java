@@ -16,15 +16,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.wrap;
+package org.apache.syncope.core.persistence.api.entity.policy;
 
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import java.util.List;
+import org.apache.syncope.common.lib.policy.PasswordRuleConf;
+import org.apache.syncope.core.persistence.api.entity.Policy;
 
-@XmlRootElement(name = "reportletConfClass")
-@XmlType
-public class ReportletConfClass extends AbstractWrappable<String> {
+public interface PasswordPolicy extends Policy {
 
-    private static final long serialVersionUID = 1343357929074360450L;
+    boolean isAllowNullPassword();
 
+    void setAllowNullPassword(final boolean allowNullPassword);
+
+    int getHistoryLength();
+
+    void setHistoryLength(int historyLength);
+
+    boolean add(PasswordRuleConf passwordRuleConf);
+
+    boolean remove(PasswordRuleConf passwordRuleConf);
+
+    List<PasswordRuleConf> getRuleConfs();
 }
