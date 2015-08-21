@@ -175,8 +175,8 @@ under the License.
         </includes>
       </resource>
       <resource>
-        <directory>../fit/core-reference/src/main/resources/scriptedsql</directory>
-        <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/main/resources/scriptedsql</targetPath>
+        <directory>../fit/core-reference/src/test/resources/scriptedsql</directory>
+        <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/test/resources/scriptedsql</targetPath>
       </resource>
       <resource>
         <directory>../fit/core-reference/src/main/resources</directory>

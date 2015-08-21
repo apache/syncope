@@ -36,6 +36,7 @@ under the License.
   <properties>
     <rootpom.basedir>${basedir}/..</rootpom.basedir>
 
+    <conf.directory>${CATALINA_HOME}/webapps/syncope/WEB-INF/classes</conf.directory>
     <connid.location>connid://${testconnectorserver.key}@localhost:${testconnectorserver.port}</connid.location>
     <log.directory>./logs</log.directory>
     <test.csvdir.path>./test-csvdir</test.csvdir.path>
@@ -94,7 +95,7 @@ under the License.
             <transformationSet>
               <dir>${project.build.directory}/classes/core</dir>
               <includes>
-                <include>content.xml</include>
+                <include>domains/MasterContent.xml</include>
               </includes>
               <outputDir>${project.build.directory}/classes/core</outputDir>
               <stylesheet>${basedir}/../fit/core-reference/src/test/resources/addActivitiToContent.xsl</stylesheet>
@@ -214,12 +215,16 @@ under the License.
 
     <resources>
       <resource>
-        <directory>../core/persistence-jpa/src/test/resources</directory>
+        <directory>../core/persistence-jpa/src/main/resources</directory>
         <includes>
-          <include>content.xml</include>
           <include>persistence.properties</include>
         </includes>
         <targetPath>core</targetPath>
+        <filtering>true</filtering>
+      </resource>
+      <resource>
+        <directory>../core/persistence-jpa/src/test/resources/domains</directory>
+        <targetPath>core/domains</targetPath>
         <filtering>true</filtering>
       </resource>
       <resource>
@@ -238,6 +243,11 @@ under the License.
           <include>*.properties</include>
         </includes>
         <targetPath>core</targetPath>
+        <filtering>true</filtering>
+      </resource>
+      <resource>
+        <directory>../fit/core-reference/src/test/resources/scriptedsql</directory>
+        <targetPath>core/scriptedsql</targetPath>
         <filtering>true</filtering>
       </resource>
 

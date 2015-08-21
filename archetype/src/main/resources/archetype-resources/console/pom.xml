@@ -231,7 +231,8 @@ ORYX.Editor.createByUrl = function(modelUrl){"/>
                 <phase>package</phase>
                 <configuration>
                   <target>
-                    <copy todir="../core/target/syncope/WEB-INF/classes">
+                    <delete dir="../core/target/syncope/WEB-INF/classes/domains"/>
+                    <copy todir="../core/target/syncope/WEB-INF/classes/domains">
                       <fileset dir="../core/target/test-classes/domains"/>
                     </copy>
                     <copy file="../core/target/test-classes/connid.properties" 
