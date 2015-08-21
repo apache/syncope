@@ -66,14 +66,15 @@ public class ConnectorRestClient extends BaseRestClient {
     /**
      * Load an already existent connector by its name.
      *
-     * @param connectorInstanceId the id
+     * @param key the id
      * @return ConnInstanceTO
      */
-    public ConnInstanceTO read(final Long connectorInstanceId) {
+    public ConnInstanceTO read(final Long key) {
         ConnInstanceTO connectorTO = null;
 
         try {
-            connectorTO = getService(ConnectorService.class).read(connectorInstanceId);
+            connectorTO = getService(ConnectorService.class).
+                    read(key, SyncopeConsoleSession.get().getLocale().toString());
         } catch (SyncopeClientException e) {
             LOG.error("While reading a connector", e);
         }
@@ -88,10 +89,11 @@ public class ConnectorRestClient extends BaseRestClient {
         getService(ConnectorService.class).update(connectorTO);
     }
 
-    public ConnInstanceTO delete(final Long id) {
-        ConnInstanceTO instanceTO = getService(ConnectorService.class).read(id);
-        getService(ConnectorService.class).delete(id);
-        return instanceTO;
+    public ConnInstanceTO delete(final Long key) {
+        ConnInstanceTO connectorTO = getService(ConnectorService.class).
+                read(key, SyncopeConsoleSession.get().getLocale().toString());
+        getService(ConnectorService.class).delete(key);
+        return connectorTO;
     }
 
     public List<ConnBundleTO> getAllBundles() {

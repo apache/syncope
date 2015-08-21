@@ -128,13 +128,13 @@ public class ConnIdBundleManagerImpl implements ConnIdBundleManager {
 
     private void initRemote(final URI location) {
         // 1. Extract conf params for remote connection from given URI
-        final String host = location.getHost();
-        final int port = location.getPort();
-        final GuardedString key = new GuardedString(location.getUserInfo().toCharArray());
-        final boolean useSSL = location.getScheme().equals("connids");
+        String host = location.getHost();
+        int port = location.getPort();
+        GuardedString key = new GuardedString(location.getUserInfo().toCharArray());
+        boolean useSSL = location.getScheme().equals("connids");
 
-        final List<TrustManager> trustManagers = new ArrayList<>();
-        final String[] params = StringUtils.isBlank(location.getQuery()) ? null : location.getQuery().split("&");
+        List<TrustManager> trustManagers = new ArrayList<>();
+        String[] params = StringUtils.isBlank(location.getQuery()) ? null : location.getQuery().split("&");
         if (params != null && params.length > 0) {
             final String[] trustAllCerts = params[0].split("=");
             if (trustAllCerts != null && trustAllCerts.length > 1

@@ -26,6 +26,7 @@ import static org.junit.Assert.fail;
 
 import java.security.AccessControlException;
 import java.util.List;
+import java.util.Locale;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
@@ -127,7 +128,7 @@ public class MultitenancyITCase extends AbstractITCase {
     @Test
     public void createResourceAndSync() {
         // read connector
-        ConnInstanceTO conn = adminClient.getService(ConnectorService.class).read(100L);
+        ConnInstanceTO conn = adminClient.getService(ConnectorService.class).read(100L, Locale.ENGLISH.getLanguage());
         assertNotNull(conn);
         assertEquals("LDAP", conn.getDisplayName());
 

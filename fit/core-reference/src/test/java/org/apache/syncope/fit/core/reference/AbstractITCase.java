@@ -22,6 +22,7 @@ import static org.junit.Assert.assertNotNull;
 
 import java.io.InputStream;
 import java.net.URI;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
@@ -403,7 +404,7 @@ public abstract class AbstractITCase {
             throws NamingException {
         ResourceTO ldapRes = resourceService.read(RESOURCE_NAME_LDAP);
         final Map<String, ConnConfProperty> ldapConnConf =
-                connectorService.read(ldapRes.getConnector()).getConfigurationMap();
+                connectorService.read(ldapRes.getConnector(), Locale.ENGLISH.getLanguage()).getConfigurationMap();
 
         Properties env = new Properties();
         env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");

@@ -46,7 +46,13 @@ under the License.
       <groupId>javax.servlet</groupId>
       <artifactId>jstl</artifactId>
     </dependency>
-  
+
+    <dependency>
+      <groupId>${groupId}</groupId>
+      <artifactId>common</artifactId>
+      <version>${project.version}</version>
+    </dependency>  
+    
     <dependency>
       <groupId>org.apache.syncope.client</groupId>
       <artifactId>syncope-client-console</artifactId>
@@ -192,6 +198,19 @@ ORYX.Editor.createByUrl = function(modelUrl){"/>
       
       <dependencies>
         <dependency>
+          <groupId>org.apache.syncope.fit</groupId>
+          <artifactId>syncope-fit-build-tools</artifactId>
+          <version>${syncope.version}</version>
+          <type>war</type>
+          <scope>test</scope>
+        </dependency>
+        <dependency>
+          <groupId>net.tirasa.connid.bundles.soap</groupId>
+          <artifactId>wssample</artifactId>
+          <type>war</type>
+          <scope>test</scope>
+        </dependency>
+        <dependency>
           <groupId>com.h2database</groupId>
           <artifactId>h2</artifactId>
           <scope>test</scope>
@@ -212,7 +231,10 @@ ORYX.Editor.createByUrl = function(modelUrl){"/>
                 <phase>package</phase>
                 <configuration>
                   <target>
-                    <copy file="../core/target/test-classes/persistence.properties" 
+                    <copy todir="../core/target/syncope/WEB-INF/classes">
+                      <fileset dir="../core/target/test-classes/domains"/>
+                    </copy>
+                    <copy file="../core/target/test-classes/connid.properties" 
                           todir="../core/target/syncope/WEB-INF/classes" 
                           overwrite="true"/>
                     <copy file="../core/target/test-classes/db.jsp" 
@@ -255,6 +277,22 @@ ORYX.Editor.createByUrl = function(modelUrl){"/>
                 </properties>
               </configuration>
               <deployables>
+                <deployable>
+                  <groupId>net.tirasa.connid.bundles.soap</groupId>
+                  <artifactId>wssample</artifactId>
+                  <type>war</type>
+                  <properties>
+                    <context>wssample</context>
+                  </properties>
+                </deployable>
+                <deployable>
+                  <groupId>org.apache.syncope.fit</groupId>
+                  <artifactId>syncope-fit-build-tools</artifactId>
+                  <type>war</type>
+                  <properties>
+                    <context>syncope-fit-build-tools</context>
+                  </properties>
+                </deployable>
                 <deployable>
                   <location>../core/target/syncope</location>
                   <properties>

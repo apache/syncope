@@ -26,7 +26,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.collections4.PredicateUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.ArrayUtils;
@@ -108,10 +107,10 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
     }
 
     @PreAuthorize("hasRole('" + Entitlement.CONNECTOR_DELETE + "')")
-    public ConnInstanceTO delete(final Long connInstanceId) {
-        ConnInstance connInstance = connInstanceDAO.find(connInstanceId);
+    public ConnInstanceTO delete(final Long connInstanceKey) {
+        ConnInstance connInstance = connInstanceDAO.find(connInstanceKey);
         if (connInstance == null) {
-            throw new NotFoundException("Connector '" + connInstanceId + "'");
+            throw new NotFoundException("Connector '" + connInstanceKey + "'");
         }
 
         if (!connInstance.getResources().isEmpty()) {
@@ -125,7 +124,7 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
 
         ConnInstanceTO connToDelete = binder.getConnInstanceTO(connInstance);
 
-        connInstanceDAO.delete(connInstanceId);
+        connInstanceDAO.delete(connInstanceKey);
 
         return connToDelete;
     }
@@ -133,35 +132,36 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
     @PreAuthorize("hasRole('" + Entitlement.CONNECTOR_LIST + "')")
     @Transactional(readOnly = true)
     public List<ConnInstanceTO> list(final String lang) {
-        if (StringUtils.isBlank(lang)) {
-            CurrentLocale.set(Locale.ENGLISH);
-        } else {
-            CurrentLocale.set(new Locale(lang));
-        }
+        CurrentLocale.set(StringUtils.isBlank(lang) ? Locale.ENGLISH : new Locale(lang));
 
-        return CollectionUtils.collect(IteratorUtils.filteredIterator(connInstanceDAO.findAll().iterator(),
-                PredicateUtils.notNullPredicate()), new Transformer<ConnInstance, ConnInstanceTO>() {
+        List<ConnInstanceTO> result = CollectionUtils.collect(connInstanceDAO.findAll().iterator(),
+                new Transformer<ConnInstance, ConnInstanceTO>() {
 
                     @Override
-                    public ConnInstanceTO transform(final ConnInstance input) {
+                    public ConnInstanceTO transform(final ConnInstance connInstance) {
                         ConnInstanceTO result = null;
                         try {
-                            result = binder.getConnInstanceTO(input);
+                            result = binder.getConnInstanceTO(connInstance);
                         } catch (NotFoundException e) {
-                            LOG.error("Connector '{}#{}' not found", input.getBundleName(), input.getVersion());
+                            LOG.error("Connector '{}#{}' not found",
+                                    connInstance.getBundleName(), connInstance.getVersion());
                         }
 
                         return result;
                     }
                 }, new ArrayList<ConnInstanceTO>());
+        CollectionUtils.filter(result, PredicateUtils.notNullPredicate());
+        return result;
     }
 
     @PreAuthorize("hasRole('" + Entitlement.CONNECTOR_READ + "')")
     @Transactional(readOnly = true)
-    public ConnInstanceTO read(final Long connInstanceId) {
-        ConnInstance connInstance = connInstanceDAO.find(connInstanceId);
+    public ConnInstanceTO read(final Long connInstanceKey, final String lang) {
+        CurrentLocale.set(StringUtils.isBlank(lang) ? Locale.ENGLISH : new Locale(lang));
+
+        ConnInstance connInstance = connInstanceDAO.find(connInstanceKey);
         if (connInstance == null) {
-            throw new NotFoundException("Connector '" + connInstanceId + "'");
+            throw new NotFoundException("Connector '" + connInstanceKey + "'");
         }
 
         return binder.getConnInstanceTO(connInstance);
@@ -229,8 +229,8 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
         }
 
         // consider the possibility to receive overridden properties only
-        final Set<ConnConfProperty> conf = binder.mergeConnConfProperties(connInstanceTO.getConfiguration(),
-                connInstance.getConfiguration());
+        Set<ConnConfProperty> conf =
+                binder.mergeConnConfProperties(connInstanceTO.getConfiguration(), connInstance.getConfiguration());
 
         // We cannot use Spring bean because this method could be used during resource definition or modification:
         // bean couldn't exist or couldn't be updated.
@@ -247,14 +247,14 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
 
     @PreAuthorize("hasRole('" + Entitlement.CONNECTOR_READ + "')")
     @Transactional(readOnly = true)
-    public List<ConnConfProperty> getConfigurationProperties(final Long connInstanceId) {
+    public List<ConnConfProperty> getConfigurationProperties(final Long connInstanceKey) {
 
-        ConnInstance connInstance = connInstanceDAO.find(connInstanceId);
+        ConnInstance connInstance = connInstanceDAO.find(connInstanceKey);
         if (connInstance == null) {
-            throw new NotFoundException("Connector '" + connInstanceId + "'");
+            throw new NotFoundException("Connector '" + connInstanceKey + "'");
         }
 
-        return new ArrayList<ConnConfProperty>(connInstance.getConfiguration());
+        return new ArrayList<>(connInstance.getConfiguration());
     }
 
     @PreAuthorize("hasRole('" + Entitlement.CONNECTOR_READ + "')")
@@ -277,7 +277,9 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
 
     @PreAuthorize("hasRole('" + Entitlement.CONNECTOR_READ + "')")
     @Transactional(readOnly = true)
-    public ConnInstanceTO readByResource(final String resourceName) {
+    public ConnInstanceTO readByResource(final String resourceName, final String lang) {
+        CurrentLocale.set(StringUtils.isBlank(lang) ? Locale.ENGLISH : new Locale(lang));
+
         ExternalResource resource = resourceDAO.find(resourceName);
         if (resource == null) {
             throw new NotFoundException("Resource '" + resourceName + "'");
@@ -296,21 +298,21 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
     protected ConnInstanceTO resolveReference(final Method method, final Object... args)
             throws UnresolvedReferenceException {
 
-        Long id = null;
+        Long key = null;
 
         if (ArrayUtils.isNotEmpty(args)) {
-            for (int i = 0; id == null && i < args.length; i++) {
+            for (int i = 0; key == null && i < args.length; i++) {
                 if (args[i] instanceof Long) {
-                    id = (Long) args[i];
+                    key = (Long) args[i];
                 } else if (args[i] instanceof ConnInstanceTO) {
-                    id = ((ConnInstanceTO) args[i]).getKey();
+                    key = ((ConnInstanceTO) args[i]).getKey();
                 }
             }
         }
 
-        if ((id != null) && !id.equals(0L)) {
+        if ((key != null) && !key.equals(0L)) {
             try {
-                return binder.getConnInstanceTO(connInstanceDAO.find(id));
+                return binder.getConnInstanceTO(connInstanceDAO.find(key));
             } catch (Throwable ignore) {
                 LOG.debug("Unresolved reference", ignore);
                 throw new UnresolvedReferenceException(ignore);
