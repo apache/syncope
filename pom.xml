@@ -328,7 +328,7 @@ under the License.
 
     <cxf.version>3.1.2</cxf.version>
 
-    <camel.version>2.15.2</camel.version>	
+    <camel.version>2.15.3</camel.version>	
 
     <jackson.version>2.6.1</jackson.version>
 
