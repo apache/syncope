@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.logic;
 
-import static org.apache.syncope.core.logic.init.ImplementationClassNamesLoader.Type;
-
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URI;
@@ -27,9 +25,10 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.annotation.Resource;
 import org.apache.syncope.common.lib.to.SyncopeTO;
-import org.apache.syncope.core.logic.init.ImplementationClassNamesLoader;
 import org.apache.syncope.core.misc.security.PasswordGenerator;
 import org.apache.syncope.core.misc.spring.ResourceWithFallbackLoader;
+import org.apache.syncope.core.persistence.api.ImplementationLookup;
+import org.apache.syncope.core.persistence.api.ImplementationLookup.Type;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.provisioning.api.AnyObjectProvisioningManager;
 import org.apache.syncope.core.provisioning.api.AnyTransformer;
@@ -87,7 +86,7 @@ public class SyncopeLogic extends AbstractLogic<SyncopeTO> {
     private PasswordGenerator passwordGenerator;
 
     @Autowired
-    private ImplementationClassNamesLoader classNamesLoader;
+    private ImplementationLookup implementationLookup;
 
     @Resource(name = "velocityResourceLoader")
     private ResourceWithFallbackLoader resourceLoader;
@@ -135,16 +134,16 @@ public class SyncopeLogic extends AbstractLogic<SyncopeTO> {
         syncopeTO.setVirAttrCache(virAttrCache.getClass().getName());
         syncopeTO.setPasswordGenerator(passwordGenerator.getClass().getName());
 
-        syncopeTO.getReportlets().addAll(classNamesLoader.getClassNames(Type.REPORTLET));
-        syncopeTO.getAccountRules().addAll(classNamesLoader.getClassNames(Type.ACCOUNT_RULE));
-        syncopeTO.getPasswordRules().addAll(classNamesLoader.getClassNames(Type.PASSWORD_RULE));
-        syncopeTO.getTaskJobs().addAll(classNamesLoader.getClassNames(Type.TASKJOBDELEGATE));
-        syncopeTO.getPropagationActions().addAll(classNamesLoader.getClassNames(Type.PROPAGATION_ACTIONS));
-        syncopeTO.getSyncActions().addAll(classNamesLoader.getClassNames(Type.SYNC_ACTIONS));
-        syncopeTO.getPushActions().addAll(classNamesLoader.getClassNames(Type.PUSH_ACTIONS));
-        syncopeTO.getSyncCorrelationRules().addAll(classNamesLoader.getClassNames(Type.SYNC_CORRELATION_RULE));
-        syncopeTO.getPushCorrelationRules().addAll(classNamesLoader.getClassNames(Type.PUSH_CORRELATION_RULE));
-        syncopeTO.getValidators().addAll(classNamesLoader.getClassNames(Type.VALIDATOR));
+        syncopeTO.getReportlets().addAll(implementationLookup.getClassNames(Type.REPORTLET));
+        syncopeTO.getAccountRules().addAll(implementationLookup.getClassNames(Type.ACCOUNT_RULE));
+        syncopeTO.getPasswordRules().addAll(implementationLookup.getClassNames(Type.PASSWORD_RULE));
+        syncopeTO.getTaskJobs().addAll(implementationLookup.getClassNames(Type.TASKJOBDELEGATE));
+        syncopeTO.getPropagationActions().addAll(implementationLookup.getClassNames(Type.PROPAGATION_ACTIONS));
+        syncopeTO.getSyncActions().addAll(implementationLookup.getClassNames(Type.SYNC_ACTIONS));
+        syncopeTO.getPushActions().addAll(implementationLookup.getClassNames(Type.PUSH_ACTIONS));
+        syncopeTO.getSyncCorrelationRules().addAll(implementationLookup.getClassNames(Type.SYNC_CORRELATION_RULE));
+        syncopeTO.getPushCorrelationRules().addAll(implementationLookup.getClassNames(Type.PUSH_CORRELATION_RULE));
+        syncopeTO.getValidators().addAll(implementationLookup.getClassNames(Type.VALIDATOR));
 
         Set<String> htmlTemplates = new HashSet<>();
         Set<String> textTemplates = new HashSet<>();

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.logic.report;
 
+import org.apache.syncope.core.persistence.api.dao.ReportletConfClass;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;

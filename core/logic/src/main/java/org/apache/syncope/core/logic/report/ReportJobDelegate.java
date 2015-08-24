@@ -20,10 +20,7 @@ package org.apache.syncope.core.logic.report;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.lang.reflect.Modifier;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -33,14 +30,15 @@ import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.report.ReportletConf;
 import org.apache.syncope.common.lib.types.ReportExecStatus;
 import org.apache.syncope.core.misc.ExceptionUtils2;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
+import org.apache.syncope.core.persistence.api.ImplementationLookup;
 import org.apache.syncope.core.persistence.api.dao.ReportDAO;
 import org.apache.syncope.core.persistence.api.dao.ReportExecDAO;
+import org.apache.syncope.core.persistence.api.dao.Reportlet;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
@@ -48,45 +46,15 @@ import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
-import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
-import org.springframework.core.type.filter.AssignableTypeFilter;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.ClassUtils;
 import org.xml.sax.helpers.AttributesImpl;
 
 @Component
 public class ReportJobDelegate {
 
     private static final Logger LOG = LoggerFactory.getLogger(ReportJobDelegate.class);
-
-    private static final Map<Class<? extends ReportletConf>, Class<Reportlet>> REPORTLET_CLASSES = new HashMap<>();
-
-    static {
-        initReportletClasses();
-    }
-
-    @SuppressWarnings("unchecked")
-    private static void initReportletClasses() {
-        ClassPathScanningCandidateComponentProvider scanner =
-                new ClassPathScanningCandidateComponentProvider(false);
-        scanner.addIncludeFilter(new AssignableTypeFilter(Reportlet.class));
-
-        for (BeanDefinition bd : scanner.findCandidateComponents(StringUtils.EMPTY)) {
-            Class<?> clazz = ClassUtils.resolveClassName(
-                    bd.getBeanClassName(), ClassUtils.getDefaultClassLoader());
-            boolean isAbstract = Modifier.isAbstract(clazz.getModifiers());
-
-            if (Reportlet.class.isAssignableFrom(clazz) && !isAbstract) {
-                ReportletConfClass annotation = clazz.getAnnotation(ReportletConfClass.class);
-                if (annotation != null) {
-                    REPORTLET_CLASSES.put(annotation.value(), (Class<Reportlet>) clazz);
-                }
-            }
-        }
-    }
 
     /**
      * Report DAO.
@@ -102,6 +70,9 @@ public class ReportJobDelegate {
 
     @Autowired
     private EntityFactory entityFactory;
+
+    @Autowired
+    private ImplementationLookup implementationLookup;
 
     @Transactional
     public void execute(final Long reportKey) throws JobExecutionException {
@@ -156,7 +127,8 @@ public class ReportJobDelegate {
 
             // iterate over reportlet instances defined for this report
             for (ReportletConf reportletConf : report.getReportletConfs()) {
-                Class<Reportlet> reportletClass = REPORTLET_CLASSES.get(reportletConf.getClass());
+                Class<? extends Reportlet> reportletClass =
+                        implementationLookup.getReportletClass(reportletConf.getClass());
                 if (reportletClass == null) {
                     LOG.warn("Could not find matching reportlet for {}", reportletConf.getClass());
                 } else {

@@ -21,20 +21,27 @@ package org.apache.syncope.core.logic.init;
 import java.lang.reflect.Modifier;
 import java.util.Collections;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.policy.AccountRuleConf;
+import org.apache.syncope.common.lib.policy.PasswordRuleConf;
+import org.apache.syncope.common.lib.report.ReportletConf;
+import org.apache.syncope.core.persistence.api.dao.Reportlet;
+import org.apache.syncope.core.persistence.api.dao.ReportletConfClass;
+import org.apache.syncope.core.persistence.api.ImplementationLookup;
+import org.apache.syncope.core.persistence.api.attrvalue.validation.Validator;
+import org.apache.syncope.core.persistence.api.dao.AccountRule;
+import org.apache.syncope.core.persistence.api.dao.AccountRuleConfClass;
+import org.apache.syncope.core.persistence.api.dao.PasswordRule;
+import org.apache.syncope.core.persistence.api.dao.PasswordRuleConfClass;
+import org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
 import org.apache.syncope.core.provisioning.api.sync.PushActions;
 import org.apache.syncope.core.provisioning.api.sync.SyncActions;
 import org.apache.syncope.core.provisioning.api.sync.SyncCorrelationRule;
-import org.apache.syncope.core.logic.report.Reportlet;
-import org.apache.syncope.core.persistence.api.SyncopeLoader;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.Validator;
-import org.apache.syncope.core.persistence.api.dao.AccountRule;
-import org.apache.syncope.core.persistence.api.dao.PasswordRule;
-import org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate;
 import org.apache.syncope.core.provisioning.java.sync.PushJobDelegate;
 import org.apache.syncope.core.provisioning.java.sync.SyncJobDelegate;
 import org.slf4j.Logger;
@@ -49,26 +56,17 @@ import org.springframework.util.ClassUtils;
  * Cache class names for all implementations of Syncope interfaces found in classpath, for later usage.
  */
 @Component
-public class ImplementationClassNamesLoader implements SyncopeLoader {
+public class ClassPathScanImplementationLookup implements ImplementationLookup {
 
-    public enum Type {
-
-        REPORTLET,
-        ACCOUNT_RULE,
-        PASSWORD_RULE,
-        TASKJOBDELEGATE,
-        PROPAGATION_ACTIONS,
-        SYNC_ACTIONS,
-        PUSH_ACTIONS,
-        SYNC_CORRELATION_RULE,
-        PUSH_CORRELATION_RULE,
-        VALIDATOR
-
-    }
-
-    private static final Logger LOG = LoggerFactory.getLogger(ImplementationClassNamesLoader.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ImplementationLookup.class);
 
     private Map<Type, Set<String>> classNames;
+
+    private Map<Class<? extends ReportletConf>, Class<? extends Reportlet>> reportletClasses;
+
+    private Map<Class<? extends AccountRuleConf>, Class<? extends AccountRule>> accountRuleClasses;
+
+    private Map<Class<? extends PasswordRuleConf>, Class<? extends PasswordRule>> passwordRuleClasses;
 
     @Override
     public Integer getPriority() {
@@ -76,11 +74,16 @@ public class ImplementationClassNamesLoader implements SyncopeLoader {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void load() {
         classNames = new EnumMap<>(Type.class);
         for (Type type : Type.values()) {
             classNames.put(type, new HashSet<String>());
         }
+
+        reportletClasses = new HashMap<>();
+        accountRuleClasses = new HashMap<>();
+        passwordRuleClasses = new HashMap<>();
 
         ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(false);
         scanner.addIncludeFilter(new AssignableTypeFilter(Reportlet.class));
@@ -103,13 +106,27 @@ public class ImplementationClassNamesLoader implements SyncopeLoader {
 
                 if (Reportlet.class.isAssignableFrom(clazz) && !isAbsractClazz) {
                     classNames.get(Type.REPORTLET).add(clazz.getName());
+
+                    ReportletConfClass annotation = clazz.getAnnotation(ReportletConfClass.class);
+                    if (annotation != null) {
+                        reportletClasses.put(annotation.value(), (Class<? extends Reportlet>) clazz);
+                    }
                 }
 
                 if (AccountRule.class.isAssignableFrom(clazz) && !isAbsractClazz) {
                     classNames.get(Type.ACCOUNT_RULE).add(clazz.getName());
+
+                    AccountRuleConfClass annotation = clazz.getAnnotation(AccountRuleConfClass.class);
+                    if (annotation != null) {
+                        accountRuleClasses.put(annotation.value(), (Class<? extends AccountRule>) clazz);
+                    }
                 }
                 if (PasswordRule.class.isAssignableFrom(clazz) && !isAbsractClazz) {
                     classNames.get(Type.PASSWORD_RULE).add(clazz.getName());
+                    PasswordRuleConfClass annotation = clazz.getAnnotation(PasswordRuleConfClass.class);
+                    if (annotation != null) {
+                        passwordRuleClasses.put(annotation.value(), (Class<? extends PasswordRule>) clazz);
+                    }
                 }
 
                 if (SchedTaskJobDelegate.class.isAssignableFrom(clazz) && !isAbsractClazz
@@ -147,11 +164,37 @@ public class ImplementationClassNamesLoader implements SyncopeLoader {
             }
         }
         classNames = Collections.unmodifiableMap(classNames);
+        reportletClasses = Collections.unmodifiableMap(reportletClasses);
+        accountRuleClasses = Collections.unmodifiableMap(accountRuleClasses);
+        passwordRuleClasses = Collections.unmodifiableMap(passwordRuleClasses);
 
         LOG.debug("Implementation classes found: {}", classNames);
     }
 
+    @Override
     public Set<String> getClassNames(final Type type) {
         return classNames.get(type);
     }
+
+    @Override
+    public Class<? extends Reportlet> getReportletClass(
+            final Class<? extends ReportletConf> reportletConfClass) {
+
+        return reportletClasses.get(reportletConfClass);
+    }
+
+    @Override
+    public Class<? extends AccountRule> getAccountRuleClass(
+            final Class<? extends AccountRuleConf> accountRuleConfClass) {
+
+        return accountRuleClasses.get(accountRuleConfClass);
+    }
+
+    @Override
+    public Class<? extends PasswordRule> getPasswordRuleClass(
+            final Class<? extends PasswordRuleConf> passwordRuleConfClass) {
+
+        return passwordRuleClasses.get(passwordRuleConfClass);
+    }
+
 }

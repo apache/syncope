@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.logic.report;
 
+import org.apache.syncope.core.persistence.api.dao.Reportlet;
 import org.apache.syncope.common.lib.report.ReportletConf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

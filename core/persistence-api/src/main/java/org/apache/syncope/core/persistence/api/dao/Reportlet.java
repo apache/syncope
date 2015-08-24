@@ -16,17 +16,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.logic.report;
+package org.apache.syncope.core.persistence.api.dao;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 import org.apache.syncope.common.lib.report.ReportletConf;
+import org.xml.sax.ContentHandler;
+import org.xml.sax.SAXException;
 
-@Target({ ElementType.TYPE })
-@Retention(RetentionPolicy.RUNTIME)
-public @interface ReportletConfClass {
+/**
+ * Interface for all elements that can be embedded in a report.
+ *
+ * @see org.apache.syncope.core.persistence.api.entity.Report
+ */
+public interface Reportlet {
 
-    Class<? extends ReportletConf> value();
+    /**
+     * Actual data extraction for reporting.
+     *
+     * @param conf configuration
+     * @param handler SAX content handler for streaming result
+     * @throws SAXException if there is any problem in SAX handling
+     */
+    void extract(ReportletConf conf, ContentHandler handler) throws SAXException;
 }
