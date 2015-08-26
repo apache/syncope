@@ -379,7 +379,7 @@ under the License.
     <font-awesome.version>4.4.0</font-awesome.version>
     <ionicons.version>2.0.1</ionicons.version>
     <highlightjs.version>8.7</highlightjs.version>
-    <codemirror.version>5.5</codemirror.version>
+    <codemirror.version>5.6</codemirror.version>
     <jsplumb.version>1.7.5</jsplumb.version>
     
     <wicket.version>7.0.0</wicket.version>
@@ -408,7 +408,7 @@ under the License.
     <cargo.log>${log.directory}/cargo.log</cargo.log>
     <cargo.output>${log.directory}/cargo-output.log</cargo.output>
 
-    <tomcat.version>8.0.24</tomcat.version>
+    <tomcat.version>8.0.26</tomcat.version>
 
     <anonymousUser>anonymous</anonymousUser>
     <!-- static keys, only used for build: generated overlays will override during archetype:generate -->
