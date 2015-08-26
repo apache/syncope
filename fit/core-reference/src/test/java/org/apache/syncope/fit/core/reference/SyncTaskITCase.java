@@ -705,7 +705,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         userMod.setPassword("new-security123");
         StatusMod pwdPropRequest = new StatusMod();
         pwdPropRequest.setOnSyncope(true);
-        pwdPropRequest.getResourceNames().clear();
+        pwdPropRequest.getResources().clear();
         userMod.setPwdPropRequest(pwdPropRequest);
         updateUser(userMod);
 

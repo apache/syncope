@@ -153,8 +153,7 @@ public class UserRestClient extends AbstractAnyRestClient {
         synchronized (this) {
             UserService service = getService(etag, UserService.class);
             service.deassociate(userKey, ResourceDeassociationActionType.UNLINK,
-                    CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(),
-                            ResourceKey.class));
+                    CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResources(), ResourceKey.class));
             resetClient(UserService.class);
         }
     }
@@ -165,7 +164,7 @@ public class UserRestClient extends AbstractAnyRestClient {
 
             ResourceAssociationMod associationMod = new ResourceAssociationMod();
             associationMod.getTargetResources().addAll(
-                    CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(), ResourceKey.class));
+                    CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResources(), ResourceKey.class));
             service.associate(userKey, ResourceAssociationAction.LINK, associationMod);
 
             resetClient(UserService.class);
@@ -177,8 +176,7 @@ public class UserRestClient extends AbstractAnyRestClient {
         synchronized (this) {
             UserService service = getService(etag, UserService.class);
             result = service.deassociate(userKey, ResourceDeassociationActionType.DEPROVISION,
-                    CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(),
-                            ResourceKey.class)).
+                    CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResources(), ResourceKey.class)).
                     readEntity(BulkActionResult.class);
             resetClient(UserService.class);
         }
@@ -194,7 +192,7 @@ public class UserRestClient extends AbstractAnyRestClient {
 
             ResourceAssociationMod associationMod = new ResourceAssociationMod();
             associationMod.getTargetResources().addAll(
-                    CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(), ResourceKey.class));
+                    CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResources(), ResourceKey.class));
             associationMod.setChangePwd(changepwd);
             associationMod.setPassword(password);
 
@@ -210,8 +208,7 @@ public class UserRestClient extends AbstractAnyRestClient {
         synchronized (this) {
             UserService service = getService(etag, UserService.class);
             result = service.deassociate(userKey, ResourceDeassociationActionType.UNASSIGN,
-                    CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(),
-                            ResourceKey.class)).
+                    CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResources(), ResourceKey.class)).
                     readEntity(BulkActionResult.class);
             resetClient(UserService.class);
         }
@@ -227,7 +224,7 @@ public class UserRestClient extends AbstractAnyRestClient {
 
             ResourceAssociationMod associationMod = new ResourceAssociationMod();
             associationMod.getTargetResources().addAll(
-                    CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(), ResourceKey.class));
+                    CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResources(), ResourceKey.class));
             associationMod.setChangePwd(changepwd);
             associationMod.setPassword(password);
 

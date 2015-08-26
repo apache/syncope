@@ -843,11 +843,11 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
             userMod.setPassword(clearPassword);
 
             if (propByRes != null) {
-                final StatusMod st = new StatusMod();
+                StatusMod st = new StatusMod();
                 userMod.setPwdPropRequest(st);
                 st.setOnSyncope(true);
                 for (String res : propByRes.get(ResourceOperation.CREATE)) {
-                    st.getResourceNames().add(res);
+                    st.getResources().add(res);
                 }
             }
         }

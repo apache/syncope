@@ -329,7 +329,7 @@ public class VirAttrITCase extends AbstractITCase {
             // check Syncope change password
             StatusMod pwdPropRequest = new StatusMod();
             pwdPropRequest.setOnSyncope(true);
-            pwdPropRequest.getResourceNames().add(RESOURCE_NAME_WS2);
+            pwdPropRequest.getResources().add(RESOURCE_NAME_WS2);
             userMod.setPwdPropRequest(pwdPropRequest);
 
             toBeUpdated = updateUser(userMod);
@@ -594,7 +594,7 @@ public class VirAttrITCase extends AbstractITCase {
         userMod.setKey(userTO.getKey());
 
         final StatusMod statusMod = new StatusMod();
-        statusMod.getResourceNames().addAll(Collections.<String>emptySet());
+        statusMod.getResources().addAll(Collections.<String>emptySet());
         statusMod.setOnSyncope(false);
 
         userMod.setPwdPropRequest(statusMod);

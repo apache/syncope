@@ -69,7 +69,7 @@ public class UserProvisionProcessor implements Processor {
         if (changePwd) {
             StatusMod statusMod = new StatusMod();
             statusMod.setOnSyncope(false);
-            statusMod.getResourceNames().addAll(resources);
+            statusMod.getResources().addAll(resources);
             userMod.setPwdPropRequest(statusMod);
             userMod.setPassword(password);
         }

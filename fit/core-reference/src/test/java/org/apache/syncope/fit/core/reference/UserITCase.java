@@ -889,8 +889,8 @@ public class UserITCase extends AbstractITCase {
         statusMod.setKey(userKey);
         statusMod.setType(StatusMod.ModType.SUSPEND);
         statusMod.setOnSyncope(true);
-        statusMod.getResourceNames().add(RESOURCE_NAME_TESTDB);
-        statusMod.getResourceNames().add(RESOURCE_NAME_LDAP);
+        statusMod.getResources().add(RESOURCE_NAME_TESTDB);
+        statusMod.getResources().add(RESOURCE_NAME_LDAP);
         userTO = userService.status(statusMod).readEntity(UserTO.class);
         assertNotNull(userTO);
         assertEquals("suspended", userTO.getStatus());
@@ -907,7 +907,7 @@ public class UserITCase extends AbstractITCase {
         statusMod.setKey(userKey);
         statusMod.setType(StatusMod.ModType.SUSPEND);
         statusMod.setOnSyncope(false);
-        statusMod.getResourceNames().add(RESOURCE_NAME_LDAP);
+        statusMod.getResources().add(RESOURCE_NAME_LDAP);
         userService.status(statusMod);
         statusMod.setType(StatusMod.ModType.REACTIVATE);
         userTO = userService.status(statusMod).readEntity(UserTO.class);
@@ -922,7 +922,7 @@ public class UserITCase extends AbstractITCase {
         statusMod.setKey(userKey);
         statusMod.setType(StatusMod.ModType.REACTIVATE);
         statusMod.setOnSyncope(true);
-        statusMod.getResourceNames().add(RESOURCE_NAME_TESTDB);
+        statusMod.getResources().add(RESOURCE_NAME_TESTDB);
 
         userTO = userService.status(statusMod).readEntity(UserTO.class);
         assertNotNull(userTO);
@@ -1052,7 +1052,7 @@ public class UserITCase extends AbstractITCase {
 
         final StatusMod st = new StatusMod();
         st.setOnSyncope(false);
-        st.getResourceNames().add(RESOURCE_NAME_TESTDB);
+        st.getResources().add(RESOURCE_NAME_TESTDB);
         userMod.setPwdPropRequest(st);
 
         userTO = updateUser(userMod);
@@ -1459,7 +1459,7 @@ public class UserITCase extends AbstractITCase {
         userMod.setPassword(getUUIDString());
         StatusMod pwdPropRequest = new StatusMod();
         pwdPropRequest.setOnSyncope(false);
-        pwdPropRequest.getResourceNames().add(RESOURCE_NAME_TESTDB);
+        pwdPropRequest.getResources().add(RESOURCE_NAME_TESTDB);
         userMod.setPwdPropRequest(pwdPropRequest);
 
         userTO = updateUser(userMod);
@@ -1499,38 +1499,40 @@ public class UserITCase extends AbstractITCase {
         pwdCipherAlgo.getValues().set(0, "AES");
         configurationService.set(pwdCipherAlgo);
 
-        // 3. create user with no resources
-        UserTO userTO = getUniqueSampleTO("syncope136_AES@apache.org");
-        userTO.getResources().clear();
+        try {
+            // 3. create user with no resources
+            UserTO userTO = getUniqueSampleTO("syncope136_AES@apache.org");
+            userTO.getResources().clear();
 
-        userTO = createUser(userTO);
-        assertNotNull(userTO);
+            userTO = createUser(userTO);
+            assertNotNull(userTO);
 
-        // 4. update user, assign a propagation primary resource but don't provide any password
-        UserMod userMod = new UserMod();
-        userMod.setKey(userTO.getKey());
-        userMod.getResourcesToAdd().add(RESOURCE_NAME_WS1);
+            // 4. update user, assign a propagation primary resource but don't provide any password
+            UserMod userMod = new UserMod();
+            userMod.setKey(userTO.getKey());
+            userMod.getResourcesToAdd().add(RESOURCE_NAME_WS1);
 
-        final StatusMod st = new StatusMod();
-        st.setOnSyncope(false);
-        st.getResourceNames().add(RESOURCE_NAME_WS1);
-        userMod.setPwdPropRequest(st);
+            StatusMod st = new StatusMod();
+            st.setOnSyncope(false);
+            st.getResources().add(RESOURCE_NAME_WS1);
+            userMod.setPwdPropRequest(st);
 
-        userTO = updateUser(userMod);
-        assertNotNull(userTO);
+            userTO = updateUser(userMod);
+            assertNotNull(userTO);
 
-        // 5. verify that propagation was successful
-        List<PropagationStatus> props = userTO.getPropagationStatusTOs();
-        assertNotNull(props);
-        assertEquals(1, props.size());
-        PropagationStatus prop = props.iterator().next();
-        assertNotNull(prop);
-        assertEquals(RESOURCE_NAME_WS1, prop.getResource());
-        assertEquals(PropagationTaskExecStatus.SUBMITTED, prop.getStatus());
-
-        // 6. restore initial cipher algorithm
-        pwdCipherAlgo.getValues().set(0, origpwdCipherAlgo);
-        configurationService.set(pwdCipherAlgo);
+            // 5. verify that propagation was successful
+            List<PropagationStatus> props = userTO.getPropagationStatusTOs();
+            assertNotNull(props);
+            assertEquals(1, props.size());
+            PropagationStatus prop = props.iterator().next();
+            assertNotNull(prop);
+            assertEquals(RESOURCE_NAME_WS1, prop.getResource());
+            assertEquals(PropagationTaskExecStatus.SUBMITTED, prop.getStatus());
+        } finally {
+            // restore initial cipher algorithm
+            pwdCipherAlgo.getValues().set(0, origpwdCipherAlgo);
+            configurationService.set(pwdCipherAlgo);
+        }
     }
 
     @Test
@@ -1546,9 +1548,9 @@ public class UserITCase extends AbstractITCase {
         userMod.setKey(userTO.getKey());
         userMod.getResourcesToAdd().add(RESOURCE_NAME_LDAP);
 
-        final StatusMod st = new StatusMod();
+        StatusMod st = new StatusMod();
         st.setOnSyncope(false);
-        st.getResourceNames().add(RESOURCE_NAME_LDAP);
+        st.getResources().add(RESOURCE_NAME_LDAP);
         userMod.setPwdPropRequest(st);
 
         userTO = updateUser(userMod);
@@ -1763,7 +1765,7 @@ public class UserITCase extends AbstractITCase {
         userMod.setKey(userTO.getKey());
         userMod.setPassword(getUUIDString() + "abbcbcbddd123");
         StatusMod pwdPropRequest = new StatusMod();
-        pwdPropRequest.getResourceNames().add(RESOURCE_NAME_TESTDB);
+        pwdPropRequest.getResources().add(RESOURCE_NAME_TESTDB);
         userMod.setPwdPropRequest(pwdPropRequest);
 
         userTO = updateUser(userMod);
@@ -2273,7 +2275,7 @@ public class UserITCase extends AbstractITCase {
 
         final StatusMod st = new StatusMod();
         st.setOnSyncope(false);
-        st.getResourceNames().add(RESOURCE_NAME_TESTDB);
+        st.getResources().add(RESOURCE_NAME_TESTDB);
         userMod.setPwdPropRequest(st);
 
         user = updateUser(userMod);
@@ -2316,7 +2318,7 @@ public class UserITCase extends AbstractITCase {
 
         final StatusMod st = new StatusMod();
         st.setOnSyncope(false);
-        st.getResourceNames().add(RESOURCE_NAME_LDAP);
+        st.getResources().add(RESOURCE_NAME_LDAP);
         userMod.setPwdPropRequest(st);
 
         user = updateUser(userMod);
@@ -2523,5 +2525,52 @@ public class UserITCase extends AbstractITCase {
             policyService.delete(passwordPolicy.getKey());
         }
 
+    }
+
+    @Test
+    public void issueSYNCOPE686() {
+        // 1. read configured cipher algorithm in order to be able to restore it at the end of test
+        AttrTO pwdCipherAlgo = configurationService.get("password.cipher.algorithm");
+        String origpwdCipherAlgo = pwdCipherAlgo.getValues().get(0);
+
+        // 2. set AES password cipher algorithm
+        pwdCipherAlgo.getValues().set(0, "AES");
+        configurationService.set(pwdCipherAlgo);
+
+        try {
+            // 3. create group with LDAP resource assigned
+            GroupTO group = GroupITCase.getBasicSampleTO("syncope686");
+            group.getResources().add(RESOURCE_NAME_LDAP);
+            group = createGroup(group);
+            assertNotNull(group);
+
+            // 4. create user with no resources
+            UserTO userTO = getUniqueSampleTO("syncope686@apache.org");
+            userTO.getResources().clear();
+
+            userTO = createUser(userTO);
+            assertNotNull(userTO);
+
+            // 5. update user with the new group, and don't provide any password
+            UserMod userMod = new UserMod();
+            userMod.setKey(userTO.getKey());
+            userMod.getMembershipsToAdd().add(group.getKey());
+
+            userTO = updateUser(userMod);
+            assertNotNull(userTO);
+
+            // 5. verify that propagation was successful
+            List<PropagationStatus> props = userTO.getPropagationStatusTOs();
+            assertNotNull(props);
+            assertEquals(1, props.size());
+            PropagationStatus prop = props.iterator().next();
+            assertNotNull(prop);
+            assertEquals(RESOURCE_NAME_LDAP, prop.getResource());
+            assertEquals(PropagationTaskExecStatus.SUCCESS, prop.getStatus());
+        } finally {
+            // restore initial cipher algorithm
+            pwdCipherAlgo.getValues().set(0, origpwdCipherAlgo);
+            configurationService.set(pwdCipherAlgo);
+        }
     }
 }

@@ -154,7 +154,7 @@ public class StatusUtils implements Serializable {
                 if ("syncope".equalsIgnoreCase(status.getResourceName())) {
                     statusMod.setOnSyncope(true);
                 } else {
-                    statusMod.getResourceNames().add(status.getResourceName());
+                    statusMod.getResources().add(status.getResourceName());
                 }
 
             }
