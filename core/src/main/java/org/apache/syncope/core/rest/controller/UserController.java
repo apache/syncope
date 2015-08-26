@@ -272,7 +272,8 @@ public class UserController extends AbstractSubjectController<UserTO, UserMod> {
                 removeMemberships = true;
             }
         }
-        //Actual operations: workflow, propagation, notification
+
+        // Actual operations: workflow, propagation, notification
         WorkflowResult<Map.Entry<UserMod, Boolean>> updated = uwfAdapter.update(actual);
 
         List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(updated);

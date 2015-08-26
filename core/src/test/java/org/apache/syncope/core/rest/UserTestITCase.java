@@ -1552,38 +1552,40 @@ public class UserTestITCase extends AbstractTest {
         pwdCipherAlgo.getValues().set(0, "AES");
         configurationService.set(pwdCipherAlgo.getSchema(), pwdCipherAlgo);
 
-        // 3. create user with no resources
-        UserTO userTO = getUniqueSampleTO("syncope136_AES@apache.org");
-        userTO.getResources().clear();
+        try {
+            // 3. create user with no resources
+            UserTO userTO = getUniqueSampleTO("syncope136_AES@apache.org");
+            userTO.getResources().clear();
 
-        userTO = createUser(userTO);
-        assertNotNull(userTO);
+            userTO = createUser(userTO);
+            assertNotNull(userTO);
 
-        // 4. update user, assign a propagation primary resource but don't provide any password
-        UserMod userMod = new UserMod();
-        userMod.setId(userTO.getId());
-        userMod.getResourcesToAdd().add(RESOURCE_NAME_WS1);
+            // 4. update user, assign a propagation primary resource but don't provide any password
+            UserMod userMod = new UserMod();
+            userMod.setId(userTO.getId());
+            userMod.getResourcesToAdd().add(RESOURCE_NAME_WS1);
 
-        final StatusMod st = new StatusMod();
-        st.setOnSyncope(false);
-        st.getResourceNames().add(RESOURCE_NAME_WS1);
-        userMod.setPwdPropRequest(st);
+            final StatusMod st = new StatusMod();
+            st.setOnSyncope(false);
+            st.getResourceNames().add(RESOURCE_NAME_WS1);
+            userMod.setPwdPropRequest(st);
 
-        userTO = updateUser(userMod);
-        assertNotNull(userTO);
+            userTO = updateUser(userMod);
+            assertNotNull(userTO);
 
-        // 5. verify that propagation was successful
-        List<PropagationStatus> props = userTO.getPropagationStatusTOs();
-        assertNotNull(props);
-        assertEquals(1, props.size());
-        PropagationStatus prop = props.iterator().next();
-        assertNotNull(prop);
-        assertEquals(RESOURCE_NAME_WS1, prop.getResource());
-        assertEquals(PropagationTaskExecStatus.SUBMITTED, prop.getStatus());
-
-        // 6. restore initial cipher algorithm
-        pwdCipherAlgo.getValues().set(0, origpwdCipherAlgo);
-        configurationService.set(pwdCipherAlgo.getSchema(), pwdCipherAlgo);
+            // 5. verify that propagation was successful
+            List<PropagationStatus> props = userTO.getPropagationStatusTOs();
+            assertNotNull(props);
+            assertEquals(1, props.size());
+            PropagationStatus prop = props.iterator().next();
+            assertNotNull(prop);
+            assertEquals(RESOURCE_NAME_WS1, prop.getResource());
+            assertEquals(PropagationTaskExecStatus.SUBMITTED, prop.getStatus());
+        } finally {
+            // restore initial cipher algorithm
+            pwdCipherAlgo.getValues().set(0, origpwdCipherAlgo);
+            configurationService.set(pwdCipherAlgo.getSchema(), pwdCipherAlgo);
+        }
     }
 
     @Test
@@ -2532,5 +2534,54 @@ public class UserTestITCase extends AbstractTest {
                 resourceService.getConnectorObject(RESOURCE_NAME_LDAP, SubjectType.USER, actual.getId());
         assertNotNull(connObjectTO);
         assertEquals("newPostalAddress", connObjectTO.getAttrMap().get("postalAddress").getValues().get(0));
+    }
+
+    @Test
+    public void issueSYNCOPE686() {
+        // 1. read configured cipher algorithm in order to be able to restore it at the end of test
+        AttributeTO pwdCipherAlgo = configurationService.read("password.cipher.algorithm");
+        String origpwdCipherAlgo = pwdCipherAlgo.getValues().get(0);
+
+        // 2. set AES password cipher algorithm
+        pwdCipherAlgo.getValues().set(0, "AES");
+        configurationService.set(pwdCipherAlgo.getSchema(), pwdCipherAlgo);
+
+        try {
+            // 3. create role with LDAP resource assigned
+            RoleTO role = RoleTestITCase.buildBasicRoleTO("syncope686");
+            role.getResources().add(RESOURCE_NAME_LDAP);
+            role = createRole(role);
+            assertNotNull(role);
+
+            // 4. create user with no resources
+            UserTO userTO = getUniqueSampleTO("syncope686@apache.org");
+            userTO.getResources().clear();
+
+            userTO = createUser(userTO);
+            assertNotNull(userTO);
+
+            // 5. update user with the new role, and don't provide any password
+            UserMod userMod = new UserMod();
+            userMod.setId(userTO.getId());
+            MembershipMod membMod = new MembershipMod();
+            membMod.setRole(role.getId());
+            userMod.getMembershipsToAdd().add(membMod);
+
+            userTO = updateUser(userMod);
+            assertNotNull(userTO);
+
+            // 5. verify that propagation was successful
+            List<PropagationStatus> props = userTO.getPropagationStatusTOs();
+            assertNotNull(props);
+            assertEquals(1, props.size());
+            PropagationStatus prop = props.iterator().next();
+            assertNotNull(prop);
+            assertEquals(RESOURCE_NAME_LDAP, prop.getResource());
+            assertEquals(PropagationTaskExecStatus.SUCCESS, prop.getStatus());
+        } finally {
+            // restore initial cipher algorithm
+            pwdCipherAlgo.getValues().set(0, origpwdCipherAlgo);
+            configurationService.set(pwdCipherAlgo.getSchema(), pwdCipherAlgo);
+        }
     }
 }

@@ -30,6 +30,7 @@ import org.apache.syncope.common.SyncopeClientCompositeException;
 import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.common.mod.AttributeMod;
 import org.apache.syncope.common.mod.MembershipMod;
+import org.apache.syncope.common.mod.StatusMod;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.to.MembershipTO;
 import org.apache.syncope.common.to.UserTO;
@@ -379,6 +380,20 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
                     user.addMembership(membership);
 
                     toBeProvisioned.addAll(role.getResourceNames());
+
+                    // SYNCOPE-686: if password is invertible and we are adding resources with password mapping,
+                    // ensure that they are counted for password propagation
+                    if (toBeUpdated.canDecodePassword()) {
+                        for (ExternalResource resource : role.getResources()) {
+                            if (resource.getUmapping().getPasswordItem() != null) {
+                                if (userMod.getPwdPropRequest() == null) {
+                                    userMod.setPwdPropRequest(new StatusMod());
+                                }
+
+                                userMod.getPwdPropRequest().getResourceNames().add(resource.getName());
+                            }
+                        }
+                    }
                 }
 
                 propByRes.merge(fill(membership, membershipMod,

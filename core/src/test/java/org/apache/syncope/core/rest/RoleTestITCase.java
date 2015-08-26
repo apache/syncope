@@ -71,7 +71,7 @@ import org.junit.runners.MethodSorters;
 @FixMethodOrder(MethodSorters.JVM)
 public class RoleTestITCase extends AbstractTest {
 
-    private RoleTO buildBasicRoleTO(final String name) {
+    public static RoleTO buildBasicRoleTO(final String name) {
         RoleTO roleTO = new RoleTO();
         roleTO.setName(name + getUUIDString());
         roleTO.setParent(8L);
