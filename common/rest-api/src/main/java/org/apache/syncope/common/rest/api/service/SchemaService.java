@@ -23,7 +23,6 @@ import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
-import javax.ws.rs.MatrixParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -66,7 +65,7 @@ public interface SchemaService extends JAXRSService {
      */
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    <T extends AbstractSchemaTO> List<T> list(@NotNull @MatrixParam("type") SchemaType type);
+    <T extends AbstractSchemaTO> List<T> list(@NotNull @PathParam("type") SchemaType type);
 
     /**
      * Creates a new schema.
