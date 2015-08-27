@@ -1140,16 +1140,16 @@ under the License.
                 <artifactId>net.tirasa.connid.bundles.csvdir</artifactId>
                 <version>${connid.csvdir.version}</version>
               </artifactItem>
-              <dependency>
+              <artifactItem>
                 <groupId>net.tirasa.connid.bundles.db</groupId>
                 <artifactId>net.tirasa.connid.bundles.db.table</artifactId>
                 <version>${connid.database.version}</version>
-              </dependency>   
-              <dependency>
+              </artifactItem>
+              <artifactItem>
                 <groupId>net.tirasa.connid.bundles.db</groupId>
                 <artifactId>net.tirasa.connid.bundles.db.scriptedsql</artifactId>
                 <version>${connid.database.version}</version>
-              </dependency>  
+              </artifactItem>
               <artifactItem>
                 <groupId>net.tirasa.connid.bundles</groupId>
                 <artifactId>net.tirasa.connid.bundles.ldap</artifactId>
