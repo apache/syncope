@@ -81,6 +81,7 @@ under the License.
       </props>
     </property>
   </bean>
+  <bean class="org.apache.syncope.core.provisioning.java.job.SchedulerShutdown"/>
   
   <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
     <property name="defaultEncoding" value="${smtpEncoding}"/>

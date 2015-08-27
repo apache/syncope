@@ -31,9 +31,9 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.to.AccountPolicyTO;
+import org.apache.syncope.common.lib.policy.AccountPolicyTO;
 import org.apache.syncope.common.lib.to.RealmTO;
-import org.apache.syncope.common.lib.types.AccountPolicySpec;
+import org.apache.syncope.common.lib.policy.DefaultAccountRuleConf;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.service.RealmService;
 import org.junit.FixMethodOrder;
@@ -136,10 +136,10 @@ public class RealmITCase extends AbstractITCase {
         AccountPolicyTO policy = new AccountPolicyTO();
         policy.setDescription("deletingAccountPolicy");
 
-        final AccountPolicySpec accountPolicySpec = new AccountPolicySpec();
-        accountPolicySpec.setMinLength(3);
-        accountPolicySpec.setMaxLength(8);
-        policy.setSpecification(accountPolicySpec);
+        DefaultAccountRuleConf ruleConf = new DefaultAccountRuleConf();
+        ruleConf.setMinLength(3);
+        ruleConf.setMaxLength(8);
+        policy.getRuleConfs().add(ruleConf);
 
         policy = createPolicy(policy);
         assertNotNull(policy);

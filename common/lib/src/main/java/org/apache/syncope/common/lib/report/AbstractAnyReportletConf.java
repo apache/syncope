@@ -24,24 +24,18 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.lib.annotation.FormAttributeField;
-import org.apache.syncope.common.lib.types.IntMappingType;
 
 @XmlType
 public abstract class AbstractAnyReportletConf extends AbstractReportletConf {
 
     private static final long serialVersionUID = -5388597116592877789L;
 
-    @FormAttributeField(userSearch = true)
     protected String matchingCond;
 
-    @FormAttributeField(schema = IntMappingType.UserPlainSchema)
     protected final List<String> plainAttrs = new ArrayList<>();
 
-    @FormAttributeField(schema = IntMappingType.UserDerivedSchema)
     protected final List<String> derAttrs = new ArrayList<>();
 
-    @FormAttributeField(schema = IntMappingType.UserVirtualSchema)
     protected final List<String> virAttrs = new ArrayList<>();
 
     public AbstractAnyReportletConf() {

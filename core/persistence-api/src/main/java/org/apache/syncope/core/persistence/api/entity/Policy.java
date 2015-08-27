@@ -18,18 +18,13 @@
  */
 package org.apache.syncope.core.persistence.api.entity;
 
-import org.apache.syncope.common.lib.types.PolicySpec;
 import org.apache.syncope.common.lib.types.PolicyType;
 
 public interface Policy extends Entity<Long> {
 
     String getDescription();
 
-    <T extends PolicySpec> T getSpecification(Class<T> reference);
-
     PolicyType getType();
 
     void setDescription(String description);
-
-    void setSpecification(PolicySpec policy);
 }

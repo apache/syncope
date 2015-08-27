@@ -59,7 +59,13 @@ public class SyncopeTO extends AbstractBaseBean {
 
     private String virAttrCache;
 
+    private String passwordGenerator;
+
     private final List<String> reportlets = new ArrayList<>();
+
+    private final List<String> accountRules = new ArrayList<>();
+
+    private final List<String> passwordRules = new ArrayList<>();
 
     private final List<String> taskJobs = new ArrayList<>();
 
@@ -132,11 +138,33 @@ public class SyncopeTO extends AbstractBaseBean {
         return virAttrCache;
     }
 
+    public String getPasswordGenerator() {
+        return passwordGenerator;
+    }
+
+    public void setPasswordGenerator(final String passwordGenerator) {
+        this.passwordGenerator = passwordGenerator;
+    }
+
     @XmlElementWrapper(name = "reportlets")
     @XmlElement(name = "reportlet")
     @JsonProperty("reportlets")
     public List<String> getReportlets() {
         return reportlets;
+    }
+
+    @XmlElementWrapper(name = "accountRules")
+    @XmlElement(name = "accountRule")
+    @JsonProperty("accountRules")
+    public List<String> getAccountRules() {
+        return accountRules;
+    }
+
+    @XmlElementWrapper(name = "passwordRules")
+    @XmlElement(name = "passwordRule")
+    @JsonProperty("passwordRules")
+    public List<String> getPasswordRules() {
+        return passwordRules;
     }
 
     @XmlElementWrapper(name = "taskJobs")

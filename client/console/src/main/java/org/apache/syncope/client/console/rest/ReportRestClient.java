@@ -18,14 +18,11 @@
  */
 package org.apache.syncope.client.console.rest;
 
-import java.util.ArrayList;
 import java.util.List;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.lib.SyncopeClient;
-import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.types.ReportExecExportFormat;
-import org.apache.syncope.common.lib.wrap.ReportletConfClass;
 import org.apache.syncope.common.rest.api.service.ReportService;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 import org.springframework.stereotype.Component;
@@ -34,21 +31,6 @@ import org.springframework.stereotype.Component;
 public class ReportRestClient extends BaseRestClient implements ExecutionRestClient {
 
     private static final long serialVersionUID = 1644689667998953604L;
-
-    public List<String> getReportletConfClasses() {
-        List<String> result = new ArrayList<>();
-
-        try {
-            List<ReportletConfClass> reportletConfClasses = getService(ReportService.class).getReportletConfClasses();
-            for (ReportletConfClass clazz : reportletConfClasses) {
-                result.add(clazz.getElement());
-            }
-        } catch (SyncopeClientException e) {
-            LOG.error("While getting available reportlet classes", e);
-        }
-
-        return result;
-    }
 
     public ReportTO read(final Long reportId) {
         return getService(ReportService.class).read(reportId);

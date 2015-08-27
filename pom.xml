@@ -321,14 +321,14 @@ under the License.
 
     <connid.version>1.4.1.0</connid.version>
     <connid.soap.version>1.3.0</connid.soap.version>
-    <connid.database.version>2.2.2</connid.database.version>
+    <connid.database.version>2.2.3-SNAPSHOT</connid.database.version>
     <connid.csvdir.version>0.8.2</connid.csvdir.version>
     <connid.ldap.version>1.4.0</connid.ldap.version>
     <connid.ad.version>1.2.3</connid.ad.version>
 
     <cxf.version>3.1.2</cxf.version>
 
-    <camel.version>2.15.2</camel.version>	
+    <camel.version>2.15.3</camel.version>	
 
     <jackson.version>2.6.1</jackson.version>
 
@@ -378,8 +378,8 @@ under the License.
     <bootstrap-select.version>1.6.3</bootstrap-select.version>
     <font-awesome.version>4.4.0</font-awesome.version>
     <ionicons.version>2.0.1</ionicons.version>
-    <highlightjs.version>8.4-4</highlightjs.version>
-    <codemirror.version>5.5</codemirror.version>
+    <highlightjs.version>8.7</highlightjs.version>
+    <codemirror.version>5.6</codemirror.version>
     <jsplumb.version>1.7.5</jsplumb.version>
     
     <wicket.version>7.0.0</wicket.version>
@@ -408,7 +408,7 @@ under the License.
     <cargo.log>${log.directory}/cargo.log</cargo.log>
     <cargo.output>${log.directory}/cargo-output.log</cargo.output>
 
-    <tomcat.version>8.0.24</tomcat.version>
+    <tomcat.version>8.0.26</tomcat.version>
 
     <anonymousUser>anonymous</anonymousUser>
     <!-- static keys, only used for build: generated overlays will override during archetype:generate -->

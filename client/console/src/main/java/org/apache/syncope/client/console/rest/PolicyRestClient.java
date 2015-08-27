@@ -21,7 +21,7 @@ package org.apache.syncope.client.console.rest;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.common.lib.to.AbstractPolicyTO;
+import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.rest.api.service.PolicyService;
 import org.springframework.stereotype.Component;

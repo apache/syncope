@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.core.logic.report;
 
+import org.apache.syncope.core.persistence.api.dao.ReportletConfClass;
+import org.apache.syncope.common.lib.report.ReportletConf;
 import org.apache.syncope.common.lib.report.StaticReportletConf;
 import org.apache.syncope.core.misc.DataFormat;
 import org.springframework.util.StringUtils;
@@ -26,10 +28,11 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 
 @ReportletConfClass(StaticReportletConf.class)
-public class StaticReportlet extends AbstractReportlet<StaticReportletConf> {
+public class StaticReportlet extends AbstractReportlet {
+
+    private StaticReportletConf conf;
 
     private void doExtractConf(final ContentHandler handler) throws SAXException {
-
         AttributesImpl atts = new AttributesImpl();
         handler.startElement("", "", "configurations", null);
         handler.startElement("", "", "staticAttributes", atts);
@@ -67,46 +70,52 @@ public class StaticReportlet extends AbstractReportlet<StaticReportletConf> {
     }
 
     @Override
-    public void doExtract(final ContentHandler handler) throws SAXException {
+    protected void doExtract(final ReportletConf conf, final ContentHandler handler) throws SAXException {
+        if (conf instanceof StaticReportletConf) {
+            this.conf = StaticReportletConf.class.cast(conf);
+        } else {
+            throw new ReportException(new IllegalArgumentException("Invalid configuration provided"));
+        }
+
         doExtractConf(handler);
 
-        if (StringUtils.hasText(conf.getStringField())) {
+        if (StringUtils.hasText(this.conf.getStringField())) {
             handler.startElement("", "", "string", null);
-            handler.characters(conf.getStringField().toCharArray(), 0, conf.getStringField().length());
+            handler.characters(this.conf.getStringField().toCharArray(), 0, this.conf.getStringField().length());
             handler.endElement("", "", "string");
         }
 
-        if (conf.getLongField() != null) {
+        if (this.conf.getLongField() != null) {
             handler.startElement("", "", "long", null);
-            String printed = String.valueOf(conf.getLongField());
+            String printed = String.valueOf(this.conf.getLongField());
             handler.characters(printed.toCharArray(), 0, printed.length());
             handler.endElement("", "", "long");
         }
 
-        if (conf.getDoubleField() != null) {
+        if (this.conf.getDoubleField() != null) {
             handler.startElement("", "", "double", null);
-            String printed = String.valueOf(conf.getDoubleField());
+            String printed = String.valueOf(this.conf.getDoubleField());
             handler.characters(printed.toCharArray(), 0, printed.length());
             handler.endElement("", "", "double");
         }
 
-        if (conf.getDateField() != null) {
+        if (this.conf.getDateField() != null) {
             handler.startElement("", "", "date", null);
-            String printed = DataFormat.format(conf.getDateField());
+            String printed = DataFormat.format(this.conf.getDateField());
             handler.characters(printed.toCharArray(), 0, printed.length());
             handler.endElement("", "", "date");
         }
 
-        if (conf.getTraceLevel() != null) {
+        if (this.conf.getTraceLevel() != null) {
             handler.startElement("", "", "enum", null);
-            String printed = conf.getTraceLevel().name();
+            String printed = this.conf.getTraceLevel().name();
             handler.characters(printed.toCharArray(), 0, printed.length());
             handler.endElement("", "", "enum");
         }
 
-        if (conf.getListField() != null && !conf.getListField().isEmpty()) {
+        if (this.conf.getListField() != null && !this.conf.getListField().isEmpty()) {
             handler.startElement("", "", "list", null);
-            for (String item : conf.getListField()) {
+            for (String item : this.conf.getListField()) {
                 if (StringUtils.hasText(item)) {
                     handler.startElement("", "", "string", null);
                     handler.characters(item.toCharArray(), 0, item.length());

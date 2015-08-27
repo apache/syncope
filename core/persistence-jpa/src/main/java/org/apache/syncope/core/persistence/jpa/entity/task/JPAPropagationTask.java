@@ -45,7 +45,7 @@ import org.identityconnectors.framework.common.objects.Attribute;
 @Entity
 @DiscriminatorValue("PropagationTask")
 @PropagationTaskCheck
-public class JPAPropagationTask extends JPATask implements PropagationTask {
+public class JPAPropagationTask extends AbstractTask implements PropagationTask {
 
     private static final long serialVersionUID = 7086054884614511210L;
 

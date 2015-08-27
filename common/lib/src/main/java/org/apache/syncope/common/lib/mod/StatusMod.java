@@ -103,7 +103,7 @@ public class StatusMod extends AbstractBaseBean {
     @XmlElementWrapper(name = "resources")
     @XmlElement(name = "resource")
     @JsonProperty("resources")
-    public List<String> getResourceNames() {
+    public List<String> getResources() {
         return resourceNames;
     }
 

@@ -102,13 +102,13 @@ public class ConnectorServiceImpl extends AbstractServiceImpl implements Connect
     }
 
     @Override
-    public ConnInstanceTO read(final Long key) {
-        return logic.read(key);
+    public ConnInstanceTO read(final Long key, final String lang) {
+        return logic.read(key, lang);
     }
 
     @Override
-    public ConnInstanceTO readByResource(final String resourceName) {
-        return logic.readByResource(resourceName);
+    public ConnInstanceTO readByResource(final String resourceName, final String lang) {
+        return logic.readByResource(resourceName, lang);
     }
 
     @Override

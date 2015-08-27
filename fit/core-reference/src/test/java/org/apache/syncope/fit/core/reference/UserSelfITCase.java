@@ -178,7 +178,7 @@ public class UserSelfITCase extends AbstractITCase {
         userMod.setPassword("newPassword123");
         StatusMod statusMod = new StatusMod();
         statusMod.setOnSyncope(false);
-        statusMod.getResourceNames().add(RESOURCE_NAME_TESTDB);
+        statusMod.getResources().add(RESOURCE_NAME_TESTDB);
         userMod.setPwdPropRequest(statusMod);
 
         SyncopeClient authClient = clientFactory.create(created.getUsername(), "password123");

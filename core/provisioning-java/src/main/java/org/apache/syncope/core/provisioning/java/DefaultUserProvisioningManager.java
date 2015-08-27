@@ -270,7 +270,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
 
     protected List<PropagationStatus> propagateStatus(final StatusMod statusMod) {
         Collection<String> noPropResourceNames = CollectionUtils.removeAll(
-                userDAO.findAllResourceNames(userDAO.find(statusMod.getKey())), statusMod.getResourceNames());
+                userDAO.findAllResourceNames(userDAO.find(statusMod.getKey())), statusMod.getResources());
 
         List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(
                 statusMod.getKey(), statusMod.getType() != StatusMod.ModType.SUSPEND, noPropResourceNames);
@@ -315,7 +315,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
         if (changePwd) {
             StatusMod statusMod = new StatusMod();
             statusMod.setOnSyncope(false);
-            statusMod.getResourceNames().addAll(resources);
+            statusMod.getResources().addAll(resources);
             userMod.setPwdPropRequest(statusMod);
             userMod.setPassword(password);
         }

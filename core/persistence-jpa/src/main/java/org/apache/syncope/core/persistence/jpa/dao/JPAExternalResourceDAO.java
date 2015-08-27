@@ -32,7 +32,7 @@ import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.entity.AccountPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.Policy;

@@ -126,8 +126,7 @@ public class GroupRestClient extends AbstractAnyRestClient {
         synchronized (this) {
             GroupService service = getService(etag, GroupService.class);
             service.deassociate(groupKey, ResourceDeassociationActionType.UNLINK,
-                    CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(),
-                            ResourceKey.class));
+                    CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResources(), ResourceKey.class));
             resetClient(GroupService.class);
         }
     }
@@ -138,7 +137,7 @@ public class GroupRestClient extends AbstractAnyRestClient {
 
             ResourceAssociationMod associationMod = new ResourceAssociationMod();
             associationMod.getTargetResources().addAll(
-                    CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(), ResourceKey.class));
+                    CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResources(), ResourceKey.class));
             service.associate(groupKey, ResourceAssociationAction.LINK, associationMod);
 
             resetClient(GroupService.class);
@@ -150,8 +149,7 @@ public class GroupRestClient extends AbstractAnyRestClient {
         synchronized (this) {
             GroupService service = getService(etag, GroupService.class);
             result = service.deassociate(groupKey, ResourceDeassociationActionType.DEPROVISION,
-                    CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(),
-                            ResourceKey.class)).
+                    CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResources(), ResourceKey.class)).
                     readEntity(BulkActionResult.class);
             resetClient(GroupService.class);
         }
@@ -165,7 +163,7 @@ public class GroupRestClient extends AbstractAnyRestClient {
 
             ResourceAssociationMod associationMod = new ResourceAssociationMod();
             associationMod.getTargetResources().addAll(
-                    CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(), ResourceKey.class));
+                    CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResources(), ResourceKey.class));
 
             result = service.associate(groupKey, ResourceAssociationAction.PROVISION, associationMod).
                     readEntity(BulkActionResult.class);
@@ -179,8 +177,7 @@ public class GroupRestClient extends AbstractAnyRestClient {
         synchronized (this) {
             GroupService service = getService(etag, GroupService.class);
             result = service.deassociate(groupKey, ResourceDeassociationActionType.UNASSIGN,
-                    CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(),
-                            ResourceKey.class)).
+                    CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResources(), ResourceKey.class)).
                     readEntity(BulkActionResult.class);
             resetClient(GroupService.class);
         }
@@ -194,7 +191,7 @@ public class GroupRestClient extends AbstractAnyRestClient {
 
             ResourceAssociationMod associationMod = new ResourceAssociationMod();
             associationMod.getTargetResources().addAll(
-                    CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResourceNames(), ResourceKey.class));
+                    CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResources(), ResourceKey.class));
 
             result = service.associate(groupKey, ResourceAssociationAction.ASSIGN, associationMod).
                     readEntity(BulkActionResult.class);

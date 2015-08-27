@@ -108,23 +108,28 @@ public interface ConnectorService extends JAXRSService {
      * Returns connector instance with matching key.
      *
      * @param key connector instance key to be read
+     * @param lang language to select property keys, null for default (English).
+     * An ISO 639 alpha-2 or alpha-3 language code, or a language subtag up to 8 characters in length.
      * @return connector instance with matching key
      */
     @GET
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    ConnInstanceTO read(@NotNull @PathParam("key") Long key);
+    ConnInstanceTO read(@NotNull @PathParam("key") Long key, @QueryParam("lang") String lang);
 
     /**
      * Returns connector instance for matching resource.
      *
      * @param resourceName resource name to be used for connector lookup
+     * @param lang language to select property keys, null for default (English).
+     * An ISO 639 alpha-2 or alpha-3 language code, or a language subtag up to 8 characters in length.
      * @return connector instance for matching resource
      */
     @GET
     @Path("byResource/{resourceName}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    ConnInstanceTO readByResource(@NotNull @PathParam("resourceName") String resourceName);
+    ConnInstanceTO readByResource(
+            @NotNull @PathParam("resourceName") String resourceName, @QueryParam("lang") String lang);
 
     /**
      * Returns a list of all connector instances with property keys in the matching language.

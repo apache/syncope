@@ -61,7 +61,7 @@ public class UserStatusPropagationProcessor implements Processor {
         StatusMod statusMod = exchange.getProperty("statusMod", StatusMod.class);
 
         Collection<String> resourcesToBeExcluded = CollectionUtils.removeAll(
-                userDAO.findAllResourceNames(userDAO.find(key)), statusMod.getResourceNames());
+                userDAO.findAllResourceNames(userDAO.find(key)), statusMod.getResources());
 
         List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(
                 key, statusMod.getType() != StatusMod.ModType.SUSPEND, resourcesToBeExcluded);

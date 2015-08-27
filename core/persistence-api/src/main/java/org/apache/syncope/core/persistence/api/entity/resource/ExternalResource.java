@@ -23,12 +23,12 @@ import java.util.Set;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.PropagationMode;
 import org.apache.syncope.common.lib.types.TraceLevel;
-import org.apache.syncope.core.persistence.api.entity.AccountPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.AnnotatedEntity;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
-import org.apache.syncope.core.persistence.api.entity.PasswordPolicy;
-import org.apache.syncope.core.persistence.api.entity.SyncPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.SyncPolicy;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 
 public interface ExternalResource extends AnnotatedEntity<String> {

@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
+import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPasswordPolicy;
+import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAccountPolicy;
 import javax.persistence.Cacheable;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -28,8 +30,8 @@ import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.Size;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.core.persistence.api.entity.AccountPolicy;
-import org.apache.syncope.core.persistence.api.entity.PasswordPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.jpa.validation.entity.RealmCheck;
 

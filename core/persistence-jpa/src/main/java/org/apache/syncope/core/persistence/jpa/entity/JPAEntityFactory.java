@@ -18,9 +18,13 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
+import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPasswordPolicy;
+import org.apache.syncope.core.persistence.jpa.entity.policy.JPASyncPolicy;
+import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAccountPolicy;
+import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPushPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPADynRoleMembership;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAExternalResource;
-import org.apache.syncope.core.persistence.api.entity.AccountPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.AnyAbout;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
@@ -34,16 +38,15 @@ import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Logger;
 import org.apache.syncope.core.persistence.api.entity.Notification;
-import org.apache.syncope.core.persistence.api.entity.PasswordPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
-import org.apache.syncope.core.persistence.api.entity.PushPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
-import org.apache.syncope.core.persistence.api.entity.ReportletConfInstance;
 import org.apache.syncope.core.persistence.api.entity.Role;
-import org.apache.syncope.core.persistence.api.entity.SyncPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.SyncPolicy;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
@@ -222,8 +225,6 @@ public class JPAEntityFactory implements EntityFactory {
             result = (T) new JPAReport();
         } else if (reference.equals(ReportExec.class)) {
             result = (T) new JPAReportExec();
-        } else if (reference.equals(ReportletConfInstance.class)) {
-            result = (T) new JPAReportletConfInstance();
         } else if (reference.equals(NotificationTask.class)) {
             result = (T) new JPANotificationTask();
         } else if (reference.equals(PropagationTask.class)) {

@@ -18,7 +18,8 @@
  */
 package org.apache.syncope.core.logic.report;
 
-import org.apache.syncope.common.lib.report.AbstractReportletConf;
+import org.apache.syncope.core.persistence.api.dao.Reportlet;
+import org.apache.syncope.common.lib.report.ReportletConf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,26 +27,15 @@ import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 
-public abstract class AbstractReportlet<T extends AbstractReportletConf> implements Reportlet<T> {
+public abstract class AbstractReportlet implements Reportlet {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractReportlet.class);
 
-    protected T conf;
-
-    public T getConf() {
-        return conf;
-    }
-
-    @Override
-    public void setConf(final T conf) {
-        this.conf = conf;
-    }
-
-    protected abstract void doExtract(ContentHandler handler) throws SAXException;
+    protected abstract void doExtract(ReportletConf conf, ContentHandler handler) throws SAXException;
 
     @Override
     @Transactional(readOnly = true)
-    public void extract(final ContentHandler handler) throws SAXException {
+    public void extract(final ReportletConf conf, final ContentHandler handler) throws SAXException {
         if (conf == null) {
             throw new ReportException(new IllegalArgumentException("No configuration provided"));
         }
@@ -55,7 +45,7 @@ public abstract class AbstractReportlet<T extends AbstractReportletConf> impleme
         atts.addAttribute("", "", ReportXMLConst.ATTR_CLASS, ReportXMLConst.XSD_STRING, getClass().getName());
         handler.startElement("", "", ReportXMLConst.ELEMENT_REPORTLET, atts);
 
-        doExtract(handler);
+        doExtract(conf, handler);
 
         handler.endElement("", "", ReportXMLConst.ELEMENT_REPORTLET);
     }

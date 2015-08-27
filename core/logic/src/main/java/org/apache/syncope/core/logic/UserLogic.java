@@ -449,7 +449,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserMod> {
         if (changepwd) {
             StatusMod statusMod = new StatusMod();
             statusMod.setOnSyncope(false);
-            statusMod.getResourceNames().addAll(resources);
+            statusMod.getResources().addAll(resources);
             userMod.setPwdPropRequest(statusMod);
             userMod.setPassword(password);
         }

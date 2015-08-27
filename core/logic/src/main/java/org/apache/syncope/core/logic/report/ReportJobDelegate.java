@@ -33,11 +33,12 @@ import org.apache.commons.io.IOUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.report.ReportletConf;
 import org.apache.syncope.common.lib.types.ReportExecStatus;
-import org.apache.syncope.core.logic.ReportLogic;
 import org.apache.syncope.core.misc.ExceptionUtils2;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
+import org.apache.syncope.core.persistence.api.ImplementationLookup;
 import org.apache.syncope.core.persistence.api.dao.ReportDAO;
 import org.apache.syncope.core.persistence.api.dao.ReportExecDAO;
+import org.apache.syncope.core.persistence.api.dao.Reportlet;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
@@ -71,7 +72,7 @@ public class ReportJobDelegate {
     private EntityFactory entityFactory;
 
     @Autowired
-    private ReportLogic dataBinder;
+    private ImplementationLookup implementationLookup;
 
     @Transactional
     public void execute(final Long reportKey) throws JobExecutionException {
@@ -87,7 +88,7 @@ public class ReportJobDelegate {
         execution.setReport(report);
         execution = reportExecDAO.save(execution);
 
-        report.addExec(execution);
+        report.add(execution);
         report = reportDAO.save(report);
 
         // 2. define a SAX handler for generating result as XML
@@ -126,18 +127,26 @@ public class ReportJobDelegate {
 
             // iterate over reportlet instances defined for this report
             for (ReportletConf reportletConf : report.getReportletConfs()) {
-                Class<Reportlet> reportletClass =
-                        dataBinder.findReportletClassHavingConfClass(reportletConf.getClass());
-                if (reportletClass != null) {
-                    @SuppressWarnings("unchecked")
-                    Reportlet<ReportletConf> autowired =
-                            (Reportlet<ReportletConf>) ApplicationContextProvider.getBeanFactory().
-                            createBean(reportletClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
-                    autowired.setConf(reportletConf);
+                Class<? extends Reportlet> reportletClass =
+                        implementationLookup.getReportletClass(reportletConf.getClass());
+                if (reportletClass == null) {
+                    LOG.warn("Could not find matching reportlet for {}", reportletConf.getClass());
+                } else {
+                    // fetch (or create) reportlet
+                    Reportlet reportlet;
+                    if (ApplicationContextProvider.getBeanFactory().containsSingleton(reportletClass.getName())) {
+                        reportlet = (Reportlet) ApplicationContextProvider.getBeanFactory().
+                                getSingleton(reportletClass.getName());
+                    } else {
+                        reportlet = (Reportlet) ApplicationContextProvider.getBeanFactory().
+                                createBean(reportletClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
+                        ApplicationContextProvider.getBeanFactory().
+                                registerSingleton(reportletClass.getName(), reportlet);
+                    }
 
                     // invoke reportlet
                     try {
-                        autowired.extract(handler);
+                        reportlet.extract(reportletConf, handler);
                     } catch (Exception e) {
                         execution.setStatus(ReportExecStatus.FAILURE);
 

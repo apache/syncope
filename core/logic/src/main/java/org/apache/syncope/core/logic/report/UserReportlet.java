@@ -18,12 +18,14 @@
  */
 package org.apache.syncope.core.logic.report;
 
+import org.apache.syncope.core.persistence.api.dao.ReportletConfClass;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.report.ReportletConf;
 import org.apache.syncope.common.lib.report.UserReportletConf;
 import org.apache.syncope.common.lib.report.UserReportletConf.Feature;
 import org.apache.syncope.common.lib.to.AnyTO;
@@ -49,7 +51,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 
 @ReportletConfClass(UserReportletConf.class)
-public class UserReportlet extends AbstractReportlet<UserReportletConf> {
+public class UserReportlet extends AbstractReportlet {
 
     private static final int PAGE_SIZE = 10;
 
@@ -67,6 +69,8 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
 
     @Autowired
     private AnyObjectDataBinder anyObjectDataBinder;
+
+    private UserReportletConf conf;
 
     private List<User> getPagedUsers(final int page) {
         List<User> result;
@@ -370,7 +374,13 @@ public class UserReportlet extends AbstractReportlet<UserReportletConf> {
     }
 
     @Override
-    protected void doExtract(final ContentHandler handler) throws SAXException {
+    protected void doExtract(final ReportletConf conf, final ContentHandler handler) throws SAXException {
+        if (conf instanceof UserReportletConf) {
+            this.conf = UserReportletConf.class.cast(conf);
+        } else {
+            throw new ReportException(new IllegalArgumentException("Invalid configuration provided"));
+        }
+
         doExtractConf(handler);
         for (int i = 1; i <= (count() / PAGE_SIZE) + 1; i++) {
             doExtract(handler, getPagedUsers(i));

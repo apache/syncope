@@ -26,10 +26,12 @@ import java.util.Set;
 import javax.annotation.Resource;
 import org.apache.commons.collections4.Closure;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.mod.StatusMod;
 import org.apache.syncope.common.lib.mod.UserMod;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.RelationshipTO;
@@ -48,9 +50,13 @@ import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.misc.security.AuthContextUtils;
 import org.apache.syncope.core.misc.security.Encryptor;
 import org.apache.syncope.core.misc.spring.BeanUtils;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
+import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.URelationship;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,6 +80,9 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
     @Autowired
     private SecurityQuestionDAO securityQuestionDAO;
+
+    @Autowired
+    private AnyTypeDAO anyTypeDAO;
 
     @Resource(name = "adminUser")
     private String adminUser;
@@ -214,6 +223,23 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             }
         }
         user.setSecurityAnswer(userTO.getSecurityAnswer());
+    }
+
+    private boolean isPasswordMapped(final ExternalResource resource) {
+        boolean result = false;
+
+        Provision provision = resource.getProvision(anyTypeDAO.findUser());
+        if (provision != null && provision.getMapping() != null) {
+            result = CollectionUtils.exists(provision.getMapping().getItems(), new Predicate<MappingItem>() {
+
+                @Override
+                public boolean evaluate(final MappingItem item) {
+                    return item.isPassword();
+                }
+            });
+        }
+
+        return result;
     }
 
     @Override
@@ -367,6 +393,20 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                     user.add(membership);
 
                     toBeProvisioned.addAll(group.getResourceNames());
+
+                    // SYNCOPE-686: if password is invertible and we are adding resources with password mapping,
+                    // ensure that they are counted for password propagation
+                    if (toBeUpdated.canDecodePassword()) {
+                        for (ExternalResource resource : group.getResources()) {
+                            if (isPasswordMapped(resource)) {
+                                if (userMod.getPwdPropRequest() == null) {
+                                    userMod.setPwdPropRequest(new StatusMod());
+                                }
+
+                                userMod.getPwdPropRequest().getResources().add(resource.getKey());
+                            }
+                        }
+                    }
                 }
             }
         }

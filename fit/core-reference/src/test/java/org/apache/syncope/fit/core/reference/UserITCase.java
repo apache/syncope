@@ -38,6 +38,7 @@ import java.util.Map;
 import java.util.Set;
 import javax.naming.NamingException;
 import javax.ws.rs.core.EntityTag;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -50,6 +51,9 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.mod.ResourceAssociationMod;
 import org.apache.syncope.common.lib.mod.StatusMod;
 import org.apache.syncope.common.lib.mod.UserMod;
+import org.apache.syncope.common.lib.policy.AccountPolicyTO;
+import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
+import org.apache.syncope.common.lib.policy.PasswordPolicyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
@@ -63,6 +67,7 @@ import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
@@ -884,8 +889,8 @@ public class UserITCase extends AbstractITCase {
         statusMod.setKey(userKey);
         statusMod.setType(StatusMod.ModType.SUSPEND);
         statusMod.setOnSyncope(true);
-        statusMod.getResourceNames().add(RESOURCE_NAME_TESTDB);
-        statusMod.getResourceNames().add(RESOURCE_NAME_LDAP);
+        statusMod.getResources().add(RESOURCE_NAME_TESTDB);
+        statusMod.getResources().add(RESOURCE_NAME_LDAP);
         userTO = userService.status(statusMod).readEntity(UserTO.class);
         assertNotNull(userTO);
         assertEquals("suspended", userTO.getStatus());
@@ -902,7 +907,7 @@ public class UserITCase extends AbstractITCase {
         statusMod.setKey(userKey);
         statusMod.setType(StatusMod.ModType.SUSPEND);
         statusMod.setOnSyncope(false);
-        statusMod.getResourceNames().add(RESOURCE_NAME_LDAP);
+        statusMod.getResources().add(RESOURCE_NAME_LDAP);
         userService.status(statusMod);
         statusMod.setType(StatusMod.ModType.REACTIVATE);
         userTO = userService.status(statusMod).readEntity(UserTO.class);
@@ -917,7 +922,7 @@ public class UserITCase extends AbstractITCase {
         statusMod.setKey(userKey);
         statusMod.setType(StatusMod.ModType.REACTIVATE);
         statusMod.setOnSyncope(true);
-        statusMod.getResourceNames().add(RESOURCE_NAME_TESTDB);
+        statusMod.getResources().add(RESOURCE_NAME_TESTDB);
 
         userTO = userService.status(statusMod).readEntity(UserTO.class);
         assertNotNull(userTO);
@@ -1047,7 +1052,7 @@ public class UserITCase extends AbstractITCase {
 
         final StatusMod st = new StatusMod();
         st.setOnSyncope(false);
-        st.getResourceNames().add(RESOURCE_NAME_TESTDB);
+        st.getResources().add(RESOURCE_NAME_TESTDB);
         userMod.setPwdPropRequest(st);
 
         userTO = updateUser(userMod);
@@ -1159,6 +1164,66 @@ public class UserITCase extends AbstractITCase {
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
         assertEquals(Preference.RETURN_NO_CONTENT.toString(), response.getHeaderString(RESTHeaders.PREFERENCE_APPLIED));
         assertEquals(StringUtils.EMPTY, IOUtils.toString((InputStream) response.getEntity()));
+    }
+
+    @Test
+    public void customPolicyRules() {
+        // Using custom policy rules with application/xml requires to overwrite
+        // org.apache.syncope.common.lib.policy.AbstractAccountRuleConf's and / or
+        // org.apache.syncope.common.lib.policy.AbstractPasswordRuleConf's
+        // @XmlSeeAlso - the power of JAXB :-/
+        Assume.assumeTrue(MediaType.APPLICATION_JSON_TYPE.equals(clientFactory.getContentType().getMediaType()));
+
+        AccountPolicyTO accountPolicy = new AccountPolicyTO();
+        accountPolicy.setDescription("Account Policy with custom rules");
+        accountPolicy.getRuleConfs().add(new TestAccountRuleConf());
+        accountPolicy = createPolicy(accountPolicy);
+        assertNotNull(accountPolicy);
+
+        PasswordPolicyTO passwordPolicy = new PasswordPolicyTO();
+        passwordPolicy.setDescription("Password Policy with custom rules");
+        passwordPolicy.getRuleConfs().add(new TestPasswordRuleConf());
+        passwordPolicy = createPolicy(passwordPolicy);
+        assertNotNull(passwordPolicy);
+
+        RealmTO realm = realmService.list("/even/two").get(0);
+        Long oldAccountPolicy = realm.getAccountPolicy();
+        realm.setAccountPolicy(accountPolicy.getKey());
+        Long oldPasswordPolicy = realm.getPasswordPolicy();
+        realm.setPasswordPolicy(passwordPolicy.getKey());
+        realmService.update(realm);
+
+        try {
+            UserTO user = getUniqueSampleTO("custompolicyrules@syncope.apache.org");
+            user.setRealm(realm.getFullPath());
+            try {
+                createUser(user);
+                fail();
+            } catch (SyncopeClientException e) {
+                assertEquals(ClientExceptionType.InvalidUser, e.getType());
+                assertTrue(e.getElements().iterator().next().startsWith("InvalidPassword"));
+            }
+
+            user.setPassword(user.getPassword() + "XXX");
+            try {
+                createUser(user);
+                fail();
+            } catch (SyncopeClientException e) {
+                assertEquals(ClientExceptionType.InvalidUser, e.getType());
+                assertTrue(e.getElements().iterator().next().startsWith("InvalidUsername"));
+            }
+
+            user.setUsername("YYY" + user.getUsername());
+            user = createUser(user);
+            assertNotNull(user);
+        } finally {
+            realm.setAccountPolicy(oldAccountPolicy);
+            realm.setPasswordPolicy(oldPasswordPolicy);
+            realmService.update(realm);
+
+            policyService.delete(passwordPolicy.getKey());
+            policyService.delete(accountPolicy.getKey());
+        }
     }
 
     @Test
@@ -1394,7 +1459,7 @@ public class UserITCase extends AbstractITCase {
         userMod.setPassword(getUUIDString());
         StatusMod pwdPropRequest = new StatusMod();
         pwdPropRequest.setOnSyncope(false);
-        pwdPropRequest.getResourceNames().add(RESOURCE_NAME_TESTDB);
+        pwdPropRequest.getResources().add(RESOURCE_NAME_TESTDB);
         userMod.setPwdPropRequest(pwdPropRequest);
 
         userTO = updateUser(userMod);
@@ -1434,38 +1499,40 @@ public class UserITCase extends AbstractITCase {
         pwdCipherAlgo.getValues().set(0, "AES");
         configurationService.set(pwdCipherAlgo);
 
-        // 3. create user with no resources
-        UserTO userTO = getUniqueSampleTO("syncope136_AES@apache.org");
-        userTO.getResources().clear();
+        try {
+            // 3. create user with no resources
+            UserTO userTO = getUniqueSampleTO("syncope136_AES@apache.org");
+            userTO.getResources().clear();
 
-        userTO = createUser(userTO);
-        assertNotNull(userTO);
+            userTO = createUser(userTO);
+            assertNotNull(userTO);
 
-        // 4. update user, assign a propagation primary resource but don't provide any password
-        UserMod userMod = new UserMod();
-        userMod.setKey(userTO.getKey());
-        userMod.getResourcesToAdd().add(RESOURCE_NAME_WS1);
+            // 4. update user, assign a propagation primary resource but don't provide any password
+            UserMod userMod = new UserMod();
+            userMod.setKey(userTO.getKey());
+            userMod.getResourcesToAdd().add(RESOURCE_NAME_WS1);
 
-        final StatusMod st = new StatusMod();
-        st.setOnSyncope(false);
-        st.getResourceNames().add(RESOURCE_NAME_WS1);
-        userMod.setPwdPropRequest(st);
+            StatusMod st = new StatusMod();
+            st.setOnSyncope(false);
+            st.getResources().add(RESOURCE_NAME_WS1);
+            userMod.setPwdPropRequest(st);
 
-        userTO = updateUser(userMod);
-        assertNotNull(userTO);
+            userTO = updateUser(userMod);
+            assertNotNull(userTO);
 
-        // 5. verify that propagation was successful
-        List<PropagationStatus> props = userTO.getPropagationStatusTOs();
-        assertNotNull(props);
-        assertEquals(1, props.size());
-        PropagationStatus prop = props.iterator().next();
-        assertNotNull(prop);
-        assertEquals(RESOURCE_NAME_WS1, prop.getResource());
-        assertEquals(PropagationTaskExecStatus.SUBMITTED, prop.getStatus());
-
-        // 6. restore initial cipher algorithm
-        pwdCipherAlgo.getValues().set(0, origpwdCipherAlgo);
-        configurationService.set(pwdCipherAlgo);
+            // 5. verify that propagation was successful
+            List<PropagationStatus> props = userTO.getPropagationStatusTOs();
+            assertNotNull(props);
+            assertEquals(1, props.size());
+            PropagationStatus prop = props.iterator().next();
+            assertNotNull(prop);
+            assertEquals(RESOURCE_NAME_WS1, prop.getResource());
+            assertEquals(PropagationTaskExecStatus.SUBMITTED, prop.getStatus());
+        } finally {
+            // restore initial cipher algorithm
+            pwdCipherAlgo.getValues().set(0, origpwdCipherAlgo);
+            configurationService.set(pwdCipherAlgo);
+        }
     }
 
     @Test
@@ -1481,9 +1548,9 @@ public class UserITCase extends AbstractITCase {
         userMod.setKey(userTO.getKey());
         userMod.getResourcesToAdd().add(RESOURCE_NAME_LDAP);
 
-        final StatusMod st = new StatusMod();
+        StatusMod st = new StatusMod();
         st.setOnSyncope(false);
-        st.getResourceNames().add(RESOURCE_NAME_LDAP);
+        st.getResources().add(RESOURCE_NAME_LDAP);
         userMod.setPwdPropRequest(st);
 
         userTO = updateUser(userMod);
@@ -1698,7 +1765,7 @@ public class UserITCase extends AbstractITCase {
         userMod.setKey(userTO.getKey());
         userMod.setPassword(getUUIDString() + "abbcbcbddd123");
         StatusMod pwdPropRequest = new StatusMod();
-        pwdPropRequest.getResourceNames().add(RESOURCE_NAME_TESTDB);
+        pwdPropRequest.getResources().add(RESOURCE_NAME_TESTDB);
         userMod.setPwdPropRequest(pwdPropRequest);
 
         userTO = updateUser(userMod);
@@ -2208,7 +2275,7 @@ public class UserITCase extends AbstractITCase {
 
         final StatusMod st = new StatusMod();
         st.setOnSyncope(false);
-        st.getResourceNames().add(RESOURCE_NAME_TESTDB);
+        st.getResources().add(RESOURCE_NAME_TESTDB);
         userMod.setPwdPropRequest(st);
 
         user = updateUser(userMod);
@@ -2251,7 +2318,7 @@ public class UserITCase extends AbstractITCase {
 
         final StatusMod st = new StatusMod();
         st.setOnSyncope(false);
-        st.getResourceNames().add(RESOURCE_NAME_LDAP);
+        st.getResources().add(RESOURCE_NAME_LDAP);
         userMod.setPwdPropRequest(st);
 
         user = updateUser(userMod);
@@ -2417,5 +2484,93 @@ public class UserITCase extends AbstractITCase {
         connObjectTO = resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), actual.getKey());
         assertNotNull(connObjectTO);
         assertEquals("newPostalAddress", connObjectTO.getPlainAttrMap().get("postalAddress").getValues().get(0));
+    }
+
+    @Test
+    public void issueSYNCOPE626() {
+        PasswordPolicyTO passwordPolicy = new PasswordPolicyTO();
+        passwordPolicy.setDescription("Password Policy for SYNCOPE-626");
+
+        DefaultPasswordRuleConf ruleConf = new DefaultPasswordRuleConf();
+        ruleConf.setUsernameAllowed(false);
+        passwordPolicy.getRuleConfs().add(ruleConf);
+
+        passwordPolicy = createPolicy(passwordPolicy);
+        assertNotNull(passwordPolicy);
+
+        RealmTO realm = realmService.list("/even/two").get(0);
+        Long oldPasswordPolicy = realm.getPasswordPolicy();
+        realm.setPasswordPolicy(passwordPolicy.getKey());
+        realmService.update(realm);
+
+        try {
+            UserTO user = getUniqueSampleTO("syncope626@syncope.apache.org");
+            user.setRealm(realm.getFullPath());
+            user.setPassword(user.getUsername());
+            try {
+                createUser(user);
+                fail();
+            } catch (SyncopeClientException e) {
+                assertEquals(ClientExceptionType.InvalidUser, e.getType());
+                assertTrue(e.getElements().iterator().next().startsWith("InvalidPassword"));
+            }
+
+            user.setPassword("password123");
+            user = createUser(user);
+            assertNotNull(user);
+        } finally {
+            realm.setPasswordPolicy(oldPasswordPolicy);
+            realmService.update(realm);
+
+            policyService.delete(passwordPolicy.getKey());
+        }
+
+    }
+
+    @Test
+    public void issueSYNCOPE686() {
+        // 1. read configured cipher algorithm in order to be able to restore it at the end of test
+        AttrTO pwdCipherAlgo = configurationService.get("password.cipher.algorithm");
+        String origpwdCipherAlgo = pwdCipherAlgo.getValues().get(0);
+
+        // 2. set AES password cipher algorithm
+        pwdCipherAlgo.getValues().set(0, "AES");
+        configurationService.set(pwdCipherAlgo);
+
+        try {
+            // 3. create group with LDAP resource assigned
+            GroupTO group = GroupITCase.getBasicSampleTO("syncope686");
+            group.getResources().add(RESOURCE_NAME_LDAP);
+            group = createGroup(group);
+            assertNotNull(group);
+
+            // 4. create user with no resources
+            UserTO userTO = getUniqueSampleTO("syncope686@apache.org");
+            userTO.getResources().clear();
+
+            userTO = createUser(userTO);
+            assertNotNull(userTO);
+
+            // 5. update user with the new group, and don't provide any password
+            UserMod userMod = new UserMod();
+            userMod.setKey(userTO.getKey());
+            userMod.getMembershipsToAdd().add(group.getKey());
+
+            userTO = updateUser(userMod);
+            assertNotNull(userTO);
+
+            // 5. verify that propagation was successful
+            List<PropagationStatus> props = userTO.getPropagationStatusTOs();
+            assertNotNull(props);
+            assertEquals(1, props.size());
+            PropagationStatus prop = props.iterator().next();
+            assertNotNull(prop);
+            assertEquals(RESOURCE_NAME_LDAP, prop.getResource());
+            assertEquals(PropagationTaskExecStatus.SUCCESS, prop.getStatus());
+        } finally {
+            // restore initial cipher algorithm
+            pwdCipherAlgo.getValues().set(0, origpwdCipherAlgo);
+            configurationService.set(pwdCipherAlgo);
+        }
     }
 }

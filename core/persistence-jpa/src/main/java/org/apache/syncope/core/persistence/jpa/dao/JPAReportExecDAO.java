@@ -91,7 +91,7 @@ public class JPAReportExecDAO extends AbstractDAO<ReportExec, Long> implements R
     @Override
     public void delete(final ReportExec execution) {
         if (execution.getReport() != null) {
-            execution.getReport().removeExec(execution);
+            execution.getReport().remove(execution);
         }
 
         entityManager().remove(execution);

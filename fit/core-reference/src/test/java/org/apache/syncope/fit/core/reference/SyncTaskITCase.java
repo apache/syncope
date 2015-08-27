@@ -27,6 +27,7 @@ import static org.junit.Assert.fail;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import javax.ws.rs.core.Response;
 import org.apache.commons.collections4.CollectionUtils;
@@ -46,7 +47,7 @@ import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.ProvisionTO;
-import org.apache.syncope.common.lib.to.SyncPolicyTO;
+import org.apache.syncope.common.lib.policy.SyncPolicyTO;
 import org.apache.syncope.common.lib.to.SyncTaskTO;
 import org.apache.syncope.common.lib.to.TaskExecTO;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -704,7 +705,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         userMod.setPassword("new-security123");
         StatusMod pwdPropRequest = new StatusMod();
         pwdPropRequest.setOnSyncope(true);
-        pwdPropRequest.getResourceNames().clear();
+        pwdPropRequest.getResources().clear();
         userMod.setPwdPropRequest(pwdPropRequest);
         updateUser(userMod);
 
@@ -723,7 +724,8 @@ public class SyncTaskITCase extends AbstractTaskITCase {
 
         // 5. Update the LDAP Connector to retrieve passwords
         ResourceTO ldapResource = resourceService.read(RESOURCE_NAME_LDAP);
-        ConnInstanceTO resourceConnector = connectorService.read(ldapResource.getConnector());
+        ConnInstanceTO resourceConnector = connectorService.read(
+                ldapResource.getConnector(), Locale.ENGLISH.getLanguage());
         ConnConfProperty property = resourceConnector.getConfigurationMap().get("retrievePasswordsWithSearch");
         property.getValues().clear();
         property.getValues().add(Boolean.TRUE);

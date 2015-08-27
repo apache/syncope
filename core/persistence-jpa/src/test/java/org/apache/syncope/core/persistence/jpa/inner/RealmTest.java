@@ -33,8 +33,8 @@ import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntit
 import org.apache.syncope.core.persistence.api.dao.MalformedPathException;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
-import org.apache.syncope.core.persistence.api.entity.AccountPolicy;
-import org.apache.syncope.core.persistence.api.entity.PasswordPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.junit.Test;

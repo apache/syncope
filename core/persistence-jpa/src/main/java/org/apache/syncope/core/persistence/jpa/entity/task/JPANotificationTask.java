@@ -41,7 +41,7 @@ import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
 
 @Entity
 @DiscriminatorValue("NotificationTask")
-public class JPANotificationTask extends JPATask implements NotificationTask {
+public class JPANotificationTask extends AbstractTask implements NotificationTask {
 
     private static final long serialVersionUID = 95731573485279180L;
 

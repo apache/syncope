@@ -32,7 +32,7 @@ import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.core.persistence.api.dao.MalformedPathException;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
-import org.apache.syncope.core.persistence.api.entity.AccountPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.Policy;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Role;

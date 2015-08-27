@@ -43,6 +43,12 @@ under the License.
 
   <dependencyManagement>
     <dependencies>
+      <dependency>  
+        <groupId>org.apache.syncope.common</groupId>
+        <artifactId>syncope-common-lib</artifactId>
+        <version>${syncope.version}</version>
+      </dependency>
+      
       <dependency>
         <groupId>org.apache.syncope.core</groupId>
         <artifactId>syncope-core-rest-cxf</artifactId>
@@ -75,7 +81,7 @@ under the License.
     
   <build>
     
-    <!-- Disable legal check for generated projects: see SYNCOPE-84 -->
+    <!-- Disable checks for generated projects -->
     <plugins>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
@@ -103,10 +109,28 @@ under the License.
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <inherited>true</inherited>
+        <configuration>
+          <configLocation>sun_checks.xml</configLocation>
+          <targetJdk>${targetJdk}</targetJdk>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>check</goal>
+            </goals>
+            <phase>none</phase>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
     
   <modules>
+    <module>common</module>
     <module>core</module>
     <module>console</module>
   </modules>

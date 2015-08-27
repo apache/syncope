@@ -18,6 +18,9 @@
  */
 package org.apache.syncope.core.persistence.api.entity;
 
+import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
+
 public interface Realm extends Entity<Long> {
 
     String getName();

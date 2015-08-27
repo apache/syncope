@@ -36,9 +36,6 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
  */
 public class H2StartStopListener implements ServletContextListener {
 
-    /**
-     * Logger.
-     */
     private static final Logger LOG = LoggerFactory.getLogger(H2StartStopListener.class);
 
     private static final String H2_TESTDB = "h2TestDb";

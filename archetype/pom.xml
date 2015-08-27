@@ -142,11 +142,8 @@ under the License.
         <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/main/resources</targetPath>
       </resource>
       <resource>
-        <directory>../core/persistence-jpa/src/test/resources</directory>
-        <includes>
-          <include>persistence.properties</include>
-        </includes>
-        <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/test/resources</targetPath>
+        <directory>../core/persistence-jpa/src/test/resources/domains</directory>
+        <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/test/resources/domains</targetPath>
       </resource>
       <resource>
         <directory>../core/logic/src/main/resources</directory>
@@ -175,6 +172,17 @@ under the License.
         <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/main/resources</targetPath>
         <includes>
           <include>workflow.properties</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>../fit/core-reference/src/test/resources/scriptedsql</directory>
+        <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/test/resources/scriptedsql</targetPath>
+      </resource>
+      <resource>
+        <directory>../fit/core-reference/src/main/resources</directory>
+        <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/test/resources</targetPath>
+        <includes>
+          <include>connid.properties</include>
         </includes>
       </resource>
       <resource>

@@ -24,6 +24,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Collections;
+import java.util.Locale;
 import java.util.Map;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.common.lib.mod.AttrMod;
@@ -328,7 +329,7 @@ public class VirAttrITCase extends AbstractITCase {
             // check Syncope change password
             StatusMod pwdPropRequest = new StatusMod();
             pwdPropRequest.setOnSyncope(true);
-            pwdPropRequest.getResourceNames().add(RESOURCE_NAME_WS2);
+            pwdPropRequest.getResources().add(RESOURCE_NAME_WS2);
             userMod.setPwdPropRequest(pwdPropRequest);
 
             toBeUpdated = updateUser(userMod);
@@ -369,8 +370,9 @@ public class VirAttrITCase extends AbstractITCase {
         // 3. force cache expiring without any modification
         // ----------------------------------------
         String jdbcURL = null;
-        ConnInstanceTO connInstanceBean = connectorService.readByResource(RESOURCE_NAME_DBVIRATTR);
-        for (ConnConfProperty prop : connInstanceBean.getConfiguration()) {
+        ConnInstanceTO connInstanceTO = connectorService.readByResource(
+                RESOURCE_NAME_DBVIRATTR, Locale.ENGLISH.getLanguage());
+        for (ConnConfProperty prop : connInstanceTO.getConfiguration()) {
             if ("jdbcUrlTemplate".equals(prop.getSchema().getName())) {
                 jdbcURL = prop.getValues().iterator().next().toString();
                 prop.getValues().clear();
@@ -378,7 +380,7 @@ public class VirAttrITCase extends AbstractITCase {
             }
         }
 
-        connectorService.update(connInstanceBean);
+        connectorService.update(connInstanceTO);
 
         UserMod userMod = new UserMod();
         userMod.setKey(actual.getKey());
@@ -416,14 +418,14 @@ public class VirAttrITCase extends AbstractITCase {
         // ----------------------------------------
         // 5. restore connector
         // ----------------------------------------
-        for (ConnConfProperty prop : connInstanceBean.getConfiguration()) {
+        for (ConnConfProperty prop : connInstanceTO.getConfiguration()) {
             if ("jdbcUrlTemplate".equals(prop.getSchema().getName())) {
                 prop.getValues().clear();
                 prop.getValues().add(jdbcURL);
             }
         }
 
-        connectorService.update(connInstanceBean);
+        connectorService.update(connInstanceTO);
         // ----------------------------------------
 
         actual = userService.read(actual.getKey());
@@ -592,7 +594,7 @@ public class VirAttrITCase extends AbstractITCase {
         userMod.setKey(userTO.getKey());
 
         final StatusMod statusMod = new StatusMod();
-        statusMod.getResourceNames().addAll(Collections.<String>emptySet());
+        statusMod.getResources().addAll(Collections.<String>emptySet());
         statusMod.setOnSyncope(false);
 
         userMod.setPwdPropRequest(statusMod);

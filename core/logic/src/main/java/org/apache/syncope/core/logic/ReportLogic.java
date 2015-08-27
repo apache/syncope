@@ -24,10 +24,8 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.zip.ZipInputStream;
 import org.apache.cocoon.optional.pipeline.components.sax.fop.FopSerializer;
 import org.apache.cocoon.pipeline.NonCachingPipeline;
@@ -37,13 +35,10 @@ import org.apache.cocoon.sax.component.XMLGenerator;
 import org.apache.cocoon.sax.component.XMLSerializer;
 import org.apache.cocoon.sax.component.XSLTTransformer;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.IteratorUtils;
-import org.apache.commons.collections4.PredicateUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.report.ReportletConf;
 import org.apache.syncope.common.lib.to.ReportExecTO;
 import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -58,10 +53,7 @@ import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
 import org.apache.syncope.core.provisioning.api.data.ReportDataBinder;
 import org.apache.syncope.core.provisioning.api.job.JobNamer;
-import org.apache.syncope.core.logic.init.ImplementationClassNamesLoader;
 import org.apache.syncope.core.provisioning.api.job.JobInstanceLoader;
-import org.apache.syncope.core.logic.report.Reportlet;
-import org.apache.syncope.core.logic.report.ReportletConfClass;
 import org.apache.syncope.core.logic.report.TextSerializer;
 import org.apache.syncope.common.lib.to.AbstractExecTO;
 import org.apache.syncope.common.lib.types.Entitlement;
@@ -74,7 +66,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.ClassUtils;
 
 @Component
 public class ReportLogic extends AbstractJobLogic<ReportTO> {
@@ -93,9 +84,6 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
 
     @Autowired
     private EntityFactory entityFactory;
-
-    @Autowired
-    private ImplementationClassNamesLoader classNamesLoader;
 
     @PreAuthorize("hasRole('" + Entitlement.REPORT_CREATE + "')")
     public ReportTO create(final ReportTO reportTO) {
@@ -154,69 +142,6 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
                         return binder.getReportTO(input);
                     }
                 }, new ArrayList<ReportTO>());
-    }
-
-    private Class<? extends ReportletConf> getReportletConfClass(final Class<Reportlet> reportletClass) {
-        Class<? extends ReportletConf> result = null;
-
-        ReportletConfClass annotation = reportletClass.getAnnotation(ReportletConfClass.class);
-        if (annotation != null) {
-            result = annotation.value();
-        }
-
-        return result;
-    }
-
-    @SuppressWarnings({ "rawtypes" })
-    private Set<Class<Reportlet>> getAllReportletClasses() {
-        return CollectionUtils.collect(IteratorUtils.filteredIterator(
-                classNamesLoader.getClassNames(ImplementationClassNamesLoader.Type.REPORTLET).iterator(),
-                PredicateUtils.notNullPredicate()),
-                new Transformer<String, Class<Reportlet>>() {
-
-                    @SuppressWarnings("unchecked")
-                    @Override
-                    public Class<Reportlet> transform(final String className) {
-                        Class<Reportlet> result = null;
-                        try {
-                            Class reportletClass = ClassUtils.forName(className, ClassUtils.getDefaultClassLoader());
-                            result = reportletClass;
-                        } catch (ClassNotFoundException e) {
-                            LOG.warn("Could not load class {}", className);
-                        } catch (LinkageError e) {
-                            LOG.warn("Could not link class {}", className);
-                        }
-
-                        return result;
-                    }
-                }, new HashSet<Class<Reportlet>>());
-    }
-
-    @PreAuthorize("hasRole('" + Entitlement.REPORT_LIST + "')")
-    @SuppressWarnings({ "rawtypes" })
-    public Set<String> getReportletConfClasses() {
-        return CollectionUtils.collect(IteratorUtils.filteredIterator(getAllReportletClasses().iterator(),
-                PredicateUtils.notNullPredicate()),
-                new Transformer<Class<Reportlet>, String>() {
-
-                    @Override
-                    public String transform(final Class<Reportlet> reportletClass) {
-                        Class<? extends ReportletConf> reportletConfClass = getReportletConfClass(reportletClass);
-                        return reportletConfClass == null ? null : reportletConfClass.getName();
-                    }
-                }, new HashSet<String>());
-    }
-
-    public Class<Reportlet> findReportletClassHavingConfClass(final Class<? extends ReportletConf> reportletConfClass) {
-        Class<Reportlet> result = null;
-        for (Class<Reportlet> reportletClass : getAllReportletClasses()) {
-            Class<? extends ReportletConf> found = getReportletConfClass(reportletClass);
-            if (found != null && found.equals(reportletConfClass)) {
-                result = reportletClass;
-            }
-        }
-
-        return result;
     }
 
     @PreAuthorize("hasRole('" + Entitlement.REPORT_READ + "')")
