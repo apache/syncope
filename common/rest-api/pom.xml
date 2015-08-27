@@ -80,10 +80,8 @@ under the License.
               <namespacePrefix>syncope</namespacePrefix>
               <linkAnyMediaTypeToXmlSchema>true</linkAnyMediaTypeToXmlSchema>
               <useJaxbContextForQnames>true</useJaxbContextForQnames>
-              <ignoreMessageWriters>true</ignoreMessageWriters>
               <addResourceAndMethodIds>true</addResourceAndMethodIds>
               <usePathParamsToCompareOperations>false</usePathParamsToCompareOperations>
-              <singleResourceMultipleMethods>true</singleResourceMultipleMethods>
               <classResourceNames />
               <basePackages>org.apache.syncope.common.rest.api.service</basePackages>
               <docProvider>org.apache.cxf.maven_plugin.javatowadl.ResourceMapJavaDocProvider</docProvider>

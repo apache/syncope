@@ -53,7 +53,7 @@ under the License.
       <map>
         <entry>
           <key>
-            <value>org.apache.syncope.common.lib.to.AbstractPolicyTO</value>
+            <value>org.apache.syncope.common.lib.policy.AbstractPolicyTO</value>
           </key>
           <value>policies</value>
         </entry>
@@ -87,6 +87,7 @@ under the License.
                 docLocation="classpath:/META-INF/resources/doc/syncope.wadl">
     <jaxrs:properties> 
       <entry key="search.lax.property.match" value="true"/> 
+      <entry key="convert.wadl.resources.to.dom" value="false"/>
     </jaxrs:properties> 
     <jaxrs:inInterceptors>
       <ref bean="validationInInterceptor"/>
