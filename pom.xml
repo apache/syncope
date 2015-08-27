@@ -343,7 +343,7 @@ under the License.
 
     <aspectj.version>1.8.6</aspectj.version>
 
-    <cxf.version>3.0.6</cxf.version>	
+    <cxf.version>3.0.7-SNAPSHOT</cxf.version>	
     <spring.version>4.0.9.RELEASE</spring.version>
     <spring-security.version>3.2.8.RELEASE</spring-security.version>
     <jackson.version>2.4.6</jackson.version>
@@ -1148,11 +1148,11 @@ under the License.
                 <artifactId>net.tirasa.connid.bundles.csvdir</artifactId>
                 <version>${connid.csvdir.version}</version>
               </artifactItem>
-              <dependency>
+              <artifactItem>
                 <groupId>net.tirasa.connid.bundles.db</groupId>
                 <artifactId>net.tirasa.connid.bundles.db.table</artifactId>
                 <version>${connid.db.table.version}</version>
-              </dependency>   
+              </artifactItem>
               <artifactItem>
                 <groupId>net.tirasa.connid.bundles</groupId>
                 <artifactId>net.tirasa.connid.bundles.ldap</artifactId>
