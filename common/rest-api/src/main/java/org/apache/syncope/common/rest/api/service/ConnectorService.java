@@ -32,9 +32,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.apache.cxf.jaxrs.model.wadl.Description;
-import org.apache.cxf.jaxrs.model.wadl.Descriptions;
-import org.apache.cxf.jaxrs.model.wadl.DocTarget;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ConnBundleTO;
@@ -148,10 +145,6 @@ public interface ConnectorService extends JAXRSService {
      * @param connInstanceTO connector instance to be created
      * @return <tt>Response</tt> object featuring <tt>Location</tt> header of created connector instance
      */
-    @Descriptions({
-        @Description(target = DocTarget.RESPONSE,
-                value = "Featuring <tt>Location</tt> header of created connector instance")
-    })
     @POST
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     Response create(@NotNull ConnInstanceTO connInstanceTO);

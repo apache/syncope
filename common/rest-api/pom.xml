@@ -47,18 +47,6 @@ under the License.
       <groupId>javax.ws.rs</groupId>
       <artifactId>javax.ws.rs-api</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.apache.cxf</groupId>
-      <artifactId>cxf-rt-frontend-jaxrs</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.cxf</groupId>
-      <artifactId>cxf-rt-rs-extension-search</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.cxf</groupId>
-      <artifactId>cxf-rt-rs-service-description</artifactId>
-    </dependency>
     
     <dependency>
       <groupId>org.apache.syncope.common</groupId>
@@ -69,17 +57,38 @@ under the License.
   
   <build>
     <plugins>
-      <!-- Generating javadoc JAR artifact for usage with CXF's WADL generator (for core) -->
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
+        <groupId>org.apache.cxf</groupId>
+        <artifactId>cxf-java2wadl-plugin</artifactId>
         <inherited>true</inherited>
         <executions>
           <execution>
-            <id>attach-javadocs</id>
+            <id>parsejavadoc</id>
+            <phase>process-classes</phase>
             <goals>
-              <goal>jar</goal>
+              <goal>parsejavadoc</goal>
             </goals>
+          </execution>
+          <execution>
+            <id>process-classes</id>
+            <phase>process-classes</phase>
+            <goals>
+              <goal>java2wadl</goal>
+            </goals>
+            <configuration>
+              <applicationTitle>Apache Syncope ${project.version}</applicationTitle>
+              <namespacePrefix>syncope</namespacePrefix>
+              <linkAnyMediaTypeToXmlSchema>true</linkAnyMediaTypeToXmlSchema>
+              <useJaxbContextForQnames>true</useJaxbContextForQnames>
+              <ignoreMessageWriters>true</ignoreMessageWriters>
+              <addResourceAndMethodIds>true</addResourceAndMethodIds>
+              <usePathParamsToCompareOperations>false</usePathParamsToCompareOperations>
+              <singleResourceMultipleMethods>true</singleResourceMultipleMethods>
+              <classResourceNames />
+              <basePackages>org.apache.syncope.common.rest.api.service</basePackages>
+              <docProvider>org.apache.cxf.maven_plugin.javatowadl.ResourceMapJavaDocProvider</docProvider>
+              <attachWadl>true</attachWadl>
+            </configuration>
           </execution>
         </executions>
       </plugin>

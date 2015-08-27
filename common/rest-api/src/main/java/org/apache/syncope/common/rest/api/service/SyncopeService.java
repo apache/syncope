@@ -27,6 +27,11 @@ import org.apache.syncope.common.lib.to.SyncopeTO;
 @Path("")
 public interface SyncopeService extends JAXRSService {
 
+    /**
+     * Provides information summary about this Apache Syncope deployment's configuration.
+     *
+     * @return information summary about this Apache Syncope deployment's configuration
+     */
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     SyncopeTO info();

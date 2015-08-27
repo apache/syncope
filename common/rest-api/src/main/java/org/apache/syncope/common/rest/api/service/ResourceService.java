@@ -30,9 +30,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.apache.cxf.jaxrs.model.wadl.Description;
-import org.apache.cxf.jaxrs.model.wadl.Descriptions;
-import org.apache.cxf.jaxrs.model.wadl.DocTarget;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
@@ -87,10 +84,6 @@ public interface ResourceService extends JAXRSService {
      * @param resourceTO Resource to be created
      * @return <tt>Response</tt> object featuring <tt>Location</tt> header of created resource
      */
-    @Descriptions({
-        @Description(target = DocTarget.RESPONSE,
-                value = "Featuring <tt>Location</tt> header of created resource")
-    })
     @POST
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     Response create(@NotNull ResourceTO resourceTO);
@@ -134,12 +127,8 @@ public interface ResourceService extends JAXRSService {
      * @param anyTypeKey any object kind
      * @param type resource de-association action type
      * @param keys any object keys against which the bulk action will be performed
-     * @return <tt>Response</tt> object featuring {@link BulkActionResult} as <tt>Entity</tt>
+     * @return <tt>Response</tt> object featuring <tt>BulkActionResult</tt> as <tt>Entity</tt>
      */
-    @Descriptions({
-        @Description(target = DocTarget.RESPONSE,
-                value = "Featuring <tt>BulkActionResult</tt> as <tt>Entity</tt>")
-    })
     @POST
     @Path("{key}/bulkDeassociation/{anyTypeKey}/{type}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })

@@ -31,9 +31,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.apache.cxf.jaxrs.model.wadl.Description;
-import org.apache.cxf.jaxrs.model.wadl.Descriptions;
-import org.apache.cxf.jaxrs.model.wadl.DocTarget;
 import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
 import org.apache.syncope.common.lib.types.PolicyType;
 
@@ -73,9 +70,6 @@ public interface PolicyService extends JAXRSService {
      * @param <T> response type (extending PolicyTO)
      * @return <tt>Response</tt> object featuring <tt>Location</tt> header of created policy
      */
-    @Descriptions({
-        @Description(target = DocTarget.RESPONSE, value = "Featuring <tt>Location</tt> header of created policy")
-    })
     @POST
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     <T extends AbstractPolicyTO> Response create(@NotNull T policyTO);

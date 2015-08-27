@@ -34,9 +34,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.apache.cxf.jaxrs.model.wadl.Description;
-import org.apache.cxf.jaxrs.model.wadl.Descriptions;
-import org.apache.cxf.jaxrs.model.wadl.DocTarget;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
@@ -99,9 +96,6 @@ public interface TaskService extends JAXRSService {
      * @param <T> type of taskTO
      * @return <tt>Response</tt> object featuring <tt>Location</tt> header of created task
      */
-    @Descriptions({
-        @Description(target = DocTarget.RESPONSE, value = "Featuring <tt>Location</tt> header of created task")
-    })
     @POST
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     <T extends SchedTaskTO> Response create(@NotNull T taskTO);

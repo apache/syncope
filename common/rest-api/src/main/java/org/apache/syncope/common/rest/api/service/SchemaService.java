@@ -30,9 +30,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.apache.cxf.jaxrs.model.wadl.Description;
-import org.apache.cxf.jaxrs.model.wadl.Descriptions;
-import org.apache.cxf.jaxrs.model.wadl.DocTarget;
 import org.apache.syncope.common.lib.to.AbstractSchemaTO;
 import org.apache.syncope.common.lib.types.SchemaType;
 
@@ -75,9 +72,6 @@ public interface SchemaService extends JAXRSService {
      * @param schemaTO schema to be created
      * @return <tt>Response</tt> object featuring <tt>Location</tt> header of created schema
      */
-    @Descriptions({
-        @Description(target = DocTarget.RESPONSE, value = "Featuring <tt>Location</tt> header of created schema")
-    })
     @POST
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     <T extends AbstractSchemaTO> Response create(@NotNull @PathParam("type") SchemaType type, @NotNull T schemaTO);
