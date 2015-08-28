@@ -33,9 +33,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.apache.cxf.jaxrs.model.wadl.Description;
-import org.apache.cxf.jaxrs.model.wadl.Descriptions;
-import org.apache.cxf.jaxrs.model.wadl.DocTarget;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.ReportExecTO;
 import org.apache.syncope.common.lib.to.ReportTO;
@@ -88,9 +85,6 @@ public interface ReportService extends JAXRSService {
      * @param reportTO report to be created
      * @return <tt>Response</tt> object featuring <tt>Location</tt> header of created report
      */
-    @Descriptions({
-        @Description(target = DocTarget.RESPONSE, value = "Featuring <tt>Location</tt> header of created report")
-    })
     @POST
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     Response create(@NotNull ReportTO reportTO);

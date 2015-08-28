@@ -29,9 +29,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.apache.cxf.jaxrs.model.wadl.Description;
-import org.apache.cxf.jaxrs.model.wadl.Descriptions;
-import org.apache.cxf.jaxrs.model.wadl.DocTarget;
 import org.apache.syncope.common.lib.mod.UserMod;
 import org.apache.syncope.common.lib.to.UserTO;
 
@@ -57,13 +54,8 @@ public interface UserSelfService extends JAXRSService {
      * @param userTO user to be created
      * @param storePassword whether password shall be stored internally
      * @return <tt>Response</tt> object featuring <tt>Location</tt> header of self-registered user as well as the user
-     * itself - {@link UserTO} as <tt>Entity</tt>
+     * itself - <tt>UserTO</tt> as <tt>Entity</tt>
      */
-    @Descriptions({
-        @Description(target = DocTarget.RESPONSE,
-                value = "Featuring <tt>Location</tt> header of self-registered user as well "
-                + "as the user itself - {@link UserTO} as <tt>Entity</tt>")
-    })
     @POST
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
@@ -74,12 +66,8 @@ public interface UserSelfService extends JAXRSService {
      * Self-updates user.
      *
      * @param userMod modification to be applied to user matching the provided key
-     * @return <tt>Response</tt> object featuring the updated user - {@link UserTO} as <tt>Entity</tt>
+     * @return <tt>Response</tt> object featuring the updated user - <tt>UserTO</tt> as <tt>Entity</tt>
      */
-    @Descriptions({
-        @Description(target = DocTarget.RESPONSE,
-                value = "Featuring the updated user - <tt>UserTO</tt> as <tt>Entity</tt>")
-    })
     @POST
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
@@ -89,12 +77,8 @@ public interface UserSelfService extends JAXRSService {
     /**
      * Self-deletes user.
      *
-     * @return <tt>Response</tt> object featuring the deleted user - {@link UserTO} as <tt>Entity</tt>
+     * @return <tt>Response</tt> object featuring the deleted user - <tt>UserTO</tt> as <tt>Entity</tt>
      */
-    @Descriptions({
-        @Description(target = DocTarget.RESPONSE,
-                value = "Featuring the deleted user - <tt>UserTO</tt> as <tt>Entity</tt>")
-    })
     @DELETE
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     Response delete();

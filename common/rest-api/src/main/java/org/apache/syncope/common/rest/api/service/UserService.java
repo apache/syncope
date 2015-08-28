@@ -29,9 +29,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.apache.cxf.jaxrs.model.wadl.Description;
-import org.apache.cxf.jaxrs.model.wadl.Descriptions;
-import org.apache.cxf.jaxrs.model.wadl.DocTarget;
 import org.apache.syncope.common.lib.mod.StatusMod;
 import org.apache.syncope.common.lib.mod.UserMod;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -48,10 +45,6 @@ public interface UserService extends AnyService<UserTO, UserMod> {
      * @param key user key
      * @return <tt>Response</tt> object featuring HTTP header with username matching the given key
      */
-    @Descriptions({
-        @Description(target = DocTarget.RESPONSE,
-                value = "Featuring HTTP header with username matching the given key")
-    })
     @OPTIONS
     @Path("{key}/username")
     Response getUsername(@NotNull @PathParam("key") Long key);
@@ -62,10 +55,6 @@ public interface UserService extends AnyService<UserTO, UserMod> {
      * @param username username
      * @return <tt>Response</tt> object featuring HTTP header with key matching the given username
      */
-    @Descriptions({
-        @Description(target = DocTarget.RESPONSE,
-                value = "Featuring HTTP header with key matching the given username")
-    })
     @OPTIONS
     @Path("{username}/key")
     Response getUserKey(@NotNull @PathParam("username") String username);
@@ -76,13 +65,8 @@ public interface UserService extends AnyService<UserTO, UserMod> {
      * @param userTO user to be created
      * @param storePassword whether password shall be stored internally
      * @return <tt>Response</tt> object featuring <tt>Location</tt> header of created user as well as the user itself
-     * enriched with propagation status information - {@link UserTO} as <tt>Entity</tt>
+     * enriched with propagation status information - <tt>UserTO</tt> as <tt>Entity</tt>
      */
-    @Descriptions({
-        @Description(target = DocTarget.RESPONSE,
-                value = "Featuring <tt>Location</tt> header of created user as well as the "
-                + "user itself enriched with propagation status information - <tt>UserTO</tt> as <tt>Entity</tt>")
-    })
     @POST
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
@@ -95,13 +79,8 @@ public interface UserService extends AnyService<UserTO, UserMod> {
      *
      * @param statusMod status update details
      * @return <tt>Response</tt> object featuring the updated user enriched with propagation status information
-     * - {@link UserTO} as <tt>Entity</tt>
+     * - <tt>UserTO</tt> as <tt>Entity</tt>
      */
-    @Descriptions({
-        @Description(target = DocTarget.RESPONSE,
-                value = "Featuring the updated user enriched with propagation status information - "
-                + "<tt>UserTO</tt> as <tt>Entity</tt>")
-    })
     @POST
     @Path("{key}/status")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })

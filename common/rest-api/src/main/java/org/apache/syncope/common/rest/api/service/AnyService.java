@@ -30,9 +30,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.apache.cxf.jaxrs.model.wadl.Description;
-import org.apache.cxf.jaxrs.model.wadl.Descriptions;
-import org.apache.cxf.jaxrs.model.wadl.DocTarget;
 import org.apache.syncope.common.lib.mod.AnyMod;
 import org.apache.syncope.common.lib.mod.ResourceAssociationMod;
 import org.apache.syncope.common.lib.to.AnyTO;
@@ -84,14 +81,8 @@ public interface AnyService<TO extends AnyTO, MOD extends AnyMod> extends JAXRSS
      *
      * @param anyTO any object to be created
      * @return <tt>Response</tt> object featuring <tt>Location</tt> header of created any object as well as the any
-     * object itself enriched with propagation status information - {@link AnyTO} as <tt>Entity</tt>
+     * object itself enriched with propagation status information - <tt>AnyTO</tt> as <tt>Entity</tt>
      */
-    @Descriptions({
-        @Description(target = DocTarget.RESPONSE,
-                value = "Featuring <tt>Location</tt> header of created any object as well as the "
-                + "any object itself enriched with propagation status information - "
-                + "<tt>AnyTO</tt> as <tt>Entity</tt>")
-    })
     @POST
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
@@ -102,13 +93,8 @@ public interface AnyService<TO extends AnyTO, MOD extends AnyMod> extends JAXRSS
      *
      * @param anyMod modification to be applied to any object matching the provided key
      * @return <tt>Response</tt> object featuring the updated any object enriched with propagation status information
-     * - {@link AnyTO} as <tt>Entity</tt>
+     * - <tt>AnyTO</tt> as <tt>Entity</tt>
      */
-    @Descriptions({
-        @Description(target = DocTarget.RESPONSE,
-                value = "Featuring the updated any object enriched with propagation status information - "
-                + "<tt>AnyTO</tt> as <tt>Entity</tt>")
-    })
     @POST
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
@@ -120,13 +106,8 @@ public interface AnyService<TO extends AnyTO, MOD extends AnyMod> extends JAXRSS
      *
      * @param key key of any object to be deleted
      * @return <tt>Response</tt> object featuring the deleted any object enriched with propagation status information
-     * - {@link AnyTO} as <tt>Entity</tt>
+     * - <tt>AnyTO</tt> as <tt>Entity</tt>
      */
-    @Descriptions({
-        @Description(target = DocTarget.RESPONSE,
-                value = "Featuring the deleted any object enriched with propagation status information - "
-                + "<tt>AnyTO</tt> as <tt>Entity</tt>")
-    })
     @DELETE
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
@@ -139,13 +120,8 @@ public interface AnyService<TO extends AnyTO, MOD extends AnyMod> extends JAXRSS
      * @param key any object id.
      * @param type resource association action type
      * @param resourceNames external resources to be used for propagation-related operations
-     * @return <tt>Response</tt> object featuring
-     * {@link BulkActionResult} as <tt>Entity</tt>
+     * @return <tt>Response</tt> object featuring <tt>BulkActionResult</tt> as <tt>Entity</tt>
      */
-    @Descriptions({
-        @Description(target = DocTarget.RESPONSE,
-                value = "Featuring <tt>BulkActionResult</tt> as <tt>Entity</tt>")
-    })
     @POST
     @Path("{key}/deassociate/{type}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
@@ -161,12 +137,8 @@ public interface AnyService<TO extends AnyTO, MOD extends AnyMod> extends JAXRSS
      * @param key any object id.
      * @param type resource association action type
      * @param associationMod external resources to be used for propagation-related operations
-     * @return <tt>Response</tt> object featuring {@link BulkActionResult} as <tt>Entity</tt>
+     * @return <tt>Response</tt> object featuring <tt>BulkActionResult</tt> as <tt>Entity</tt>
      */
-    @Descriptions({
-        @Description(target = DocTarget.RESPONSE,
-                value = "Featuring <tt>BulkActionResult</tt> as <tt>Entity</tt>")
-    })
     @POST
     @Path("{key}/associate/{type}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })

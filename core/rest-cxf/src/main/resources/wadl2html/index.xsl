@@ -46,7 +46,7 @@
           <xsl:value-of select="wadl:doc/@title"/>
         </title>
 
-        <link rel="stylesheet" href="{$contextPath}/webjars/jquery-ui/${jquery-ui.version}/jquery-ui.min.css"/>
+        <link rel="stylesheet" href="{$contextPath}/webjars/jquery-ui-themes/${jquery-ui.version}/smoothness/jquery-ui.min.css"/>
         <style>
           body {
           font-family: "Verdana,Arial,sans-serif";
@@ -142,6 +142,7 @@
             <th>Prefix</th>
             <th>URI</th>
             <th>XSD</th>
+            <th>WADL</th>
           </tr>
           <xsl:apply-templates select="wadl:grammars/xs:schema"/>
         </table>
@@ -211,6 +212,10 @@
         <a href="schema_{position()}_{$prefix}.html" 
            onClick="window.open('', 'schema', '', true).focus();" target="schema">
           <xsl:value-of select="$prefix"/>.xsd</a>
+      </td>
+      <td>
+        <a href="syncope.wadl"
+           onClick="window.open('', 'wadl', '', true).focus();" target="wadl">syncope.wadl</a>
       </td>
     </tr>
   </xsl:template>

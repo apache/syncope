@@ -518,6 +518,11 @@ under the License.
     <profile>
       <id>glassfish-it</id>
 
+      <properties>
+        <!-- see SYNCOPE-688 -->
+        <jaxrs.content.type>application/xml</jaxrs.content.type>
+      </properties>
+      
       <dependencies>
         <dependency>
           <groupId>com.h2database</groupId>
@@ -554,6 +559,12 @@ under the License.
       <id>jboss-it</id>
 
       <dependencies>
+        <dependency>
+          <groupId>javax.xml.ws</groupId>
+          <artifactId>jaxws-api</artifactId>
+          <version>2.2.11</version>
+        </dependency>
+        
         <dependency>
           <groupId>com.h2database</groupId>
           <artifactId>h2</artifactId>
@@ -639,9 +650,9 @@ under the License.
             <inherited>true</inherited>
             <configuration>
               <container>
-                <containerId>wildfly8x</containerId>
+                <containerId>wildfly9x</containerId>
                 <zipUrlInstaller>
-                  <url>http://download.jboss.org/wildfly/8.2.0.Final/wildfly-8.2.0.Final.zip</url>
+                  <url>http://download.jboss.org/wildfly/9.0.1.Final/wildfly-9.0.1.Final.zip</url>
                   <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
                   <extractDir>${project.build.directory}/cargo/extract</extractDir>
                 </zipUrlInstaller>

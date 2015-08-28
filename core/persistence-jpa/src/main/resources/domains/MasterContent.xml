@@ -87,7 +87,7 @@ under the License.
 
   <AnyType name="USER" kind="USER"/>
   <AnyTypeClass name="BaseUser"/>
-  <AnyType_AnyTypeClass anyType_name="USER" anyTypeClass_name="baseUser"/>
+  <AnyType_AnyTypeClass anyType_name="USER" anyTypeClass_name="BaseUser"/>
 
   <AnyType name="GROUP" kind="GROUP"/>
   

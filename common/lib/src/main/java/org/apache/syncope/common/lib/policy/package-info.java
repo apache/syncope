@@ -16,30 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.rest.api.service;
+@XmlSchema(namespace = SyncopeConstants.NAMESPACE)
+package org.apache.syncope.common.lib.policy;
 
-import java.util.List;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import org.apache.syncope.common.lib.mod.GroupMod;
-import org.apache.syncope.common.lib.to.GroupTO;
-
-/**
- * REST operations for groups.
- */
-@Path("groups")
-public interface GroupService extends AnyService<GroupTO, GroupMod> {
-
-    /**
-     * This method is similar to <tt>read()</tt>, but uses different authentication handling to ensure that a user
-     * can read his own groups.
-     *
-     * @return own groups
-     */
-    @GET
-    @Path("own")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    List<GroupTO> own();
-}
+import javax.xml.bind.annotation.XmlSchema;
+import org.apache.syncope.common.lib.SyncopeConstants;

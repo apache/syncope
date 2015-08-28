@@ -116,12 +116,8 @@ under the License.
       </resource>
       
       <resource>
-        <directory>${basedir}/../../core/persistence-jpa/src/main/resources</directory>
-        <includes>
-          <include>content.xml</include>
-          <include>persistence.properties</include>
-        </includes>
-        <targetPath>${project.build.directory}/etc</targetPath>
+        <directory>${basedir}/../../core/persistence-jpa/src/main/resources/domains</directory>
+        <targetPath>${project.build.directory}/etc/domains</targetPath>
         <filtering>true</filtering>
       </resource>
       <resource>

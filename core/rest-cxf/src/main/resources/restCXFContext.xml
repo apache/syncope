@@ -53,7 +53,7 @@ under the License.
       <map>
         <entry>
           <key>
-            <value>org.apache.syncope.common.lib.to.AbstractPolicyTO</value>
+            <value>org.apache.syncope.common.lib.policy.AbstractPolicyTO</value>
           </key>
           <value>policies</value>
         </entry>
@@ -61,7 +61,7 @@ under the License.
     </property>
   </bean>
 
-  <bean id="jacksonObjectMapper" class="org.apache.syncope.core.misc.serialization.UnwrappedObjectMapper"/>
+  <bean id="jacksonObjectMapper" class="org.apache.syncope.core.rest.cxf.UnwrappedObjectMapper"/>
   <bean id="jsonProvider" class="com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider">
     <property name="mapper" ref="jacksonObjectMapper"/>
   </bean>
@@ -78,25 +78,16 @@ under the License.
   
   <bean id="searchContextProvider" class="org.apache.cxf.jaxrs.ext.search.SearchContextProvider"/>
   
-  <bean id="wadlGenerator" class="org.apache.cxf.jaxrs.model.wadl.WadlGenerator">
-    <property name="applicationTitle" value="Apache Syncope ${syncope.version}"/>
-    <property name="namespacePrefix" value="syncope"/>
-    <property name="linkJsonToXmlSchema" value="true"/>
-    <property name="useJaxbContextForQnames" value="true"/>
-    <property name="ignoreMessageWriters" value="true"/>
-    <property name="addResourceAndMethodIds" value="true"/>
-    <property name="usePathParamsToCompareOperations" value="false"/>
-    <property name="javaDocPath" value="/WEB-INF/lib/syncope-common-rest-api-${syncope.version}-javadoc.jar"/>
-  </bean>
-  
   <bean id="addDomainFilter" class="org.apache.syncope.core.rest.cxf.AddDomainFilter"/>
   <bean id="addETagFilter" class="org.apache.syncope.core.rest.cxf.AddETagFilter"/>
   
   <jaxrs:server id="restContainer" address="/"
                 basePackages="org.apache.syncope.common.rest.api.service, org.apache.syncope.core.rest.cxf.service" 
-                staticSubresourceResolution="true">
+                staticSubresourceResolution="true"
+                docLocation="classpath:/META-INF/resources/doc/syncope.wadl">
     <jaxrs:properties> 
       <entry key="search.lax.property.match" value="true"/> 
+      <entry key="convert.wadl.resources.to.dom" value="false"/>
     </jaxrs:properties> 
     <jaxrs:inInterceptors>
       <ref bean="validationInInterceptor"/>
@@ -109,7 +100,6 @@ under the License.
       <ref bean="jsonProvider"/>
       <ref bean="exceptionMapper"/>
       <ref bean="searchContextProvider"/>
-      <ref bean="wadlGenerator"/>
       <ref bean="addDomainFilter"/>
       <ref bean="addETagFilter"/>
     </jaxrs:providers>
