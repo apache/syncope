@@ -107,18 +107,19 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     @Override
     protected WorkflowResult<Pair<UserMod, Boolean>> doUpdate(final User user, final UserMod userMod) {
         // update password internally only if required
-        UserMod actualMod = SerializationUtils.clone(userMod);
-        if (actualMod.getPwdPropRequest() != null && !actualMod.getPwdPropRequest().isOnSyncope()) {
-            actualMod.setPassword(null);
+        UserMod updatedMod = SerializationUtils.clone(userMod);
+        String updatedPwd = updatedMod.getPassword();
+        if (updatedMod.getPwdPropRequest() != null && !updatedMod.getPwdPropRequest().isOnSyncope()) {
+            updatedMod.setPassword(null);
         }
         // update User
-        PropagationByResource propByRes = dataBinder.update(user, actualMod);
+        PropagationByResource propByRes = dataBinder.update(user, updatedMod);
+        updatedMod.setPassword(updatedPwd);
 
-        User updated = userDAO.save(user);
+        userDAO.save(user);
 
-        userMod.setKey(updated.getKey());
         return new WorkflowResult<Pair<UserMod, Boolean>>(
-                new ImmutablePair<>(userMod, !user.isSuspended()), propByRes, "update");
+                new ImmutablePair<>(updatedMod, !user.isSuspended()), propByRes, "update");
     }
 
     @Override
