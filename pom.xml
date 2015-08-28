@@ -375,7 +375,7 @@ under the License.
     <jquery-ui.version>1.11.4</jquery-ui.version>
     <jquery-cookie.version>1.4.1-1</jquery-cookie.version>
     <bootstrap.version>3.3.5</bootstrap.version>
-    <bootstrap-select.version>1.6.3</bootstrap-select.version>
+    <bootstrap-select.version>1.7.3</bootstrap-select.version>
     <font-awesome.version>4.4.0</font-awesome.version>
     <ionicons.version>2.0.1</ionicons.version>
     <highlightjs.version>8.7</highlightjs.version>
