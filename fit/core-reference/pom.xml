@@ -362,7 +362,7 @@ under the License.
         <dependency>
           <groupId>org.postgresql</groupId>
           <artifactId>postgresql</artifactId>
-          <version>9.4-1200-jdbc41</version>
+          <version>9.4-1201-jdbc41</version>
           <scope>test</scope>
         </dependency>
       </dependencies>
@@ -374,6 +374,9 @@ under the License.
           <resource>
             <directory>src/main/resources</directory>
             <filtering>true</filtering>
+            <excludes>
+              <exclude>provisioning.properties</exclude>
+            </excludes>
           </resource>
           <resource>
             <directory>src/main/resources/postgres</directory>
@@ -443,6 +446,9 @@ under the License.
           <resource>
             <directory>src/main/resources</directory>
             <filtering>true</filtering>
+            <excludes>
+              <exclude>provisioning.properties</exclude>
+            </excludes>
           </resource>
           <resource>
             <directory>src/main/resources/mariadb</directory>
