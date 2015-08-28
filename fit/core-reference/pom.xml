@@ -395,7 +395,7 @@ under the License.
         <dependency>
           <groupId>mysql</groupId>
           <artifactId>mysql-connector-java</artifactId>
-          <version>5.1.34</version>
+          <version>5.1.36</version>
           <scope>test</scope>
         </dependency>
       </dependencies>
@@ -406,6 +406,9 @@ under the License.
         <resources>
           <resource>
             <directory>src/main/resources</directory>
+            <excludes>
+              <exclude>provisioning.properties</exclude>
+            </excludes>
             <filtering>true</filtering>
           </resource>
           <resource>
@@ -428,7 +431,7 @@ under the License.
         <dependency>
           <groupId>org.mariadb.jdbc</groupId>
           <artifactId>mariadb-java-client</artifactId>
-          <version>1.1.8</version>
+          <version>1.1.9</version>
           <scope>test</scope>
         </dependency>
       </dependencies>
