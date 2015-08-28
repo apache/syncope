@@ -33,6 +33,8 @@ under the License.
       <module name="org.hibernate"/>
       <module name="org.slf4j"/>
       <module name="org.slf4j.impl"/>
+      <module name="org.apache.log4j"/>
+      <module name="org.jboss.log4j.logmanager"/>
     </exclusions>
   </deployment>
 </jboss-deployment-structure>
