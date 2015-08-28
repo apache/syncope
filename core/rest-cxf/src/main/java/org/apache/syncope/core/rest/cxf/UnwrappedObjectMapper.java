@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.misc.serialization;
+package org.apache.syncope.core.rest.cxf;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -36,8 +36,8 @@ public class UnwrappedObjectMapper extends ObjectMapper {
     private static final long serialVersionUID = -317191546835195103L;
 
     /**
-     * Unwraps the given value if it implements the Map interface and contains
-     * only a single entry. Otherwise the value is returned unmodified.
+     * Unwraps the given value if it implements the Map interface and contains only a single entry, otherwise the
+     * value is returned unmodified.
      *
      * @param value the potential Map to unwrap
      * @return the unwrapped map or the original value
@@ -54,31 +54,23 @@ public class UnwrappedObjectMapper extends ObjectMapper {
     }
 
     @Override
-    public void writeValue(final JsonGenerator jgen, final Object value)
-            throws IOException {
-
+    public void writeValue(final JsonGenerator jgen, final Object value) throws IOException {
         super.writeValue(jgen, unwrapMap(value));
     }
 
     @Override
-    public void writeValue(final File resultFile, final Object value)
-            throws IOException {
-
+    public void writeValue(final File resultFile, final Object value) throws IOException {
         super.writeValue(resultFile, unwrapMap(value));
     }
 
     @Override
-    public void writeValue(final OutputStream out, final Object value)
-            throws IOException {
-
+    public void writeValue(final OutputStream out, final Object value) throws IOException {
         super.writeValue(out, unwrapMap(value));
     }
 
     @Override
-    public void writeValue(final Writer w, final Object value)
-            throws IOException {
-
-        super.writeValue(w, unwrapMap(value));
+    public void writeValue(final Writer writer, final Object value) throws IOException {
+        super.writeValue(writer, unwrapMap(value));
     }
 
     @Override

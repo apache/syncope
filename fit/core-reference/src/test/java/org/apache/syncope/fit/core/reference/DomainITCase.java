@@ -83,14 +83,16 @@ public class DomainITCase extends AbstractITCase {
 
             // 2. attempt to access with old pwd -> fail
             try {
-                new SyncopeClientFactoryBean().setAddress(ADDRESS).setDomain("Two").
+                new SyncopeClientFactoryBean().
+                        setAddress(ADDRESS).setDomain("Two").setContentType(clientFactory.getContentType()).
                         create(ADMIN_UNAME, "password2").self();
             } catch (AccessControlException e) {
                 assertNotNull(e);
             }
 
             // 3. access with new pwd -> succeed
-            new SyncopeClientFactoryBean().setAddress(ADDRESS).setDomain("Two").
+            new SyncopeClientFactoryBean().
+                    setAddress(ADDRESS).setDomain("Two").setContentType(clientFactory.getContentType()).
                     create(ADMIN_UNAME, "password3").self();
         } finally {
             restoreTwo();

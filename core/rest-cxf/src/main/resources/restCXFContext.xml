@@ -61,7 +61,7 @@ under the License.
     </property>
   </bean>
 
-  <bean id="jacksonObjectMapper" class="org.apache.syncope.core.misc.serialization.UnwrappedObjectMapper"/>
+  <bean id="jacksonObjectMapper" class="org.apache.syncope.core.rest.cxf.UnwrappedObjectMapper"/>
   <bean id="jsonProvider" class="com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider">
     <property name="mapper" ref="jacksonObjectMapper"/>
   </bean>

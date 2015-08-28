@@ -518,6 +518,11 @@ under the License.
     <profile>
       <id>glassfish-it</id>
 
+      <properties>
+        <!-- see SYNCOPE-688 -->
+        <jaxrs.content.type>application/xml</jaxrs.content.type>
+      </properties>
+      
       <dependencies>
         <dependency>
           <groupId>com.h2database</groupId>
