@@ -19,8 +19,10 @@
 package org.apache.syncope.client.console.rest;
 
 import java.util.List;
+import javax.ws.rs.core.Response;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.mod.AnyObjectMod;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.BulkAction;
@@ -81,6 +83,21 @@ public class AnyObjectRestClient extends AbstractAnyRestClient {
             LOG.error("While reading any object", e);
         }
         return anyObjectTO;
+    }
+
+    public AnyObjectTO create(final AnyObjectTO anyObjectTO) {
+        final Response response = getService(AnyObjectService.class).create(anyObjectTO);
+        return response.readEntity(AnyObjectTO.class);
+    }
+
+    public AnyObjectTO update(final String etag, final AnyObjectMod anyObjectMod) {
+        AnyObjectTO result;
+        synchronized (this) {
+            AnyObjectService service = getService(etag, AnyObjectService.class);
+            result = service.update(anyObjectMod).readEntity(AnyObjectTO.class);
+            resetClient(AnyObjectService.class);
+        }
+        return result;
     }
 
     @Override

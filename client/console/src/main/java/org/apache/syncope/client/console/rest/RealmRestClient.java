@@ -36,6 +36,6 @@ public class RealmRestClient extends BaseRestClient {
     }
 
     public void create(final String parentPath, final RealmTO realmTO) {
-        getService(RealmService.class).create(parentPath, realmTO);         
+        getService(RealmService.class).create(parentPath, realmTO);
     }
 }

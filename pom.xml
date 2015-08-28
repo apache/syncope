@@ -376,6 +376,7 @@ under the License.
     <jquery-cookie.version>1.4.1-1</jquery-cookie.version>
     <bootstrap.version>3.3.5</bootstrap.version>
     <bootstrap-select.version>1.6.3</bootstrap-select.version>
+    <wicket-bootstrap.version>0.10.3</wicket-bootstrap.version>
     <font-awesome.version>4.4.0</font-awesome.version>
     <ionicons.version>2.0.1</ionicons.version>
     <highlightjs.version>8.7</highlightjs.version>
@@ -880,6 +881,16 @@ under the License.
         <artifactId>wicket-native-websocket-javax</artifactId>
         <version>${wicket.version}</version>
       </dependency>
+      <dependency>
+        <groupId>de.agilecoders.wicket</groupId>
+        <artifactId>wicket-bootstrap-core</artifactId>
+        <version>${wicket-bootstrap.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>de.agilecoders.wicket</groupId>
+        <artifactId>wicket-bootstrap-extensions</artifactId>
+        <version>${wicket-bootstrap.version}</version>
+      </dependency>
       <!-- /Wicket -->
       
       <dependency>
@@ -974,8 +985,8 @@ under the License.
         <artifactId>jquery-cookie</artifactId>
         <version>${jquery-cookie.version}</version>
       </dependency>
-      
-      
+
+            
       <dependency>
         <groupId>com.beust</groupId>
         <artifactId>jcommander</artifactId>

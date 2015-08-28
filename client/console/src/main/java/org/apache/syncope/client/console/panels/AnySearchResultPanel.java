@@ -58,8 +58,6 @@ public class AnySearchResultPanel extends AbstractSearchResultPanel {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AnySearchResultPanel.class);
 
-    private String customMarkupId;
-
     @SpringBean
     protected SchemaRestClient schemaRestClient;
 
@@ -68,14 +66,14 @@ public class AnySearchResultPanel extends AbstractSearchResultPanel {
     protected final List<String> dSchemaNames;
 
     protected final String pageID = "Any";
-
+    
     private final String entitlement = "USER_LIST";
 
-    public AnySearchResultPanel(final String type, final String parentId, final String markupId, final boolean filtered,
+    public AnySearchResultPanel(final String type, final String parentId, final boolean filtered,
             final String fiql, final PageReference callerRef, final AbstractAnyRestClient restClient,
             final List<AnyTypeClassTO> anyTypeClassTOs, final String realm) {
         super(parentId, filtered, fiql, callerRef, restClient, realm, type);
-        setCustomMarkupId(markupId);
+        //setCustomMarkupId(markupId);
         add(new Label("name", type));
 
         this.schemaNames = new ArrayList<String>();
@@ -88,14 +86,6 @@ public class AnySearchResultPanel extends AbstractSearchResultPanel {
         }
 
         initResultTable();
-    }
-
-    public String getCustomMarkupId() {
-        return customMarkupId;
-    }
-
-    public void setCustomMarkupId(final String markupId) {
-        this.customMarkupId = markupId;
     }
 
     @Override

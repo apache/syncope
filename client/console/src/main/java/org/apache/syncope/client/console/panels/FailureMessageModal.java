@@ -16,26 +16,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.pages;
+package org.apache.syncope.client.console.panels;
 
-import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.model.Model;
 
-public class EditRealmModalPage<T extends AnyTO> extends RealmModalPage {
+public class FailureMessageModal extends ModalContent {
 
-    private static final long serialVersionUID = -4285220460543213901L;
+    private static final long serialVersionUID = 9216117990503199258L;
 
-    public EditRealmModalPage(
-            final PageReference pageRef,
-            final ModalWindow window,
-            final RealmTO realmTO,
-            final String parentPath,
-            final String entitlement) {
-
-        super(pageRef, window, realmTO, parentPath, entitlement);
-
+    public FailureMessageModal(final PageReference pageRef, final ModalWindow window, final String failureMessage) {
+        super(window, pageRef);
+        final Label executionFailureMessage;
+        if (!failureMessage.isEmpty()) {
+            executionFailureMessage = new Label("failureMessage", new Model<String>(failureMessage));
+        } else {
+            executionFailureMessage = new Label("failureMessage");
+        }
+        add(executionFailureMessage.setOutputMarkupId(true));
     }
-
 }

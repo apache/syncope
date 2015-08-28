@@ -60,18 +60,17 @@ public class UserSearchResultPanel extends AnySearchResultPanel {
 
     private final String entitlement = "USER_LIST";
 
-    public UserSearchResultPanel(final String type, final String parentId, final String markupId,
+    public UserSearchResultPanel(final String type, final String parentId,
             final boolean filtered, final String fiql, final PageReference callerRef,
             final AbstractAnyRestClient restClient, final List<AnyTypeClassTO> anyTypeClassTOs, final String realm) {
 
-        super(type, parentId, markupId, filtered, fiql, callerRef, restClient, anyTypeClassTOs, realm);
+        super(type, parentId, filtered, fiql, callerRef, restClient, anyTypeClassTOs, realm);
     }
 
     @Override
     protected List<IColumn<AnyTO, String>> getColumns() {
 
-        final List<IColumn<AnyTO, String>> columns =
-                new ArrayList<IColumn<AnyTO, String>>();
+        final List<IColumn<AnyTO, String>> columns = new ArrayList<IColumn<AnyTO, String>>();
 
         for (String name : prefMan.getList(getRequest(), Constants.PREF_USERS_DETAILS_VIEW)) {
             final Field field = ReflectionUtils.findField(UserTO.class, name);

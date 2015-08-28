@@ -16,94 +16,71 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.pages;
+package org.apache.syncope.client.console.panels;
 
-import static org.apache.syncope.client.console.pages.AbstractBasePage.CANCEL;
 import static org.apache.wicket.Component.ENABLE;
 
+import com.googlecode.wicket.jquery.ui.markup.html.link.AjaxSubmitLink;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.panels.RealmDetails;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.RealmRestClient;
-import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.buttons.PrimaryModalButton;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
-import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
-public class RealmModalPage<T extends AnyTO> extends BaseModalPage {
+public class RealmModalPanel extends AbstractModalPanel {
 
     private static final long serialVersionUID = -4285220460543213901L;
-
-    private static final int ROWS_PER_PAGE = 10;
 
     protected RealmTO realmTO;
 
     private final PageReference pageRef;
 
-    private final ModalWindow window;
+    private final BaseModal<RealmTO> modal;
 
     @SpringBean
     private RealmRestClient realmRestClient;
-    
+
     private final String parentPath;
 
-    public RealmModalPage(
+    public RealmModalPanel(
+            final String id,
             final PageReference pageRef,
-            final ModalWindow window,
+            final BaseModal<RealmTO> modal,
             final RealmTO realmTO,
             final String parentPath,
             final String entitlement) {
 
-        super();
+        super(id);
 
         this.pageRef = pageRef;
-        this.window = window;
+        this.modal = modal;
         this.realmTO = realmTO;
         this.parentPath = parentPath;
 
-        final Form<RealmTO> form = new Form<RealmTO>("RealmForm");
-        form.setModel(new CompoundPropertyModel<RealmTO>(realmTO));
+        final Form<RealmTO> form = new Form<>("realmForm");
+        form.setModel(new CompoundPropertyModel<>(realmTO));
 
-        RealmDetails realmDetail = new RealmDetails("details", realmTO);
+        final RealmDetails<RealmTO> realmDetail = new RealmDetails<>("details", realmTO);
         if (SyncopeConsoleSession.get().owns(entitlement)) {
             MetaDataRoleAuthorizationStrategy.authorize(realmDetail, ENABLE, entitlement);
         }
         form.add(realmDetail);
 
-        final AjaxButton submit = getOnSubmit();
-        form.add(submit);
-        form.setDefaultButton(submit);
-
-        final AjaxButton cancel = new AjaxButton(CANCEL, new ResourceModel(CANCEL)) {
-
-            private static final long serialVersionUID = 530608535790823587L;
-
-            @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-                window.close(target);
-            }
-
-            @Override
-            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-            }
-        };
-
-        cancel.setDefaultFormProcessing(false);
-        form.add(cancel);
-
+        final AjaxSubmitLink submit = getOnSubmit(form);
+        modal.addFooterInput(submit);
         add(form);
     }
 
-    protected AjaxButton getOnSubmit() {
-        return new IndicatingAjaxButton(APPLY, new ResourceModel(SUBMIT)) {
+    protected PrimaryModalButton getOnSubmit(final Form form) {
+        return new PrimaryModalButton(modal.getModalInputId(), "submit", form) {
 
             private static final long serialVersionUID = -958724007591692537L;
 
@@ -118,7 +95,7 @@ public class RealmModalPage<T extends AnyTO> extends BaseModalPage {
 
                     closeAction(target, form);
                 } catch (Exception e) {
-                    LOG.error("While creating or updating user", e);
+                    LOG.error("While creating or updating realm", e);
                     error(getString(Constants.ERROR) + ": " + e.getMessage());
                     feedbackPanel.refresh(target);
                 }
@@ -137,6 +114,6 @@ public class RealmModalPage<T extends AnyTO> extends BaseModalPage {
     }
 
     protected void closeAction(final AjaxRequestTarget target, final Form<?> form) {
-        this.window.close(target);
+        this.modal.close(target);
     }
 }

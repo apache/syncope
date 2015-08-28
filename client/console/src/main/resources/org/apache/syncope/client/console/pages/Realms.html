@@ -20,7 +20,6 @@ under the License.
 <html xmlns="http://www.w3.org/1999/xhtml" 
       xmlns:wicket="http://xmlns.jcp.org/jsf/composite">
   <wicket:extend>
-
     <div class="wrapper">
       <div class="admin-content-page content-margin-layout" wicket:id="content">
         <div class="box box-solid box-primary">
@@ -42,7 +41,6 @@ under the License.
                   </a>                  
                 </li>
               </ul>
-              <div wicket:id="editModal" ></div>
             </div><!-- /.box-tools -->
           </div><!-- /.box-header -->
           <div class="box-body">
@@ -51,6 +49,8 @@ under the License.
             </div>
           </div>
         </div>
+        <div wicket:id="createModal"></div>
+        <div wicket:id="editModal"></div>
       </div>
 
       <aside class="control-sidebar control-sidebar-dark control-sidebar-open block-sidebar">

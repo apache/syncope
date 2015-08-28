@@ -18,6 +18,9 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import de.agilecoders.wicket.extensions.markup.html.bootstrap.behavior.Draggable;
+import de.agilecoders.wicket.extensions.markup.html.bootstrap.behavior.DraggableConfig;
+import de.agilecoders.wicket.extensions.markup.html.bootstrap.behavior.Resizable;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -28,9 +31,9 @@ import java.util.List;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.GroupDisplayAttributesModalPage;
 import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
-import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AttrColumn;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
@@ -59,18 +62,28 @@ public class GroupSearchResultPanel extends AnySearchResultPanel {
 
     private final String entitlement = "GROUP_READ";
 
-    public GroupSearchResultPanel(final String type, final String parentId, final String markupId,
+    private final BaseModal<AbstractModalPanel> editModal;
+
+    public GroupSearchResultPanel(final String type, final String parentId,
             final boolean filtered, final String fiql, final PageReference callerRef,
             final AbstractAnyRestClient restClient, final List<AnyTypeClassTO> anyTypeClassTOs, final String realm) {
 
-        super(type, parentId, markupId, filtered, fiql, callerRef, restClient, anyTypeClassTOs, realm);
+        super(type, parentId, filtered, fiql, callerRef, restClient, anyTypeClassTOs, realm);
+
+        editModal = new BaseModal<>("editModal");
+        editModal.add(new Resizable().withChildSelector(".modal-content"));
+        editModal.add(new Draggable(new DraggableConfig().withHandle(".modal-header").withCursor("move")));
+        editModal.setUseKeyboard(true).addCloseButton();
+        editModal.setFadeIn(true);
+        editModal.setFooterVisible(true);
+        editModal.setHeaderVisible(true);
+        editModal.setOutputMarkupId(true);
     }
 
     @Override
     protected List<IColumn<AnyTO, String>> getColumns() {
 
-        final List<IColumn<AnyTO, String>> columns =
-                new ArrayList<IColumn<AnyTO, String>>();
+        final List<IColumn<AnyTO, String>> columns = new ArrayList<>();
 
         for (String name : prefMan.getList(getRequest(), Constants.PREF_GROUP_DETAILS_VIEW)) {
             final Field field = ReflectionUtils.findField(GroupTO.class, name);
@@ -84,7 +97,7 @@ public class GroupSearchResultPanel extends AnySearchResultPanel {
                         new PropertyColumn<AnyTO, String>(new ResourceModel(name, name), name, name));
             }
         }
-        
+
         for (String name : prefMan.getList(getRequest(), Constants.PREF_GROUP_ATTRIBUTES_VIEW)) {
             if (schemaNames.contains(name)) {
                 columns.add(new AttrColumn(name, SchemaType.PLAIN));
@@ -116,26 +129,18 @@ public class GroupSearchResultPanel extends AnySearchResultPanel {
             public ActionLinksPanel getActions(final String componentId, final IModel<AnyTO> model) {
 
                 final ActionLinksPanel.Builder<AnyTO> panel = ActionLinksPanel.builder(page.getPageReference());
-                
+
                 panel.add(new ActionLink<AnyTO>() {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final AnyTO anyTO) {
-                        editmodal.setPageCreator(new ModalWindow.PageCreator() {
+                        editModal.addOrReplace(new GroupModalPanel(
+                                BaseModal.getModalContentId(), editModal, (GroupTO) model.getObject()));
 
-                            private static final long serialVersionUID = -7834632442532690940L;
-
-                            @Override
-                            public Page createPage() {
-                                // SYNCOPE-294: re-read groupTO before edit
-                                GroupTO groupTO = ((GroupRestClient) restClient).read(model.getObject().getKey());
-                                return null;
-                            }
-                        });
-
-                        editmodal.show(target);
+                        target.add(editModal);
+                        editModal.show(target);
                     }
                 }, ActionLink.ActionType.EDIT, entitlement).add(new ActionLink<AnyTO>() {
 
@@ -147,19 +152,12 @@ public class GroupSearchResultPanel extends AnySearchResultPanel {
                             final GroupTO groupTO = (GroupTO) restClient.
                                     delete(model.getObject().getETagValue(), model.getObject().getKey());
 
-                            page.setModalResult(true);
-
-                            editmodal.setPageCreator(new ModalWindow.PageCreator() {
-
-                                private static final long serialVersionUID = -7834632442532690940L;
-
-                                @Override
-                                public Page createPage() {
-                                    return null;
-                                }
-                            });
-
-                            editmodal.show(target);
+                            //editmodal.setContent(new ResultStatusModal.Builder(editmodal, groupTO).build());
+//                            editModal.addOrReplace(new GroupModalPanel(
+//                                    BaseModal.getModalContentId(), editModal, (GroupTO) model.getObject()));
+//
+//                            target.add(editModal);
+//                            editModal.show(target);
                         } catch (SyncopeClientException scce) {
                             error(getString(Constants.OPERATION_ERROR) + ": " + scce.getMessage());
                             feedbackPanel.refresh(target);
@@ -216,7 +214,7 @@ public class GroupSearchResultPanel extends AnySearchResultPanel {
 
     @Override
     protected <T extends AnyTO> Collection<ActionLink.ActionType> getBulkActions() {
-        final List<ActionType> bulkActions = new ArrayList<ActionType>();
+        final List<ActionType> bulkActions = new ArrayList<>();
 
         bulkActions.add(ActionType.DELETE);
         bulkActions.add(ActionType.SUSPEND);

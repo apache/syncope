@@ -18,6 +18,10 @@
  */
 package org.apache.syncope.client.console;
 
+import de.agilecoders.wicket.core.Bootstrap;
+import de.agilecoders.wicket.core.settings.BootstrapSettings;
+import de.agilecoders.wicket.core.settings.IBootstrapSettings;
+import de.agilecoders.wicket.core.settings.SingleThemeProvider;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -29,6 +33,7 @@ import org.apache.syncope.client.console.pages.Login;
 import org.apache.syncope.client.console.resources.FilesystemResource;
 import org.apache.syncope.client.console.resources.WorkflowDefGETResource;
 import org.apache.syncope.client.console.resources.WorkflowDefPUTResource;
+import org.apache.syncope.client.console.themes.AdminLTE;
 import org.apache.wicket.Page;
 import org.apache.wicket.authroles.authentication.AbstractAuthenticatedWebSession;
 import org.apache.wicket.authroles.authentication.AuthenticatedWebApplication;
@@ -61,7 +66,12 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
     @Override
     protected void init() {
         super.init();
+        IBootstrapSettings settings = new BootstrapSettings();
+        settings.setThemeProvider(new SingleThemeProvider(new AdminLTE()));
+        Bootstrap.install(this, settings);
 
+        // best place to do this is in Application#init()
+        //Bootstrap.install(this);
         getComponentInstantiationListeners().add(new SpringComponentInjector(this));
         getResourceSettings().setThrowExceptionOnMissingResource(true);
         getJavaScriptLibrarySettings().setJQueryReference(new DynamicJQueryResourceReference());

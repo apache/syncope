@@ -22,8 +22,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AjaxFallbackDataTable;
 import org.apache.wicket.Component;
-import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.DataGridView;
 import org.apache.wicket.markup.html.form.CheckGroup;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -43,7 +43,7 @@ public abstract class DataTablePanel<T, S> extends Panel {
 
     protected CheckGroup<T> group;
 
-    protected AjaxFallbackDefaultDataTable<T, S> dataTable;
+    protected AjaxFallbackDataTable<T, S> dataTable;
 
     protected IModel<Collection<T>> model;
 

@@ -270,7 +270,8 @@ public abstract class AbstractSearchResultPanel extends Panel implements IEventS
                 restClient,
                 "key",
                 getPageId(),
-                page.getPageReference());
+                page.getPageReference(),
+                container);
 
         resultTable.setCurrentPage(currentPage);
 

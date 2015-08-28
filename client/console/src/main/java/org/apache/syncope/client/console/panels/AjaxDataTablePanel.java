@@ -28,6 +28,7 @@ import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.CheckGroupColumn;
 import org.apache.syncope.client.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
 import org.apache.syncope.client.console.pages.BulkActionModalPage;
+import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AjaxFallbackDataTable;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Page;
 import org.apache.wicket.PageReference;
@@ -35,9 +36,9 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.ISortableDataProvider;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.CheckGroup;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Fragment;
@@ -55,7 +56,8 @@ public class AjaxDataTablePanel<T, S> extends DataTablePanel<T, S> {
             final BaseRestClient bulkActionExecutor,
             final String itemKeyField,
             final String pageId,
-            final PageReference pageRef) {
+            final PageReference pageRef,
+            final WebMarkupContainer container) {
 
         super(id);
 
@@ -110,10 +112,9 @@ public class AjaxDataTablePanel<T, S> extends DataTablePanel<T, S> {
         bulkActionForm.add(group);
 
         columns.add(0, new CheckGroupColumn<T, S>(group));
-        dataTable = new AjaxFallbackDefaultDataTable<>("dataTable", columns, dataProvider, rowsPerPage);
-        dataTable.add(new AttributeModifier("class",
-                "ui-widget ui-widget-content table-hover table table-striped table-bordered"));
-
+        dataTable = new AjaxFallbackDataTable<>("dataTable", columns, dataProvider, rowsPerPage, container);
+        dataTable.add(new AttributeModifier("class", "table table-bordered table-hover dataTable"));
+        
         group.add(dataTable);
 
         fragment.add(new ClearIndicatingAjaxButton("bulkActionLink", bulkActionForm, pageRef) {
