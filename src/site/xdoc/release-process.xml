@@ -136,7 +136,7 @@ git push]]></source>
             Update the <source>downloads.xml</source> site page from a GIT local clone:
             <ul>
               <li>add new release artifacts with base URL
-                <source>http://www.apache.org/dyn/closer.cgi/syncope/&lt;version&gt;/</source>
+                <source>http://www.apache.org/dyn/closer.lua/syncope/&lt;version&gt;/</source>
               </li>
               <li>move current release artifacts to 'Older Releases' section and change base URL to 
                 <source>http://archive.apache.org/dist/syncope/</source>
