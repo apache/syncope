@@ -75,7 +75,7 @@ under the License.
           <tbody>
             <tr>
               <td>
-                <a href="http://www.apache.org/dyn/closer.cgi/syncope/1.2.5/syncope-1.2.5-source-release.zip">syncope-1.2.5-source-release.zip</a>
+                <a href="http://www.apache.org/dyn/closer.lua/syncope/1.2.5/syncope-1.2.5-source-release.zip">syncope-1.2.5-source-release.zip</a>
               </td>
               <td>
                 <a href="http://www.apache.org/dist/syncope/1.2.5/syncope-1.2.5-source-release.zip.asc">asc</a> 
@@ -85,7 +85,7 @@ under the License.
             </tr>
             <tr>
               <td>
-                <a href="http://www.apache.org/dyn/closer.cgi/syncope/1.2.5/syncope-standalone-1.2.5-distribution.zip">syncope-standalone-1.2.5-distribution.zip</a>
+                <a href="http://www.apache.org/dyn/closer.lua/syncope/1.2.5/syncope-standalone-1.2.5-distribution.zip">syncope-standalone-1.2.5-distribution.zip</a>
               </td>
               <td>
                 <a href="http://www.apache.org/dist/syncope/1.2.5/syncope-standalone-1.2.5-distribution.zip.asc">asc</a> 
@@ -95,7 +95,7 @@ under the License.
             </tr>
             <tr>
               <td>
-                <a href="http://www.apache.org/dyn/closer.cgi/syncope/1.2.5/syncope-installer-1.2.5-uber.jar">syncope-installer-1.2.5.jar</a>
+                <a href="http://www.apache.org/dyn/closer.lua/syncope/1.2.5/syncope-installer-1.2.5-uber.jar">syncope-installer-1.2.5.jar</a>
               </td>
               <td>
                 <a href="http://www.apache.org/dist/syncope/1.2.5/syncope-installer-1.2.5-uber.jar.asc">asc</a> 
@@ -105,7 +105,7 @@ under the License.
             </tr>
             <tr>
               <td>
-                <a href="http://www.apache.org/dyn/closer.cgi/syncope/1.2.5/apache-syncope-1.2.5.deb">apache-syncope-1.2.5.deb</a>
+                <a href="http://www.apache.org/dyn/closer.lua/syncope/1.2.5/apache-syncope-1.2.5.deb">apache-syncope-1.2.5.deb</a>
               </td>
               <td>
                 <a href="http://www.apache.org/dist/syncope/1.2.5/apache-syncope-1.2.5.deb.asc">asc</a> 
@@ -115,7 +115,7 @@ under the License.
             </tr>
             <tr>
               <td>
-                <a href="http://www.apache.org/dyn/closer.cgi/syncope/1.2.5/apache-syncope-console-1.2.5.deb">apache-syncope-console-1.2.5.deb</a>
+                <a href="http://www.apache.org/dyn/closer.lua/syncope/1.2.5/apache-syncope-console-1.2.5.deb">apache-syncope-console-1.2.5.deb</a>
               </td>
               <td>
                 <a href="http://www.apache.org/dist/syncope/1.2.5/apache-syncope-console-1.2.5.deb.asc">asc</a> 
@@ -141,7 +141,7 @@ under the License.
           <tbody>
             <tr>
               <td>
-                <a href="http://www.apache.org/dyn/closer.cgi/syncope/1.1.8/syncope-1.1.8-source-release.zip">syncope-1.1.8-source-release.zip</a>
+                <a href="http://www.apache.org/dyn/closer.lua/syncope/1.1.8/syncope-1.1.8-source-release.zip">syncope-1.1.8-source-release.zip</a>
               </td>
               <td>
                 <a href="http://www.apache.org/dist/syncope/1.1.8/syncope-1.1.8-source-release.zip.asc">asc</a> 
@@ -151,7 +151,7 @@ under the License.
             </tr>
             <tr>
               <td>
-                <a href="http://www.apache.org/dyn/closer.cgi/syncope/1.1.8/syncope-standalone-1.1.8-distribution.zip">syncope-standalone-1.1.8-distribution.zip</a>
+                <a href="http://www.apache.org/dyn/closer.lua/syncope/1.1.8/syncope-standalone-1.1.8-distribution.zip">syncope-standalone-1.1.8-distribution.zip</a>
               </td>
               <td>
                 <a href="http://www.apache.org/dist/syncope/1.1.8/syncope-standalone-1.1.8-distribution.zip.asc">asc</a> 
@@ -177,7 +177,7 @@ under the License.
           <tbody>
             <tr>
               <td>
-                <a href="http://www.apache.org/dyn/closer.cgi/syncope/1.0.9/syncope-root-1.0.9-source-release.zip">syncope-root-1.0.9-source-release.zip</a>
+                <a href="http://www.apache.org/dyn/closer.lua/syncope/1.0.9/syncope-root-1.0.9-source-release.zip">syncope-root-1.0.9-source-release.zip</a>
               </td>
               <td>
                 <a href="http://www.apache.org/dist/syncope/1.0.9/syncope-root-1.0.9-source-release.zip.asc">asc</a> 
