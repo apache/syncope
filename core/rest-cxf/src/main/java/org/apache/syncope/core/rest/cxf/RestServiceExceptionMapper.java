@@ -133,7 +133,7 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
                 // process JAX-RS validation errors
                 if (builder == null && ex instanceof ValidationException) {
                     builder = builder(validationEM.toResponse((ValidationException) ex)).
-                            header(RESTHeaders.ERROR_CODE, ClientExceptionType.RESTValidation.getHeaderValue()).
+                            header(RESTHeaders.ERROR_CODE, ClientExceptionType.RESTValidation.name()).
                             header(RESTHeaders.ERROR_INFO, ClientExceptionType.RESTValidation.getInfoHeaderValue(
                                             ExceptionUtils.getRootCauseMessage(ex)));
 
@@ -171,7 +171,7 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
 
     private ResponseBuilder getSyncopeClientExceptionResponse(final SyncopeClientException ex) {
         ResponseBuilder builder = Response.status(ex.getType().getResponseStatus());
-        builder.header(RESTHeaders.ERROR_CODE, ex.getType().getHeaderValue());
+        builder.header(RESTHeaders.ERROR_CODE, ex.getType().name());
 
         ErrorTO error = new ErrorTO();
         error.setStatus(ex.getType().getResponseStatus().getStatusCode());
@@ -194,7 +194,7 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
 
         List<ErrorTO> errors = new ArrayList<>();
         for (SyncopeClientException sce : ex.getExceptions()) {
-            builder.header(RESTHeaders.ERROR_CODE, sce.getType().getHeaderValue());
+            builder.header(RESTHeaders.ERROR_CODE, sce.getType().name());
 
             ErrorTO error = new ErrorTO();
             error.setStatus(sce.getType().getResponseStatus().getStatusCode());
@@ -237,7 +237,7 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
                     : ClientExceptionType.valueOf("Invalid" + iee.getEntityClassSimpleName());
 
             ResponseBuilder builder = Response.status(Response.Status.BAD_REQUEST);
-            builder.header(RESTHeaders.ERROR_CODE, exType.getHeaderValue());
+            builder.header(RESTHeaders.ERROR_CODE, exType.name());
 
             ErrorTO error = new ErrorTO();
             error.setStatus(exType.getResponseStatus().getStatusCode());
@@ -295,7 +295,7 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
 
     private ResponseBuilder builder(final ClientExceptionType hType, final String msg) {
         ResponseBuilder builder = Response.status(hType.getResponseStatus()).
-                header(RESTHeaders.ERROR_CODE, hType.getHeaderValue()).
+                header(RESTHeaders.ERROR_CODE, hType.name()).
                 header(RESTHeaders.ERROR_INFO, hType.getInfoHeaderValue(msg));
 
         ErrorTO error = new ErrorTO();
