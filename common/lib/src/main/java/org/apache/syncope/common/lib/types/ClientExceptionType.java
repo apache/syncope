@@ -80,7 +80,7 @@ public enum ClientExceptionType {
     public static ClientExceptionType fromHeaderValue(final String exceptionTypeHeaderValue) {
         ClientExceptionType result = null;
         for (ClientExceptionType type : values()) {
-            if (exceptionTypeHeaderValue.equals(type.getHeaderValue())) {
+            if (exceptionTypeHeaderValue.equals(type.name())) {
                 result = type;
             }
         }
@@ -92,12 +92,8 @@ public enum ClientExceptionType {
         return result;
     }
 
-    public String getHeaderValue() {
-        return name();
-    }
-
     public String getInfoHeaderValue(final String value) {
-        return getHeaderValue() + ":" + value;
+        return name() + ":" + value;
     }
 
     public Response.Status getResponseStatus() {

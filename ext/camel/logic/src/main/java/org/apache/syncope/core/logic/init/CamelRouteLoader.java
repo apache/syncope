@@ -19,23 +19,19 @@
 package org.apache.syncope.core.logic.init;
 
 import java.io.StringWriter;
-import java.util.List;
 import java.util.Map;
 import javax.sql.DataSource;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.misc.spring.ResourceWithFallbackLoader;
 import org.apache.syncope.core.persistence.api.DomainsHolder;
 import org.apache.syncope.core.persistence.api.SyncopeLoader;
-import org.apache.syncope.core.persistence.api.entity.CamelEntityFactory;
 import org.apache.syncope.core.persistence.api.entity.CamelRoute;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
-import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -63,9 +59,6 @@ public class CamelRouteLoader implements SyncopeLoader {
     @Autowired
     private DomainsHolder domainsHolder;
 
-    @Autowired
-    private CamelEntityFactory entityFactory;
-
     private boolean loaded = false;
 
     @Override
@@ -73,7 +66,6 @@ public class CamelRouteLoader implements SyncopeLoader {
         return 1000;
     }
 
-    @Transactional
     @Override
     public void load() {
         synchronized (this) {
@@ -89,13 +81,6 @@ public class CamelRouteLoader implements SyncopeLoader {
                 loaded = true;
             }
         }
-    }
-
-    private boolean loadRoutesFor(final DataSource dataSource, final AnyTypeKind anyTypeKind) {
-        final String sql = String.format("SELECT * FROM %s WHERE ANYTYPEKIND = ?", CamelRoute.class.getSimpleName());
-        final JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-        final List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql, new Object[] { anyTypeKind.name() });
-        return rows.isEmpty();
     }
 
     private String nodeToString(final Node content, final DOMImplementationLS domImpl) {
@@ -115,11 +100,13 @@ public class CamelRouteLoader implements SyncopeLoader {
     private void loadRoutes(
             final String domain, final DataSource dataSource, final Resource resource, final AnyTypeKind anyTypeKind) {
 
-        if (loadRoutesFor(dataSource, anyTypeKind)) {
-            String query = String.format("INSERT INTO %s(NAME, ANYTYPEKIND, CONTENT) VALUES (?, ?, ?)",
-                    CamelRoute.class.getSimpleName());
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        boolean shouldLoadRoutes = jdbcTemplate.queryForList(
+                String.format("SELECT * FROM %s WHERE ANYTYPEKIND = ?", CamelRoute.class.getSimpleName()),
+                new Object[] { anyTypeKind.name() }).
+                isEmpty();
 
+        if (shouldLoadRoutes) {
             try {
                 DOMImplementationRegistry reg = DOMImplementationRegistry.newInstance();
                 DOMImplementationLS domImpl = (DOMImplementationLS) reg.getDOMImplementation("LS");
@@ -134,18 +121,14 @@ public class CamelRouteLoader implements SyncopeLoader {
                     String routeContent = nodeToString(routeNodes.item(s), domImpl);
                     String routeId = ((Element) routeElement).getAttribute("id");
 
-                    CamelRoute route = entityFactory.newCamelRoute();
-                    route.setAnyTypeKind(anyTypeKind);
-                    route.setKey(routeId);
-                    route.setContent(routeContent);
-
-                    jdbcTemplate.update(query, new Object[] { routeId, anyTypeKind.name(), routeContent });
+                    jdbcTemplate.update(
+                            String.format("INSERT INTO %s(NAME, ANYTYPEKIND, CONTENT) VALUES (?, ?, ?)",
+                                    CamelRoute.class.getSimpleName()),
+                            new Object[] { routeId, anyTypeKind.name(), routeContent });
                     LOG.info("[{}] Route successfully loaded: {}", domain, routeId);
                 }
-            } catch (DataAccessException e) {
-                LOG.error("[{}] While trying to store queries", domain, e);
             } catch (Exception e) {
-                LOG.error("[{}] Route load failed {}", domain, e.getMessage());
+                LOG.error("[{}] Route load failed", domain, e);
             }
         }
     }

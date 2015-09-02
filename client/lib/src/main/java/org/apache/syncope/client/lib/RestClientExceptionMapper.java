@@ -19,10 +19,12 @@
 package org.apache.syncope.client.lib;
 
 import java.security.AccessControlException;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.ws.rs.BadRequestException;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
@@ -31,6 +33,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.client.ResponseExceptionMapper;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.to.ErrorTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.slf4j.Logger;
@@ -55,11 +58,9 @@ public class RestClientExceptionMapper implements ExceptionMapper<Exception>, Re
         SyncopeClientCompositeException scce = checkSyncopeClientCompositeException(response);
         if (scce != null) {
             // 1. Check for client (possibly composite) exception in HTTP header
-            if (scce.getExceptions().size() == 1) {
-                ex = scce.getExceptions().iterator().next();
-            } else {
-                ex = scce;
-            }
+            ex = scce.getExceptions().size() == 1
+                    ? scce.getExceptions().iterator().next()
+                    : scce;
         } else if (statusCode == Response.Status.UNAUTHORIZED.getStatusCode()) {
             // 2. Map SC_UNAUTHORIZED
             ex = new AccessControlException("Remote unauthorized exception");
@@ -76,42 +77,69 @@ public class RestClientExceptionMapper implements ExceptionMapper<Exception>, Re
     }
 
     private SyncopeClientCompositeException checkSyncopeClientCompositeException(final Response response) {
-        List<String> exTypesInHeaders = response.getStringHeaders().get(RESTHeaders.ERROR_CODE);
-        if (exTypesInHeaders == null) {
-            LOG.debug("No " + RESTHeaders.ERROR_CODE + " provided");
-            return null;
-        }
-        List<String> exInfos = response.getStringHeaders().get(RESTHeaders.ERROR_INFO);
+        SyncopeClientCompositeException compException = SyncopeClientException.buildComposite();
 
-        final SyncopeClientCompositeException compException = SyncopeClientException.buildComposite();
-
-        Set<String> handledExceptions = new HashSet<>();
-        for (String exTypeAsString : exTypesInHeaders) {
-            ClientExceptionType exceptionType = null;
-            try {
-                exceptionType = ClientExceptionType.fromHeaderValue(exTypeAsString);
-            } catch (IllegalArgumentException e) {
-                LOG.error("Unexpected value of " + RESTHeaders.ERROR_CODE + ": " + exTypeAsString, e);
+        // Attempts to read ErrorTO or List<ErrorTO> as entity...
+        List<ErrorTO> errors = null;
+        try {
+            ErrorTO error = response.readEntity(ErrorTO.class);
+            if (error != null) {
+                errors = Collections.singletonList(error);
             }
-            if (exceptionType != null) {
-                handledExceptions.add(exTypeAsString);
+        } catch (Exception e) {
+            LOG.debug("Could not read {}, attempting to read composite...", ErrorTO.class.getName(), e);
+        }
+        if (errors == null) {
+            try {
+                errors = response.readEntity(new GenericType<List<ErrorTO>>() {
+                });
+            } catch (Exception e) {
+                LOG.debug("Could not read {} list, attempting to read headers...", ErrorTO.class.getName(), e);
+            }
+        }
 
-                final SyncopeClientException clientException = SyncopeClientException.build(exceptionType);
+        // ...if not possible, attempts to parse response headers
+        if (errors == null) {
+            List<String> exTypesInHeaders = response.getStringHeaders().get(RESTHeaders.ERROR_CODE);
+            if (exTypesInHeaders == null) {
+                LOG.debug("No " + RESTHeaders.ERROR_CODE + " provided");
+                return null;
+            }
+            List<String> exInfos = response.getStringHeaders().get(RESTHeaders.ERROR_INFO);
 
-                if (exInfos != null && !exInfos.isEmpty()) {
-                    for (String element : exInfos) {
-                        if (element.startsWith(exceptionType.getHeaderValue())) {
-                            clientException.getElements().add(StringUtils.substringAfter(element, ":"));
+            Set<String> handledExceptions = new HashSet<>();
+            for (String exTypeAsString : exTypesInHeaders) {
+                ClientExceptionType exceptionType = null;
+                try {
+                    exceptionType = ClientExceptionType.fromHeaderValue(exTypeAsString);
+                } catch (IllegalArgumentException e) {
+                    LOG.error("Unexpected value of " + RESTHeaders.ERROR_CODE + ": " + exTypeAsString, e);
+                }
+                if (exceptionType != null) {
+                    handledExceptions.add(exTypeAsString);
+
+                    SyncopeClientException clientException = SyncopeClientException.build(exceptionType);
+                    if (exInfos != null && !exInfos.isEmpty()) {
+                        for (String element : exInfos) {
+                            if (element.startsWith(exceptionType.name())) {
+                                clientException.getElements().add(StringUtils.substringAfter(element, ":"));
+                            }
                         }
                     }
+                    compException.addException(clientException);
                 }
+            }
+
+            exTypesInHeaders.removeAll(handledExceptions);
+            if (!exTypesInHeaders.isEmpty()) {
+                LOG.error("Unmanaged exceptions: " + exTypesInHeaders);
+            }
+        } else {
+            for (ErrorTO error : errors) {
+                SyncopeClientException clientException = SyncopeClientException.build(error.getType());
+                clientException.getElements().addAll(error.getElements());
                 compException.addException(clientException);
             }
-        }
-
-        exTypesInHeaders.removeAll(handledExceptions);
-        if (!exTypesInHeaders.isEmpty()) {
-            LOG.error("Unmanaged exceptions: " + exTypesInHeaders);
         }
 
         if (compException.hasExceptions()) {
