@@ -122,7 +122,7 @@ class SearchSupport {
 
     public SearchView dyngroupmembership() {
         String kind = anyTypeKind == AnyTypeKind.USER ? "u" : "a";
-        return new SearchView("sv" + kind + "dgm", field().name + "_" + kind + "dyngroupmembership");
+        return new SearchView("sv" + kind + "dgm", field().name + "_" + kind + "dyngmemb");
     }
 
     public SearchView role() {
@@ -130,7 +130,7 @@ class SearchSupport {
     }
 
     public SearchView dynrolemembership() {
-        return new SearchView("svdr", field().name + "_dynrolemembership");
+        return new SearchView("svdr", field().name + "_dynrmemb");
     }
 
     public SearchView nullAttr() {
@@ -142,7 +142,7 @@ class SearchSupport {
     }
 
     public SearchView groupResource() {
-        return new SearchView("svrr", field().name + "_group_resource");
+        return new SearchView("svrr", field().name + "_group_res");
     }
 
     public SearchView uniqueAttr() {
