@@ -159,6 +159,7 @@ public class FileSystemUtils {
 
     public void copyFileFromResources(final String filePath,
             final String destination, final AbstractUIProcessHandler handler) {
+
         try {
             final URL url = getClass().getResource(filePath);
             final File dest = new File(destination);

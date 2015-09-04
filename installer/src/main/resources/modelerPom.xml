@@ -27,7 +27,7 @@ under the License.
   <packaging>jar</packaging>
    
   <properties>
-    <activiti.version>5.17</activiti.version>
+    <activiti.version>5.18.0</activiti.version>
     <activiti-modeler.directory>${modeler.directory}</activiti-modeler.directory>
      
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

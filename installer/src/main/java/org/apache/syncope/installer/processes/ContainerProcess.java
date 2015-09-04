@@ -31,7 +31,7 @@ import org.apache.syncope.installer.containers.jboss.JBoss;
 import org.apache.syncope.installer.enums.Containers;
 import org.apache.syncope.installer.files.ConsoleProperties;
 import org.apache.syncope.installer.files.GlassfishCoreWebXml;
-import org.apache.syncope.installer.files.PersistenceContextEMFactoryXml;
+import org.apache.syncope.installer.files.MasterDomainXml;
 import org.apache.syncope.installer.utilities.InstallLog;
 import org.apache.syncope.installer.utilities.MavenUtils;
 import org.xml.sax.SAXException;
@@ -104,12 +104,12 @@ public final class ContainerProcess extends BaseProcess {
 
     private boolean mavenProxyAutoconf;
 
+    @Override
     public void run(final AbstractUIProcessHandler handler, final String[] args) {
-
         installPath = args[0];
         mavenDir = args[1];
         artifactId = args[2];
-        final Containers selectedContainer = Containers.fromContainerName(args[3]);
+        Containers selectedContainer = Containers.fromContainerName(args[3]);
         tomcatSsl = Boolean.valueOf(args[4]);
         tomcatHost = args[5];
         tomcatPort = args[6];
@@ -135,34 +135,26 @@ public final class ContainerProcess extends BaseProcess {
         proxyPort = args[26];
         proxyUser = args[27];
         proxyPwd = args[28];
-        mavenProxyAutoconf = Boolean.valueOf(args[28]);
-
-        final FileSystemUtils fileSystemUtils = new FileSystemUtils(handler);
+        mavenProxyAutoconf = Boolean.valueOf(args[29]);
 
         handler.logOutput("Configure web.xml file according to " + selectedContainer + " properties", true);
         InstallLog.getInstance().info("Configure web.xml file according to " + selectedContainer + " properties");
 
+        FileSystemUtils fileSystemUtils = new FileSystemUtils(handler);
         setSyncopeInstallDir(installPath, artifactId);
 
-        if (withDataSource) {
-            switch (selectedContainer) {
-                case GLASSFISH:
-                    final File glassfishCoreWebXmlFile =
-                            new File(syncopeInstallDir + PROPERTIES.getProperty("glassfishCoreWebXmlFile"));
-                    final String contentGlassfishWebXmlFile = fileSystemUtils.readFile(glassfishCoreWebXmlFile);
-                    fileSystemUtils.writeToFile(glassfishCoreWebXmlFile,
-                            contentGlassfishWebXmlFile.replace(GlassfishCoreWebXml.PLACEHOLDER,
-                                    GlassfishCoreWebXml.DATA_SOURCE));
-                    break;
-
-                default:
-            }
+        if (withDataSource && selectedContainer == Containers.GLASSFISH) {
+            File glassfishCoreWebXmlFile =
+                    new File(syncopeInstallDir + PROPERTIES.getProperty("glassfishCoreWebXmlFile"));
+            String contentGlassfishWebXmlFile = fileSystemUtils.readFile(glassfishCoreWebXmlFile);
+            fileSystemUtils.writeToFile(glassfishCoreWebXmlFile,
+                    contentGlassfishWebXmlFile.replace(GlassfishCoreWebXml.PLACEHOLDER,
+                            GlassfishCoreWebXml.DATA_SOURCE));
         }
 
-        final File consolePropertiesFile = new File(syncopeInstallDir
-                + PROPERTIES.getProperty("consoleResDirectory")
+        File consolePropertiesFile = new File(syncopeInstallDir + PROPERTIES.getProperty("consoleResDirectory")
                 + File.separator + PROPERTIES.getProperty("consolePropertiesFile"));
-        final String contentConsolePropertiesFile = fileSystemUtils.readFile(consolePropertiesFile);
+        String contentConsolePropertiesFile = fileSystemUtils.readFile(consolePropertiesFile);
 
         final String scheme;
         final String host;
@@ -194,49 +186,40 @@ public final class ContainerProcess extends BaseProcess {
                 contentConsolePropertiesFile.replace(ConsoleProperties.PLACEHOLDER,
                         String.format(ConsoleProperties.CONSOLE, scheme, host, port)));
 
-        final MavenUtils mavenUtils = new MavenUtils(mavenDir, handler);
+        MavenUtils mavenUtils = new MavenUtils(mavenDir, handler);
         File customMavenProxySettings = null;
         try {
             if (isProxyEnabled && mavenProxyAutoconf) {
-                customMavenProxySettings = MavenUtils.createSettingsWithProxy(installPath, proxyHost, proxyPort,
-                        proxyUser, proxyPwd);
+                customMavenProxySettings = MavenUtils.createSettingsWithProxy(
+                        installPath, proxyHost, proxyPort, proxyUser, proxyPwd);
             }
-        } catch (IOException ex) {
-            final StringBuilder messageError = new StringBuilder(
-                    "I/O error during creation of Maven custom settings.xml");
-            final String emittedError = messageError.toString();
-            handler.emitError(emittedError, emittedError);
-            InstallLog.getInstance().error(messageError.append(ex.getMessage() == null ? "" : ex.getMessage()).
-                    toString());
-        } catch (ParserConfigurationException ex) {
-            final StringBuilder messageError = new StringBuilder(
+        } catch (IOException e) {
+            StringBuilder message = new StringBuilder("I/O error during creation of Maven custom settings.xml");
+            handler.emitError(message.toString(), e.getMessage());
+            InstallLog.getInstance().error(message.append('\n').append(e.getMessage()).toString());
+        } catch (ParserConfigurationException e) {
+            StringBuilder message = new StringBuilder(
                     "Parser configuration error during creation of Maven custom settings.xml");
-            final String emittedError = messageError.toString();
-            handler.emitError(emittedError, emittedError);
-            InstallLog.getInstance().error(messageError.append(ex.getMessage() == null ? "" : ex.getMessage()).
-                    toString());
-        } catch (TransformerException ex) {
-            final StringBuilder messageError = new StringBuilder(
+            handler.emitError(message.toString(), e.getMessage());
+            InstallLog.getInstance().error(message.append('\n').append(e.getMessage()).toString());
+        } catch (TransformerException e) {
+            StringBuilder message = new StringBuilder(
                     "Transformer error during creation of Maven custom settings.xml");
-            final String emittedError = messageError.toString();
-            handler.emitError(emittedError, emittedError);
-            InstallLog.getInstance().error(messageError.append(ex.getMessage() == null ? "" : ex.getMessage()).
-                    toString());
-        } catch (SAXException ex) {
-            final StringBuilder messageError = new StringBuilder(
+            handler.emitError(message.toString(), e.getMessage());
+            InstallLog.getInstance().error(message.append('\n').append(e.getMessage()).toString());
+        } catch (SAXException e) {
+            StringBuilder message = new StringBuilder(
                     "XML parsing error during creation of Maven custom settings.xml");
-            final String emittedError = messageError.toString();
-            handler.emitError(emittedError, emittedError);
-            InstallLog.getInstance().error(messageError.append(ex.getMessage() == null ? "" : ex.getMessage()).
-                    toString());
+            handler.emitError(message.toString(), e.getMessage());
+            InstallLog.getInstance().error(message.append('\n').append(e.getMessage()).toString());
         }
 
-        final Properties mvnProperties = new Properties();
+        Properties mvnProperties = new Properties();
         mvnProperties.setProperty("conf.directory", confDirectory);
         mvnProperties.setProperty("log.directory", logsDirectory);
         mvnProperties.setProperty("bundles.directory", bundlesDirectory);
         mavenUtils.mvnCleanPackageWithProperties(
-                installPath + "/" + artifactId, mvnProperties, customMavenProxySettings);
+                installPath + File.separator + artifactId, mvnProperties, customMavenProxySettings);
 
         if (isProxyEnabled && mavenProxyAutoconf) {
             FileSystemUtils.delete(customMavenProxySettings);
@@ -244,7 +227,7 @@ public final class ContainerProcess extends BaseProcess {
 
         switch (selectedContainer) {
             case TOMCAT:
-                final Tomcat tomcat = new Tomcat(
+                Tomcat tomcat = new Tomcat(
                         tomcatSsl, tomcatHost, tomcatPort, installPath, artifactId, tomcatUser, tomcatPassword,
                         handler);
                 boolean deployCoreResult = tomcat.deployCore();
@@ -252,7 +235,7 @@ public final class ContainerProcess extends BaseProcess {
                     handler.logOutput("Core successfully deployed ", true);
                     InstallLog.getInstance().info("Core successfully deployed ");
                 } else {
-                    final String messageError = "Deploy core on Tomcat failed";
+                    String messageError = "Deploy core on Tomcat failed";
                     handler.emitError(messageError, messageError);
                     InstallLog.getInstance().error(messageError);
                 }
@@ -269,7 +252,7 @@ public final class ContainerProcess extends BaseProcess {
                 break;
 
             case JBOSS:
-                final JBoss jBoss = new JBoss(
+                JBoss jBoss = new JBoss(
                         jbossSsl, jbossHost, jbossManagementPort, jbossAdminUsername,
                         jbossAdminPassword, installPath, artifactId, handler);
 
@@ -295,10 +278,10 @@ public final class ContainerProcess extends BaseProcess {
                 break;
 
             case GLASSFISH:
-                final String createJavaOptCommand = "sh " + glassfishDir + Glassfish.CREATE_JAVA_OPT_COMMAND;
+                String createJavaOptCommand = "sh " + glassfishDir + Glassfish.CREATE_JAVA_OPT_COMMAND;
                 fileSystemUtils.exec(createJavaOptCommand, null);
 
-                final Glassfish glassfish = new Glassfish(installPath, artifactId);
+                Glassfish glassfish = new Glassfish(installPath, artifactId);
 
                 fileSystemUtils.exec("sh " + glassfishDir
                         + Glassfish.DEPLOY_COMMAND + glassfish.deployCore(), null);
@@ -312,20 +295,14 @@ public final class ContainerProcess extends BaseProcess {
 
     private void persistenceContextEMFactory(
             final FileSystemUtils fileSystemUtils, final AbstractUIProcessHandler handler) {
-        fileSystemUtils.copyFileFromResources("/jboss/persistenceContextEMFactory.xml",
-                syncopeInstallDir
-                + PROPERTIES.getProperty("persistenceContextEMFactoryFile"), handler);
-        final File persistenceContextEMFactoryFile = new File(
-                syncopeInstallDir + PROPERTIES.getProperty("persistenceContextEMFactoryFile"));
-        final String contentPersistenceContextEMFactory = fileSystemUtils.readFile(persistenceContextEMFactoryFile);
-        fileSystemUtils.writeToFile(
-                persistenceContextEMFactoryFile,
-                contentPersistenceContextEMFactory.replace(PersistenceContextEMFactoryXml.PLACEHOLDER,
-                        PersistenceContextEMFactoryXml.JBOSS));
+
+        fileSystemUtils.copyFileFromResources("/MasterDomain.xml",
+                syncopeInstallDir + PROPERTIES.getProperty("masterDomainFile"), handler);
+        File masterDomainFile = new File(
+                syncopeInstallDir + PROPERTIES.getProperty("masterDomainFile"));
+        String contentPersistenceContextEMFactory = fileSystemUtils.readFile(masterDomainFile);
+        fileSystemUtils.writeToFile(masterDomainFile,
+                contentPersistenceContextEMFactory.replace(MasterDomainXml.PLACEHOLDER, MasterDomainXml.JBOSS));
     }
 
-    private ContainerProcess() {
-        super();
-        // private constructor for static utility class
-    }
 }

@@ -20,12 +20,13 @@ package org.apache.syncope.installer.processes;
 
 import static org.apache.syncope.installer.processes.ArchetypeProcess.PROPERTIES;
 
+import com.izforge.izpack.panels.process.AbstractUIProcessHandler;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 import org.apache.commons.io.IOUtils;
 
-public class BaseProcess {
+public abstract class BaseProcess {
 
     protected static final Properties PROPERTIES = new Properties();
 
@@ -51,7 +52,6 @@ public class BaseProcess {
                 append("/").toString();
     }
 
-    protected BaseProcess() {
-        // protected constructor for static utility class
-    }
+    public abstract void run(AbstractUIProcessHandler handler, String[] args);
+
 }

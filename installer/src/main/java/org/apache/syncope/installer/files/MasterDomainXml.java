@@ -18,17 +18,18 @@
  */
 package org.apache.syncope.installer.files;
 
-public final class PersistenceContextEMFactoryXml {
+public final class MasterDomainXml {
 
-    public static final String PLACEHOLDER = "<entry key=\"openjpa.MetaDataFactory\"\n"
-            + "               value=\"jpa(URLs=vfs:${project.build.directory}/cargo/configurations/wildfly8x/"
-            + "deployments/${project.build.finalName}.war/WEB-INF/classes/, Resources=META-INF/orm.xml)\"/>";
+    public static final String PLACEHOLDER = ""
+            + "<entry key=\"openjpa.MetaDataFactory\" \n               "
+            + "value=\"jpa(URLs=vfs:${project.build.directory}/cargo/configurations/wildfly9x/deployments/syncope.war"
+            + "/WEB-INF/classes, Resources=${Master.orm})\"/>\n";
 
     public static final String JBOSS =
             "<entry key=\"openjpa.MetaDataFactory\" value=\"jpa(URLs=vfs:/content/${project.build.finalName}.war/"
-            + "WEB-INF/classes/, Resources=META-INF/orm.xml)\"/>";
+            + "WEB-INF/classes/, Resources=${Master.orm})\"/>";
 
-    private PersistenceContextEMFactoryXml() {
+    private MasterDomainXml() {
         // private constructor for static utility class
     }
 }
