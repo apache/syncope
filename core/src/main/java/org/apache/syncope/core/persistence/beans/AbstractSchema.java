@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.core.persistence.beans;
 
+import org.apache.syncope.common.types.AttributeSchemaType;
+
 public abstract class AbstractSchema extends AbstractBaseBean {
 
     private static final long serialVersionUID = 2251957673265528044L;
@@ -25,4 +27,10 @@ public abstract class AbstractSchema extends AbstractBaseBean {
     public abstract String getName();
 
     public abstract void setName(String name);
+
+    public abstract AttributeSchemaType getType();
+
+    public abstract boolean isMultivalue();
+
+    public abstract boolean isReadonly();
 }

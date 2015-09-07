@@ -43,10 +43,9 @@ import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 import org.apache.syncope.core.persistence.beans.AbstractAttributable;
 import org.apache.syncope.core.persistence.beans.AbstractDerAttr;
 import org.apache.syncope.core.persistence.beans.AbstractMappingItem;
-import org.apache.syncope.core.persistence.beans.AbstractNormalSchema;
+import org.apache.syncope.core.persistence.beans.AbstractSchema;
 import org.apache.syncope.core.persistence.beans.AbstractSubject;
 import org.apache.syncope.core.persistence.beans.AbstractVirAttr;
-import org.apache.syncope.core.persistence.beans.AbstractVirSchema;
 import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.persistence.beans.membership.MDerSchema;
 import org.apache.syncope.core.persistence.beans.membership.MSchema;
@@ -209,8 +208,8 @@ public final class MappingUtil {
             }
         }
 
-        final Attribute accountIdExtAttr =
-                AttributeUtil.find(attrUtil.getAccountIdItem(resource).getExtAttrName(), attributes);
+        final Attribute accountIdExtAttr = AttributeUtil.find(attrUtil.getAccountIdItem(resource).getExtAttrName(),
+                attributes);
         if (accountIdExtAttr != null) {
             attributes.remove(accountIdExtAttr);
             attributes.add(AttributeBuilder.build(attrUtil.getAccountIdItem(resource).getExtAttrName(), accountId));
@@ -287,7 +286,7 @@ public final class MappingUtil {
                 resource, mapItem, attributables, vAttrsToBeRemoved, vAttrsToBeUpdated, membVAttrsToBeRemoved,
                 membVAttrsToBeUpdated);
 
-        AbstractNormalSchema schema = null;
+        AbstractSchema schema = null;
         boolean readOnlyVirSchema = false;
         AttributeSchemaType schemaType;
         final Map.Entry<String, Attribute> result;
@@ -306,9 +305,9 @@ public final class MappingUtil {
             case RoleVirtualSchema:
             case MembershipVirtualSchema:
                 VirSchemaDAO virSchemaDAO = context.getBean(VirSchemaDAO.class);
-                AbstractVirSchema virSchema = virSchemaDAO.find(mapItem.getIntAttrName(),
+                schema = virSchemaDAO.find(mapItem.getIntAttrName(),
                         MappingUtil.getIntMappingTypeClass(mapItem.getIntMappingType()));
-                readOnlyVirSchema = (virSchema != null && virSchema.isReadonly());
+                readOnlyVirSchema = (schema != null && schema.isReadonly());
                 schemaType = AttributeSchemaType.String;
                 break;
 

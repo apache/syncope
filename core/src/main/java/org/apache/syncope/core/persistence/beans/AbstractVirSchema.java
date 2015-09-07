@@ -55,6 +55,7 @@ public abstract class AbstractVirSchema extends AbstractSchema {
         this.name = name;
     }
 
+    @Override
     public AttributeSchemaType getType() {
         return AttributeSchemaType.String;
     }
@@ -63,6 +64,7 @@ public abstract class AbstractVirSchema extends AbstractSchema {
         return Boolean.FALSE.toString().toLowerCase();
     }
 
+    @Override
     public boolean isMultivalue() {
         return Boolean.TRUE;
     }
@@ -71,6 +73,7 @@ public abstract class AbstractVirSchema extends AbstractSchema {
         return Boolean.FALSE;
     }
 
+    @Override
     public boolean isReadonly() {
         return isBooleanAsInteger(readonly);
     }

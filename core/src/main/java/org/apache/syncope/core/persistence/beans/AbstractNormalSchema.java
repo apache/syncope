@@ -115,6 +115,7 @@ public abstract class AbstractNormalSchema extends AbstractSchema {
         this.name = name;
     }
 
+    @Override
     public AttributeSchemaType getType() {
         return type;
     }
@@ -131,6 +132,7 @@ public abstract class AbstractNormalSchema extends AbstractSchema {
         this.mandatoryCondition = mandatoryCondition;
     }
 
+    @Override
     public boolean isMultivalue() {
         return isBooleanAsInteger(multivalue);
     }
@@ -147,6 +149,7 @@ public abstract class AbstractNormalSchema extends AbstractSchema {
         this.uniqueConstraint = getBooleanAsInteger(uniquevalue);
     }
 
+    @Override
     public boolean isReadonly() {
         return isBooleanAsInteger(readonly);
     }

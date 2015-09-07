@@ -54,6 +54,7 @@ public abstract class AbstractDerSchema extends AbstractSchema {
         this.expression = expression;
     }
 
+    @Override
     public AttributeSchemaType getType() {
         return AttributeSchemaType.String;
     }
@@ -62,6 +63,7 @@ public abstract class AbstractDerSchema extends AbstractSchema {
         return Boolean.FALSE.toString().toLowerCase();
     }
 
+    @Override
     public boolean isMultivalue() {
         return Boolean.TRUE;
     }
@@ -70,6 +72,7 @@ public abstract class AbstractDerSchema extends AbstractSchema {
         return Boolean.FALSE;
     }
 
+    @Override
     public boolean isReadonly() {
         return Boolean.FALSE;
     }
