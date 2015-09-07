@@ -66,7 +66,7 @@ public enum ClientExceptionType {
     RESTValidation(Response.Status.BAD_REQUEST),
     GroupOwnership(Response.Status.BAD_REQUEST),
     Scheduling(Response.Status.BAD_REQUEST),
-    Unauthorized(Response.Status.UNAUTHORIZED),
+    DelegatedAdministration(Response.Status.FORBIDDEN),
     UnallowedSchemas(Response.Status.BAD_REQUEST),
     Unknown(Response.Status.BAD_REQUEST),
     Workflow(Response.Status.BAD_REQUEST);

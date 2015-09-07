@@ -61,9 +61,14 @@ public class RestClientExceptionMapper implements ExceptionMapper<Exception>, Re
             ex = scce.getExceptions().size() == 1
                     ? scce.getExceptions().iterator().next()
                     : scce;
-        } else if (statusCode == Response.Status.UNAUTHORIZED.getStatusCode()) {
-            // 2. Map SC_UNAUTHORIZED
-            ex = new AccessControlException("Remote unauthorized exception");
+        } else if (statusCode == Response.Status.UNAUTHORIZED.getStatusCode()
+                || statusCode == Response.Status.FORBIDDEN.getStatusCode()) {
+
+            // 2. Map SC_UNAUTHORIZED and SC_FORBIDDEN
+            String message = response.getHeaderString(RESTHeaders.ERROR_INFO);
+            ex = new AccessControlException(StringUtils.isBlank(message)
+                    ? "Remote authorization exception"
+                    : message);
         } else if (statusCode == Response.Status.BAD_REQUEST.getStatusCode()) {
             // 3. Map SC_BAD_REQUEST
             ex = new BadRequestException();

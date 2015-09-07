@@ -128,7 +128,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
     private void setPassword(final User user, final String password, final SyncopeClientCompositeException scce) {
         try {
-            final String algorithm = confDAO.find(
+            String algorithm = confDAO.find(
                     "password.cipher.algorithm", CipherAlgorithm.AES.name()).getValues().get(0).getStringValue();
             CipherAlgorithm predefined = CipherAlgorithm.valueOf(algorithm);
             user.setPassword(password, predefined);
@@ -223,6 +223,8 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             }
         }
         user.setSecurityAnswer(userTO.getSecurityAnswer());
+
+        user.setMustChangePassword(userTO.isMustChangePassword());
     }
 
     private boolean isPasswordMapped(final ExternalResource resource) {
@@ -292,6 +294,8 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                 user.setSecurityAnswer(userMod.getSecurityAnswer());
             }
         }
+
+        user.setMustChangePassword(userMod.isMustChangePassword());
 
         // roles
         CollectionUtils.forAllDo(userMod.getRolesToRemove(), new Closure<Long>() {

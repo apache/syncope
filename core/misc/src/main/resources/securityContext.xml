@@ -53,11 +53,26 @@ under the License.
   <bean id="syncopeAuthenticationDetailsSource"
         class="org.apache.syncope.core.misc.security.SyncopeAuthenticationDetailsSource"/>
 
-  <security:http security-context-repository-ref="securityContextRepository" realm="Apache Syncope authentication" 
+  <bean id="mustChangePasswordFilter" class="org.apache.syncope.core.misc.security.MustChangePasswordFilter"/>
+      
+  <bean id="syncopeAuthenticationEntryPoint" 
+        class="org.apache.syncope.core.misc.security.SyncopeAuthenticationEntryPoint">
+    <property name="realmName" value="Apache Syncope authentication"/>
+  </bean>
+
+  <bean id="syncopeAccessDeniedHandler" class="org.apache.syncope.core.misc.security.SyncopeAccessDeniedHandler"/>
+  
+  <security:http security-context-repository-ref="securityContextRepository"
                  use-expressions="false" disable-url-rewriting="false">
-    <security:http-basic authentication-details-source-ref="syncopeAuthenticationDetailsSource"/>
+
+    <security:http-basic entry-point-ref="syncopeAuthenticationEntryPoint"
+                         authentication-details-source-ref="syncopeAuthenticationDetailsSource"/>
     <security:anonymous username="${anonymousUser}"/>
     <security:intercept-url pattern="/**"/>
+    
+    <security:custom-filter before="FILTER_SECURITY_INTERCEPTOR" ref="mustChangePasswordFilter"/>
+    
+    <security:access-denied-handler ref="syncopeAccessDeniedHandler"/>
     
     <security:headers disabled="true"/>
     <security:csrf disabled="true"/>

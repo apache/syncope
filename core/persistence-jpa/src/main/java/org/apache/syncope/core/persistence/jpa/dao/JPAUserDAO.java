@@ -39,7 +39,7 @@ import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.core.misc.policy.AccountPolicyException;
 import org.apache.syncope.core.misc.policy.PasswordPolicyException;
 import org.apache.syncope.core.misc.security.AuthContextUtils;
-import org.apache.syncope.core.misc.security.UnauthorizedException;
+import org.apache.syncope.core.misc.security.DelegatedAdministrationException;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
@@ -112,7 +112,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
                 }
             });
             if (authRealms == null || authRealms.isEmpty() || !authorized) {
-                throw new UnauthorizedException(AnyTypeKind.USER, user.getKey());
+                throw new DelegatedAdministrationException(AnyTypeKind.USER, user.getKey());
             }
         }
     }

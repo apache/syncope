@@ -87,6 +87,10 @@ public interface User extends Any<UPlainAttr, UDerAttr, UVirAttr> {
 
     void setSuspended(Boolean suspended);
 
+    boolean isMustChangePassword();
+
+    void setMustChangePassword(boolean mustChangePassword);
+
     @Override
     boolean add(UPlainAttr attr);
 

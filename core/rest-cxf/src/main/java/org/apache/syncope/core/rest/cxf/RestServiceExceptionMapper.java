@@ -45,7 +45,7 @@ import org.apache.syncope.common.lib.to.ErrorTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
-import org.apache.syncope.core.misc.security.UnauthorizedException;
+import org.apache.syncope.core.misc.security.DelegatedAdministrationException;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValidationException;
 import org.apache.syncope.core.persistence.api.dao.DuplicateException;
@@ -70,8 +70,6 @@ import org.springframework.transaction.TransactionSystemException;
 @PropertySource("classpath:errorMessages.properties")
 @Provider
 public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, ResponseExceptionMapper<Exception> {
-
-    private static final String BASIC_REALM_UNAUTHORIZED = "Basic realm=\"Apache Syncope authentication\"";
 
     private static final Logger LOG = LoggerFactory.getLogger(RestServiceExceptionMapper.class);
 
@@ -111,10 +109,11 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
 
             builder = builder(response).entity(error);
         } else if (ex instanceof AccessDeniedException) {
-            builder = Response.status(Response.Status.UNAUTHORIZED).
-                    header(HttpHeaders.WWW_AUTHENTICATE, BASIC_REALM_UNAUTHORIZED);
-        } else if (ex instanceof UnauthorizedException) {
-            builder = builder(ClientExceptionType.Unauthorized, ExceptionUtils.getRootCauseMessage(ex));
+            builder = Response.status(Response.Status.FORBIDDEN).
+                    header(RESTHeaders.ERROR_CODE, Response.Status.FORBIDDEN.getReasonPhrase()).
+                    header(RESTHeaders.ERROR_INFO, ex.getMessage());
+        } else if (ex instanceof DelegatedAdministrationException) {
+            builder = builder(ClientExceptionType.DelegatedAdministration, ExceptionUtils.getRootCauseMessage(ex));
         } else if (ex instanceof UnallowedSchemaException) {
             builder = builder(ClientExceptionType.UnallowedSchemas, ExceptionUtils.getRootCauseMessage(ex));
         } else if (ex instanceof EntityExistsException || ex instanceof DuplicateException) {

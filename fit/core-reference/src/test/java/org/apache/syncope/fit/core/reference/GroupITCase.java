@@ -181,7 +181,7 @@ public class GroupITCase extends AbstractITCase {
             groupService2.read(3L);
             fail();
         } catch (SyncopeClientException e) {
-            assertEquals(ClientExceptionType.Unauthorized, e.getType());
+            assertEquals(ClientExceptionType.DelegatedAdministration, e.getType());
         }
 
         List<GroupTO> groups = groupService2.own();

@@ -19,8 +19,11 @@
 package org.apache.syncope.client.console.wicket.markup.html.form;
 
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
+import org.apache.wicket.behavior.Behavior;
+import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.form.PasswordTextField;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -56,5 +59,18 @@ public class AjaxPasswordFieldPanel extends FieldPanel<String> {
 
         this.isRequiredLabelAdded = true;
         return this;
+    }
+
+    public void setPlaceholder(final String placeholder) {
+        field.add(new Behavior() {
+
+            private static final long serialVersionUID = 1469628524240283489L;
+
+            @Override
+            public void onComponentTag(final Component component, final ComponentTag tag) {
+                tag.put("placeholder", placeholder);
+            }
+        });
+
     }
 }

@@ -101,7 +101,7 @@ public class AuthenticationITCase extends AbstractITCase {
 
         // 3. as admin
         self = adminClient.self();
-        assertEquals(Entitlement.values().size() - 1, self.getKey().size());
+        assertEquals(Entitlement.values().size(), self.getKey().size());
         assertFalse(self.getKey().keySet().contains(Entitlement.ANONYMOUS));
         assertEquals(ADMIN_UNAME, self.getValue().getUsername());
 
@@ -184,7 +184,7 @@ public class AuthenticationITCase extends AbstractITCase {
             fail();
         } catch (SyncopeClientException e) {
             assertNotNull(e);
-            assertEquals(ClientExceptionType.Unauthorized, e.getType());
+            assertEquals(ClientExceptionType.DelegatedAdministration, e.getType());
         }
     }
 
@@ -268,7 +268,7 @@ public class AuthenticationITCase extends AbstractITCase {
                 delegatedUserService.create(user);
                 fail();
             } catch (SyncopeClientException e) {
-                assertEquals(ClientExceptionType.Unauthorized, e.getType());
+                assertEquals(ClientExceptionType.DelegatedAdministration, e.getType());
             }
 
             // 5. set realm to /even/two -> succeed
@@ -291,7 +291,7 @@ public class AuthenticationITCase extends AbstractITCase {
                 delegatedUserService.update(userMod);
                 fail();
             } catch (SyncopeClientException e) {
-                assertEquals(ClientExceptionType.Unauthorized, e.getType());
+                assertEquals(ClientExceptionType.DelegatedAdministration, e.getType());
             }
 
             // 6. revert realm change -> succeed

@@ -47,6 +47,7 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.Preference;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.syncope.common.rest.api.service.UserService;
 import org.junit.Assume;
@@ -349,6 +350,37 @@ public class UserSelfITCase extends AbstractITCase {
 
         // 7. re-enable security question for password reset
         configurationService.set(attrTO("passwordReset.securityQuestion", "true"));
+    }
+
+    @Test
+    public void mustChangePassword() {
+        // 0. access as vivaldi -> succeed
+        SyncopeClient vivaldiClient = clientFactory.create("vivaldi", "password");
+        Pair<Map<String, Set<String>>, UserTO> self = vivaldiClient.self();
+        assertFalse(self.getRight().isMustChangePassword());
+
+        // 1. update user vivaldi (3) requirig password update
+        UserMod userMod = new UserMod();
+        userMod.setKey(3L);
+        userMod.setMustChangePassword(true);
+        UserTO vivaldi = updateUser(userMod);
+        assertTrue(vivaldi.isMustChangePassword());
+
+        // 2. attempt to access -> fail
+        try {
+            vivaldiClient.getService(ResourceService.class).list();
+            fail();
+        } catch (AccessControlException e) {
+            assertNotNull(e);
+            assertEquals("Please change your password first", e.getMessage());
+        }
+
+        // 3. change password
+        vivaldiClient.getService(UserSelfService.class).changePassword("password123");
+
+        // 4. verify it worked
+        self = clientFactory.create("vivaldi", "password123").self();
+        assertFalse(self.getRight().isMustChangePassword());
     }
 
 }

@@ -51,7 +51,7 @@ import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.misc.security.AuthContextUtils;
-import org.apache.syncope.core.misc.security.UnauthorizedException;
+import org.apache.syncope.core.misc.security.DelegatedAdministrationException;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.provisioning.api.AnyTransformer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -103,7 +103,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupMod> {
             }
         })) {
 
-            throw new UnauthorizedException(AnyTypeKind.GROUP, key);
+            throw new DelegatedAdministrationException(AnyTypeKind.GROUP, key);
         }
     }
 

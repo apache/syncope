@@ -28,8 +28,6 @@ import java.util.Set;
 import javax.annotation.Resource;
 import org.apache.commons.collections4.Closure;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.IteratorUtils;
-import org.apache.commons.collections4.PredicateUtils;
 import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -232,53 +230,55 @@ public class AuthDataAccessor {
         if (anonymousUser.equals(username)) {
             authorities.add(new SyncopeGrantedAuthority(Entitlement.ANONYMOUS));
         } else if (adminUser.equals(username)) {
-            CollectionUtils.collect(IteratorUtils.filteredIterator(Entitlement.values().iterator(),
-                    PredicateUtils.notPredicate(PredicateUtils.equalPredicate(Entitlement.ANONYMOUS))),
-                    new Transformer<String, SyncopeGrantedAuthority>() {
+            CollectionUtils.collect(Entitlement.values(), new Transformer<String, SyncopeGrantedAuthority>() {
 
-                        @Override
-                        public SyncopeGrantedAuthority transform(final String entitlement) {
-                            return new SyncopeGrantedAuthority(entitlement, SyncopeConstants.ROOT_REALM);
-                        }
-                    },
-                    authorities);
+                @Override
+                public SyncopeGrantedAuthority transform(final String entitlement) {
+                    return new SyncopeGrantedAuthority(entitlement, SyncopeConstants.ROOT_REALM);
+                }
+            }, authorities);
         } else {
             User user = userDAO.find(username);
             if (user == null) {
                 throw new UsernameNotFoundException("Could not find any user with id " + username);
             }
 
-            // Give entitlements as assigned by roles (with realms, where applicable) - assigned either
-            // statically and dynamically
-            for (final Role role : userDAO.findAllRoles(user)) {
-                CollectionUtils.forAllDo(role.getEntitlements(), new Closure<String>() {
+            if (user.isMustChangePassword()) {
+                authorities.add(new SyncopeGrantedAuthority(Entitlement.MUST_CHANGE_PASSWORD));
+            } else {
+                // Give entitlements as assigned by roles (with realms, where applicable) - assigned either
+                // statically and dynamically
+                for (final Role role : userDAO.findAllRoles(user)) {
+                    CollectionUtils.forAllDo(role.getEntitlements(), new Closure<String>() {
 
-                    @Override
-                    public void execute(final String entitlement) {
+                        @Override
+                        public void execute(final String entitlement) {
+                            SyncopeGrantedAuthority authority = new SyncopeGrantedAuthority(entitlement);
+                            authorities.add(authority);
+
+                            List<String> realmFullPahs = new ArrayList<>();
+                            CollectionUtils.collect(role.getRealms(), new Transformer<Realm, String>() {
+
+                                @Override
+                                public String transform(final Realm realm) {
+                                    return realm.getFullPath();
+                                }
+                            }, realmFullPahs);
+                            authority.addRealms(realmFullPahs);
+                        }
+                    });
+                }
+
+                // Give group entitlements for owned groups
+                for (Group group : groupDAO.findOwnedByUser(user.getKey())) {
+                    for (String entitlement : Arrays.asList(
+                            Entitlement.GROUP_READ, Entitlement.GROUP_UPDATE, Entitlement.GROUP_DELETE)) {
+
                         SyncopeGrantedAuthority authority = new SyncopeGrantedAuthority(entitlement);
+                        authority.addRealm(
+                                RealmUtils.getGroupOwnerRealm(group.getRealm().getFullPath(), group.getKey()));
                         authorities.add(authority);
-
-                        List<String> realmFullPahs = new ArrayList<>();
-                        CollectionUtils.collect(role.getRealms(), new Transformer<Realm, String>() {
-
-                            @Override
-                            public String transform(final Realm realm) {
-                                return realm.getFullPath();
-                            }
-                        }, realmFullPahs);
-                        authority.addRealms(realmFullPahs);
                     }
-                });
-            }
-
-            // Give group entitlements for owned groups
-            for (Group group : groupDAO.findOwnedByUser(user.getKey())) {
-                for (String entitlement : Arrays.asList(
-                        Entitlement.GROUP_READ, Entitlement.GROUP_UPDATE, Entitlement.GROUP_DELETE)) {
-
-                    SyncopeGrantedAuthority authority = new SyncopeGrantedAuthority(entitlement);
-                    authority.addRealm(RealmUtils.getGroupOwnerRealm(group.getRealm().getFullPath(), group.getKey()));
-                    authorities.add(authority);
                 }
             }
         }

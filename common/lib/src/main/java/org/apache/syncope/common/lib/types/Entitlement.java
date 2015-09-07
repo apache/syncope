@@ -28,6 +28,8 @@ public final class Entitlement {
 
     public static final String ANONYMOUS = "ANONYMOUS";
 
+    public static final String MUST_CHANGE_PASSWORD = "MUST_CHANGE_PASSWORD";
+
     public static final String DOMAIN_CREATE = "DOMAIN_CREATE";
 
     public static final String DOMAIN_READ = "DOMAIN_READ";
@@ -251,6 +253,8 @@ public final class Entitlement {
                 values.add(field.getName());
             }
         }
+        values.remove(ANONYMOUS);
+        values.remove(MUST_CHANGE_PASSWORD);
         ENTITLEMENTS = Collections.unmodifiableSet(values);
     }
 

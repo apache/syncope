@@ -94,7 +94,7 @@ public class JPAUser extends AbstractAny<UPlainAttr, UDerAttr, UVirAttr> impleme
             @JoinColumn(name = "user_id"),
             inverseJoinColumns =
             @JoinColumn(name = "role_id"))
-    private List<JPARole> roles;
+    private List<JPARole> roles = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     @Valid
@@ -127,13 +127,13 @@ public class JPAUser extends AbstractAny<UPlainAttr, UDerAttr, UVirAttr> impleme
     @Column(name = "passwordHistoryValue")
     @CollectionTable(name = "SyncopeUser_passwordHistory", joinColumns =
             @JoinColumn(name = "user_id", referencedColumnName = "id"))
-    private List<String> passwordHistory;
+    private List<String> passwordHistory = new ArrayList<>();
 
     /**
      * Subsequent failed logins.
      */
     @Column(nullable = true)
-    private Integer failedLogins;
+    private Integer failedLogins = 0;
 
     /**
      * Username/Login.
@@ -159,7 +159,12 @@ public class JPAUser extends AbstractAny<UPlainAttr, UDerAttr, UVirAttr> impleme
     @Basic
     @Min(0)
     @Max(1)
-    private Integer suspended;
+    private Integer suspended = getBooleanAsInteger(Boolean.FALSE);
+
+    @Basic
+    @Min(0)
+    @Max(1)
+    private Integer mustChangePassword = getBooleanAsInteger(Boolean.FALSE);
 
     /**
      * Provisioning external resources.
@@ -192,16 +197,6 @@ public class JPAUser extends AbstractAny<UPlainAttr, UDerAttr, UVirAttr> impleme
 
     @Column(nullable = true)
     private String securityAnswer;
-
-    public JPAUser() {
-        super();
-
-        roles = new ArrayList<>();
-        memberships = new ArrayList<>();
-        passwordHistory = new ArrayList<>();
-        failedLogins = 0;
-        suspended = getBooleanAsInteger(Boolean.FALSE);
-    }
 
     @Override
     public Long getKey() {
@@ -265,6 +260,7 @@ public class JPAUser extends AbstractAny<UPlainAttr, UDerAttr, UVirAttr> impleme
 
         this.password = password;
         this.cipherAlgorithm = cipherAlgoritm;
+        setMustChangePassword(false);
     }
 
     @Override
@@ -468,6 +464,16 @@ public class JPAUser extends AbstractAny<UPlainAttr, UDerAttr, UVirAttr> impleme
     @Override
     public Boolean isSuspended() {
         return suspended == null ? null : isBooleanAsInteger(suspended);
+    }
+
+    @Override
+    public void setMustChangePassword(final boolean mustChangePassword) {
+        this.mustChangePassword = getBooleanAsInteger(mustChangePassword);
+    }
+
+    @Override
+    public boolean isMustChangePassword() {
+        return isBooleanAsInteger(mustChangePassword);
     }
 
     @Override

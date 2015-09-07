@@ -40,7 +40,7 @@ public class UserSelfRestClient extends BaseRestClient {
 
         return result == null
                 ? false
-                : result.booleanValue();
+                : result;
     }
 
     public UserTO read() {
@@ -69,7 +69,7 @@ public class UserSelfRestClient extends BaseRestClient {
 
         return result == null
                 ? false
-                : result.booleanValue();
+                : result;
     }
 
     public boolean isPwdResetRequiringSecurityQuestions() {
@@ -82,7 +82,11 @@ public class UserSelfRestClient extends BaseRestClient {
 
         return result == null
                 ? false
-                : result.booleanValue();
+                : result;
+    }
+
+    public void changePassword(final String password) {
+        getService(UserSelfService.class).changePassword(password);
     }
 
     public void requestPasswordReset(final String username, final String securityAnswer) {

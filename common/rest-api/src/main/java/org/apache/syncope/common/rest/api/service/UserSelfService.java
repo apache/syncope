@@ -65,7 +65,7 @@ public interface UserSelfService extends JAXRSService {
     /**
      * Self-updates user.
      *
-     * @param userMod modification to be applied to user matching the provided key
+     * @param userMod modification to be applied to self
      * @return <tt>Response</tt> object featuring the updated user - <tt>UserTO</tt> as <tt>Entity</tt>
      */
     @POST
@@ -82,6 +82,18 @@ public interface UserSelfService extends JAXRSService {
     @DELETE
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     Response delete();
+
+    /**
+     * Changes own password.
+     *
+     * @param password the password value to update
+     *
+     * @return <tt>Response</tt> object featuring the updated user - <tt>UserTO</tt> as <tt>Entity</tt>
+     */
+    @POST
+    @Path("changePassword")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    Response changePassword(@NotNull @QueryParam("password") String password);
 
     /**
      * Provides answer for the security question configured for user matching the given username, if any.

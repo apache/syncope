@@ -28,7 +28,7 @@ import org.apache.syncope.common.lib.mod.AnyMod;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.misc.RealmUtils;
-import org.apache.syncope.core.misc.security.UnauthorizedException;
+import org.apache.syncope.core.misc.security.DelegatedAdministrationException;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 
@@ -78,7 +78,7 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, MOD extends AnyMod>
             }
         })) {
 
-            throw new UnauthorizedException(
+            throw new DelegatedAdministrationException(
                     this instanceof UserLogic
                             ? AnyTypeKind.USER
                             : this instanceof GroupLogic

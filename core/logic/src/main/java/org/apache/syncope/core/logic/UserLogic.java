@@ -19,7 +19,6 @@
 package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
-import java.security.AccessControlException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -220,11 +219,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserMod> {
     @PreAuthorize("isAuthenticated() and not(hasRole('" + Entitlement.ANONYMOUS + "'))")
     public UserTO selfUpdate(final UserMod userMod) {
         UserTO userTO = binder.getAuthenticatedUserTO();
-
-        if (userTO.getKey() != userMod.getKey()) {
-            throw new AccessControlException("Not allowed for user with key " + userMod.getKey());
-        }
-
+        userMod.setKey(userTO.getKey());
         return doUpdate(userMod);
     }
 
@@ -296,6 +291,13 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserMod> {
         UserTO savedTO = binder.getUserTO(updated.getKey());
         savedTO.getPropagationStatusTOs().addAll(updated.getValue());
         return savedTO;
+    }
+
+    @PreAuthorize("hasRole('" + Entitlement.MUST_CHANGE_PASSWORD + "')")
+    public UserTO changePassword(final String password) {
+        UserMod userMod = new UserMod();
+        userMod.setPassword(password);
+        return selfUpdate(userMod);
     }
 
     @PreAuthorize("isAnonymous() or hasRole('" + Entitlement.ANONYMOUS + "')")

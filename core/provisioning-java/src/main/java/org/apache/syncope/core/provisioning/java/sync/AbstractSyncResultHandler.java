@@ -33,7 +33,7 @@ import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.task.SyncTask;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationException;
 import org.apache.syncope.core.provisioning.api.sync.SyncActions;
-import org.apache.syncope.core.misc.security.UnauthorizedException;
+import org.apache.syncope.core.misc.security.DelegatedAdministrationException;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.provisioning.api.AnyTransformer;
@@ -572,7 +572,7 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
                 delResults.add(result);
             } catch (NotFoundException e) {
                 LOG.error("Could not find {} {}", provision.getAnyType().getKey(), id, e);
-            } catch (UnauthorizedException e) {
+            } catch (DelegatedAdministrationException e) {
                 LOG.error("Not allowed to read {} {}", provision.getAnyType().getKey(), id, e);
             } catch (Exception e) {
                 LOG.error("Could not delete {} {}", provision.getAnyType().getKey(), id, e);
