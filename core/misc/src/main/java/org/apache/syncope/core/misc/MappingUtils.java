@@ -46,9 +46,7 @@ import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
-import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.VirAttr;
-import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrValue;
@@ -61,6 +59,7 @@ import org.apache.syncope.core.misc.security.PasswordGenerator;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.Schema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
@@ -262,7 +261,7 @@ public final class MappingUtils {
         List<PlainAttrValue> values = getIntValues(
                 provision, mapItem, anys, vAttrsToBeRemoved, vAttrsToBeUpdated);
 
-        PlainSchema schema = null;
+        Schema schema = null;
         boolean readOnlyVirSchema = false;
         AttrSchemaType schemaType;
         Pair<String, Attribute> result;
@@ -280,8 +279,8 @@ public final class MappingUtils {
             case GroupVirtualSchema:
             case AnyObjectVirtualSchema:
                 VirSchemaDAO virSchemaDAO = beanFactory.getBean(VirSchemaDAO.class);
-                VirSchema virSchema = virSchemaDAO.find(mapItem.getIntAttrName());
-                readOnlyVirSchema = (virSchema != null && virSchema.isReadonly());
+                schema = virSchemaDAO.find(mapItem.getIntAttrName());
+                readOnlyVirSchema = (schema != null && schema.isReadonly());
                 schemaType = AttrSchemaType.String;
                 break;
 
