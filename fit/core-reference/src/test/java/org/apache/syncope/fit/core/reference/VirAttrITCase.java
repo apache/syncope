@@ -26,6 +26,8 @@ import static org.junit.Assert.assertTrue;
 import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.common.lib.mod.AttrMod;
 import org.apache.syncope.common.lib.mod.StatusMod;
@@ -315,6 +317,8 @@ public class VirAttrITCase extends AbstractITCase {
             // make std controls about user
             assertNotNull(created);
             assertTrue(RESOURCE_NAME_CSV.equals(created.getResources().iterator().next()));
+            assertEquals("test@testone.org", created.getVirAttrs().iterator().next().getValues().get(0));
+            
             // update user
             UserTO toBeUpdated = userService.read(created.getKey());
             UserMod userMod = new UserMod();
@@ -613,4 +617,98 @@ public class VirAttrITCase extends AbstractITCase {
         assertFalse(userTO.getVirAttrMap().get("virtualdata").getValues().isEmpty());
         assertEquals("syncope501_updated@apache.org", userTO.getVirAttrMap().get("virtualdata").getValues().get(0));
     }
+
+    @Test
+    public void issueSYNCOPE691() {
+        final String res = RESOURCE_NAME_LDAP + "691";
+
+        ResourceTO ldap = resourceService.read(RESOURCE_NAME_LDAP);
+        ldap.setKey(res);
+
+        try {
+
+            CollectionUtils.filterInverse(ldap.getProvision(AnyTypeKind.USER.name()).getMapping().getItems(),
+                    new Predicate<MappingItemTO>() {
+
+                        @Override
+                        public boolean evaluate(final MappingItemTO item) {
+                            return "mail".equals(item.getExtAttrName());
+                        }
+                    });
+
+            final MappingItemTO mail = new MappingItemTO();
+            // unset internal attribute mail and set virtual attribute virtualdata as mapped to external email
+            mail.setIntMappingType(IntMappingType.UserVirtualSchema);
+            mail.setIntAttrName("virtualdata");
+            mail.setPurpose(MappingPurpose.BOTH);
+            mail.setExtAttrName("mail");
+
+            ldap.getProvision(AnyTypeKind.USER.name()).getMapping().getItems().add(mail);
+
+            resourceService.create(ldap);
+
+            ldap = resourceService.read(res);
+            assertNotNull(ldap.getProvision(AnyTypeKind.USER.name()).getMapping());
+
+            assertTrue(CollectionUtils.exists(ldap.getProvision(AnyTypeKind.USER.name()).getMapping().getItems(),
+                    new Predicate<MappingItemTO>() {
+
+                        @Override
+                        public boolean evaluate(final MappingItemTO item) {
+                            return "mail".equals(item.getExtAttrName()) && "virtualdata".equals(item.getIntAttrName());
+                        }
+                    }));
+
+            // create a new user
+            UserTO userTO = UserITCase.getUniqueSampleTO("syncope691@syncope.apache.org");
+            userTO.getResources().clear();
+            userTO.getMemberships().clear();
+            userTO.getDerAttrs().clear();
+            userTO.getVirAttrs().clear();
+
+            final AttrTO emailTO = new AttrTO();
+            emailTO.setSchema("virtualdata");
+            emailTO.getValues().add("test@issue691.dom1.org");
+            emailTO.getValues().add("test@issue691.dom2.org");
+
+            userTO.getVirAttrs().add(emailTO);
+            // assign resource-ldap691 to user
+            userTO.getResources().add(res);
+            // save user
+            UserTO created = createUser(userTO);
+            // make std controls about user
+            assertNotNull(created);
+            assertTrue(res.equals(created.getResources().iterator().next()));
+
+            assertEquals(2, created.getVirAttrs().iterator().next().getValues().size(), 0);
+            assertTrue(created.getVirAttrs().iterator().next().getValues().contains("test@issue691.dom1.org"));
+            assertTrue(created.getVirAttrs().iterator().next().getValues().contains("test@issue691.dom2.org"));
+
+            // update user
+            UserMod userMod = new UserMod();
+            userMod.setKey(created.getKey());
+            //modify virtual attribute
+            userMod.getVirAttrsToRemove().add("virtualdata");
+
+            final AttrMod emailMod = new AttrMod();
+            emailMod.setSchema("virtualdata");
+            emailMod.getValuesToBeAdded().add("test@issue691.dom3.org");
+            emailMod.getValuesToBeAdded().add("test@issue691.dom4.org");
+
+            userMod.getVirAttrsToUpdate().add(emailMod);
+
+            final UserTO updated = updateUser(userMod);
+            assertNotNull(updated);
+            assertEquals(2, updated.getVirAttrs().iterator().next().getValues().size(), 0);
+            assertTrue(updated.getVirAttrs().iterator().next().getValues().contains("test@issue691.dom3.org"));
+            assertTrue(updated.getVirAttrs().iterator().next().getValues().contains("test@issue691.dom4.org"));
+        } finally {
+            try {
+                resourceService.delete(res);
+            } catch (Exception ignore) {
+                // ignore
+            }
+        }
+    }
+
 }
