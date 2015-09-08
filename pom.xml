@@ -383,7 +383,7 @@ under the License.
     <jsplumb.version>1.7.5</jsplumb.version>
     
     <wicket.version>7.0.0</wicket.version>
-    <wicket-jqueryui.version>7.0.0</wicket-jqueryui.version>
+    <wicket-jqueryui.version>7.0.1</wicket-jqueryui.version>
 
     <izpack.version>5.0.3</izpack.version>
     <httpclient.version>4.3.6</httpclient.version>
