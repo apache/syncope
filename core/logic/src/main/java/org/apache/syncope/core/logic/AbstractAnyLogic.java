@@ -18,22 +18,172 @@
  */
 package org.apache.syncope.core.logic;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.mod.AnyMod;
 import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.core.misc.RealmUtils;
+import org.apache.syncope.core.misc.TemplateUtils;
 import org.apache.syncope.core.misc.security.DelegatedAdministrationException;
+import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.provisioning.api.LogicActions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.support.AbstractBeanDefinition;
 
 public abstract class AbstractAnyLogic<TO extends AnyTO, MOD extends AnyMod>
         extends AbstractResourceAssociator<TO> {
+
+    @Autowired
+    private RealmDAO realmDAO;
+
+    @Autowired
+    private AnyTypeDAO anyTypeDAO;
+
+    @Autowired
+    private TemplateUtils templateUtils;
+
+    private List<LogicActions> getActions(final Realm realm) {
+        List<LogicActions> actions = new ArrayList<>();
+
+        for (String className : realm.getActionsClassNames()) {
+            try {
+                Class<?> actionsClass = Class.forName(className);
+                LogicActions logicActions = (LogicActions) ApplicationContextProvider.getBeanFactory().
+                        createBean(actionsClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true);
+
+                actions.add(logicActions);
+            } catch (Exception e) {
+                LOG.warn("Class '{}' not found", className, e);
+            }
+        }
+
+        return actions;
+    }
+
+    protected Pair<TO, List<LogicActions>> beforeCreate(final TO input) {
+        Realm realm = realmDAO.find(input.getRealm());
+        if (realm == null) {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
+            sce.getElements().add(input.getRealm());
+            throw sce;
+        }
+
+        AnyType anyType = input instanceof UserTO
+                ? anyTypeDAO.findUser()
+                : input instanceof GroupTO
+                        ? anyTypeDAO.findGroup()
+                        : anyTypeDAO.find(input.getType());
+        if (anyType == null) {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidAnyType);
+            sce.getElements().add(input.getType());
+            throw sce;
+        }
+
+        TO any = input;
+
+        templateUtils.apply(any, realm.getTemplate(anyType));
+
+        List<LogicActions> actions = getActions(realm);
+        for (LogicActions action : actions) {
+            any = action.beforeCreate(any);
+        }
+
+        LOG.debug("Input: {}\nOutput: {}\n", input, any);
+
+        return ImmutablePair.of(any, actions);
+    }
+
+    protected TO afterCreate(final TO input, final List<LogicActions> actions) {
+        TO any = input;
+
+        for (LogicActions action : actions) {
+            any = action.afterCreate(any);
+        }
+
+        return any;
+    }
+
+    protected Pair<MOD, List<LogicActions>> beforeUpdate(final MOD input, final String realmPath) {
+        if (StringUtils.isBlank(input.getRealm())) {
+            input.setRealm(realmPath);
+        }
+        Realm realm = realmDAO.find(input.getRealm());
+        if (realm == null) {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
+            sce.getElements().add(input.getRealm());
+            throw sce;
+        }
+
+        MOD mod = input;
+
+        List<LogicActions> actions = getActions(realm);
+        for (LogicActions action : actions) {
+            mod = action.beforeUpdate(mod);
+        }
+
+        LOG.debug("Input: {}\nOutput: {}\n", input, mod);
+
+        return ImmutablePair.of(mod, actions);
+    }
+
+    protected TO afterUpdate(final TO input, final List<LogicActions> actions) {
+        TO any = input;
+
+        for (LogicActions action : actions) {
+            any = action.afterUpdate(any);
+        }
+
+        return any;
+    }
+
+    protected Pair<TO, List<LogicActions>> beforeDelete(final TO input) {
+        Realm realm = realmDAO.find(input.getRealm());
+        if (realm == null) {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
+            sce.getElements().add(input.getRealm());
+            throw sce;
+        }
+
+        TO any = input;
+
+        List<LogicActions> actions = getActions(realm);
+        for (LogicActions action : actions) {
+            any = action.beforeDelete(any);
+        }
+
+        LOG.debug("Input: {}\nOutput: {}\n", input, any);
+
+        return ImmutablePair.of(any, actions);
+    }
+
+    protected TO afterDelete(final TO input, final List<LogicActions> actions) {
+        TO any = input;
+
+        for (LogicActions action : actions) {
+            any = action.afterDelete(any);
+        }
+
+        return any;
+    }
 
     private static class StartsWithPredicate implements Predicate<String> {
 

@@ -129,9 +129,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
             AnyObject otherEnd = anyObjectDAO.find(relationshipTO.getRightKey());
 
             if (otherEnd == null) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Ignoring invalid anyObject " + relationshipTO.getRightKey());
-                }
+                LOG.debug("Ignoring invalid anyObject " + relationshipTO.getRightKey());
             } else {
                 ARelationship relationship = null;
                 if (anyObject.getKey() != null) {
@@ -152,9 +150,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
             Group group = groupDAO.find(membershipTO.getRightKey());
 
             if (group == null) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Ignoring invalid group " + membershipTO.getGroupName());
-                }
+                LOG.debug("Ignoring invalid group " + membershipTO.getGroupName());
             } else {
                 AMembership membership = null;
                 if (anyObject.getKey() != null) {

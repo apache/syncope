@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import static org.apache.wicket.Component.ENABLE;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -317,8 +315,8 @@ public class ConnectorModal extends AbstractResourceModal {
         connectorPropForm.add(check);
 
         // form - third tab (capabilities)
-        final IModel<List<ConnectorCapability>> capabilities
-                = new LoadableDetachableModel<List<ConnectorCapability>>() {
+        final IModel<List<ConnectorCapability>> capabilities =
+                 new LoadableDetachableModel<List<ConnectorCapability>>() {
 
                     private static final long serialVersionUID = 5275935387613157437L;
 
@@ -327,8 +325,8 @@ public class ConnectorModal extends AbstractResourceModal {
                         return Arrays.asList(ConnectorCapability.values());
                     }
                 };
-        CheckBoxMultipleChoiceFieldPanel<ConnectorCapability> capabilitiesPalette
-                = new CheckBoxMultipleChoiceFieldPanel<>(
+        CheckBoxMultipleChoiceFieldPanel<ConnectorCapability> capabilitiesPalette =
+                 new CheckBoxMultipleChoiceFieldPanel<>(
                         "capabilitiesPalette",
                         new PropertyModel<List<ConnectorCapability>>(this, "selectedCapabilities"), capabilities);
 

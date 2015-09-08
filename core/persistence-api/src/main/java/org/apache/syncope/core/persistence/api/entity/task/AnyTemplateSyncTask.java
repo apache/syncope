@@ -16,25 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.java;
+package org.apache.syncope.core.persistence.api.entity.task;
 
-import org.apache.syncope.common.lib.mod.AnyMod;
-import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.core.provisioning.api.AnyTransformer;
+import org.apache.syncope.core.persistence.api.entity.AnyTemplate;
 
-/**
- * Default empty implementation returning received input as result.
- */
-public class DefaultAnyTransformer implements AnyTransformer {
+public interface AnyTemplateSyncTask extends AnyTemplate {
 
-    @Override
-    public <T extends AnyTO> T transform(final T input) {
-        return input;
-    }
+    SyncTask getSyncTask();
 
-    @Override
-    public <T extends AnyMod> T transform(final T input) {
-        return input;
-    }
-
+    void setSyncTask(SyncTask syncTask);
 }

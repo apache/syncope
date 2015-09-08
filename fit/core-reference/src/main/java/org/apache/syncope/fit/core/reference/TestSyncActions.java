@@ -38,8 +38,8 @@ public class TestSyncActions extends DefaultSyncActions {
     private int counter = 0;
 
     @Override
-    public <T extends AnyTO> SyncDelta beforeProvision(
-            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final T any)
+    public <A extends AnyTO> SyncDelta beforeProvision(
+            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final A any)
             throws JobExecutionException {
 
         AttrTO attrTO = null;
@@ -61,8 +61,8 @@ public class TestSyncActions extends DefaultSyncActions {
     }
 
     @Override
-    public <T extends AnyTO> SyncDelta beforeAssign(
-            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final T any)
+    public <A extends AnyTO> SyncDelta beforeAssign(
+            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final A any)
             throws JobExecutionException {
 
         if (any instanceof UserTO && "test2".equals(UserTO.class.cast(any).getUsername())) {
@@ -73,11 +73,11 @@ public class TestSyncActions extends DefaultSyncActions {
     }
 
     @Override
-    public <T extends AnyTO, K extends AnyMod> SyncDelta beforeUpdate(
+    public <A extends AnyTO, M extends AnyMod> SyncDelta beforeUpdate(
             final ProvisioningProfile<?, ?> profile,
             final SyncDelta delta,
-            final T any,
-            final K anyMod) throws JobExecutionException {
+            final A any,
+            final M anyMod) throws JobExecutionException {
 
         anyMod.getPlainAttrsToRemove().add("fullname");
 

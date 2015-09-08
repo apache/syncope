@@ -410,11 +410,20 @@ under the License.
     </attributes>
   </entity>
   
-  <entity class="org.apache.syncope.core.persistence.jpa.entity.task.JPAAnyTemplate">
+  <entity class="org.apache.syncope.core.persistence.jpa.entity.JPAAnyTemplateRealm">
     <attributes>
       <id name="id">
-        <generated-value generator="SEQ_AnyTemplate" strategy="TABLE"/>
-        <table-generator name="SEQ_AnyTemplate" pk-column-value="SEQ_AnyTemplate" initial-value="1000"/>
+        <generated-value generator="SEQ_AnyTemplateRealm" strategy="TABLE"/>
+        <table-generator name="SEQ_AnyTemplateRealm" pk-column-value="SEQ_AnyTemplateRealm" initial-value="1000"/>
+      </id>
+    </attributes>
+  </entity>
+
+  <entity class="org.apache.syncope.core.persistence.jpa.entity.task.JPAAnyTemplateSyncTask">
+    <attributes>
+      <id name="id">
+        <generated-value generator="SEQ_AnyTemplateSyncTask" strategy="TABLE"/>
+        <table-generator name="SEQ_AnyTemplateSyncTask" pk-column-value="SEQ_AnyTemplateSyncTask" initial-value="1000"/>
       </id>
     </attributes>
   </entity>

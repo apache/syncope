@@ -24,17 +24,17 @@ import org.apache.syncope.common.lib.mod.AnyMod;
 import org.apache.syncope.common.lib.mod.AttrMod;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
-import org.apache.syncope.core.provisioning.api.AnyTransformer;
+import org.apache.syncope.core.provisioning.java.DefaultLogicActions;
 
 /**
  * Class for integration tests: transform (by making it double) any attribute value for defined schema.
  */
-public class DoubleValueAnyTransformer implements AnyTransformer {
+public class DoubleValueLogicActions extends DefaultLogicActions {
 
     private static final String NAME = "makeItDouble";
 
     @Override
-    public <T extends AnyTO> T transform(final T input) {
+    public <A extends AnyTO> A beforeCreate(final A input) {
         for (AttrTO attr : input.getPlainAttrs()) {
             if (NAME.equals(attr.getSchema())) {
                 List<String> values = new ArrayList<>(attr.getValues().size());
@@ -54,7 +54,7 @@ public class DoubleValueAnyTransformer implements AnyTransformer {
     }
 
     @Override
-    public <T extends AnyMod> T transform(final T input) {
+    public <M extends AnyMod> M beforeUpdate(final M input) {
         for (AttrMod attr : input.getPlainAttrsToUpdate()) {
             if (NAME.equals(attr.getSchema())) {
                 List<String> values = new ArrayList<>(attr.getValuesToBeAdded().size());

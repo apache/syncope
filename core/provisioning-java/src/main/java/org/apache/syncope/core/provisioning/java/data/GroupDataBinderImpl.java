@@ -81,7 +81,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
             group.setName(groupTO.getName());
         }
 
-        // attributes, derived attributes, virtual attributes and resources
+        // realm, attributes, derived attributes, virtual attributes and resources
         fill(group, groupTO, anyUtilsFactory.getInstance(AnyTypeKind.GROUP), scce);
 
         // owner

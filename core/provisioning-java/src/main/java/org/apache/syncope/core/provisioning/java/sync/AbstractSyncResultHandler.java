@@ -36,7 +36,6 @@ import org.apache.syncope.core.provisioning.api.sync.SyncActions;
 import org.apache.syncope.core.misc.security.DelegatedAdministrationException;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
-import org.apache.syncope.core.provisioning.api.AnyTransformer;
 import org.apache.syncope.core.provisioning.api.sync.IgnoreProvisionException;
 import org.apache.syncope.core.provisioning.api.sync.ProvisioningResult;
 import org.apache.syncope.core.provisioning.api.sync.SyncopeSyncResultHandler;
@@ -52,9 +51,6 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
 
     @Autowired
     protected SyncUtils syncUtilities;
-
-    @Autowired
-    protected AnyTransformer anyTransformer;
 
     protected abstract String getName(AnyTO anyTO);
 
@@ -115,22 +111,17 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
         result.setOperation(ResourceOperation.CREATE);
         result.setAnyType(provision.getAnyType().getKey());
         result.setStatus(ProvisioningResult.Status.SUCCESS);
-
-        // Any transformation (if configured)
-        AnyTO transformed = anyTransformer.transform(anyTO);
-        LOG.debug("Transformed: {}", transformed);
-
-        result.setName(getName(transformed));
+        result.setName(getName(anyTO));
 
         if (profile.isDryRun()) {
             result.setKey(0L);
         } else {
             SyncDelta actionedDelta = delta;
             for (SyncActions action : profile.getActions()) {
-                actionedDelta = action.beforeAssign(this.getProfile(), actionedDelta, transformed);
+                actionedDelta = action.beforeAssign(this.getProfile(), actionedDelta, anyTO);
             }
 
-            create(transformed, actionedDelta, UnmatchingRule.toEventName(UnmatchingRule.ASSIGN), result);
+            create(anyTO, actionedDelta, UnmatchingRule.toEventName(UnmatchingRule.ASSIGN), result);
         }
 
         return Collections.singletonList(result);
@@ -147,26 +138,21 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
 
         AnyTO anyTO = connObjectUtils.getAnyTO(delta.getObject(), profile.getTask(), provision, anyUtils);
 
-        // Any transformation (if configured)
-        AnyTO transformed = anyTransformer.transform(anyTO);
-        LOG.debug("Transformed: {}", transformed);
-
         ProvisioningResult result = new ProvisioningResult();
         result.setOperation(ResourceOperation.CREATE);
         result.setAnyType(provision.getAnyType().getKey());
         result.setStatus(ProvisioningResult.Status.SUCCESS);
-
-        result.setName(getName(transformed));
+        result.setName(getName(anyTO));
 
         if (profile.isDryRun()) {
             result.setKey(0L);
         } else {
             SyncDelta actionedDelta = delta;
             for (SyncActions action : profile.getActions()) {
-                actionedDelta = action.beforeProvision(this.getProfile(), actionedDelta, transformed);
+                actionedDelta = action.beforeProvision(this.getProfile(), actionedDelta, anyTO);
             }
 
-            create(transformed, actionedDelta, UnmatchingRule.toEventName(UnmatchingRule.PROVISION), result);
+            create(anyTO, actionedDelta, UnmatchingRule.toEventName(UnmatchingRule.PROVISION), result);
         }
 
         return Collections.<ProvisioningResult>singletonList(result);
@@ -263,10 +249,6 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
                                 profile.getTask(),
                                 provision,
                                 getAnyUtils());
-
-                        // Attribute value transformation (if configured)
-                        AnyMod actual = anyTransformer.transform(anyMod);
-                        LOG.debug("Transformed: {}", actual);
 
                         for (SyncActions action : profile.getActions()) {
                             workingDelta = action.beforeUpdate(this.getProfile(), workingDelta, before, anyMod);

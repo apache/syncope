@@ -23,19 +23,20 @@ import javax.validation.ConstraintValidatorContext;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.provisioning.api.LogicActions;
 
 public class RealmValidator extends AbstractValidator<RealmCheck, Realm> {
 
-    private static final Pattern NAME_PATTERN = Pattern.compile("^[A-Za-z0-9]+");
+    private static final Pattern REALM_NAME_PATTERN = Pattern.compile("^[A-Za-z0-9]+");
 
     @Override
-    public boolean isValid(final Realm object, final ConstraintValidatorContext context) {
+    public boolean isValid(final Realm realm, final ConstraintValidatorContext context) {
         context.disableDefaultConstraintViolation();
 
         boolean isValid = true;
 
-        if (SyncopeConstants.ROOT_REALM.equals(object.getName())) {
-            if (object.getParent() != null) {
+        if (SyncopeConstants.ROOT_REALM.equals(realm.getName())) {
+            if (realm.getParent() != null) {
                 isValid = false;
 
                 context.buildConstraintViolationWithTemplate(
@@ -44,7 +45,7 @@ public class RealmValidator extends AbstractValidator<RealmCheck, Realm> {
                         addPropertyNode("parent").addConstraintViolation();
             }
         } else {
-            if (object.getParent() == null) {
+            if (realm.getParent() == null) {
                 isValid = false;
 
                 context.buildConstraintViolationWithTemplate(
@@ -53,13 +54,36 @@ public class RealmValidator extends AbstractValidator<RealmCheck, Realm> {
                         addPropertyNode("parent").addConstraintViolation();
             }
 
-            if (!NAME_PATTERN.matcher(object.getName()).matches()) {
+            if (!REALM_NAME_PATTERN.matcher(realm.getName()).matches()) {
                 isValid = false;
 
                 context.buildConstraintViolationWithTemplate(
                         getTemplate(EntityViolationType.InvalidRealm,
                                 "Only letters and numbers are allowed in realm name")).
                         addPropertyNode("name").addConstraintViolation();
+            }
+        }
+
+        if (!realm.getActionsClassNames().isEmpty()) {
+            for (String className : realm.getActionsClassNames()) {
+                Class<?> actionsClass = null;
+                boolean isAssignable = false;
+                try {
+                    actionsClass = Class.forName(className);
+                    isAssignable = LogicActions.class.isAssignableFrom(actionsClass);
+                } catch (Exception e) {
+                    LOG.error("Invalid {} specified", LogicActions.class.getName(), e);
+                    isValid = false;
+                }
+
+                if (actionsClass == null || !isAssignable) {
+                    isValid = false;
+
+                    context.disableDefaultConstraintViolation();
+                    context.buildConstraintViolationWithTemplate(
+                            getTemplate(EntityViolationType.InvalidRealm, "Invalid class name")).
+                            addPropertyNode("actionsClassName").addConstraintViolation();
+                }
             }
         }
 

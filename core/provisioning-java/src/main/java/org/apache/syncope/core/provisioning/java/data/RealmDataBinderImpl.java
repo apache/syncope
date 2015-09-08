@@ -18,19 +18,36 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
+import java.util.Map;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
+import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.RealmTO;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.core.misc.TemplateUtils;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.entity.AnyTemplate;
+import org.apache.syncope.core.persistence.api.entity.AnyTemplateRealm;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.provisioning.api.data.RealmDataBinder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class RealmDataBinderImpl implements RealmDataBinder {
+
+    private static final Logger LOG = LoggerFactory.getLogger(RealmDataBinder.class);
+
+    @Autowired
+    private AnyTypeDAO anyTypeDAO;
 
     @Autowired
     private RealmDAO realmDAO;
@@ -40,6 +57,38 @@ public class RealmDataBinderImpl implements RealmDataBinder {
 
     @Autowired
     private EntityFactory entityFactory;
+
+    @Autowired
+    private TemplateUtils templateUtils;
+
+    private void setTemplates(final RealmTO realmTO, final Realm realm) {
+        // validate JEXL expressions from templates and proceed if fine
+        templateUtils.check(realmTO.getTemplates(), ClientExceptionType.InvalidSyncTask);
+        for (Map.Entry<String, AnyTO> entry : realmTO.getTemplates().entrySet()) {
+            AnyType type = anyTypeDAO.find(entry.getKey());
+            if (type == null) {
+                LOG.debug("Invalid AnyType {} specified, ignoring...", entry.getKey());
+            } else {
+                AnyTemplateRealm anyTemplate = realm.getTemplate(type);
+                if (anyTemplate == null) {
+                    anyTemplate = entityFactory.newEntity(AnyTemplateRealm.class);
+                    anyTemplate.setAnyType(type);
+                    anyTemplate.setRealm(realm);
+
+                    realm.add(anyTemplate);
+                }
+                anyTemplate.set(entry.getValue());
+            }
+        }
+        // remove all templates not contained in the TO
+        CollectionUtils.filter(realm.getTemplates(), new Predicate<AnyTemplate>() {
+
+            @Override
+            public boolean evaluate(final AnyTemplate anyTemplate) {
+                return realmTO.getTemplates().containsKey(anyTemplate.getAnyType().getKey());
+            }
+        });
+    }
 
     @Override
     public Realm create(final String parentPath, final RealmTO realmTO) {
@@ -55,6 +104,10 @@ public class RealmDataBinderImpl implements RealmDataBinder {
             realm.setAccountPolicy((AccountPolicy) policyDAO.find(realmTO.getAccountPolicy()));
         }
 
+        realm.getActionsClassNames().addAll(realmTO.getActionsClassNames());
+
+        setTemplates(realmTO, realm);
+
         return realm;
     }
 
@@ -69,6 +122,11 @@ public class RealmDataBinderImpl implements RealmDataBinder {
         if (realmTO.getAccountPolicy() != null) {
             realm.setAccountPolicy((AccountPolicy) policyDAO.find(realmTO.getAccountPolicy()));
         }
+
+        realm.getActionsClassNames().clear();
+        realm.getActionsClassNames().addAll(realmTO.getActionsClassNames());
+
+        setTemplates(realmTO, realm);
     }
 
     @Override
@@ -81,6 +139,11 @@ public class RealmDataBinderImpl implements RealmDataBinder {
         realmTO.setFullPath(realm.getFullPath());
         realmTO.setAccountPolicy(realm.getAccountPolicy() == null ? null : realm.getAccountPolicy().getKey());
         realmTO.setPasswordPolicy(realm.getPasswordPolicy() == null ? null : realm.getPasswordPolicy().getKey());
+        realmTO.getActionsClassNames().addAll(realm.getActionsClassNames());
+
+        for (AnyTemplate template : realm.getTemplates()) {
+            realmTO.getTemplates().put(template.getAnyType().getKey(), template.get());
+        }
 
         return realmTO;
     }

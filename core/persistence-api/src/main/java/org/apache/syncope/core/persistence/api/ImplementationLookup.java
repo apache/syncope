@@ -34,6 +34,7 @@ public interface ImplementationLookup extends SyncopeLoader {
         ACCOUNT_RULE,
         PASSWORD_RULE,
         TASKJOBDELEGATE,
+        LOGIC_ACTIONS,
         PROPAGATION_ACTIONS,
         SYNC_ACTIONS,
         PUSH_ACTIONS,

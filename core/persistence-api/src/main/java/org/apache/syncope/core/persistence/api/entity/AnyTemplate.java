@@ -16,27 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.entity.task;
+package org.apache.syncope.core.persistence.api.entity;
 
-import java.util.List;
-import org.apache.syncope.core.persistence.api.entity.AnyType;
-import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.common.lib.to.AnyTO;
 
-public interface SyncTask extends ProvisioningTask {
+public interface AnyTemplate extends Entity<Long> {
 
-    Realm getDestinatioRealm();
+    AnyType getAnyType();
 
-    void setDestinationRealm(Realm destinationRealm);
+    void setAnyType(AnyType anyType);
 
-    boolean isFullReconciliation();
+    AnyTO get();
 
-    void setFullReconciliation(boolean condition);
-
-    boolean add(AnyTemplateSyncTask template);
-
-    boolean remove(AnyTemplateSyncTask template);
-
-    AnyTemplateSyncTask getTemplate(AnyType anyType);
-
-    List<? extends AnyTemplateSyncTask> getTemplates();
+    void set(AnyTO template);
 }

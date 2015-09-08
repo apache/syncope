@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.installer.processes;
 
-import static org.apache.syncope.installer.processes.ArchetypeProcess.PROPERTIES;
-
 import com.izforge.izpack.panels.process.AbstractUIProcessHandler;
 import java.io.IOException;
 import java.io.InputStream;

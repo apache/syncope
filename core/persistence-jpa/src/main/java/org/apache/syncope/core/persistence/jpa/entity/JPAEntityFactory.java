@@ -26,6 +26,7 @@ import org.apache.syncope.core.persistence.jpa.entity.user.JPADynRoleMembership;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAExternalResource;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.AnyAbout;
+import org.apache.syncope.core.persistence.api.entity.AnyTemplateRealm;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
@@ -69,7 +70,7 @@ import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.task.AnyFilter;
-import org.apache.syncope.core.persistence.api.entity.task.AnyTemplate;
+import org.apache.syncope.core.persistence.api.entity.task.AnyTemplateSyncTask;
 import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
@@ -107,7 +108,7 @@ import org.apache.syncope.core.persistence.jpa.entity.resource.JPAMapping;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAMappingItem;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAProvision;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAAnyFilter;
-import org.apache.syncope.core.persistence.jpa.entity.task.JPAAnyTemplate;
+import org.apache.syncope.core.persistence.jpa.entity.task.JPAAnyTemplateSyncTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPANotificationTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAPropagationTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAPushTask;
@@ -137,6 +138,8 @@ public class JPAEntityFactory implements EntityFactory {
             result = (T) new JPADomain();
         } else if (reference.equals(Realm.class)) {
             result = (T) new JPARealm();
+        } else if (reference.equals(AnyTemplateRealm.class)) {
+            result = (T) new JPAAnyTemplateRealm();
         } else if (reference.equals(AccountPolicy.class)) {
             result = (T) new JPAAccountPolicy();
         } else if (reference.equals(PasswordPolicy.class)) {
@@ -239,8 +242,8 @@ public class JPAEntityFactory implements EntityFactory {
             result = (T) new JPATaskExec();
         } else if (reference.equals(AnyFilter.class)) {
             result = (T) new JPAAnyFilter();
-        } else if (reference.equals(AnyTemplate.class)) {
-            result = (T) new JPAAnyTemplate();
+        } else if (reference.equals(AnyTemplateSyncTask.class)) {
+            result = (T) new JPAAnyTemplateSyncTask();
         } else if (reference.equals(SecurityQuestion.class)) {
             result = (T) new JPASecurityQuestion();
         } else if (reference.equals(Logger.class)) {

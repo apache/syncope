@@ -36,66 +36,66 @@ public abstract class DefaultSyncActions implements SyncActions {
     }
 
     @Override
-    public <T extends AnyTO, K extends AnyMod> SyncDelta beforeUpdate(
+    public <A extends AnyTO, M extends AnyMod> SyncDelta beforeUpdate(
             final ProvisioningProfile<?, ?> profile,
             final SyncDelta delta,
-            final T any,
-            final K anyMod) throws JobExecutionException {
+            final A any,
+            final M anyMod) throws JobExecutionException {
 
         return delta;
     }
 
     @Override
-    public <T extends AnyTO> SyncDelta beforeDelete(
-            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final T any)
+    public <A extends AnyTO> SyncDelta beforeDelete(
+            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final A any)
             throws JobExecutionException {
 
         return delta;
     }
 
     @Override
-    public <T extends AnyTO> SyncDelta beforeAssign(
-            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final T any)
+    public <A extends AnyTO> SyncDelta beforeAssign(
+            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final A any)
             throws JobExecutionException {
 
         return delta;
     }
 
     @Override
-    public <T extends AnyTO> SyncDelta beforeProvision(
-            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final T any)
+    public <A extends AnyTO> SyncDelta beforeProvision(
+            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final A any)
             throws JobExecutionException {
 
         return delta;
     }
 
     @Override
-    public <T extends AnyTO> SyncDelta beforeLink(
-            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final T any)
+    public <A extends AnyTO> SyncDelta beforeLink(
+            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final A any)
             throws JobExecutionException {
 
         return delta;
     }
 
     @Override
-    public <T extends AnyTO> SyncDelta beforeUnassign(
-            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final T any)
+    public <A extends AnyTO> SyncDelta beforeUnassign(
+            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final A any)
             throws JobExecutionException {
 
         return delta;
     }
 
     @Override
-    public <T extends AnyTO> SyncDelta beforeDeprovision(
-            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final T any)
+    public <A extends AnyTO> SyncDelta beforeDeprovision(
+            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final A any)
             throws JobExecutionException {
 
         return delta;
     }
 
     @Override
-    public <T extends AnyTO> SyncDelta beforeUnlink(
-            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final T any)
+    public <A extends AnyTO> SyncDelta beforeUnlink(
+            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final A any)
             throws JobExecutionException {
 
         return delta;
@@ -108,8 +108,8 @@ public abstract class DefaultSyncActions implements SyncActions {
     }
 
     @Override
-    public <T extends AnyTO> void after(
-            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final T any,
+    public <A extends AnyTO> void after(
+            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final A any,
             final ProvisioningResult result)
             throws JobExecutionException {
     }

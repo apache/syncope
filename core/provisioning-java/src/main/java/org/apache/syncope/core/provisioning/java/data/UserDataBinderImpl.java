@@ -161,9 +161,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             AnyObject anyObject = anyObjectDAO.find(relationshipTO.getRightKey());
 
             if (anyObject == null) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Ignoring invalid anyObject " + relationshipTO.getRightKey());
-                }
+                LOG.debug("Ignoring invalid anyObject " + relationshipTO.getRightKey());
             } else {
                 URelationship relationship = null;
                 if (user.getKey() != null) {
@@ -184,9 +182,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             Group group = groupDAO.find(membershipTO.getRightKey());
 
             if (group == null) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Ignoring invalid group " + membershipTO.getGroupName());
-                }
+                LOG.debug("Ignoring invalid group " + membershipTO.getGroupName());
             } else {
                 UMembership membership = null;
                 if (user.getKey() != null) {

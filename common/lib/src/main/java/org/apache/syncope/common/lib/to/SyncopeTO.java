@@ -43,8 +43,6 @@ public class SyncopeTO extends AbstractBaseBean {
 
     private final List<String> connIdLocations = new ArrayList<>();
 
-    private String anyTransformer;
-
     private String anyObjectWorkflowAdapter;
 
     private String userWorkflowAdapter;
@@ -68,6 +66,8 @@ public class SyncopeTO extends AbstractBaseBean {
     private final List<String> passwordRules = new ArrayList<>();
 
     private final List<String> taskJobs = new ArrayList<>();
+
+    private final List<String> logicActions = new ArrayList<>();
 
     private final List<String> propagationActions = new ArrayList<>();
 
@@ -104,10 +104,6 @@ public class SyncopeTO extends AbstractBaseBean {
     @JsonProperty("connIdLocations")
     public List<String> getConnIdLocations() {
         return connIdLocations;
-    }
-
-    public String getAnyTransformer() {
-        return anyTransformer;
     }
 
     public String getAnyObjectWorkflowAdapter() {
@@ -174,6 +170,13 @@ public class SyncopeTO extends AbstractBaseBean {
         return taskJobs;
     }
 
+    @XmlElementWrapper(name = "logicActions")
+    @XmlElement(name = "logicAction")
+    @JsonProperty("logicActions")
+    public List<String> getLogicActions() {
+        return logicActions;
+    }
+
     @XmlElementWrapper(name = "propagationActions")
     @XmlElement(name = "propagationAction")
     @JsonProperty("propagationActions")
@@ -237,10 +240,6 @@ public class SyncopeTO extends AbstractBaseBean {
 
     public void setPwdResetRequiringSecurityQuestions(final boolean pwdResetRequiringSecurityQuestions) {
         this.pwdResetRequiringSecurityQuestions = pwdResetRequiringSecurityQuestions;
-    }
-
-    public void setAnyTransformer(final String anyTransformer) {
-        this.anyTransformer = anyTransformer;
     }
 
     public void setAnyObjectWorkflowAdapter(final String anyObjectWorkflowAdapter) {

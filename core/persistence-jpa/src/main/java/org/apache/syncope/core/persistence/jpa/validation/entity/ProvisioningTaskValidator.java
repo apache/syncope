@@ -47,7 +47,7 @@ public class ProvisioningTaskValidator extends AbstractValidator<ProvisioningTas
 
                 context.disableDefaultConstraintViolation();
                 context.buildConstraintViolationWithTemplate(
-                        getTemplate(EntityViolationType.InvalidSyncTask, "Resource cannot be null")).
+                        getTemplate(EntityViolationType.InvalidProvisioningTask, "Resource cannot be null")).
                         addPropertyNode("resource").addConstraintViolation();
             }
 
@@ -63,7 +63,8 @@ public class ProvisioningTaskValidator extends AbstractValidator<ProvisioningTas
                                         ? PushActions.class.isAssignableFrom(actionsClass)
                                         : false;
                     } catch (Exception e) {
-                        LOG.error("Invalid SyncActions specified", e);
+                        LOG.error("Invalid {} / {} specified",
+                                PushActions.class.getName(), SyncActions.class.getName(), e);
                         isValid = false;
                     }
 
@@ -72,7 +73,7 @@ public class ProvisioningTaskValidator extends AbstractValidator<ProvisioningTas
 
                         context.disableDefaultConstraintViolation();
                         context.buildConstraintViolationWithTemplate(
-                                getTemplate(EntityViolationType.InvalidSyncTask, "Invalid class name")).
+                                getTemplate(EntityViolationType.InvalidProvisioningTask, "Invalid class name")).
                                 addPropertyNode("actionsClassName").addConstraintViolation();
                     }
                 }

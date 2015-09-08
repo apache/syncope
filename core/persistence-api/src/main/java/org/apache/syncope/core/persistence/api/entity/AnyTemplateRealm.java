@@ -16,23 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.entity.task;
+package org.apache.syncope.core.persistence.api.entity;
 
-import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.core.persistence.api.entity.AnyType;
-import org.apache.syncope.core.persistence.api.entity.Entity;
+public interface AnyTemplateRealm extends AnyTemplate {
 
-public interface AnyTemplate extends Entity<Long> {
+    Realm getRealm();
 
-    SyncTask getSyncTask();
-
-    void setSyncTask(SyncTask syncTask);
-
-    AnyType getAnyType();
-
-    void setAnyType(AnyType anyType);
-
-    AnyTO get();
-
-    void set(AnyTO template);
+    void setRealm(Realm realm);
 }

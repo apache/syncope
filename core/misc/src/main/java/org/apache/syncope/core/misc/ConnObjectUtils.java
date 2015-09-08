@@ -35,8 +35,6 @@ import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.GroupTO;
-import org.apache.syncope.common.lib.to.MembershipTO;
-import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
@@ -44,23 +42,19 @@ import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValidationException;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
-import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
-import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.task.SyncTask;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.misc.security.Encryptor;
-import org.apache.syncope.core.misc.jexl.JexlUtils;
 import org.apache.syncope.core.misc.security.PasswordGenerator;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
-import org.apache.syncope.core.persistence.api.entity.task.AnyTemplate;
 import org.identityconnectors.common.Base64;
 import org.identityconnectors.common.security.GuardedByteArray;
 import org.identityconnectors.common.security.GuardedString;
@@ -78,13 +72,13 @@ public class ConnObjectUtils {
     private static final Logger LOG = LoggerFactory.getLogger(ConnObjectUtils.class);
 
     @Autowired
+    private TemplateUtils templateUtils;
+
+    @Autowired
     private RealmDAO realmDAO;
 
     @Autowired
     private UserDAO userDAO;
-
-    @Autowired
-    private GroupDAO groupDAO;
 
     @Autowired
     private ExternalResourceDAO resourceDAO;
@@ -320,57 +314,7 @@ public class ConnObjectUtils {
         }
 
         // 2. add data from defined template (if any)
-        AnyTemplate anyTypeTemplate = syncTask.getTemplate(provision.getAnyType());
-        if (anyTypeTemplate != null) {
-            AnyTO template = anyTypeTemplate.get();
-            fillFromTemplate(anyTO, template);
-
-            if (template instanceof AnyObjectTO) {
-                fillRelationshipsFromTemplate(((AnyObjectTO) anyTO).getRelationshipMap(),
-                        ((AnyObjectTO) anyTO).getRelationships(), ((AnyObjectTO) template).getRelationships());
-                fillMembershipsFromTemplate(((AnyObjectTO) anyTO).getMembershipMap(),
-                        ((AnyObjectTO) anyTO).getMemberships(), ((AnyObjectTO) template).getMemberships());
-            } else if (template instanceof UserTO) {
-                if (StringUtils.isNotBlank(((UserTO) template).getUsername())) {
-                    String evaluated = JexlUtils.evaluate(((UserTO) template).getUsername(), anyTO);
-                    if (StringUtils.isNotBlank(evaluated)) {
-                        ((UserTO) anyTO).setUsername(evaluated);
-                    }
-                }
-
-                if (StringUtils.isNotBlank(((UserTO) template).getPassword())) {
-                    String evaluated = JexlUtils.evaluate(((UserTO) template).getPassword(), anyTO);
-                    if (StringUtils.isNotBlank(evaluated)) {
-                        ((UserTO) anyTO).setPassword(evaluated);
-                    }
-                }
-
-                fillRelationshipsFromTemplate(((UserTO) anyTO).getRelationshipMap(),
-                        ((UserTO) anyTO).getRelationships(), ((UserTO) template).getRelationships());
-                fillMembershipsFromTemplate(((UserTO) anyTO).getMembershipMap(),
-                        ((UserTO) anyTO).getMemberships(), ((UserTO) template).getMemberships());
-            } else if (template instanceof GroupTO) {
-                if (StringUtils.isNotBlank(((GroupTO) template).getName())) {
-                    String evaluated = JexlUtils.evaluate(((GroupTO) template).getName(), anyTO);
-                    if (StringUtils.isNotBlank(evaluated)) {
-                        ((GroupTO) anyTO).setName(evaluated);
-                    }
-                }
-
-                if (((GroupTO) template).getUserOwner() != null) {
-                    final User userOwner = userDAO.find(((GroupTO) template).getUserOwner());
-                    if (userOwner != null) {
-                        ((GroupTO) anyTO).setUserOwner(userOwner.getKey());
-                    }
-                }
-                if (((GroupTO) template).getGroupOwner() != null) {
-                    final Group groupOwner = groupDAO.find(((GroupTO) template).getGroupOwner());
-                    if (groupOwner != null) {
-                        ((GroupTO) anyTO).setGroupOwner(groupOwner.getKey());
-                    }
-                }
-            }
-        }
+        templateUtils.apply(anyTO, syncTask.getTemplate(provision.getAnyType()));
 
         return anyTO;
     }
@@ -440,81 +384,6 @@ public class ConnObjectUtils {
         }
 
         return connObjectTO;
-    }
-
-    private AttrTO evaluateAttrFromTemplate(final AnyTO anyTO, final AttrTO template) {
-        AttrTO result = new AttrTO();
-        result.setSchema(template.getSchema());
-
-        if (template.getValues() != null && !template.getValues().isEmpty()) {
-            for (String value : template.getValues()) {
-                String evaluated = JexlUtils.evaluate(value, anyTO);
-                if (StringUtils.isNotBlank(evaluated)) {
-                    result.getValues().add(evaluated);
-                }
-            }
-        }
-
-        return result;
-    }
-
-    private void fillFromTemplate(final AnyTO anyTO, final AnyTO template) {
-        if (template.getRealm() != null) {
-            anyTO.setRealm(template.getRealm());
-        }
-
-        Map<String, AttrTO> currentAttrMap = anyTO.getPlainAttrMap();
-        for (AttrTO templatePlainAttr : template.getPlainAttrs()) {
-            if (!templatePlainAttr.getValues().isEmpty()
-                    && (!currentAttrMap.containsKey(templatePlainAttr.getSchema())
-                    || currentAttrMap.get(templatePlainAttr.getSchema()).getValues().isEmpty())) {
-
-                anyTO.getPlainAttrs().add(evaluateAttrFromTemplate(anyTO, templatePlainAttr));
-            }
-        }
-
-        currentAttrMap = anyTO.getDerAttrMap();
-        for (AttrTO templateDerAttr : template.getDerAttrs()) {
-            if (!currentAttrMap.containsKey(templateDerAttr.getSchema())) {
-                anyTO.getDerAttrs().add(templateDerAttr);
-            }
-        }
-
-        currentAttrMap = anyTO.getVirAttrMap();
-        for (AttrTO templateVirAttr : template.getVirAttrs()) {
-            if (!templateVirAttr.getValues().isEmpty()
-                    && (!currentAttrMap.containsKey(templateVirAttr.getSchema())
-                    || currentAttrMap.get(templateVirAttr.getSchema()).getValues().isEmpty())) {
-
-                anyTO.getVirAttrs().add(evaluateAttrFromTemplate(anyTO, templateVirAttr));
-            }
-        }
-
-        for (String resource : template.getResources()) {
-            anyTO.getResources().add(resource);
-        }
-
-        anyTO.getAuxClasses().addAll(template.getAuxClasses());
-    }
-
-    private void fillRelationshipsFromTemplate(final Map<Long, RelationshipTO> anyRelMap,
-            final List<RelationshipTO> anyRels, final List<RelationshipTO> templateRels) {
-
-        for (RelationshipTO memb : templateRels) {
-            if (!anyRelMap.containsKey(memb.getRightKey())) {
-                anyRels.add(memb);
-            }
-        }
-    }
-
-    private void fillMembershipsFromTemplate(final Map<Long, MembershipTO> anyMembMap,
-            final List<MembershipTO> anyMembs, final List<MembershipTO> templateMembs) {
-
-        for (MembershipTO memb : templateMembs) {
-            if (!anyMembMap.containsKey(memb.getRightKey())) {
-                anyMembs.add(memb);
-            }
-        }
     }
 
     /**

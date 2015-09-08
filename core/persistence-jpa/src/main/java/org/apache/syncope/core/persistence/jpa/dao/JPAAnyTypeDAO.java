@@ -26,20 +26,24 @@ import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyType;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class JPAAnyTypeDAO extends AbstractDAO<AnyType, String> implements AnyTypeDAO {
 
+    @Transactional(readOnly = true)
     @Override
     public AnyType find(final String key) {
         return entityManager().find(JPAAnyType.class, key);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public AnyType findUser() {
         return find(AnyTypeKind.USER.name());
     }
 
+    @Transactional(readOnly = true)
     @Override
     public AnyType findGroup() {
         return find(AnyTypeKind.GROUP.name());

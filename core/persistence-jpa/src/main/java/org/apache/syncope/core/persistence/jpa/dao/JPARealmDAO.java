@@ -39,6 +39,7 @@ import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.jpa.entity.JPARealm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class JPARealmDAO extends AbstractDAO<Realm, Long> implements RealmDAO {
@@ -68,6 +69,7 @@ public class JPARealmDAO extends AbstractDAO<Realm, Long> implements RealmDAO {
         return entityManager().find(JPARealm.class, key);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Realm find(final String fullPath) {
         if (SyncopeConstants.ROOT_REALM.equals(fullPath)) {

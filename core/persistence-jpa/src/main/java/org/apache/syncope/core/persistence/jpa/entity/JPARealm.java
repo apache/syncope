@@ -18,18 +18,33 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPasswordPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAccountPolicy;
 import javax.persistence.Cacheable;
+import javax.persistence.CascadeType;
+import javax.persistence.CollectionTable;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.Size;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.core.persistence.api.entity.AnyTemplate;
+import org.apache.syncope.core.persistence.api.entity.AnyTemplateRealm;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.Realm;
@@ -60,6 +75,16 @@ public class JPARealm extends AbstractEntity<Long> implements Realm {
 
     @ManyToOne(fetch = FetchType.EAGER)
     private JPAAccountPolicy accountPolicy;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Column(name = "actionClassName")
+    @CollectionTable(name = "Realm_actionsClassNames",
+            joinColumns =
+            @JoinColumn(name = "realm_id", referencedColumnName = "id"))
+    private Set<String> actionsClassNames = new HashSet<>();
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "realm")
+    private List<JPAAnyTemplateRealm> templates = new ArrayList<>();
 
     @Override
     public Long getKey() {
@@ -116,4 +141,36 @@ public class JPARealm extends AbstractEntity<Long> implements Realm {
         this.passwordPolicy = (JPAPasswordPolicy) passwordPolicy;
     }
 
+    @Override
+    public Set<String> getActionsClassNames() {
+        return actionsClassNames;
+    }
+
+    @Override
+    public boolean add(final AnyTemplateRealm template) {
+        checkType(template, JPAAnyTemplateRealm.class);
+        return this.templates.add((JPAAnyTemplateRealm) template);
+    }
+
+    @Override
+    public boolean remove(final AnyTemplateRealm template) {
+        checkType(template, JPAAnyTemplateRealm.class);
+        return this.templates.remove((JPAAnyTemplateRealm) template);
+    }
+
+    @Override
+    public AnyTemplateRealm getTemplate(final AnyType anyType) {
+        return CollectionUtils.find(templates, new Predicate<AnyTemplate>() {
+
+            @Override
+            public boolean evaluate(final AnyTemplate template) {
+                return anyType != null && anyType.equals(template.getAnyType());
+            }
+        });
+    }
+
+    @Override
+    public List<? extends AnyTemplateRealm> getTemplates() {
+        return templates;
+    }
 }

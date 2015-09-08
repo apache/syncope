@@ -16,59 +16,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.jpa.entity.task;
+package org.apache.syncope.core.persistence.jpa.entity.resource;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
+import javax.persistence.MappedSuperclass;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.core.misc.serialization.POJOHelper;
+import org.apache.syncope.core.persistence.api.entity.AnyTemplate;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
-import org.apache.syncope.core.persistence.api.entity.task.SyncTask;
-import org.apache.syncope.core.persistence.api.entity.task.AnyTemplate;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractEntity;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyType;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyUtilsFactory;
 
-@Entity
-@Table(name = JPAAnyTemplate.TABLE, uniqueConstraints =
-        @UniqueConstraint(columnNames = { "syncTask_id", "anyType_name" }))
-public class JPAAnyTemplate extends AbstractEntity<Long> implements AnyTemplate {
+@MappedSuperclass
+public abstract class AbstractAnyTemplate extends AbstractEntity<Long> implements AnyTemplate {
 
-    private static final long serialVersionUID = 3517381731849788407L;
-
-    public static final String TABLE = "AnyTemplate";
-
-    @Id
-    private Long id;
-
-    @ManyToOne
-    private JPASyncTask syncTask;
+    private static final long serialVersionUID = -5280310945358790780L;
 
     @ManyToOne
     private JPAAnyType anyType;
 
     @Lob
     private String template;
-
-    @Override
-    public Long getKey() {
-        return id;
-    }
-
-    @Override
-    public SyncTask getSyncTask() {
-        return syncTask;
-    }
-
-    @Override
-    public void setSyncTask(final SyncTask syncTask) {
-        checkType(syncTask, JPASyncTask.class);
-        this.syncTask = (JPASyncTask) syncTask;
-    }
 
     @Override
     public AnyType getAnyType() {

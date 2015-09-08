@@ -18,11 +18,6 @@
  */
 package org.apache.syncope.client.console.topology;
 
-import static org.apache.syncope.client.console.topology.TopologyNode.Status.FAILURE;
-import static org.apache.syncope.client.console.topology.TopologyNode.Status.REACHABLE;
-import static org.apache.syncope.client.console.topology.TopologyNode.Status.UNKNOWN;
-import static org.apache.syncope.client.console.topology.TopologyNode.Status.UNREACHABLE;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
@@ -46,15 +41,15 @@ import org.slf4j.LoggerFactory;
 
 public class WebSocketBehavior extends org.apache.wicket.protocol.ws.api.WebSocketBehavior {
 
-    private static final long serialVersionUID = 1L;
-
     protected static final Logger LOG = LoggerFactory.getLogger(WebSocketBehavior.class);
 
-    private final Map<String, String> resources = new HashMap<String, String>();
+    private static final long serialVersionUID = -1653665542635275551L;
+
+    private final Map<String, String> resources = new HashMap<>();
 
     private final Set<String> runningResCheck = new HashSet<>();
 
-    private final Map<Long, String> connectors = new HashMap<Long, String>();
+    private final Map<Long, String> connectors = new HashMap<>();
 
     private final Set<Long> runningConnCheck = new HashSet<>();
 
@@ -77,7 +72,8 @@ public class WebSocketBehavior extends org.apache.wicket.protocol.ws.api.WebSock
                     if (connectors.containsKey(ckey)) {
                         handler.push(connectors.get(ckey));
                     } else {
-                        handler.push(String.format("{ \"status\": \"%s\", \"target\": \"%s\"}", UNKNOWN, ckey));
+                        handler.push(String.format(
+                                "{ \"status\": \"%s\", \"target\": \"%s\"}", TopologyNode.Status.UNKNOWN, ckey));
                     }
 
                     synchronized (runningConnCheck) {
@@ -97,7 +93,8 @@ public class WebSocketBehavior extends org.apache.wicket.protocol.ws.api.WebSock
                     if (resources.containsKey(rkey)) {
                         handler.push(resources.get(rkey));
                     } else {
-                        handler.push(String.format("{ \"status\": \"%s\", \"target\": \"%s\"}", UNKNOWN, rkey));
+                        handler.push(String.format(
+                                "{ \"status\": \"%s\", \"target\": \"%s\"}", TopologyNode.Status.UNKNOWN, rkey));
                     }
 
                     synchronized (runningResCheck) {
@@ -151,10 +148,11 @@ public class WebSocketBehavior extends org.apache.wicket.protocol.ws.api.WebSock
                 try {
                     final ConnInstanceTO connector = connectorRestClient.read(key);
                     res = String.format("{ \"status\": \"%s\", \"target\": \"%s\"}",
-                            connectorRestClient.check(connector) ? REACHABLE : UNREACHABLE, key);
+                            connectorRestClient.check(connector)
+                                    ? TopologyNode.Status.REACHABLE : TopologyNode.Status.UNREACHABLE, key);
                 } catch (Exception e) {
                     LOG.warn("Error checking connection for {}", key, e);
-                    res = String.format("{ \"status\": \"%s\", \"target\": \"%s\"}", FAILURE, key);
+                    res = String.format("{ \"status\": \"%s\", \"target\": \"%s\"}", TopologyNode.Status.FAILURE, key);
                 }
 
                 synchronized (runningConnCheck) {
@@ -191,10 +189,11 @@ public class WebSocketBehavior extends org.apache.wicket.protocol.ws.api.WebSock
                 try {
                     final ResourceTO resource = resourceRestClient.read(key);
                     res = String.format("{ \"status\": \"%s\", \"target\": \"%s\"}",
-                            connectorRestClient.check(resource) ? REACHABLE : UNREACHABLE, key);
+                            connectorRestClient.check(resource)
+                                    ? TopologyNode.Status.REACHABLE : TopologyNode.Status.UNREACHABLE, key);
                 } catch (Exception e) {
                     LOG.warn("Error checking connection for {}", key, e);
-                    res = String.format("{ \"status\": \"%s\", \"target\": \"%s\"}", FAILURE, key);
+                    res = String.format("{ \"status\": \"%s\", \"target\": \"%s\"}", TopologyNode.Status.FAILURE, key);
                 }
 
                 synchronized (runningResCheck) {

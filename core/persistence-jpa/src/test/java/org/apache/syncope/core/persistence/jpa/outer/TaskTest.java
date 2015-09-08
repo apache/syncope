@@ -45,7 +45,8 @@ import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.persistence.api.entity.task.SyncTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
-import org.apache.syncope.core.persistence.api.entity.task.AnyTemplate;
+import org.apache.syncope.core.persistence.api.entity.AnyTemplate;
+import org.apache.syncope.core.persistence.api.entity.task.AnyTemplateSyncTask;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.apache.syncope.core.provisioning.api.sync.SyncActions;
@@ -208,7 +209,7 @@ public class TaskTest extends AbstractTest {
         ExternalResource resource = resourceDAO.find("ws-target-resource-1");
         assertNotNull(resource);
 
-        AnyTemplate template = entityFactory.newEntity(AnyTemplate.class);
+        AnyTemplateSyncTask template = entityFactory.newEntity(AnyTemplateSyncTask.class);
         template.set(new UserTO());
 
         SyncTask task = entityFactory.newEntity(SyncTask.class);

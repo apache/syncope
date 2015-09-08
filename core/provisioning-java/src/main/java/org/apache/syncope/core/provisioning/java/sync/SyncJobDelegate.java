@@ -107,7 +107,7 @@ public class SyncJobDelegate extends AbstractProvisioningJobDelegate<SyncTask> {
 
                 actions.add(syncActions);
             } catch (Exception e) {
-                LOG.info("Class '{}' not found", className, e);
+                LOG.warn("Class '{}' not found", className, e);
             }
         }
 

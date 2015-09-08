@@ -37,6 +37,7 @@ import org.apache.syncope.core.persistence.api.dao.AccountRule;
 import org.apache.syncope.core.persistence.api.dao.AccountRuleConfClass;
 import org.apache.syncope.core.persistence.api.dao.PasswordRule;
 import org.apache.syncope.core.persistence.api.dao.PasswordRuleConfClass;
+import org.apache.syncope.core.provisioning.api.LogicActions;
 import org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
 import org.apache.syncope.core.provisioning.api.sync.PushActions;
@@ -90,12 +91,13 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
         scanner.addIncludeFilter(new AssignableTypeFilter(AccountRule.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(PasswordRule.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(SchedTaskJobDelegate.class));
+        scanner.addIncludeFilter(new AssignableTypeFilter(LogicActions.class));
+        scanner.addIncludeFilter(new AssignableTypeFilter(PropagationActions.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(SyncActions.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(PushActions.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(SyncCorrelationRule.class));
         // Remove once SYNCOPE-470 is done
         //scanner.addIncludeFilter(new AssignableTypeFilter(PushCorrelationRule.class));
-        scanner.addIncludeFilter(new AssignableTypeFilter(PropagationActions.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(Validator.class));
 
         for (BeanDefinition bd : scanner.findCandidateComponents(StringUtils.EMPTY)) {
@@ -136,6 +138,14 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                     classNames.get(Type.TASKJOBDELEGATE).add(bd.getBeanClassName());
                 }
 
+                if (LogicActions.class.isAssignableFrom(clazz) && !isAbsractClazz) {
+                    classNames.get(Type.LOGIC_ACTIONS).add(bd.getBeanClassName());
+                }
+
+                if (PropagationActions.class.isAssignableFrom(clazz) && !isAbsractClazz) {
+                    classNames.get(Type.PROPAGATION_ACTIONS).add(bd.getBeanClassName());
+                }
+
                 if (SyncActions.class.isAssignableFrom(clazz) && !isAbsractClazz) {
                     classNames.get(Type.SYNC_ACTIONS).add(bd.getBeanClassName());
                 }
@@ -152,10 +162,6 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                 /* if (PushCorrelationRule.class.isAssignableFrom(clazz) && !isAbsractClazz) {
                  * classNames.get(Type.PUSH_CORRELATION_RULES).add(metadata.getClassName());
                  * } */
-                if (PropagationActions.class.isAssignableFrom(clazz) && !isAbsractClazz) {
-                    classNames.get(Type.PROPAGATION_ACTIONS).add(bd.getBeanClassName());
-                }
-
                 if (Validator.class.isAssignableFrom(clazz) && !isAbsractClazz) {
                     classNames.get(Type.VALIDATOR).add(bd.getBeanClassName());
                 }

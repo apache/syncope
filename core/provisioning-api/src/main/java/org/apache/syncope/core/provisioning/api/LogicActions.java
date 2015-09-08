@@ -22,12 +22,19 @@ import org.apache.syncope.common.lib.mod.AnyMod;
 import org.apache.syncope.common.lib.to.AnyTO;
 
 /**
- * Provides logic for transforming any object, received as input by RESTful methods, before any internal
- * processing logic takes place.
+ * Interface for actions to be performed during business logic execution.
  */
-public interface AnyTransformer {
+public interface LogicActions {
 
-    <T extends AnyTO> T transform(T input);
+    <A extends AnyTO> A beforeCreate(A input);
 
-    <T extends AnyMod> T transform(T input);
+    <A extends AnyTO> A afterCreate(A input);
+
+    <M extends AnyMod> M beforeUpdate(M input);
+
+    <A extends AnyTO> A afterUpdate(A input);
+
+    <A extends AnyTO> A beforeDelete(A input);
+
+    <A extends AnyTO> A afterDelete(A input);
 }
