@@ -85,8 +85,6 @@ under the License.
       <arg>$mvn.proxy.user</arg><!-- 27 -->
       <arg>$mvn.proxy.pwd</arg><!-- 28 -->
       <arg>$mvn.proxy.autoconf</arg><!-- 29 -->
-      <arg>$mvn.proxy.autoconf</arg><!-- 30 -->
-      <arg>$mvn.proxy.autoconf</arg><!-- 31 -->
     </executeclass>
   </job>
   <onFail previous="true" next="false" />

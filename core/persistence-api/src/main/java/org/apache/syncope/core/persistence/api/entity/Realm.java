@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.core.persistence.api.entity;
 
+import java.util.List;
+import java.util.Set;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 
@@ -28,7 +30,7 @@ public interface Realm extends Entity<Long> {
     Realm getParent();
 
     String getFullPath();
-    
+
     AccountPolicy getAccountPolicy();
 
     PasswordPolicy getPasswordPolicy();
@@ -41,4 +43,13 @@ public interface Realm extends Entity<Long> {
 
     void setPasswordPolicy(PasswordPolicy passwordPolicy);
 
+    Set<String> getActionsClassNames();
+
+    boolean add(AnyTemplateRealm template);
+
+    boolean remove(AnyTemplateRealm template);
+
+    AnyTemplateRealm getTemplate(AnyType anyType);
+
+    List<? extends AnyTemplateRealm> getTemplates();
 }

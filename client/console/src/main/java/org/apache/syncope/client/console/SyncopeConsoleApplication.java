@@ -28,15 +28,18 @@ import java.util.List;
 import java.util.Locale;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.pages.BasePage;
+import org.apache.syncope.client.console.pages.MustChangePassword;
 import org.apache.syncope.client.console.pages.Dashboard;
 import org.apache.syncope.client.console.pages.Login;
 import org.apache.syncope.client.console.resources.FilesystemResource;
 import org.apache.syncope.client.console.resources.WorkflowDefGETResource;
 import org.apache.syncope.client.console.resources.WorkflowDefPUTResource;
 import org.apache.syncope.client.console.themes.AdminLTE;
+import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.wicket.Page;
 import org.apache.wicket.authroles.authentication.AbstractAuthenticatedWebSession;
 import org.apache.wicket.authroles.authentication.AuthenticatedWebApplication;
+import org.apache.wicket.authroles.authentication.AuthenticatedWebSession;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.protocol.http.WebApplication;
@@ -142,7 +145,10 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
 
     @Override
     public Class<? extends Page> getHomePage() {
-        return Dashboard.class;
+        return AuthenticatedWebSession.get().isSignedIn()
+                && SyncopeConsoleSession.get().owns(Entitlement.MUST_CHANGE_PASSWORD)
+                        ? MustChangePassword.class
+                        : Dashboard.class;
     }
 
 }

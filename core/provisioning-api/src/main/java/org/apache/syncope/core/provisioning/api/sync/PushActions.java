@@ -22,7 +22,7 @@ import org.apache.syncope.core.persistence.api.entity.Any;
 import org.quartz.JobExecutionException;
 
 /**
- * Interface for actions to be performed during PushJob execution.
+ * Interface for actions to be performed during push.
  * <br/>
  * All methods can throw {@link IgnoreProvisionException} to make the current any ignored by the push process.
  */
@@ -31,124 +31,134 @@ public interface PushActions extends ProvisioningActions {
     /**
      * Action to be executed before to assign (link & provision) a synchronized any object to the resource.
      *
+     * @param <A> concrete any object
      * @param profile profile of the push being executed.
      * @param any any object to be created.
      * @return any.
      * @throws JobExecutionException in case of generic failure
      */
-    <T extends Any<?, ?, ?>> T beforeAssign(
+    <A extends Any<?, ?, ?>> A beforeAssign(
             ProvisioningProfile<?, ?> profile,
-            T any) throws JobExecutionException;
+            A any) throws JobExecutionException;
 
     /**
      * Action to be executed before to provision a synchronized any object to the resource.
      *
+     * @param <A> concrete any object
      * @param profile profile of the push being executed.
      * @param any any object to be created.
      * @return any.
      * @throws JobExecutionException in case of generic failure
      */
-    <T extends Any<?, ?, ?>> T beforeProvision(
+    <A extends Any<?, ?, ?>> A beforeProvision(
             ProvisioningProfile<?, ?> profile,
-            T any) throws JobExecutionException;
+            A any) throws JobExecutionException;
 
     /**
      * Action to be executed before to update a synchronized any object on the resource.
      *
+     * @param <A> concrete any object
      * @param profile profile of the push being executed.
      * @param any any object to be updated.
      * @return any.
      * @throws JobExecutionException in case of generic failure
      */
-    <T extends Any<?, ?, ?>> T beforeUpdate(
+    <A extends Any<?, ?, ?>> A beforeUpdate(
             ProvisioningProfile<?, ?> profile,
-            T any) throws JobExecutionException;
+            A any) throws JobExecutionException;
 
     /**
      * Action to be executed before to link a synchronized any object to the resource.
      *
+     * @param <A> concrete any object
      * @param profile profile of the push being executed.
      * @param any any object to be created.
      * @return any.
      * @throws JobExecutionException in case of generic failure
      */
-    <T extends Any<?, ?, ?>> T beforeLink(
+    <A extends Any<?, ?, ?>> A beforeLink(
             ProvisioningProfile<?, ?> profile,
-            T any) throws JobExecutionException;
+            A any) throws JobExecutionException;
 
     /**
      * Action to be executed before to unlink a synchronized any object from the resource.
      *
+     * @param <A> concrete any object
      * @param profile profile of the push being executed.
      * @param any any object to be created.
      * @return any.
      * @throws JobExecutionException in case of generic failure
      */
-    <T extends Any<?, ?, ?>> T beforeUnlink(
+    <A extends Any<?, ?, ?>> A beforeUnlink(
             ProvisioningProfile<?, ?> profile,
-            T any) throws JobExecutionException;
+            A any) throws JobExecutionException;
 
     /**
      * Action to be executed before to unassign a synchronized any object from the resource.
      *
+     * @param <A> concrete any object
      * @param profile profile of the push being executed.
      * @param any any object to be created.
      * @return any.
      * @throws JobExecutionException in case of generic failure
      */
-    <T extends Any<?, ?, ?>> T beforeUnassign(
+    <A extends Any<?, ?, ?>> A beforeUnassign(
             ProvisioningProfile<?, ?> profile,
-            T any) throws JobExecutionException;
+            A any) throws JobExecutionException;
 
     /**
      * Action to be executed before to unassign a synchronized any object from the resource.
      *
+     * @param <A> concrete any object
      * @param profile profile of the push being executed.
      * @param any any object to be created.
      * @return any.
      * @throws JobExecutionException in case of generic failure
      */
-    <T extends Any<?, ?, ?>> T beforeDeprovision(
+    <A extends Any<?, ?, ?>> A beforeDeprovision(
             ProvisioningProfile<?, ?> profile,
-            T any) throws JobExecutionException;
+            A any) throws JobExecutionException;
 
     /**
      * Action to be executed before delete a synchronized any object locally and from the resource.
      *
+     * @param <A> concrete any object
      * @param profile profile of the push being executed.
      * @param any any object to be created.
      * @return any.
      * @throws JobExecutionException in case of generic failure
      */
-    <T extends Any<?, ?, ?>> T beforeDelete(
+    <A extends Any<?, ?, ?>> A beforeDelete(
             ProvisioningProfile<?, ?> profile,
-            T any) throws JobExecutionException;
+            A any) throws JobExecutionException;
 
     /**
      * Action to be executed after any object push goes on error.
      *
+     * @param <A> concrete any object
      * @param profile profile of the push being executed.
      * @param any synchronized any object.
      * @param result operation result.
      * @param error error being reported
      * @throws JobExecutionException in case of generic failure
      */
-    <T extends Any<?, ?, ?>> void onError(
+    <A extends Any<?, ?, ?>> void onError(
             ProvisioningProfile<?, ?> profile,
-            T any,
+            A any,
             ProvisioningResult result,
             Exception error) throws JobExecutionException;
 
     /**
      * Action to be executed after each local any object push.
      *
+     * @param <A> concrete any object
      * @param profile profile of the push being executed.
      * @param any synchronized any object.
      * @param result operation result.
      * @throws JobExecutionException in case of generic failure
      */
-    <T extends Any<?, ?, ?>> void after(
+    <A extends Any<?, ?, ?>> void after(
             ProvisioningProfile<?, ?> profile,
-            T any,
+            A any,
             ProvisioningResult result) throws JobExecutionException;
 }

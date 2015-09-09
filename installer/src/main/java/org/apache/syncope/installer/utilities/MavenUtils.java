@@ -103,7 +103,7 @@ public class MavenUtils {
         if (customSettingsFile != null && FileUtils.sizeOf(customSettingsFile) > 0) {
             request.setUserSettingsFile(customSettingsFile);
         }
-        final List<String> mavenGoals = new ArrayList<String>();
+        final List<String> mavenGoals = new ArrayList<>();
         mavenGoals.add("clean");
         mavenGoals.add("package");
         request.setGoals(mavenGoals);
@@ -146,11 +146,7 @@ public class MavenUtils {
                     new PrintStream(InstallLog.getInstance().getFileAbsolutePath()), true));
             invoker.setWorkingDirectory(new File(path));
             result = invoker.execute(request);
-        } catch (MavenInvocationException ex) {
-            final String messageError = "Maven exception: " + ex.getMessage();
-            handler.emitError(messageError, messageError);
-            InstallLog.getInstance().info(messageError);
-        } catch (FileNotFoundException ex) {
+        } catch (MavenInvocationException | FileNotFoundException ex) {
             final String messageError = "Maven exception: " + ex.getMessage();
             handler.emitError(messageError, messageError);
             InstallLog.getInstance().info(messageError);

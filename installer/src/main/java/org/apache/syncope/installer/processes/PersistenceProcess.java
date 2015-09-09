@@ -22,7 +22,8 @@ import org.apache.syncope.installer.utilities.FileSystemUtils;
 import com.izforge.izpack.panels.process.AbstractUIProcessHandler;
 import java.io.File;
 import org.apache.syncope.installer.enums.DBs;
-import org.apache.syncope.installer.files.PersistenceProperties;
+import org.apache.syncope.installer.files.MasterProperties;
+import org.apache.syncope.installer.files.ProvisioningProperties;
 import org.apache.syncope.installer.utilities.InstallLog;
 
 public class PersistenceProcess extends BaseProcess {
@@ -41,10 +42,10 @@ public class PersistenceProcess extends BaseProcess {
 
     private boolean mysqlInnoDB;
 
-    private String oracleTableSpace;
+    private String schema;
 
+    @Override
     public void run(final AbstractUIProcessHandler handler, final String[] args) {
-
         installPath = args[0];
         artifactId = args[1];
         dbSelected = DBs.fromDbName(args[2]);
@@ -52,52 +53,58 @@ public class PersistenceProcess extends BaseProcess {
         persistenceUser = args[4];
         persistencePassword = args[5];
         mysqlInnoDB = Boolean.valueOf(args[6]);
-        oracleTableSpace = args[7];
+        schema = args[7];
 
-        final FileSystemUtils fileSystemUtils = new FileSystemUtils(handler);
-        final StringBuilder persistenceProperties = new StringBuilder(PersistenceProperties.HEADER);
+        FileSystemUtils fileSystemUtils = new FileSystemUtils(handler);
+        StringBuilder provisioningProperties = new StringBuilder(ProvisioningProperties.HEADER);
+        StringBuilder masterProperties = new StringBuilder(MasterProperties.HEADER);
         setSyncopeInstallDir(installPath, artifactId);
 
-        handler.logOutput("Configure persistence file according to " + dbSelected + " properties", true);
-        InstallLog.getInstance().info("Configure persistence file according to " + dbSelected + " properties");
+        handler.logOutput("Configure persistence for " + dbSelected, false);
+        InstallLog.getInstance().info("Configure persistence for " + dbSelected);
 
         switch (dbSelected) {
             case POSTGRES:
-                persistenceProperties.append(String.format(
-                        PersistenceProperties.POSTGRES, persistenceUrl, persistenceUser, persistencePassword));
+                provisioningProperties.append(ProvisioningProperties.POSTGRES);
+                masterProperties.append(String.format(
+                        MasterProperties.POSTGRES, persistenceUrl, persistenceUser, persistencePassword));
                 break;
 
             case MYSQL:
-                persistenceProperties.append(String.format(
-                        PersistenceProperties.MYSQL, persistenceUrl, persistenceUser, persistencePassword));
-                if (mysqlInnoDB) {
-                    persistenceProperties.append(PersistenceProperties.MYSQL_QUARTZ_INNO_DB);
-                } else {
-                    persistenceProperties.append(PersistenceProperties.MYSQL_QUARTZ);
-                }
+                provisioningProperties.append(ProvisioningProperties.MYSQL);
+                provisioningProperties.append(mysqlInnoDB
+                        ? ProvisioningProperties.MYSQL_QUARTZ_INNO_DB
+                        : ProvisioningProperties.MYSQL_QUARTZ);
+                masterProperties.append(String.format(
+                        MasterProperties.MYSQL, persistenceUrl, persistenceUser, persistencePassword));
                 break;
 
             case MARIADB:
-                persistenceProperties.append(String.format(
-                        PersistenceProperties.MARIADB, persistenceUrl, persistenceUser, persistencePassword));
+                provisioningProperties.append(ProvisioningProperties.MARIADB);
+                masterProperties.append(String.format(
+                        MasterProperties.MARIADB, persistenceUrl, persistenceUser, persistencePassword));
                 break;
 
             case ORACLE:
-                persistenceProperties.append(String.format(
-                        PersistenceProperties.ORACLE, persistenceUrl, persistenceUser, persistencePassword,
-                        oracleTableSpace));
+                provisioningProperties.append(ProvisioningProperties.ORACLE);
+                masterProperties.append(String.format(
+                        MasterProperties.ORACLE, schema, persistenceUrl, persistenceUser, persistencePassword));
                 break;
 
             case SQLSERVER:
-                persistenceProperties.append(String.format(
-                        PersistenceProperties.SQLSERVER, persistenceUrl, persistenceUser, persistencePassword));
+                provisioningProperties.append(ProvisioningProperties.SQLSERVER);
+                masterProperties.append(String.format(
+                        MasterProperties.SQLSERVER, schema, persistenceUrl, persistenceUser, persistencePassword));
                 break;
 
             default:
         }
 
         fileSystemUtils.writeToFile(new File(
-                syncopeInstallDir + PROPERTIES.getProperty("persistencePropertiesFile")),
-                persistenceProperties.toString());
+                syncopeInstallDir + PROPERTIES.getProperty("provisioningPropertiesFile")),
+                provisioningProperties.toString());
+        fileSystemUtils.writeToFile(new File(
+                syncopeInstallDir + PROPERTIES.getProperty("masterPropertiesFile")),
+                masterProperties.toString());
     }
 }

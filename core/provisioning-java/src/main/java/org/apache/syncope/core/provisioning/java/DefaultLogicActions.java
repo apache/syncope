@@ -16,23 +16,42 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.entity.task;
+package org.apache.syncope.core.provisioning.java;
 
+import org.apache.syncope.common.lib.mod.AnyMod;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.core.persistence.api.entity.AnyType;
-import org.apache.syncope.core.persistence.api.entity.Entity;
+import org.apache.syncope.core.provisioning.api.LogicActions;
 
-public interface AnyTemplate extends Entity<Long> {
+public class DefaultLogicActions implements LogicActions {
 
-    SyncTask getSyncTask();
+    @Override
+    public <A extends AnyTO> A beforeCreate(final A input) {
+        return input;
+    }
 
-    void setSyncTask(SyncTask syncTask);
+    @Override
+    public <A extends AnyTO> A afterCreate(final A input) {
+        return input;
+    }
 
-    AnyType getAnyType();
+    @Override
+    public <M extends AnyMod> M beforeUpdate(final M input) {
+        return input;
+    }
 
-    void setAnyType(AnyType anyType);
+    @Override
+    public <A extends AnyTO> A afterUpdate(final A input) {
+        return input;
+    }
 
-    AnyTO get();
+    @Override
+    public <A extends AnyTO> A beforeDelete(final A input) {
+        return input;
+    }
 
-    void set(AnyTO template);
+    @Override
+    public <A extends AnyTO> A afterDelete(final A input) {
+        return input;
+    }
+
 }

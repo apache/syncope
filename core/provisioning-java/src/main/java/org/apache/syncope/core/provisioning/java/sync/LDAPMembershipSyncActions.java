@@ -129,9 +129,9 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
      * {@inheritDoc}
      */
     @Override
-    public <T extends AnyTO, K extends AnyMod> SyncDelta beforeUpdate(
+    public <A extends AnyTO, M extends AnyMod> SyncDelta beforeUpdate(
             final ProvisioningProfile<?, ?> profile,
-            final SyncDelta delta, final T any, final K anyMod) throws JobExecutionException {
+            final SyncDelta delta, final A any, final M anyMod) throws JobExecutionException {
 
         if (any instanceof GroupTO) {
             // search for all users assigned to given group
@@ -293,10 +293,10 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
      * {@inheritDoc}
      */
     @Override
-    public <T extends AnyTO> void after(
+    public <A extends AnyTO> void after(
             final ProvisioningProfile<?, ?> profile,
             final SyncDelta delta,
-            final T any,
+            final A any,
             final ProvisioningResult result) throws JobExecutionException {
 
         if (!(profile.getTask() instanceof SyncTask)) {

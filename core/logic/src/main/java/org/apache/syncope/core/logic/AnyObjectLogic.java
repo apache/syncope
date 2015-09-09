@@ -31,6 +31,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.mod.AnyObjectMod;
@@ -49,7 +50,7 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecu
 import org.apache.syncope.core.misc.security.AuthContextUtils;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
-import org.apache.syncope.core.provisioning.api.AnyTransformer;
+import org.apache.syncope.core.provisioning.api.LogicActions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
@@ -76,9 +77,6 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectMod> 
 
     @Autowired
     protected PropagationTaskExecutor taskExecutor;
-
-    @Autowired
-    protected AnyTransformer attrTransformer;
 
     @Resource(name = "anonymousUser")
     protected String anonymousUser;
@@ -160,79 +158,73 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectMod> 
     @PreAuthorize("hasRole('" + Entitlement.ANY_OBJECT_CREATE + "')")
     @Override
     public AnyObjectTO create(final AnyObjectTO anyObjectTO) {
-        if (anyObjectTO.getRealm() == null) {
+        Pair<AnyObjectTO, List<LogicActions>> before = beforeCreate(anyObjectTO);
+
+        if (before.getLeft().getRealm() == null) {
             throw SyncopeClientException.build(ClientExceptionType.InvalidRealm);
         }
-        // security checks
+
         Set<String> effectiveRealms = getEffectiveRealms(
                 AuthContextUtils.getAuthorizations().get(Entitlement.ANY_OBJECT_CREATE),
-                Collections.singleton(anyObjectTO.getRealm()));
-        securityChecks(effectiveRealms, anyObjectTO.getRealm(), null);
+                Collections.singleton(before.getLeft().getRealm()));
+        securityChecks(effectiveRealms, before.getLeft().getRealm(), null);
 
-        // Any transformation (if configured)
-        AnyObjectTO actual = attrTransformer.transform(anyObjectTO);
-        LOG.debug("Transformed: {}", actual);
-
-        if (anyObjectTO.getType() == null) {
+        if (before.getLeft().getType() == null) {
             throw SyncopeClientException.build(ClientExceptionType.InvalidAnyType);
         }
 
-        /*
-         * Actual operations: workflow, propagation
-         */
-        Map.Entry<Long, List<PropagationStatus>> created = provisioningManager.create(anyObjectTO);
+        Map.Entry<Long, List<PropagationStatus>> created = provisioningManager.create(before.getLeft());
         AnyObjectTO savedTO = binder.getAnyObjectTO(created.getKey());
         savedTO.getPropagationStatusTOs().addAll(created.getValue());
-        return savedTO;
+
+        return afterCreate(savedTO, before.getValue());
     }
 
     @PreAuthorize("hasRole('" + Entitlement.ANY_OBJECT_UPDATE + "')")
     @Override
     public AnyObjectTO update(final AnyObjectMod anyObjectMod) {
-        // Any transformation (if configured)
-        AnyObjectMod actual = attrTransformer.transform(anyObjectMod);
-        LOG.debug("Transformed: {}", actual);
+        AnyObjectTO anyObjectTO = binder.getAnyObjectTO(anyObjectMod.getKey());
+        Pair<AnyObjectMod, List<LogicActions>> before = beforeUpdate(anyObjectMod, anyObjectTO.getRealm());
 
-        // security checks
-        AnyObjectTO toUpdate = binder.getAnyObjectTO(anyObjectMod.getKey());
         Set<String> requestedRealms = new HashSet<>();
-        requestedRealms.add(toUpdate.getRealm());
-        if (StringUtils.isNotBlank(actual.getRealm())) {
-            requestedRealms.add(actual.getRealm());
+        requestedRealms.add(before.getLeft().getRealm());
+        if (StringUtils.isNotBlank(before.getLeft().getRealm())) {
+            requestedRealms.add(before.getLeft().getRealm());
         }
         Set<String> effectiveRealms = getEffectiveRealms(
                 AuthContextUtils.getAuthorizations().get(Entitlement.ANY_OBJECT_UPDATE),
                 requestedRealms);
-        securityChecks(effectiveRealms, toUpdate.getRealm(), toUpdate.getKey());
-        if (StringUtils.isNotBlank(actual.getRealm())) {
-            securityChecks(effectiveRealms, actual.getRealm(), toUpdate.getKey());
+        securityChecks(effectiveRealms, before.getLeft().getRealm(), before.getLeft().getKey());
+        if (StringUtils.isNotBlank(before.getLeft().getRealm())) {
+            securityChecks(effectiveRealms, before.getLeft().getRealm(), before.getLeft().getKey());
         }
 
         Map.Entry<Long, List<PropagationStatus>> updated = provisioningManager.update(anyObjectMod);
 
         AnyObjectTO updatedTO = binder.getAnyObjectTO(updated.getKey());
         updatedTO.getPropagationStatusTOs().addAll(updated.getValue());
-        return updatedTO;
+
+        return afterUpdate(updatedTO, before.getRight());
     }
 
     @PreAuthorize("hasRole('" + Entitlement.ANY_OBJECT_DELETE + "')")
     @Override
     public AnyObjectTO delete(final Long key) {
-        // security checks
-        AnyObjectTO toDelete = binder.getAnyObjectTO(key);
+        AnyObjectTO anyObject = binder.getAnyObjectTO(key);
+        Pair<AnyObjectTO, List<LogicActions>> before = beforeDelete(anyObject);
+
         Set<String> effectiveRealms = getEffectiveRealms(
                 AuthContextUtils.getAuthorizations().get(Entitlement.ANY_OBJECT_DELETE),
-                Collections.singleton(toDelete.getRealm()));
-        securityChecks(effectiveRealms, toDelete.getRealm(), toDelete.getKey());
+                Collections.singleton(before.getLeft().getRealm()));
+        securityChecks(effectiveRealms, before.getLeft().getRealm(), before.getLeft().getKey());
 
-        List<PropagationStatus> statuses = provisioningManager.delete(key);
+        List<PropagationStatus> statuses = provisioningManager.delete(before.getLeft().getKey());
 
         AnyObjectTO anyObjectTO = new AnyObjectTO();
-        anyObjectTO.setKey(key);
-
+        anyObjectTO.setKey(before.getLeft().getKey());
         anyObjectTO.getPropagationStatusTOs().addAll(statuses);
 
-        return anyObjectTO;
+        return afterDelete(anyObjectTO, before.getRight());
     }
 
     @PreAuthorize("hasRole('" + Entitlement.ANY_OBJECT_UPDATE + "')")

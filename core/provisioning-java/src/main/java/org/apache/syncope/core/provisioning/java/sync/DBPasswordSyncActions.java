@@ -59,10 +59,10 @@ public class DBPasswordSyncActions extends DefaultSyncActions {
 
     @Transactional(readOnly = true)
     @Override
-    public <T extends AnyTO> SyncDelta beforeProvision(
+    public <A extends AnyTO> SyncDelta beforeProvision(
             final ProvisioningProfile<?, ?> profile,
             final SyncDelta delta,
-            final T any) throws JobExecutionException {
+            final A any) throws JobExecutionException {
 
         if (any instanceof UserTO) {
             String password = ((UserTO) any).getPassword();
@@ -74,11 +74,11 @@ public class DBPasswordSyncActions extends DefaultSyncActions {
 
     @Transactional(readOnly = true)
     @Override
-    public <T extends AnyTO, K extends AnyMod> SyncDelta beforeUpdate(
+    public <A extends AnyTO, M extends AnyMod> SyncDelta beforeUpdate(
             final ProvisioningProfile<?, ?> profile,
             final SyncDelta delta,
-            final T any,
-            final K anyMod) throws JobExecutionException {
+            final A any,
+            final M anyMod) throws JobExecutionException {
 
         if (anyMod instanceof UserMod) {
             String modPassword = ((UserMod) anyMod).getPassword();
@@ -123,10 +123,10 @@ public class DBPasswordSyncActions extends DefaultSyncActions {
 
     @Transactional(readOnly = true)
     @Override
-    public <T extends AnyTO> void after(
+    public <A extends AnyTO> void after(
             final ProvisioningProfile<?, ?> profile,
             final SyncDelta delta,
-            final T any,
+            final A any,
             final ProvisioningResult result) throws JobExecutionException {
 
         if (any instanceof UserTO && encodedPassword != null && cipher != null) {

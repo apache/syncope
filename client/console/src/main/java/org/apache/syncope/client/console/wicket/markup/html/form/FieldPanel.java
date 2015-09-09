@@ -128,7 +128,7 @@ public abstract class FieldPanel<T> extends AbstractFieldPanel<T> implements Clo
     }
 
     public T getModelObject() {
-        return (T) field.getModelObject();
+        return field.getModelObject();
     }
 
     public FieldPanel<T> setNewModel(final IModel<T> model) {

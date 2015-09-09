@@ -16,25 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.java;
+package org.apache.syncope.core.persistence.api.entity;
 
-import org.apache.syncope.common.lib.mod.AnyMod;
-import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.core.provisioning.api.AnyTransformer;
+public interface AnyTemplateRealm extends AnyTemplate {
 
-/**
- * Default empty implementation returning received input as result.
- */
-public class DefaultAnyTransformer implements AnyTransformer {
+    Realm getRealm();
 
-    @Override
-    public <T extends AnyTO> T transform(final T input) {
-        return input;
-    }
-
-    @Override
-    public <T extends AnyMod> T transform(final T input) {
-        return input;
-    }
-
+    void setRealm(Realm realm);
 }

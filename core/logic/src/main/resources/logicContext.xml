@@ -37,6 +37,5 @@ under the License.
   <context:component-scan base-package="org.apache.syncope.core.logic"/>
 
   <bean class="${logicInvocationHandler}"/>
-  <bean class="${anyTransformer}"/>
 
 </beans>

@@ -332,7 +332,7 @@ under the License.
 
     <jackson.version>2.6.1</jackson.version>
 
-    <spring.version>4.2.0.RELEASE</spring.version>
+    <spring.version>4.2.1.RELEASE</spring.version>
     <spring-security.version>4.0.2.RELEASE</spring-security.version>
 
     <openjpa.version>2.4.0</openjpa.version>
@@ -375,8 +375,10 @@ under the License.
     <jquery-ui.version>1.11.4</jquery-ui.version>
     <jquery-cookie.version>1.4.1-1</jquery-cookie.version>
     <bootstrap.version>3.3.5</bootstrap.version>
-    <bootstrap-select.version>1.6.3</bootstrap-select.version>
+
+    <bootstrap-select.version>1.7.3</bootstrap-select.version>
     <wicket-bootstrap.version>0.10.3</wicket-bootstrap.version>
+
     <font-awesome.version>4.4.0</font-awesome.version>
     <ionicons.version>2.0.1</ionicons.version>
     <highlightjs.version>8.7</highlightjs.version>
@@ -384,7 +386,7 @@ under the License.
     <jsplumb.version>1.7.5</jsplumb.version>
     
     <wicket.version>7.0.0</wicket.version>
-    <wicket-jqueryui.version>7.0.0</wicket-jqueryui.version>
+    <wicket-jqueryui.version>7.0.1</wicket-jqueryui.version>
 
     <izpack.version>5.0.3</izpack.version>
     <httpclient.version>4.3.6</httpclient.version>
@@ -472,11 +474,6 @@ under the License.
       <dependency>
         <groupId>org.apache.cxf</groupId>
         <artifactId>cxf-rt-frontend-jaxrs</artifactId>
-        <version>${cxf.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.cxf</groupId>
-        <artifactId>cxf-rt-rs-extension-providers</artifactId>
         <version>${cxf.version}</version>
       </dependency>
       <dependency>

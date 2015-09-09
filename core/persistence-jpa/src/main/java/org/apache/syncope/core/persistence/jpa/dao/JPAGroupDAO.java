@@ -41,7 +41,7 @@ import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.core.misc.RealmUtils;
 import org.apache.syncope.core.misc.search.SearchCondConverter;
 import org.apache.syncope.core.misc.security.AuthContextUtils;
-import org.apache.syncope.core.misc.security.UnauthorizedException;
+import org.apache.syncope.core.misc.security.DelegatedAdministrationException;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
@@ -82,7 +82,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
             }
         });
         if (authRealms == null || authRealms.isEmpty() || !authorized) {
-            throw new UnauthorizedException(AnyTypeKind.GROUP, group.getKey());
+            throw new DelegatedAdministrationException(AnyTypeKind.GROUP, group.getKey());
         }
     }
 

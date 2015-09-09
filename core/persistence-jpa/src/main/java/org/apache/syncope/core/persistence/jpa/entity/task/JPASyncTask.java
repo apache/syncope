@@ -41,7 +41,8 @@ import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.task.SyncTask;
 import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.persistence.api.entity.task.AnyTemplate;
+import org.apache.syncope.core.persistence.api.entity.AnyTemplate;
+import org.apache.syncope.core.persistence.api.entity.task.AnyTemplateSyncTask;
 import org.apache.syncope.core.persistence.jpa.entity.JPARealm;
 
 @Entity
@@ -61,7 +62,7 @@ public class JPASyncTask extends AbstractProvisioningTask implements SyncTask {
     private Set<String> actionsClassNames = new HashSet<>();
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "syncTask")
-    private List<JPAAnyTemplate> templates = new ArrayList<>();
+    private List<JPAAnyTemplateSyncTask> templates = new ArrayList<>();
 
     @Basic
     @Min(0)
@@ -102,19 +103,19 @@ public class JPASyncTask extends AbstractProvisioningTask implements SyncTask {
     }
 
     @Override
-    public boolean add(final AnyTemplate template) {
-        checkType(template, JPAAnyTemplate.class);
-        return this.templates.add((JPAAnyTemplate) template);
+    public boolean add(final AnyTemplateSyncTask template) {
+        checkType(template, JPAAnyTemplateSyncTask.class);
+        return this.templates.add((JPAAnyTemplateSyncTask) template);
     }
 
     @Override
-    public boolean remove(final AnyTemplate template) {
-        checkType(template, JPAAnyTemplate.class);
-        return this.templates.remove((JPAAnyTemplate) template);
+    public boolean remove(final AnyTemplateSyncTask template) {
+        checkType(template, JPAAnyTemplateSyncTask.class);
+        return this.templates.remove((JPAAnyTemplateSyncTask) template);
     }
 
     @Override
-    public AnyTemplate getTemplate(final AnyType anyType) {
+    public AnyTemplateSyncTask getTemplate(final AnyType anyType) {
         return CollectionUtils.find(templates, new Predicate<AnyTemplate>() {
 
             @Override
@@ -125,7 +126,7 @@ public class JPASyncTask extends AbstractProvisioningTask implements SyncTask {
     }
 
     @Override
-    public List<? extends AnyTemplate> getTemplates() {
+    public List<? extends AnyTemplateSyncTask> getTemplates() {
         return templates;
     }
 

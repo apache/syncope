@@ -31,7 +31,6 @@ import org.apache.syncope.core.persistence.api.ImplementationLookup;
 import org.apache.syncope.core.persistence.api.ImplementationLookup.Type;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.provisioning.api.AnyObjectProvisioningManager;
-import org.apache.syncope.core.provisioning.api.AnyTransformer;
 import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
 import org.apache.syncope.core.provisioning.api.GroupProvisioningManager;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
@@ -57,9 +56,6 @@ public class SyncopeLogic extends AbstractLogic<SyncopeTO> {
 
     @Autowired
     private ConnIdBundleManager bundleManager;
-
-    @Autowired
-    private AnyTransformer anyTransformer;
 
     @Autowired
     private AnyObjectWorkflowAdapter awfAdapter;
@@ -122,8 +118,6 @@ public class SyncopeLogic extends AbstractLogic<SyncopeTO> {
             }
         }
 
-        syncopeTO.setAnyTransformer(anyTransformer.getClass().getName());
-
         syncopeTO.setAnyObjectWorkflowAdapter(AopUtils.getTargetClass(awfAdapter).getName());
         syncopeTO.setUserWorkflowAdapter(AopUtils.getTargetClass(uwfAdapter).getName());
         syncopeTO.setGroupWorkflowAdapter(AopUtils.getTargetClass(gwfAdapter).getName());
@@ -138,6 +132,7 @@ public class SyncopeLogic extends AbstractLogic<SyncopeTO> {
         syncopeTO.getAccountRules().addAll(implementationLookup.getClassNames(Type.ACCOUNT_RULE));
         syncopeTO.getPasswordRules().addAll(implementationLookup.getClassNames(Type.PASSWORD_RULE));
         syncopeTO.getTaskJobs().addAll(implementationLookup.getClassNames(Type.TASKJOBDELEGATE));
+        syncopeTO.getLogicActions().addAll(implementationLookup.getClassNames(Type.LOGIC_ACTIONS));
         syncopeTO.getPropagationActions().addAll(implementationLookup.getClassNames(Type.PROPAGATION_ACTIONS));
         syncopeTO.getSyncActions().addAll(implementationLookup.getClassNames(Type.SYNC_ACTIONS));
         syncopeTO.getPushActions().addAll(implementationLookup.getClassNames(Type.PUSH_ACTIONS));

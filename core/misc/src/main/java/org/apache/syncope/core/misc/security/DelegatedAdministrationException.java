@@ -20,11 +20,11 @@ package org.apache.syncope.core.misc.security;
 
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 
-public class UnauthorizedException extends RuntimeException {
+public class DelegatedAdministrationException extends RuntimeException {
 
     private static final long serialVersionUID = 7540587364235915081L;
 
-    public UnauthorizedException(final AnyTypeKind type, final Long key) {
+    public DelegatedAdministrationException(final AnyTypeKind type, final Long key) {
         super("Missing entitlement or realm administration for "
                 + (key == null
                         ? "new " + type

@@ -32,6 +32,7 @@ import org.xml.sax.SAXException;
 
 public class ArchetypeProcess extends BaseProcess {
 
+    @Override
     public void run(final AbstractUIProcessHandler handler, final String[] args) {
         final String installPath = args[0];
         final String mavenDir = args[1];
@@ -54,45 +55,37 @@ public class ArchetypeProcess extends BaseProcess {
 
         setSyncopeInstallDir(installPath, artifactId);
 
-        final FileSystemUtils fileSystemUtils = new FileSystemUtils(handler);
+        FileSystemUtils fileSystemUtils = new FileSystemUtils(handler);
         fileSystemUtils.createDirectory(installPath);
         InstallLog.initialize(installPath, handler);
-        final MavenUtils mavenUtils = new MavenUtils(mavenDir, handler);
+        MavenUtils mavenUtils = new MavenUtils(mavenDir, handler);
         File customMavenProxySettings = null;
         try {
             if (isProxyEnabled && mavenProxyAutoconf) {
                 customMavenProxySettings = MavenUtils.createSettingsWithProxy(installPath, proxyHost, proxyPort,
                         proxyUser, proxyPwd);
             }
-        } catch (IOException ex) {
-            final StringBuilder messageError = new StringBuilder(
-                    "I/O error during creation of Maven custom settings.xml");
-            final String emittedError = messageError.toString();
-            handler.emitError(emittedError, emittedError);
-            InstallLog.getInstance().error(messageError.append(ex.getMessage() == null ? "" : ex.getMessage()).
-                    toString());
-        } catch (ParserConfigurationException ex) {
-            final StringBuilder messageError = new StringBuilder(
+        } catch (IOException e) {
+            StringBuilder message = new StringBuilder("I/O error during creation of Maven custom settings.xml");
+            handler.emitError(message.toString(), e.getMessage());
+            InstallLog.getInstance().error(message.append('\n').append(e.getMessage()).toString());
+        } catch (ParserConfigurationException e) {
+            StringBuilder message = new StringBuilder(
                     "Parser configuration error during creation of Maven custom settings.xml");
-            final String emittedError = messageError.toString();
-            handler.emitError(emittedError, emittedError);
-            InstallLog.getInstance().error(messageError.append(ex.getMessage() == null ? "" : ex.getMessage()).
-                    toString());
-        } catch (TransformerException ex) {
-            final StringBuilder messageError = new StringBuilder(
+            handler.emitError(message.toString(), e.getMessage());
+            InstallLog.getInstance().error(message.append('\n').append(e.getMessage()).toString());
+        } catch (TransformerException e) {
+            StringBuilder message = new StringBuilder(
                     "Transformer error during creation of Maven custom settings.xml");
-            final String emittedError = messageError.toString();
-            handler.emitError(emittedError, emittedError);
-            InstallLog.getInstance().error(messageError.append(ex.getMessage() == null ? "" : ex.getMessage()).
-                    toString());
-        } catch (SAXException ex) {
-            final StringBuilder messageError = new StringBuilder(
+            handler.emitError(message.toString(), e.getMessage());
+            InstallLog.getInstance().error(message.append('\n').append(e.getMessage()).toString());
+        } catch (SAXException e) {
+            StringBuilder message = new StringBuilder(
                     "XML parsing error during creation of Maven custom settings.xml");
-            final String emittedError = messageError.toString();
-            handler.emitError(emittedError, emittedError);
-            InstallLog.getInstance().error(messageError.append(ex.getMessage() == null ? "" : ex.getMessage()).
-                    toString());
+            handler.emitError(message.toString(), e.getMessage());
+            InstallLog.getInstance().error(message.append('\n').append(e.getMessage()).toString());
         }
+
         handler.logOutput("########################## IMPORTANT ##########################", true);
         handler.logOutput("See " + InstallLog.getInstance().getFileAbsolutePath() + " for the maven logs", true);
         handler.logOutput("########################## IMPORTANT ##########################", true);
@@ -103,7 +96,8 @@ public class ArchetypeProcess extends BaseProcess {
             final File pomFile =
                     new File(syncopeInstallDir + PROPERTIES.getProperty("pomFile"));
             String contentPomFile = fileSystemUtils.readFile(pomFile);
-            fileSystemUtils.writeToFile(pomFile, contentPomFile.replace(ParentPom.PLACEHOLDER, ParentPom.REPOSITORY));
+            fileSystemUtils.
+                    writeToFile(pomFile, contentPomFile.replace(ParentPom.PLACEHOLDER, ParentPom.REPOSITORY));
         }
 
         fileSystemUtils.createDirectory(confDirectory);
@@ -111,19 +105,19 @@ public class ArchetypeProcess extends BaseProcess {
         fileSystemUtils.createDirectory(bundlesDirectory);
         fileSystemUtils.createDirectory(modelerDirectory);
 
-        fileSystemUtils.copyFileFromResources("/" + PROPERTIES.getProperty("modelerPomFile"),
-                modelerDirectory + "/" + PROPERTIES.getProperty("pomFile"), handler);
+        fileSystemUtils.copyFileFromResources(File.separator + PROPERTIES.getProperty("modelerPomFile"),
+                modelerDirectory + File.separator + PROPERTIES.getProperty("pomFile"), handler);
 
         fileSystemUtils.copyFile(
                 syncopeInstallDir
                 + PROPERTIES.getProperty("consoleResDirectory")
-                + "/" + PROPERTIES.getProperty("urlConfig"),
-                modelerDirectory + "/" + PROPERTIES.getProperty("urlConfig"));
+                + File.separator + PROPERTIES.getProperty("urlConfig"),
+                modelerDirectory + File.separator + PROPERTIES.getProperty("urlConfig"));
         fileSystemUtils.copyFile(
                 syncopeInstallDir
                 + PROPERTIES.getProperty("consoleResDirectory")
-                + "/" + PROPERTIES.getProperty("saveModel"),
-                modelerDirectory + "/" + PROPERTIES.getProperty("saveModel"));
+                + File.separator + PROPERTIES.getProperty("saveModel"),
+                modelerDirectory + File.separator + PROPERTIES.getProperty("saveModel"));
 
         final Properties modelerProperties = new Properties();
         modelerProperties.setProperty("modeler.directory", modelerDirectory);
@@ -134,6 +128,6 @@ public class ArchetypeProcess extends BaseProcess {
         syncopeProperties.setProperty("log.directory", logsDirectory);
         syncopeProperties.setProperty("bundles.directory", bundlesDirectory);
         mavenUtils.mvnCleanPackageWithProperties(
-                installPath + "/" + artifactId, syncopeProperties, customMavenProxySettings);
+                installPath + File.separator + artifactId, syncopeProperties, customMavenProxySettings);
     }
 }

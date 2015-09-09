@@ -16,18 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.api;
+package org.apache.syncope.core.persistence.api.entity.task;
 
-import org.apache.syncope.common.lib.mod.AnyMod;
-import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.core.persistence.api.entity.AnyTemplate;
 
-/**
- * Provides logic for transforming any object, received as input by RESTful methods, before any internal
- * processing logic takes place.
- */
-public interface AnyTransformer {
+public interface AnyTemplateSyncTask extends AnyTemplate {
 
-    <T extends AnyTO> T transform(T input);
+    SyncTask getSyncTask();
 
-    <T extends AnyMod> T transform(T input);
+    void setSyncTask(SyncTask syncTask);
 }

@@ -37,7 +37,6 @@ import org.apache.syncope.core.persistence.api.SyncopeLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class LoggerLoader implements SyncopeLoader {
@@ -53,7 +52,6 @@ public class LoggerLoader implements SyncopeLoader {
         return 300;
     }
 
-    @Transactional
     @Override
     public void load() {
         final LoggerContext ctx = (LoggerContext) LogManager.getContext(false);

@@ -126,7 +126,7 @@ public class GroupSearchResultPanel extends AnySearchResultPanel {
             private static final long serialVersionUID = -3503023501954863131L;
 
             @Override
-            public ActionLinksPanel getActions(final String componentId, final IModel<AnyTO> model) {
+            public ActionLinksPanel<AnyTO> getActions(final String componentId, final IModel<AnyTO> model) {
 
                 final ActionLinksPanel.Builder<AnyTO> panel = ActionLinksPanel.builder(page.getPageReference());
 

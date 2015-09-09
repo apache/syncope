@@ -63,6 +63,8 @@ public class UserTO extends AnyTO {
 
     private String securityAnswer;
 
+    private boolean mustChangePassword;
+
     private final List<RelationshipTO> relationships = new ArrayList<>();
 
     private final List<MembershipTO> memberships = new ArrayList<>();
@@ -167,6 +169,14 @@ public class UserTO extends AnyTO {
 
     public void setSecurityAnswer(final String securityAnswer) {
         this.securityAnswer = securityAnswer;
+    }
+
+    public boolean isMustChangePassword() {
+        return mustChangePassword;
+    }
+
+    public void setMustChangePassword(final boolean mustChangePassword) {
+        this.mustChangePassword = mustChangePassword;
     }
 
     @XmlElementWrapper(name = "relationships")

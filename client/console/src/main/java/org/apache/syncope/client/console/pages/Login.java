@@ -112,6 +112,7 @@ public class Login extends WebPage {
         };
         submitButton.setDefaultFormProcessing(false);
         form.add(submitButton);
+        form.setDefaultButton(submitButton);
 
         add(form);
     }

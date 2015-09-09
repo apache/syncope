@@ -68,7 +68,7 @@ public class RealmModalPanel extends AbstractModalPanel {
         final Form<RealmTO> form = new Form<>("realmForm");
         form.setModel(new CompoundPropertyModel<>(realmTO));
 
-        final RealmDetails<RealmTO> realmDetail = new RealmDetails<>("details", realmTO);
+        final RealmDetails realmDetail = new RealmDetails("details", realmTO);
         if (SyncopeConsoleSession.get().owns(entitlement)) {
             MetaDataRoleAuthorizationStrategy.authorize(realmDetail, ENABLE, entitlement);
         }
@@ -79,8 +79,8 @@ public class RealmModalPanel extends AbstractModalPanel {
         add(form);
     }
 
-    protected PrimaryModalButton getOnSubmit(final Form form) {
-        return new PrimaryModalButton(modal.getModalInputId(), "submit", form) {
+    protected final PrimaryModalButton getOnSubmit(final Form form) {
+        return new PrimaryModalButton(BaseModal.getModalInputId(), "submit", form) {
 
             private static final long serialVersionUID = -958724007591692537L;
 

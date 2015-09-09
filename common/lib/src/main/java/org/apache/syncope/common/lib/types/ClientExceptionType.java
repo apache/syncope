@@ -66,7 +66,7 @@ public enum ClientExceptionType {
     RESTValidation(Response.Status.BAD_REQUEST),
     GroupOwnership(Response.Status.BAD_REQUEST),
     Scheduling(Response.Status.BAD_REQUEST),
-    Unauthorized(Response.Status.UNAUTHORIZED),
+    DelegatedAdministration(Response.Status.FORBIDDEN),
     UnallowedSchemas(Response.Status.BAD_REQUEST),
     Unknown(Response.Status.BAD_REQUEST),
     Workflow(Response.Status.BAD_REQUEST);
@@ -80,7 +80,7 @@ public enum ClientExceptionType {
     public static ClientExceptionType fromHeaderValue(final String exceptionTypeHeaderValue) {
         ClientExceptionType result = null;
         for (ClientExceptionType type : values()) {
-            if (exceptionTypeHeaderValue.equals(type.getHeaderValue())) {
+            if (exceptionTypeHeaderValue.equals(type.name())) {
                 result = type;
             }
         }
@@ -92,12 +92,8 @@ public enum ClientExceptionType {
         return result;
     }
 
-    public String getHeaderValue() {
-        return name();
-    }
-
     public String getInfoHeaderValue(final String value) {
-        return getHeaderValue() + ":" + value;
+        return name() + ":" + value;
     }
 
     public Response.Status getResponseStatus() {

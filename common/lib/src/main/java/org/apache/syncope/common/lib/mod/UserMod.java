@@ -57,6 +57,8 @@ public class UserMod extends AnyMod {
 
     private String securityAnswer;
 
+    private boolean mustChangePassword;
+
     public String getUsername() {
         return username;
     }
@@ -139,6 +141,14 @@ public class UserMod extends AnyMod {
         this.securityAnswer = securityAnswer;
     }
 
+    public boolean isMustChangePassword() {
+        return mustChangePassword;
+    }
+
+    public void setMustChangePassword(final boolean mustChangePassword) {
+        this.mustChangePassword = mustChangePassword;
+    }
+
     @JsonIgnore
     @Override
     public boolean isEmpty() {
@@ -147,6 +157,7 @@ public class UserMod extends AnyMod {
                 && username == null
                 && pwdPropRequest == null
                 && securityQuestion == null
-                && securityAnswer == null;
+                && securityAnswer == null
+                && !mustChangePassword;
     }
 }

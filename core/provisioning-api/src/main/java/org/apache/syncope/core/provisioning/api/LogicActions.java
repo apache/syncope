@@ -16,19 +16,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.installer.files;
+package org.apache.syncope.core.provisioning.api;
 
-public final class PersistenceContextEMFactoryXml {
+import org.apache.syncope.common.lib.mod.AnyMod;
+import org.apache.syncope.common.lib.to.AnyTO;
 
-    public static final String PLACEHOLDER = "<entry key=\"openjpa.MetaDataFactory\"\n"
-            + "               value=\"jpa(URLs=vfs:${project.build.directory}/cargo/configurations/wildfly8x/"
-            + "deployments/${project.build.finalName}.war/WEB-INF/classes/, Resources=META-INF/orm.xml)\"/>";
+/**
+ * Interface for actions to be performed during business logic execution.
+ */
+public interface LogicActions {
 
-    public static final String JBOSS =
-            "<entry key=\"openjpa.MetaDataFactory\" value=\"jpa(URLs=vfs:/content/${project.build.finalName}.war/"
-            + "WEB-INF/classes/, Resources=META-INF/orm.xml)\"/>";
+    <A extends AnyTO> A beforeCreate(A input);
 
-    private PersistenceContextEMFactoryXml() {
-        // private constructor for static utility class
-    }
+    <A extends AnyTO> A afterCreate(A input);
+
+    <M extends AnyMod> M beforeUpdate(M input);
+
+    <A extends AnyTO> A afterUpdate(A input);
+
+    <A extends AnyTO> A beforeDelete(A input);
+
+    <A extends AnyTO> A afterDelete(A input);
 }

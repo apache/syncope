@@ -31,7 +31,7 @@ import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.core.misc.security.AuthContextUtils;
-import org.apache.syncope.core.misc.security.UnauthorizedException;
+import org.apache.syncope.core.misc.security.DelegatedAdministrationException;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AnyTypeCond;
@@ -75,7 +75,7 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
             }
         });
         if (authRealms == null || authRealms.isEmpty() || !authorized) {
-            throw new UnauthorizedException(AnyTypeKind.ANY_OBJECT, anyObject.getKey());
+            throw new DelegatedAdministrationException(AnyTypeKind.ANY_OBJECT, anyObject.getKey());
         }
     }
 

@@ -48,12 +48,12 @@ public class GroupModalPanel extends AbstractModalPanel {
 
     protected GroupTO originalGroupTO;
 
-    public GroupModalPanel(final String id, final Modal window, final GroupTO groupTO) {
+    public GroupModalPanel(final String id, final Modal<?> window, final GroupTO groupTO) {
         this(id, window, groupTO, Mode.ADMIN);
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public GroupModalPanel(final String id, final Modal window, final GroupTO groupTO, final Mode mode) {
+    public GroupModalPanel(final String id, final Modal<?> window, final GroupTO groupTO, final Mode mode) {
 
         super(id);
 
@@ -83,7 +83,6 @@ public class GroupModalPanel extends AbstractModalPanel {
             protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                 try {
                     submitAction(target, form);
-                    
                 } catch (Exception e) {
                     LOG.error("Failure managing groupTO {}", groupTO, e);
                     error(getString(Constants.ERROR) + ": " + e.getMessage());

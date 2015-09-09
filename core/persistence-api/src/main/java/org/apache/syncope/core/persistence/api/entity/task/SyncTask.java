@@ -32,11 +32,11 @@ public interface SyncTask extends ProvisioningTask {
 
     void setFullReconciliation(boolean condition);
 
-    boolean add(AnyTemplate template);
+    boolean add(AnyTemplateSyncTask template);
 
-    boolean remove(AnyTemplate template);
+    boolean remove(AnyTemplateSyncTask template);
 
-    AnyTemplate getTemplate(AnyType anyType);
+    AnyTemplateSyncTask getTemplate(AnyType anyType);
 
-    List<? extends AnyTemplate> getTemplates();
+    List<? extends AnyTemplateSyncTask> getTemplates();
 }

@@ -362,7 +362,7 @@ under the License.
         <dependency>
           <groupId>org.postgresql</groupId>
           <artifactId>postgresql</artifactId>
-          <version>9.4-1200-jdbc41</version>
+          <version>9.4-1201-jdbc41</version>
           <scope>test</scope>
         </dependency>
       </dependencies>
@@ -374,6 +374,9 @@ under the License.
           <resource>
             <directory>src/main/resources</directory>
             <filtering>true</filtering>
+            <excludes>
+              <exclude>provisioning.properties</exclude>
+            </excludes>
           </resource>
           <resource>
             <directory>src/main/resources/postgres</directory>
@@ -395,7 +398,7 @@ under the License.
         <dependency>
           <groupId>mysql</groupId>
           <artifactId>mysql-connector-java</artifactId>
-          <version>5.1.34</version>
+          <version>5.1.36</version>
           <scope>test</scope>
         </dependency>
       </dependencies>
@@ -406,6 +409,9 @@ under the License.
         <resources>
           <resource>
             <directory>src/main/resources</directory>
+            <excludes>
+              <exclude>provisioning.properties</exclude>
+            </excludes>
             <filtering>true</filtering>
           </resource>
           <resource>
@@ -428,7 +434,7 @@ under the License.
         <dependency>
           <groupId>org.mariadb.jdbc</groupId>
           <artifactId>mariadb-java-client</artifactId>
-          <version>1.1.8</version>
+          <version>1.1.9</version>
           <scope>test</scope>
         </dependency>
       </dependencies>
@@ -440,6 +446,9 @@ under the License.
           <resource>
             <directory>src/main/resources</directory>
             <filtering>true</filtering>
+            <excludes>
+              <exclude>provisioning.properties</exclude>
+            </excludes>
           </resource>
           <resource>
             <directory>src/main/resources/mariadb</directory>
@@ -461,7 +470,7 @@ under the License.
         <dependency>
           <groupId>com.oracle</groupId>
           <artifactId>ojdbc6</artifactId>
-          <version>11.1.0</version>
+          <version>11.2.0.4</version>
           <scope>test</scope>
         </dependency>
       </dependencies>
@@ -473,6 +482,9 @@ under the License.
           <resource>
             <directory>src/main/resources</directory>
             <filtering>true</filtering>
+            <excludes>
+              <exclude>provisioning.properties</exclude>
+            </excludes>
           </resource>
           <resource>
             <directory>src/main/resources/oracle</directory>
@@ -506,6 +518,9 @@ under the License.
           <resource>
             <directory>src/main/resources</directory>
             <filtering>true</filtering>
+            <excludes>
+              <exclude>provisioning.properties</exclude>
+            </excludes>
           </resource>
           <resource>
             <directory>src/main/resources/sqlserver</directory>
@@ -517,11 +532,6 @@ under the License.
     
     <profile>
       <id>glassfish-it</id>
-
-      <properties>
-        <!-- see SYNCOPE-688 -->
-        <jaxrs.content.type>application/xml</jaxrs.content.type>
-      </properties>
       
       <dependencies>
         <dependency>

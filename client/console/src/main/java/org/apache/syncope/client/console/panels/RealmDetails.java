@@ -20,12 +20,13 @@ package org.apache.syncope.client.console.panels;
 
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
+import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.PropertyModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RealmDetails<RealmTO> extends Panel {
+public class RealmDetails extends Panel {
 
     private static final long serialVersionUID = -1100228004207271270L;
 

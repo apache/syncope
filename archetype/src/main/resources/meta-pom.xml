@@ -33,6 +33,9 @@ under the License.
     <syncope.version></syncope.version>
     <secretKey>${secretKey}</secretKey>
     <anonymousKey>${anonymousKey}</anonymousKey>
+    
+    <rat.skip>true</rat.skip>
+    <checkstyle.skip>true</checkstyle.skip>
   </properties>
 
   <name>Apache Syncope sample project</name>
@@ -79,9 +82,7 @@ under the License.
     </dependencies>
   </dependencyManagement>
     
-  <build>
-    
-    <!-- Disable checks for generated projects -->
+  <build>    
     <plugins>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
@@ -91,36 +92,6 @@ under the License.
           <execution>            
             <goals>
               <goal>verify-legal-files</goal>
-            </goals>
-            <phase>none</phase>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.rat</groupId>
-        <artifactId>apache-rat-plugin</artifactId>
-        <inherited>true</inherited>
-        <executions>
-          <execution>
-            <goals>
-              <goal>check</goal>
-            </goals>
-            <phase>none</phase>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-checkstyle-plugin</artifactId>
-        <inherited>true</inherited>
-        <configuration>
-          <configLocation>sun_checks.xml</configLocation>
-          <targetJdk>${targetJdk}</targetJdk>
-        </configuration>
-        <executions>
-          <execution>
-            <goals>
-              <goal>check</goal>
             </goals>
             <phase>none</phase>
           </execution>

@@ -80,11 +80,11 @@ under the License.
     FROM UMembership m, SyncopeGroup g
     WHERE m.group_id = g.id
   </entry>
-  <entry key="user_search_udyngroupmembership">
-    CREATE VIEW user_search_udyngroupmembership AS
+  <entry key="user_search_udyngmemb">
+    CREATE VIEW user_search_udyngmemb AS
 
     SELECT ds.user_id AS any_id, d.group_id AS group_id
-    FROM UDynGroupMembership d, UDynGroupMembership_SyncopeUser ds
+    FROM UDynGroupMembership d, UDynGroupMembership_User ds
     WHERE d.id = ds.uDynGroupMembership_id
   </entry>
   <entry key="user_search_role">
@@ -93,11 +93,11 @@ under the License.
     SELECT ss.user_id AS any_id, ss.role_id AS role_id
     FROM SyncopeUser_SyncopeRole ss
   </entry>
-  <entry key="user_search_dynrolemembership">
-    CREATE VIEW user_search_dynrolemembership AS
+  <entry key="user_search_dynrmemb">
+    CREATE VIEW user_search_dynrmemb AS
 
     SELECT ds.user_id AS any_id, d.role_id AS role_id
-    FROM DynRoleMembership d, DynRoleMembership_SyncopeUser ds
+    FROM DynRoleMembership d, DynRoleMembership_User ds
     WHERE d.id = ds.dynRoleMembership_id
   </entry>
   <entry key="user_search_resource">
@@ -106,8 +106,8 @@ under the License.
     SELECT st.user_id AS any_id, st.resource_name AS resource_name
     FROM SyncopeUser_ExternalResource st
   </entry>
-  <entry key="user_search_group_resource">
-    CREATE VIEW user_search_group_resource AS
+  <entry key="user_search_group_res">
+    CREATE VIEW user_search_group_res AS
 
     SELECT m.user_id AS any_id, st.resource_name AS resource_name
     FROM UMembership m, SyncopeGroup r, SyncopeGroup_ExternalResource st
@@ -173,8 +173,8 @@ under the License.
     FROM AMembership m, SyncopeGroup g
     WHERE m.group_id = g.id
   </entry>
-  <entry key="anyObject_search_adyngroupmembership">
-    CREATE VIEW anyObject_search_adyngroupmembership AS
+  <entry key="anyObject_search_adyngmemb">
+    CREATE VIEW anyObject_search_adyngmemb AS
 
     SELECT ds.anyObject_id AS any_id, d.group_id AS group_id
     FROM ADynGroupMembership d, ADynGroupMembership_AnyObject ds
@@ -186,8 +186,8 @@ under the License.
     SELECT st.anyObject_id AS any_id, st.resource_name AS resource_name
     FROM AnyObject_ExternalResource st
   </entry>
-  <entry key="anyObject_search_group_resource">
-    CREATE VIEW anyObject_search_group_resource AS
+  <entry key="anyObject_search_group_res">
+    CREATE VIEW anyObject_search_group_res AS
 
     SELECT m.anyObject_id AS any_id, st.resource_name AS resource_name
     FROM AMembership m, SyncopeGroup r, SyncopeGroup_ExternalResource st

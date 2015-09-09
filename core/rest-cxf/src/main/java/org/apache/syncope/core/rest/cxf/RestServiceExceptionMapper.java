@@ -45,7 +45,7 @@ import org.apache.syncope.common.lib.to.ErrorTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
-import org.apache.syncope.core.misc.security.UnauthorizedException;
+import org.apache.syncope.core.misc.security.DelegatedAdministrationException;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValidationException;
 import org.apache.syncope.core.persistence.api.dao.DuplicateException;
@@ -70,8 +70,6 @@ import org.springframework.transaction.TransactionSystemException;
 @PropertySource("classpath:errorMessages.properties")
 @Provider
 public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, ResponseExceptionMapper<Exception> {
-
-    private static final String BASIC_REALM_UNAUTHORIZED = "Basic realm=\"Apache Syncope authentication\"";
 
     private static final Logger LOG = LoggerFactory.getLogger(RestServiceExceptionMapper.class);
 
@@ -111,10 +109,11 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
 
             builder = builder(response).entity(error);
         } else if (ex instanceof AccessDeniedException) {
-            builder = Response.status(Response.Status.UNAUTHORIZED).
-                    header(HttpHeaders.WWW_AUTHENTICATE, BASIC_REALM_UNAUTHORIZED);
-        } else if (ex instanceof UnauthorizedException) {
-            builder = builder(ClientExceptionType.Unauthorized, ExceptionUtils.getRootCauseMessage(ex));
+            builder = Response.status(Response.Status.FORBIDDEN).
+                    header(RESTHeaders.ERROR_CODE, Response.Status.FORBIDDEN.getReasonPhrase()).
+                    header(RESTHeaders.ERROR_INFO, ex.getMessage());
+        } else if (ex instanceof DelegatedAdministrationException) {
+            builder = builder(ClientExceptionType.DelegatedAdministration, ExceptionUtils.getRootCauseMessage(ex));
         } else if (ex instanceof UnallowedSchemaException) {
             builder = builder(ClientExceptionType.UnallowedSchemas, ExceptionUtils.getRootCauseMessage(ex));
         } else if (ex instanceof EntityExistsException || ex instanceof DuplicateException) {
@@ -133,7 +132,7 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
                 // process JAX-RS validation errors
                 if (builder == null && ex instanceof ValidationException) {
                     builder = builder(validationEM.toResponse((ValidationException) ex)).
-                            header(RESTHeaders.ERROR_CODE, ClientExceptionType.RESTValidation.getHeaderValue()).
+                            header(RESTHeaders.ERROR_CODE, ClientExceptionType.RESTValidation.name()).
                             header(RESTHeaders.ERROR_INFO, ClientExceptionType.RESTValidation.getInfoHeaderValue(
                                             ExceptionUtils.getRootCauseMessage(ex)));
 
@@ -171,7 +170,7 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
 
     private ResponseBuilder getSyncopeClientExceptionResponse(final SyncopeClientException ex) {
         ResponseBuilder builder = Response.status(ex.getType().getResponseStatus());
-        builder.header(RESTHeaders.ERROR_CODE, ex.getType().getHeaderValue());
+        builder.header(RESTHeaders.ERROR_CODE, ex.getType().name());
 
         ErrorTO error = new ErrorTO();
         error.setStatus(ex.getType().getResponseStatus().getStatusCode());
@@ -194,7 +193,7 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
 
         List<ErrorTO> errors = new ArrayList<>();
         for (SyncopeClientException sce : ex.getExceptions()) {
-            builder.header(RESTHeaders.ERROR_CODE, sce.getType().getHeaderValue());
+            builder.header(RESTHeaders.ERROR_CODE, sce.getType().name());
 
             ErrorTO error = new ErrorTO();
             error.setStatus(sce.getType().getResponseStatus().getStatusCode());
@@ -237,7 +236,7 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
                     : ClientExceptionType.valueOf("Invalid" + iee.getEntityClassSimpleName());
 
             ResponseBuilder builder = Response.status(Response.Status.BAD_REQUEST);
-            builder.header(RESTHeaders.ERROR_CODE, exType.getHeaderValue());
+            builder.header(RESTHeaders.ERROR_CODE, exType.name());
 
             ErrorTO error = new ErrorTO();
             error.setStatus(exType.getResponseStatus().getStatusCode());
@@ -295,7 +294,7 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
 
     private ResponseBuilder builder(final ClientExceptionType hType, final String msg) {
         ResponseBuilder builder = Response.status(hType.getResponseStatus()).
-                header(RESTHeaders.ERROR_CODE, hType.getHeaderValue()).
+                header(RESTHeaders.ERROR_CODE, hType.name()).
                 header(RESTHeaders.ERROR_INFO, hType.getInfoHeaderValue(msg));
 
         ErrorTO error = new ErrorTO();

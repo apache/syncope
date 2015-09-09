@@ -18,10 +18,20 @@
  */
 package org.apache.syncope.common.lib.to;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import javax.ws.rs.PathParam;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.apache.syncope.common.lib.AbstractBaseBean;
+import org.apache.syncope.common.lib.jaxb.XmlGenericMapAdapter;
 
 @XmlRootElement(name = "realm")
 @XmlType
@@ -40,6 +50,12 @@ public class RealmTO extends AbstractBaseBean {
     private Long accountPolicy;
 
     private Long passwordPolicy;
+
+    private final Set<String> actionsClassNames = new HashSet<>();
+
+    @XmlJavaTypeAdapter(XmlGenericMapAdapter.class)
+    @JsonIgnore
+    private final Map<String, AnyTO> templates = new HashMap<>();
 
     public long getKey() {
         return key;
@@ -88,6 +104,18 @@ public class RealmTO extends AbstractBaseBean {
 
     public void setPasswordPolicy(final Long passwordPolicy) {
         this.passwordPolicy = passwordPolicy;
+    }
+
+    @XmlElementWrapper(name = "actionsClassNames")
+    @XmlElement(name = "actionsClassName")
+    @JsonProperty("actionsClassNames")
+    public Set<String> getActionsClassNames() {
+        return actionsClassNames;
+    }
+
+    @JsonProperty
+    public Map<String, AnyTO> getTemplates() {
+        return templates;
     }
 
 }

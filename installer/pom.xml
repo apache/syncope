@@ -183,9 +183,9 @@ under the License.
         <filtering>true</filtering>
       </resource>
       <resource>
-        <directory>${basedir}/../fit/core-reference/src/main/resources/jboss</directory>
+        <directory>${basedir}/../fit/core-reference/src/main/resources/jboss/domains</directory>
         <includes>
-          <include>**/persistenceContextEMFactory.xml</include>
+          <include>**/MasterDomain.xml</include>
         </includes>
       </resource>
       <resource>

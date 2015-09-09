@@ -305,6 +305,8 @@ public final class AnyOperations {
             result.setSecurityAnswer(updated.getSecurityAnswer());
         }
 
+        result.setMustChangePassword(updated.isMustChangePassword());
+
         // 4. roles
         result.getRolesToRemove().addAll(CollectionUtils.subtract(original.getRoles(), updated.getRoles()));
         result.getRolesToAdd().addAll(CollectionUtils.subtract(updated.getRoles(), original.getRoles()));

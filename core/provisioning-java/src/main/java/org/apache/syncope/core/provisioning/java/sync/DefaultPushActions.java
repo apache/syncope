@@ -34,58 +34,58 @@ public abstract class DefaultPushActions implements PushActions {
     }
 
     @Override
-    public <T extends Any<?, ?, ?>> T beforeAssign(final ProvisioningProfile<?, ?> profile, final T any)
+    public <A extends Any<?, ?, ?>> A beforeAssign(final ProvisioningProfile<?, ?> profile, final A any)
             throws JobExecutionException {
 
         return any;
     }
 
     @Override
-    public <T extends Any<?, ?, ?>> T beforeProvision(final ProvisioningProfile<?, ?> profile, final T any)
+    public <A extends Any<?, ?, ?>> A beforeProvision(final ProvisioningProfile<?, ?> profile, final A any)
             throws JobExecutionException {
 
         return any;
     }
 
     @Override
-    public <T extends Any<?, ?, ?>> T beforeLink(final ProvisioningProfile<?, ?> profile, final T any)
+    public <A extends Any<?, ?, ?>> A beforeLink(final ProvisioningProfile<?, ?> profile, final A any)
             throws JobExecutionException {
 
         return any;
     }
 
     @Override
-    public <T extends Any<?, ?, ?>> T beforeUnassign(final ProvisioningProfile<?, ?> profile, final T any)
+    public <A extends Any<?, ?, ?>> A beforeUnassign(final ProvisioningProfile<?, ?> profile, final A any)
             throws JobExecutionException {
 
         return any;
     }
 
     @Override
-    public <T extends Any<?, ?, ?>> T beforeDeprovision(final ProvisioningProfile<?, ?> profile, final T any)
+    public <A extends Any<?, ?, ?>> A beforeDeprovision(final ProvisioningProfile<?, ?> profile, final A any)
             throws JobExecutionException {
 
         return any;
     }
 
     @Override
-    public <T extends Any<?, ?, ?>> T beforeUnlink(final ProvisioningProfile<?, ?> profile, final T any)
+    public <A extends Any<?, ?, ?>> A beforeUnlink(final ProvisioningProfile<?, ?> profile, final A any)
             throws JobExecutionException {
 
         return any;
     }
 
     @Override
-    public <T extends Any<?, ?, ?>> void onError(
-            final ProvisioningProfile<?, ?> profile, final T any, final ProvisioningResult result,
+    public <A extends Any<?, ?, ?>> void onError(
+            final ProvisioningProfile<?, ?> profile, final A any, final ProvisioningResult result,
             final Exception error) throws JobExecutionException {
 
         // do nothing
     }
 
     @Override
-    public <T extends Any<?, ?, ?>> void after(
-            final ProvisioningProfile<?, ?> profile, final T any, final ProvisioningResult result)
+    public <A extends Any<?, ?, ?>> void after(
+            final ProvisioningProfile<?, ?> profile, final A any, final ProvisioningResult result)
             throws JobExecutionException {
 
         // do nothing

@@ -491,12 +491,12 @@ public class UserITCase extends AbstractITCase {
 
         userTO = createUser(userTO);
 
-        long id = userTO.getKey();
+        long key = userTO.getKey();
 
-        userTO = deleteUser(id);
+        userTO = deleteUser(key);
 
         assertNotNull(userTO);
-        assertEquals(id, userTO.getKey());
+        assertEquals(key, userTO.getKey());
         assertTrue(userTO.getPlainAttrs().isEmpty());
 
         // check for propagation result
@@ -2070,7 +2070,13 @@ public class UserITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE420() {
+        RealmTO realm = realmService.list("/even/two").iterator().next();
+        assertNotNull(realm);
+        realm.getActionsClassNames().add(DoubleValueLogicActions.class.getName());
+        realmService.update(realm);
+
         UserTO userTO = getUniqueSampleTO("syncope420@syncope.apache.org");
+        userTO.setRealm(realm.getFullPath());
         userTO.getPlainAttrs().add(attrTO("makeItDouble", "3"));
 
         userTO = createUser(userTO);
