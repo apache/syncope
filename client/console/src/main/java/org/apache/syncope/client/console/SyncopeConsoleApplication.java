@@ -69,14 +69,21 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
     @Override
     protected void init() {
         super.init();
+
+        // Application settings
         IBootstrapSettings settings = new BootstrapSettings();
+
+        // set theme provider
         settings.setThemeProvider(new SingleThemeProvider(new AdminLTE()));
+
+        // install application settings
         Bootstrap.install(this, settings);
 
-        // best place to do this is in Application#init()
-        //Bootstrap.install(this);
+        getResourceSettings().setUseMinifiedResources(true);
+
         getComponentInstantiationListeners().add(new SpringComponentInjector(this));
         getResourceSettings().setThrowExceptionOnMissingResource(true);
+
         getJavaScriptLibrarySettings().setJQueryReference(new DynamicJQueryResourceReference());
 
         getSecuritySettings().setAuthorizationStrategy(new MetaDataRoleAuthorizationStrategy(this));
@@ -150,5 +157,4 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
                         ? MustChangePassword.class
                         : Dashboard.class;
     }
-
 }

@@ -20,9 +20,6 @@ package org.apache.syncope.client.console.pages;
 
 import static org.apache.wicket.Component.ENABLE;
 
-import de.agilecoders.wicket.extensions.markup.html.bootstrap.behavior.Draggable;
-import de.agilecoders.wicket.extensions.markup.html.bootstrap.behavior.DraggableConfig;
-import de.agilecoders.wicket.extensions.markup.html.bootstrap.behavior.Resizable;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,7 +33,6 @@ import org.apache.syncope.client.console.panels.Realm;
 import org.apache.syncope.client.console.panels.RealmModalPanel;
 import org.apache.syncope.client.console.rest.RealmRestClient;
 import org.apache.syncope.client.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.buttons.DefaultModalCloseButton;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.Entitlement;
@@ -190,12 +186,7 @@ public class Realms extends BasePage {
 
     private void setupCreateModal() {
         final BaseModal<RealmTO> createModal = new BaseModal<>("createModal");
-        createModal.add(new Resizable().withChildSelector(".modal-content"));
-        createModal.add(new Draggable(new DraggableConfig().withHandle(".modal-header").withCursor("move")));
-        createModal.addButton(new DefaultModalCloseButton());
         createModal.header(new ResourceModel("createRealm"));
-        createModal.setUseKeyboard(true);
-        createModal.setFadeIn(true);
 
         createModal.setWindowClosedCallback(new WindowClosedCallback() {
 
@@ -239,12 +230,7 @@ public class Realms extends BasePage {
     private void setupEditModal() {
 
         final BaseModal<RealmTO> editModal = new BaseModal<>("editModal");
-        editModal.add(new Resizable().withChildSelector(".modal-content"));
-        editModal.add(new Draggable(new DraggableConfig().withHandle(".modal-header").withCursor("move")));
-        editModal.addButton(new DefaultModalCloseButton());
         editModal.header(Model.of(getCurrentRealm().getName()));
-        editModal.setUseKeyboard(true);
-        editModal.setFadeIn(true);
 
         editModal.setWindowClosedCallback(new WindowClosedCallback() {
 
@@ -261,7 +247,8 @@ public class Realms extends BasePage {
         content.addOrReplace(editModal);
 
         final RealmModalPanel ediRealmModalPanel =
-                new EditRealmModalPanel(BaseModal.getModalContentId(),
+                new EditRealmModalPanel(
+                        BaseModal.getModalContentId(),
                         Realms.this.getPageReference(),
                         editModal, getCurrentRealm(), Realms.this.getCurrentRealm().getFullPath(),
                         Entitlement.REALM_UPDATE);

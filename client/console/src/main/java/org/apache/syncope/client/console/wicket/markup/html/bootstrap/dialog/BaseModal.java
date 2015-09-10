@@ -19,9 +19,13 @@
 package org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
+import de.agilecoders.wicket.extensions.markup.html.bootstrap.behavior.Draggable;
+import de.agilecoders.wicket.extensions.markup.html.bootstrap.behavior.DraggableConfig;
+import de.agilecoders.wicket.extensions.markup.html.bootstrap.behavior.Resizable;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.client.console.panels.NotificationPanel;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.buttons.DefaultModalCloseButton;
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -41,7 +45,7 @@ public class BaseModal<T> extends Modal<T> {
     protected static final Logger LOG = LoggerFactory.getLogger(BaseModal.class);
 
     private static final String CONTENT = "modalContent";
-    
+
     private static final String INPUT = "input";
 
     protected NotificationPanel feedbackPanel;
@@ -61,6 +65,15 @@ public class BaseModal<T> extends Modal<T> {
         setUseCloseHandler(true);
         this.windowClosedCallback = null;
         components = new ArrayList<>();
+
+        // Note: it would imply the adding of WebjarsJavaScriptResourceReference about JQuery resizable and mouse
+        add(new Resizable().withChildSelector(".modal-content"));
+        // Note: it would imply the adding of WebjarsJavaScriptResourceReference about JQuery draggable
+        add(new Draggable(new DraggableConfig().withHandle(".modal-header").withCursor("move")));
+        addButton(new DefaultModalCloseButton());
+        setUseKeyboard(true);
+        setFadeIn(true);
+
     }
 
     @Override

@@ -19,6 +19,12 @@
 package org.apache.syncope.client.console.themes;
 
 import de.agilecoders.wicket.core.settings.Theme;
+import de.agilecoders.wicket.extensions.markup.html.bootstrap.jqueryui.JQueryUIAllJavaScriptReference;
+import de.agilecoders.wicket.extensions.markup.html.bootstrap.jqueryui.JQueryUICoreJavaScriptReference;
+import de.agilecoders.wicket.extensions.markup.html.bootstrap.jqueryui.JQueryUIDraggableJavaScriptReference;
+import de.agilecoders.wicket.extensions.markup.html.bootstrap.jqueryui.JQueryUIMouseJavaScriptReference;
+import de.agilecoders.wicket.extensions.markup.html.bootstrap.jqueryui.JQueryUIResizableJavaScriptReference;
+import de.agilecoders.wicket.extensions.markup.html.bootstrap.jqueryui.JQueryUIWidgetJavaScriptReference;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.wicket.markup.head.CssHeaderItem;
@@ -37,6 +43,15 @@ public class AdminLTE extends Theme {
         final List<HeaderItem> references = new ArrayList<>();
         references.add(JavaScriptHeaderItem.forReference(
                 new JQueryPluginResourceReference(AdminLTE.class, "js/AdminLTE-app.min.js")));
+
+        // Adds WebjarsJavaScriptResourceReference about JQuery
+        references.add(JavaScriptHeaderItem.forReference(JQueryUIAllJavaScriptReference.instance()));
+        references.add(JavaScriptHeaderItem.forReference(JQueryUICoreJavaScriptReference.instance()));
+        references.add(JavaScriptHeaderItem.forReference(JQueryUIMouseJavaScriptReference.instance()));
+        references.add(JavaScriptHeaderItem.forReference(JQueryUIWidgetJavaScriptReference.instance()));
+        references.add(JavaScriptHeaderItem.forReference(JQueryUIResizableJavaScriptReference.instance()));
+        references.add(JavaScriptHeaderItem.forReference(JQueryUIDraggableJavaScriptReference.instance()));
+
         references.add(CssHeaderItem.forReference(AdminLTECssResourceReference.INSTANCE));
         references.addAll(super.getDependencies());
         return references;

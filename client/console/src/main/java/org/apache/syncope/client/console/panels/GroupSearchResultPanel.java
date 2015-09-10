@@ -18,9 +18,6 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import de.agilecoders.wicket.extensions.markup.html.bootstrap.behavior.Draggable;
-import de.agilecoders.wicket.extensions.markup.html.bootstrap.behavior.DraggableConfig;
-import de.agilecoders.wicket.extensions.markup.html.bootstrap.behavior.Resizable;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -50,15 +47,11 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.util.ReflectionUtils;
 
 public class GroupSearchResultPanel extends AnySearchResultPanel {
 
     private static final long serialVersionUID = -1100228004207271270L;
-
-    protected static final Logger LOG = LoggerFactory.getLogger(GroupSearchResultPanel.class);
 
     private final String entitlement = "GROUP_READ";
 
@@ -71,13 +64,10 @@ public class GroupSearchResultPanel extends AnySearchResultPanel {
         super(type, parentId, filtered, fiql, callerRef, restClient, anyTypeClassTOs, realm);
 
         editModal = new BaseModal<>("editModal");
-        editModal.add(new Resizable().withChildSelector(".modal-content"));
-        editModal.add(new Draggable(new DraggableConfig().withHandle(".modal-header").withCursor("move")));
-        editModal.setUseKeyboard(true).addCloseButton();
-        editModal.setFadeIn(true);
-        editModal.setFooterVisible(true);
-        editModal.setHeaderVisible(true);
-        editModal.setOutputMarkupId(true);
+//        editModal.addCloseButton();
+//        editModal.setFooterVisible(true);
+//        editModal.setHeaderVisible(true);
+//        editModal.setOutputMarkupId(true);
     }
 
     @Override
@@ -169,7 +159,7 @@ public class GroupSearchResultPanel extends AnySearchResultPanel {
             }
 
             @Override
-            public ActionLinksPanel getHeader(final String componentId) {
+            public ActionLinksPanel<Serializable> getHeader(final String componentId) {
                 final ActionLinksPanel.Builder<Serializable> panel = ActionLinksPanel.builder(page.getPageReference());
 
                 panel.add(new ActionLink<Serializable>() {

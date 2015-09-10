@@ -191,3 +191,7 @@ a.help span a {
 div.basepage-content{
   margin-top: 55px;
 }
+
+.modal-content {
+  overflow: hidden;
+}
