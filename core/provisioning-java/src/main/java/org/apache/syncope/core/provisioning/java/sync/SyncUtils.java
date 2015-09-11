@@ -55,6 +55,7 @@ import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
+import org.identityconnectors.framework.common.objects.ResultsHandler;
 import org.identityconnectors.framework.common.objects.filter.EqualsFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -116,9 +117,18 @@ public class SyncUtils {
 
         AnyUtils anyUtils = anyUtilsFactory.getInstance(anyType.getKind());
 
-        List<ConnectorObject> found = connector.search(provision.getObjectClass(),
-                new EqualsFilter(new Name(name)), connector.getOperationOptions(
-                        MappingUtils.getMappingItems(provision, MappingPurpose.SYNCHRONIZATION)));
+        final List<ConnectorObject> found = new ArrayList<>();
+        connector.search(
+                provision.getObjectClass(),
+                new EqualsFilter(new Name(name)),
+                new ResultsHandler() {
+
+                    @Override
+                    public boolean handle(final ConnectorObject obj) {
+                        return found.add(obj);
+                    }
+                },
+                connector.getOperationOptions(MappingUtils.getMappingItems(provision, MappingPurpose.SYNCHRONIZATION)));
 
         if (found.isEmpty()) {
             LOG.debug("No {} found on {} with __NAME__ {}", provision.getObjectClass(), resource, name);

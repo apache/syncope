@@ -20,6 +20,7 @@ package org.apache.syncope.common.rest.api.service;
 
 import java.util.List;
 import javax.validation.constraints.NotNull;
+import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -33,10 +34,12 @@ import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
+import org.apache.syncope.common.lib.to.PagedConnObjectTOResult;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.ResourceDeassociationActionType;
 import org.apache.syncope.common.lib.wrap.AnyKey;
 import org.apache.syncope.common.lib.wrap.BooleanWrap;
+import org.apache.syncope.common.rest.api.beans.ConnObjectTOListQuery;
 
 /**
  * REST operations for external resources.
@@ -47,7 +50,7 @@ public interface ResourceService extends JAXRSService {
     /**
      * Returns connector object from the external resource, for the given type and key.
      *
-     * @param key Name of resource to read connector object from
+     * @param key name of resource to read connector object from
      * @param anyTypeKey any object type
      * @param anyKey any object key
      * @return connector object from the external resource, for the given type and key
@@ -55,8 +58,27 @@ public interface ResourceService extends JAXRSService {
     @GET
     @Path("{key}/{anyTypeKey}/{anyKey}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    ConnObjectTO readConnObject(@NotNull @PathParam("key") String key,
-            @NotNull @PathParam("anyTypeKey") String anyTypeKey, @NotNull @PathParam("anyKey") Long anyKey);
+    ConnObjectTO readConnObject(
+            @NotNull @PathParam("key") String key,
+            @NotNull @PathParam("anyTypeKey") String anyTypeKey,
+            @NotNull @PathParam("anyKey") Long anyKey);
+
+    /**
+     * Returns a paged list of connector objects from external resource, for the given type, matching
+     * page/size conditions.
+     *
+     * @param key name of resource to read connector object from
+     * @param anyTypeKey any object type
+     * @param listQuery query conditions
+     * @return connector objects from the external resource, for the given type
+     */
+    @GET
+    @Path("{key}/{anyTypeKey}")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    PagedConnObjectTOResult listConnObjects(
+            @NotNull @PathParam("key") String key,
+            @NotNull @PathParam("anyTypeKey") String anyTypeKey,
+            @BeanParam ConnObjectTOListQuery listQuery);
 
     /**
      * Returns the resource with matching name.

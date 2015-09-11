@@ -26,6 +26,10 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.ImmutableTriple;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
@@ -48,6 +52,7 @@ import org.apache.syncope.core.misc.ConnObjectUtils;
 import org.apache.syncope.core.misc.MappingUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
+import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
@@ -55,7 +60,9 @@ import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.Name;
+import org.identityconnectors.framework.common.objects.SearchResult;
 import org.identityconnectors.framework.common.objects.Uid;
+import org.identityconnectors.framework.spi.SearchResultsHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
@@ -172,9 +179,9 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         }, new ArrayList<ResourceTO>());
     }
 
-    @PreAuthorize("hasRole('" + Entitlement.RESOURCE_GETCONNECTOROBJECT + "')")
-    @Transactional(readOnly = true)
-    public ConnObjectTO readConnObject(final String resourceKey, final String anyTypeKey, final Long key) {
+    private Triple<ExternalResource, AnyType, Provision> connObjectInit(
+            final String resourceKey, final String anyTypeKey) {
+
         ExternalResource resource = resourceDAO.find(resourceKey);
         if (resource == null) {
             throw new NotFoundException("Resource '" + resourceKey + "'");
@@ -188,31 +195,41 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
             throw new NotFoundException("Provision on resource '" + resourceKey + "' for type '" + anyTypeKey + "'");
         }
 
-        Any<?, ?, ?> any = anyType.getKind() == AnyTypeKind.USER
-                ? userDAO.find(key)
-                : anyType.getKind() == AnyTypeKind.ANY_OBJECT
-                        ? anyObjectDAO.find(key)
-                        : groupDAO.find(key);
+        return ImmutableTriple.of(resource, anyType, provision);
+    }
+
+    @PreAuthorize("hasRole('" + Entitlement.RESOURCE_GET_CONNOBJECT + "')")
+    @Transactional(readOnly = true)
+    public ConnObjectTO readConnObject(final String key, final String anyTypeKey, final Long anyKey) {
+        Triple<ExternalResource, AnyType, Provision> init = connObjectInit(key, anyTypeKey);
+
+        Any<?, ?, ?> any = init.getMiddle().getKind() == AnyTypeKind.USER
+                ? userDAO.find(anyKey)
+                : init.getMiddle().getKind() == AnyTypeKind.ANY_OBJECT
+                        ? anyObjectDAO.find(anyKey)
+                        : groupDAO.find(anyKey);
         if (any == null) {
-            throw new NotFoundException(anyType + " " + key);
+            throw new NotFoundException(init.getMiddle() + " " + anyKey);
         }
-        MappingItem connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision);
+        MappingItem connObjectKeyItem = MappingUtils.getConnObjectKeyItem(init.getRight());
         if (connObjectKeyItem == null) {
             throw new NotFoundException(
-                    "ConnObjectKey mapping for " + anyType + " " + key + " on resource '" + resourceKey + "'");
+                    "ConnObjectKey mapping for " + init.getMiddle() + " " + anyKey + " on resource '" + key + "'");
         }
-        String connObjectKeyValue = MappingUtils.getConnObjectKeyValue(any, provision);
+        String connObjectKeyValue = MappingUtils.getConnObjectKeyValue(any, init.getRight());
 
-        Connector connector = connFactory.getConnector(resource);
+        Connector connector = connFactory.getConnector(init.getLeft());
         ConnectorObject connectorObject = connector.getObject(
-                provision.getObjectClass(), new Uid(connObjectKeyValue),
-                connector.getOperationOptions(MappingUtils.getMappingItems(provision, MappingPurpose.BOTH)));
+                init.getRight().getObjectClass(),
+                new Uid(connObjectKeyValue),
+                connector.getOperationOptions(MappingUtils.getMappingItems(init.getRight(), MappingPurpose.BOTH)));
         if (connectorObject == null) {
-            throw new NotFoundException("Object " + connObjectKeyValue + " with class " + provision.getObjectClass()
-                    + " not found on resource " + resourceKey);
+            throw new NotFoundException(
+                    "Object " + connObjectKeyValue + " with class " + init.getRight().getObjectClass()
+                    + " not found on resource " + key);
         }
 
-        final Set<Attribute> attributes = connectorObject.getAttributes();
+        Set<Attribute> attributes = connectorObject.getAttributes();
         if (AttributeUtil.find(Uid.NAME, attributes) == null) {
             attributes.add(connectorObject.getUid());
         }
@@ -221,6 +238,34 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         }
 
         return connObjectUtils.getConnObjectTO(connectorObject);
+    }
+
+    @PreAuthorize("hasRole('" + Entitlement.RESOURCE_LIST_CONNOBJECT + "')")
+    @Transactional(readOnly = true)
+    public Pair<SearchResult, List<ConnObjectTO>> listConnObjects(final String key, final String anyTypeKey,
+            final Integer size, final String pagedResultsCookie, final List<OrderByClause> orderBy) {
+
+        Triple<ExternalResource, AnyType, Provision> init = connObjectInit(key, anyTypeKey);
+
+        Connector connector = connFactory.getConnector(init.getLeft());
+
+        final SearchResult[] searchResult = new SearchResult[1];
+        final List<ConnObjectTO> connObjects = new ArrayList<>();
+        connector.search(init.getRight().getObjectClass(), null, new SearchResultsHandler() {
+
+            @Override
+            public void handleResult(final SearchResult result) {
+                searchResult[0] = result;
+            }
+
+            @Override
+            public boolean handle(final ConnectorObject connectorObject) {
+                connObjects.add(connObjectUtils.getConnObjectTO(connectorObject));
+                return true;
+            }
+        }, size, pagedResultsCookie, orderBy);
+
+        return ImmutablePair.of(searchResult[0], connObjects);
     }
 
     @PreAuthorize("hasRole('" + Entitlement.CONNECTOR_READ + "')")

@@ -23,12 +23,14 @@ import java.util.List;
 import java.util.Set;
 import org.apache.syncope.common.lib.types.PropagationMode;
 import org.apache.syncope.common.lib.types.ResourceOperation;
+import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.OperationOptions;
+import org.identityconnectors.framework.common.objects.ResultsHandler;
 import org.identityconnectors.framework.common.objects.SyncResultsHandler;
 import org.identityconnectors.framework.common.objects.SyncToken;
 import org.identityconnectors.framework.common.objects.Uid;
@@ -91,7 +93,16 @@ public interface Connector {
             Uid uid, OperationOptions options, Set<String> propagationAttempted);
 
     /**
-     * Sync users / groups from a connector instance.
+     * Fetches all remote objects (for use during full reconciliation).
+     *
+     * @param objectClass ConnId's object class.
+     * @param handler to be used to handle deltas.
+     * @param options ConnId's OperationOptions.
+     */
+    void getAllObjects(ObjectClass objectClass, SyncResultsHandler handler, OperationOptions options);
+
+    /**
+     * Sync remote objects from a connector instance.
      *
      * @param objectClass ConnId's object class
      * @param token to be passed to the underlying connector
@@ -129,28 +140,46 @@ public interface Connector {
      * @param options ConnId's OperationOptions
      * @return ConnId's connector object for given uid
      */
-    ConnectorObject getObject(PropagationMode propagationMode, ResourceOperation operationType, ObjectClass objectClass,
-            Uid uid, OperationOptions options);
+    ConnectorObject getObject(
+            PropagationMode propagationMode,
+            ResourceOperation operationType,
+            ObjectClass objectClass,
+            Uid uid,
+            OperationOptions options);
 
     /**
      * Search for remote objects.
      *
      * @param objectClass ConnId's object class
      * @param filter search filter
+     * @param handler class responsible for working with the objects returned from the search; may be null.
      * @param options ConnId's OperationOptions
-     * @return ConnId's connector objects matching the given filter
      */
-    List<ConnectorObject> search(ObjectClass objectClass, Filter filter, OperationOptions options);
+    void search(
+            ObjectClass objectClass,
+            Filter filter,
+            ResultsHandler handler,
+            OperationOptions options);
 
     /**
-     * Get remote object used by the propagation manager in order to choose for a create (object doesn't exist) or an
-     * update (object exists).
+     * Search for remote objects.
      *
-     * @param objectClass ConnId's object class.
-     * @param handler to be used to handle deltas.
-     * @param options ConnId's OperationOptions.
+     * @param objectClass ConnId's object class
+     * @param filter search filter
+     * @param handler class responsible for working with the objects returned from the search; may be null.
+     * @param pageSize requested page results page size
+     * @param pagedResultsCookie an opaque cookie which is used by the connector to track its position in the set of
+     * query results
+     * @param orderBy the sort keys which should be used for ordering the {@link ConnectorObject} returned by
+     * search request
      */
-    void getAllObjects(ObjectClass objectClass, SyncResultsHandler handler, OperationOptions options);
+    void search(
+            ObjectClass objectClass,
+            Filter filter,
+            ResultsHandler handler,
+            int pageSize,
+            String pagedResultsCookie,
+            List<OrderByClause> orderBy);
 
     /**
      * Read attribute for a given connector object.

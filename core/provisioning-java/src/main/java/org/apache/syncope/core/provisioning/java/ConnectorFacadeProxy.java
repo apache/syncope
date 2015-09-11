@@ -27,7 +27,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import javax.ws.rs.NotFoundException;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.syncope.common.lib.types.PropagationMode;
@@ -38,6 +39,7 @@ import org.apache.syncope.core.provisioning.api.ConnPoolConfUtils;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.TimeoutException;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
+import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.identityconnectors.common.security.GuardedByteArray;
 import org.identityconnectors.common.security.GuardedString;
@@ -54,12 +56,15 @@ import org.identityconnectors.framework.common.objects.OperationOptions;
 import org.identityconnectors.framework.common.objects.OperationOptionsBuilder;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.identityconnectors.framework.common.objects.ResultsHandler;
+import org.identityconnectors.framework.common.objects.SearchResult;
+import org.identityconnectors.framework.common.objects.SortKey;
 import org.identityconnectors.framework.common.objects.SyncDeltaBuilder;
 import org.identityconnectors.framework.common.objects.SyncDeltaType;
 import org.identityconnectors.framework.common.objects.SyncResultsHandler;
 import org.identityconnectors.framework.common.objects.SyncToken;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.identityconnectors.framework.common.objects.filter.Filter;
+import org.identityconnectors.framework.spi.SearchResultsHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,6 +73,8 @@ import org.springframework.util.ClassUtils;
 public class ConnectorFacadeProxy implements Connector {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConnectorFacadeProxy.class);
+
+    private static final Integer DEFAULT_PAGE_SIZE = 100;
 
     /**
      * Connector facade wrapped instance.
@@ -100,6 +107,8 @@ public class ConnectorFacadeProxy implements Connector {
 
         // create default configuration
         APIConfiguration apiConfig = info.createDefaultAPIConfiguration();
+        // enable filtered results handler in validation mode
+        apiConfig.getResultsHandlerConfiguration().setFilteredResultsHandlerInValidationMode(true);
 
         // set connector configuration according to conninstance's
         ConfigurationProperties properties = apiConfig.getConfigurationProperties();
@@ -122,9 +131,6 @@ public class ConnectorFacadeProxy implements Connector {
 
         // gets new connector, with the given configuration
         connector = ConnectorFacadeFactory.getInstance().newInstance(apiConfig);
-        if (connector == null) {
-            throw new NotFoundException("Connector");
-        }
 
         // make sure we have set up the Configuration properly
         connector.validate();
@@ -308,37 +314,34 @@ public class ConnectorFacadeProxy implements Connector {
     public ConnectorObject getObject(final PropagationMode propagationMode, final ResourceOperation operationType,
             final ObjectClass objectClass, final Uid uid, final OperationOptions options) {
 
-        Future<ConnectorObject> future = null;
+        boolean hasCapablities = false;
 
         if (activeConnInstance.getCapabilities().contains(ConnectorCapability.SEARCH)) {
             if (operationType == null) {
-                future = asyncFacade.getObject(connector, objectClass, uid, options);
+                hasCapablities = true;
             } else {
                 switch (operationType) {
                     case CREATE:
-                        if (propagationMode == null || (propagationMode == PropagationMode.ONE_PHASE
-                                ? activeConnInstance.getCapabilities().
-                                contains(ConnectorCapability.ONE_PHASE_CREATE)
-                                : activeConnInstance.getCapabilities().
-                                contains(ConnectorCapability.TWO_PHASES_CREATE))) {
-
-                            future = asyncFacade.getObject(connector, objectClass, uid, options);
-                        }
+                        hasCapablities = propagationMode == null || (propagationMode == PropagationMode.ONE_PHASE
+                                ? activeConnInstance.getCapabilities().contains(ConnectorCapability.ONE_PHASE_CREATE)
+                                : activeConnInstance.getCapabilities().contains(ConnectorCapability.TWO_PHASES_CREATE));
                         break;
+
                     case UPDATE:
-                        if (propagationMode == null || (propagationMode == PropagationMode.ONE_PHASE
-                                ? activeConnInstance.getCapabilities().
-                                contains(ConnectorCapability.ONE_PHASE_UPDATE)
-                                : activeConnInstance.getCapabilities().
-                                contains(ConnectorCapability.TWO_PHASES_UPDATE))) {
-
-                            future = asyncFacade.getObject(connector, objectClass, uid, options);
-                        }
+                        hasCapablities = propagationMode == null || (propagationMode == PropagationMode.ONE_PHASE
+                                ? activeConnInstance.getCapabilities().contains(ConnectorCapability.ONE_PHASE_UPDATE)
+                                : activeConnInstance.getCapabilities().contains(ConnectorCapability.TWO_PHASES_UPDATE));
                         break;
+
                     default:
-                        future = asyncFacade.getObject(connector, objectClass, uid, options);
+                        hasCapablities = true;
                 }
             }
+        }
+
+        Future<ConnectorObject> future = null;
+        if (hasCapablities) {
+            future = asyncFacade.getObject(connector, objectClass, uid, options);
         } else {
             LOG.info("Search was attempted, although the connector only has these capabilities: {}. No action.",
                     activeConnInstance.getCapabilities());
@@ -359,23 +362,6 @@ public class ConnectorFacadeProxy implements Connector {
                 throw new IllegalArgumentException(e.getCause());
             }
         }
-    }
-
-    @Override
-    public List<ConnectorObject> search(
-            final ObjectClass objectClass, final Filter filter, final OperationOptions options) {
-
-        final List<ConnectorObject> result = new ArrayList<>();
-
-        search(objectClass, filter, new ResultsHandler() {
-
-            @Override
-            public boolean handle(final ConnectorObject obj) {
-                return result.add(obj);
-            }
-        }, options);
-
-        return result;
     }
 
     @Override
@@ -509,18 +495,71 @@ public class ConnectorFacadeProxy implements Connector {
         }
     }
 
-    private void search(
+    @Override
+    public void search(
             final ObjectClass objectClass,
             final Filter filter,
             final ResultsHandler handler,
             final OperationOptions options) {
 
         if (activeConnInstance.getCapabilities().contains(ConnectorCapability.SEARCH)) {
-            connector.search(objectClass, filter, handler, options);
+            if (options.getPageSize() == null && options.getPagedResultsCookie() == null) {
+                OperationOptionsBuilder builder = new OperationOptionsBuilder(options);
+                builder.setPageSize(DEFAULT_PAGE_SIZE);
+
+                final String[] cookies = new String[] { null };
+                do {
+                    if (cookies[0] != null) {
+                        builder.setPagedResultsCookie(cookies[0]);
+                    }
+
+                    connector.search(objectClass, filter, new SearchResultsHandler() {
+
+                        @Override
+                        public void handleResult(final SearchResult result) {
+                            if (handler instanceof SearchResultsHandler) {
+                                SearchResultsHandler.class.cast(handler).handleResult(result);
+                            }
+                            cookies[0] = result.getPagedResultsCookie();
+                        }
+
+                        @Override
+                        public boolean handle(final ConnectorObject connectorObject) {
+                            return handler.handle(connectorObject);
+                        }
+                    }, builder.build());
+                } while (cookies[0] != null);
+            } else {
+                connector.search(objectClass, filter, handler, options);
+            }
         } else {
             LOG.info("Search was attempted, although the connector only has these capabilities: {}. No action.",
                     activeConnInstance.getCapabilities());
         }
+    }
+
+    @Override
+    public void search(
+            final ObjectClass objectClass,
+            final Filter filter,
+            final ResultsHandler handler,
+            final int pageSize,
+            final String pagedResultsCookie,
+            final List<OrderByClause> orderBy) {
+
+        OperationOptionsBuilder builder = new OperationOptionsBuilder().setPageSize(pageSize);
+        if (pagedResultsCookie != null) {
+            builder.setPagedResultsCookie(pagedResultsCookie);
+        }
+        builder.setSortKeys(CollectionUtils.collect(orderBy, new Transformer<OrderByClause, SortKey>() {
+
+            @Override
+            public SortKey transform(final OrderByClause clause) {
+                return new SortKey(clause.getField(), clause.getDirection() == OrderByClause.Direction.ASC);
+            }
+        }, new ArrayList<SortKey>(orderBy.size())));
+
+        search(objectClass, filter, handler, builder.build());
     }
 
     @Override
@@ -533,9 +572,9 @@ public class ConnectorFacadeProxy implements Connector {
         // -------------------------------------
         // Ask just for mapped attributes
         // -------------------------------------
-        final OperationOptionsBuilder oob = new OperationOptionsBuilder();
+        OperationOptionsBuilder builder = new OperationOptionsBuilder();
 
-        final Set<String> attrsToGet = new HashSet<>();
+        Set<String> attrsToGet = new HashSet<>();
         attrsToGet.add(Name.NAME);
         attrsToGet.add(Uid.NAME);
         attrsToGet.add(OperationalAttributes.ENABLE_NAME);
@@ -544,17 +583,17 @@ public class ConnectorFacadeProxy implements Connector {
             attrsToGet.add(item.getExtAttrName());
         }
 
-        oob.setAttributesToGet(attrsToGet);
+        builder.setAttributesToGet(attrsToGet);
         // -------------------------------------
 
-        return oob.build();
+        return builder.build();
     }
 
     private Object getPropertyValue(final String propType, final List<?> values) {
         Object value = null;
 
         try {
-            final Class<?> propertySchemaClass = ClassUtils.forName(propType, ClassUtils.getDefaultClassLoader());
+            Class<?> propertySchemaClass = ClassUtils.forName(propType, ClassUtils.getDefaultClassLoader());
 
             if (GuardedString.class.equals(propertySchemaClass)) {
                 value = new GuardedString(values.get(0).toString().toCharArray());
