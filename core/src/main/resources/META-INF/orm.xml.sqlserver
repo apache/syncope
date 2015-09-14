@@ -23,7 +23,7 @@ under the License.
                   xsi:schemaLocation="http://java.sun.com/xml/ns/persistence/orm 
                                       http://java.sun.com/xml/ns/persistence/orm_2_0.xsd"
                   version="2.0">
-  
+
   <persistence-unit-metadata>
     <persistence-unit-defaults>
       <entity-listeners>
@@ -125,7 +125,7 @@ under the License.
       </id>
     </attributes>
   </entity>
-  
+
   <entity class="org.apache.syncope.core.persistence.beans.user.UAttr">
     <attributes>
       <id name="id">
@@ -158,7 +158,7 @@ under the License.
       </id>
     </attributes>
   </entity>
-      
+
   <entity class="org.apache.syncope.core.persistence.beans.user.UAttrValue">
     <attributes>
       <id name="id">
@@ -194,21 +194,9 @@ under the License.
     <table>
       <unique-constraint>
         <column-name>booleanValue</column-name>
-        <column-name>schema_name</column-name>
-      </unique-constraint>
-      <unique-constraint>
         <column-name>dateValue</column-name>
-        <column-name>schema_name</column-name>
-      </unique-constraint>
-      <unique-constraint>
         <column-name>stringValue</column-name>
-        <column-name>schema_name</column-name>
-      </unique-constraint>
-      <unique-constraint>
         <column-name>doubleValue</column-name>
-        <column-name>schema_name</column-name>
-      </unique-constraint>
-      <unique-constraint>
         <column-name>longValue</column-name>
         <column-name>schema_name</column-name>
       </unique-constraint>
@@ -230,21 +218,9 @@ under the License.
     <table>
       <unique-constraint>
         <column-name>booleanValue</column-name>
-        <column-name>schema_name</column-name>
-      </unique-constraint>
-      <unique-constraint>
         <column-name>dateValue</column-name>
-        <column-name>schema_name</column-name>
-      </unique-constraint>
-      <unique-constraint>
         <column-name>stringValue</column-name>
-        <column-name>schema_name</column-name>
-      </unique-constraint>
-      <unique-constraint>
         <column-name>doubleValue</column-name>
-        <column-name>schema_name</column-name>
-      </unique-constraint>
-      <unique-constraint>
         <column-name>longValue</column-name>
         <column-name>schema_name</column-name>
       </unique-constraint>
@@ -266,21 +242,9 @@ under the License.
     <table>
       <unique-constraint>
         <column-name>booleanValue</column-name>
-        <column-name>schema_name</column-name>
-      </unique-constraint>
-      <unique-constraint>
         <column-name>dateValue</column-name>
-        <column-name>schema_name</column-name>
-      </unique-constraint>
-      <unique-constraint>
         <column-name>stringValue</column-name>
-        <column-name>schema_name</column-name>
-      </unique-constraint>
-      <unique-constraint>
         <column-name>doubleValue</column-name>
-        <column-name>schema_name</column-name>
-      </unique-constraint>
-      <unique-constraint>
         <column-name>longValue</column-name>
         <column-name>schema_name</column-name>
       </unique-constraint>
@@ -308,7 +272,7 @@ under the License.
       </id>
     </attributes>
   </entity>
-    
+
   <entity class="org.apache.syncope.core.persistence.beans.Policy">
     <attributes>
       <id name="id">
@@ -317,7 +281,7 @@ under the License.
       </id>
     </attributes>
   </entity>
-
+    
   <entity class="org.apache.syncope.core.persistence.beans.Report">
     <attributes>
       <id name="id">
