@@ -54,9 +54,9 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
 
     private static final String SUBMIT = "submit";
 
-    protected static final String FORM = "form";
+    private static final String FORM = "form";
 
-    protected NotificationPanel feedbackPanel;
+    private final NotificationPanel feedbackPanel;
 
     private final List<Component> components;
 
@@ -66,7 +66,7 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
 
     private PrimaryModalButton submitButton;
 
-    final Form<T> form;
+    private final Form<T> form;
 
     public BaseModal(final String id) {
         super(id);
@@ -94,10 +94,10 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
 
         // Note: it would imply the adding of WebjarsJavaScriptResourceReference about JQuery resizable and mouse
         add(new Resizable().withChildSelector(".modal-content"));
-        
+
         // Note: it would imply the adding of WebjarsJavaScriptResourceReference about JQuery draggable
         add(new Draggable(new DraggableConfig().withHandle(".modal-header").withCursor("move")));
-        
+
         addButton(new DefaultModalCloseButton());
         setUseKeyboard(true);
         setFadeIn(true);

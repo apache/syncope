@@ -64,9 +64,9 @@ public class Realms extends BasePage {
 
     private final WebMarkupContainer content;
 
-    protected RealmTO currentRealm;
+    private RealmTO currentRealm;
 
-    final BaseModal<RealmTO> modal;
+    private final BaseModal<RealmTO> modal;
 
     public Realms(final PageParameters parameters) {
         super(parameters);
