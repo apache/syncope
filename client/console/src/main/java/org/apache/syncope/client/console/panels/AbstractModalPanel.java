@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.init.MIMETypesLoader;
 import org.apache.syncope.client.console.rest.ConfigurationRestClient;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
@@ -30,9 +29,12 @@ import org.apache.syncope.client.console.rest.TaskRestClient;
 import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.rest.UserSelfRestClient;
 import org.apache.syncope.client.console.wicket.markup.head.MetaHeaderItem;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.head.HeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.PriorityHeaderItem;
+import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
@@ -44,13 +46,13 @@ public class AbstractModalPanel extends Panel {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractModalPanel.class);
 
+    protected final BaseModal<?> modal;
+
     protected static final String CANCEL = "cancel";
 
     protected static final String SUBMIT = "submit";
 
     protected static final String APPLY = "apply";
-
-    protected static final String FORM = "form";
 
     protected final HeaderItem meta = new MetaHeaderItem("X-UA-Compatible", "IE=edge");
 
@@ -84,31 +86,9 @@ public class AbstractModalPanel extends Panel {
     @SpringBean
     protected MIMETypesLoader mimeTypesInitializer;
 
-    protected NotificationPanel feedbackPanel;
-
-    /**
-     * Response flag set by the Modal Window after the operation is completed.
-     */
-    protected boolean modalResult = false;
-
-    public AbstractModalPanel(final String id) {
+    public AbstractModalPanel(final String id, final BaseModal<?> modal) {
         super(id);
-
-        feedbackPanel = new NotificationPanel(Constants.FEEDBACK);
-        feedbackPanel.setOutputMarkupId(true);
-        add(feedbackPanel);
-    }
-
-    public NotificationPanel getFeedbackPanel() {
-        return feedbackPanel;
-    }
-
-    public boolean isModalResult() {
-        return modalResult;
-    }
-
-    public void setModalResult(final boolean modalResult) {
-        this.modalResult = modalResult;
+        this.modal = modal;
     }
 
     @Override
@@ -117,4 +97,15 @@ public class AbstractModalPanel extends Panel {
         response.render(new PriorityHeaderItem(meta));
     }
 
+    protected void closeAction(final AjaxRequestTarget target, final Form<?> form) {
+        this.modal.close(target);
+    }
+
+    public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+        modal.getFeedbackPanel().refresh(target);
+    }
+
+    public void onError(final AjaxRequestTarget target, final Form<?> form) {
+        modal.getFeedbackPanel().refresh(target);
+    }
 }

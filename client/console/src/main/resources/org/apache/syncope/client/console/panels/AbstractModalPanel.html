@@ -16,30 +16,8 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
-
-<!--  <wicket:head>
-      <script type="text/javascript">
-        var notificationShownTimes = 0;
-  
-        function showNotification(componentId, messagecount) {
-          notificationShownTimes++;
-          timeout = 1700 + (messagecount * 500) + notificationShownTimes * 200;
-          $('div#' + componentId).fadeTo('normal', 1.0);
-          setTimeout("$('div#" + componentId + "').fadeOut('normal')", timeout);
-        }
-      </script>
-  
-      <style type="text/css">
-        table.palette td.header {
-          background:url("images/ui-bg_glass_75_e6e6e6_1x400.png")
-            repeat-x scroll 50% 50% #E6E6E6 !important;
-        }
-      </style>
-  </wicket:head>-->
-
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://xmlns.jcp.org/jsf/composite">
   <wicket:panel>
-    <div wicket:id="feedback"/>
     <wicket:child />
   </wicket:panel>
 </html>

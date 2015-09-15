@@ -29,14 +29,18 @@ under the License.
             <div class="box-tools pull-right">
               <ul class="nav navbar-nav actions">
                 <li>
+                  <a href="#" wicket:id="editLink">
+                    <i class="fa fa-pencil-square-o"></i>
+                  </a>                  
+                </li>
+                <li>
                   <a href="#" wicket:id="createLink">
                     <i class="fa fa-plus"></i>
                   </a>                  
                 </li>
-                <li><a href="#"><i class="fa fa-minus"></i></a></li>
                 <li>
-                  <a href="#" wicket:id="edit">
-                    <i class="fa fa-pencil-square-o"></i>
+                  <a href="#" wicket:id="deleteLink">
+                    <i class="fa fa-minus"></i>
                   </a>                  
                 </li>
               </ul>
@@ -48,13 +52,12 @@ under the License.
             </div>
           </div>
         </div>
-        <div wicket:id="createModal"></div>
-        <div wicket:id="editModal"></div>
+        <div wicket:id="modal"></div>
       </div>
 
       <aside class="control-sidebar control-sidebar-dark control-sidebar-open block-sidebar">
         <section class="sidebar">
-          <ul class="sidebar-menu">
+          <ul class="sidebar-menu" wicket:id="menu">
             <wicket:container wicket:id="list"></wicket:container>
           </ul>
         </section>

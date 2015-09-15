@@ -30,6 +30,6 @@ public class PrimaryModalButton extends AjaxSubmitLink {
     public PrimaryModalButton(final String id, final String name, final Form<?> form) {
         super(id, form);
         add(new ButtonBehavior(Buttons.Type.Primary, Buttons.Size.Medium));
-        
+
     }
 }

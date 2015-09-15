@@ -127,7 +127,7 @@ public class GroupSearchResultPanel extends AnySearchResultPanel {
                     @Override
                     public void onClick(final AjaxRequestTarget target, final AnyTO anyTO) {
                         editModal.addOrReplace(new GroupModalPanel(
-                                BaseModal.getModalContentId(), editModal, (GroupTO) model.getObject()));
+                                BaseModal.getContentId(), editModal, (GroupTO) model.getObject()));
 
                         target.add(editModal);
                         editModal.show(target);

@@ -22,6 +22,7 @@ import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.rest.UserWorkflowRestClient;
 import org.apache.syncope.client.console.topology.Topology;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
@@ -158,6 +159,32 @@ public class BasePage extends AbstractBasePage implements IAjaxIndicatorAware {
      */
     public void setWindowClosedCallback(final ModalWindow window, final WebMarkupContainer container) {
         window.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+
+            private static final long serialVersionUID = 8804221891699487139L;
+
+            @Override
+            public void onClose(final AjaxRequestTarget target) {
+                if (container != null) {
+                    target.add(container);
+                }
+
+                if (isModalResult()) {
+                    info(getString(Constants.OPERATION_SUCCEEDED));
+                    feedbackPanel.refresh(target);
+                    setModalResult(false);
+                }
+            }
+        });
+    }
+    
+    /**
+     * Set a WindowClosedCallback for a Modal instance.
+     *
+     * @param modal window
+     * @param container container
+     */
+    public void setWindowClosedCallback(final BaseModal modal, final WebMarkupContainer container) {
+        modal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
 
             private static final long serialVersionUID = 8804221891699487139L;
 

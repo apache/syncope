@@ -18,6 +18,25 @@ specific language governing permissions and limitations
 under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
+  <wicket:head>
+    <script type="text/javascript">
+      var notificationShownTimes = 0;
+
+      function showNotification(componentId, messagecount) {
+        notificationShownTimes++;
+        timeout = 1700 + (messagecount * 500) + notificationShownTimes * 200;
+        $('div#' + componentId).fadeTo('normal', 1.0);
+        setTimeout("$('div#" + componentId + "').fadeOut('normal')", timeout);
+      }
+    </script>
+
+    <style type="text/css">
+      table.palette td.header {
+        background:url("images/ui-bg_glass_75_e6e6e6_1x400.png")
+          repeat-x scroll 50% 50% #E6E6E6 !important;
+      }
+    </style>
+  </wicket:head>
   <wicket:panel>
     <div class="modal-dialog" wicket:id="dialog">
       <div class="modal-content">
@@ -26,16 +45,17 @@ under the License.
           <h4 wicket:id="header-label" class="modal-title">Modal header</h4>
         </div>
         <div class="modal-body">
-          <div wicket:id="container">
-            <span wicket:id="modalContent">[modalContent]</span>
-          </div>
+          <div wicket:id="feedback"/>
+          <form data-example-id="simple-input-groups" class="bs-example bs-example-form" wicket:id="form">
+            <span wicket:id="content">[modal content]</span>
+          </form>
         </div>
         <div class="modal-footer" wicket:id="footer">
           <wicket:fragment wicket:id="buttons">
             <button type="button" wicket:id="button"></button>
           </wicket:fragment>
           <wicket:fragment wicket:id="inputs">
-            <button wicket:id="input"><wicket:message key="submit"/></button>
+            <button wicket:id="submit"><wicket:message key="submit"/></button>
           </wicket:fragment>
         </div>
       </div>

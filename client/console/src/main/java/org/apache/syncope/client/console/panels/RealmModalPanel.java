@@ -20,19 +20,17 @@ package org.apache.syncope.client.console.panels;
 
 import static org.apache.wicket.Component.ENABLE;
 
-import com.googlecode.wicket.jquery.ui.markup.html.link.AjaxSubmitLink;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.pages.AbstractBasePage;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.RealmRestClient;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.buttons.PrimaryModalButton;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class RealmModalPanel extends AbstractModalPanel {
@@ -43,7 +41,7 @@ public class RealmModalPanel extends AbstractModalPanel {
 
     private final PageReference pageRef;
 
-    private final BaseModal<RealmTO> modal;
+    private boolean newRealm = false;
 
     @SpringBean
     private RealmRestClient realmRestClient;
@@ -51,69 +49,58 @@ public class RealmModalPanel extends AbstractModalPanel {
     private final String parentPath;
 
     public RealmModalPanel(
-            final String id,
+            final BaseModal<?> modal,
             final PageReference pageRef,
-            final BaseModal<RealmTO> modal,
             final RealmTO realmTO,
             final String parentPath,
             final String entitlement) {
+        this(modal, pageRef, realmTO, parentPath, entitlement, false);
+    }
 
-        super(id);
+    public RealmModalPanel(
+            final BaseModal<?> modal,
+            final PageReference pageRef,
+            final RealmTO realmTO,
+            final String parentPath,
+            final String entitlement,
+            final boolean newRealm) {
+
+        super(BaseModal.getContentId(), modal);
+        this.newRealm = newRealm;
 
         this.pageRef = pageRef;
-        this.modal = modal;
         this.realmTO = realmTO;
         this.parentPath = parentPath;
-
-        final Form<RealmTO> form = new Form<>("realmForm");
-        form.setModel(new CompoundPropertyModel<>(realmTO));
 
         final RealmDetails realmDetail = new RealmDetails("details", realmTO);
         if (SyncopeConsoleSession.get().owns(entitlement)) {
             MetaDataRoleAuthorizationStrategy.authorize(realmDetail, ENABLE, entitlement);
         }
-        form.add(realmDetail);
 
-        final AjaxSubmitLink submit = getOnSubmit(form);
-        modal.addFooterInput(submit);
-        add(form);
+        add(realmDetail);
     }
 
-    protected final PrimaryModalButton getOnSubmit(final Form form) {
-        return new PrimaryModalButton(BaseModal.getModalInputId(), "submit", form) {
-
-            private static final long serialVersionUID = -958724007591692537L;
-
-            @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-                try {
-                    submitAction(target, form);
-
-                    if (pageRef.getPage() instanceof BasePage) {
-                        ((BasePage) pageRef.getPage()).setModalResult(true);
-                    }
-
-                    closeAction(target, form);
-                } catch (Exception e) {
-                    LOG.error("While creating or updating realm", e);
-                    error(getString(Constants.ERROR) + ": " + e.getMessage());
-                    feedbackPanel.refresh(target);
-                }
+    @Override
+    public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+        try {
+            final RealmTO updatedRealmTO = RealmTO.class.cast(form.getModelObject());
+            if (newRealm) {
+                realmRestClient.create(this.parentPath, updatedRealmTO);
+            } else {
+                realmRestClient.update(updatedRealmTO);
             }
 
-            @Override
-            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-                feedbackPanel.refresh(target);
+            if (pageRef.getPage() instanceof BasePage) {
+                ((BasePage) pageRef.getPage()).setModalResult(true);
             }
-        };
-    }
 
-    protected void submitAction(final AjaxRequestTarget target, final Form<?> form) {
-        final RealmTO updatedRealmTO = (RealmTO) form.getModelObject();
-        realmRestClient.create(this.parentPath, updatedRealmTO);
-    }
+            AbstractBasePage.class.cast(pageRef.getPage()).setModalResult(true);
 
-    protected void closeAction(final AjaxRequestTarget target, final Form<?> form) {
-        this.modal.close(target);
+            closeAction(target, form);
+        } catch (Exception e) {
+            LOG.error("While creating or updating realm", e);
+            error(getString(Constants.ERROR) + ": " + e.getMessage());
+            modal.getFeedbackPanel().refresh(target);
+        }
     }
 }

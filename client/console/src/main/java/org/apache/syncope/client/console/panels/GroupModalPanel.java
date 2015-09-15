@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.Mode;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.mod.GroupMod;
 import org.apache.syncope.common.lib.to.GroupTO;
@@ -48,14 +48,14 @@ public class GroupModalPanel extends AbstractModalPanel {
 
     protected GroupTO originalGroupTO;
 
-    public GroupModalPanel(final String id, final Modal<?> window, final GroupTO groupTO) {
-        this(id, window, groupTO, Mode.ADMIN);
+    public GroupModalPanel(final String id, final BaseModal<?> modal, final GroupTO groupTO) {
+        this(id, modal, groupTO, Mode.ADMIN);
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public GroupModalPanel(final String id, final Modal<?> window, final GroupTO groupTO, final Mode mode) {
+    public GroupModalPanel(final String id, final BaseModal<?> modal, final GroupTO groupTO, final Mode mode) {
 
-        super(id);
+        super(id, modal);
 
         this.mode = mode;
 
@@ -86,13 +86,13 @@ public class GroupModalPanel extends AbstractModalPanel {
                 } catch (Exception e) {
                     LOG.error("Failure managing groupTO {}", groupTO, e);
                     error(getString(Constants.ERROR) + ": " + e.getMessage());
-                    feedbackPanel.refresh(target);
+                    modal.getFeedbackPanel().refresh(target);
                 }
             }
 
             @Override
             protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-                feedbackPanel.refresh(target);
+                modal.getFeedbackPanel().refresh(target);
             }
         };
         form.add(submit);
