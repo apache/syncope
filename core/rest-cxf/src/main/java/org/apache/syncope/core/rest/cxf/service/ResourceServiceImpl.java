@@ -21,24 +21,32 @@ package org.apache.syncope.core.rest.cxf.service;
 import java.net.URI;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
+import org.apache.syncope.common.lib.to.PagedConnObjectTOResult;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceDeassociationActionType;
 import org.apache.syncope.common.lib.wrap.AnyKey;
 import org.apache.syncope.common.lib.wrap.BooleanWrap;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.beans.ConnObjectTOListQuery;
 import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.apache.syncope.core.logic.AbstractResourceAssociator;
 import org.apache.syncope.core.logic.AnyObjectLogic;
 import org.apache.syncope.core.logic.ResourceLogic;
 import org.apache.syncope.core.logic.GroupLogic;
 import org.apache.syncope.core.logic.UserLogic;
+import org.identityconnectors.framework.common.objects.SearchResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -89,6 +97,36 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
     @Override
     public ConnObjectTO readConnObject(final String key, final String anyTypeKey, final Long anyKey) {
         return logic.readConnObject(key, anyTypeKey, anyKey);
+    }
+
+    @Override
+    public PagedConnObjectTOResult listConnObjects(
+            final String key, final String anyTypeKey, final ConnObjectTOListQuery listQuery) {
+
+        Pair<SearchResult, List<ConnObjectTO>> list = logic.listConnObjects(key, anyTypeKey,
+                listQuery.getSize(), listQuery.getPagedResultsCookie(), getOrderByClauses(listQuery.getOrderBy()));
+
+        PagedConnObjectTOResult result = new PagedConnObjectTOResult();
+        if (list.getLeft() != null) {
+            result.setAllResultsReturned(list.getLeft().isAllResultsReturned());
+            result.setPagedResultsCookie(list.getLeft().getPagedResultsCookie());
+            result.setRemainingPagedResults(list.getLeft().getRemainingPagedResults());
+        }
+        result.getResult().addAll(list.getRight());
+
+        UriBuilder builder = uriInfo.getAbsolutePathBuilder();
+        MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters();
+        for (Map.Entry<String, List<String>> queryParam : queryParams.entrySet()) {
+            builder = builder.queryParam(queryParam.getKey(), queryParam.getValue().toArray());
+        }
+
+        if (StringUtils.isNotBlank(result.getPagedResultsCookie())) {
+            result.setNext(builder.
+                    replaceQueryParam(PARAM_CONNID_PAGED_RESULTS_COOKIE, result.getPagedResultsCookie()).
+                    build());
+        }
+
+        return result;
     }
 
     @Override

@@ -140,7 +140,9 @@ public final class Entitlement {
 
     public static final String RESOURCE_DELETE = "RESOURCE_DELETE";
 
-    public static final String RESOURCE_GETCONNECTOROBJECT = "RESOURCE_GETCONNECTOROBJECT";
+    public static final String RESOURCE_GET_CONNOBJECT = "RESOURCE_GET_CONNOBJECT";
+
+    public static final String RESOURCE_LIST_CONNOBJECT = "RESOURCE_LIST_CONNOBJECT";
 
     public static final String CONNECTOR_LIST = "CONNECTOR_LIST";
 

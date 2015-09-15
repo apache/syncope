@@ -267,13 +267,10 @@ public class ConnIdBundleManagerImpl implements ConnIdBundleManager {
         }
 
         // create default configuration
-        final APIConfiguration apiConfig = info.createDefaultAPIConfiguration();
-        if (apiConfig == null) {
-            throw new NotFoundException("Default API configuration");
-        }
+        APIConfiguration apiConfig = info.createDefaultAPIConfiguration();
 
         // retrieve the ConfigurationProperties.
-        final ConfigurationProperties properties = apiConfig.getConfigurationProperties();
+        ConfigurationProperties properties = apiConfig.getConfigurationProperties();
         if (properties == null) {
             throw new NotFoundException("Configuration properties");
         }

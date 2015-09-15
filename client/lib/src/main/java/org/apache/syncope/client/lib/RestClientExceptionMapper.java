@@ -71,7 +71,10 @@ public class RestClientExceptionMapper implements ExceptionMapper<Exception>, Re
                     : message);
         } else if (statusCode == Response.Status.BAD_REQUEST.getStatusCode()) {
             // 3. Map SC_BAD_REQUEST
-            ex = new BadRequestException();
+            String message = response.getHeaderString(RESTHeaders.ERROR_INFO);
+            ex = StringUtils.isBlank(message)
+                    ? new BadRequestException()
+                    : new BadRequestException(message);
         } else {
             // 4. All other codes are mapped to runtime exception with HTTP code information
             ex = new WebServiceException(String.format("Remote exception with status code: %s",

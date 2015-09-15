@@ -16,20 +16,33 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.rest.api.service;
+package org.apache.syncope.client.lib.builders;
 
-public interface JAXRSService {
+import org.apache.syncope.common.rest.api.beans.ConnObjectTOListQuery;
 
-    String PARAM_FIQL = "fiql";
+public class ConnObjectTOListQueryBuilder {
 
-    String PARAM_PAGE = "page";
+    private final ConnObjectTOListQuery instance = new ConnObjectTOListQuery();
 
-    String PARAM_SIZE = "size";
+    public ConnObjectTOListQueryBuilder size(final Integer size) {
+        instance.setSize(size);
 
-    String PARAM_ORDERBY = "orderby";
+        return this;
+    }
 
-    String PARAM_DETAILS = "details";
+    public ConnObjectTOListQueryBuilder pagedResultsCookie(final String pagedResultsCookie) {
+        instance.setPagedResultsCookie(pagedResultsCookie);
 
-    String PARAM_CONNID_PAGED_RESULTS_COOKIE = "connIdPagedResultsCookie";
+        return this;
+    }
 
+    public ConnObjectTOListQueryBuilder orderBy(final String orderBy) {
+        instance.setOrderBy(orderBy);
+
+        return this;
+    }
+
+    public ConnObjectTOListQuery build() {
+        return instance;
+    }
 }

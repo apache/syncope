@@ -26,16 +26,24 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.security.AccessControlException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.ws.rs.core.Response;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Transformer;
+import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.client.lib.builders.ConnObjectTOListQueryBuilder;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.BulkAction;
+import org.apache.syncope.common.lib.to.ConnObjectTO;
+import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.MappingItemTO;
 import org.apache.syncope.common.lib.to.MappingTO;
+import org.apache.syncope.common.lib.to.PagedConnObjectTOResult;
 import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -502,6 +510,77 @@ public class ResourceITCase extends AbstractITCase {
     }
 
     @Test
+    public void anonymous() {
+        ResourceService unauthenticated = clientFactory.createAnonymous().getService(ResourceService.class);
+        try {
+            unauthenticated.list();
+            fail();
+        } catch (AccessControlException e) {
+            assertNotNull(e);
+        }
+
+        ResourceService anonymous = clientFactory.create(ANONYMOUS_UNAME, ANONYMOUS_KEY).
+                getService(ResourceService.class);
+        assertFalse(anonymous.list().isEmpty());
+    }
+
+    @Test
+    public void listConnObjects() {
+        List<Long> groupKeys = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            GroupTO group = GroupITCase.getSampleTO("group");
+            group.getResources().add(RESOURCE_NAME_LDAP);
+            group = createGroup(group);
+            groupKeys.add(group.getKey());
+        }
+
+        int totalRead = 0;
+        Set<String> read = new HashSet<>();
+        try {
+            ConnObjectTOListQueryBuilder builder = SyncopeClient.getConnObjectTOListQueryBuilder().size(10);
+            PagedConnObjectTOResult list;
+            do {
+                list = null;
+
+                boolean succeeded = false;
+                // needed because ApacheDS seems to randomly fail when searching with cookie
+                for (int i = 0; i < 5 && !succeeded; i++) {
+                    try {
+                        list = resourceService.listConnObjects(
+                                RESOURCE_NAME_LDAP,
+                                AnyTypeKind.GROUP.name(),
+                                builder.build());
+                        succeeded = true;
+                    } catch (SyncopeClientException e) {
+                        assertEquals(ClientExceptionType.ConnectorException, e.getType());
+                    }
+                }
+                assertNotNull(list);
+
+                totalRead += list.getResult().size();
+                CollectionUtils.collect(list.getResult(), new Transformer<ConnObjectTO, String>() {
+
+                    @Override
+                    public String transform(final ConnObjectTO input) {
+                        return input.getPlainAttrMap().get("__NAME__").getValues().get(0);
+                    }
+                }, read);
+
+                if (list.getPagedResultsCookie() != null) {
+                    builder.pagedResultsCookie(list.getPagedResultsCookie());
+                }
+            } while (list.getPagedResultsCookie() != null);
+            
+            assertEquals(totalRead, read.size());
+            assertTrue(totalRead >= 10);
+        } finally {
+            for (Long key : groupKeys) {
+                groupService.delete(key);
+            }
+        }
+    }
+
+    @Test
     public void issueSYNCOPE360() {
         final String name = "SYNCOPE360-" + getUUIDString();
         resourceService.create(buildResourceTO(name));
@@ -563,21 +642,6 @@ public class ResourceITCase extends AbstractITCase {
 
             assertTrue(e.getElements().iterator().next().contains(EntityViolationType.InvalidName.name()));
         }
-    }
-
-    @Test
-    public void anonymous() {
-        ResourceService unauthenticated = clientFactory.createAnonymous().getService(ResourceService.class);
-        try {
-            unauthenticated.list();
-            fail();
-        } catch (AccessControlException e) {
-            assertNotNull(e);
-        }
-
-        ResourceService anonymous = clientFactory.create(ANONYMOUS_UNAME, ANONYMOUS_KEY).
-                getService(ResourceService.class);
-        assertFalse(anonymous.list().isEmpty());
     }
 
     @Test

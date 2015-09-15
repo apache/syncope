@@ -33,6 +33,7 @@ import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.lib.builders.ListQueryBuilder;
 import org.apache.syncope.client.lib.builders.AnyListQueryBuilder;
 import org.apache.syncope.client.lib.builders.AnySearchQueryBuilder;
+import org.apache.syncope.client.lib.builders.ConnObjectTOListQueryBuilder;
 import org.apache.syncope.common.lib.search.AnyObjectFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.search.OrderByClauseBuilder;
 import org.apache.syncope.common.lib.search.GroupFiqlSearchConditionBuilder;
@@ -135,6 +136,16 @@ public class SyncopeClient {
      */
     public static AnySearchQueryBuilder getAnySearchQueryBuilder() {
         return new AnySearchQueryBuilder();
+    }
+
+    /**
+     * Returns a new instance of {@link ConnObjectTOListQueryBuilder}, for assisted building of some service's
+     * {@code list()} arguments.
+     *
+     * @return default instance of {@link ConnObjectTOListQueryBuilder}
+     */
+    public static ConnObjectTOListQueryBuilder getConnObjectTOListQueryBuilder() {
+        return new ConnObjectTOListQueryBuilder();
     }
 
     /**
