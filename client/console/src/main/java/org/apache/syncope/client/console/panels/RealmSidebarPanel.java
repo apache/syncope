@@ -25,6 +25,8 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.client.console.panels.RealmSidebarPanel.ControlSidebarClick;
 import org.apache.syncope.client.console.rest.RealmRestClient;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.wicket.MarkupContainer;
@@ -53,9 +55,11 @@ public class RealmSidebarPanel extends Panel {
 
     private final WebMarkupContainer menu;
 
-    private RealmTO currentRealm;
+    private List<RealmTO> currentPath;
 
     private final PageReference pageRef;
+
+    private Map<Long, Pair<RealmTO, List<RealmTO>>> tree;
 
     private boolean reload = false;
 
@@ -67,12 +71,10 @@ public class RealmSidebarPanel extends Panel {
         Collections.sort(realms, new RealmNameComparator());
 
         menu = new WebMarkupContainer("menu");
-
         menu.setOutputMarkupId(true);
         add(menu);
 
         reloadRealmTree(reloadRealmParentMap(realms), 0L, menu);
-        setCurrentRealm(realms.get(0));
     }
 
     public final RealmSidebarPanel reloadRealmTree() {
@@ -81,12 +83,20 @@ public class RealmSidebarPanel extends Panel {
     }
 
     private MarkupContainer reloadRealmTree(
-            final Map<Long, List<RealmTO>> parentMap, final Long key, final MarkupContainer container) {
+            final Map<Long, Pair<RealmTO, List<RealmTO>>> parentMap, final Long key, final MarkupContainer container) {
+
+        // set the current active path base on the current parent map
+        setCurrentRealm(getCurrentRealm());
+
         final RepeatingView listItems = new RepeatingView("list");
         listItems.setOutputMarkupId(true);
         container.addOrReplace(listItems);
 
-        for (final RealmTO realm : parentMap.get(key)) {
+        if (!parentMap.containsKey(key)) {
+            return container;
+        }
+
+        for (final RealmTO realm : parentMap.get(key).getRight()) {
             final Fragment fragment;
 
             final AjaxLink<Void> link = new AjaxLink<Void>("link") {
@@ -109,7 +119,7 @@ public class RealmSidebarPanel extends Panel {
             link.setMarkupId("item-" + realm.getKey());
             link.addOrReplace(new Label("name", new PropertyModel<String>(realm, "name")));
 
-            if (parentMap.containsKey(realm.getKey()) && !parentMap.get(realm.getKey()).isEmpty()) {
+            if (parentMap.containsKey(realm.getKey()) && !parentMap.get(realm.getKey()).getRight().isEmpty()) {
                 fragment = new Fragment(String.valueOf(realm.getKey()), "withChildren", RealmSidebarPanel.this);
 
                 final Link<Void> angle = new Link<Void>("angle") {
@@ -130,7 +140,12 @@ public class RealmSidebarPanel extends Panel {
                 angle.setMarkupId("angle-" + realm.getKey());
                 fragment.addOrReplace(angle);
 
-                reloadRealmTree(parentMap, realm.getKey(), fragment);
+                final WebMarkupContainer subtree = new WebMarkupContainer("subtree");
+                subtree.setOutputMarkupId(true);
+                subtree.setMarkupId("subtree");
+                fragment.add(subtree);
+
+                reloadRealmTree(parentMap, realm.getKey(), subtree);
             } else {
                 fragment = new Fragment(String.valueOf(realm.getKey()), "withoutChildren", RealmSidebarPanel.this);
             }
@@ -143,24 +158,24 @@ public class RealmSidebarPanel extends Panel {
         return container;
     }
 
-    private Map<Long, List<RealmTO>> reloadRealmParentMap() {
+    private Map<Long, Pair<RealmTO, List<RealmTO>>> reloadRealmParentMap() {
         final List<RealmTO> realms = realmRestClient.list();
         Collections.sort(realms, new RealmNameComparator());
         return reloadRealmParentMap(realms);
     }
 
-    private Map<Long, List<RealmTO>> reloadRealmParentMap(final List<RealmTO> realms) {
-        final Map<Long, List<RealmTO>> res = new HashMap<>();
-        res.put(0L, new ArrayList<RealmTO>());
+    private Map<Long, Pair<RealmTO, List<RealmTO>>> reloadRealmParentMap(final List<RealmTO> realms) {
+        tree = new HashMap<>();
+        tree.put(0L, Pair.<RealmTO, List<RealmTO>>of(realms.get(0), new ArrayList<RealmTO>()));
 
         final Map<Long, List<RealmTO>> cache = new HashMap<>();
 
         for (RealmTO realm : realms) {
-            if (res.containsKey(realm.getParent())) {
-                res.get(realm.getParent()).add(realm);
+            if (tree.containsKey(realm.getParent())) {
+                tree.get(realm.getParent()).getRight().add(realm);
 
                 final List<RealmTO> children = new ArrayList<>();
-                res.put(realm.getKey(), children);
+                tree.put(realm.getKey(), Pair.<RealmTO, List<RealmTO>>of(realm, children));
 
                 if (cache.containsKey(realm.getKey())) {
                     children.addAll(cache.get(realm.getKey()));
@@ -175,7 +190,7 @@ public class RealmSidebarPanel extends Panel {
             }
         }
 
-        return res;
+        return tree;
     }
 
     private static class RealmNameComparator implements Comparator<RealmTO>, Serializable {
@@ -196,12 +211,29 @@ public class RealmSidebarPanel extends Panel {
         }
     }
 
-    private void setCurrentRealm(final RealmTO realmTO) {
-        this.currentRealm = realmTO;
+    public final void setCurrentRealm(final RealmTO realmTO) {
+        RealmTO realm;
+
+        if (tree.containsKey(realmTO.getKey())) {
+            realm = realmTO;
+        } else if (tree.containsKey(realmTO.getParent())) {
+            realm = tree.get(realmTO.getParent()).getLeft();
+        } else {
+            realm = tree.get(0L).getLeft();
+        }
+
+        this.currentPath = new ArrayList<>();
+        this.currentPath.add(realm);
+
+        while (realm.getParent() != 0L) {
+            realm = tree.get(realm.getParent()).getLeft();
+            this.currentPath.add(realm);
+        }
     }
 
     public RealmTO getCurrentRealm() {
-        return this.currentRealm;
+        return this.currentPath == null || this.currentPath.isEmpty()
+                ? tree.get(0L).getLeft() : this.currentPath.get(0);
     }
 
     public static class ControlSidebarClick<T> {
@@ -228,6 +260,10 @@ public class RealmSidebarPanel extends Panel {
     public void renderHead(final IHeaderResponse response) {
         if (reload) {
             response.render(OnLoadHeaderItem.forScript("$.AdminLTE.tree('.syncopeSidebar');"));
+
+            for (RealmTO realm : this.currentPath.subList(1, this.currentPath.size())) {
+                response.render(OnLoadHeaderItem.forScript(String.format("$('#angle-%d').click();", realm.getKey())));
+            }
         } else {
             reload = true;
         }

@@ -91,6 +91,10 @@ public class Realms extends BasePage {
             }
         });
 
+        setupDeleteLink();
+        setupCreateLink();
+        setupEditLink();
+
         updateRealmContent(realmSidebarPanel.getCurrentRealm());
     }
 
@@ -106,12 +110,10 @@ public class Realms extends BasePage {
         }
     }
 
-    private void updateRealmContent(final RealmTO realmTO) {
+    private WebMarkupContainer updateRealmContent(final RealmTO realmTO) {
         content.addOrReplace(new Label("header", realmTO.getName()));
         content.addOrReplace(new Realm("body", realmTO, getPageReference()));
-        setupDeleteLink();
-        setupCreateLink();
-        setupEditLink();
+        return content;
     }
 
     private void setupDeleteLink() {
@@ -132,6 +134,7 @@ public class Realms extends BasePage {
                     realmRestClient.delete(toBeDeleted.getFullPath());
 
                     target.add(realmSidebarPanel.reloadRealmTree());
+                    target.add(updateRealmContent(realmSidebarPanel.getCurrentRealm()));
 
                     info(getString(Constants.OPERATION_SUCCEEDED));
                     feedbackPanel.refresh(target);
