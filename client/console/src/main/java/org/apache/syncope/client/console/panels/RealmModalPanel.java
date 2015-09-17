@@ -65,7 +65,7 @@ public class RealmModalPanel extends AbstractModalPanel {
             final String entitlement,
             final boolean newRealm) {
 
-        super(BaseModal.getContentId(), modal);
+        super(modal);
         this.newRealm = newRealm;
 
         this.pageRef = pageRef;

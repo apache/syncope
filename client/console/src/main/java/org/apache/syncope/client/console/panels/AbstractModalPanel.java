@@ -86,8 +86,8 @@ public class AbstractModalPanel extends Panel {
     @SpringBean
     protected MIMETypesLoader mimeTypesInitializer;
 
-    public AbstractModalPanel(final String id, final BaseModal<?> modal) {
-        super(id);
+    public AbstractModalPanel(final BaseModal<?> modal) {
+        super(BaseModal.getContentId());
         this.modal = modal;
     }
 

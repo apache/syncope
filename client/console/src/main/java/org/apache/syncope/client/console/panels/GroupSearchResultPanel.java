@@ -103,8 +103,7 @@ public class GroupSearchResultPanel extends AnySearchResultPanel {
         // Add defaults in case of no selection
         if (columns.isEmpty()) {
             for (String name : GroupDisplayAttributesModalPage.GROUP_DEFAULT_SELECTION) {
-                columns.add(
-                        new PropertyColumn<AnyTO, String>(new ResourceModel(name, name), name, name));
+                columns.add(new PropertyColumn<AnyTO, String>(new ResourceModel(name, name), name, name));
             }
 
             prefMan.setList(getRequest(), getResponse(), Constants.PREF_GROUP_DETAILS_VIEW,
@@ -126,8 +125,7 @@ public class GroupSearchResultPanel extends AnySearchResultPanel {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final AnyTO anyTO) {
-                        editModal.addOrReplace(new GroupModalPanel(
-                                BaseModal.getContentId(), editModal, (GroupTO) model.getObject()));
+                        editModal.addOrReplace(new GroupModalPanel(editModal, (GroupTO) model.getObject()));
 
                         target.add(editModal);
                         editModal.show(target);

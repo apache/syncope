@@ -42,7 +42,7 @@ public class AdminLTE extends Theme {
     public List<HeaderItem> getDependencies() {
         final List<HeaderItem> references = new ArrayList<>();
         references.add(JavaScriptHeaderItem.forReference(
-                new JQueryPluginResourceReference(AdminLTE.class, "js/AdminLTE-app.min.js")));
+                new JQueryPluginResourceReference(AdminLTE.class, "js/AdminLTE-app.min.js"), "adminltejs"));
 
         // Adds WebjarsJavaScriptResourceReference about JQuery
         references.add(JavaScriptHeaderItem.forReference(JQueryUIAllJavaScriptReference.instance()));

@@ -65,7 +65,7 @@ public class BasePage extends AbstractBasePage implements IAjaxIndicatorAware {
         add(new Label("version", SyncopeConsoleSession.get().getVersion()));
         add(new Label("username", SyncopeConsoleSession.get().getSelfTO().getUsername()));
 
-        WebMarkupContainer todosContainer = new WebMarkupContainer("todosContainer");
+        final WebMarkupContainer todosContainer = new WebMarkupContainer("todosContainer");
         add(todosContainer);
         Label todos = new Label("todos", "0");
         todosContainer.add(todos);
@@ -176,7 +176,7 @@ public class BasePage extends AbstractBasePage implements IAjaxIndicatorAware {
             }
         });
     }
-    
+
     /**
      * Set a WindowClosedCallback for a Modal instance.
      *

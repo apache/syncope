@@ -78,7 +78,7 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
         form = new Form<T>(FORM);
         add(form);
 
-        content = new AbstractModalPanel(CONTENT_ID, this) {
+        content = new AbstractModalPanel(this) {
 
             private static final long serialVersionUID = 1L;
 

@@ -48,14 +48,14 @@ public class GroupModalPanel extends AbstractModalPanel {
 
     protected GroupTO originalGroupTO;
 
-    public GroupModalPanel(final String id, final BaseModal<?> modal, final GroupTO groupTO) {
-        this(id, modal, groupTO, Mode.ADMIN);
+    public GroupModalPanel(final BaseModal<?> modal, final GroupTO groupTO) {
+        this(modal, groupTO, Mode.ADMIN);
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public GroupModalPanel(final String id, final BaseModal<?> modal, final GroupTO groupTO, final Mode mode) {
+    public GroupModalPanel(final BaseModal<?> modal, final GroupTO groupTO, final Mode mode) {
 
-        super(id, modal);
+        super(modal);
 
         this.mode = mode;
 
