@@ -42,9 +42,12 @@ public class AnyDataProvider extends SortableDataProvider<AnyTO, String> {
 
     private final AbstractAnyRestClient restClient;
 
-    private final String realm = "/";
+    private final String realm;
 
-    public AnyDataProvider(final AbstractAnyRestClient restClient, final int paginatorRows, final boolean filtered) {
+    private final String type;
+
+    public AnyDataProvider(final AbstractAnyRestClient restClient, final int paginatorRows, final boolean filtered,
+            final String realm, final String type) {
         super();
 
         this.restClient = restClient;
@@ -55,6 +58,9 @@ public class AnyDataProvider extends SortableDataProvider<AnyTO, String> {
         setSort("key", SortOrder.ASCENDING);
 
         this.comparator = new SortableAnyProviderComparator(this);
+        
+        this.realm = realm;
+        this.type = type;
     }
 
     public void setFIQL(final String fiql) {
@@ -70,9 +76,9 @@ public class AnyDataProvider extends SortableDataProvider<AnyTO, String> {
         if (filtered) {
             result = fiql == null
                     ? Collections.<AnyTO>emptyList()
-                    : restClient.search(realm, fiql, (page < 0 ? 0 : page) + 1, paginatorRows, getSort());
+                    : restClient.search(realm, fiql, (page < 0 ? 0 : page) + 1, paginatorRows, getSort(), type);
         } else {
-            result = restClient.list(realm, (page < 0 ? 0 : page) + 1, paginatorRows, getSort());
+            result = restClient.list(realm, (page < 0 ? 0 : page) + 1, paginatorRows, getSort(), type);
         }
 
         Collections.sort(result, comparator);
@@ -86,7 +92,7 @@ public class AnyDataProvider extends SortableDataProvider<AnyTO, String> {
         if (filtered) {
             result = fiql == null
                     ? 0
-                    : restClient.searchCount(realm, fiql);
+                    : restClient.searchCount(realm, fiql, type);
         } else {
             result = restClient.count(realm);
         }

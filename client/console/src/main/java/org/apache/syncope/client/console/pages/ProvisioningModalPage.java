@@ -199,10 +199,10 @@ public class ProvisioningModalPage<T extends AnyTO> extends AbstractStatusModalP
             final List<T> subjects = new ArrayList<>();
             if (anyTypeKind == AnyTypeKind.USER) {
                 subjects.addAll((List<T>) userRestClient.search(
-                        realm, fiql, 1, ROWS_PER_PAGE, new SortParam<>("key", true)));
+                        realm, fiql, 1, ROWS_PER_PAGE, new SortParam<>("key", true), AnyTypeKind.USER.toString()));
             } else {
                 subjects.addAll((List<T>) groupRestClient.search(
-                        realm, fiql, 1, ROWS_PER_PAGE, new SortParam<>("key", true)));
+                        realm, fiql, 1, ROWS_PER_PAGE, new SortParam<>("key", true), AnyTypeKind.GROUP.toString()));
             }
 
             final List<ConnObjectWrapper> connObjects = statusUtils.getConnectorObjects(

@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <!--
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
@@ -17,7 +18,18 @@ specific language governing permissions and limitations
 under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
-  <wicket:extend>
-    <input type="text" class="ui-widget-content ui-corner-all long_dynamicsize" wicket:id="textField"/>
-  </wicket:extend>
+  <wicket:panel>
+    <div class="tabbable tabs-left" style="margin-right: 0; border-right: 0;">
+      <ul class="nav nav-tabs" style="margin-right: 0; border-right: 0;" wicket:id="tabs-container">
+        <li wicket:id="tabs">
+          <a data-toggle="tab" href="#" wicket:id="link">
+            <span wicket:id="title">[tab title]</span>
+          </a>
+        </li>
+      </ul>
+      <div class="tab-content" style="min-height: 100%; padding-left: 20px; border-left: 1px solid #ddd;">
+        <div wicket:id="panel" class="tab-pane active">[tab]</div>
+      </div>
+    </div>
+  </wicket:panel>
 </html>

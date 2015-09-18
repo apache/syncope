@@ -54,6 +54,12 @@ public final class Constants {
 
     public static final String PREF_USER_VIR_SCHEMA_PAGINATOR_ROWS = "user.virtual.schema.paginator.rows";
 
+    public static final String PREF_GROUP_DETAILS_VIEW = "group.details.view";
+
+    public static final String PREF_GROUP_ATTRIBUTES_VIEW = "group.attributes.view";
+
+    public static final String PREF_GROUP_DERIVED_ATTRIBUTES_VIEW = "group.derived.attributes.view";
+
     public static final String PREF_GROUP_PLAIN_SCHEMA_PAGINATOR_ROWS = "group.schema.paginator.rows";
 
     public static final String PREF_GROUP_DER_SCHEMA_PAGINATOR_ROWS = "group.derived.schema.paginator.rows";
@@ -91,6 +97,12 @@ public final class Constants {
     public static final String PAGEPARAM_CURRENT_PAGE = "_current_page";
 
     public static final String PREF_POLICY_PAGINATOR_ROWS = "policy.paginator.rows";
+    
+    public static final String PREF_ANY_DETAILS_VIEW = "any.details.view";
+    
+    public static final String PREF_ANY_ATTRIBUTES_VIEW = "any.attributes.view";
+
+    public static final String PREF_ANY_DERIVED_ATTRIBUTES_VIEW = "any.derived.attributes.view";
 
     /**
      * ConnId's GuardedString is not in the classpath.

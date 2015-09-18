@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <!--
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
@@ -17,18 +18,16 @@ specific language governing permissions and limitations
 under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
-  <wicket:head></wicket:head>
   <wicket:panel>
-
-    <wicket:fragment wicket:id="requiredFragment">
-      <span wicket:id="requiredLabel"/>
-    </wicket:fragment>
-
-    <wicket:fragment wicket:id="notRequiredFragment">
-    </wicket:fragment>
-
-    <wicket:child />
-
-    <span wicket:id="required"/>
+    <span wicket:id="span">
+      <div class="row">
+        <div class="col-sm-5">
+          <div class="dataTables_info"><span wicket:id="navigatorLabel">[navigatorLabel]</span></div>
+        </div>
+        <div class="col-sm-7">
+          <div class="dataTables_paginate paging_simple_numbers"><ul wicket:id="navigator">[navigator]</ul></div>
+        </div>
+      </div>
+    </span>
   </wicket:panel>
 </html>

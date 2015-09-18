@@ -17,10 +17,8 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<html xmlns="http://www.w3.org/1999/xhtml" 
-      xmlns:wicket="http://xmlns.jcp.org/jsf/composite">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://xmlns.jcp.org/jsf/composite">
   <wicket:extend>
-
     <div class="wrapper">
       <div class="admin-content-page content-margin-layout" wicket:id="content">
         <div class="box box-solid box-primary">
@@ -30,9 +28,21 @@ under the License.
             </h3>
             <div class="box-tools pull-right">
               <ul class="nav navbar-nav actions">
-                <li><a href="#"><i class="fa fa-plus"></i></a></li>
-                <li><a href="#"><i class="fa fa-minus"></i></a></li>
-                <li><a href="#"><i class="fa fa-pencil-square-o"></i></a></li>
+                <li>
+                  <a href="#" wicket:id="editLink">
+                    <i class="fa fa-pencil-square-o"></i>
+                  </a>                  
+                </li>
+                <li>
+                  <a href="#" wicket:id="createLink">
+                    <i class="fa fa-plus"></i>
+                  </a>                  
+                </li>
+                <li>
+                  <a href="#" wicket:id="deleteLink">
+                    <i class="fa fa-minus"></i>
+                  </a>                  
+                </li>
               </ul>
             </div><!-- /.box-tools -->
           </div><!-- /.box-header -->
@@ -42,16 +52,10 @@ under the License.
             </div>
           </div>
         </div>
+        <div wicket:id="modal"></div>
       </div>
 
-      <aside class="control-sidebar control-sidebar-dark control-sidebar-open block-sidebar">
-        <section class="sidebar">
-          <ul class="sidebar-menu">
-            <wicket:container wicket:id="list"></wicket:container>
-          </ul>
-        </section>
-      </aside>
-      <div class="control-sidebar-bg inner-control-sidebar"></div>
+      <span wicket:id="realmSidebarPanel">[Realm Sidebar Panel]</span>
     </div>
 
     <wicket:fragment wicket:id="withChildren">

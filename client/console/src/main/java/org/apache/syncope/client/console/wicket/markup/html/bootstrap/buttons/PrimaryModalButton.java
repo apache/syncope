@@ -16,20 +16,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.panels;
+package org.apache.syncope.client.console.wicket.markup.html.bootstrap.buttons;
 
-import org.apache.wicket.markup.html.panel.Panel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.googlecode.wicket.jquery.ui.markup.html.link.AjaxSubmitLink;
+import de.agilecoders.wicket.core.markup.html.bootstrap.button.ButtonBehavior;
+import de.agilecoders.wicket.core.markup.html.bootstrap.button.Buttons;
+import org.apache.wicket.markup.html.form.Form;
 
-public class Any extends Panel {
+public class PrimaryModalButton extends AjaxSubmitLink {
 
-    private static final long serialVersionUID = -1100228004207271270L;
+    private static final long serialVersionUID = -1097993976905448580L;
 
-    protected static final Logger LOG = LoggerFactory.getLogger(Any.class);
+    public PrimaryModalButton(final String id, final String name, final Form<?> form) {
+        super(id, form);
+        add(new ButtonBehavior(Buttons.Type.Primary, Buttons.Size.Medium));
 
-    public Any(final String id) {
-        super(id);
     }
-
 }

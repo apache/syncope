@@ -73,14 +73,14 @@ public class MustChangePassword extends WebPage {
         passwordField = new AjaxPasswordFieldPanel("password", "password", new Model<String>());
         passwordField.setRequired(true);
         passwordField.setMarkupId("password");
-        passwordField.setPlaceholder(getString("password"));
+        passwordField.setPlaceholder("password");
         ((PasswordTextField) passwordField.getField()).setResetPassword(true);
         form.add(passwordField);
 
         confirmPasswordField = new AjaxPasswordFieldPanel("confirmPassword", "confirmPassword", new Model<String>());
         confirmPasswordField.setRequired(true);
         confirmPasswordField.setMarkupId("confirmPassword");
-        confirmPasswordField.setPlaceholder(getString("confirmPassword"));
+        confirmPasswordField.setPlaceholder("confirmPassword");
         ((PasswordTextField) confirmPasswordField.getField()).setResetPassword(true);
         form.add(confirmPasswordField);
 

@@ -18,14 +18,19 @@ under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
   <wicket:panel>
-
     <div wicket:id="container">
       <span wicket:id="resultTable">[Table]</span>
-
+      
       <span style="float:right">
         <form wicket:id="paginator" style="display:inline">
-          <label><wicket:message key="displayRows"/></label>
-          <select class="text ui-widget-content ui-corner-all" wicket:id="rowsChooser"/>
+          <div class="col-sm-6">
+            <div class="dataTables_length">
+              <label>
+                <wicket:message key="displayRows"/>
+                <select class="form-control input-sm" wicket:id="rowsChooser"/>
+              </label>
+            </div>
+          </div>
         </form>
       </span>
     </div>

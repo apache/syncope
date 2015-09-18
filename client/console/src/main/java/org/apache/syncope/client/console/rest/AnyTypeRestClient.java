@@ -18,9 +18,12 @@
  */
 package org.apache.syncope.client.console.rest;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
+import org.apache.syncope.common.rest.api.service.AnyTypeClassService;
 import org.apache.syncope.common.rest.api.service.AnyTypeService;
 import org.springframework.stereotype.Component;
 
@@ -42,5 +45,13 @@ public class AnyTypeRestClient extends BaseRestClient {
         }
 
         return types;
+    }
+
+    public List<AnyTypeClassTO> getAnyTypeClass(final List<String> anyTypeClassNames) {
+        List<AnyTypeClassTO> anyTypeClassTOs = new ArrayList<>();
+        for (String anyTypeClass : anyTypeClassNames) {
+            anyTypeClassTOs.add(getService(AnyTypeClassService.class).read(anyTypeClass));
+        }
+        return anyTypeClassTOs;
     }
 }

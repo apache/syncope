@@ -18,8 +18,9 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.common.lib.to.RealmTO;
-import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.PropertyModel;
 import org.slf4j.Logger;
@@ -33,9 +34,24 @@ public class RealmDetails extends Panel {
 
     public RealmDetails(final String id, final RealmTO realmTO) {
         super(id);
-        add(new TextField<>("id", new PropertyModel<>(realmTO, "key")).setEnabled(false));
-        add(new TextField<>("name", new PropertyModel<>(realmTO, "name")).setEnabled(false));
-        add(new TextField<>("path", new PropertyModel<>(realmTO, "fullPath")).setEnabled(false));
-    }
+        final FieldPanel<String> name =
+                new AjaxTextFieldPanel("name", "name", new PropertyModel<String>(realmTO, "name"));
+        name.addRequiredLabel();
+        add(name);
 
+        final FieldPanel<String> fullPath =
+                new AjaxTextFieldPanel("fullPath", "fullPath", new PropertyModel<String>(realmTO, "fullPath"));
+        fullPath.setEnabled(false);
+        add(fullPath);
+
+        final FieldPanel<String> accountPolicy =
+                new AjaxTextFieldPanel("accountPolicy",
+                        "accountPolicy", new PropertyModel<String>(realmTO, "accountPolicy"));
+        add(accountPolicy);
+
+        final FieldPanel<String> passwordPolicy =
+                new AjaxTextFieldPanel("passwordPolicy",
+                        "passwordPolicy", new PropertyModel<String>(realmTO, "passwordPolicy"));
+        add(passwordPolicy);
+    }
 }

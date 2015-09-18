@@ -57,7 +57,7 @@ public class DisplayAttributesModalPage extends BaseModalPage {
      */
     private static final int MAX_SELECTIONS = 9;
 
-    public static final String[] DEFAULT_SELECTION = { "key", "username", "status" };
+        public static final String[] DEFAULT_SELECTION = { "key", "username", "status" };
 
     @SpringBean
     private PreferenceManager prefMan;

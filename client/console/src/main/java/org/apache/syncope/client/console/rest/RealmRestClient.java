@@ -19,7 +19,6 @@
 package org.apache.syncope.client.console.rest;
 
 import java.util.List;
-
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.rest.api.service.RealmService;
 import org.springframework.stereotype.Component;
@@ -34,5 +33,17 @@ public class RealmRestClient extends BaseRestClient {
 
     public List<RealmTO> list() {
         return getService(RealmService.class).list();
+    }
+
+    public void create(final String parentPath, final RealmTO realmTO) {
+        getService(RealmService.class).create(parentPath, realmTO);
+    }
+
+    public void update(final RealmTO realmTO) {
+        getService(RealmService.class).update(realmTO);
+    }
+
+    public void delete(final String fullPath) {
+        getService(RealmService.class).delete(fullPath);
     }
 }

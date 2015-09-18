@@ -29,6 +29,7 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.ResourceModel;
 
 public abstract class FieldPanel<T> extends AbstractFieldPanel<T> implements Cloneable {
 
@@ -51,6 +52,11 @@ public abstract class FieldPanel<T> extends AbstractFieldPanel<T> implements Clo
 
     public FormComponent<T> getField() {
         return field;
+    }
+
+    public FieldPanel<T> setPlaceholder(final String id) {
+        field.add(new AttributeModifier("placeholder", new ResourceModel(id, id)));
+        return this;
     }
 
     public FieldPanel<T> setTitle(final String title) {
@@ -122,7 +128,7 @@ public abstract class FieldPanel<T> extends AbstractFieldPanel<T> implements Clo
     }
 
     public T getModelObject() {
-        return (T) field.getModelObject();
+        return field.getModelObject();
     }
 
     public FieldPanel<T> setNewModel(final IModel<T> model) {
