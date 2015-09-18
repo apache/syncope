@@ -25,6 +25,7 @@ import org.apache.camel.Processor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.syncope.common.lib.patch.StatusPatch;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.StatusPatchType;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -61,11 +62,17 @@ public class UserStatusPropagationProcessor implements Processor {
         Long key = exchange.getProperty("userKey", Long.class);
         StatusPatch statusPatch = exchange.getProperty("statusPatch", StatusPatch.class);
 
-        Collection<String> resourcesToBeExcluded = CollectionUtils.removeAll(
+        Collection<String> noPropResourceNames = CollectionUtils.removeAll(
                 userDAO.findAllResourceNames(userDAO.find(key)), statusPatch.getResources());
 
-        List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(
-                key, statusPatch.getType() != StatusPatchType.SUSPEND, resourcesToBeExcluded);
+        List<PropagationTask> tasks = propagationManager.getUpdateTasks(
+                AnyTypeKind.USER,
+                statusPatch.getKey(),
+                false,
+                statusPatch.getType() != StatusPatchType.SUSPEND,
+                null,
+                null,
+                noPropResourceNames);
         PropagationReporter propReporter =
                 ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
         try {

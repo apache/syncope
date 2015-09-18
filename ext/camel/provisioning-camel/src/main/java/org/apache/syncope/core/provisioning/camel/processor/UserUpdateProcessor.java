@@ -62,7 +62,7 @@ public class UserUpdateProcessor implements Processor {
         List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(updated);
         if (tasks.isEmpty()) {
             // SYNCOPE-459: take care of user virtual attributes ...
-            PropagationByResource propByResVirAttr = virtAttrHandler.fillVirtual(
+            PropagationByResource propByResVirAttr = virtAttrHandler.updateVirtual(
                     updated.getResult().getKey().getKey(),
                     AnyTypeKind.USER,
                     userPatch.getVirAttrs());

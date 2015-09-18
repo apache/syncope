@@ -28,14 +28,22 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
+import org.apache.syncope.core.provisioning.api.propagation.PropagationException;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
+import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component
 public class GroupCreateInSyncProcessor implements Processor {
+
+    private static final Logger LOG = LoggerFactory.getLogger(GroupCreateInSyncProcessor.class);
 
     @Autowired
     protected PropagationManager propagationManager;
@@ -48,19 +56,29 @@ public class GroupCreateInSyncProcessor implements Processor {
     public void process(final Exchange exchange) {
         WorkflowResult<Long> created = (WorkflowResult) exchange.getIn().getBody();
 
-        GroupTO actual = exchange.getProperty("any", GroupTO.class);
+        GroupTO groupTO = exchange.getProperty("any", GroupTO.class);
         Map<Long, String> groupOwnerMap = exchange.getProperty("groupOwnerMap", Map.class);
         Set<String> excludedResources = exchange.getProperty("excludedResources", Set.class);
 
-        AttrTO groupOwner = actual.getPlainAttrMap().get(StringUtils.EMPTY);
+        AttrTO groupOwner = groupTO.getPlainAttrMap().get(StringUtils.EMPTY);
         if (groupOwner != null) {
             groupOwnerMap.put(created.getResult(), groupOwner.getValues().iterator().next());
         }
 
-        List<PropagationTask> tasks = propagationManager.getGroupCreateTasks(
-                created, actual.getVirAttrs(), excludedResources);
-
-        taskExecutor.execute(tasks);
+        List<PropagationTask> tasks = propagationManager.getCreateTasks(
+                AnyTypeKind.GROUP,
+                created.getResult(),
+                created.getPropByRes(),
+                groupTO.getVirAttrs(),
+                excludedResources);
+        PropagationReporter propagationReporter =
+                ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
+        try {
+            taskExecutor.execute(tasks, propagationReporter);
+        } catch (PropagationException e) {
+            LOG.error("Error propagation primary resource", e);
+            propagationReporter.onPrimaryResourceFailure(tasks);
+        }
 
         exchange.getOut().setBody(new ImmutablePair<>(created.getResult(), null));
     }

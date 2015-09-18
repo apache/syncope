@@ -98,9 +98,9 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
 
         List<PropagationTask> tasks = propagationManager.getUserCreateTasks(
                 created.getResult().getKey(),
+                userTO.getPassword(),
                 created.getResult().getValue(),
                 created.getPropByRes(),
-                userTO.getPassword(),
                 userTO.getVirAttrs(),
                 excludedResources);
         PropagationReporter propagationReporter =
@@ -122,7 +122,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
         List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(updated);
         if (tasks.isEmpty()) {
             // SYNCOPE-459: take care of user virtual attributes ...
-            PropagationByResource propByResVirAttr = virtAttrHandler.fillVirtual(
+            PropagationByResource propByResVirAttr = virtAttrHandler.updateVirtual(
                     updated.getResult().getKey().getKey(),
                     AnyTypeKind.USER,
                     userPatch.getVirAttrs());
@@ -209,13 +209,19 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
 
     @Override
     public List<PropagationStatus> delete(final Long key, final Set<String> excludedResources) {
+        PropagationByResource propByRes = new PropagationByResource();
+        propByRes.set(ResourceOperation.DELETE, userDAO.findAllResourceNames(userDAO.authFind(key)));
+
         // Note here that we can only notify about "delete", not any other
         // task defined in workflow process definition: this because this
         // information could only be available after uwfAdapter.delete(), which
         // will also effectively remove user from db, thus making virtually
         // impossible by NotificationManager to fetch required user information
-        List<PropagationTask> tasks = propagationManager.getUserDeleteTasks(key, excludedResources);
-
+        List<PropagationTask> tasks = propagationManager.getDeleteTasks(
+                AnyTypeKind.USER,
+                key,
+                propByRes,
+                excludedResources);
         PropagationReporter propagationReporter =
                 ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
         try {
@@ -276,8 +282,14 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
         Collection<String> noPropResourceNames = CollectionUtils.removeAll(
                 userDAO.findAllResourceNames(userDAO.find(statusPatch.getKey())), statusPatch.getResources());
 
-        List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(
-                statusPatch.getKey(), statusPatch.getType() != StatusPatchType.SUSPEND, noPropResourceNames);
+        List<PropagationTask> tasks = propagationManager.getUpdateTasks(
+                AnyTypeKind.USER,
+                statusPatch.getKey(),
+                false,
+                statusPatch.getType() != StatusPatchType.SUSPEND,
+                null,
+                null,
+                noPropResourceNames);
         PropagationReporter propReporter =
                 ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
         try {
@@ -352,12 +364,14 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
 
     @Override
     public List<PropagationStatus> deprovision(final Long key, final Collection<String> resources) {
-        User user = userDAO.authFind(key);
+        PropagationByResource propByRes = new PropagationByResource();
+        propByRes.set(ResourceOperation.DELETE, resources);
 
-        List<PropagationTask> tasks = propagationManager.getUserDeleteTasks(
+        List<PropagationTask> tasks = propagationManager.getDeleteTasks(
+                AnyTypeKind.USER,
                 key,
-                new HashSet<>(resources),
-                CollectionUtils.removeAll(userDAO.findAllResourceNames(user), resources));
+                propByRes,
+                CollectionUtils.removeAll(userDAO.findAllResourceNames(userDAO.authFind(key)), resources));
         PropagationReporter propagationReporter =
                 ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
         try {

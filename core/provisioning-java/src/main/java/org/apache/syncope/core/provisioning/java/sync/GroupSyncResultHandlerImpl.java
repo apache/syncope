@@ -25,13 +25,15 @@ import java.util.Map;
 import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.patch.AttrPatch;
 import org.apache.syncope.common.lib.patch.GroupPatch;
-import org.apache.syncope.common.lib.patch.StringPatchItem;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.PatchOperation;
+import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
+import org.apache.syncope.core.provisioning.api.ProvisioningManager;
+import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.sync.ProvisioningResult;
 import org.apache.syncope.core.provisioning.api.sync.GroupSyncResultHandler;
 import org.identityconnectors.framework.common.objects.SyncDelta;
@@ -56,9 +58,14 @@ public class GroupSyncResultHandlerImpl extends AbstractSyncResultHandler implem
     }
 
     @Override
-    protected AnyTO getAnyTO(final long key) {
+    protected ProvisioningManager<?, ?> getProvisioningManager() {
+        return groupProvisioningManager;
+    }
+
+    @Override
+    protected Any<?, ?, ?> getAny(final long key) {
         try {
-            return groupDataBinder.getGroupTO(key);
+            return groupDAO.authFind(key);
         } catch (Exception e) {
             LOG.warn("Error retrieving group {}", key, e);
             return null;
@@ -66,30 +73,33 @@ public class GroupSyncResultHandlerImpl extends AbstractSyncResultHandler implem
     }
 
     @Override
-    protected AnyTO doCreate(final AnyTO anyTO, final SyncDelta delta, final ProvisioningResult result) {
-        GroupTO groupTO = GroupTO.class.cast(anyTO);
-
-        Map.Entry<Long, List<PropagationStatus>> created = groupProvisioningManager.create(groupTO, groupOwnerMap,
-                Collections.singleton(profile.getTask().getResource().getKey()));
-
-        result.setKey(created.getKey());
-
-        return groupDataBinder.getGroupTO(created.getKey());
+    protected AnyTO getAnyTO(final long key) {
+        return groupDataBinder.getGroupTO(key);
     }
 
     @Override
-    protected AnyTO doLink(
-            final AnyTO before,
-            final ProvisioningResult result,
-            final boolean unlink) {
+    protected AnyPatch newPatch(final long key) {
+        GroupPatch patch = new GroupPatch();
+        patch.setKey(key);
+        return patch;
+    }
 
-        GroupPatch groupPatch = new GroupPatch();
-        groupPatch.setKey(before.getKey());
-        groupPatch.getResources().add(new StringPatchItem.Builder().
-                operation(unlink ? PatchOperation.DELETE : PatchOperation.ADD_REPLACE).
-                value(profile.getTask().getResource().getKey()).build());
+    @Override
+    protected WorkflowResult<Long> update(final AnyPatch patch) {
+        return gwfAdapter.update((GroupPatch) patch);
+    }
 
-        return groupDataBinder.getGroupTO(gwfAdapter.update(groupPatch).getResult());
+    @Override
+    protected AnyTO doCreate(final AnyTO anyTO, final SyncDelta delta, final ProvisioningResult result) {
+        GroupTO groupTO = GroupTO.class.cast(anyTO);
+
+        Map.Entry<Long, List<PropagationStatus>> created = groupProvisioningManager.create(
+                groupTO, groupOwnerMap, Collections.singleton(profile.getTask().getResource().getKey()));
+
+        result.setKey(created.getKey());
+        result.setName(getName(anyTO));
+
+        return getAnyTO(created.getKey());
     }
 
     @Override
@@ -103,7 +113,6 @@ public class GroupSyncResultHandlerImpl extends AbstractSyncResultHandler implem
 
         Map.Entry<Long, List<PropagationStatus>> updated = groupProvisioningManager.update(groupPatch);
 
-        // moved after group provisioning manager
         String groupOwner = null;
         for (AttrPatch attrPatch : groupPatch.getPlainAttrs()) {
             if (attrPatch.getOperation() == PatchOperation.ADD_REPLACE && attrPatch.getAttrTO() != null
@@ -123,29 +132,4 @@ public class GroupSyncResultHandlerImpl extends AbstractSyncResultHandler implem
         return after;
     }
 
-    @Override
-    protected void doDeprovision(final Long key, final boolean unlink) {
-        taskExecutor.execute(propagationManager.getGroupDeleteTasks(key, profile.getTask().getResource().getKey()));
-
-        if (unlink) {
-            GroupPatch groupPatch = new GroupPatch();
-            groupPatch.setKey(key);
-            groupPatch.getResources().add(new StringPatchItem.Builder().
-                    operation(PatchOperation.DELETE).
-                    value(profile.getTask().getResource().getKey()).build());
-        }
-    }
-
-    @Override
-    protected void doDelete(final Long key) {
-        try {
-            taskExecutor.execute(propagationManager.getGroupDeleteTasks(key, profile.getTask().getResource().getKey()));
-        } catch (Exception e) {
-            // A propagation failure doesn't imply a synchronization failure.
-            // The propagation exception status will be reported into the propagation task execution.
-            LOG.error("Could not propagate group " + key, e);
-        }
-
-        groupProvisioningManager.delete(key);
-    }
 }

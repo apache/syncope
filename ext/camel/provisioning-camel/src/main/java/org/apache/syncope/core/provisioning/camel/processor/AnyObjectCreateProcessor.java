@@ -24,6 +24,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
@@ -52,10 +53,14 @@ public class AnyObjectCreateProcessor implements Processor {
     public void process(final Exchange exchange) {
         WorkflowResult<Long> created = (WorkflowResult) exchange.getIn().getBody();
         AnyObjectTO any = exchange.getProperty("any", AnyObjectTO.class);
-        Set<String> excludedResource = exchange.getProperty("excludedResources", Set.class);
+        Set<String> excludedResources = exchange.getProperty("excludedResources", Set.class);
 
-        List<PropagationTask> tasks =
-                propagationManager.getAnyObjectCreateTasks(created, any.getVirAttrs(), excludedResource);
+        List<PropagationTask> tasks = propagationManager.getCreateTasks(
+                AnyTypeKind.ANY_OBJECT,
+                created.getResult(),
+                created.getPropByRes(),
+                any.getVirAttrs(),
+                excludedResources);
         PropagationReporter propagationReporter =
                 ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
         try {

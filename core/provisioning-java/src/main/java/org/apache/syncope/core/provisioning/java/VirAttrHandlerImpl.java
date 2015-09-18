@@ -144,7 +144,55 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
-    public PropagationByResource fillVirtual(final Any any, final Set<AttrPatch> vAttrs) {
+    public void createVirtual(final Any any, final Collection<AttrTO> vAttrs) {
+        AnyUtils anyUtils = anyUtilsFactory.getInstance(any);
+
+        for (AttrTO attrTO : vAttrs) {
+            VirAttr virAttr = any.getVirAttr(attrTO.getSchema());
+            if (virAttr == null) {
+                VirSchema virSchema = getVirSchema(attrTO.getSchema());
+                if (virSchema != null) {
+                    virAttr = anyUtils.newVirAttr();
+                    virAttr.setSchema(virSchema);
+                    if (virAttr.getSchema() == null) {
+                        LOG.debug("Ignoring {} because no valid schema was found", attrTO);
+                    } else {
+                        virAttr.setOwner(any);
+                        any.add(virAttr);
+                        virAttr.getValues().clear();
+                        virAttr.getValues().addAll(attrTO.getValues());
+                    }
+                }
+            } else {
+                virAttr.getValues().clear();
+                virAttr.getValues().addAll(attrTO.getValues());
+            }
+        }
+    }
+
+    private Any<?, ?, ?> find(final Long key, final AnyTypeKind anyTypeKind) {
+        Any<?, ?, ?> result;
+
+        switch (anyTypeKind) {
+            case USER:
+                result = userDAO.authFind(key);
+                break;
+
+            case GROUP:
+                result = groupDAO.authFind(key);
+                break;
+
+            case ANY_OBJECT:
+            default:
+                result = anyObjectDAO.authFind(key);
+        }
+
+        return result;
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @Override
+    public PropagationByResource updateVirtual(final Any any, final Collection<AttrPatch> vAttrs) {
         AnyUtils anyUtils = anyUtilsFactory.getInstance(any);
 
         PropagationByResource propByRes = new PropagationByResource();
@@ -209,60 +257,12 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
         return propByRes;
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    @Override
-    public void fillVirtual(final Any any, final Collection<AttrTO> vAttrs) {
-        AnyUtils anyUtils = anyUtilsFactory.getInstance(any);
-
-        for (AttrTO attrTO : vAttrs) {
-            VirAttr virAttr = any.getVirAttr(attrTO.getSchema());
-            if (virAttr == null) {
-                VirSchema virSchema = getVirSchema(attrTO.getSchema());
-                if (virSchema != null) {
-                    virAttr = anyUtils.newVirAttr();
-                    virAttr.setSchema(virSchema);
-                    if (virAttr.getSchema() == null) {
-                        LOG.debug("Ignoring {} because no valid schema was found", attrTO);
-                    } else {
-                        virAttr.setOwner(any);
-                        any.add(virAttr);
-                        virAttr.getValues().clear();
-                        virAttr.getValues().addAll(attrTO.getValues());
-                    }
-                }
-            } else {
-                virAttr.getValues().clear();
-                virAttr.getValues().addAll(attrTO.getValues());
-            }
-        }
-    }
-
-    private Any<?, ?, ?> find(final Long key, final AnyTypeKind anyTypeKind) {
-        Any<?, ?, ?> result;
-
-        switch (anyTypeKind) {
-            case USER:
-                result = userDAO.authFind(key);
-                break;
-
-            case GROUP:
-                result = groupDAO.authFind(key);
-                break;
-
-            case ANY_OBJECT:
-            default:
-                result = anyObjectDAO.authFind(key);
-        }
-
-        return result;
-    }
-
     @Transactional
     @Override
-    public PropagationByResource fillVirtual(
-            final Long key, final AnyTypeKind anyTypeKind, final Set<AttrPatch> vAttrs) {
+    public PropagationByResource updateVirtual(
+            final Long key, final AnyTypeKind anyTypeKind, final Collection<AttrPatch> vAttrs) {
 
-        return fillVirtual(find(key, anyTypeKind), vAttrs);
+        return updateVirtual(find(key, anyTypeKind), vAttrs);
     }
 
     @Override

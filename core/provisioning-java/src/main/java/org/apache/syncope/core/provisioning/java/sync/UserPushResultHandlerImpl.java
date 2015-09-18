@@ -19,25 +19,19 @@
 package org.apache.syncope.core.provisioning.java.sync;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import org.apache.syncope.common.lib.patch.StringPatchItem;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
-import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.apache.syncope.core.provisioning.api.TimeoutException;
+import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.sync.UserPushResultHandler;
-import org.identityconnectors.framework.common.objects.ConnectorObject;
-import org.identityconnectors.framework.common.objects.ObjectClass;
-import org.identityconnectors.framework.common.objects.Uid;
 
 public class UserPushResultHandlerImpl extends AbstractPushResultHandler implements UserPushResultHandler {
 
@@ -47,21 +41,8 @@ public class UserPushResultHandlerImpl extends AbstractPushResultHandler impleme
     }
 
     @Override
-    protected Any<?, ?, ?> deprovision(final Any<?, ?, ?> sbj) {
-        UserTO before = userDataBinder.getUserTO(sbj.getKey());
-
-        List<String> noPropResources = new ArrayList<>(before.getResources());
-        noPropResources.remove(profile.getTask().getResource().getKey());
-
-        taskExecutor.execute(propagationManager.getUserDeleteTasks(before.getKey(),
-                Collections.singleton(profile.getTask().getResource().getKey()), noPropResources));
-
-        return userDAO.authFind(before.getKey());
-    }
-
-    @Override
-    protected Any<?, ?, ?> provision(final Any<?, ?, ?> sbj, final Boolean enabled) {
-        UserTO before = userDataBinder.getUserTO(sbj.getKey());
+    protected void provision(final Any<?, ?, ?> any, final Boolean enabled) {
+        AnyTO before = getAnyTO(any.getKey());
 
         List<String> noPropResources = new ArrayList<>(before.getResources());
         noPropResources.remove(profile.getTask().getResource().getKey());
@@ -71,66 +52,16 @@ public class UserPushResultHandlerImpl extends AbstractPushResultHandler impleme
 
         taskExecutor.execute(propagationManager.getUserCreateTasks(
                 before.getKey(),
+                null,
                 enabled,
                 propByRes,
-                null,
-                Collections.unmodifiableCollection(before.getVirAttrs()),
+                before.getVirAttrs(),
                 noPropResources));
-
-        return userDAO.authFind(before.getKey());
-    }
-
-    @Override
-    protected Any<?, ?, ?> link(final Any<?, ?, ?> sbj, final Boolean unlink) {
-        UserPatch userPatch = new UserPatch();
-        userPatch.setKey(sbj.getKey());
-        userPatch.getResources().add(new StringPatchItem.Builder().
-                operation(unlink ? PatchOperation.DELETE : PatchOperation.ADD_REPLACE).
-                value(profile.getTask().getResource().getKey()).build());
-
-        uwfAdapter.update(userPatch);
-
-        return userDAO.authFind(userPatch.getKey());
-    }
-
-    @Override
-    protected Any<?, ?, ?> unassign(final Any<?, ?, ?> sbj) {
-        UserPatch userPatch = new UserPatch();
-        userPatch.setKey(sbj.getKey());
-        userPatch.getResources().add(new StringPatchItem.Builder().
-                operation(PatchOperation.DELETE).
-                value(profile.getTask().getResource().getKey()).build());
-
-        uwfAdapter.update(userPatch);
-
-        return deprovision(sbj);
-    }
-
-    @Override
-    protected Any<?, ?, ?> assign(final Any<?, ?, ?> sbj, final Boolean enabled) {
-        UserPatch userPatch = new UserPatch();
-        userPatch.setKey(sbj.getKey());
-        userPatch.getResources().add(new StringPatchItem.Builder().
-                operation(PatchOperation.ADD_REPLACE).
-                value(profile.getTask().getResource().getKey()).build());
-        uwfAdapter.update(userPatch);
-
-        return provision(sbj, enabled);
     }
 
     @Override
     protected String getName(final Any<?, ?, ?> any) {
         return User.class.cast(any).getUsername();
-    }
-
-    @Override
-    protected AnyTO getAnyTO(final long key) {
-        try {
-            return userDataBinder.getUserTO(key);
-        } catch (Exception e) {
-            LOG.warn("Error retrieving user {}", key, e);
-            return null;
-        }
     }
 
     @Override
@@ -144,23 +75,22 @@ public class UserPushResultHandlerImpl extends AbstractPushResultHandler impleme
     }
 
     @Override
-    protected ConnectorObject getRemoteObject(final String connObjectKey, final ObjectClass objectClass) {
-        ConnectorObject obj = null;
-        try {
-            Uid uid = new Uid(connObjectKey);
-
-            obj = profile.getConnector().getObject(
-                    objectClass,
-                    uid,
-                    profile.getConnector().getOperationOptions(Collections.<MappingItem>emptySet()));
-
-        } catch (TimeoutException toe) {
-            LOG.debug("Request timeout", toe);
-            throw toe;
-        } catch (RuntimeException ignore) {
-            LOG.debug("While resolving {}", connObjectKey, ignore);
-        }
-
-        return obj;
+    protected AnyTO getAnyTO(final long key) {
+        return userDataBinder.getUserTO(key);
     }
+
+    @Override
+    protected AnyPatch newPatch(final long key) {
+        UserPatch patch = new UserPatch();
+        patch.setKey(key);
+        return patch;
+    }
+
+    @Override
+    protected WorkflowResult<Long> update(final AnyPatch patch) {
+        WorkflowResult<Pair<UserPatch, Boolean>> update = uwfAdapter.update((UserPatch) patch);
+        return new WorkflowResult<>(
+                update.getResult().getLeft().getKey(), update.getPropByRes(), update.getPerformedTasks());
+    }
+
 }

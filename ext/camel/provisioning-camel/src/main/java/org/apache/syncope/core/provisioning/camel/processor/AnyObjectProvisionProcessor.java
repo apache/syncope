@@ -21,12 +21,11 @@ package org.apache.syncope.core.provisioning.camel.processor;
 import java.util.List;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
-import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
-import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationException;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
@@ -47,9 +46,6 @@ public class AnyObjectProvisionProcessor implements Processor {
     @Autowired
     protected PropagationTaskExecutor taskExecutor;
 
-    @Autowired
-    protected AnyObjectDAO anyObjectDAO;
-
     @SuppressWarnings("unchecked")
     @Override
     public void process(final Exchange exchange) {
@@ -59,9 +55,14 @@ public class AnyObjectProvisionProcessor implements Processor {
         PropagationByResource propByRes = new PropagationByResource();
         propByRes.addAll(ResourceOperation.UPDATE, resources);
 
-        WorkflowResult<Long> wfResult = new WorkflowResult<>(key, propByRes, "update");
-
-        List<PropagationTask> tasks = propagationManager.getAnyObjectUpdateTasks(wfResult, null, null);
+        List<PropagationTask> tasks = propagationManager.getUpdateTasks(
+                AnyTypeKind.ANY_OBJECT,
+                key,
+                false,
+                null,
+                propByRes,
+                null,
+                null);
         PropagationReporter propagationReporter =
                 ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
         try {

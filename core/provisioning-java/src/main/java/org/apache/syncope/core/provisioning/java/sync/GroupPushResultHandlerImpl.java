@@ -18,26 +18,15 @@
  */
 package org.apache.syncope.core.provisioning.java.sync;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import org.apache.syncope.common.lib.patch.GroupPatch;
-import org.apache.syncope.common.lib.patch.StringPatchItem;
+import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.PatchOperation;
-import org.apache.syncope.common.lib.types.PropagationByResource;
-import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
-import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
-import org.apache.syncope.core.provisioning.api.TimeoutException;
+import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.sync.GroupPushResultHandler;
-import org.identityconnectors.framework.common.objects.ConnectorObject;
-import org.identityconnectors.framework.common.objects.ObjectClass;
-import org.identityconnectors.framework.common.objects.Uid;
 
 public class GroupPushResultHandlerImpl extends AbstractPushResultHandler implements GroupPushResultHandler {
 
@@ -47,89 +36,8 @@ public class GroupPushResultHandlerImpl extends AbstractPushResultHandler implem
     }
 
     @Override
-    protected Any<?, ?, ?> deprovision(final Any<?, ?, ?> sbj) {
-        GroupTO before = groupDataBinder.getGroupTO(Group.class.cast(sbj), true);
-
-        List<String> noPropResources = new ArrayList<>(before.getResources());
-        noPropResources.remove(profile.getTask().getResource().getKey());
-
-        taskExecutor.execute(propagationManager.getGroupDeleteTasks(before.getKey(), noPropResources));
-
-        return groupDAO.authFind(before.getKey());
-    }
-
-    @Override
-    protected Any<?, ?, ?> provision(final Any<?, ?, ?> sbj, final Boolean enabled) {
-        GroupTO before = groupDataBinder.getGroupTO(Group.class.cast(sbj), true);
-
-        List<String> noPropResources = new ArrayList<>(before.getResources());
-        noPropResources.remove(profile.getTask().getResource().getKey());
-
-        PropagationByResource propByRes = new PropagationByResource();
-        propByRes.add(ResourceOperation.CREATE, profile.getTask().getResource().getKey());
-
-        taskExecutor.execute(propagationManager.getGroupCreateTasks(
-                before.getKey(),
-                Collections.unmodifiableCollection(before.getVirAttrs()),
-                propByRes,
-                noPropResources));
-
-        return groupDAO.authFind(before.getKey());
-    }
-
-    @Override
-    protected Any<?, ?, ?> link(final Any<?, ?, ?> sbj, final Boolean unlink) {
-        GroupPatch groupPatch = new GroupPatch();
-        groupPatch.setKey(sbj.getKey());
-
-        groupPatch.getResources().add(new StringPatchItem.Builder().
-                operation(unlink ? PatchOperation.DELETE : PatchOperation.ADD_REPLACE).
-                value(profile.getTask().getResource().getKey()).build());
-
-        gwfAdapter.update(groupPatch);
-
-        return groupDAO.authFind(sbj.getKey());
-    }
-
-    @Override
-    protected Any<?, ?, ?> unassign(final Any<?, ?, ?> sbj) {
-        GroupPatch groupPatch = new GroupPatch();
-        groupPatch.setKey(sbj.getKey());
-        groupPatch.getResources().add(new StringPatchItem.Builder().
-                operation(PatchOperation.DELETE).
-                value(profile.getTask().getResource().getKey()).build());
-
-        gwfAdapter.update(groupPatch);
-
-        return deprovision(sbj);
-    }
-
-    @Override
-    protected Any<?, ?, ?> assign(final Any<?, ?, ?> sbj, final Boolean enabled) {
-        GroupPatch groupPatch = new GroupPatch();
-        groupPatch.setKey(sbj.getKey());
-        groupPatch.getResources().add(new StringPatchItem.Builder().
-                operation(PatchOperation.ADD_REPLACE).
-                value(profile.getTask().getResource().getKey()).build());
-
-        gwfAdapter.update(groupPatch);
-
-        return provision(sbj, enabled);
-    }
-
-    @Override
     protected String getName(final Any<?, ?, ?> any) {
         return Group.class.cast(any).getName();
-    }
-
-    @Override
-    protected AnyTO getAnyTO(final long key) {
-        try {
-            return groupDataBinder.getGroupTO(key);
-        } catch (Exception e) {
-            LOG.warn("Error retrieving user {}", key, e);
-            return null;
-        }
     }
 
     @Override
@@ -143,22 +51,20 @@ public class GroupPushResultHandlerImpl extends AbstractPushResultHandler implem
     }
 
     @Override
-    protected ConnectorObject getRemoteObject(final String connObjectKey, final ObjectClass objectClass) {
-        ConnectorObject obj = null;
-        try {
-            Uid uid = new Uid(connObjectKey);
-
-            obj = profile.getConnector().getObject(
-                    objectClass,
-                    uid,
-                    profile.getConnector().getOperationOptions(Collections.<MappingItem>emptySet()));
-        } catch (TimeoutException toe) {
-            LOG.debug("Request timeout", toe);
-            throw toe;
-        } catch (RuntimeException ignore) {
-            LOG.debug("While resolving {}", connObjectKey, ignore);
-        }
-
-        return obj;
+    protected AnyTO getAnyTO(final long key) {
+        return groupDataBinder.getGroupTO(key);
     }
+
+    @Override
+    protected AnyPatch newPatch(final long key) {
+        GroupPatch patch = new GroupPatch();
+        patch.setKey(key);
+        return patch;
+    }
+
+    @Override
+    protected WorkflowResult<Long> update(final AnyPatch patch) {
+        return gwfAdapter.update((GroupPatch) patch);
+    }
+
 }

@@ -22,7 +22,11 @@ import java.util.List;
 import java.util.Set;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.PropagationByResource;
+import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationException;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
@@ -39,6 +43,9 @@ public class UserDeleteProcessor implements Processor {
     private static final Logger LOG = LoggerFactory.getLogger(UserDeleteProcessor.class);
 
     @Autowired
+    protected UserDAO userDAO;
+
+    @Autowired
     protected PropagationManager propagationManager;
 
     @Autowired
@@ -47,15 +54,22 @@ public class UserDeleteProcessor implements Processor {
     @SuppressWarnings("unchecked")
     @Override
     public void process(final Exchange exchange) throws Exception {
-        Long userKey = (Long) exchange.getIn().getBody();
-        Set<String> excludedResource = exchange.getProperty("excludedResources", Set.class);
+        Long key = (Long) exchange.getIn().getBody();
+        Set<String> excludedResources = exchange.getProperty("excludedResources", Set.class);
+
+        PropagationByResource propByRes = new PropagationByResource();
+        propByRes.set(ResourceOperation.DELETE, userDAO.findAllResourceNames(userDAO.authFind(key)));
 
         // Note here that we can only notify about "delete", not any other
         // task defined in workflow process definition: this because this
         // information could only be available after uwfAdapter.delete(), which
         // will also effectively remove user from db, thus making virtually
         // impossible by NotificationManager to fetch required user information
-        List<PropagationTask> tasks = propagationManager.getUserDeleteTasks(userKey, excludedResource);
+        List<PropagationTask> tasks = propagationManager.getDeleteTasks(
+                AnyTypeKind.USER,
+                key,
+                propByRes,
+                excludedResources);
 
         PropagationReporter propagationReporter =
                 ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);

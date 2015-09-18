@@ -20,11 +20,15 @@ package org.apache.syncope.core.provisioning.java.sync;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.patch.AttrPatch;
+import org.apache.syncope.common.lib.patch.StringPatchItem;
+import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
@@ -47,10 +51,12 @@ import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
+import org.apache.syncope.core.provisioning.api.TimeoutException;
 import org.apache.syncope.core.provisioning.api.sync.IgnoreProvisionException;
 import org.apache.syncope.core.provisioning.api.sync.SyncopePushResultHandler;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ObjectClass;
+import org.identityconnectors.framework.common.objects.Uid;
 import org.quartz.JobExecutionException;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -60,19 +66,87 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
 
     protected abstract String getName(Any<?, ?, ?> any);
 
-    protected abstract Any<?, ?, ?> getAny(long key);
+    protected void deprovision(final Any<?, ?, ?> any) {
+        AnyTO before = getAnyTO(any.getKey());
 
-    protected abstract Any<?, ?, ?> deprovision(Any<?, ?, ?> sbj);
+        List<String> noPropResources = new ArrayList<>(before.getResources());
+        noPropResources.remove(profile.getTask().getResource().getKey());
 
-    protected abstract Any<?, ?, ?> provision(Any<?, ?, ?> sbj, Boolean enabled);
+        taskExecutor.execute(propagationManager.getDeleteTasks(
+                any.getType().getKind(),
+                any.getKey(),
+                null,
+                noPropResources));
+    }
 
-    protected abstract Any<?, ?, ?> link(Any<?, ?, ?> sbj, Boolean unlink);
+    protected void provision(final Any<?, ?, ?> any, final Boolean enabled) {
+        AnyTO before = getAnyTO(any.getKey());
 
-    protected abstract Any<?, ?, ?> unassign(Any<?, ?, ?> sbj);
+        List<String> noPropResources = new ArrayList<>(before.getResources());
+        noPropResources.remove(profile.getTask().getResource().getKey());
 
-    protected abstract Any<?, ?, ?> assign(Any<?, ?, ?> sbj, Boolean enabled);
+        PropagationByResource propByRes = new PropagationByResource();
+        propByRes.add(ResourceOperation.CREATE, profile.getTask().getResource().getKey());
 
-    protected abstract ConnectorObject getRemoteObject(String connObjectKey, ObjectClass objectClass);
+        taskExecutor.execute(propagationManager.getCreateTasks(
+                any.getType().getKind(),
+                any.getKey(),
+                propByRes,
+                before.getVirAttrs(),
+                noPropResources));
+    }
+
+    @SuppressWarnings("unchecked")
+    protected void link(final Any<?, ?, ?> any, final Boolean unlink) {
+        AnyPatch patch = newPatch(any.getKey());
+        patch.getResources().add(new StringPatchItem.Builder().
+                operation(unlink ? PatchOperation.DELETE : PatchOperation.ADD_REPLACE).
+                value(profile.getTask().getResource().getKey()).build());
+
+        update(patch);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected void unassign(final Any<?, ?, ?> any) {
+        AnyPatch patch = newPatch(any.getKey());
+        patch.getResources().add(new StringPatchItem.Builder().
+                operation(PatchOperation.DELETE).
+                value(profile.getTask().getResource().getKey()).build());
+
+        update(patch);
+
+        deprovision(any);
+    }
+
+    protected void assign(final Any<?, ?, ?> any, final Boolean enabled) {
+        AnyPatch patch = newPatch(any.getKey());
+        patch.getResources().add(new StringPatchItem.Builder().
+                operation(PatchOperation.ADD_REPLACE).
+                value(profile.getTask().getResource().getKey()).build());
+
+        update(patch);
+
+        provision(any, enabled);
+    }
+
+    protected ConnectorObject getRemoteObject(final String connObjectKey, final ObjectClass objectClass) {
+        ConnectorObject obj = null;
+        try {
+            Uid uid = new Uid(connObjectKey);
+
+            obj = profile.getConnector().getObject(
+                    objectClass,
+                    uid,
+                    profile.getConnector().getOperationOptions(Collections.<MappingItem>emptySet()));
+        } catch (TimeoutException toe) {
+            LOG.debug("Request timeout", toe);
+            throw toe;
+        } catch (RuntimeException ignore) {
+            LOG.debug("While resolving {}", connObjectKey, ignore);
+        }
+
+        return obj;
+    }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
@@ -328,11 +402,11 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         }
     }
 
-    protected Any<?, ?, ?> update(final Any<?, ?, ?> sbj, final Boolean enabled) {
+    protected Any<?, ?, ?> update(final Any<?, ?, ?> any, final Boolean enabled) {
         Set<AttrPatch> vattrs = new HashSet<>();
 
         // Search for all mapped vattrs
-        Mapping mapping = profile.getTask().getResource().getProvision(sbj.getType()).getMapping();
+        Mapping mapping = profile.getTask().getResource().getProvision(any.getType()).getMapping();
         for (MappingItem mappingItem : mapping.getItems()) {
             if (mappingItem.getIntMappingType() == IntMappingType.UserVirtualSchema) {
                 vattrs.add(new AttrPatch.Builder().
@@ -345,7 +419,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         // Search for all user's vattrs and:
         // 1. add mapped vattrs not owned by the user to the set of vattrs to be removed
         // 2. add all vattrs owned by the user to the set of vattrs to be update
-        for (VirAttr<?> vattr : sbj.getVirAttrs()) {
+        for (VirAttr<?> vattr : any.getVirAttrs()) {
             vattrs.add(new AttrPatch.Builder().
                     operation(PatchOperation.ADD_REPLACE).
                     attrTO(new AttrTO.Builder().
@@ -357,15 +431,15 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
 
         boolean changepwd;
         Collection<String> resourceNames;
-        if (sbj instanceof User) {
+        if (any instanceof User) {
             changepwd = true;
-            resourceNames = userDAO.findAllResourceNames((User) sbj);
-        } else if (sbj instanceof AnyObject) {
-            changepwd = true;
-            resourceNames = anyObjectDAO.findAllResourceNames((AnyObject) sbj);
+            resourceNames = userDAO.findAllResourceNames((User) any);
+        } else if (any instanceof AnyObject) {
+            changepwd = false;
+            resourceNames = anyObjectDAO.findAllResourceNames((AnyObject) any);
         } else {
             changepwd = false;
-            resourceNames = ((Group) sbj).getResourceNames();
+            resourceNames = ((Group) any).getResourceNames();
         }
 
         List<String> noPropResources = new ArrayList<>(resourceNames);
@@ -375,8 +449,14 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         propByRes.add(ResourceOperation.CREATE, profile.getTask().getResource().getKey());
 
         taskExecutor.execute(propagationManager.getUpdateTasks(
-                sbj, null, changepwd, enabled, vattrs, propByRes, noPropResources));
+                any.getType().getKind(),
+                any.getKey(),
+                changepwd,
+                null,
+                propByRes,
+                vattrs,
+                noPropResources));
 
-        return getAny(sbj.getKey());
+        return getAny(any.getKey());
     }
 }

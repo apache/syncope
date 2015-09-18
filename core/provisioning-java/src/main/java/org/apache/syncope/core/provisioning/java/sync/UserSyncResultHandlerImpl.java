@@ -21,15 +21,17 @@ package org.apache.syncope.core.provisioning.java.sync;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.AnyPatch;
-import org.apache.syncope.common.lib.patch.StringPatchItem;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.PatchOperation;
+import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
+import org.apache.syncope.core.provisioning.api.ProvisioningManager;
+import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.sync.ProvisioningResult;
 import org.apache.syncope.core.provisioning.api.sync.UserSyncResultHandler;
 import org.identityconnectors.framework.common.objects.SyncDelta;
@@ -47,13 +49,37 @@ public class UserSyncResultHandlerImpl extends AbstractSyncResultHandler impleme
     }
 
     @Override
-    protected AnyTO getAnyTO(final long key) {
+    protected ProvisioningManager<?, ?> getProvisioningManager() {
+        return userProvisioningManager;
+    }
+
+    @Override
+    protected Any<?, ?, ?> getAny(final long key) {
         try {
-            return userDataBinder.getUserTO(key);
+            return userDAO.authFind(key);
         } catch (Exception e) {
             LOG.warn("Error retrieving user {}", key, e);
             return null;
         }
+    }
+
+    @Override
+    protected AnyTO getAnyTO(final long key) {
+        return userDataBinder.getUserTO(key);
+    }
+
+    @Override
+    protected AnyPatch newPatch(final long key) {
+        UserPatch patch = new UserPatch();
+        patch.setKey(key);
+        return patch;
+    }
+
+    @Override
+    protected WorkflowResult<Long> update(final AnyPatch patch) {
+        WorkflowResult<Pair<UserPatch, Boolean>> update = uwfAdapter.update((UserPatch) patch);
+        return new WorkflowResult<>(
+                update.getResult().getLeft().getKey(), update.getPropByRes(), update.getPerformedTasks());
     }
 
     @Override
@@ -66,23 +92,9 @@ public class UserSyncResultHandlerImpl extends AbstractSyncResultHandler impleme
                         Collections.singleton(profile.getTask().getResource().getKey()));
 
         result.setKey(created.getKey());
+        result.setName(getName(anyTO));
 
-        return userDataBinder.getUserTO(created.getKey());
-    }
-
-    @Override
-    protected AnyTO doLink(
-            final AnyTO before,
-            final ProvisioningResult result,
-            final boolean unlink) {
-
-        UserPatch userPatch = new UserPatch();
-        userPatch.setKey(before.getKey());
-        userPatch.getResources().add(new StringPatchItem.Builder().
-                operation(unlink ? PatchOperation.DELETE : PatchOperation.ADD_REPLACE).
-                value(profile.getTask().getResource().getKey()).build());
-
-        return userDataBinder.getUserTO(uwfAdapter.update(userPatch).getResult().getKey().getKey());
+        return getAnyTO(created.getKey());
     }
 
     @Override
@@ -95,31 +107,17 @@ public class UserSyncResultHandlerImpl extends AbstractSyncResultHandler impleme
         UserPatch userPatch = UserPatch.class.cast(anyPatch);
         Boolean enabled = syncUtilities.readEnabled(delta.getObject(), profile.getTask());
 
-        Map.Entry<Long, List<PropagationStatus>> updated = userProvisioningManager.update(userPatch, before.getKey(),
-                result, enabled, Collections.singleton(profile.getTask().getResource().getKey()));
+        Map.Entry<Long, List<PropagationStatus>> updated = userProvisioningManager.update(
+                userPatch, before.getKey(),
+                result,
+                enabled,
+                Collections.singleton(profile.getTask().getResource().getKey()));
 
-        return userDataBinder.getUserTO(updated.getKey());
+        return getAnyTO(updated.getKey());
     }
 
     @Override
-    protected void doDeprovision(
-            final Long key,
-            final boolean unlink) {
-
-        taskExecutor.execute(propagationManager.getUserDeleteTasks(
-                key, Collections.singleton(profile.getTask().getResource().getKey())));
-
-        if (unlink) {
-            UserPatch userPatch = new UserPatch();
-            userPatch.setKey(key);
-            userPatch.getResources().add(new StringPatchItem.Builder().
-                    operation(PatchOperation.DELETE).
-                    value(profile.getTask().getResource().getKey()).build());
-        }
-    }
-
-    @Override
-    protected void doDelete(final Long key) {
+    protected void doDelete(final AnyTypeKind kind, final Long key) {
         try {
             userProvisioningManager.
                     delete(key, Collections.<String>singleton(profile.getTask().getResource().getKey()));

@@ -20,179 +20,109 @@ package org.apache.syncope.core.provisioning.api.propagation;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.AttrPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.PropagationByResource;
-import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 
 public interface PropagationManager {
 
     /**
-     * Create the group on every associated resource.
+     * Create the any object tasks for every associated resource, unless in {@code noPropResourceNames}.
      *
-     * @param wfResult group to be propagated (and info associated), as per result from workflow
-     * @param vAttrs virtual attributes to be set
-     * @param noPropResourceNames external resources performing not to be considered for propagation
-     * @return list of propagation tasks
-     */
-    List<PropagationTask> getGroupCreateTasks(
-            WorkflowResult<Long> wfResult, Collection<AttrTO> vAttrs, Collection<String> noPropResourceNames);
-
-    /**
-     * Create the group on every associated resource.
-     *
-     * @param key group id
-     * @param vAttrs virtual attributes to be set
+     * @param kind any object type kind
+     * @param key any object key
      * @param propByRes operation to be performed per resource
+     * @param vAttrs virtual attributes to be set
      * @param noPropResourceNames external resources performing not to be considered for propagation
      * @return list of propagation tasks
      */
-    List<PropagationTask> getGroupCreateTasks(Long key, Collection<AttrTO> vAttrs, PropagationByResource propByRes,
+    List<PropagationTask> getCreateTasks(
+            AnyTypeKind kind,
+            Long key,
+            PropagationByResource propByRes,
+            Collection<AttrTO> vAttrs,
             Collection<String> noPropResourceNames);
 
     /**
-     * Performs update on each resource associated to the group.
+     * Create the user tasks for every associated resource, unless in {@code noPropResourceNames}.
      *
-     * @param wfResult group to be propagated (and info associated), as per result from workflow
-     * @param vAttrs virtual attributes patches
-     * @param noPropResourceNames external resource names not to be considered for propagation
-     * @return list of propagation tasks
-     */
-    List<PropagationTask> getGroupUpdateTasks(
-            WorkflowResult<Long> wfResult, Set<AttrPatch> vAttrs, Set<String> noPropResourceNames);
-
-    /**
-     * Perform delete on each resource associated to the group. It is possible to ask for a mandatory provisioning for
-     * some resources specifying a set of resource names. Exceptions won't be ignored and the process will be stopped if
-     * the creation fails onto a mandatory resource.
-     *
-     * @param groupKey to be deleted
-     * @return list of propagation tasks
-     */
-    List<PropagationTask> getGroupDeleteTasks(Long groupKey);
-
-    /**
-     * Perform delete on each resource associated to the group. It is possible to ask for a mandatory provisioning for
-     * some resources specifying a set of resource names. Exceptions won't be ignored and the process will be stopped if
-     * the creation fails onto a mandatory resource.
-     *
-     * @param groupKey to be deleted
-     * @param noPropResourceName name of external resource not to be considered for propagation
-     * @return list of propagation tasks
-     */
-    List<PropagationTask> getGroupDeleteTasks(Long groupKey, String noPropResourceName);
-
-    /**
-     * Perform delete on each resource associated to the group. It is possible to ask for a mandatory provisioning for
-     * some resources specifying a set of resource names. Exceptions won't be ignored and the process will be stopped if
-     * the creation fails onto a mandatory resource.
-     *
-     * @param groupKey to be deleted
-     * @param noPropResourceNames name of external resources not to be considered for propagation
-     * @return list of propagation tasks
-     */
-    List<PropagationTask> getGroupDeleteTasks(Long groupKey, Collection<String> noPropResourceNames);
-
-    /**
-     * Perform delete on each resource associated to the group. It is possible to ask for a mandatory provisioning for
-     * some resources specifying a set of resource names. Exceptions won't be ignored and the process will be stopped if
-     * the creation fails onto a mandatory resource.
-     *
-     * @param groupKey to be deleted
-     * @param resourceNames resource from which group is to be deleted
-     * @param noPropResourceNames name of external resources not to be considered for propagation
-     * @return list of propagation tasks
-     */
-    List<PropagationTask> getGroupDeleteTasks(
-            Long groupKey, Set<String> resourceNames, Collection<String> noPropResourceNames);
-
-    List<PropagationTask> getAnyObjectCreateTasks(
-            WorkflowResult<Long> wfResult, Collection<AttrTO> vAttrs, Collection<String> noPropResourceNames);
-
-    List<PropagationTask> getAnyObjectCreateTasks(Long anyObjectKey, Collection<AttrTO> vAttrs,
-            PropagationByResource propByRes, Collection<String> noPropResourceNames);
-
-    List<PropagationTask> getAnyObjectUpdateTasks(
-            WorkflowResult<Long> wfResult, Set<AttrPatch> vAttrs, Set<String> noPropResourceNames);
-
-    List<PropagationTask> getAnyObjectDeleteTasks(Long anyObjectKey);
-
-    List<PropagationTask> getAnyObjectDeleteTasks(Long anyObjectKey, String noPropResourceName);
-
-    List<PropagationTask> getAnyObjectDeleteTasks(Long anyObjectKey, Collection<String> noPropResourceNames);
-
-    List<PropagationTask> getAnyObjectDeleteTasks(
-            Long groupKey, Set<String> resourceNames, Collection<String> noPropResourceNames);
-
-    /**
-     * Create the user on every associated resource.
-     *
-     * @param key to be propagated
+     * @param key user key
+     * @param password to be set
      * @param enable whether user must be enabled or not
      * @param propByRes operation to be performed per resource
-     * @param password to be set
      * @param vAttrs virtual attributes to be set
      * @param noPropResourceNames external resources not to be considered for propagation
      * @return list of propagation tasks
      */
-    List<PropagationTask> getUserCreateTasks(Long key, Boolean enable,
-            PropagationByResource propByRes, String password, Collection<AttrTO> vAttrs,
+    List<PropagationTask> getUserCreateTasks(
+            Long key,
+            String password,
+            Boolean enable,
+            PropagationByResource propByRes,
+            Collection<AttrTO> vAttrs,
             Collection<String> noPropResourceNames);
 
     /**
-     * Performs update on each resource associated to the user excluding the specified into 'resourceNames' parameter.
+     * Create the update tasks for the any object on each resource associated, unless in {@code noPropResourceNames}.
      *
-     * @param key to be propagated
-     * @param enable whether user must be enabled or not
+     * @param kind any object type kind
+     * @param key any object key
+     * @param changePwd whether password should be included for propagation attributes or not
+     * @param enable whether any object should be enabled or not, may be null to leave unchanged
+     * @param propByRes operation to be performed per resource
+     * @param vAttrs virtual attributes patches
      * @param noPropResourceNames external resource names not to be considered for propagation
      * @return list of propagation tasks
      */
-    List<PropagationTask> getUserUpdateTasks(Long key, Boolean enable, Collection<String> noPropResourceNames);
+    List<PropagationTask> getUpdateTasks(
+            AnyTypeKind kind,
+            Long key,
+            boolean changePwd,
+            Boolean enable,
+            PropagationByResource propByRes,
+            Collection<AttrPatch> vAttrs,
+            Collection<String> noPropResourceNames);
 
     /**
-     * Performs update on each resource associated to the user.
+     * Create the update tasks for the user on each resource associated, unless in {@code noPropResourceNames}.
      *
      * @param wfResult user to be propagated (and info associated), as per result from workflow
      * @param changePwd whether password should be included for propagation attributes or not
      * @param noPropResourceNames external resources not to be considered for propagation
      * @return list of propagation tasks
      */
-    List<PropagationTask> getUserUpdateTasks(WorkflowResult<Pair<UserPatch, Boolean>> wfResult,
-            boolean changePwd, Collection<String> noPropResourceNames);
+    List<PropagationTask> getUserUpdateTasks(
+            WorkflowResult<Pair<UserPatch, Boolean>> wfResult,
+            boolean changePwd,
+            Collection<String> noPropResourceNames);
 
+    /**
+     * Create the update tasks for the user on each resource associated; propagate password update only to requested
+     * resources.
+     *
+     * @param wfResult user to be propagated (and info associated), as per result from workflow
+     * @return list of propagation tasks
+     */
     List<PropagationTask> getUserUpdateTasks(WorkflowResult<Pair<UserPatch, Boolean>> wfResult);
 
-    List<PropagationTask> getUpdateTasks(Any<?, ?, ?> any, String password, boolean changePwd,
-            Boolean enable, Set<AttrPatch> vAttrs,
-            PropagationByResource propByRes, Collection<String> noPropResourceNames);
-
     /**
-     * Perform delete on each resource associated to the user. It is possible to ask for a mandatory provisioning for
-     * some resources specifying a set of resource names. Exceptions won't be ignored and the process will be stopped if
-     * the creation fails onto a mandatory resource.
+     * Create the delete tasks for the any object from each resource associated, unless in {@code noPropResourceNames}.
      *
-     * @param userKey to be deleted
-     * @param noPropResourceNames name of external resources not to be considered for propagation
+     * @param kind any object type kind
+     * @param key any object key
+     * @param propByRes operation to be performed per resource
+     * @param noPropResourceNames external resource names not to be considered for propagation
      * @return list of propagation tasks
      */
-    List<PropagationTask> getUserDeleteTasks(Long userKey, Collection<String> noPropResourceNames);
-
-    /**
-     * Perform delete on each resource associated to the user. It is possible to ask for a mandatory provisioning for
-     * some resources specifying a set of resource names. Exceptions won't be ignored and the process will be stopped if
-     * the creation fails onto a mandatory resource.
-     *
-     * @param userKey to be deleted
-     * @param resourceNames resources
-     * @param noPropResourceNames name of external resources not to be considered for propagation
-     * @return list of propagation tasks
-     */
-    List<PropagationTask> getUserDeleteTasks(
-            Long userKey, Set<String> resourceNames, Collection<String> noPropResourceNames);
+    List<PropagationTask> getDeleteTasks(
+            AnyTypeKind kind,
+            Long key,
+            PropagationByResource propByRes,
+            Collection<String> noPropResourceNames);
 
 }

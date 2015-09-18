@@ -18,118 +18,26 @@
  */
 package org.apache.syncope.core.provisioning.java.sync;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.patch.AnyObjectPatch;
-import org.apache.syncope.common.lib.patch.StringPatchItem;
+import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.PatchOperation;
-import org.apache.syncope.common.lib.types.PropagationByResource;
-import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
-import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
-import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
-import org.apache.syncope.core.provisioning.api.TimeoutException;
+import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.sync.AnyObjectPushResultHandler;
-import org.identityconnectors.framework.common.objects.ConnectorObject;
-import org.identityconnectors.framework.common.objects.ObjectClass;
-import org.identityconnectors.framework.common.objects.Uid;
 
 public class AnyObjectPushResultHandlerImpl extends AbstractPushResultHandler implements AnyObjectPushResultHandler {
 
     @Override
     protected AnyUtils getAnyUtils() {
-        return anyUtilsFactory.getInstance(AnyTypeKind.GROUP);
-    }
-
-    @Override
-    protected Any<?, ?, ?> deprovision(final Any<?, ?, ?> sbj) {
-        AnyObjectTO before = anyObjectDataBinder.getAnyObjectTO(AnyObject.class.cast(sbj), true);
-
-        List<String> noPropResources = new ArrayList<>(before.getResources());
-        noPropResources.remove(profile.getTask().getResource().getKey());
-
-        taskExecutor.execute(propagationManager.getAnyObjectDeleteTasks(before.getKey(), noPropResources));
-
-        return anyObjectDAO.authFind(before.getKey());
-    }
-
-    @Override
-    protected Any<?, ?, ?> provision(final Any<?, ?, ?> sbj, final Boolean enabled) {
-        AnyObjectTO before = anyObjectDataBinder.getAnyObjectTO(AnyObject.class.cast(sbj), true);
-
-        List<String> noPropResources = new ArrayList<>(before.getResources());
-        noPropResources.remove(profile.getTask().getResource().getKey());
-
-        PropagationByResource propByRes = new PropagationByResource();
-        propByRes.add(ResourceOperation.CREATE, profile.getTask().getResource().getKey());
-
-        taskExecutor.execute(propagationManager.getAnyObjectCreateTasks(
-                before.getKey(),
-                Collections.unmodifiableCollection(before.getVirAttrs()),
-                propByRes,
-                noPropResources));
-
-        return anyObjectDAO.authFind(before.getKey());
-    }
-
-    @Override
-    protected Any<?, ?, ?> link(final Any<?, ?, ?> sbj, final Boolean unlink) {
-        AnyObjectPatch anyObjectPatch = new AnyObjectPatch();
-        anyObjectPatch.setKey(sbj.getKey());
-        anyObjectPatch.getResources().add(new StringPatchItem.Builder().
-                operation(unlink ? PatchOperation.DELETE : PatchOperation.ADD_REPLACE).
-                value(profile.getTask().getResource().getKey()).build());
-
-        awfAdapter.update(anyObjectPatch);
-
-        return anyObjectDAO.authFind(sbj.getKey());
-    }
-
-    @Override
-    protected Any<?, ?, ?> unassign(final Any<?, ?, ?> sbj) {
-        AnyObjectPatch anyObjectPatch = new AnyObjectPatch();
-        anyObjectPatch.setKey(sbj.getKey());
-        anyObjectPatch.getResources().add(new StringPatchItem.Builder().
-                operation(PatchOperation.DELETE).
-                value(profile.getTask().getResource().getKey()).build());
-
-        awfAdapter.update(anyObjectPatch);
-
-        return deprovision(sbj);
-    }
-
-    @Override
-    protected Any<?, ?, ?> assign(final Any<?, ?, ?> sbj, final Boolean enabled) {
-        AnyObjectPatch anyObjectPatch = new AnyObjectPatch();
-        anyObjectPatch.setKey(sbj.getKey());
-        anyObjectPatch.getResources().add(new StringPatchItem.Builder().
-                operation(PatchOperation.ADD_REPLACE).
-                value(profile.getTask().getResource().getKey()).build());
-
-        awfAdapter.update(anyObjectPatch);
-
-        return provision(sbj, enabled);
+        return anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT);
     }
 
     @Override
     protected String getName(final Any<?, ?, ?> any) {
         return StringUtils.EMPTY;
-    }
-
-    @Override
-    protected AnyTO getAnyTO(final long key) {
-        try {
-            return anyObjectDataBinder.getAnyObjectTO(key);
-        } catch (Exception e) {
-            LOG.warn("Error retrieving user {}", key, e);
-            return null;
-        }
     }
 
     @Override
@@ -143,22 +51,20 @@ public class AnyObjectPushResultHandlerImpl extends AbstractPushResultHandler im
     }
 
     @Override
-    protected ConnectorObject getRemoteObject(final String connObjectKey, final ObjectClass objectClass) {
-        ConnectorObject obj = null;
-        try {
-            Uid uid = new Uid(connObjectKey);
-
-            obj = profile.getConnector().getObject(
-                    objectClass,
-                    uid,
-                    profile.getConnector().getOperationOptions(Collections.<MappingItem>emptySet()));
-        } catch (TimeoutException toe) {
-            LOG.debug("Request timeout", toe);
-            throw toe;
-        } catch (RuntimeException ignore) {
-            LOG.debug("While resolving {}", connObjectKey, ignore);
-        }
-
-        return obj;
+    protected AnyTO getAnyTO(final long key) {
+        return anyObjectDataBinder.getAnyObjectTO(key);
     }
+
+    @Override
+    protected AnyPatch newPatch(final long key) {
+        AnyObjectPatch patch = new AnyObjectPatch();
+        patch.setKey(key);
+        return patch;
+    }
+
+    @Override
+    protected WorkflowResult<Long> update(final AnyPatch patch) {
+        return awfAdapter.update((AnyObjectPatch) patch);
+    }
+
 }

@@ -18,15 +18,15 @@
  */
 package org.apache.syncope.core.provisioning.camel.processor;
 
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.PropagationByResource;
+import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
-import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationException;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
@@ -54,15 +54,17 @@ public class AnyObjectDeprovisionProcessor implements Processor {
     @SuppressWarnings("unchecked")
     @Override
     public void process(final Exchange exchange) {
-        Long anyObjectKey = exchange.getIn().getBody(Long.class);
+        Long key = exchange.getIn().getBody(Long.class);
         List<String> resources = exchange.getProperty("resources", List.class);
 
-        AnyObject anyObject = anyObjectDAO.authFind(anyObjectKey);
+        PropagationByResource propByRes = new PropagationByResource();
+        propByRes.addAll(ResourceOperation.DELETE, resources);
 
-        Collection<String> noPropResourceNames = CollectionUtils.removeAll(anyObject.getResourceNames(), resources);
-
-        List<PropagationTask> tasks =
-                propagationManager.getAnyObjectDeleteTasks(anyObjectKey, new HashSet<>(resources), noPropResourceNames);
+        List<PropagationTask> tasks = propagationManager.getDeleteTasks(
+                AnyTypeKind.ANY_OBJECT,
+                key,
+                propByRes,
+                CollectionUtils.removeAll(anyObjectDAO.findAllResourceNames(anyObjectDAO.authFind(key)), resources));
         PropagationReporter propagationReporter =
                 ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
         try {

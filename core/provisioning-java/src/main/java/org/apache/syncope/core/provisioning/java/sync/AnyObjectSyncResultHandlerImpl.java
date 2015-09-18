@@ -24,13 +24,14 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.common.lib.patch.AnyPatch;
-import org.apache.syncope.common.lib.patch.StringPatchItem;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.PatchOperation;
+import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
+import org.apache.syncope.core.provisioning.api.ProvisioningManager;
+import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.sync.ProvisioningResult;
 import org.apache.syncope.core.provisioning.api.sync.AnyObjectSyncResultHandler;
 import org.identityconnectors.framework.common.objects.SyncDelta;
@@ -48,13 +49,35 @@ public class AnyObjectSyncResultHandlerImpl extends AbstractSyncResultHandler im
     }
 
     @Override
-    protected AnyTO getAnyTO(final long key) {
+    protected ProvisioningManager<?, ?> getProvisioningManager() {
+        return anyObjectProvisioningManager;
+    }
+
+    @Override
+    protected Any<?, ?, ?> getAny(final long key) {
         try {
-            return anyObjectDataBinder.getAnyObjectTO(key);
+            return anyObjectDAO.authFind(key);
         } catch (Exception e) {
             LOG.warn("Error retrieving anyObject {}", key, e);
             return null;
         }
+    }
+
+    @Override
+    protected AnyTO getAnyTO(final long key) {
+        return anyObjectDataBinder.getAnyObjectTO(key);
+    }
+
+    @Override
+    protected AnyPatch newPatch(final long key) {
+        AnyObjectPatch patch = new AnyObjectPatch();
+        patch.setKey(key);
+        return patch;
+    }
+
+    @Override
+    protected WorkflowResult<Long> update(final AnyPatch patch) {
+        return awfAdapter.update((AnyObjectPatch) patch);
     }
 
     @Override
@@ -64,27 +87,10 @@ public class AnyObjectSyncResultHandlerImpl extends AbstractSyncResultHandler im
         Map.Entry<Long, List<PropagationStatus>> created = anyObjectProvisioningManager.create(
                 anyObjectTO, Collections.singleton(profile.getTask().getResource().getKey()));
 
-        anyObjectTO = anyObjectDataBinder.getAnyObjectTO(created.getKey());
-
         result.setKey(created.getKey());
         result.setName(getName(anyTO));
 
-        return anyObjectTO;
-    }
-
-    @Override
-    protected AnyTO doLink(
-            final AnyTO before,
-            final ProvisioningResult result,
-            final boolean unlink) {
-
-        AnyObjectPatch anyObjectPatch = new AnyObjectPatch();
-        anyObjectPatch.setKey(before.getKey());
-        anyObjectPatch.getResources().add(new StringPatchItem.Builder().
-                operation(unlink ? PatchOperation.DELETE : PatchOperation.ADD_REPLACE).
-                value(profile.getTask().getResource().getKey()).build());
-
-        return anyObjectDataBinder.getAnyObjectTO(awfAdapter.update(anyObjectPatch).getResult());
+        return getAnyTO(created.getKey());
     }
 
     @Override
@@ -101,33 +107,5 @@ public class AnyObjectSyncResultHandlerImpl extends AbstractSyncResultHandler im
         AnyObjectTO after = anyObjectDataBinder.getAnyObjectTO(updated.getKey());
         result.setName(getName(after));
         return after;
-    }
-
-    @Override
-    protected void doDeprovision(final Long key, final boolean unlink) {
-        taskExecutor.execute(propagationManager.getAnyObjectDeleteTasks(
-                key, profile.getTask().getResource().getKey()));
-
-        if (unlink) {
-            AnyObjectPatch anyObjectPatch = new AnyObjectPatch();
-            anyObjectPatch.setKey(key);
-            anyObjectPatch.getResources().add(new StringPatchItem.Builder().
-                    operation(PatchOperation.DELETE).
-                    value(profile.getTask().getResource().getKey()).build());
-        }
-    }
-
-    @Override
-    protected void doDelete(final Long key) {
-        try {
-            taskExecutor.execute(propagationManager.getAnyObjectDeleteTasks(
-                    key, profile.getTask().getResource().getKey()));
-        } catch (Exception e) {
-            // A propagation failure doesn't imply a synchronization failure.
-            // The propagation exception status will be reported into the propagation task execution.
-            LOG.error("Could not propagate anyObject " + key, e);
-        }
-
-        anyObjectProvisioningManager.delete(key);
     }
 }

@@ -61,16 +61,29 @@ public class GroupUpdateProcessor implements Processor {
         GroupPatch groupPatch = exchange.getProperty("anyPatch", GroupPatch.class);
         Set<String> excludedResources = exchange.getProperty("excludedResources", Set.class);
 
-        List<PropagationTask> tasks = propagationManager.getGroupUpdateTasks(
-                updated, groupPatch.getVirAttrs(), excludedResources);
+        List<PropagationTask> tasks = propagationManager.getUpdateTasks(
+                AnyTypeKind.GROUP,
+                updated.getResult(),
+                false,
+                null,
+                updated.getPropByRes(),
+                groupPatch.getVirAttrs(),
+                excludedResources);
         if (tasks.isEmpty()) {
             // SYNCOPE-459: take care of user virtual attributes ...
-            PropagationByResource propByResVirAttr = virtAttrHandler.fillVirtual(
+            PropagationByResource propByResVirAttr = virtAttrHandler.updateVirtual(
                     updated.getResult(),
                     AnyTypeKind.GROUP,
                     groupPatch.getVirAttrs());
             tasks.addAll(!propByResVirAttr.isEmpty()
-                    ? propagationManager.getGroupUpdateTasks(updated, null, null)
+                    ? propagationManager.getUpdateTasks(
+                            AnyTypeKind.GROUP,
+                            updated.getResult(),
+                            false,
+                            null,
+                            updated.getPropByRes(),
+                            groupPatch.getVirAttrs(),
+                            excludedResources)
                     : Collections.<PropagationTask>emptyList());
         }
 

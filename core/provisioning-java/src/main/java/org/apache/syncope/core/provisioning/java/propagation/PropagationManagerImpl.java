@@ -33,6 +33,7 @@ import org.apache.syncope.common.lib.patch.AttrPatch;
 import org.apache.syncope.common.lib.patch.StringPatchItem;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
@@ -41,7 +42,6 @@ import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.VirAttr;
-import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
@@ -50,9 +50,9 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecu
 import org.apache.syncope.core.misc.ConnObjectUtils;
 import org.apache.syncope.core.misc.MappingUtils;
 import org.apache.syncope.core.misc.jexl.JexlUtils;
+import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
@@ -106,72 +106,62 @@ public class PropagationManagerImpl implements PropagationManager {
     @Autowired
     protected VirAttrHandler virAttrHandler;
 
-    @Override
-    public List<PropagationTask> getAnyObjectCreateTasks(
-            final WorkflowResult<Long> wfResult,
-            final Collection<AttrTO> vAttrs,
-            final Collection<String> noPropResourceNames) {
+    protected Any<?, ?, ?> find(final AnyTypeKind kind, final Long key) {
+        AnyDAO<? extends Any<?, ?, ?>> dao;
+        switch (kind) {
+            case ANY_OBJECT:
+                dao = anyObjectDAO;
+                break;
 
-        return getAnyObjectCreateTasks(wfResult.getResult(), vAttrs, wfResult.getPropByRes(), noPropResourceNames);
+            case GROUP:
+                dao = groupDAO;
+                break;
+
+            case USER:
+            default:
+                dao = userDAO;
+        }
+
+        return dao.authFind(key);
     }
 
     @Override
-    public List<PropagationTask> getAnyObjectCreateTasks(
+    public List<PropagationTask> getCreateTasks(
+            final AnyTypeKind kind,
             final Long key,
-            final Collection<AttrTO> vAttrs,
             final PropagationByResource propByRes,
+            final Collection<AttrTO> vAttrs,
             final Collection<String> noPropResourceNames) {
 
-        AnyObject anyObject = anyObjectDAO.authFind(key);
+        Any<?, ?, ?> any = find(kind, key);
         if (vAttrs != null && !vAttrs.isEmpty()) {
-            virAttrHandler.fillVirtual(anyObject, vAttrs);
+            virAttrHandler.createVirtual(any, vAttrs);
         }
 
-        return getCreateTaskIds(anyObject, null, null, propByRes, noPropResourceNames);
+        return getCreateTasks(any, null, null, propByRes, noPropResourceNames);
     }
 
     @Override
     public List<PropagationTask> getUserCreateTasks(
             final Long key,
+            final String password,
             final Boolean enable,
             final PropagationByResource propByRes,
-            final String password,
             final Collection<AttrTO> vAttrs,
             final Collection<String> noPropResourceNames) {
 
         User user = userDAO.authFind(key);
         if (vAttrs != null && !vAttrs.isEmpty()) {
-            virAttrHandler.fillVirtual(user, vAttrs);
-        }
-        return getCreateTaskIds(user, password, enable, propByRes, noPropResourceNames);
-    }
-
-    @Override
-    public List<PropagationTask> getGroupCreateTasks(
-            final WorkflowResult<Long> wfResult,
-            final Collection<AttrTO> vAttrs,
-            final Collection<String> noPropResourceNames) {
-
-        return getGroupCreateTasks(wfResult.getResult(), vAttrs, wfResult.getPropByRes(), noPropResourceNames);
-    }
-
-    @Override
-    public List<PropagationTask> getGroupCreateTasks(
-            final Long key,
-            final Collection<AttrTO> vAttrs,
-            final PropagationByResource propByRes,
-            final Collection<String> noPropResourceNames) {
-
-        Group group = groupDAO.authFind(key);
-        if (vAttrs != null && !vAttrs.isEmpty()) {
-            virAttrHandler.fillVirtual(group, vAttrs);
+            virAttrHandler.createVirtual(user, vAttrs);
         }
 
-        return getCreateTaskIds(group, null, null, propByRes, noPropResourceNames);
+        return getCreateTasks(user, password, enable, propByRes, noPropResourceNames);
     }
 
-    protected List<PropagationTask> getCreateTaskIds(final Any<?, ?, ?> any,
-            final String password, final Boolean enable,
+    protected List<PropagationTask> getCreateTasks(
+            final Any<?, ?, ?> any,
+            final String password,
+            final Boolean enable,
             final PropagationByResource propByRes,
             final Collection<String> noPropResourceNames) {
 
@@ -187,43 +177,33 @@ public class PropagationManagerImpl implements PropagationManager {
     }
 
     @Override
-    public List<PropagationTask> getAnyObjectUpdateTasks(
-            final WorkflowResult<Long> wfResult,
-            final Set<AttrPatch> vAttrs,
-            final Set<String> noPropResourceNames) {
+    public List<PropagationTask> getUpdateTasks(
+            final AnyTypeKind kind,
+            final Long key,
+            final boolean changePwd,
+            final Boolean enable,
+            final PropagationByResource propByRes,
+            final Collection<AttrPatch> vAttrs,
+            final Collection<String> noPropResourceNames) {
 
-        AnyObject anyObject = anyObjectDAO.authFind(wfResult.getResult());
-        return getUpdateTasks(anyObject, null, false, null,
-                vAttrs, wfResult.getPropByRes(), noPropResourceNames);
+        return getUpdateTasks(find(kind, key), null, changePwd, enable, propByRes, vAttrs, noPropResourceNames);
     }
 
     @Override
-    public List<PropagationTask> getUserUpdateTasks(final Long key, final Boolean enable,
+    public List<PropagationTask> getUserUpdateTasks(
+            final WorkflowResult<Pair<UserPatch, Boolean>> wfResult,
+            final boolean changePwd,
             final Collection<String> noPropResourceNames) {
 
         return getUpdateTasks(
-                userDAO.find(key), // user to be updated on external resources
-                null, // no password
-                false,
-                enable, // status to be propagated
-                Collections.<AttrPatch>emptySet(), // no virtual attributes to be managed
-                null, // no propagation by resources
-                noPropResourceNames);
-    }
-
-    @Override
-    public List<PropagationTask> getUserUpdateTasks(final WorkflowResult<Pair<UserPatch, Boolean>> wfResult,
-            final boolean changePwd, final Collection<String> noPropResourceNames) {
-
-        User user = userDAO.authFind(wfResult.getResult().getKey().getKey());
-        return getUpdateTasks(user,
+                userDAO.authFind(wfResult.getResult().getKey().getKey()),
                 wfResult.getResult().getKey().getPassword() == null
                         ? null
                         : wfResult.getResult().getKey().getPassword().getValue(),
                 changePwd,
                 wfResult.getResult().getValue(),
-                wfResult.getResult().getKey().getVirAttrs(),
                 wfResult.getPropByRes(),
+                wfResult.getResult().getKey().getVirAttrs(),
                 noPropResourceNames);
     }
 
@@ -274,24 +254,18 @@ public class PropagationManagerImpl implements PropagationManager {
         return tasks;
     }
 
-    @Override
-    public List<PropagationTask> getGroupUpdateTasks(final WorkflowResult<Long> wfResult,
-            final Set<AttrPatch> vAttrs, final Set<String> noPropResourceNames) {
+    protected List<PropagationTask> getUpdateTasks(
+            final Any<?, ?, ?> any,
+            final String password,
+            final boolean changePwd,
+            final Boolean enable,
+            final PropagationByResource propByRes,
+            final Collection<AttrPatch> vAttrs,
+            final Collection<String> noPropResourceNames) {
 
-        Group group = groupDAO.authFind(wfResult.getResult());
-        return getUpdateTasks(group, null, false, null,
-                vAttrs, wfResult.getPropByRes(), noPropResourceNames);
-    }
-
-    @Override
-    public List<PropagationTask> getUpdateTasks(final Any<?, ?, ?> any,
-            final String password, final boolean changePwd, final Boolean enable, final Set<AttrPatch> vAttrs,
-            final PropagationByResource propByRes, final Collection<String> noPropResourceNames) {
-
-        PropagationByResource localPropByRes = virAttrHandler.fillVirtual(
-                any, vAttrs == null
-                        ? Collections.<AttrPatch>emptySet()
-                        : vAttrs);
+        PropagationByResource localPropByRes = virAttrHandler.updateVirtual(
+                any,
+                vAttrs == null ? Collections.<AttrPatch>emptySet() : vAttrs);
 
         if (propByRes == null || propByRes.isEmpty()) {
             localPropByRes.addAll(ResourceOperation.UPDATE, any.getResourceNames());
@@ -315,81 +289,34 @@ public class PropagationManagerImpl implements PropagationManager {
     }
 
     @Override
-    public List<PropagationTask> getAnyObjectDeleteTasks(final Long anyObjectKey) {
-        return getAnyObjectDeleteTasks(anyObjectKey, Collections.<String>emptySet());
-    }
-
-    @Override
-    public List<PropagationTask> getAnyObjectDeleteTasks(final Long anyObjectKey, final String noPropResourceName) {
-        return getAnyObjectDeleteTasks(anyObjectKey, Collections.<String>singleton(noPropResourceName));
-    }
-
-    @Override
-    public List<PropagationTask> getAnyObjectDeleteTasks(
-            final Long anyObjectKey, final Collection<String> noPropResourceNames) {
-
-        AnyObject anyObject = anyObjectDAO.authFind(anyObjectKey);
-        return getDeleteTaskIds(anyObject, anyObject.getResourceNames(), noPropResourceNames);
-    }
-
-    @Override
-    public List<PropagationTask> getAnyObjectDeleteTasks(
-            final Long groupKey, final Set<String> resourceNames, final Collection<String> noPropResourceNames) {
-
-        AnyObject anyObject = anyObjectDAO.authFind(groupKey);
-        return getDeleteTaskIds(anyObject, resourceNames, noPropResourceNames);
-    }
-
-    @Override
-    public List<PropagationTask> getUserDeleteTasks(final Long userKey, final Collection<String> noPropResourceNames) {
-        User user = userDAO.authFind(userKey);
-        return getDeleteTaskIds(user, userDAO.findAllResourceNames(user), noPropResourceNames);
-    }
-
-    @Override
-    public List<PropagationTask> getUserDeleteTasks(
-            final Long userKey, final Set<String> resourceNames, final Collection<String> noPropResourceNames) {
-
-        User user = userDAO.authFind(userKey);
-        return getDeleteTaskIds(user, resourceNames, noPropResourceNames);
-    }
-
-    @Override
-    public List<PropagationTask> getGroupDeleteTasks(final Long groupKey) {
-        return getGroupDeleteTasks(groupKey, Collections.<String>emptySet());
-    }
-
-    @Override
-    public List<PropagationTask> getGroupDeleteTasks(final Long groupKey, final String noPropResourceName) {
-        return getGroupDeleteTasks(groupKey, Collections.<String>singleton(noPropResourceName));
-    }
-
-    @Override
-    public List<PropagationTask> getGroupDeleteTasks(
-            final Long groupKey, final Collection<String> noPropResourceNames) {
-
-        Group group = groupDAO.authFind(groupKey);
-        return getDeleteTaskIds(group, group.getResourceNames(), noPropResourceNames);
-    }
-
-    @Override
-    public List<PropagationTask> getGroupDeleteTasks(
-            final Long groupKey, final Set<String> resourceNames, final Collection<String> noPropResourceNames) {
-
-        Group group = groupDAO.authFind(groupKey);
-        return getDeleteTaskIds(group, resourceNames, noPropResourceNames);
-    }
-
-    protected List<PropagationTask> getDeleteTaskIds(
-            final Any<?, ?, ?> any,
-            final Collection<String> resourceNames,
+    public List<PropagationTask> getDeleteTasks(
+            final AnyTypeKind kind,
+            final Long key,
+            final PropagationByResource propByRes,
             final Collection<String> noPropResourceNames) {
 
-        PropagationByResource propByRes = new PropagationByResource();
-        propByRes.set(ResourceOperation.DELETE, resourceNames);
-        if (noPropResourceNames != null && !noPropResourceNames.isEmpty()) {
-            propByRes.get(ResourceOperation.DELETE).removeAll(noPropResourceNames);
+        Any<?, ?, ?> any = find(kind, key);
+
+        PropagationByResource localPropByRes = new PropagationByResource();
+
+        if (propByRes == null || propByRes.isEmpty()) {
+            localPropByRes.addAll(ResourceOperation.DELETE, any.getResourceNames());
+        } else {
+            localPropByRes.merge(propByRes);
         }
+
+        if (noPropResourceNames != null) {
+            localPropByRes.removeAll(noPropResourceNames);
+        }
+
+        return getDeleteTasks(any, localPropByRes, noPropResourceNames);
+    }
+
+    protected List<PropagationTask> getDeleteTasks(
+            final Any<?, ?, ?> any,
+            final PropagationByResource propByRes,
+            final Collection<String> noPropResourceNames) {
+
         return createTasks(any, null, false, null, false, true, propByRes);
     }
 

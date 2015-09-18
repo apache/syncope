@@ -52,16 +52,15 @@ public class UserCreateProcessor implements Processor {
     @Override
     public void process(final Exchange exchange) {
         if ((exchange.getIn().getBody() instanceof WorkflowResult)) {
-
             WorkflowResult<Pair<Long, Boolean>> created = (WorkflowResult) exchange.getIn().getBody();
             UserTO actual = exchange.getProperty("actual", UserTO.class);
             Set<String> excludedResources = exchange.getProperty("excludedResources", Set.class);
 
             List<PropagationTask> tasks = propagationManager.getUserCreateTasks(
                     created.getResult().getKey(),
+                    actual.getPassword(),
                     created.getResult().getValue(),
                     created.getPropByRes(),
-                    actual.getPassword(),
                     actual.getVirAttrs(),
                     excludedResources);
             PropagationReporter propagationReporter =

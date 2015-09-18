@@ -591,7 +591,7 @@ abstract class AbstractAnyDataBinder {
             scce.addException(requiredValuesMissing);
         }
 
-        virAttrHander.fillVirtual(any, anyTO.getVirAttrs());
+        virAttrHander.createVirtual(any, anyTO.getVirAttrs());
 
         // 4. realm & resources
         Realm realm = realmDAO.find(anyTO.getRealm());

@@ -18,15 +18,16 @@
  */
 package org.apache.syncope.core.provisioning.camel.processor;
 
-import java.util.HashSet;
 import java.util.List;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.PropagationByResource;
+import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
-import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationException;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
@@ -52,16 +53,18 @@ public class UserDeprovisionProcessor implements Processor {
 
     @Override
     public void process(final Exchange exchange) {
-        Long userKey = exchange.getIn().getBody(Long.class);
+        Long key = exchange.getIn().getBody(Long.class);
         @SuppressWarnings("unchecked")
         List<String> resources = exchange.getProperty("resources", List.class);
 
-        User user = userDAO.authFind(userKey);
+        PropagationByResource propByRes = new PropagationByResource();
+        propByRes.set(ResourceOperation.DELETE, resources);
 
-        List<PropagationTask> tasks = propagationManager.getUserDeleteTasks(
-                userKey,
-                new HashSet<>(resources),
-                CollectionUtils.removeAll(userDAO.findAllResourceNames(user), resources));
+        List<PropagationTask> tasks = propagationManager.getDeleteTasks(
+                AnyTypeKind.USER,
+                key,
+                propByRes,
+                CollectionUtils.removeAll(userDAO.findAllResourceNames(userDAO.authFind(key)), resources));
         PropagationReporter propagationReporter =
                 ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
         try {

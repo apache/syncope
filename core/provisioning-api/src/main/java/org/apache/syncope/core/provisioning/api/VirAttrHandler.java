@@ -19,7 +19,6 @@
 package org.apache.syncope.core.provisioning.api;
 
 import java.util.Collection;
-import java.util.Set;
 import org.apache.syncope.common.lib.patch.AttrPatch;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -31,25 +30,32 @@ import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 
 public interface VirAttrHandler {
 
-    PropagationByResource fillVirtual(Any any, Set<AttrPatch> vAttrs);
-
     /**
-     * Add virtual attributes and specify values to be propagated.
+     * Create and add virtual attributes to any.
      *
-     * @param any any.
+     * @param any any
      * @param vAttrs virtual attributes to be added.
      */
-    void fillVirtual(Any any, Collection<AttrTO> vAttrs);
+    void createVirtual(Any any, Collection<AttrTO> vAttrs);
 
     /**
-     * SYNCOPE-459: build virtual attribute changes in case no other changes were made.
+     * Update virtual attributes to any.
+     *
+     * @param any
+     * @param vAttrs virtual attributes to be updated.
+     * @return operations to be performed on external resources for virtual attributes changes
+     */
+    PropagationByResource updateVirtual(Any any, Collection<AttrPatch> vAttrs);
+
+    /**
+     * Update virtual attributes to any identified by the given {@code key}.
      *
      * @param key any key
      * @param anyTypeKind type kind
      * @param vAttrs virtual attributes to be updated.
      * @return operations to be performed on external resources for virtual attributes changes
      */
-    PropagationByResource fillVirtual(Long key, AnyTypeKind anyTypeKind, Set<AttrPatch> vAttrs);
+    PropagationByResource updateVirtual(Long key, AnyTypeKind anyTypeKind, Collection<AttrPatch> vAttrs);
 
     VirSchema getVirSchema(String virSchemaName);
 

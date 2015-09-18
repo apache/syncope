@@ -19,18 +19,16 @@
 package org.apache.syncope.core.provisioning.camel.processor;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
-import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
-import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationException;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
@@ -60,34 +58,39 @@ public class GroupDeleteProcessor implements Processor {
 
     @Override
     public void process(final Exchange exchange) throws Exception {
-        Long anyKey = exchange.getIn().getBody(Long.class);
-        Group group = groupDAO.find(anyKey);
+        Long key = exchange.getIn().getBody(Long.class);
         @SuppressWarnings("unchecked")
         Set<String> excludedResources = exchange.getProperty("excludedResources", Set.class);
 
         List<PropagationTask> tasks = new ArrayList<>();
 
-        if (group != null) {
-            // Generate propagation tasks for deleting users from group resources, if they are on those resources only
-            // because of the reason being deleted (see SYNCOPE-357)
-            for (Map.Entry<Long, PropagationByResource> entry
-                    : groupDAO.findUsersWithTransitiveResources(group.getKey()).entrySet()) {
+        // Generate propagation tasks for deleting users from group resources, if they are on those resources only
+        // because of the reason being deleted (see SYNCOPE-357)
+        for (Map.Entry<Long, PropagationByResource> entry
+                : groupDAO.findUsersWithTransitiveResources(key).entrySet()) {
 
-                WorkflowResult<Long> wfResult =
-                        new WorkflowResult<>(entry.getKey(), entry.getValue(), Collections.<String>emptySet());
-                tasks.addAll(propagationManager.getUserDeleteTasks(wfResult.getResult(), excludedResources));
-            }
-            for (Map.Entry<Long, PropagationByResource> entry
-                    : groupDAO.findAnyObjectsWithTransitiveResources(group.getKey()).entrySet()) {
-
-                WorkflowResult<Long> wfResult =
-                        new WorkflowResult<>(entry.getKey(), entry.getValue(), Collections.<String>emptySet());
-                tasks.addAll(propagationManager.getAnyObjectDeleteTasks(wfResult.getResult(), excludedResources));
-            }
-
-            // Generate propagation tasks for deleting this group from resources
-            tasks.addAll(propagationManager.getGroupDeleteTasks(group.getKey(), excludedResources));
+            tasks.addAll(propagationManager.getDeleteTasks(
+                    AnyTypeKind.USER,
+                    entry.getKey(),
+                    entry.getValue(),
+                    excludedResources));
         }
+        for (Map.Entry<Long, PropagationByResource> entry
+                : groupDAO.findAnyObjectsWithTransitiveResources(key).entrySet()) {
+
+            tasks.addAll(propagationManager.getDeleteTasks(
+                    AnyTypeKind.ANY_OBJECT,
+                    entry.getKey(),
+                    entry.getValue(),
+                    excludedResources));
+        }
+
+        // Generate propagation tasks for deleting this group from resources
+        tasks.addAll(propagationManager.getDeleteTasks(
+                AnyTypeKind.GROUP,
+                key,
+                null,
+                null));
 
         PropagationReporter propagationReporter =
                 ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);

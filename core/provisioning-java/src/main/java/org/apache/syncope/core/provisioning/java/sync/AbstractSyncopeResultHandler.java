@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java.sync;
 
+import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -33,9 +34,11 @@ import org.apache.syncope.core.provisioning.api.sync.SyncopeResultHandler;
 import org.apache.syncope.core.misc.AuditManager;
 import org.apache.syncope.core.misc.ConnObjectUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
+import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.provisioning.api.AnyObjectProvisioningManager;
+import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.data.AnyObjectDataBinder;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.provisioning.api.sync.ProvisioningActions;
@@ -133,6 +136,12 @@ public abstract class AbstractSyncopeResultHandler<T extends ProvisioningTask, A
     protected abstract AnyUtils getAnyUtils();
 
     protected abstract AnyTO getAnyTO(long key);
+
+    protected abstract Any<?, ?, ?> getAny(long key);
+
+    protected abstract AnyPatch newPatch(final long key);
+
+    protected abstract WorkflowResult<Long> update(AnyPatch patch);
 
     @Override
     public void setProfile(final ProvisioningProfile<T, A> profile) {
