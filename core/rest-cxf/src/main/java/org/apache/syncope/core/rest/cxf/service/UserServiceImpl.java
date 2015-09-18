@@ -42,6 +42,13 @@ public class UserServiceImpl extends AbstractAnyService<UserTO, UserPatch> imple
     }
 
     @Override
+    protected UserPatch newPatch(final Long key) {
+        UserPatch patch = new UserPatch();
+        patch.setKey(key);
+        return patch;
+    }
+
+    @Override
     public Response getUsername(final Long key) {
         return Response.ok().header(HttpHeaders.ALLOW, OPTIONS_ALLOW).
                 header(RESTHeaders.USERNAME, logic.getUsername(key)).
