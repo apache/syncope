@@ -24,12 +24,14 @@ import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.common.lib.mod.UserMod;
+import org.apache.cxf.jaxrs.ext.PATCH;
+import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.UserTO;
 
 /**
@@ -65,14 +67,26 @@ public interface UserSelfService extends JAXRSService {
     /**
      * Self-updates user.
      *
-     * @param userMod modification to be applied to self
+     * @param patch modification to be applied to self
      * @return <tt>Response</tt> object featuring the updated user - <tt>UserTO</tt> as <tt>Entity</tt>
      */
-    @POST
+    @PATCH
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    Response update(@NotNull UserMod userMod);
+    Response update(@NotNull UserPatch patch);
+
+    /**
+     * Self-updates user.
+     *
+     * @param user complete update
+     * @return <tt>Response</tt> object featuring the updated user - <tt>UserTO</tt> as <tt>Entity</tt>
+     */
+    @PUT
+    @Path("{key}")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    Response update(@NotNull UserTO user);
 
     /**
      * Self-deletes user.

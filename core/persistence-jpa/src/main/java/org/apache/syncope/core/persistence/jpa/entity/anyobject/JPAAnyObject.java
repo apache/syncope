@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.jpa.entity.anyobject;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
@@ -199,8 +200,21 @@ public class JPAAnyObject extends AbstractAny<APlainAttr, ADerAttr, AVirAttr> im
     }
 
     @Override
-    public ARelationship getRelationship(final RelationshipType relationshipType) {
+    public ARelationship getRelationship(final RelationshipType relationshipType, final Long anyObjectKey) {
         return CollectionUtils.find(getRelationships(), new Predicate<ARelationship>() {
+
+            @Override
+            public boolean evaluate(final ARelationship relationship) {
+                return anyObjectKey != null && anyObjectKey.equals(relationship.getRightEnd().getKey())
+                        && ((relationshipType == null && relationship.getType() == null)
+                        || (relationshipType != null && relationshipType.equals(relationship.getType())));
+            }
+        });
+    }
+
+    @Override
+    public Collection<? extends ARelationship> getRelationships(final RelationshipType relationshipType) {
+        return CollectionUtils.select(getRelationships(), new Predicate<ARelationship>() {
 
             @Override
             public boolean evaluate(final ARelationship relationship) {
@@ -210,8 +224,8 @@ public class JPAAnyObject extends AbstractAny<APlainAttr, ADerAttr, AVirAttr> im
     }
 
     @Override
-    public ARelationship getRelationship(final Long anyObjectKey) {
-        return CollectionUtils.find(getRelationships(), new Predicate<ARelationship>() {
+    public Collection<? extends ARelationship> getRelationships(final Long anyObjectKey) {
+        return CollectionUtils.select(getRelationships(), new Predicate<ARelationship>() {
 
             @Override
             public boolean evaluate(final ARelationship relationship) {

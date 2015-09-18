@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.api.entity.user;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
@@ -137,9 +138,11 @@ public interface User extends Any<UPlainAttr, UDerAttr, UVirAttr> {
 
     boolean remove(URelationship relationship);
 
-    URelationship getRelationship(Long anyObjectKey);
+    URelationship getRelationship(RelationshipType relationshipType, Long anyObjectKey);
 
-    URelationship getRelationship(RelationshipType relationshipType);
+    Collection<? extends URelationship> getRelationships(Long anyObjectKey);
+
+    Collection<? extends URelationship> getRelationships(RelationshipType relationshipType);
 
     List<? extends URelationship> getRelationships();
 

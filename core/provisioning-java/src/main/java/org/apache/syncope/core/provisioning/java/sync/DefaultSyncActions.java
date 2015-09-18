@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java.sync;
 
-import org.apache.syncope.common.lib.mod.AnyMod;
+import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.core.provisioning.api.sync.SyncActions;
 import org.apache.syncope.core.provisioning.api.sync.ProvisioningProfile;
@@ -36,11 +36,11 @@ public abstract class DefaultSyncActions implements SyncActions {
     }
 
     @Override
-    public <A extends AnyTO, M extends AnyMod> SyncDelta beforeUpdate(
+    public <A extends AnyTO, P extends AnyPatch> SyncDelta beforeUpdate(
             final ProvisioningProfile<?, ?> profile,
             final SyncDelta delta,
             final A any,
-            final M anyMod) throws JobExecutionException {
+            final P anyMod) throws JobExecutionException {
 
         return delta;
     }

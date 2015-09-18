@@ -24,7 +24,7 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ResourceTO;
-import org.apache.syncope.common.lib.types.ResourceDeassociationActionType;
+import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 import org.apache.syncope.common.lib.wrap.AnyKey;
 import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.springframework.stereotype.Component;
@@ -82,7 +82,7 @@ public class ResourceRestClient extends BaseRestClient {
 
     public BulkActionResult bulkAssociationAction(
             final String resourceName, final String anyTypeName,
-            final ResourceDeassociationActionType type, final List<AnyKey> anyKeys) {
+            final ResourceDeassociationAction type, final List<AnyKey> anyKeys) {
 
         return getService(ResourceService.class).bulkDeassociation(resourceName, anyTypeName, type, anyKeys);
     }

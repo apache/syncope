@@ -20,7 +20,7 @@ package org.apache.syncope.client.console.rest;
 
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.mod.UserMod;
+import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.springframework.stereotype.Component;
@@ -51,8 +51,8 @@ public class UserSelfRestClient extends BaseRestClient {
         getService(UserSelfService.class).create(userTO, storePassword);
     }
 
-    public void update(final UserMod userMod) {
-        getService(UserSelfService.class).update(userMod);
+    public void update(final UserPatch userPatch) {
+        getService(UserSelfService.class).update(userPatch);
     }
 
     public void delete() {

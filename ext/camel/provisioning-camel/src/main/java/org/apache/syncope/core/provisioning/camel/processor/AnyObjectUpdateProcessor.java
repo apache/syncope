@@ -24,7 +24,7 @@ import java.util.Set;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.syncope.common.lib.mod.AnyObjectMod;
+import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
@@ -58,20 +58,19 @@ public class AnyObjectUpdateProcessor implements Processor {
     @Override
     public void process(final Exchange exchange) {
         WorkflowResult<Long> updated = (WorkflowResult) exchange.getIn().getBody();
-        AnyObjectMod anyObjectMod = exchange.getProperty("anyMod", AnyObjectMod.class);
+        AnyObjectPatch anyObjectPatch = exchange.getProperty("anyPatch", AnyObjectPatch.class);
         Set<String> excludedResources = exchange.getProperty("excludedResources", Set.class);
 
-        List<PropagationTask> tasks = propagationManager.getAnyObjectUpdateTasks(updated,
-                anyObjectMod.getVirAttrsToRemove(), anyObjectMod.getVirAttrsToUpdate(), excludedResources);
+        List<PropagationTask> tasks = propagationManager.getAnyObjectUpdateTasks(
+                updated, anyObjectPatch.getVirAttrs(), excludedResources);
         if (tasks.isEmpty()) {
             // SYNCOPE-459: take care of user virtual attributes ...
             PropagationByResource propByResVirAttr = virtAttrHandler.fillVirtual(
                     updated.getResult(),
-                    AnyTypeKind.GROUP,
-                    anyObjectMod.getVirAttrsToRemove(),
-                    anyObjectMod.getVirAttrsToUpdate());
+                    AnyTypeKind.ANY_OBJECT,
+                    anyObjectPatch.getVirAttrs());
             tasks.addAll(!propByResVirAttr.isEmpty()
-                    ? propagationManager.getAnyObjectUpdateTasks(updated, null, null, null)
+                    ? propagationManager.getAnyObjectUpdateTasks(updated, null, null)
                     : Collections.<PropagationTask>emptyList());
         }
 

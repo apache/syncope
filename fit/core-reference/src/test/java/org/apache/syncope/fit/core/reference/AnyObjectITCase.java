@@ -27,7 +27,7 @@ import javax.ws.rs.core.Response;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.mod.AnyObjectMod;
+import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.PagedResult;
@@ -113,12 +113,12 @@ public class AnyObjectITCase extends AbstractITCase {
 
         assertEquals(1, anyObjectTO.getPlainAttrs().size());
 
-        AnyObjectMod anyObjectMod = new AnyObjectMod();
-        anyObjectMod.setKey(anyObjectTO.getKey());
+        AnyObjectPatch anyObjectPatch = new AnyObjectPatch();
+        anyObjectPatch.setKey(anyObjectTO.getKey());
         String newLocation = "new" + getUUIDString();
-        anyObjectMod.getPlainAttrsToUpdate().add(attrMod("location", newLocation));
+        anyObjectPatch.getPlainAttrs().add(attrAddReplacePatch("location", newLocation));
 
-        anyObjectTO = updateAnyObject(anyObjectMod);
+        anyObjectTO = updateAnyObject(anyObjectPatch);
 
         assertEquals(newLocation, anyObjectTO.getPlainAttrMap().get("location").getValues().get(0));
     }

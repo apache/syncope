@@ -28,7 +28,7 @@ import org.apache.syncope.client.console.commons.ConnIdSpecialAttributeName;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.ImagePanel;
 import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
-import org.apache.syncope.common.lib.mod.StatusMod;
+import org.apache.syncope.common.lib.patch.StatusPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
@@ -139,28 +139,28 @@ public class StatusUtils implements Serializable {
                 : null;
     }
 
-    public static StatusMod buildStatusMod(final Collection<StatusBean> statuses) {
-        return buildStatusMod(statuses, null);
+    public static StatusPatch buildStatusPatch(final Collection<StatusBean> statuses) {
+        return buildStatusPatch(statuses, null);
     }
 
-    public static StatusMod buildStatusMod(final Collection<StatusBean> statuses, final Boolean enable) {
-        StatusMod statusMod = new StatusMod();
-        statusMod.setOnSyncope(false);
+    public static StatusPatch buildStatusPatch(final Collection<StatusBean> statuses, final Boolean enable) {
+        StatusPatch statusPatch = new StatusPatch();
+        statusPatch.setOnSyncope(false);
 
         for (StatusBean status : statuses) {
             if (enable == null
                     || (enable && !status.getStatus().isActive()) || (!enable && status.getStatus().isActive())) {
 
                 if ("syncope".equalsIgnoreCase(status.getResourceName())) {
-                    statusMod.setOnSyncope(true);
+                    statusPatch.setOnSyncope(true);
                 } else {
-                    statusMod.getResources().add(status.getResourceName());
+                    statusPatch.getResources().add(status.getResourceName());
                 }
 
             }
         }
 
-        return statusMod;
+        return statusPatch;
     }
 
     public ConnObjectTO getConnObjectTO(

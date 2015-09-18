@@ -27,7 +27,7 @@ import java.util.Set;
 import org.apache.camel.Exchange;
 import org.apache.camel.PollingConsumer;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.mod.AnyObjectMod;
+import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.core.provisioning.api.AnyObjectProvisioningManager;
@@ -62,21 +62,21 @@ public class CamelAnyObjectProvisioningManager
     }
 
     @Override
-    public Pair<Long, List<PropagationStatus>> update(final AnyObjectMod anyMod) {
-        return update(anyMod, Collections.<String>emptySet());
+    public Pair<Long, List<PropagationStatus>> update(final AnyObjectPatch anyPatch) {
+        return update(anyPatch, Collections.<String>emptySet());
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public Pair<Long, List<PropagationStatus>> update(
-            final AnyObjectMod anyMod, final Set<String> excludedResources) {
+            final AnyObjectPatch anyPatch, final Set<String> excludedResources) {
 
         PollingConsumer pollingConsumer = getConsumer("direct:updateAnyObjectPort");
 
         Map<String, Object> props = new HashMap<>();
         props.put("excludedResources", excludedResources);
 
-        sendMessage("direct:updateAnyObject", anyMod, props);
+        sendMessage("direct:updateAnyObject", anyPatch, props);
 
         Exchange exchange = pollingConsumer.receive();
 
@@ -112,10 +112,10 @@ public class CamelAnyObjectProvisioningManager
     }
 
     @Override
-    public Long unlink(final AnyObjectMod anyObjectMod) {
+    public Long unlink(final AnyObjectPatch anyObjectPatch) {
         PollingConsumer pollingConsumer = getConsumer("direct:unlinkAnyObjectPort");
 
-        sendMessage("direct:unlinkAnyObject", anyObjectMod);
+        sendMessage("direct:unlinkAnyObject", anyObjectPatch);
 
         Exchange exchange = pollingConsumer.receive();
 
@@ -127,10 +127,10 @@ public class CamelAnyObjectProvisioningManager
     }
 
     @Override
-    public Long link(final AnyObjectMod anyObjectMod) {
+    public Long link(final AnyObjectPatch anyObjectPatch) {
         PollingConsumer pollingConsumer = getConsumer("direct:linkAnyObjectPort");
 
-        sendMessage("direct:linkAnyObject", anyObjectMod);
+        sendMessage("direct:linkAnyObject", anyObjectPatch);
 
         Exchange exchange = pollingConsumer.receive();
 

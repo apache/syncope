@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.workflow.java;
 
-import org.apache.syncope.common.lib.mod.AnyObjectMod;
+import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
@@ -46,11 +46,11 @@ public abstract class AbstractAnyObjectWorkflowAdapter implements AnyObjectWorkf
         return null;
     }
 
-    protected abstract WorkflowResult<Long> doUpdate(AnyObject anyObject, AnyObjectMod anyObjectMod);
+    protected abstract WorkflowResult<Long> doUpdate(AnyObject anyObject, AnyObjectPatch anyObjectPatch);
 
     @Override
-    public WorkflowResult<Long> update(final AnyObjectMod anyObjectMod) {
-        return doUpdate(anyObjectDAO.authFind(anyObjectMod.getKey()), anyObjectMod);
+    public WorkflowResult<Long> update(final AnyObjectPatch anyObjectPatch) {
+        return doUpdate(anyObjectDAO.authFind(anyObjectPatch.getKey()), anyObjectPatch);
     }
 
     protected abstract void doDelete(AnyObject anyObject);

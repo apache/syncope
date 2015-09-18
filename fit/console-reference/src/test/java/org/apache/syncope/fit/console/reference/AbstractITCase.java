@@ -31,9 +31,6 @@ import org.slf4j.LoggerFactory;
 
 public abstract class AbstractITCase {
 
-    /**
-     * Logger.
-     */
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractITCase.class);
 
     public static final String ADMIN = "admin";

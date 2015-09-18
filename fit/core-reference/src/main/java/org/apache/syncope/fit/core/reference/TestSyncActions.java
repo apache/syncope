@@ -19,11 +19,12 @@
 package org.apache.syncope.fit.core.reference;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.syncope.common.lib.mod.AnyMod;
-import org.apache.syncope.common.lib.mod.AttrMod;
+import org.apache.syncope.common.lib.patch.AnyPatch;
+import org.apache.syncope.common.lib.patch.AttrPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.core.provisioning.api.sync.IgnoreProvisionException;
 import org.apache.syncope.core.provisioning.api.sync.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.java.sync.DefaultSyncActions;
@@ -73,28 +74,27 @@ public class TestSyncActions extends DefaultSyncActions {
     }
 
     @Override
-    public <A extends AnyTO, M extends AnyMod> SyncDelta beforeUpdate(
+    public <A extends AnyTO, M extends AnyPatch> SyncDelta beforeUpdate(
             final ProvisioningProfile<?, ?> profile,
             final SyncDelta delta,
             final A any,
-            final M anyMod) throws JobExecutionException {
+            final M anyPatch) throws JobExecutionException {
 
-        anyMod.getPlainAttrsToRemove().add("fullname");
-
-        AttrMod fullnameMod = null;
-        for (AttrMod attrMod : anyMod.getPlainAttrsToUpdate()) {
-            if ("fullname".equals(attrMod.getSchema())) {
-                fullnameMod = attrMod;
+        AttrPatch fullnamePatch = null;
+        for (AttrPatch attrPatch : anyPatch.getPlainAttrs()) {
+            if ("fullname".equals(attrPatch.getAttrTO().getSchema())) {
+                fullnamePatch = attrPatch;
             }
         }
-        if (fullnameMod == null) {
-            fullnameMod = new AttrMod();
-            fullnameMod.setSchema("fullname");
-            anyMod.getPlainAttrsToUpdate().add(fullnameMod);
+        if (fullnamePatch == null) {
+            fullnamePatch = new AttrPatch.Builder().
+                    operation(PatchOperation.ADD_REPLACE).
+                    attrTO(new AttrTO.Builder().schema("fullname").build()).
+                    build();
         }
 
-        fullnameMod.getValuesToBeAdded().clear();
-        fullnameMod.getValuesToBeAdded().add(String.valueOf(counter++));
+        fullnamePatch.getAttrTO().getValues().clear();
+        fullnamePatch.getAttrTO().getValues().add(String.valueOf(counter++));
 
         return delta;
     }

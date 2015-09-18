@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.apache.syncope.common.lib.mod.AnyMod;
+import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
@@ -58,7 +58,7 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
 
     protected abstract AnyTO doLink(AnyTO before, ProvisioningResult result, boolean unlink);
 
-    protected abstract AnyTO doUpdate(AnyTO before, AnyMod anyMod, SyncDelta delta, ProvisioningResult result);
+    protected abstract AnyTO doUpdate(AnyTO before, AnyPatch anyPatch, SyncDelta delta, ProvisioningResult result);
 
     protected abstract void doDeprovision(Long key, boolean unlink);
 
@@ -242,7 +242,7 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
                     output = null;
                 } else {
                     try {
-                        AnyMod anyMod = connObjectUtils.getAnyMod(
+                        AnyPatch anyPatch = connObjectUtils.getAnyPatch(
                                 before.getKey(),
                                 workingDelta.getObject(),
                                 before,
@@ -251,10 +251,10 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
                                 getAnyUtils());
 
                         for (SyncActions action : profile.getActions()) {
-                            workingDelta = action.beforeUpdate(this.getProfile(), workingDelta, before, anyMod);
+                            workingDelta = action.beforeUpdate(this.getProfile(), workingDelta, before, anyPatch);
                         }
 
-                        AnyTO updated = doUpdate(before, anyMod, workingDelta, result);
+                        AnyTO updated = doUpdate(before, anyPatch, workingDelta, result);
 
                         for (SyncActions action : profile.getActions()) {
                             action.after(this.getProfile(), workingDelta, updated, result);

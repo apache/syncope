@@ -19,7 +19,8 @@
 package org.apache.syncope.core.workflow.activiti.task;
 
 import org.apache.commons.lang3.SerializationUtils;
-import org.apache.syncope.common.lib.mod.UserMod;
+import org.apache.syncope.common.lib.patch.PasswordPatch;
+import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
@@ -37,23 +38,29 @@ public class Update extends AbstractActivitiServiceTask {
     protected void doExecute(final String executionId) {
         User user = engine.getRuntimeService().
                 getVariable(executionId, ActivitiUserWorkflowAdapter.USER, User.class);
-        UserMod userMod =
-                engine.getRuntimeService().
-                getVariable(executionId, ActivitiUserWorkflowAdapter.USER_MOD, UserMod.class);
+        UserPatch userPatch = engine.getRuntimeService().
+                getVariable(executionId, ActivitiUserWorkflowAdapter.USER_PATCH, UserPatch.class);
 
         // update password internally only if required
-        UserMod updatedMod = SerializationUtils.clone(userMod);
-        String updatedPwd = updatedMod.getPassword();
-        if (updatedMod.getPwdPropRequest() != null && !updatedMod.getPwdPropRequest().isOnSyncope()) {
-            updatedMod.setPassword(null);
+        UserPatch updatedPatch = SerializationUtils.clone(userPatch);
+        PasswordPatch updatedPwd = updatedPatch.getPassword();
+        if (updatedPatch.getPassword() != null && !updatedPatch.getPassword().isOnSyncope()) {
+            updatedPatch.setPassword(null);
         }
         // update user
-        PropagationByResource propByRes = dataBinder.update(user, updatedMod);
-        updatedMod.setPassword(updatedPwd);
+        PropagationByResource propByRes = dataBinder.update(user, updatedPatch);
+        if (updatedPatch.getPassword() != null && !updatedPatch.getPassword().getResources().isEmpty()) {
+            if (updatedPwd == null) {
+                updatedPwd = updatedPatch.getPassword();
+            } else {
+                updatedPwd.getResources().addAll(updatedPatch.getPassword().getResources());
+            }
+        }
+        updatedPatch.setPassword(updatedPwd);
 
         // report updated user and propagation by resource as result
         engine.getRuntimeService().setVariable(executionId, ActivitiUserWorkflowAdapter.USER, user);
-        engine.getRuntimeService().setVariable(executionId, ActivitiUserWorkflowAdapter.USER_MOD, updatedMod);
+        engine.getRuntimeService().setVariable(executionId, ActivitiUserWorkflowAdapter.USER_PATCH, updatedPatch);
         engine.getRuntimeService().setVariable(executionId, ActivitiUserWorkflowAdapter.PROP_BY_RESOURCE, propByRes);
     }
 }

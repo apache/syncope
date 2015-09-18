@@ -383,9 +383,7 @@ public class NotificationTaskITCase extends AbstractTaskITCase {
 
         // 2. create user
         UserTO userTO = UserITCase.getUniqueSampleTO(MAIL_ADDRESS);
-        MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setRightKey(7);
-        userTO.getMemberships().add(membershipTO);
+        userTO.getMemberships().add(new MembershipTO.Builder().group(7L).build());
 
         userTO = createUser(userTO);
         assertNotNull(userTO);

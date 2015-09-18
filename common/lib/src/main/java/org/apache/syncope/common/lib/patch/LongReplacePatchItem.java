@@ -16,39 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.mod;
+package org.apache.syncope.common.lib.patch;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.lib.AbstractBaseBean;
 
-/**
- * This class is used to specify the willing to modify an external reference id. Use 'null' ReferenceMod to keep the
- * current reference id; use a ReferenceMod with a null id to try to reset the reference id; use a ReferenceMod with a
- * not null id to specify a new reference id.
- */
-@XmlRootElement(name = "referenceMod")
+@XmlRootElement(name = "longReplacePatchItem")
 @XmlType
-public class ReferenceMod extends AbstractBaseBean {
+public class LongReplacePatchItem extends AbstractReplacePatchItem<Long> {
 
-    private static final long serialVersionUID = -4188817853738067677L;
+    private static final long serialVersionUID = -2468696387745469136L;
 
-    private Long key = null;
+    public static class Builder extends AbstractReplacePatchItem.Builder<Long, LongReplacePatchItem, Builder> {
 
-    public ReferenceMod() {
-        this(null);
-    }
-
-    public ReferenceMod(final Long key) {
-        super();
-        this.key = key;
-    }
-
-    public Long getKey() {
-        return key;
-    }
-
-    public void setKey(final Long key) {
-        this.key = key;
+        @Override
+        protected LongReplacePatchItem newInstance() {
+            return new LongReplacePatchItem();
+        }
     }
 }

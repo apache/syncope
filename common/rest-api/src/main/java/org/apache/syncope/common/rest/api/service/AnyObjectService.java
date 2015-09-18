@@ -24,7 +24,7 @@ import javax.ws.rs.MatrixParam;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import org.apache.syncope.common.lib.mod.AnyObjectMod;
+import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.rest.api.beans.AnyListQuery;
@@ -33,7 +33,7 @@ import org.apache.syncope.common.rest.api.beans.AnyListQuery;
  * REST operations for anyObjects.
  */
 @Path("anyObjects")
-public interface AnyObjectService extends AnyService<AnyObjectTO, AnyObjectMod> {
+public interface AnyObjectService extends AnyService<AnyObjectTO, AnyObjectPatch> {
 
     /**
      * Returns a paged list of existing any objects matching the given query, for the given type.

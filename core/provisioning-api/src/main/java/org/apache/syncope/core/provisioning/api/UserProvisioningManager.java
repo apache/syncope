@@ -22,19 +22,19 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.mod.StatusMod;
-import org.apache.syncope.common.lib.mod.UserMod;
+import org.apache.syncope.common.lib.patch.StatusPatch;
+import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.core.provisioning.api.sync.ProvisioningResult;
 
-public interface UserProvisioningManager extends ProvisioningManager<UserTO, UserMod> {
+public interface UserProvisioningManager extends ProvisioningManager<UserTO, UserPatch> {
 
-    Pair<Long, List<PropagationStatus>> activate(StatusMod statusMod);
+    Pair<Long, List<PropagationStatus>> activate(StatusPatch statusPatch);
 
-    Pair<Long, List<PropagationStatus>> reactivate(StatusMod statusMod);
+    Pair<Long, List<PropagationStatus>> reactivate(StatusPatch statusPatch);
 
-    Pair<Long, List<PropagationStatus>> suspend(StatusMod statusMod);
+    Pair<Long, List<PropagationStatus>> suspend(StatusPatch statusPatch);
 
     void internalSuspend(Long key);
 
@@ -43,7 +43,7 @@ public interface UserProvisioningManager extends ProvisioningManager<UserTO, Use
     Pair<Long, List<PropagationStatus>> create(UserTO userTO, boolean storePassword,
             boolean disablePwdPolicyCheck, Boolean enabled, Set<String> excludedResources);
 
-    Pair<Long, List<PropagationStatus>> update(UserMod userMod, Long key,
+    Pair<Long, List<PropagationStatus>> update(UserPatch userPatch, Long key,
             ProvisioningResult result, Boolean enabled, Set<String> excludedResources);
 
     void requestPasswordReset(Long key);

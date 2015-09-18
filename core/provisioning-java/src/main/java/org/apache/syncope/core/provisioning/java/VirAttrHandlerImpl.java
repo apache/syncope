@@ -30,7 +30,7 @@ import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.lib.mod.AttrMod;
+import org.apache.syncope.common.lib.patch.AttrPatch;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IntMappingType;
@@ -144,74 +144,67 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
-    public PropagationByResource fillVirtual(final Any any,
-            final Set<String> vAttrsToBeRemoved, final Set<AttrMod> vAttrsToBeUpdated) {
-
+    public PropagationByResource fillVirtual(final Any any, final Set<AttrPatch> vAttrs) {
         AnyUtils anyUtils = anyUtilsFactory.getInstance(any);
 
         PropagationByResource propByRes = new PropagationByResource();
 
         Iterable<? extends ExternalResource> externalResources = getAllResources(any);
 
-        // 1. virtual attributes to be removed
-        for (String vAttrToBeRemoved : vAttrsToBeRemoved) {
-            VirSchema virSchema = getVirSchema(vAttrToBeRemoved);
+        for (AttrPatch patch : vAttrs) {
+            VirSchema virSchema = getVirSchema(patch.getAttrTO().getSchema());
             if (virSchema != null) {
                 VirAttr virAttr = any.getVirAttr(virSchema.getKey());
-                if (virAttr == null) {
-                    LOG.debug("No virtual attribute found for schema {}", virSchema.getKey());
-                } else {
-                    any.remove(virAttr);
-                    virAttrDAO.delete(virAttr);
-                }
+                switch (patch.getOperation()) {
+                    case ADD_REPLACE:
+                        if (virAttr == null) {
+                            virAttr = anyUtils.newVirAttr();
+                            virAttr.setOwner(any);
+                            virAttr.setSchema(virSchema);
 
-                for (ExternalResource resource : externalResources) {
-                    for (MappingItem mapItem : MappingUtils.getMappingItems(
-                            resource.getProvision(any.getType()), MappingPurpose.PROPAGATION)) {
+                            any.add(virAttr);
+                        }
 
-                        if (virSchema.getKey().equals(mapItem.getIntAttrName())
-                                && mapItem.getIntMappingType() == anyUtils.virIntMappingType()) {
+                        updateOnResourcesIfMappingMatches(
+                                any, virSchema.getKey(), externalResources, anyUtils.virIntMappingType(), propByRes);
 
-                            propByRes.add(ResourceOperation.UPDATE, resource.getKey());
+                        if (!virAttr.getValues().equals(patch.getAttrTO().getValues())) {
+                            virAttr.getValues().clear();
+                            virAttr.getValues().addAll(patch.getAttrTO().getValues());
+                        }
+                        break;
 
-                            // Using virtual attribute as ConnObjectKey must be avoided
-                            if (mapItem.isConnObjectKey() && virAttr != null && !virAttr.getValues().isEmpty()) {
-                                propByRes.addOldConnObjectKey(resource.getKey(), virAttr.getValues().get(0).toString());
+                    case DELETE:
+                    default:
+                        if (virAttr == null) {
+                            LOG.debug("No virtual attribute found for schema {}", virSchema.getKey());
+                        } else {
+                            any.remove(virAttr);
+                            virAttrDAO.delete(virAttr);
+                        }
+
+                        for (ExternalResource resource : externalResources) {
+                            for (MappingItem mapItem : MappingUtils.getMappingItems(
+                                    resource.getProvision(any.getType()), MappingPurpose.PROPAGATION)) {
+
+                                if (virSchema.getKey().equals(mapItem.getIntAttrName())
+                                        && mapItem.getIntMappingType() == anyUtils.virIntMappingType()) {
+
+                                    propByRes.add(ResourceOperation.UPDATE, resource.getKey());
+
+                                    // Using virtual attribute as ConnObjectKey must be avoided
+                                    if (mapItem.isConnObjectKey()
+                                            && virAttr != null && !virAttr.getValues().isEmpty()) {
+
+                                        propByRes.addOldConnObjectKey(
+                                                resource.getKey(), virAttr.getValues().get(0).toString());
+                                    }
+                                }
                             }
                         }
-                    }
                 }
             }
         }
-
-        LOG.debug("Virtual attributes to be removed:\n{}", propByRes);
-
-        // 2. virtual attributes to be updated
-        for (AttrMod vAttrToBeUpdated : vAttrsToBeUpdated) {
-            VirSchema virSchema = getVirSchema(vAttrToBeUpdated.getSchema());
-            if (virSchema != null) {
-                VirAttr virAttr = any.getVirAttr(virSchema.getKey());
-                if (virAttr == null) {
-                    virAttr = anyUtils.newVirAttr();
-                    virAttr.setOwner(any);
-                    virAttr.setSchema(virSchema);
-
-                    any.add(virAttr);
-                }
-
-                updateOnResourcesIfMappingMatches(
-                        any, virSchema.getKey(), externalResources, anyUtils.derIntMappingType(), propByRes);
-
-                List<String> values = new ArrayList<>(virAttr.getValues());
-                values.removeAll(vAttrToBeUpdated.getValuesToBeRemoved());
-                values.addAll(vAttrToBeUpdated.getValuesToBeAdded());
-
-                virAttr.getValues().clear();
-                virAttr.getValues().addAll(values);
-            }
-        }
-
-        LOG.debug("Virtual attributes to be added:\n{}", propByRes);
 
         return propByRes;
     }
@@ -267,13 +260,9 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
     @Transactional
     @Override
     public PropagationByResource fillVirtual(
-            final Long key, final AnyTypeKind anyTypeKind,
-            final Set<String> vAttrsToBeRemoved, final Set<AttrMod> vAttrsToBeUpdated) {
+            final Long key, final AnyTypeKind anyTypeKind, final Set<AttrPatch> vAttrs) {
 
-        return fillVirtual(
-                find(key, anyTypeKind),
-                vAttrsToBeRemoved,
-                vAttrsToBeUpdated);
+        return fillVirtual(find(key, anyTypeKind), vAttrs);
     }
 
     @Override
@@ -319,8 +308,6 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
             LOG.debug("Need one or more remote connections");
 
             VirAttrCacheValue toBeCached = new VirAttrCacheValue();
-
-            AnyUtils anyUtils = anyUtilsFactory.getInstance(any);
 
             for (ExternalResource resource : getTargetResources(virAttr, type, any.getType())) {
                 Provision provision = resource.getProvision(any.getType());

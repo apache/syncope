@@ -30,6 +30,7 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.cxf.transport.http.URLConnectionHTTPConduit;
 import org.apache.syncope.client.lib.builders.ListQueryBuilder;
 import org.apache.syncope.client.lib.builders.AnyListQueryBuilder;
 import org.apache.syncope.client.lib.builders.AnySearchQueryBuilder;
@@ -157,18 +158,21 @@ public class SyncopeClient {
      */
     public <T> T getService(final Class<T> serviceClass) {
         synchronized (restClientFactory) {
-            return restClientFactory.createServiceInstance(serviceClass, mediaType, username, password);
+            T service = restClientFactory.createServiceInstance(serviceClass, mediaType, username, password);
+            WebClient.getConfig(WebClient.client(service)).getRequestContext().
+                    put(URLConnectionHTTPConduit.HTTPURL_CONNECTION_METHOD_REFLECTION, true);
+            return service;
         }
     }
 
     @SuppressWarnings("unchecked")
     public Pair<Map<String, Set<String>>, UserTO> self() {
         // Explicitly disable header value split because it interferes with JSON deserialization below
-        UserSelfService serviceInstance = getService(UserSelfService.class);
-        WebClient.getConfig(WebClient.client(serviceInstance)).
+        UserSelfService service = getService(UserSelfService.class);
+        WebClient.getConfig(WebClient.client(service)).
                 getRequestContext().put(RestClientFactoryBean.HEADER_SPLIT_PROPERTY, false);
 
-        Response response = serviceInstance.read();
+        Response response = service.read();
         if (response.getStatusInfo().getStatusCode() != Response.Status.OK.getStatusCode()) {
             Exception ex = exceptionMapper.fromResponse(response);
             if (ex != null) {

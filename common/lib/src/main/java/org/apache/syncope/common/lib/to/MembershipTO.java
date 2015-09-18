@@ -28,15 +28,41 @@ public class MembershipTO extends RelationshipTO {
 
     private static final long serialVersionUID = 5992828670273935861L;
 
+    public static class Builder {
+
+        private final MembershipTO instance = new MembershipTO();
+
+        public Builder left(final String leftType, final long leftKey) {
+            instance.setLeftType(leftType);
+            instance.setLeftKey(leftKey);
+            return this;
+        }
+
+        public Builder group(final long groupKey) {
+            instance.setRightKey(groupKey);
+            return this;
+        }
+
+        public Builder group(final long groupKey, final String groupName) {
+            instance.setRightKey(groupKey);
+            instance.setGroupName(groupName);
+            return this;
+        }
+
+        public MembershipTO build() {
+            return instance;
+        }
+    }
+
     private String groupName;
 
     @Override
-    public String getRelationshipType() {
+    public String getType() {
         return "Membership";
     }
 
     @Override
-    public void setRelationshipType(final String relationshipType) {
+    public void setType(final String relationshipType) {
         // ignore
     }
 

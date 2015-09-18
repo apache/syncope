@@ -20,7 +20,7 @@ package org.apache.syncope.core.workflow.java;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.mod.UserMod;
+import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -71,11 +71,11 @@ public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter
         return doActivate(userDAO.authFind(key), token);
     }
 
-    protected abstract WorkflowResult<Pair<UserMod, Boolean>> doUpdate(User user, UserMod userMod);
+    protected abstract WorkflowResult<Pair<UserPatch, Boolean>> doUpdate(User user, UserPatch userPatch);
 
     @Override
-    public WorkflowResult<Pair<UserMod, Boolean>> update(final UserMod userMod) {
-        return doUpdate(userDAO.authFind(userMod.getKey()), userMod);
+    public WorkflowResult<Pair<UserPatch, Boolean>> update(final UserPatch userPatch) {
+        return doUpdate(userDAO.authFind(userPatch.getKey()), userPatch);
     }
 
     protected abstract WorkflowResult<Long> doSuspend(User user);

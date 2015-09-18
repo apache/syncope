@@ -16,54 +16,52 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.mod;
+package org.apache.syncope.common.lib.patch;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.List;
+import javax.ws.rs.PathParam;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.lib.AbstractBaseBean;
+import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 
-@XmlRootElement
+@XmlRootElement(name = "deassociationPatch")
 @XmlType
-public class AttrMod extends AbstractBaseBean {
+public class DeassociationPatch extends AbstractBaseBean {
 
-    private static final long serialVersionUID = -913573979137431406L;
+    private static final long serialVersionUID = 6295778399633883767L;
 
-    private String schema;
+    private long key;
 
-    private final List<String> valuesToBeAdded = new ArrayList<>();
+    private ResourceDeassociationAction action;
 
-    private final List<String> valuesToBeRemoved = new ArrayList<>();
+    private final List<String> resources = new ArrayList<>();
 
-    public String getSchema() {
-        return schema;
+    public long getKey() {
+        return key;
     }
 
-    public void setSchema(final String schema) {
-        this.schema = schema;
+    @PathParam("key")
+    public void setKey(final long key) {
+        this.key = key;
     }
 
-    @XmlElementWrapper(name = "valuesToBeAdded")
-    @XmlElement(name = "value")
-    @JsonProperty("valuesToBeAdded")
-    public List<String> getValuesToBeAdded() {
-        return valuesToBeAdded;
+    public ResourceDeassociationAction getAction() {
+        return action;
     }
 
-    @XmlElementWrapper(name = "valuesToBeRemoved")
-    @XmlElement(name = "value")
-    @JsonProperty("valuesToBeRemoved")
-    public List<String> getValuesToBeRemoved() {
-        return valuesToBeRemoved;
+    public void setAction(final ResourceDeassociationAction action) {
+        this.action = action;
     }
 
-    @JsonIgnore
-    public boolean isEmpty() {
-        return valuesToBeAdded.isEmpty() && valuesToBeRemoved.isEmpty();
+    @XmlElementWrapper(name = "resources")
+    @XmlElement(name = "resource")
+    @JsonProperty("resources")
+    public List<String> getResources() {
+        return resources;
     }
 }

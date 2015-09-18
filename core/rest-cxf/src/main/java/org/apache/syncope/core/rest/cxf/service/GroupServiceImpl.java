@@ -19,7 +19,7 @@
 package org.apache.syncope.core.rest.cxf.service;
 
 import java.util.List;
-import org.apache.syncope.common.lib.mod.GroupMod;
+import org.apache.syncope.common.lib.patch.GroupPatch;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.rest.api.service.GroupService;
 import org.apache.syncope.core.logic.AbstractAnyLogic;
@@ -28,13 +28,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class GroupServiceImpl extends AbstractAnyService<GroupTO, GroupMod> implements GroupService {
+public class GroupServiceImpl extends AbstractAnyService<GroupTO, GroupPatch> implements GroupService {
 
     @Autowired
     private GroupLogic logic;
 
     @Override
-    protected AbstractAnyLogic<GroupTO, GroupMod> getAnyLogic() {
+    protected AbstractAnyLogic<GroupTO, GroupPatch> getAnyLogic() {
         return logic;
     }
 

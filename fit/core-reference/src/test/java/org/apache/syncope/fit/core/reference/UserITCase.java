@@ -48,9 +48,15 @@ import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.mod.ResourceAssociationMod;
-import org.apache.syncope.common.lib.mod.StatusMod;
-import org.apache.syncope.common.lib.mod.UserMod;
+import org.apache.syncope.common.lib.patch.AssociationPatch;
+import org.apache.syncope.common.lib.patch.AttrPatch;
+import org.apache.syncope.common.lib.patch.DeassociationPatch;
+import org.apache.syncope.common.lib.patch.MembershipPatch;
+import org.apache.syncope.common.lib.patch.PasswordPatch;
+import org.apache.syncope.common.lib.patch.StatusPatch;
+import org.apache.syncope.common.lib.patch.StringPatchItem;
+import org.apache.syncope.common.lib.patch.StringReplacePatchItem;
+import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.policy.AccountPolicyTO;
 import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordPolicyTO;
@@ -73,12 +79,12 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
+import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.lib.types.ResourceAssociationAction;
-import org.apache.syncope.common.lib.types.ResourceDeassociationActionType;
+import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
+import org.apache.syncope.common.lib.types.StatusPatchType;
 import org.apache.syncope.common.lib.types.TaskType;
-import org.apache.syncope.common.lib.wrap.ResourceKey;
-import org.apache.syncope.common.rest.api.CollectionWrapper;
 import org.apache.syncope.common.rest.api.Preference;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.ResourceService;
@@ -190,13 +196,14 @@ public class UserITCase extends AbstractITCase {
         assertTrue(userTO.getResources().isEmpty());
 
         // 2. update assigning a resource forcing mandatory constraints: must fail with RequiredValuesMissing
-        UserMod userMod = new UserMod();
-        userMod.setKey(userTO.getKey());
-        userMod.setPassword("newPassword123");
-        userMod.getResourcesToAdd().add(RESOURCE_NAME_WS2);
+        UserPatch userPatch = new UserPatch();
+        userPatch.setKey(userTO.getKey());
+        userPatch.setPassword(new PasswordPatch.Builder().value("newPassword123").build());
+        userPatch.getResources().add(new StringPatchItem.Builder().
+                operation(PatchOperation.ADD_REPLACE).value(RESOURCE_NAME_WS2).build());
 
         try {
-            userTO = updateUser(userMod);
+            userTO = updateUser(userPatch);
             fail();
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.RequiredValuesMissing, e.getType());
@@ -204,21 +211,24 @@ public class UserITCase extends AbstractITCase {
 
         // 3. update assigning a resource NOT forcing mandatory constraints
         // AND primary: must fail with PropagationException
-        userMod = new UserMod();
-        userMod.setKey(userTO.getKey());
-        userMod.setPassword("newPassword123");
-        userMod.getResourcesToAdd().add(RESOURCE_NAME_WS1);
+        userPatch = new UserPatch();
+        userPatch.setKey(userTO.getKey());
+        userPatch.setPassword(new PasswordPatch.Builder().value("newPassword123").build());
+        userPatch.getResources().add(new StringPatchItem.Builder().
+                operation(PatchOperation.ADD_REPLACE).value(RESOURCE_NAME_WS1).build());
 
-        userTO = updateUser(userMod);
+        userTO = updateUser(userPatch);
         assertNotNull(userTO.getPropagationStatusTOs().get(0).getFailureReason());
 
         // 4. update assigning a resource NOT forcing mandatory constraints
         // BUT not primary: must succeed
-        userMod = new UserMod();
-        userMod.setKey(userTO.getKey());
-        userMod.setPassword("newPassword123456");
-        userMod.getResourcesToAdd().add(RESOURCE_NAME_CSV);
-        updateUser(userMod);
+        userPatch = new UserPatch();
+        userPatch.setKey(userTO.getKey());
+        userPatch.setPassword(new PasswordPatch.Builder().value("newPassword123456").build());
+        userPatch.getResources().add(new StringPatchItem.Builder().
+                operation(PatchOperation.ADD_REPLACE).value(RESOURCE_NAME_CSV).build());
+
+        updateUser(userPatch);
     }
 
     @Test
@@ -321,10 +331,7 @@ public class UserITCase extends AbstractITCase {
         // configured to be minLength=16
         userTO.setPassword("password1");
 
-        MembershipTO membership = new MembershipTO();
-        membership.setRightKey(8L);
-
-        userTO.getMemberships().add(membership);
+        userTO.getMemberships().add(new MembershipTO.Builder().group(8L).build());
 
         createUser(userTO);
     }
@@ -354,9 +361,7 @@ public class UserITCase extends AbstractITCase {
         UserTO userTO = getUniqueSampleTO("a.b@c.com");
 
         // add a membership
-        MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setRightKey(8L);
-        userTO.getMemberships().add(membershipTO);
+        userTO.getMemberships().add(new MembershipTO.Builder().group(8L).build());
 
         // add an attribute with a non-existing schema: must be ignored
         AttrTO attrWithInvalidSchemaTO = attrTO("invalid schema", "a value");
@@ -450,9 +455,7 @@ public class UserITCase extends AbstractITCase {
         AttrTO type = userTO.getPlainAttrMap().get("type");
         userTO.getPlainAttrs().remove(type);
 
-        MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setRightKey(8L);
-        userTO.getMemberships().add(membershipTO);
+        userTO.getMemberships().add(new MembershipTO.Builder().group(8L).build());
 
         // 1. create user without type (mandatory by UserSchema)
         try {
@@ -598,11 +601,13 @@ public class UserITCase extends AbstractITCase {
 
         assertNotNull(userTO);
 
-        UserMod userMod = new UserMod();
-        userMod.setKey(userTO.getKey());
-        userMod.getDerAttrsToRemove().add("cn");
+        UserPatch userPatch = new UserPatch();
+        userPatch.setKey(userTO.getKey());
+        userPatch.getDerAttrs().add(new AttrPatch.Builder().operation(PatchOperation.DELETE).
+                attrTO(new AttrTO.Builder().schema("cn").build()).
+                build());
 
-        userTO = updateUser(userMod);
+        userTO = updateUser(userPatch);
 
         assertNotNull(userTO);
         assertNotNull(userTO.getDerAttrMap());
@@ -616,11 +621,11 @@ public class UserITCase extends AbstractITCase {
         userTO = createUser(userTO);
         assertNotNull(userTO);
 
-        UserMod userMod = new UserMod();
-        userMod.setKey(userTO.getKey());
-        userMod.setPassword("pass");
+        UserPatch userPatch = new UserPatch();
+        userPatch.setKey(userTO.getKey());
+        userPatch.setPassword(new PasswordPatch.Builder().value("pass").build());
 
-        userService.update(userMod);
+        userService.update(userPatch);
     }
 
     @Test(expected = SyncopeClientException.class)
@@ -631,43 +636,42 @@ public class UserITCase extends AbstractITCase {
         userTO = createUser(userTO);
         assertNotNull(userTO);
 
-        UserMod userMod = new UserMod();
-        userMod.setKey(userTO.getKey());
-        userMod.setPassword("password123");
+        UserPatch userPatch = new UserPatch();
+        userPatch.setKey(userTO.getKey());
+        userPatch.setPassword(new PasswordPatch.Builder().value("password123").build());
 
-        userService.update(userMod);
+        userService.update(userPatch);
     }
 
     @Test
     public void update() {
         UserTO userTO = getUniqueSampleTO("g.h@t.com");
 
-        MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setRightKey(8L);
-        userTO.getMemberships().add(membershipTO);
+        userTO.getMemberships().add(new MembershipTO.Builder().group(8L).build());
 
         userTO = createUser(userTO);
 
         assertFalse(userTO.getDerAttrs().isEmpty());
         assertEquals(1, userTO.getMemberships().size());
 
-        UserMod userMod = new UserMod();
-        userMod.setKey(userTO.getKey());
-        userMod.setPassword("new2Password");
+        UserPatch userPatch = new UserPatch();
+        userPatch.setKey(userTO.getKey());
+        userPatch.setPassword(new PasswordPatch.Builder().value("new2Password").build());
 
-        userMod.getPlainAttrsToRemove().add("userId");
         String newUserId = getUUIDString() + "t.w@spre.net";
-        userMod.getPlainAttrsToUpdate().add(attrMod("userId", newUserId));
+        userPatch.getPlainAttrs().add(attrAddReplacePatch("userId", newUserId));
 
-        userMod.getPlainAttrsToRemove().add("fullname");
         String newFullName = getUUIDString() + "g.h@t.com";
-        userMod.getPlainAttrsToUpdate().add(attrMod("fullname", newFullName));
+        userPatch.getPlainAttrs().add(attrAddReplacePatch("fullname", newFullName));
 
-        userMod.getDerAttrsToAdd().add("cn");
-        userMod.getMembershipsToAdd().add(8L);
-        userMod.getMembershipsToRemove().add(userTO.getMemberships().get(0).getRightKey());
+        userPatch.getDerAttrs().add(new AttrPatch.Builder().operation(PatchOperation.ADD_REPLACE).
+                attrTO(new AttrTO.Builder().schema("cn").build()).build());
+        userPatch.getMemberships().add(new MembershipPatch.Builder().operation(PatchOperation.ADD_REPLACE).
+                membershipTO(new MembershipTO.Builder().group(8L).build()).build());
+        userPatch.getMemberships().add(new MembershipPatch.Builder().operation(PatchOperation.ADD_REPLACE).
+                membershipTO(userTO.getMemberships().get(0)).build());
 
-        userTO = updateUser(userMod);
+        userTO = updateUser(userPatch);
         assertNotNull(userTO);
 
         // issue SYNCOPE-15
@@ -694,17 +698,15 @@ public class UserITCase extends AbstractITCase {
         assertFalse(beforeTasks <= 0);
 
         UserTO userTO = getUniqueSampleTO("pwdonly@t.com");
-        MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setRightKey(8L);
-        userTO.getMemberships().add(membershipTO);
+        userTO.getMemberships().add(new MembershipTO.Builder().group(8L).build());
 
         userTO = createUser(userTO);
 
-        UserMod userMod = new UserMod();
-        userMod.setKey(userTO.getKey());
-        userMod.setPassword("newPassword123");
+        UserPatch userPatch = new UserPatch();
+        userPatch.setKey(userTO.getKey());
+        userPatch.setPassword(new PasswordPatch.Builder().value("newPassword123").build());
 
-        userTO = updateUser(userMod);
+        userTO = updateUser(userPatch);
 
         // check for changePwdDate
         assertNotNull(userTO.getChangePwdDate());
@@ -734,9 +736,7 @@ public class UserITCase extends AbstractITCase {
         UserTO userTO = getUniqueSampleTO("t@p.mode");
 
         // add a membership
-        MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setRightKey(8L);
-        userTO.getMemberships().add(membershipTO);
+        userTO.getMemberships().add(new MembershipTO.Builder().group(8L).build());
 
         // 1. create user
         userTO = createUser(userTO);
@@ -759,12 +759,12 @@ public class UserITCase extends AbstractITCase {
         // --------------------------------------
         // Update operation
         // --------------------------------------
-        UserMod userMod = new UserMod();
-        userMod.setKey(userTO.getKey());
+        UserPatch userPatch = new UserPatch();
+        userPatch.setKey(userTO.getKey());
 
-        userMod.getPlainAttrsToUpdate().add(attrMod("surname", "surname"));
+        userPatch.getPlainAttrs().add(attrAddReplacePatch("surname", "surname"));
 
-        userTO = updateUser(userMod);
+        userTO = updateUser(userPatch);
 
         assertNotNull(userTO);
 
@@ -809,9 +809,7 @@ public class UserITCase extends AbstractITCase {
 
         UserTO userTO = getUniqueSampleTO("createActivate@syncope.apache.org");
 
-        MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setRightKey(11L);
-        userTO.getMemberships().add(membershipTO);
+        userTO.getMemberships().add(new MembershipTO.Builder().group(11L).build());
 
         userTO = createUser(userTO);
 
@@ -821,11 +819,11 @@ public class UserITCase extends AbstractITCase {
 
         assertEquals("created", userTO.getStatus());
 
-        StatusMod statusMod = new StatusMod();
-        statusMod.setKey(userTO.getKey());
-        statusMod.setType(StatusMod.ModType.ACTIVATE);
-        statusMod.setToken(userTO.getToken());
-        userTO = userService.status(statusMod).readEntity(UserTO.class);
+        StatusPatch statusPatch = new StatusPatch();
+        statusPatch.setKey(userTO.getKey());
+        statusPatch.setType(StatusPatchType.ACTIVATE);
+        statusPatch.setToken(userTO.getToken());
+        userTO = userService.status(statusPatch).readEntity(UserTO.class);
 
         assertNotNull(userTO);
         assertNull(userTO.getToken());
@@ -837,9 +835,7 @@ public class UserITCase extends AbstractITCase {
     public void suspendReactivate() {
         UserTO userTO = getUniqueSampleTO("suspendReactivate@syncope.apache.org");
 
-        MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setRightKey(7L);
-        userTO.getMemberships().add(membershipTO);
+        userTO.getMemberships().add(new MembershipTO.Builder().group(7L).build());
 
         userTO = createUser(userTO);
 
@@ -848,17 +844,17 @@ public class UserITCase extends AbstractITCase {
                 ? "active"
                 : "created", userTO.getStatus());
 
-        StatusMod statusMod = new StatusMod();
-        statusMod.setKey(userTO.getKey());
-        statusMod.setType(StatusMod.ModType.SUSPEND);
-        userTO = userService.status(statusMod).readEntity(UserTO.class);
+        StatusPatch statusPatch = new StatusPatch();
+        statusPatch.setKey(userTO.getKey());
+        statusPatch.setType(StatusPatchType.SUSPEND);
+        userTO = userService.status(statusPatch).readEntity(UserTO.class);
         assertNotNull(userTO);
         assertEquals("suspended", userTO.getStatus());
 
-        statusMod = new StatusMod();
-        statusMod.setKey(userTO.getKey());
-        statusMod.setType(StatusMod.ModType.REACTIVATE);
-        userTO = userService.status(statusMod).readEntity(UserTO.class);
+        statusPatch = new StatusPatch();
+        statusPatch.setKey(userTO.getKey());
+        statusPatch.setType(StatusPatchType.REACTIVATE);
+        userTO = userService.status(statusPatch).readEntity(UserTO.class);
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());
     }
@@ -885,13 +881,13 @@ public class UserITCase extends AbstractITCase {
         long userKey = userTO.getKey();
 
         // Suspend with effect on syncope, ldap and db => user should be suspended in syncope and all resources
-        StatusMod statusMod = new StatusMod();
-        statusMod.setKey(userKey);
-        statusMod.setType(StatusMod.ModType.SUSPEND);
-        statusMod.setOnSyncope(true);
-        statusMod.getResources().add(RESOURCE_NAME_TESTDB);
-        statusMod.getResources().add(RESOURCE_NAME_LDAP);
-        userTO = userService.status(statusMod).readEntity(UserTO.class);
+        StatusPatch statusPatch = new StatusPatch();
+        statusPatch.setKey(userKey);
+        statusPatch.setType(StatusPatchType.SUSPEND);
+        statusPatch.setOnSyncope(true);
+        statusPatch.getResources().add(RESOURCE_NAME_TESTDB);
+        statusPatch.getResources().add(RESOURCE_NAME_LDAP);
+        userTO = userService.status(statusPatch).readEntity(UserTO.class);
         assertNotNull(userTO);
         assertEquals("suspended", userTO.getStatus());
 
@@ -903,14 +899,14 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(connObjectTO);
 
         // Suspend and reactivate only on ldap => db and syncope should still show suspended
-        statusMod = new StatusMod();
-        statusMod.setKey(userKey);
-        statusMod.setType(StatusMod.ModType.SUSPEND);
-        statusMod.setOnSyncope(false);
-        statusMod.getResources().add(RESOURCE_NAME_LDAP);
-        userService.status(statusMod);
-        statusMod.setType(StatusMod.ModType.REACTIVATE);
-        userTO = userService.status(statusMod).readEntity(UserTO.class);
+        statusPatch = new StatusPatch();
+        statusPatch.setKey(userKey);
+        statusPatch.setType(StatusPatchType.SUSPEND);
+        statusPatch.setOnSyncope(false);
+        statusPatch.getResources().add(RESOURCE_NAME_LDAP);
+        userService.status(statusPatch);
+        statusPatch.setType(StatusPatchType.REACTIVATE);
+        userTO = userService.status(statusPatch).readEntity(UserTO.class);
         assertNotNull(userTO);
         assertEquals("suspended", userTO.getStatus());
 
@@ -918,13 +914,13 @@ public class UserITCase extends AbstractITCase {
         assertFalse(getBooleanAttribute(connObjectTO, OperationalAttributes.ENABLE_NAME));
 
         // Reactivate on syncope and db => syncope and db should show the user as active
-        statusMod = new StatusMod();
-        statusMod.setKey(userKey);
-        statusMod.setType(StatusMod.ModType.REACTIVATE);
-        statusMod.setOnSyncope(true);
-        statusMod.getResources().add(RESOURCE_NAME_TESTDB);
+        statusPatch = new StatusPatch();
+        statusPatch.setKey(userKey);
+        statusPatch.setType(StatusPatchType.REACTIVATE);
+        statusPatch.setOnSyncope(true);
+        statusPatch.getResources().add(RESOURCE_NAME_TESTDB);
 
-        userTO = userService.status(statusMod).readEntity(UserTO.class);
+        userTO = userService.status(statusPatch).readEntity(UserTO.class);
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());
 
@@ -946,12 +942,14 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(loginDate);
         assertEquals(1, loginDate.getValues().size());
 
-        UserMod userMod = new UserMod();
+        UserPatch userPatch = new UserPatch();
+        userPatch.setKey(userTO.getKey());
 
-        userMod.setKey(userTO.getKey());
-        userMod.getPlainAttrsToUpdate().add(attrMod("loginDate", "2000-01-01"));
+        loginDate.getValues().add("2000-01-01");
+        userPatch.getPlainAttrs().add(new AttrPatch.Builder().
+                operation(PatchOperation.ADD_REPLACE).attrTO(loginDate).build());
 
-        userTO = updateUser(userMod);
+        userTO = updateUser(userPatch);
         assertNotNull(userTO);
 
         loginDate = userTO.getPlainAttrMap().get("loginDate");
@@ -975,12 +973,13 @@ public class UserITCase extends AbstractITCase {
 
         assertEquals(userTO.getUsername(), username);
 
-        UserMod userMod = new UserMod();
+        UserPatch userPatch = new UserPatch();
 
-        userMod.setKey(userTO.getKey());
-        userMod.getResourcesToRemove().add(RESOURCE_NAME_TESTDB);
+        userPatch.setKey(userTO.getKey());
+        userPatch.getResources().add(
+                new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(RESOURCE_NAME_TESTDB).build());
 
-        userTO = updateUser(userMod);
+        userTO = updateUser(userPatch);
         assertTrue(userTO.getResources().isEmpty());
 
         jdbcTemplate.queryForObject("SELECT id FROM test WHERE id=?", String.class, userTO.getUsername());
@@ -994,12 +993,12 @@ public class UserITCase extends AbstractITCase {
         UserTO userTO = createUser(inUserTO);
         assertNotNull(userTO);
 
-        UserMod userMod = new UserMod();
+        UserPatch userPatch = new UserPatch();
 
-        userMod.setKey(userTO.getKey());
-        userMod.setUsername("1" + userTO.getUsername());
+        userPatch.setKey(userTO.getKey());
+        userPatch.setUsername(new StringReplacePatchItem.Builder().value("1" + userTO.getUsername()).build());
 
-        userTO = updateUser(userMod);
+        userTO = updateUser(userPatch);
         assertNotNull(userTO);
         assertEquals("1" + inUserTO.getUsername(), userTO.getUsername());
     }
@@ -1023,10 +1022,10 @@ public class UserITCase extends AbstractITCase {
         toBeUpdated.getVirAttrs().add(virtual);
 
         // 2. try to update by adding a resource, but no password: must fail
-        UserMod userMod = AnyOperations.diff(toBeUpdated, original);
-        assertNotNull(userMod);
+        UserPatch userPatch = AnyOperations.diff(toBeUpdated, original, false);
+        assertNotNull(userPatch);
 
-        toBeUpdated = updateUser(userMod);
+        toBeUpdated = updateUser(userPatch);
         assertNotNull(toBeUpdated);
 
         assertFalse(toBeUpdated.getVirAttrs().isEmpty());
@@ -1045,30 +1044,26 @@ public class UserITCase extends AbstractITCase {
         userTO = createUser(userTO);
         assertNotNull(userTO);
 
-        UserMod userMod = new UserMod();
-        userMod.setKey(userTO.getKey());
-        userMod.setPassword("123password");
-        userMod.getResourcesToAdd().add(RESOURCE_NAME_TESTDB);
+        UserPatch userPatch = new UserPatch();
+        userPatch.setKey(userTO.getKey());
+        userPatch.setPassword(new PasswordPatch.Builder().onSyncope(false).
+                resource(RESOURCE_NAME_TESTDB).value("123password").build());
+        userPatch.getResources().add(new StringPatchItem.Builder().
+                operation(PatchOperation.ADD_REPLACE).value(RESOURCE_NAME_TESTDB).build());
 
-        final StatusMod st = new StatusMod();
-        st.setOnSyncope(false);
-        st.getResources().add(RESOURCE_NAME_TESTDB);
-        userMod.setPwdPropRequest(st);
-
-        userTO = updateUser(userMod);
+        userTO = updateUser(userPatch);
         assertNotNull(userTO);
 
-        final List<PropagationStatus> propagations = userTO.getPropagationStatusTOs();
-
+        List<PropagationStatus> propagations = userTO.getPropagationStatusTOs();
         assertNotNull(propagations);
         assertEquals(1, propagations.size());
 
-        final PropagationTaskExecStatus status = propagations.get(0).getStatus();
-        final String resource = propagations.get(0).getResource();
-
+        PropagationTaskExecStatus status = propagations.get(0).getStatus();
         assertNotNull(status);
-        assertEquals(RESOURCE_NAME_TESTDB, resource);
         assertTrue(status.isSuccessful());
+
+        String resource = propagations.get(0).getResource();
+        assertEquals(RESOURCE_NAME_TESTDB, resource);
     }
 
     @Test
@@ -1119,10 +1114,7 @@ public class UserITCase extends AbstractITCase {
         userTO.getAuxClasses().add("csv");
         userTO.getDerAttrs().add(attrTO("csvuserid", null));
 
-        MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setRightKey(1L);
-
-        userTO.getMemberships().add(membershipTO);
+        userTO.getMemberships().add(new MembershipTO.Builder().group(1L).build());
 
         userTO.getResources().add(RESOURCE_NAME_CSV);
 
@@ -1151,11 +1143,11 @@ public class UserITCase extends AbstractITCase {
         user = getObject(response.getLocation(), UserService.class, UserTO.class);
         assertNotNull(user);
 
-        UserMod userMod = new UserMod();
-        userMod.setKey(user.getKey());
-        userMod.setPassword("password321");
+        UserPatch userPatch = new UserPatch();
+        userPatch.setKey(user.getKey());
+        userPatch.setPassword(new PasswordPatch.Builder().value("password321").build());
 
-        response = noContentService.update(userMod);
+        response = noContentService.update(userPatch);
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
         assertEquals(Preference.RETURN_NO_CONTENT.toString(), response.getHeaderString(RESTHeaders.PREFERENCE_APPLIED));
         assertEquals(StringUtils.EMPTY, IOUtils.toString((InputStream) response.getEntity()));
@@ -1236,15 +1228,8 @@ public class UserITCase extends AbstractITCase {
         userTO.getAuxClasses().add("csv");
         userTO.getDerAttrs().add(attrTO("csvuserid", null));
 
-        MembershipTO memb12 = new MembershipTO();
-        memb12.setRightKey(12L);
-
-        userTO.getMemberships().add(memb12);
-
-        MembershipTO memb13 = new MembershipTO();
-        memb13.setRightKey(13L);
-
-        userTO.getMemberships().add(memb13);
+        userTO.getMemberships().add(new MembershipTO.Builder().group(12L).build());
+        userTO.getMemberships().add(new MembershipTO.Builder().group(13L).build());
 
         userTO.getResources().add(RESOURCE_NAME_CSV);
 
@@ -1260,12 +1245,13 @@ public class UserITCase extends AbstractITCase {
         // -----------------------------------
         // Remove the first membership: de-provisioning shouldn't happen
         // -----------------------------------
-        UserMod userMod = new UserMod();
-        userMod.setKey(actual.getKey());
+        UserPatch userPatch = new UserPatch();
+        userPatch.setKey(actual.getKey());
 
-        userMod.getMembershipsToRemove().add(actual.getMemberships().get(0).getRightKey());
+        userPatch.getMemberships().add(new MembershipPatch.Builder().
+                operation(PatchOperation.DELETE).membershipTO(actual.getMemberships().get(0)).build());
 
-        actual = updateUser(userMod);
+        actual = updateUser(userPatch);
         assertNotNull(actual);
         assertEquals(1, actual.getMemberships().size());
 
@@ -1276,12 +1262,13 @@ public class UserITCase extends AbstractITCase {
         // -----------------------------------
         // Remove the resource assigned directly: de-provisioning shouldn't happen
         // -----------------------------------
-        userMod = new UserMod();
-        userMod.setKey(actual.getKey());
+        userPatch = new UserPatch();
+        userPatch.setKey(actual.getKey());
 
-        userMod.getResourcesToRemove().add(actual.getResources().iterator().next());
+        userPatch.getResources().add(new StringPatchItem.Builder().operation(PatchOperation.DELETE).
+                value(actual.getResources().iterator().next()).build());
 
-        actual = updateUser(userMod);
+        actual = updateUser(userPatch);
         assertNotNull(actual);
         assertEquals(1, actual.getMemberships().size());
         assertFalse(actual.getResources().isEmpty());
@@ -1293,12 +1280,13 @@ public class UserITCase extends AbstractITCase {
         // -----------------------------------
         // Remove the first membership: de-provisioning should happen
         // -----------------------------------
-        userMod = new UserMod();
-        userMod.setKey(actual.getKey());
+        userPatch = new UserPatch();
+        userPatch.setKey(actual.getKey());
 
-        userMod.getMembershipsToRemove().add(actual.getMemberships().get(0).getRightKey());
+        userPatch.getMemberships().add(new MembershipPatch.Builder().
+                operation(PatchOperation.DELETE).membershipTO(actual.getMemberships().get(0)).build());
 
-        actual = updateUser(userMod);
+        actual = updateUser(userPatch);
         assertNotNull(actual);
         assertTrue(actual.getMemberships().isEmpty());
         assertTrue(actual.getResources().isEmpty());
@@ -1400,13 +1388,14 @@ public class UserITCase extends AbstractITCase {
         userTO = createUser(userTO);
         assertNotNull(userTO);
 
-        UserMod userMod = new UserMod();
-        userMod.setKey(userTO.getKey());
+        UserPatch userPatch = new UserPatch();
+        userPatch.setKey(userTO.getKey());
 
         // this resource has not a mapping for Password
-        userMod.getResourcesToAdd().add(RESOURCE_NAME_UPDATE);
+        userPatch.getResources().add(new StringPatchItem.Builder().
+                operation(PatchOperation.ADD_REPLACE).value(RESOURCE_NAME_UPDATE).build());
 
-        userTO = updateUser(userMod);
+        userTO = updateUser(userPatch);
         assertNotNull(userTO);
     }
 
@@ -1454,15 +1443,12 @@ public class UserITCase extends AbstractITCase {
         final String pwdOnTestDb2 = pwdOnTestDb2Attr.getValues().iterator().next();
 
         // 2. request to change password only on testdb (no Syncope, no testdb2)
-        UserMod userMod = new UserMod();
-        userMod.setKey(userTO.getKey());
-        userMod.setPassword(getUUIDString());
-        StatusMod pwdPropRequest = new StatusMod();
-        pwdPropRequest.setOnSyncope(false);
-        pwdPropRequest.getResources().add(RESOURCE_NAME_TESTDB);
-        userMod.setPwdPropRequest(pwdPropRequest);
+        UserPatch userPatch = new UserPatch();
+        userPatch.setKey(userTO.getKey());
+        userPatch.setPassword(new PasswordPatch.Builder().value(getUUIDString()).onSyncope(false).
+                resource(RESOURCE_NAME_TESTDB).build());
 
-        userTO = updateUser(userMod);
+        userTO = updateUser(userPatch);
 
         // 3a. Chech that only a single propagation took place
         assertNotNull(userTO.getPropagationStatusTOs());
@@ -1508,16 +1494,13 @@ public class UserITCase extends AbstractITCase {
             assertNotNull(userTO);
 
             // 4. update user, assign a propagation primary resource but don't provide any password
-            UserMod userMod = new UserMod();
-            userMod.setKey(userTO.getKey());
-            userMod.getResourcesToAdd().add(RESOURCE_NAME_WS1);
+            UserPatch userPatch = new UserPatch();
+            userPatch.setKey(userTO.getKey());
+            userPatch.getResources().add(new StringPatchItem.Builder().
+                    operation(PatchOperation.ADD_REPLACE).value(RESOURCE_NAME_WS1).build());
+            userPatch.setPassword(new PasswordPatch.Builder().onSyncope(false).resource(RESOURCE_NAME_WS1).build());
 
-            StatusMod st = new StatusMod();
-            st.setOnSyncope(false);
-            st.getResources().add(RESOURCE_NAME_WS1);
-            userMod.setPwdPropRequest(st);
-
-            userTO = updateUser(userMod);
+            userTO = updateUser(userPatch);
             assertNotNull(userTO);
 
             // 5. verify that propagation was successful
@@ -1544,16 +1527,13 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(userTO);
 
         // 2. update user, assign a propagation primary resource but don't provide any password
-        UserMod userMod = new UserMod();
-        userMod.setKey(userTO.getKey());
-        userMod.getResourcesToAdd().add(RESOURCE_NAME_LDAP);
+        UserPatch userPatch = new UserPatch();
+        userPatch.setKey(userTO.getKey());
+        userPatch.getResources().add(new StringPatchItem.Builder().
+                operation(PatchOperation.ADD_REPLACE).value(RESOURCE_NAME_LDAP).build());
+        userPatch.setPassword(new PasswordPatch.Builder().onSyncope(false).resource(RESOURCE_NAME_LDAP).build());
 
-        StatusMod st = new StatusMod();
-        st.setOnSyncope(false);
-        st.getResources().add(RESOURCE_NAME_LDAP);
-        userMod.setPwdPropRequest(st);
-
-        userTO = updateUser(userMod);
+        userTO = updateUser(userPatch);
         assertNotNull(userTO);
 
         // 3. verify that propagation was successful
@@ -1589,13 +1569,12 @@ public class UserITCase extends AbstractITCase {
     @Test
     public void issueSYNCOPE265() {
         for (long key = 1; key <= 5; key++) {
-            UserMod userMod = new UserMod();
-            userMod.setKey(key);
+            UserPatch userPatch = new UserPatch();
+            userPatch.setKey(key);
 
-            userMod.getPlainAttrsToRemove().add("type");
-            userMod.getPlainAttrsToUpdate().add(attrMod("type", "a type"));
+            userPatch.getPlainAttrs().add(attrAddReplacePatch("type", "a type"));
 
-            UserTO userTO = updateUser(userMod);
+            UserTO userTO = updateUser(userPatch);
 
             assertEquals("a type", userTO.getPlainAttrMap().get("type").getValues().get(0));
         }
@@ -1658,9 +1637,7 @@ public class UserITCase extends AbstractITCase {
         // 2. create user with LDAP resource and membership of the above group
         UserTO userTO = getUniqueSampleTO("syncope354@syncope.apache.org");
         userTO.getResources().add(RESOURCE_NAME_LDAP);
-        MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setRightKey(groupTO.getKey());
-        userTO.getMemberships().add(membershipTO);
+        userTO.getMemberships().add(new MembershipTO.Builder().group(groupTO.getKey()).build());
 
         userTO = createUser(userTO);
         assertTrue(userTO.getResources().contains(RESOURCE_NAME_LDAP));
@@ -1673,11 +1650,12 @@ public class UserITCase extends AbstractITCase {
                 contains("uid=" + userTO.getUsername() + ",ou=people,o=isp"));
 
         // 4. remove membership
-        UserMod userMod = new UserMod();
-        userMod.setKey(userTO.getKey());
-        userMod.getMembershipsToRemove().add(userTO.getMemberships().get(0).getRightKey());
+        UserPatch userPatch = new UserPatch();
+        userPatch.setKey(userTO.getKey());
+        userPatch.getMemberships().add(new MembershipPatch.Builder().operation(PatchOperation.DELETE).
+                membershipTO(userTO.getMemberships().get(0)).build());
 
-        userTO = updateUser(userMod);
+        userTO = updateUser(userPatch);
         assertTrue(userTO.getResources().contains(RESOURCE_NAME_LDAP));
 
         // 5. read group on resource, check that user DN was removed from uniqueMember
@@ -1711,9 +1689,7 @@ public class UserITCase extends AbstractITCase {
         userTO.getPlainAttrs().add(attrTO("obscure", "valueToBeObscured"));
         userTO.getPlainAttrs().add(attrTO("photo",
                 Base64Utility.encode(IOUtils.readBytesFromStream(getClass().getResourceAsStream("/favicon.jpg")))));
-        MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setRightKey(groupTO.getKey());
-        userTO.getMemberships().add(membershipTO);
+        userTO.getMemberships().add(new MembershipTO.Builder().group(groupTO.getKey()).build());
 
         userTO = createUser(userTO);
         assertTrue(userTO.getResources().contains(RESOURCE_NAME_LDAP));
@@ -1752,23 +1728,22 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(userTO);
 
         // 2. assign resource without specifying a new pwd and check propagation failure
-        UserMod userMod = new UserMod();
-        userMod.setKey(userTO.getKey());
-        userMod.getResourcesToAdd().add(RESOURCE_NAME_TESTDB);
-        userTO = updateUser(userMod);
+        UserPatch userPatch = new UserPatch();
+        userPatch.setKey(userTO.getKey());
+        userPatch.getResources().add(new StringPatchItem.Builder().
+                operation(PatchOperation.ADD_REPLACE).value(RESOURCE_NAME_TESTDB).build());
+        userTO = updateUser(userPatch);
         assertEquals(RESOURCE_NAME_TESTDB, userTO.getResources().iterator().next());
         assertFalse(userTO.getPropagationStatusTOs().get(0).getStatus().isSuccessful());
         assertNotNull(userTO.getPropagationStatusTOs().get(0).getFailureReason());
 
         // 3. request to change password only on testdb
-        userMod = new UserMod();
-        userMod.setKey(userTO.getKey());
-        userMod.setPassword(getUUIDString() + "abbcbcbddd123");
-        StatusMod pwdPropRequest = new StatusMod();
-        pwdPropRequest.getResources().add(RESOURCE_NAME_TESTDB);
-        userMod.setPwdPropRequest(pwdPropRequest);
+        userPatch = new UserPatch();
+        userPatch.setKey(userTO.getKey());
+        userPatch.setPassword(new PasswordPatch.Builder().value(getUUIDString() + "abbcbcbddd123").
+                resource(RESOURCE_NAME_TESTDB).build());
 
-        userTO = updateUser(userMod);
+        userTO = updateUser(userPatch);
         assertEquals(RESOURCE_NAME_TESTDB, userTO.getResources().iterator().next());
         assertTrue(userTO.getPropagationStatusTOs().get(0).getStatus().isSuccessful());
     }
@@ -1792,13 +1767,14 @@ public class UserITCase extends AbstractITCase {
 
         // 2. update assigning a resource NOT forcing mandatory constraints
         // AND primary: must fail with PropagationException
-        UserMod userMod = new UserMod();
-        userMod.setKey(userTO.getKey());
-        userMod.setPassword("newPassword123");
-
-        userMod.getResourcesToAdd().add(RESOURCE_NAME_WS1);
-        userMod.getResourcesToAdd().add(RESOURCE_NAME_TESTDB);
-        userTO = updateUser(userMod);
+        UserPatch userPatch = new UserPatch();
+        userPatch.setKey(userTO.getKey());
+        userPatch.setPassword(new PasswordPatch.Builder().value("newPassword123").build());
+        userPatch.getResources().add(new StringPatchItem.Builder().
+                operation(PatchOperation.ADD_REPLACE).value(RESOURCE_NAME_WS1).build());
+        userPatch.getResources().add(new StringPatchItem.Builder().
+                operation(PatchOperation.ADD_REPLACE).value(RESOURCE_NAME_TESTDB).build());
+        userTO = updateUser(userPatch);
 
         List<PropagationStatus> propagationStatuses = userTO.getPropagationStatusTOs();
         PropagationStatus ws1PropagationStatus = null;
@@ -1831,10 +1807,12 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(actual);
         assertNotNull(resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey()));
 
-        assertNotNull(userService.deassociate(actual.getKey(),
-                ResourceDeassociationActionType.UNLINK,
-                CollectionWrapper.wrap(RESOURCE_NAME_CSV, ResourceKey.class)).
-                readEntity(BulkActionResult.class));
+        DeassociationPatch deassociationPatch = new DeassociationPatch();
+        deassociationPatch.setKey(actual.getKey());
+        deassociationPatch.setAction(ResourceDeassociationAction.UNLINK);
+        deassociationPatch.getResources().add(RESOURCE_NAME_CSV);
+
+        assertNotNull(userService.deassociate(deassociationPatch).readEntity(BulkActionResult.class));
 
         actual = userService.read(actual.getKey());
         assertNotNull(actual);
@@ -1864,11 +1842,12 @@ public class UserITCase extends AbstractITCase {
             assertNotNull(e);
         }
 
-        final ResourceAssociationMod associationMod = new ResourceAssociationMod();
-        associationMod.getTargetResources().addAll(CollectionWrapper.wrap(RESOURCE_NAME_CSV, ResourceKey.class));
+        AssociationPatch associationPatch = new AssociationPatch();
+        associationPatch.setKey(actual.getKey());
+        associationPatch.setAction(ResourceAssociationAction.LINK);
+        associationPatch.getResources().add(RESOURCE_NAME_CSV);
 
-        assertNotNull(userService.associate(actual.getKey(), ResourceAssociationAction.LINK, associationMod).readEntity(
-                BulkActionResult.class));
+        assertNotNull(userService.associate(associationPatch).readEntity(BulkActionResult.class));
 
         actual = userService.read(actual.getKey());
         assertNotNull(actual);
@@ -1897,10 +1876,12 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(actual);
         assertNotNull(resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey()));
 
-        assertNotNull(userService.deassociate(actual.getKey(),
-                ResourceDeassociationActionType.UNASSIGN,
-                CollectionWrapper.wrap(RESOURCE_NAME_CSV, ResourceKey.class)).
-                readEntity(BulkActionResult.class));
+        DeassociationPatch deassociationPatch = new DeassociationPatch();
+        deassociationPatch.setKey(actual.getKey());
+        deassociationPatch.setAction(ResourceDeassociationAction.UNASSIGN);
+        deassociationPatch.getResources().add(RESOURCE_NAME_CSV);
+
+        assertNotNull(userService.deassociate(deassociationPatch).readEntity(BulkActionResult.class));
 
         actual = userService.read(actual.getKey());
         assertNotNull(actual);
@@ -1935,13 +1916,13 @@ public class UserITCase extends AbstractITCase {
             assertNotNull(e);
         }
 
-        ResourceAssociationMod associationMod = new ResourceAssociationMod();
-        associationMod.getTargetResources().addAll(CollectionWrapper.wrap(RESOURCE_NAME_CSV, ResourceKey.class));
-        associationMod.setChangePwd(true);
-        associationMod.setPassword("password");
+        AssociationPatch associationPatch = new AssociationPatch();
+        associationPatch.setKey(actual.getKey());
+        associationPatch.setValue("password");
+        associationPatch.setAction(ResourceAssociationAction.ASSIGN);
+        associationPatch.getResources().add(RESOURCE_NAME_CSV);
 
-        assertNotNull(userService.associate(actual.getKey(), ResourceAssociationAction.ASSIGN, associationMod)
-                .readEntity(BulkActionResult.class));
+        assertNotNull(userService.associate(associationPatch).readEntity(BulkActionResult.class));
 
         actual = userService.read(actual.getKey());
         assertNotNull(actual);
@@ -1964,10 +1945,12 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(actual);
         assertNotNull(resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey()));
 
-        assertNotNull(userService.deassociate(actual.getKey(),
-                ResourceDeassociationActionType.DEPROVISION,
-                CollectionWrapper.wrap(RESOURCE_NAME_CSV, ResourceKey.class)).
-                readEntity(BulkActionResult.class));
+        DeassociationPatch deassociationPatch = new DeassociationPatch();
+        deassociationPatch.setKey(actual.getKey());
+        deassociationPatch.setAction(ResourceDeassociationAction.DEPROVISION);
+        deassociationPatch.getResources().add(RESOURCE_NAME_CSV);
+
+        assertNotNull(userService.deassociate(deassociationPatch).readEntity(BulkActionResult.class));
 
         actual = userService.read(actual.getKey());
         assertNotNull(actual);
@@ -2002,13 +1985,13 @@ public class UserITCase extends AbstractITCase {
             assertNotNull(e);
         }
 
-        ResourceAssociationMod associationMod = new ResourceAssociationMod();
-        associationMod.getTargetResources().addAll(CollectionWrapper.wrap(RESOURCE_NAME_CSV, ResourceKey.class));
-        associationMod.setChangePwd(true);
-        associationMod.setPassword("password");
+        AssociationPatch associationPatch = new AssociationPatch();
+        associationPatch.setKey(actual.getKey());
+        associationPatch.setValue("password");
+        associationPatch.setAction(ResourceAssociationAction.PROVISION);
+        associationPatch.getResources().add(RESOURCE_NAME_CSV);
 
-        assertNotNull(userService.associate(actual.getKey(), ResourceAssociationAction.PROVISION, associationMod).
-                readEntity(BulkActionResult.class));
+        assertNotNull(userService.associate(associationPatch).readEntity(BulkActionResult.class));
 
         actual = userService.read(actual.getKey());
         assertNotNull(actual);
@@ -2037,24 +2020,25 @@ public class UserITCase extends AbstractITCase {
             assertNotNull(e);
         }
 
-        final ResourceAssociationMod associationMod = new ResourceAssociationMod();
-        associationMod.getTargetResources().addAll(CollectionWrapper.wrap(RESOURCE_NAME_CSV, ResourceKey.class));
-        associationMod.setChangePwd(true);
-        associationMod.setPassword("password");
+        AssociationPatch associationPatch = new AssociationPatch();
+        associationPatch.setKey(actual.getKey());
+        associationPatch.setValue("password");
+        associationPatch.setAction(ResourceAssociationAction.PROVISION);
+        associationPatch.getResources().add(RESOURCE_NAME_CSV);
 
-        assertNotNull(userService.associate(actual.getKey(), ResourceAssociationAction.PROVISION,
-                associationMod)
-                .readEntity(BulkActionResult.class));
+        assertNotNull(userService.associate(associationPatch).readEntity(BulkActionResult.class));
 
         actual = userService.read(actual.getKey());
         assertNotNull(actual);
         assertTrue(actual.getResources().isEmpty());
         assertNotNull(resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey()));
 
-        assertNotNull(userService.deassociate(actual.getKey(),
-                ResourceDeassociationActionType.DEPROVISION,
-                CollectionWrapper.wrap(RESOURCE_NAME_CSV, ResourceKey.class)).
-                readEntity(BulkActionResult.class));
+        DeassociationPatch deassociationPatch = new DeassociationPatch();
+        deassociationPatch.setKey(actual.getKey());
+        deassociationPatch.setAction(ResourceDeassociationAction.DEPROVISION);
+        deassociationPatch.getResources().add(RESOURCE_NAME_CSV);
+
+        assertNotNull(userService.deassociate(deassociationPatch).readEntity(BulkActionResult.class));
 
         actual = userService.read(actual.getKey());
         assertNotNull(actual);
@@ -2082,12 +2066,11 @@ public class UserITCase extends AbstractITCase {
         userTO = createUser(userTO);
         assertEquals("6", userTO.getPlainAttrMap().get("makeItDouble").getValues().get(0));
 
-        UserMod userMod = new UserMod();
-        userMod.setKey(userTO.getKey());
-        userMod.getPlainAttrsToRemove().add("makeItDouble");
-        userMod.getPlainAttrsToUpdate().add(attrMod("makeItDouble", "7"));
+        UserPatch userPatch = new UserPatch();
+        userPatch.setKey(userTO.getKey());
+        userPatch.getPlainAttrs().add(attrAddReplacePatch("makeItDouble", "7"));
 
-        userTO = updateUser(userMod);
+        userTO = updateUser(userPatch);
         assertEquals("14", userTO.getPlainAttrMap().get("makeItDouble").getValues().get(0));
     }
 
@@ -2097,10 +2080,10 @@ public class UserITCase extends AbstractITCase {
         userTO = createUser(userTO);
         assertNotNull(userTO);
 
-        UserMod userMod = new UserMod();
-        userMod.setKey(userTO.getKey());
-        userMod.setPassword("anotherPassword123");
-        userTO = userService.update(userMod).readEntity(UserTO.class);
+        UserPatch userPatch = new UserPatch();
+        userPatch.setKey(userTO.getKey());
+        userPatch.setPassword(new PasswordPatch.Builder().value("anotherPassword123").build());
+        userTO = userService.update(userPatch).readEntity(UserTO.class);
         assertNotNull(userTO);
     }
 
@@ -2113,11 +2096,12 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(userTO);
 
         // 2. try to update user by subscribing a resource - works but propagation is not even attempted
-        UserMod userMod = new UserMod();
-        userMod.setKey(userTO.getKey());
-        userMod.getResourcesToAdd().add(RESOURCE_NAME_WS1);
+        UserPatch userPatch = new UserPatch();
+        userPatch.setKey(userTO.getKey());
+        userPatch.getResources().add(new StringPatchItem.Builder().
+                operation(PatchOperation.ADD_REPLACE).value(RESOURCE_NAME_WS1).build());
 
-        userTO = userService.update(userMod).readEntity(UserTO.class);
+        userTO = userService.update(userPatch).readEntity(UserTO.class);
         assertEquals(Collections.singleton(RESOURCE_NAME_WS1), userTO.getResources());
         assertFalse(userTO.getPropagationStatusTOs().get(0).getStatus().isSuccessful());
         assertTrue(userTO.getPropagationStatusTOs().get(0).getFailureReason().
@@ -2135,18 +2119,18 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(etag);
         assertTrue(StringUtils.isNotBlank(etag.getValue()));
 
-        UserMod userMod = new UserMod();
-        userMod.setKey(userTO.getKey());
-        userMod.setUsername(userTO.getUsername() + "XX");
-        userTO = userService.update(userMod).readEntity(UserTO.class);
+        UserPatch userPatch = new UserPatch();
+        userPatch.setKey(userTO.getKey());
+        userPatch.setUsername(new StringReplacePatchItem.Builder().value(userTO.getUsername() + "XX").build());
+        userTO = userService.update(userPatch).readEntity(UserTO.class);
         assertTrue(userTO.getUsername().endsWith("XX"));
         EntityTag etag1 = adminClient.getLatestEntityTag(userService);
         assertFalse(etag.getValue().equals(etag1.getValue()));
 
         UserService ifMatchService = adminClient.ifMatch(UserService.class, etag);
-        userMod.setUsername(userTO.getUsername() + "YY");
+        userPatch.setUsername(new StringReplacePatchItem.Builder().value(userTO.getUsername() + "YY").build());
         try {
-            ifMatchService.update(userMod);
+            ifMatchService.update(userPatch);
             fail();
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.ConcurrentModification, e.getType());
@@ -2175,12 +2159,12 @@ public class UserITCase extends AbstractITCase {
                 connObject.getPlainAttrMap().get(Name.NAME).getValues().get(0)));
 
         // 4. update user without any password change request
-        UserMod userMod = new UserMod();
-        userMod.setKey(userTO.getKey());
-        userMod.setPwdPropRequest(new StatusMod());
-        userMod.getPlainAttrsToUpdate().add(attrMod("surname", "surname2"));
+        UserPatch userPatch = new UserPatch();
+        userPatch.setKey(userTO.getKey());
+        userPatch.setPassword(new PasswordPatch());
+        userPatch.getPlainAttrs().add(attrAddReplacePatch("surname", "surname2"));
 
-        userService.update(userMod);
+        userService.update(userPatch);
 
         // 5. try (and succeed again) to perform simple LDAP binding: password has not changed
         assertNotNull(getLdapRemoteObject(
@@ -2229,12 +2213,12 @@ public class UserITCase extends AbstractITCase {
         assertEquals(7, mapItems.size());
 
         // 3.  update user and check firstname propagation        
-        UserMod userMod = new UserMod();
-        userMod.setKey(userTO.getKey());
-        userMod.setPwdPropRequest(new StatusMod());
-        userMod.getPlainAttrsToUpdate().add(attrMod("firstname", "firstnameNew"));
+        UserPatch userPatch = new UserPatch();
+        userPatch.setKey(userTO.getKey());
+        userPatch.setPassword(new PasswordPatch());
+        userPatch.getPlainAttrs().add(attrAddReplacePatch("firstname", "firstnameNew"));
 
-        userTO = updateUser(userMod);
+        userTO = updateUser(userPatch);
         assertNotNull(userTO);
         assertEquals(1, userTO.getPropagationStatusTOs().size());
         assertTrue(userTO.getPropagationStatusTOs().get(0).getStatus().isSuccessful());
@@ -2275,16 +2259,14 @@ public class UserITCase extends AbstractITCase {
         resourceService.update(resourceTO);
 
         // 3. Add a db resource to the User
-        UserMod userMod = new UserMod();
-        userMod.setKey(user.getKey());
-        userMod.getResourcesToAdd().add(RESOURCE_NAME_TESTDB);
+        UserPatch userPatch = new UserPatch();
+        userPatch.setKey(user.getKey());
+        userPatch.getResources().add(new StringPatchItem.Builder().
+                operation(PatchOperation.ADD_REPLACE).value(RESOURCE_NAME_TESTDB).build());
 
-        final StatusMod st = new StatusMod();
-        st.setOnSyncope(false);
-        st.getResources().add(RESOURCE_NAME_TESTDB);
-        userMod.setPwdPropRequest(st);
+        userPatch.setPassword(new PasswordPatch.Builder().onSyncope(false).resource(RESOURCE_NAME_TESTDB).build());
 
-        user = updateUser(userMod);
+        user = updateUser(userPatch);
         assertNotNull(user);
         assertEquals(1, user.getResources().size());
 
@@ -2318,16 +2300,14 @@ public class UserITCase extends AbstractITCase {
         resourceService.update(resourceTO);
 
         // 3. Add a resource to the User
-        UserMod userMod = new UserMod();
-        userMod.setKey(user.getKey());
-        userMod.getResourcesToAdd().add(RESOURCE_NAME_LDAP);
+        UserPatch userPatch = new UserPatch();
+        userPatch.setKey(user.getKey());
+        userPatch.getResources().add(new StringPatchItem.Builder().
+                operation(PatchOperation.ADD_REPLACE).value(RESOURCE_NAME_LDAP).build());
 
-        final StatusMod st = new StatusMod();
-        st.setOnSyncope(false);
-        st.getResources().add(RESOURCE_NAME_LDAP);
-        userMod.setPwdPropRequest(st);
+        userPatch.setPassword(new PasswordPatch.Builder().onSyncope(false).resource(RESOURCE_NAME_LDAP).build());
 
-        user = updateUser(userMod);
+        user = updateUser(userPatch);
         assertNotNull(user);
         assertEquals(1, user.getResources().size());
 
@@ -2481,11 +2461,11 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(connObjectTO);
         assertEquals("postalAddress", connObjectTO.getPlainAttrMap().get("postalAddress").getValues().get(0));
 
-        UserMod userMod = new UserMod();
-        userMod.setKey(actual.getKey());
-        userMod.getPlainAttrsToUpdate().add(attrMod("postalAddress", "newPostalAddress"));
+        UserPatch userPatch = new UserPatch();
+        userPatch.setKey(actual.getKey());
+        userPatch.getPlainAttrs().add(attrAddReplacePatch("postalAddress", "newPostalAddress"));
 
-        actual = updateUser(userMod);
+        actual = updateUser(userPatch);
 
         connObjectTO = resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), actual.getKey());
         assertNotNull(connObjectTO);
@@ -2558,11 +2538,12 @@ public class UserITCase extends AbstractITCase {
             assertNotNull(userTO);
 
             // 5. update user with the new group, and don't provide any password
-            UserMod userMod = new UserMod();
-            userMod.setKey(userTO.getKey());
-            userMod.getMembershipsToAdd().add(group.getKey());
+            UserPatch userPatch = new UserPatch();
+            userPatch.setKey(userTO.getKey());
+            userPatch.getMemberships().add(new MembershipPatch.Builder().operation(PatchOperation.ADD_REPLACE).
+                    membershipTO(new MembershipTO.Builder().group(group.getKey()).build()).build());
 
-            userTO = updateUser(userMod);
+            userTO = updateUser(userPatch);
             assertNotNull(userTO);
 
             // 5. verify that propagation was successful

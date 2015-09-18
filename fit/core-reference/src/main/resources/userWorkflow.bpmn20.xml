@@ -97,7 +97,7 @@ under the License.
     <exclusiveGateway id="activeGw"/>
     <sequenceFlow id="active2UpdateApproval" sourceRef="activeGw" targetRef="updateApproval">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${wfExecutor == user.getUsername() and task == 'update' 
-        and (!userMod.getMembershipsToAdd().isEmpty() or !userMod.getMembershipsToRemove().isEmpty())}]]></conditionExpression>
+        and (!userPatch.getMemberships().isEmpty())}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="active2DeleteApproval" sourceRef="activeGw" targetRef="deleteApproval">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${wfExecutor == user.getUsername() and task == 'delete'}]]></conditionExpression>

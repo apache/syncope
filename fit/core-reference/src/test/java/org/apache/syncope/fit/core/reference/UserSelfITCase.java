@@ -37,14 +37,19 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.mod.StatusMod;
-import org.apache.syncope.common.lib.mod.UserMod;
+import org.apache.syncope.common.lib.patch.BooleanReplacePatchItem;
+import org.apache.syncope.common.lib.patch.MembershipPatch;
+import org.apache.syncope.common.lib.patch.PasswordPatch;
+import org.apache.syncope.common.lib.patch.StringPatchItem;
+import org.apache.syncope.common.lib.patch.StringReplacePatchItem;
+import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.WorkflowFormPropertyTO;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.rest.api.Preference;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.ResourceService;
@@ -91,9 +96,7 @@ public class UserSelfITCase extends AbstractITCase {
 
         // self-create user with membership: goes 'createApproval' with resources and membership but no propagation
         UserTO userTO = UserITCase.getUniqueSampleTO("anonymous@syncope.apache.org");
-        MembershipTO membership = new MembershipTO();
-        membership.setRightKey(3L);
-        userTO.getMemberships().add(membership);
+        userTO.getMemberships().add(new MembershipTO.Builder().group(3L).build());
         userTO.getResources().add(RESOURCE_NAME_TESTDB);
 
         SyncopeClient anonClient = clientFactory.createAnonymous();
@@ -148,12 +151,12 @@ public class UserSelfITCase extends AbstractITCase {
         assertFalse(created.getUsername().endsWith("XX"));
 
         // 2. self-update (username) - works
-        UserMod userMod = new UserMod();
-        userMod.setKey(created.getKey());
-        userMod.setUsername(created.getUsername() + "XX");
+        UserPatch userPatch = new UserPatch();
+        userPatch.setKey(created.getKey());
+        userPatch.setUsername(new StringReplacePatchItem.Builder().value(created.getUsername() + "XX").build());
 
         SyncopeClient authClient = clientFactory.create(created.getUsername(), "password123");
-        UserTO updated = authClient.getService(UserSelfService.class).update(userMod).
+        UserTO updated = authClient.getService(UserSelfService.class).update(userPatch).
                 readEntity(UserTO.class);
         assertNotNull(updated);
         assertEquals(ActivitiDetector.isActivitiEnabledForUsers(syncopeService)
@@ -171,19 +174,20 @@ public class UserSelfITCase extends AbstractITCase {
         assertFalse(created.getUsername().endsWith("XX"));
 
         // 2. self-update (username + memberships + resource) - works but needs approval
-        UserMod userMod = new UserMod();
-        userMod.setKey(created.getKey());
-        userMod.setUsername(created.getUsername() + "XX");
-        userMod.getMembershipsToAdd().add(7L);
-        userMod.getResourcesToAdd().add(RESOURCE_NAME_TESTDB);
-        userMod.setPassword("newPassword123");
-        StatusMod statusMod = new StatusMod();
-        statusMod.setOnSyncope(false);
-        statusMod.getResources().add(RESOURCE_NAME_TESTDB);
-        userMod.setPwdPropRequest(statusMod);
+        UserPatch userPatch = new UserPatch();
+        userPatch.setKey(created.getKey());
+        userPatch.setUsername(new StringReplacePatchItem.Builder().value(created.getUsername() + "XX").build());
+        userPatch.getMemberships().add(new MembershipPatch.Builder().
+                operation(PatchOperation.ADD_REPLACE).
+                membershipTO(new MembershipTO.Builder().group(7L).build()).
+                build());
+        userPatch.getResources().add(new StringPatchItem.Builder().
+                operation(PatchOperation.ADD_REPLACE).value(RESOURCE_NAME_TESTDB).build());
+        userPatch.setPassword(new PasswordPatch.Builder().
+                value("newPassword123").onSyncope(false).resource(RESOURCE_NAME_TESTDB).build());
 
         SyncopeClient authClient = clientFactory.create(created.getUsername(), "password123");
-        UserTO updated = authClient.getService(UserSelfService.class).update(userMod).
+        UserTO updated = authClient.getService(UserSelfService.class).update(userPatch).
                 readEntity(UserTO.class);
         assertNotNull(updated);
         assertEquals("updateApproval", updated.getStatus());
@@ -354,16 +358,22 @@ public class UserSelfITCase extends AbstractITCase {
 
     @Test
     public void mustChangePassword() {
+        // PRE: reset vivaldi's password
+        UserPatch userPatch = new UserPatch();
+        userPatch.setKey(3L);
+        userPatch.setPassword(new PasswordPatch.Builder().value("password321").build());
+        userService.update(userPatch);
+
         // 0. access as vivaldi -> succeed
-        SyncopeClient vivaldiClient = clientFactory.create("vivaldi", "password");
+        SyncopeClient vivaldiClient = clientFactory.create("vivaldi", "password321");
         Pair<Map<String, Set<String>>, UserTO> self = vivaldiClient.self();
         assertFalse(self.getRight().isMustChangePassword());
 
         // 1. update user vivaldi (3) requirig password update
-        UserMod userMod = new UserMod();
-        userMod.setKey(3L);
-        userMod.setMustChangePassword(true);
-        UserTO vivaldi = updateUser(userMod);
+        userPatch = new UserPatch();
+        userPatch.setKey(3L);
+        userPatch.setMustChangePassword(new BooleanReplacePatchItem.Builder().value(true).build());
+        UserTO vivaldi = updateUser(userPatch);
         assertTrue(vivaldi.isMustChangePassword());
 
         // 2. attempt to access -> fail

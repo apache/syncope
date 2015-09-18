@@ -33,7 +33,7 @@ import org.apache.commons.jexl2.MapContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.mod.AttrMod;
+import org.apache.syncope.common.lib.patch.AttrPatch;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
@@ -122,8 +122,7 @@ public final class MappingUtils {
      * @param any given any object
      * @param password clear-text password
      * @param changePwd whether password should be included for propagation attributes or not
-     * @param vAttrsToBeRemoved virtual attributes to be removed
-     * @param vAttrsToBeUpdated virtual attributes to be added
+     * @param vAttrs virtual attributes to be managed
      * @param enable whether any object must be enabled or not
      * @param provision provision information
      * @return connObjectLink + prepared attributes
@@ -132,8 +131,7 @@ public final class MappingUtils {
             final Any<?, ?, ?> any,
             final String password,
             final boolean changePwd,
-            final Set<String> vAttrsToBeRemoved,
-            final Map<String, AttrMod> vAttrsToBeUpdated,
+            final Map<String, AttrPatch> vAttrs,
             final Boolean enable,
             final Provision provision) {
 
@@ -160,7 +158,7 @@ public final class MappingUtils {
                 }
 
                 Pair<String, Attribute> preparedAttr = prepareAttr(
-                        provision, mapping, any, password, passwordGenerator, vAttrsToBeRemoved, vAttrsToBeUpdated);
+                        provision, mapping, any, password, passwordGenerator, vAttrs);
 
                 if (preparedAttr != null && preparedAttr.getKey() != null) {
                     connObjectKey = preparedAttr.getKey();
@@ -214,15 +212,14 @@ public final class MappingUtils {
      * @param any any object
      * @param password clear-text password
      * @param passwordGenerator password generator
-     * @param vAttrsToBeRemoved virtual attributes to be removed
-     * @param vAttrsToBeUpdated virtual attributes to be added
+     * @param vAttrs virtual attributes to be managed
      * @return connObjectLink + prepared attribute
      */
     @SuppressWarnings("unchecked")
     private static Pair<String, Attribute> prepareAttr(
             final Provision provision, final MappingItem mapItem,
             final Any<?, ?, ?> any, final String password, final PasswordGenerator passwordGenerator,
-            final Set<String> vAttrsToBeRemoved, final Map<String, AttrMod> vAttrsToBeUpdated) {
+            final Map<String, AttrPatch> vAttrs) {
 
         List<Any<?, ?, ?>> anys = new ArrayList<>();
 
@@ -258,8 +255,7 @@ public final class MappingUtils {
             default:
         }
 
-        List<PlainAttrValue> values = getIntValues(
-                provision, mapItem, anys, vAttrsToBeRemoved, vAttrsToBeUpdated);
+        List<PlainAttrValue> values = getIntValues(provision, mapItem, anys, vAttrs);
 
         Schema schema = null;
         boolean readOnlyVirSchema = false;
@@ -409,7 +405,7 @@ public final class MappingUtils {
 
     private static String getGroupOwnerValue(final Provision provision, final Any<?, ?, ?> any) {
         Pair<String, Attribute> preparedAttr = prepareAttr(provision, getConnObjectKeyItem(provision),
-                any, null, null, Collections.<String>emptySet(), Collections.<String, AttrMod>emptyMap());
+                any, null, null, Collections.<String, AttrPatch>emptyMap());
         String connObjectKey = preparedAttr.getKey();
 
         final Name groupOwnerName = evaluateNAME(any, provision, connObjectKey);
@@ -422,13 +418,11 @@ public final class MappingUtils {
      * @param provision provision information
      * @param mappingItem mapping item
      * @param anys any objects
-     * @param vAttrsToBeRemoved virtual attributes to be removed
-     * @param vAttrsToBeUpdated virtual attributes to be added
+     * @param vAttrs virtual attributes to be managed
      * @return attribute values.
      */
     public static List<PlainAttrValue> getIntValues(final Provision provision,
-            final MappingItem mappingItem, final List<Any<?, ?, ?>> anys,
-            final Set<String> vAttrsToBeRemoved, final Map<String, AttrMod> vAttrsToBeUpdated) {
+            final MappingItem mappingItem, final List<Any<?, ?, ?>> anys, final Map<String, AttrPatch> vAttrs) {
 
         LOG.debug("Get attributes for '{}' and mapping type '{}'", anys, mappingItem.getIntMappingType());
 
@@ -468,13 +462,11 @@ public final class MappingUtils {
                     AnyUtils anyUtils = anyUtilsFactory.getInstance(any);
                     VirAttr<?> virAttr = any.getVirAttr(mappingItem.getIntAttrName());
                     if (virAttr != null) {
-                        if (vAttrsToBeRemoved != null && vAttrsToBeUpdated != null) {
-                            if (vAttrsToBeUpdated.containsKey(mappingItem.getIntAttrName())) {
+                        if (vAttrs != null) {
+                            if (vAttrs.containsKey(mappingItem.getIntAttrName())) {
                                 virAttr.getValues().clear();
                                 virAttr.getValues().addAll(
-                                        vAttrsToBeUpdated.get(mappingItem.getIntAttrName()).getValuesToBeAdded());
-                            } else if (vAttrsToBeRemoved.contains(mappingItem.getIntAttrName())) {
-                                virAttr.getValues().clear();
+                                        vAttrs.get(mappingItem.getIntAttrName()).getAttrTO().getValues());
                             } else {
                                 throw new IllegalArgumentException("Don't need to update virtual attribute '"
                                         + mappingItem.getIntAttrName() + "'");
@@ -595,7 +587,7 @@ public final class MappingUtils {
      */
     public static String getConnObjectKeyValue(final Any<?, ?, ?> any, final Provision provision) {
         List<PlainAttrValue> values = getIntValues(provision, provision.getMapping().getConnObjectKeyItem(),
-                Collections.<Any<?, ?, ?>>singletonList(any), null, null);
+                Collections.<Any<?, ?, ?>>singletonList(any), null);
         return values == null || values.isEmpty()
                 ? null
                 : values.get(0).getValueAsString();

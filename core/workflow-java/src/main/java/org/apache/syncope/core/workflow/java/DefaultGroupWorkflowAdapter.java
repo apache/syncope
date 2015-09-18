@@ -21,7 +21,7 @@ package org.apache.syncope.core.workflow.java;
 import java.io.OutputStream;
 import java.util.Collections;
 import java.util.List;
-import org.apache.syncope.common.lib.mod.GroupMod;
+import org.apache.syncope.common.lib.patch.GroupPatch;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
 import org.apache.syncope.common.lib.types.PropagationByResource;
@@ -51,8 +51,8 @@ public class DefaultGroupWorkflowAdapter extends AbstractGroupWorkflowAdapter {
     }
 
     @Override
-    protected WorkflowResult<Long> doUpdate(final Group group, final GroupMod groupMod) {
-        PropagationByResource propByRes = dataBinder.update(group, groupMod);
+    protected WorkflowResult<Long> doUpdate(final Group group, final GroupPatch groupPatch) {
+        PropagationByResource propByRes = dataBinder.update(group, groupPatch);
 
         Group updated = groupDAO.save(group);
 
@@ -105,7 +105,7 @@ public class DefaultGroupWorkflowAdapter extends AbstractGroupWorkflowAdapter {
     }
 
     @Override
-    public WorkflowResult<GroupMod> submitForm(final WorkflowFormTO form) {
+    public WorkflowResult<GroupPatch> submitForm(final WorkflowFormTO form) {
         throw new WorkflowException(new UnsupportedOperationException("Not supported."));
     }
 

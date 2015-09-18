@@ -36,10 +36,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
-import org.apache.syncope.common.lib.mod.AnyObjectMod;
-import org.apache.syncope.common.lib.mod.AttrMod;
-import org.apache.syncope.common.lib.mod.GroupMod;
-import org.apache.syncope.common.lib.mod.UserMod;
+import org.apache.syncope.common.lib.patch.AnyObjectPatch;
+import org.apache.syncope.common.lib.patch.AttrPatch;
+import org.apache.syncope.common.lib.patch.GroupPatch;
+import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
 import org.apache.syncope.common.lib.to.AbstractSchemaTO;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
@@ -49,6 +49,7 @@ import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
+import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.AnyObjectService;
@@ -266,17 +267,11 @@ public abstract class AbstractITCase {
     }
 
     protected static AttrTO attrTO(final String schema, final String value) {
-        AttrTO attr = new AttrTO();
-        attr.setSchema(schema);
-        attr.getValues().add(value);
-        return attr;
+        return new AttrTO.Builder().schema(schema).value(value).build();
     }
 
-    protected static AttrMod attrMod(final String schema, final String valueToBeAdded) {
-        AttrMod attr = new AttrMod();
-        attr.setSchema(schema);
-        attr.getValuesToBeAdded().add(valueToBeAdded);
-        return attr;
+    protected static AttrPatch attrAddReplacePatch(final String schema, final String value) {
+        return new AttrPatch.Builder().operation(PatchOperation.ADD_REPLACE).attrTO(attrTO(schema, value)).build();
     }
 
     protected UserTO createUser(final UserTO userTO) {
@@ -299,8 +294,8 @@ public abstract class AbstractITCase {
                 userService.getUserKey(username).getHeaderString(RESTHeaders.USER_KEY)));
     }
 
-    protected UserTO updateUser(final UserMod userMod) {
-        return userService.update(userMod).readEntity(UserTO.class);
+    protected UserTO updateUser(final UserPatch userPatch) {
+        return userService.update(userPatch).readEntity(UserTO.class);
     }
 
     protected UserTO deleteUser(final Long key) {
@@ -349,8 +344,8 @@ public abstract class AbstractITCase {
         return getObject(response.getLocation(), AnyObjectService.class, AnyObjectTO.class);
     }
 
-    protected AnyObjectTO updateAnyObject(final AnyObjectMod anyObjectMod) {
-        return anyObjectService.update(anyObjectMod).readEntity(AnyObjectTO.class);
+    protected AnyObjectTO updateAnyObject(final AnyObjectPatch anyObjectPatch) {
+        return anyObjectService.update(anyObjectPatch).readEntity(AnyObjectTO.class);
     }
 
     protected AnyObjectTO deleteAnyObject(final Long key) {
@@ -368,8 +363,8 @@ public abstract class AbstractITCase {
         return getObject(response.getLocation(), GroupService.class, GroupTO.class);
     }
 
-    protected GroupTO updateGroup(final GroupMod groupMod) {
-        return groupService.update(groupMod).readEntity(GroupTO.class);
+    protected GroupTO updateGroup(final GroupPatch groupPatch) {
+        return groupService.update(groupPatch).readEntity(GroupTO.class);
     }
 
     protected GroupTO deleteGroup(final Long key) {

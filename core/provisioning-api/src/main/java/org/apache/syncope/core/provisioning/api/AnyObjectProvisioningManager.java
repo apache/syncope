@@ -20,11 +20,11 @@ package org.apache.syncope.core.provisioning.api;
 
 import java.util.Collection;
 import java.util.List;
-import org.apache.syncope.common.lib.mod.AnyObjectMod;
+import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 
-public interface AnyObjectProvisioningManager extends ProvisioningManager<AnyObjectTO, AnyObjectMod> {
+public interface AnyObjectProvisioningManager extends ProvisioningManager<AnyObjectTO, AnyObjectPatch> {
 
     List<PropagationStatus> provision(Long key, Collection<String> resources);
 }

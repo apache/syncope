@@ -27,7 +27,7 @@ import java.util.Set;
 import org.apache.camel.Exchange;
 import org.apache.camel.PollingConsumer;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.mod.GroupMod;
+import org.apache.syncope.common.lib.patch.GroupPatch;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.core.provisioning.api.GroupProvisioningManager;
@@ -82,21 +82,21 @@ public class CamelGroupProvisioningManager
     }
 
     @Override
-    public Pair<Long, List<PropagationStatus>> update(final GroupMod anyMod) {
-        return update(anyMod, Collections.<String>emptySet());
+    public Pair<Long, List<PropagationStatus>> update(final GroupPatch anyPatch) {
+        return update(anyPatch, Collections.<String>emptySet());
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public Pair<Long, List<PropagationStatus>> update(
-            final GroupMod anyMod, final Set<String> excludedResources) {
+            final GroupPatch anyPatch, final Set<String> excludedResources) {
 
         PollingConsumer pollingConsumer = getConsumer("direct:updateGroupPort");
 
         Map<String, Object> props = new HashMap<>();
         props.put("excludedResources", excludedResources);
 
-        sendMessage("direct:updateGroup", anyMod, props);
+        sendMessage("direct:updateGroup", anyPatch, props);
 
         Exchange exchange = pollingConsumer.receive();
 
@@ -132,10 +132,10 @@ public class CamelGroupProvisioningManager
     }
 
     @Override
-    public Long unlink(final GroupMod groupMod) {
+    public Long unlink(final GroupPatch groupPatch) {
         PollingConsumer pollingConsumer = getConsumer("direct:unlinkGroupPort");
 
-        sendMessage("direct:unlinkGroup", groupMod);
+        sendMessage("direct:unlinkGroup", groupPatch);
 
         Exchange exchange = pollingConsumer.receive();
 
@@ -147,10 +147,10 @@ public class CamelGroupProvisioningManager
     }
 
     @Override
-    public Long link(final GroupMod groupMod) {
+    public Long link(final GroupPatch groupPatch) {
         PollingConsumer pollingConsumer = getConsumer("direct:linkGroupPort");
 
-        sendMessage("direct:linkGroup", groupMod);
+        sendMessage("direct:linkGroup", groupPatch);
 
         Exchange exchange = pollingConsumer.receive();
 
@@ -179,7 +179,7 @@ public class CamelGroupProvisioningManager
 
         return exchange.getIn().getBody(List.class);
     }
-    
+
     @Override
     @SuppressWarnings("unchecked")
     public List<PropagationStatus> deprovision(final Long key, final Collection<String> resources) {

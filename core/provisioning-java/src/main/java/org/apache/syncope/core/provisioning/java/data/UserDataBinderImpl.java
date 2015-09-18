@@ -24,21 +24,24 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.Resource;
-import org.apache.commons.collections4.Closure;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.mod.StatusMod;
-import org.apache.syncope.common.lib.mod.UserMod;
+import org.apache.syncope.common.lib.patch.LongPatchItem;
+import org.apache.syncope.common.lib.patch.MembershipPatch;
+import org.apache.syncope.common.lib.patch.PasswordPatch;
+import org.apache.syncope.common.lib.patch.RelationshipPatch;
+import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.SecurityQuestionDAO;
@@ -52,6 +55,7 @@ import org.apache.syncope.core.misc.security.Encryptor;
 import org.apache.syncope.core.misc.spring.BeanUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
+import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
@@ -159,16 +163,17 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         // relationships
         for (RelationshipTO relationshipTO : userTO.getRelationships()) {
             AnyObject anyObject = anyObjectDAO.find(relationshipTO.getRightKey());
-
             if (anyObject == null) {
                 LOG.debug("Ignoring invalid anyObject " + relationshipTO.getRightKey());
             } else {
+                RelationshipType relationshipType = relationshipTypeDAO.find(relationshipTO.getType());
                 URelationship relationship = null;
                 if (user.getKey() != null) {
-                    relationship = user.getRelationship(anyObject.getKey());
+                    relationship = user.getRelationship(relationshipType, anyObject.getKey());
                 }
                 if (relationship == null) {
                     relationship = entityFactory.newEntity(URelationship.class);
+                    relationship.setType(relationshipType);
                     relationship.setRightEnd(anyObject);
                     relationship.setLeftEnd(user);
 
@@ -241,7 +246,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
     }
 
     @Override
-    public PropagationByResource update(final User toBeUpdated, final UserMod userMod) {
+    public PropagationByResource update(final User toBeUpdated, final UserPatch userPatch) {
         // Re-merge any pending change from workflow tasks
         final User user = userDAO.save(toBeUpdated);
 
@@ -255,155 +260,132 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         Map<String, String> oldConnObjectKeys = getConnObjectKeys(user);
 
         // realm
-        setRealm(user, userMod);
+        setRealm(user, userPatch);
 
         // password
-        if (StringUtils.isNotBlank(userMod.getPassword())) {
-            setPassword(user, userMod.getPassword(), scce);
+        if (userPatch.getPassword() != null && StringUtils.isNotBlank(userPatch.getPassword().getValue())) {
+            setPassword(user, userPatch.getPassword().getValue(), scce);
             user.setChangePwdDate(new Date());
             propByRes.addAll(ResourceOperation.UPDATE, currentResources);
         }
 
         // username
-        if (userMod.getUsername() != null && !userMod.getUsername().equals(user.getUsername())) {
+        if (userPatch.getUsername() != null && StringUtils.isNotBlank(userPatch.getUsername().getValue())) {
             propByRes.addAll(ResourceOperation.UPDATE, currentResources);
 
             String oldUsername = user.getUsername();
-            user.setUsername(userMod.getUsername());
+            user.setUsername(userPatch.getUsername().getValue());
 
             if (oldUsername.equals(AuthContextUtils.getUsername())) {
-                AuthContextUtils.updateUsername(userMod.getUsername());
+                AuthContextUtils.updateUsername(userPatch.getUsername().getValue());
             }
         }
 
         // security question / answer:
-        // userMod.getSecurityQuestion() is null => remove user security question and answer
-        // userMod.getSecurityQuestion() == 0 => don't change anything
-        // userMod.getSecurityQuestion() > 0 => update user security question and answer
-        if (userMod.getSecurityQuestion() == null) {
-            user.setSecurityQuestion(null);
-            user.setSecurityAnswer(null);
-        } else if (userMod.getSecurityQuestion() > 0) {
-            SecurityQuestion securityQuestion = securityQuestionDAO.find(userMod.getSecurityQuestion());
-            if (securityQuestion != null) {
-                user.setSecurityQuestion(securityQuestion);
-                user.setSecurityAnswer(userMod.getSecurityAnswer());
+        if (userPatch.getSecurityQuestion() != null) {
+            if (userPatch.getSecurityQuestion().getValue() == null) {
+                user.setSecurityQuestion(null);
+                user.setSecurityAnswer(null);
+            } else {
+                SecurityQuestion securityQuestion =
+                        securityQuestionDAO.find(userPatch.getSecurityQuestion().getValue());
+                if (securityQuestion != null) {
+                    user.setSecurityQuestion(securityQuestion);
+                    user.setSecurityAnswer(userPatch.getSecurityAnswer().getValue());
+                }
             }
         }
 
-        user.setMustChangePassword(userMod.isMustChangePassword());
+        if (userPatch.getMustChangePassword() != null) {
+            user.setMustChangePassword(userPatch.getMustChangePassword().getValue());
+        }
 
         // roles
-        CollectionUtils.forAllDo(userMod.getRolesToRemove(), new Closure<Long>() {
+        for (LongPatchItem patch : userPatch.getRoles()) {
+            Role role = roleDAO.find(patch.getValue());
+            if (role == null) {
+                LOG.warn("Ignoring unknown role with key {}", patch.getValue());
+            } else {
+                switch (patch.getOperation()) {
+                    case ADD_REPLACE:
+                        user.add(role);
+                        break;
 
-            @Override
-            public void execute(final Long roleKey) {
-                Role role = roleDAO.find(roleKey);
-                if (role == null) {
-                    LOG.warn("Ignoring unknown role with id {}", roleKey);
-                } else {
-                    user.remove(role);
+                    case DELETE:
+                    default:
+                        user.remove(role);
                 }
             }
-        });
-        CollectionUtils.forAllDo(userMod.getRolesToAdd(), new Closure<Long>() {
-
-            @Override
-            public void execute(final Long roleKey) {
-                Role role = roleDAO.find(roleKey);
-                if (role == null) {
-                    LOG.warn("Ignoring unknown role with id {}", roleKey);
-                } else {
-                    user.add(role);
-                }
-            }
-        });
+        }
 
         // attributes, derived attributes, virtual attributes and resources
-        propByRes.merge(fill(user, userMod, anyUtilsFactory.getInstance(AnyTypeKind.USER), scce));
+        propByRes.merge(fill(user, userPatch, anyUtilsFactory.getInstance(AnyTypeKind.USER), scce));
 
         Set<String> toBeDeprovisioned = new HashSet<>();
         Set<String> toBeProvisioned = new HashSet<>();
 
-        // relationships to be removed
-        for (Long anyObjectKey : userMod.getRelationshipsToRemove()) {
-            LOG.debug("Relationship to be removed for any object {}", anyObjectKey);
-
-            URelationship relationship = user.getRelationship(anyObjectKey);
-            if (relationship == null) {
-                LOG.warn("Invalid anyObject key specified for relationship to be removed: {}", anyObjectKey);
-            } else {
-                if (!userMod.getRelationshipsToAdd().contains(anyObjectKey)) {
+        // relationships
+        for (RelationshipPatch patch : userPatch.getRelationships()) {
+            if (patch.getRelationshipTO() != null) {
+                RelationshipType relationshipType = relationshipTypeDAO.find(patch.getRelationshipTO().getType());
+                URelationship relationship =
+                        user.getRelationship(relationshipType, patch.getRelationshipTO().getRightKey());
+                if (relationship != null) {
                     user.remove(relationship);
                     toBeDeprovisioned.addAll(relationship.getRightEnd().getResourceNames());
                 }
-            }
-        }
 
-        // relationships to be added
-        for (Long anyObjectKey : userMod.getRelationshipsToAdd()) {
-            LOG.debug("Relationship to be added for any object {}", anyObjectKey);
+                if (patch.getOperation() == PatchOperation.ADD_REPLACE) {
+                    AnyObject otherEnd = anyObjectDAO.find(patch.getRelationshipTO().getRightKey());
+                    if (otherEnd == null) {
+                        LOG.debug("Ignoring invalid any object {}", patch.getRelationshipTO().getRightKey());
+                    } else {
 
-            AnyObject otherEnd = anyObjectDAO.find(anyObjectKey);
-            if (otherEnd == null) {
-                LOG.debug("Ignoring invalid any object {}", anyObjectKey);
-            } else {
-                URelationship relationship = user.getRelationship(otherEnd.getKey());
-                if (relationship == null) {
-                    relationship = entityFactory.newEntity(URelationship.class);
-                    relationship.setRightEnd(otherEnd);
-                    relationship.setLeftEnd(user);
+                        relationship = entityFactory.newEntity(URelationship.class);
+                        relationship.setType(relationshipType);
+                        relationship.setRightEnd(otherEnd);
+                        relationship.setLeftEnd(user);
 
-                    user.add(relationship);
+                        user.add(relationship);
 
-                    toBeProvisioned.addAll(otherEnd.getResourceNames());
+                        toBeProvisioned.addAll(otherEnd.getResourceNames());
+                    }
                 }
             }
         }
 
-        // memberships to be removed
-        for (Long groupKey : userMod.getMembershipsToRemove()) {
-            LOG.debug("Membership to be removed for group {}", groupKey);
-
-            UMembership membership = user.getMembership(groupKey);
-            if (membership == null) {
-                LOG.debug("Invalid group key specified for membership to be removed: {}", groupKey);
-            } else {
-                if (!userMod.getMembershipsToAdd().contains(groupKey)) {
+        // memberships
+        for (MembershipPatch patch : userPatch.getMemberships()) {
+            if (patch.getMembershipTO() != null) {
+                UMembership membership = user.getMembership(patch.getMembershipTO().getRightKey());
+                if (membership != null) {
                     user.remove(membership);
                     toBeDeprovisioned.addAll(membership.getRightEnd().getResourceNames());
                 }
-            }
-        }
 
-        // memberships to be added
-        for (Long groupKey : userMod.getMembershipsToAdd()) {
-            LOG.debug("Membership to be added for group {}", groupKey);
+                if (patch.getOperation() == PatchOperation.ADD_REPLACE) {
+                    Group group = groupDAO.find(patch.getMembershipTO().getRightKey());
+                    if (group == null) {
+                        LOG.debug("Ignoring invalid group {}", patch.getMembershipTO().getRightKey());
+                    } else {
+                        membership = entityFactory.newEntity(UMembership.class);
+                        membership.setRightEnd(group);
+                        membership.setLeftEnd(user);
 
-            Group group = groupDAO.find(groupKey);
-            if (group == null) {
-                LOG.debug("Ignoring invalid group {}", groupKey);
-            } else {
-                UMembership membership = user.getMembership(group.getKey());
-                if (membership == null) {
-                    membership = entityFactory.newEntity(UMembership.class);
-                    membership.setRightEnd(group);
-                    membership.setLeftEnd(user);
+                        user.add(membership);
 
-                    user.add(membership);
+                        toBeProvisioned.addAll(group.getResourceNames());
 
-                    toBeProvisioned.addAll(group.getResourceNames());
-
-                    // SYNCOPE-686: if password is invertible and we are adding resources with password mapping,
-                    // ensure that they are counted for password propagation
-                    if (toBeUpdated.canDecodePassword()) {
-                        for (ExternalResource resource : group.getResources()) {
-                            if (isPasswordMapped(resource)) {
-                                if (userMod.getPwdPropRequest() == null) {
-                                    userMod.setPwdPropRequest(new StatusMod());
+                        // SYNCOPE-686: if password is invertible and we are adding resources with password mapping,
+                        // ensure that they are counted for password propagation
+                        if (toBeUpdated.canDecodePassword()) {
+                            if (userPatch.getPassword() == null) {
+                                userPatch.setPassword(new PasswordPatch());
+                            }
+                            for (ExternalResource resource : group.getResources()) {
+                                if (isPasswordMapped(resource)) {
+                                    userPatch.getPassword().getResources().add(resource.getKey());
                                 }
-
-                                userMod.getPwdPropRequest().getResources().add(resource.getKey());
                             }
                         }
                     }

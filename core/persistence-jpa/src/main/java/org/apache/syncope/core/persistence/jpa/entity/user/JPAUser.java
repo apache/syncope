@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.jpa.entity.user;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import javax.persistence.Basic;
@@ -546,8 +547,21 @@ public class JPAUser extends AbstractAny<UPlainAttr, UDerAttr, UVirAttr> impleme
     }
 
     @Override
-    public URelationship getRelationship(final RelationshipType relationshipType) {
+    public URelationship getRelationship(final RelationshipType relationshipType, final Long anyObjectKey) {
         return CollectionUtils.find(getRelationships(), new Predicate<URelationship>() {
+
+            @Override
+            public boolean evaluate(final URelationship relationship) {
+                return anyObjectKey != null && anyObjectKey.equals(relationship.getRightEnd().getKey())
+                        && ((relationshipType == null && relationship.getType() == null)
+                        || (relationshipType != null && relationshipType.equals(relationship.getType())));
+            }
+        });
+    }
+
+    @Override
+    public Collection<? extends URelationship> getRelationships(final RelationshipType relationshipType) {
+        return CollectionUtils.select(getRelationships(), new Predicate<URelationship>() {
 
             @Override
             public boolean evaluate(final URelationship relationship) {
@@ -557,8 +571,8 @@ public class JPAUser extends AbstractAny<UPlainAttr, UDerAttr, UVirAttr> impleme
     }
 
     @Override
-    public URelationship getRelationship(final Long anyObjectKey) {
-        return CollectionUtils.find(getRelationships(), new Predicate<URelationship>() {
+    public Collection<? extends URelationship> getRelationships(final Long anyObjectKey) {
+        return CollectionUtils.select(getRelationships(), new Predicate<URelationship>() {
 
             @Override
             public boolean evaluate(final URelationship relationship) {

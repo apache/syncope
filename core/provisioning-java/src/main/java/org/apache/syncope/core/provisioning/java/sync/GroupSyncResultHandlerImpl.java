@@ -22,13 +22,15 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.syncope.common.lib.mod.AnyMod;
-import org.apache.syncope.common.lib.mod.AttrMod;
-import org.apache.syncope.common.lib.mod.GroupMod;
+import org.apache.syncope.common.lib.patch.AnyPatch;
+import org.apache.syncope.common.lib.patch.AttrPatch;
+import org.apache.syncope.common.lib.patch.GroupPatch;
+import org.apache.syncope.common.lib.patch.StringPatchItem;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.provisioning.api.sync.ProvisioningResult;
 import org.apache.syncope.core.provisioning.api.sync.GroupSyncResultHandler;
@@ -81,34 +83,33 @@ public class GroupSyncResultHandlerImpl extends AbstractSyncResultHandler implem
             final ProvisioningResult result,
             final boolean unlink) {
 
-        GroupMod groupMod = new GroupMod();
-        groupMod.setKey(before.getKey());
+        GroupPatch groupPatch = new GroupPatch();
+        groupPatch.setKey(before.getKey());
+        groupPatch.getResources().add(new StringPatchItem.Builder().
+                operation(unlink ? PatchOperation.DELETE : PatchOperation.ADD_REPLACE).
+                value(profile.getTask().getResource().getKey()).build());
 
-        if (unlink) {
-            groupMod.getResourcesToRemove().add(profile.getTask().getResource().getKey());
-        } else {
-            groupMod.getResourcesToAdd().add(profile.getTask().getResource().getKey());
-        }
-
-        return groupDataBinder.getGroupTO(gwfAdapter.update(groupMod).getResult());
+        return groupDataBinder.getGroupTO(gwfAdapter.update(groupPatch).getResult());
     }
 
     @Override
     protected AnyTO doUpdate(
             final AnyTO before,
-            final AnyMod anyMod,
+            final AnyPatch anyPatch,
             final SyncDelta delta,
             final ProvisioningResult result) {
 
-        GroupMod groupMod = GroupMod.class.cast(anyMod);
+        GroupPatch groupPatch = GroupPatch.class.cast(anyPatch);
 
-        Map.Entry<Long, List<PropagationStatus>> updated = groupProvisioningManager.update(groupMod);
+        Map.Entry<Long, List<PropagationStatus>> updated = groupProvisioningManager.update(groupPatch);
 
         // moved after group provisioning manager
         String groupOwner = null;
-        for (AttrMod attrMod : groupMod.getPlainAttrsToUpdate()) {
-            if (attrMod.getSchema().isEmpty() && !attrMod.getValuesToBeAdded().isEmpty()) {
-                groupOwner = attrMod.getValuesToBeAdded().iterator().next();
+        for (AttrPatch attrPatch : groupPatch.getPlainAttrs()) {
+            if (attrPatch.getOperation() == PatchOperation.ADD_REPLACE && attrPatch.getAttrTO() != null
+                    && attrPatch.getAttrTO().getSchema().isEmpty() && !attrPatch.getAttrTO().getValues().isEmpty()) {
+
+                groupOwner = attrPatch.getAttrTO().getValues().get(0);
             }
         }
         if (groupOwner != null) {
@@ -127,9 +128,11 @@ public class GroupSyncResultHandlerImpl extends AbstractSyncResultHandler implem
         taskExecutor.execute(propagationManager.getGroupDeleteTasks(key, profile.getTask().getResource().getKey()));
 
         if (unlink) {
-            GroupMod groupMod = new GroupMod();
-            groupMod.setKey(key);
-            groupMod.getResourcesToRemove().add(profile.getTask().getResource().getKey());
+            GroupPatch groupPatch = new GroupPatch();
+            groupPatch.setKey(key);
+            groupPatch.getResources().add(new StringPatchItem.Builder().
+                    operation(PatchOperation.DELETE).
+                    value(profile.getTask().getResource().getKey()).build());
         }
     }
 

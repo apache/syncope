@@ -22,8 +22,8 @@ import java.lang.reflect.Method;
 import java.util.List;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.mod.AnyMod;
-import org.apache.syncope.common.lib.mod.UserMod;
+import org.apache.syncope.common.lib.patch.AnyPatch;
+import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
 import org.apache.syncope.common.lib.types.Entitlement;
@@ -68,12 +68,12 @@ public class UserWorkflowLogic extends AbstractTransactionalLogic<WorkflowFormTO
     public UserTO executeWorkflowTask(final UserTO userTO, final String taskId) {
         WorkflowResult<Long> updated = uwfAdapter.execute(userTO, taskId);
 
-        UserMod userMod = new UserMod();
-        userMod.setKey(userTO.getKey());
+        UserPatch userPatch = new UserPatch();
+        userPatch.setKey(userTO.getKey());
 
         List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(
-                new WorkflowResult<Pair<UserMod, Boolean>>(
-                        new ImmutablePair<UserMod, Boolean>(userMod, null),
+                new WorkflowResult<Pair<UserPatch, Boolean>>(
+                        new ImmutablePair<UserPatch, Boolean>(userPatch, null),
                         updated.getPropByRes(), updated.getPerformedTasks()));
 
         taskExecutor.execute(tasks);
@@ -104,16 +104,16 @@ public class UserWorkflowLogic extends AbstractTransactionalLogic<WorkflowFormTO
     @PreAuthorize("hasRole('" + Entitlement.WORKFLOW_FORM_SUBMIT + "')")
     @Transactional(rollbackFor = { Throwable.class })
     public UserTO submitForm(final WorkflowFormTO form) {
-        WorkflowResult<? extends AnyMod> updated = uwfAdapter.submitForm(form);
+        WorkflowResult<? extends AnyPatch> updated = uwfAdapter.submitForm(form);
 
         // propByRes can be made empty by the workflow definition if no propagation should occur 
         // (for example, with rejected users)
-        if (updated.getResult() instanceof UserMod
+        if (updated.getResult() instanceof UserPatch
                 && updated.getPropByRes() != null && !updated.getPropByRes().isEmpty()) {
 
             List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(
-                    new WorkflowResult<Pair<UserMod, Boolean>>(
-                            new ImmutablePair<>((UserMod) updated.getResult(), Boolean.TRUE),
+                    new WorkflowResult<Pair<UserPatch, Boolean>>(
+                            new ImmutablePair<>((UserPatch) updated.getResult(), Boolean.TRUE),
                             updated.getPropByRes(),
                             updated.getPerformedTasks()));
 

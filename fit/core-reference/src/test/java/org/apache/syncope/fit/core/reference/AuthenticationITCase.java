@@ -36,8 +36,11 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.mod.StatusMod;
-import org.apache.syncope.common.lib.mod.UserMod;
+import org.apache.syncope.common.lib.patch.DeassociationPatch;
+import org.apache.syncope.common.lib.patch.PasswordPatch;
+import org.apache.syncope.common.lib.patch.StatusPatch;
+import org.apache.syncope.common.lib.patch.StringReplacePatchItem;
+import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PagedResult;
@@ -50,10 +53,9 @@ import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.Entitlement;
-import org.apache.syncope.common.lib.types.ResourceDeassociationActionType;
+import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 import org.apache.syncope.common.lib.types.SchemaType;
-import org.apache.syncope.common.lib.wrap.ResourceKey;
-import org.apache.syncope.common.rest.api.CollectionWrapper;
+import org.apache.syncope.common.lib.types.StatusPatchType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.SchemaService;
 import org.apache.syncope.common.rest.api.service.UserService;
@@ -281,23 +283,22 @@ public class AuthenticationITCase extends AbstractITCase {
             assertEquals("surname", user.getPlainAttrMap().get("surname").getValues().get(0));
 
             // 5. as delegated, update user attempting to move under realm / -> fail
-            UserMod userMod = new UserMod();
-            userMod.setKey(user.getKey());
-            userMod.setRealm("/odd");
-            userMod.getPlainAttrsToRemove().add("surname");
-            userMod.getPlainAttrsToUpdate().add(attrMod("surname", "surname2"));
+            UserPatch userPatch = new UserPatch();
+            userPatch.setKey(user.getKey());
+            userPatch.setRealm(new StringReplacePatchItem.Builder().value("/odd").build());
+            userPatch.getPlainAttrs().add(attrAddReplacePatch("surname", "surname2"));
 
             try {
-                delegatedUserService.update(userMod);
+                delegatedUserService.update(userPatch);
                 fail();
             } catch (SyncopeClientException e) {
                 assertEquals(ClientExceptionType.DelegatedAdministration, e.getType());
             }
 
             // 6. revert realm change -> succeed
-            userMod.setRealm(null);
+            userPatch.setRealm(null);
 
-            response = delegatedUserService.update(userMod);
+            response = delegatedUserService.update(userPatch);
             assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
 
             user = response.readEntity(UserTO.class);
@@ -380,9 +381,9 @@ public class AuthenticationITCase extends AbstractITCase {
         SyncopeClient goodPwdClient = clientFactory.create(userTO.getUsername(), "password123");
         assertReadFails(goodPwdClient);
 
-        StatusMod reactivate = new StatusMod();
+        StatusPatch reactivate = new StatusPatch();
         reactivate.setKey(userTO.getKey());
-        reactivate.setType(StatusMod.ModType.REACTIVATE);
+        reactivate.setType(StatusPatchType.REACTIVATE);
         userTO = userService.status(reactivate).readEntity(UserTO.class);
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());
@@ -396,9 +397,7 @@ public class AuthenticationITCase extends AbstractITCase {
 
         // 1. create user with group 9 (users with group 9 are defined in workflow as subject to approval)
         UserTO userTO = UserITCase.getUniqueSampleTO("createWithReject@syncope.apache.org");
-        MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setRightKey(9L);
-        userTO.getMemberships().add(membershipTO);
+        userTO.getMemberships().add(new MembershipTO.Builder().group(9L).build());
 
         userTO = createUser(userTO);
         assertNotNull(userTO);
@@ -442,16 +441,17 @@ public class AuthenticationITCase extends AbstractITCase {
         assertNotNull(user);
 
         // 2. unlink the resource from the created user
-        assertNotNull(userService.deassociate(user.getKey(),
-                ResourceDeassociationActionType.UNLINK,
-                CollectionWrapper.wrap(RESOURCE_NAME_TESTDB, ResourceKey.class)).
-                readEntity(BulkActionResult.class));
+        DeassociationPatch deassociationPatch = new DeassociationPatch();
+        deassociationPatch.setKey(user.getKey());
+        deassociationPatch.setAction(ResourceDeassociationAction.UNLINK);
+        deassociationPatch.getResources().add(RESOURCE_NAME_TESTDB);
+        assertNotNull(userService.deassociate(deassociationPatch).readEntity(BulkActionResult.class));
 
         // 3. change password on Syncope
-        UserMod userMod = new UserMod();
-        userMod.setKey(user.getKey());
-        userMod.setPassword("password234");
-        user = updateUser(userMod);
+        UserPatch userPatch = new UserPatch();
+        userPatch.setKey(user.getKey());
+        userPatch.setPassword(new PasswordPatch.Builder().value("password234").build());
+        user = updateUser(userPatch);
         assertNotNull(user);
 
         // 4. check that the db resource has still the initial password value

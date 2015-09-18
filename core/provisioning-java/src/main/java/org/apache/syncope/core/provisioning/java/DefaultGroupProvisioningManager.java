@@ -32,7 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.mod.GroupMod;
+import org.apache.syncope.common.lib.patch.GroupPatch;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.GroupTO;
@@ -121,27 +121,26 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
     }
 
     @Override
-    public Pair<Long, List<PropagationStatus>> update(final GroupMod groupMod) {
-        return update(groupMod, Collections.<String>emptySet());
+    public Pair<Long, List<PropagationStatus>> update(final GroupPatch groupPatch) {
+        return update(groupPatch, Collections.<String>emptySet());
     }
 
     @Override
     public Pair<Long, List<PropagationStatus>> update(
-            final GroupMod groupMod, final Set<String> excludedResources) {
+            final GroupPatch groupPatch, final Set<String> excludedResources) {
 
-        WorkflowResult<Long> updated = gwfAdapter.update(groupMod);
+        WorkflowResult<Long> updated = gwfAdapter.update(groupPatch);
 
-        List<PropagationTask> tasks = propagationManager.getGroupUpdateTasks(updated,
-                groupMod.getVirAttrsToRemove(), groupMod.getVirAttrsToUpdate(), excludedResources);
+        List<PropagationTask> tasks = propagationManager.getGroupUpdateTasks(
+                updated, groupPatch.getVirAttrs(), excludedResources);
         if (tasks.isEmpty()) {
             // SYNCOPE-459: take care of user virtual attributes ...
             PropagationByResource propByResVirAttr = virtAttrHandler.fillVirtual(
                     updated.getResult(),
                     AnyTypeKind.GROUP,
-                    groupMod.getVirAttrsToRemove(),
-                    groupMod.getVirAttrsToUpdate());
+                    groupPatch.getVirAttrs());
             tasks.addAll(!propByResVirAttr.isEmpty()
-                    ? propagationManager.getGroupUpdateTasks(updated, null, null, null)
+                    ? propagationManager.getGroupUpdateTasks(updated, null, null)
                     : Collections.<PropagationTask>emptyList());
         }
 
@@ -204,8 +203,8 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
     }
 
     @Override
-    public Long unlink(final GroupMod groupMod) {
-        WorkflowResult<Long> updated = gwfAdapter.update(groupMod);
+    public Long unlink(final GroupPatch groupPatch) {
+        WorkflowResult<Long> updated = gwfAdapter.update(groupPatch);
         return updated.getResult();
     }
 
@@ -216,7 +215,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
 
         WorkflowResult<Long> wfResult = new WorkflowResult<>(key, propByRes, "update");
 
-        List<PropagationTask> tasks = propagationManager.getGroupUpdateTasks(wfResult, null, null, null);
+        List<PropagationTask> tasks = propagationManager.getGroupUpdateTasks(wfResult, null, null);
         PropagationReporter propagationReporter =
                 ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
         try {
@@ -248,8 +247,8 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
     }
 
     @Override
-    public Long link(final GroupMod groupMod) {
-        return gwfAdapter.update(groupMod).getResult();
+    public Long link(final GroupPatch groupPatch) {
+        return gwfAdapter.update(groupPatch).getResult();
     }
 
 }

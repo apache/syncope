@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.core.workflow.api;
 
-import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import java.io.OutputStream;
 import java.util.List;
-import org.apache.syncope.common.lib.mod.AnyMod;
+import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
+import org.apache.syncope.core.provisioning.api.WorkflowResult;
 
 public interface WorkflowAdapter {
 
@@ -92,5 +92,5 @@ public interface WorkflowAdapter {
      * @param form to be submitted
      * @return object updated by this form submit
      */
-    WorkflowResult<? extends AnyMod> submitForm(WorkflowFormTO form);
+    WorkflowResult<? extends AnyPatch> submitForm(WorkflowFormTO form);
 }

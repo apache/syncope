@@ -23,14 +23,14 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import org.apache.syncope.common.lib.mod.GroupMod;
+import org.apache.syncope.common.lib.patch.GroupPatch;
 import org.apache.syncope.common.lib.to.GroupTO;
 
 /**
  * REST operations for groups.
  */
 @Path("groups")
-public interface GroupService extends AnyService<GroupTO, GroupMod> {
+public interface GroupService extends AnyService<GroupTO, GroupPatch> {
 
     /**
      * This method is similar to <tt>read()</tt>, but uses different authentication handling to ensure that a user

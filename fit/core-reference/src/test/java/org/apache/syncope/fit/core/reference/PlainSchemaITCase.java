@@ -29,9 +29,7 @@ import java.security.AccessControlException;
 import java.util.List;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.SerializationUtils;
-import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.mod.UserMod;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
@@ -247,13 +245,9 @@ public class PlainSchemaITCase extends AbstractITCase {
         assertNotNull(userTO);
 
         UserTO newUserTO = SerializationUtils.clone(userTO);
-        MembershipTO membership = new MembershipTO();
-        membership.setRightKey(2L);
-        newUserTO.getMemberships().add(membership);
+        newUserTO.getMemberships().add(new MembershipTO.Builder().group(2L).build());
 
-        UserMod userMod = AnyOperations.diff(newUserTO, userTO);
-
-        userTO = userService.update(userMod).readEntity(UserTO.class);
+        userTO = userService.update(newUserTO).readEntity(UserTO.class);
         assertNotNull(userTO);
     }
 

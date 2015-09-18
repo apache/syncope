@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.api.sync;
 
-import org.apache.syncope.common.lib.mod.AnyMod;
+import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.quartz.JobExecutionException;
@@ -139,19 +139,19 @@ public interface SyncActions extends ProvisioningActions {
      * {@link org.apache.syncope.common.types.MatchingRule#UPDATE} (default matching rule) is applied.
      *
      * @param <M> concrete any object
-     * @param <A> any object modifications
+     * @param <P> any object modifications
      * @param profile profile of the synchronization being executed.
      * @param delta retrieved synchronization information
      * @param any any object
-     * @param anyMod modification
+     * @param anyPatch modification
      * @return synchronization information used for logging and to be passed to the 'after' method.
      * @throws JobExecutionException in case of generic failure.
      */
-    <M extends AnyTO, A extends AnyMod> SyncDelta beforeUpdate(
+    <M extends AnyTO, P extends AnyPatch> SyncDelta beforeUpdate(
             ProvisioningProfile<?, ?> profile,
             SyncDelta delta,
             M any,
-            A anyMod)
+            P anyPatch)
             throws JobExecutionException;
 
     /**

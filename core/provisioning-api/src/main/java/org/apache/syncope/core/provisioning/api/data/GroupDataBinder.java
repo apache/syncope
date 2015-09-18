@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.api.data;
 
-import org.apache.syncope.common.lib.mod.GroupMod;
+import org.apache.syncope.common.lib.patch.GroupPatch;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
@@ -31,6 +31,6 @@ public interface GroupDataBinder {
 
     Group create(Group group, GroupTO groupTO);
 
-    PropagationByResource update(Group group, GroupMod groupMod);
+    PropagationByResource update(Group group, GroupPatch groupPatch);
 
 }

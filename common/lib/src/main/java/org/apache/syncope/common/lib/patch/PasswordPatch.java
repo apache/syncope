@@ -16,46 +16,58 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.mod;
+package org.apache.syncope.common.lib.patch;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import javax.ws.rs.PathParam;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.lib.AbstractBaseBean;
+import org.apache.commons.collections4.CollectionUtils;
 
-@XmlRootElement(name = "statusMod")
+@XmlRootElement(name = "passwordPatch")
 @XmlType
-public class StatusMod extends AbstractBaseBean {
+@XmlSeeAlso({ AssociationPatch.class, StatusPatch.class })
+public class PasswordPatch extends StringReplacePatchItem {
 
-    private static final long serialVersionUID = 3230910033784302656L;
+    private static final long serialVersionUID = 961023537479513071L;
 
-    @XmlEnum
-    @XmlType(name = "statusModType")
-    public enum ModType {
+    public static class Builder extends AbstractReplacePatchItem.Builder<String, PasswordPatch, Builder> {
 
-        ACTIVATE,
-        SUSPEND,
-        REACTIVATE;
+        @Override
+        protected PasswordPatch newInstance() {
+            return new PasswordPatch();
+        }
+
+        public Builder onSyncope(final boolean onSyncope) {
+            getInstance().setOnSyncope(onSyncope);
+            return this;
+        }
+
+        public Builder resource(final String resource) {
+            if (resource != null) {
+                getInstance().getResources().add(resource);
+            }
+            return this;
+        }
+
+        public Builder values(final String... resources) {
+            CollectionUtils.addAll(getInstance().getResources(), resources);
+            return this;
+        }
+
+        public Builder resources(final Collection<String> resources) {
+            if (resources != null) {
+                getInstance().getResources().addAll(resources);
+            }
+            return this;
+        }
 
     }
-
-    /**
-     * Key of user to for which status update is requested.
-     */
-    private long key;
-
-    private ModType type;
-
-    /**
-     * Update token (if required).
-     */
-    private String token;
 
     /**
      * Whether update should be performed on internal storage.
@@ -65,32 +77,7 @@ public class StatusMod extends AbstractBaseBean {
     /**
      * External resources for which update is needed to be propagated.
      */
-    private final List<String> resourceNames = new ArrayList<>();
-
-    public long getKey() {
-        return key;
-    }
-
-    @PathParam("key")
-    public void setKey(final long key) {
-        this.key = key;
-    }
-
-    public ModType getType() {
-        return type;
-    }
-
-    public void setType(final ModType type) {
-        this.type = type;
-    }
-
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(final String token) {
-        this.token = token;
-    }
+    private final List<String> resources = new ArrayList<>();
 
     public boolean isOnSyncope() {
         return onSyncope;
@@ -104,7 +91,7 @@ public class StatusMod extends AbstractBaseBean {
     @XmlElement(name = "resource")
     @JsonProperty("resources")
     public List<String> getResources() {
-        return resourceNames;
+        return resources;
     }
 
 }

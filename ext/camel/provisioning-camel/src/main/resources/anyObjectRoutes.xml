@@ -40,7 +40,7 @@ under the License.
          
   <route id="updateAnyObject">
     <from uri="direct:updateAnyObject"/>
-    <setProperty propertyName="anyMod">
+    <setProperty propertyName="anyPatch">
       <simple>${body}</simple>
     </setProperty>
     <doTry>

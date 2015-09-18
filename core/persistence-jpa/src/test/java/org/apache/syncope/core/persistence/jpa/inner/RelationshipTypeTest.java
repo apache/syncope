@@ -91,7 +91,8 @@ public class RelationshipTypeTest extends AbstractTest {
 
         AnyObject anyObject = anyObjectDAO.find(1L);
         assertNotNull(anyObject);
-        assertNotNull(anyObject.getRelationship(neighborhood));
+        assertNotNull(anyObject.getRelationships(neighborhood));
+        assertFalse(anyObject.getRelationships(neighborhood).isEmpty());
 
         relationshipTypeDAO.delete("neighborhood");
 

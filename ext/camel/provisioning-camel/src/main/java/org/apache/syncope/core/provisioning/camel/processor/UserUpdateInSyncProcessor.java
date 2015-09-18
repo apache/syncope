@@ -24,7 +24,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.mod.UserMod;
+import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
@@ -51,14 +51,14 @@ public class UserUpdateInSyncProcessor implements Processor {
     @SuppressWarnings("unchecked")
     @Override
     public void process(final Exchange exchange) {
-        WorkflowResult<Pair<UserMod, Boolean>> updated = (WorkflowResult) exchange.getIn().getBody();
+        WorkflowResult<Pair<UserPatch, Boolean>> updated = (WorkflowResult) exchange.getIn().getBody();
         Set<String> excludedResources = exchange.getProperty("excludedResources", Set.class);
 
         PropagationReporter propagationReporter =
                 ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
 
-        List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(updated, updated.getResult().getKey().
-                getPassword() != null, excludedResources);
+        List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(
+                updated, updated.getResult().getKey().getPassword() != null, excludedResources);
 
         try {
             taskExecutor.execute(tasks, propagationReporter);

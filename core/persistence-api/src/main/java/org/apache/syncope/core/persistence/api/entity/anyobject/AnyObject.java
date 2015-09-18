@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.api.entity.anyobject;
 
+import java.util.Collection;
 import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
@@ -28,9 +29,11 @@ public interface AnyObject extends Any<APlainAttr, ADerAttr, AVirAttr> {
 
     boolean remove(ARelationship relationship);
 
-    ARelationship getRelationship(RelationshipType relationshipType);
+    ARelationship getRelationship(RelationshipType relationshipType, Long anyObjectKey);
 
-    ARelationship getRelationship(Long relationshipKey);
+    Collection<? extends ARelationship> getRelationships(Long anyObjectKey);
+
+    Collection<? extends ARelationship> getRelationships(RelationshipType relationshipType);
 
     List<? extends ARelationship> getRelationships();
 

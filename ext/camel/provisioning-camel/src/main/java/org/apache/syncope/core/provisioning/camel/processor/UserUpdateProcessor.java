@@ -18,13 +18,12 @@
  */
 package org.apache.syncope.core.provisioning.camel.processor;
 
-import java.util.Collections;
 import java.util.List;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.mod.UserMod;
+import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
@@ -57,8 +56,8 @@ public class UserUpdateProcessor implements Processor {
     @Override
     @SuppressWarnings("unchecked")
     public void process(final Exchange exchange) {
-        WorkflowResult<Pair<UserMod, Boolean>> updated = (WorkflowResult) exchange.getIn().getBody();
-        UserMod userMod = exchange.getProperty("actual", UserMod.class);
+        WorkflowResult<Pair<UserPatch, Boolean>> updated = (WorkflowResult) exchange.getIn().getBody();
+        UserPatch userPatch = exchange.getProperty("actual", UserPatch.class);
 
         List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(updated);
         if (tasks.isEmpty()) {
@@ -66,11 +65,10 @@ public class UserUpdateProcessor implements Processor {
             PropagationByResource propByResVirAttr = virtAttrHandler.fillVirtual(
                     updated.getResult().getKey().getKey(),
                     AnyTypeKind.USER,
-                    userMod.getVirAttrsToRemove(),
-                    userMod.getVirAttrsToUpdate());
-            tasks.addAll(!propByResVirAttr.isEmpty()
-                    ? propagationManager.getUserUpdateTasks(updated, false, null)
-                    : Collections.<PropagationTask>emptyList());
+                    userPatch.getVirAttrs());
+            if (!propByResVirAttr.isEmpty()) {
+                tasks.addAll(propagationManager.getUserUpdateTasks(updated, false, null));
+            }
         }
 
         PropagationReporter propagationReporter =

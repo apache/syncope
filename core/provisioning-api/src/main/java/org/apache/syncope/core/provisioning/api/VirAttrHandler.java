@@ -20,7 +20,7 @@ package org.apache.syncope.core.provisioning.api;
 
 import java.util.Collection;
 import java.util.Set;
-import org.apache.syncope.common.lib.mod.AttrMod;
+import org.apache.syncope.common.lib.patch.AttrPatch;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IntMappingType;
@@ -31,7 +31,7 @@ import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 
 public interface VirAttrHandler {
 
-    PropagationByResource fillVirtual(Any any, Set<String> vAttrsToBeRemoved, Set<AttrMod> vAttrsToBeUpdated);
+    PropagationByResource fillVirtual(Any any, Set<AttrPatch> vAttrs);
 
     /**
      * Add virtual attributes and specify values to be propagated.
@@ -46,12 +46,10 @@ public interface VirAttrHandler {
      *
      * @param key any key
      * @param anyTypeKind type kind
-     * @param vAttrsToBeRemoved virtual attributes to be removed.
-     * @param vAttrsToBeUpdated virtual attributes to be updated.
+     * @param vAttrs virtual attributes to be updated.
      * @return operations to be performed on external resources for virtual attributes changes
      */
-    PropagationByResource fillVirtual(
-            Long key, AnyTypeKind anyTypeKind, Set<String> vAttrsToBeRemoved, Set<AttrMod> vAttrsToBeUpdated);
+    PropagationByResource fillVirtual(Long key, AnyTypeKind anyTypeKind, Set<AttrPatch> vAttrs);
 
     VirSchema getVirSchema(String virSchemaName);
 

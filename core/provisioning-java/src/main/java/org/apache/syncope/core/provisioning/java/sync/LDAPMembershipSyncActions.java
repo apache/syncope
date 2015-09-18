@@ -25,13 +25,16 @@ import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.mod.AnyMod;
-import org.apache.syncope.common.lib.mod.UserMod;
+import org.apache.syncope.common.lib.patch.AnyPatch;
+import org.apache.syncope.common.lib.patch.MembershipPatch;
+import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
+import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
@@ -129,9 +132,9 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
      * {@inheritDoc}
      */
     @Override
-    public <A extends AnyTO, M extends AnyMod> SyncDelta beforeUpdate(
+    public <A extends AnyTO, M extends AnyPatch> SyncDelta beforeUpdate(
             final ProvisioningProfile<?, ?> profile,
-            final SyncDelta delta, final A any, final M anyMod) throws JobExecutionException {
+            final SyncDelta delta, final A any, final M anyPatch) throws JobExecutionException {
 
         if (any instanceof GroupTO) {
             // search for all users assigned to given group
@@ -146,27 +149,32 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
             }
         }
 
-        return super.beforeUpdate(profile, delta, any, anyMod);
+        return super.beforeUpdate(profile, delta, any, anyPatch);
     }
 
     /**
-     * Build UserMod for adding membership to given user, for given group.
+     * Build UserPatch for adding membership to given user, for given group.
      *
      * @param userKey user to be assigned membership to given group
      * @param groupTO group for adding membership
-     * @return UserMod for user update
+     * @return UserPatch for user update
      */
-    protected UserMod getUserMod(final Long userKey, final GroupTO groupTO) {
-        UserMod userMod = new UserMod();
+    protected UserPatch getUserPatch(final Long userKey, final GroupTO groupTO) {
+        UserPatch userPatch = new UserPatch();
         // no actual modification takes place when user has already the group assigned
         if (membersBeforeGroupUpdate.containsKey(userKey)) {
             membersBeforeGroupUpdate.remove(userKey);
         } else {
-            userMod.setKey(userKey);
-            userMod.getMembershipsToAdd().add(groupTO.getKey());
+            userPatch.setKey(userKey);
+
+            userPatch.getMemberships().add(
+                    new MembershipPatch.Builder().
+                    operation(PatchOperation.ADD_REPLACE).
+                    membershipTO(new MembershipTO.Builder().group(groupTO.getKey(), null).build()).
+                    build());
         }
 
-        return userMod;
+        return userPatch;
     }
 
     /**
@@ -200,20 +208,20 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
     /**
      * Perform actual modifications (i.e. membership add / remove) for the given group on the given resource.
      *
-     * @param userMod modifications to perform on the user
+     * @param userPatch modifications to perform on the user
      * @param resourceName resource to be propagated for changes
      */
-    protected void userUpdate(final UserMod userMod, final String resourceName) {
-        if (userMod.getKey() == 0) {
+    protected void userUpdate(final UserPatch userPatch, final String resourceName) {
+        if (userPatch.getKey() == 0) {
             return;
         }
 
         Result result;
 
-        WorkflowResult<Pair<UserMod, Boolean>> updated = null;
+        WorkflowResult<Pair<UserPatch, Boolean>> updated = null;
 
         try {
-            updated = uwfAdapter.update(userMod);
+            updated = uwfAdapter.update(userPatch);
 
             List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(
                     updated, false, Collections.singleton(resourceName));
@@ -222,10 +230,10 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
             result = Result.SUCCESS;
         } catch (PropagationException e) {
             result = Result.FAILURE;
-            LOG.error("Could not propagate {}", userMod, e);
+            LOG.error("Could not propagate {}", userPatch, e);
         } catch (Exception e) {
             result = Result.FAILURE;
-            LOG.error("Could not perform update {}", userMod, e);
+            LOG.error("Could not perform update {}", userPatch, e);
         }
 
         notificationManager.createTasks(
@@ -236,7 +244,7 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
                 result,
                 null, // searching for before object is too much expensive ... 
                 updated == null ? null : updated.getResult().getKey(),
-                userMod,
+                userPatch,
                 resourceName);
 
         auditManager.audit(
@@ -247,7 +255,7 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
                 result,
                 null, // searching for before object is too much expensive ... 
                 updated == null ? null : updated.getResult().getKey(),
-                userMod,
+                userPatch,
                 resourceName);
     }
 
@@ -274,17 +282,23 @@ public class LDAPMembershipSyncActions extends DefaultSyncActions {
                     profile.getTask().getResource(),
                     profile.getConnector());
             if (userKey != null) {
-                UserMod userMod = getUserMod(userKey, groupTO);
-                userUpdate(userMod, resource.getKey());
+                UserPatch userPatch = getUserPatch(userKey, groupTO);
+                userUpdate(userPatch, resource.getKey());
             }
         }
 
         // finally remove any residual membership that was present before group update but not any more
         for (Map.Entry<Long, Long> member : membersBeforeGroupUpdate.entrySet()) {
-            UserMod userMod = new UserMod();
-            userMod.setKey(member.getKey());
-            userMod.getMembershipsToRemove().add(member.getValue());
-            userUpdate(userMod, resource.getKey());
+            UserPatch userPatch = new UserPatch();
+            userPatch.setKey(member.getKey());
+
+            userPatch.getMemberships().add(
+                    new MembershipPatch.Builder().
+                    operation(PatchOperation.DELETE).
+                    membershipTO(new MembershipTO.Builder().group(groupTO.getKey(), null).build()).
+                    build());
+
+            userUpdate(userPatch, resource.getKey());
         }
     }
 

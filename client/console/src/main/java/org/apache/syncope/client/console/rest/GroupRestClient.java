@@ -21,20 +21,14 @@ package org.apache.syncope.client.console.rest;
 import java.util.List;
 
 import javax.ws.rs.core.Response;
-import org.apache.syncope.client.console.commons.status.StatusBean;
-import org.apache.syncope.client.console.commons.status.StatusUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
-import org.apache.syncope.common.lib.mod.GroupMod;
-import org.apache.syncope.common.lib.mod.ResourceAssociationMod;
+import org.apache.syncope.common.lib.patch.GroupPatch;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.ResourceAssociationAction;
-import org.apache.syncope.common.lib.types.ResourceDeassociationActionType;
-import org.apache.syncope.common.lib.wrap.ResourceKey;
-import org.apache.syncope.common.rest.api.CollectionWrapper;
+import org.apache.syncope.common.rest.api.service.AnyService;
 import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.apache.syncope.common.rest.api.service.GroupService;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
@@ -47,6 +41,11 @@ import org.springframework.stereotype.Component;
 public class GroupRestClient extends AbstractAnyRestClient {
 
     private static final long serialVersionUID = -8549081557283519638L;
+
+    @Override
+    protected Class<? extends AnyService<?, ?>> getAnyServiceClass() {
+        return GroupService.class;
+    }
 
     @Override
     public int count(final String realm) {
@@ -94,11 +93,11 @@ public class GroupRestClient extends AbstractAnyRestClient {
         return getService(GroupService.class).read(key);
     }
 
-    public GroupTO update(final String etag, final GroupMod groupMod) {
+    public GroupTO update(final String etag, final GroupPatch groupPatch) {
         GroupTO result;
         synchronized (this) {
             GroupService service = getService(etag, GroupService.class);
-            result = service.update(groupMod).readEntity(GroupTO.class);
+            result = service.update(groupPatch).readEntity(GroupTO.class);
             resetClient(GroupService.class);
         }
         return result;
@@ -120,82 +119,4 @@ public class GroupRestClient extends AbstractAnyRestClient {
         return getService(GroupService.class).bulk(action);
     }
 
-    public void unlink(final String etag, final long groupKey, final List<StatusBean> statuses) {
-        synchronized (this) {
-            GroupService service = getService(etag, GroupService.class);
-            service.deassociate(groupKey, ResourceDeassociationActionType.UNLINK,
-                    CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResources(), ResourceKey.class));
-            resetClient(GroupService.class);
-        }
-    }
-
-    public void link(final String etag, final long groupKey, final List<StatusBean> statuses) {
-        synchronized (this) {
-            GroupService service = getService(etag, GroupService.class);
-
-            ResourceAssociationMod associationMod = new ResourceAssociationMod();
-            associationMod.getTargetResources().addAll(
-                    CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResources(), ResourceKey.class));
-            service.associate(groupKey, ResourceAssociationAction.LINK, associationMod);
-
-            resetClient(GroupService.class);
-        }
-    }
-
-    public BulkActionResult deprovision(final String etag, final long groupKey, final List<StatusBean> statuses) {
-        BulkActionResult result;
-        synchronized (this) {
-            GroupService service = getService(etag, GroupService.class);
-            result = service.deassociate(groupKey, ResourceDeassociationActionType.DEPROVISION,
-                    CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResources(), ResourceKey.class)).
-                    readEntity(BulkActionResult.class);
-            resetClient(GroupService.class);
-        }
-        return result;
-    }
-
-    public BulkActionResult provision(final String etag, final long groupKey, final List<StatusBean> statuses) {
-        BulkActionResult result;
-        synchronized (this) {
-            GroupService service = getService(etag, GroupService.class);
-
-            ResourceAssociationMod associationMod = new ResourceAssociationMod();
-            associationMod.getTargetResources().addAll(
-                    CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResources(), ResourceKey.class));
-
-            result = service.associate(groupKey, ResourceAssociationAction.PROVISION, associationMod).
-                    readEntity(BulkActionResult.class);
-            resetClient(GroupService.class);
-        }
-        return result;
-    }
-
-    public BulkActionResult unassign(final String etag, final long groupKey, final List<StatusBean> statuses) {
-        BulkActionResult result;
-        synchronized (this) {
-            GroupService service = getService(etag, GroupService.class);
-            result = service.deassociate(groupKey, ResourceDeassociationActionType.UNASSIGN,
-                    CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResources(), ResourceKey.class)).
-                    readEntity(BulkActionResult.class);
-            resetClient(GroupService.class);
-        }
-        return result;
-    }
-
-    public BulkActionResult assign(final String etag, final long groupKey, final List<StatusBean> statuses) {
-        BulkActionResult result;
-        synchronized (this) {
-            GroupService service = getService(etag, GroupService.class);
-
-            ResourceAssociationMod associationMod = new ResourceAssociationMod();
-            associationMod.getTargetResources().addAll(
-                    CollectionWrapper.wrap(StatusUtils.buildStatusMod(statuses).getResources(), ResourceKey.class));
-
-            result = service.associate(groupKey, ResourceAssociationAction.ASSIGN, associationMod).
-                    readEntity(BulkActionResult.class);
-
-            resetClient(GroupService.class);
-        }
-        return result;
-    }
 }

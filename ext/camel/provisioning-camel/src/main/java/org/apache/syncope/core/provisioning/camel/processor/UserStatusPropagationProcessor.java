@@ -24,7 +24,8 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.syncope.common.lib.mod.StatusMod;
+import org.apache.syncope.common.lib.patch.StatusPatch;
+import org.apache.syncope.common.lib.types.StatusPatchType;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
@@ -58,13 +59,13 @@ public class UserStatusPropagationProcessor implements Processor {
         WorkflowResult<Long> updated = (WorkflowResult) exchange.getIn().getBody();
 
         Long key = exchange.getProperty("userKey", Long.class);
-        StatusMod statusMod = exchange.getProperty("statusMod", StatusMod.class);
+        StatusPatch statusPatch = exchange.getProperty("statusPatch", StatusPatch.class);
 
         Collection<String> resourcesToBeExcluded = CollectionUtils.removeAll(
-                userDAO.findAllResourceNames(userDAO.find(key)), statusMod.getResources());
+                userDAO.findAllResourceNames(userDAO.find(key)), statusPatch.getResources());
 
         List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(
-                key, statusMod.getType() != StatusMod.ModType.SUSPEND, resourcesToBeExcluded);
+                key, statusPatch.getType() != StatusPatchType.SUSPEND, resourcesToBeExcluded);
         PropagationReporter propReporter =
                 ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
         try {

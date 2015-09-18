@@ -56,8 +56,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.mod.StatusMod;
-import org.apache.syncope.common.lib.mod.UserMod;
+import org.apache.syncope.common.lib.patch.PasswordPatch;
+import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.WorkflowFormPropertyTO;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
@@ -100,7 +100,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
     public static final String ENABLED = "enabled";
 
-    public static final String USER_MOD = "userMod";
+    public static final String USER_PATCH = "userPatch";
 
     public static final String EMAIL_KIND = "emailKind";
 
@@ -320,24 +320,25 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    protected WorkflowResult<Pair<UserMod, Boolean>> doUpdate(final User user, final UserMod userMod) {
-        Set<String> tasks = doExecuteTask(user, "update", Collections.singletonMap(USER_MOD, (Object) userMod));
+    protected WorkflowResult<Pair<UserPatch, Boolean>> doUpdate(final User user, final UserPatch userPatch) {
+        Set<String> tasks = doExecuteTask(user, "update", Collections.singletonMap(USER_PATCH, (Object) userPatch));
 
         updateStatus(user);
         User updated = userDAO.save(user);
 
         PropagationByResource propByRes = engine.getRuntimeService().getVariable(
                 user.getWorkflowId(), PROP_BY_RESOURCE, PropagationByResource.class);
-        UserMod updatedMod = engine.getRuntimeService().getVariable(
-                user.getWorkflowId(), USER_MOD, UserMod.class);
+        UserPatch updatedPatch = engine.getRuntimeService().getVariable(
+                user.getWorkflowId(), USER_PATCH, UserPatch.class);
 
-        saveForFormSubmit(updated, updatedMod.getPassword(), propByRes);
+        saveForFormSubmit(
+                updated, updatedPatch.getPassword() == null ? null : updatedPatch.getPassword().getValue(), propByRes);
 
         Boolean propagateEnable = engine.getRuntimeService().getVariable(
                 user.getWorkflowId(), PROPAGATE_ENABLE, Boolean.class);
 
-        return new WorkflowResult<Pair<UserMod, Boolean>>(
-                new ImmutablePair<>(updatedMod, propagateEnable), propByRes, tasks);
+        return new WorkflowResult<Pair<UserPatch, Boolean>>(
+                new ImmutablePair<>(updatedPatch, propagateEnable), propByRes, tasks);
     }
 
     @Override
@@ -793,7 +794,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    public WorkflowResult<UserMod> submitForm(final WorkflowFormTO form) {
+    public WorkflowResult<UserPatch> submitForm(final WorkflowFormTO form) {
         String authUser = AuthContextUtils.getUsername();
         Pair<Task, TaskFormData> checked = checkTask(form.getTaskId(), authUser);
 
@@ -836,22 +837,17 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         // supports approval chains
         saveForFormSubmit(user, clearPassword, propByRes);
 
-        UserMod userMod = engine.getRuntimeService().getVariable(user.getWorkflowId(), USER_MOD, UserMod.class);
-        if (userMod == null) {
-            userMod = new UserMod();
-            userMod.setKey(updated.getKey());
-            userMod.setPassword(clearPassword);
+        UserPatch userPatch = engine.getRuntimeService().getVariable(user.getWorkflowId(), USER_PATCH, UserPatch.class);
+        if (userPatch == null) {
+            userPatch = new UserPatch();
+            userPatch.setKey(updated.getKey());
+            userPatch.setPassword(new PasswordPatch.Builder().onSyncope(true).value(clearPassword).build());
 
             if (propByRes != null) {
-                StatusMod st = new StatusMod();
-                userMod.setPwdPropRequest(st);
-                st.setOnSyncope(true);
-                for (String res : propByRes.get(ResourceOperation.CREATE)) {
-                    st.getResources().add(res);
-                }
+                userPatch.getPassword().getResources().addAll(propByRes.get(ResourceOperation.CREATE));
             }
         }
 
-        return new WorkflowResult<>(userMod, propByRes, postTasks);
+        return new WorkflowResult<>(userPatch, propByRes, postTasks);
     }
 }

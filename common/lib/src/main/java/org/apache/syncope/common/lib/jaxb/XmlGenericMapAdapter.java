@@ -14,9 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/*
- * $Id: XmlGenericMapAdapter.java 399 2011-12-03 04:22:50Z jyeary $
- */
 package org.apache.syncope.common.lib.jaxb;
 
 import java.util.HashMap;

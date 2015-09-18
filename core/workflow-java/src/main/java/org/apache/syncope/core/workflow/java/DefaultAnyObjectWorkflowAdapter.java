@@ -21,7 +21,7 @@ package org.apache.syncope.core.workflow.java;
 import java.io.OutputStream;
 import java.util.Collections;
 import java.util.List;
-import org.apache.syncope.common.lib.mod.AnyObjectMod;
+import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
 import org.apache.syncope.common.lib.types.PropagationByResource;
@@ -51,8 +51,8 @@ public class DefaultAnyObjectWorkflowAdapter extends AbstractAnyObjectWorkflowAd
     }
 
     @Override
-    protected WorkflowResult<Long> doUpdate(final AnyObject anyObject, final AnyObjectMod anyObjectMod) {
-        PropagationByResource propByRes = dataBinder.update(anyObject, anyObjectMod);
+    protected WorkflowResult<Long> doUpdate(final AnyObject anyObject, final AnyObjectPatch anyObjectPatch) {
+        PropagationByResource propByRes = dataBinder.update(anyObject, anyObjectPatch);
 
         AnyObject updated = anyObjectDAO.save(anyObject);
 
@@ -105,7 +105,7 @@ public class DefaultAnyObjectWorkflowAdapter extends AbstractAnyObjectWorkflowAd
     }
 
     @Override
-    public WorkflowResult<AnyObjectMod> submitForm(final WorkflowFormTO form) {
+    public WorkflowResult<AnyObjectPatch> submitForm(final WorkflowFormTO form) {
         throw new WorkflowException(new UnsupportedOperationException("Not supported."));
     }
 

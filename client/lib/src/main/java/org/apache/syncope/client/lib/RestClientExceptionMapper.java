@@ -80,7 +80,7 @@ public class RestClientExceptionMapper implements ExceptionMapper<Exception>, Re
             ex = new WebServiceException(String.format("Remote exception with status code: %s",
                     Response.Status.fromStatusCode(statusCode).name()));
         }
-        LOG.error("Exception thrown by REST methods: " + ex.getMessage(), ex);
+        LOG.error("Exception thrown", ex);
         return ex;
     }
 

@@ -24,7 +24,7 @@ import java.util.Set;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.syncope.common.lib.mod.GroupMod;
+import org.apache.syncope.common.lib.patch.GroupPatch;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
@@ -58,20 +58,19 @@ public class GroupUpdateProcessor implements Processor {
     @Override
     public void process(final Exchange exchange) {
         WorkflowResult<Long> updated = (WorkflowResult) exchange.getIn().getBody();
-        GroupMod groupMod = exchange.getProperty("anyMod", GroupMod.class);
+        GroupPatch groupPatch = exchange.getProperty("anyPatch", GroupPatch.class);
         Set<String> excludedResources = exchange.getProperty("excludedResources", Set.class);
 
-        List<PropagationTask> tasks = propagationManager.getGroupUpdateTasks(updated,
-                groupMod.getVirAttrsToRemove(), groupMod.getVirAttrsToUpdate(), excludedResources);
+        List<PropagationTask> tasks = propagationManager.getGroupUpdateTasks(
+                updated, groupPatch.getVirAttrs(), excludedResources);
         if (tasks.isEmpty()) {
             // SYNCOPE-459: take care of user virtual attributes ...
             PropagationByResource propByResVirAttr = virtAttrHandler.fillVirtual(
                     updated.getResult(),
                     AnyTypeKind.GROUP,
-                    groupMod.getVirAttrsToRemove(),
-                    groupMod.getVirAttrsToUpdate());
+                    groupPatch.getVirAttrs());
             tasks.addAll(!propByResVirAttr.isEmpty()
-                    ? propagationManager.getGroupUpdateTasks(updated, null, null, null)
+                    ? propagationManager.getGroupUpdateTasks(updated, null, null)
                     : Collections.<PropagationTask>emptyList());
         }
 

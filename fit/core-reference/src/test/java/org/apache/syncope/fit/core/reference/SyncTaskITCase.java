@@ -35,8 +35,9 @@ import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.mod.StatusMod;
-import org.apache.syncope.common.lib.mod.UserMod;
+import org.apache.syncope.common.lib.patch.DeassociationPatch;
+import org.apache.syncope.common.lib.patch.PasswordPatch;
+import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AttrTO;
@@ -55,10 +56,8 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
-import org.apache.syncope.common.lib.types.ResourceDeassociationActionType;
+import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 import org.apache.syncope.common.lib.types.TaskType;
-import org.apache.syncope.common.lib.wrap.ResourceKey;
-import org.apache.syncope.common.rest.api.CollectionWrapper;
 import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.syncope.core.misc.security.Encryptor;
 import org.apache.syncope.core.provisioning.java.sync.DBPasswordSyncActions;
@@ -110,9 +109,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         UserTO userTemplate = new UserTO();
         userTemplate.getResources().add(RESOURCE_NAME_WS2);
 
-        MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setRightKey(8L);
-        userTemplate.getMemberships().add(membershipTO);
+        userTemplate.getMemberships().add(new MembershipTO.Builder().group(8L).build());
         task.getTemplates().put(AnyTypeKind.USER.name(), userTemplate);
 
         GroupTO groupTemplate = new GroupTO();
@@ -287,9 +284,11 @@ public class SyncTaskITCase extends AbstractTaskITCase {
                 build());
         if (matchingGroups.getSize() > 0) {
             for (GroupTO group : matchingGroups.getResult()) {
-                groupService.deassociate(group.getKey(),
-                        ResourceDeassociationActionType.UNLINK,
-                        CollectionWrapper.wrap(RESOURCE_NAME_LDAP, ResourceKey.class));
+                DeassociationPatch deassociationPatch = new DeassociationPatch();
+                deassociationPatch.setKey(group.getKey());
+                deassociationPatch.setAction(ResourceDeassociationAction.UNLINK);
+                deassociationPatch.getResources().add(RESOURCE_NAME_LDAP);
+                groupService.deassociate(deassociationPatch);
                 groupService.delete(group.getKey());
             }
         }
@@ -299,9 +298,11 @@ public class SyncTaskITCase extends AbstractTaskITCase {
                 build());
         if (matchingUsers.getSize() > 0) {
             for (UserTO user : matchingUsers.getResult()) {
-                userService.deassociate(user.getKey(),
-                        ResourceDeassociationActionType.UNLINK,
-                        CollectionWrapper.wrap(RESOURCE_NAME_LDAP, ResourceKey.class));
+                DeassociationPatch deassociationPatch = new DeassociationPatch();
+                deassociationPatch.setKey(user.getKey());
+                deassociationPatch.setAction(ResourceDeassociationAction.UNLINK);
+                deassociationPatch.getResources().add(RESOURCE_NAME_LDAP);
+                userService.deassociate(deassociationPatch);
                 userService.delete(user.getKey());
             }
         }
@@ -377,9 +378,11 @@ public class SyncTaskITCase extends AbstractTaskITCase {
                         is("location").equalTo("sync*").query()).build());
         assertTrue(matchingPrinters.getSize() > 0);
         for (AnyObjectTO printer : matchingPrinters.getResult()) {
-            anyObjectService.deassociate(printer.getKey(),
-                    ResourceDeassociationActionType.UNLINK,
-                    CollectionWrapper.wrap(RESOURCE_NAME_DBSCRIPTED, ResourceKey.class));
+            DeassociationPatch deassociationPatch = new DeassociationPatch();
+            deassociationPatch.setKey(printer.getKey());
+            deassociationPatch.setAction(ResourceDeassociationAction.UNLINK);
+            deassociationPatch.getResources().add(RESOURCE_NAME_DBSCRIPTED);
+            anyObjectService.deassociate(deassociationPatch);
             anyObjectService.delete(printer.getKey());
         }
 
@@ -418,10 +421,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         userTO.getResources().add(RESOURCE_NAME_NOPROPAGATION2);
         userTO.getResources().add(RESOURCE_NAME_NOPROPAGATION4);
 
-        MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setRightKey(7L);
-
-        userTO.getMemberships().add(membershipTO);
+        userTO.getMemberships().add(new MembershipTO.Builder().group(7L).build());
 
         userTO = createUser(userTO);
         assertNotNull(userTO);
@@ -436,10 +436,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
             //-----------------------------
             UserTO template = new UserTO();
 
-            membershipTO = new MembershipTO();
-            membershipTO.setRightKey(10L);
-
-            template.getMemberships().add(membershipTO);
+            template.getMemberships().add(new MembershipTO.Builder().group(10L).build());
 
             template.getResources().add(RESOURCE_NAME_NOPROPAGATION4);
             //-----------------------------
@@ -535,12 +532,11 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         userTO = createUser(userTO);
 
         // change email in order to unmatch the second user
-        UserMod userMod = new UserMod();
-        userMod.setKey(userTO.getKey());
-        userMod.getPlainAttrsToRemove().add("email");
-        userMod.getPlainAttrsToUpdate().add(attrMod("email", "s258@apache.org"));
+        UserPatch userPatch = new UserPatch();
+        userPatch.setKey(userTO.getKey());
+        userPatch.getPlainAttrs().add(attrAddReplacePatch("email", "s258@apache.org"));
 
-        userService.update(userMod);
+        userService.update(userPatch);
 
         execProvisioningTask(taskService, actual.getKey(), 50, false);
 
@@ -622,7 +618,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         assertEquals("virtualvalue", userTO.getVirAttrMap().get("virtualdata").getValues().get(0));
 
         try {
-            final JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
 
             String value = jdbcTemplate.queryForObject(
                     "SELECT USERNAME FROM testsync WHERE ID=?", String.class, userTO.getKey());
@@ -700,14 +696,10 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         assertFalse(user.getResources().isEmpty());
 
         // 2. request to change password only on Syncope and not on LDAP
-        UserMod userMod = new UserMod();
-        userMod.setKey(user.getKey());
-        userMod.setPassword("new-security123");
-        StatusMod pwdPropRequest = new StatusMod();
-        pwdPropRequest.setOnSyncope(true);
-        pwdPropRequest.getResources().clear();
-        userMod.setPwdPropRequest(pwdPropRequest);
-        updateUser(userMod);
+        UserPatch userPatch = new UserPatch();
+        userPatch.setKey(user.getKey());
+        userPatch.setPassword(new PasswordPatch.Builder().value("new-security123").build());
+        updateUser(userPatch);
 
         // 3. Check that the Syncope user now has the changed password
         UserTO updatedUser = userService.read(user.getKey());

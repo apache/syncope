@@ -18,24 +18,24 @@
  */
 package org.apache.syncope.core.rest.cxf.service;
 
-import java.util.List;
 import javax.ws.rs.core.Response;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.mod.AnyMod;
-import org.apache.syncope.common.lib.mod.ResourceAssociationMod;
-import org.apache.syncope.common.lib.mod.StatusMod;
+import org.apache.syncope.common.lib.patch.AnyPatch;
+import org.apache.syncope.common.lib.patch.AssociationPatch;
+import org.apache.syncope.common.lib.patch.DeassociationPatch;
+import org.apache.syncope.common.lib.patch.StatusPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.types.ResourceAssociationAction;
-import org.apache.syncope.common.lib.types.ResourceDeassociationActionType;
-import org.apache.syncope.common.lib.wrap.ResourceKey;
-import org.apache.syncope.common.rest.api.CollectionWrapper;
+import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
+import org.apache.syncope.common.lib.types.StatusPatchType;
 import org.apache.syncope.common.rest.api.beans.AnyListQuery;
 import org.apache.syncope.common.rest.api.beans.AnySearchQuery;
 import org.apache.syncope.common.rest.api.service.AnyService;
@@ -43,11 +43,11 @@ import org.apache.syncope.core.logic.AbstractAnyLogic;
 import org.apache.syncope.core.logic.UserLogic;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 
-public abstract class AbstractAnyService<TO extends AnyTO, MOD extends AnyMod>
+public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
         extends AbstractServiceImpl
-        implements AnyService<TO, MOD> {
+        implements AnyService<TO, P> {
 
-    protected abstract AbstractAnyLogic<TO, MOD> getAnyLogic();
+    protected abstract AbstractAnyLogic<TO, P> getAnyLogic();
 
     @Override
     public TO read(final Long key) {
@@ -107,12 +107,23 @@ public abstract class AbstractAnyService<TO extends AnyTO, MOD extends AnyMod>
     }
 
     @Override
-    public Response update(final MOD anyMod) {
-        TO any = getAnyLogic().read(anyMod.getKey());
+    public Response update(final P anyPatch) {
+        TO any = getAnyLogic().read(anyPatch.getKey());
 
         checkETag(any.getETagValue());
 
-        TO updated = getAnyLogic().update(anyMod);
+        TO updated = getAnyLogic().update(anyPatch);
+        return modificationResponse(updated);
+    }
+
+    @Override
+    public Response update(final TO anyTO) {
+        TO before = getAnyLogic().read(anyTO.getKey());
+
+        checkETag(before.getETagValue());
+
+        @SuppressWarnings("unchecked")
+        TO updated = getAnyLogic().update((P) AnyOperations.diff(anyTO, before, false));
         return modificationResponse(updated);
     }
 
@@ -127,37 +138,35 @@ public abstract class AbstractAnyService<TO extends AnyTO, MOD extends AnyMod>
     }
 
     @Override
-    public Response deassociate(
-            final Long key, final ResourceDeassociationActionType type, final List<ResourceKey> resourceNames) {
-
-        TO any = getAnyLogic().read(key);
+    public Response deassociate(final DeassociationPatch patch) {
+        TO any = getAnyLogic().read(patch.getKey());
 
         checkETag(any.getETagValue());
 
         TO updated;
-        switch (type) {
+        switch (patch.getAction()) {
             case UNLINK:
-                updated = getAnyLogic().unlink(key, CollectionWrapper.unwrap(resourceNames));
+                updated = getAnyLogic().unlink(patch.getKey(), patch.getResources());
                 break;
 
             case UNASSIGN:
-                updated = getAnyLogic().unassign(key, CollectionWrapper.unwrap(resourceNames));
+                updated = getAnyLogic().unassign(patch.getKey(), patch.getResources());
                 break;
 
             case DEPROVISION:
-                updated = getAnyLogic().deprovision(key, CollectionWrapper.unwrap(resourceNames));
+                updated = getAnyLogic().deprovision(patch.getKey(), patch.getResources());
                 break;
 
             default:
-                updated = getAnyLogic().read(key);
+                updated = getAnyLogic().read(patch.getKey());
         }
 
         BulkActionResult result = new BulkActionResult();
 
-        if (type == ResourceDeassociationActionType.UNLINK) {
-            for (ResourceKey resourceName : resourceNames) {
-                result.getResults().put(resourceName.getElement(),
-                        updated.getResources().contains(resourceName.getElement())
+        if (patch.getAction() == ResourceDeassociationAction.UNLINK) {
+            for (String resource : patch.getResources()) {
+                result.getResults().put(resource,
+                        updated.getResources().contains(resource)
                                 ? BulkActionResult.Status.FAILURE
                                 : BulkActionResult.Status.SUCCESS);
             }
@@ -172,47 +181,45 @@ public abstract class AbstractAnyService<TO extends AnyTO, MOD extends AnyMod>
     }
 
     @Override
-    public Response associate(
-            final Long key, final ResourceAssociationAction type, final ResourceAssociationMod associationMod) {
-
-        TO any = getAnyLogic().read(key);
+    public Response associate(final AssociationPatch patch) {
+        TO any = getAnyLogic().read(patch.getKey());
 
         checkETag(any.getETagValue());
 
         TO updated;
-        switch (type) {
+        switch (patch.getAction()) {
             case LINK:
                 updated = getAnyLogic().link(
-                        key,
-                        CollectionWrapper.unwrap(associationMod.getTargetResources()));
+                        patch.getKey(),
+                        patch.getResources());
                 break;
 
             case ASSIGN:
                 updated = getAnyLogic().assign(
-                        key,
-                        CollectionWrapper.unwrap(associationMod.getTargetResources()),
-                        associationMod.isChangePwd(),
-                        associationMod.getPassword());
+                        patch.getKey(),
+                        patch.getResources(),
+                        patch.getValue() != null,
+                        patch.getValue());
                 break;
 
             case PROVISION:
                 updated = getAnyLogic().provision(
-                        key,
-                        CollectionWrapper.unwrap(associationMod.getTargetResources()),
-                        associationMod.isChangePwd(),
-                        associationMod.getPassword());
+                        patch.getKey(),
+                        patch.getResources(),
+                        patch.getValue() != null,
+                        patch.getValue());
                 break;
 
             default:
-                updated = getAnyLogic().read(key);
+                updated = getAnyLogic().read(patch.getKey());
         }
 
         BulkActionResult result = new BulkActionResult();
 
-        if (type == ResourceAssociationAction.LINK) {
-            for (ResourceKey resourceName : associationMod.getTargetResources()) {
-                result.getResults().put(resourceName.getElement(),
-                        updated.getResources().contains(resourceName.getElement())
+        if (patch.getAction() == ResourceAssociationAction.LINK) {
+            for (String resource : patch.getResources()) {
+                result.getResults().put(resource,
+                        updated.getResources().contains(resource)
                                 ? BulkActionResult.Status.FAILURE
                                 : BulkActionResult.Status.SUCCESS);
             }
@@ -228,7 +235,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, MOD extends AnyMod>
 
     @Override
     public BulkActionResult bulk(final BulkAction bulkAction) {
-        AbstractAnyLogic<TO, MOD> logic = getAnyLogic();
+        AbstractAnyLogic<TO, P> logic = getAnyLogic();
 
         BulkActionResult result = new BulkActionResult();
 
@@ -249,12 +256,12 @@ public abstract class AbstractAnyService<TO extends AnyTO, MOD extends AnyMod>
             case SUSPEND:
                 if (logic instanceof UserLogic) {
                     for (String key : bulkAction.getTargets()) {
-                        StatusMod statusMod = new StatusMod();
-                        statusMod.setKey(Long.valueOf(key));
-                        statusMod.setType(StatusMod.ModType.SUSPEND);
+                        StatusPatch statusPatch = new StatusPatch();
+                        statusPatch.setKey(Long.valueOf(key));
+                        statusPatch.setType(StatusPatchType.SUSPEND);
                         try {
                             result.getResults().put(
-                                    String.valueOf(((UserLogic) logic).status(statusMod).getKey()),
+                                    String.valueOf(((UserLogic) logic).status(statusPatch).getKey()),
                                     BulkActionResult.Status.SUCCESS);
                         } catch (Exception e) {
                             LOG.error("Error performing suspend for user {}", key, e);
@@ -266,12 +273,12 @@ public abstract class AbstractAnyService<TO extends AnyTO, MOD extends AnyMod>
 
             case REACTIVATE:
                 for (String key : bulkAction.getTargets()) {
-                    StatusMod statusMod = new StatusMod();
-                    statusMod.setKey(Long.valueOf(key));
-                    statusMod.setType(StatusMod.ModType.REACTIVATE);
+                    StatusPatch statusPatch = new StatusPatch();
+                    statusPatch.setKey(Long.valueOf(key));
+                    statusPatch.setType(StatusPatchType.REACTIVATE);
                     try {
                         result.getResults().put(
-                                String.valueOf(((UserLogic) logic).status(statusMod).getKey()),
+                                String.valueOf(((UserLogic) logic).status(statusPatch).getKey()),
                                 BulkActionResult.Status.SUCCESS);
                     } catch (Exception e) {
                         LOG.error("Error performing reactivate for user {}", key, e);

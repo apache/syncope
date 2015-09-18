@@ -26,17 +26,21 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.mod.AnyObjectMod;
+import org.apache.syncope.common.lib.patch.AnyObjectPatch;
+import org.apache.syncope.common.lib.patch.MembershipPatch;
+import org.apache.syncope.common.lib.patch.RelationshipPatch;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.misc.spring.BeanUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ARelationship;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
@@ -131,13 +135,15 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
             if (otherEnd == null) {
                 LOG.debug("Ignoring invalid anyObject " + relationshipTO.getRightKey());
             } else {
+                RelationshipType relationshipType = relationshipTypeDAO.find(relationshipTO.getType());
                 ARelationship relationship = null;
                 if (anyObject.getKey() != null) {
-                    relationship = anyObject.getRelationship(otherEnd.getKey());
+                    relationship = anyObject.getRelationship(relationshipType, anyObject.getKey());
                 }
                 if (relationship == null) {
                     relationship = entityFactory.newEntity(ARelationship.class);
-                    relationship.setRightEnd(otherEnd);
+                    relationship.setType(relationshipType);
+                    relationship.setRightEnd(anyObject);
                     relationship.setLeftEnd(anyObject);
 
                     anyObject.add(relationship);
@@ -171,7 +177,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
     }
 
     @Override
-    public PropagationByResource update(final AnyObject toBeUpdated, final AnyObjectMod anyObjectMod) {
+    public PropagationByResource update(final AnyObject toBeUpdated, final AnyObjectPatch anyObjectPatch) {
         // Re-merge any pending change from workflow tasks
         final AnyObject anyObject = anyObjectDAO.save(toBeUpdated);
 
@@ -185,79 +191,63 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
         Map<String, String> oldConnObjectKeys = getConnObjectKeys(anyObject);
 
         // attributes, derived attributes, virtual attributes and resources
-        propByRes.merge(fill(anyObject, anyObjectMod, anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT), scce));
+        propByRes.merge(fill(anyObject, anyObjectPatch, anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT), scce));
 
         Set<String> toBeDeprovisioned = new HashSet<>();
         Set<String> toBeProvisioned = new HashSet<>();
 
-        // relationships to be removed
-        for (Long anyObjectKey : anyObjectMod.getRelationshipsToRemove()) {
-            LOG.debug("Relationship to be removed for any object {}", anyObjectKey);
-
-            ARelationship relationship = anyObject.getRelationship(anyObjectKey);
-            if (relationship == null) {
-                LOG.warn("Invalid anyObject key specified for relationship to be removed: {}", anyObjectKey);
-            } else {
-                if (!anyObjectMod.getRelationshipsToAdd().contains(anyObjectKey)) {
+        // relationships
+        for (RelationshipPatch patch : anyObjectPatch.getRelationships()) {
+            if (patch.getRelationshipTO() != null) {
+                RelationshipType relationshipType = relationshipTypeDAO.find(patch.getRelationshipTO().getType());
+                ARelationship relationship =
+                        anyObject.getRelationship(relationshipType, patch.getRelationshipTO().getRightKey());
+                if (relationship != null) {
                     anyObject.remove(relationship);
                     toBeDeprovisioned.addAll(relationship.getRightEnd().getResourceNames());
                 }
-            }
-        }
 
-        // relationships to be added
-        for (Long anyObjectKey : anyObjectMod.getRelationshipsToAdd()) {
-            LOG.debug("Relationship to be added for any object {}", anyObjectKey);
+                if (patch.getOperation() == PatchOperation.ADD_REPLACE) {
+                    AnyObject otherEnd = anyObjectDAO.find(patch.getRelationshipTO().getRightKey());
+                    if (otherEnd == null) {
+                        LOG.debug("Ignoring invalid any object {}", patch.getRelationshipTO().getRightKey());
+                    } else {
 
-            AnyObject otherEnd = anyObjectDAO.find(anyObjectKey);
-            if (otherEnd == null) {
-                LOG.debug("Ignoring invalid any object {}", anyObjectKey);
-            } else {
-                ARelationship relationship = anyObject.getRelationship(otherEnd.getKey());
-                if (relationship == null) {
-                    relationship = entityFactory.newEntity(ARelationship.class);
-                    relationship.setRightEnd(otherEnd);
-                    relationship.setLeftEnd(anyObject);
+                        relationship = entityFactory.newEntity(ARelationship.class);
+                        relationship.setType(relationshipType);
+                        relationship.setRightEnd(otherEnd);
+                        relationship.setLeftEnd(anyObject);
 
-                    anyObject.add(relationship);
+                        anyObject.add(relationship);
 
-                    toBeProvisioned.addAll(otherEnd.getResourceNames());
+                        toBeProvisioned.addAll(otherEnd.getResourceNames());
+                    }
                 }
             }
         }
 
-        // memberships to be removed
-        for (Long groupKey : anyObjectMod.getMembershipsToRemove()) {
-            LOG.debug("Membership to be removed for group {}", groupKey);
-
-            AMembership membership = anyObject.getMembership(groupKey);
-            if (membership == null) {
-                LOG.warn("Invalid group key specified for membership to be removed: {}", groupKey);
-            } else {
-                if (!anyObjectMod.getMembershipsToAdd().contains(groupKey)) {
+        // memberships
+        for (MembershipPatch patch : anyObjectPatch.getMemberships()) {
+            if (patch.getMembershipTO() != null) {
+                AMembership membership = anyObject.getMembership(patch.getMembershipTO().getRightKey());
+                if (membership != null) {
                     anyObject.remove(membership);
                     toBeDeprovisioned.addAll(membership.getRightEnd().getResourceNames());
                 }
-            }
-        }
 
-        // memberships to be added
-        for (Long groupKey : anyObjectMod.getMembershipsToAdd()) {
-            LOG.debug("Membership to be added for group {}", groupKey);
+                if (patch.getOperation() == PatchOperation.ADD_REPLACE) {
+                    Group group = groupDAO.find(patch.getMembershipTO().getRightKey());
+                    if (group == null) {
+                        LOG.debug("Ignoring invalid group {}", patch.getMembershipTO().getRightKey());
+                    } else {
+                        membership = entityFactory.newEntity(AMembership.class);
+                        membership.setRightEnd(group);
+                        membership.setLeftEnd(anyObject);
 
-            Group group = groupDAO.find(groupKey);
-            if (group == null) {
-                LOG.debug("Ignoring invalid group {}", groupKey);
-            } else {
-                AMembership membership = anyObject.getMembership(group.getKey());
-                if (membership == null) {
-                    membership = entityFactory.newEntity(AMembership.class);
-                    membership.setRightEnd(group);
-                    membership.setLeftEnd(anyObject);
+                        anyObject.add(membership);
 
-                    anyObject.add(membership);
-
-                    toBeProvisioned.addAll(group.getResourceNames());
+                        toBeProvisioned.addAll(group.getResourceNames());
+                    }
                 }
             }
         }

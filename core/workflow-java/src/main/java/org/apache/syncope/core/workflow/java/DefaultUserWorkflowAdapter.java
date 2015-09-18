@@ -24,7 +24,8 @@ import java.util.List;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.mod.UserMod;
+import org.apache.syncope.common.lib.patch.PasswordPatch;
+import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
 import org.apache.syncope.common.lib.types.PropagationByResource;
@@ -105,21 +106,28 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    protected WorkflowResult<Pair<UserMod, Boolean>> doUpdate(final User user, final UserMod userMod) {
+    protected WorkflowResult<Pair<UserPatch, Boolean>> doUpdate(final User user, final UserPatch userPatch) {
         // update password internally only if required
-        UserMod updatedMod = SerializationUtils.clone(userMod);
-        String updatedPwd = updatedMod.getPassword();
-        if (updatedMod.getPwdPropRequest() != null && !updatedMod.getPwdPropRequest().isOnSyncope()) {
-            updatedMod.setPassword(null);
+        UserPatch updatedPatch = SerializationUtils.clone(userPatch);
+        PasswordPatch updatedPwd = updatedPatch.getPassword();
+        if (updatedPatch.getPassword() != null && !updatedPatch.getPassword().isOnSyncope()) {
+            updatedPatch.setPassword(null);
         }
         // update User
-        PropagationByResource propByRes = dataBinder.update(user, updatedMod);
-        updatedMod.setPassword(updatedPwd);
+        PropagationByResource propByRes = dataBinder.update(user, updatedPatch);
+        if (updatedPatch.getPassword() != null && !updatedPatch.getPassword().getResources().isEmpty()) {
+            if (updatedPwd == null) {
+                updatedPwd = updatedPatch.getPassword();
+            } else {
+                updatedPwd.getResources().addAll(updatedPatch.getPassword().getResources());
+            }
+        }
+        updatedPatch.setPassword(updatedPwd);
 
         userDAO.save(user);
 
-        return new WorkflowResult<Pair<UserMod, Boolean>>(
-                new ImmutablePair<>(updatedMod, !user.isSuspended()), propByRes, "update");
+        return new WorkflowResult<Pair<UserPatch, Boolean>>(
+                new ImmutablePair<>(updatedPatch, !user.isSuspended()), propByRes, "update");
     }
 
     @Override
@@ -203,7 +211,7 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    public WorkflowResult<UserMod> submitForm(final WorkflowFormTO form) {
+    public WorkflowResult<UserPatch> submitForm(final WorkflowFormTO form) {
         throw new WorkflowException(new UnsupportedOperationException("Not supported."));
     }
 

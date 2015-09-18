@@ -61,7 +61,7 @@ public class AnyObjectProvisionProcessor implements Processor {
 
         WorkflowResult<Long> wfResult = new WorkflowResult<>(key, propByRes, "update");
 
-        List<PropagationTask> tasks = propagationManager.getAnyObjectUpdateTasks(wfResult, null, null, null);
+        List<PropagationTask> tasks = propagationManager.getAnyObjectUpdateTasks(wfResult, null, null);
         PropagationReporter propagationReporter =
                 ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
         try {

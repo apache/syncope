@@ -23,6 +23,8 @@ import static org.junit.Assert.fail;
 import java.io.StringWriter;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.report.UserReportletConf;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.junit.Test;
@@ -32,11 +34,12 @@ public class JAXBTest {
     @Test
     public void marshal() {
         try {
-            JAXBContext context = JAXBContext.newInstance(UserReportletConf.class);
+            JAXBContext context = JAXBContext.newInstance(UserTO.class, UserPatch.class, UserReportletConf.class);
             Marshaller marshaller = context.createMarshaller();
             marshaller.marshal(new UserTO(), new StringWriter());
+            marshaller.marshal(new UserPatch(), new StringWriter());
         } catch (Exception e) {
-            fail();
+            fail(ExceptionUtils.getStackTrace(e));
         }
     }
 }

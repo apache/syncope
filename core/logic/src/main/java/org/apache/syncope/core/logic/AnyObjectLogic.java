@@ -34,12 +34,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.mod.AnyObjectMod;
+import org.apache.syncope.common.lib.patch.AnyObjectPatch;
+import org.apache.syncope.common.lib.patch.StringPatchItem;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.Entitlement;
+import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
@@ -61,7 +63,7 @@ import org.springframework.transaction.annotation.Transactional;
  * Spring's Transactional logic at class level.
  */
 @Component
-public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectMod> {
+public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch> {
 
     @Autowired
     protected AnyObjectDAO anyObjectDAO;
@@ -182,24 +184,20 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectMod> 
 
     @PreAuthorize("hasRole('" + Entitlement.ANY_OBJECT_UPDATE + "')")
     @Override
-    public AnyObjectTO update(final AnyObjectMod anyObjectMod) {
-        AnyObjectTO anyObjectTO = binder.getAnyObjectTO(anyObjectMod.getKey());
-        Pair<AnyObjectMod, List<LogicActions>> before = beforeUpdate(anyObjectMod, anyObjectTO.getRealm());
+    public AnyObjectTO update(final AnyObjectPatch anyObjectPatch) {
+        AnyObjectTO anyObjectTO = binder.getAnyObjectTO(anyObjectPatch.getKey());
+        Pair<AnyObjectPatch, List<LogicActions>> before = beforeUpdate(anyObjectPatch, anyObjectTO.getRealm());
 
-        Set<String> requestedRealms = new HashSet<>();
-        requestedRealms.add(before.getLeft().getRealm());
-        if (StringUtils.isNotBlank(before.getLeft().getRealm())) {
-            requestedRealms.add(before.getLeft().getRealm());
-        }
-        Set<String> effectiveRealms = getEffectiveRealms(
-                AuthContextUtils.getAuthorizations().get(Entitlement.ANY_OBJECT_UPDATE),
-                requestedRealms);
-        securityChecks(effectiveRealms, before.getLeft().getRealm(), before.getLeft().getKey());
-        if (StringUtils.isNotBlank(before.getLeft().getRealm())) {
-            securityChecks(effectiveRealms, before.getLeft().getRealm(), before.getLeft().getKey());
+        if (before.getLeft().getRealm() != null && StringUtils.isNotBlank(before.getLeft().getRealm().getValue())) {
+            Set<String> requestedRealms = new HashSet<>();
+            requestedRealms.add(before.getLeft().getRealm().getValue());
+            Set<String> effectiveRealms = getEffectiveRealms(
+                    AuthContextUtils.getAuthorizations().get(Entitlement.USER_UPDATE),
+                    requestedRealms);
+            securityChecks(effectiveRealms, before.getLeft().getRealm().getValue(), before.getLeft().getKey());
         }
 
-        Map.Entry<Long, List<PropagationStatus>> updated = provisioningManager.update(anyObjectMod);
+        Map.Entry<Long, List<PropagationStatus>> updated = provisioningManager.update(anyObjectPatch);
 
         AnyObjectTO updatedTO = binder.getAnyObjectTO(updated.getKey());
         updatedTO.getPropagationStatusTOs().addAll(updated.getValue());
@@ -237,11 +235,17 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectMod> 
                 Collections.singleton(anyObject.getRealm()));
         securityChecks(effectiveRealms, anyObject.getRealm(), anyObject.getKey());
 
-        AnyObjectMod anyObjectMod = new AnyObjectMod();
-        anyObjectMod.setKey(key);
-        anyObjectMod.getResourcesToRemove().addAll(resources);
+        AnyObjectPatch patch = new AnyObjectPatch();
+        patch.setKey(key);
+        patch.getResources().addAll(CollectionUtils.collect(resources, new Transformer<String, StringPatchItem>() {
 
-        return binder.getAnyObjectTO(provisioningManager.unlink(anyObjectMod));
+            @Override
+            public StringPatchItem transform(final String resource) {
+                return new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(resource).build();
+            }
+        }));
+
+        return binder.getAnyObjectTO(provisioningManager.unlink(patch));
     }
 
     @PreAuthorize("hasRole('" + Entitlement.ANY_OBJECT_UPDATE + "')")
@@ -254,11 +258,17 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectMod> 
                 Collections.singleton(anyObject.getRealm()));
         securityChecks(effectiveRealms, anyObject.getRealm(), anyObject.getKey());
 
-        AnyObjectMod anyObjectMod = new AnyObjectMod();
-        anyObjectMod.setKey(key);
-        anyObjectMod.getResourcesToAdd().addAll(resources);
+        AnyObjectPatch patch = new AnyObjectPatch();
+        patch.setKey(key);
+        patch.getResources().addAll(CollectionUtils.collect(resources, new Transformer<String, StringPatchItem>() {
 
-        return binder.getAnyObjectTO(provisioningManager.link(anyObjectMod));
+            @Override
+            public StringPatchItem transform(final String resource) {
+                return new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(resource).build();
+            }
+        }));
+
+        return binder.getAnyObjectTO(provisioningManager.link(patch));
     }
 
     @PreAuthorize("hasRole('" + Entitlement.ANY_OBJECT_UPDATE + "')")
@@ -271,10 +281,17 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectMod> 
                 Collections.singleton(anyObject.getRealm()));
         securityChecks(effectiveRealms, anyObject.getRealm(), anyObject.getKey());
 
-        AnyObjectMod anyObjectMod = new AnyObjectMod();
-        anyObjectMod.setKey(key);
-        anyObjectMod.getResourcesToRemove().addAll(resources);
-        return update(anyObjectMod);
+        AnyObjectPatch patch = new AnyObjectPatch();
+        patch.setKey(key);
+        patch.getResources().addAll(CollectionUtils.collect(resources, new Transformer<String, StringPatchItem>() {
+
+            @Override
+            public StringPatchItem transform(final String resource) {
+                return new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(resource).build();
+            }
+        }));
+
+        return update(patch);
     }
 
     @PreAuthorize("hasRole('" + Entitlement.ANY_OBJECT_UPDATE + "')")
@@ -292,11 +309,17 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectMod> 
                 Collections.singleton(anyObject.getRealm()));
         securityChecks(effectiveRealms, anyObject.getRealm(), anyObject.getKey());
 
-        AnyObjectMod anyObjectMod = new AnyObjectMod();
-        anyObjectMod.setKey(key);
-        anyObjectMod.getResourcesToAdd().addAll(resources);
+        AnyObjectPatch patch = new AnyObjectPatch();
+        patch.setKey(key);
+        patch.getResources().addAll(CollectionUtils.collect(resources, new Transformer<String, StringPatchItem>() {
 
-        return update(anyObjectMod);
+            @Override
+            public StringPatchItem transform(final String resource) {
+                return new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(resource).build();
+            }
+        }));
+
+        return update(patch);
     }
 
     @PreAuthorize("hasRole('" + Entitlement.ANY_OBJECT_UPDATE + "')")
@@ -347,8 +370,8 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectMod> 
                     key = (Long) args[i];
                 } else if (args[i] instanceof AnyObjectTO) {
                     key = ((AnyObjectTO) args[i]).getKey();
-                } else if (args[i] instanceof AnyObjectMod) {
-                    key = ((AnyObjectMod) args[i]).getKey();
+                } else if (args[i] instanceof AnyObjectPatch) {
+                    key = ((AnyObjectPatch) args[i]).getKey();
                 }
             }
         }

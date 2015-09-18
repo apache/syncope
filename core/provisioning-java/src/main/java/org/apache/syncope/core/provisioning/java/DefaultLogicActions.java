@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java;
 
-import org.apache.syncope.common.lib.mod.AnyMod;
+import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.core.provisioning.api.LogicActions;
 
@@ -35,7 +35,7 @@ public class DefaultLogicActions implements LogicActions {
     }
 
     @Override
-    public <M extends AnyMod> M beforeUpdate(final M input) {
+    public <P extends AnyPatch> P beforeUpdate(final P input) {
         return input;
     }
 

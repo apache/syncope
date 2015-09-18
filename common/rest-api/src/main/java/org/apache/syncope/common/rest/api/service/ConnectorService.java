@@ -38,7 +38,6 @@ import org.apache.syncope.common.lib.to.ConnBundleTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
-import org.apache.syncope.common.lib.wrap.BooleanWrap;
 import org.apache.syncope.common.lib.wrap.ConnIdObjectClass;
 
 /**
@@ -170,12 +169,11 @@ public interface ConnectorService extends JAXRSService {
 
     /**
      * @param connInstanceTO connector instance to be used for connection check
-     * @return true if connection could be established
      */
     @POST
     @Path("check")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    BooleanWrap check(@NotNull ConnInstanceTO connInstanceTO);
+    void check(@NotNull ConnInstanceTO connInstanceTO);
 
     /**
      * Reload all connector bundles and instances.

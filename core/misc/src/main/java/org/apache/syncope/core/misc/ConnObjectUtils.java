@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.AnyOperations;
-import org.apache.syncope.common.lib.mod.AnyMod;
+import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
@@ -144,7 +144,7 @@ public class ConnObjectUtils {
     }
 
     /**
-     * Build an UserMod out of connector object attributes and schema mapping.
+     * Build {@link AnyPatch} out of connector object attributes and schema mapping.
      *
      * @param key any object to be updated
      * @param obj connector object
@@ -157,7 +157,7 @@ public class ConnObjectUtils {
      */
     @SuppressWarnings("unchecked")
     @Transactional(readOnly = true)
-    public <T extends AnyMod> T getAnyMod(final Long key, final ConnectorObject obj,
+    public <T extends AnyPatch> T getAnyPatch(final Long key, final ConnectorObject obj,
             final AnyTO original, final SyncTask syncTask, final Provision provision, final AnyUtils anyUtils) {
 
         AnyTO updated = getAnyTOFromConnObject(obj, syncTask, provision, anyUtils);

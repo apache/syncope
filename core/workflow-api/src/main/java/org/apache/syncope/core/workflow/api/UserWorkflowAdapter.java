@@ -19,8 +19,8 @@
 package org.apache.syncope.core.workflow.api;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
-import org.apache.syncope.common.lib.mod.UserMod;
 import org.apache.syncope.common.lib.to.UserTO;
 
 /**
@@ -81,10 +81,10 @@ public interface UserWorkflowAdapter extends WorkflowAdapter {
     /**
      * Update an user.
      *
-     * @param userMod modification set to be performed
+     * @param userPatch modification set to be performed
      * @return user just updated and propagations to be performed
      */
-    WorkflowResult<Pair<UserMod, Boolean>> update(UserMod userMod);
+    WorkflowResult<Pair<UserPatch, Boolean>> update(UserPatch userPatch);
 
     /**
      * Suspend an user.

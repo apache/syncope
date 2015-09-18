@@ -21,10 +21,14 @@ package org.apache.syncope.core.provisioning.camel.processor;
 import java.util.List;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.mod.StatusMod;
-import org.apache.syncope.common.lib.mod.UserMod;
+import org.apache.syncope.common.lib.patch.PasswordPatch;
+import org.apache.syncope.common.lib.patch.StringPatchItem;
+import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
@@ -62,16 +66,19 @@ public class UserProvisionProcessor implements Processor {
         @SuppressWarnings("unchecked")
         List<String> resources = exchange.getProperty("resources", List.class);
 
-        UserMod userMod = new UserMod();
-        userMod.setKey(key);
-        userMod.getResourcesToAdd().addAll(resources);
+        UserPatch userPatch = new UserPatch();
+        userPatch.setKey(key);
+        userPatch.getResources().addAll(CollectionUtils.collect(resources, new Transformer<String, StringPatchItem>() {
+
+            @Override
+            public StringPatchItem transform(final String resource) {
+                return new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(resource).build();
+            }
+        }));
 
         if (changePwd) {
-            StatusMod statusMod = new StatusMod();
-            statusMod.setOnSyncope(false);
-            statusMod.getResources().addAll(resources);
-            userMod.setPwdPropRequest(statusMod);
-            userMod.setPassword(password);
+            userPatch.setPassword(
+                    new PasswordPatch.Builder().onSyncope(true).value(password).resources(resources).build());
         }
 
         PropagationByResource propByRes = new PropagationByResource();
@@ -79,8 +86,8 @@ public class UserProvisionProcessor implements Processor {
             propByRes.add(ResourceOperation.UPDATE, resource);
         }
 
-        WorkflowResult<Pair<UserMod, Boolean>> wfResult = new WorkflowResult<Pair<UserMod, Boolean>>(
-                ImmutablePair.of(userMod, (Boolean) null), propByRes, "update");
+        WorkflowResult<Pair<UserPatch, Boolean>> wfResult = new WorkflowResult<Pair<UserPatch, Boolean>>(
+                ImmutablePair.of(userPatch, (Boolean) null), propByRes, "update");
 
         List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(wfResult, changePwd, null);
         PropagationReporter propagationReporter =

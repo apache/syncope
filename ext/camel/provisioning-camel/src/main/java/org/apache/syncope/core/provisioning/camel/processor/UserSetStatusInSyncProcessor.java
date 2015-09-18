@@ -21,7 +21,7 @@ package org.apache.syncope.core.provisioning.camel.processor;
 import java.util.Map;
 import org.apache.camel.Processor;
 import org.apache.camel.Exchange;
-import org.apache.syncope.common.lib.mod.UserMod;
+import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
@@ -41,7 +41,7 @@ public class UserSetStatusInSyncProcessor implements Processor {
     @SuppressWarnings("unchecked")
     @Override
     public void process(final Exchange exchange) {
-        WorkflowResult<Map.Entry<UserMod, Boolean>> updated = (WorkflowResult) exchange.getIn().getBody();
+        WorkflowResult<Map.Entry<UserPatch, Boolean>> updated = (WorkflowResult) exchange.getIn().getBody();
 
         Boolean enabled = exchange.getProperty("enabled", Boolean.class);
         Long key = exchange.getProperty("userKey", Long.class);

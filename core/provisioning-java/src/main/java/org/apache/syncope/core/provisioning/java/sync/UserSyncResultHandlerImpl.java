@@ -21,12 +21,14 @@ package org.apache.syncope.core.provisioning.java.sync;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import org.apache.syncope.common.lib.mod.AnyMod;
-import org.apache.syncope.common.lib.mod.UserMod;
+import org.apache.syncope.common.lib.patch.AnyPatch;
+import org.apache.syncope.common.lib.patch.StringPatchItem;
+import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.provisioning.api.sync.ProvisioningResult;
 import org.apache.syncope.core.provisioning.api.sync.UserSyncResultHandler;
@@ -74,29 +76,26 @@ public class UserSyncResultHandlerImpl extends AbstractSyncResultHandler impleme
             final ProvisioningResult result,
             final boolean unlink) {
 
-        UserMod userMod = new UserMod();
-        userMod.setKey(before.getKey());
+        UserPatch userPatch = new UserPatch();
+        userPatch.setKey(before.getKey());
+        userPatch.getResources().add(new StringPatchItem.Builder().
+                operation(unlink ? PatchOperation.DELETE : PatchOperation.ADD_REPLACE).
+                value(profile.getTask().getResource().getKey()).build());
 
-        if (unlink) {
-            userMod.getResourcesToRemove().add(profile.getTask().getResource().getKey());
-        } else {
-            userMod.getResourcesToAdd().add(profile.getTask().getResource().getKey());
-        }
-
-        return userDataBinder.getUserTO(uwfAdapter.update(userMod).getResult().getKey().getKey());
+        return userDataBinder.getUserTO(uwfAdapter.update(userPatch).getResult().getKey().getKey());
     }
 
     @Override
     protected AnyTO doUpdate(
             final AnyTO before,
-            final AnyMod anyMod,
+            final AnyPatch anyPatch,
             final SyncDelta delta,
             final ProvisioningResult result) {
 
-        UserMod userMod = UserMod.class.cast(anyMod);
+        UserPatch userPatch = UserPatch.class.cast(anyPatch);
         Boolean enabled = syncUtilities.readEnabled(delta.getObject(), profile.getTask());
 
-        Map.Entry<Long, List<PropagationStatus>> updated = userProvisioningManager.update(userMod, before.getKey(),
+        Map.Entry<Long, List<PropagationStatus>> updated = userProvisioningManager.update(userPatch, before.getKey(),
                 result, enabled, Collections.singleton(profile.getTask().getResource().getKey()));
 
         return userDataBinder.getUserTO(updated.getKey());
@@ -111,9 +110,11 @@ public class UserSyncResultHandlerImpl extends AbstractSyncResultHandler impleme
                 key, Collections.singleton(profile.getTask().getResource().getKey())));
 
         if (unlink) {
-            UserMod userMod = new UserMod();
-            userMod.setKey(key);
-            userMod.getResourcesToRemove().add(profile.getTask().getResource().getKey());
+            UserPatch userPatch = new UserPatch();
+            userPatch.setKey(key);
+            userPatch.getResources().add(new StringPatchItem.Builder().
+                    operation(PatchOperation.DELETE).
+                    value(profile.getTask().getResource().getKey()).build());
         }
     }
 

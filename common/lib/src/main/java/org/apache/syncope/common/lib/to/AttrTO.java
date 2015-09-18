@@ -21,18 +21,54 @@ package org.apache.syncope.common.lib.to;
 import org.apache.syncope.common.lib.AbstractBaseBean;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import javax.ws.rs.PathParam;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.commons.collections4.CollectionUtils;
 
 @XmlRootElement(name = "attribute")
 @XmlType
 public class AttrTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = 4941691338796323623L;
+
+    public static class Builder {
+
+        private final AttrTO instance = new AttrTO();
+
+        public Builder schema(final String schema) {
+            instance.setSchema(schema);
+            return this;
+        }
+
+        public Builder readonly(final boolean readonly) {
+            instance.setReadonly(readonly);
+            return this;
+        }
+
+        public Builder value(final String value) {
+            instance.getValues().add(value);
+            return this;
+        }
+
+        public Builder values(final String... values) {
+            CollectionUtils.addAll(instance.getValues(), values);
+            return this;
+        }
+
+        public Builder values(final Collection<String> values) {
+            instance.getValues().addAll(values);
+            return this;
+        }
+
+        public AttrTO build() {
+            return instance;
+        }
+    }
 
     /**
      * Name of the schema that this attribute is referring to.

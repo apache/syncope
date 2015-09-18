@@ -22,10 +22,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.lib.mod.AnyObjectMod;
+import org.apache.syncope.common.lib.patch.AnyObjectPatch;
+import org.apache.syncope.common.lib.patch.StringPatchItem;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.entity.Any;
@@ -78,35 +80,40 @@ public class AnyObjectPushResultHandlerImpl extends AbstractPushResultHandler im
 
     @Override
     protected Any<?, ?, ?> link(final Any<?, ?, ?> sbj, final Boolean unlink) {
-        AnyObjectMod anyObjectMod = new AnyObjectMod();
-        anyObjectMod.setKey(sbj.getKey());
+        AnyObjectPatch anyObjectPatch = new AnyObjectPatch();
+        anyObjectPatch.setKey(sbj.getKey());
+        anyObjectPatch.getResources().add(new StringPatchItem.Builder().
+                operation(unlink ? PatchOperation.DELETE : PatchOperation.ADD_REPLACE).
+                value(profile.getTask().getResource().getKey()).build());
 
-        if (unlink) {
-            anyObjectMod.getResourcesToRemove().add(profile.getTask().getResource().getKey());
-        } else {
-            anyObjectMod.getResourcesToAdd().add(profile.getTask().getResource().getKey());
-        }
-
-        awfAdapter.update(anyObjectMod);
+        awfAdapter.update(anyObjectPatch);
 
         return anyObjectDAO.authFind(sbj.getKey());
     }
 
     @Override
     protected Any<?, ?, ?> unassign(final Any<?, ?, ?> sbj) {
-        AnyObjectMod anyObjectMod = new AnyObjectMod();
-        anyObjectMod.setKey(sbj.getKey());
-        anyObjectMod.getResourcesToRemove().add(profile.getTask().getResource().getKey());
-        awfAdapter.update(anyObjectMod);
+        AnyObjectPatch anyObjectPatch = new AnyObjectPatch();
+        anyObjectPatch.setKey(sbj.getKey());
+        anyObjectPatch.getResources().add(new StringPatchItem.Builder().
+                operation(PatchOperation.DELETE).
+                value(profile.getTask().getResource().getKey()).build());
+
+        awfAdapter.update(anyObjectPatch);
+
         return deprovision(sbj);
     }
 
     @Override
     protected Any<?, ?, ?> assign(final Any<?, ?, ?> sbj, final Boolean enabled) {
-        AnyObjectMod anyObjectMod = new AnyObjectMod();
-        anyObjectMod.setKey(sbj.getKey());
-        anyObjectMod.getResourcesToAdd().add(profile.getTask().getResource().getKey());
-        awfAdapter.update(anyObjectMod);
+        AnyObjectPatch anyObjectPatch = new AnyObjectPatch();
+        anyObjectPatch.setKey(sbj.getKey());
+        anyObjectPatch.getResources().add(new StringPatchItem.Builder().
+                operation(PatchOperation.ADD_REPLACE).
+                value(profile.getTask().getResource().getKey()).build());
+
+        awfAdapter.update(anyObjectPatch);
+
         return provision(sbj, enabled);
     }
 

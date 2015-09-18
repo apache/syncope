@@ -20,8 +20,8 @@ package org.apache.syncope.fit.core.reference;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.syncope.common.lib.mod.AnyMod;
-import org.apache.syncope.common.lib.mod.AttrMod;
+import org.apache.syncope.common.lib.patch.AnyPatch;
+import org.apache.syncope.common.lib.patch.AttrPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.core.provisioning.java.DefaultLogicActions;
@@ -54,19 +54,19 @@ public class DoubleValueLogicActions extends DefaultLogicActions {
     }
 
     @Override
-    public <M extends AnyMod> M beforeUpdate(final M input) {
-        for (AttrMod attr : input.getPlainAttrsToUpdate()) {
-            if (NAME.equals(attr.getSchema())) {
-                List<String> values = new ArrayList<>(attr.getValuesToBeAdded().size());
-                for (String value : attr.getValuesToBeAdded()) {
+    public <M extends AnyPatch> M beforeUpdate(final M input) {
+        for (AttrPatch patch : input.getPlainAttrs()) {
+            if (NAME.equals(patch.getAttrTO().getSchema())) {
+                List<String> values = new ArrayList<>(patch.getAttrTO().getValues().size());
+                for (String value : patch.getAttrTO().getValues()) {
                     try {
                         values.add(String.valueOf(2 * Long.valueOf(value)));
                     } catch (NumberFormatException e) {
                         // ignore
                     }
                 }
-                attr.getValuesToBeAdded().clear();
-                attr.getValuesToBeAdded().addAll(values);
+                patch.getAttrTO().getValues().clear();
+                patch.getAttrTO().getValues().addAll(values);
             }
         }
 

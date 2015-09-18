@@ -18,8 +18,9 @@
  */
 package org.apache.syncope.core.provisioning.java.sync;
 
-import org.apache.syncope.common.lib.mod.AnyMod;
-import org.apache.syncope.common.lib.mod.UserMod;
+import org.apache.syncope.common.lib.patch.AnyPatch;
+import org.apache.syncope.common.lib.patch.PasswordPatch;
+import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
@@ -68,15 +69,15 @@ public class LDAPPasswordSyncActions extends DefaultSyncActions {
 
     @Transactional(readOnly = true)
     @Override
-    public <A extends AnyTO, M extends AnyMod> SyncDelta beforeUpdate(
+    public <A extends AnyTO, M extends AnyPatch> SyncDelta beforeUpdate(
             final ProvisioningProfile<?, ?> profile,
             final SyncDelta delta,
             final A any,
-            final M anyMod) throws JobExecutionException {
+            final M anyPatch) throws JobExecutionException {
 
-        if (anyMod instanceof UserMod) {
-            String modPassword = ((UserMod) anyMod).getPassword();
-            parseEncodedPassword(modPassword);
+        if (anyPatch instanceof UserPatch) {
+            PasswordPatch modPassword = ((UserPatch) anyPatch).getPassword();
+            parseEncodedPassword(modPassword == null ? null : modPassword.getValue());
         }
 
         return delta;

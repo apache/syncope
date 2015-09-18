@@ -90,7 +90,7 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
 
     @Override
     public Response toResponse(final Exception ex) {
-        LOG.error("Exception thrown by REST method: " + ex.getMessage(), ex);
+        LOG.error("Exception thrown", ex);
 
         ResponseBuilder builder;
 

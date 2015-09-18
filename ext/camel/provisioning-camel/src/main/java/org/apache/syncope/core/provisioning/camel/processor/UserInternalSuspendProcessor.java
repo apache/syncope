@@ -23,7 +23,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.mod.UserMod;
+import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
@@ -47,12 +47,12 @@ public class UserInternalSuspendProcessor implements Processor {
 
         // propagate suspension if and only if it is required by policy
         if (updated != null && updated.getValue()) {
-            UserMod userMod = new UserMod();
-            userMod.setKey(updated.getKey().getResult());
+            UserPatch userPatch = new UserPatch();
+            userPatch.setKey(updated.getKey().getResult());
 
             List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(
-                    new WorkflowResult<Pair<UserMod, Boolean>>(
-                            new ImmutablePair<>(userMod, Boolean.FALSE),
+                    new WorkflowResult<Pair<UserPatch, Boolean>>(
+                            new ImmutablePair<>(userPatch, Boolean.FALSE),
                             updated.getKey().getPropByRes(), updated.getKey().getPerformedTasks()));
             taskExecutor.execute(tasks);
         }

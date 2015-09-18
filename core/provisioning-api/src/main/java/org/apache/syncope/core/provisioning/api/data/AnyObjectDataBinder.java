@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.api.data;
 
-import org.apache.syncope.common.lib.mod.AnyObjectMod;
+import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
@@ -31,5 +31,5 @@ public interface AnyObjectDataBinder {
 
     void create(AnyObject anyObject, AnyObjectTO anyObjectTO);
 
-    PropagationByResource update(AnyObject toBeUpdated, AnyObjectMod anyObjectMod);
+    PropagationByResource update(AnyObject toBeUpdated, AnyObjectPatch anyObjectPatch);
 }

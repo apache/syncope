@@ -24,11 +24,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.apache.syncope.common.lib.mod.AttrMod;
+import org.apache.syncope.common.lib.patch.AttrPatch;
+import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
 import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.MatchingRule;
+import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
@@ -96,9 +98,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         }
     }
 
-    protected final void doHandle(final Any<?, ?, ?> any)
-            throws JobExecutionException {
-
+    protected final void doHandle(final Any<?, ?, ?> any) throws JobExecutionException {
         AnyUtils anyUtils = anyUtilsFactory.getInstance(any);
 
         ProvisioningResult result = new ProvisioningResult();
@@ -329,14 +329,16 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
     }
 
     protected Any<?, ?, ?> update(final Any<?, ?, ?> sbj, final Boolean enabled) {
-        Set<String> vattrToBeRemoved = new HashSet<>();
-        Set<AttrMod> vattrToBeUpdated = new HashSet<>();
+        Set<AttrPatch> vattrs = new HashSet<>();
 
         // Search for all mapped vattrs
         Mapping mapping = profile.getTask().getResource().getProvision(sbj.getType()).getMapping();
         for (MappingItem mappingItem : mapping.getItems()) {
             if (mappingItem.getIntMappingType() == IntMappingType.UserVirtualSchema) {
-                vattrToBeRemoved.add(mappingItem.getIntAttrName());
+                vattrs.add(new AttrPatch.Builder().
+                        operation(PatchOperation.DELETE).
+                        attrTO(new AttrTO.Builder().schema(mappingItem.getIntAttrName()).build()).
+                        build());
             }
         }
 
@@ -344,11 +346,13 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         // 1. add mapped vattrs not owned by the user to the set of vattrs to be removed
         // 2. add all vattrs owned by the user to the set of vattrs to be update
         for (VirAttr<?> vattr : sbj.getVirAttrs()) {
-            vattrToBeRemoved.remove(vattr.getSchema().getKey());
-            AttrMod mod = new AttrMod();
-            mod.setSchema(vattr.getSchema().getKey());
-            mod.getValuesToBeAdded().addAll(vattr.getValues());
-            vattrToBeUpdated.add(mod);
+            vattrs.add(new AttrPatch.Builder().
+                    operation(PatchOperation.ADD_REPLACE).
+                    attrTO(new AttrTO.Builder().
+                            schema(vattr.getSchema().getKey()).
+                            values(vattr.getValues()).
+                            build()).
+                    build());
         }
 
         boolean changepwd;
@@ -367,11 +371,11 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         List<String> noPropResources = new ArrayList<>(resourceNames);
         noPropResources.remove(profile.getTask().getResource().getKey());
 
-        final PropagationByResource propByRes = new PropagationByResource();
+        PropagationByResource propByRes = new PropagationByResource();
         propByRes.add(ResourceOperation.CREATE, profile.getTask().getResource().getKey());
 
         taskExecutor.execute(propagationManager.getUpdateTasks(
-                sbj, null, changepwd, enabled, vattrToBeRemoved, vattrToBeUpdated, propByRes, noPropResources));
+                sbj, null, changepwd, enabled, vattrs, propByRes, noPropResources));
 
         return getAny(sbj.getKey());
     }

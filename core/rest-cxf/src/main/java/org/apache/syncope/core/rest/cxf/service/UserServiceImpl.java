@@ -20,8 +20,8 @@ package org.apache.syncope.core.rest.cxf.service;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.common.lib.mod.StatusMod;
-import org.apache.syncope.common.lib.mod.UserMod;
+import org.apache.syncope.common.lib.patch.StatusPatch;
+import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.UserService;
@@ -31,13 +31,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UserServiceImpl extends AbstractAnyService<UserTO, UserMod> implements UserService {
+public class UserServiceImpl extends AbstractAnyService<UserTO, UserPatch> implements UserService {
 
     @Autowired
     private UserLogic logic;
 
     @Override
-    protected AbstractAnyLogic<UserTO, UserMod> getAnyLogic() {
+    protected AbstractAnyLogic<UserTO, UserPatch> getAnyLogic() {
         return logic;
     }
 
@@ -62,12 +62,12 @@ public class UserServiceImpl extends AbstractAnyService<UserTO, UserMod> impleme
     }
 
     @Override
-    public Response status(final StatusMod statusMod) {
-        UserTO user = logic.read(statusMod.getKey());
+    public Response status(final StatusPatch statusPatch) {
+        UserTO user = logic.read(statusPatch.getKey());
 
         checkETag(user.getETagValue());
 
-        UserTO updated = logic.status(statusMod);
+        UserTO updated = logic.status(statusPatch);
         return modificationResponse(updated);
     }
 }

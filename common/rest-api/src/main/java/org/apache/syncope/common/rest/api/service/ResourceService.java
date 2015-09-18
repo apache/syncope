@@ -36,9 +36,8 @@ import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.PagedConnObjectTOResult;
 import org.apache.syncope.common.lib.to.ResourceTO;
-import org.apache.syncope.common.lib.types.ResourceDeassociationActionType;
+import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 import org.apache.syncope.common.lib.wrap.AnyKey;
-import org.apache.syncope.common.lib.wrap.BooleanWrap;
 import org.apache.syncope.common.rest.api.beans.ConnObjectTOListQuery;
 
 /**
@@ -134,13 +133,12 @@ public interface ResourceService extends JAXRSService {
      * Checks whether the connection to resource could be established.
      *
      * @param resourceTO resource to be checked
-     * @return true if connection to resource could be established
      */
     @POST
     @Path("check")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    BooleanWrap check(@NotNull ResourceTO resourceTO);
+    void check(@NotNull ResourceTO resourceTO);
 
     /**
      * De-associate any objects from the given resource.
@@ -152,12 +150,12 @@ public interface ResourceService extends JAXRSService {
      * @return <tt>Response</tt> object featuring <tt>BulkActionResult</tt> as <tt>Entity</tt>
      */
     @POST
-    @Path("{key}/bulkDeassociation/{anyTypeKey}/{type}")
+    @Path("{key}/bulkDeassociation/{anyTypeKey}/{action}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     BulkActionResult bulkDeassociation(@NotNull @PathParam("key") String key,
             @NotNull @PathParam("anyTypeKey") String anyTypeKey,
-            @NotNull @PathParam("type") ResourceDeassociationActionType type, @NotNull List<AnyKey> keys);
+            @NotNull @PathParam("action") ResourceDeassociationAction type, @NotNull List<AnyKey> keys);
 
     /**
      * Executes the provided bulk action.

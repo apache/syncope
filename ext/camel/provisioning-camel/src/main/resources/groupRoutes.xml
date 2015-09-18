@@ -59,7 +59,7 @@ under the License.
          
   <route id="updateGroup">
     <from uri="direct:updateGroup"/>
-    <setProperty propertyName="anyMod">
+    <setProperty propertyName="anyPatch">
       <simple>${body}</simple>
     </setProperty>
     <doTry>

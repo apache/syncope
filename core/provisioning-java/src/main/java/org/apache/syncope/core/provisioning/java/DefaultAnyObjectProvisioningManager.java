@@ -27,7 +27,7 @@ import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.mod.AnyObjectMod;
+import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -94,27 +94,26 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
     }
 
     @Override
-    public Pair<Long, List<PropagationStatus>> update(final AnyObjectMod anyObjectMod) {
-        return update(anyObjectMod, Collections.<String>emptySet());
+    public Pair<Long, List<PropagationStatus>> update(final AnyObjectPatch anyObjectPatch) {
+        return update(anyObjectPatch, Collections.<String>emptySet());
     }
 
     @Override
     public Pair<Long, List<PropagationStatus>> update(
-            final AnyObjectMod anyObjectMod, final Set<String> excludedResources) {
+            final AnyObjectPatch anyObjectPatch, final Set<String> excludedResources) {
 
-        WorkflowResult<Long> updated = awfAdapter.update(anyObjectMod);
+        WorkflowResult<Long> updated = awfAdapter.update(anyObjectPatch);
 
-        List<PropagationTask> tasks = propagationManager.getAnyObjectUpdateTasks(updated,
-                anyObjectMod.getVirAttrsToRemove(), anyObjectMod.getVirAttrsToUpdate(), null);
+        List<PropagationTask> tasks = propagationManager.getAnyObjectUpdateTasks(
+                updated, anyObjectPatch.getVirAttrs(), excludedResources);
         if (tasks.isEmpty()) {
             // SYNCOPE-459: take care of user virtual attributes ...
             PropagationByResource propByResVirAttr = virtAttrHandler.fillVirtual(
                     updated.getResult(),
                     AnyTypeKind.ANY_OBJECT,
-                    anyObjectMod.getVirAttrsToRemove(),
-                    anyObjectMod.getVirAttrsToUpdate());
+                    anyObjectPatch.getVirAttrs());
             tasks.addAll(!propByResVirAttr.isEmpty()
-                    ? propagationManager.getAnyObjectUpdateTasks(updated, null, null, null)
+                    ? propagationManager.getAnyObjectUpdateTasks(updated, null, null)
                     : Collections.<PropagationTask>emptyList());
         }
 
@@ -159,13 +158,13 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
     }
 
     @Override
-    public Long unlink(final AnyObjectMod anyObjectMod) {
-        return awfAdapter.update(anyObjectMod).getResult();
+    public Long unlink(final AnyObjectPatch anyObjectPatch) {
+        return awfAdapter.update(anyObjectPatch).getResult();
     }
 
     @Override
-    public Long link(final AnyObjectMod anyObjectMod) {
-        return awfAdapter.update(anyObjectMod).getResult();
+    public Long link(final AnyObjectPatch anyObjectPatch) {
+        return awfAdapter.update(anyObjectPatch).getResult();
     }
 
     @Override
@@ -177,7 +176,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
 
         WorkflowResult<Long> wfResult = new WorkflowResult<>(key, propByRes, "update");
 
-        List<PropagationTask> tasks = propagationManager.getAnyObjectUpdateTasks(wfResult, null, null, null);
+        List<PropagationTask> tasks = propagationManager.getAnyObjectUpdateTasks(wfResult, null, null);
         PropagationReporter propagationReporter =
                 ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
         try {

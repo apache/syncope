@@ -21,10 +21,12 @@ package org.apache.syncope.core.provisioning.java.sync;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.apache.syncope.common.lib.mod.GroupMod;
+import org.apache.syncope.common.lib.patch.GroupPatch;
+import org.apache.syncope.common.lib.patch.StringPatchItem;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.entity.Any;
@@ -77,35 +79,41 @@ public class GroupPushResultHandlerImpl extends AbstractPushResultHandler implem
 
     @Override
     protected Any<?, ?, ?> link(final Any<?, ?, ?> sbj, final Boolean unlink) {
-        GroupMod groupMod = new GroupMod();
-        groupMod.setKey(sbj.getKey());
+        GroupPatch groupPatch = new GroupPatch();
+        groupPatch.setKey(sbj.getKey());
 
-        if (unlink) {
-            groupMod.getResourcesToRemove().add(profile.getTask().getResource().getKey());
-        } else {
-            groupMod.getResourcesToAdd().add(profile.getTask().getResource().getKey());
-        }
+        groupPatch.getResources().add(new StringPatchItem.Builder().
+                operation(unlink ? PatchOperation.DELETE : PatchOperation.ADD_REPLACE).
+                value(profile.getTask().getResource().getKey()).build());
 
-        gwfAdapter.update(groupMod);
+        gwfAdapter.update(groupPatch);
 
         return groupDAO.authFind(sbj.getKey());
     }
 
     @Override
     protected Any<?, ?, ?> unassign(final Any<?, ?, ?> sbj) {
-        GroupMod groupMod = new GroupMod();
-        groupMod.setKey(sbj.getKey());
-        groupMod.getResourcesToRemove().add(profile.getTask().getResource().getKey());
-        gwfAdapter.update(groupMod);
+        GroupPatch groupPatch = new GroupPatch();
+        groupPatch.setKey(sbj.getKey());
+        groupPatch.getResources().add(new StringPatchItem.Builder().
+                operation(PatchOperation.DELETE).
+                value(profile.getTask().getResource().getKey()).build());
+
+        gwfAdapter.update(groupPatch);
+
         return deprovision(sbj);
     }
 
     @Override
     protected Any<?, ?, ?> assign(final Any<?, ?, ?> sbj, final Boolean enabled) {
-        GroupMod groupMod = new GroupMod();
-        groupMod.setKey(sbj.getKey());
-        groupMod.getResourcesToAdd().add(profile.getTask().getResource().getKey());
-        gwfAdapter.update(groupMod);
+        GroupPatch groupPatch = new GroupPatch();
+        groupPatch.setKey(sbj.getKey());
+        groupPatch.getResources().add(new StringPatchItem.Builder().
+                operation(PatchOperation.ADD_REPLACE).
+                value(profile.getTask().getResource().getKey()).build());
+
+        gwfAdapter.update(groupPatch);
+
         return provision(sbj, enabled);
     }
 

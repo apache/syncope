@@ -285,11 +285,7 @@ public class UserReportlet extends AbstractReportlet {
                     handler.startElement("", "", "relationship", atts);
 
                     if (conf.getFeatures().contains(Feature.resources)) {
-                        URelationship actualRel = user.getRelationship(rel.getRightKey());
-                        if (actualRel == null) {
-                            LOG.warn("Unexpected: cannot find relationship for any object {} for user {}",
-                                    rel.getRightKey(), user);
-                        } else {
+                        for (URelationship actualRel : user.getRelationships(rel.getRightKey())) {
                             doExtractResources(
                                     handler, anyObjectDataBinder.getAnyObjectTO(actualRel.getRightEnd(), true));
                         }

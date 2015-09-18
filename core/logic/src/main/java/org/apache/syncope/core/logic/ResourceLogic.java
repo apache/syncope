@@ -270,20 +270,11 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
 
     @PreAuthorize("hasRole('" + Entitlement.CONNECTOR_READ + "')")
     @Transactional(readOnly = true)
-    public boolean check(final ResourceTO resourceTO) {
+    public void check(final ResourceTO resourceTO) {
         ConnInstance connInstance = binder.getConnInstance(resourceTO);
         Connector connector = connFactory.createConnector(connInstance, connInstance.getConfiguration());
 
-        boolean result;
-        try {
-            connector.test();
-            result = true;
-        } catch (Exception e) {
-            LOG.error("Test connection failure {}", e);
-            result = false;
-        }
-
-        return result;
+        connector.test();
     }
 
     @Override

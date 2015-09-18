@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.core.workflow.api;
 
+import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
-import org.apache.syncope.common.lib.mod.AnyObjectMod;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 
 /**
@@ -47,10 +47,10 @@ public interface AnyObjectWorkflowAdapter extends WorkflowAdapter {
     /**
      * Update a anyObject.
      *
-     * @param anyObjectMod modification set to be performed
+     * @param anyObjectPatch modification set to be performed
      * @return anyObject just updated and propagations to be performed
      */
-    WorkflowResult<Long> update(AnyObjectMod anyObjectMod);
+    WorkflowResult<Long> update(AnyObjectPatch anyObjectPatch);
 
     /**
      * Delete a anyObject.

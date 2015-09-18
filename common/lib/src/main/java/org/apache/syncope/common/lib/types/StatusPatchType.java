@@ -16,15 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.wrap;
+package org.apache.syncope.common.lib.types;
 
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.XmlEnum;
 
-@XmlRootElement(name = "booleanWrap")
-@XmlType
-public class BooleanWrap extends AbstractWrappable<Boolean> {
+@XmlEnum
+public enum StatusPatchType {
 
-    private static final long serialVersionUID = 3762310846902669241L;
+    ACTIVATE,
+    SUSPEND,
+    REACTIVATE;
 
 }

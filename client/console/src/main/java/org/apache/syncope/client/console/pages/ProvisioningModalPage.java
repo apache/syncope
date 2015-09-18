@@ -36,7 +36,7 @@ import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.ResourceDeassociationActionType;
+import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 import org.apache.syncope.common.lib.wrap.AbstractWrappable;
 import org.apache.syncope.common.lib.wrap.AnyKey;
 import org.apache.wicket.PageReference;
@@ -137,7 +137,7 @@ public class ProvisioningModalPage<T extends AnyTO> extends AbstractStatusModalP
             @Override
             public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                 try {
-                    bulkAssociationAction(target, ResourceDeassociationActionType.UNLINK, table, columns);
+                    bulkAssociationAction(target, ResourceDeassociationAction.UNLINK, table, columns);
                 } catch (Exception e) {
                     LOG.error("Error unlinkink resources", e);
                     error(getString(Constants.ERROR) + ": " + e.getMessage());
@@ -153,7 +153,7 @@ public class ProvisioningModalPage<T extends AnyTO> extends AbstractStatusModalP
             @Override
             public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                 try {
-                    bulkAssociationAction(target, ResourceDeassociationActionType.DEPROVISION, table, columns);
+                    bulkAssociationAction(target, ResourceDeassociationAction.DEPROVISION, table, columns);
                 } catch (Exception e) {
                     LOG.error("Error de-provisioning user", e);
                     error(getString(Constants.ERROR) + ": " + e.getMessage());
@@ -169,7 +169,7 @@ public class ProvisioningModalPage<T extends AnyTO> extends AbstractStatusModalP
             @Override
             public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                 try {
-                    bulkAssociationAction(target, ResourceDeassociationActionType.UNASSIGN, table, columns);
+                    bulkAssociationAction(target, ResourceDeassociationAction.UNASSIGN, table, columns);
                 } catch (Exception e) {
                     LOG.error("Error unassigning resources", e);
                     error(getString(Constants.ERROR) + ": " + e.getMessage());
@@ -227,7 +227,7 @@ public class ProvisioningModalPage<T extends AnyTO> extends AbstractStatusModalP
 
     private void bulkAssociationAction(
             final AjaxRequestTarget target,
-            final ResourceDeassociationActionType type,
+            final ResourceDeassociationAction type,
             final ActionDataTablePanel<StatusBean, String> table,
             final List<IColumn<StatusBean, String>> columns) {
 

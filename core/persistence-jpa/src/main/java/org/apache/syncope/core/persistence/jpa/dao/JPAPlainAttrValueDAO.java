@@ -44,26 +44,29 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class JPAPlainAttrValueDAO extends AbstractDAO<PlainAttrValue, Long> implements PlainAttrValueDAO {
 
+    @SuppressWarnings("unchecked")
     private <T extends PlainAttrValue> Class<? extends AbstractPlainAttrValue> getJPAEntityReference(
             final Class<T> reference) {
 
-        return reference.equals(CPlainAttrValue.class)
-                ? JPACPlainAttrValue.class
-                : reference.equals(CPlainAttrUniqueValue.class)
-                        ? JPACPlainAttrUniqueValue.class
-                        : reference.equals(GPlainAttrValue.class)
-                                ? JPAGPlainAttrValue.class
-                                : reference.equals(GPlainAttrUniqueValue.class)
-                                        ? JPAGPlainAttrUniqueValue.class
-                                        : reference.equals(APlainAttrValue.class)
-                                                ? JPAAPlainAttrValue.class
-                                                : reference.equals(APlainAttrUniqueValue.class)
-                                                        ? JPAAPlainAttrUniqueValue.class
-                                                        : reference.equals(UPlainAttrValue.class)
-                                                                ? JPAUPlainAttrValue.class
-                                                                : reference.equals(UPlainAttrUniqueValue.class)
-                                                                        ? JPAUPlainAttrUniqueValue.class
-                                                                        : null;
+        return AbstractPlainAttrValue.class.isAssignableFrom(reference)
+                ? (Class<? extends AbstractPlainAttrValue>) reference
+                : reference.equals(CPlainAttrValue.class)
+                        ? JPACPlainAttrValue.class
+                        : reference.equals(CPlainAttrUniqueValue.class)
+                                ? JPACPlainAttrUniqueValue.class
+                                : reference.equals(GPlainAttrValue.class)
+                                        ? JPAGPlainAttrValue.class
+                                        : reference.equals(GPlainAttrUniqueValue.class)
+                                                ? JPAGPlainAttrUniqueValue.class
+                                                : reference.equals(APlainAttrValue.class)
+                                                        ? JPAAPlainAttrValue.class
+                                                        : reference.equals(APlainAttrUniqueValue.class)
+                                                                ? JPAAPlainAttrUniqueValue.class
+                                                                : reference.equals(UPlainAttrValue.class)
+                                                                        ? JPAUPlainAttrValue.class
+                                                                        : reference.equals(UPlainAttrUniqueValue.class)
+                                                                                ? JPAUPlainAttrUniqueValue.class
+                                                                                : null;
     }
 
     @Override

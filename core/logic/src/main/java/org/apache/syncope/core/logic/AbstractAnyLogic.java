@@ -25,11 +25,10 @@ import java.util.List;
 import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.mod.AnyMod;
+import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -49,7 +48,7 @@ import org.apache.syncope.core.provisioning.api.LogicActions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 
-public abstract class AbstractAnyLogic<TO extends AnyTO, MOD extends AnyMod>
+public abstract class AbstractAnyLogic<TO extends AnyTO, P extends AnyPatch>
         extends AbstractResourceAssociator<TO> {
 
     @Autowired
@@ -122,18 +121,15 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, MOD extends AnyMod>
         return any;
     }
 
-    protected Pair<MOD, List<LogicActions>> beforeUpdate(final MOD input, final String realmPath) {
-        if (StringUtils.isBlank(input.getRealm())) {
-            input.setRealm(realmPath);
-        }
-        Realm realm = realmDAO.find(input.getRealm());
+    protected Pair<P, List<LogicActions>> beforeUpdate(final P input, final String realmPath) {
+        Realm realm = realmDAO.find(realmPath);
         if (realm == null) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
-            sce.getElements().add(input.getRealm());
+            sce.getElements().add(realmPath);
             throw sce;
         }
 
-        MOD mod = input;
+        P mod = input;
 
         List<LogicActions> actions = getActions(realm);
         for (LogicActions action : actions) {
@@ -244,7 +240,7 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, MOD extends AnyMod>
 
     public abstract TO create(TO anyTO);
 
-    public abstract TO update(MOD anyMod);
+    public abstract TO update(P anyPatch);
 
     public abstract TO delete(Long key);
 

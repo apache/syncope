@@ -35,12 +35,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.mod.GroupMod;
+import org.apache.syncope.common.lib.patch.GroupPatch;
+import org.apache.syncope.common.lib.patch.StringPatchItem;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.Entitlement;
+import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.core.misc.RealmUtils;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -65,7 +67,7 @@ import org.springframework.transaction.annotation.Transactional;
  * Spring's Transactional logic at class level.
  */
 @Component
-public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupMod> {
+public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
 
     @Autowired
     protected GroupDAO groupDAO;
@@ -202,24 +204,20 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupMod> {
 
     @PreAuthorize("hasRole('" + Entitlement.GROUP_UPDATE + "')")
     @Override
-    public GroupTO update(final GroupMod groupMod) {
-        GroupTO groupTO = binder.getGroupTO(groupMod.getKey());
-        Pair<GroupMod, List<LogicActions>> before = beforeUpdate(groupMod, groupTO.getRealm());
+    public GroupTO update(final GroupPatch groupPatch) {
+        GroupTO groupTO = binder.getGroupTO(groupPatch.getKey());
+        Pair<GroupPatch, List<LogicActions>> before = beforeUpdate(groupPatch, groupTO.getRealm());
 
-        Set<String> requestedRealms = new HashSet<>();
-        requestedRealms.add(before.getLeft().getRealm());
-        if (StringUtils.isNotBlank(before.getLeft().getRealm())) {
-            requestedRealms.add(before.getLeft().getRealm());
-        }
-        Set<String> effectiveRealms = getEffectiveRealms(
-                AuthContextUtils.getAuthorizations().get(Entitlement.GROUP_UPDATE),
-                requestedRealms);
-        securityChecks(effectiveRealms, before.getLeft().getRealm(), before.getLeft().getKey());
-        if (StringUtils.isNotBlank(before.getLeft().getRealm())) {
-            securityChecks(effectiveRealms, before.getLeft().getRealm(), before.getLeft().getKey());
+        if (before.getLeft().getRealm() != null && StringUtils.isNotBlank(before.getLeft().getRealm().getValue())) {
+            Set<String> requestedRealms = new HashSet<>();
+            requestedRealms.add(before.getLeft().getRealm().getValue());
+            Set<String> effectiveRealms = getEffectiveRealms(
+                    AuthContextUtils.getAuthorizations().get(Entitlement.USER_UPDATE),
+                    requestedRealms);
+            securityChecks(effectiveRealms, before.getLeft().getRealm().getValue(), before.getLeft().getKey());
         }
 
-        Map.Entry<Long, List<PropagationStatus>> updated = provisioningManager.update(groupMod);
+        Map.Entry<Long, List<PropagationStatus>> updated = provisioningManager.update(groupPatch);
 
         GroupTO updatedTO = binder.getGroupTO(updated.getKey());
         updatedTO.getPropagationStatusTOs().addAll(updated.getValue());
@@ -270,11 +268,17 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupMod> {
                 Collections.singleton(group.getRealm()));
         securityChecks(effectiveRealms, group.getRealm(), group.getKey());
 
-        GroupMod groupMod = new GroupMod();
-        groupMod.setKey(key);
-        groupMod.getResourcesToRemove().addAll(resources);
+        GroupPatch patch = new GroupPatch();
+        patch.setKey(key);
+        patch.getResources().addAll(CollectionUtils.collect(resources, new Transformer<String, StringPatchItem>() {
 
-        return binder.getGroupTO(provisioningManager.unlink(groupMod));
+            @Override
+            public StringPatchItem transform(final String resource) {
+                return new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(resource).build();
+            }
+        }));
+
+        return binder.getGroupTO(provisioningManager.unlink(patch));
     }
 
     @PreAuthorize("hasRole('" + Entitlement.GROUP_UPDATE + "')")
@@ -287,11 +291,17 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupMod> {
                 Collections.singleton(group.getRealm()));
         securityChecks(effectiveRealms, group.getRealm(), group.getKey());
 
-        GroupMod groupMod = new GroupMod();
-        groupMod.setKey(key);
-        groupMod.getResourcesToAdd().addAll(resources);
+        GroupPatch patch = new GroupPatch();
+        patch.setKey(key);
+        patch.getResources().addAll(CollectionUtils.collect(resources, new Transformer<String, StringPatchItem>() {
 
-        return binder.getGroupTO(provisioningManager.link(groupMod));
+            @Override
+            public StringPatchItem transform(final String resource) {
+                return new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(resource).build();
+            }
+        }));
+
+        return binder.getGroupTO(provisioningManager.link(patch));
     }
 
     @PreAuthorize("hasRole('" + Entitlement.GROUP_UPDATE + "')")
@@ -304,10 +314,17 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupMod> {
                 Collections.singleton(group.getRealm()));
         securityChecks(effectiveRealms, group.getRealm(), group.getKey());
 
-        GroupMod groupMod = new GroupMod();
-        groupMod.setKey(key);
-        groupMod.getResourcesToRemove().addAll(resources);
-        return update(groupMod);
+        GroupPatch patch = new GroupPatch();
+        patch.setKey(key);
+        patch.getResources().addAll(CollectionUtils.collect(resources, new Transformer<String, StringPatchItem>() {
+
+            @Override
+            public StringPatchItem transform(final String resource) {
+                return new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(resource).build();
+            }
+        }));
+
+        return update(patch);
     }
 
     @PreAuthorize("hasRole('" + Entitlement.GROUP_UPDATE + "')")
@@ -325,11 +342,17 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupMod> {
                 Collections.singleton(group.getRealm()));
         securityChecks(effectiveRealms, group.getRealm(), group.getKey());
 
-        GroupMod groupMod = new GroupMod();
-        groupMod.setKey(key);
-        groupMod.getResourcesToAdd().addAll(resources);
+        GroupPatch patch = new GroupPatch();
+        patch.setKey(key);
+        patch.getResources().addAll(CollectionUtils.collect(resources, new Transformer<String, StringPatchItem>() {
 
-        return update(groupMod);
+            @Override
+            public StringPatchItem transform(final String resource) {
+                return new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(resource).build();
+            }
+        }));
+
+        return update(patch);
     }
 
     @PreAuthorize("hasRole('" + Entitlement.GROUP_UPDATE + "')")
@@ -378,8 +401,8 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupMod> {
                     key = (Long) args[i];
                 } else if (args[i] instanceof GroupTO) {
                     key = ((GroupTO) args[i]).getKey();
-                } else if (args[i] instanceof GroupMod) {
-                    key = ((GroupMod) args[i]).getKey();
+                } else if (args[i] instanceof GroupPatch) {
+                    key = ((GroupPatch) args[i]).getKey();
                 }
             }
         }

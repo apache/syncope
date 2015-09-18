@@ -21,10 +21,12 @@ package org.apache.syncope.core.provisioning.java.sync;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.apache.syncope.common.lib.mod.UserMod;
+import org.apache.syncope.common.lib.patch.StringPatchItem;
+import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.entity.Any;
@@ -80,35 +82,39 @@ public class UserPushResultHandlerImpl extends AbstractPushResultHandler impleme
 
     @Override
     protected Any<?, ?, ?> link(final Any<?, ?, ?> sbj, final Boolean unlink) {
-        UserMod userMod = new UserMod();
-        userMod.setKey(sbj.getKey());
+        UserPatch userPatch = new UserPatch();
+        userPatch.setKey(sbj.getKey());
+        userPatch.getResources().add(new StringPatchItem.Builder().
+                operation(unlink ? PatchOperation.DELETE : PatchOperation.ADD_REPLACE).
+                value(profile.getTask().getResource().getKey()).build());
 
-        if (unlink) {
-            userMod.getResourcesToRemove().add(profile.getTask().getResource().getKey());
-        } else {
-            userMod.getResourcesToAdd().add(profile.getTask().getResource().getKey());
-        }
+        uwfAdapter.update(userPatch);
 
-        uwfAdapter.update(userMod);
-
-        return userDAO.authFind(userMod.getKey());
+        return userDAO.authFind(userPatch.getKey());
     }
 
     @Override
     protected Any<?, ?, ?> unassign(final Any<?, ?, ?> sbj) {
-        UserMod userMod = new UserMod();
-        userMod.setKey(sbj.getKey());
-        userMod.getResourcesToRemove().add(profile.getTask().getResource().getKey());
-        uwfAdapter.update(userMod);
+        UserPatch userPatch = new UserPatch();
+        userPatch.setKey(sbj.getKey());
+        userPatch.getResources().add(new StringPatchItem.Builder().
+                operation(PatchOperation.DELETE).
+                value(profile.getTask().getResource().getKey()).build());
+
+        uwfAdapter.update(userPatch);
+
         return deprovision(sbj);
     }
 
     @Override
     protected Any<?, ?, ?> assign(final Any<?, ?, ?> sbj, final Boolean enabled) {
-        UserMod userMod = new UserMod();
-        userMod.setKey(sbj.getKey());
-        userMod.getResourcesToAdd().add(profile.getTask().getResource().getKey());
-        uwfAdapter.update(userMod);
+        UserPatch userPatch = new UserPatch();
+        userPatch.setKey(sbj.getKey());
+        userPatch.getResources().add(new StringPatchItem.Builder().
+                operation(PatchOperation.ADD_REPLACE).
+                value(profile.getTask().getResource().getKey()).build());
+        uwfAdapter.update(userPatch);
+
         return provision(sbj, enabled);
     }
 

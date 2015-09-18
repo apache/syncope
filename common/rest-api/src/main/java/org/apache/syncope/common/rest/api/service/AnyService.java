@@ -18,31 +18,30 @@
  */
 package org.apache.syncope.common.rest.api.service;
 
-import java.util.List;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.common.lib.mod.AnyMod;
-import org.apache.syncope.common.lib.mod.ResourceAssociationMod;
+import org.apache.cxf.jaxrs.ext.PATCH;
+import org.apache.syncope.common.lib.patch.AnyPatch;
+import org.apache.syncope.common.lib.patch.AssociationPatch;
+import org.apache.syncope.common.lib.patch.DeassociationPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.PagedResult;
-import org.apache.syncope.common.lib.types.ResourceAssociationAction;
-import org.apache.syncope.common.lib.types.ResourceDeassociationActionType;
-import org.apache.syncope.common.lib.wrap.ResourceKey;
 import org.apache.syncope.common.rest.api.beans.AnyListQuery;
 import org.apache.syncope.common.rest.api.beans.AnySearchQuery;
 
-public interface AnyService<TO extends AnyTO, MOD extends AnyMod> extends JAXRSService {
+public interface AnyService<TO extends AnyTO, P extends AnyPatch> extends JAXRSService {
 
     /**
      * Reads the any object matching the provided key.
@@ -91,15 +90,28 @@ public interface AnyService<TO extends AnyTO, MOD extends AnyMod> extends JAXRSS
     /**
      * Updates any object matching the provided key.
      *
-     * @param anyMod modification to be applied to any object matching the provided key
+     * @param anyPatch modification to be applied to any object matching the provided key
      * @return <tt>Response</tt> object featuring the updated any object enriched with propagation status information
      * - <tt>AnyTO</tt> as <tt>Entity</tt>
      */
-    @POST
+    @PATCH
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    Response update(@NotNull MOD anyMod);
+    Response update(@NotNull P anyPatch);
+
+    /**
+     * Updates any object matching the provided key.
+     *
+     * @param anyTO complete update
+     * @return <tt>Response</tt> object featuring the updated any object enriched with propagation status information
+     * - <tt>AnyTO</tt> as <tt>Entity</tt>
+     */
+    @PUT
+    @Path("{key}")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    Response update(@NotNull TO anyTO);
 
     /**
      * Deletes any object matching provided key.
@@ -117,36 +129,26 @@ public interface AnyService<TO extends AnyTO, MOD extends AnyMod> extends JAXRSS
     /**
      * Executes resource-related operations on given any object.
      *
-     * @param key any object id.
-     * @param type resource association action type
-     * @param resourceNames external resources to be used for propagation-related operations
+     * @param patch external resources to be used for propagation-related operations
      * @return <tt>Response</tt> object featuring <tt>BulkActionResult</tt> as <tt>Entity</tt>
      */
     @POST
-    @Path("{key}/deassociate/{type}")
+    @Path("{key}/deassociate/{action}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    Response deassociate(
-            @NotNull @PathParam("key") Long key,
-            @NotNull @PathParam("type") ResourceDeassociationActionType type,
-            @NotNull List<ResourceKey> resourceNames);
+    Response deassociate(@NotNull DeassociationPatch patch);
 
     /**
      * Executes resource-related operations on given any object.
      *
-     * @param key any object id.
-     * @param type resource association action type
-     * @param associationMod external resources to be used for propagation-related operations
+     * @param patch external resources to be used for propagation-related operations
      * @return <tt>Response</tt> object featuring <tt>BulkActionResult</tt> as <tt>Entity</tt>
      */
     @POST
-    @Path("{key}/associate/{type}")
+    @Path("{key}/associate/{action}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    Response associate(
-            @NotNull @PathParam("key") Long key,
-            @NotNull @PathParam("type") ResourceAssociationAction type,
-            @NotNull ResourceAssociationMod associationMod);
+    Response associate(@NotNull AssociationPatch patch);
 
     /**
      * Executes the provided bulk action.

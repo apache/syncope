@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.core.workflow.api;
 
+import org.apache.syncope.common.lib.patch.GroupPatch;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
-import org.apache.syncope.common.lib.mod.GroupMod;
 import org.apache.syncope.common.lib.to.GroupTO;
 
 /**
@@ -47,10 +47,10 @@ public interface GroupWorkflowAdapter extends WorkflowAdapter {
     /**
      * Update a group.
      *
-     * @param groupMod modification set to be performed
+     * @param groupPatch modification set to be performed
      * @return group just updated and propagations to be performed
      */
-    WorkflowResult<Long> update(GroupMod groupMod);
+    WorkflowResult<Long> update(GroupPatch groupPatch);
 
     /**
      * Delete a group.

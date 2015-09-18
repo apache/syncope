@@ -17,7 +17,7 @@
  * under the License.
  */
 @XmlSchema(namespace = SyncopeConstants.NAMESPACE)
-package org.apache.syncope.common.lib.mod;
+package org.apache.syncope.common.lib.patch;
 
 import javax.xml.bind.annotation.XmlSchema;
 import org.apache.syncope.common.lib.SyncopeConstants;

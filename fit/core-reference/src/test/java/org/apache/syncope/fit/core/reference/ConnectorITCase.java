@@ -38,6 +38,7 @@ import java.util.Properties;
 import java.util.Set;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.ConnBundleTO;
@@ -519,14 +520,23 @@ public class ConnectorITCase extends AbstractITCase {
         // set connector configuration
         connectorTO.getConfiguration().addAll(conf);
 
-        assertTrue(connectorService.check(connectorTO).getElement());
+        try {
+            connectorService.check(connectorTO);
+        } catch (Exception e) {
+            fail(ExceptionUtils.getStackTrace(e));
+        }
 
         conf.remove(password);
         password.getValues().clear();
         password.getValues().add("password");
         conf.add(password);
 
-        assertFalse(connectorService.check(connectorTO).getElement());
+        try {
+            connectorService.check(connectorTO);
+            fail();
+        } catch (Exception e) {
+            assertNotNull(e);
+        }
     }
 
     @Test
@@ -626,7 +636,12 @@ public class ConnectorITCase extends AbstractITCase {
         connectorTO.getConfiguration().addAll(conf);
 
         try {
-            assertFalse(connectorService.check(connectorTO).getElement());
+            try {
+                connectorService.check(connectorTO);
+                fail();
+            } catch (Exception e) {
+                assertNotNull(e);
+            }
 
             Response response = connectorService.create(connectorTO);
             if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
@@ -672,7 +687,11 @@ public class ConnectorITCase extends AbstractITCase {
             // ----------------------------------------
             // Check connection without saving the resource ....
             // ----------------------------------------
-            assertTrue(resourceService.check(resourceTO).getElement());
+            try {
+                resourceService.check(resourceTO);
+            } catch (Exception e) {
+                fail(ExceptionUtils.getStackTrace(e));
+            }
             // ----------------------------------------
         } finally {
             // Remove connector from db to make test re-runnable

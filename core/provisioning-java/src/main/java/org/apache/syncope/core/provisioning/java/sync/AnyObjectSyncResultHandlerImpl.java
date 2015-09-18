@@ -22,12 +22,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.lib.mod.AnyMod;
-import org.apache.syncope.common.lib.mod.AnyObjectMod;
+import org.apache.syncope.common.lib.patch.AnyObjectPatch;
+import org.apache.syncope.common.lib.patch.AnyPatch;
+import org.apache.syncope.common.lib.patch.StringPatchItem;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.provisioning.api.sync.ProvisioningResult;
 import org.apache.syncope.core.provisioning.api.sync.AnyObjectSyncResultHandler;
@@ -76,28 +78,25 @@ public class AnyObjectSyncResultHandlerImpl extends AbstractSyncResultHandler im
             final ProvisioningResult result,
             final boolean unlink) {
 
-        AnyObjectMod anyObjectMod = new AnyObjectMod();
-        anyObjectMod.setKey(before.getKey());
+        AnyObjectPatch anyObjectPatch = new AnyObjectPatch();
+        anyObjectPatch.setKey(before.getKey());
+        anyObjectPatch.getResources().add(new StringPatchItem.Builder().
+                operation(unlink ? PatchOperation.DELETE : PatchOperation.ADD_REPLACE).
+                value(profile.getTask().getResource().getKey()).build());
 
-        if (unlink) {
-            anyObjectMod.getResourcesToRemove().add(profile.getTask().getResource().getKey());
-        } else {
-            anyObjectMod.getResourcesToAdd().add(profile.getTask().getResource().getKey());
-        }
-
-        return anyObjectDataBinder.getAnyObjectTO(awfAdapter.update(anyObjectMod).getResult());
+        return anyObjectDataBinder.getAnyObjectTO(awfAdapter.update(anyObjectPatch).getResult());
     }
 
     @Override
     protected AnyTO doUpdate(
             final AnyTO before,
-            final AnyMod anyMod,
+            final AnyPatch anyPatch,
             final SyncDelta delta,
             final ProvisioningResult result) {
 
-        AnyObjectMod anyObjectMod = AnyObjectMod.class.cast(anyMod);
+        AnyObjectPatch anyObjectPatch = AnyObjectPatch.class.cast(anyPatch);
 
-        Map.Entry<Long, List<PropagationStatus>> updated = anyObjectProvisioningManager.update(anyObjectMod);
+        Map.Entry<Long, List<PropagationStatus>> updated = anyObjectProvisioningManager.update(anyObjectPatch);
 
         AnyObjectTO after = anyObjectDataBinder.getAnyObjectTO(updated.getKey());
         result.setName(getName(after));
@@ -110,9 +109,11 @@ public class AnyObjectSyncResultHandlerImpl extends AbstractSyncResultHandler im
                 key, profile.getTask().getResource().getKey()));
 
         if (unlink) {
-            AnyObjectMod anyObjectMod = new AnyObjectMod();
-            anyObjectMod.setKey(key);
-            anyObjectMod.getResourcesToRemove().add(profile.getTask().getResource().getKey());
+            AnyObjectPatch anyObjectPatch = new AnyObjectPatch();
+            anyObjectPatch.setKey(key);
+            anyObjectPatch.getResources().add(new StringPatchItem.Builder().
+                    operation(PatchOperation.DELETE).
+                    value(profile.getTask().getResource().getKey()).build());
         }
     }
 

@@ -22,7 +22,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.mod.AnyObjectMod;
+import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.rest.api.beans.AnyListQuery;
@@ -33,13 +33,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class AnyObjectServiceImpl extends AbstractAnyService<AnyObjectTO, AnyObjectMod> implements AnyObjectService {
+public class AnyObjectServiceImpl extends AbstractAnyService<AnyObjectTO, AnyObjectPatch> implements AnyObjectService {
 
     @Autowired
     private AnyObjectLogic logic;
 
     @Override
-    protected AbstractAnyLogic<AnyObjectTO, AnyObjectMod> getAnyLogic() {
+    protected AbstractAnyLogic<AnyObjectTO, AnyObjectPatch> getAnyLogic() {
         return logic;
     }
 

@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.api;
 
-import org.apache.syncope.common.lib.mod.AnyMod;
+import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
 
 /**
@@ -30,7 +30,7 @@ public interface LogicActions {
 
     <A extends AnyTO> A afterCreate(A input);
 
-    <M extends AnyMod> M beforeUpdate(M input);
+    <P extends AnyPatch> P beforeUpdate(P input);
 
     <A extends AnyTO> A afterUpdate(A input);
 

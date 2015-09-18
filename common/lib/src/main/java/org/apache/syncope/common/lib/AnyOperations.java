@@ -18,22 +18,28 @@
  */
 package org.apache.syncope.common.lib;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.commons.collections4.Closure;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.lib.mod.AnyMod;
-import org.apache.syncope.common.lib.mod.AnyObjectMod;
-import org.apache.syncope.common.lib.mod.AttrMod;
-import org.apache.syncope.common.lib.mod.ReferenceMod;
-import org.apache.syncope.common.lib.mod.GroupMod;
-import org.apache.syncope.common.lib.mod.UserMod;
+import org.apache.syncope.common.lib.patch.AnyObjectPatch;
+import org.apache.syncope.common.lib.patch.AnyPatch;
+import org.apache.syncope.common.lib.patch.AttrPatch;
+import org.apache.syncope.common.lib.patch.GroupPatch;
+import org.apache.syncope.common.lib.patch.MembershipPatch;
+import org.apache.syncope.common.lib.patch.PasswordPatch;
+import org.apache.syncope.common.lib.patch.RelationshipPatch;
+import org.apache.syncope.common.lib.patch.AbstractReplacePatchItem;
+import org.apache.syncope.common.lib.patch.BooleanReplacePatchItem;
+import org.apache.syncope.common.lib.patch.LongPatchItem;
+import org.apache.syncope.common.lib.patch.LongReplacePatchItem;
+import org.apache.syncope.common.lib.patch.StringPatchItem;
+import org.apache.syncope.common.lib.patch.StringReplacePatchItem;
+import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
@@ -41,168 +47,148 @@ import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.types.PatchOperation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * Utility class for comparing manipulating {@link AnyTO} and {@link AnyMod}.
+ * Utility class for comparing {@link AnyTO} instances in order to generate {@link AnyPatch} instances.
  */
 public final class AnyOperations {
+
+    private static final Logger LOG = LoggerFactory.getLogger(AnyOperations.class);
 
     private AnyOperations() {
         // empty constructor for static utility classes
     }
 
-    private static void populate(final Map<String, AttrTO> updatedAttrs,
-            final Map<String, AttrTO> originalAttrs, final AnyMod result) {
+    private static <T, K extends AbstractReplacePatchItem<T>> K replacePatchItem(
+            final T updated, final T original, final K proto) {
 
-        populate(updatedAttrs, originalAttrs, result, false);
-    }
-
-    private static void populate(final Map<String, AttrTO> updatedAttrs,
-            final Map<String, AttrTO> originalAttrs, final AnyMod result,
-            final boolean virtuals) {
-
-        for (Map.Entry<String, AttrTO> entry : updatedAttrs.entrySet()) {
-            AttrMod mod = new AttrMod();
-            mod.setSchema(entry.getKey());
-
-            Set<String> updatedValues = new HashSet<>(entry.getValue().getValues());
-
-            Set<String> originalValues = originalAttrs.containsKey(entry.getKey())
-                    ? new HashSet<>(originalAttrs.get(entry.getKey()).getValues())
-                    : Collections.<String>emptySet();
-
-            if (!originalAttrs.containsKey(entry.getKey())) {
-                // SYNCOPE-459: take care of user virtual attributes without any value
-                updatedValues.remove("");
-                mod.getValuesToBeAdded().addAll(new ArrayList<>(updatedValues));
-
-                if (virtuals) {
-                    result.getVirAttrsToUpdate().add(mod);
-                } else {
-                    result.getPlainAttrsToUpdate().add(mod);
-                }
-            } else if (!updatedValues.equals(originalValues)) {
-                // avoid unwanted inputs
-                updatedValues.remove("");
-                if (!entry.getValue().isReadonly()) {
-                    mod.getValuesToBeAdded().addAll(updatedValues);
-
-                    if (!mod.isEmpty()) {
-                        if (virtuals) {
-                            result.getVirAttrsToRemove().add(mod.getSchema());
-                        } else {
-                            result.getPlainAttrsToRemove().add(mod.getSchema());
-                        }
-                    }
-                }
-
-                mod.getValuesToBeRemoved().addAll(originalValues);
-
-                if (!mod.isEmpty()) {
-                    if (virtuals) {
-                        result.getVirAttrsToUpdate().add(mod);
-                    } else {
-                        result.getPlainAttrsToUpdate().add(mod);
-                    }
-                }
-            }
+        if ((original == null && updated == null) || (original != null && original.equals(updated))) {
+            return null;
         }
+
+        proto.setValue(updated);
+        return proto;
     }
 
     private static void diff(
-            final AnyTO updated,
-            final AnyTO original,
-            final AnyMod result,
-            final boolean incremental) {
+            final AnyTO updated, final AnyTO original, final AnyPatch result, final boolean incremental) {
 
-        // 1. check same id
+        // check same key
         if (updated.getKey() != original.getKey()) {
-            throw new IllegalArgumentException("AnyTO's id must be the same");
+            throw new IllegalArgumentException("AnyTO's key must be the same");
         }
         result.setKey(updated.getKey());
 
-        // 2. attributes
+        // 1. realm
+        result.setRealm(replacePatchItem(updated.getRealm(), original.getRealm(), new StringReplacePatchItem()));
+
+        // 2. auxilairy classes
+        result.getAuxClasses().clear();
+
+        if (!incremental) {
+            for (String auxClass : CollectionUtils.subtract(original.getAuxClasses(), updated.getAuxClasses())) {
+                result.getAuxClasses().add(
+                        new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(auxClass).build());
+            }
+        }
+
+        for (String auxClass : CollectionUtils.subtract(updated.getAuxClasses(), original.getAuxClasses())) {
+            result.getAuxClasses().add(
+                    new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(auxClass).build());
+        }
+
+        // 3. plain attributes
         Map<String, AttrTO> updatedAttrs = new HashMap<>(updated.getPlainAttrMap());
         Map<String, AttrTO> originalAttrs = new HashMap<>(original.getPlainAttrMap());
 
-        Set<String> originalAttrNames = new HashSet<>(originalAttrs.keySet());
-        originalAttrNames.removeAll(updatedAttrs.keySet());
+        result.getPlainAttrs().clear();
 
         if (!incremental) {
-            result.getPlainAttrsToRemove().clear();
-            result.getPlainAttrsToRemove().addAll(originalAttrNames);
+            CollectionUtils.forAllDo(CollectionUtils.subtract(originalAttrs.keySet(), updatedAttrs.keySet()),
+                    new Closure<String>() {
+
+                        @Override
+                        public void execute(final String schema) {
+                            result.getPlainAttrs().add(new AttrPatch.Builder().
+                                    operation(PatchOperation.DELETE).
+                                    attrTO(new AttrTO.Builder().schema(schema).build()).
+                                    build());
+                        }
+                    });
         }
 
-        Set<String> emptyUpdatedAttrs = new HashSet<>();
-        for (Map.Entry<String, AttrTO> entry : updatedAttrs.entrySet()) {
-            if (entry.getValue().getValues() == null || entry.getValue().getValues().isEmpty()) {
-
-                emptyUpdatedAttrs.add(entry.getKey());
+        for (AttrTO attrTO : updatedAttrs.values()) {
+            AttrPatch patch = new AttrPatch.Builder().operation(PatchOperation.ADD_REPLACE).attrTO(attrTO).build();
+            if (!patch.isEmpty()) {
+                result.getPlainAttrs().add(patch);
             }
         }
-        for (String emptyUpdatedAttr : emptyUpdatedAttrs) {
-            updatedAttrs.remove(emptyUpdatedAttr);
-            result.getPlainAttrsToRemove().add(emptyUpdatedAttr);
-        }
 
-        populate(updatedAttrs, originalAttrs, result);
-
-        // 3. derived attributes
+        // 4. derived attributes
         updatedAttrs = updated.getDerAttrMap();
         originalAttrs = original.getDerAttrMap();
 
-        originalAttrNames = new HashSet<>(originalAttrs.keySet());
-        originalAttrNames.removeAll(updatedAttrs.keySet());
+        result.getDerAttrs().clear();
 
         if (!incremental) {
-            result.getDerAttrsToRemove().clear();
-            result.getDerAttrsToRemove().addAll(originalAttrNames);
+            for (String schema : CollectionUtils.subtract(originalAttrs.keySet(), updatedAttrs.keySet())) {
+                result.getDerAttrs().add(new AttrPatch.Builder().
+                        operation(PatchOperation.DELETE).
+                        attrTO(new AttrTO.Builder().schema(schema).build()).
+                        build());
+            }
         }
 
-        Set<String> updatedAttrNames = new HashSet<>(updatedAttrs.keySet());
-        updatedAttrNames.removeAll(originalAttrs.keySet());
-        result.getDerAttrsToAdd().clear();
-        result.getDerAttrsToAdd().addAll(updatedAttrNames);
+        for (String schema : CollectionUtils.subtract(updatedAttrs.keySet(), originalAttrs.keySet())) {
+            result.getDerAttrs().add(new AttrPatch.Builder().
+                    operation(PatchOperation.ADD_REPLACE).
+                    attrTO(new AttrTO.Builder().schema(schema).build()).
+                    build());
+        }
 
-        // 4. virtual attributes
+        // 5. virtual attributes
         updatedAttrs = updated.getVirAttrMap();
         originalAttrs = original.getVirAttrMap();
 
-        originalAttrNames = new HashSet<>(originalAttrs.keySet());
-        originalAttrNames.removeAll(updatedAttrs.keySet());
+        result.getVirAttrs().clear();
 
         if (!incremental) {
-            result.getVirAttrsToRemove().clear();
-            result.getVirAttrsToRemove().addAll(originalAttrNames);
+            CollectionUtils.forAllDo(CollectionUtils.subtract(originalAttrs.keySet(), updatedAttrs.keySet()),
+                    new Closure<String>() {
+
+                        @Override
+                        public void execute(final String schema) {
+                            result.getVirAttrs().add(new AttrPatch.Builder().
+                                    operation(PatchOperation.DELETE).
+                                    attrTO(new AttrTO.Builder().schema(schema).build()).
+                                    build());
+                        }
+                    });
         }
 
-        populate(updatedAttrs, originalAttrs, result, true);
+        for (AttrTO attrTO : updatedAttrs.values()) {
+            AttrPatch patch = new AttrPatch.Builder().operation(PatchOperation.ADD_REPLACE).attrTO(attrTO).build();
+            result.getVirAttrs().add(patch);
+        }
 
-        // 5. resources
-        Set<String> updatedRes = new HashSet<>(updated.getResources());
-        Set<String> originalRes = new HashSet<>(original.getResources());
-
-        updatedRes.removeAll(originalRes);
-        result.getResourcesToAdd().clear();
-        result.getResourcesToAdd().addAll(updatedRes);
-
-        originalRes.removeAll(updated.getResources());
+        // 6. resources
+        result.getResources().clear();
 
         if (!incremental) {
-            result.getResourcesToRemove().clear();
-            result.getResourcesToRemove().addAll(originalRes);
+            for (String resource : CollectionUtils.subtract(original.getResources(), updated.getResources())) {
+                result.getResources().add(
+                        new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(resource).build());
+            }
         }
-    }
 
-    /**
-     * Calculate modifications needed by first in order to be equal to second.
-     *
-     * @param updated updated AnyObjectTO
-     * @param original original AnyObjectTO
-     * @return AnyObjectMod containing differences
-     */
-    public static AnyObjectMod diff(final AnyObjectTO updated, final AnyObjectTO original) {
-        return diff(updated, original, false);
+        for (String resource : CollectionUtils.subtract(updated.getResources(), original.getResources())) {
+            result.getResources().add(
+                    new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(resource).build());
+        }
+
     }
 
     /**
@@ -211,10 +197,12 @@ public final class AnyOperations {
      * @param updated updated AnyObjectTO
      * @param original original AnyObjectTO
      * @param incremental perform incremental diff (without removing existing info)
-     * @return AnyObjectMod containing differences
+     * @return AnyObjectPatch containing differences
      */
-    public static AnyObjectMod diff(final AnyObjectTO updated, final AnyObjectTO original, final boolean incremental) {
-        AnyObjectMod result = new AnyObjectMod();
+    public static AnyObjectPatch diff(
+            final AnyObjectTO updated, final AnyObjectTO original, final boolean incremental) {
+
+        AnyObjectPatch result = new AnyObjectPatch();
 
         diff(updated, original, result, incremental);
 
@@ -224,13 +212,18 @@ public final class AnyOperations {
 
         for (Map.Entry<Long, RelationshipTO> entry : updatedRels.entrySet()) {
             if (!originalRels.containsKey(entry.getKey())) {
-                result.getRelationshipsToAdd().add(entry.getKey());
+                result.getRelationships().add(new RelationshipPatch.Builder().
+                        operation(PatchOperation.ADD_REPLACE).
+                        relationshipTO(entry.getValue()).build());
             }
         }
+
         if (!incremental) {
-            Set<Long> originalGroups = new HashSet<>(originalRels.keySet());
-            originalGroups.removeAll(updatedRels.keySet());
-            result.getRelationshipsToRemove().addAll(originalGroups);
+            for (Long key : CollectionUtils.subtract(originalRels.keySet(), updatedRels.keySet())) {
+                result.getRelationships().add(new RelationshipPatch.Builder().
+                        operation(PatchOperation.DELETE).
+                        relationshipTO(originalRels.get(key)).build());
+            }
         }
 
         // 2. memberships
@@ -239,13 +232,16 @@ public final class AnyOperations {
 
         for (Map.Entry<Long, MembershipTO> entry : updatedMembs.entrySet()) {
             if (!originalMembs.containsKey(entry.getKey())) {
-                result.getMembershipsToAdd().add(entry.getKey());
+                result.getMemberships().add(new MembershipPatch.Builder().
+                        operation(PatchOperation.ADD_REPLACE).membershipTO(entry.getValue()).build());
             }
         }
+
         if (!incremental) {
-            Set<Long> originalGroups = new HashSet<>(originalMembs.keySet());
-            originalGroups.removeAll(updatedMembs.keySet());
-            result.getMembershipsToRemove().addAll(originalGroups);
+            for (Long key : CollectionUtils.subtract(originalMembs.keySet(), updatedMembs.keySet())) {
+                result.getMemberships().add(new MembershipPatch.Builder().
+                        operation(PatchOperation.DELETE).membershipTO(originalMembs.get(key)).build());
+            }
         }
 
         return result;
@@ -256,43 +252,24 @@ public final class AnyOperations {
      *
      * @param updated updated UserTO
      * @param original original UserTO
-     * @return UserMod containing differences
-     */
-    public static UserMod diff(final UserTO updated, final UserTO original) {
-        return diff(updated, original, false);
-    }
-
-    /**
-     * Calculate modifications needed by first in order to be equal to second.
-     *
-     * @param updated updated UserTO
-     * @param original original UserTO
      * @param incremental perform incremental diff (without removing existing info)
-     * @return UserMod containing differences
+     * @return UserPatch containing differences
      */
-    public static UserMod diff(final UserTO updated, final UserTO original, final boolean incremental) {
-        UserMod result = new UserMod();
+    public static UserPatch diff(final UserTO updated, final UserTO original, final boolean incremental) {
+        UserPatch result = new UserPatch();
 
         diff(updated, original, result, incremental);
 
-        // 0. realm
-        if (updated.getRealm() != null && (original.getRealm() == null
-                || !original.getRealm().equals(updated.getRealm()))) {
-
-            result.setRealm(updated.getRealm());
-        }
-
         // 1. password
-        if (updated.getPassword() != null && (original.getPassword() == null
-                || !original.getPassword().equals(updated.getPassword()))) {
+        if (updated.getPassword() != null
+                && (original.getPassword() == null || !original.getPassword().equals(updated.getPassword()))) {
 
-            result.setPassword(updated.getPassword());
+            result.setPassword(new PasswordPatch.Builder().value(updated.getPassword()).build());
         }
 
         // 2. username
-        if (original.getUsername() != null && !original.getUsername().equals(updated.getUsername())) {
-            result.setUsername(updated.getUsername());
-        }
+        result.setUsername(
+                replacePatchItem(updated.getUsername(), original.getUsername(), new StringReplacePatchItem()));
 
         // 3. security question / answer
         if (updated.getSecurityQuestion() == null) {
@@ -301,15 +278,27 @@ public final class AnyOperations {
         } else if (!updated.getSecurityQuestion().equals(original.getSecurityQuestion())
                 || StringUtils.isNotBlank(updated.getSecurityAnswer())) {
 
-            result.setSecurityQuestion(updated.getSecurityQuestion());
-            result.setSecurityAnswer(updated.getSecurityAnswer());
+            result.setSecurityQuestion(
+                    new LongReplacePatchItem.Builder().value(updated.getSecurityQuestion()).build());
+            result.setSecurityAnswer(
+                    new StringReplacePatchItem.Builder().value(updated.getSecurityAnswer()).build());
         }
 
-        result.setMustChangePassword(updated.isMustChangePassword());
+        result.setMustChangePassword(replacePatchItem(
+                updated.isMustChangePassword(), original.isMustChangePassword(), new BooleanReplacePatchItem()));
 
         // 4. roles
-        result.getRolesToRemove().addAll(CollectionUtils.subtract(original.getRoles(), updated.getRoles()));
-        result.getRolesToAdd().addAll(CollectionUtils.subtract(updated.getRoles(), original.getRoles()));
+        if (!incremental) {
+            for (Long toRemove : CollectionUtils.subtract(original.getRoles(), updated.getRoles())) {
+                result.getRoles().add(
+                        new LongPatchItem.Builder().operation(PatchOperation.DELETE).value(toRemove).build());
+            }
+        }
+
+        for (Long toAdd : CollectionUtils.subtract(updated.getRoles(), original.getRoles())) {
+            result.getRoles().add(
+                    new LongPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(toAdd).build());
+        }
 
         // 5. relationships
         Map<Long, RelationshipTO> updatedRels = updated.getRelationshipMap();
@@ -317,13 +306,18 @@ public final class AnyOperations {
 
         for (Map.Entry<Long, RelationshipTO> entry : updatedRels.entrySet()) {
             if (!originalRels.containsKey(entry.getKey())) {
-                result.getRelationshipsToAdd().add(entry.getKey());
+                result.getRelationships().add(new RelationshipPatch.Builder().
+                        operation(PatchOperation.ADD_REPLACE).
+                        relationshipTO(entry.getValue()).build());
             }
         }
+
         if (!incremental) {
-            Set<Long> originalGroups = new HashSet<>(originalRels.keySet());
-            originalGroups.removeAll(updatedRels.keySet());
-            result.getRelationshipsToRemove().addAll(originalGroups);
+            for (Long key : CollectionUtils.subtract(originalRels.keySet(), updatedRels.keySet())) {
+                result.getRelationships().add(new RelationshipPatch.Builder().
+                        operation(PatchOperation.DELETE).
+                        relationshipTO(originalRels.get(key)).build());
+            }
         }
 
         // 6. memberships
@@ -332,27 +326,19 @@ public final class AnyOperations {
 
         for (Map.Entry<Long, MembershipTO> entry : updatedMembs.entrySet()) {
             if (!originalMembs.containsKey(entry.getKey())) {
-                result.getMembershipsToAdd().add(entry.getKey());
+                result.getMemberships().add(new MembershipPatch.Builder().
+                        operation(PatchOperation.ADD_REPLACE).membershipTO(entry.getValue()).build());
             }
         }
+
         if (!incremental) {
-            Set<Long> originalGroups = new HashSet<>(originalMembs.keySet());
-            originalGroups.removeAll(updatedMembs.keySet());
-            result.getMembershipsToRemove().addAll(originalGroups);
+            for (Long key : CollectionUtils.subtract(originalMembs.keySet(), updatedMembs.keySet())) {
+                result.getMemberships().add(new MembershipPatch.Builder().
+                        operation(PatchOperation.DELETE).membershipTO(originalMembs.get(key)).build());
+            }
         }
 
         return result;
-    }
-
-    /**
-     * Calculate modifications needed by first in order to be equal to second.
-     *
-     * @param updated updated GroupTO
-     * @param original original GroupTO
-     * @return GroupMod containing differences
-     */
-    public static GroupMod diff(final GroupTO updated, final GroupTO original) {
-        return diff(updated, original, false);
     }
 
     /**
@@ -361,107 +347,231 @@ public final class AnyOperations {
      * @param updated updated GroupTO
      * @param original original GroupTO
      * @param incremental perform incremental diff (without removing existing info)
-     * @return GroupMod containing differences
+     * @return GroupPatch containing differences
      */
-    public static GroupMod diff(final GroupTO updated, final GroupTO original, final boolean incremental) {
-        GroupMod result = new GroupMod();
+    public static GroupPatch diff(final GroupTO updated, final GroupTO original, final boolean incremental) {
+        GroupPatch result = new GroupPatch();
 
         diff(updated, original, result, incremental);
 
         // 1. name
-        if (!original.getName().equals(updated.getName())) {
-            result.setName(updated.getName());
-        }
+        result.setName(replacePatchItem(updated.getName(), original.getName(), new StringReplacePatchItem()));
 
-        // 2. owner
-        result.setUserOwner(new ReferenceMod(updated.getUserOwner()));
-        result.setGroupOwner(new ReferenceMod(updated.getGroupOwner()));
+        // 2. ownership
+        result.setUserOwner(replacePatchItem(
+                original.getUserOwner(), updated.getUserOwner(), new LongReplacePatchItem()));
+        result.setGroupOwner(replacePatchItem(
+                original.getGroupOwner(), updated.getGroupOwner(), new LongReplacePatchItem()));
 
         // 3. dynMembershipCond
-        result.setADynMembershipCond(updated.getADynMembershipCond());
-        result.setUDynMembershipCond(updated.getUDynMembershipCond());
+        result.setADynMembershipCond(replacePatchItem(
+                updated.getADynMembershipCond(), original.getADynMembershipCond(), new StringReplacePatchItem()));
+        result.setUDynMembershipCond(replacePatchItem(
+                updated.getUDynMembershipCond(), original.getUDynMembershipCond(), new StringReplacePatchItem()));
 
         return result;
     }
 
-    private static List<AttrTO> getUpdateValues(final Map<String, AttrTO> attrs,
-            final Set<String> attrsToBeRemoved, final Set<AttrMod> attrsToBeUpdated) {
+    @SuppressWarnings("unchecked")
+    public static <TO extends AnyTO, P extends AnyPatch> P diff(
+            final TO updated, final TO original, final boolean incremental) {
 
-        Map<String, AttrTO> rwattrs = new HashMap<>(attrs);
-        for (String attrName : attrsToBeRemoved) {
-            rwattrs.remove(attrName);
+        if (updated instanceof UserTO && original instanceof UserTO) {
+            return (P) diff((UserTO) updated, (UserTO) original, incremental);
+        } else if (updated instanceof GroupTO && original instanceof GroupTO) {
+            return (P) diff((GroupTO) updated, (GroupTO) original, incremental);
+        } else if (updated instanceof AnyObjectTO && original instanceof AnyObjectTO) {
+            return (P) diff((AnyObjectTO) updated, (AnyObjectTO) original, incremental);
         }
-        for (AttrMod attrMod : attrsToBeUpdated) {
-            if (rwattrs.containsKey(attrMod.getSchema())) {
-                AttrTO attrTO = rwattrs.get(attrMod.getSchema());
-                attrTO.getValues().removeAll(attrMod.getValuesToBeRemoved());
-                attrTO.getValues().addAll(attrMod.getValuesToBeAdded());
-            } else {
-                AttrTO attrTO = new AttrTO();
-                attrTO.setSchema(attrMod.getSchema());
-                attrTO.getValues().addAll(attrMod.getValuesToBeAdded());
 
-                rwattrs.put(attrMod.getSchema(), attrTO);
+        throw new IllegalArgumentException("Unsupported: " + updated.getClass().getName());
+    }
+
+    private static Collection<AttrTO> patch(final Map<String, AttrTO> attrs, final Set<AttrPatch> attrPatches) {
+        Map<String, AttrTO> rwattrs = new HashMap<>(attrs);
+        for (AttrPatch patch : attrPatches) {
+            if (patch.getAttrTO() == null) {
+                LOG.warn("Invalid {} specified: {}", AttrPatch.class.getName(), patch);
+            } else {
+                rwattrs.remove(patch.getAttrTO().getSchema());
+                if (patch.getOperation() == PatchOperation.ADD_REPLACE) {
+                    rwattrs.put(patch.getAttrTO().getSchema(), patch.getAttrTO());
+                }
+                switch (patch.getOperation()) {
+                    case ADD_REPLACE:
+                        if (rwattrs.containsKey(patch.getAttrTO().getSchema())) {
+                            rwattrs.remove(patch.getAttrTO().getSchema());
+                        }
+                        break;
+
+                    case DELETE:
+                    default:
+                        rwattrs.remove(patch.getAttrTO().getSchema());
+                }
             }
         }
 
-        return new ArrayList<>(rwattrs.values());
+        return rwattrs.values();
     }
 
-    private static <T extends AnyTO, K extends AnyMod> void apply(final T to,
-            final K mod, final T result) {
-
-        // 1. attributes
-        result.getPlainAttrs().addAll(getUpdateValues(to.getPlainAttrMap(),
-                mod.getPlainAttrsToRemove(), mod.getPlainAttrsToUpdate()));
-
-        // 2. derived attributes
-        Map<String, AttrTO> attrs = to.getDerAttrMap();
-        for (String attrName : mod.getDerAttrsToRemove()) {
-            attrs.remove(attrName);
+    private static <T extends AnyTO, K extends AnyPatch> void patch(final T to, final K patch, final T result) {
+        // check same key
+        if (to.getKey() != patch.getKey()) {
+            throw new IllegalArgumentException(
+                    to.getClass().getSimpleName() + " and " + patch.getClass().getSimpleName()
+                    + " keys must be the same");
         }
-        for (String attrName : mod.getDerAttrsToAdd()) {
-            AttrTO attrTO = new AttrTO();
-            attrTO.setSchema(attrName);
-
-            attrs.put(attrName, attrTO);
-        }
-        result.getDerAttrs().addAll(attrs.values());
-
-        // 3. virtual attributes
-        result.getVirAttrs().addAll(getUpdateValues(to.getVirAttrMap(),
-                mod.getVirAttrsToRemove(), mod.getVirAttrsToUpdate()));
-
-        // 4. resources
-        result.getResources().removeAll(mod.getResourcesToRemove());
-        result.getResources().addAll(mod.getResourcesToAdd());
-    }
-
-    public static UserTO apply(final UserTO userTO, final UserMod userMod) {
-        // 1. check same id
-        if (userTO.getKey() != userMod.getKey()) {
-            throw new IllegalArgumentException("UserTO and UserMod ids must be the same");
-        }
-
-        UserTO result = SerializationUtils.clone(userTO);
-        apply(userTO, userMod, result);
 
         // 0. realm
-        if (userMod.getRealm() != null) {
-            result.setRealm(userMod.getRealm());
+        if (patch.getRealm() != null) {
+            result.setRealm(patch.getRealm().getValue());
         }
+
+        // 1. auxiliary classes
+        for (StringPatchItem auxClassPatch : patch.getAuxClasses()) {
+            switch (auxClassPatch.getOperation()) {
+                case ADD_REPLACE:
+                    to.getAuxClasses().add(auxClassPatch.getValue());
+                    break;
+
+                case DELETE:
+                default:
+                    to.getAuxClasses().remove(auxClassPatch.getValue());
+            }
+        }
+
+        // 2. plain attributes
+        result.getPlainAttrs().clear();
+        result.getPlainAttrs().addAll(AnyOperations.patch(to.getPlainAttrMap(), patch.getPlainAttrs()));
+
+        // 3. derived attributes
+        result.getDerAttrs().clear();
+        result.getDerAttrs().addAll(AnyOperations.patch(to.getDerAttrMap(), patch.getDerAttrs()));
+
+        // 4. virtual attributes
+        result.getVirAttrs().clear();
+        result.getVirAttrs().addAll(AnyOperations.patch(to.getVirAttrMap(), patch.getVirAttrs()));
+
+        // 5. resources
+        for (StringPatchItem resourcePatch : patch.getResources()) {
+            switch (resourcePatch.getOperation()) {
+                case ADD_REPLACE:
+                    result.getResources().add(resourcePatch.getValue());
+                    break;
+
+                case DELETE:
+                default:
+                    result.getResources().remove(resourcePatch.getValue());
+            }
+        }
+    }
+
+    public static GroupTO patch(final GroupTO groupTO, final GroupPatch groupPatch) {
+        GroupTO result = SerializationUtils.clone(groupTO);
+        AnyOperations.patch(groupTO, groupPatch, result);
+
+        if (groupPatch.getName() != null) {
+            result.setName(groupPatch.getName().getValue());
+        }
+
+        if (groupPatch.getUserOwner() != null) {
+            result.setGroupOwner(groupPatch.getUserOwner().getValue());
+        }
+        if (groupPatch.getGroupOwner() != null) {
+            result.setGroupOwner(groupPatch.getGroupOwner().getValue());
+        }
+
+        if (groupPatch.getADynMembershipCond() != null) {
+            result.setADynMembershipCond(groupPatch.getADynMembershipCond().getValue());
+        }
+        if (groupPatch.getUDynMembershipCond() != null) {
+            result.setADynMembershipCond(groupPatch.getUDynMembershipCond().getValue());
+        }
+
+        return result;
+    }
+
+    public static AnyObjectTO patch(final AnyObjectTO anyObjectTO, final AnyObjectPatch anyObjectPatch) {
+        AnyObjectTO result = SerializationUtils.clone(anyObjectTO);
+        AnyOperations.patch(anyObjectTO, anyObjectPatch, result);
+
+        // 1. relationships
+        for (final RelationshipPatch relPatch : anyObjectPatch.getRelationships()) {
+            if (relPatch.getRelationshipTO() == null) {
+                LOG.warn("Invalid {} specified: {}", RelationshipPatch.class.getName(), relPatch);
+            } else {
+                result.getRelationships().remove(relPatch.getRelationshipTO());
+                if (relPatch.getOperation() == PatchOperation.ADD_REPLACE) {
+                    result.getRelationships().add(relPatch.getRelationshipTO());
+                }
+            }
+        }
+
+        // 2. memberships
+        for (final MembershipPatch membPatch : anyObjectPatch.getMemberships()) {
+            if (membPatch.getMembershipTO() == null) {
+                LOG.warn("Invalid {} specified: {}", MembershipPatch.class.getName(), membPatch);
+            } else {
+                result.getMemberships().remove(membPatch.getMembershipTO());
+                if (membPatch.getOperation() == PatchOperation.ADD_REPLACE) {
+                    result.getMemberships().add(membPatch.getMembershipTO());
+                }
+            }
+        }
+
+        return result;
+    }
+
+    public static UserTO patch(final UserTO userTO, final UserPatch userPatch) {
+        UserTO result = SerializationUtils.clone(userTO);
+        AnyOperations.patch(userTO, userPatch, result);
 
         // 1. password
-        result.setPassword(userMod.getPassword());
-
-        // 2. username
-        if (userMod.getUsername() != null) {
-            result.setUsername(userMod.getUsername());
+        if (userPatch.getPassword() != null) {
+            result.setPassword(userPatch.getPassword().getValue());
         }
 
-        // 3. roles
-        result.getRoles().removeAll(userMod.getRolesToRemove());
-        result.getRoles().addAll(userMod.getRolesToAdd());
+        // 2. username
+        if (userPatch.getUsername() != null) {
+            result.setUsername(userPatch.getUsername().getValue());
+        }
+
+        // 3. relationships
+        for (final RelationshipPatch relPatch : userPatch.getRelationships()) {
+            if (relPatch.getRelationshipTO() == null) {
+                LOG.warn("Invalid {} specified: {}", RelationshipPatch.class.getName(), relPatch);
+            } else {
+                result.getRelationships().remove(relPatch.getRelationshipTO());
+                if (relPatch.getOperation() == PatchOperation.ADD_REPLACE) {
+                    result.getRelationships().add(relPatch.getRelationshipTO());
+                }
+            }
+        }
+
+        // 4. memberships
+        for (final MembershipPatch membPatch : userPatch.getMemberships()) {
+            if (membPatch.getMembershipTO() == null) {
+                LOG.warn("Invalid {} specified: {}", MembershipPatch.class.getName(), membPatch);
+            } else {
+                result.getMemberships().remove(membPatch.getMembershipTO());
+                if (membPatch.getOperation() == PatchOperation.ADD_REPLACE) {
+                    result.getMemberships().add(membPatch.getMembershipTO());
+                }
+            }
+        }
+
+        // 5. roles
+        for (LongPatchItem rolePatch : userPatch.getRoles()) {
+            switch (rolePatch.getOperation()) {
+                case ADD_REPLACE:
+                    result.getRoles().add(rolePatch.getValue());
+                    break;
+
+                case DELETE:
+                default:
+                    result.getRoles().remove(rolePatch.getValue());
+            }
+        }
 
         return result;
     }

@@ -20,8 +20,9 @@ package org.apache.syncope.core.rest.cxf.service;
 
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.mod.UserMod;
+import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
@@ -63,9 +64,15 @@ public class UserSelfServiceImpl extends AbstractServiceImpl implements UserSelf
     }
 
     @Override
-    public Response update(final UserMod userMod) {
-        UserTO updated = logic.selfUpdate(userMod);
+    public Response update(final UserPatch patch) {
+        UserTO updated = logic.selfUpdate(patch);
         return modificationResponse(updated);
+    }
+
+    @Override
+    public Response update(final UserTO user) {
+        Pair<String, UserTO> self = logic.readSelf();
+        return update(AnyOperations.diff(user, self.getValue(), false));
     }
 
     @Override

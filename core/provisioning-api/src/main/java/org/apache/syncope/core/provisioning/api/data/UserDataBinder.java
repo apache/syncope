@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.api.data;
 
-import org.apache.syncope.common.lib.mod.UserMod;
+import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -36,14 +36,14 @@ public interface UserDataBinder {
     void create(User user, UserTO userTO, boolean storePassword);
 
     /**
-     * Update user, given UserMod.
+     * Update user, given {@link UserPatch}.
      *
      * @param toBeUpdated user to be updated
-     * @param userMod bean containing update request
+     * @param userPatch bean containing update request
      * @return updated user + propagation by resource
      * @see PropagationByResource
      */
-    PropagationByResource update(User toBeUpdated, UserMod userMod);
+    PropagationByResource update(User toBeUpdated, UserPatch userPatch);
 
     boolean verifyPassword(String username, String password);
 

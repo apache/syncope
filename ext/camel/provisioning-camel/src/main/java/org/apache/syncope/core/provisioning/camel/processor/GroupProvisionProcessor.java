@@ -61,7 +61,7 @@ public class GroupProvisionProcessor implements Processor {
 
         WorkflowResult<Long> wfResult = new WorkflowResult<>(key, propByRes, "update");
 
-        List<PropagationTask> tasks = propagationManager.getGroupUpdateTasks(wfResult, null, null, null);
+        List<PropagationTask> tasks = propagationManager.getGroupUpdateTasks(wfResult, null, null);
         PropagationReporter propagationReporter =
                 ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
         try {

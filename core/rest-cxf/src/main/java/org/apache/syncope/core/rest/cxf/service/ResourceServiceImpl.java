@@ -35,9 +35,8 @@ import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.PagedConnObjectTOResult;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.ResourceDeassociationActionType;
+import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 import org.apache.syncope.common.lib.wrap.AnyKey;
-import org.apache.syncope.common.lib.wrap.BooleanWrap;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.ConnObjectTOListQuery;
 import org.apache.syncope.common.rest.api.service.ResourceService;
@@ -130,15 +129,13 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
     }
 
     @Override
-    public BooleanWrap check(final ResourceTO resourceTO) {
-        BooleanWrap result = new BooleanWrap();
-        result.setElement(logic.check(resourceTO));
-        return result;
+    public void check(final ResourceTO resourceTO) {
+        logic.check(resourceTO);
     }
 
     @Override
     public BulkActionResult bulkDeassociation(
-            final String key, final String anyTypeKey, final ResourceDeassociationActionType type,
+            final String key, final String anyTypeKey, final ResourceDeassociationAction type,
             final List<AnyKey> keys) {
 
         AbstractResourceAssociator<? extends AnyTO> associator = anyTypeKey.equalsIgnoreCase(AnyTypeKind.USER.name())

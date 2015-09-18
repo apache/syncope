@@ -16,15 +16,38 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.wrap;
+package org.apache.syncope.common.lib.patch;
 
+import javax.ws.rs.PathParam;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.syncope.common.lib.types.ResourceAssociationAction;
 
-@XmlRootElement(name = "resourceKey")
+@XmlRootElement(name = "associationPatch")
 @XmlType
-public class ResourceKey extends AbstractWrappable<String> {
+public class AssociationPatch extends PasswordPatch {
 
-    private static final long serialVersionUID = -175720097924079573L;
+    private static final long serialVersionUID = 6295778399633883767L;
 
+    private long key;
+
+    private ResourceAssociationAction action;
+
+    public long getKey() {
+        return key;
+    }
+
+    @PathParam("key")
+    public void setKey(final long key) {
+        this.key = key;
+    }
+
+    public ResourceAssociationAction getAction() {
+        return action;
+    }
+
+    @PathParam("action")
+    public void setAction(final ResourceAssociationAction action) {
+        this.action = action;
+    }
 }

@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.workflow.java;
 
-import org.apache.syncope.common.lib.mod.GroupMod;
+import org.apache.syncope.common.lib.patch.GroupPatch;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
@@ -46,11 +46,11 @@ public abstract class AbstractGroupWorkflowAdapter implements GroupWorkflowAdapt
         return null;
     }
 
-    protected abstract WorkflowResult<Long> doUpdate(Group group, GroupMod groupMod);
+    protected abstract WorkflowResult<Long> doUpdate(Group group, GroupPatch groupPatch);
 
     @Override
-    public WorkflowResult<Long> update(final GroupMod groupMod) {
-        return doUpdate(groupDAO.authFind(groupMod.getKey()), groupMod);
+    public WorkflowResult<Long> update(final GroupPatch groupPatch) {
+        return doUpdate(groupDAO.authFind(groupPatch.getKey()), groupPatch);
     }
 
     protected abstract void doDelete(Group group);

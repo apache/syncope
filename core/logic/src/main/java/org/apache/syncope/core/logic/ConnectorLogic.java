@@ -259,20 +259,10 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
 
     @PreAuthorize("hasRole('" + Entitlement.CONNECTOR_READ + "')")
     @Transactional(readOnly = true)
-    public boolean check(final ConnInstanceTO connInstanceTO) {
-        final Connector connector = connFactory.createConnector(
+    public void check(final ConnInstanceTO connInstanceTO) {
+        Connector connector = connFactory.createConnector(
                 binder.getConnInstance(connInstanceTO), connInstanceTO.getConfiguration());
-
-        boolean result;
-        try {
-            connector.test();
-            result = true;
-        } catch (Exception ex) {
-            LOG.error("Test connection failure {}", ex);
-            result = false;
-        }
-
-        return result;
+        connector.test();
     }
 
     @PreAuthorize("hasRole('" + Entitlement.CONNECTOR_READ + "')")

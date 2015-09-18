@@ -26,9 +26,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.mod.AttrMod;
-import org.apache.syncope.common.lib.mod.UserMod;
+import org.apache.syncope.common.lib.patch.AttrPatch;
+import org.apache.syncope.common.lib.patch.StringPatchItem;
+import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.PropagationByResource;
@@ -180,18 +183,18 @@ public class PropagationManagerImpl implements PropagationManager {
             propByRes.get(ResourceOperation.CREATE).removeAll(noPropResourceNames);
         }
 
-        return createTasks(any, password, true, null, null, enable, false, propByRes);
+        return createTasks(any, password, true, null, enable, false, propByRes);
     }
 
     @Override
     public List<PropagationTask> getAnyObjectUpdateTasks(
             final WorkflowResult<Long> wfResult,
-            final Set<String> vAttrsToBeRemoved, final Set<AttrMod> vAttrsToBeUpdated,
+            final Set<AttrPatch> vAttrs,
             final Set<String> noPropResourceNames) {
 
         AnyObject anyObject = anyObjectDAO.authFind(wfResult.getResult());
         return getUpdateTasks(anyObject, null, false, null,
-                vAttrsToBeRemoved, vAttrsToBeUpdated, wfResult.getPropByRes(), noPropResourceNames);
+                vAttrs, wfResult.getPropByRes(), noPropResourceNames);
     }
 
     @Override
@@ -203,34 +206,34 @@ public class PropagationManagerImpl implements PropagationManager {
                 null, // no password
                 false,
                 enable, // status to be propagated
-                Collections.<String>emptySet(), // no virtual attributes to be managed
-                Collections.<AttrMod>emptySet(), // no virtual attributes to be managed
+                Collections.<AttrPatch>emptySet(), // no virtual attributes to be managed
                 null, // no propagation by resources
                 noPropResourceNames);
     }
 
     @Override
-    public List<PropagationTask> getUserUpdateTasks(final WorkflowResult<Pair<UserMod, Boolean>> wfResult,
+    public List<PropagationTask> getUserUpdateTasks(final WorkflowResult<Pair<UserPatch, Boolean>> wfResult,
             final boolean changePwd, final Collection<String> noPropResourceNames) {
 
         User user = userDAO.authFind(wfResult.getResult().getKey().getKey());
         return getUpdateTasks(user,
-                wfResult.getResult().getKey().getPassword(),
+                wfResult.getResult().getKey().getPassword() == null
+                        ? null
+                        : wfResult.getResult().getKey().getPassword().getValue(),
                 changePwd,
                 wfResult.getResult().getValue(),
-                wfResult.getResult().getKey().getVirAttrsToRemove(),
-                wfResult.getResult().getKey().getVirAttrsToUpdate(),
+                wfResult.getResult().getKey().getVirAttrs(),
                 wfResult.getPropByRes(),
                 noPropResourceNames);
     }
 
     @Override
-    public List<PropagationTask> getUserUpdateTasks(final WorkflowResult<Pair<UserMod, Boolean>> wfResult) {
-        UserMod userMod = wfResult.getResult().getKey();
+    public List<PropagationTask> getUserUpdateTasks(final WorkflowResult<Pair<UserPatch, Boolean>> wfResult) {
+        UserPatch userPatch = wfResult.getResult().getKey();
 
         // Propagate password update only to requested resources
         List<PropagationTask> tasks = new ArrayList<>();
-        if (userMod.getPwdPropRequest() == null) {
+        if (userPatch.getPassword() == null) {
             // a. no specific password propagation request: generate propagation tasks for any resource associated
             tasks = getUserUpdateTasks(wfResult, false, null);
         } else {
@@ -239,14 +242,22 @@ public class PropagationManagerImpl implements PropagationManager {
             PropagationByResource origPropByRes = new PropagationByResource();
             origPropByRes.merge(wfResult.getPropByRes());
 
-            Set<String> pwdResourceNames = new HashSet<>(userMod.getPwdPropRequest().getResources());
-            Collection<String> currentResourceNames = userDAO.findAllResourceNames(userDAO.authFind(userMod.getKey()));
+            Set<String> pwdResourceNames = new HashSet<>(userPatch.getPassword().getResources());
+            Collection<String> currentResourceNames =
+                    userDAO.findAllResourceNames(userDAO.authFind(userPatch.getKey()));
             pwdResourceNames.retainAll(currentResourceNames);
             PropagationByResource pwdPropByRes = new PropagationByResource();
             pwdPropByRes.addAll(ResourceOperation.UPDATE, pwdResourceNames);
             if (!pwdPropByRes.isEmpty()) {
                 Set<String> toBeExcluded = new HashSet<>(currentResourceNames);
-                toBeExcluded.addAll(userMod.getResourcesToAdd());
+                toBeExcluded.addAll(CollectionUtils.collect(userPatch.getResources(),
+                        new Transformer<StringPatchItem, String>() {
+
+                            @Override
+                            public String transform(final StringPatchItem input) {
+                                return input.getValue();
+                            }
+                        }));
                 toBeExcluded.removeAll(pwdResourceNames);
                 tasks.addAll(getUserUpdateTasks(wfResult, true, toBeExcluded));
             }
@@ -265,27 +276,22 @@ public class PropagationManagerImpl implements PropagationManager {
 
     @Override
     public List<PropagationTask> getGroupUpdateTasks(final WorkflowResult<Long> wfResult,
-            final Set<String> vAttrsToBeRemoved, final Set<AttrMod> vAttrsToBeUpdated,
-            final Set<String> noPropResourceNames) {
+            final Set<AttrPatch> vAttrs, final Set<String> noPropResourceNames) {
 
         Group group = groupDAO.authFind(wfResult.getResult());
         return getUpdateTasks(group, null, false, null,
-                vAttrsToBeRemoved, vAttrsToBeUpdated, wfResult.getPropByRes(), noPropResourceNames);
+                vAttrs, wfResult.getPropByRes(), noPropResourceNames);
     }
 
     @Override
     public List<PropagationTask> getUpdateTasks(final Any<?, ?, ?> any,
-            final String password, final boolean changePwd, final Boolean enable,
-            final Set<String> vAttrsToBeRemoved, final Set<AttrMod> vAttrsToBeUpdated,
+            final String password, final boolean changePwd, final Boolean enable, final Set<AttrPatch> vAttrs,
             final PropagationByResource propByRes, final Collection<String> noPropResourceNames) {
 
         PropagationByResource localPropByRes = virAttrHandler.fillVirtual(
-                any,
-                vAttrsToBeRemoved == null
-                        ? Collections.<String>emptySet()
-                        : vAttrsToBeRemoved, vAttrsToBeUpdated == null
-                        ? Collections.<AttrMod>emptySet()
-                        : vAttrsToBeUpdated);
+                any, vAttrs == null
+                        ? Collections.<AttrPatch>emptySet()
+                        : vAttrs);
 
         if (propByRes == null || propByRes.isEmpty()) {
             localPropByRes.addAll(ResourceOperation.UPDATE, any.getResourceNames());
@@ -297,16 +303,15 @@ public class PropagationManagerImpl implements PropagationManager {
             localPropByRes.removeAll(noPropResourceNames);
         }
 
-        Map<String, AttrMod> vAttrsToBeUpdatedMap = null;
-        if (vAttrsToBeUpdated != null) {
-            vAttrsToBeUpdatedMap = new HashMap<>();
-            for (AttrMod attrMod : vAttrsToBeUpdated) {
-                vAttrsToBeUpdatedMap.put(attrMod.getSchema(), attrMod);
+        Map<String, AttrPatch> vAttrsMap = null;
+        if (vAttrs != null) {
+            vAttrsMap = new HashMap<>();
+            for (AttrPatch attrPatch : vAttrs) {
+                vAttrsMap.put(attrPatch.getAttrTO().getSchema(), attrPatch);
             }
         }
 
-        return createTasks(
-                any, password, changePwd, vAttrsToBeRemoved, vAttrsToBeUpdatedMap, enable, false, localPropByRes);
+        return createTasks(any, password, changePwd, vAttrsMap, enable, false, localPropByRes);
     }
 
     @Override
@@ -385,7 +390,7 @@ public class PropagationManagerImpl implements PropagationManager {
         if (noPropResourceNames != null && !noPropResourceNames.isEmpty()) {
             propByRes.get(ResourceOperation.DELETE).removeAll(noPropResourceNames);
         }
-        return createTasks(any, null, false, null, null, false, true, propByRes);
+        return createTasks(any, null, false, null, false, true, propByRes);
     }
 
     /**
@@ -394,8 +399,7 @@ public class PropagationManagerImpl implements PropagationManager {
      * @param any user / group to be provisioned
      * @param password cleartext password to be provisioned
      * @param changePwd whether password should be included for propagation attributes or not
-     * @param vAttrsToBeRemoved virtual attributes to be removed
-     * @param vAttrsToBeUpdated virtual attributes to be added
+     * @param vAttrs virtual attributes to be maaged
      * @param enable whether user must be enabled or not
      * @param deleteOnResource whether user / group must be deleted anyway from external resource or not
      * @param propByRes operation to be performed per resource
@@ -403,25 +407,21 @@ public class PropagationManagerImpl implements PropagationManager {
      */
     protected List<PropagationTask> createTasks(final Any<?, ?, ?> any,
             final String password, final boolean changePwd,
-            final Set<String> vAttrsToBeRemoved, final Map<String, AttrMod> vAttrsToBeUpdated,
+            final Map<String, AttrPatch> vAttrs,
             final Boolean enable, final boolean deleteOnResource, final PropagationByResource propByRes) {
 
         LOG.debug("Provisioning any {}:\n{}", any, propByRes);
 
-        if (!propByRes.get(ResourceOperation.CREATE).isEmpty()
-                && vAttrsToBeRemoved != null && vAttrsToBeUpdated != null) {
-
+        if (!propByRes.get(ResourceOperation.CREATE).isEmpty() && vAttrs != null) {
             virAttrHandler.retrieveVirAttrValues(any);
 
             // update vAttrsToBeUpdated as well
             for (VirAttr<?> virAttr : any.getVirAttrs()) {
                 String schema = virAttr.getSchema().getKey();
 
-                AttrMod attributeMod = new AttrMod();
-                attributeMod.setSchema(schema);
-                attributeMod.getValuesToBeAdded().addAll(virAttr.getValues());
-
-                vAttrsToBeUpdated.put(schema, attributeMod);
+                vAttrs.put(schema, new AttrPatch.Builder().
+                        attrTO(new AttrTO.Builder().schema(schema).values(virAttr.getValues()).build()).
+                        build());
             }
         }
 
@@ -457,7 +457,7 @@ public class PropagationManagerImpl implements PropagationManager {
                     task.setOldConnObjectKey(propByRes.getOldConnObjectKey(resource.getKey()));
 
                     Pair<String, Set<Attribute>> preparedAttrs = MappingUtils.prepareAttrs(
-                            any, password, changePwd, vAttrsToBeRemoved, vAttrsToBeUpdated, enable, provision);
+                            any, password, changePwd, vAttrs, enable, provision);
                     task.setConnObjectKey(preparedAttrs.getKey());
 
                     // Check if any of mandatory attributes (in the mapping) is missing or not received any value: 

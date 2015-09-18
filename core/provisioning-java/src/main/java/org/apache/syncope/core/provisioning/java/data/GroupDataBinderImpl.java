@@ -19,9 +19,10 @@
 package org.apache.syncope.core.provisioning.java.data;
 
 import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.mod.GroupMod;
+import org.apache.syncope.common.lib.patch.GroupPatch;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -113,7 +114,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
     }
 
     @Override
-    public PropagationByResource update(final Group toBeUpdated, final GroupMod groupMod) {
+    public PropagationByResource update(final Group toBeUpdated, final GroupPatch groupPatch) {
         // Re-merge any pending change from workflow tasks
         Group group = groupDAO.save(toBeUpdated);
 
@@ -125,28 +126,29 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
         Map<String, String> oldConnObjectKeys = getConnObjectKeys(group);
 
         // realm
-        setRealm(group, groupMod);
+        setRealm(group, groupPatch);
+
         // name
-        if (groupMod.getName() != null && !groupMod.getName().equals(group.getName())) {
+        if (groupPatch.getName() != null && StringUtils.isNotBlank(groupPatch.getName().getValue())) {
             propByRes.addAll(ResourceOperation.UPDATE, group.getResourceNames());
 
-            group.setName(groupMod.getName());
+            group.setName(groupPatch.getName().getValue());
         }
 
         // owner
-        if (groupMod.getUserOwner() != null) {
-            group.setUserOwner(groupMod.getUserOwner().getKey() == null
+        if (groupPatch.getUserOwner() != null) {
+            group.setUserOwner(groupPatch.getUserOwner().getValue() == null
                     ? null
-                    : userDAO.find(groupMod.getUserOwner().getKey()));
+                    : userDAO.find(groupPatch.getUserOwner().getValue()));
         }
-        if (groupMod.getGroupOwner() != null) {
-            group.setGroupOwner(groupMod.getGroupOwner().getKey() == null
+        if (groupPatch.getGroupOwner() != null) {
+            group.setGroupOwner(groupPatch.getGroupOwner().getValue() == null
                     ? null
-                    : groupDAO.find(groupMod.getGroupOwner().getKey()));
+                    : groupDAO.find(groupPatch.getGroupOwner().getValue()));
         }
 
         // attributes, derived attributes, virtual attributes and resources
-        propByRes.merge(fill(group, groupMod, anyUtilsFactory.getInstance(AnyTypeKind.GROUP), scce));
+        propByRes.merge(fill(group, groupPatch, anyUtilsFactory.getInstance(AnyTypeKind.GROUP), scce));
 
         // check if some connObjectKey was changed by the update above
         Map<String, String> newConnObjectKeys = getConnObjectKeys(group);
@@ -160,31 +162,26 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
         }
 
         // dynamic membership
-        if (group.getADynMembership() != null && groupMod.getADynMembershipCond() == null) {
-            group.setADynMembership(null);
-        } else if (group.getADynMembership() == null && groupMod.getADynMembershipCond() != null) {
-            setDynMembership(group, AnyTypeKind.ANY_OBJECT, groupMod.getADynMembershipCond());
-        } else if (group.getADynMembership() != null && groupMod.getADynMembershipCond() != null
-                && !group.getADynMembership().getFIQLCond().equals(groupMod.getADynMembershipCond())) {
-
-            group.getADynMembership().getMembers().clear();
-            setDynMembership(group, AnyTypeKind.ANY_OBJECT, groupMod.getADynMembershipCond());
+        if (groupPatch.getADynMembershipCond() != null) {
+            if (groupPatch.getADynMembershipCond().getValue() == null) {
+                group.setADynMembership(null);
+            } else {
+                group.getADynMembership().getMembers().clear();
+                setDynMembership(group, AnyTypeKind.ANY_OBJECT, groupPatch.getADynMembershipCond().getValue());
+            }
         }
-        if (group.getUDynMembership() != null && groupMod.getUDynMembershipCond() == null) {
-            group.setUDynMembership(null);
-        } else if (group.getUDynMembership() == null && groupMod.getUDynMembershipCond() != null) {
-            setDynMembership(group, AnyTypeKind.USER, groupMod.getUDynMembershipCond());
-        } else if (group.getUDynMembership() != null && groupMod.getUDynMembershipCond() != null
-                && !group.getUDynMembership().getFIQLCond().equals(groupMod.getUDynMembershipCond())) {
-
-            group.getUDynMembership().getMembers().clear();
-            setDynMembership(group, AnyTypeKind.USER, groupMod.getUDynMembershipCond());
+        if (groupPatch.getUDynMembershipCond() != null) {
+            if (groupPatch.getUDynMembershipCond().getValue() == null) {
+                group.setUDynMembership(null);
+            } else {
+                group.getUDynMembership().getMembers().clear();
+                setDynMembership(group, AnyTypeKind.USER, groupPatch.getUDynMembershipCond().getValue());
+            }
         }
 
         return propByRes;
     }
 
-    @SuppressWarnings("unchecked")
     @Transactional(readOnly = true)
     @Override
     public GroupTO getGroupTO(final Group group, final boolean details) {

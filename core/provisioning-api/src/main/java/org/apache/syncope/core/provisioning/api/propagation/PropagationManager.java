@@ -22,8 +22,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.mod.AttrMod;
-import org.apache.syncope.common.lib.mod.UserMod;
+import org.apache.syncope.common.lib.patch.AttrPatch;
+import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.core.persistence.api.entity.Any;
@@ -59,13 +59,12 @@ public interface PropagationManager {
      * Performs update on each resource associated to the group.
      *
      * @param wfResult group to be propagated (and info associated), as per result from workflow
-     * @param vAttrsToBeRemoved virtual attributes to be removed
-     * @param vAttrsToBeUpdated virtual attributes to be added
+     * @param vAttrs virtual attributes patches
      * @param noPropResourceNames external resource names not to be considered for propagation
      * @return list of propagation tasks
      */
-    List<PropagationTask> getGroupUpdateTasks(WorkflowResult<Long> wfResult, Set<String> vAttrsToBeRemoved,
-            Set<AttrMod> vAttrsToBeUpdated, Set<String> noPropResourceNames);
+    List<PropagationTask> getGroupUpdateTasks(
+            WorkflowResult<Long> wfResult, Set<AttrPatch> vAttrs, Set<String> noPropResourceNames);
 
     /**
      * Perform delete on each resource associated to the group. It is possible to ask for a mandatory provisioning for
@@ -118,8 +117,8 @@ public interface PropagationManager {
     List<PropagationTask> getAnyObjectCreateTasks(Long anyObjectKey, Collection<AttrTO> vAttrs,
             PropagationByResource propByRes, Collection<String> noPropResourceNames);
 
-    List<PropagationTask> getAnyObjectUpdateTasks(WorkflowResult<Long> wfResult, Set<String> vAttrsToBeRemoved,
-            Set<AttrMod> vAttrsToBeUpdated, Set<String> noPropResourceNames);
+    List<PropagationTask> getAnyObjectUpdateTasks(
+            WorkflowResult<Long> wfResult, Set<AttrPatch> vAttrs, Set<String> noPropResourceNames);
 
     List<PropagationTask> getAnyObjectDeleteTasks(Long anyObjectKey);
 
@@ -163,13 +162,13 @@ public interface PropagationManager {
      * @param noPropResourceNames external resources not to be considered for propagation
      * @return list of propagation tasks
      */
-    List<PropagationTask> getUserUpdateTasks(WorkflowResult<Pair<UserMod, Boolean>> wfResult,
+    List<PropagationTask> getUserUpdateTasks(WorkflowResult<Pair<UserPatch, Boolean>> wfResult,
             boolean changePwd, Collection<String> noPropResourceNames);
 
-    List<PropagationTask> getUserUpdateTasks(WorkflowResult<Pair<UserMod, Boolean>> wfResult);
+    List<PropagationTask> getUserUpdateTasks(WorkflowResult<Pair<UserPatch, Boolean>> wfResult);
 
     List<PropagationTask> getUpdateTasks(Any<?, ?, ?> any, String password, boolean changePwd,
-            Boolean enable, Set<String> vAttrsToBeRemoved, Set<AttrMod> vAttrsToBeUpdated,
+            Boolean enable, Set<AttrPatch> vAttrs,
             PropagationByResource propByRes, Collection<String> noPropResourceNames);
 
     /**

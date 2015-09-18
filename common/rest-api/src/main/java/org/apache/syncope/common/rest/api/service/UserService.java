@@ -29,15 +29,15 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.common.lib.mod.StatusMod;
-import org.apache.syncope.common.lib.mod.UserMod;
+import org.apache.syncope.common.lib.patch.StatusPatch;
+import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.UserTO;
 
 /**
  * REST operations for users.
  */
 @Path("users")
-public interface UserService extends AnyService<UserTO, UserMod> {
+public interface UserService extends AnyService<UserTO, UserPatch> {
 
     /**
      * Gives the username for the provided user key.
@@ -77,7 +77,7 @@ public interface UserService extends AnyService<UserTO, UserMod> {
     /**
      * Performs a status update on given.
      *
-     * @param statusMod status update details
+     * @param statusPatch status update details
      * @return <tt>Response</tt> object featuring the updated user enriched with propagation status information
      * - <tt>UserTO</tt> as <tt>Entity</tt>
      */
@@ -85,5 +85,5 @@ public interface UserService extends AnyService<UserTO, UserMod> {
     @Path("{key}/status")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    Response status(@NotNull StatusMod statusMod);
+    Response status(@NotNull StatusPatch statusPatch);
 }

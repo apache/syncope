@@ -30,12 +30,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.mod.UserMod;
+import org.apache.syncope.common.lib.patch.LongPatchItem;
+import org.apache.syncope.common.lib.patch.PasswordPatch;
+import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.WorkflowFormPropertyTO;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.rest.api.service.UserWorkflowService;
 import org.junit.Assume;
 import org.junit.FixMethodOrder;
@@ -55,9 +58,7 @@ public class UserWorkflowITCase extends AbstractITCase {
         userTO.getResources().add(RESOURCE_NAME_TESTDB);
 
         // User with group 9 are defined in workflow as subject to approval
-        MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setRightKey(9L);
-        userTO.getMemberships().add(membershipTO);
+        userTO.getMemberships().add(new MembershipTO.Builder().group(9L).build());
 
         // 1. create user with group 9
         userTO = createUser(userTO);
@@ -78,10 +79,11 @@ public class UserWorkflowITCase extends AbstractITCase {
         // designated for approval in workflow definition: fail
         UserTO rossini = userService.read(1L);
         if (!rossini.getRoles().contains(2L)) {
-            UserMod userMod = new UserMod();
-            userMod.setKey(1L);
-            userMod.getRolesToAdd().add(2L);
-            rossini = updateUser(userMod);
+            UserPatch userPatch = new UserPatch();
+            userPatch.setKey(1L);
+            userPatch.getRoles().add(new LongPatchItem.Builder().
+                    operation(PatchOperation.ADD_REPLACE).value(2L).build());
+            rossini = updateUser(userPatch);
         }
         assertTrue(rossini.getRoles().contains(2L));
 
@@ -137,9 +139,7 @@ public class UserWorkflowITCase extends AbstractITCase {
         userTO.getResources().add(RESOURCE_NAME_TESTDB);
 
         // User with group 9 are defined in workflow as subject to approval
-        MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setRightKey(9L);
-        userTO.getMemberships().add(membershipTO);
+        userTO.getMemberships().add(new MembershipTO.Builder().group(9L).build());
 
         // 1. create user with group 9 (and verify that no propagation occurred)
         userTO = createUser(userTO);
@@ -199,11 +199,11 @@ public class UserWorkflowITCase extends AbstractITCase {
         assertNull(exception);
 
         // 6. update user
-        UserMod userMod = new UserMod();
-        userMod.setKey(userTO.getKey());
-        userMod.setPassword("anotherPassword123");
+        UserPatch userPatch = new UserPatch();
+        userPatch.setKey(userTO.getKey());
+        userPatch.setPassword(new PasswordPatch.Builder().value("anotherPassword123").build());
 
-        userTO = updateUser(userMod);
+        userTO = updateUser(userPatch);
         assertNotNull(userTO);
     }
 
@@ -223,9 +223,7 @@ public class UserWorkflowITCase extends AbstractITCase {
         userTO.getMemberships().clear();
 
         // User with group 9 are defined in workflow as subject to approval
-        MembershipTO membershipTO = new MembershipTO();
-        membershipTO.setRightKey(9L);
-        userTO.getMemberships().add(membershipTO);
+        userTO.getMemberships().add(new MembershipTO.Builder().group(9L).build());
 
         // 1. create user with group 9 (and verify that no propagation occurred)
         userTO = createUser(userTO);
