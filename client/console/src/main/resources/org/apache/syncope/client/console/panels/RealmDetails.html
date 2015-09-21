@@ -23,10 +23,12 @@ under the License.
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://xmlns.jcp.org/jsf/composite">
   <body>
     <wicket:panel>
-      <span wicket:id="name">[name]</span>
-      <span wicket:id="fullPath">[fullPath]</span>
-      <span wicket:id="accountPolicy">[accountPolicy]</span>
-      <span wicket:id="passwordPolicy">[passwordPolicy]</span>
+      <div wicket:id="container" class="summarize">
+        <span wicket:id="name">[name]</span>
+        <span wicket:id="fullPath">[fullPath]</span>
+        <span wicket:id="accountPolicy">[accountPolicy]</span>
+        <span wicket:id="passwordPolicy">[passwordPolicy]</span>
+      </div>
     </wicket:panel>
   </body>
 </html>

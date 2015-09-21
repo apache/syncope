@@ -84,7 +84,9 @@ public class Realm extends Panel {
 
             @Override
             public Panel getPanel(final String panelId) {
-                return new RealmDetails(panelId, realmTO);
+                final RealmDetails panel = new RealmDetails(panelId, realmTO, false);
+                panel.setEnabled(false);
+                return panel;
             }
         });
 
@@ -106,25 +108,25 @@ public class Realm extends Panel {
     private Panel getAnyPanel(final String id, final PageReference pageReference, final AnyTypeTO anyTypeTO) {
         final Panel panel;
 
-            switch (anyTypeTO.getKind()) {
-                case USER:
-                    panel = new UserSearchResultPanel(anyTypeTO.getKey(), id,
-                            false, null, pageReference, userRestClient, anyTypeRestClient.getAnyTypeClass(
-                                    anyTypeTO.getClasses()), realmTO.getFullPath());
-                    break;
-                case GROUP:
-                    panel = new GroupSearchResultPanel(anyTypeTO.getKey(), id,
-                            false, null, pageReference, groupRestClient, anyTypeRestClient.getAnyTypeClass(
-                                    anyTypeTO.getClasses()), realmTO.getFullPath());
-                    break;
-                case ANY_OBJECT:
-                    panel = new AnySearchResultPanel(anyTypeTO.getKey(), id,
-                            false, null, pageReference, anyObjectRestClient, anyTypeRestClient.getAnyTypeClass(
-                                    anyTypeTO.getClasses()), realmTO.getFullPath());
-                    break;
-                default:
-                    panel = new LabelPanel(id, null);
-            }
+        switch (anyTypeTO.getKind()) {
+            case USER:
+                panel = new UserSearchResultPanel(anyTypeTO.getKey(), id,
+                        false, null, pageReference, userRestClient, anyTypeRestClient.getAnyTypeClass(
+                                anyTypeTO.getClasses()), realmTO.getFullPath());
+                break;
+            case GROUP:
+                panel = new GroupSearchResultPanel(anyTypeTO.getKey(), id,
+                        false, null, pageReference, groupRestClient, anyTypeRestClient.getAnyTypeClass(
+                                anyTypeTO.getClasses()), realmTO.getFullPath());
+                break;
+            case ANY_OBJECT:
+                panel = new AnySearchResultPanel(anyTypeTO.getKey(), id,
+                        false, null, pageReference, anyObjectRestClient, anyTypeRestClient.getAnyTypeClass(
+                                anyTypeTO.getClasses()), realmTO.getFullPath());
+                break;
+            default:
+                panel = new LabelPanel(id, null);
+        }
         return panel;
     }
 }

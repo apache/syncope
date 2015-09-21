@@ -80,6 +80,7 @@ public class Realms extends BasePage {
             @Override
             public void onClose(final AjaxRequestTarget target) {
                 target.add(realmSidebarPanel.reloadRealmTree());
+                target.add(updateRealmContent(realmSidebarPanel.getCurrentRealm()));
 
                 modal.show(false);
 
