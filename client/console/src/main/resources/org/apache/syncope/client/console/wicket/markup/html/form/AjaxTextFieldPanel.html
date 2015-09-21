@@ -18,10 +18,9 @@ under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
   <wicket:extend>
-    <div class="input-group">
-      <span id="basic-addon1" class="input-group-addon" wicket:id="label">[label]</span>
-      <input type="text" aria-describedby="basic-addon1" class="form-control" wicket:id="textField"/>
+    <div class="form-group">
+      <label wicket:id="label">[LABEL]</label><span wicket:id="required"/>
+      <input type="text" class="form-control" wicket:id="textField"/>
     </div>
-    <br/>
   </wicket:extend>
 </html>

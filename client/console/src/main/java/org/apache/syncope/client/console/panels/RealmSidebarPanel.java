@@ -171,22 +171,20 @@ public class RealmSidebarPanel extends Panel {
         final Map<Long, List<RealmTO>> cache = new HashMap<>();
 
         for (RealmTO realm : realms) {
+            final List<RealmTO> children = new ArrayList<>();
+            tree.put(realm.getKey(), Pair.<RealmTO, List<RealmTO>>of(realm, children));
+
+            if (cache.containsKey(realm.getKey())) {
+                children.addAll(cache.get(realm.getKey()));
+                cache.remove(realm.getKey());
+            }
+
             if (tree.containsKey(realm.getParent())) {
                 tree.get(realm.getParent()).getRight().add(realm);
-
-                final List<RealmTO> children = new ArrayList<>();
-                tree.put(realm.getKey(), Pair.<RealmTO, List<RealmTO>>of(realm, children));
-
-                if (cache.containsKey(realm.getKey())) {
-                    children.addAll(cache.get(realm.getKey()));
-                    cache.remove(realm.getKey());
-                }
             } else if (cache.containsKey(realm.getParent())) {
                 cache.get(realm.getParent()).add(realm);
             } else {
-                final List<RealmTO> children = new ArrayList<>();
-                children.add(realm);
-                cache.put(realm.getParent(), children);
+                cache.put(realm.getParent(), new ArrayList<>(Collections.singleton(realm)));
             }
         }
 
@@ -215,7 +213,7 @@ public class RealmSidebarPanel extends Panel {
         RealmTO realm;
 
         if (tree.containsKey(realmTO.getKey())) {
-            realm = realmTO;
+            realm = tree.get(realmTO.getKey()).getLeft();
         } else if (tree.containsKey(realmTO.getParent())) {
             realm = tree.get(realmTO.getParent()).getLeft();
         } else {

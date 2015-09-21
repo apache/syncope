@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.panels;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.common.lib.to.RealmTO;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.PropertyModel;
 import org.slf4j.Logger;
@@ -33,25 +34,33 @@ public class RealmDetails extends Panel {
     protected static final Logger LOG = LoggerFactory.getLogger(RealmDetails.class);
 
     public RealmDetails(final String id, final RealmTO realmTO) {
+        this(id, realmTO, true);
+    }
+
+    public RealmDetails(final String id, final RealmTO realmTO, final boolean unwraped) {
         super(id);
-        final FieldPanel<String> name =
-                new AjaxTextFieldPanel("name", "name", new PropertyModel<String>(realmTO, "name"));
+
+        final WebMarkupContainer container = new WebMarkupContainer("container");
+        container.setOutputMarkupId(true);
+        container.setRenderBodyOnly(unwraped);
+        add(container);
+
+        final FieldPanel<String> name = new AjaxTextFieldPanel(
+                "name", "name", new PropertyModel<String>(realmTO, "name"), false);
         name.addRequiredLabel();
-        add(name);
+        container.add(name);
 
-        final FieldPanel<String> fullPath =
-                new AjaxTextFieldPanel("fullPath", "fullPath", new PropertyModel<String>(realmTO, "fullPath"));
+        final FieldPanel<String> fullPath = new AjaxTextFieldPanel(
+                "fullPath", "fullPath", new PropertyModel<String>(realmTO, "fullPath"), false);
         fullPath.setEnabled(false);
-        add(fullPath);
+        container.add(fullPath);
 
-        final FieldPanel<String> accountPolicy =
-                new AjaxTextFieldPanel("accountPolicy",
-                        "accountPolicy", new PropertyModel<String>(realmTO, "accountPolicy"));
-        add(accountPolicy);
+        final FieldPanel<String> accountPolicy = new AjaxTextFieldPanel(
+                "accountPolicy", "accountPolicy", new PropertyModel<String>(realmTO, "accountPolicy"), false);
+        container.add(accountPolicy);
 
-        final FieldPanel<String> passwordPolicy =
-                new AjaxTextFieldPanel("passwordPolicy",
-                        "passwordPolicy", new PropertyModel<String>(realmTO, "passwordPolicy"));
-        add(passwordPolicy);
+        final FieldPanel<String> passwordPolicy = new AjaxTextFieldPanel(
+                "passwordPolicy", "passwordPolicy", new PropertyModel<String>(realmTO, "passwordPolicy"), false);
+        container.add(passwordPolicy);
     }
 }
