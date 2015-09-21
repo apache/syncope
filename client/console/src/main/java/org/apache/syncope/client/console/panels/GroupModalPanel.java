@@ -22,8 +22,6 @@ import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.Mode;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
-import org.apache.syncope.common.lib.AnyOperations;
-import org.apache.syncope.common.lib.mod.GroupMod;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -106,14 +104,7 @@ public class GroupModalPanel extends AbstractModalPanel {
         if (createFlag) {
             result = groupRestClient.create(groupTO);
         } else {
-            GroupMod groupMod = AnyOperations.diff(groupTO, groupTO);
-
-            // update group just if it is changed
-            if (groupMod.isEmpty()) {
-                result = groupTO;
-            } else {
-                result = groupRestClient.update(originalGroupTO.getETagValue(), groupMod);
-            }
+            result = groupRestClient.update(originalGroupTO.getETagValue(), groupTO);
         }
 
         //setResponsePage(new ResultStatusModal.Builder(window, result).build());

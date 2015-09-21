@@ -22,7 +22,6 @@ import java.util.List;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.mod.AnyObjectMod;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.BulkAction;
@@ -30,6 +29,7 @@ import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.rest.api.service.AnyObjectService;
+import org.apache.syncope.common.rest.api.service.AnyService;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 import org.springframework.stereotype.Component;
 
@@ -40,6 +40,11 @@ import org.springframework.stereotype.Component;
 public class AnyObjectRestClient extends AbstractAnyRestClient {
 
     private static final long serialVersionUID = -8874495991295283249L;
+
+    @Override
+    protected Class<? extends AnyService<?, ?>> getAnyServiceClass() {
+        return AnyObjectService.class;
+    }
 
     @Override
     public int count(final String realm) {
@@ -90,11 +95,11 @@ public class AnyObjectRestClient extends AbstractAnyRestClient {
         return response.readEntity(AnyObjectTO.class);
     }
 
-    public AnyObjectTO update(final String etag, final AnyObjectMod anyObjectMod) {
+    public AnyObjectTO update(final String etag, final AnyObjectTO anyObjectTO) {
         AnyObjectTO result;
         synchronized (this) {
             AnyObjectService service = getService(etag, AnyObjectService.class);
-            result = service.update(anyObjectMod).readEntity(AnyObjectTO.class);
+            result = service.update(anyObjectTO).readEntity(AnyObjectTO.class);
             resetClient(AnyObjectService.class);
         }
         return result;

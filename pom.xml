@@ -372,8 +372,7 @@ under the License.
     <activiti-modeler.directory>${project.build.directory}/activiti-modeler</activiti-modeler.directory>
     
     <jquery.version>2.1.4</jquery.version>
-    <!-- to be updated as soon as fix for https://github.com/l0rdn1kk0n/wicket-bootstrap/issues/549 is released -->
-    <jquery-ui.version>1.10.3</jquery-ui.version>
+    <jquery-ui.version>1.11.4</jquery-ui.version>
     <jquery-cookie.version>1.4.1-1</jquery-cookie.version>
     <bootstrap.version>3.3.5</bootstrap.version>
 

@@ -22,7 +22,6 @@ import java.util.List;
 
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.lib.SyncopeClient;
-import org.apache.syncope.common.lib.patch.GroupPatch;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
@@ -95,11 +94,11 @@ public class GroupRestClient extends AbstractAnyRestClient {
         return getService(GroupService.class).read(key);
     }
 
-    public GroupTO update(final String etag, final GroupPatch groupPatch) {
+    public GroupTO update(final String etag, final GroupTO updated) {
         GroupTO result;
         synchronized (this) {
             GroupService service = getService(etag, GroupService.class);
-            result = service.update(groupPatch).readEntity(GroupTO.class);
+            result = service.update(updated).readEntity(GroupTO.class);
             resetClient(GroupService.class);
         }
         return result;

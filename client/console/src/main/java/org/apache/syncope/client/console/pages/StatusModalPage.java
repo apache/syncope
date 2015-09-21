@@ -564,22 +564,22 @@ public class StatusModalPage<T extends AnyTO> extends AbstractStatusModalPage {
 
                             final BulkActionResult bulkActionResult;
                             switch (type) {
-                                case ASSIGN:
-                                    bulkActionResult = userRestClient.assign(
-                                            anyTO.getETagValue(),
-                                            anyTO.getKey(),
-                                            new ArrayList<>(selection),
-                                            changepwd.getModelObject(),
-                                            password.getModelObject());
-                                    break;
-                                case PROVISION:
-                                    bulkActionResult = userRestClient.provision(
-                                            anyTO.getETagValue(),
-                                            anyTO.getKey(),
-                                            new ArrayList<>(selection),
-                                            changepwd.getModelObject(),
-                                            password.getModelObject());
-                                    break;
+//                                case ASSIGN:
+//                                    bulkActionResult = userRestClient.assign(
+//                                            anyTO.getETagValue(),
+//                                            anyTO.getKey(),
+//                                            new ArrayList<>(selection),
+//                                            changepwd.getModelObject(),
+//                                            password.getModelObject());
+//                                    break;
+//                                case PROVISION:
+//                                    bulkActionResult = userRestClient.provision(
+//                                            anyTO.getETagValue(),
+//                                            anyTO.getKey(),
+//                                            new ArrayList<>(selection),
+//                                            changepwd.getModelObject(),
+//                                            password.getModelObject());
+//                                    break;
                                 default:
                                     bulkActionResult = null;
                                 // ignore
