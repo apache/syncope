@@ -44,6 +44,13 @@ public class AnyObjectServiceImpl extends AbstractAnyService<AnyObjectTO, AnyObj
     }
 
     @Override
+    protected AnyObjectPatch newPatch(final Long key) {
+        AnyObjectPatch patch = new AnyObjectPatch();
+        patch.setKey(key);
+        return patch;
+    }
+
+    @Override
     public PagedResult<AnyObjectTO> list(final String type, final AnyListQuery listQuery) {
         if (StringUtils.isBlank(type)) {
             return super.list(listQuery);

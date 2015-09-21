@@ -22,7 +22,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
+import java.util.Set;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -30,7 +32,10 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
+import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.PagedResult;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.lib.types.SchemaType;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -100,7 +105,6 @@ public class AnyObjectITCase extends AbstractITCase {
     @Test
     public void read() {
         AnyObjectTO anyObjectTO = anyObjectService.read(1L);
-
         assertNotNull(anyObjectTO);
         assertNotNull(anyObjectTO.getPlainAttrs());
         assertFalse(anyObjectTO.getPlainAttrs().isEmpty());
@@ -123,4 +127,46 @@ public class AnyObjectITCase extends AbstractITCase {
         assertEquals(newLocation, anyObjectTO.getPlainAttrMap().get("location").getValues().get(0));
     }
 
+    @Test
+    public void readAttrs() {
+        AnyObjectTO anyObjectTO = getSampleTO("readAttrs");
+        anyObjectTO = createAnyObject(anyObjectTO);
+        assertNotNull(anyObjectTO);
+
+        Set<AttrTO> attrs = anyObjectService.read(anyObjectTO.getKey(), SchemaType.PLAIN);
+        assertEquals(anyObjectTO.getPlainAttrs(), attrs);
+
+        AttrTO location = anyObjectService.read(anyObjectTO.getKey(), SchemaType.PLAIN, "location");
+        assertEquals(anyObjectTO.getPlainAttrMap().get("location"), location);
+    }
+
+    @Test
+    public void updateAttr() {
+        AnyObjectTO anyObjectTO = getSampleTO("updateAttr");
+        anyObjectTO = createAnyObject(anyObjectTO);
+        assertNotNull(anyObjectTO);
+
+        AttrTO updated = attrTO("location", "newlocation");
+        anyObjectService.update(anyObjectTO.getKey(), SchemaType.PLAIN, updated);
+
+        AttrTO location = anyObjectService.read(anyObjectTO.getKey(), SchemaType.PLAIN, "location");
+        assertEquals(updated, location);
+    }
+
+    @Test
+    public void deleteAttr() {
+        AnyObjectTO anyObjectTO = getSampleTO("deleteAttr");
+        anyObjectTO = createAnyObject(anyObjectTO);
+        assertNotNull(anyObjectTO);
+        assertNotNull(anyObjectTO.getPlainAttrMap().get("location"));
+
+        anyObjectService.delete(anyObjectTO.getKey(), SchemaType.PLAIN, "location");
+
+        try {
+            anyObjectService.read(anyObjectTO.getKey(), SchemaType.PLAIN, "location");
+            fail();
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.NotFound, e.getType());
+        }
+    }
 }

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.rest.cxf.service;
 
+import java.util.Set;
 import javax.ws.rs.core.Response;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
@@ -26,21 +27,26 @@ import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.patch.AssociationPatch;
+import org.apache.syncope.common.lib.patch.AttrPatch;
 import org.apache.syncope.common.lib.patch.DeassociationPatch;
 import org.apache.syncope.common.lib.patch.StatusPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.PropagationStatus;
+import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.ResourceAssociationAction;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
+import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.lib.types.StatusPatchType;
 import org.apache.syncope.common.rest.api.beans.AnyListQuery;
 import org.apache.syncope.common.rest.api.beans.AnySearchQuery;
 import org.apache.syncope.common.rest.api.service.AnyService;
 import org.apache.syncope.core.logic.AbstractAnyLogic;
 import org.apache.syncope.core.logic.UserLogic;
+import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 
 public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
@@ -48,6 +54,54 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
         implements AnyService<TO, P> {
 
     protected abstract AbstractAnyLogic<TO, P> getAnyLogic();
+
+    protected abstract P newPatch(Long key);
+
+    @Override
+    public Set<AttrTO> read(final Long key, final SchemaType schemaType) {
+        TO any = read(key);
+        Set<AttrTO> result;
+        switch (schemaType) {
+            case DERIVED:
+                result = any.getDerAttrs();
+                break;
+
+            case VIRTUAL:
+                result = any.getVirAttrs();
+                break;
+
+            case PLAIN:
+            default:
+                result = any.getPlainAttrs();
+        }
+
+        return result;
+    }
+
+    @Override
+    public AttrTO read(final Long key, final SchemaType schemaType, final String schema) {
+        TO any = read(key);
+        AttrTO result;
+        switch (schemaType) {
+            case DERIVED:
+                result = any.getDerAttrMap().get(schema);
+                break;
+
+            case VIRTUAL:
+                result = any.getVirAttrMap().get(schema);
+                break;
+
+            case PLAIN:
+            default:
+                result = any.getPlainAttrMap().get(schema);
+        }
+
+        if (result == null) {
+            throw new NotFoundException("Attribute for type " + schemaType + " and schema " + schema);
+        }
+
+        return result;
+    }
 
     @Override
     public TO read(final Long key) {
@@ -116,6 +170,42 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
         return modificationResponse(updated);
     }
 
+    private void addUpdateOrReplaceAttr(
+            final Long key, final SchemaType schemaType, final AttrTO attrTO, final PatchOperation operation) {
+
+        if (attrTO.getSchema() == null) {
+            throw new NotFoundException("Must specify schema");
+        }
+
+        P patch = newPatch(key);
+
+        Set<AttrPatch> patches;
+        switch (schemaType) {
+            case DERIVED:
+                patches = patch.getDerAttrs();
+                break;
+
+            case VIRTUAL:
+                patches = patch.getVirAttrs();
+                break;
+
+            case PLAIN:
+            default:
+                patches = patch.getPlainAttrs();
+        }
+
+        patches.add(new AttrPatch.Builder().operation(operation).attrTO(attrTO).build());
+
+        update(patch);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public Response update(final Long key, final SchemaType schemaType, final AttrTO attrTO) {
+        addUpdateOrReplaceAttr(key, schemaType, attrTO, PatchOperation.ADD_REPLACE);
+        return modificationResponse(read(key, schemaType, attrTO.getSchema()));
+    }
+
     @Override
     public Response update(final TO anyTO) {
         TO before = getAnyLogic().read(anyTO.getKey());
@@ -125,6 +215,11 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
         @SuppressWarnings("unchecked")
         TO updated = getAnyLogic().update((P) AnyOperations.diff(anyTO, before, false));
         return modificationResponse(updated);
+    }
+
+    @Override
+    public void delete(final Long key, final SchemaType schemaType, final String schema) {
+        addUpdateOrReplaceAttr(key, schemaType, new AttrTO.Builder().schema(schema).build(), PatchOperation.DELETE);
     }
 
     @Override

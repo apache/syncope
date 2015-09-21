@@ -39,6 +39,13 @@ public class GroupServiceImpl extends AbstractAnyService<GroupTO, GroupPatch> im
     }
 
     @Override
+    protected GroupPatch newPatch(final Long key) {
+        GroupPatch patch = new GroupPatch();
+        patch.setKey(key);
+        return patch;
+    }
+
+    @Override
     public List<GroupTO> own() {
         return logic.own();
     }

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.common.rest.api.service;
 
+import java.util.Set;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -35,19 +36,49 @@ import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.patch.AssociationPatch;
 import org.apache.syncope.common.lib.patch.DeassociationPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.PagedResult;
+import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.rest.api.beans.AnyListQuery;
 import org.apache.syncope.common.rest.api.beans.AnySearchQuery;
 
 public interface AnyService<TO extends AnyTO, P extends AnyPatch> extends JAXRSService {
 
     /**
+     * Reads the list of attributes owned by the given any object for the given schema type.
+     *
+     * @param key any object key
+     * @param schemaType schema type
+     * @return list of attributes, owned by the given any object, for the given schema type
+     */
+    @GET
+    @Path("{key}/{schemaType}")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    Set<AttrTO> read(@NotNull @PathParam("key") Long key, @NotNull @PathParam("schemaType") SchemaType schemaType);
+
+    /**
+     * Reads the attribute, owned by the given any object, for the given schema type and schema.
+     *
+     * @param key any object key
+     * @param schemaType schema type
+     * @param schema schema
+     * @return attribute, owned by the given any object, for the given schema type and schema
+     */
+    @GET
+    @Path("{key}/{schemaType}/{schema}")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    AttrTO read(
+            @NotNull @PathParam("key") Long key,
+            @NotNull @PathParam("schemaType") SchemaType schemaType,
+            @NotNull @PathParam("schema") String schema);
+
+    /**
      * Reads the any object matching the provided key.
      *
      * @param key key of any object to be read
-     * @return any object with matching id
+     * @return any object with matching key
      */
     @GET
     @Path("{key}")
@@ -101,6 +132,23 @@ public interface AnyService<TO extends AnyTO, P extends AnyPatch> extends JAXRSS
     Response update(@NotNull P anyPatch);
 
     /**
+     * Adds or replaces the attribute, owned by the given any object, for the given schema type and schema.
+     *
+     * @param key any object key
+     * @param schemaType schema type
+     * @param attrTO attribute
+     * @return <tt>Response</tt> object featuring the updated any object attribute - <tt>AttrTO</tt> as <tt>Entity</tt>
+     */
+    @PUT
+    @Path("{key}/{schemaType}/{schema}")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    Response update(
+            @NotNull @PathParam("key") Long key,
+            @NotNull @PathParam("schemaType") SchemaType schemaType,
+            @NotNull AttrTO attrTO);
+
+    /**
      * Updates any object matching the provided key.
      *
      * @param anyTO complete update
@@ -112,6 +160,22 @@ public interface AnyService<TO extends AnyTO, P extends AnyPatch> extends JAXRSS
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     Response update(@NotNull TO anyTO);
+
+    /**
+     * Deletes the attribute, owned by the given any object, for the given schema type and schema.
+     *
+     * @param key any object key
+     * @param schemaType schema type
+     * @param schema schema
+     */
+    @DELETE
+    @Path("{key}/{schemaType}/{schema}")
+    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    void delete(
+            @NotNull @PathParam("key") Long key,
+            @NotNull @PathParam("schemaType") SchemaType schemaType,
+            @NotNull @PathParam("schema") String schema);
 
     /**
      * Deletes any object matching provided key.
