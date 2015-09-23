@@ -18,8 +18,11 @@
  */
 package org.apache.syncope.client.console.wicket.markup.html.form;
 
+import org.apache.wicket.Component;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.ResourceModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,8 +35,32 @@ public abstract class AbstractFieldPanel<T> extends Panel {
 
     private static final long serialVersionUID = 5958017546318855690L;
 
-    public AbstractFieldPanel(final String id, final IModel<T> model) {
+    protected final String name;
+
+    public AbstractFieldPanel(final String id, final String name, final IModel<T> model) {
         super(id, model);
+        this.name = name;
+
+        addLabel();
+        setOutputMarkupId(true);
+    }
+
+    public final AbstractFieldPanel<T> addLabel() {
+        return addLabel(this.name);
+    }
+
+    public final AbstractFieldPanel<T> addLabel(final String name) {
+        addOrReplace(new Label("field-label", new ResourceModel(name, name)));
+        return this;
+    }
+
+    public AbstractFieldPanel<T> hideLabel() {
+        final Component label = get("field-label");
+
+        if (label != null) {
+            label.setVisible(false);
+        }
+        return this;
     }
 
     public abstract AbstractFieldPanel<T> setModelObject(T object);

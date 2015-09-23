@@ -18,14 +18,20 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import static org.apache.wicket.Component.ENABLE;
+
+import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.AjaxBootstrapTabbedPanel;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.AbstractBasePage;
 import org.apache.syncope.client.console.topology.TopologyNode;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.provision.ProvisionWizardBuilder;
@@ -35,14 +41,12 @@ import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.event.Broadcast;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
+import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.model.CompoundPropertyModel;
+import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 
 /**
@@ -52,33 +56,39 @@ public class ResourceModal extends AbstractResourceModal {
 
     private static final long serialVersionUID = 1734415311027284221L;
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    private final boolean createFlag;
+
     public ResourceModal(
-            final ModalWindow window,
+            final BaseModal<Serializable> modal,
             final PageReference pageRef,
             final ResourceTO resourceTO,
             final boolean createFlag) {
 
-        super(window, pageRef);
+        super(modal, pageRef);
 
-        final Form<ResourceTO> form = new Form<>(FORM);
-        form.setModel(new CompoundPropertyModel<>(resourceTO));
+        this.createFlag = createFlag;
+
+        final List<ITab> tabs = new ArrayList<>();
+        add(new AjaxBootstrapTabbedPanel<>("tabbedPanel", tabs));
 
         //--------------------------------
         // Resource details panel
         //--------------------------------
-        form.add(new ResourceDetailsPanel("details", resourceTO,
-                resourceRestClient.getPropagationActionsClasses(), createFlag));
+        tabs.add(new AbstractTab(new ResourceModel("resource", "resource")) {
 
-        form.add(new AnnotatedBeanPanel("systeminformation", resourceTO));
+            private static final long serialVersionUID = -5861786415855103549L;
+
+            @Override
+            public Panel getPanel(final String panelId) {
+                return new ResourceDetailsPanel(panelId, resourceTO,
+                        resourceRestClient.getPropagationActionsClasses(), createFlag);
+            }
+        });
         //--------------------------------
 
         //--------------------------------
         // Resource provision panels
         //--------------------------------
-        final WebMarkupContainer provisions = new WebMarkupContainer("pcontainer");
-        form.add(provisions.setOutputMarkupId(true));
-
         final ListViewPanel.Builder<ProvisionTO> builder = ListViewPanel.builder(ProvisionTO.class, pageRef);
         builder.setItems(resourceTO.getProvisions());
         builder.includes("anyType", "objectClass");
@@ -133,114 +143,109 @@ public class ResourceModal extends AbstractResourceModal {
         }, ActionLink.ActionType.DELETE, Entitlement.RESOURCE_DELETE);
 
         builder.addNewItemPanelBuilder(new ProvisionWizardBuilder("wizard", resourceTO, pageRef));
-        builder.addNotificationPanel(feedbackPanel);
+        builder.addNotificationPanel(modal.getFeedbackPanel());
 
-        provisions.add(builder.build("provisions"));
+        tabs.add(new AbstractTab(new ResourceModel("provisions", "provisions")) {
+
+            private static final long serialVersionUID = -5861786415855103549L;
+
+            @Override
+            public Panel getPanel(final String panelId) {
+                return builder.build(panelId);
+            }
+        });
         //--------------------------------
 
         //--------------------------------
         // Resource connector configuration panel
         //--------------------------------
-        ResourceConnConfPanel resourceConnConfPanel = new ResourceConnConfPanel("connconf", resourceTO, createFlag);
-        MetaDataRoleAuthorizationStrategy.authorize(resourceConnConfPanel, ENABLE, Entitlement.CONNECTOR_READ);
-        form.add(resourceConnConfPanel);
+        tabs.add(new AbstractTab(new ResourceModel("connectorProperties", "connectorProperties")) {
+
+            private static final long serialVersionUID = -5861786415855103549L;
+
+            @Override
+            public Panel getPanel(final String panelId) {
+                final ResourceConnConfPanel panel = new ResourceConnConfPanel(panelId, resourceTO, createFlag);
+                MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE, Entitlement.CONNECTOR_READ);
+                return panel;
+            }
+        });
         //--------------------------------
 
         //--------------------------------
         // Resource security panel
         //--------------------------------
-        form.add(new ResourceSecurityPanel("security", resourceTO));
+        tabs.add(new AbstractTab(new ResourceModel("security", "security")) {
+
+            private static final long serialVersionUID = -5861786415855103549L;
+
+            @Override
+            public Panel getPanel(final String panelId) {
+                return new ResourceSecurityPanel(panelId, resourceTO);
+            }
+        });
         //--------------------------------
-
-        AjaxButton submit = new IndicatingAjaxButton(APPLY, new ResourceModel(SUBMIT, SUBMIT)) {
-
-            private static final long serialVersionUID = -958724007591692537L;
-
-            @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-                final ResourceTO resourceTO = (ResourceTO) form.getDefaultModelObject();
-
-                boolean connObjectKeyError = false;
-
-                final Collection<ProvisionTO> provisions = new ArrayList<>(resourceTO.getProvisions());
-
-                for (ProvisionTO provision : provisions) {
-                    if (provision != null) {
-                        if (provision.getMapping() == null || provision.getMapping().getItems().isEmpty()) {
-                            resourceTO.getProvisions().remove(provision);
-                        } else {
-                            int uConnObjectKeyCount = CollectionUtils.countMatches(
-                                    provision.getMapping().getItems(), new Predicate<MappingItemTO>() {
-
-                                        @Override
-                                        public boolean evaluate(final MappingItemTO item) {
-                                            return item.isConnObjectKey();
-                                        }
-                                    });
-
-                            connObjectKeyError = uConnObjectKeyCount != 1;
-                        }
-                    }
-                }
-
-                if (connObjectKeyError) {
-                    error(getString("connObjectKeyValidation"));
-                    feedbackPanel.refresh(target);
-                } else {
-                    try {
-                        if (createFlag) {
-                            resourceRestClient.create(resourceTO);
-                            send(pageRef.getPage(), Broadcast.BREADTH, new CreateEvent(
-                                    resourceTO.getKey(),
-                                    resourceTO.getKey(),
-                                    TopologyNode.Kind.RESOURCE,
-                                    resourceTO.getConnector(),
-                                    target));
-                        } else {
-                            resourceRestClient.update(resourceTO);
-                        }
-
-                        if (pageRef.getPage() instanceof AbstractBasePage) {
-                            ((AbstractBasePage) pageRef.getPage()).setModalResult(true);
-                        }
-                        window.close(target);
-                    } catch (Exception e) {
-                        LOG.error("Failure managing resource {}", resourceTO, e);
-                        error(getString(Constants.ERROR) + ": " + e.getMessage());
-                        feedbackPanel.refresh(target);
-                    }
-                }
-            }
-
-            @Override
-            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-                feedbackPanel.refresh(target);
-            }
-        };
-
-        form.add(submit);
-        form.setDefaultButton(submit);
-
-        final AjaxButton cancel = new IndicatingAjaxButton(CANCEL, new ResourceModel(CANCEL)) {
-
-            private static final long serialVersionUID = -958724007591692537L;
-
-            @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-                window.close(target);
-            }
-
-            @Override
-            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-            }
-        };
-
-        cancel.setDefaultFormProcessing(false);
-        form.add(cancel);
-
-        add(form);
-
-        MetaDataRoleAuthorizationStrategy.authorize(
-                submit, ENABLE, createFlag ? Entitlement.RESOURCE_CREATE : Entitlement.RESOURCE_UPDATE);
     }
+
+    @Override
+    public void onError(final AjaxRequestTarget target, final Form<?> form) {
+        modal.getFeedbackPanel().refresh(target);
+    }
+
+    @Override
+    public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+        final ResourceTO resourceTO = (ResourceTO) form.getDefaultModelObject();
+
+        boolean connObjectKeyError = false;
+
+        final Collection<ProvisionTO> provisions = new ArrayList<>(resourceTO.getProvisions());
+
+        for (ProvisionTO provision : provisions) {
+            if (provision != null) {
+                if (provision.getMapping() == null || provision.getMapping().getItems().isEmpty()) {
+                    resourceTO.getProvisions().remove(provision);
+                } else {
+                    int uConnObjectKeyCount = CollectionUtils.countMatches(
+                            provision.getMapping().getItems(), new Predicate<MappingItemTO>() {
+
+                                @Override
+                                public boolean evaluate(final MappingItemTO item) {
+                                    return item.isConnObjectKey();
+                                }
+                            });
+
+                    connObjectKeyError = uConnObjectKeyCount != 1;
+                }
+            }
+        }
+
+        if (connObjectKeyError) {
+            error(getString("connObjectKeyValidation"));
+            modal.getFeedbackPanel().refresh(target);
+        } else {
+            try {
+                if (createFlag) {
+                    resourceRestClient.create(resourceTO);
+                    send(pageRef.getPage(), Broadcast.BREADTH, new CreateEvent(
+                            resourceTO.getKey(),
+                            resourceTO.getKey(),
+                            TopologyNode.Kind.RESOURCE,
+                            resourceTO.getConnector(),
+                            target));
+                } else {
+                    resourceRestClient.update(resourceTO);
+                }
+
+                if (pageRef.getPage() instanceof AbstractBasePage) {
+                    ((AbstractBasePage) pageRef.getPage()).setModalResult(true);
+                }
+                modal.close(target);
+            } catch (Exception e) {
+                LOG.error("Failure managing resource {}", resourceTO, e);
+                error(getString(Constants.ERROR) + ": " + e.getMessage());
+                modal.getFeedbackPanel().refresh(target);
+            }
+        }
+    }
+
 }

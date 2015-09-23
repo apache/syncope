@@ -16,6 +16,18 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<wicket:extend>
-    <input type="checkbox" class="checkbox" wicket:id="checkboxField"/>
-</wicket:extend>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
+  <head>
+    <title>Ajax checkbox panel</title>
+  </head>
+  <body>
+    <wicket:extend>
+      <div class="checkbox">
+        <label>
+          <input type="checkbox" wicket:id="checkboxField">
+            <label wicket:id="label">[LABEL]</label>
+        </label>
+      </div>
+    </wicket:extend>
+  </body>
+</html>

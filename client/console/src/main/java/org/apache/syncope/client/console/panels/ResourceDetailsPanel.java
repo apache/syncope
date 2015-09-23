@@ -20,13 +20,13 @@ package org.apache.syncope.client.console.panels;
 
 import java.util.Arrays;
 import java.util.List;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.panels.ModalContent.ModalEvent;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal.ModalEvent;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.SpinnerFieldPanel;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
@@ -34,14 +34,9 @@ import org.apache.syncope.common.lib.types.PropagationMode;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.event.Broadcast;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
-import org.apache.wicket.markup.html.form.DropDownChoice;
-import org.apache.wicket.markup.html.list.ListItem;
-import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
@@ -72,139 +67,83 @@ public class ResourceDetailsPanel extends Panel {
         super(id);
         setOutputMarkupId(true);
 
+        final WebMarkupContainer container = new WebMarkupContainer("container");
+        container.setOutputMarkupId(true);
+        container.setRenderBodyOnly(true);
+        add(container);
+
         final AjaxTextFieldPanel resourceName = new AjaxTextFieldPanel("name", new ResourceModel("name", "name").
                 getObject(), new PropertyModel<String>(resourceTO, "key"));
 
         resourceName.setEnabled(createFlag);
         resourceName.addRequiredLabel();
-        add(resourceName);
+        container.add(resourceName);
 
         final AjaxCheckBoxPanel enforceMandatoryCondition = new AjaxCheckBoxPanel("enforceMandatoryCondition",
                 new ResourceModel("enforceMandatoryCondition", "enforceMandatoryCondition").getObject(),
                 new PropertyModel<Boolean>(resourceTO, "enforceMandatoryCondition"));
-        add(enforceMandatoryCondition);
+        container.add(enforceMandatoryCondition);
 
         final AjaxCheckBoxPanel propagationPrimary = new AjaxCheckBoxPanel("propagationPrimary", new ResourceModel(
                 "propagationPrimary", "propagationPrimary").getObject(), new PropertyModel<Boolean>(resourceTO,
                         "propagationPrimary"));
-        add(propagationPrimary);
+        container.add(propagationPrimary);
 
-        final SpinnerFieldPanel<Integer> propagationPriority = new SpinnerFieldPanel<>("propagationPriority",
-                "propagationPriority", Integer.class,
-                new PropertyModel<Integer>(resourceTO, "propagationPriority"), null, null);
-        add(propagationPriority);
+        final SpinnerFieldPanel<Integer> propagationPriority = new SpinnerFieldPanel<>(
+                "propagationPriority",
+                "propagationPriority",
+                Integer.class,
+                new PropertyModel<Integer>(resourceTO, "propagationPriority"));
+        container.add(propagationPriority);
 
         final AjaxDropDownChoicePanel<PropagationMode> propagationMode = new AjaxDropDownChoicePanel<>(
                 "propagationMode", new ResourceModel("propagationMode", "propagationMode").getObject(),
                 new PropertyModel<PropagationMode>(resourceTO, "propagationMode"));
         propagationMode.setChoices(Arrays.asList(PropagationMode.values()));
-        add(propagationMode);
+        container.add(propagationMode);
 
         final AjaxCheckBoxPanel randomPwdIfNotProvided = new AjaxCheckBoxPanel("randomPwdIfNotProvided",
                 new ResourceModel("randomPwdIfNotProvided", "randomPwdIfNotProvided").getObject(),
                 new PropertyModel<Boolean>(resourceTO, "randomPwdIfNotProvided"));
-        add(randomPwdIfNotProvided);
+        container.add(randomPwdIfNotProvided);
 
-        final WebMarkupContainer propagationActionsClassNames = new WebMarkupContainer("propagationActionsClassNames");
-        propagationActionsClassNames.setOutputMarkupId(true);
-        add(propagationActionsClassNames);
+        final AjaxDropDownChoicePanel<String> template
+                = new AjaxDropDownChoicePanel<>("panel", "panel", new Model<String>());
+        template.setChoices(actionClassNames);
+        template.setNullValid(true);
+        template.setRequired(true);
 
-        final AjaxLink<Void> first = new IndicatingAjaxLink<Void>("first") {
+        final MultiFieldPanel<String> actions = new MultiFieldPanel<>(
+                "actionsClasses",
+                "actionsClasses",
+                new PropertyModel<List<String>>(resourceTO, "propagationActionsClassNames"),
+                template);
 
-            private static final long serialVersionUID = -7978723352517770644L;
-
-            @Override
-            public void onClick(final AjaxRequestTarget target) {
-                resourceTO.getPropagationActionsClassNames().add(StringUtils.EMPTY);
-                setVisible(false);
-                target.add(propagationActionsClassNames);
-            }
-        };
-        first.setOutputMarkupPlaceholderTag(true);
-        first.setVisible(resourceTO.getPropagationActionsClassNames().isEmpty());
-        propagationActionsClassNames.add(first);
-
-        final ListView<String> actionsClasses = new ListView<String>("actionsClasses",
-                new PropertyModel<List<String>>(resourceTO, "propagationActionsClassNames")) {
-
-                    private static final long serialVersionUID = 9101744072914090143L;
-
-                    @Override
-                    protected void populateItem(final ListItem<String> item) {
-                        final String className = item.getModelObject();
-
-                        final DropDownChoice<String> actionsClass = new DropDownChoice<>(
-                                "actionsClass", new Model<>(className), actionClassNames);
-                        actionsClass.setNullValid(true);
-                        actionsClass.setRequired(true);
-                        actionsClass.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_BLUR) {
-
-                            private static final long serialVersionUID = -1107858522700306810L;
-
-                            @Override
-                            protected void onUpdate(final AjaxRequestTarget target) {
-                                resourceTO.getPropagationActionsClassNames().
-                                set(item.getIndex(), actionsClass.getModelObject());
-                            }
-                        });
-                        actionsClass.setRequired(true);
-                        actionsClass.setOutputMarkupId(true);
-                        actionsClass.setRequired(true);
-                        item.add(actionsClass);
-
-                        final AjaxLink<Void> minus = new IndicatingAjaxLink<Void>("drop") {
-
-                            private static final long serialVersionUID = -7978723352517770644L;
-
-                            @Override
-                            public void onClick(final AjaxRequestTarget target) {
-                                resourceTO.getPropagationActionsClassNames().remove(className);
-                                first.setVisible(resourceTO.getPropagationActionsClassNames().isEmpty());
-                                target.add(propagationActionsClassNames);
-                            }
-                        };
-                        item.add(minus);
-
-                        final AjaxLink<Void> plus = new IndicatingAjaxLink<Void>("add") {
-
-                            private static final long serialVersionUID = -7978723352517770644L;
-
-                            @Override
-                            public void onClick(final AjaxRequestTarget target) {
-                                resourceTO.getPropagationActionsClassNames().add(StringUtils.EMPTY);
-                                target.add(propagationActionsClassNames);
-                            }
-                        };
-                        plus.setOutputMarkupPlaceholderTag(true);
-                        plus.setVisible(item.getIndex() == resourceTO.getPropagationActionsClassNames().size() - 1);
-                        item.add(plus);
-                    }
-                };
-        propagationActionsClassNames.add(actionsClasses);
+        container.add(actions);
 
         final AjaxDropDownChoicePanel<TraceLevel> createTraceLevel = new AjaxDropDownChoicePanel<>(
                 "createTraceLevel", new ResourceModel("createTraceLevel", "createTraceLevel").getObject(),
                 new PropertyModel<TraceLevel>(resourceTO, "createTraceLevel"));
         createTraceLevel.setChoices(Arrays.asList(TraceLevel.values()));
-        add(createTraceLevel);
+        container.add(createTraceLevel);
 
         final AjaxDropDownChoicePanel<TraceLevel> updateTraceLevel = new AjaxDropDownChoicePanel<>(
                 "updateTraceLevel", new ResourceModel("updateTraceLevel", "updateTraceLevel").getObject(),
                 new PropertyModel<TraceLevel>(resourceTO, "updateTraceLevel"));
         updateTraceLevel.setChoices(Arrays.asList(TraceLevel.values()));
-        add(updateTraceLevel);
+        container.add(updateTraceLevel);
 
         final AjaxDropDownChoicePanel<TraceLevel> deleteTraceLevel = new AjaxDropDownChoicePanel<>(
                 "deleteTraceLevel", new ResourceModel("deleteTraceLevel", "deleteTraceLevel").getObject(),
                 new PropertyModel<TraceLevel>(resourceTO, "deleteTraceLevel"));
         deleteTraceLevel.setChoices(Arrays.asList(TraceLevel.values()));
-        add(deleteTraceLevel);
+        container.add(deleteTraceLevel);
 
         final AjaxDropDownChoicePanel<TraceLevel> syncTraceLevel = new AjaxDropDownChoicePanel<>(
                 "syncTraceLevel", new ResourceModel("syncTraceLevel", "syncTraceLevel").getObject(),
                 new PropertyModel<TraceLevel>(resourceTO, "syncTraceLevel"));
         syncTraceLevel.setChoices(Arrays.asList(TraceLevel.values()));
-        add(syncTraceLevel);
+        container.add(syncTraceLevel);
 
         final IModel<List<ConnInstanceTO>> connectors = new LoadableDetachableModel<List<ConnInstanceTO>>() {
 
@@ -257,7 +196,9 @@ public class ResourceDetailsPanel extends Panel {
             }
         });
 
-        add(conn);
+        container.add(conn);
+
+        add(new AnnotatedBeanPanel("systeminformation", resourceTO));
     }
 
     /**

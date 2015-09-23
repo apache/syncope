@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.wicket.markup.html.form;
 
+import java.io.Serializable;
 import java.util.List;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -26,27 +27,41 @@ import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.ResourceModel;
 
-public class MultiFieldPanel<E> extends AbstractFieldPanel<List<E>> {
+public class MultiFieldPanel<E extends Serializable> extends AbstractFieldPanel<List<E>> {
 
     private static final long serialVersionUID = -6322397761456513324L;
 
     private ListView<E> view;
 
+    private final FieldPanel<E> panelTemplate;
+
+    private final boolean eventTemplate;
+
     private WebMarkupContainer container;
 
-    public MultiFieldPanel(final String id, final IModel<List<E>> model, final FieldPanel<E> panelTemplate) {
-        this(id, model, panelTemplate, false);
+    public MultiFieldPanel(
+            final String id, final String name, final IModel<List<E>> model, final FieldPanel<E> panelTemplate) {
+        this(id, name, model, panelTemplate, false);
     }
 
-    public MultiFieldPanel(final String id, final IModel<List<E>> model, final FieldPanel<E> panelTemplate,
+    public MultiFieldPanel(
+            final String id,
+            final String name,
+            final IModel<List<E>> model,
+            final FieldPanel<E> panelTemplate,
             final boolean eventTemplate) {
 
-        super(id, model);
+        super(id, name, model);
+
+        this.panelTemplate = panelTemplate;
+        this.eventTemplate = eventTemplate;
 
         // -----------------------
         // Object container definition
@@ -56,12 +71,30 @@ public class MultiFieldPanel<E> extends AbstractFieldPanel<List<E>> {
         add(container);
         // -----------------------
 
+        if (model.getObject().isEmpty()) {
+            container.add(getNoDataFragment(model, name));
+        } else {
+            container.addOrReplace(getDataFragment(model, name));
+        }
+    }
+
+    private Fragment getNoDataFragment(final IModel<List<E>> model, final String label) {
+        final Fragment fragment = new Fragment("content", "noDataFragment", MultiFieldPanel.this);
+        fragment.add(new Label("field-label", new ResourceModel(label, label)));
+        fragment.add(getPlusFragment(model, label));
+        return fragment;
+    }
+
+    private Fragment getDataFragment(final IModel<List<E>> model, final String label) {
+        final Fragment contentFragment = new Fragment("content", "dataFragment", MultiFieldPanel.this);
+
         view = new ListView<E>("view", model) {
 
             private static final long serialVersionUID = -9180479401817023838L;
 
             @Override
             protected void populateItem(final ListItem<E> item) {
+
                 final FieldPanel<E> fieldPanel = panelTemplate.clone();
 
                 if (eventTemplate) {
@@ -86,9 +119,9 @@ public class MultiFieldPanel<E> extends AbstractFieldPanel<List<E>> {
                 });
 
                 fieldPanel.setNewModel(item);
-                item.add(fieldPanel);
+                item.add(fieldPanel.hideLabel().setRenderBodyOnly(true));
 
-                AjaxLink<Void> minus = new IndicatingAjaxLink<Void>("drop") {
+                final AjaxLink<Void> minus = new IndicatingAjaxLink<Void>("drop") {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
@@ -97,6 +130,11 @@ public class MultiFieldPanel<E> extends AbstractFieldPanel<List<E>> {
                         //Drop current component
                         model.getObject().remove(item.getModelObject());
                         fieldPanel.getField().clearInput();
+
+                        if (model.getObject().isEmpty()) {
+                            container.addOrReplace(getNoDataFragment(model, label));
+                        }
+
                         target.add(container);
 
                         if (eventTemplate) {
@@ -107,40 +145,45 @@ public class MultiFieldPanel<E> extends AbstractFieldPanel<List<E>> {
 
                 item.add(minus);
 
-                if (model.getObject().size() <= 1) {
-                    minus.setVisible(false);
-                    minus.setEnabled(false);
-                } else {
-                    minus.setVisible(true);
-                    minus.setEnabled(true);
-                }
-
                 final Fragment fragment;
                 if (item.getIndex() == model.getObject().size() - 1) {
-                    final AjaxLink<Void> plus = new IndicatingAjaxLink<Void>("add") {
-
-                        private static final long serialVersionUID = -7978723352517770644L;
-
-                        @Override
-                        public void onClick(final AjaxRequestTarget target) {
-                            //Add current component
-                            model.getObject().add(null);
-                            target.add(container);
-                        }
-                    };
-
-                    fragment = new Fragment("panelPlus", "fragmentPlus", container);
-
-                    fragment.add(plus);
+                    fragment = getPlusFragment(model, label);
                 } else {
-                    fragment = new Fragment("panelPlus", "emptyFragment", container);
+                    fragment = new Fragment("panelPlus", "emptyFragment", MultiFieldPanel.this);
                 }
+
                 item.add(fragment);
             }
         };
 
-        container.add(view.setOutputMarkupId(true));
-        setOutputMarkupId(true);
+        contentFragment.add(view.setOutputMarkupId(true));
+
+        return contentFragment;
+    }
+
+    private Fragment getPlusFragment(final IModel<List<E>> model, final String label) {
+        final AjaxLink<Void> plus = new IndicatingAjaxLink<Void>("add") {
+
+            private static final long serialVersionUID = -7978723352517770644L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target) {
+                //Add current component
+                model.getObject().add(null);
+
+                if (model.getObject().size() == 1) {
+                    container.addOrReplace(getDataFragment(model, label));
+                }
+
+                target.add(container);
+            }
+        };
+
+        final Fragment fragment = new Fragment("panelPlus", "fragmentPlus", MultiFieldPanel.this);
+        fragment.add(plus);
+        fragment.setRenderBodyOnly(true);
+
+        return fragment;
     }
 
     public ListView<E> getView() {

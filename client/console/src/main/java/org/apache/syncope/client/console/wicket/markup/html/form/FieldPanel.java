@@ -31,7 +31,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 
-public abstract class FieldPanel<T> extends AbstractFieldPanel<T> implements Cloneable {
+public abstract class FieldPanel<T extends Serializable> extends AbstractFieldPanel<T> implements Cloneable {
 
     private static final long serialVersionUID = -198988924922541273L;
 
@@ -42,12 +42,14 @@ public abstract class FieldPanel<T> extends AbstractFieldPanel<T> implements Clo
     protected boolean isRequiredLabelAdded = false;
 
     public FieldPanel(final String id, final IModel<T> model) {
-        super(id, model);
+        this(id, id, model);
+    }
+
+    public FieldPanel(final String id, final String name, final IModel<T> model) {
+        super(id, name, model);
 
         final Fragment fragment = new Fragment("required", "notRequiredFragment", this);
         add(fragment);
-
-        setOutputMarkupId(true);
     }
 
     public FormComponent<T> getField() {
@@ -97,9 +99,7 @@ public abstract class FieldPanel<T> extends AbstractFieldPanel<T> implements Clo
         }
 
         final Fragment fragment = new Fragment("required", "requiredFragment", this);
-
         fragment.add(new Label("requiredLabel", "*"));
-
         replace(fragment);
 
         this.isRequiredLabelAdded = true;
@@ -128,11 +128,11 @@ public abstract class FieldPanel<T> extends AbstractFieldPanel<T> implements Clo
     }
 
     public T getModelObject() {
-        return field.getModelObject();
+        return this.field.getModelObject();
     }
 
     public FieldPanel<T> setNewModel(final IModel<T> model) {
-        field.setModel(model);
+        field.setModel(model == null ? new Model<T>() : model);
         return this;
     }
 
@@ -196,6 +196,7 @@ public abstract class FieldPanel<T> extends AbstractFieldPanel<T> implements Clo
     public FieldPanel<T> clone() {
         final FieldPanel<T> panel = SerializationUtils.clone(this);
         panel.setModelObject(null);
+        panel.addLabel();
         return panel;
     }
 }

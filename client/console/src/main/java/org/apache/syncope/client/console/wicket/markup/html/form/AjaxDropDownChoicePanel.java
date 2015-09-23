@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.wicket.markup.html.form;
 
+import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.select.BootstrapSelect;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
@@ -41,9 +42,11 @@ public class AjaxDropDownChoicePanel<T extends Serializable> extends FieldPanel<
     public AjaxDropDownChoicePanel(
             final String id, final String name, final IModel<T> model, final boolean enableOnBlur) {
 
-        super(id, model);
+        super(id, name, model);
 
-        field = new DropDownChoice<>("dropDownChoiceField", model, Collections.<T>emptyList(), new ChoiceRenderer<T>());
+        field = new BootstrapSelect<>(
+                "dropDownChoiceField", model, Collections.<T>emptyList(), new ChoiceRenderer<T>());
+
         add(field.setLabel(new Model<>(name)).setOutputMarkupId(true));
 
         if (enableOnBlur) {
@@ -61,19 +64,24 @@ public class AjaxDropDownChoicePanel<T extends Serializable> extends FieldPanel<
 
     @SuppressWarnings("unchecked")
     public AjaxDropDownChoicePanel<T> setChoiceRenderer(final IChoiceRenderer<T> renderer) {
-        ((DropDownChoice) field).setChoiceRenderer(renderer);
+        DropDownChoice.class.cast(field).setChoiceRenderer(renderer);
         return this;
     }
 
     @SuppressWarnings("unchecked")
     public AjaxDropDownChoicePanel<T> setChoices(final List<T> choices) {
-        ((DropDownChoice) field).setChoices(choices);
+        DropDownChoice.class.cast(field).setChoices(choices);
         return this;
     }
 
     @SuppressWarnings("unchecked")
     public AjaxDropDownChoicePanel<T> setChoices(final IModel<? extends List<? extends T>> choices) {
-        ((DropDownChoice) field).setChoices(choices);
+        DropDownChoice.class.cast(field).setChoices(choices);
+        return this;
+    }
+
+    public AjaxDropDownChoicePanel<T> setNullValid(final boolean validity) {
+        DropDownChoice.class.cast(field).setNullValid(validity);
         return this;
     }
 
@@ -81,8 +89,8 @@ public class AjaxDropDownChoicePanel<T extends Serializable> extends FieldPanel<
     @SuppressWarnings("unchecked")
     public FieldPanel<T> clone() {
         final AjaxDropDownChoicePanel<T> panel = (AjaxDropDownChoicePanel<T>) super.clone();
-        panel.setChoiceRenderer(((DropDownChoice) field).getChoiceRenderer());
-        panel.setChoices(((DropDownChoice) field).getChoices());
+        panel.setChoiceRenderer(DropDownChoice.class.cast(field).getChoiceRenderer());
+        panel.setChoices(DropDownChoice.class.cast(field).getChoices());
         return panel;
     }
 }

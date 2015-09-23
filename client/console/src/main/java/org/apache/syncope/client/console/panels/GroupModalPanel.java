@@ -23,6 +23,7 @@ import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.Mode;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
@@ -46,14 +47,16 @@ public class GroupModalPanel extends AbstractModalPanel {
 
     protected GroupTO originalGroupTO;
 
-    public GroupModalPanel(final BaseModal<?> modal, final GroupTO groupTO) {
-        this(modal, groupTO, Mode.ADMIN);
+    public GroupModalPanel(
+            final BaseModal<?> modal, final PageReference pageRef, final GroupTO groupTO) {
+        this(modal, pageRef, groupTO, Mode.ADMIN);
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public GroupModalPanel(final BaseModal<?> modal, final GroupTO groupTO, final Mode mode) {
+    public GroupModalPanel(
+            final BaseModal<?> modal, final PageReference pageRef, final GroupTO groupTO, final Mode mode) {
 
-        super(modal);
+        super(modal, pageRef);
 
         this.mode = mode;
 

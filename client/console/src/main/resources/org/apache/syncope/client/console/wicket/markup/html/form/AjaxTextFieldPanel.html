@@ -17,10 +17,17 @@ specific language governing permissions and limitations
 under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
-  <wicket:extend>
-    <div class="form-group">
-      <label wicket:id="label">[LABEL]</label><span wicket:id="required"/>
-      <input type="text" class="form-control" wicket:id="textField"/>
-    </div>
-  </wicket:extend>
+  <head>
+    <title>Ajaxt text field panel</title>
+  </head>
+  <body>
+    <wicket:extend>
+      <wicket:enclosure child="field-label">
+        <label wicket:id="field-label">[LABEL]</label><span wicket:id="required"/>
+      </wicket:enclosure>
+      <fieldset class="form-group input-group">
+        <input type="text" class="form-control" wicket:id="textField"/>
+      </fieldset>
+    </wicket:extend>
+  </body>
 </html>

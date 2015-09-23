@@ -55,7 +55,7 @@ public class GroupSearchResultPanel extends AnySearchResultPanel {
 
     private final String entitlement = "GROUP_READ";
 
-    private final BaseModal<AbstractModalPanel> editModal;
+    private final BaseModal<?> editModal;
 
     public GroupSearchResultPanel(final String type, final String parentId,
             final boolean filtered, final String fiql, final PageReference callerRef,
@@ -125,7 +125,8 @@ public class GroupSearchResultPanel extends AnySearchResultPanel {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final AnyTO anyTO) {
-                        editModal.addOrReplace(new GroupModalPanel(editModal, (GroupTO) model.getObject()));
+                        editModal.addOrReplace(new GroupModalPanel(
+                                editModal, getPage().getPageReference(), GroupTO.class.cast(model.getObject())));
 
                         target.add(editModal);
                         editModal.show(target);

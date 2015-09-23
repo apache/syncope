@@ -44,7 +44,7 @@ public class AjaxPalettePanel<T> extends AbstractFieldPanel<List<T>> {
     public AjaxPalettePanel(final String id, final IModel<List<T>> model, final ListModel<T> choices,
             final IChoiceRenderer<T> renderer, final boolean allowOrder, final boolean allowMoveAll) {
 
-        super(id, model);
+        super(id, id, model);
 
         this.palette = createPalette(model, choices, renderer, allowOrder, allowMoveAll);
         add(palette.setOutputMarkupId(true));

@@ -17,8 +17,15 @@ specific language governing permissions and limitations
 under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
+  <head>
+    <title>Drop down choice</title>
+  </head>
   <wicket:extend>
-    <select class="ui-widget-content ui-corner-all medium_dynamicsize"
-            wicket:id="dropDownChoiceField" />
+    <wicket:enclosure child="field-label">
+      <label wicket:id="field-label">[LABEL]</label><span wicket:id="required"/>
+    </wicket:enclosure>
+    <fieldset class="input-group">
+      <select wicket:id="dropDownChoiceField" />
+    </fieldset>
   </wicket:extend>
 </html>

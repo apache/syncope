@@ -53,6 +53,11 @@ public class ResourceSecurityPanel extends Panel {
 
         super(id);
 
+        final WebMarkupContainer container = new WebMarkupContainer("container");
+        container.setOutputMarkupId(true);
+        container.setRenderBodyOnly(true);
+        add(container);
+
         setOutputMarkupId(true);
 
         passwordPolicies = new LoadableDetachableModel<Map<Long, String>>() {
@@ -97,11 +102,6 @@ public class ResourceSecurityPanel extends Panel {
             }
         };
 
-        final WebMarkupContainer securityContainer = new WebMarkupContainer("security");
-
-        securityContainer.setOutputMarkupId(true);
-        add(securityContainer);
-
         // -------------------------------
         // Password policy specification
         // -------------------------------
@@ -115,7 +115,7 @@ public class ResourceSecurityPanel extends Panel {
 
         ((DropDownChoice<?>) passwordPolicy.getField()).setNullValid(true);
 
-        securityContainer.add(passwordPolicy);
+        container.add(passwordPolicy);
         // -------------------------------
 
         // -------------------------------
@@ -131,7 +131,7 @@ public class ResourceSecurityPanel extends Panel {
 
         ((DropDownChoice<?>) accountPolicy.getField()).setNullValid(true);
 
-        securityContainer.add(accountPolicy);
+        container.add(accountPolicy);
         // -------------------------------
 
         // -------------------------------
@@ -147,7 +147,7 @@ public class ResourceSecurityPanel extends Panel {
 
         ((DropDownChoice<?>) syncPolicy.getField()).setNullValid(true);
 
-        securityContainer.add(syncPolicy);
+        container.add(syncPolicy);
         // -------------------------------
     }
 

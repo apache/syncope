@@ -85,8 +85,8 @@ public class ConnConfPropertyListView extends AltListView<ConnConfProperty> {
         } else {
             Class<?> propertySchemaClass;
             try {
-                propertySchemaClass =
-                        ClassUtils.forName(property.getSchema().getType(), ClassUtils.getDefaultClassLoader());
+                propertySchemaClass = ClassUtils.forName(property.getSchema().getType(), ClassUtils.
+                        getDefaultClassLoader());
                 if (ClassUtils.isPrimitiveOrWrapper(propertySchemaClass)) {
                     propertySchemaClass = org.apache.commons.lang3.ClassUtils.primitiveToWrapper(propertySchemaClass);
                 }
@@ -128,7 +128,7 @@ public class ConnConfPropertyListView extends AltListView<ConnConfProperty> {
                 property.getValues().add(null);
             }
 
-            final MultiFieldPanel multiFieldPanel = new MultiFieldPanel("panel",
+            final MultiFieldPanel multiFieldPanel = new MultiFieldPanel("panel", "connPropAttrSchema",
                     new PropertyModel<List<String>>(property, "values"), field);
             item.add(multiFieldPanel);
         } else {

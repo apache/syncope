@@ -18,37 +18,6 @@ under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
   <wicket:extend>
-    <form wicket:id="form">
-      <div class="tabbable tabs-left">
-        <ul class="nav nav-tabs">
-          <li class="active"><a  data-toggle="tab" href="#resource"><span><wicket:message key="resource"/></span></a></li>
-          <li><a  data-toggle="tab" href="#provisions"><span><wicket:message key="provisions"/></span></a></li>
-          <li><a  data-toggle="tab" href="#connectorProperties"><span><wicket:message key="connectorProperties"/></span></a></li>
-          <li><a  data-toggle="tab" href="#security"><span><wicket:message key="security"/></span></a></li>
-        </ul>
-        <div class="tab-content">
-          <div id="resource" class="tab-pane active">
-            <span wicket:id="details">[details]</span>
-            <span wicket:id="systeminformation">[System Information]</span>
-          </div>
-          <div id="provisions" class="tab-pane">
-            <span wicket:id="pcontainer">
-              <span wicket:id="provisions">[provisions]</span>
-            </span>
-          </div>
-          <div id="connectorProperties" class="tab-pane">
-            <span wicket:id="connconf">[connconf]</span>
-          </div>
-          <div id="security" class="tab-pane">
-            <span wicket:id="security">[security]</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="modal-footer">
-        <input type="submit" class="btn btn-primary" wicket:id="apply"/>
-        <input type="button" class="btn btn-default" wicket:id="cancel"/>
-      </div>
-    </form>
+    <div wicket:id="tabbedPanel"></div>
   </wicket:extend>
 </html>

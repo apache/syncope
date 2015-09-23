@@ -32,7 +32,6 @@ under the License.
     <link href="webjars/ionicons/${ionicons.version}/css/ionicons.min.css" rel="stylesheet" type="text/css" />
     <link href="css/login.css" rel="stylesheet" type="text/css" />
     <link href="css/syncopeConsole.css" rel="stylesheet" type="text/css" />
-    <script type="text/javascript" src="webjars/bootstrap-select/${bootstrap-select.version}/js/bootstrap-select.min.js"></script>
   </head>
   <body class="skin-green">
     <div class="container">
@@ -42,23 +41,21 @@ under the License.
         <div wicket:id="feedback" role="alert"/>
 
         <form class="form-signin" wicket:id="login">
-          <input type="text" wicket:id="username" id="username" class="form-control" 
-                 wicket:message="placeholder:username" required="required" autofocus="autofocus" />
-          <input type="password" wicket:id="password" id="password" class="form-control" 
-                 wicket:message="placeholder:password" required="required" />
-          <select wicket:id="language" id="language" class="selectpicker"/>
-          <select wicket:id="domain" id="domain" class="selectpicker"/>
-          <button wicket:id="submit" type="submit" 
-                  class="btn btn-lg btn-primary btn-block btn-signin"><wicket:message key="submit"/></button>
+          <fieldset class="form-group input-group">
+            <input type="text" wicket:id="username" class="form-control" 
+                   wicket:message="placeholder:username" required="required" autofocus="autofocus" />
+            <input type="password" wicket:id="password" class="form-control" 
+                   wicket:message="placeholder:password" required="required" />
+
+            <select wicket:id="language"/>
+            <div />
+            <select wicket:id="domain"/>
+
+            <button wicket:id="submit" type="submit" 
+                    class="btn btn-lg btn-primary btn-block btn-signin"><wicket:message key="submit"/></button>
+          </fieldset>
         </form>
       </div>
     </div>
-
-    <script type="text/javascript">
-      $('.selectpicker').selectpicker({
-        width: '100%'
-      });
-    </script>
-
   </body>
 </html>

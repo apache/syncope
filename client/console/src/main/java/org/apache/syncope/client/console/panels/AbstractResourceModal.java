@@ -20,19 +20,20 @@ package org.apache.syncope.client.console.panels;
 
 import java.io.Serializable;
 import org.apache.syncope.client.console.topology.TopologyNode;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal.ModalEvent;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 
 /**
  * Modal window with Resource form.
  */
-public abstract class AbstractResourceModal extends ModalContent {
+public abstract class AbstractResourceModal extends AbstractModalPanel {
 
     private static final long serialVersionUID = 1734415311027284221L;
 
-    public AbstractResourceModal(final ModalWindow window, final PageReference pageRef) {
-        super(window, pageRef);
+    public AbstractResourceModal(final BaseModal<?> modal, final PageReference pageRef) {
+        super(modal, pageRef);
     }
 
     public static class CreateEvent extends ModalEvent {

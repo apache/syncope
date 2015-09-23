@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -30,6 +31,7 @@ import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.topology.Topology;
 import org.apache.syncope.client.console.topology.TopologyNode;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.CheckBoxMultipleChoiceFieldPanel;
@@ -42,16 +44,13 @@ import org.apache.syncope.common.lib.to.ConnPoolConfTO;
 import org.apache.syncope.common.lib.types.ConnConfPropSchema;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
-import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
-import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.DropDownChoice;
@@ -82,10 +81,16 @@ public class ConnectorModal extends AbstractResourceModal {
 
     private final WebMarkupContainer propertiesContainer;
 
-    public ConnectorModal(
-            final ModalWindow window, final PageReference pageRef, final ConnInstanceTO connInstanceTO) {
+    private final ListView<ConnConfProperty> connPropView;
 
-        super(window, pageRef);
+    private final ConnInstanceTO connInstanceTO;
+
+    public ConnectorModal(
+            final BaseModal<Serializable> modal, final PageReference pageRef, final ConnInstanceTO connInstanceTO) {
+
+        super(modal, pageRef);
+
+        this.connInstanceTO = connInstanceTO;
 
         this.add(new Label("new", connInstanceTO.getKey() == 0
                 ? new ResourceModel("new")
@@ -122,15 +127,9 @@ public class ConnectorModal extends AbstractResourceModal {
         bundleTO = getSelectedBundleTO(connInstanceTO);
         properties = fillProperties(bundleTO, connInstanceTO);
 
-        // form - first tab
-        final Form<ConnInstanceTO> connectorForm = new Form<>(FORM);
-        connectorForm.setModel(new CompoundPropertyModel<>(connInstanceTO));
-        connectorForm.setOutputMarkupId(true);
-        add(connectorForm);
-
         propertiesContainer = new WebMarkupContainer("container");
         propertiesContainer.setOutputMarkupId(true);
-        connectorForm.add(propertiesContainer);
+        add(propertiesContainer);
 
         final Form<ConnInstanceTO> connectorPropForm = new Form<>("connectorPropForm");
         connectorPropForm.setModel(new CompoundPropertyModel<>(connInstanceTO));
@@ -141,7 +140,7 @@ public class ConnectorModal extends AbstractResourceModal {
                 "displayName", "display name", new PropertyModel<String>(connInstanceTO, "displayName"));
         displayName.setOutputMarkupId(true);
         displayName.addRequiredLabel();
-        connectorForm.add(displayName);
+        add(displayName);
 
         final AjaxDropDownChoicePanel<String> location = new AjaxDropDownChoicePanel<>("location", "location",
                 new Model<>(bundleTO == null ? connInstanceTO.getLocation() : bundleTO.getLocation()));
@@ -153,7 +152,7 @@ public class ConnectorModal extends AbstractResourceModal {
         location.setOutputMarkupId(true);
         location.setEnabled(connInstanceTO.getKey() == 0 && StringUtils.isBlank(connInstanceTO.getLocation()));
         location.getField().setOutputMarkupId(true);
-        connectorForm.add(location);
+        add(location);
 
         final AjaxDropDownChoicePanel<String> connectorName = new AjaxDropDownChoicePanel<>("connectorName",
                 "connectorName",
@@ -170,7 +169,7 @@ public class ConnectorModal extends AbstractResourceModal {
         connectorName.setOutputMarkupId(true);
         connectorName.setEnabled(connInstanceTO.getKey() == 0);
         connectorName.getField().setOutputMarkupId(true);
-        connectorForm.add(connectorName);
+        add(connectorName);
 
         final AjaxDropDownChoicePanel<String> version = new AjaxDropDownChoicePanel<>("version", "version",
                 new Model<>(bundleTO == null ? null : bundleTO.getVersion()));
@@ -185,13 +184,13 @@ public class ConnectorModal extends AbstractResourceModal {
         version.setOutputMarkupId(true);
         version.addRequiredLabel();
         version.getField().setOutputMarkupId(true);
-        connectorForm.add(version);
+        add(version);
 
         final SpinnerFieldPanel<Integer> connRequestTimeout = new SpinnerFieldPanel<>("connRequestTimeout",
                 "connRequestTimeout", Integer.class,
                 new PropertyModel<Integer>(connInstanceTO, "connRequestTimeout"), 0, null);
         connRequestTimeout.getField().add(new RangeValidator<>(0, Integer.MAX_VALUE));
-        connectorForm.add(connRequestTimeout);
+        add(connRequestTimeout);
 
         if (connInstanceTO.getPoolConf() == null) {
             connInstanceTO.setPoolConf(new ConnPoolConfTO());
@@ -200,27 +199,27 @@ public class ConnectorModal extends AbstractResourceModal {
                 Integer.class,
                 new PropertyModel<Integer>(connInstanceTO.getPoolConf(), "maxObjects"), 0, null);
         poolMaxObjects.getField().add(new RangeValidator<>(0, Integer.MAX_VALUE));
-        connectorForm.add(poolMaxObjects);
+        add(poolMaxObjects);
         final SpinnerFieldPanel<Integer> poolMinIdle = new SpinnerFieldPanel<>("poolMinIdle", "poolMinIdle",
                 Integer.class,
                 new PropertyModel<Integer>(connInstanceTO.getPoolConf(), "minIdle"), 0, null);
         poolMinIdle.getField().add(new RangeValidator<>(0, Integer.MAX_VALUE));
-        connectorForm.add(poolMinIdle);
+        add(poolMinIdle);
         final SpinnerFieldPanel<Integer> poolMaxIdle = new SpinnerFieldPanel<>("poolMaxIdle", "poolMaxIdle",
                 Integer.class,
                 new PropertyModel<Integer>(connInstanceTO.getPoolConf(), "maxIdle"), 0, null);
         poolMaxIdle.getField().add(new RangeValidator<>(0, Integer.MAX_VALUE));
-        connectorForm.add(poolMaxIdle);
+        add(poolMaxIdle);
         final SpinnerFieldPanel<Long> poolMaxWait = new SpinnerFieldPanel<>("poolMaxWait", "poolMaxWait", Long.class,
                 new PropertyModel<Long>(connInstanceTO.getPoolConf(), "maxWait"), 0L, null);
         poolMaxWait.getField().add(new RangeValidator<>(0L, Long.MAX_VALUE));
-        connectorForm.add(poolMaxWait);
+        add(poolMaxWait);
         final SpinnerFieldPanel<Long> poolMinEvictableIdleTime = new SpinnerFieldPanel<>("poolMinEvictableIdleTime",
                 "poolMinEvictableIdleTime", Long.class,
                 new PropertyModel<Long>(connInstanceTO.getPoolConf(), "minEvictableIdleTimeMillis"),
                 0L, null);
         poolMinEvictableIdleTime.getField().add(new RangeValidator<>(0L, Long.MAX_VALUE));
-        connectorForm.add(poolMinEvictableIdleTime);
+        add(poolMinEvictableIdleTime);
 
         // form - first tab - onchange()
         location.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
@@ -284,7 +283,7 @@ public class ConnectorModal extends AbstractResourceModal {
         });
 
         // form - second tab (properties)
-        final ListView<ConnConfProperty> connPropView = new ConnConfPropertyListView("connectorProperties",
+        connPropView = new ConnConfPropertyListView("connectorProperties",
                 new PropertyModel<List<ConnConfProperty>>(this, "properties"),
                 true, connInstanceTO.getConfiguration());
         connPropView.setOutputMarkupId(true);
@@ -309,14 +308,14 @@ public class ConnectorModal extends AbstractResourceModal {
                     error(getString("error_connection"));
                 }
 
-                feedbackPanel.refresh(target);
+                modal.getFeedbackPanel().refresh(target);
             }
         };
         connectorPropForm.add(check);
 
         // form - third tab (capabilities)
-        final IModel<List<ConnectorCapability>> capabilities =
-                 new LoadableDetachableModel<List<ConnectorCapability>>() {
+        final IModel<List<ConnectorCapability>> capabilities
+                = new LoadableDetachableModel<List<ConnectorCapability>>() {
 
                     private static final long serialVersionUID = 5275935387613157437L;
 
@@ -325,8 +324,8 @@ public class ConnectorModal extends AbstractResourceModal {
                         return Arrays.asList(ConnectorCapability.values());
                     }
                 };
-        CheckBoxMultipleChoiceFieldPanel<ConnectorCapability> capabilitiesPalette =
-                 new CheckBoxMultipleChoiceFieldPanel<>(
+        CheckBoxMultipleChoiceFieldPanel<ConnectorCapability> capabilitiesPalette
+                = new CheckBoxMultipleChoiceFieldPanel<>(
                         "capabilitiesPalette",
                         new PropertyModel<List<ConnectorCapability>>(this, "selectedCapabilities"), capabilities);
 
@@ -339,86 +338,7 @@ public class ConnectorModal extends AbstractResourceModal {
             }
         });
 
-        connectorForm.add(capabilitiesPalette);
-
-        // form - submit / cancel buttons
-        final AjaxButton submit = new IndicatingAjaxButton(APPLY, new Model<>(getString(SUBMIT))) {
-
-            private static final long serialVersionUID = -958724007591692537L;
-
-            @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-                final ConnInstanceTO conn = (ConnInstanceTO) form.getModelObject();
-
-                conn.setConnectorName(bundleTO.getConnectorName());
-                conn.setBundleName(bundleTO.getBundleName());
-                conn.setVersion(bundleTO.getVersion());
-                conn.getConfiguration().clear();
-                conn.getConfiguration().addAll(connPropView.getModelObject());
-
-                // Set the model object's capabilities to capabilitiesPalette's converted Set
-                conn.getCapabilities().clear();
-                conn.getCapabilities().addAll(selectedCapabilities.isEmpty()
-                        ? EnumSet.noneOf(ConnectorCapability.class)
-                        : EnumSet.copyOf(selectedCapabilities));
-
-                // Reset pool configuration if all fields are null
-                if (conn.getPoolConf() != null
-                        && conn.getPoolConf().getMaxIdle() == null
-                        && conn.getPoolConf().getMaxObjects() == null
-                        && conn.getPoolConf().getMaxWait() == null
-                        && conn.getPoolConf().getMinEvictableIdleTimeMillis() == null
-                        && conn.getPoolConf().getMinIdle() == null) {
-
-                    conn.setPoolConf(null);
-                }
-
-                try {
-                    if (connInstanceTO.getKey() == 0) {
-                        connectorRestClient.create(conn);
-                        send(pageRef.getPage(), Broadcast.BREADTH, new CreateEvent(
-                                conn.getKey(),
-                                conn.getDisplayName(),
-                                TopologyNode.Kind.CONNECTOR,
-                                conn.getLocation().startsWith(Topology.CONNECTOR_SERVER_LOCATION_PREFIX)
-                                        ? conn.getLocation() : Topology.ROOT_NAME,
-                                target));
-                    } else {
-                        connectorRestClient.update(conn);
-                    }
-
-                    ((BasePage) pageRef.getPage()).setModalResult(true);
-                    window.close(target);
-                } catch (SyncopeClientException e) {
-                    error(getString(Constants.ERROR) + ": " + e.getMessage());
-                    feedbackPanel.refresh(target);
-                    ((BasePage) pageRef.getPage()).setModalResult(false);
-                    LOG.error("While creating or updating connector {}", conn, e);
-                }
-            }
-
-            @Override
-            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-                feedbackPanel.refresh(target);
-            }
-        };
-        String entitlements = connInstanceTO.getKey() == 0
-                ? Entitlement.CONNECTOR_CREATE : Entitlement.CONNECTOR_UPDATE;
-
-        MetaDataRoleAuthorizationStrategy.authorize(submit, ENABLE, entitlements);
-        connectorForm.add(submit);
-
-        final IndicatingAjaxButton cancel = new IndicatingAjaxButton(CANCEL, new ResourceModel(CANCEL)) {
-
-            private static final long serialVersionUID = -958724007591692537L;
-
-            @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-                window.close(target);
-            }
-        };
-        cancel.setDefaultFormProcessing(false);
-        connectorForm.add(cancel);
+        add(capabilitiesPalette);
     }
 
     private ConnBundleTO getSelectedBundleTO(final ConnInstanceTO connInstanceTO) {
@@ -481,5 +401,61 @@ public class ConnectorModal extends AbstractResourceModal {
 
     public List<ConnConfProperty> getProperties() {
         return properties;
+    }
+
+    @Override
+    public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+        final ConnInstanceTO conn = (ConnInstanceTO) form.getModelObject();
+
+        conn.setConnectorName(bundleTO.getConnectorName());
+        conn.setBundleName(bundleTO.getBundleName());
+        conn.setVersion(bundleTO.getVersion());
+        conn.getConfiguration().clear();
+        conn.getConfiguration().addAll(connPropView.getModelObject());
+
+        // Set the model object's capabilities to capabilitiesPalette's converted Set
+        conn.getCapabilities().clear();
+        conn.getCapabilities().addAll(selectedCapabilities.isEmpty()
+                ? EnumSet.noneOf(ConnectorCapability.class)
+                : EnumSet.copyOf(selectedCapabilities));
+
+        // Reset pool configuration if all fields are null
+        if (conn.getPoolConf() != null
+                && conn.getPoolConf().getMaxIdle() == null
+                && conn.getPoolConf().getMaxObjects() == null
+                && conn.getPoolConf().getMaxWait() == null
+                && conn.getPoolConf().getMinEvictableIdleTimeMillis() == null
+                && conn.getPoolConf().getMinIdle() == null) {
+
+            conn.setPoolConf(null);
+        }
+
+        try {
+            if (connInstanceTO.getKey() == 0) {
+                connectorRestClient.create(conn);
+                send(pageRef.getPage(), Broadcast.BREADTH, new CreateEvent(
+                        conn.getKey(),
+                        conn.getDisplayName(),
+                        TopologyNode.Kind.CONNECTOR,
+                        conn.getLocation().startsWith(Topology.CONNECTOR_SERVER_LOCATION_PREFIX)
+                                ? conn.getLocation() : Topology.ROOT_NAME,
+                        target));
+            } else {
+                connectorRestClient.update(conn);
+            }
+
+            ((BasePage) pageRef.getPage()).setModalResult(true);
+            modal.close(target);
+        } catch (SyncopeClientException e) {
+            error(getString(Constants.ERROR) + ": " + e.getMessage());
+            modal.getFeedbackPanel().refresh(target);
+            ((BasePage) pageRef.getPage()).setModalResult(false);
+            LOG.error("While creating or updating connector {}", conn, e);
+        }
+    }
+
+    @Override
+    public void onError(final AjaxRequestTarget target, final Form<?> form) {
+        modal.getFeedbackPanel().refresh(target);
     }
 }

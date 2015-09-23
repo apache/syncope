@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.pages;
 
+import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.select.BootstrapSelect;
 import java.security.AccessControlException;
 import java.util.Locale;
 import org.apache.syncope.client.console.SyncopeConsoleApplication;
@@ -120,7 +121,7 @@ public class Login extends WebPage {
     /**
      * Inner class which implements (custom) Locale DropDownChoice component.
      */
-    private class LocaleDropDown extends DropDownChoice<Locale> {
+    private class LocaleDropDown extends BootstrapSelect<Locale> {
 
         private static final long serialVersionUID = 2349382679992357202L;
 
@@ -171,7 +172,7 @@ public class Login extends WebPage {
     /**
      * Inner class which implements (custom) Domain DropDownChoice component.
      */
-    private class DomainDropDown extends DropDownChoice<String> {
+    private class DomainDropDown extends BootstrapSelect<String> {
 
         private static final long serialVersionUID = -7401167913360133325L;
 

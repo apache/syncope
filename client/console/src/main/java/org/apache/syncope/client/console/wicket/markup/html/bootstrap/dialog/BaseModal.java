@@ -78,7 +78,7 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
         form = new Form<T>(FORM);
         add(form);
 
-        content = new AbstractModalPanel(this) {
+        content = new AbstractModalPanel(this, null) {
 
             private static final long serialVersionUID = 1L;
 
@@ -153,7 +153,7 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
         }
     }
 
-    public void addSumbitButton() {
+    public PrimaryModalButton addSumbitButton() {
 
         final PrimaryModalButton submit = new PrimaryModalButton(SUBMIT, SUBMIT, form) {
 
@@ -179,6 +179,8 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
             submitButton.replaceWith(submit);
             submitButton = submit;
         }
+
+        return submit;
     }
 
     @Override
@@ -195,5 +197,34 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
                 item.add(item.getModelObject());
             }
         }.setOutputMarkupId(true));
+    }
+
+    /**
+     * Generic modal event.
+     */
+    public static class ModalEvent {
+
+        /**
+         * Request target.
+         */
+        private final AjaxRequestTarget target;
+
+        /**
+         * Constructor.
+         *
+         * @param target request target.
+         */
+        public ModalEvent(final AjaxRequestTarget target) {
+            this.target = target;
+        }
+
+        /**
+         * Target getter.
+         *
+         * @return request target.
+         */
+        public AjaxRequestTarget getTarget() {
+            return target;
+        }
     }
 }

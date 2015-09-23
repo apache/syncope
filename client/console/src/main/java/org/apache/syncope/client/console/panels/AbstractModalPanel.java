@@ -30,6 +30,7 @@ import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.rest.UserSelfRestClient;
 import org.apache.syncope.client.console.wicket.markup.head.MetaHeaderItem;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.head.HeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
@@ -53,6 +54,10 @@ public class AbstractModalPanel extends Panel {
     protected static final String SUBMIT = "submit";
 
     protected static final String APPLY = "apply";
+
+    protected static final String FORM = "form";
+
+    protected final PageReference pageRef;
 
     protected final HeaderItem meta = new MetaHeaderItem("X-UA-Compatible", "IE=edge");
 
@@ -86,8 +91,9 @@ public class AbstractModalPanel extends Panel {
     @SpringBean
     protected MIMETypesLoader mimeTypesInitializer;
 
-    public AbstractModalPanel(final BaseModal<?> modal) {
+    public AbstractModalPanel(final BaseModal<?> modal, final PageReference pageRef) {
         super(BaseModal.getContentId());
+        this.pageRef = pageRef;
         this.modal = modal;
     }
 

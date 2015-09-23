@@ -18,17 +18,17 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.wicket.PageReference;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.Model;
 
-public class FailureMessageModal extends ModalContent {
+public class FailureMessageModal extends AbstractModalPanel {
 
     private static final long serialVersionUID = 9216117990503199258L;
 
-    public FailureMessageModal(final PageReference pageRef, final ModalWindow window, final String failureMessage) {
-        super(window, pageRef);
+    public FailureMessageModal(final BaseModal<?> modal, final PageReference pageRef, final String failureMessage) {
+        super(modal, pageRef);
         final Label executionFailureMessage;
         if (!failureMessage.isEmpty()) {
             executionFailureMessage = new Label("failureMessage", new Model<String>(failureMessage));

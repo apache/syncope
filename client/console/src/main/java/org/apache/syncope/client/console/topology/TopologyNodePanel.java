@@ -18,6 +18,9 @@
  */
 package org.apache.syncope.client.console.topology;
 
+import static org.apache.wicket.Component.ENABLE;
+
+import java.io.Serializable;
 import java.text.MessageFormat;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.Constants;
@@ -27,19 +30,22 @@ import org.apache.syncope.client.console.panels.ResourceModal;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
+import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.IAjaxIndicatorAware;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.behavior.AttributeAppender;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,7 +56,7 @@ public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
 
     protected static final Logger LOG = LoggerFactory.getLogger(TopologyNodePanel.class);
 
-    private final ModalWindow modal;
+    private final BaseModal<Serializable> modal;
 
     @SpringBean
     private ResourceRestClient resourceRestClient;
@@ -61,8 +67,8 @@ public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
     public TopologyNodePanel(
             final String id,
             final TopologyNode node,
-            final PageReference pageRef,
-            final ModalWindow modal) {
+            final BaseModal<Serializable> modal,
+            final PageReference pageRef) {
         super(id);
 
         final String resourceName = node.getDisplayName().length() > 20
@@ -124,15 +130,23 @@ public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
 
             @Override
             public void onClickInternal(final AjaxRequestTarget target) {
+                final ConnInstanceTO model = new ConnInstanceTO();
+                model.setLocation(node.getKey().toString());
 
-                final ConnInstanceTO connectorTO = new ConnInstanceTO();
-                connectorTO.setLocation(node.getKey().toString());
-                modal.setContent(new ConnectorModal(modal, pageRef, connectorTO));
-                modal.setTitle(MessageFormat.format(getString("connector.new"), node.getKey()));
-                modal.show(target);
+                modal.setFormModel(model);
+                target.add(modal.setContent(new ConnectorModal(modal, pageRef, model)));
+
+                modal.header(new Model<String>(MessageFormat.format(getString("connector.new"), node.getKey())));
+
+                MetaDataRoleAuthorizationStrategy.
+                        authorize(modal.addSumbitButton(), ENABLE, Entitlement.CONNECTOR_CREATE);
+
+                modal.show(true);
             }
         };
         fragment.add(create);
+
+        MetaDataRoleAuthorizationStrategy.authorize(create, ENABLE, Entitlement.CONNECTOR_CREATE);
 
         return fragment;
     }
@@ -158,21 +172,32 @@ public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
         };
         fragment.add(delete);
 
+        MetaDataRoleAuthorizationStrategy.authorize(delete, ENABLE, Entitlement.CONNECTOR_DELETE);
+
         final AjaxLink<String> create = new ClearIndicatingAjaxLink<String>("create", pageRef) {
 
             private static final long serialVersionUID = 3776750333491622263L;
 
             @Override
             public void onClickInternal(final AjaxRequestTarget target) {
-                final ResourceTO resourceTO = new ResourceTO();
-                resourceTO.setConnector(Long.class.cast(node.getKey()));
-                resourceTO.setConnectorDisplayName(node.getDisplayName());
-                modal.setContent(new ResourceModal(modal, pageRef, resourceTO, true));
-                modal.setTitle(getString("resource.new"));
-                modal.show(target);
+                final ResourceTO model = new ResourceTO();
+                model.setConnector(Long.class.cast(node.getKey()));
+                model.setConnectorDisplayName(node.getDisplayName());
+
+                modal.setFormModel(model);
+                target.add(modal.setContent(new ResourceModal(modal, pageRef, model, true)));
+
+                modal.header(new Model<String>(MessageFormat.format(getString("resource.new"), node.getKey())));
+
+                MetaDataRoleAuthorizationStrategy.
+                        authorize(modal.addSumbitButton(), ENABLE, Entitlement.RESOURCE_CREATE);
+
+                modal.show(true);
             }
         };
         fragment.add(create);
+
+        MetaDataRoleAuthorizationStrategy.authorize(create, ENABLE, Entitlement.RESOURCE_CREATE);
 
         final AjaxLink<String> edit = new ClearIndicatingAjaxLink<String>("edit", pageRef) {
 
@@ -180,17 +205,22 @@ public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
 
             @Override
             public void onClickInternal(final AjaxRequestTarget target) {
+                final ConnInstanceTO model = connectorRestClient.read(Long.class.cast(node.getKey()));
 
-                modal.setContent(new ConnectorModal(
-                        modal,
-                        pageRef,
-                        connectorRestClient.read(Long.class.cast(node.getKey()))));
+                modal.setFormModel(model);
+                target.add(modal.setContent(new ConnectorModal(modal, pageRef, model)));
 
-                modal.setTitle(MessageFormat.format(getString("connector.edit"), node.getKey()));
-                modal.show(target);
+                modal.header(new Model<String>(MessageFormat.format(getString("connector.edit"), node.getKey())));
+
+                MetaDataRoleAuthorizationStrategy.
+                        authorize(modal.addSumbitButton(), ENABLE, Entitlement.CONNECTOR_UPDATE);
+
+                modal.show(true);
             }
         };
         fragment.add(edit);
+
+        MetaDataRoleAuthorizationStrategy.authorize(edit, ENABLE, Entitlement.CONNECTOR_UPDATE);
 
         return fragment;
     }
@@ -216,6 +246,8 @@ public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
         };
         fragment.add(delete);
 
+        MetaDataRoleAuthorizationStrategy.authorize(delete, ENABLE, Entitlement.RESOURCE_DELETE);
+
         final AjaxLink<String> edit = new ClearIndicatingAjaxLink<String>("edit", pageRef) {
 
             private static final long serialVersionUID = 3776750333491622263L;
@@ -223,17 +255,22 @@ public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
             @Override
             public void onClickInternal(final AjaxRequestTarget target) {
 
-                modal.setContent(new ResourceModal(
-                        modal,
-                        pageRef,
-                        resourceRestClient.read(node.getKey().toString()),
-                        false));
+                final ResourceTO model = resourceRestClient.read(node.getKey().toString());
 
-                modal.setTitle(MessageFormat.format(getString("resource.edit"), node.getKey()));
-                modal.show(target);
+                modal.setFormModel(model);
+                target.add(modal.setContent(new ResourceModal(modal, pageRef, model, false)));
+
+                modal.header(new Model<String>(MessageFormat.format(getString("resource.edit"), node.getKey())));
+
+                MetaDataRoleAuthorizationStrategy.
+                        authorize(modal.addSumbitButton(), ENABLE, Entitlement.RESOURCE_UPDATE);
+
+                modal.show(true);
             }
         };
         fragment.add(edit);
+
+        MetaDataRoleAuthorizationStrategy.authorize(edit, ENABLE, Entitlement.RESOURCE_UPDATE);
 
         return fragment;
     }

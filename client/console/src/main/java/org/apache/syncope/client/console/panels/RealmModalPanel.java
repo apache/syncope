@@ -39,8 +39,6 @@ public class RealmModalPanel extends AbstractModalPanel {
 
     protected RealmTO realmTO;
 
-    private final PageReference pageRef;
-
     private boolean newRealm = false;
 
     @SpringBean
@@ -65,10 +63,9 @@ public class RealmModalPanel extends AbstractModalPanel {
             final String entitlement,
             final boolean newRealm) {
 
-        super(modal);
-        this.newRealm = newRealm;
+        super(modal, pageRef);
 
-        this.pageRef = pageRef;
+        this.newRealm = newRealm;
         this.realmTO = realmTO;
         this.parentPath = parentPath;
 

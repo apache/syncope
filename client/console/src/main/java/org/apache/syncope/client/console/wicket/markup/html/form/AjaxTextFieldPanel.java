@@ -70,7 +70,7 @@ public class AjaxTextFieldPanel extends FieldPanel<String> implements Cloneable 
                 return result.iterator();
             }
         };
-        
+
         add(field.setLabel(new ResourceModel(name, name)).setOutputMarkupId(true));
 
         if (enableOnChange && !isReadOnly()) {
@@ -84,7 +84,7 @@ public class AjaxTextFieldPanel extends FieldPanel<String> implements Cloneable 
                 }
             });
         }
-        
+
         add(new Label("label", new ResourceModel(name, name)));
     }
 

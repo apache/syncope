@@ -191,7 +191,10 @@ div.basepage-content{
 }
 
 .modal-content {
-  overflow: hidden;
+  max-height: 600px;
+  max-width: 1240px;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .modal-open .modal {

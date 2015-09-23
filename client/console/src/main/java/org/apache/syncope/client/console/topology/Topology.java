@@ -29,8 +29,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.AbstractResourceModal.CreateEvent;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
@@ -64,11 +66,7 @@ public class Topology extends BasePage {
 
     private final int origY = 2800;
 
-    private static final int RESOURCE_MODAL_WIN_HEIGHT = 700;
-
-    private static final int RESOURCE_MODAL_WIN_WIDTH = 1000;
-
-    private final ModalWindow modal;
+    private final BaseModal<Serializable> modal;
 
     private final WebMarkupContainer newlyCreatedContainer;
 
@@ -140,13 +138,24 @@ public class Topology extends BasePage {
     }
 
     public Topology() {
-        modal = new ModalWindow("modal");
+        modal = new BaseModal<>("modal");
         add(modal);
 
-        modal.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
-        modal.setInitialHeight(RESOURCE_MODAL_WIN_HEIGHT);
-        modal.setInitialWidth(RESOURCE_MODAL_WIN_WIDTH);
-        modal.setCookieName("resource-modal");
+        modal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+
+            private static final long serialVersionUID = 8804221891699487139L;
+
+            @Override
+            public void onClose(final AjaxRequestTarget target) {
+                modal.show(false);
+
+                if (isModalResult()) {
+                    info(getString(Constants.OPERATION_SUCCEEDED));
+                    feedbackPanel.refresh(target);
+                    setModalResult(false);
+                }
+            }
+        });
 
         add(new WebSocketBehavior());
 
@@ -509,7 +518,7 @@ public class Topology extends BasePage {
 
     private TopologyNodePanel topologyNodePanel(final String id, final TopologyNode node) {
 
-        final TopologyNodePanel panel = new TopologyNodePanel(id, node, getPageReference(), modal);
+        final TopologyNodePanel panel = new TopologyNodePanel(id, node, modal, getPageReference());
         panel.setMarkupId(String.valueOf(node.getKey()));
         panel.setOutputMarkupId(true);
 
