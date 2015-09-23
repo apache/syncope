@@ -117,7 +117,7 @@ public class ResourceDetailsPanel extends Panel {
                 "actionsClasses",
                 "actionsClasses",
                 new PropertyModel<List<String>>(resourceTO, "propagationActionsClassNames"),
-                template);
+                template, true);
 
         container.add(actions);
 

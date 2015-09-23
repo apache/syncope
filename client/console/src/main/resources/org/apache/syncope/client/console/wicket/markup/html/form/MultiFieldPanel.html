@@ -26,12 +26,13 @@ under the License.
         <!--<label wicket:id="field-label">[LABEL]</label><span wicket:id="required"/>-->
         <label wicket:id="field-label">[LABEL]</label>
       </wicket:enclosure>
+
       <span wicket:id="multiValueContainer">
         <span wicket:id="content">[content]</span>
       </span>
 
       <wicket:fragment wicket:id="noDataFragment">
-        <div class="input-group form-group">
+        <div class="input-group">
           <div class="form-control" style="background-color:#EEE">
             <label wicket:id="field-label">[LABEL]</label>
           </div>
@@ -41,7 +42,7 @@ under the License.
 
       <wicket:fragment wicket:id="dataFragment">
         <span wicket:id="view">
-          <div class="input-group form-group">
+          <div class="input-group">
             <span wicket:id="panel">[form field]</span>
             <div class="input-group-addon">
               <a wicket:id="drop"><i class="fa fa-minus"></i></a>

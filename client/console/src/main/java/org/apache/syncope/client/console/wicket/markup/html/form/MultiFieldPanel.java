@@ -72,7 +72,7 @@ public class MultiFieldPanel<E extends Serializable> extends AbstractFieldPanel<
         // -----------------------
 
         if (model.getObject().isEmpty()) {
-            container.add(getNoDataFragment(model, name));
+            container.addOrReplace(getNoDataFragment(model, name));
         } else {
             container.addOrReplace(getDataFragment(model, name));
         }
@@ -108,15 +108,6 @@ public class MultiFieldPanel<E extends Serializable> extends AbstractFieldPanel<
                         }
                     });
                 }
-
-                fieldPanel.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_BLUR) {
-
-                    private static final long serialVersionUID = -1107858522700306810L;
-
-                    @Override
-                    protected void onUpdate(final AjaxRequestTarget target) {
-                    }
-                });
 
                 fieldPanel.setNewModel(item);
                 item.add(fieldPanel.hideLabel().setRenderBodyOnly(true));
