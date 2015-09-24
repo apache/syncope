@@ -379,8 +379,8 @@ public class PropagationManagerImpl implements PropagationManager {
                     if (!deleteOnResource) {
                         task.setAnyKey(any.getKey());
                     }
-                    task.setPropagationOperation(operation);
-                    task.setPropagationMode(resource.getPropagationMode());
+                    task.setOperation(operation);
+                    task.setMode(resource.getPropagationMode());
                     task.setOldConnObjectKey(propByRes.getOldConnObjectKey(resource.getKey()));
 
                     Pair<String, Set<Attribute>> preparedAttrs = MappingUtils.prepareAttrs(

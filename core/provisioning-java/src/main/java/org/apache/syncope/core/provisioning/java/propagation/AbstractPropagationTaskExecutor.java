@@ -303,7 +303,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 LOG.debug("Delete {} on {}", beforeObj.getUid(), task.getResource().getKey());
 
                 connector.delete(
-                        task.getPropagationMode(),
+                        task.getMode(),
                         beforeObj.getObjectClass(),
                         beforeObj.getUid(),
                         null,
@@ -346,7 +346,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 action.before(task, beforeObj);
             }
 
-            switch (task.getPropagationOperation()) {
+            switch (task.getOperation()) {
                 case CREATE:
                 case UPDATE:
                     createOrUpdate(task, beforeObj, connector, propagationAttempted);
@@ -359,7 +359,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 default:
             }
 
-            execution.setStatus(task.getPropagationMode() == PropagationMode.ONE_PHASE
+            execution.setStatus(task.getMode() == PropagationMode.ONE_PHASE
                     ? PropagationTaskExecStatus.SUCCESS.name()
                     : PropagationTaskExecStatus.SUBMITTED.name());
 
@@ -390,14 +390,14 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             }
 
             try {
-                execution.setStatus(task.getPropagationMode() == PropagationMode.ONE_PHASE
+                execution.setStatus(task.getMode() == PropagationMode.ONE_PHASE
                         ? PropagationTaskExecStatus.FAILURE.name()
                         : PropagationTaskExecStatus.UNSUBMITTED.name());
             } catch (Exception wft) {
                 LOG.error("While executing KO action on {}", execution, wft);
             }
 
-            propagationAttempted.add(task.getPropagationOperation().name().toLowerCase());
+            propagationAttempted.add(task.getOperation().name().toLowerCase());
 
             for (PropagationActions action : actions) {
                 action.onError(task, execution, e);
@@ -449,7 +449,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 AuditElements.EventCategoryType.PROPAGATION,
                 task.getAnyTypeKind().name().toLowerCase(),
                 task.getResource().getKey(),
-                task.getPropagationOperation().name().toLowerCase(),
+                task.getOperation().name().toLowerCase(),
                 result,
                 beforeObj, // searching for before object is too much expensive ... 
                 new Object[] { execution, afterObj },
@@ -459,7 +459,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 AuditElements.EventCategoryType.PROPAGATION,
                 task.getAnyTypeKind().name().toLowerCase(),
                 task.getResource().getKey(),
-                task.getPropagationOperation().name().toLowerCase(),
+                task.getOperation().name().toLowerCase(),
                 result,
                 beforeObj, // searching for before object is too much expensive ... 
                 new Object[] { execution, afterObj },
@@ -488,7 +488,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
         final boolean failed = !PropagationTaskExecStatus.valueOf(execution.getStatus()).isSuccessful();
 
-        switch (task.getPropagationOperation()) {
+        switch (task.getOperation()) {
 
             case CREATE:
                 result = (failed && task.getResource().getCreateTraceLevel().ordinal() >= TraceLevel.FAILURES.ordinal())
@@ -530,8 +530,8 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
         ConnectorObject obj = null;
         try {
-            obj = connector.getObject(task.getPropagationMode(),
-                    task.getPropagationOperation(),
+            obj = connector.getObject(task.getMode(),
+                    task.getOperation(),
                     new ObjectClass(task.getObjectClassName()),
                     new Uid(connObjectKey),
                     connector.getOperationOptions(MappingUtils.getMappingItems(provision, MappingPurpose.PROPAGATION)));

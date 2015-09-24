@@ -55,7 +55,7 @@ public class ReportTest extends AbstractTest {
 
     @Test
     public void save() {
-        int beforeCount = reportDAO.count();
+        int beforeCount = reportDAO.findAll().size();
 
         Report report = entityFactory.newEntity(Report.class);
         report.setName("new report");
@@ -66,7 +66,7 @@ public class ReportTest extends AbstractTest {
         assertNotNull(report);
         assertNotNull(report.getKey());
 
-        int afterCount = reportDAO.count();
+        int afterCount = reportDAO.findAll().size();
         assertEquals(afterCount, beforeCount + 1);
     }
 

@@ -19,10 +19,10 @@
 package org.apache.syncope.client.lib.builders;
 
 import java.util.ArrayList;
-import org.apache.syncope.common.rest.api.beans.ListQuery;
+import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.beans.AnyListQuery;
 
-public class AnyListQueryBuilder extends ListQueryBuilder {
+public class AnyListQueryBuilder extends AnyQueryBuilder {
 
     private final AnyListQuery instance = new AnyListQuery();
 
@@ -57,7 +57,7 @@ public class AnyListQueryBuilder extends ListQueryBuilder {
 
     @Override
     public AnyListQuery build() {
-        ListQuery lq = super.build();
+        AnyQuery lq = super.build();
         instance.setPage(lq.getPage());
         instance.setSize(lq.getSize());
         instance.setOrderBy(lq.getOrderBy());

@@ -18,19 +18,15 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
-import java.util.List;
 import javax.persistence.EntityManager;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.core.misc.security.AuthContextUtils;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.DAO;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.orm.jpa.EntityManagerFactoryUtils;
-import org.springframework.util.ReflectionUtils;
 
 @Configurable
 public abstract class AbstractDAO<E extends Entity<KEY>, KEY> implements DAO<E, KEY> {
@@ -46,27 +42,6 @@ public abstract class AbstractDAO<E extends Entity<KEY>, KEY> implements DAO<E, 
         }
 
         return entityManager;
-    }
-
-    protected String toOrderByStatement(final Class<? extends Entity<KEY>> beanClass, final String prefix,
-            final List<OrderByClause> orderByClauses) {
-
-        StringBuilder statement = new StringBuilder();
-
-        for (OrderByClause clause : orderByClauses) {
-            String field = clause.getField().trim();
-            if (ReflectionUtils.findField(beanClass, field) != null) {
-                if (StringUtils.isNotBlank(prefix)) {
-                    statement.append(prefix).append('.');
-                }
-                statement.append(field).append(' ').append(clause.getDirection().name());
-            }
-        }
-
-        if (statement.length() > 0) {
-            statement.insert(0, "ORDER BY ");
-        }
-        return statement.toString();
     }
 
     @Override

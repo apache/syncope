@@ -25,6 +25,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -37,6 +38,7 @@ import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
@@ -216,7 +218,8 @@ public class ResourceTest extends AbstractTest {
         // -------------------------------------
 
         // Get tasks
-        List<PropagationTask> propagationTasks = taskDAO.findAll(resource, TaskType.PROPAGATION);
+        List<PropagationTask> propagationTasks = taskDAO.findAll(
+                TaskType.PROPAGATION, resource, null, null, -1, -1, Collections.<OrderByClause>emptyList());
         assertFalse(propagationTasks.isEmpty());
 
         // delete resource

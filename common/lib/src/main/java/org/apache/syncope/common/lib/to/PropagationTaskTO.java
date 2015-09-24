@@ -30,9 +30,9 @@ public class PropagationTaskTO extends AbstractTaskTO {
 
     private static final long serialVersionUID = 386450127003321197L;
 
-    private PropagationMode propagationMode;
+    private PropagationMode mode;
 
-    private ResourceOperation propagationOperation;
+    private ResourceOperation operation;
 
     private String connObjectKey;
 
@@ -64,12 +64,12 @@ public class PropagationTaskTO extends AbstractTaskTO {
         this.oldConnObjectKey = oldConnObjectKey;
     }
 
-    public PropagationMode getPropagationMode() {
-        return propagationMode;
+    public PropagationMode getMode() {
+        return mode;
     }
 
-    public void setPropagationMode(final PropagationMode propagationMode) {
-        this.propagationMode = propagationMode;
+    public void setPropagationMode(final PropagationMode mode) {
+        this.mode = mode;
     }
 
     public String getResource() {
@@ -80,12 +80,12 @@ public class PropagationTaskTO extends AbstractTaskTO {
         this.resource = resource;
     }
 
-    public ResourceOperation getPropagationOperation() {
-        return propagationOperation;
+    public ResourceOperation getOperation() {
+        return operation;
     }
 
-    public void setPropagationOperation(final ResourceOperation propagationOperation) {
-        this.propagationOperation = propagationOperation;
+    public void setOperation(final ResourceOperation operation) {
+        this.operation = operation;
     }
 
     public String getXmlAttributes() {

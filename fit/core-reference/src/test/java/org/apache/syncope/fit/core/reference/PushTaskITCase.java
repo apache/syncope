@@ -81,7 +81,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
     @Test
     public void list() {
         PagedResult<PushTaskTO> tasks = taskService.list(
-                TaskType.PUSH, SyncopeClient.getListQueryBuilder().build());
+                TaskType.PUSH, SyncopeClient.getTaskQueryBuilder().build());
         assertFalse(tasks.getResult().isEmpty());
         for (AbstractTaskTO task : tasks.getResult()) {
             if (!(task instanceof PushTaskTO)) {

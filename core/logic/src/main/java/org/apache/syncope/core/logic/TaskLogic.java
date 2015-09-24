@@ -32,6 +32,7 @@ import org.apache.syncope.common.lib.to.AbstractTaskTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.SyncTaskTO;
 import org.apache.syncope.common.lib.to.TaskExecTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.common.lib.types.JobAction;
@@ -56,6 +57,7 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecu
 import org.apache.syncope.core.provisioning.api.job.JobInstanceLoader;
 import org.apache.syncope.core.logic.notification.NotificationJobDelegate;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
+import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.provisioning.java.job.TaskJob;
 import org.quartz.JobDataMap;
 import org.quartz.JobKey;
@@ -75,6 +77,9 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
 
     @Autowired
     private ConfDAO confDAO;
+
+    @Autowired
+    private ExternalResourceDAO resourceDAO;
 
     @Autowired
     private TaskDataBinder binder;
@@ -146,23 +151,27 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
     }
 
     @PreAuthorize("hasRole('" + Entitlement.TASK_LIST + "')")
-    public int count(final TaskType taskType) {
-        return taskDAO.count(taskType);
+    public int count(
+            final TaskType type, final String resource, final AnyTypeKind anyTypeKind, final Long anyTypeKey) {
+
+        return taskDAO.count(type, resourceDAO.find(resource), anyTypeKind, anyTypeKey);
     }
 
     @PreAuthorize("hasRole('" + Entitlement.TASK_LIST + "')")
     @SuppressWarnings("unchecked")
-    public <T extends AbstractTaskTO> List<T> list(final TaskType taskType,
+    public <T extends AbstractTaskTO> List<T> list(
+            final TaskType type, final String resource, final AnyTypeKind anyTypeKind, final Long anyTypeKey,
             final int page, final int size, final List<OrderByClause> orderByClauses) {
 
-        final TaskUtils taskUtilss = taskUtilsFactory.getInstance(taskType);
+        final TaskUtils taskUtils = taskUtilsFactory.getInstance(type);
 
-        return CollectionUtils.collect(taskDAO.findAll(page, size, orderByClauses, taskType),
+        return CollectionUtils.collect(taskDAO.findAll(
+                type, resourceDAO.find(resource), anyTypeKind, anyTypeKey, page, size, orderByClauses),
                 new Transformer<Task, T>() {
 
                     @Override
                     public T transform(final Task task) {
-                        return (T) binder.getTaskTO(task, taskUtilss);
+                        return (T) binder.getTaskTO(task, taskUtils);
                     }
                 }, new ArrayList<T>());
     }
@@ -250,8 +259,8 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
         TaskUtils taskUtils = taskUtilsFactory.getInstance(exec.getTask());
         if (TaskType.PROPAGATION == taskUtils.getType()) {
             PropagationTask task = (PropagationTask) exec.getTask();
-            if (task.getPropagationMode() != PropagationMode.TWO_PHASES) {
-                sce.getElements().add("Propagation mode: " + task.getPropagationMode());
+            if (task.getMode() != PropagationMode.TWO_PHASES) {
+                sce.getElements().add("Propagation mode: " + task.getMode());
             }
         } else {
             sce.getElements().add("Task type: " + taskUtils);

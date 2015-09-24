@@ -18,12 +18,9 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
-import java.util.Collections;
 import java.util.List;
-import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import org.apache.syncope.core.persistence.api.dao.ReportDAO;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.jpa.entity.JPAReport;
 import org.springframework.stereotype.Repository;
@@ -41,30 +38,10 @@ public class JPAReportDAO extends AbstractDAO<Report, Long> implements ReportDAO
     @Transactional(readOnly = true)
     @Override
     public List<Report> findAll() {
-        return findAll(-1, -1, Collections.<OrderByClause>emptyList());
-    }
-
-    @Override
-    public List<Report> findAll(final int page, final int itemsPerPage, final List<OrderByClause> orderByClauses) {
-        final TypedQuery<Report> query = entityManager().createQuery(
-                "SELECT e FROM " + JPAReport.class.getSimpleName() + " e "
-                + toOrderByStatement(Report.class, "e", orderByClauses), Report.class);
-
-        query.setFirstResult(itemsPerPage * (page <= 0
-                ? 0
-                : page - 1));
-
-        if (itemsPerPage > 0) {
-            query.setMaxResults(itemsPerPage);
-        }
+        TypedQuery<Report> query = entityManager().createQuery(
+                "SELECT e FROM " + JPAReport.class.getSimpleName() + " e", Report.class);
 
         return query.getResultList();
-    }
-
-    @Override
-    public int count() {
-        Query countQuery = entityManager().createNativeQuery("SELECT COUNT(id) FROM " + JPAReport.TABLE);
-        return ((Number) countQuery.getSingleResult()).intValue();
     }
 
     @Override

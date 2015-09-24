@@ -25,14 +25,12 @@ import java.util.List;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.ReportExecTO;
 import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.JobStatusType;
 import org.apache.syncope.common.lib.types.ReportExecExportFormat;
 import org.apache.syncope.common.rest.api.RESTHeaders;
-import org.apache.syncope.common.rest.api.beans.ListQuery;
 import org.apache.syncope.common.rest.api.service.ReportService;
 import org.apache.syncope.core.logic.ReportLogic;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
@@ -60,15 +58,8 @@ public class ReportServiceImpl extends AbstractServiceImpl implements ReportServ
     }
 
     @Override
-    public PagedResult<ReportTO> list(final ListQuery listQuery) {
-        return buildPagedResult(
-                logic.list(
-                        listQuery.getPage(),
-                        listQuery.getSize(),
-                        getOrderByClauses(listQuery.getOrderBy())),
-                listQuery.getPage(),
-                listQuery.getSize(),
-                logic.count());
+    public List<ReportTO> list() {
+        return logic.list();
     }
 
     @Override

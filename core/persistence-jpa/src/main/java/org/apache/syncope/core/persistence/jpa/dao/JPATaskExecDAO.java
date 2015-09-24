@@ -67,9 +67,12 @@ public class JPATaskExecDAO extends AbstractDAO<TaskExec, Long> implements TaskE
 
     @Override
     public List<TaskExec> findAll(final TaskType type) {
-        StringBuilder queryString = new StringBuilder("SELECT e FROM ").append(JPATaskExec.class.getSimpleName()).
-                append(" e WHERE e.task IN (").append("SELECT t FROM ").
-                append(taskDAO.getEntityReference(type).getSimpleName()).append(" t)");
+        StringBuilder queryString = new StringBuilder("SELECT e FROM ").
+                append(JPATaskExec.class.getSimpleName()).
+                append(" e WHERE e.task IN (").
+                append("SELECT t FROM ").
+                append(taskDAO.getEntityReference(type).getSimpleName()).
+                append(" t)");
 
         TypedQuery<TaskExec> query = entityManager().createQuery(queryString.toString(), TaskExec.class);
         return query.getResultList();

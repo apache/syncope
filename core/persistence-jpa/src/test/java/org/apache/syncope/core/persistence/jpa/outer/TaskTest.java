@@ -24,6 +24,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -40,12 +41,12 @@ import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskExecDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.persistence.api.entity.task.SyncTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
-import org.apache.syncope.core.persistence.api.entity.AnyTemplate;
 import org.apache.syncope.core.persistence.api.entity.task.AnyTemplateSyncTask;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
@@ -92,8 +93,8 @@ public class TaskTest extends AbstractTest {
         PropagationTask task = entityFactory.newEntity(PropagationTask.class);
         task.setResource(resource);
         task.setAnyTypeKind(AnyTypeKind.USER);
-        task.setPropagationMode(PropagationMode.TWO_PHASES);
-        task.setPropagationOperation(ResourceOperation.CREATE);
+        task.setMode(PropagationMode.TWO_PHASES);
+        task.setOperation(ResourceOperation.CREATE);
         task.setConnObjectKey("one@two.com");
 
         Set<Attribute> attributes = new HashSet<>();
@@ -110,7 +111,9 @@ public class TaskTest extends AbstractTest {
         taskDAO.flush();
 
         resource = resourceDAO.find("ws-target-resource-1");
-        assertTrue(taskDAO.findAll(resource, TaskType.PROPAGATION).contains(task));
+        assertTrue(taskDAO.findAll(
+                TaskType.PROPAGATION, resource, null, null, -1, -1, Collections.<OrderByClause>emptyList()).
+                contains(task));
     }
 
     @Test

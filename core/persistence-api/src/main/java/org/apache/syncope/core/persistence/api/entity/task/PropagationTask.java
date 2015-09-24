@@ -43,13 +43,13 @@ public interface PropagationTask extends Task {
 
     void setObjectClassName(String objectClassName);
 
-    PropagationMode getPropagationMode();
+    PropagationMode getMode();
 
-    void setPropagationMode(PropagationMode propagationMode);
+    void setMode(PropagationMode mode);
 
-    ResourceOperation getPropagationOperation();
+    ResourceOperation getOperation();
 
-    void setPropagationOperation(ResourceOperation operation);
+    void setOperation(ResourceOperation operation);
 
     Long getAnyKey();
 

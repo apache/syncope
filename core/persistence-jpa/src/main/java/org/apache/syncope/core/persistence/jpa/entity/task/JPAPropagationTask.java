@@ -53,13 +53,13 @@ public class JPAPropagationTask extends AbstractTask implements PropagationTask 
      * @see PropagationMode
      */
     @Enumerated(EnumType.STRING)
-    private PropagationMode propagationMode;
+    private PropagationMode mode;
 
     /**
      * @see ResourceOperation
      */
     @Enumerated(EnumType.STRING)
-    private ResourceOperation propagationOperation;
+    private ResourceOperation operation;
 
     /**
      * The connObjectKey on the external resource.
@@ -132,26 +132,26 @@ public class JPAPropagationTask extends AbstractTask implements PropagationTask 
 
     @Override
 
-    public PropagationMode getPropagationMode() {
-        return propagationMode;
+    public PropagationMode getMode() {
+        return mode;
     }
 
     @Override
 
-    public void setPropagationMode(final PropagationMode propagationMode) {
-        this.propagationMode = propagationMode;
+    public void setMode(final PropagationMode mode) {
+        this.mode = mode;
     }
 
     @Override
 
-    public ResourceOperation getPropagationOperation() {
-        return propagationOperation;
+    public ResourceOperation getOperation() {
+        return operation;
     }
 
     @Override
 
-    public void setPropagationOperation(final ResourceOperation propagationOperation) {
-        this.propagationOperation = propagationOperation;
+    public void setOperation(final ResourceOperation operation) {
+        this.operation = operation;
     }
 
     @Override

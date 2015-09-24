@@ -16,26 +16,34 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.rest.api.beans;
+package org.apache.syncope.client.lib.builders;
 
-import java.util.List;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.MatrixParam;
-import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.rest.api.beans.AnyQuery;
 
-public class AnyListQuery extends AnyQuery {
+public class AnyQueryBuilder extends AbstractQueryBuilder<AnyQuery, AnyQueryBuilder> {
 
-    private static final long serialVersionUID = -5197167078435619636L;
-
-    private List<String> realms;
-
-    public List<String> getRealms() {
-        return realms;
+    @Override
+    protected AnyQuery newInstance() {
+        return new AnyQuery();
     }
 
-    @DefaultValue(SyncopeConstants.ROOT_REALM)
-    @MatrixParam("realm")
-    public void setRealms(final List<String> realms) {
-        this.realms = realms;
+    @Override
+    public AnyQueryBuilder page(final Integer page) {
+        return AnyQueryBuilder.class.cast(super.page(page));
+    }
+
+    @Override
+    public AnyQueryBuilder size(final Integer size) {
+        return AnyQueryBuilder.class.cast(super.size(size));
+    }
+
+    @Override
+    public AnyQueryBuilder orderBy(final String orderBy) {
+        return AnyQueryBuilder.class.cast(super.orderBy(orderBy));
+    }
+
+    public AnyQueryBuilder details(final boolean details) {
+        getInstance().setDetails(details);
+        return this;
     }
 }

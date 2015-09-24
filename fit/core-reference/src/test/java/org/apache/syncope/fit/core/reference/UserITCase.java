@@ -146,7 +146,7 @@ public class UserITCase extends AbstractITCase {
         // get task list
         PagedResult<PropagationTaskTO> tasks = taskService.list(
                 TaskType.PROPAGATION,
-                SyncopeClient.getListQueryBuilder().page(1).size(1).build());
+                SyncopeClient.getTaskQueryBuilder().page(1).size(1).build());
         assertNotNull(tasks);
         assertFalse(tasks.getResult().isEmpty());
 
@@ -163,7 +163,7 @@ public class UserITCase extends AbstractITCase {
         // get the new task list
         tasks = taskService.list(
                 TaskType.PROPAGATION,
-                SyncopeClient.getListQueryBuilder().page(1).size(1).build());
+                SyncopeClient.getTaskQueryBuilder().page(1).size(1).build());
         assertNotNull(tasks);
         assertFalse(tasks.getResult().isEmpty());
 
@@ -348,7 +348,7 @@ public class UserITCase extends AbstractITCase {
         // get task list
         PagedResult<PropagationTaskTO> tasks = taskService.list(
                 TaskType.PROPAGATION,
-                SyncopeClient.getListQueryBuilder().page(1).size(1).build());
+                SyncopeClient.getTaskQueryBuilder().page(1).size(1).build());
         assertNotNull(tasks);
         assertFalse(tasks.getResult().isEmpty());
 
@@ -399,7 +399,7 @@ public class UserITCase extends AbstractITCase {
         // get the new task list
         tasks = taskService.list(
                 TaskType.PROPAGATION,
-                SyncopeClient.getListQueryBuilder().page(1).size(1).build());
+                SyncopeClient.getTaskQueryBuilder().page(1).size(1).build());
         assertNotNull(tasks);
         assertFalse(tasks.getResult().isEmpty());
 
@@ -694,7 +694,7 @@ public class UserITCase extends AbstractITCase {
     @Test
     public void updatePasswordOnly() {
         int beforeTasks = taskService.list(TaskType.PROPAGATION,
-                SyncopeClient.getListQueryBuilder().page(1).size(1).build()).getTotalCount();
+                SyncopeClient.getTaskQueryBuilder().page(1).size(1).build()).getTotalCount();
         assertFalse(beforeTasks <= 0);
 
         UserTO userTO = getUniqueSampleTO("pwdonly@t.com");
@@ -712,7 +712,7 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(userTO.getChangePwdDate());
 
         int afterTasks = taskService.list(TaskType.PROPAGATION,
-                SyncopeClient.getListQueryBuilder().page(1).size(1).build()).getTotalCount();
+                SyncopeClient.getTaskQueryBuilder().page(1).size(1).build()).getTotalCount();
         assertFalse(beforeTasks <= 0);
 
         assertTrue(beforeTasks < afterTasks);
@@ -724,7 +724,7 @@ public class UserITCase extends AbstractITCase {
         // get task list
         PagedResult<PropagationTaskTO> tasks = taskService.list(
                 TaskType.PROPAGATION,
-                SyncopeClient.getListQueryBuilder().page(1).size(1).build());
+                SyncopeClient.getTaskQueryBuilder().page(1).size(1).build());
         assertNotNull(tasks);
         assertFalse(tasks.getResult().isEmpty());
 
@@ -745,7 +745,7 @@ public class UserITCase extends AbstractITCase {
         // get the new task list
         tasks = taskService.list(
                 TaskType.PROPAGATION,
-                SyncopeClient.getListQueryBuilder().page(1).size(1).build());
+                SyncopeClient.getTaskQueryBuilder().page(1).size(1).build());
         assertNotNull(tasks);
         assertFalse(tasks.getResult().isEmpty());
 
@@ -771,7 +771,7 @@ public class UserITCase extends AbstractITCase {
         // get the new task list
         tasks = taskService.list(
                 TaskType.PROPAGATION,
-                SyncopeClient.getListQueryBuilder().page(1).size(1).build());
+                SyncopeClient.getTaskQueryBuilder().page(1).size(1).build());
 
         maxKey = newMaxKey;
         newMaxKey = tasks.getResult().iterator().next().getKey();
@@ -793,7 +793,7 @@ public class UserITCase extends AbstractITCase {
         // get the new task list
         tasks = taskService.list(
                 TaskType.PROPAGATION,
-                SyncopeClient.getListQueryBuilder().page(1).size(1).build());
+                SyncopeClient.getTaskQueryBuilder().page(1).size(1).build());
 
         maxKey = newMaxKey;
         newMaxKey = tasks.getResult().iterator().next().getKey();

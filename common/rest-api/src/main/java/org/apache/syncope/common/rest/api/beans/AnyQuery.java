@@ -16,20 +16,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.dao;
+package org.apache.syncope.common.rest.api.beans;
 
-import java.util.List;
-import org.apache.syncope.core.persistence.api.entity.Report;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.QueryParam;
+import org.apache.syncope.common.rest.api.service.JAXRSService;
 
-public interface ReportDAO extends DAO<Report, Long> {
+public class AnyQuery extends AbstractQuery {
 
-    Report find(Long key);
+    private static final long serialVersionUID = -371488230250055359L;
 
-    List<Report> findAll();
+    private Boolean details;
 
-    Report save(Report report);
+    public boolean isDetails() {
+        return details == null ? true : details;
+    }
 
-    void delete(Long key);
-
-    void delete(Report report);
+    @QueryParam(JAXRSService.PARAM_DETAILS)
+    @DefaultValue("true")
+    public void setDetails(final boolean details) {
+        this.details = details;
+    }
 }
