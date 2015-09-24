@@ -31,7 +31,6 @@ import java.util.Set;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.MatchingRule;
-import org.apache.syncope.common.lib.types.PropagationMode;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.TaskType;
@@ -93,7 +92,6 @@ public class TaskTest extends AbstractTest {
         PropagationTask task = entityFactory.newEntity(PropagationTask.class);
         task.setResource(resource);
         task.setAnyTypeKind(AnyTypeKind.USER);
-        task.setMode(PropagationMode.TWO_PHASES);
         task.setOperation(ResourceOperation.CREATE);
         task.setConnObjectKey("one@two.com");
 

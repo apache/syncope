@@ -44,7 +44,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
-import org.apache.syncope.common.lib.types.PropagationMode;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
@@ -125,10 +124,6 @@ public class JPAExternalResource extends AbstractAnnotatedEntity<String> impleme
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private PropagationMode propagationMode;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private TraceLevel createTraceLevel;
 
     @Enumerated(EnumType.STRING)
@@ -178,7 +173,6 @@ public class JPAExternalResource extends AbstractAnnotatedEntity<String> impleme
         propagationPrimary = 0;
         propagationPriority = 0;
         randomPwdIfNotProvided = 0;
-        propagationMode = PropagationMode.TWO_PHASES;
 
         createTraceLevel = TraceLevel.FAILURES;
         updateTraceLevel = TraceLevel.FAILURES;
@@ -276,16 +270,6 @@ public class JPAExternalResource extends AbstractAnnotatedEntity<String> impleme
     @Override
     public void setRandomPwdIfNotProvided(final boolean randomPwdIfNotProvided) {
         this.randomPwdIfNotProvided = getBooleanAsInteger(randomPwdIfNotProvided);
-    }
-
-    @Override
-    public PropagationMode getPropagationMode() {
-        return propagationMode;
-    }
-
-    @Override
-    public void setPropagationMode(final PropagationMode propagationMode) {
-        this.propagationMode = propagationMode;
     }
 
     @Override

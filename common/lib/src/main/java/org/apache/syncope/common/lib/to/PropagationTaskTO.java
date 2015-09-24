@@ -21,7 +21,6 @@ package org.apache.syncope.common.lib.to;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.PropagationMode;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 
 @XmlRootElement(name = "propagationTask")
@@ -29,8 +28,6 @@ import org.apache.syncope.common.lib.types.ResourceOperation;
 public class PropagationTaskTO extends AbstractTaskTO {
 
     private static final long serialVersionUID = 386450127003321197L;
-
-    private PropagationMode mode;
 
     private ResourceOperation operation;
 
@@ -62,14 +59,6 @@ public class PropagationTaskTO extends AbstractTaskTO {
 
     public void setOldConnObjectKey(final String oldConnObjectKey) {
         this.oldConnObjectKey = oldConnObjectKey;
-    }
-
-    public PropagationMode getMode() {
-        return mode;
-    }
-
-    public void setPropagationMode(final PropagationMode mode) {
-        this.mode = mode;
     }
 
     public String getResource() {

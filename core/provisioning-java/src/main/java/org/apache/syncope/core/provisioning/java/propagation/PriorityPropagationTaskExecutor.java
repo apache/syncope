@@ -64,7 +64,7 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
                     LOG.error("Unexpected execution status found {}", execution.getStatus());
                     execStatus = PropagationTaskExecStatus.FAILURE;
                 }
-                if (task.getResource().isPropagationPrimary() && !execStatus.isSuccessful()) {
+                if (task.getResource().isPropagationPrimary() && execStatus != PropagationTaskExecStatus.SUCCESS) {
                     result = Result.FAILURE;
                     throw new PropagationException(task.getResource().getKey(), execution.getMessage());
                 }

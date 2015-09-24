@@ -21,7 +21,6 @@ package org.apache.syncope.core.provisioning.api;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import org.apache.syncope.common.lib.types.PropagationMode;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
@@ -54,21 +53,20 @@ public interface Connector {
     /**
      * Create user / group on a connector instance.
      *
-     * @param propagationMode propagation mode
      * @param objectClass ConnId's object class
      * @param attrs attributes for creation
      * @param options ConnId's OperationOptions
      * @param propagationAttempted if creation is actually performed (based on connector instance's capabilities)
      * @return Uid for created object
      */
-    Uid create(PropagationMode propagationMode, ObjectClass objectClass,
-            Set<Attribute> attrs, OperationOptions options,
+    Uid create(ObjectClass objectClass,
+            Set<Attribute> attrs,
+            OperationOptions options,
             Set<String> propagationAttempted);
 
     /**
      * Update user / group on a connector instance.
      *
-     * @param propagationMode propagation mode
      * @param objectClass ConnId's object class
      * @param uid user to be updated
      * @param attrs attributes for update
@@ -76,20 +74,21 @@ public interface Connector {
      * @param propagationAttempted if update is actually performed (based on connector instance's capabilities)
      * @return Uid for updated object
      */
-    Uid update(PropagationMode propagationMode, ObjectClass objectClass,
-            Uid uid, Set<Attribute> attrs, OperationOptions options,
+    Uid update(ObjectClass objectClass,
+            Uid uid,
+            Set<Attribute> attrs,
+            OperationOptions options,
             Set<String> propagationAttempted);
 
     /**
      * Delete user / group on a connector instance.
      *
-     * @param propagationMode propagation mode
      * @param objectClass ConnId's object class
      * @param uid user to be deleted
      * @param options ConnId's OperationOptions
      * @param propagationAttempted if deletion is actually performed (based on connector instance's capabilities)
      */
-    void delete(PropagationMode propagationMode, ObjectClass objectClass,
+    void delete(ObjectClass objectClass,
             Uid uid, OperationOptions options, Set<String> propagationAttempted);
 
     /**
@@ -133,7 +132,6 @@ public interface Connector {
      * Get remote object used by the propagation manager in order to choose for a create (object doesn't exist) or an
      * update (object exists).
      *
-     * @param propagationMode propagation mode
      * @param operationType resource operation type
      * @param objectClass ConnId's object class
      * @param uid ConnId's Uid
@@ -141,7 +139,6 @@ public interface Connector {
      * @return ConnId's connector object for given uid
      */
     ConnectorObject getObject(
-            PropagationMode propagationMode,
             ResourceOperation operationType,
             ObjectClass objectClass,
             Uid uid,

@@ -29,7 +29,6 @@ import javax.persistence.ManyToOne;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.PropagationMode;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
@@ -48,12 +47,6 @@ import org.identityconnectors.framework.common.objects.Attribute;
 public class JPAPropagationTask extends AbstractTask implements PropagationTask {
 
     private static final long serialVersionUID = 7086054884614511210L;
-
-    /**
-     * @see PropagationMode
-     */
-    @Enumerated(EnumType.STRING)
-    private PropagationMode mode;
 
     /**
      * @see ResourceOperation
@@ -128,18 +121,6 @@ public class JPAPropagationTask extends AbstractTask implements PropagationTask 
     @Override
     public void setAttributes(final Set<Attribute> attributes) {
         xmlAttributes = POJOHelper.serialize(attributes);
-    }
-
-    @Override
-
-    public PropagationMode getMode() {
-        return mode;
-    }
-
-    @Override
-
-    public void setMode(final PropagationMode mode) {
-        this.mode = mode;
     }
 
     @Override

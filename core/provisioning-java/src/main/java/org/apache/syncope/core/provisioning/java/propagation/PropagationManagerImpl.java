@@ -380,7 +380,6 @@ public class PropagationManagerImpl implements PropagationManager {
                         task.setAnyKey(any.getKey());
                     }
                     task.setOperation(operation);
-                    task.setMode(resource.getPropagationMode());
                     task.setOldConnObjectKey(propByRes.getOldConnObjectKey(resource.getKey()));
 
                     Pair<String, Set<Attribute>> preparedAttrs = MappingUtils.prepareAttrs(

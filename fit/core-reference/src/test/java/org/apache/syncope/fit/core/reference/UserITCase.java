@@ -295,7 +295,7 @@ public class UserITCase extends AbstractITCase {
         userTO = createUser(userTO);
         assertNotNull(userTO);
         assertEquals(1, userTO.getPropagationStatusTOs().size());
-        assertTrue(userTO.getPropagationStatusTOs().get(0).getStatus().isSuccessful());
+        assertEquals(PropagationTaskExecStatus.SUCCESS, userTO.getPropagationStatusTOs().get(0).getStatus());
     }
 
     @Test(expected = SyncopeClientException.class)
@@ -504,7 +504,7 @@ public class UserITCase extends AbstractITCase {
 
         // check for propagation result
         assertFalse(userTO.getPropagationStatusTOs().isEmpty());
-        assertTrue(userTO.getPropagationStatusTOs().get(0).getStatus().isSuccessful());
+        assertEquals(PropagationTaskExecStatus.SUCCESS, userTO.getPropagationStatusTOs().get(0).getStatus());
 
         try {
             userService.delete(userTO.getKey());
@@ -532,7 +532,7 @@ public class UserITCase extends AbstractITCase {
 
         // check for propagation result
         assertFalse(userTO.getPropagationStatusTOs().isEmpty());
-        assertTrue(userTO.getPropagationStatusTOs().get(0).getStatus().isSuccessful());
+        assertEquals(PropagationTaskExecStatus.SUCCESS, userTO.getPropagationStatusTOs().get(0).getStatus());
 
         try {
             userService.read(userTO.getKey());
@@ -1058,9 +1058,7 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(propagations);
         assertEquals(1, propagations.size());
 
-        PropagationTaskExecStatus status = propagations.get(0).getStatus();
-        assertNotNull(status);
-        assertTrue(status.isSuccessful());
+        assertEquals(PropagationTaskExecStatus.SUCCESS, propagations.get(0).getStatus());
 
         String resource = propagations.get(0).getResource();
         assertEquals(RESOURCE_NAME_TESTDB, resource);
@@ -1077,17 +1075,14 @@ public class UserITCase extends AbstractITCase {
         userTO = createUser(userTO);
         assertNotNull(userTO);
 
-        final List<PropagationStatus> propagations = userTO.getPropagationStatusTOs();
-
+        List<PropagationStatus> propagations = userTO.getPropagationStatusTOs();
         assertNotNull(propagations);
         assertEquals(1, propagations.size());
 
-        final PropagationTaskExecStatus status = propagations.get(0).getStatus();
-        final String resource = propagations.get(0).getResource();
+        assertNotEquals(PropagationTaskExecStatus.SUCCESS, propagations.get(0).getStatus());
 
-        assertNotNull(status);
+        String resource = propagations.get(0).getResource();
         assertEquals(RESOURCE_NAME_CSV, resource);
-        assertFalse(status.isSuccessful());
     }
 
     @Test
@@ -1365,7 +1360,7 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(userTO);
         assertFalse(userTO.getPropagationStatusTOs().isEmpty());
         assertEquals(RESOURCE_NAME_DBVIRATTR, userTO.getPropagationStatusTOs().get(0).getResource());
-        assertEquals(PropagationTaskExecStatus.SUBMITTED, userTO.getPropagationStatusTOs().get(0).getStatus());
+        assertEquals(PropagationTaskExecStatus.SUCCESS, userTO.getPropagationStatusTOs().get(0).getStatus());
 
         ConnObjectTO connObjectTO =
                 resourceService.readConnObject(RESOURCE_NAME_DBVIRATTR, AnyTypeKind.USER.name(), userTO.getKey());
@@ -1407,7 +1402,7 @@ public class UserITCase extends AbstractITCase {
         userTO = createUser(userTO);
         assertEquals(RESOURCE_NAME_TIMEOUT, userTO.getPropagationStatusTOs().get(0).getResource());
         assertNotNull(userTO.getPropagationStatusTOs().get(0).getFailureReason());
-        assertEquals(PropagationTaskExecStatus.UNSUBMITTED, userTO.getPropagationStatusTOs().get(0).getStatus());
+        assertEquals(PropagationTaskExecStatus.FAILURE, userTO.getPropagationStatusTOs().get(0).getStatus());
     }
 
     @Test
@@ -1510,7 +1505,7 @@ public class UserITCase extends AbstractITCase {
             PropagationStatus prop = props.iterator().next();
             assertNotNull(prop);
             assertEquals(RESOURCE_NAME_WS1, prop.getResource());
-            assertEquals(PropagationTaskExecStatus.SUBMITTED, prop.getStatus());
+            assertEquals(PropagationTaskExecStatus.SUCCESS, prop.getStatus());
         } finally {
             // restore initial cipher algorithm
             pwdCipherAlgo.getValues().set(0, origpwdCipherAlgo);
@@ -1734,7 +1729,7 @@ public class UserITCase extends AbstractITCase {
                 operation(PatchOperation.ADD_REPLACE).value(RESOURCE_NAME_TESTDB).build());
         userTO = updateUser(userPatch);
         assertEquals(RESOURCE_NAME_TESTDB, userTO.getResources().iterator().next());
-        assertFalse(userTO.getPropagationStatusTOs().get(0).getStatus().isSuccessful());
+        assertNotEquals(PropagationTaskExecStatus.SUCCESS, userTO.getPropagationStatusTOs().get(0).getStatus());
         assertNotNull(userTO.getPropagationStatusTOs().get(0).getFailureReason());
 
         // 3. request to change password only on testdb
@@ -1745,7 +1740,7 @@ public class UserITCase extends AbstractITCase {
 
         userTO = updateUser(userPatch);
         assertEquals(RESOURCE_NAME_TESTDB, userTO.getResources().iterator().next());
-        assertTrue(userTO.getPropagationStatusTOs().get(0).getStatus().isSuccessful());
+        assertEquals(PropagationTaskExecStatus.SUCCESS, userTO.getPropagationStatusTOs().get(0).getStatus());
     }
 
     @Test
@@ -1789,7 +1784,7 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(ws1PropagationStatus);
         assertEquals(RESOURCE_NAME_WS1, ws1PropagationStatus.getResource());
         assertNotNull(ws1PropagationStatus.getFailureReason());
-        assertEquals(PropagationTaskExecStatus.UNSUBMITTED, ws1PropagationStatus.getStatus());
+        assertEquals(PropagationTaskExecStatus.FAILURE, ws1PropagationStatus.getStatus());
     }
 
     @Test
@@ -2103,7 +2098,7 @@ public class UserITCase extends AbstractITCase {
 
         userTO = userService.update(userPatch).readEntity(UserTO.class);
         assertEquals(Collections.singleton(RESOURCE_NAME_WS1), userTO.getResources());
-        assertFalse(userTO.getPropagationStatusTOs().get(0).getStatus().isSuccessful());
+        assertNotEquals(PropagationTaskExecStatus.SUCCESS, userTO.getPropagationStatusTOs().get(0).getStatus());
         assertTrue(userTO.getPropagationStatusTOs().get(0).getFailureReason().
                 startsWith("Not attempted because there are mandatory attributes without value(s): [__PASSWORD__]"));
     }
@@ -2181,7 +2176,7 @@ public class UserITCase extends AbstractITCase {
         userTO = createUser(userTO);
         assertNotNull(userTO);
         assertEquals(1, userTO.getPropagationStatusTOs().size());
-        assertTrue(userTO.getPropagationStatusTOs().get(0).getStatus().isSuccessful());
+        assertEquals(PropagationTaskExecStatus.SUCCESS, userTO.getPropagationStatusTOs().get(0).getStatus());
 
         ConnObjectTO actual =
                 resourceService.readConnObject(RESOURCE_NAME_WS1, AnyTypeKind.USER.name(), userTO.getKey());
@@ -2221,7 +2216,7 @@ public class UserITCase extends AbstractITCase {
         userTO = updateUser(userPatch);
         assertNotNull(userTO);
         assertEquals(1, userTO.getPropagationStatusTOs().size());
-        assertTrue(userTO.getPropagationStatusTOs().get(0).getStatus().isSuccessful());
+        assertEquals(PropagationTaskExecStatus.SUCCESS, userTO.getPropagationStatusTOs().get(0).getStatus());
 
         ConnObjectTO newUser =
                 resourceService.readConnObject(RESOURCE_NAME_WS1, AnyTypeKind.USER.name(), userTO.getKey());

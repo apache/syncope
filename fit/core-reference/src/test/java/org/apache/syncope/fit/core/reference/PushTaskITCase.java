@@ -326,7 +326,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
 
             // execute the new task
             TaskExecTO pushExec = execProvisioningTask(taskService, push.getKey(), 50, false);
-            assertTrue(PropagationTaskExecStatus.valueOf(pushExec.getStatus()).isSuccessful());
+            assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(pushExec.getStatus()));
         } finally {
             groupService.delete(groupTO.getKey());
             if (newResourceTO != null) {

@@ -25,17 +25,13 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.ws.rs.core.Response;
 import org.apache.syncope.client.lib.SyncopeClient;
-import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
-import org.apache.syncope.common.lib.to.ReportExecTO;
 import org.apache.syncope.common.lib.to.TaskExecTO;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -86,34 +82,6 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
     public void readExecution() {
         TaskExecTO taskTO = taskService.readExecution(6L);
         assertNotNull(taskTO);
-    }
-
-    @Test
-    public void deal() {
-        // Currently test is not re-runnable.
-        // To successfully run test second time it is necessary to restart cargo
-        try {
-            taskService.delete(0L);
-        } catch (SyncopeClientException e) {
-            assertEquals(Response.Status.NOT_FOUND, e.getType().getResponseStatus());
-        }
-        TaskExecTO exec = taskService.execute(1L, false);
-        assertEquals(PropagationTaskExecStatus.SUBMITTED.name(), exec.getStatus());
-
-        ReportExecTO report = new ReportExecTO();
-        report.setStatus(PropagationTaskExecStatus.SUCCESS.name());
-        report.setMessage("OK");
-        taskService.report(exec.getKey(), report);
-        exec = taskService.readExecution(exec.getKey());
-        assertEquals(PropagationTaskExecStatus.SUCCESS.name(), exec.getStatus());
-        assertEquals("OK", exec.getMessage());
-
-        taskService.delete(1L);
-        try {
-            taskService.readExecution(exec.getKey());
-        } catch (SyncopeClientException e) {
-            assertEquals(Response.Status.NOT_FOUND, e.getType().getResponseStatus());
-        }
     }
 
     @Test

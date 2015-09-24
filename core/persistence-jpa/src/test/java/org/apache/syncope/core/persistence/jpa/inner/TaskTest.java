@@ -29,7 +29,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.PropagationMode;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
@@ -114,7 +113,6 @@ public class TaskTest extends AbstractTest {
         PropagationTask task = entityFactory.newEntity(PropagationTask.class);
         task.setResource(resource);
         task.setAnyTypeKind(AnyTypeKind.USER);
-        task.setMode(PropagationMode.TWO_PHASES);
         task.setOperation(ResourceOperation.CREATE);
         task.setConnObjectKey("one@two.com");
 

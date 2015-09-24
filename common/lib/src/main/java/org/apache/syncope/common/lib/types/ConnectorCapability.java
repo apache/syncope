@@ -27,12 +27,9 @@ import javax.xml.bind.annotation.XmlEnum;
 public enum ConnectorCapability {
 
     AUTHENTICATE,
-    ONE_PHASE_CREATE,
-    TWO_PHASES_CREATE,
-    ONE_PHASE_UPDATE,
-    TWO_PHASES_UPDATE,
-    ONE_PHASE_DELETE,
-    TWO_PHASES_DELETE,
+    CREATE,
+    UPDATE,
+    DELETE,
     SEARCH,
     SYNC;
 

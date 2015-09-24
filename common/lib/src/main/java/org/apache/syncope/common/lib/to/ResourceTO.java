@@ -32,7 +32,6 @@ import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
-import org.apache.syncope.common.lib.types.PropagationMode;
 import org.apache.syncope.common.lib.types.TraceLevel;
 
 @XmlRootElement(name = "resource")
@@ -57,21 +56,19 @@ public class ResourceTO extends AbstractAnnotatedBean {
 
     private boolean propagationPrimary;
 
-    private int propagationPriority;
+    private int propagationPriority = 0;
 
     private boolean randomPwdIfNotProvided;
 
-    private PropagationMode propagationMode;
-
     private boolean enforceMandatoryCondition;
 
-    private TraceLevel createTraceLevel;
+    private TraceLevel createTraceLevel = TraceLevel.ALL;
 
-    private TraceLevel updateTraceLevel;
+    private TraceLevel updateTraceLevel = TraceLevel.ALL;
 
-    private TraceLevel deleteTraceLevel;
+    private TraceLevel deleteTraceLevel = TraceLevel.ALL;
 
-    private TraceLevel syncTraceLevel;
+    private TraceLevel syncTraceLevel = TraceLevel.ALL;
 
     private Long passwordPolicy;
 
@@ -82,18 +79,6 @@ public class ResourceTO extends AbstractAnnotatedBean {
     private final Set<ConnConfProperty> connConfProperties = new HashSet<>();
 
     private final List<String> propagationActionsClassNames = new ArrayList<>();
-
-    public ResourceTO() {
-        super();
-
-        propagationMode = PropagationMode.TWO_PHASES;
-        propagationPriority = 0;
-
-        createTraceLevel = TraceLevel.ALL;
-        updateTraceLevel = TraceLevel.ALL;
-        deleteTraceLevel = TraceLevel.ALL;
-        syncTraceLevel = TraceLevel.ALL;
-    }
 
     public String getKey() {
         return key;
@@ -150,14 +135,6 @@ public class ResourceTO extends AbstractAnnotatedBean {
 
     public void setRandomPwdIfNotProvided(final boolean randomPwdIfNotProvided) {
         this.randomPwdIfNotProvided = randomPwdIfNotProvided;
-    }
-
-    public PropagationMode getPropagationMode() {
-        return propagationMode;
-    }
-
-    public void setPropagationMode(final PropagationMode propagationMode) {
-        this.propagationMode = propagationMode;
     }
 
     public TraceLevel getCreateTraceLevel() {

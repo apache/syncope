@@ -29,7 +29,6 @@ import java.util.Set;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
 import org.apache.syncope.common.lib.types.MappingPurpose;
-import org.apache.syncope.common.lib.types.PropagationMode;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
@@ -182,7 +181,6 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         if (beforeObj == null) {
             LOG.debug("Create {} on {}", attributes, task.getResource().getKey());
             connector.create(
-                    task.getResource().getPropagationMode(),
                     new ObjectClass(task.getObjectClassName()),
                     attributes,
                     null,
@@ -229,8 +227,8 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 // 3. provision entry
                 LOG.debug("Update {} on {}", strictlyModified, task.getResource().getKey());
 
-                connector.update(task.getResource().getPropagationMode(), beforeObj.getObjectClass(),
-                        beforeObj.getUid(), strictlyModified, null, propagationAttempted);
+                connector.update(
+                        beforeObj.getObjectClass(), beforeObj.getUid(), strictlyModified, null, propagationAttempted);
             }
         }
     }
@@ -303,7 +301,6 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 LOG.debug("Delete {} on {}", beforeObj.getUid(), task.getResource().getKey());
 
                 connector.delete(
-                        task.getMode(),
                         beforeObj.getObjectClass(),
                         beforeObj.getUid(),
                         null,
@@ -359,9 +356,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 default:
             }
 
-            execution.setStatus(task.getMode() == PropagationMode.ONE_PHASE
-                    ? PropagationTaskExecStatus.SUCCESS.name()
-                    : PropagationTaskExecStatus.SUBMITTED.name());
+            execution.setStatus(PropagationTaskExecStatus.SUCCESS.name());
 
             for (PropagationActions action : actions) {
                 action.after(task, execution, afterObj);
@@ -390,9 +385,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             }
 
             try {
-                execution.setStatus(task.getMode() == PropagationMode.ONE_PHASE
-                        ? PropagationTaskExecStatus.FAILURE.name()
-                        : PropagationTaskExecStatus.UNSUBMITTED.name());
+                execution.setStatus(PropagationTaskExecStatus.FAILURE.name());
             } catch (Exception wft) {
                 LOG.error("While executing KO action on {}", execution, wft);
             }
@@ -486,7 +479,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
     protected boolean hasToBeregistered(final PropagationTask task, final TaskExec execution) {
         boolean result;
 
-        final boolean failed = !PropagationTaskExecStatus.valueOf(execution.getStatus()).isSuccessful();
+        boolean failed = PropagationTaskExecStatus.valueOf(execution.getStatus()) != PropagationTaskExecStatus.SUCCESS;
 
         switch (task.getOperation()) {
 
@@ -530,7 +523,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
         ConnectorObject obj = null;
         try {
-            obj = connector.getObject(task.getMode(),
+            obj = connector.getObject(
                     task.getOperation(),
                     new ObjectClass(task.getObjectClassName()),
                     new Uid(connObjectKey),

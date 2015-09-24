@@ -21,7 +21,6 @@ package org.apache.syncope.fit.core.reference;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.security.AccessControlException;
@@ -202,7 +201,7 @@ public class MultitenancyITCase extends AbstractITCase {
         // verify execution status
         String status = execution.getStatus();
         assertNotNull(status);
-        assertTrue(PropagationTaskExecStatus.valueOf(status).isSuccessful());
+        assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(status));
 
         // verify that synchronized user is found
         PagedResult<UserTO> matchingUsers = adminClient.getService(UserService.class).search(

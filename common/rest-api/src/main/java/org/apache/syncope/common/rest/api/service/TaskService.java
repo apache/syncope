@@ -38,7 +38,6 @@ import org.apache.syncope.common.lib.to.AbstractTaskTO;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.PagedResult;
-import org.apache.syncope.common.lib.to.ReportExecTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.TaskExecTO;
 import org.apache.syncope.common.lib.types.JobAction;
@@ -140,17 +139,6 @@ public interface TaskService extends JAXRSService {
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     TaskExecTO execute(@NotNull @PathParam("key") Long key,
             @QueryParam("dryRun") @DefaultValue("false") boolean dryRun);
-
-    /**
-     * Reports task execution result.
-     *
-     * @param executionKey key of task execution being reported
-     * @param reportExec execution being reported
-     */
-    @POST
-    @Path("executions/{executionKey}/report")
-    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    void report(@NotNull @PathParam("executionKey") Long executionKey, @NotNull ReportExecTO reportExec);
 
     /**
      * Executes the provided bulk action.

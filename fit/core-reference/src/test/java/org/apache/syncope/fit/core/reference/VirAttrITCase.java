@@ -101,7 +101,7 @@ public class VirAttrITCase extends AbstractITCase {
         assertNotNull(userTO);
         assertFalse(userTO.getPropagationStatusTOs().isEmpty());
         assertEquals(RESOURCE_NAME_WS2, userTO.getPropagationStatusTOs().get(0).getResource());
-        assertEquals(PropagationTaskExecStatus.SUBMITTED, userTO.getPropagationStatusTOs().get(0).getStatus());
+        assertEquals(PropagationTaskExecStatus.SUCCESS, userTO.getPropagationStatusTOs().get(0).getStatus());
 
         ConnObjectTO connObjectTO =
                 resourceService.readConnObject(RESOURCE_NAME_WS2, AnyTypeKind.USER.name(), userTO.getKey());
@@ -120,7 +120,7 @@ public class VirAttrITCase extends AbstractITCase {
         assertNotNull(userTO);
         assertFalse(userTO.getPropagationStatusTOs().isEmpty());
         assertEquals("ws-target-resource-2", userTO.getPropagationStatusTOs().get(0).getResource());
-        assertEquals(PropagationTaskExecStatus.SUBMITTED, userTO.getPropagationStatusTOs().get(0).getStatus());
+        assertEquals(PropagationTaskExecStatus.SUCCESS, userTO.getPropagationStatusTOs().get(0).getStatus());
 
         connObjectTO = resourceService.readConnObject(RESOURCE_NAME_WS2, AnyTypeKind.USER.name(), userTO.getKey());
         assertNotNull(connObjectTO);
@@ -164,7 +164,7 @@ public class VirAttrITCase extends AbstractITCase {
         assertNotNull(userTO);
         assertFalse(userTO.getPropagationStatusTOs().isEmpty());
         assertEquals(RESOURCE_NAME_WS2, userTO.getPropagationStatusTOs().get(0).getResource());
-        assertEquals(PropagationTaskExecStatus.SUBMITTED, userTO.getPropagationStatusTOs().get(0).getStatus());
+        assertEquals(PropagationTaskExecStatus.SUCCESS, userTO.getPropagationStatusTOs().get(0).getStatus());
 
         connObjectTO = resourceService.readConnObject(RESOURCE_NAME_WS2, AnyTypeKind.USER.name(), userTO.getKey());
         assertNotNull(connObjectTO);
@@ -189,7 +189,7 @@ public class VirAttrITCase extends AbstractITCase {
         assertTrue(userTO.getVirAttrs().isEmpty());
         assertFalse(userTO.getPropagationStatusTOs().isEmpty());
         assertEquals(RESOURCE_NAME_WS2, userTO.getPropagationStatusTOs().get(0).getResource());
-        assertEquals(PropagationTaskExecStatus.SUBMITTED, userTO.getPropagationStatusTOs().get(0).getStatus());
+        assertEquals(PropagationTaskExecStatus.SUCCESS, userTO.getPropagationStatusTOs().get(0).getStatus());
 
         connObjectTO = resourceService.readConnObject(RESOURCE_NAME_WS2, AnyTypeKind.USER.name(), userTO.getKey());
         assertNotNull(connObjectTO);
@@ -502,8 +502,8 @@ public class VirAttrITCase extends AbstractITCase {
 
         userTO = createUser(userTO);
         assertEquals(2, userTO.getPropagationStatusTOs().size());
-        assertTrue(userTO.getPropagationStatusTOs().get(0).getStatus().isSuccessful());
-        assertTrue(userTO.getPropagationStatusTOs().get(1).getStatus().isSuccessful());
+        assertEquals(PropagationTaskExecStatus.SUCCESS, userTO.getPropagationStatusTOs().get(0).getStatus());
+        assertEquals(PropagationTaskExecStatus.SUCCESS, userTO.getPropagationStatusTOs().get(1).getStatus());
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
 

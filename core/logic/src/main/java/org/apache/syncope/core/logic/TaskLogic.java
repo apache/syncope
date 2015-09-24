@@ -37,8 +37,6 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.JobStatusType;
-import org.apache.syncope.common.lib.types.PropagationMode;
-import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
@@ -245,48 +243,6 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
         }
 
         return result;
-    }
-
-    @PreAuthorize("hasRole('" + Entitlement.TASK_READ + "')")
-    public TaskExecTO report(final Long execKey, final PropagationTaskExecStatus status, final String message) {
-        TaskExec exec = taskExecDAO.find(execKey);
-        if (exec == null) {
-            throw new NotFoundException("Task execution " + execKey);
-        }
-
-        SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidPropagationTaskExecReport);
-
-        TaskUtils taskUtils = taskUtilsFactory.getInstance(exec.getTask());
-        if (TaskType.PROPAGATION == taskUtils.getType()) {
-            PropagationTask task = (PropagationTask) exec.getTask();
-            if (task.getMode() != PropagationMode.TWO_PHASES) {
-                sce.getElements().add("Propagation mode: " + task.getMode());
-            }
-        } else {
-            sce.getElements().add("Task type: " + taskUtils);
-        }
-
-        switch (status) {
-            case SUCCESS:
-            case FAILURE:
-                break;
-
-            case CREATED:
-            case SUBMITTED:
-            case UNSUBMITTED:
-                sce.getElements().add("Execution status to be set: " + status);
-                break;
-
-            default:
-        }
-
-        if (!sce.isEmpty()) {
-            throw sce;
-        }
-
-        exec.setStatus(status.toString());
-        exec.setMessage(message);
-        return binder.getTaskExecTO(taskExecDAO.save(exec));
     }
 
     @PreAuthorize("hasRole('" + Entitlement.TASK_DELETE + "')")

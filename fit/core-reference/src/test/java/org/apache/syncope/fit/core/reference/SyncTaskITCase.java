@@ -253,7 +253,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         // update sync task
         TaskExecTO execution = execProvisioningTask(taskService, 7L, 50, false);
         assertNotNull(execution.getStatus());
-        assertTrue(PropagationTaskExecStatus.valueOf(execution.getStatus()).isSuccessful());
+        assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(execution.getStatus()));
 
         UserTO userTO = readUser("testuser1");
         assertNotNull(userTO);
@@ -267,7 +267,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         // re-execute the same SyncTask: now user must be active
         execution = execProvisioningTask(taskService, 7L, 50, false);
         assertNotNull(execution.getStatus());
-        assertTrue(PropagationTaskExecStatus.valueOf(execution.getStatus()).isSuccessful());
+        assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(execution.getStatus()));
 
         userTO = readUser("testuser1");
         assertNotNull(userTO);
@@ -317,9 +317,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         TaskExecTO execution = execProvisioningTask(taskService, 11L, 50, false);
 
         // 1. verify execution status
-        String status = execution.getStatus();
-        assertNotNull(status);
-        assertTrue(PropagationTaskExecStatus.valueOf(status).isSuccessful());
+        assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(execution.getStatus()));
 
         // 2. verify that synchronized group is found
         PagedResult<GroupTO> matchingGroups = groupService.search(
@@ -455,9 +453,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
             assertFalse(((UserTO) actual.getTemplates().get(AnyTypeKind.USER.name())).getMemberships().isEmpty());
 
             TaskExecTO execution = execProvisioningTask(taskService, actual.getKey(), 50, false);
-            final String status = execution.getStatus();
-            assertNotNull(status);
-            assertTrue(PropagationTaskExecStatus.valueOf(status).isSuccessful());
+            assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(execution.getStatus()));
 
             userTO = readUser("testuser2");
             assertNotNull(userTO);
@@ -560,12 +556,12 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         try {
             assertNotNull(userTO);
             assertEquals(1, userTO.getPropagationStatusTOs().size());
-            assertTrue(userTO.getPropagationStatusTOs().get(0).getStatus().isSuccessful());
+            assertEquals(PropagationTaskExecStatus.SUCCESS, userTO.getPropagationStatusTOs().get(0).getStatus());
 
             TaskExecTO taskExecTO = execProvisioningTask(taskService, 24L, 50, false);
 
             assertNotNull(taskExecTO.getStatus());
-            assertTrue(PropagationTaskExecStatus.valueOf(taskExecTO.getStatus()).isSuccessful());
+            assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(taskExecTO.getStatus()));
 
             userTO = userService.read(userTO.getKey());
             assertNotNull(userTO);
@@ -669,9 +665,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         assertEquals(actual.getJobDelegateClassName(), syncTask.getJobDelegateClassName());
 
         TaskExecTO execution = execProvisioningTask(taskService, syncTask.getKey(), 50, false);
-        final String status = execution.getStatus();
-        assertNotNull(status);
-        assertTrue(PropagationTaskExecStatus.valueOf(status).isSuccessful());
+        assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(execution.getStatus()));
 
         // 5. Test the sync'd user
         UserTO updatedUser = userService.read(user.getKey());
@@ -743,9 +737,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         assertEquals(actual.getJobDelegateClassName(), syncTask.getJobDelegateClassName());
 
         TaskExecTO execution = execProvisioningTask(taskService, syncTask.getKey(), 50, false);
-        String status = execution.getStatus();
-        assertNotNull(status);
-        assertTrue(PropagationTaskExecStatus.valueOf(status).isSuccessful());
+        assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(execution.getStatus()));
 
         // 7. Test the sync'd user
         String syncedPassword = Encryptor.getInstance().encode("security123", CipherAlgorithm.SHA1);

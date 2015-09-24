@@ -22,26 +22,12 @@ import javax.xml.bind.annotation.XmlEnum;
 
 /**
  * Status of a propagation task execution.
- *
- * CREATED -&gt; SUBMITTED or UBSUBMITTED (depending on the external resource to
- * return success or failure).
- * SUBMITTED -&gt; SUCCESS or FAILURE (depending on the external resource to
- * report success or failure).
  */
 @XmlEnum
 public enum PropagationTaskExecStatus {
 
     CREATED,
-    SUBMITTED,
-    UNSUBMITTED,
     SUCCESS,
     FAILURE;
 
-    public boolean isSuccessful() {
-        return this == SUCCESS || this == SUBMITTED;
-    }
-
-    public static PropagationTaskExecStatus fromString(final String value) {
-        return PropagationTaskExecStatus.valueOf(value.toUpperCase());
-    }
 }

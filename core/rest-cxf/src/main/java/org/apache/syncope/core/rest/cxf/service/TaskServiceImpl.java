@@ -27,13 +27,11 @@ import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.PushTaskTO;
-import org.apache.syncope.common.lib.to.ReportExecTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.SyncTaskTO;
 import org.apache.syncope.common.lib.to.TaskExecTO;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.JobStatusType;
-import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
@@ -107,13 +105,6 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService 
     @Override
     public TaskExecTO readExecution(final Long executionKey) {
         return logic.readExecution(executionKey);
-    }
-
-    @Override
-    public void report(final Long executionKey, final ReportExecTO reportExec) {
-        reportExec.setKey(executionKey);
-        logic.report(
-                executionKey, PropagationTaskExecStatus.fromString(reportExec.getStatus()), reportExec.getMessage());
     }
 
     @Override

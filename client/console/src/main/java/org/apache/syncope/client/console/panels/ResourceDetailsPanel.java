@@ -30,7 +30,6 @@ import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPa
 import org.apache.syncope.client.console.wicket.markup.html.form.SpinnerFieldPanel;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
-import org.apache.syncope.common.lib.types.PropagationMode;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
@@ -93,12 +92,6 @@ public class ResourceDetailsPanel extends Panel {
                 "propagationPriority", Integer.class,
                 new PropertyModel<Integer>(resourceTO, "propagationPriority"), null, null);
         add(propagationPriority);
-
-        final AjaxDropDownChoicePanel<PropagationMode> propagationMode = new AjaxDropDownChoicePanel<>(
-                "propagationMode", new ResourceModel("propagationMode", "propagationMode").getObject(),
-                new PropertyModel<PropagationMode>(resourceTO, "propagationMode"));
-        propagationMode.setChoices(Arrays.asList(PropagationMode.values()));
-        add(propagationMode);
 
         final AjaxCheckBoxPanel randomPwdIfNotProvided = new AjaxCheckBoxPanel("randomPwdIfNotProvided",
                 new ResourceModel("randomPwdIfNotProvided", "randomPwdIfNotProvided").getObject(),
