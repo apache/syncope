@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.misc;
 
-import org.apache.syncope.core.misc.policy.InvalidPasswordRuleConf;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -27,16 +26,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.jexl2.JexlContext;
 import org.apache.commons.jexl2.MapContext;
+import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.AttrPatch;
+import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
+import org.apache.syncope.core.misc.policy.InvalidPasswordRuleConf;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
@@ -53,17 +60,21 @@ import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.cache.VirAttrCache;
 import org.apache.syncope.core.misc.security.Encryptor;
-import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.misc.jexl.JexlUtils;
 import org.apache.syncope.core.misc.security.PasswordGenerator;
+import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
+import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValidationException;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
+import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Schema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
+import org.apache.syncope.core.provisioning.api.data.MappingItemTransformer;
 import org.identityconnectors.framework.common.FrameworkUtil;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
@@ -72,13 +83,44 @@ import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.support.AbstractBeanDefinition;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
-public final class MappingUtils {
+@Component
+public class MappingUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(MappingUtils.class);
 
     private static final Encryptor ENCRYPTOR = Encryptor.getInstance();
+
+    @Autowired
+    private UserDAO userDAO;
+
+    @Autowired
+    private AnyTypeDAO anyTypeDAO;
+
+    @Autowired
+    private PlainSchemaDAO plainSchemaDAO;
+
+    @Autowired
+    private VirSchemaDAO virSchemaDAO;
+
+    @Autowired
+    private VirAttrHandler virAttrHandler;
+
+    @Autowired
+    private VirAttrCache virAttrCache;
+
+    @Autowired
+    private PasswordGenerator passwordGenerator;
+
+    @Autowired
+    private EntityFactory entityFactory;
+
+    @Autowired
+    private AnyUtilsFactory anyUtilsFactory;
 
     public static <T extends MappingItem> Collection<T> getMatchingMappingItems(
             final Collection<T> items, final IntMappingType type) {
@@ -116,6 +158,144 @@ public final class MappingUtils {
         });
     }
 
+    public static MappingItem getConnObjectKeyItem(final Provision provision) {
+        Mapping mapping = null;
+        if (provision != null) {
+            mapping = provision.getMapping();
+        }
+
+        return mapping == null
+                ? null
+                : mapping.getConnObjectKeyItem();
+    }
+
+    private static List<MappingItem> getMappingItems(final Provision provision, final MappingPurpose purpose) {
+        List<? extends MappingItem> items = Collections.<MappingItem>emptyList();
+        if (provision != null) {
+            items = provision.getMapping().getItems();
+        }
+
+        List<MappingItem> result = new ArrayList<>();
+
+        switch (purpose) {
+            case SYNCHRONIZATION:
+                for (MappingItem item : items) {
+                    if (MappingPurpose.PROPAGATION != item.getPurpose()
+                            && MappingPurpose.NONE != item.getPurpose()) {
+
+                        result.add(item);
+                    }
+                }
+                break;
+
+            case PROPAGATION:
+                for (MappingItem item : items) {
+                    if (MappingPurpose.SYNCHRONIZATION != item.getPurpose()
+                            && MappingPurpose.NONE != item.getPurpose()) {
+
+                        result.add(item);
+                    }
+                }
+                break;
+
+            case BOTH:
+                for (MappingItem item : items) {
+                    if (MappingPurpose.NONE != item.getPurpose()) {
+                        result.add(item);
+                    }
+                }
+                break;
+
+            case NONE:
+                for (MappingItem item : items) {
+                    if (MappingPurpose.NONE == item.getPurpose()) {
+                        result.add(item);
+                    }
+                }
+                break;
+
+            default:
+        }
+
+        return result;
+    }
+
+    public static List<MappingItem> getBothMappingItems(final Provision provision) {
+        return getMappingItems(provision, MappingPurpose.BOTH);
+    }
+
+    public static List<MappingItem> getPropagationMappingItems(final Provision provision) {
+        return getMappingItems(provision, MappingPurpose.PROPAGATION);
+    }
+
+    public static List<MappingItem> getSyncMappingItems(final Provision provision) {
+        return getMappingItems(provision, MappingPurpose.SYNCHRONIZATION);
+    }
+
+    /**
+     * Build __NAME__ for propagation. First look if there ia a defined connObjectLink for the given resource (and in
+     * this case evaluate as JEXL); otherwise, take given connObjectKey.
+     *
+     * @param any given any object
+     * @param provision external resource
+     * @param connObjectKey connector object key
+     * @return the value to be propagated as __NAME__
+     */
+    public static Name evaluateNAME(final Any<?, ?, ?> any, final Provision provision, final String connObjectKey) {
+        if (StringUtils.isBlank(connObjectKey)) {
+            // LOG error but avoid to throw exception: leave it to the external resource
+            LOG.error("Missing ConnObjectKey for '{}': ", provision.getResource());
+        }
+
+        // Evaluate connObjectKey expression
+        String connObjectLink = provision == null || provision.getMapping() == null
+                ? null
+                : provision.getMapping().getConnObjectLink();
+        String evalConnObjectLink = null;
+        if (StringUtils.isNotBlank(connObjectLink)) {
+            JexlContext jexlContext = new MapContext();
+            JexlUtils.addFieldsToContext(any, jexlContext);
+            JexlUtils.addPlainAttrsToContext(any.getPlainAttrs(), jexlContext);
+            JexlUtils.addDerAttrsToContext(any.getDerAttrs(), any.getPlainAttrs(), jexlContext);
+            evalConnObjectLink = JexlUtils.evaluate(connObjectLink, jexlContext);
+        }
+
+        // If connObjectLink evaluates to an empty string, just use the provided connObjectKey as Name(),
+        // otherwise evaluated connObjectLink expression is taken as Name().
+        Name name;
+        if (StringUtils.isBlank(evalConnObjectLink)) {
+            // add connObjectKey as __NAME__ attribute ...
+            LOG.debug("Add connObjectKey [{}] as __NAME__", connObjectKey);
+            name = new Name(connObjectKey);
+        } else {
+            LOG.debug("Add connObjectLink [{}] as __NAME__", evalConnObjectLink);
+            name = new Name(evalConnObjectLink);
+
+            // connObjectKey not propagated: it will be used to set the value for __UID__ attribute
+            LOG.debug("connObjectKey will be used just as __UID__ attribute");
+        }
+
+        return name;
+    }
+
+    public static List<MappingItemTransformer> getMappingItemTransformers(final MappingItem mappingItem) {
+        List<MappingItemTransformer> result = new ArrayList<>();
+
+        for (String className : mappingItem.getMappingItemTransformerClassNames()) {
+            try {
+                Class<?> transformerClass = ClassUtils.getClass(className);
+
+                result.add((MappingItemTransformer) ApplicationContextProvider.
+                        getBeanFactory().
+                        createBean(transformerClass, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false));
+            } catch (Exception e) {
+                LOG.error("Could not instantiate {}, ignoring...", className, e);
+            }
+        }
+
+        return result;
+    }
+
     /**
      * Prepare attributes for sending to a connector instance.
      *
@@ -127,7 +307,8 @@ public final class MappingUtils {
      * @param provision provision information
      * @return connObjectLink + prepared attributes
      */
-    public static Pair<String, Set<Attribute>> prepareAttrs(
+    @Transactional(readOnly = true)
+    public Pair<String, Set<Attribute>> prepareAttrs(
             final Any<?, ?, ?> any,
             final String password,
             final boolean changePwd,
@@ -137,10 +318,6 @@ public final class MappingUtils {
 
         LOG.debug("Preparing resource attributes for {} with provision {} for attributes {}",
                 any, provision, any.getPlainAttrs());
-
-        DefaultListableBeanFactory beanFactory = ApplicationContextProvider.getBeanFactory();
-        VirAttrCache virAttrCache = beanFactory.getBean(VirAttrCache.class);
-        PasswordGenerator passwordGenerator = beanFactory.getBean(PasswordGenerator.class);
 
         Set<Attribute> attributes = new HashSet<>();
         String connObjectKey = null;
@@ -157,8 +334,7 @@ public final class MappingUtils {
                     virAttrCache.expire(any.getType().getKey(), any.getKey(), mapping.getIntAttrName());
                 }
 
-                Pair<String, Attribute> preparedAttr = prepareAttr(
-                        provision, mapping, any, password, passwordGenerator, vAttrs);
+                Pair<String, Attribute> preparedAttr = prepareAttr(provision, mapping, any, password, vAttrs);
 
                 if (preparedAttr != null && preparedAttr.getKey() != null) {
                     connObjectKey = preparedAttr.getKey();
@@ -211,21 +387,15 @@ public final class MappingUtils {
      * @param mapItem mapping item for the given attribute
      * @param any any object
      * @param password clear-text password
-     * @param passwordGenerator password generator
      * @param vAttrs virtual attributes to be managed
      * @return connObjectLink + prepared attribute
      */
-    @SuppressWarnings("unchecked")
-    private static Pair<String, Attribute> prepareAttr(
+    private Pair<String, Attribute> prepareAttr(
             final Provision provision, final MappingItem mapItem,
-            final Any<?, ?, ?> any, final String password, final PasswordGenerator passwordGenerator,
+            final Any<?, ?, ?> any, final String password,
             final Map<String, AttrPatch> vAttrs) {
 
         List<Any<?, ?, ?>> anys = new ArrayList<>();
-
-        DefaultListableBeanFactory beanFactory = ApplicationContextProvider.getBeanFactory();
-        AnyUtilsFactory anyUtilsFactory = beanFactory.getBean(AnyUtilsFactory.class);
-        VirAttrHandler virAttrHandler = beanFactory.getBean(VirAttrHandler.class);
 
         switch (mapItem.getIntMappingType().getAnyTypeKind()) {
             case USER:
@@ -236,7 +406,6 @@ public final class MappingUtils {
 
             case GROUP:
                 if (any instanceof User) {
-                    UserDAO userDAO = beanFactory.getBean(UserDAO.class);
                     for (Group group : userDAO.findAllGroups((User) any)) {
                         virAttrHandler.retrieveVirAttrValues(group);
                         anys.add(group);
@@ -266,7 +435,6 @@ public final class MappingUtils {
             case UserPlainSchema:
             case GroupPlainSchema:
             case AnyObjectPlainSchema:
-                PlainSchemaDAO plainSchemaDAO = beanFactory.getBean(PlainSchemaDAO.class);
                 schema = plainSchemaDAO.find(mapItem.getIntAttrName());
                 schemaType = schema == null ? AttrSchemaType.String : schema.getType();
                 break;
@@ -274,7 +442,6 @@ public final class MappingUtils {
             case UserVirtualSchema:
             case GroupVirtualSchema:
             case AnyObjectVirtualSchema:
-                VirSchemaDAO virSchemaDAO = beanFactory.getBean(VirSchemaDAO.class);
                 schema = virSchemaDAO.find(mapItem.getIntAttrName());
                 readOnlyVirSchema = (schema != null && schema.isReadonly());
                 schemaType = AttrSchemaType.String;
@@ -357,63 +524,16 @@ public final class MappingUtils {
         return result;
     }
 
-    /**
-     * Build __NAME__ for propagation. First look if there ia a defined connObjectLink for the given resource (and in
-     * this case evaluate as JEXL); otherwise, take given connObjectKey.
-     *
-     * @param any given any object
-     * @param provision external resource
-     * @param connObjectKey connector object key
-     * @return the value to be propagated as __NAME__
-     */
-    public static Name evaluateNAME(final Any<?, ?, ?> any, final Provision provision, final String connObjectKey) {
-        if (StringUtils.isBlank(connObjectKey)) {
-            // LOG error but avoid to throw exception: leave it to the external resource
-            LOG.error("Missing ConnObjectKey for '{}': ", provision.getResource());
-        }
-
-        // Evaluate connObjectKey expression
-        String connObjectLink = provision == null || provision.getMapping() == null
-                ? null
-                : provision.getMapping().getConnObjectLink();
-        String evalConnObjectLink = null;
-        if (StringUtils.isNotBlank(connObjectLink)) {
-            JexlContext jexlContext = new MapContext();
-            JexlUtils.addFieldsToContext(any, jexlContext);
-            JexlUtils.addPlainAttrsToContext(any.getPlainAttrs(), jexlContext);
-            JexlUtils.addDerAttrsToContext(any.getDerAttrs(), any.getPlainAttrs(), jexlContext);
-            evalConnObjectLink = JexlUtils.evaluate(connObjectLink, jexlContext);
-        }
-
-        // If connObjectLink evaluates to an empty string, just use the provided connObjectKey as Name(),
-        // otherwise evaluated connObjectLink expression is taken as Name().
-        Name name;
-        if (StringUtils.isBlank(evalConnObjectLink)) {
-            // add connObjectKey as __NAME__ attribute ...
-            LOG.debug("Add connObjectKey [{}] as __NAME__", connObjectKey);
-            name = new Name(connObjectKey);
-        } else {
-            LOG.debug("Add connObjectLink [{}] as __NAME__", evalConnObjectLink);
-            name = new Name(evalConnObjectLink);
-
-            // connObjectKey not propagated: it will be used to set the value for __UID__ attribute
-            LOG.debug("connObjectKey will be used just as __UID__ attribute");
-        }
-
-        return name;
-    }
-
-    private static String getGroupOwnerValue(final Provision provision, final Any<?, ?, ?> any) {
-        Pair<String, Attribute> preparedAttr = prepareAttr(provision, getConnObjectKeyItem(provision),
-                any, null, null, Collections.<String, AttrPatch>emptyMap());
+    private String getGroupOwnerValue(final Provision provision, final Any<?, ?, ?> any) {
+        Pair<String, Attribute> preparedAttr = prepareAttr(
+                provision, getConnObjectKeyItem(provision), any, null, Collections.<String, AttrPatch>emptyMap());
         String connObjectKey = preparedAttr.getKey();
 
-        final Name groupOwnerName = evaluateNAME(any, provision, connObjectKey);
-        return groupOwnerName.getNameValue();
+        return evaluateNAME(any, provision, connObjectKey).getNameValue();
     }
 
     /**
-     * Get attribute values.
+     * Get attribute values for the given {@link MappingItem} and any objects.
      *
      * @param provision provision information
      * @param mappingItem mapping item
@@ -421,17 +541,15 @@ public final class MappingUtils {
      * @param vAttrs virtual attributes to be managed
      * @return attribute values.
      */
-    public static List<PlainAttrValue> getIntValues(final Provision provision,
+    @Transactional(readOnly = true)
+    public List<PlainAttrValue> getIntValues(final Provision provision,
             final MappingItem mappingItem, final List<Any<?, ?, ?>> anys, final Map<String, AttrPatch> vAttrs) {
 
         LOG.debug("Get attributes for '{}' and mapping type '{}'", anys, mappingItem.getIntMappingType());
 
-        EntityFactory entityFactory =
-                ApplicationContextProvider.getBeanFactory().getBean(EntityFactory.class);
-        AnyUtilsFactory anyUtilsFactory =
-                ApplicationContextProvider.getBeanFactory().getBean(AnyUtilsFactory.class);
+        boolean transform = true;
+
         List<PlainAttrValue> values = new ArrayList<>();
-        PlainAttrValue attrValue;
         switch (mappingItem.getIntMappingType()) {
             case UserPlainSchema:
             case GroupPlainSchema:
@@ -440,9 +558,15 @@ public final class MappingUtils {
                     PlainAttr<?> attr = any.getPlainAttr(mappingItem.getIntAttrName());
                     if (attr != null) {
                         if (attr.getUniqueValue() != null) {
-                            values.add(attr.getUniqueValue());
+                            PlainAttrUniqueValue value = SerializationUtils.clone(attr.getUniqueValue());
+                            value.setAttr(null);
+                            values.add(value);
                         } else if (attr.getValues() != null) {
-                            values.addAll(attr.getValues());
+                            for (PlainAttrValue value : attr.getValues()) {
+                                PlainAttrValue shadow = SerializationUtils.clone(value);
+                                shadow.setAttr(null);
+                                values.add(shadow);
+                            }
                         }
                     }
 
@@ -458,26 +582,27 @@ public final class MappingUtils {
             case UserVirtualSchema:
             case GroupVirtualSchema:
             case AnyObjectVirtualSchema:
+                // virtual attributes don't get transformed
+                transform = false;
+
                 for (Any<?, ?, ?> any : anys) {
                     AnyUtils anyUtils = anyUtilsFactory.getInstance(any);
-                    VirAttr<?> virAttr = any.getVirAttr(mappingItem.getIntAttrName());
-                    if (virAttr != null) {
+                    VirAttr<?> attr = any.getVirAttr(mappingItem.getIntAttrName());
+                    if (attr != null) {
                         if (vAttrs != null) {
                             if (vAttrs.containsKey(mappingItem.getIntAttrName())) {
-                                virAttr.getValues().clear();
-                                virAttr.getValues().addAll(
+                                attr.getValues().clear();
+                                attr.getValues().addAll(
                                         vAttrs.get(mappingItem.getIntAttrName()).getAttrTO().getValues());
                             } else {
                                 throw new IllegalArgumentException("Don't need to update virtual attribute '"
                                         + mappingItem.getIntAttrName() + "'");
                             }
                         }
-                        if (virAttr.getValues() != null) {
-                            for (String value : virAttr.getValues()) {
-                                attrValue = anyUtils.newPlainAttrValue();
-                                attrValue.setStringValue(value);
-                                values.add(attrValue);
-                            }
+                        for (String value : attr.getValues()) {
+                            PlainAttrValue attrValue = anyUtils.newPlainAttrValue();
+                            attrValue.setStringValue(value);
+                            values.add(attrValue);
                         }
                     }
 
@@ -486,7 +611,7 @@ public final class MappingUtils {
                             + "\n* IntMappingType {}"
                             + "\n* Attribute values {}",
                             any.getClass().getSimpleName(),
-                            virAttr, mappingItem.getIntAttrName(), mappingItem.getIntMappingType(), values);
+                            attr, mappingItem.getIntAttrName(), mappingItem.getIntMappingType(), values);
                 }
                 break;
 
@@ -495,10 +620,10 @@ public final class MappingUtils {
             case AnyObjectDerivedSchema:
                 for (Any<?, ?, ?> any : anys) {
                     AnyUtils anyUtils = anyUtilsFactory.getInstance(any);
-                    DerAttr<?> derAttr = any.getDerAttr(mappingItem.getIntAttrName());
-                    if (derAttr != null) {
-                        attrValue = anyUtils.newPlainAttrValue();
-                        attrValue.setStringValue(derAttr.getValue(any.getPlainAttrs()));
+                    DerAttr<?> attr = any.getDerAttr(mappingItem.getIntAttrName());
+                    if (attr != null) {
+                        PlainAttrValue attrValue = anyUtils.newPlainAttrValue();
+                        attrValue.setStringValue(attr.getValue(any.getPlainAttrs()));
                         values.add(attrValue);
                     }
 
@@ -506,7 +631,7 @@ public final class MappingUtils {
                             + "\n* IntAttrName {}"
                             + "\n* IntMappingType {}"
                             + "\n* Attribute values {}",
-                            derAttr, mappingItem.getIntAttrName(), mappingItem.getIntMappingType(), values);
+                            attr, mappingItem.getIntAttrName(), mappingItem.getIntMappingType(), values);
                 }
                 break;
 
@@ -515,7 +640,7 @@ public final class MappingUtils {
             case AnyObjectKey:
                 for (Any<?, ?, ?> any : anys) {
                     AnyUtils anyUtils = anyUtilsFactory.getInstance(any);
-                    attrValue = anyUtils.newPlainAttrValue();
+                    PlainAttrValue attrValue = anyUtils.newPlainAttrValue();
                     attrValue.setStringValue(any.getKey().toString());
                     values.add(attrValue);
                 }
@@ -524,7 +649,7 @@ public final class MappingUtils {
             case Username:
                 for (Any<?, ?, ?> any : anys) {
                     if (any instanceof User) {
-                        attrValue = entityFactory.newEntity(UPlainAttrValue.class);
+                        UPlainAttrValue attrValue = entityFactory.newEntity(UPlainAttrValue.class);
                         attrValue.setStringValue(((User) any).getUsername());
                         values.add(attrValue);
                     }
@@ -534,7 +659,7 @@ public final class MappingUtils {
             case GroupName:
                 for (Any<?, ?, ?> any : anys) {
                     if (any instanceof Group) {
-                        attrValue = entityFactory.newEntity(GPlainAttrValue.class);
+                        GPlainAttrValue attrValue = entityFactory.newEntity(GPlainAttrValue.class);
                         attrValue.setStringValue(((Group) any).getName());
                         values.add(attrValue);
                     }
@@ -542,7 +667,6 @@ public final class MappingUtils {
                 break;
 
             case GroupOwnerSchema:
-                AnyTypeDAO anyTypeDAO = ApplicationContextProvider.getBeanFactory().getBean(AnyTypeDAO.class);
                 Mapping uMapping = provision.getAnyType().equals(anyTypeDAO.findUser())
                         ? null
                         : provision.getMapping();
@@ -562,7 +686,7 @@ public final class MappingUtils {
                         }
 
                         if (StringUtils.isNotBlank(groupOwnerValue)) {
-                            attrValue = entityFactory.newEntity(GPlainAttrValue.class);
+                            GPlainAttrValue attrValue = entityFactory.newEntity(GPlainAttrValue.class);
                             attrValue.setStringValue(groupOwnerValue);
                             values.add(attrValue);
                         }
@@ -573,9 +697,19 @@ public final class MappingUtils {
             default:
         }
 
-        LOG.debug("Retrieved values '{}'", values);
+        LOG.debug("Values for propagation: {}", values);
 
-        return values;
+        List<PlainAttrValue> transformed = values;
+        if (transform) {
+            for (MappingItemTransformer transformer : getMappingItemTransformers(mappingItem)) {
+                transformed = transformer.beforePropagation(transformed);
+            }
+            LOG.debug("Transformed values for propagation: {}", values);
+        } else {
+            LOG.debug("No transformation occurred");
+        }
+
+        return transformed;
     }
 
     /**
@@ -585,7 +719,8 @@ public final class MappingUtils {
      * @param provision provision information
      * @return connObjectKey internal value
      */
-    public static String getConnObjectKeyValue(final Any<?, ?, ?> any, final Provision provision) {
+    @Transactional(readOnly = true)
+    public String getConnObjectKeyValue(final Any<?, ?, ?> any, final Provision provision) {
         List<PlainAttrValue> values = getIntValues(provision, provision.getMapping().getConnObjectKeyItem(),
                 Collections.<Any<?, ?, ?>>singletonList(any), null);
         return values == null || values.isEmpty()
@@ -593,71 +728,139 @@ public final class MappingUtils {
                 : values.get(0).getValueAsString();
     }
 
-    public static MappingItem getConnObjectKeyItem(final Provision provision) {
-        Mapping mapping = null;
-        if (provision != null) {
-            mapping = provision.getMapping();
+    /**
+     * Set attribute values, according to the given {@link MappingItem}, to any object from attribute received from
+     * connector.
+     *
+     * @param <T> any object
+     * @param mappingItem mapping item
+     * @param attr attribute received from connector
+     * @param anyTO any object
+     * @param anyUtils any utils
+     */
+    @Transactional(readOnly = true)
+    public <T extends AnyTO> void setIntValues(
+            final MappingItem mappingItem, final Attribute attr, final T anyTO, final AnyUtils anyUtils) {
+
+        List<Object> values = null;
+        if (attr != null) {
+            values = attr.getValue();
+            for (MappingItemTransformer transformer : getMappingItemTransformers(mappingItem)) {
+                values = transformer.beforeSync(values);
+            }
         }
+        values = ListUtils.emptyIfNull(values);
 
-        return mapping == null
-                ? null
-                : mapping.getConnObjectKeyItem();
-    }
+        switch (mappingItem.getIntMappingType()) {
+            case UserKey:
+            case GroupKey:
+            case AnyObjectKey:
+                break;
 
-    public static List<MappingItem> getMappingItems(final Provision provision, final MappingPurpose purpose) {
-        List<? extends MappingItem> items = Collections.<MappingItem>emptyList();
-        if (provision != null) {
-            items = provision.getMapping().getItems();
-        }
-
-        List<MappingItem> result = new ArrayList<>();
-
-        switch (purpose) {
-            case SYNCHRONIZATION:
-                for (MappingItem item : items) {
-                    if (MappingPurpose.PROPAGATION != item.getPurpose()
-                            && MappingPurpose.NONE != item.getPurpose()) {
-
-                        result.add(item);
-                    }
+            case Password:
+                if (anyTO instanceof UserTO && !values.isEmpty()) {
+                    ((UserTO) anyTO).setPassword(ConnObjectUtils.getPassword(values.get(0)));
                 }
                 break;
 
-            case PROPAGATION:
-                for (MappingItem item : items) {
-                    if (MappingPurpose.SYNCHRONIZATION != item.getPurpose()
-                            && MappingPurpose.NONE != item.getPurpose()) {
-
-                        result.add(item);
-                    }
+            case Username:
+                if (anyTO instanceof UserTO) {
+                    ((UserTO) anyTO).setUsername(values.isEmpty() || values.get(0) == null
+                            ? null
+                            : values.get(0).toString());
                 }
                 break;
 
-            case BOTH:
-                for (MappingItem item : items) {
-                    if (MappingPurpose.NONE != item.getPurpose()) {
-                        result.add(item);
-                    }
+            case GroupName:
+                if (anyTO instanceof GroupTO) {
+                    ((GroupTO) anyTO).setName(values.isEmpty() || values.get(0) == null
+                            ? null
+                            : values.get(0).toString());
                 }
                 break;
 
-            case NONE:
-                for (MappingItem item : items) {
-                    if (MappingPurpose.NONE == item.getPurpose()) {
-                        result.add(item);
+            case GroupOwnerSchema:
+                if (anyTO instanceof GroupTO && attr != null) {
+                    // using a special attribute (with schema "", that will be ignored) for carrying the
+                    // GroupOwnerSchema value
+                    AttrTO attrTO = new AttrTO();
+                    attrTO.setSchema(StringUtils.EMPTY);
+                    if (values.isEmpty() || values.get(0) == null) {
+                        attrTO.getValues().add(StringUtils.EMPTY);
+                    } else {
+                        attrTO.getValues().add(values.get(0).toString());
+                    }
+
+                    ((GroupTO) anyTO).getPlainAttrs().add(attrTO);
+                }
+                break;
+
+            case UserPlainSchema:
+            case GroupPlainSchema:
+            case AnyObjectPlainSchema:
+                AttrTO attrTO = new AttrTO();
+                attrTO.setSchema(mappingItem.getIntAttrName());
+
+                PlainSchema schema = plainSchemaDAO.find(mappingItem.getIntAttrName());
+
+                for (Object value : values) {
+                    AttrSchemaType schemaType = schema == null ? AttrSchemaType.String : schema.getType();
+                    if (value != null) {
+                        PlainAttrValue attrValue = anyUtils.newPlainAttrValue();
+                        switch (schemaType) {
+                            case String:
+                                attrValue.setStringValue(value.toString());
+                                break;
+
+                            case Binary:
+                                attrValue.setBinaryValue((byte[]) value);
+                                break;
+
+                            default:
+                                try {
+                                    attrValue.parseValue(schema, value.toString());
+                                } catch (ParsingValidationException e) {
+                                    LOG.error("While parsing provided value {}", value, e);
+                                    attrValue.setStringValue(value.toString());
+                                    schemaType = AttrSchemaType.String;
+                                }
+                                break;
+                        }
+                        attrTO.getValues().add(attrValue.getValueAsString(schemaType));
                     }
                 }
+
+                anyTO.getPlainAttrs().add(attrTO);
+                break;
+
+            case UserDerivedSchema:
+            case GroupDerivedSchema:
+            case AnyObjectDerivedSchema:
+                attrTO = new AttrTO();
+                attrTO.setSchema(mappingItem.getIntAttrName());
+                anyTO.getDerAttrs().add(attrTO);
+                break;
+
+            case UserVirtualSchema:
+            case GroupVirtualSchema:
+            case AnyObjectVirtualSchema:
+                attrTO = new AttrTO();
+                attrTO.setSchema(mappingItem.getIntAttrName());
+
+                // virtual attributes don't get transformed, iterate over original attr.getValue()
+                for (Object value : (attr == null || attr.getValue() == null)
+                        ? Collections.emptyList() : attr.getValue()) {
+
+                    if (value != null) {
+                        attrTO.getValues().add(value.toString());
+                    }
+                }
+
+                anyTO.getVirAttrs().add(attrTO);
                 break;
 
             default:
         }
-
-        return result;
     }
 
-    /**
-     * Private default constructor, for static-only classes.
-     */
-    private MappingUtils() {
-    }
 }

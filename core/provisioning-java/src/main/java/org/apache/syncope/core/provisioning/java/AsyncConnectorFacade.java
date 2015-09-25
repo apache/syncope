@@ -120,7 +120,7 @@ public class AsyncConnectorFacade {
 
         Attribute attribute = null;
 
-        final ConnectorObject object = connector.getObject(objectClass, uid, options);
+        ConnectorObject object = connector.getObject(objectClass, uid, options);
         if (object == null) {
             LOG.debug("Object for '{}' not found", uid.getUidValue());
         } else {
@@ -137,9 +137,9 @@ public class AsyncConnectorFacade {
             final Uid uid,
             final OperationOptions options) {
 
-        final Set<Attribute> attributes = new HashSet<>();
+        Set<Attribute> attributes = new HashSet<>();
 
-        final ConnectorObject object = connector.getObject(objectClass, uid, options);
+        ConnectorObject object = connector.getObject(objectClass, uid, options);
 
         if (object == null) {
             LOG.debug("Object for '{}' not found", uid.getUidValue());
@@ -154,10 +154,10 @@ public class AsyncConnectorFacade {
 
     @Async
     public Future<Set<String>> getSchemaNames(final ConnectorFacade connector, final boolean includeSpecial) {
-        final Set<String> schemaNames = new HashSet<>();
+        Set<String> schemaNames = new HashSet<>();
 
         try {
-            final Schema schema = connector.schema();
+            Schema schema = connector.schema();
             for (ObjectClassInfo info : schema.getObjectClassInfo()) {
                 for (AttributeInfo attrInfo : info.getAttributeInfo()) {
                     if (includeSpecial || !AttributeUtil.isSpecialName(attrInfo.getName())) {
@@ -175,10 +175,10 @@ public class AsyncConnectorFacade {
 
     @Async
     public Future<Set<ObjectClass>> getSupportedObjectClasses(final ConnectorFacade connector) {
-        final Set<ObjectClass> objectClasses = new HashSet<>();
+        Set<ObjectClass> objectClasses = new HashSet<>();
 
         try {
-            final Schema schema = connector.schema();
+            Schema schema = connector.schema();
             for (ObjectClassInfo info : schema.getObjectClassInfo()) {
                 objectClasses.add(new ObjectClass(info.getType()));
             }

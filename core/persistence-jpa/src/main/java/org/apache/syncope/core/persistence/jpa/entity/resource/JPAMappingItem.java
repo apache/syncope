@@ -18,13 +18,19 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.resource;
 
+import java.util.ArrayList;
+import java.util.List;
 import javax.persistence.Basic;
 import javax.persistence.Cacheable;
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Max;
@@ -90,6 +96,16 @@ public class JPAMappingItem extends AbstractEntity<Long> implements MappingItem 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private MappingPurpose purpose;
+
+    /**
+     * (Optional) classes for MappingItem transformation.
+     */
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Column(name = "transformerClassName")
+    @CollectionTable(name = "MappingItem_Transformer",
+            joinColumns =
+            @JoinColumn(name = "mappingItem_id", referencedColumnName = "id"))
+    private List<String> mappingItemTransformerClassNames = new ArrayList<>();
 
     public JPAMappingItem() {
         super();
@@ -214,4 +230,10 @@ public class JPAMappingItem extends AbstractEntity<Long> implements MappingItem 
     public void setPurpose(final MappingPurpose purpose) {
         this.purpose = purpose;
     }
+
+    @Override
+    public List<String> getMappingItemTransformerClassNames() {
+        return mappingItemTransformerClassNames;
+    }
+
 }

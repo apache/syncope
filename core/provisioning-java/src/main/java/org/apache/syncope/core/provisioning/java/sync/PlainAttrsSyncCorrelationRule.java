@@ -18,17 +18,19 @@
  */
 package org.apache.syncope.core.provisioning.java.sync;
 
+import static org.apache.syncope.core.misc.MappingUtils.getMappingItemTransformers;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.core.misc.MappingUtils;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
+import org.apache.syncope.core.provisioning.api.data.MappingItemTransformer;
 import org.apache.syncope.core.provisioning.api.sync.SyncCorrelationRule;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
@@ -46,41 +48,44 @@ public class PlainAttrsSyncCorrelationRule implements SyncCorrelationRule {
 
     @Override
     public SearchCond getSearchCond(final ConnectorObject connObj) {
-        // search for external attribute's name/value of each specified name
-        Map<String, Attribute> extValues = new HashMap<>();
-
-        for (MappingItem item : MappingUtils.getMappingItems(provision, MappingPurpose.SYNCHRONIZATION)) {
-            extValues.put(item.getIntAttrName(), connObj.getAttributeByName(item.getExtAttrName()));
+        Map<String, MappingItem> mappingItems = new HashMap<>();
+        for (MappingItem item : MappingUtils.getSyncMappingItems(provision)) {
+            mappingItems.put(item.getIntAttrName(), item);
         }
 
-        // search for user/group by attribute(s) specified in the policy
+        // search for anys by attribute(s) specified in the policy
         SearchCond searchCond = null;
 
         for (String schema : plainSchemaNames) {
-            Attribute value = extValues.get(schema);
-
-            if (value == null) {
+            Attribute attr = mappingItems.get(schema) == null
+                    ? null
+                    : connObj.getAttributeByName(mappingItems.get(schema).getExtAttrName());
+            if (attr == null) {
                 throw new IllegalArgumentException(
                         "Connector object does not contains the attributes to perform the search: " + schema);
+            }
+
+            List<Object> values = attr.getValue();
+            for (MappingItemTransformer transformer : getMappingItemTransformers(mappingItems.get(schema))) {
+                values = transformer.beforeSync(values);
             }
 
             AttributeCond.Type type;
             String expression = null;
 
-            if (value.getValue() == null || value.getValue().isEmpty()
-                    || (value.getValue().size() == 1 && value.getValue().get(0) == null)) {
-
+            if (values == null || values.isEmpty() || (values.size() == 1 && values.get(0) == null)) {
                 type = AttributeCond.Type.ISNULL;
             } else {
                 type = AttributeCond.Type.EQ;
-                expression = value.getValue().size() > 1
-                        ? value.getValue().toString()
-                        : value.getValue().get(0).toString();
+                expression = values.size() > 1
+                        ? values.toString()
+                        : values.get(0).toString();
             }
 
             SearchCond nodeCond;
-            // users: just id or username can be selected to be used
-            // groups: just id or name can be selected to be used
+            // users: just key or username can be selected
+            // groups: just key or name can be selected
+            // any objects: just key can be selected
             if ("key".equalsIgnoreCase(schema)
                     || "username".equalsIgnoreCase(schema) || "name".equalsIgnoreCase(schema)) {
 

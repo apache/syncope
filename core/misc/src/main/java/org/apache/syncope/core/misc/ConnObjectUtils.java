@@ -21,11 +21,7 @@ package org.apache.syncope.core.misc;
 import org.apache.syncope.core.misc.policy.InvalidPasswordRuleConf;
 import org.apache.syncope.core.misc.security.SecureRandomUtils;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.patch.AnyPatch;
@@ -37,17 +33,11 @@ import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.AttrSchemaType;
-import org.apache.syncope.common.lib.types.MappingPurpose;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValidationException;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
-import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
-import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
-import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.task.SyncTask;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.misc.security.Encryptor;
@@ -71,6 +61,8 @@ public class ConnObjectUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConnObjectUtils.class);
 
+    private static final Encryptor ENCRYPTOR = Encryptor.getInstance();
+
     @Autowired
     private TemplateUtils templateUtils;
 
@@ -84,12 +76,44 @@ public class ConnObjectUtils {
     private ExternalResourceDAO resourceDAO;
 
     @Autowired
-    private PlainSchemaDAO plainSchemaDAO;
+    private PasswordGenerator passwordGenerator;
 
     @Autowired
-    private PasswordGenerator pwdGen;
+    private MappingUtils mappingUtils;
 
-    private final Encryptor encryptor = Encryptor.getInstance();
+    /**
+     * Extract password value from passed value (if instance of GuardedString or GuardedByteArray).
+     *
+     * @param pwd received from the underlying connector
+     * @return password value
+     */
+    public static String getPassword(final Object pwd) {
+        final StringBuilder result = new StringBuilder();
+
+        if (pwd instanceof GuardedString) {
+            ((GuardedString) pwd).access(new GuardedString.Accessor() {
+
+                @Override
+                public void access(final char[] clearChars) {
+                    result.append(clearChars);
+                }
+            });
+        } else if (pwd instanceof GuardedByteArray) {
+            ((GuardedByteArray) pwd).access(new GuardedByteArray.Accessor() {
+
+                @Override
+                public void access(final byte[] clearBytes) {
+                    result.append(new String(clearBytes));
+                }
+            });
+        } else if (pwd instanceof String) {
+            result.append((String) pwd);
+        } else {
+            result.append(pwd.toString());
+        }
+
+        return result.toString();
+    }
 
     /**
      * Build a UserTO / GroupTO / AnyObjectTO out of connector object attributes and schema mapping.
@@ -131,7 +155,7 @@ public class ConnObjectUtils {
 
             String password;
             try {
-                password = pwdGen.generate(ruleConfs);
+                password = passwordGenerator.generate(ruleConfs);
             } catch (InvalidPasswordRuleConf e) {
                 LOG.error("Could not generate policy-compliant random password for {}", userTO, e);
 
@@ -167,7 +191,7 @@ public class ConnObjectUtils {
             // update password if and only if password is really changed
             User user = userDAO.authFind(key);
             if (StringUtils.isBlank(((UserTO) updated).getPassword())
-                    || encryptor.verify(((UserTO) updated).getPassword(),
+                    || ENCRYPTOR.verify(((UserTO) updated).getPassword(),
                             user.getCipherAlgorithm(), user.getPassword())) {
 
                 ((UserTO) updated).setPassword(null);
@@ -190,167 +214,14 @@ public class ConnObjectUtils {
 
         // 1. fill with data from connector object
         anyTO.setRealm(syncTask.getDestinatioRealm().getFullPath());
-        for (MappingItem item : MappingUtils.getMappingItems(provision, MappingPurpose.SYNCHRONIZATION)) {
-            Attribute attr = obj.getAttributeByName(item.getExtAttrName());
-
-            AttrTO attrTO;
-            switch (item.getIntMappingType()) {
-                case UserKey:
-                case GroupKey:
-                case AnyObjectKey:
-                    break;
-
-                case Password:
-                    if (anyTO instanceof UserTO && attr != null && attr.getValue() != null
-                            && !attr.getValue().isEmpty()) {
-
-                        ((UserTO) anyTO).setPassword(getPassword(attr.getValue().get(0)));
-                    }
-                    break;
-
-                case Username:
-                    if (anyTO instanceof UserTO) {
-                        ((UserTO) anyTO).setUsername(attr == null || attr.getValue().isEmpty()
-                                || attr.getValue().get(0) == null
-                                        ? null
-                                        : attr.getValue().get(0).toString());
-                    }
-                    break;
-
-                case GroupName:
-                    if (anyTO instanceof GroupTO) {
-                        ((GroupTO) anyTO).setName(attr == null || attr.getValue().isEmpty()
-                                || attr.getValue().get(0) == null
-                                        ? null
-                                        : attr.getValue().get(0).toString());
-                    }
-                    break;
-
-                case GroupOwnerSchema:
-                    if (anyTO instanceof GroupTO && attr != null) {
-                        // using a special attribute (with schema "", that will be ignored) for carrying the
-                        // GroupOwnerSchema value
-                        attrTO = new AttrTO();
-                        attrTO.setSchema(StringUtils.EMPTY);
-                        if (attr.getValue().isEmpty() || attr.getValue().get(0) == null) {
-                            attrTO.getValues().add(StringUtils.EMPTY);
-                        } else {
-                            attrTO.getValues().add(attr.getValue().get(0).toString());
-                        }
-
-                        ((GroupTO) anyTO).getPlainAttrs().add(attrTO);
-                    }
-                    break;
-
-                case UserPlainSchema:
-                case GroupPlainSchema:
-                case AnyObjectPlainSchema:
-                    attrTO = new AttrTO();
-                    attrTO.setSchema(item.getIntAttrName());
-
-                    PlainSchema schema = plainSchemaDAO.find(item.getIntAttrName());
-
-                    for (Object value : attr == null || attr.getValue() == null
-                            ? Collections.emptyList()
-                            : attr.getValue()) {
-
-                        AttrSchemaType schemaType = schema == null ? AttrSchemaType.String : schema.getType();
-                        if (value != null) {
-                            final PlainAttrValue attrValue = anyUtils.newPlainAttrValue();
-                            switch (schemaType) {
-                                case String:
-                                    attrValue.setStringValue(value.toString());
-                                    break;
-
-                                case Binary:
-                                    attrValue.setBinaryValue((byte[]) value);
-                                    break;
-
-                                default:
-                                    try {
-                                        attrValue.parseValue(schema, value.toString());
-                                    } catch (ParsingValidationException e) {
-                                        LOG.error("While parsing provided value {}", value, e);
-                                        attrValue.setStringValue(value.toString());
-                                        schemaType = AttrSchemaType.String;
-                                    }
-                                    break;
-                            }
-                            attrTO.getValues().add(attrValue.getValueAsString(schemaType));
-                        }
-                    }
-
-                    anyTO.getPlainAttrs().add(attrTO);
-                    break;
-
-                case UserDerivedSchema:
-                case GroupDerivedSchema:
-                case AnyObjectDerivedSchema:
-                    attrTO = new AttrTO();
-                    attrTO.setSchema(item.getIntAttrName());
-                    anyTO.getDerAttrs().add(attrTO);
-                    break;
-
-                case UserVirtualSchema:
-                case GroupVirtualSchema:
-                case AnyObjectVirtualSchema:
-                    attrTO = new AttrTO();
-                    attrTO.setSchema(item.getIntAttrName());
-
-                    for (Object value : attr == null || attr.getValue() == null
-                            ? Collections.emptyList()
-                            : attr.getValue()) {
-
-                        if (value != null) {
-                            attrTO.getValues().add(value.toString());
-                        }
-                    }
-
-                    anyTO.getVirAttrs().add(attrTO);
-                    break;
-
-                default:
-            }
+        for (MappingItem item : MappingUtils.getSyncMappingItems(provision)) {
+            mappingUtils.setIntValues(item, obj.getAttributeByName(item.getExtAttrName()), anyTO, anyUtils);
         }
 
         // 2. add data from defined template (if any)
         templateUtils.apply(anyTO, syncTask.getTemplate(provision.getAnyType()));
 
         return anyTO;
-    }
-
-    /**
-     * Extract password value from passed value (if instance of GuardedString or GuardedByteArray).
-     *
-     * @param pwd received from the underlying connector
-     * @return password value
-     */
-    public String getPassword(final Object pwd) {
-        final StringBuilder result = new StringBuilder();
-
-        if (pwd instanceof GuardedString) {
-            ((GuardedString) pwd).access(new GuardedString.Accessor() {
-
-                @Override
-                public void access(final char[] clearChars) {
-                    result.append(clearChars);
-                }
-            });
-        } else if (pwd instanceof GuardedByteArray) {
-            ((GuardedByteArray) pwd).access(new GuardedByteArray.Accessor() {
-
-                @Override
-                public void access(final byte[] clearBytes) {
-                    result.append(new String(clearBytes));
-                }
-            });
-        } else if (pwd instanceof String) {
-            result.append((String) pwd);
-        } else {
-            result.append(pwd.toString());
-        }
-
-        return result.toString();
     }
 
     /**
@@ -384,26 +255,5 @@ public class ConnObjectUtils {
         }
 
         return connObjectTO;
-    }
-
-    /**
-     * Transform a
-     * <code>Collection</code> of {@link Attribute} instances into a {@link Map}. The key to each element in the map is
-     * the <i>name</i> of an
-     * <code>Attribute</code>. The value of each element in the map is the
-     * <code>Attribute</code> instance with that name. <br/> Different from the original because: <ul> <li>map keys are
-     * transformed toUpperCase()</li> <li>returned map is mutable</li> </ul>
-     *
-     * @param attributes set of attribute to transform to a map.
-     * @return a map of string and attribute.
-     *
-     * @see org.identityconnectors.framework.common.objects.AttributeUtil#toMap(java.util.Collection)
-     */
-    public Map<String, Attribute> toMap(final Collection<? extends Attribute> attributes) {
-        final Map<String, Attribute> map = new HashMap<>();
-        for (Attribute attr : attributes) {
-            map.put(attr.getName().toUpperCase(), attr);
-        }
-        return map;
     }
 }

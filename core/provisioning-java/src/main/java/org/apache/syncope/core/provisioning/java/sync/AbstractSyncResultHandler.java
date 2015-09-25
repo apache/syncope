@@ -201,7 +201,7 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
             create(anyTO, actionedDelta, UnmatchingRule.toEventName(UnmatchingRule.PROVISION), result);
         }
 
-        return Collections.<ProvisioningResult>singletonList(result);
+        return Collections.singletonList(result);
     }
 
     private void create(

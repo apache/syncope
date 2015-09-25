@@ -36,7 +36,6 @@ import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.Entitlement;
-import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.core.persistence.api.dao.DuplicateException;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -91,6 +90,9 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
 
     @Autowired
     private ConnObjectUtils connObjectUtils;
+
+    @Autowired
+    private MappingUtils mappingUtils;
 
     @Autowired
     private ConnectorFactory connFactory;
@@ -216,13 +218,13 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
             throw new NotFoundException(
                     "ConnObjectKey mapping for " + init.getMiddle() + " " + anyKey + " on resource '" + key + "'");
         }
-        String connObjectKeyValue = MappingUtils.getConnObjectKeyValue(any, init.getRight());
+        String connObjectKeyValue = mappingUtils.getConnObjectKeyValue(any, init.getRight());
 
         Connector connector = connFactory.getConnector(init.getLeft());
         ConnectorObject connectorObject = connector.getObject(
                 init.getRight().getObjectClass(),
                 new Uid(connObjectKeyValue),
-                connector.getOperationOptions(MappingUtils.getMappingItems(init.getRight(), MappingPurpose.BOTH)));
+                connector.getOperationOptions(MappingUtils.getBothMappingItems(init.getRight())));
         if (connectorObject == null) {
             throw new NotFoundException(
                     "Object " + connObjectKeyValue + " with class " + init.getRight().getObjectClass()

@@ -60,14 +60,14 @@ class GuardedStringSerializer extends JsonSerializer<GuardedString> {
         jgen.writeBooleanField("disposed", disposed);
 
         final StringBuilder cleartext = new StringBuilder();
-        ((GuardedString) source).access(new GuardedString.Accessor() {
+        source.access(new GuardedString.Accessor() {
 
             @Override
             public void access(final char[] clearChars) {
                 cleartext.append(clearChars);
             }
         });
-        final byte[] encryptedBytes =
+        byte[] encryptedBytes =
                 EncryptorFactory.getInstance().getDefaultEncryptor().encrypt(cleartext.toString().getBytes());
         jgen.writeStringField("encryptedBytes", Base64.encode(encryptedBytes));
 

@@ -72,6 +72,8 @@ public class AuthDataAccessor {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AuthDataAccessor.class);
 
+    protected static final Encryptor ENCRYPTOR = Encryptor.getInstance();
+
     @Resource(name = "adminUser")
     protected String adminUser;
 
@@ -102,7 +104,8 @@ public class AuthDataAccessor {
     @Autowired
     protected AuditManager auditManager;
 
-    protected final Encryptor encryptor = Encryptor.getInstance();
+    @Autowired
+    protected MappingUtils mappingUtils;
 
     @Transactional(readOnly = true)
     public Domain findDomain(final String key) {
@@ -158,7 +161,7 @@ public class AuthDataAccessor {
     }
 
     protected boolean authenticate(final User user, final String password) {
-        boolean authenticated = encryptor.verify(password, user.getCipherAlgorithm(), user.getPassword());
+        boolean authenticated = ENCRYPTOR.verify(password, user.getCipherAlgorithm(), user.getPassword());
         LOG.debug("{} authenticated on internal storage: {}", user.getUsername(), authenticated);
 
         for (Iterator<? extends ExternalResource> itor = getPassthroughResources(user).iterator();
@@ -167,7 +170,7 @@ public class AuthDataAccessor {
             ExternalResource resource = itor.next();
             String connObjectKey = null;
             try {
-                connObjectKey = MappingUtils.getConnObjectKeyValue(user, resource.getProvision(anyTypeDAO.findUser()));
+                connObjectKey = mappingUtils.getConnObjectKeyValue(user, resource.getProvision(anyTypeDAO.findUser()));
                 Uid uid = connFactory.getConnector(resource).authenticate(connObjectKey, password, null);
                 if (uid != null) {
                     authenticated = true;

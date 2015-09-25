@@ -77,7 +77,7 @@ public class DefaultPropagationReporter implements PropagationReporter {
 
         for (PropagationTask propagationTask : tasks) {
             if (!containsPropagationStatusTO(propagationTask.getResource().getKey())) {
-                final PropagationStatus propagationStatusTO = new PropagationStatus();
+                PropagationStatus propagationStatusTO = new PropagationStatus();
                 propagationStatusTO.setResource(propagationTask.getResource().getKey());
                 propagationStatusTO.setStatus(PropagationTaskExecStatus.FAILURE);
                 propagationStatusTO.setFailureReason(

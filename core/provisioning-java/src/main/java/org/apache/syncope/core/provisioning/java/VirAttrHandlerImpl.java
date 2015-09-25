@@ -34,7 +34,6 @@ import org.apache.syncope.common.lib.patch.AttrPatch;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IntMappingType;
-import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.misc.MappingUtils;
@@ -61,7 +60,6 @@ import org.apache.syncope.core.provisioning.api.cache.VirAttrCache;
 import org.apache.syncope.core.provisioning.api.cache.VirAttrCacheValue;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
-import org.identityconnectors.framework.common.objects.OperationOptions;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -102,6 +100,9 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
     @Autowired
     private VirAttrCache virAttrCache;
 
+    @Autowired
+    private MappingUtils mappingUtils;
+
     @Override
     public VirSchema getVirSchema(final String virSchemaName) {
         VirSchema virtualSchema = null;
@@ -122,8 +123,8 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
             final PropagationByResource propByRes) {
 
         for (ExternalResource resource : resources) {
-            for (MappingItem mapItem : MappingUtils.getMappingItems(
-                    resource.getProvision(any.getType()), MappingPurpose.PROPAGATION)) {
+            for (MappingItem mapItem
+                    : MappingUtils.getPropagationMappingItems(resource.getProvision(any.getType()))) {
 
                 if (schemaKey.equals(mapItem.getIntAttrName()) && mapItem.getIntMappingType() == mappingType) {
                     propByRes.add(ResourceOperation.UPDATE, resource.getKey());
@@ -232,8 +233,8 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
                         }
 
                         for (ExternalResource resource : externalResources) {
-                            for (MappingItem mapItem : MappingUtils.getMappingItems(
-                                    resource.getProvision(any.getType()), MappingPurpose.PROPAGATION)) {
+                            for (MappingItem mapItem
+                                    : MappingUtils.getPropagationMappingItems(resource.getProvision(any.getType()))) {
 
                                 if (virSchema.getKey().equals(mapItem.getIntAttrName())
                                         && mapItem.getIntMappingType() == anyUtils.virIntMappingType()) {
@@ -314,7 +315,7 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
                 LOG.debug("Search values into {},{}", resource, provision);
 
                 try {
-                    List<MappingItem> mappings = MappingUtils.getMappingItems(provision, MappingPurpose.BOTH);
+                    List<MappingItem> mapItems = MappingUtils.getBothMappingItems(provision);
 
                     ConnectorObject connectorObject;
                     if (externalResources.containsKey(resource.getKey())) {
@@ -323,33 +324,26 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
                         LOG.debug("Perform connection to {}", resource.getKey());
                         String connObjectKey = MappingUtils.getConnObjectKeyItem(provision) == null
                                 ? null
-                                : MappingUtils.getConnObjectKeyValue(any, provision);
+                                : mappingUtils.getConnObjectKeyValue(any, provision);
 
                         if (StringUtils.isBlank(connObjectKey)) {
                             throw new IllegalArgumentException("No ConnObjectKey found for " + resource.getKey());
                         }
 
                         Connector connector = connFactory.getConnector(resource);
-
-                        OperationOptions oo =
-                                connector.getOperationOptions(MappingUtils.getMatchingMappingItems(mappings, type));
-
-                        connectorObject =
-                                connector.getObject(provision.getObjectClass(), new Uid(connObjectKey), oo);
+                        connectorObject = connector.getObject(
+                                provision.getObjectClass(),
+                                new Uid(connObjectKey),
+                                connector.getOperationOptions(MappingUtils.getMatchingMappingItems(mapItems, type)));
                         externalResources.put(resource.getKey(), connectorObject);
                     }
 
                     if (connectorObject != null) {
-                        // ask for searched virtual attribute value
-                        Collection<MappingItem> virAttrMappings =
-                                MappingUtils.getMatchingMappingItems(mappings, schemaName, type);
-
-                        // the same virtual attribute could be mapped with one or more external attribute 
-                        for (MappingItem mapping : virAttrMappings) {
-                            Attribute attribute = connectorObject.getAttributeByName(mapping.getExtAttrName());
-
-                            if (attribute != null && attribute.getValue() != null) {
-                                for (Object obj : attribute.getValue()) {
+                        // the same virtual attribute could be mapped with one or more external attributes
+                        for (MappingItem mapItem : MappingUtils.getMatchingMappingItems(mapItems, schemaName, type)) {
+                            Attribute attr = connectorObject.getAttributeByName(mapItem.getExtAttrName());
+                            if (attr != null && attr.getValue() != null) {
+                                for (Object obj : attr.getValue()) {
                                     if (obj != null) {
                                         virAttr.getValues().add(obj.toString());
                                     }
@@ -390,7 +384,7 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
             public boolean evaluate(final ExternalResource resource) {
                 return resource.getProvision(anyType) != null
                         && !MappingUtils.getMatchingMappingItems(
-                                MappingUtils.getMappingItems(resource.getProvision(anyType), MappingPurpose.BOTH),
+                                MappingUtils.getBothMappingItems(resource.getProvision(anyType)),
                                 attr.getSchema().getKey(), type).isEmpty();
             }
         });

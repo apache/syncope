@@ -34,7 +34,6 @@ import org.apache.syncope.common.lib.patch.StringPatchItem;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
@@ -105,6 +104,9 @@ public class PropagationManagerImpl implements PropagationManager {
 
     @Autowired
     protected VirAttrHandler virAttrHandler;
+
+    @Autowired
+    protected MappingUtils mappingUtils;
 
     protected Any<?, ?, ?> find(final AnyTypeKind kind, final Long key) {
         AnyDAO<? extends Any<?, ?, ?>> dao;
@@ -367,7 +369,7 @@ public class PropagationManagerImpl implements PropagationManager {
                 } else if (provision == null) {
                     LOG.error("No provision specified on resource {} for type {}, ignoring...",
                             resource, any.getType());
-                } else if (MappingUtils.getMappingItems(provision, MappingPurpose.PROPAGATION).isEmpty()) {
+                } else if (MappingUtils.getPropagationMappingItems(provision).isEmpty()) {
                     LOG.warn("Requesting propagation for {} but no propagation mapping provided for {}",
                             any.getType(), resource);
                 } else {
@@ -382,7 +384,7 @@ public class PropagationManagerImpl implements PropagationManager {
                     task.setOperation(operation);
                     task.setOldConnObjectKey(propByRes.getOldConnObjectKey(resource.getKey()));
 
-                    Pair<String, Set<Attribute>> preparedAttrs = MappingUtils.prepareAttrs(
+                    Pair<String, Set<Attribute>> preparedAttrs = mappingUtils.prepareAttrs(
                             any, password, changePwd, vAttrs, enable, provision);
                     task.setConnObjectKey(preparedAttrs.getKey());
 
@@ -390,7 +392,7 @@ public class PropagationManagerImpl implements PropagationManager {
                     // if so, add special attributes that will be evaluated by PropagationTaskExecutor
                     List<String> mandatoryMissing = new ArrayList<>();
                     List<String> mandatoryNullOrEmpty = new ArrayList<>();
-                    for (MappingItem item : MappingUtils.getMappingItems(provision, MappingPurpose.PROPAGATION)) {
+                    for (MappingItem item : MappingUtils.getPropagationMappingItems(provision)) {
                         if (!item.isConnObjectKey()
                                 && JexlUtils.evaluateMandatoryCondition(item.getMandatoryCondition(), any)) {
 
