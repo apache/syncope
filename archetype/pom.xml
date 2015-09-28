@@ -227,4 +227,24 @@ under the License.
       </resource>
     </resources>
   </build>
+  
+  <profiles>
+    <profile>
+      <id>doc</id>
+
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.asciidoctor</groupId>
+            <artifactId>asciidoctor-maven-plugin</artifactId>
+            <inherited>false</inherited>
+            <configuration>
+              <skip>true</skip>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+  
 </project>
