@@ -82,6 +82,10 @@ compliance.
 
 ==== Users, Groups and Any objects
 
+==== Realms
+
+==== Domains
+
 === Tasks
 
 === Provisioning
@@ -110,6 +114,8 @@ compliance.
 
 === Audit
 
+=== Delegated Administration
+
 == Working with Apache Syncope
 
 === Using the Admin Console
@@ -118,11 +124,13 @@ compliance.
 
 ==== Client library
 
-=== Extending Apache Syncope
+=== Customization
 
 ==== Core
 
 ==== Console
+
+==== New extensions
 
 === Deploying in production
 
@@ -130,7 +138,11 @@ compliance.
 
 === High-Availability
 
-== Examples
+== Extensions
+
+=== Apache Camel
+
+== Use Cases
 
 // Chapters will be placed in separate .adoc files in the same directory
 //include::XXX.adoc[]
