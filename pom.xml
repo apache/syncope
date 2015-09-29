@@ -1342,7 +1342,11 @@ under the License.
               <goal>execute</goal>
             </goals>
             <configuration>
-              <source>                
+              <source>
+                import java.util.Date
+                import java.text.MessageFormat
+                def year = MessageFormat.format("{0,date,yyyy}", new Date()) 
+                project.properties['year'] = year
                 project.properties['licenseUrl'] = project.parent.licenses[0].url
               </source>
             </configuration>
@@ -1534,12 +1538,13 @@ under the License.
               <sourceHighlighter>coderay</sourceHighlighter>
               <attributes>
                 <docVersion>${project.version}</docVersion>
+                <year>${year}</year>
                 <numbered>true</numbered>
                 <icons>font</icons>
                 <pagenums/>
                 <idprefix/>
                 <idseparator>-</idseparator>
-                <last-update-label>Copyright © 2010–2015 The Apache Software Foundation. All rights reserved. Last Updated:</last-update-label>
+                <allow-uri-read/>
               </attributes>
             </configuration>
             <executions>
@@ -1565,6 +1570,10 @@ under the License.
                   <sourceDirectory>${basedir}/src/main/asciidoc/getting-started</sourceDirectory>
                   <sourceDocumentName>getting-started.adoc</sourceDocumentName>
                   <backend>pdf</backend>
+                  <attributes>
+                    <pdf-stylesdir>${basedir}/src/main/asciidoc</pdf-stylesdir>
+                    <pdf-style>syncope</pdf-style>
+                  </attributes>
                 </configuration>
               </execution>
               <execution>
@@ -1589,6 +1598,10 @@ under the License.
                   <sourceDirectory>${basedir}/src/main/asciidoc/reference-guide</sourceDirectory>
                   <sourceDocumentName>reference-guide.adoc</sourceDocumentName>
                   <backend>pdf</backend>
+                  <attributes>
+                    <pdf-stylesdir>${basedir}/src/main/asciidoc</pdf-stylesdir>
+                    <pdf-style>syncope</pdf-style>
+                  </attributes>
                 </configuration>
               </execution>
             </executions>
