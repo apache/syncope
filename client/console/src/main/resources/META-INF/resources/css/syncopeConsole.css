@@ -212,3 +212,9 @@ div.realms div.summarize {
 .navbar a {
   height: 55px
 }
+
+span.overridable div.checkbox {
+  float: right; 
+  margin: 0px; 
+  padding: 0px;
+}

@@ -32,6 +32,7 @@ import java.util.Set;
 import javax.ws.rs.core.Response;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -49,6 +50,7 @@ import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.policy.SyncPolicyTO;
+import org.apache.syncope.common.lib.to.MappingItemTO;
 import org.apache.syncope.common.lib.to.SyncTaskTO;
 import org.apache.syncope.common.lib.to.TaskExecTO;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -90,7 +92,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
     @Test
     public void list() {
         PagedResult<SyncTaskTO> tasks =
-                taskService.list(TaskType.SYNCHRONIZATION, SyncopeClient.getListQueryBuilder().build());
+                taskService.list(TaskType.SYNCHRONIZATION, SyncopeClient.getTaskQueryBuilder().build());
         assertFalse(tasks.getResult().isEmpty());
         for (AbstractTaskTO task : tasks.getResult()) {
             if (!(task instanceof SyncTaskTO)) {
@@ -253,7 +255,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         // update sync task
         TaskExecTO execution = execProvisioningTask(taskService, 7L, 50, false);
         assertNotNull(execution.getStatus());
-        assertTrue(PropagationTaskExecStatus.valueOf(execution.getStatus()).isSuccessful());
+        assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(execution.getStatus()));
 
         UserTO userTO = readUser("testuser1");
         assertNotNull(userTO);
@@ -267,7 +269,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         // re-execute the same SyncTask: now user must be active
         execution = execProvisioningTask(taskService, 7L, 50, false);
         assertNotNull(execution.getStatus());
-        assertTrue(PropagationTaskExecStatus.valueOf(execution.getStatus()).isSuccessful());
+        assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(execution.getStatus()));
 
         userTO = readUser("testuser1");
         assertNotNull(userTO);
@@ -317,9 +319,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         TaskExecTO execution = execProvisioningTask(taskService, 11L, 50, false);
 
         // 1. verify execution status
-        String status = execution.getStatus();
-        assertNotNull(status);
-        assertTrue(PropagationTaskExecStatus.valueOf(status).isSuccessful());
+        assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(execution.getStatus()));
 
         // 2. verify that synchronized group is found
         PagedResult<GroupTO> matchingGroups = groupService.search(
@@ -358,47 +358,78 @@ public class SyncTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void reconcileFromScriptedSQL() {
-        // 0. reset sync token
+        // 0. reset sync token and set MappingItemTransformer
         ResourceTO resource = resourceService.read(RESOURCE_NAME_DBSCRIPTED);
+        ResourceTO originalResource = SerializationUtils.clone(resource);
         ProvisionTO provision = resource.getProvision("PRINTER");
         assertNotNull(provision);
 
-        provision.setSyncToken(null);
-        resourceService.update(resource);
+        try {
+            provision.setSyncToken(null);
 
-        // 1. create printer on external resource
-        AnyObjectTO anyObjectTO = AnyObjectITCase.getSampleTO("sync");
-        anyObjectTO = createAnyObject(anyObjectTO);
-        assertNotNull(anyObjectTO);
+            MappingItemTO mappingItem = CollectionUtils.find(
+                    provision.getMapping().getItems(), new Predicate<MappingItemTO>() {
 
-        // 2. unlink any existing printer and delete from Syncope (printer is now only on external resource)
-        PagedResult<AnyObjectTO> matchingPrinters = anyObjectService.search(
-                SyncopeClient.getAnySearchQueryBuilder().realm(SyncopeConstants.ROOT_REALM).
-                fiql(SyncopeClient.getAnyObjectSearchConditionBuilder().type("PRINTER").and().
-                        is("location").equalTo("sync*").query()).build());
-        assertTrue(matchingPrinters.getSize() > 0);
-        for (AnyObjectTO printer : matchingPrinters.getResult()) {
-            DeassociationPatch deassociationPatch = new DeassociationPatch();
-            deassociationPatch.setKey(printer.getKey());
-            deassociationPatch.setAction(ResourceDeassociationAction.UNLINK);
-            deassociationPatch.getResources().add(RESOURCE_NAME_DBSCRIPTED);
-            anyObjectService.deassociate(deassociationPatch);
-            anyObjectService.delete(printer.getKey());
+                        @Override
+                        public boolean evaluate(final MappingItemTO object) {
+                            return "location".equals(object.getIntAttrName());
+                        }
+                    });
+            assertNotNull(mappingItem);
+            mappingItem.getMappingItemTransformerClassNames().clear();
+            mappingItem.getMappingItemTransformerClassNames().add(PrefixMappingItemTransformer.class.getName());
+
+            resourceService.update(resource);
+
+            // 1. create printer on external resource
+            AnyObjectTO anyObjectTO = AnyObjectITCase.getSampleTO("sync");
+            String originalLocation = anyObjectTO.getPlainAttrMap().get("location").getValues().get(0);
+            assertFalse(originalLocation.startsWith(PrefixMappingItemTransformer.PREFIX));
+
+            anyObjectTO = createAnyObject(anyObjectTO);
+            assertNotNull(anyObjectTO);
+
+            // 2. verify that PrefixMappingItemTransformer was applied during propagation
+            // (location starts with given prefix on external resource)
+            ConnObjectTO connObjectTO = resourceService.
+                    readConnObject(RESOURCE_NAME_DBSCRIPTED, anyObjectTO.getType(), anyObjectTO.getKey());
+            assertFalse(anyObjectTO.getPlainAttrMap().get("location").getValues().get(0).
+                    startsWith(PrefixMappingItemTransformer.PREFIX));
+            assertTrue(connObjectTO.getPlainAttrMap().get("location").getValues().get(0).
+                    startsWith(PrefixMappingItemTransformer.PREFIX));
+
+            // 3. unlink any existing printer and delete from Syncope (printer is now only on external resource)
+            PagedResult<AnyObjectTO> matchingPrinters = anyObjectService.search(
+                    SyncopeClient.getAnySearchQueryBuilder().realm(SyncopeConstants.ROOT_REALM).
+                    fiql(SyncopeClient.getAnyObjectSearchConditionBuilder().type("PRINTER").and().
+                            is("location").equalTo("sync*").query()).build());
+            assertTrue(matchingPrinters.getSize() > 0);
+            for (AnyObjectTO printer : matchingPrinters.getResult()) {
+                DeassociationPatch deassociationPatch = new DeassociationPatch();
+                deassociationPatch.setKey(printer.getKey());
+                deassociationPatch.setAction(ResourceDeassociationAction.UNLINK);
+                deassociationPatch.getResources().add(RESOURCE_NAME_DBSCRIPTED);
+                anyObjectService.deassociate(deassociationPatch);
+                anyObjectService.delete(printer.getKey());
+            }
+
+            // 4. synchronize
+            execProvisioningTask(taskService, 28L, 50, false);
+
+            // 5. verify that printer was re-created in Syncope (implies that location does not start with given prefix,
+            // hence PrefixMappingItemTransformer was applied during sync)
+            matchingPrinters = anyObjectService.search(
+                    SyncopeClient.getAnySearchQueryBuilder().realm(SyncopeConstants.ROOT_REALM).
+                    fiql(SyncopeClient.getAnyObjectSearchConditionBuilder().type("PRINTER").and().
+                            is("location").equalTo("sync*").query()).build());
+            assertTrue(matchingPrinters.getSize() > 0);
+
+            // 6. verify that synctoken was updated
+            assertNotNull(
+                    resourceService.read(RESOURCE_NAME_DBSCRIPTED).getProvision(anyObjectTO.getType()).getSyncToken());
+        } finally {
+            resourceService.update(originalResource);
         }
-
-        // 3. synchronize
-        execProvisioningTask(taskService, 28L, 50, false);
-
-        // 4. verify that printer was re-created in Syncope
-        matchingPrinters = anyObjectService.search(
-                SyncopeClient.getAnySearchQueryBuilder().realm(SyncopeConstants.ROOT_REALM).
-                fiql(SyncopeClient.getAnyObjectSearchConditionBuilder().type("PRINTER").and().
-                        is("location").equalTo("sync*").query()).build());
-        assertTrue(matchingPrinters.getSize() > 0);
-
-        // 5. verify that synctoken was updated
-        assertNotNull(
-                resourceService.read(RESOURCE_NAME_DBSCRIPTED).getProvision(anyObjectTO.getType()).getSyncToken());
     }
 
     @Test
@@ -455,9 +486,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
             assertFalse(((UserTO) actual.getTemplates().get(AnyTypeKind.USER.name())).getMemberships().isEmpty());
 
             TaskExecTO execution = execProvisioningTask(taskService, actual.getKey(), 50, false);
-            final String status = execution.getStatus();
-            assertNotNull(status);
-            assertTrue(PropagationTaskExecStatus.valueOf(status).isSuccessful());
+            assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(execution.getStatus()));
 
             userTO = readUser("testuser2");
             assertNotNull(userTO);
@@ -560,12 +589,12 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         try {
             assertNotNull(userTO);
             assertEquals(1, userTO.getPropagationStatusTOs().size());
-            assertTrue(userTO.getPropagationStatusTOs().get(0).getStatus().isSuccessful());
+            assertEquals(PropagationTaskExecStatus.SUCCESS, userTO.getPropagationStatusTOs().get(0).getStatus());
 
             TaskExecTO taskExecTO = execProvisioningTask(taskService, 24L, 50, false);
 
             assertNotNull(taskExecTO.getStatus());
-            assertTrue(PropagationTaskExecStatus.valueOf(taskExecTO.getStatus()).isSuccessful());
+            assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(taskExecTO.getStatus()));
 
             userTO = userService.read(userTO.getKey());
             assertNotNull(userTO);
@@ -669,9 +698,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         assertEquals(actual.getJobDelegateClassName(), syncTask.getJobDelegateClassName());
 
         TaskExecTO execution = execProvisioningTask(taskService, syncTask.getKey(), 50, false);
-        final String status = execution.getStatus();
-        assertNotNull(status);
-        assertTrue(PropagationTaskExecStatus.valueOf(status).isSuccessful());
+        assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(execution.getStatus()));
 
         // 5. Test the sync'd user
         UserTO updatedUser = userService.read(user.getKey());
@@ -743,9 +770,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         assertEquals(actual.getJobDelegateClassName(), syncTask.getJobDelegateClassName());
 
         TaskExecTO execution = execProvisioningTask(taskService, syncTask.getKey(), 50, false);
-        String status = execution.getStatus();
-        assertNotNull(status);
-        assertTrue(PropagationTaskExecStatus.valueOf(status).isSuccessful());
+        assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(execution.getStatus()));
 
         // 7. Test the sync'd user
         String syncedPassword = Encryptor.getInstance().encode("security123", CipherAlgorithm.SHA1);

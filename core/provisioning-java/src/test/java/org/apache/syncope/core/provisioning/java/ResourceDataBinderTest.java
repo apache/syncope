@@ -30,7 +30,6 @@ import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
-import org.apache.syncope.common.lib.types.PropagationMode;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
@@ -78,7 +77,6 @@ public class ResourceDataBinderTest extends AbstractTest {
         ResourceTO resourceTO = new ResourceTO();
         resourceTO.setKey("resource-issue42");
         resourceTO.setConnector(100L);
-        resourceTO.setPropagationMode(PropagationMode.ONE_PHASE);
         resourceTO.setEnforceMandatoryCondition(true);
 
         ProvisionTO provisionTO = new ProvisionTO();

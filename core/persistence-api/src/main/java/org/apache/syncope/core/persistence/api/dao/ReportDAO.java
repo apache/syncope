@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.List;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.Report;
 
 public interface ReportDAO extends DAO<Report, Long> {
@@ -27,10 +26,6 @@ public interface ReportDAO extends DAO<Report, Long> {
     Report find(Long key);
 
     List<Report> findAll();
-
-    List<Report> findAll(int page, int itemsPerPage, List<OrderByClause> orderByClauses);
-
-    int count();
 
     Report save(Report report);
 

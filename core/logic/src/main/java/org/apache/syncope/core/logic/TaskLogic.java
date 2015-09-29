@@ -32,12 +32,11 @@ import org.apache.syncope.common.lib.to.AbstractTaskTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.SyncTaskTO;
 import org.apache.syncope.common.lib.to.TaskExecTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.JobStatusType;
-import org.apache.syncope.common.lib.types.PropagationMode;
-import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
@@ -56,6 +55,7 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecu
 import org.apache.syncope.core.provisioning.api.job.JobInstanceLoader;
 import org.apache.syncope.core.logic.notification.NotificationJobDelegate;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
+import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.provisioning.java.job.TaskJob;
 import org.quartz.JobDataMap;
 import org.quartz.JobKey;
@@ -75,6 +75,9 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
 
     @Autowired
     private ConfDAO confDAO;
+
+    @Autowired
+    private ExternalResourceDAO resourceDAO;
 
     @Autowired
     private TaskDataBinder binder;
@@ -146,23 +149,27 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
     }
 
     @PreAuthorize("hasRole('" + Entitlement.TASK_LIST + "')")
-    public int count(final TaskType taskType) {
-        return taskDAO.count(taskType);
+    public int count(
+            final TaskType type, final String resource, final AnyTypeKind anyTypeKind, final Long anyTypeKey) {
+
+        return taskDAO.count(type, resourceDAO.find(resource), anyTypeKind, anyTypeKey);
     }
 
     @PreAuthorize("hasRole('" + Entitlement.TASK_LIST + "')")
     @SuppressWarnings("unchecked")
-    public <T extends AbstractTaskTO> List<T> list(final TaskType taskType,
+    public <T extends AbstractTaskTO> List<T> list(
+            final TaskType type, final String resource, final AnyTypeKind anyTypeKind, final Long anyTypeKey,
             final int page, final int size, final List<OrderByClause> orderByClauses) {
 
-        final TaskUtils taskUtilss = taskUtilsFactory.getInstance(taskType);
+        final TaskUtils taskUtils = taskUtilsFactory.getInstance(type);
 
-        return CollectionUtils.collect(taskDAO.findAll(page, size, orderByClauses, taskType),
+        return CollectionUtils.collect(taskDAO.findAll(
+                type, resourceDAO.find(resource), anyTypeKind, anyTypeKey, page, size, orderByClauses),
                 new Transformer<Task, T>() {
 
                     @Override
                     public T transform(final Task task) {
-                        return (T) binder.getTaskTO(task, taskUtilss);
+                        return (T) binder.getTaskTO(task, taskUtils);
                     }
                 }, new ArrayList<T>());
     }
@@ -236,48 +243,6 @@ public class TaskLogic extends AbstractJobLogic<AbstractTaskTO> {
         }
 
         return result;
-    }
-
-    @PreAuthorize("hasRole('" + Entitlement.TASK_READ + "')")
-    public TaskExecTO report(final Long execKey, final PropagationTaskExecStatus status, final String message) {
-        TaskExec exec = taskExecDAO.find(execKey);
-        if (exec == null) {
-            throw new NotFoundException("Task execution " + execKey);
-        }
-
-        SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidPropagationTaskExecReport);
-
-        TaskUtils taskUtils = taskUtilsFactory.getInstance(exec.getTask());
-        if (TaskType.PROPAGATION == taskUtils.getType()) {
-            PropagationTask task = (PropagationTask) exec.getTask();
-            if (task.getPropagationMode() != PropagationMode.TWO_PHASES) {
-                sce.getElements().add("Propagation mode: " + task.getPropagationMode());
-            }
-        } else {
-            sce.getElements().add("Task type: " + taskUtils);
-        }
-
-        switch (status) {
-            case SUCCESS:
-            case FAILURE:
-                break;
-
-            case CREATED:
-            case SUBMITTED:
-            case UNSUBMITTED:
-                sce.getElements().add("Execution status to be set: " + status);
-                break;
-
-            default:
-        }
-
-        if (!sce.isEmpty()) {
-            throw sce;
-        }
-
-        exec.setStatus(status.toString());
-        exec.setMessage(message);
-        return binder.getTaskExecTO(taskExecDAO.save(exec));
     }
 
     @PreAuthorize("hasRole('" + Entitlement.TASK_DELETE + "')")

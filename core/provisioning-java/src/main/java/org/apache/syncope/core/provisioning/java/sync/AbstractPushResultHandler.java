@@ -58,11 +58,15 @@ import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.quartz.JobExecutionException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHandler<PushTask, PushActions>
         implements SyncopePushResultHandler {
+
+    @Autowired
+    protected MappingUtils mappingUtils;
 
     protected abstract String getName(Any<?, ?, ?> any);
 
@@ -195,7 +199,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
 
         // Try to read remote object BEFORE any actual operation
         Provision provision = profile.getTask().getResource().getProvision(any.getType());
-        String connObjecKey = MappingUtils.getConnObjectKeyValue(any, provision);
+        String connObjecKey = mappingUtils.getConnObjectKeyValue(any, provision);
 
         ConnectorObject beforeObj = getRemoteObject(connObjecKey, provision.getObjectClass());
 

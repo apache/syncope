@@ -82,7 +82,7 @@ public class SyncopeLogic extends AbstractLogic<SyncopeTO> {
     private PasswordGenerator passwordGenerator;
 
     @Autowired
-    private ImplementationLookup implementationLookup;
+    private ImplementationLookup implLookup;
 
     @Resource(name = "velocityResourceLoader")
     private ResourceWithFallbackLoader resourceLoader;
@@ -128,17 +128,18 @@ public class SyncopeLogic extends AbstractLogic<SyncopeTO> {
         syncopeTO.setVirAttrCache(virAttrCache.getClass().getName());
         syncopeTO.setPasswordGenerator(passwordGenerator.getClass().getName());
 
-        syncopeTO.getReportlets().addAll(implementationLookup.getClassNames(Type.REPORTLET));
-        syncopeTO.getAccountRules().addAll(implementationLookup.getClassNames(Type.ACCOUNT_RULE));
-        syncopeTO.getPasswordRules().addAll(implementationLookup.getClassNames(Type.PASSWORD_RULE));
-        syncopeTO.getTaskJobs().addAll(implementationLookup.getClassNames(Type.TASKJOBDELEGATE));
-        syncopeTO.getLogicActions().addAll(implementationLookup.getClassNames(Type.LOGIC_ACTIONS));
-        syncopeTO.getPropagationActions().addAll(implementationLookup.getClassNames(Type.PROPAGATION_ACTIONS));
-        syncopeTO.getSyncActions().addAll(implementationLookup.getClassNames(Type.SYNC_ACTIONS));
-        syncopeTO.getPushActions().addAll(implementationLookup.getClassNames(Type.PUSH_ACTIONS));
-        syncopeTO.getSyncCorrelationRules().addAll(implementationLookup.getClassNames(Type.SYNC_CORRELATION_RULE));
-        syncopeTO.getPushCorrelationRules().addAll(implementationLookup.getClassNames(Type.PUSH_CORRELATION_RULE));
-        syncopeTO.getValidators().addAll(implementationLookup.getClassNames(Type.VALIDATOR));
+        syncopeTO.getReportlets().addAll(implLookup.getClassNames(Type.REPORTLET));
+        syncopeTO.getAccountRules().addAll(implLookup.getClassNames(Type.ACCOUNT_RULE));
+        syncopeTO.getPasswordRules().addAll(implLookup.getClassNames(Type.PASSWORD_RULE));
+        syncopeTO.getMappingItemTransformers().addAll(implLookup.getClassNames(Type.MAPPING_ITEM_TRANSFORMER));
+        syncopeTO.getTaskJobs().addAll(implLookup.getClassNames(Type.TASKJOBDELEGATE));
+        syncopeTO.getLogicActions().addAll(implLookup.getClassNames(Type.LOGIC_ACTIONS));
+        syncopeTO.getPropagationActions().addAll(implLookup.getClassNames(Type.PROPAGATION_ACTIONS));
+        syncopeTO.getSyncActions().addAll(implLookup.getClassNames(Type.SYNC_ACTIONS));
+        syncopeTO.getPushActions().addAll(implLookup.getClassNames(Type.PUSH_ACTIONS));
+        syncopeTO.getSyncCorrelationRules().addAll(implLookup.getClassNames(Type.SYNC_CORRELATION_RULE));
+        syncopeTO.getPushCorrelationRules().addAll(implLookup.getClassNames(Type.PUSH_CORRELATION_RULE));
+        syncopeTO.getValidators().addAll(implLookup.getClassNames(Type.VALIDATOR));
 
         Set<String> htmlTemplates = new HashSet<>();
         Set<String> textTemplates = new HashSet<>();

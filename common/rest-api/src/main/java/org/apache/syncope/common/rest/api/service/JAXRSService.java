@@ -28,6 +28,12 @@ public interface JAXRSService {
 
     String PARAM_ORDERBY = "orderby";
 
+    String PARAM_RESOURCE = "resource";
+
+    String PARAM_ANYTYPE_KIND = "anyTypeKind";
+
+    String PARAM_ANYTYPE_KEY = "anyTypeKey";
+
     String PARAM_DETAILS = "details";
 
     String PARAM_CONNID_PAGED_RESULTS_COOKIE = "connIdPagedResultsCookie";

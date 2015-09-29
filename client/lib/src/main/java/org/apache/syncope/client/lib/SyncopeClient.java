@@ -31,10 +31,11 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.transport.http.URLConnectionHTTPConduit;
-import org.apache.syncope.client.lib.builders.ListQueryBuilder;
+import org.apache.syncope.client.lib.builders.AnyQueryBuilder;
 import org.apache.syncope.client.lib.builders.AnyListQueryBuilder;
 import org.apache.syncope.client.lib.builders.AnySearchQueryBuilder;
 import org.apache.syncope.client.lib.builders.ConnObjectTOListQueryBuilder;
+import org.apache.syncope.client.lib.builders.TaskQueryBuilder;
 import org.apache.syncope.common.lib.search.AnyObjectFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.search.OrderByClauseBuilder;
 import org.apache.syncope.common.lib.search.GroupFiqlSearchConditionBuilder;
@@ -110,13 +111,23 @@ public class SyncopeClient {
     }
 
     /**
-     * Returns a new instance of {@link ListQueryBuilder}, for assisted building of some service's {@code list()}
+     * Returns a new instance of {@link TaskQueryBuilder}, for assisted building of some service's {@code list()}
      * arguments.
      *
-     * @return default instance of {@link ListQueryBuilder}
+     * @return default instance of {@link AnyQueryBuilder}
      */
-    public static ListQueryBuilder getListQueryBuilder() {
-        return new ListQueryBuilder();
+    public static TaskQueryBuilder getTaskQueryBuilder() {
+        return new TaskQueryBuilder();
+    }
+
+    /**
+     * Returns a new instance of {@link AnyQueryBuilder}, for assisted building of some service's {@code list()}
+     * arguments.
+     *
+     * @return default instance of {@link AnyQueryBuilder}
+     */
+    public static AnyQueryBuilder getAnyQueryBuilder() {
+        return new AnyQueryBuilder();
     }
 
     /**

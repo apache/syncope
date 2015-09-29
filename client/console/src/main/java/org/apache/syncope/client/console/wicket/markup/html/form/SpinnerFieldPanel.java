@@ -26,8 +26,6 @@ public class SpinnerFieldPanel<T extends Number> extends FieldPanel<T> {
 
     private static final long serialVersionUID = 6413819574530703577L;
 
-    private String name;
-
     private Class<T> reference;
 
     private IModel<T> model;

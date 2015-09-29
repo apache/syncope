@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.common.lib.to;
 
+import java.util.ArrayList;
+import java.util.List;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.lib.AbstractBaseBean;
@@ -64,9 +66,11 @@ public class MappingItemTO extends AbstractBaseBean {
     private String mandatoryCondition = "false";
 
     /**
-     * Mapping purposes: SYNCHRONIZATION, PROPAGATION, BOTH, NONE.
+     * Mapping purposes.
      */
     private MappingPurpose purpose;
+
+    private final List<String> mappingItemTransformerClassNames = new ArrayList<>();
 
     public boolean isConnObjectKey() {
         return connObjectKey;
@@ -131,4 +135,9 @@ public class MappingItemTO extends AbstractBaseBean {
     public void setPurpose(final MappingPurpose purpose) {
         this.purpose = purpose;
     }
+
+    public List<String> getMappingItemTransformerClassNames() {
+        return mappingItemTransformerClassNames;
+    }
+
 }

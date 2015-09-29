@@ -29,7 +29,6 @@ import javax.persistence.ManyToOne;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.PropagationMode;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
@@ -50,16 +49,10 @@ public class JPAPropagationTask extends AbstractTask implements PropagationTask 
     private static final long serialVersionUID = 7086054884614511210L;
 
     /**
-     * @see PropagationMode
-     */
-    @Enumerated(EnumType.STRING)
-    private PropagationMode propagationMode;
-
-    /**
      * @see ResourceOperation
      */
     @Enumerated(EnumType.STRING)
-    private ResourceOperation propagationOperation;
+    private ResourceOperation operation;
 
     /**
      * The connObjectKey on the external resource.
@@ -132,26 +125,14 @@ public class JPAPropagationTask extends AbstractTask implements PropagationTask 
 
     @Override
 
-    public PropagationMode getPropagationMode() {
-        return propagationMode;
+    public ResourceOperation getOperation() {
+        return operation;
     }
 
     @Override
 
-    public void setPropagationMode(final PropagationMode propagationMode) {
-        this.propagationMode = propagationMode;
-    }
-
-    @Override
-
-    public ResourceOperation getPropagationOperation() {
-        return propagationOperation;
-    }
-
-    @Override
-
-    public void setPropagationOperation(final ResourceOperation propagationOperation) {
-        this.propagationOperation = propagationOperation;
+    public void setOperation(final ResourceOperation operation) {
+        this.operation = operation;
     }
 
     @Override

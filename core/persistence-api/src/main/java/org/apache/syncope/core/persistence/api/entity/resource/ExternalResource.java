@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.api.entity.resource;
 import java.util.List;
 import java.util.Set;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
-import org.apache.syncope.common.lib.types.PropagationMode;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.AnnotatedEntity;
@@ -72,10 +71,6 @@ public interface ExternalResource extends AnnotatedEntity<String> {
     void setSyncTraceLevel(TraceLevel syncTraceLevel);
 
     List<String> getPropagationActionsClassNames();
-
-    PropagationMode getPropagationMode();
-
-    void setPropagationMode(PropagationMode propagationMode);
 
     Integer getPropagationPriority();
 

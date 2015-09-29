@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.api.entity.task;
 
 import java.util.Set;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.PropagationMode;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.identityconnectors.framework.common.objects.Attribute;
@@ -43,13 +42,9 @@ public interface PropagationTask extends Task {
 
     void setObjectClassName(String objectClassName);
 
-    PropagationMode getPropagationMode();
+    ResourceOperation getOperation();
 
-    void setPropagationMode(PropagationMode propagationMode);
-
-    ResourceOperation getPropagationOperation();
-
-    void setPropagationOperation(ResourceOperation operation);
+    void setOperation(ResourceOperation operation);
 
     Long getAnyKey();
 

@@ -22,14 +22,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
-import org.apache.syncope.common.lib.types.MappingPurpose;
-import org.apache.syncope.common.lib.types.PropagationMode;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
@@ -149,6 +148,27 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         return result;
     }
 
+    /**
+     * Transform a
+     * <code>Collection</code> of {@link Attribute} instances into a {@link Map}. The key to each element in the map is
+     * the <i>name</i> of an
+     * <code>Attribute</code>. The value of each element in the map is the
+     * <code>Attribute</code> instance with that name. <br/> Different from the original because: <ul> <li>map keys are
+     * transformed toUpperCase()</li> <li>returned map is mutable</li> </ul>
+     *
+     * @param attributes set of attribute to transform to a map.
+     * @return a map of string and attribute.
+     *
+     * @see org.identityconnectors.framework.common.objects.AttributeUtil#toMap(java.util.Collection)
+     */
+    private Map<String, Attribute> toMap(final Collection<? extends Attribute> attributes) {
+        Map<String, Attribute> map = new HashMap<>();
+        for (Attribute attr : attributes) {
+            map.put(attr.getName().toUpperCase(), attr);
+        }
+        return map;
+    }
+
     protected void createOrUpdate(
             final PropagationTask task,
             final ConnectorObject beforeObj,
@@ -156,10 +176,10 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             final Set<String> propagationAttempted) {
 
         // set of attributes to be propagated
-        final Set<Attribute> attributes = new HashSet<>(task.getAttributes());
+        Set<Attribute> attributes = new HashSet<>(task.getAttributes());
 
         // check if there is any missing or null / empty mandatory attribute
-        List<Object> mandatoryAttrNames = new ArrayList<>();
+        Set<Object> mandatoryAttrNames = new HashSet<>();
         Attribute mandatoryMissing = AttributeUtil.find(MANDATORY_MISSING_ATTR_NAME, task.getAttributes());
         if (mandatoryMissing != null) {
             attributes.remove(mandatoryMissing);
@@ -182,7 +202,6 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         if (beforeObj == null) {
             LOG.debug("Create {} on {}", attributes, task.getResource().getKey());
             connector.create(
-                    task.getResource().getPropagationMode(),
                     new ObjectClass(task.getObjectClassName()),
                     attributes,
                     null,
@@ -202,8 +221,8 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
             // 2. check wether anything is actually needing to be propagated, i.e. if there is attribute
             // difference between beforeObj - just read above from the connector - and the values to be propagated
-            Map<String, Attribute> originalAttrMap = connObjectUtils.toMap(beforeObj.getAttributes());
-            Map<String, Attribute> updateAttrMap = connObjectUtils.toMap(attributes);
+            Map<String, Attribute> originalAttrMap = toMap(beforeObj.getAttributes());
+            Map<String, Attribute> updateAttrMap = toMap(attributes);
 
             // Only compare attribute from beforeObj that are also being updated
             Set<String> skipAttrNames = originalAttrMap.keySet();
@@ -229,8 +248,8 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 // 3. provision entry
                 LOG.debug("Update {} on {}", strictlyModified, task.getResource().getKey());
 
-                connector.update(task.getResource().getPropagationMode(), beforeObj.getObjectClass(),
-                        beforeObj.getUid(), strictlyModified, null, propagationAttempted);
+                connector.update(
+                        beforeObj.getObjectClass(), beforeObj.getUid(), strictlyModified, null, propagationAttempted);
             }
         }
     }
@@ -303,7 +322,6 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 LOG.debug("Delete {} on {}", beforeObj.getUid(), task.getResource().getKey());
 
                 connector.delete(
-                        task.getPropagationMode(),
                         beforeObj.getObjectClass(),
                         beforeObj.getUid(),
                         null,
@@ -346,7 +364,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 action.before(task, beforeObj);
             }
 
-            switch (task.getPropagationOperation()) {
+            switch (task.getOperation()) {
                 case CREATE:
                 case UPDATE:
                     createOrUpdate(task, beforeObj, connector, propagationAttempted);
@@ -359,9 +377,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 default:
             }
 
-            execution.setStatus(task.getPropagationMode() == PropagationMode.ONE_PHASE
-                    ? PropagationTaskExecStatus.SUCCESS.name()
-                    : PropagationTaskExecStatus.SUBMITTED.name());
+            execution.setStatus(PropagationTaskExecStatus.SUCCESS.name());
 
             for (PropagationActions action : actions) {
                 action.after(task, execution, afterObj);
@@ -390,14 +406,12 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             }
 
             try {
-                execution.setStatus(task.getPropagationMode() == PropagationMode.ONE_PHASE
-                        ? PropagationTaskExecStatus.FAILURE.name()
-                        : PropagationTaskExecStatus.UNSUBMITTED.name());
+                execution.setStatus(PropagationTaskExecStatus.FAILURE.name());
             } catch (Exception wft) {
                 LOG.error("While executing KO action on {}", execution, wft);
             }
 
-            propagationAttempted.add(task.getPropagationOperation().name().toLowerCase());
+            propagationAttempted.add(task.getOperation().name().toLowerCase());
 
             for (PropagationActions action : actions) {
                 action.onError(task, execution, e);
@@ -449,7 +463,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 AuditElements.EventCategoryType.PROPAGATION,
                 task.getAnyTypeKind().name().toLowerCase(),
                 task.getResource().getKey(),
-                task.getPropagationOperation().name().toLowerCase(),
+                task.getOperation().name().toLowerCase(),
                 result,
                 beforeObj, // searching for before object is too much expensive ... 
                 new Object[] { execution, afterObj },
@@ -459,7 +473,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 AuditElements.EventCategoryType.PROPAGATION,
                 task.getAnyTypeKind().name().toLowerCase(),
                 task.getResource().getKey(),
-                task.getPropagationOperation().name().toLowerCase(),
+                task.getOperation().name().toLowerCase(),
                 result,
                 beforeObj, // searching for before object is too much expensive ... 
                 new Object[] { execution, afterObj },
@@ -486,9 +500,9 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
     protected boolean hasToBeregistered(final PropagationTask task, final TaskExec execution) {
         boolean result;
 
-        final boolean failed = !PropagationTaskExecStatus.valueOf(execution.getStatus()).isSuccessful();
+        boolean failed = PropagationTaskExecStatus.valueOf(execution.getStatus()) != PropagationTaskExecStatus.SUCCESS;
 
-        switch (task.getPropagationOperation()) {
+        switch (task.getOperation()) {
 
             case CREATE:
                 result = (failed && task.getResource().getCreateTraceLevel().ordinal() >= TraceLevel.FAILURES.ordinal())
@@ -530,11 +544,11 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
         ConnectorObject obj = null;
         try {
-            obj = connector.getObject(task.getPropagationMode(),
-                    task.getPropagationOperation(),
+            obj = connector.getObject(
+                    task.getOperation(),
                     new ObjectClass(task.getObjectClassName()),
                     new Uid(connObjectKey),
-                    connector.getOperationOptions(MappingUtils.getMappingItems(provision, MappingPurpose.PROPAGATION)));
+                    connector.getOperationOptions(MappingUtils.getPropagationMappingItems(provision)));
         } catch (TimeoutException toe) {
             LOG.debug("Request timeout", toe);
             throw toe;

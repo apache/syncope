@@ -31,7 +31,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
-import org.apache.syncope.common.lib.types.PropagationMode;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
@@ -165,15 +164,15 @@ public class ConnectorFacadeProxy implements Connector {
     }
 
     @Override
-    public Uid create(final PropagationMode propagationMode, final ObjectClass objectClass, final Set<Attribute> attrs,
-            final OperationOptions options, final Set<String> propagationAttempted) {
+    public Uid create(
+            final ObjectClass objectClass,
+            final Set<Attribute> attrs,
+            final OperationOptions options,
+            final Set<String> propagationAttempted) {
 
         Uid result = null;
 
-        if (propagationMode == PropagationMode.ONE_PHASE
-                ? activeConnInstance.getCapabilities().contains(ConnectorCapability.ONE_PHASE_CREATE)
-                : activeConnInstance.getCapabilities().contains(ConnectorCapability.TWO_PHASES_CREATE)) {
-
+        if (activeConnInstance.getCapabilities().contains(ConnectorCapability.CREATE)) {
             propagationAttempted.add("create");
 
             Future<Uid> future = asyncFacade.create(connector, objectClass, attrs, options);
@@ -199,15 +198,16 @@ public class ConnectorFacadeProxy implements Connector {
     }
 
     @Override
-    public Uid update(final PropagationMode propagationMode, final ObjectClass objectClass, final Uid uid,
-            final Set<Attribute> attrs, final OperationOptions options, final Set<String> propagationAttempted) {
+    public Uid update(
+            final ObjectClass objectClass,
+            final Uid uid,
+            final Set<Attribute> attrs,
+            final OperationOptions options,
+            final Set<String> propagationAttempted) {
 
         Uid result = null;
 
-        if (propagationMode == PropagationMode.ONE_PHASE
-                ? activeConnInstance.getCapabilities().contains(ConnectorCapability.ONE_PHASE_UPDATE)
-                : activeConnInstance.getCapabilities().contains(ConnectorCapability.TWO_PHASES_UPDATE)) {
-
+        if (activeConnInstance.getCapabilities().contains(ConnectorCapability.UPDATE)) {
             propagationAttempted.add("update");
 
             Future<Uid> future = asyncFacade.update(connector, objectClass, uid, attrs, options);
@@ -235,13 +235,13 @@ public class ConnectorFacadeProxy implements Connector {
     }
 
     @Override
-    public void delete(final PropagationMode propagationMode, final ObjectClass objectClass, final Uid uid,
-            final OperationOptions options, final Set<String> propagationAttempted) {
+    public void delete(
+            final ObjectClass objectClass,
+            final Uid uid,
+            final OperationOptions options,
+            final Set<String> propagationAttempted) {
 
-        if (propagationMode == PropagationMode.ONE_PHASE
-                ? activeConnInstance.getCapabilities().contains(ConnectorCapability.ONE_PHASE_DELETE)
-                : activeConnInstance.getCapabilities().contains(ConnectorCapability.TWO_PHASES_DELETE)) {
-
+        if (activeConnInstance.getCapabilities().contains(ConnectorCapability.DELETE)) {
             propagationAttempted.add("delete");
 
             Future<Uid> future = asyncFacade.delete(connector, objectClass, uid, options);
@@ -307,12 +307,15 @@ public class ConnectorFacadeProxy implements Connector {
 
     @Override
     public ConnectorObject getObject(final ObjectClass objectClass, final Uid uid, final OperationOptions options) {
-        return getObject(null, null, objectClass, uid, options);
+        return getObject(null, objectClass, uid, options);
     }
 
     @Override
-    public ConnectorObject getObject(final PropagationMode propagationMode, final ResourceOperation operationType,
-            final ObjectClass objectClass, final Uid uid, final OperationOptions options) {
+    public ConnectorObject getObject(
+            final ResourceOperation operationType,
+            final ObjectClass objectClass,
+            final Uid uid,
+            final OperationOptions options) {
 
         boolean hasCapablities = false;
 
@@ -322,15 +325,11 @@ public class ConnectorFacadeProxy implements Connector {
             } else {
                 switch (operationType) {
                     case CREATE:
-                        hasCapablities = propagationMode == null || (propagationMode == PropagationMode.ONE_PHASE
-                                ? activeConnInstance.getCapabilities().contains(ConnectorCapability.ONE_PHASE_CREATE)
-                                : activeConnInstance.getCapabilities().contains(ConnectorCapability.TWO_PHASES_CREATE));
+                        hasCapablities = activeConnInstance.getCapabilities().contains(ConnectorCapability.CREATE);
                         break;
 
                     case UPDATE:
-                        hasCapablities = propagationMode == null || (propagationMode == PropagationMode.ONE_PHASE
-                                ? activeConnInstance.getCapabilities().contains(ConnectorCapability.ONE_PHASE_UPDATE)
-                                : activeConnInstance.getCapabilities().contains(ConnectorCapability.TWO_PHASES_UPDATE));
+                        hasCapablities = activeConnInstance.getCapabilities().contains(ConnectorCapability.UPDATE);
                         break;
 
                     default:

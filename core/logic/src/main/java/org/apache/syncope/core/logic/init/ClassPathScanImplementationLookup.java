@@ -38,6 +38,7 @@ import org.apache.syncope.core.persistence.api.dao.AccountRuleConfClass;
 import org.apache.syncope.core.persistence.api.dao.PasswordRule;
 import org.apache.syncope.core.persistence.api.dao.PasswordRuleConfClass;
 import org.apache.syncope.core.provisioning.api.LogicActions;
+import org.apache.syncope.core.provisioning.api.data.MappingItemTransformer;
 import org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
 import org.apache.syncope.core.provisioning.api.sync.PushActions;
@@ -90,6 +91,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
         scanner.addIncludeFilter(new AssignableTypeFilter(Reportlet.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(AccountRule.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(PasswordRule.class));
+        scanner.addIncludeFilter(new AssignableTypeFilter(MappingItemTransformer.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(SchedTaskJobDelegate.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(LogicActions.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(PropagationActions.class));
@@ -129,6 +131,10 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                     if (annotation != null) {
                         passwordRuleClasses.put(annotation.value(), (Class<? extends PasswordRule>) clazz);
                     }
+                }
+
+                if (MappingItemTransformer.class.isAssignableFrom(clazz) && !isAbsractClazz) {
+                    classNames.get(Type.MAPPING_ITEM_TRANSFORMER).add(clazz.getName());
                 }
 
                 if (SchedTaskJobDelegate.class.isAssignableFrom(clazz) && !isAbsractClazz

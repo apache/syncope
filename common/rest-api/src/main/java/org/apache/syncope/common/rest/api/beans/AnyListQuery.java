@@ -23,7 +23,7 @@ import javax.ws.rs.DefaultValue;
 import javax.ws.rs.MatrixParam;
 import org.apache.syncope.common.lib.SyncopeConstants;
 
-public class AnyListQuery extends ListQuery {
+public class AnyListQuery extends AnyQuery {
 
     private static final long serialVersionUID = -5197167078435619636L;
 

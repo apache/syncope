@@ -18,37 +18,40 @@
  */
 package org.apache.syncope.client.lib.builders;
 
-import org.apache.syncope.common.rest.api.beans.ListQuery;
+import org.apache.syncope.common.rest.api.beans.AbstractQuery;
 
-public class ListQueryBuilder {
+public abstract class AbstractQueryBuilder<Q extends AbstractQuery, B extends AbstractQueryBuilder<Q, B>> {
 
-    private final ListQuery instance = new ListQuery();
+    private Q instance;
 
-    public ListQueryBuilder page(final Integer page) {
-        instance.setPage(page);
+    protected abstract Q newInstance();
 
-        return this;
-    }
-
-    public ListQueryBuilder size(final Integer size) {
-        instance.setSize(size);
-
-        return this;
-    }
-
-    public ListQueryBuilder orderBy(final String orderBy) {
-        instance.setOrderBy(orderBy);
-
-        return this;
-    }
-
-    public ListQueryBuilder details(final boolean details) {
-        instance.setDetails(details);
-
-        return this;
-    }
-
-    public ListQuery build() {
+    protected Q getInstance() {
+        if (instance == null) {
+            instance = newInstance();
+        }
         return instance;
+    }
+
+    @SuppressWarnings("unchecked")
+    public B page(final Integer page) {
+        getInstance().setPage(page);
+        return (B) this;
+    }
+
+    @SuppressWarnings("unchecked")
+    public B size(final Integer size) {
+        getInstance().setSize(size);
+        return (B) this;
+    }
+
+    @SuppressWarnings("unchecked")
+    public B orderBy(final String orderBy) {
+        getInstance().setOrderBy(orderBy);
+        return (B) this;
+    }
+
+    public Q build() {
+        return getInstance();
     }
 }

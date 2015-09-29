@@ -18,17 +18,13 @@
  */
 package org.apache.syncope.common.rest.api.beans;
 
-import java.io.Serializable;
 import javax.validation.constraints.Min;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.QueryParam;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
+import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.rest.api.service.JAXRSService;
 
-public class ListQuery implements Serializable {
+public abstract class AbstractQuery extends AbstractBaseBean {
 
     private static final long serialVersionUID = -371488230250055359L;
 
@@ -37,8 +33,6 @@ public class ListQuery implements Serializable {
     private Integer size;
 
     private String orderBy;
-
-    private Boolean details;
 
     public Integer getPage() {
         return page;
@@ -69,30 +63,5 @@ public class ListQuery implements Serializable {
 
     public void setOrderBy(final String orderBy) {
         this.orderBy = orderBy;
-    }
-
-    @QueryParam(JAXRSService.PARAM_DETAILS)
-    @DefaultValue("true")
-    public boolean isDetails() {
-        return details == null ? true : details;
-    }
-
-    public void setDetails(final boolean details) {
-        this.details = details;
-    }
-
-    @Override
-    public boolean equals(final Object obj) {
-        return EqualsBuilder.reflectionEquals(this, obj);
-    }
-
-    @Override
-    public int hashCode() {
-        return HashCodeBuilder.reflectionHashCode(this);
-    }
-
-    @Override
-    public String toString() {
-        return ReflectionToStringBuilder.toString(this, ToStringStyle.MULTI_LINE_STYLE);
     }
 }

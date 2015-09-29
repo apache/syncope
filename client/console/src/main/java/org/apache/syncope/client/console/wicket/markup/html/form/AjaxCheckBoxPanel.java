@@ -23,12 +23,10 @@ import java.util.List;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
-import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.model.ResourceModel;
 
 public class AjaxCheckBoxPanel extends FieldPanel<Boolean> {
 
@@ -40,7 +38,7 @@ public class AjaxCheckBoxPanel extends FieldPanel<Boolean> {
 
     public AjaxCheckBoxPanel(
             final String id, final String name, final IModel<Boolean> model, final boolean enableOnChange) {
-        super(id, model);
+        super(id, name, model);
 
         field = new CheckBox("checkboxField", model);
         add(field.setLabel(new Model<String>(name)).setOutputMarkupId(true));
@@ -56,19 +54,6 @@ public class AjaxCheckBoxPanel extends FieldPanel<Boolean> {
                 }
             });
         }
-
-        add(new Label("label", new ResourceModel(name, name)));
-    }
-
-    @Override
-    public FieldPanel<Boolean> addRequiredLabel() {
-        if (!isRequired()) {
-            setRequired(true);
-        }
-
-        this.isRequiredLabelAdded = true;
-
-        return this;
     }
 
     @Override

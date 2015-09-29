@@ -17,15 +17,22 @@ specific language governing permissions and limitations
 under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
-  <wicket:panel>
+  <head>
+    <title>Connector configuration panel</title>
+  </head>
+  <body>
+    <wicket:panel>
+      <span wicket:id="connectorPropertiesContainer">
+        <div class="form-group" wicket:id="connectorProperties">
+          <span wicket:id="panel">[panel]</span>
+        </div>
 
-    <wicket:fragment wicket:id="requiredFragment">
-      <span wicket:id="requiredLabel"/>
-    </wicket:fragment>
-
-    <wicket:fragment wicket:id="notRequiredFragment">
-    </wicket:fragment>
-
-    <wicket:child />
-  </wicket:panel>
+        <div>
+          <a style="position: absolute; top: 25px; right:20px;" wicket:id="check"  href="#">
+            <i class="fa fa-heartbeat fa-2x"></i>
+          </a>
+        </div>
+      </span>
+    </wicket:panel>
+  </body>
 </html>

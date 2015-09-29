@@ -22,12 +22,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.JexlHelpUtils;
-import org.apache.syncope.client.console.panels.ResourceConnConfPanel.ConnConfModEvent;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
@@ -52,7 +50,6 @@ import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
-import org.apache.wicket.event.IEvent;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -459,26 +456,6 @@ public class ResourceMappingPanel extends Panel {
         if (!enabled) {
             getMapping().getItems().clear();
             getMapping().setConnObjectLink(null);
-        }
-    }
-
-    @Override
-    public void onEvent(final IEvent<?> event) {
-        if (event.getPayload() instanceof ConnConfModEvent) {
-            final AjaxRequestTarget target = ((ConnConfModEvent) event.getPayload()).getTarget();
-
-            final List<ConnConfProperty> conf = ((ConnConfModEvent) event.getPayload()).getConfiguration();
-
-            mappings.removeAll();
-
-            addMappingBtn.setEnabled(resourceTO.getConnector() != null && resourceTO.getConnector() > 0);
-
-            schemaNames.clear();
-            schemaNames.addAll(getSchemaNames(resourceTO.getConnector(), new HashSet<ConnConfProperty>(conf)));
-
-            setEnabled();
-
-            target.add(this);
         }
     }
 

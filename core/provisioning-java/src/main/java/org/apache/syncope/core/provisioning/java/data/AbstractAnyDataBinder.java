@@ -156,6 +156,9 @@ abstract class AbstractAnyDataBinder {
     @Autowired
     protected ConnObjectUtils connObjectUtils;
 
+    @Autowired
+    protected MappingUtils mappingUtils;
+
     protected void setRealm(final Any<?, ?, ?> any, final AnyPatch anyPatch) {
         if (anyPatch.getRealm() != null && StringUtils.isNotBlank(anyPatch.getRealm().getValue())) {
             Realm newRealm = realmDAO.find(anyPatch.getRealm().getValue());
@@ -231,11 +234,9 @@ abstract class AbstractAnyDataBinder {
                         && (item.getPurpose() == MappingPurpose.PROPAGATION
                         || item.getPurpose() == MappingPurpose.BOTH)) {
 
-                    List<PlainAttrValue> values = MappingUtils.getIntValues(
+                    List<PlainAttrValue> values = mappingUtils.getIntValues(
                             provision, item, Collections.<Any<?, ?, ?>>singletonList(any), null);
-                    if ((values == null || values.isEmpty())
-                            && JexlUtils.evaluateMandatoryCondition(item.getMandatoryCondition(), any)) {
-
+                    if (values.isEmpty() && JexlUtils.evaluateMandatoryCondition(item.getMandatoryCondition(), any)) {
                         missingAttrNames.add(item.getIntAttrName());
                     }
                 }
@@ -360,8 +361,8 @@ abstract class AbstractAnyDataBinder {
                 plainAttrDAO.delete(attr.getKey(), anyUtils.plainAttrClass());
 
                 for (ExternalResource resource : resources) {
-                    for (MappingItem mapItem : MappingUtils.getMappingItems(
-                            resource.getProvision(any.getType()), MappingPurpose.PROPAGATION)) {
+                    for (MappingItem mapItem
+                            : MappingUtils.getPropagationMappingItems(resource.getProvision(any.getType()))) {
 
                         if (schema.getKey().equals(mapItem.getIntAttrName())
                                 && mapItem.getIntMappingType() == anyUtils.plainIntMappingType()) {
@@ -410,8 +411,8 @@ abstract class AbstractAnyDataBinder {
                 derAttrDAO.delete(attr);
 
                 for (ExternalResource resource : resources) {
-                    for (MappingItem mapItem : MappingUtils.getMappingItems(
-                            resource.getProvision(any.getType()), MappingPurpose.PROPAGATION)) {
+                    for (MappingItem mapItem
+                            : MappingUtils.getPropagationMappingItems(resource.getProvision(any.getType()))) {
 
                         if (schema.getKey().equals(mapItem.getIntAttrName())
                                 && mapItem.getIntMappingType() == anyUtils.derIntMappingType()) {
@@ -704,7 +705,7 @@ abstract class AbstractAnyDataBinder {
                             + " on resource '" + resource.getKey() + "'");
                 }
 
-                connObjectKeys.put(resource.getKey(), MappingUtils.getConnObjectKeyValue(any, provision));
+                connObjectKeys.put(resource.getKey(), mappingUtils.getConnObjectKeyValue(any, provision));
             }
         }
 

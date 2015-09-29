@@ -23,19 +23,24 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.markup.html.form.PasswordTextField;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
+import org.apache.wicket.model.ResourceModel;
 
 public class AjaxPasswordFieldPanel extends FieldPanel<String> {
 
     private static final long serialVersionUID = -5490115280336667460L;
 
     public AjaxPasswordFieldPanel(final String id, final String name, final IModel<String> model) {
-        super(id, model);
+        this(id, name, model, true);
+    }
+
+    public AjaxPasswordFieldPanel(
+            final String id, final String name, final IModel<String> model, final boolean enableOnChange) {
+        super(id, name, model);
 
         field = new PasswordTextField("passwordField", model);
-        add(field.setLabel(new Model<>(name)).setRequired(false).setOutputMarkupId(true));
+        add(field.setLabel(new ResourceModel(name, name)).setRequired(false).setOutputMarkupId(true));
 
-        if (!isReadOnly()) {
+        if (enableOnChange && !isReadOnly()) {
             field.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
                 private static final long serialVersionUID = -1107858522700306810L;

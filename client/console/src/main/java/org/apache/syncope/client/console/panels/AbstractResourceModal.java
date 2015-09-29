@@ -19,11 +19,17 @@
 package org.apache.syncope.client.console.panels;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.syncope.client.console.topology.TopologyNode;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal.ModalEvent;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
+import org.apache.wicket.extensions.markup.html.tabs.ITab;
+import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.form.Form;
 
 /**
  * Modal window with Resource form.
@@ -32,8 +38,46 @@ public abstract class AbstractResourceModal extends AbstractModalPanel {
 
     private static final long serialVersionUID = 1734415311027284221L;
 
+    protected final List<ITab> tabs;
+
     public AbstractResourceModal(final BaseModal<?> modal, final PageReference pageRef) {
         super(modal, pageRef);
+
+        this.tabs = new ArrayList<>();
+        add(new AjaxBootstrapTabbedPanel<ITab>("tabbedPanel", tabs));
+    }
+
+    private class AjaxBootstrapTabbedPanel<T extends ITab>
+            extends de.agilecoders.wicket.core.markup.html.bootstrap.tabs.AjaxBootstrapTabbedPanel<T> {
+
+        private static final long serialVersionUID = 1L;
+
+        public AjaxBootstrapTabbedPanel(final String id, final List<T> tabs) {
+            super(id, tabs);
+        }
+
+        @Override
+        protected WebMarkupContainer newLink(final String linkId, final int index) {
+            return new AjaxSubmitLink(linkId) {
+
+                private static final long serialVersionUID = 1L;
+
+                @Override
+                protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+                    setSelectedTab(index);
+                    if (target != null) {
+                        target.add(AjaxBootstrapTabbedPanel.this);
+                    }
+                    onAjaxUpdate(target);
+                }
+
+                @Override
+                protected void onError(final AjaxRequestTarget target, final Form<?> form) {
+                    modal.getFeedbackPanel().refresh(target);
+                }
+            };
+        }
+
     }
 
     public static class CreateEvent extends ModalEvent {
@@ -74,6 +118,5 @@ public abstract class AbstractResourceModal extends AbstractModalPanel {
         public Serializable getParent() {
             return parent;
         }
-
     }
 }

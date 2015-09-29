@@ -47,7 +47,6 @@ import org.apache.syncope.common.lib.types.ReportExecStatus;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.ReportDAO;
 import org.apache.syncope.core.persistence.api.dao.ReportExecDAO;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
@@ -128,13 +127,8 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
     }
 
     @PreAuthorize("hasRole('" + Entitlement.REPORT_LIST + "')")
-    public int count() {
-        return reportDAO.count();
-    }
-
-    @PreAuthorize("hasRole('" + Entitlement.REPORT_LIST + "')")
-    public List<ReportTO> list(final int page, final int size, final List<OrderByClause> orderByClauses) {
-        return CollectionUtils.collect(reportDAO.findAll(page, size, orderByClauses),
+    public List<ReportTO> list() {
+        return CollectionUtils.collect(reportDAO.findAll(),
                 new Transformer<Report, ReportTO>() {
 
                     @Override

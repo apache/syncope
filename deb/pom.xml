@@ -44,6 +44,11 @@ under the License.
     <log.directory>/var/log/apache-syncope</log.directory>
   </properties>
 
+  <modules>
+    <module>core</module>
+    <module>console</module>
+  </modules>
+
   <profiles>
     <profile>
       <id>apache-release</id>
@@ -60,11 +65,23 @@ under the License.
         </plugins>
       </build>
     </profile>
+
+    <profile>
+      <id>doc</id>
+
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.asciidoctor</groupId>
+            <artifactId>asciidoctor-maven-plugin</artifactId>
+            <inherited>false</inherited>
+            <configuration>
+              <skip>true</skip>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
   </profiles>
-
-  <modules>
-    <module>core</module>
-    <module>console</module>
-  </modules>
-
+  
 </project>

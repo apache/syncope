@@ -23,9 +23,12 @@ under the License.
   <body>
     <wicket:extend>
       <div class="checkbox">
-        <label>
-          <input type="checkbox" wicket:id="checkboxField">
-            <label wicket:id="label">[LABEL]</label>
+        <label  style="width:100%">
+          <input type="checkbox" wicket:id="checkboxField" />
+          <wicket:enclosure child="field-label">
+            <label wicket:id="field-label">[LABEL]</label><span wicket:id="required"/>
+            <span wicket:id="externalAction"/>
+          </wicket:enclosure>
         </label>
       </div>
     </wicket:extend>

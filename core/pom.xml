@@ -36,7 +36,26 @@ under the License.
   <properties>
     <rootpom.basedir>${basedir}/..</rootpom.basedir>
   </properties>
+  
+  <profiles>
+    <profile>
+      <id>doc</id>
 
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.asciidoctor</groupId>
+            <artifactId>asciidoctor-maven-plugin</artifactId>
+            <inherited>false</inherited>
+            <configuration>
+              <skip>true</skip>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+  
   <modules>
     <module>persistence-api</module>
     <module>persistence-jpa</module>

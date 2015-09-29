@@ -24,7 +24,7 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 
 /**
- * Default (empty) implementation of PropagationActions.
+ * Default (empty) implementation of {@link PropagationActions}.
  */
 public abstract class DefaultPropagationActions implements PropagationActions {
 

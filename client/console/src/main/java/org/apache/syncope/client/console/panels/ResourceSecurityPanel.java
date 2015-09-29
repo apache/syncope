@@ -49,7 +49,7 @@ public class ResourceSecurityPanel extends Panel {
 
     private IModel<Map<Long, String>> syncPolicies = null;
 
-    public ResourceSecurityPanel(final String id, final ResourceTO resourceTO) {
+    public ResourceSecurityPanel(final String id, final IModel<ResourceTO> model) {
 
         super(id);
 
@@ -105,48 +105,45 @@ public class ResourceSecurityPanel extends Panel {
         // -------------------------------
         // Password policy specification
         // -------------------------------
-        final AjaxDropDownChoicePanel<Long> passwordPolicy = new AjaxDropDownChoicePanel<Long>("passwordPolicy",
-                new ResourceModel("passwordPolicy", "passwordPolicy").getObject(), new PropertyModel<Long>(resourceTO,
-                        "passwordPolicy"));
+        final AjaxDropDownChoicePanel<Long> passwordPolicy = new AjaxDropDownChoicePanel<Long>(
+                "passwordPolicy",
+                new ResourceModel("passwordPolicy", "passwordPolicy").getObject(),
+                new PropertyModel<Long>(model, "passwordPolicy"),
+                false);
 
         passwordPolicy.setChoiceRenderer(new PolicyRenderer(PolicyType.PASSWORD));
-
         passwordPolicy.setChoices(new ArrayList<>(passwordPolicies.getObject().keySet()));
-
         ((DropDownChoice<?>) passwordPolicy.getField()).setNullValid(true);
-
         container.add(passwordPolicy);
         // -------------------------------
 
         // -------------------------------
         // Account policy specification
         // -------------------------------
-        final AjaxDropDownChoicePanel<Long> accountPolicy = new AjaxDropDownChoicePanel<Long>("accountPolicy",
-                new ResourceModel("accountPolicy", "accountPolicy").getObject(), new PropertyModel<Long>(resourceTO,
-                        "accountPolicy"));
+        final AjaxDropDownChoicePanel<Long> accountPolicy = new AjaxDropDownChoicePanel<Long>(
+                "accountPolicy",
+                new ResourceModel("accountPolicy", "accountPolicy").getObject(),
+                new PropertyModel<Long>(model, "accountPolicy"),
+                false);
 
         accountPolicy.setChoiceRenderer(new PolicyRenderer(PolicyType.ACCOUNT));
-
         accountPolicy.setChoices(new ArrayList<Long>(accountPolicies.getObject().keySet()));
-
         ((DropDownChoice<?>) accountPolicy.getField()).setNullValid(true);
-
         container.add(accountPolicy);
         // -------------------------------
 
         // -------------------------------
         // Sync policy specification
         // -------------------------------
-        final AjaxDropDownChoicePanel<Long> syncPolicy = new AjaxDropDownChoicePanel<Long>("syncPolicy",
-                new ResourceModel("syncPolicy", "syncPolicy").getObject(), new PropertyModel<Long>(resourceTO,
-                        "syncPolicy"));
+        final AjaxDropDownChoicePanel<Long> syncPolicy = new AjaxDropDownChoicePanel<Long>(
+                "syncPolicy",
+                new ResourceModel("syncPolicy", "syncPolicy").getObject(),
+                new PropertyModel<Long>(model, "syncPolicy"),
+                false);
 
         syncPolicy.setChoiceRenderer(new PolicyRenderer(PolicyType.SYNC));
-
         syncPolicy.setChoices(new ArrayList<Long>(syncPolicies.getObject().keySet()));
-
         ((DropDownChoice<?>) syncPolicy.getField()).setNullValid(true);
-
         container.add(syncPolicy);
         // -------------------------------
     }
@@ -155,7 +152,7 @@ public class ResourceSecurityPanel extends Panel {
 
         private static final long serialVersionUID = 8060500161321947000L;
 
-        private PolicyType type;
+        private final PolicyType type;
 
         public PolicyRenderer(final PolicyType type) {
             super();
@@ -178,9 +175,7 @@ public class ResourceSecurityPanel extends Panel {
 
         @Override
         public String getIdValue(final Long object, final int index) {
-            return String.valueOf(object != null
-                    ? object
-                    : 0L);
+            return String.valueOf(object != null ? object : 0L);
         }
     };
 }

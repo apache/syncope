@@ -24,7 +24,6 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.policy.SyncPolicySpec;
 import org.apache.syncope.core.misc.MappingUtils;
 import org.apache.syncope.core.misc.serialization.POJOHelper;
@@ -49,6 +48,7 @@ import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.Connector;
+import org.apache.syncope.core.provisioning.api.data.MappingItemTransformer;
 import org.apache.syncope.core.provisioning.api.sync.SyncCorrelationRule;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
@@ -128,7 +128,7 @@ public class SyncUtils {
                         return found.add(obj);
                     }
                 },
-                connector.getOperationOptions(MappingUtils.getMappingItems(provision, MappingPurpose.SYNCHRONIZATION)));
+                connector.getOperationOptions(MappingUtils.getSyncMappingItems(provision)));
 
         if (found.isEmpty()) {
             LOG.debug("No {} found on {} with __NAME__ {}", provision.getObjectClass(), resource, name);
@@ -172,6 +172,15 @@ public class SyncUtils {
         List<Long> result = new ArrayList<>();
 
         MappingItem connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision);
+
+        String transfUid = uid;
+        for (MappingItemTransformer transformer : MappingUtils.getMappingItemTransformers(connObjectKeyItem)) {
+            List<Object> output = transformer.beforeSync(Collections.<Object>singletonList(transfUid));
+            if (output != null && !output.isEmpty()) {
+                transfUid = output.get(0).toString();
+            }
+        }
+
         switch (connObjectKeyItem.getIntMappingType()) {
             case UserPlainSchema:
             case GroupPlainSchema:
@@ -180,13 +189,13 @@ public class SyncUtils {
 
                 PlainSchema schema = plainSchemaDAO.find(connObjectKeyItem.getIntAttrName());
                 if (schema == null) {
-                    value.setStringValue(uid);
+                    value.setStringValue(transfUid);
                 } else {
                     try {
-                        value.parseValue(schema, uid);
+                        value.parseValue(schema, transfUid);
                     } catch (ParsingValidationException e) {
-                        LOG.error("While parsing provided __UID__ {}", uid, e);
-                        value.setStringValue(uid);
+                        LOG.error("While parsing provided __UID__ {}", transfUid, e);
+                        value.setStringValue(transfUid);
                     }
                 }
 
@@ -200,7 +209,7 @@ public class SyncUtils {
             case UserDerivedSchema:
             case GroupDerivedSchema:
             case AnyObjectDerivedSchema:
-                anys = getAnyDAO(connObjectKeyItem).findByDerAttrValue(connObjectKeyItem.getIntAttrName(), uid);
+                anys = getAnyDAO(connObjectKeyItem).findByDerAttrValue(connObjectKeyItem.getIntAttrName(), transfUid);
                 for (Any<?, ?, ?> any : anys) {
                     result.add(any.getKey());
                 }
@@ -209,21 +218,21 @@ public class SyncUtils {
             case UserKey:
             case GroupKey:
             case AnyObjectKey:
-                Any<?, ?, ?> any = getAnyDAO(connObjectKeyItem).find(Long.parseLong(uid));
+                Any<?, ?, ?> any = getAnyDAO(connObjectKeyItem).find(Long.parseLong(transfUid));
                 if (any != null) {
                     result.add(any.getKey());
                 }
                 break;
 
             case Username:
-                User user = userDAO.find(uid);
+                User user = userDAO.find(transfUid);
                 if (user != null) {
                     result.add(user.getKey());
                 }
                 break;
 
             case GroupName:
-                Group group = groupDAO.find(uid);
+                Group group = groupDAO.find(transfUid);
                 if (group != null) {
                     result.add(group.getKey());
                 }
@@ -240,12 +249,12 @@ public class SyncUtils {
             final ConnectorObject connObj, final SyncCorrelationRule rule, final AnyTypeKind type) {
 
         List<Long> result = new ArrayList<>();
-
-        List<Any<?, ?, ?>> anys = searchDAO.search(
+        for (Any<?, ?, ?> any : searchDAO.search(
                 SyncopeConstants.FULL_ADMIN_REALMS,
                 rule.getSearchCond(connObj),
-                Collections.<OrderByClause>emptyList(), type);
-        for (Any<?, ?, ?> any : anys) {
+                Collections.<OrderByClause>emptyList(),
+                type)) {
+
             result.add(any.getKey());
         }
 

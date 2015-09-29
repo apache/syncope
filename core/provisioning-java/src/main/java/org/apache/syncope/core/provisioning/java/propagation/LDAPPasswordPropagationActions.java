@@ -82,7 +82,7 @@ public class LDAPPasswordPropagationActions extends DefaultPropagationActions {
                     Attribute passwordAttribute = AttributeBuilder.buildPassword(
                             new GuardedString(cipherPlusPassword.toCharArray()));
 
-                    Set<Attribute> attributes = new HashSet<Attribute>(task.getAttributes());
+                    Set<Attribute> attributes = new HashSet<>(task.getAttributes());
                     attributes.add(passwordAttribute);
                     attributes.remove(missing);
 

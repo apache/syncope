@@ -65,6 +65,8 @@ public class SyncopeTO extends AbstractBaseBean {
 
     private final List<String> passwordRules = new ArrayList<>();
 
+    private final List<String> mappingItemTransformers = new ArrayList<>();
+
     private final List<String> taskJobs = new ArrayList<>();
 
     private final List<String> logicActions = new ArrayList<>();
@@ -161,6 +163,13 @@ public class SyncopeTO extends AbstractBaseBean {
     @JsonProperty("passwordRules")
     public List<String> getPasswordRules() {
         return passwordRules;
+    }
+
+    @XmlElementWrapper(name = "mappingItemTransformers")
+    @XmlElement(name = "mappingItemTransformer")
+    @JsonProperty("mappingItemTransformers")
+    public List<String> getMappingItemTransformers() {
+        return mappingItemTransformers;
     }
 
     @XmlElementWrapper(name = "taskJobs")

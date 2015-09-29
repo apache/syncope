@@ -30,6 +30,7 @@ import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
+import org.apache.syncope.core.provisioning.api.data.MappingItemTransformer;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
 
 public class ExternalResourceValidator extends AbstractValidator<ExternalResourceCheck, ExternalResource> {
@@ -104,6 +105,27 @@ public class ExternalResourceValidator extends AbstractValidator<ExternalResourc
                     getTemplate(EntityViolationType.InvalidMapping, "One password mapping is allowed at most")).
                     addPropertyNode("password.size").addConstraintViolation();
             isValid = false;
+        }
+
+        for (MappingItem item : mapping.getItems()) {
+            for (String className : item.getMappingItemTransformerClassNames()) {
+                Class<?> actionsClass = null;
+                boolean isAssignable = false;
+                try {
+                    actionsClass = Class.forName(className);
+                    isAssignable = MappingItemTransformer.class.isAssignableFrom(actionsClass);
+                } catch (Exception e) {
+                    LOG.error("Invalid MappingItemTransformer specified: {}", className, e);
+                }
+
+                if (actionsClass == null || !isAssignable) {
+                    context.buildConstraintViolationWithTemplate(
+                            getTemplate(EntityViolationType.InvalidMapping,
+                                    "Invalid mapping item trasformer class name")).
+                            addPropertyNode("mappingItemTransformerClassName").addConstraintViolation();
+                    isValid = false;
+                }
+            }
         }
 
         return isValid;

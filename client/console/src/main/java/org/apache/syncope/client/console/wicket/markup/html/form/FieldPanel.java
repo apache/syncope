@@ -23,10 +23,8 @@ import java.util.List;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.FormComponent;
 import org.apache.wicket.markup.html.list.ListItem;
-import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
@@ -39,17 +37,12 @@ public abstract class FieldPanel<T extends Serializable> extends AbstractFieldPa
 
     protected String title = null;
 
-    protected boolean isRequiredLabelAdded = false;
-
     public FieldPanel(final String id, final IModel<T> model) {
         this(id, id, model);
     }
 
     public FieldPanel(final String id, final String name, final IModel<T> model) {
         super(id, name, model);
-
-        final Fragment fragment = new Fragment("required", "notRequiredFragment", this);
-        add(fragment);
     }
 
     public FormComponent<T> getField() {
@@ -75,6 +68,7 @@ public abstract class FieldPanel<T extends Serializable> extends AbstractFieldPa
         return this;
     }
 
+    @Override
     public FieldPanel<T> setRequired(final boolean required) {
         field.setRequired(required);
         return this;
@@ -85,40 +79,13 @@ public abstract class FieldPanel<T extends Serializable> extends AbstractFieldPa
         return this;
     }
 
+    @Override
     public boolean isRequired() {
         return field.isRequired();
     }
 
     public boolean isReadOnly() {
         return !field.isEnabled();
-    }
-
-    public FieldPanel<T> addRequiredLabel() {
-        if (!isRequired()) {
-            setRequired(true);
-        }
-
-        final Fragment fragment = new Fragment("required", "requiredFragment", this);
-        fragment.add(new Label("requiredLabel", "*"));
-        replace(fragment);
-
-        this.isRequiredLabelAdded = true;
-
-        return this;
-    }
-
-    public FieldPanel<T> removeRequiredLabel() {
-        if (isRequired()) {
-            setRequired(false);
-        }
-
-        final Fragment fragment = new Fragment("required", "notRequiredFragment", this);
-
-        replace(fragment);
-
-        this.isRequiredLabelAdded = false;
-
-        return this;
     }
 
     @Override

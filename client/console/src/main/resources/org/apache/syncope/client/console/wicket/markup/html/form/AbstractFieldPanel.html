@@ -18,23 +18,18 @@ under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
   <wicket:panel>
-    <span wicket:id="connectorPropertiesContainer">
-      <div id="formtable">
-        <div class="tablerow" wicket:id="connectorProperties">
-          <div class="tablecolumn_label medium_fixedsize">
-            <span wicket:id="connPropAttrSchema">[connPropAttrSchema]</span>
-          </div>
-          <div class="tablecolumn_field medium_dynamicsize">
-            <span wicket:id="panel">[connPropAttrValue]</span>
-          </div>
-        </div>
-      </div>
 
-      <div>
-        <a style="position: absolute; top: 2px; right:20px;" wicket:id="check">
-          <i class="fa fa-heartbeat fa-2x"></i> 
-        </a>
-      </div>
-    </span>
+    <wicket:fragment wicket:id="requiredFragment">
+      <span wicket:id="requiredLabel"/>
+    </wicket:fragment>
+
+    <wicket:fragment wicket:id="externalActionFragment">
+      <span wicket:id="externalAction"/>
+    </wicket:fragment>
+
+    <wicket:fragment wicket:id="emptyFragment">
+    </wicket:fragment>
+
+    <wicket:child />
   </wicket:panel>
 </html>

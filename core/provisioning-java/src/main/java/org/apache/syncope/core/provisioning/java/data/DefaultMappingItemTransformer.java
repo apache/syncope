@@ -16,14 +16,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.types;
+package org.apache.syncope.core.provisioning.java.data;
 
-import javax.xml.bind.annotation.XmlEnum;
+import java.util.List;
+import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
+import org.apache.syncope.core.provisioning.api.data.MappingItemTransformer;
 
-@XmlEnum
-public enum PropagationMode {
+/**
+ * Default (empty) implementation of {@link MappingItemTransformer}.
+ */
+public class DefaultMappingItemTransformer implements MappingItemTransformer {
 
-    ONE_PHASE,
-    TWO_PHASES
+    @Override
+    public List<PlainAttrValue> beforePropagation(final List<PlainAttrValue> values) {
+        return values;
+    }
+
+    @Override
+    public List<Object> beforeSync(final List<Object> values) {
+        return values;
+    }
 
 }

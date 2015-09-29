@@ -18,12 +18,13 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.io.Serializable;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.Constants;
@@ -107,10 +108,10 @@ public final class ListViewPanel<T extends Serializable> extends Panel {
 
         if (toBeIncluded.isEmpty()) {
             LOG.warn("No field has been retrieved from {}", reference.getName());
-            listOfItems = Collections.<T>emptyList();
+            listOfItems = new ArrayList<>();
         } else if (list == null || list.isEmpty()) {
             LOG.info("No item to be shown");
-            listOfItems = Collections.<T>emptyList();
+            listOfItems = new ArrayList<>();
         } else {
             listOfItems = list;
             if (LOG.isDebugEnabled()) {
@@ -157,7 +158,8 @@ public final class ListViewPanel<T extends Serializable> extends Panel {
                                     ? new Label("field", StringUtils.EMPTY)
                                     : new Label("field", new ResourceModel(value.toString(), value.toString())));
 
-                        } catch (Exception e) {
+                        } catch (IntrospectionException | IllegalAccessException | IllegalArgumentException 
+                                | InvocationTargetException e) {
                             LOG.error("Error retrieving value for field {}", fieldItem.getModelObject(), e);
                             fieldItem.add(new Label("field", StringUtils.EMPTY));
                         }

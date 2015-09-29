@@ -20,11 +20,9 @@ package org.apache.syncope.client.console.rest;
 
 import java.util.List;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.types.ReportExecExportFormat;
 import org.apache.syncope.common.rest.api.service.ReportService;
-import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -37,21 +35,7 @@ public class ReportRestClient extends BaseRestClient implements ExecutionRestCli
     }
 
     public List<ReportTO> list() {
-        return getService(ReportService.class).
-                list(SyncopeClient.getListQueryBuilder().build()).
-                getResult();
-    }
-
-    public List<ReportTO> list(final int page, final int size, final SortParam<String> sort) {
-        return getService(ReportService.class).
-                list(SyncopeClient.getListQueryBuilder().page(page).size(size).orderBy(toOrderBy(sort)).build()).
-                getResult();
-    }
-
-    public int count() {
-        return getService(ReportService.class).
-                list(SyncopeClient.getListQueryBuilder().page(1).size(1).build()).
-                getTotalCount();
+        return getService(ReportService.class).list();
     }
 
     public void create(final ReportTO reportTO) {

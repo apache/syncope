@@ -20,11 +20,9 @@ package org.apache.syncope.client.console.panels;
 
 import static org.apache.wicket.Component.ENABLE;
 
-import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.AjaxBootstrapTabbedPanel;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.SerializationUtils;
@@ -44,9 +42,9 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
-import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 
 /**
@@ -61,26 +59,23 @@ public class ResourceModal extends AbstractResourceModal {
     public ResourceModal(
             final BaseModal<Serializable> modal,
             final PageReference pageRef,
-            final ResourceTO resourceTO,
+            final IModel<ResourceTO> model,
             final boolean createFlag) {
 
         super(modal, pageRef);
 
         this.createFlag = createFlag;
 
-        final List<ITab> tabs = new ArrayList<>();
-        add(new AjaxBootstrapTabbedPanel<>("tabbedPanel", tabs));
-
         //--------------------------------
         // Resource details panel
         //--------------------------------
-        tabs.add(new AbstractTab(new ResourceModel("resource", "resource")) {
+        tabs.add(new AbstractTab(new ResourceModel("general", "general")) {
 
             private static final long serialVersionUID = -5861786415855103549L;
 
             @Override
             public Panel getPanel(final String panelId) {
-                return new ResourceDetailsPanel(panelId, resourceTO,
+                return new ResourceDetailsPanel(panelId, model,
                         resourceRestClient.getPropagationActionsClasses(), createFlag);
             }
         });
@@ -90,7 +85,7 @@ public class ResourceModal extends AbstractResourceModal {
         // Resource provision panels
         //--------------------------------
         final ListViewPanel.Builder<ProvisionTO> builder = ListViewPanel.builder(ProvisionTO.class, pageRef);
-        builder.setItems(resourceTO.getProvisions());
+        builder.setItems(model.getObject().getProvisions());
         builder.includes("anyType", "objectClass");
 
         builder.addAction(new ActionLink<ProvisionTO>() {
@@ -136,13 +131,13 @@ public class ResourceModal extends AbstractResourceModal {
 
             @Override
             public void onClick(final AjaxRequestTarget target, final ProvisionTO provisionTO) {
-                resourceTO.getProvisions().remove(provisionTO);
+                model.getObject().getProvisions().remove(provisionTO);
                 send(pageRef.getPage(), Broadcast.DEPTH,
                         new AjaxWizard.NewItemFinishEvent<ProvisionTO>(null, target));
             }
         }, ActionLink.ActionType.DELETE, Entitlement.RESOURCE_DELETE);
 
-        builder.addNewItemPanelBuilder(new ProvisionWizardBuilder("wizard", resourceTO, pageRef));
+        builder.addNewItemPanelBuilder(new ProvisionWizardBuilder("wizard", model.getObject(), pageRef));
         builder.addNotificationPanel(modal.getFeedbackPanel());
 
         tabs.add(new AbstractTab(new ResourceModel("provisions", "provisions")) {
@@ -165,7 +160,20 @@ public class ResourceModal extends AbstractResourceModal {
 
             @Override
             public Panel getPanel(final String panelId) {
-                final ResourceConnConfPanel panel = new ResourceConnConfPanel(panelId, resourceTO, createFlag);
+                final ResourceConnConfPanel panel = new ResourceConnConfPanel(panelId, model, createFlag) {
+
+                    private static final long serialVersionUID = 1L;
+
+                    @Override
+                    protected void check(final AjaxRequestTarget target) {
+                        if (connectorRestClient.check(model.getObject())) {
+                            info(getString("success_connection"));
+                        } else {
+                            error(getString("error_connection"));
+                        }
+                        modal.getFeedbackPanel().refresh(target);
+                    }
+                };
                 MetaDataRoleAuthorizationStrategy.authorize(panel, ENABLE, Entitlement.CONNECTOR_READ);
                 return panel;
             }
@@ -181,7 +189,7 @@ public class ResourceModal extends AbstractResourceModal {
 
             @Override
             public Panel getPanel(final String panelId) {
-                return new ResourceSecurityPanel(panelId, resourceTO);
+                return new ResourceSecurityPanel(panelId, model);
             }
         });
         //--------------------------------

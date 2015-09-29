@@ -29,7 +29,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.PropagationMode;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
@@ -68,7 +67,8 @@ public class TaskTest extends AbstractTest {
 
     @Test
     public void findPaginated() {
-        List<Task> tasks = taskDAO.findAll(1, 2, Collections.<OrderByClause>emptyList(), TaskType.PROPAGATION);
+        List<Task> tasks = taskDAO.findAll(
+                TaskType.PROPAGATION, null, null, null, 1, 2, Collections.<OrderByClause>emptyList());
         assertNotNull(tasks);
         assertEquals(2, tasks.size());
 
@@ -76,7 +76,8 @@ public class TaskTest extends AbstractTest {
             assertNotNull(task);
         }
 
-        tasks = taskDAO.findAll(2, 2, Collections.<OrderByClause>emptyList(), TaskType.PROPAGATION);
+        tasks = taskDAO.findAll(
+                TaskType.PROPAGATION, null, null, null, 2, 2, Collections.<OrderByClause>emptyList());
         assertNotNull(tasks);
         assertEquals(2, tasks.size());
 
@@ -84,9 +85,12 @@ public class TaskTest extends AbstractTest {
             assertNotNull(task);
         }
 
-        tasks = taskDAO.findAll(1000, 2, Collections.<OrderByClause>emptyList(), TaskType.PROPAGATION);
+        tasks = taskDAO.findAll(
+                TaskType.PROPAGATION, null, null, null, 1000, 2, Collections.<OrderByClause>emptyList());
         assertNotNull(tasks);
         assertTrue(tasks.isEmpty());
+
+        assertEquals(5, taskDAO.count(TaskType.PROPAGATION, null, null, null));
     }
 
     @Test
@@ -109,8 +113,7 @@ public class TaskTest extends AbstractTest {
         PropagationTask task = entityFactory.newEntity(PropagationTask.class);
         task.setResource(resource);
         task.setAnyTypeKind(AnyTypeKind.USER);
-        task.setPropagationMode(PropagationMode.TWO_PHASES);
-        task.setPropagationOperation(ResourceOperation.CREATE);
+        task.setOperation(ResourceOperation.CREATE);
         task.setConnObjectKey("one@two.com");
 
         Set<Attribute> attributes = new HashSet<>();
@@ -139,6 +142,8 @@ public class TaskTest extends AbstractTest {
 
         resource = resourceDAO.find(resource.getKey());
         assertNotNull(resource);
-        assertFalse(taskDAO.findAll(resource, TaskType.PROPAGATION).contains(task));
+        assertFalse(taskDAO.findAll(
+                TaskType.PROPAGATION, resource, null, null, -1, -1, Collections.<OrderByClause>emptyList()).
+                contains(task));
     }
 }

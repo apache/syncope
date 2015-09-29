@@ -149,9 +149,8 @@ public class ConnectorITCase extends AbstractITCase {
         connectorTO.getConfiguration().addAll(conf);
 
         // set connector capabilities
-        connectorTO.getCapabilities().add(ConnectorCapability.TWO_PHASES_CREATE);
-        connectorTO.getCapabilities().add(ConnectorCapability.ONE_PHASE_CREATE);
-        connectorTO.getCapabilities().add(ConnectorCapability.TWO_PHASES_UPDATE);
+        connectorTO.getCapabilities().add(ConnectorCapability.CREATE);
+        connectorTO.getCapabilities().add(ConnectorCapability.UPDATE);
 
         // set connector pool conf
         ConnPoolConfTO cpc = new ConnPoolConfTO();
@@ -180,7 +179,7 @@ public class ConnectorITCase extends AbstractITCase {
         Throwable t = null;
 
         // check update
-        actual.getCapabilities().remove(ConnectorCapability.TWO_PHASES_UPDATE);
+        actual.getCapabilities().remove(ConnectorCapability.UPDATE);
         actual.getPoolConf().setMaxObjects(null);
 
         try {
@@ -193,8 +192,7 @@ public class ConnectorITCase extends AbstractITCase {
 
         assertNull(t);
         assertNotNull(actual);
-        assertEquals(EnumSet.of(ConnectorCapability.ONE_PHASE_CREATE, ConnectorCapability.TWO_PHASES_CREATE),
-                actual.getCapabilities());
+        assertEquals(EnumSet.of(ConnectorCapability.CREATE), actual.getCapabilities());
         assertEquals(10, actual.getPoolConf().getMaxObjects(), 0);
 
         // check also for the deletion of the created object

@@ -40,6 +40,7 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.CompoundPropertyModel;
+import org.apache.wicket.model.IModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -114,6 +115,11 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
 
     public BaseModal<T> setFormModel(final T modelObject) {
         form.setModel(new CompoundPropertyModel<>(modelObject));
+        return this;
+    }
+
+    public BaseModal<T> setFormModel(final IModel<T> model) {
+        form.setModel(model);
         return this;
     }
 

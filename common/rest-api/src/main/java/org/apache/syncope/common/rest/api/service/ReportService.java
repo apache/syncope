@@ -20,7 +20,6 @@ package org.apache.syncope.common.rest.api.service;
 
 import java.util.List;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -33,13 +32,11 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.ReportExecTO;
 import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.JobStatusType;
 import org.apache.syncope.common.lib.types.ReportExecExportFormat;
-import org.apache.syncope.common.rest.api.beans.ListQuery;
 
 /**
  * REST operations for reports.
@@ -70,14 +67,13 @@ public interface ReportService extends JAXRSService {
     ReportExecTO readExecution(@NotNull @PathParam("executionKey") Long executionKey);
 
     /**
-     * Returns a paged list of all existing reports matching the given query;
+     * Returns a list of all existing reports.
      *
-     * @param listQuery query conditions
      * @return paged list of existing reports matching the given query
      */
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    PagedResult<ReportTO> list(@BeanParam ListQuery listQuery);
+    List<ReportTO> list();
 
     /**
      * Creates a new report.

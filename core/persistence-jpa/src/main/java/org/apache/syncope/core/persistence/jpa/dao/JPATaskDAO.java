@@ -23,6 +23,7 @@ import java.util.List;
 import javax.persistence.Query;
 import org.apache.commons.collections4.Closure;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
@@ -36,6 +37,7 @@ import org.apache.syncope.core.persistence.jpa.entity.task.JPASyncTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.AbstractTask;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ReflectionUtils;
 
 @Repository
 public class JPATaskDAO extends AbstractDAO<Task, Long> implements TaskDAO {
@@ -78,59 +80,106 @@ public class JPATaskDAO extends AbstractDAO<Task, Long> implements TaskDAO {
         return (T) entityManager().find(AbstractTask.class, key);
     }
 
-    private <T extends Task> StringBuilder buildfindAllQuery(final TaskType type) {
-        return new StringBuilder("SELECT e FROM ").
+    private <T extends Task> StringBuilder buildFindAllQuery(final TaskType type) {
+        return new StringBuilder("SELECT t FROM ").
                 append(getEntityReference(type).getSimpleName()).
-                append(" e WHERE e.type=:type ");
+                append(" t WHERE t.type=:type ");
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public <T extends Task> List<T> findToExec(final TaskType type) {
-        StringBuilder queryString = buildfindAllQuery(type).append("AND ");
+        StringBuilder queryString = buildFindAllQuery(type).append("AND ");
 
         if (type == TaskType.NOTIFICATION) {
-            queryString.append("e.executed = 0 ");
+            queryString.append("t.executed = 0 ");
         } else {
-            queryString.append("e.executions IS EMPTY ");
+            queryString.append("t.executions IS EMPTY ");
         }
-        queryString.append("ORDER BY e.id DESC");
+        queryString.append("ORDER BY t.id DESC");
 
         Query query = entityManager().createQuery(queryString.toString());
         query.setParameter("type", type);
-        return query.getResultList();
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public <T extends Task> List<T> findAll(final ExternalResource resource, final TaskType type) {
-        StringBuilder queryString = buildfindAllQuery(type).append("AND e.resource=:resource ORDER BY e.id DESC");
-
-        final Query query = entityManager().createQuery(queryString.toString());
-        query.setParameter("type", type);
-        query.setParameter("resource", resource);
-
         return query.getResultList();
     }
 
     @Transactional(readOnly = true)
     @Override
     public <T extends Task> List<T> findAll(final TaskType type) {
-        return findAll(-1, -1, Collections.<OrderByClause>emptyList(), type);
+        return findAll(type, null, null, null, -1, -1, Collections.<OrderByClause>emptyList());
+    }
+
+    private StringBuilder buildFindAllQuery(
+            final TaskType type,
+            final ExternalResource resource,
+            final AnyTypeKind anyTypeKind,
+            final Long anyTypeKey) {
+
+        if (resource != null
+                && type != TaskType.PROPAGATION && type != TaskType.PUSH && type != TaskType.SYNCHRONIZATION) {
+
+            throw new IllegalArgumentException(type + " is not related to " + ExternalResource.class.getSimpleName());
+        }
+
+        if ((anyTypeKind != null || anyTypeKey != null) && type != TaskType.PROPAGATION) {
+            throw new IllegalArgumentException(type + " is not related to users, groups or any objects");
+        }
+
+        StringBuilder queryString = buildFindAllQuery(type);
+
+        if (resource != null) {
+            queryString.append("AND t.resource=:resource ");
+        }
+        if (anyTypeKind != null && anyTypeKey != null) {
+            queryString.append("AND t.anyTypeKind=:anyTypeKind AND t.anyTypeKey=:anyTypeKey ");
+        }
+
+        return queryString;
+    }
+
+    private String toOrderByStatement(
+            final Class<? extends Task> beanClass, final List<OrderByClause> orderByClauses) {
+
+        StringBuilder statement = new StringBuilder();
+
+        for (OrderByClause clause : orderByClauses) {
+            String field = clause.getField().trim();
+            if (ReflectionUtils.findField(beanClass, field) != null) {
+                statement.append("t.").append(field).append(' ').append(clause.getDirection().name());
+            }
+        }
+
+        if (statement.length() > 0) {
+            statement.insert(0, "ORDER BY ");
+        }
+        return statement.toString();
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T extends Task> List<T> findAll(final int page, final int itemsPerPage,
-            final List<OrderByClause> orderByClauses, final TaskType type) {
+    public <T extends Task> List<T> findAll(
+            final TaskType type,
+            final ExternalResource resource,
+            final AnyTypeKind anyTypeKind,
+            final Long anyTypeKey,
+            final int page,
+            final int itemsPerPage,
+            final List<OrderByClause> orderByClauses) {
 
-        StringBuilder queryString = buildfindAllQuery(type);
-        queryString.append(orderByClauses.isEmpty()
-                ? "ORDER BY e.id DESC"
-                : toOrderByStatement(getEntityReference(type), "e", orderByClauses));
+        StringBuilder queryString = buildFindAllQuery(type, resource, anyTypeKind, anyTypeKey).
+                append(orderByClauses.isEmpty()
+                                ? "ORDER BY t.id DESC"
+                                : toOrderByStatement(getEntityReference(type), orderByClauses));
 
         Query query = entityManager().createQuery(queryString.toString());
         query.setParameter("type", type);
+        if (resource != null) {
+            query.setParameter("resource", resource);
+        }
+        if (anyTypeKind != null && anyTypeKey != null) {
+            query.setParameter("anyTypeKind", anyTypeKind);
+            query.setParameter("anyTypeKey", anyTypeKey);
+        }
 
         query.setFirstResult(itemsPerPage * (page <= 0
                 ? 0
@@ -144,10 +193,27 @@ public class JPATaskDAO extends AbstractDAO<Task, Long> implements TaskDAO {
     }
 
     @Override
-    public int count(final TaskType type) {
-        Query countQuery = entityManager().createNativeQuery("SELECT COUNT(id) FROM Task WHERE TYPE=?1");
-        countQuery.setParameter(1, type.name());
-        return ((Number) countQuery.getSingleResult()).intValue();
+    public int count(
+            final TaskType type,
+            final ExternalResource resource,
+            final AnyTypeKind anyTypeKind,
+            final Long anyTypeKey) {
+
+        StringBuilder queryString = buildFindAllQuery(type, resource, anyTypeKind, anyTypeKey);
+
+        Query query = entityManager().createQuery(queryString.toString().replace(
+                "SELECT t",
+                "SELECT COUNT(t)"));
+        query.setParameter("type", type);
+        if (resource != null) {
+            query.setParameter("resource", resource);
+        }
+        if (anyTypeKind != null && anyTypeKey != null) {
+            query.setParameter("anyTypeKind", anyTypeKind);
+            query.setParameter("anyTypeKey", anyTypeKey);
+        }
+
+        return ((Number) query.getSingleResult()).intValue();
     }
 
     @Transactional(rollbackFor = { Throwable.class })
@@ -173,12 +239,14 @@ public class JPATaskDAO extends AbstractDAO<Task, Long> implements TaskDAO {
 
     @Override
     public void deleteAll(final ExternalResource resource, final TaskType type) {
-        CollectionUtils.forAllDo(findAll(resource, type), new Closure<Task>() {
+        CollectionUtils.forAllDo(
+                findAll(type, resource, null, null, -1, -1, Collections.<OrderByClause>emptyList()),
+                new Closure<Task>() {
 
-            @Override
-            public void execute(final Task input) {
-                delete(input.getKey());
-            }
-        });
+                    @Override
+                    public void execute(final Task input) {
+                        delete(input.getKey());
+                    }
+                });
     }
 }

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.api.entity.resource;
 
+import java.util.List;
 import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.core.persistence.api.entity.Entity;
@@ -55,5 +56,7 @@ public interface MappingItem extends Entity<Long> {
     boolean isPassword();
 
     void setPassword(boolean password);
+
+    List<String> getMappingItemTransformerClassNames();
 
 }

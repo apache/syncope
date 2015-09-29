@@ -81,7 +81,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
     @Test
     public void list() {
         PagedResult<PushTaskTO> tasks = taskService.list(
-                TaskType.PUSH, SyncopeClient.getListQueryBuilder().build());
+                TaskType.PUSH, SyncopeClient.getTaskQueryBuilder().build());
         assertFalse(tasks.getResult().isEmpty());
         for (AbstractTaskTO task : tasks.getResult()) {
             if (!(task instanceof PushTaskTO)) {
@@ -326,7 +326,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
 
             // execute the new task
             TaskExecTO pushExec = execProvisioningTask(taskService, push.getKey(), 50, false);
-            assertTrue(PropagationTaskExecStatus.valueOf(pushExec.getStatus()).isSuccessful());
+            assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(pushExec.getStatus()));
         } finally {
             groupService.delete(groupTO.getKey());
             if (newResourceTO != null) {

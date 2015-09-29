@@ -108,8 +108,6 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
 
         resource.setRandomPwdIfNotProvided(resourceTO.isRandomPwdIfNotProvided());
 
-        resource.setPropagationMode(resourceTO.getPropagationMode());
-
         // 1. add or update all (valid) provisions from TO
         for (ProvisionTO provisionTO : resourceTO.getProvisions()) {
             AnyType anyType = anyTypeDAO.find(provisionTO.getAnyType());
@@ -322,8 +320,6 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         resourceTO.setPropagationPriority(resource.getPropagationPriority());
 
         resourceTO.setRandomPwdIfNotProvided(resource.isRandomPwdIfNotProvided());
-
-        resourceTO.setPropagationMode(resource.getPropagationMode());
 
         resourceTO.setCreateTraceLevel(resource.getCreateTraceLevel());
         resourceTO.setUpdateTraceLevel(resource.getUpdateTraceLevel());

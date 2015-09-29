@@ -45,6 +45,8 @@ import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.CompoundPropertyModel;
+import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
@@ -130,10 +132,12 @@ public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
 
             @Override
             public void onClickInternal(final AjaxRequestTarget target) {
-                final ConnInstanceTO model = new ConnInstanceTO();
-                model.setLocation(node.getKey().toString());
+                final ConnInstanceTO modelObject = new ConnInstanceTO();
+                modelObject.setLocation(node.getKey().toString());
 
+                final IModel<ConnInstanceTO> model = new CompoundPropertyModel<>(modelObject);
                 modal.setFormModel(model);
+
                 target.add(modal.setContent(new ConnectorModal(modal, pageRef, model)));
 
                 modal.header(new Model<String>(MessageFormat.format(getString("connector.new"), node.getKey())));
@@ -180,11 +184,13 @@ public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
 
             @Override
             public void onClickInternal(final AjaxRequestTarget target) {
-                final ResourceTO model = new ResourceTO();
-                model.setConnector(Long.class.cast(node.getKey()));
-                model.setConnectorDisplayName(node.getDisplayName());
+                final ResourceTO modelObject = new ResourceTO();
+                modelObject.setConnector(Long.class.cast(node.getKey()));
+                modelObject.setConnectorDisplayName(node.getDisplayName());
 
+                final IModel<ResourceTO> model = new CompoundPropertyModel<>(modelObject);
                 modal.setFormModel(model);
+
                 target.add(modal.setContent(new ResourceModal(modal, pageRef, model, true)));
 
                 modal.header(new Model<String>(MessageFormat.format(getString("resource.new"), node.getKey())));
@@ -205,9 +211,11 @@ public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
 
             @Override
             public void onClickInternal(final AjaxRequestTarget target) {
-                final ConnInstanceTO model = connectorRestClient.read(Long.class.cast(node.getKey()));
+                final ConnInstanceTO modelObject = connectorRestClient.read(Long.class.cast(node.getKey()));
 
+                final IModel<ConnInstanceTO> model = new CompoundPropertyModel<>(modelObject);
                 modal.setFormModel(model);
+
                 target.add(modal.setContent(new ConnectorModal(modal, pageRef, model)));
 
                 modal.header(new Model<String>(MessageFormat.format(getString("connector.edit"), node.getKey())));
@@ -254,10 +262,11 @@ public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
 
             @Override
             public void onClickInternal(final AjaxRequestTarget target) {
+                final ResourceTO modelObject = resourceRestClient.read(node.getKey().toString());
 
-                final ResourceTO model = resourceRestClient.read(node.getKey().toString());
-
+                final IModel<ResourceTO> model = new CompoundPropertyModel<>(modelObject);
                 modal.setFormModel(model);
+
                 target.add(modal.setContent(new ResourceModal(modal, pageRef, model, false)));
 
                 modal.header(new Model<String>(MessageFormat.format(getString("resource.edit"), node.getKey())));

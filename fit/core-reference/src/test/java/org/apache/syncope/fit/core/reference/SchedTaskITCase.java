@@ -55,7 +55,7 @@ public class SchedTaskITCase extends AbstractTaskITCase {
     @Test
     public void list() {
         PagedResult<SchedTaskTO> tasks =
-                taskService.list(TaskType.SCHEDULED, SyncopeClient.getListQueryBuilder().build());
+                taskService.list(TaskType.SCHEDULED, SyncopeClient.getTaskQueryBuilder().build());
         assertFalse(tasks.getResult().isEmpty());
         for (AbstractTaskTO task : tasks.getResult()) {
             if (!(task instanceof SchedTaskTO) || task instanceof SyncTaskTO || task instanceof PushTaskTO) {

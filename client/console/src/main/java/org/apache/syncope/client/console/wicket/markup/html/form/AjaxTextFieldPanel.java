@@ -28,7 +28,6 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteSettings;
 import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteTextField;
-import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.validation.IValidator;
@@ -45,7 +44,7 @@ public class AjaxTextFieldPanel extends FieldPanel<String> implements Cloneable 
 
     public AjaxTextFieldPanel(
             final String id, final String name, final IModel<String> model, final boolean enableOnChange) {
-        super(id, model);
+        super(id, name, model);
 
         final AutoCompleteSettings settings = new AutoCompleteSettings();
         settings.setShowCompleteListOnFocusGain(true);
@@ -84,8 +83,6 @@ public class AjaxTextFieldPanel extends FieldPanel<String> implements Cloneable 
                 }
             });
         }
-
-        add(new Label("label", new ResourceModel(name, name)));
     }
 
     public void addValidator(final IValidator<? super String> validator) {
