@@ -19,18 +19,24 @@
 
 // Quick reference: http://asciidoctor.org/docs/asciidoc-syntax-quick-reference/
 // User manual: http://asciidoctor.org/docs/user-manual/
+// Tricks: https://leanpub.com/awesomeasciidoctornotebook/read
+
+:homepage: http://syncope.apache.org
+:description: Comprehensive guide about Apache Syncope
+:keywords: Apache Syncope, IdM, provisioning, identity management, reference, guide
+
+:docinfo1:
+:last-update-label!:
+:sectanchors:
+:sectnums:
+:sectlinks:
 
 = Apache Syncope - Reference Guide
 :revnumber: {docVersion}
 :toc: right
 :toclevels: 4
-:homepage: http://syncope.apache.org
-:description: Comprehensive guide about Apache Syncope
-:keywords: Apache Syncope, IdM, provisioning, identity management, reference, guide
 
-:sectanchors:
-:sectnums:
-:sectlinks:
+image::http://syncope.apache.org/images/apache-syncope-logo-small.jpg[Apache Syncope logo]
 
 [NOTE]
 .This document is under active development and discussion!
@@ -58,7 +64,15 @@ compliance.
 
 === Access Managers
 
-== Building blocks
+=== The Complete Picture
+
+== Architecture
+
+=== Design Principles
+
+=== Implementation Guidelines
+
+== Concepts
 
 === Data model
 
@@ -66,35 +80,69 @@ compliance.
 
 ==== Attributes
 
-==== Mapping
+==== Users, Groups and Any objects
 
-=== The external world
+==== Realms
 
-==== Connectors, Resources
+==== Domains
 
-==== Propagation & Synchronization
+=== Tasks
+
+=== Provisioning
+
+==== Connectors
+
+==== Resources
+
+==== Propagation, Push & Synchronization
 
 === Policies
 
-=== Workflow
+==== Account
+
+==== Password
+
+==== Push
+
+==== Synchronization
+
+=== Workflow and Approval
+
+=== Notifications
 
 === Reports
 
+=== Audit
+
+=== Delegated Administration
+
 == Working with Apache Syncope
 
-=== Architecture
+=== Using the Admin Console
 
 === RESTful services
 
 ==== Client library
 
-=== Extending
+=== Customization
 
 ==== Core
 
 ==== Console
 
-== Examples
+==== New extensions
+
+=== Deploying in production
+
+=== Options
+
+=== High-Availability
+
+== Extensions
+
+=== Apache Camel
+
+== Use Cases
 
 // Chapters will be placed in separate .adoc files in the same directory
 //include::XXX.adoc[]
