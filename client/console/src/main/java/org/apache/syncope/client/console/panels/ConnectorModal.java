@@ -21,13 +21,13 @@ package org.apache.syncope.client.console.panels;
 import static org.apache.syncope.client.console.panels.AbstractModalPanel.LOG;
 
 import java.io.Serializable;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.AbstractBasePage;
-import org.apache.syncope.client.console.topology.Topology;
 import org.apache.syncope.client.console.topology.TopologyNode;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.to.ConnBundleTO;
@@ -156,8 +156,7 @@ public class ConnectorModal extends AbstractResourceModal {
                         connInstanceTO.getKey(),
                         connInstanceTO.getDisplayName(),
                         TopologyNode.Kind.CONNECTOR,
-                        connInstanceTO.getLocation().startsWith(Topology.CONNECTOR_SERVER_LOCATION_PREFIX)
-                                ? connInstanceTO.getLocation() : Topology.ROOT_NAME,
+                        URI.create(connInstanceTO.getLocation()).toASCIIString(),
                         target));
             } else {
                 connectorRestClient.update(connInstanceTO);

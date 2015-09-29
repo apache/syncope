@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.topology;
 
+import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
 import java.net.URI;
 import java.util.ArrayList;
@@ -138,8 +139,8 @@ public class Topology extends BasePage {
     }
 
     public Topology() {
-        modal = new BaseModal<>("modal");
-        add(modal);
+        modal = new BaseModal<>("resource-modal");
+        add(modal.size(Modal.Size.Large));
 
         modal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
 

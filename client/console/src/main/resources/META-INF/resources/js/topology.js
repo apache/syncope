@@ -267,15 +267,14 @@ window.checkConnection = function() {
 }
 
 window.addEndpoint = function(source, target, scope) {
-    var sourceElement = $('#' + source);
-    
+    var sourceElement = $(document.getElementById(source));
+
     var top = parseFloat(sourceElement.css("top")) + 10;
     var left = parseFloat(sourceElement.css("left")) - 150;
 
     setPosition(target, left, top);
-
     jsPlumb.ready(function(){
-	jsPlumb.draggable(jsPlumb.getSelector("#" + target));
+	jsPlumb.draggable(jsPlumb.getSelector(document.getElementById(target)));
 	jsPlumb.connect({ source:source, target:target, scope:scope }, def);
     });
 }

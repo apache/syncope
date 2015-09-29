@@ -218,3 +218,7 @@ span.overridable div.checkbox {
   margin: 0px; 
   padding: 0px;
 }
+
+div#resource-modal.modal-lg {
+  width: 1200px;
+}

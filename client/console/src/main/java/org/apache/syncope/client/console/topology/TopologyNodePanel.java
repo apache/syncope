@@ -172,6 +172,7 @@ public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
                     error(getString(Constants.ERROR) + ": " + e.getMessage());
                     LOG.error("While deleting resource {}", node.getKey(), e);
                 }
+                ((BasePage) pageRef.getPage()).getFeedbackPanel().refresh(target);
             }
         };
         fragment.add(delete);
@@ -250,6 +251,8 @@ public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
                     error(getString(Constants.ERROR) + ": " + e.getMessage());
                     LOG.error("While deleting resource {}", node.getKey(), e);
                 }
+
+                ((BasePage) pageRef.getPage()).getFeedbackPanel().refresh(target);
             }
         };
         fragment.add(delete);

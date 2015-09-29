@@ -193,6 +193,9 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
     protected void onInitialize() {
         super.onInitialize();
 
+        final WebMarkupContainer dialog = (WebMarkupContainer) this.get("dialog");
+        dialog.setMarkupId(this.getId());
+
         final WebMarkupContainer footer = (WebMarkupContainer) this.get("dialog:footer");
         footer.addOrReplace(new ListView<Component>("inputs", components) {
 

@@ -73,18 +73,17 @@ under the License.
               <span wicket:id="password">[password]</span>
             </td>
             <td>
-              <span wicket:id="purpose">
+              <div wicket:id="purpose" style="margin: 10px 0px 10px 0px">
                 <span wicket:id="purposeActions">[purpose]</span>
-              </span>
+              </div>
             </td>
           </tr>
         </tbody>
 
         <tfoot>
           <tr>
-            <td colspan="7" style="padding: 5px">
-              <input type="submit" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
-                     wicket:id="addMappingBtn" />
+            <td colspan="9" style="padding: 5px; text-align: right">
+              <input type="submit" class="btn btn-primary" wicket:id="addMappingBtn" />
             </td>
           </tr>
         </tfoot>
