@@ -377,6 +377,7 @@ under the License.
     <bootstrap.version>3.3.5</bootstrap.version>
 
     <wicket-bootstrap.version>0.10.4-SNAPSHOT</wicket-bootstrap.version>
+    <bootbox.version>4.4.0</bootbox.version>
 
     <font-awesome.version>4.4.0</font-awesome.version>
     <ionicons.version>2.0.1</ionicons.version>
@@ -950,6 +951,11 @@ under the License.
         <groupId>org.webjars</groupId>
         <artifactId>font-awesome</artifactId>
         <version>${font-awesome.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.webjars</groupId>
+        <artifactId>bootbox</artifactId>
+        <version>${bootbox.version}</version>
       </dependency>
       <dependency>
         <groupId>org.webjars</groupId>

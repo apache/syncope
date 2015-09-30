@@ -16,12 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.wicket.ajax.markup.html;
+package org.apache.syncope.client.console.wicket.markup.html.form;
 
-import org.apache.wicket.Component;
+import org.apache.syncope.client.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.confirmation.ConfirmationModalBehavior;
 import org.apache.wicket.PageReference;
-import org.apache.wicket.ajax.attributes.AjaxCallListener;
-import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
 
 public abstract class IndicatingOnConfirmAjaxLink<T> extends ClearIndicatingAjaxLink<T> {
 
@@ -36,23 +35,6 @@ public abstract class IndicatingOnConfirmAjaxLink<T> extends ClearIndicatingAjax
     public IndicatingOnConfirmAjaxLink(final String id, final PageReference pageRef, final String msg) {
         super(id, pageRef);
         this.msg = msg;
-    }
-
-    @Override
-    protected void updateAjaxAttributes(final AjaxRequestAttributes attributes) {
-        super.updateAjaxAttributes(attributes);
-
-        final AjaxCallListener ajaxCallListener = new AjaxCallListener() {
-
-            private static final long serialVersionUID = 7160235486520935153L;
-
-            @Override
-            public CharSequence getPrecondition(final Component component) {
-                return "if (!confirm('"
-                        + getString(IndicatingOnConfirmAjaxLink.this.msg)
-                        + "')) {return false;} else {return true;}";
-            }
-        };
-        attributes.getAjaxCallListeners().add(ajaxCallListener);
+        this.add(new ConfirmationModalBehavior(msg));
     }
 }

@@ -28,6 +28,7 @@ import org.apache.syncope.client.console.panels.RealmSidebarPanel;
 import org.apache.syncope.client.console.panels.RealmSidebarPanel.ControlSidebarClick;
 import org.apache.syncope.client.console.rest.RealmRestClient;
 import org.apache.syncope.client.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.confirmation.ConfirmationModalBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.Entitlement;
@@ -119,12 +120,13 @@ public class Realms extends BasePage {
 
     private void setupDeleteLink() {
 
-        final AjaxLink<Void> deleteLink = new ClearIndicatingAjaxLink<Void>("deleteLink", getPageReference()) {
+        @SuppressWarnings("unchecked")
+        final AjaxLink<Void> deleteLink = new AjaxLink("deleteLink", Model.of("deleteLink")) {
 
-            private static final long serialVersionUID = -7978723352517770644L;
+            private static final long serialVersionUID = 3776750333491622263L;
 
             @Override
-            protected void onClickInternal(final AjaxRequestTarget target) {
+            public void onClick(final AjaxRequestTarget target) {
                 try {
                     final RealmTO toBeDeleted = realmSidebarPanel.getCurrentRealm();
 
@@ -146,6 +148,8 @@ public class Realms extends BasePage {
                 }
             }
         };
+
+        deleteLink.add(new ConfirmationModalBehavior());
 
         if (SyncopeConsoleSession.get().owns(Entitlement.REALM_DELETE)) {
             MetaDataRoleAuthorizationStrategy.authorize(deleteLink, ENABLE, Entitlement.REALM_DELETE);
