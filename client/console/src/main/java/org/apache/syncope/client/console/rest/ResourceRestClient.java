@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console.rest;
 
 import java.util.List;
+import javax.ws.rs.core.Response;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.BulkAction;
@@ -53,8 +54,10 @@ public class ResourceRestClient extends BaseRestClient {
         return resources;
     }
 
-    public void create(final ResourceTO resourceTO) {
-        getService(ResourceService.class).create(resourceTO);
+    public ResourceTO create(final ResourceTO resourceTO) {
+        final ResourceService service = getService(ResourceService.class);
+        final Response response = service.create(resourceTO);
+        return getObject(service, response.getLocation(), ResourceTO.class);
     }
 
     public ResourceTO read(final String name) {

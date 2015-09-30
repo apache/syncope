@@ -25,7 +25,6 @@ under the License.
              wicket:id="mappingContainer">
         <tbody>
           <tr>
-            <th><wicket:message key="delete"/></th>
             <th><wicket:message key="entity"/></th>
             <th><wicket:message key="intMappingTypes"/></th>
             <th><wicket:message key="intAttrNames"/></th>
@@ -46,11 +45,9 @@ under the License.
             <th><wicket:message key="connObjectKey"/></th>
             <th><label wicket:id="passwordLabel"/></th>
             <th><wicket:message key="purpose"/></th>
+            <th><i class="fa fa-trash"></i></th>
           </tr>
           <tr wicket:id="mappings">
-            <td>
-              <input type="checkbox" class="text ui-widget-content ui-corner-all"  wicket:id="toRemove"/>
-            </td>
             <td>
               <span wicket:id="entities">[entities]</span>
             </td>
@@ -75,6 +72,11 @@ under the License.
             <td>
               <div wicket:id="purpose" style="margin: 10px 0px 10px 0px">
                 <span wicket:id="purposeActions">[purpose]</span>
+              </div>
+            </td>
+            <td>
+              <div style="margin: 10px 0px 10px 0px">
+                <span  wicket:id="toRemove"/>
               </div>
             </td>
           </tr>

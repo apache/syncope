@@ -233,12 +233,12 @@ public class ResourceModal extends AbstractResourceModal {
         } else {
             try {
                 if (createFlag) {
-                    resourceRestClient.create(resourceTO);
+                    final ResourceTO actual = resourceRestClient.create(resourceTO);
                     send(pageRef.getPage(), Broadcast.BREADTH, new CreateEvent(
-                            resourceTO.getKey(),
-                            resourceTO.getKey(),
+                            actual.getKey(),
+                            actual.getKey(),
                             TopologyNode.Kind.RESOURCE,
-                            resourceTO.getConnector(),
+                            actual.getConnector(),
                             target));
                 } else {
                     resourceRestClient.update(resourceTO);

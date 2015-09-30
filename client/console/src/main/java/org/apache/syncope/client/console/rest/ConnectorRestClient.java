@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import javax.ws.rs.core.Response;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.BulkAction;
@@ -56,11 +57,15 @@ public class ConnectorRestClient extends BaseRestClient {
         return connectors;
     }
 
-    public void create(final ConnInstanceTO connectorTO) {
+    public ConnInstanceTO create(final ConnInstanceTO connectorTO) {
         Set<ConnConfProperty> filteredConf = filterProperties(connectorTO.getConfiguration());
         connectorTO.getConfiguration().clear();
         connectorTO.getConfiguration().addAll(filteredConf);
-        getService(ConnectorService.class).create(connectorTO);
+
+        final ConnectorService service = getService(ConnectorService.class);
+        final Response response = service.create(connectorTO);
+
+        return getObject(service, response.getLocation(), ConnInstanceTO.class);
     }
 
     /**

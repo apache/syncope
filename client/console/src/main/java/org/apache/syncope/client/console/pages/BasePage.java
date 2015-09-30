@@ -183,7 +183,7 @@ public class BasePage extends AbstractBasePage implements IAjaxIndicatorAware {
      * @param modal window
      * @param container container
      */
-    public void setWindowClosedCallback(final BaseModal modal, final WebMarkupContainer container) {
+    public void setWindowClosedCallback(final BaseModal<?> modal, final WebMarkupContainer container) {
         modal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
 
             private static final long serialVersionUID = 8804221891699487139L;

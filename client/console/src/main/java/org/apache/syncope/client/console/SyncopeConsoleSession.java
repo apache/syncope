@@ -222,4 +222,8 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
 
         return DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, locale);
     }
+
+    public MediaType getMediaType() {
+        return clientFactory.getContentType().getMediaType();
+    }
 }

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -28,8 +29,9 @@ import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.JexlHelpUtils;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
-import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDecoratedCheckbox;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
@@ -41,12 +43,10 @@ import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
+import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
-import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.attributes.AjaxCallListener;
-import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -231,12 +231,15 @@ public class ResourceMappingPanel extends Panel {
                     entity = mapItem.getIntMappingType().getAnyTypeKind();
                 }
 
-                item.add(new AjaxDecoratedCheckbox("toRemove", new Model<>(Boolean.FALSE)) {
+                final ActionLinksPanel.Builder<Serializable> actions = ActionLinksPanel.builder(
+                        getPage().getPageReference());
 
-                    private static final long serialVersionUID = 7170946748485726506L;
+                actions.add(new ActionLink<Serializable>() {
+
+                    private static final long serialVersionUID = -3722207913631435501L;
 
                     @Override
-                    protected void onUpdate(final AjaxRequestTarget target) {
+                    public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                         int index = -1;
                         for (int i = 0; i < getMapping().getItems().size() && index == -1; i++) {
                             if (mapItem.equals(getMapping().getItems().get(i))) {
@@ -250,23 +253,9 @@ public class ResourceMappingPanel extends Panel {
                             target.add(ResourceMappingPanel.this);
                         }
                     }
+                }, ActionLink.ActionType.DELETE, Entitlement.RESOURCE_UPDATE);
 
-                    @Override
-                    protected void updateAjaxAttributes(final AjaxRequestAttributes attributes) {
-                        super.updateAjaxAttributes(attributes);
-
-                        AjaxCallListener ajaxCallListener = new AjaxCallListener() {
-
-                            private static final long serialVersionUID = 7160235486520935153L;
-
-                            @Override
-                            public CharSequence getPrecondition(final Component component) {
-                                return "if (!confirm('" + getString("confirmDelete") + "')) return false;";
-                            }
-                        };
-                        attributes.getAjaxCallListeners().add(ajaxCallListener);
-                    }
-                });
+                item.add(actions.build("toRemove"));
 
                 final AjaxDropDownChoicePanel<String> intAttrNames = new AjaxDropDownChoicePanel<>(
                         "intAttrNames",

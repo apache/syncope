@@ -151,12 +151,12 @@ public class ConnectorModal extends AbstractResourceModal {
 
         try {
             if (connInstanceTO.getKey() == 0) {
-                connectorRestClient.create(connInstanceTO);
+                final ConnInstanceTO actual = connectorRestClient.create(connInstanceTO);
                 send(pageRef.getPage(), Broadcast.BREADTH, new CreateEvent(
-                        connInstanceTO.getKey(),
-                        connInstanceTO.getDisplayName(),
+                        actual.getKey(),
+                        actual.getDisplayName(),
                         TopologyNode.Kind.CONNECTOR,
-                        URI.create(connInstanceTO.getLocation()).toASCIIString(),
+                        URI.create(actual.getLocation()).toASCIIString(),
                         target));
             } else {
                 connectorRestClient.update(connInstanceTO);

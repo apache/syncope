@@ -30,6 +30,7 @@ import org.apache.syncope.client.console.panels.ResourceModal;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.wicket.ajax.markup.html.ClearIndicatingAjaxLink;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.confirmation.ConfirmationModalBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
@@ -176,6 +177,7 @@ public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
             }
         };
         fragment.add(delete);
+        delete.add(new ConfirmationModalBehavior());
 
         MetaDataRoleAuthorizationStrategy.authorize(delete, ENABLE, Entitlement.CONNECTOR_DELETE);
 
@@ -256,6 +258,8 @@ public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
             }
         };
         fragment.add(delete);
+
+        delete.add(new ConfirmationModalBehavior());
 
         MetaDataRoleAuthorizationStrategy.authorize(delete, ENABLE, Entitlement.RESOURCE_DELETE);
 
