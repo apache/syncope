@@ -17,7 +17,7 @@ specific language governing permissions and limitations
 under the License.
 -->
 **Apache Syncope** is an Open Source system for managing digital identities in enterprise environments, 
-implemented in JEE technology and released under Apache 2.0 license.
+implemented in Java EE technology and released under Apache 2.0 license.
 
 More information at http://syncope.apache.org
 

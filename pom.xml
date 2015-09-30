@@ -1522,6 +1522,30 @@ under the License.
         
         <plugins>
           <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>copy-doc-images</id>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+                <phase>generate-resources</phase>
+                <configuration>
+                  <target>
+                    <copy todir="${project.build.directory}/generated-docs/images">
+                      <fileset dir="${rootpom.basedir}/src/main/asciidoc/getting-started/images"/>
+                    </copy>
+                    <copy todir="${project.build.directory}/generated-docs/images">
+                      <fileset dir="${rootpom.basedir}/src/main/asciidoc/reference-guide/images"/>
+                    </copy>
+                  </target>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          
+          <plugin>
             <groupId>org.asciidoctor</groupId>
             <artifactId>asciidoctor-maven-plugin</artifactId>
             <version>1.5.2.1</version>

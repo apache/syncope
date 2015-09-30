@@ -109,7 +109,7 @@ under the License.
     
     <section name="Release steps">
       
-      <subsection name="Verify DBMSes and JEE containers">
+      <subsection name="Verify DBMSes and Java EE containers">
         <p>
           This is an optional step.<br/>
           These verifications take some time and have quite strong environment requirements. However, it is of fundamental

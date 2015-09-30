@@ -86,7 +86,7 @@ under the License.
         <h4>Debug</h4>
         Starts the full environment used by integration tests (with same components available when running new project
         in <a href="https://cwiki.apache.org/confluence/display/SYNCOPE/Run+Syncope+in+embedded+mode#RunSyncopeinembeddedmode-Componentsavailable">embedded mode</a>
-        but console) and enables remote JPDA debugging on port 8000 in the running JEE container (Tomcat).
+        but console) and enables remote JPDA debugging on port 8000 in the running Java EE container (Tomcat).
         <source>$ mvn -Pdebug</source>
 
         <h4>Dev</h4>              
@@ -134,7 +134,7 @@ $ mvn -Pdev -Dit.test=UserTestITCase#create</source>
         against a real <a href="http://www.microsoft.com/sqlserver/en/us/default.aspx">MS SQL Server</a> database via
         <source>$ mvn -Psqlserver-it</source>
 
-        <h4>JEE containers</h4>
+        <h4>Java EE containers</h4>
 
         <h5>Glassfish</h5>
         Perform the full test suite by deploying Syncope core in 
@@ -157,7 +157,7 @@ $ mvn -Pdev -Dit.test=UserTestITCase#create</source>
         <h4>Debug</h4>
         Starts the full environment used by core's integration tests (with same components available when running new project
         in <a href="https://cwiki.apache.org/confluence/display/SYNCOPE/Run+Syncope+in+embedded+mode#RunSyncopeinembeddedmode-Componentsavailable">embedded mode</a>,
-        including console) and enables remote JPDA debugging on port 8000 in the running JEE container (Tomcat).
+        including console) and enables remote JPDA debugging on port 8000 in the running Java EE container (Tomcat).
         <source>$ mvn -Pdebug</source>
 
         <h4>JRebel</h4>

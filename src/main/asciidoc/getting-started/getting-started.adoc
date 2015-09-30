@@ -52,9 +52,11 @@ New contributors are always welcome!
 This guide shows you how to get started with Apache Syncope services for identity management, provisioning, and 
 compliance.
 
-== Introduction
+include::introduction.adoc[]
 
-== Which method?
+include::systemRequirements.adoc[]
+
+== Obtain Apache Syncope
 
 === Standalone
 
@@ -64,7 +66,4 @@ compliance.
 
 === Maven project
 
-== Moving forward
-
-// Chapters will be placed in separate .adoc files in the same directory
-//include::XXX.adoc[]
+== Move forward
