@@ -262,15 +262,15 @@ footer:
   # * {section-title}
   # * {section-or-chapter-title}
   recto_content:
-    right: '_Copyright © 2010–{year} The Apache Software Foundation. All rights reserved._ |
-    {section-or-chapter-title} |
+    right: '{document-title} |
+    _Copyright © 2010–{year} The Apache Software Foundation. All rights reserved._ |
     {page-number}'
     #right: '{document-title} | {page-number}'
     #right: '{page-number}'
     #center: '{page-number}'
   verso_content:
     left: '{page-number} | 
-    {section-or-chapter-title} |
+    {document-title} |
     _Copyright © 2010–{year} The Apache Software Foundation. All rights reserved._'
     #left: '{page-number}'
     #center: '{page-number}'
