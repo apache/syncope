@@ -30,6 +30,7 @@ import org.apache.syncope.client.console.commons.status.ConnObjectWrapper;
 import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.syncope.client.console.commons.status.StatusUtils;
 import org.apache.syncope.client.console.panels.ActionDataTablePanel;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.to.AnyTO;
@@ -41,7 +42,6 @@ import org.apache.syncope.common.lib.wrap.AbstractWrappable;
 import org.apache.syncope.common.lib.wrap.AnyKey;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
@@ -63,24 +63,18 @@ public class ProvisioningModalPage<T extends AnyTO> extends AbstractStatusModalP
 
     private final AnyTypeKind anyTypeKind;
 
-    private final PageReference pageRef;
-
-    private final ModalWindow window;
-
     private final StatusUtils statusUtils;
 
     private final String realm = "/";
 
     public ProvisioningModalPage(
+            final BaseModal<?> modal,
             final PageReference pageRef,
-            final ModalWindow window,
             final ResourceTO resourceTO,
             final AnyTypeKind anyTypeKind) {
 
-        super();
+        super(modal, pageRef);
 
-        this.pageRef = pageRef;
-        this.window = window;
         this.resourceTO = resourceTO;
         this.anyTypeKind = anyTypeKind;
 
@@ -141,7 +135,7 @@ public class ProvisioningModalPage<T extends AnyTO> extends AbstractStatusModalP
                 } catch (Exception e) {
                     LOG.error("Error unlinkink resources", e);
                     error(getString(Constants.ERROR) + ": " + e.getMessage());
-                    feedbackPanel.refresh(target);
+                    modal.getFeedbackPanel().refresh(target);
                 }
             }
         }, ActionLink.ActionType.UNLINK, pageId);
@@ -157,7 +151,7 @@ public class ProvisioningModalPage<T extends AnyTO> extends AbstractStatusModalP
                 } catch (Exception e) {
                     LOG.error("Error de-provisioning user", e);
                     error(getString(Constants.ERROR) + ": " + e.getMessage());
-                    feedbackPanel.refresh(target);
+                    modal.getFeedbackPanel().refresh(target);
                 }
             }
         }, ActionLink.ActionType.DEPROVISION, pageId);
@@ -173,12 +167,12 @@ public class ProvisioningModalPage<T extends AnyTO> extends AbstractStatusModalP
                 } catch (Exception e) {
                     LOG.error("Error unassigning resources", e);
                     error(getString(Constants.ERROR) + ": " + e.getMessage());
-                    feedbackPanel.refresh(target);
+                    modal.getFeedbackPanel().refresh(target);
                 }
             }
         }, ActionLink.ActionType.UNASSIGN, pageId);
 
-        table.addCancelButton(window);
+        table.addCancelButton(modal);
 
         add(table);
     }
@@ -188,7 +182,7 @@ public class ProvisioningModalPage<T extends AnyTO> extends AbstractStatusModalP
         private static final long serialVersionUID = 4287357360778016173L;
 
         public StatusBeanProvider() {
-            super("accountLink");
+            super("connObjectLink");
         }
 
         @SuppressWarnings("unchecked")
@@ -239,14 +233,15 @@ public class ProvisioningModalPage<T extends AnyTO> extends AbstractStatusModalP
         }
 
         if (beans.isEmpty()) {
-            window.close(target);
+            modal.close(target);
         } else {
             final BulkActionResult res = resourceRestClient.bulkAssociationAction(
                     resourceTO.getKey(), anyTypeKind.name(), type, subjectKeys);
 
             ((BasePage) pageRef.getPage()).setModalResult(true);
 
-            setResponsePage(new BulkActionResultModalPage<>(window, beans, columns, res, "anyKey"));
+            target.add(modal.setContent(
+                    new BulkActionResultModalPage<>(modal, pageRef, beans, columns, res, "anyKey")));
         }
     }
 }

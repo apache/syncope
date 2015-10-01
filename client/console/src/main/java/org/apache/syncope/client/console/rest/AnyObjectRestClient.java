@@ -80,10 +80,11 @@ public class AnyObjectRestClient extends AbstractAnyRestClient {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public AnyObjectTO read(final Long id) {
-        AnyObjectTO anyObjectTO = null;
+    @SuppressWarnings("unchecked")
+    public <T extends AnyTO> T read(final long id) {
+        T anyObjectTO = null;
         try {
-            anyObjectTO = getService(AnyObjectService.class).read(id);
+            anyObjectTO = (T) getService(AnyObjectService.class).read(id);
         } catch (SyncopeClientException e) {
             LOG.error("While reading any object", e);
         }
@@ -106,8 +107,8 @@ public class AnyObjectRestClient extends AbstractAnyRestClient {
     }
 
     @Override
-    public AnyTO delete(final String etag, final Long key) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public AnyObjectTO delete(final String etag, final Long key) {
+        return delete(AnyObjectService.class, AnyObjectTO.class, etag, key);
     }
 
     @Override

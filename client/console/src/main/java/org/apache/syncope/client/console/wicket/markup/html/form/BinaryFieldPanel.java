@@ -25,7 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.PreviewUtils;
 import org.apache.syncope.client.console.commons.HttpResourceStream;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.pages.BaseModalPage;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -140,7 +140,7 @@ public class BinaryFieldPanel extends FieldPanel<String> {
                         target.add(uploadForm);
                     } catch (Exception e) {
                         error(getString(Constants.ERROR) + ": " + e.getMessage());
-                        ((BaseModalPage) getPage()).getFeedbackPanel().refresh(target);
+                        ((BasePage) getPage()).getFeedbackPanel().refresh(target);
                         LOG.error("While saving uploaded file", e);
                     }
                 }

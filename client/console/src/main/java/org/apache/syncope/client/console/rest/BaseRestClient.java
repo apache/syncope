@@ -67,7 +67,6 @@ public abstract class BaseRestClient implements Serializable {
     protected <E extends JAXRSService, T> T getObject(final E service, final URI location, final Class<T> resultClass) {
         WebClient webClient = WebClient.fromClient(WebClient.client(service));
         webClient.accept(SyncopeConsoleSession.get().getMediaType()).to(location.toASCIIString(), false);
-
         return webClient.get(resultClass);
     }
 }

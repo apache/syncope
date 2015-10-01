@@ -19,7 +19,9 @@
 package org.apache.syncope.client.console.pages;
 
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.panels.AbstractModalPanel;
 import org.apache.syncope.client.console.rest.CamelRouteRestClient;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.CamelRouteTO;
 import org.apache.syncope.common.lib.types.Entitlement;
@@ -28,7 +30,6 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -36,20 +37,24 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
-public class CamelRouteModalPage extends BaseModalPage {
+public class CamelRouteModalPage extends AbstractModalPanel {
 
     private static final long serialVersionUID = -1438441210568592931L;
 
     @SpringBean
     private CamelRouteRestClient restClient;
 
-    public CamelRouteModalPage(final PageReference pageRef, final ModalWindow window,
-            final CamelRouteTO routeTO, final boolean createFlag) {
+    public CamelRouteModalPage(
+            final BaseModal<?> modal,
+            final PageReference pageRef,
+            final CamelRouteTO routeTO,
+            final boolean createFlag) {
+
+        super(modal, pageRef);
 
         Form<CamelRouteTO> routeForm = new Form<>("routeDefForm");
 
-        final TextArea<String> routeDefArea =
-                new TextArea<>("content", new PropertyModel<String>(routeTO, "content"));
+        final TextArea<String> routeDefArea = new TextArea<>("content", new PropertyModel<String>(routeTO, "content"));
 
         routeForm.add(routeDefArea);
         routeForm.setModel(new CompoundPropertyModel<>(routeTO));
@@ -67,16 +72,16 @@ public class CamelRouteModalPage extends BaseModalPage {
                     // Uncomment with something similar once SYNCOPE-156 is completed
                     // Configuration callerPage = (Configuration) pageRef.getPage();
                     // callerPage.setModalResult(true);
-                    window.close(target);
+                    modal.close(target);
                 } catch (SyncopeClientException scee) {
                     error(getString(Constants.ERROR) + ": " + scee.getMessage());
                 }
-                target.add(feedbackPanel);
+                modal.getFeedbackPanel().refresh(target);
             }
 
             @Override
             protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-                target.add(feedbackPanel);
+                modal.getFeedbackPanel().refresh(target);
             }
 
         };

@@ -83,14 +83,8 @@ public class UserRestClient extends AbstractAnyRestClient {
     }
 
     @Override
-    public UserTO delete(final String etag, final Long id) {
-        UserTO result;
-        synchronized (this) {
-            UserService service = getService(etag, UserService.class);
-            result = service.delete(id).readEntity(UserTO.class);
-            resetClient(UserService.class);
-        }
-        return result;
+    public UserTO delete(final String etag, final Long key) {
+        return delete(UserService.class, UserTO.class, etag, key);
     }
 
     public UserTO read(final Long id) {

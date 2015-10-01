@@ -32,6 +32,7 @@ import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.syncope.client.console.commons.status.StatusUtils;
 import org.apache.syncope.client.console.panels.ActionDataTablePanel;
 import org.apache.syncope.client.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.common.lib.to.AnyTO;
@@ -43,7 +44,6 @@ import org.apache.syncope.common.lib.types.ResourceAssociationAction;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
@@ -89,32 +89,26 @@ public class StatusModalPage<T extends AnyTO> extends AbstractStatusModalPage {
     private final PasswordTextField confirm;
     // --------------------------------
 
-    private final PageReference pageRef;
-
-    private final ModalWindow window;
-
     private final ActionDataTablePanel<StatusBean, String> table;
 
     private final List<IColumn<StatusBean, String>> columns;
 
     public StatusModalPage(
+            final BaseModal<T> modal,
             final PageReference pageRef,
-            final ModalWindow window,
             final AnyTO attributableTO) {
 
-        this(pageRef, window, attributableTO, false);
+        this(modal, pageRef, attributableTO, false);
     }
 
     public StatusModalPage(
+            final BaseModal<T> modal,
             final PageReference pageRef,
-            final ModalWindow window,
             final AnyTO anyTO,
             final boolean statusOnly) {
 
-        super();
+        super(modal, pageRef);
 
-        this.pageRef = pageRef;
-        this.window = window;
         this.statusOnly = statusOnly;
         this.anyTO = anyTO;
 
@@ -152,7 +146,7 @@ public class StatusModalPage<T extends AnyTO> extends AbstractStatusModalPage {
                 });
 
         columns.add(new PropertyColumn<StatusBean, String>(
-                new StringResourceModel("accountLink", this, null), "accountLink", "accountLink"));
+                new StringResourceModel("connObjectLink", this, null), "connObjectLink", "connObjectLink"));
 
         columns.add(new AbstractColumn<StatusBean, String>(
                 new StringResourceModel("status", this, null)) {
@@ -236,14 +230,14 @@ public class StatusModalPage<T extends AnyTO> extends AbstractStatusModalPage {
             @Override
             protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
                 // ignore
-                window.close(target);
+                modal.close(target);
             }
         }.feedbackPanelAutomaticReload(false);
 
         pwdMgtForm.add(cancel);
 
-        final ClearIndicatingAjaxButton goon =
-                new ClearIndicatingAjaxButton("continue", new ResourceModel("continue"), pageRef) {
+        final ClearIndicatingAjaxButton goon = new ClearIndicatingAjaxButton("continue", new ResourceModel("continue"),
+                pageRef) {
 
                     private static final long serialVersionUID = -2341391430136818027L;
 
@@ -270,11 +264,11 @@ public class StatusModalPage<T extends AnyTO> extends AbstractStatusModalPage {
 
                         ((BasePage) pageRef.getPage()).setModalResult(true);
 
-                        window.close(target);
+                        modal.close(target);
                     } catch (Exception e) {
                         LOG.error("Error enabling resources", e);
                         error(getString(Constants.ERROR) + ": " + e.getMessage());
-                        feedbackPanel.refresh(target);
+                        modal.getFeedbackPanel().refresh(target);
                     }
                 }
             }, ActionLink.ActionType.REACTIVATE, pageId);
@@ -295,11 +289,11 @@ public class StatusModalPage<T extends AnyTO> extends AbstractStatusModalPage {
                             ((BasePage) pageRef.getPage()).setModalResult(true);
                         }
 
-                        window.close(target);
+                        modal.close(target);
                     } catch (Exception e) {
                         LOG.error("Error disabling resources", e);
                         error(getString(Constants.ERROR) + ": " + e.getMessage());
-                        feedbackPanel.refresh(target);
+                        modal.getFeedbackPanel().refresh(target);
                     }
                 }
             }, ActionLink.ActionType.SUSPEND, pageId);
@@ -324,11 +318,11 @@ public class StatusModalPage<T extends AnyTO> extends AbstractStatusModalPage {
                         }
 
                         ((BasePage) pageRef.getPage()).setModalResult(true);
-                        window.close(target);
+                        modal.close(target);
                     } catch (Exception e) {
                         LOG.error("Error unlinking resources", e);
                         error(getString(Constants.ERROR) + ": " + e.getMessage());
-                        feedbackPanel.refresh(target);
+                        modal.getFeedbackPanel().refresh(target);
                     }
                 }
             }, ActionLink.ActionType.UNLINK, pageId);
@@ -353,11 +347,11 @@ public class StatusModalPage<T extends AnyTO> extends AbstractStatusModalPage {
                         }
 
                         ((BasePage) pageRef.getPage()).setModalResult(true);
-                        window.close(target);
+                        modal.close(target);
                     } catch (Exception e) {
                         LOG.error("Error linking resources", e);
                         error(getString(Constants.ERROR) + ": " + e.getMessage());
-                        feedbackPanel.refresh(target);
+                        modal.getFeedbackPanel().refresh(target);
                     }
                 }
             }, ActionLink.ActionType.LINK, pageId);
@@ -383,11 +377,11 @@ public class StatusModalPage<T extends AnyTO> extends AbstractStatusModalPage {
                         }
 
                         ((BasePage) pageRef.getPage()).setModalResult(true);
-                        loadBulkActionResultPage(table.getModelObject(), bulkActionResult);
+                        loadBulkActionResultPage(target, table.getModelObject(), bulkActionResult);
                     } catch (Exception e) {
                         LOG.error("Error de-provisioning user", e);
                         error(getString(Constants.ERROR) + ": " + e.getMessage());
-                        feedbackPanel.refresh(target);
+                        modal.getFeedbackPanel().refresh(target);
                     }
                 }
             }, ActionLink.ActionType.DEPROVISION, pageId);
@@ -410,11 +404,11 @@ public class StatusModalPage<T extends AnyTO> extends AbstractStatusModalPage {
                                     new ArrayList<>(table.getModelObject()));
 
                             ((BasePage) pageRef.getPage()).setModalResult(true);
-                            loadBulkActionResultPage(table.getModelObject(), bulkActionResult);
+                            loadBulkActionResultPage(target, table.getModelObject(), bulkActionResult);
                         } catch (Exception e) {
                             LOG.error("Error provisioning user", e);
                             error(getString(Constants.ERROR) + ": " + e.getMessage());
-                            feedbackPanel.refresh(target);
+                            modal.getFeedbackPanel().refresh(target);
                         }
                     }
                 }
@@ -441,11 +435,11 @@ public class StatusModalPage<T extends AnyTO> extends AbstractStatusModalPage {
                         }
 
                         ((BasePage) pageRef.getPage()).setModalResult(true);
-                        loadBulkActionResultPage(table.getModelObject(), bulkActionResult);
+                        loadBulkActionResultPage(target, table.getModelObject(), bulkActionResult);
                     } catch (Exception e) {
                         LOG.error("Error unassigning resources", e);
                         error(getString(Constants.ERROR) + ": " + e.getMessage());
-                        feedbackPanel.refresh(target);
+                        modal.getFeedbackPanel().refresh(target);
                     }
                 }
             }, ActionLink.ActionType.UNASSIGN, pageId);
@@ -467,18 +461,18 @@ public class StatusModalPage<T extends AnyTO> extends AbstractStatusModalPage {
                                     new ArrayList<>(table.getModelObject()));
 
                             ((BasePage) pageRef.getPage()).setModalResult(true);
-                            loadBulkActionResultPage(table.getModelObject(), bulkActionResult);
+                            loadBulkActionResultPage(target, table.getModelObject(), bulkActionResult);
                         } catch (Exception e) {
                             LOG.error("Error assigning resources", e);
                             error(getString(Constants.ERROR) + ": " + e.getMessage());
-                            feedbackPanel.refresh(target);
+                            modal.getFeedbackPanel().refresh(target);
                         }
                     }
                 }
             }.feedbackPanelAutomaticReload(!(anyTO instanceof UserTO)), ActionLink.ActionType.ASSIGN, pageId);
         }
 
-        table.addCancelButton(window);
+        table.addCancelButton(modal);
         add(table);
     }
 
@@ -487,7 +481,7 @@ public class StatusModalPage<T extends AnyTO> extends AbstractStatusModalPage {
         private static final long serialVersionUID = 4586969457669796621L;
 
         public AttributableStatusProvider() {
-            super(statusOnly ? "resourceName" : "accountLink");
+            super(statusOnly ? "resourceName" : "connObjectLink");
         }
 
         @SuppressWarnings("unchecked")
@@ -549,8 +543,8 @@ public class StatusModalPage<T extends AnyTO> extends AbstractStatusModalPage {
             final ResourceAssociationAction type,
             final Collection<StatusBean> selection) {
 
-        final ClearIndicatingAjaxButton goon =
-                new ClearIndicatingAjaxButton("continue", new ResourceModel("continue", "Continue"), pageRef) {
+        final ClearIndicatingAjaxButton goon = new ClearIndicatingAjaxButton("continue", new ResourceModel("continue",
+                "Continue"), pageRef) {
 
                     private static final long serialVersionUID = -2341391430136818027L;
 
@@ -588,16 +582,16 @@ public class StatusModalPage<T extends AnyTO> extends AbstractStatusModalPage {
                             ((BasePage) pageRef.getPage()).setModalResult(true);
 
                             if (bulkActionResult != null) {
-                                loadBulkActionResultPage(selection, bulkActionResult);
+                                loadBulkActionResultPage(target, selection, bulkActionResult);
                             } else {
 
                                 target.add(((BasePage) pageRef.getPage()).getFeedbackPanel());
-                                window.close(target);
+                                modal.close(target);
                             }
                         } catch (Exception e) {
                             LOG.error("Error provisioning resources", e);
                             error(getString(Constants.ERROR) + ": " + e.getMessage());
-                            feedbackPanel.refresh(target);
+                            modal.getFeedbackPanel().refresh(target);
                         }
                     }
                 }.feedbackPanelAutomaticReload(false);
@@ -612,14 +606,16 @@ public class StatusModalPage<T extends AnyTO> extends AbstractStatusModalPage {
     }
 
     private void loadBulkActionResultPage(
-            final Collection<StatusBean> selection, final BulkActionResult bulkActionResult) {
+            final AjaxRequestTarget target,
+            final Collection<StatusBean> selection,
+            final BulkActionResult bulkActionResult) {
         final List<String> resources = new ArrayList<String>(selection.size());
         for (StatusBean statusBean : selection) {
             resources.add(statusBean.getResourceName());
         }
 
-        final List<ConnObjectWrapper> connObjects =
-                statusUtils.getConnectorObjects(Collections.singletonList(anyTO), resources);
+        final List<ConnObjectWrapper> connObjects = statusUtils.getConnectorObjects(Collections.singletonList(anyTO),
+                resources);
 
         final List<StatusBean> statusBeans = new ArrayList<StatusBean>(connObjects.size());
 
@@ -632,11 +628,12 @@ public class StatusModalPage<T extends AnyTO> extends AbstractStatusModalPage {
             statusBeans.add(statusBean);
         }
 
-        setResponsePage(new BulkActionResultModalPage<StatusBean, String>(
-                window,
+        target.add(modal.setContent(new BulkActionResultModalPage<StatusBean, String>(
+                modal,
+                pageRef,
                 statusBeans,
                 columns,
                 bulkActionResult,
-                "resourceName"));
+                "resourceName")));
     }
 }

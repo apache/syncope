@@ -45,8 +45,7 @@ public class StatusBean implements Serializable {
 
     public StatusBean(final AnyTO any, final String resourceName) {
         this.anyKey = any.getKey();
-        this.anyName = any instanceof UserTO
-                ? ((UserTO) any).getUsername() : ((GroupTO) any).getName();
+        this.anyName = any instanceof UserTO ? ((UserTO) any).getUsername() : ((GroupTO) any).getName();
         this.resourceName = resourceName;
     }
 

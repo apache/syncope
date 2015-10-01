@@ -25,12 +25,12 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.panels.AbstractSearchResultPanel.EventDataWrapper;
 import org.apache.syncope.client.console.pages.AbstractBasePage;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.pages.BulkActionModalPage;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.CheckGroupColumn;
 import org.apache.syncope.client.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
-import org.apache.syncope.client.console.pages.BulkActionModalPage;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AjaxFallbackDataTable;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.Page;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
@@ -61,11 +61,7 @@ public class AjaxDataTablePanel<T, S> extends DataTablePanel<T, S> {
 
         super(id);
 
-        final ModalWindow bulkModalWin = new ModalWindow("bulkModal");
-        bulkModalWin.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
-        bulkModalWin.setInitialHeight(600);
-        bulkModalWin.setInitialWidth(900);
-        bulkModalWin.setCookieName("bulk-modal");
+        final BaseModal<?> bulkModalWin = new BaseModal("bulkModal");
         add(bulkModalWin);
 
         bulkModalWin.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
@@ -114,7 +110,7 @@ public class AjaxDataTablePanel<T, S> extends DataTablePanel<T, S> {
         columns.add(0, new CheckGroupColumn<T, S>(group));
         dataTable = new AjaxFallbackDataTable<>("dataTable", columns, dataProvider, rowsPerPage, container);
         dataTable.add(new AttributeModifier("class", "table table-bordered table-hover dataTable"));
-        
+
         group.add(dataTable);
 
         fragment.add(new ClearIndicatingAjaxButton("bulkActionLink", bulkActionForm, pageRef) {
@@ -123,22 +119,15 @@ public class AjaxDataTablePanel<T, S> extends DataTablePanel<T, S> {
 
             @Override
             protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
-                bulkModalWin.setPageCreator(new ModalWindow.PageCreator() {
-
-                    private static final long serialVersionUID = -7834632442532690941L;
-
-                    @Override
-                    public Page createPage() {
-                        return new BulkActionModalPage<>(
-                                bulkModalWin,
-                                group.getModelObject(),
-                                columns,
-                                actions,
-                                bulkActionExecutor,
-                                itemKeyField,
-                                pageId);
-                    }
-                });
+                bulkModalWin.setContent(new BulkActionModalPage<>(
+                        bulkModalWin,
+                        pageRef,
+                        group.getModelObject(),
+                        columns,
+                        actions,
+                        bulkActionExecutor,
+                        itemKeyField,
+                        pageId));
 
                 bulkModalWin.show(target);
             }

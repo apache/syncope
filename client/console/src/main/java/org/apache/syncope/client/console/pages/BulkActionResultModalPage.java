@@ -22,12 +22,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.syncope.client.console.panels.AbstractModalPanel;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionResultColumn;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.to.BulkActionResult;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortableDataProvider;
@@ -40,18 +42,19 @@ import org.apache.wicket.model.IModel;
  * @param <T>
  * @param <S>
  */
-public class BulkActionResultModalPage<T, S> extends BaseModalPage {
+public class BulkActionResultModalPage<T, S> extends AbstractModalPanel {
 
     private static final long serialVersionUID = 2646115294319713724L;
 
     public BulkActionResultModalPage(
-            final ModalWindow window,
+            final BaseModal<?> modal,
+            final PageReference pageRef,
             final Collection<T> items,
             final List<IColumn<T, S>> columns,
             final BulkActionResult results,
             final String keyFieldName) {
 
-        super();
+        super(modal, pageRef);
 
         final List<IColumn<T, S>> newColumnList = new ArrayList<>(columns.subList(1, columns.size() - 1));
         newColumnList.add(newColumnList.size(), new ActionResultColumn<T, S>(results, keyFieldName));
@@ -88,7 +91,7 @@ public class BulkActionResultModalPage<T, S> extends BaseModalPage {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                window.close(target);
+                modal.close(target);
             }
         };
 

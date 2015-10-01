@@ -20,12 +20,14 @@ package org.apache.syncope.client.console.panels;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.pages.StatusModalPage;
 import org.apache.syncope.client.console.pages.UserDisplayAttributesModalPage;
 import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
@@ -40,23 +42,19 @@ import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.SchemaType;
-import org.apache.wicket.Page;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
+import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.util.ReflectionUtils;
 
-public class UserSearchResultPanel extends AnySearchResultPanel {
+public class UserSearchResultPanel extends AnySearchResultPanel<UserTO> {
 
     private static final long serialVersionUID = -1100228004207271270L;
-
-    protected static final Logger LOG = LoggerFactory.getLogger(UserSearchResultPanel.class);
 
     private final String entitlement = "USER_LIST";
 
@@ -113,7 +111,7 @@ public class UserSearchResultPanel extends AnySearchResultPanel {
             private static final long serialVersionUID = -3503023501954863131L;
 
             @Override
-            public ActionLinksPanel getActions(final String componentId, final IModel<AnyTO> model) {
+            public ActionLinksPanel<AnyTO> getActions(final String componentId, final IModel<AnyTO> model) {
 
                 final ActionLinksPanel.Builder<AnyTO> panel = ActionLinksPanel.builder(page.getPageReference());
 
@@ -123,18 +121,16 @@ public class UserSearchResultPanel extends AnySearchResultPanel {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final AnyTO anyTO) {
-                        statusmodal.setPageCreator(new ModalWindow.PageCreator() {
+                        final UserTO modelObject = UserTO.class.cast(model.getObject());
 
-                            private static final long serialVersionUID = -7834632442532690940L;
+                        final IModel<UserTO> model = new CompoundPropertyModel<>(modelObject);
+                        modal.setFormModel(model);
 
-                            @Override
-                            public Page createPage() {
-                                return new StatusModalPage<>(
-                                        page.getPageReference(), statusmodal, (UserTO) model.getObject());
-                            }
-                        });
+                        target.add(modal.setContent(
+                                new StatusModalPage<UserTO>(modal, page.getPageReference(), model.getObject())));
 
-                        statusmodal.show(target);
+                        modal.header(new Model<String>(MessageFormat.format(getString("any.edit"), anyTO.getKey())));
+                        modal.show(true);
                     }
                 }, ActionLink.ActionType.MANAGE_RESOURCES, entitlement).add(new ActionLink<AnyTO>() {
 
@@ -142,18 +138,16 @@ public class UserSearchResultPanel extends AnySearchResultPanel {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final AnyTO anyTO) {
-                        statusmodal.setPageCreator(new ModalWindow.PageCreator() {
+                        final UserTO modelObject = UserTO.class.cast(model.getObject());
 
-                            private static final long serialVersionUID = -7834632442532690940L;
+                        final IModel<UserTO> model = new CompoundPropertyModel<>(modelObject);
+                        modal.setFormModel(model);
 
-                            @Override
-                            public Page createPage() {
-                                return new StatusModalPage<>(
-                                        page.getPageReference(), statusmodal, (UserTO) model.getObject(), true);
-                            }
-                        });
+                        target.add(modal.setContent(
+                                new StatusModalPage<UserTO>(modal, page.getPageReference(), model.getObject(), true)));
 
-                        statusmodal.show(target);
+                        modal.header(new Model<String>(MessageFormat.format(getString("any.edit"), anyTO.getKey())));
+                        modal.show(true);
                     }
                 }, ActionLink.ActionType.ENABLE, entitlement).add(new ActionLink<AnyTO>() {
 
@@ -161,19 +155,15 @@ public class UserSearchResultPanel extends AnySearchResultPanel {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final AnyTO anyTO) {
-                        editmodal.setPageCreator(new ModalWindow.PageCreator() {
+                        final UserTO modelObject = ((UserRestClient) restClient).read(model.getObject().getKey());
 
-                            private static final long serialVersionUID = -7834632442532690940L;
+                        final IModel<UserTO> model = new CompoundPropertyModel<>(modelObject);
+                        modal.setFormModel(model);
 
-                            @Override
-                            public Page createPage() {
-                                // SYNCOPE-294: re-read userTO before edit
-                                UserTO userTO = ((UserRestClient) restClient).read(model.getObject().getKey());
-                                return null;
-                            }
-                        });
+                        target.add(modal);
 
-                        editmodal.show(target);
+                        modal.header(new Model<String>(MessageFormat.format(getString("any.edit"), anyTO.getKey())));
+                        modal.show(true);
                     }
                 }, ActionLink.ActionType.EDIT, entitlement).add(new ActionLink<AnyTO>() {
 
@@ -183,24 +173,13 @@ public class UserSearchResultPanel extends AnySearchResultPanel {
                     public void onClick(final AjaxRequestTarget target, final AnyTO anyTO) {
                         try {
                             restClient.delete(model.getObject().getETagValue(), model.getObject().getKey());
-
-                            page.setModalResult(true);
-
-                            editmodal.setPageCreator(new ModalWindow.PageCreator() {
-
-                                private static final long serialVersionUID = -7834632442532690940L;
-
-                                @Override
-                                public Page createPage() {
-                                    return null;
-                                }
-                            });
-
-                            editmodal.show(target);
-                        } catch (SyncopeClientException scce) {
-                            error(getString(Constants.OPERATION_ERROR) + ": " + scce.getMessage());
-                            feedbackPanel.refresh(target);
+                            info(getString(Constants.OPERATION_SUCCEEDED));
+                            target.add(container);
+                        } catch (SyncopeClientException e) {
+                            error(getString(Constants.ERROR) + ": " + e.getMessage());
+                            LOG.error("While deleting object {}", anyTO.getKey(), e);
                         }
+                        ((BasePage) getPage()).getFeedbackPanel().refresh(target);
                     }
                 }, ActionLink.ActionType.DELETE, entitlement);
 
@@ -208,7 +187,7 @@ public class UserSearchResultPanel extends AnySearchResultPanel {
             }
 
             @Override
-            public ActionLinksPanel getHeader(final String componentId) {
+            public ActionLinksPanel<Serializable> getHeader(final String componentId) {
                 final ActionLinksPanel.Builder<Serializable> panel = ActionLinksPanel.builder(page.getPageReference());
 
                 panel.add(new ActionLink<Serializable>() {
@@ -217,18 +196,11 @@ public class UserSearchResultPanel extends AnySearchResultPanel {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
-                        displaymodal.setPageCreator(new ModalWindow.PageCreator() {
+                        target.add(modal.setContent(new UserDisplayAttributesModalPage(
+                                modal, page.getPageReference(), schemaNames, dSchemaNames)));
 
-                            private static final long serialVersionUID = -7834632442532690940L;
-
-                            @Override
-                            public Page createPage() {
-                                return new UserDisplayAttributesModalPage(
-                                        page.getPageReference(), displaymodal, schemaNames, dSchemaNames);
-                            }
-                        });
-
-                        displaymodal.show(target);
+                        modal.header(new ResourceModel("any.attr.display", ""));
+                        modal.show(true);
                     }
                 }, ActionLink.ActionType.CHANGE_VIEW, entitlement).add(new ActionLink<Serializable>() {
 

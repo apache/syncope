@@ -26,11 +26,11 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.pages.GroupDisplayAttributesModalPage;
 import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AttrColumn;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
@@ -39,35 +39,25 @@ import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.types.SchemaType;
-import org.apache.wicket.Page;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.springframework.util.ReflectionUtils;
 
-public class GroupSearchResultPanel extends AnySearchResultPanel {
+public class GroupSearchResultPanel extends AnySearchResultPanel<GroupTO> {
 
     private static final long serialVersionUID = -1100228004207271270L;
 
     private final String entitlement = "GROUP_READ";
-
-    private final BaseModal<?> editModal;
 
     public GroupSearchResultPanel(final String type, final String parentId,
             final boolean filtered, final String fiql, final PageReference callerRef,
             final AbstractAnyRestClient restClient, final List<AnyTypeClassTO> anyTypeClassTOs, final String realm) {
 
         super(type, parentId, filtered, fiql, callerRef, restClient, anyTypeClassTOs, realm);
-
-        editModal = new BaseModal<>("editModal");
-//        editModal.addCloseButton();
-//        editModal.setFooterVisible(true);
-//        editModal.setHeaderVisible(true);
-//        editModal.setOutputMarkupId(true);
     }
 
     @Override
@@ -125,11 +115,11 @@ public class GroupSearchResultPanel extends AnySearchResultPanel {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final AnyTO anyTO) {
-                        editModal.addOrReplace(new GroupModalPanel(
-                                editModal, getPage().getPageReference(), GroupTO.class.cast(model.getObject())));
+                        modal.addOrReplace(new GroupModalPanel(
+                                modal, getPage().getPageReference(), GroupTO.class.cast(model.getObject())));
 
-                        target.add(editModal);
-                        editModal.show(target);
+                        target.add(modal);
+                        modal.show(target);
                     }
                 }, ActionLink.ActionType.EDIT, entitlement).add(new ActionLink<AnyTO>() {
 
@@ -138,19 +128,39 @@ public class GroupSearchResultPanel extends AnySearchResultPanel {
                     @Override
                     public void onClick(final AjaxRequestTarget target, final AnyTO anyTO) {
                         try {
-                            final GroupTO groupTO = (GroupTO) restClient.
-                                    delete(model.getObject().getETagValue(), model.getObject().getKey());
-
-                            //editmodal.setContent(new ResultStatusModal.Builder(editmodal, groupTO).build());
-//                            editModal.addOrReplace(new GroupModalPanel(
-//                                    BaseModal.getModalContentId(), editModal, (GroupTO) model.getObject()));
-//
-//                            target.add(editModal);
-//                            editModal.show(target);
-                        } catch (SyncopeClientException scce) {
-                            error(getString(Constants.OPERATION_ERROR) + ": " + scce.getMessage());
-                            feedbackPanel.refresh(target);
+                            restClient.delete(model.getObject().getETagValue(), model.getObject().getKey());
+                            info(getString(Constants.OPERATION_SUCCEEDED));
+                            target.add(container);
+                        } catch (SyncopeClientException e) {
+                            error(getString(Constants.ERROR) + ": " + e.getMessage());
+                            LOG.error("While deleting object {}", anyTO.getKey(), e);
                         }
+                        ((BasePage) getPage()).getFeedbackPanel().refresh(target);
+
+//                        try {
+//                            final GroupTO modelObject = (GroupTO) restClient.
+//                                    delete(model.getObject().getETagValue(), model.getObject().getKey());
+//
+//                            final IModel<GroupTO> model = new CompoundPropertyModel<>(modelObject);
+//                            modal.setFormModel(model);
+//
+//                            target.add(modal.setContent(new ResultStatusModal.Builder<GroupTO>(
+//                                    modal, getPage().getPageReference(), modelObject).build()));
+//
+//                            modal.header(
+//                                    new Model<String>(MessageFormat.format(getString("any.delete"), anyTO.getKey())));
+//                            modal.show(true);
+//
+//                            //editmodal.setContent(new ResultStatusModal.Builder(editmodal, groupTO).build());
+////                            editModal.addOrReplace(new GroupModalPanel(
+////                                    BaseModal.getModalContentId(), editModal, (GroupTO) model.getObject()));
+////
+////                            target.add(editModal);
+////                            editModal.show(target);
+//                        } catch (SyncopeClientException scce) {
+//                            error(getString(Constants.ERROR) + ": " + scce.getMessage());
+//                            LOG.error("While deleting object {}", anyTO.getKey(), scce);
+//                        }
                     }
                 }, ActionLink.ActionType.DELETE, entitlement);
 
@@ -167,18 +177,11 @@ public class GroupSearchResultPanel extends AnySearchResultPanel {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
-                        displaymodal.setPageCreator(new ModalWindow.PageCreator() {
+                        target.add(modal.setContent(new GroupDisplayAttributesModalPage(
+                                modal, page.getPageReference(), schemaNames, dSchemaNames)));
 
-                            private static final long serialVersionUID = -7834632442532690940L;
-
-                            @Override
-                            public Page createPage() {
-                                return new GroupDisplayAttributesModalPage(
-                                        page.getPageReference(), displaymodal, schemaNames, dSchemaNames);
-                            }
-                        });
-
-                        displaymodal.show(target);
+                        modal.header(new ResourceModel("any.attr.display", ""));
+                        modal.show(true);
                     }
                 }, ActionLink.ActionType.CHANGE_VIEW, entitlement);
 

@@ -20,9 +20,9 @@ package org.apache.syncope.client.console.pages;
 
 import java.util.List;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.wicket.PageReference;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 
 /**
  * Modal window with Display group attributes form.
@@ -34,9 +34,12 @@ public class GroupDisplayAttributesModalPage extends DisplayAttributesModalPage 
 
     public static final String[] GROUP_DEFAULT_SELECTION = { "key", "name" };
 
-    public GroupDisplayAttributesModalPage(final PageReference pageRef, final ModalWindow window,
-            final List<String> schemaNames, final List<String> dSchemaNames) {
-        super(pageRef, window, schemaNames, dSchemaNames);
+    public GroupDisplayAttributesModalPage(
+            final BaseModal<GroupTO> modal,
+            final PageReference pageRef,
+            final List<String> schemaNames,
+            final List<String> dSchemaNames) {
+        super(modal, pageRef, schemaNames, dSchemaNames);
     }
 
     @Override

@@ -20,23 +20,28 @@ package org.apache.syncope.client.console.pages;
 
 import java.util.List;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
+import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.wicket.PageReference;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 
 /**
  * Modal window with Display user attributes form.
+ * @param <T>
  */
 @SuppressWarnings({ "unchecked", "rawtypes" })
-public class AnyDisplayAttributesModalPage extends DisplayAttributesModalPage {
+public class AnyDisplayAttributesModalPage<T extends AnyTO> extends DisplayAttributesModalPage {
 
     private static final long serialVersionUID = 5194630813773543054L;
 
     public static final String[] ANY_DEFAULT_SELECTION = { "key" };
 
-    public AnyDisplayAttributesModalPage(final PageReference pageRef, final ModalWindow window,
-            final List<String> schemaNames, final List<String> dSchemaNames) {
-        super(pageRef, window, schemaNames, dSchemaNames);
+    public AnyDisplayAttributesModalPage(
+            final BaseModal<T> modal,
+            final PageReference pageRef,
+            final List<String> schemaNames,
+            final List<String> dSchemaNames) {
+        super(modal, pageRef, schemaNames, dSchemaNames);
     }
 
     @Override

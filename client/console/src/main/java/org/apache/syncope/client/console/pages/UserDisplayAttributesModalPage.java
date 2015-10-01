@@ -20,9 +20,9 @@ package org.apache.syncope.client.console.pages;
 
 import java.util.List;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.PageReference;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 
 /**
  * Modal window with Display user attributes form.
@@ -33,10 +33,13 @@ public class UserDisplayAttributesModalPage extends DisplayAttributesModalPage {
     private static final long serialVersionUID = 5194630813773543054L;
 
     public static final String[] USER_DEFAULT_SELECTION = { "key", "username", "status" };
-    
-    public UserDisplayAttributesModalPage(final PageReference pageRef, final ModalWindow window,
-            final List<String> schemaNames, final List<String> dSchemaNames) {
-        super(pageRef, window, schemaNames, dSchemaNames);
+
+    public UserDisplayAttributesModalPage(
+            final BaseModal<UserTO> modal,
+            final PageReference pageRef,
+            final List<String> schemaNames,
+            final List<String> dSchemaNames) {
+        super(modal, pageRef, schemaNames, dSchemaNames);
     }
 
     @Override

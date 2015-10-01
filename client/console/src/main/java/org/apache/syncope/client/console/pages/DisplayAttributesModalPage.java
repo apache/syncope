@@ -22,12 +22,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.syncope.client.console.PreferenceManager;
+import org.apache.syncope.client.console.panels.AbstractModalPanel;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.search.SearchableFields;
+import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Check;
 import org.apache.wicket.markup.html.form.CheckGroup;
@@ -44,9 +46,11 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 
 /**
  * Modal window with Display attributes form.
+ *
+ * @param <T>
  */
 @SuppressWarnings({ "unchecked", "rawtypes" })
-public abstract class DisplayAttributesModalPage extends BaseModalPage {
+public abstract class DisplayAttributesModalPage<T extends AnyTO> extends AbstractModalPanel {
 
     private static final long serialVersionUID = -4274117450918385110L;
 
@@ -64,10 +68,13 @@ public abstract class DisplayAttributesModalPage extends BaseModalPage {
 
     private final List<String> selectedDerSchemas;
 
-    public DisplayAttributesModalPage(final PageReference pageRef, final ModalWindow window,
-            final List<String> schemaNames, final List<String> dSchemaNames) {
+    public DisplayAttributesModalPage(
+            final BaseModal<T> modal,
+            final PageReference pageRef,
+            final List<String> schemaNames,
+            final List<String> dSchemaNames) {
 
-        super();
+        super(modal, pageRef);
 
         final IModel<List<String>> fnames = new LoadableDetachableModel<List<String>>() {
 
@@ -197,13 +204,13 @@ public abstract class DisplayAttributesModalPage extends BaseModalPage {
 
                     ((BasePage) pageRef.getPage()).setModalResult(true);
 
-                    window.close(target);
+                    modal.close(target);
                 }
             }
 
             @Override
             protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-                feedbackPanel.refresh(target);
+                modal.getFeedbackPanel().refresh(target);
             }
         };
 
@@ -215,7 +222,7 @@ public abstract class DisplayAttributesModalPage extends BaseModalPage {
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-                window.close(target);
+                modal.close(target);
             }
         };
 
@@ -230,7 +237,7 @@ public abstract class DisplayAttributesModalPage extends BaseModalPage {
     public abstract String getPrefAttributeView();
 
     public abstract String getPrefDerivedAttributeView();
-    
+
     public abstract Class getTOClass();
 
 }

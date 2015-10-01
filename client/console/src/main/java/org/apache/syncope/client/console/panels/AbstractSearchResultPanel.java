@@ -25,6 +25,7 @@ import org.apache.syncope.client.console.commons.AnyDataProvider;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.AbstractBasePage;
 import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.wicket.PageReference;
@@ -44,7 +45,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractSearchResultPanel extends Panel implements IEventSource {
+public abstract class AbstractSearchResultPanel<T extends AnyTO> extends Panel implements IEventSource {
 
     private static final long serialVersionUID = -9170191461250434024L;
 
@@ -52,36 +53,6 @@ public abstract class AbstractSearchResultPanel extends Panel implements IEventS
      * Logger.
      */
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractSearchResultPanel.class);
-
-    /**
-     * Edit modal window height.
-     */
-    private static final int EDIT_MODAL_WIN_HEIGHT = 550;
-
-    /**
-     * Edit modal window width.
-     */
-    private static final int EDIT_MODAL_WIN_WIDTH = 800;
-
-    /**
-     * Schemas to be shown modal window height.
-     */
-    private static final int DISPLAYATTRS_MODAL_WIN_HEIGHT = 550;
-
-    /**
-     * Schemas to be shown modal window width.
-     */
-    private static final int DISPLAYATTRS_MODAL_WIN_WIDTH = 550;
-
-    /**
-     * Schemas to be shown modal window height.
-     */
-    private static final int STATUS_MODAL_WIN_HEIGHT = 500;
-
-    /**
-     * Schemas to be shown modal window width.
-     */
-    private static final int STATUS_MODAL_WIN_WIDTH = 700;
 
     /**
      * Application preferences.
@@ -128,19 +99,10 @@ public abstract class AbstractSearchResultPanel extends Panel implements IEventS
     private AnyDataProvider dataProvider;
 
     /**
-     * Modal window to be used for user profile editing. Global visibility is required ...
+     * Modal window to be used for: user profile editing (Global visibility is required); attributes choosing to
+     * display in tables; user status management.
      */
-    protected final ModalWindow editmodal = new ModalWindow("editModal");
-
-    /**
-     * Modal window to be used for attributes choosing to display in tables.
-     */
-    protected final ModalWindow displaymodal = new ModalWindow("displayModal");
-
-    /**
-     * Modal window to be used for user status management.
-     */
-    protected final ModalWindow statusmodal = new ModalWindow("statusModal");
+    protected final BaseModal<T> modal = new BaseModal<>("modal");
 
     /**
      * Owner page.
@@ -163,6 +125,8 @@ public abstract class AbstractSearchResultPanel extends Panel implements IEventS
 
         super(id);
 
+        add(modal);
+
         setOutputMarkupId(true);
 
         this.page = (AbstractBasePage) pageRef.getPage();
@@ -172,24 +136,6 @@ public abstract class AbstractSearchResultPanel extends Panel implements IEventS
         this.feedbackPanel = page.getFeedbackPanel();
 
         this.restClient = restClient;
-
-        editmodal.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
-        editmodal.setInitialHeight(EDIT_MODAL_WIN_HEIGHT);
-        editmodal.setInitialWidth(EDIT_MODAL_WIN_WIDTH);
-        editmodal.setCookieName("edit-modal");
-        add(editmodal);
-
-        displaymodal.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
-        displaymodal.setInitialHeight(DISPLAYATTRS_MODAL_WIN_HEIGHT);
-        displaymodal.setInitialWidth(DISPLAYATTRS_MODAL_WIN_WIDTH);
-        displaymodal.setCookieName("display-modal");
-        add(displaymodal);
-
-        statusmodal.setCssClassName(ModalWindow.CSS_CLASS_GRAY);
-        statusmodal.setInitialHeight(STATUS_MODAL_WIN_HEIGHT);
-        statusmodal.setInitialWidth(STATUS_MODAL_WIN_WIDTH);
-        statusmodal.setCookieName("status-modal");
-        add(statusmodal);
 
         // Container for user search result
         container = new WebMarkupContainer("container");
@@ -236,9 +182,7 @@ public abstract class AbstractSearchResultPanel extends Panel implements IEventS
         paginatorForm.add(rowsChooser);
         // ---------------------------
 
-        setWindowClosedReloadCallback(statusmodal);
-        setWindowClosedReloadCallback(editmodal);
-        setWindowClosedReloadCallback(displaymodal);
+        setWindowClosedReloadCallback(modal);
     }
 
     public void search(final String fiql, final AjaxRequestTarget target) {
@@ -297,13 +241,15 @@ public abstract class AbstractSearchResultPanel extends Panel implements IEventS
         }
     }
 
-    private void setWindowClosedReloadCallback(final ModalWindow window) {
-        window.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+    private void setWindowClosedReloadCallback(final BaseModal<?> modal) {
+        modal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
 
             private static final long serialVersionUID = 8804221891699487139L;
 
             @Override
             public void onClose(final AjaxRequestTarget target) {
+                modal.show(false);
+
                 final EventDataWrapper data = new EventDataWrapper();
                 data.setTarget(target);
                 data.setRows(rows);

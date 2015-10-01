@@ -25,6 +25,7 @@ import org.apache.syncope.client.console.commons.ActionTableCheckGroup;
 import org.apache.syncope.client.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AjaxFallbackDataTable;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.CheckGroupColumn;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
@@ -33,7 +34,6 @@ import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.ISortableDataProvider;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -121,7 +121,7 @@ public class ActionDataTablePanel<T, S> extends DataTablePanel<T, S> {
         actionPanel.add(action, type, pageId, enabled);
     }
 
-    public void addCancelButton(final ModalWindow window) {
+    public void addCancelButton(final BaseModal<?> modal) {
 
         final AjaxButton cancel = new ClearIndicatingAjaxButton(CANCEL, new ResourceModel(CANCEL), pageRef) {
 
@@ -129,7 +129,7 @@ public class ActionDataTablePanel<T, S> extends DataTablePanel<T, S> {
 
             @Override
             protected void onSubmitInternal(final AjaxRequestTarget target, final Form<?> form) {
-                window.close(target);
+                modal.close(target);
             }
         }.feedbackPanelAutomaticReload(false);
 

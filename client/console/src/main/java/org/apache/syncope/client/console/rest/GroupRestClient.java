@@ -106,13 +106,7 @@ public class GroupRestClient extends AbstractAnyRestClient {
 
     @Override
     public GroupTO delete(final String etag, final Long key) {
-        GroupTO result;
-        synchronized (this) {
-            GroupService service = getService(etag, GroupService.class);
-            result = service.delete(key).readEntity(GroupTO.class);
-            resetClient(GroupService.class);
-        }
-        return result;
+        return delete(GroupService.class, GroupTO.class, etag, key);
     }
 
     @Override

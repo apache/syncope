@@ -51,6 +51,17 @@ public abstract class AbstractAnyRestClient extends BaseRestClient {
 
     public abstract AnyTO delete(String etag, Long key);
 
+    protected <T extends AnyTO, E extends AnyService<T, ?>> T delete(
+            final Class<E> serviceClass, final Class<T> objectType, final String etag, final Long key) {
+        T result;
+        synchronized (this) {
+            final E service = getService(etag, serviceClass);
+            result = service.delete(key).readEntity(objectType);
+            resetClient(serviceClass);
+        }
+        return result;
+    }
+
     public abstract BulkActionResult bulkAction(BulkAction action);
 
     protected abstract Class<? extends AnyService<?, ?>> getAnyServiceClass();
