@@ -1,0 +1,253 @@
+/*
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+*/
+
+#form-container {
+  position: relative;
+  width: 100%;
+  margin: 0 auto;
+  text-align: center;
+}
+
+#form-container .page-header   { background: -moz-linear-gradient(top, #a9db80 0%, #96c56f 100%); /* FF3.6+ */
+                                 background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#a9db80), color-stop(100%,#96c56f)); /* Chrome,Safari4+ */
+                                 background: -webkit-linear-gradient(top, #a9db80 0%,#96c56f 100%); /* Chrome10+,Safari5.1+ */
+                                 background: -o-linear-gradient(top, #a9db80 0%,#96c56f 100%); /* Opera 11.10+ */
+                                 background: -ms-linear-gradient(top, #a9db80 0%,#96c56f 100%); /* IE10+ */ 
+                                 margin: 1% 16%;
+                                 width: 72%; padding:10px; 
+                                 /* shadows and rounded borders */
+                                 -moz-border-radius: 5px;
+                                 -webkit-border-radius: 5px;
+                                 border-radius: 5px;
+                                 -moz-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+                                 -webkit-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+                                 box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+}
+#form-container .breadcrumb-header   { 
+  margin: 1% 16%;
+  width: 72%; padding:10px; 
+}
+
+.signup-form {
+  text-align: left;
+  padding: 2%;
+}
+
+#attribute {
+  padding: 0 255px;
+}
+
+#attribute-derived,
+#attribute-virtual {
+  padding: 0 155px;
+}
+
+.attribute-virtual-value-container {
+  margin-top: 2%;
+  list-style: none;
+  padding-right: 5%;
+}
+
+.attribute-virtual-value-field {
+  font-weight: 700;
+  padding: 6px 12px;
+  margin-bottom: 2%;
+}
+
+.minus{
+  margin-bottom: 2%;
+}
+
+.fileButton{
+  margin-top: 2%;
+}
+
+.upper-select {
+  padding-right: 71%;
+  padding-left: 18%;
+}
+
+.attribute-ui-select {
+  width: 100%;
+  padding-right: 7%;
+  padding-left: 7%;
+}
+
+#previous {
+  background: -moz-linear-gradient(top, #a9db80 0%, #96c56f 100%); /* FF3.6+ */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#a9db80), color-stop(100%,#96c56f)); /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(top, #a9db80 0%,#96c56f 100%); /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(top, #a9db80 0%,#96c56f 100%); /* Opera 11.10+ */
+  background: -ms-linear-gradient(top, #a9db80 0%,#96c56f 100%); /* IE10+ */
+  float: left;
+  color: black;
+  width: 30%;
+}
+#previous:hover {
+  background: #658D5D;
+}
+
+#next{
+  background: -moz-linear-gradient(top, #a9db80 0%, #96c56f 100%); /* FF3.6+ */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#a9db80), color-stop(100%,#96c56f)); /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(top, #a9db80 0%,#96c56f 100%); /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(top, #a9db80 0%,#96c56f 100%); /* Opera 11.10+ */
+  background: -ms-linear-gradient(top, #a9db80 0%,#96c56f 100%); /* IE10+ */
+  margin-top: 5px;
+  float: right;
+  color: black;
+  width: 30%;
+}
+#next:hover {
+  background: #658D5D;
+}
+
+#save{
+  background: -moz-linear-gradient(top, #a9db80 0%, #96c56f 100%); /* FF3.6+ */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#a9db80), color-stop(100%,#96c56f)); /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(top, #a9db80 0%,#96c56f 100%); /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(top, #a9db80 0%,#96c56f 100%); /* Opera 11.10+ */
+  background: -ms-linear-gradient(top, #a9db80 0%,#96c56f 100%); /* IE10+ */
+  color: black;
+  margin-top: 5%;
+  width: 15%;
+}
+#save:hover {
+  background: #658D5D;
+}
+#cancel {
+  margin-top: 5%;
+  width: 15%;
+}
+
+#form-views             { width:auto; }
+
+/* basic styling for entering and leaving */
+/* left and right to add to ensure full width: position:absolute; left:30px; right:30px; */
+#form-views.ng-enter,
+#form-views.ng-leave      { 
+  transition:0.5s all ease; -moz-transition:0.5s all ease; -webkit-transition:0.5s all ease; 
+}
+
+/* enter animation */
+#form-views.ng-enter            { 
+  -webkit-animation:slideInRight 0.5s both ease;
+  -moz-animation:slideInRight 0.5s both ease;
+  animation:slideInRight 0.5s both ease; 
+}
+
+/* leave animation */
+#form-views.ng-leave            { 
+  -webkit-animation:slideOutLeft 0.5s both ease;
+  -moz-animation:slideOutLeft 0.5s both ease;
+  animation:slideOutLeft 0.5s both ease;   
+}
+
+/** Button breadcrumb **/
+.btn-breadcrumb .btn:not(:last-child):after {
+  content: " ";
+  display: block;
+  width: 0;
+  height: 0;
+  border-top: 17px solid transparent;
+  border-bottom: 17px solid transparent;
+  border-left: 10px solid white;
+  position: absolute;
+  top: 50%;
+  margin-top: -17px;
+  left: 100%;
+  z-index: 3;
+}
+.btn-breadcrumb .btn:not(:last-child):before {
+  content: " ";
+  display: block;
+  width: 0;
+  height: 0;
+  border-top: 17px solid transparent;
+  border-bottom: 17px solid transparent;
+  border-left: 10px solid rgb(173, 173, 173);
+  position: absolute;
+  top: 50%;
+  margin-top: -17px;
+  margin-left: 1px;
+  left: 100%;
+  z-index: 3;
+}
+
+/** The Spacing **/
+.btn-breadcrumb .btn {
+  padding:6px 12px 6px 24px;
+}
+.btn-breadcrumb .btn:first-child {
+  padding:6px 6px 6px 10px;
+}
+.btn-breadcrumb .btn:last-child {
+  padding:6px 18px 6px 24px;
+}
+
+/** Default button **/
+.btn-breadcrumb .btn.btn-default:not(:last-child):after {
+  border-left: 10px solid #fff;
+}
+.btn-breadcrumb .btn.btn-default:not(:last-child):before {
+  border-left: 10px solid #ccc;
+}
+.btn-breadcrumb .btn.btn-default:hover:not(:last-child):after {
+  border-left: 10px solid #ebebeb;
+}
+.btn-breadcrumb .btn.btn-default:hover:not(:last-child):before {
+  border-left: 10px solid #adadad;
+}
+
+.breadcrumb-disabled-link {
+  pointer-events: none;
+  cursor: default;
+}
+
+.text-validation-error{
+    color: #dd301b;
+    font-weight: 600;
+}
+/* ANIMATIONS
+============================================================================= */
+/* slide out to the left */
+@keyframes slideOutLeft {
+  to      { transform: translateX(-200%); }
+}
+@-moz-keyframes slideOutLeft {  
+  to      { -moz-transform: translateX(-200%); }
+}
+@-webkit-keyframes slideOutLeft {
+  to      { -webkit-transform: translateX(-200%); }
+}
+
+/* slide in from the right */
+@keyframes slideInRight {
+  from    { transform:translateX(200%); }
+  to      { transform: translateX(0); }
+}
+@-moz-keyframes slideInRight {
+  from    { -moz-transform:translateX(200%); }
+  to      { -moz-transform: translateX(0); }
+}
+@-webkit-keyframes slideInRight {
+  from    { -webkit-transform:translateX(200%); }
+  to      { -webkit-transform: translateX(0); }
+}
+

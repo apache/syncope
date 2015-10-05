@@ -118,15 +118,6 @@ public class AuthenticationITCase extends AbstractITCase {
 
     @Test
     public void testUserSchemaAuthorization() {
-        // 0. create a role that can only read schemas
-        RoleTO roleTO = new RoleTO();
-        roleTO.setName("authRole" + getUUIDString());
-        roleTO.getEntitlements().add(Entitlement.SCHEMA_READ);
-        roleTO.getRealms().add("/odd");
-
-        roleTO = createRole(roleTO);
-        assertNotNull(roleTO);
-
         String schemaName = "authTestSchema" + getUUIDString();
 
         // 1. create a schema (as admin)
@@ -140,8 +131,6 @@ public class AuthenticationITCase extends AbstractITCase {
 
         // 2. create an user with the role created above (as admin)
         UserTO userTO = UserITCase.getUniqueSampleTO("auth@test.org");
-        userTO.getRoles().add(roleTO.getKey());
-
         userTO = createUser(userTO).getAny();
         assertNotNull(userTO);
 

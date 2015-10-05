@@ -60,6 +60,7 @@ under the License.
     <module>build-tools</module>
     <module>core-reference</module>
     <module>console-reference</module>
+    <module>enduser-reference</module>
   </modules>
 
 </project>

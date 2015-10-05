@@ -1,0 +1,21 @@
+<ui-select on-select="addDerivedAttribute($item, $model)" on-remove="removeDerivedAttribute($item, $model)" multiple
+           ng-model="dynamicForm.selectedDerSchemas" theme="select2" class="attribute-ui-select">
+  <ui-select-match placeholder="Select derived attribute...">{{$item.key}}</ui-select-match>
+  <ui-select-choices repeat="derSchema in dynamicForm.derSchemas | propsFilter: {key: $select.search}">
+    <div ng-bind-html="derSchema.key | highlight: $select.search"></div>
+    <small>
+      name: {{derSchema.key}}
+      expression: {{derSchema.expression}}
+    </small>
+  </ui-select-choices>
+</ui-select>
+
+<ul class="attribute-virtual-value-container">
+  <li class="attribute-virtual-value-field" ng-repeat="selectedDerSchema in dynamicForm.selectedDerSchemas| filter:q as results">
+    {{selectedDerSchema.key}}
+    <input style="font-weight: normal" class="form-control" type="text" ng-disabled="true" ng-model="user.derAttrs[selectedDerSchema.key].values[0]"/>
+  </li>
+  <li class="attribute-virtual-value-field" ng-if="results.length == 0">
+    <strong>No derived attributes selected...</strong>
+  </li>
+</ul>
