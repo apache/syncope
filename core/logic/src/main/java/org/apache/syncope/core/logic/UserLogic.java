@@ -53,13 +53,10 @@ import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
-import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
-import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.misc.security.AuthContextUtils;
 import org.apache.syncope.core.misc.serialization.POJOHelper;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.provisioning.api.LogicActions;
-import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
@@ -83,15 +80,6 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
 
     @Autowired
     protected UserDataBinder binder;
-
-    @Autowired
-    protected VirAttrHandler virtAttrHandler;
-
-    @Autowired
-    protected PropagationManager propagationManager;
-
-    @Autowired
-    protected PropagationTaskExecutor taskExecutor;
 
     @Autowired
     protected UserProvisioningManager provisioningManager;
@@ -293,7 +281,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
     }
 
     @PreAuthorize("hasRole('" + Entitlement.MUST_CHANGE_PASSWORD + "')")
-    public UserTO changePassword(final String password) { 
+    public UserTO changePassword(final String password) {
         UserPatch userPatch = new UserPatch();
         userPatch.setPassword(new PasswordPatch.Builder().value(password).build());
         userPatch.setMustChangePassword(new BooleanReplacePatchItem.Builder().value(false).build());
