@@ -95,7 +95,7 @@ under the License.
           <a href="http://openjpa.apache.org">Apache OpenJPA</a>, the chosen JPA implementation, allows Apache Syncope 
           to be successfully deployable to most DBMSs without any modification of the source code; for more information,
           see these 
-          <a href="http://openjpa.apache.org/builds/latest/docs/docbook/manual/ref_guide_dbsetup_dbsupport.html">available options</a>.
+          <a href="http://openjpa.apache.org/builds/2.3.0/apache-openjpa/docs/ref_guide_dbsetup_dbsupport.html">available options</a>.
           <br/>
           Currently, Apache Syncope officially supports MySQL, PostgreSQL, Oracle DB and MS SQL Server.
         </p>
