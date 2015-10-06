@@ -26,36 +26,33 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.panels.AbstractExtensionPanel;
 import org.apache.syncope.client.console.annotations.BinaryPreview;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.wicket.markup.html.form.preview.AbstractBinaryPreviewer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AssignableTypeFilter;
-import org.springframework.stereotype.Component;
 import org.springframework.util.ClassUtils;
 
-@Component
-public class ImplementationClassNamesLoader implements SyncopeConsoleLoader {
+public class ClassPathScanImplementationLookup {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ImplementationClassNamesLoader.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ClassPathScanImplementationLookup.class);
+
+    private List<Class<? extends BasePage>> pages;
 
     private List<Class<? extends AbstractBinaryPreviewer>> previewers;
 
     private List<Class<? extends AbstractExtensionPanel>> extPanels;
 
-    @Override
-    public Integer getPriority() {
-        return 0;
-    }
-
-    @Override
     @SuppressWarnings("unchecked")
     public void load() {
+        pages = new ArrayList<>();
         previewers = new ArrayList<>();
         extPanels = new ArrayList<>();
 
         ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(false);
+        scanner.addIncludeFilter(new AssignableTypeFilter(BasePage.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(AbstractBinaryPreviewer.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(AbstractExtensionPanel.class));
 
@@ -65,7 +62,9 @@ public class ImplementationClassNamesLoader implements SyncopeConsoleLoader {
                         bd.getBeanClassName(), ClassUtils.getDefaultClassLoader());
                 boolean isAbsractClazz = Modifier.isAbstract(clazz.getModifiers());
 
-                if (AbstractBinaryPreviewer.class.isAssignableFrom(clazz) && !isAbsractClazz) {
+                if (BasePage.class.isAssignableFrom(clazz) && !isAbsractClazz) {
+                    pages.add((Class<? extends BasePage>) clazz);
+                } else if (AbstractBinaryPreviewer.class.isAssignableFrom(clazz) && !isAbsractClazz) {
                     previewers.add((Class<? extends AbstractBinaryPreviewer>) clazz);
                 } else if (AbstractExtensionPanel.class.isAssignableFrom(clazz) && !isAbsractClazz) {
                     extPanels.add((Class<? extends AbstractExtensionPanel>) clazz);
@@ -74,6 +73,7 @@ public class ImplementationClassNamesLoader implements SyncopeConsoleLoader {
                 LOG.warn("Could not inspect class {}", bd.getBeanClassName(), t);
             }
         }
+        pages = Collections.unmodifiableList(pages);
         previewers = Collections.unmodifiableList(previewers);
         extPanels = Collections.unmodifiableList(extPanels);
 
@@ -92,6 +92,10 @@ public class ImplementationClassNamesLoader implements SyncopeConsoleLoader {
             }
         }
         return previewer;
+    }
+
+    public List<Class<? extends BasePage>> getPageClasses() {
+        return pages;
     }
 
     public List<Class<? extends AbstractBinaryPreviewer>> getPreviewerClasses() {

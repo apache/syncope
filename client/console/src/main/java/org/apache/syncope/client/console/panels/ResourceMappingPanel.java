@@ -60,7 +60,6 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 
 /**
  * Resource mapping panel.
@@ -87,14 +86,12 @@ public class ResourceMappingPanel extends Panel {
     /**
      * Schema rest client.
      */
-    @SpringBean
-    private SchemaRestClient schemaRestClient;
+    private final SchemaRestClient schemaRestClient = new SchemaRestClient();
 
     /**
      * ConnInstance rest client.
      */
-    @SpringBean
-    private ConnectorRestClient connRestClient;
+    private final ConnectorRestClient connRestClient = new ConnectorRestClient();
 
     /**
      * Resource schema name.

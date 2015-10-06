@@ -49,15 +49,13 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.springframework.util.ReflectionUtils;
 
 public class AnySearchResultPanel<T extends AnyTO> extends AbstractSearchResultPanel<T> {
 
     private static final long serialVersionUID = -1100228004207271270L;
 
-    @SpringBean
-    protected SchemaRestClient schemaRestClient;
+    protected final SchemaRestClient schemaRestClient = new SchemaRestClient();
 
     protected final List<String> schemaNames;
 
@@ -70,15 +68,16 @@ public class AnySearchResultPanel<T extends AnyTO> extends AbstractSearchResultP
     public AnySearchResultPanel(final String type, final String parentId, final boolean filtered,
             final String fiql, final PageReference callerRef, final AbstractAnyRestClient restClient,
             final List<AnyTypeClassTO> anyTypeClassTOs, final String realm) {
+
         super(parentId, filtered, fiql, callerRef, restClient, realm, type);
         //setCustomMarkupId(markupId);
         add(new Label("name", type));
 
-        this.schemaNames = new ArrayList<String>();
+        this.schemaNames = new ArrayList<>();
         for (AnyTypeClassTO anyTypeClassTO : anyTypeClassTOs) {
             this.schemaNames.addAll(anyTypeClassTO.getPlainSchemas());
         }
-        this.dSchemaNames = new ArrayList<String>();
+        this.dSchemaNames = new ArrayList<>();
         for (AnyTypeClassTO anyTypeClassTO : anyTypeClassTOs) {
             this.dSchemaNames.addAll(anyTypeClassTO.getDerSchemas());
         }

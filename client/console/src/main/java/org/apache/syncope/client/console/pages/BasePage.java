@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.pages;
 
+import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.rest.UserWorkflowRestClient;
@@ -37,14 +38,12 @@ import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class BasePage extends AbstractBasePage implements IAjaxIndicatorAware {
 
     private static final long serialVersionUID = 1571997737305598502L;
 
-    @SpringBean
-    private UserWorkflowRestClient userWorkflowRestClient;
+    private final UserWorkflowRestClient userWorkflowRestClient = new UserWorkflowRestClient();
 
     public BasePage() {
         this(null);
@@ -62,7 +61,7 @@ public class BasePage extends AbstractBasePage implements IAjaxIndicatorAware {
         super(parameters);
 
         // header, footer
-        add(new Label("version", SyncopeConsoleSession.get().getVersion()));
+        add(new Label("version", SyncopeConsoleApplication.get().getVersion()));
         add(new Label("username", SyncopeConsoleSession.get().getSelfTO().getUsername()));
 
         final WebMarkupContainer todosContainer = new WebMarkupContainer("todosContainer");

@@ -44,7 +44,6 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.request.handler.resource.ResourceStreamRequestHandler;
 import org.apache.wicket.request.resource.ContentDisposition;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.crypt.Base64;
 import org.apache.wicket.util.lang.Bytes;
 
@@ -62,14 +61,13 @@ public class BinaryFieldPanel extends FieldPanel<String> {
 
     private final Fragment emptyFragment;
 
-    @SpringBean
-    private PreviewUtils previewUtil;
+    private final PreviewUtils previewUtils = PreviewUtils.getInstance();
 
     public BinaryFieldPanel(final String id, final String name, final IModel<String> model, final String mimeType) {
         super(id, model);
         this.mimeType = mimeType;
 
-        uploadForm = new StatelessForm<Void>("uploadForm");
+        uploadForm = new StatelessForm<>("uploadForm");
         uploadForm.setMultiPart(true);
         uploadForm.setMaxSize(Bytes.megabytes(4));
         add(uploadForm);
@@ -82,8 +80,8 @@ public class BinaryFieldPanel extends FieldPanel<String> {
         container.add(emptyFragment);
         uploadForm.add(container);
 
-        field = new TextField<String>("textField", model);
-        add(field.setLabel(new Model<String>(name)).setOutputMarkupId(true));
+        field = new TextField<>("textField", model);
+        add(field.setLabel(new Model<>(name)).setOutputMarkupId(true));
 
         uploadForm.add(new Label("preview", StringUtils.isBlank(mimeType) ? StringUtils.EMPTY : "(" + mimeType + ")"));
 
@@ -128,8 +126,7 @@ public class BinaryFieldPanel extends FieldPanel<String> {
                         field.setModelObject(uploaded);
                         target.add(field);
 
-                        final Component panelPreview = previewUtil.getPreviewer(mimeType, uploadedBytes);
-
+                        Component panelPreview = previewUtils.getPreviewer(mimeType, uploadedBytes);
                         if (panelPreview != null) {
                             changePreviewer(panelPreview);
                         }
@@ -197,7 +194,7 @@ public class BinaryFieldPanel extends FieldPanel<String> {
     public FieldPanel<String> setNewModel(final IModel<String> model) {
         field.setModel(model);
         try {
-            final Component panelPreview = previewUtil.getPreviewer(mimeType, model.getObject());
+            Component panelPreview = previewUtils.getPreviewer(mimeType, model.getObject());
             if (panelPreview != null) {
                 changePreviewer(panelPreview);
             }

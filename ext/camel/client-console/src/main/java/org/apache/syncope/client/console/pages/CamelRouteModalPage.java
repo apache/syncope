@@ -35,14 +35,12 @@ import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class CamelRouteModalPage extends AbstractModalPanel {
 
     private static final long serialVersionUID = -1438441210568592931L;
 
-    @SpringBean
-    private CamelRouteRestClient restClient;
+    private final CamelRouteRestClient restClient = new CamelRouteRestClient();
 
     public CamelRouteModalPage(
             final BaseModal<?> modal,
@@ -54,7 +52,7 @@ public class CamelRouteModalPage extends AbstractModalPanel {
 
         Form<CamelRouteTO> routeForm = new Form<>("routeDefForm");
 
-        final TextArea<String> routeDefArea = new TextArea<>("content", new PropertyModel<String>(routeTO, "content"));
+        TextArea<String> routeDefArea = new TextArea<>("content", new PropertyModel<String>(routeTO, "content"));
 
         routeForm.add(routeDefArea);
         routeForm.setModel(new CompoundPropertyModel<>(routeTO));

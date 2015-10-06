@@ -34,14 +34,12 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class ResourceSecurityPanel extends Panel {
 
     private static final long serialVersionUID = -7982691107029848579L;
 
-    @SpringBean
-    private PolicyRestClient policyRestClient;
+    private final PolicyRestClient policyRestClient = new PolicyRestClient();
 
     private IModel<Map<Long, String>> passwordPolicies = null;
 

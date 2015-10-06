@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.wicket.request.Request;
 import org.apache.wicket.request.Response;
@@ -35,7 +36,6 @@ import org.apache.wicket.util.cookies.CookieUtils;
 import org.apache.wicket.util.crypt.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.StringUtils;
 
 public class PreferenceManager {
 
@@ -69,7 +69,7 @@ public class PreferenceManager {
     private Map<String, String> getPrefs(final String value) {
         Map<String, String> prefs;
         try {
-            if (StringUtils.hasText(value)) {
+            if (StringUtils.isNotBlank(value)) {
                 prefs = mapper.readValue(value, MAP_TYPE_REF);
             } else {
                 throw new Exception("Invalid cookie value '" + value + "'");
@@ -117,7 +117,7 @@ public class PreferenceManager {
 
         final String compound = get(request, key);
 
-        if (StringUtils.hasText(compound)) {
+        if (StringUtils.isNotBlank(compound)) {
             String[] items = compound.split(";");
             result.addAll(Arrays.asList(items));
         }
@@ -135,7 +135,7 @@ public class PreferenceManager {
 
         // after retrieved previous setting in order to overwrite the key ...
         for (Map.Entry<String, List<String>> entry : prefs.entrySet()) {
-            current.put(entry.getKey(), StringUtils.collectionToDelimitedString(entry.getValue(), ";"));
+            current.put(entry.getKey(), StringUtils.join(entry.getValue(), ";"));
         }
 
         try {
@@ -164,7 +164,7 @@ public class PreferenceManager {
     }
 
     public void setList(final Request request, final Response response, final String key, final List<String> values) {
-        set(request, response, key, StringUtils.collectionToDelimitedString(values, ";"));
+        set(request, response, key, StringUtils.join(values, ";"));
     }
 
     public void setList(final Request request, final Response response, final Map<String, List<String>> prefs) {

@@ -43,7 +43,6 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 
 @ExtensionPanel("Camel routes")
 public class CamelRoutePanel extends AbstractExtensionPanel {
@@ -54,8 +53,7 @@ public class CamelRoutePanel extends AbstractExtensionPanel {
 
     private static final int CAMELROUTE_WIN_WIDTH = 800;
 
-    @SpringBean
-    private CamelRouteRestClient restClient;
+    private CamelRouteRestClient restClient = new CamelRouteRestClient();
 
     private ModalWindow editCamelRouteWin;
 

@@ -42,14 +42,12 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class Realms extends BasePage {
 
     private static final long serialVersionUID = -1100228004207271270L;
 
-    @SpringBean
-    private RealmRestClient realmRestClient;
+    private final RealmRestClient realmRestClient = new RealmRestClient();
 
     private final RealmSidebarPanel realmSidebarPanel;
 

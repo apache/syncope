@@ -33,7 +33,6 @@ import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.form.validation.EqualPasswordInputValidator;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,8 +42,7 @@ public class MustChangePassword extends WebPage {
 
     private static final Logger LOG = LoggerFactory.getLogger(MustChangePassword.class);
 
-    @SpringBean
-    private UserSelfRestClient userSelfRestClient;
+    private final UserSelfRestClient userSelfRestClient = new UserSelfRestClient();
 
     private final NotificationPanel feedbackPanel;
 

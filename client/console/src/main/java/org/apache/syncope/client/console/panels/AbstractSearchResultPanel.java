@@ -41,7 +41,6 @@ import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.PropertyModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,16 +48,12 @@ public abstract class AbstractSearchResultPanel<T extends AnyTO> extends Panel i
 
     private static final long serialVersionUID = -9170191461250434024L;
 
-    /**
-     * Logger.
-     */
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractSearchResultPanel.class);
 
     /**
      * Application preferences.
      */
-    @SpringBean
-    protected PreferenceManager prefMan;
+    protected PreferenceManager prefMan = new PreferenceManager();
 
     protected final AbstractAnyRestClient restClient;
 

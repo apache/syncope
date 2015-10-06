@@ -42,7 +42,6 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 
 /**
  * Modal window with Display attributes form.
@@ -59,8 +58,7 @@ public abstract class DisplayAttributesModalPage<T extends AnyTO> extends Abstra
      */
     private static final int MAX_SELECTIONS = 9;
 
-    @SpringBean
-    private PreferenceManager prefMan;
+    private final PreferenceManager prefMan = new PreferenceManager();
 
     private final List<String> selectedDetails;
 

@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.rest;
 import java.io.Serializable;
 import java.net.URI;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.search.OrderByClauseBuilder;
@@ -66,7 +67,7 @@ public abstract class BaseRestClient implements Serializable {
 
     protected <E extends JAXRSService, T> T getObject(final E service, final URI location, final Class<T> resultClass) {
         WebClient webClient = WebClient.fromClient(WebClient.client(service));
-        webClient.accept(SyncopeConsoleSession.get().getMediaType()).to(location.toASCIIString(), false);
+        webClient.accept(SyncopeConsoleApplication.get().getMediaType()).to(location.toASCIIString(), false);
         return webClient.get(resultClass);
     }
 }

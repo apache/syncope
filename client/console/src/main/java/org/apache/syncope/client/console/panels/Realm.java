@@ -35,7 +35,6 @@ import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,17 +48,13 @@ public class Realm extends Panel {
 
     private final List<AnyTypeTO> anyTypeTOs;
 
-    @SpringBean
-    private AnyTypeRestClient anyTypeRestClient;
+    private final AnyTypeRestClient anyTypeRestClient = new AnyTypeRestClient();
 
-    @SpringBean
-    private UserRestClient userRestClient;
+    private final UserRestClient userRestClient = new UserRestClient();
 
-    @SpringBean
-    private GroupRestClient groupRestClient;
+    private final GroupRestClient groupRestClient = new GroupRestClient();
 
-    @SpringBean
-    private AnyObjectRestClient anyObjectRestClient;
+    private final AnyObjectRestClient anyObjectRestClient = new AnyObjectRestClient();
 
     @SuppressWarnings({ "unchecked", "unchecked" })
     public Realm(final String id, final RealmTO realmTO, final PageReference pageReference) {
@@ -120,7 +115,7 @@ public class Realm extends Panel {
                                 anyTypeTO.getClasses()), realmTO.getFullPath());
                 break;
             case ANY_OBJECT:
-                panel = new AnySearchResultPanel(anyTypeTO.getKey(), id,
+                panel = new AnySearchResultPanel<>(anyTypeTO.getKey(), id,
                         false, null, pageReference, anyObjectRestClient, anyTypeRestClient.getAnyTypeClass(
                                 anyTypeTO.getClasses()), realmTO.getFullPath());
                 break;

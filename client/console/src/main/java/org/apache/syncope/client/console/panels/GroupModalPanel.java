@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.panels;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.Mode;
+import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.wicket.PageReference;
@@ -39,6 +40,8 @@ public class GroupModalPanel extends AbstractModalPanel {
 
     private static final long serialVersionUID = -1732493223434085205L;
 
+    private final GroupRestClient groupRestClient = new GroupRestClient();
+
     protected final Mode mode;
 
     protected final boolean createFlag;
@@ -49,6 +52,7 @@ public class GroupModalPanel extends AbstractModalPanel {
 
     public GroupModalPanel(
             final BaseModal<?> modal, final PageReference pageRef, final GroupTO groupTO) {
+
         this(modal, pageRef, groupTO, Mode.ADMIN);
     }
 

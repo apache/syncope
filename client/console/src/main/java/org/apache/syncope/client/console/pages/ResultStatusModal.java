@@ -36,6 +36,7 @@ import org.apache.syncope.client.console.commons.status.Status;
 import org.apache.syncope.client.console.commons.status.StatusUtils;
 import org.apache.syncope.client.console.panels.AbstractModalPanel;
 import org.apache.syncope.client.console.panels.FailureMessageModal;
+import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
@@ -107,7 +108,7 @@ public final class ResultStatusModal<T extends AnyTO> extends AbstractModalPanel
         }
 
         public ResultStatusModal<T> build() {
-            return new ResultStatusModal<T>(modal, pageRef, this);
+            return new ResultStatusModal<>(modal, pageRef, this);
         }
     }
 
@@ -115,10 +116,11 @@ public final class ResultStatusModal<T extends AnyTO> extends AbstractModalPanel
             final BaseModal<T> modal,
             final PageReference pageRef,
             final Builder<T> builder) {
+
         super(modal, pageRef);
 
         this.subject = builder.subject;
-        statusUtils = new StatusUtils(this.userRestClient);
+        statusUtils = new StatusUtils(new UserRestClient());
         if (builder.mode == null) {
             this.mode = Mode.ADMIN;
         } else {

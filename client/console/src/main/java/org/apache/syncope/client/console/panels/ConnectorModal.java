@@ -28,6 +28,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.AbstractBasePage;
+import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.topology.TopologyNode;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.to.ConnBundleTO;
@@ -47,6 +48,8 @@ import org.apache.wicket.model.ResourceModel;
 public class ConnectorModal extends AbstractResourceModal {
 
     private static final long serialVersionUID = -2025535531121434050L;
+
+    private final ConnectorRestClient connectorRestClient = new ConnectorRestClient();
 
     private final List<ConnBundleTO> bundles;
 

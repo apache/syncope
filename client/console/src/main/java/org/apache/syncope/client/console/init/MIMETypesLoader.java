@@ -27,26 +27,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.util.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
-@Component
-public class MIMETypesLoader implements SyncopeConsoleLoader {
+public class MIMETypesLoader {
 
-    /**
-     * Logger.
-     */
     private static final Logger LOG = LoggerFactory.getLogger(MIMETypesLoader.class);
 
     private List<String> mimeTypes;
 
-    @Override
-    public Integer getPriority() {
-        return 10;
-    }
-
-    @Override
     public void load() {
-        final Set<String> mediaTypes = new HashSet<>();
+        Set<String> mediaTypes = new HashSet<>();
         this.mimeTypes = new ArrayList<>();
         try {
             final String mimeTypesFile = IOUtils.toString(getClass().getResourceAsStream("/MIMETypes"));

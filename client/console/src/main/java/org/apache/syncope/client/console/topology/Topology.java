@@ -33,6 +33,8 @@ import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.AbstractResourceModal.CreateEvent;
+import org.apache.syncope.client.console.rest.ConnectorRestClient;
+import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
@@ -63,6 +65,10 @@ public class Topology extends BasePage {
 
     public static final String ROOT_NAME = "Syncope";
 
+    private final ResourceRestClient resourceRestClient = new ResourceRestClient();
+
+    private final ConnectorRestClient connectorRestClient = new ConnectorRestClient();
+
     private final int origX = 3100;
 
     private final int origY = 2800;
@@ -84,8 +90,8 @@ public class Topology extends BasePage {
         }
     };
 
-    private final LoadableDetachableModel<Map<String, List<ConnInstanceTO>>> connModel
-            = new LoadableDetachableModel<Map<String, List<ConnInstanceTO>>>() {
+    private final LoadableDetachableModel<Map<String, List<ConnInstanceTO>>> connModel =
+            new LoadableDetachableModel<Map<String, List<ConnInstanceTO>>>() {
 
                 private static final long serialVersionUID = 5275935387613157432L;
 
@@ -108,8 +114,8 @@ public class Topology extends BasePage {
                 }
             };
 
-    private final LoadableDetachableModel<Pair<List<URI>, List<URI>>> csModel
-            = new LoadableDetachableModel<Pair<List<URI>, List<URI>>>() {
+    private final LoadableDetachableModel<Pair<List<URI>, List<URI>>> csModel =
+            new LoadableDetachableModel<Pair<List<URI>, List<URI>>>() {
 
                 private static final long serialVersionUID = 5275935387613157433L;
 

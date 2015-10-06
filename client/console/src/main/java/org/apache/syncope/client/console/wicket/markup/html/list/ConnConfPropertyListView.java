@@ -22,6 +22,7 @@ import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.checkbox.boot
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.checkbox.bootstraptoggle.BootstrapToggleConfig;
 import java.io.Serializable;
 import java.util.List;
+import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.wicket.markup.html.form.AbstractFieldPanel;
@@ -46,7 +47,6 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.ClassUtils;
 
 public class ConnConfPropertyListView extends ListView<ConnConfProperty> {
 
@@ -90,8 +90,7 @@ public class ConnConfPropertyListView extends ListView<ConnConfProperty> {
         } else {
             Class<?> propertySchemaClass;
             try {
-                propertySchemaClass = ClassUtils.forName(property.getSchema().getType(), ClassUtils.
-                        getDefaultClassLoader());
+                propertySchemaClass = ClassUtils.getClass(property.getSchema().getType());
                 if (ClassUtils.isPrimitiveOrWrapper(propertySchemaClass)) {
                     propertySchemaClass = org.apache.commons.lang3.ClassUtils.primitiveToWrapper(propertySchemaClass);
                 }
@@ -102,8 +101,8 @@ public class ConnConfPropertyListView extends ListView<ConnConfProperty> {
 
             if (ClassUtils.isAssignable(Number.class, propertySchemaClass)) {
                 @SuppressWarnings("unchecked")
-                final Class<Number> numberClass = (Class<Number>) propertySchemaClass;
-                field = new SpinnerFieldPanel<Number>(
+                Class<Number> numberClass = (Class<Number>) propertySchemaClass;
+                field = new SpinnerFieldPanel<>(
                         "panel", label.getDefaultModelObjectAsString(), numberClass, new Model<Number>());
 
                 required = property.getSchema().isRequired();

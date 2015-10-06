@@ -31,6 +31,9 @@ import org.apache.syncope.client.console.commons.status.Status;
 import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.syncope.client.console.commons.status.StatusUtils;
 import org.apache.syncope.client.console.panels.ActionDataTablePanel;
+import org.apache.syncope.client.console.rest.GroupRestClient;
+import org.apache.syncope.client.console.rest.ResourceRestClient;
+import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.wicket.ajax.markup.html.ClearIndicatingAjaxButton;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
@@ -64,6 +67,12 @@ import org.apache.wicket.model.StringResourceModel;
 public class StatusModalPage<T extends AnyTO> extends AbstractStatusModalPage {
 
     private static final long serialVersionUID = -9148734710505211261L;
+
+    private final UserRestClient userRestClient = new UserRestClient();
+
+    private final GroupRestClient groupRestClient = new GroupRestClient();
+
+    private final ResourceRestClient resourceRestClient = new ResourceRestClient();
 
     private final AnyTO anyTO;
 
@@ -207,7 +216,7 @@ public class StatusModalPage<T extends AnyTO> extends AbstractStatusModalPage {
         confirm = new PasswordTextField("confirm", new Model<String>());
         pwdMgtForm.add(confirm.setRequired(false).setEnabled(false));
 
-        changepwd = new AjaxCheckBoxPanel("changepwd", "changepwd", new Model<Boolean>(false));
+        changepwd = new AjaxCheckBoxPanel("changepwd", "changepwd", new Model<>(false));
         pwdMgtForm.add(changepwd.setModelObject(false));
         pwdMgtForm.add(new Label("changePwdLabel", new ResourceModel("changePwdLabel", "Password propagation")));
 
@@ -494,7 +503,7 @@ public class StatusModalPage<T extends AnyTO> extends AbstractStatusModalPage {
 
             final List<ConnObjectWrapper> connObjects = statusUtils.getConnectorObjects(anyTO);
 
-            final List<StatusBean> statusBeans = new ArrayList<StatusBean>(connObjects.size() + 1);
+            final List<StatusBean> statusBeans = new ArrayList<>(connObjects.size() + 1);
 
             for (ConnObjectWrapper entry : connObjects) {
                 final StatusBean statusBean = statusUtils.getStatusBean(anyTO,
@@ -609,7 +618,7 @@ public class StatusModalPage<T extends AnyTO> extends AbstractStatusModalPage {
             final AjaxRequestTarget target,
             final Collection<StatusBean> selection,
             final BulkActionResult bulkActionResult) {
-        final List<String> resources = new ArrayList<String>(selection.size());
+        final List<String> resources = new ArrayList<>(selection.size());
         for (StatusBean statusBean : selection) {
             resources.add(statusBean.getResourceName());
         }
@@ -617,7 +626,7 @@ public class StatusModalPage<T extends AnyTO> extends AbstractStatusModalPage {
         final List<ConnObjectWrapper> connObjects = statusUtils.getConnectorObjects(Collections.singletonList(anyTO),
                 resources);
 
-        final List<StatusBean> statusBeans = new ArrayList<StatusBean>(connObjects.size());
+        final List<StatusBean> statusBeans = new ArrayList<>(connObjects.size());
 
         for (ConnObjectWrapper entry : connObjects) {
             final StatusBean statusBean = statusUtils.getStatusBean(anyTO,
@@ -628,7 +637,7 @@ public class StatusModalPage<T extends AnyTO> extends AbstractStatusModalPage {
             statusBeans.add(statusBean);
         }
 
-        target.add(modal.setContent(new BulkActionResultModalPage<StatusBean, String>(
+        target.add(modal.setContent(new BulkActionResultModalPage<>(
                 modal,
                 pageRef,
                 statusBeans,

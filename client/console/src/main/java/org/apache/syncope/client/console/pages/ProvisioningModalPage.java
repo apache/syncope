@@ -30,6 +30,9 @@ import org.apache.syncope.client.console.commons.status.ConnObjectWrapper;
 import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.syncope.client.console.commons.status.StatusUtils;
 import org.apache.syncope.client.console.panels.ActionDataTablePanel;
+import org.apache.syncope.client.console.rest.GroupRestClient;
+import org.apache.syncope.client.console.rest.ResourceRestClient;
+import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.lib.SyncopeClient;
@@ -58,6 +61,12 @@ public class ProvisioningModalPage<T extends AnyTO> extends AbstractStatusModalP
     private static final long serialVersionUID = -4285220460543213901L;
 
     private static final int ROWS_PER_PAGE = 10;
+
+    private final UserRestClient userRestClient = new UserRestClient();
+
+    private final GroupRestClient groupRestClient = new GroupRestClient();
+
+    private final ResourceRestClient resourceRestClient = new ResourceRestClient();
 
     private final ResourceTO resourceTO;
 

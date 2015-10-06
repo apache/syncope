@@ -49,7 +49,6 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,21 +56,20 @@ public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
 
     private static final long serialVersionUID = -8775095410207013913L;
 
-    protected static final Logger LOG = LoggerFactory.getLogger(TopologyNodePanel.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TopologyNodePanel.class);
+
+    private final ResourceRestClient resourceRestClient = new ResourceRestClient();
+
+    private final ConnectorRestClient connectorRestClient = new ConnectorRestClient();
 
     private final BaseModal<Serializable> modal;
-
-    @SpringBean
-    private ResourceRestClient resourceRestClient;
-
-    @SpringBean
-    private ConnectorRestClient connectorRestClient;
 
     public TopologyNodePanel(
             final String id,
             final TopologyNode node,
             final BaseModal<Serializable> modal,
             final PageReference pageRef) {
+
         super(id);
 
         final String resourceName = node.getDisplayName().length() > 20
@@ -141,7 +139,7 @@ public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
 
                 target.add(modal.setContent(new ConnectorModal(modal, pageRef, model)));
 
-                modal.header(new Model<String>(MessageFormat.format(getString("connector.new"), node.getKey())));
+                modal.header(new Model<>(MessageFormat.format(getString("connector.new"), node.getKey())));
 
                 MetaDataRoleAuthorizationStrategy.
                         authorize(modal.addSumbitButton(), ENABLE, Entitlement.CONNECTOR_CREATE);
@@ -196,7 +194,7 @@ public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
 
                 target.add(modal.setContent(new ResourceModal(modal, pageRef, model, true)));
 
-                modal.header(new Model<String>(MessageFormat.format(getString("resource.new"), node.getKey())));
+                modal.header(new Model<>(MessageFormat.format(getString("resource.new"), node.getKey())));
 
                 MetaDataRoleAuthorizationStrategy.
                         authorize(modal.addSumbitButton(), ENABLE, Entitlement.RESOURCE_CREATE);
@@ -221,7 +219,7 @@ public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
 
                 target.add(modal.setContent(new ConnectorModal(modal, pageRef, model)));
 
-                modal.header(new Model<String>(MessageFormat.format(getString("connector.edit"), node.getKey())));
+                modal.header(new Model<>(MessageFormat.format(getString("connector.edit"), node.getKey())));
 
                 MetaDataRoleAuthorizationStrategy.
                         authorize(modal.addSumbitButton(), ENABLE, Entitlement.CONNECTOR_UPDATE);
@@ -276,7 +274,7 @@ public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
 
                 target.add(modal.setContent(new ResourceModal(modal, pageRef, model, false)));
 
-                modal.header(new Model<String>(MessageFormat.format(getString("resource.edit"), node.getKey())));
+                modal.header(new Model<>(MessageFormat.format(getString("resource.edit"), node.getKey())));
 
                 MetaDataRoleAuthorizationStrategy.
                         authorize(modal.addSumbitButton(), ENABLE, Entitlement.RESOURCE_UPDATE);

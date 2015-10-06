@@ -26,14 +26,12 @@ import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public abstract class ResourceConnConfPanel extends AbstractConnectorConfPanel<ResourceTO> {
 
     private static final long serialVersionUID = -7982691107029848579L;
 
-    @SpringBean
-    private ConnectorRestClient restClient;
+    private ConnectorRestClient restClient = new ConnectorRestClient();
 
     private final boolean createFlag;
 

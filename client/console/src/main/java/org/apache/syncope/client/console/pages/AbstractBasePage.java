@@ -19,24 +19,13 @@
 package org.apache.syncope.client.console.pages;
 
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.init.MIMETypesLoader;
 import org.apache.syncope.client.console.panels.NotificationPanel;
-import org.apache.syncope.client.console.rest.ConfigurationRestClient;
-import org.apache.syncope.client.console.rest.ConnectorRestClient;
-import org.apache.syncope.client.console.rest.ReportRestClient;
-import org.apache.syncope.client.console.rest.ResourceRestClient;
-import org.apache.syncope.client.console.rest.GroupRestClient;
-import org.apache.syncope.client.console.rest.SchemaRestClient;
-import org.apache.syncope.client.console.rest.TaskRestClient;
-import org.apache.syncope.client.console.rest.UserRestClient;
-import org.apache.syncope.client.console.rest.UserSelfRestClient;
 import org.apache.syncope.client.console.wicket.markup.head.MetaHeaderItem;
 import org.apache.wicket.markup.head.HeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.PriorityHeaderItem;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,36 +44,6 @@ public class AbstractBasePage extends WebPage {
     protected static final String FORM = "form";
 
     protected final HeaderItem meta = new MetaHeaderItem("X-UA-Compatible", "IE=edge");
-
-    @SpringBean
-    protected UserRestClient userRestClient;
-
-    @SpringBean
-    protected UserSelfRestClient userSelfRestClient;
-
-    @SpringBean
-    protected GroupRestClient groupRestClient;
-
-    @SpringBean
-    protected TaskRestClient taskRestClient;
-
-    @SpringBean
-    protected SchemaRestClient schemaRestClient;
-
-    @SpringBean
-    protected ResourceRestClient resourceRestClient;
-
-    @SpringBean
-    protected ConnectorRestClient connectorRestClient;
-
-    @SpringBean
-    protected ReportRestClient reportRestClient;
-
-    @SpringBean
-    protected ConfigurationRestClient confRestClient;
-
-    @SpringBean
-    protected MIMETypesLoader mimeTypesInitializer;
 
     protected NotificationPanel feedbackPanel;
 

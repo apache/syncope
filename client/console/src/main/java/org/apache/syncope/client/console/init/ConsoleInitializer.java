@@ -18,54 +18,40 @@
  */
 package org.apache.syncope.client.console.init;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
+import javax.servlet.annotation.WebListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.aop.support.AopUtils;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.BeanFactoryAware;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.support.DefaultListableBeanFactory;
-import org.springframework.stereotype.Component;
 
 /**
  * Take care of all initializations needed by Syncope Console to run up and safe.
  */
-@Component
-public class ConsoleInitializer implements InitializingBean, BeanFactoryAware {
+@WebListener
+public class ConsoleInitializer implements ServletContextListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConsoleInitializer.class);
 
-    private DefaultListableBeanFactory beanFactory;
+    public static final String CLASSPATH_LOOKUP = "CLASSPATH_LOOKUP";
+
+    public static final String MIMETYPES_LOADER = "MIMETYPES_LOADER";
 
     @Override
-    public void setBeanFactory(final BeanFactory beanFactory) {
-        this.beanFactory = (DefaultListableBeanFactory) beanFactory;
+    public void contextInitialized(final ServletContextEvent sce) {
+        ClassPathScanImplementationLookup lookup = new ClassPathScanImplementationLookup();
+        lookup.load();
+        sce.getServletContext().setAttribute(CLASSPATH_LOOKUP, lookup);
+
+        MIMETypesLoader mimeTypes = new MIMETypesLoader();
+        mimeTypes.load();
+        sce.getServletContext().setAttribute(MIMETYPES_LOADER, mimeTypes);
+
+        LOG.debug("Initialization completed");
     }
 
     @Override
-    public void afterPropertiesSet() {
-        Map<String, SyncopeConsoleLoader> loaderMap = beanFactory.getBeansOfType(SyncopeConsoleLoader.class);
-
-        List<SyncopeConsoleLoader> loaders = new ArrayList<>(loaderMap.values());
-        Collections.sort(loaders, new Comparator<SyncopeConsoleLoader>() {
-
-            @Override
-            public int compare(final SyncopeConsoleLoader o1, final SyncopeConsoleLoader o2) {
-                return o1.getPriority().compareTo(o2.getPriority());
-            }
-        });
-
-        LOG.debug("Starting initialization...");
-        for (SyncopeConsoleLoader loader : loaders) {
-            LOG.debug("Invoking {} with priority {}", AopUtils.getTargetClass(loader).getName(), loader.getPriority());
-            loader.load();
-        }
-        LOG.debug("Initialization completed");
+    public void contextDestroyed(final ServletContextEvent sce) {
+        // nothing to do
     }
 
 }

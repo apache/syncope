@@ -23,12 +23,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MediaType;
 import org.apache.cxf.common.util.UrlUtils;
 import org.apache.syncope.client.console.rest.WorkflowRestClient;
-import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.util.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**
  * Mirror REST resource for putting user workflow definition in JSON (used by Activiti Modeler).
@@ -61,9 +59,7 @@ public class WorkflowDefPUTResource extends AbstractResource {
             LOG.error("Could not extract workflow definition from request", e);
         }
 
-        WebApplicationContextUtils.getWebApplicationContext(WebApplication.get().getServletContext()).
-                getBean(WorkflowRestClient.class).
-                updateDefinition(MediaType.APPLICATION_JSON_TYPE, definition);
+        new WorkflowRestClient().updateDefinition(MediaType.APPLICATION_JSON_TYPE, definition);
 
         ResourceResponse response = new ResourceResponse();
         response.setStatusCode(204);

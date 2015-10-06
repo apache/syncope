@@ -40,14 +40,10 @@ import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class Login extends WebPage {
 
     private static final long serialVersionUID = 5889157642852559004L;
-
-    @SpringBean(name = "anonymousUser")
-    private String anonymousUser;
 
     private final NotificationPanel feedbackPanel;
 
@@ -93,7 +89,7 @@ public class Login extends WebPage {
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-                if (anonymousUser.equals(usernameField.getRawInput())) {
+                if (SyncopeConsoleApplication.get().getAnonymousUser().equals(usernameField.getRawInput())) {
                     throw new AccessControlException("Illegal username");
                 }
 

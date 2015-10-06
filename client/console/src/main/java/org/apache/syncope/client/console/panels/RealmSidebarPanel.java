@@ -44,14 +44,12 @@ import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.RepeatingView;
 import org.apache.wicket.model.PropertyModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class RealmSidebarPanel extends Panel {
 
     private static final long serialVersionUID = -1100228004207271270L;
 
-    @SpringBean
-    private RealmRestClient realmRestClient;
+    private final RealmRestClient realmRestClient = new RealmRestClient();
 
     private final WebMarkupContainer menu;
 

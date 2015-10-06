@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console.pages;
 
 import java.io.File;
+import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.rest.WorkflowRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.link.VeilPopupSettings;
 import org.apache.syncope.common.lib.types.Entitlement;
@@ -27,19 +28,15 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.request.resource.DynamicImageResource;
 import org.apache.wicket.request.resource.IResource;
-import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.springframework.web.context.support.WebApplicationContextUtils;
 
 public class Workflow extends BasePage {
 
     private static final long serialVersionUID = -8781434495150074529L;
 
-    @SpringBean
-    private WorkflowRestClient wfRestClient;
+    private final WorkflowRestClient wfRestClient = new WorkflowRestClient();
 
     public Workflow(final PageParameters parameters) {
         super(parameters);
@@ -65,9 +62,7 @@ public class Workflow extends BasePage {
         // Check if Activiti Modeler directory is found
         boolean activitiModelerEnabled = false;
         try {
-            String activitiModelerDirectory = WebApplicationContextUtils.getWebApplicationContext(
-                    WebApplication.get().getServletContext()).getBean("activitiModelerDirectory", String.class);
-            File baseDir = new File(activitiModelerDirectory);
+            File baseDir = new File(SyncopeConsoleApplication.get().getActivitiModelerDirectory());
             activitiModelerEnabled = baseDir.exists() && baseDir.canRead() && baseDir.isDirectory();
         } catch (Exception e) {
             LOG.error("Could not check for Activiti Modeler directory", e);

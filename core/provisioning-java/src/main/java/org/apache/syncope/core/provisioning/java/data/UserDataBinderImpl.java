@@ -340,7 +340,6 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                     if (otherEnd == null) {
                         LOG.debug("Ignoring invalid any object {}", patch.getRelationshipTO().getRightKey());
                     } else {
-
                         relationship = entityFactory.newEntity(URelationship.class);
                         relationship.setType(relationshipType);
                         relationship.setRightEnd(otherEnd);

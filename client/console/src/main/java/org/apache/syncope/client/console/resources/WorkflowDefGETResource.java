@@ -21,10 +21,8 @@ package org.apache.syncope.client.console.resources;
 import java.io.IOException;
 import javax.ws.rs.core.MediaType;
 import org.apache.syncope.client.console.rest.WorkflowRestClient;
-import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.util.io.IOUtils;
-import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**
  * Mirror REST resource for obtaining user workflow definition in JSON (used by Activiti Modeler).
@@ -45,9 +43,8 @@ public class WorkflowDefGETResource extends AbstractResource {
 
             @Override
             public void writeData(final Attributes attributes) throws IOException {
-                IOUtils.copy(WebApplicationContextUtils.getWebApplicationContext(
-                        WebApplication.get().getServletContext()).getBean(WorkflowRestClient.class).
-                        getDefinition(MediaType.APPLICATION_JSON_TYPE),
+                IOUtils.copy(
+                        new WorkflowRestClient().getDefinition(MediaType.APPLICATION_JSON_TYPE),
                         attributes.getResponse().getOutputStream());
             }
         });

@@ -28,6 +28,8 @@ import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.AbstractBasePage;
+import org.apache.syncope.client.console.rest.ConnectorRestClient;
+import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.topology.TopologyNode;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
@@ -53,6 +55,10 @@ import org.apache.wicket.model.ResourceModel;
 public class ResourceModal extends AbstractResourceModal {
 
     private static final long serialVersionUID = 1734415311027284221L;
+
+    private final ResourceRestClient resourceRestClient = new ResourceRestClient();
+
+    private final ConnectorRestClient connectorRestClient = new ConnectorRestClient();
 
     private final boolean createFlag;
 
@@ -95,7 +101,7 @@ public class ResourceModal extends AbstractResourceModal {
             @Override
             public void onClick(final AjaxRequestTarget target, final ProvisionTO provisionTO) {
                 send(pageRef.getPage(), Broadcast.DEPTH,
-                        new AjaxWizard.NewItemActionEvent<ProvisionTO>(provisionTO, 2, target));
+                        new AjaxWizard.NewItemActionEvent<>(provisionTO, 2, target));
             }
         }, ActionLink.ActionType.MAPPING, Entitlement.RESOURCE_UPDATE).addAction(new ActionLink<ProvisionTO>() {
 
@@ -104,7 +110,7 @@ public class ResourceModal extends AbstractResourceModal {
             @Override
             public void onClick(final AjaxRequestTarget target, final ProvisionTO provisionTO) {
                 send(pageRef.getPage(), Broadcast.DEPTH,
-                        new AjaxWizard.NewItemActionEvent<ProvisionTO>(provisionTO, 3, target));
+                        new AjaxWizard.NewItemActionEvent<>(provisionTO, 3, target));
             }
         }, ActionLink.ActionType.ACCOUNT_LINK, Entitlement.RESOURCE_UPDATE).addAction(new ActionLink<ProvisionTO>() {
 
@@ -114,7 +120,7 @@ public class ResourceModal extends AbstractResourceModal {
             public void onClick(final AjaxRequestTarget target, final ProvisionTO provisionTO) {
                 provisionTO.setSyncToken(null);
                 send(pageRef.getPage(), Broadcast.DEPTH,
-                        new AjaxWizard.NewItemFinishEvent<ProvisionTO>(provisionTO, target));
+                        new AjaxWizard.NewItemFinishEvent<>(provisionTO, target));
             }
         }, ActionLink.ActionType.RESET_TIME, Entitlement.RESOURCE_UPDATE).addAction(new ActionLink<ProvisionTO>() {
 
@@ -123,7 +129,7 @@ public class ResourceModal extends AbstractResourceModal {
             @Override
             public void onClick(final AjaxRequestTarget target, final ProvisionTO provisionTO) {
                 send(pageRef.getPage(), Broadcast.DEPTH,
-                        new AjaxWizard.NewItemActionEvent<ProvisionTO>(SerializationUtils.clone(provisionTO), target));
+                        new AjaxWizard.NewItemActionEvent<>(SerializationUtils.clone(provisionTO), target));
             }
         }, ActionLink.ActionType.CLONE, Entitlement.RESOURCE_CREATE).addAction(new ActionLink<ProvisionTO>() {
 

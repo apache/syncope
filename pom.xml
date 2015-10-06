@@ -411,7 +411,7 @@ under the License.
     <cargo.log>${log.directory}/cargo.log</cargo.log>
     <cargo.output>${log.directory}/cargo-output.log</cargo.output>
 
-    <tomcat.version>8.0.26</tomcat.version>
+    <tomcat.version>8.0.27</tomcat.version>
 
     <anonymousUser>anonymous</anonymousUser>
     <!-- static keys, only used for build: generated overlays will override during archetype:generate -->
@@ -851,17 +851,6 @@ under the License.
         <groupId>org.apache.wicket</groupId>
         <artifactId>wicket-datetime</artifactId>
         <version>${wicket.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.wicket</groupId>
-        <artifactId>wicket-spring</artifactId>
-        <version>${wicket.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.apache.wicket</groupId>

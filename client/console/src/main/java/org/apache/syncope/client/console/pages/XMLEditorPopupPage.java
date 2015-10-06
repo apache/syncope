@@ -33,15 +33,13 @@ import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.io.IOUtils;
 
 public class XMLEditorPopupPage extends BasePopupPage {
 
     private static final long serialVersionUID = 5816041644635271734L;
 
-    @SpringBean
-    private WorkflowRestClient wfRestClient;
+    private final WorkflowRestClient wfRestClient = new WorkflowRestClient();
 
     public XMLEditorPopupPage() {
         Form<?> wfForm = new Form<>("workflowDefForm");

@@ -31,18 +31,16 @@ import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class RealmModalPanel extends AbstractModalPanel {
 
     private static final long serialVersionUID = -4285220460543213901L;
 
-    protected RealmTO realmTO;
+    private final RealmRestClient realmRestClient = new RealmRestClient();
+
+    private RealmTO realmTO;
 
     private boolean newRealm = false;
-
-    @SpringBean
-    private RealmRestClient realmRestClient;
 
     private final String parentPath;
 
@@ -52,6 +50,7 @@ public class RealmModalPanel extends AbstractModalPanel {
             final RealmTO realmTO,
             final String parentPath,
             final String entitlement) {
+
         this(modal, pageRef, realmTO, parentPath, entitlement, false);
     }
 
