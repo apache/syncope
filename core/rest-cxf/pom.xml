@@ -99,6 +99,12 @@ under the License.
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-rt-rs-client</artifactId>
     </dependency>  
+    <dependency>
+      <groupId>org.apache.syncope.common</groupId>
+      <artifactId>syncope-common-rest-api</artifactId>
+      <version>${project.version}</version>
+      <classifier>javadoc</classifier>
+    </dependency>
     
     <dependency>
       <groupId>org.apache.syncope.core</groupId>
@@ -130,130 +136,7 @@ under the License.
   </dependencies>
 
   <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <inherited>false</inherited>
-        <configuration>
-          <outputDirectory>${project.build.directory}</outputDirectory>
-          <artifactItems>
-            <artifactItem>
-              <groupId>org.apache.syncope.common</groupId>
-              <artifactId>syncope-common-rest-api</artifactId>
-              <version>${project.version}</version>
-              <type>wadl</type>
-            </artifactItem>
-          </artifactItems>
-        </configuration>
-        <executions>
-          <execution>
-            <phase>process-resources</phase>
-            <goals>
-              <goal>copy</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-              
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>xml-maven-plugin</artifactId>
-        <inherited>true</inherited>
-        <executions>
-          <execution>
-            <phase>prepare-package</phase>
-            <goals>
-              <goal>transform</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <transformationSets>
-            <transformationSet>
-              <dir>${project.build.directory}</dir>
-              <includes>
-                <include>syncope-common-rest-api-${project.version}.wadl</include>
-              </includes>
-              <outputDir>${project.build.directory}/classes/META-INF/resources/doc</outputDir>
-              <stylesheet>${project.build.directory}/classes/wadl2html/identity.xsl</stylesheet>
-              <outputProperties>
-                <outputProperty>
-                  <name>indent</name>
-                  <value>yes</value>
-                </outputProperty>
-              </outputProperties>
-              <fileMappers>
-                <fileMapper implementation="org.codehaus.plexus.components.io.filemappers.RegExpFileMapper">
-                  <pattern>^.*$</pattern>
-                  <replacement>syncope.wadl</replacement>
-                </fileMapper>
-              </fileMappers>
-            </transformationSet>
-            <transformationSet>
-              <dir>${project.build.directory}</dir>
-              <includes>
-                <include>syncope-common-rest-api-${project.version}.wadl</include>
-              </includes>
-              <outputDir>${project.build.directory}/classes/META-INF/resources/doc</outputDir>
-              <stylesheet>${project.build.directory}/classes/wadl2html/index.xsl</stylesheet>
-              <parameters>
-                <parameter>
-                  <name>contextPath</name>
-                  <value>..</value>
-                </parameter>
-              </parameters>
-              <outputProperties>
-                <outputProperty>
-                  <name>indent</name>
-                  <value>yes</value>
-                </outputProperty>
-              </outputProperties>
-              <fileMappers>
-                <fileMapper implementation="org.codehaus.plexus.components.io.filemappers.RegExpFileMapper">
-                  <pattern>^.*$</pattern>
-                  <replacement>index.html</replacement>
-                </fileMapper>
-              </fileMappers>
-            </transformationSet>
-            <transformationSet>
-              <dir>${project.build.directory}</dir>
-              <includes>
-                <include>syncope-common-rest-api-${project.version}.wadl</include>
-              </includes>
-              <outputDir>${project.build.directory}/classes/META-INF/resources/doc</outputDir>
-              <stylesheet>${project.build.directory}/classes/wadl2html/schema.xsl</stylesheet>
-              <parameters>
-                <parameter>
-                  <name>contextPath</name>
-                  <value>..</value>
-                </parameter>
-                <parameter>
-                  <name>schema-position</name>
-                  <value>1</value>
-                </parameter>
-                <parameter>
-                  <name>schema-prefix</name>
-                  <value>syncope1</value>
-                </parameter>
-              </parameters>
-              <outputProperties>
-                <outputProperty>
-                  <name>indent</name>
-                  <value>yes</value>
-                </outputProperty>
-              </outputProperties>
-              <fileMappers>
-                <fileMapper implementation="org.codehaus.plexus.components.io.filemappers.RegExpFileMapper">
-                  <pattern>^.*$</pattern>
-                  <replacement>schema_1_syncope1.html</replacement>
-                </fileMapper>
-              </fileMappers>
-            </transformationSet>
-          </transformationSets>
-        </configuration>
-      </plugin>
-            
+    <plugins>            
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
@@ -267,4 +150,179 @@ under the License.
       </resource>
     </resources>
   </build>
+  
+  <profiles>
+    <profile>
+      <id>offline-wadl</id>
+      
+      <build>
+        <defaultGoal>clean verify</defaultGoal>
+        
+        <plugins>
+          <!-- 1. Fetch offline WADL -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <inherited>false</inherited>
+            <configuration>
+              <outputDirectory>${project.build.directory}</outputDirectory>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>org.apache.syncope.common</groupId>
+                  <artifactId>syncope-common-rest-api</artifactId>
+                  <version>${project.version}</version>
+                  <type>wadl</type>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+            <executions>
+              <execution>
+                <id>fetch-offline-wadl</id>
+                <phase>process-resources</phase>
+                <goals>
+                  <goal>copy</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+              
+          <!-- 2. Transform WADL into 2 HTML pages -->
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>xml-maven-plugin</artifactId>
+            <inherited>true</inherited>
+            <executions>
+              <execution>
+                <id>wadl2html</id>
+                <phase>process-resources</phase>
+                <goals>
+                  <goal>transform</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <transformationSets>
+                <transformationSet>
+                  <dir>${project.build.directory}</dir>
+                  <includes>
+                    <include>syncope-common-rest-api-${project.version}.wadl</include>
+                  </includes>
+                  <outputDir>${project.build.directory}/generated/wadl</outputDir>
+                  <stylesheet>${project.build.directory}/classes/wadl2html/identity.xsl</stylesheet>
+                  <outputProperties>
+                    <outputProperty>
+                      <name>indent</name>
+                      <value>yes</value>
+                    </outputProperty>
+                  </outputProperties>
+                  <fileMappers>
+                    <fileMapper implementation="org.codehaus.plexus.components.io.filemappers.RegExpFileMapper">
+                      <pattern>^.*$</pattern>
+                      <replacement>syncope.wadl</replacement>
+                    </fileMapper>
+                  </fileMappers>
+                </transformationSet>
+                <transformationSet>
+                  <dir>${project.build.directory}</dir>
+                  <includes>
+                    <include>syncope-common-rest-api-${project.version}.wadl</include>
+                  </includes>
+                  <outputDir>${project.build.directory}/generated/wadl</outputDir>
+                  <stylesheet>${project.build.directory}/classes/wadl2html/index.xsl</stylesheet>
+                  <parameters>
+                    <parameter>
+                      <name>contextPath</name>
+                      <value>..</value>
+                    </parameter>
+                  </parameters>
+                  <outputProperties>
+                    <outputProperty>
+                      <name>indent</name>
+                      <value>yes</value>
+                    </outputProperty>
+                  </outputProperties>
+                  <fileMappers>
+                    <fileMapper implementation="org.codehaus.plexus.components.io.filemappers.RegExpFileMapper">
+                      <pattern>^.*$</pattern>
+                      <replacement>index.html</replacement>
+                    </fileMapper>
+                  </fileMappers>
+                </transformationSet>
+                <transformationSet>
+                  <dir>${project.build.directory}</dir>
+                  <includes>
+                    <include>syncope-common-rest-api-${project.version}.wadl</include>
+                  </includes>
+                  <outputDir>${project.build.directory}/generated/wadl</outputDir>
+                  <stylesheet>${project.build.directory}/classes/wadl2html/schema.xsl</stylesheet>
+                  <parameters>
+                    <parameter>
+                      <name>contextPath</name>
+                      <value>..</value>
+                    </parameter>
+                    <parameter>
+                      <name>schema-position</name>
+                      <value>1</value>
+                    </parameter>
+                    <parameter>
+                      <name>schema-prefix</name>
+                      <value>syncope1</value>
+                    </parameter>
+                  </parameters>
+                  <outputProperties>
+                    <outputProperty>
+                      <name>indent</name>
+                      <value>yes</value>
+                    </outputProperty>
+                  </outputProperties>
+                  <fileMappers>
+                    <fileMapper implementation="org.codehaus.plexus.components.io.filemappers.RegExpFileMapper">
+                      <pattern>^.*$</pattern>
+                      <replacement>schema_1_syncope1.html</replacement>
+                    </fileMapper>
+                  </fileMappers>
+                </transformationSet>
+              </transformationSets>
+            </configuration>
+          </plugin>
+          
+          <!-- 3. Fix external references -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <inherited>true</inherited>
+            <executions>
+              <execution>
+                <id>fix-html-ext-refs</id>
+                <phase>process-resources</phase>
+                <configuration>
+                  <target>
+                    <replace file="${project.build.directory}/generated/wadl/index.html"
+                             token="../webjars/jquery/${jquery.version}/jquery.min.js"
+                             value="https://code.jquery.com/jquery-${jquery.version}.min.js"/>
+                    <replace file="${project.build.directory}/generated/wadl/index.html"
+                             token="../webjars/jquery-ui/${jquery-ui.version}/jquery-ui.min.js"
+                             value="http://code.jquery.com/ui/${jquery-ui.version}/jquery-ui.min.js"/>
+                    <replace file="${project.build.directory}/generated/wadl/index.html"
+                             token="../webjars/jquery-ui-themes/${jquery-ui.version}/smoothness/jquery-ui.min.css"
+                             value="https://code.jquery.com/ui/${jquery-ui.version}/themes/smoothness/jquery-ui.css"/>      
+
+                    <replace file="${project.build.directory}/generated/wadl/schema_1_syncope1.html"
+                             token="../webjars/highlightjs/${highlightjs.version}/highlight.min.js"
+                             value="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/${highlightjs.version}/highlight.min.js"/>
+                    <replace file="${project.build.directory}/generated/wadl/schema_1_syncope1.html"
+                             token="../webjars/highlightjs/${highlightjs.version}/styles/default.min.css"
+                             value="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/${highlightjs.version}/styles/default.min.css"/>      
+                  </target>
+                </configuration>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>
