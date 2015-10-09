@@ -363,7 +363,7 @@ under the License.
     <h2.version>1.4.189</h2.version>
 
     <junit.version>4.12</junit.version>
-    <selenium.version>2.47.2</selenium.version>
+    <selenium.version>2.48.0</selenium.version>
 
     <conf.directory>${project.build.directory}/test-classes</conf.directory>
     <bundles.directory>${project.build.directory}/bundles</bundles.directory>
