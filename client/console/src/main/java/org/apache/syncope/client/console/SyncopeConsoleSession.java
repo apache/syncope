@@ -100,7 +100,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
 
         version = ctx.getBean("version", String.class);
 
-        SyncopeClient anonymousClient = clientFactory.create(anonymousUser, anonymousKey);
+        SyncopeClient anonymousClient = clientFactory.setUseCompression(true).create(anonymousUser, anonymousKey);
         syncopeTO = anonymousClient.getService(SyncopeService.class).info();
         domains = new ArrayList<>();
         domains.add(SyncopeConstants.MASTER_DOMAIN);
@@ -139,7 +139,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
         boolean authenticated = false;
 
         try {
-            client = clientFactory.setDomain(getDomain()).create(username, password);
+            client = clientFactory.setDomain(getDomain()).setUseCompression(true).create(username, password);
 
             Pair<Map<String, Set<String>>, UserTO> self = client.self();
             auth = self.getKey();

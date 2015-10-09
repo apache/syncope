@@ -74,6 +74,8 @@ public class SyncopeClientFactoryBean {
 
     private String domain;
 
+    private boolean useCompression;
+
     private RestClientFactoryBean restClientFactoryBean;
 
     protected JacksonJaxbJsonProvider defaultJsonProvider() {
@@ -197,6 +199,21 @@ public class SyncopeClientFactoryBean {
         return this;
     }
 
+    /**
+     * Sets the given service instance for transparent gzip <tt>Content-Encoding</tt> handling.
+     *
+     * @param useCompression whether transparent gzip <tt>Content-Encoding</tt> handling is to be enabled
+     * @return the current instance
+     */
+    public SyncopeClientFactoryBean setUseCompression(final boolean useCompression) {
+        this.useCompression = useCompression;
+        return this;
+    }
+
+    public boolean isUseCompression() {
+        return useCompression;
+    }
+
     public RestClientFactoryBean getRestClientFactoryBean() {
         return restClientFactoryBean == null
                 ? defaultRestClientFactoryBean()
@@ -218,6 +235,7 @@ public class SyncopeClientFactoryBean {
                 getRestClientFactoryBean(),
                 getExceptionMapper(),
                 username,
-                password);
+                password,
+                useCompression);
     }
 }

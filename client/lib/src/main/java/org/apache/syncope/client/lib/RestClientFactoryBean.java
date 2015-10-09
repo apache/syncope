@@ -20,11 +20,16 @@ package org.apache.syncope.client.lib;
 
 import javax.ws.rs.core.MediaType;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.cxf.jaxrs.client.Client;
+import org.apache.cxf.jaxrs.client.ClientConfiguration;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.cxf.transport.common.gzip.GZIPInInterceptor;
+import org.apache.cxf.transport.common.gzip.GZIPOutInterceptor;
+import org.apache.cxf.transport.http.URLConnectionHTTPConduit;
 
 /**
- * Provides shortcuts for creating JAX-RS service instances via CXF's <tt>JAXRSClientFactoryBean</tt>.
+ * Provides shortcuts for creating JAX-RS service instances via CXF's {@link JAXRSClientFactoryBean}.
  */
 public class RestClientFactoryBean extends JAXRSClientFactoryBean {
 
@@ -39,7 +44,7 @@ public class RestClientFactoryBean extends JAXRSClientFactoryBean {
      * @return anonymous service instance of the given reference class
      */
     public <T> T createServiceInstance(final Class<T> serviceClass, final MediaType mediaType) {
-        return createServiceInstance(serviceClass, mediaType, null, null);
+        return createServiceInstance(serviceClass, mediaType, null, null, false);
     }
 
     /**
@@ -50,10 +55,15 @@ public class RestClientFactoryBean extends JAXRSClientFactoryBean {
      * @param mediaType XML or JSON are supported
      * @param username username for REST authentication
      * @param password password for REST authentication
+     * @param useCompression whether transparent gzip <tt>Content-Encoding</tt> handling is to be enabled
      * @return anonymous service instance of the given reference class
      */
     public <T> T createServiceInstance(
-            final Class<T> serviceClass, final MediaType mediaType, final String username, final String password) {
+            final Class<T> serviceClass,
+            final MediaType mediaType,
+            final String username,
+            final String password,
+            final boolean useCompression) {
 
         if (StringUtils.isNotBlank(username)) {
             setUsername(username);
@@ -61,11 +71,21 @@ public class RestClientFactoryBean extends JAXRSClientFactoryBean {
         if (StringUtils.isNotBlank(password)) {
             setPassword(password);
         }
+
         setServiceClass(serviceClass);
-        final T serviceInstance = create(serviceClass);
-        WebClient.client(serviceInstance).type(mediaType).accept(mediaType);
-        WebClient.getConfig(WebClient.client(serviceInstance)).
-                getRequestContext().put(HEADER_SPLIT_PROPERTY, true);
+        T serviceInstance = create(serviceClass);
+
+        Client client = WebClient.client(serviceInstance);
+        client.type(mediaType).accept(mediaType);
+
+        ClientConfiguration config = WebClient.getConfig(client);
+        config.getRequestContext().put(HEADER_SPLIT_PROPERTY, true);
+        config.getRequestContext().put(URLConnectionHTTPConduit.HTTPURL_CONNECTION_METHOD_REFLECTION, true);
+        if (useCompression) {
+            config.getInInterceptors().add(new GZIPInInterceptor());
+            config.getOutInterceptors().add(new GZIPOutInterceptor());
+        }
+
         return serviceInstance;
     }
 }

@@ -30,7 +30,6 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.client.WebClient;
-import org.apache.cxf.transport.http.URLConnectionHTTPConduit;
 import org.apache.syncope.client.lib.builders.AnyQueryBuilder;
 import org.apache.syncope.client.lib.builders.AnyListQueryBuilder;
 import org.apache.syncope.client.lib.builders.AnySearchQueryBuilder;
@@ -61,17 +60,21 @@ public class SyncopeClient {
 
     private final String password;
 
+    private final boolean useCompression;
+
     public SyncopeClient(
             final MediaType mediaType,
             final RestClientFactoryBean restClientFactory,
             final RestClientExceptionMapper exceptionMapper,
-            final String username, final String password) {
+            final String username, final String password,
+            final boolean useCompression) {
 
         this.mediaType = mediaType;
         this.restClientFactory = restClientFactory;
         this.exceptionMapper = exceptionMapper;
         this.username = username;
         this.password = password;
+        this.useCompression = useCompression;
     }
 
     /**
@@ -169,10 +172,7 @@ public class SyncopeClient {
      */
     public <T> T getService(final Class<T> serviceClass) {
         synchronized (restClientFactory) {
-            T service = restClientFactory.createServiceInstance(serviceClass, mediaType, username, password);
-            WebClient.getConfig(WebClient.client(service)).getRequestContext().
-                    put(URLConnectionHTTPConduit.HTTPURL_CONNECTION_METHOD_REFLECTION, true);
-            return service;
+            return restClientFactory.createServiceInstance(serviceClass, mediaType, username, password, useCompression);
         }
     }
 

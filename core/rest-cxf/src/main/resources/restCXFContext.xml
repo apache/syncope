@@ -76,6 +76,12 @@ under the License.
     <property name="provider" ref="validationProvider"/>
   </bean>   
   
+  <bean id="gzipInInterceptor" class="org.apache.cxf.transport.common.gzip.GZIPInInterceptor"/>
+  <bean id="gzipOutInterceptor" class="org.apache.cxf.transport.common.gzip.GZIPOutInterceptor">
+    <property name="threshold" value="0"/>
+    <property name="force" value="true"/>
+  </bean>
+  
   <bean id="searchContextProvider" class="org.apache.cxf.jaxrs.ext.search.SearchContextProvider"/>
     
   <bean id="addDomainFilter" class="org.apache.syncope.core.rest.cxf.AddDomainFilter"/>
@@ -114,9 +120,11 @@ under the License.
       <entry key="convert.wadl.resources.to.dom" value="false"/>
     </jaxrs:properties> 
     <jaxrs:inInterceptors>
+      <ref bean="gzipInInterceptor"/>
       <ref bean="validationInInterceptor"/>
     </jaxrs:inInterceptors>         
     <jaxrs:outInterceptors>
+      <ref bean="gzipOutInterceptor"/>
       <ref bean="validationOutInterceptor"/>
     </jaxrs:outInterceptors>
     <jaxrs:providers>
