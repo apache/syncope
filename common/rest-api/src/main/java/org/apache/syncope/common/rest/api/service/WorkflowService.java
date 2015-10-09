@@ -31,7 +31,7 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 
 /**
- * REST operations for workflow definition management.
+ * REST operations for workflow definition.
  */
 @Path("workflows/{anyTypeKind}")
 public interface WorkflowService extends JAXRSService {

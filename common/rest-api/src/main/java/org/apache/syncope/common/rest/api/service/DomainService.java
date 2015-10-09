@@ -62,7 +62,7 @@ public interface DomainService extends JAXRSService {
      * Creates a new domain.
      *
      * @param domainTO domain to be created
-     * @return <tt>Response</tt> object featuring <tt>Location</tt> header of created domain
+     * @return Response object featuring Location header of created domain
      */
     @POST
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })

@@ -19,6 +19,8 @@
 package org.apache.syncope.core.rest.cxf;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URL;
 import java.rmi.ServerException;
 import java.util.HashMap;
@@ -29,18 +31,33 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.MediaType;
 import org.apache.cocoon.pipeline.CachingPipeline;
 import org.apache.cocoon.pipeline.Pipeline;
 import org.apache.cocoon.sax.SAXPipelineComponent;
 import org.apache.cocoon.sax.component.XMLGenerator;
 import org.apache.cocoon.sax.component.XMLSerializer;
 import org.apache.cocoon.sax.component.XSLTTransformer;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public class WADLServlet extends HttpServlet {
 
     private static final long serialVersionUID = -6737005675471095560L;
 
     private static final Pattern SCHEMA_PATTERN = Pattern.compile("/schema_(.*)_(.*)\\.html");
+
+    protected void finish(final Pipeline<SAXPipelineComponent> pipeline, final HttpServletResponse response)
+            throws ServletException, IOException {
+
+        pipeline.addComponent(XMLSerializer.createHTML4Serializer());
+        pipeline.setup(response.getOutputStream());
+        try {
+            pipeline.execute();
+        } catch (Exception e) {
+            throw new ServletException(e);
+        }
+    }
 
     /**
      * Handles the HTTP <code>GET</code> method.
@@ -54,15 +71,13 @@ public class WADLServlet extends HttpServlet {
     protected void doGet(final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException {
 
-        String requestURI = request.getRequestURI().substring(
-                request.getRequestURI().indexOf(request.getServletPath()) + request.getServletPath().length());
-        Matcher schemaMatcher = SCHEMA_PATTERN.matcher(requestURI);
+        Matcher schemaMatcher = SCHEMA_PATTERN.matcher(request.getServletPath());
 
         Pipeline<SAXPipelineComponent> pipeline = new CachingPipeline<>();
-        final String wadlURL = request.getRequestURL().
-                substring(0, request.getRequestURL().indexOf("/doc")) + "/?_wadl";
+        String wadlURL = StringUtils.substringBeforeLast(request.getRequestURL().toString(), "/")
+                + "/rest/?_wadl";
         pipeline.addComponent(new XMLGenerator(new URL(wadlURL)));
-        if ("/".equals(requestURI)) {
+        if ("/index.html".equals(request.getServletPath())) {
             XSLTTransformer xslt = new XSLTTransformer(getClass().getResource("/wadl2html/index.xsl"));
 
             Map<String, Object> parameters = new HashMap<>();
@@ -70,6 +85,8 @@ public class WADLServlet extends HttpServlet {
             xslt.setParameters(parameters);
 
             pipeline.addComponent(xslt);
+
+            finish(pipeline, response);
         } else if (schemaMatcher.matches()) {
             XSLTTransformer xslt = new XSLTTransformer(getClass().getResource("/wadl2html/schema.xsl"));
 
@@ -80,16 +97,21 @@ public class WADLServlet extends HttpServlet {
             xslt.setParameters(parameters);
 
             pipeline.addComponent(xslt);
+
+            finish(pipeline, response);
+        } else if ("/syncope.wadl".equals(request.getServletPath())) {
+            response.setContentType(MediaType.APPLICATION_XML);
+
+            InputStream in = new URL(wadlURL).openStream();
+            OutputStream out = response.getOutputStream();
+            try {
+                IOUtils.copy(in, out);
+            } finally {
+                IOUtils.closeQuietly(in);
+                IOUtils.closeQuietly(out);
+            }
         } else {
             throw new ServerException("URL not supported: " + request.getRequestURI());
-        }
-
-        pipeline.addComponent(XMLSerializer.createHTML4Serializer());
-        pipeline.setup(response.getOutputStream());
-        try {
-            pipeline.execute();
-        } catch (Exception e) {
-            throw new ServletException(e);
         }
     }
 

@@ -43,8 +43,7 @@ public class CamelRouteServiceImpl extends AbstractServiceImpl implements CamelR
     }
 
     @Override
-    public void update(final String key, final CamelRouteTO route) {
-        route.setKey(key);
+    public void update(final CamelRouteTO route) {
         logic.update(route);
     }
 

@@ -77,7 +77,7 @@ under the License.
   </bean>   
   
   <bean id="searchContextProvider" class="org.apache.cxf.jaxrs.ext.search.SearchContextProvider"/>
-  
+    
   <bean id="addDomainFilter" class="org.apache.syncope.core.rest.cxf.AddDomainFilter"/>
   <bean id="addETagFilter" class="org.apache.syncope.core.rest.cxf.AddETagFilter"/>
   
@@ -92,6 +92,20 @@ under the License.
     <property name="javaDocPath" value="/WEB-INF/lib/syncope-common-rest-api-${syncope.version}-javadoc.jar"/>
   </bean>
   
+  <bean id="swagger2Feature" class="org.apache.syncope.core.rest.cxf.SyncopeSwagger2Feature">
+    <property name="title" value="Apache Syncope"/>
+    <property name="version" value="${syncope.version}"/>
+    <property name="description" value="Apache Syncope ${syncope.version}"/>    
+    <property name="contact" value="dev@syncope.apache.org"/>    
+    
+    <property name="resourcePackage" value="org.apache.syncope.common.rest.api.service"/>
+    <property name="scanAllResources" value="true"/>
+    
+    <property name="dynamicBasePath" value="true"/>
+    <property name="replaceTags" value="true"/>
+    <property name="javaDocPath" value="/WEB-INF/lib/syncope-common-rest-api-${syncope.version}-javadoc.jar"/>
+  </bean>
+
   <jaxrs:server id="restContainer" address="/"
                 basePackages="org.apache.syncope.common.rest.api.service, org.apache.syncope.core.rest.cxf.service" 
                 staticSubresourceResolution="true">
@@ -114,6 +128,9 @@ under the License.
       <ref bean="addETagFilter"/>
       <ref bean="wadlGenerator"/>
     </jaxrs:providers>
+    <jaxrs:features>
+      <ref bean="swagger2Feature"/>
+    </jaxrs:features>
     <jaxrs:extensionMappings>
       <entry key="json" value="application/json;charset=UTF-8"/>
       <entry key="xml" value="application/xml;charset=UTF-8"/>

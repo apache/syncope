@@ -435,10 +435,6 @@ ORYX.Editor.createByUrl = function(modelUrl){"/>
     <profile>
       <id>jrebel</id>
       
-      <properties>
-        <javaagent>-javaagent:${env.REBEL_HOME}/jrebel.jar</javaagent>
-      </properties>
-      
       <build>
         <defaultGoal>clean verify cargo:run</defaultGoal>
 
@@ -451,7 +447,69 @@ ORYX.Editor.createByUrl = function(modelUrl){"/>
               <classpath>
                 <fallback>default</fallback>
                 <resources>
-                  <resource/>
+                  <resource>
+                    <directory>${basedir}/../../common/lib/target/classes</directory>
+                  </resource>
+                  <resource>
+                    <directory>${basedir}/../../common/rest-api/target/classes</directory>
+                  </resource>
+                  <resource>
+                    <directory>${basedir}/../../core/logic/target/classes</directory>
+                    <excludes>
+                      <exclude>*Context.xml</exclude>
+                    </excludes>
+                  </resource>
+                  <resource>
+                    <directory>${basedir}/../../core/rest-cxf/target/classes</directory>
+                    <excludes>
+                      <exclude>*Context.xml</exclude>
+                    </excludes>
+                  </resource>
+                  <resource>
+                    <directory>${basedir}/../../core/misc/target/classes</directory>
+                    <excludes>
+                      <exclude>*Context.xml</exclude>
+                    </excludes>
+                  </resource>
+                  <resource>
+                    <directory>${basedir}/../../core/persistence-api/target/classes</directory>
+                  </resource>
+                  <resource>
+                    <directory>${basedir}/../../core/persistence-jpa/target/classes</directory>
+                    <excludes>
+                      <exclude>*Context.xml</exclude>
+                    </excludes>
+                  </resource>
+                  <resource>
+                    <directory>${basedir}/../../core/provisioning-api/target/classes</directory>
+                  </resource>
+                  <resource>
+                    <directory>${basedir}/../../core/provisioning-java/target/classes</directory>
+                    <excludes>
+                      <exclude>*Context.xml</exclude>
+                    </excludes>
+                  </resource>
+                  <resource>
+                    <directory>${basedir}/../../core/workflow-api/target/classes</directory>
+                  </resource>
+                  <resource>
+                    <directory>${basedir}/../../core/workflow-java/target/classes</directory>
+                    <excludes>
+                      <exclude>*Context.xml</exclude>
+                    </excludes>
+                  </resource>
+                  <resource>
+                    <directory>${basedir}/../../core/workflow-activiti/target/classes</directory>
+                    <excludes>
+                      <exclude>*Context.xml</exclude>
+                    </excludes>
+                  </resource>
+                  <resource>
+                    <directory>${basedir}/../../ext/camel/provisioning-camel/target/classes</directory>
+                    <excludes>
+                      <exclude>*Context.xml</exclude>
+                    </excludes>
+                  </resource>
                   <resource>
                     <directory>${basedir}/../../client/console/target/classes</directory>
                   </resource>
@@ -463,7 +521,6 @@ ORYX.Editor.createByUrl = function(modelUrl){"/>
               
               <web>
                 <resources>
-                  <resource/>
                   <resource>
                     <target>/</target>
                     <directory>${basedir}/../../client/console/target/classes/META-INF/resources/</directory>
@@ -496,8 +553,8 @@ ORYX.Editor.createByUrl = function(modelUrl){"/>
               <configuration>
                 <properties>
                   <cargo.jvmargs>-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n
-                    -noverify ${javaagent} -Drebel.spring_plugin=true 
-                    -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:MaxPermSize=256m</cargo.jvmargs>
+                    -noverify -javaagent:${env.REBEL_HOME}/jrebel.jar -Drebel.spring_plugin=true
+                    -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:MaxPermSize=512m</cargo.jvmargs>
                 </properties>
               </configuration>
             </configuration>

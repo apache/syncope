@@ -142,7 +142,7 @@ public interface ConnectorService extends JAXRSService {
      * Creates a new connector instance.
      *
      * @param connInstanceTO connector instance to be created
-     * @return <tt>Response</tt> object featuring <tt>Location</tt> header of created connector instance
+     * @return Response object featuring Location header of created connector instance
      */
     @POST
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
@@ -168,6 +168,8 @@ public interface ConnectorService extends JAXRSService {
     void delete(@NotNull @PathParam("key") Long key);
 
     /**
+     * Checks whether the connection to resource could be established.
+     *
      * @param connInstanceTO connector instance to be used for connection check
      */
     @POST

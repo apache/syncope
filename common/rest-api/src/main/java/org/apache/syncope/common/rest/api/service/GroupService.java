@@ -33,7 +33,7 @@ import org.apache.syncope.common.lib.to.GroupTO;
 public interface GroupService extends AnyService<GroupTO, GroupPatch> {
 
     /**
-     * This method is similar to <tt>read()</tt>, but uses different authentication handling to ensure that a user
+     * This method is similar to read() but uses different authentication handling to ensure that a user
      * can read his own groups.
      *
      * @return own groups

@@ -67,32 +67,29 @@ public interface PolicyService extends JAXRSService {
      * Create a new policy.
      *
      * @param policyTO Policy to be created (needs to match type)
-     * @param <T> response type (extending PolicyTO)
-     * @return <tt>Response</tt> object featuring <tt>Location</tt> header of created policy
+     * @return Response object featuring Location header of created policy
      */
     @POST
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    <T extends AbstractPolicyTO> Response create(@NotNull T policyTO);
+    Response create(@NotNull AbstractPolicyTO policyTO);
 
     /**
      * Updates policy matching the given key.
      *
      * @param policyTO Policy to replace existing policy
-     * @param <T> response type (extending PolicyTO)
      */
     @PUT
     @Path("{key}")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    <T extends AbstractPolicyTO> void update(@NotNull T policyTO);
+    void update(@NotNull AbstractPolicyTO policyTO);
 
     /**
      * Delete policy matching the given key.
      *
      * @param key key of policy to be deleted
-     * @param <T> response type (extending PolicyTO)
      */
     @DELETE
     @Path("{key}")
-    <T extends AbstractPolicyTO> void delete(@NotNull @PathParam("key") Long key);
+    void delete(@NotNull @PathParam("key") Long key);
 
 }

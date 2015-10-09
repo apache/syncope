@@ -110,8 +110,8 @@ public interface AnyService<TO extends AnyTO, P extends AnyPatch> extends JAXRSS
      * Creates a new any object.
      *
      * @param anyTO any object to be created
-     * @return <tt>Response</tt> object featuring <tt>Location</tt> header of created any object as well as the any
-     * object itself enriched with propagation status information - <tt>AnyTO</tt> as <tt>Entity</tt>
+     * @return Response object featuring Location header of created any object as well as the any
+     * object itself enriched with propagation status information - AnyTO as Entity
      */
     @POST
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
@@ -122,8 +122,8 @@ public interface AnyService<TO extends AnyTO, P extends AnyPatch> extends JAXRSS
      * Updates any object matching the provided key.
      *
      * @param anyPatch modification to be applied to any object matching the provided key
-     * @return <tt>Response</tt> object featuring the updated any object enriched with propagation status information
-     * - <tt>AnyTO</tt> as <tt>Entity</tt>
+     * @return Response object featuring the updated any object enriched with propagation status information
+     * - AnyTO as Entity
      */
     @PATCH
     @Path("{key}")
@@ -137,7 +137,7 @@ public interface AnyService<TO extends AnyTO, P extends AnyPatch> extends JAXRSS
      * @param key any object key
      * @param schemaType schema type
      * @param attrTO attribute
-     * @return <tt>Response</tt> object featuring the updated any object attribute - <tt>AttrTO</tt> as <tt>Entity</tt>
+     * @return Response object featuring the updated any object attribute - as Entity
      */
     @PUT
     @Path("{key}/{schemaType}/{schema}")
@@ -152,8 +152,8 @@ public interface AnyService<TO extends AnyTO, P extends AnyPatch> extends JAXRSS
      * Updates any object matching the provided key.
      *
      * @param anyTO complete update
-     * @return <tt>Response</tt> object featuring the updated any object enriched with propagation status information
-     * - <tt>AnyTO</tt> as <tt>Entity</tt>
+     * @return Response object featuring the updated any object enriched with propagation status information
+     * - AnyTO as Entity
      */
     @PUT
     @Path("{key}")
@@ -181,8 +181,8 @@ public interface AnyService<TO extends AnyTO, P extends AnyPatch> extends JAXRSS
      * Deletes any object matching provided key.
      *
      * @param key key of any object to be deleted
-     * @return <tt>Response</tt> object featuring the deleted any object enriched with propagation status information
-     * - <tt>AnyTO</tt> as <tt>Entity</tt>
+     * @return Response object featuring the deleted any object enriched with propagation status information
+     * - AnyTO as Entity
      */
     @DELETE
     @Path("{key}")
@@ -194,7 +194,7 @@ public interface AnyService<TO extends AnyTO, P extends AnyPatch> extends JAXRSS
      * Executes resource-related operations on given any object.
      *
      * @param patch external resources to be used for propagation-related operations
-     * @return <tt>Response</tt> object featuring <tt>BulkActionResult</tt> as <tt>Entity</tt>
+     * @return Response object featuring BulkActionResult as Entity
      */
     @POST
     @Path("{key}/deassociate/{action}")
@@ -206,7 +206,7 @@ public interface AnyService<TO extends AnyTO, P extends AnyPatch> extends JAXRSS
      * Executes resource-related operations on given any object.
      *
      * @param patch external resources to be used for propagation-related operations
-     * @return <tt>Response</tt> object featuring <tt>BulkActionResult</tt> as <tt>Entity</tt>
+     * @return Response object featuring BulkActionResult as Entity
      */
     @POST
     @Path("{key}/associate/{action}")

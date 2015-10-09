@@ -58,6 +58,7 @@ under the License.
   
   <modules>
     <module>camel</module>
+    <module>swagger-ui</module>
   </modules>
 
 </project>

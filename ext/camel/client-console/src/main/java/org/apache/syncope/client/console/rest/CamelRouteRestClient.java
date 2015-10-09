@@ -41,7 +41,7 @@ public class CamelRouteRestClient extends BaseRestClient {
     public void update(final String key, final String content) {
         CamelRouteTO routeTO = read(key);
         routeTO.setContent(content);
-        getService(CamelRouteService.class).update(key, routeTO);
+        getService(CamelRouteService.class).update(routeTO);
     }
 
     public boolean isCamelEnabledFor(final AnyTypeKind anyTypeKind) {

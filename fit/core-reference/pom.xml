@@ -730,6 +730,141 @@ under the License.
     </profile>
     
     <profile>
+      <id>jrebel</id>
+
+      <properties>
+        <skipTests>true</skipTests>
+      </properties>
+
+      <build>
+        <defaultGoal>clean verify cargo:run</defaultGoal>
+
+        <plugins>
+          <plugin>
+            <groupId>org.zeroturnaround</groupId>
+            <artifactId>jrebel-maven-plugin</artifactId>
+            <inherited>true</inherited>
+            <configuration>
+              <classpath>
+                <fallback>default</fallback>
+                <resources>
+                  <resource>
+                    <directory>${basedir}/../../common/lib/target/classes</directory>
+                  </resource>
+                  <resource>
+                    <directory>${basedir}/../../common/rest-api/target/classes</directory>
+                  </resource>
+                  <resource>
+                    <directory>${basedir}/../../core/logic/target/classes</directory>
+                    <excludes>
+                      <exclude>*Context.xml</exclude>
+                    </excludes>
+                  </resource>
+                  <resource>
+                    <directory>${basedir}/../../core/rest-cxf/target/classes</directory>
+                    <excludes>
+                      <exclude>*Context.xml</exclude>
+                    </excludes>
+                  </resource>
+                  <resource>
+                    <directory>${basedir}/../../core/misc/target/classes</directory>
+                    <excludes>
+                      <exclude>*Context.xml</exclude>
+                    </excludes>
+                  </resource>
+                  <resource>
+                    <directory>${basedir}/../../core/persistence-api/target/classes</directory>
+                  </resource>
+                  <resource>
+                    <directory>${basedir}/../../core/persistence-jpa/target/classes</directory>
+                    <excludes>
+                      <exclude>*Context.xml</exclude>
+                    </excludes>
+                  </resource>
+                  <resource>
+                    <directory>${basedir}/../../core/provisioning-api/target/classes</directory>
+                  </resource>
+                  <resource>
+                    <directory>${basedir}/../../core/provisioning-java/target/classes</directory>
+                    <excludes>
+                      <exclude>*Context.xml</exclude>
+                    </excludes>
+                  </resource>
+                  <resource>
+                    <directory>${basedir}/../../core/workflow-api/target/classes</directory>
+                  </resource>
+                  <resource>
+                    <directory>${basedir}/../../core/workflow-java/target/classes</directory>
+                    <excludes>
+                      <exclude>*Context.xml</exclude>
+                    </excludes>
+                  </resource>
+                  <resource>
+                    <directory>${basedir}/../../core/workflow-activiti/target/classes</directory>
+                    <excludes>
+                      <exclude>*Context.xml</exclude>
+                    </excludes>
+                  </resource>
+                  <resource>
+                    <directory>${basedir}/../../ext/camel/provisioning-camel/target/classes</directory>
+                    <excludes>
+                      <exclude>*Context.xml</exclude>
+                    </excludes>
+                  </resource>
+                </resources>
+              </classpath>
+    
+              <web>
+                <resources>
+                  <resource>
+                    <target>/</target>
+                    <directory>${basedir}/../../ext/swagger-ui/target/classes/META-INF/resources</directory>
+                  </resource>
+                </resources>
+              </web>
+              
+              <alwaysGenerate>true</alwaysGenerate>
+            </configuration>
+            <executions>
+              <execution>
+                <id>generate-rebel-xml</id>
+                <phase>process-resources</phase>
+                <goals>
+                  <goal>generate</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+
+          <plugin>
+            <groupId>org.codehaus.cargo</groupId>
+            <artifactId>cargo-maven2-plugin</artifactId>
+            <inherited>true</inherited>
+            <configuration>
+              <configuration>
+                <properties>
+                  <cargo.jvmargs>-Xdebug -Djaxb.debug=true -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n
+                    -noverify -javaagent:${env.REBEL_HOME}/jrebel.jar -Drebel.spring_plugin=true         
+                    -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:MaxPermSize=512m</cargo.jvmargs>
+                </properties>
+              </configuration>
+            </configuration>
+            <executions>
+              <execution>
+                <id>start-container</id>
+                <phase>none</phase>
+              </execution>
+              <execution>
+                <id>stop-container</id>
+                <phase>none</phase>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
       <id>skipTests</id>
 
       <dependencies>
@@ -811,6 +946,12 @@ under the License.
           <artifactId>syncope-ext-camel-provisioning</artifactId>
           <version>${project.version}</version>
         </dependency>
+        
+        <dependency>
+          <groupId>org.apache.syncope.ext</groupId>
+          <artifactId>syncope-ext-swagger-ui</artifactId>
+          <version>${project.version}</version>
+        </dependency>
       </dependencies>
       
       <build>
@@ -846,7 +987,7 @@ under the License.
                 </transformationSet>
               </transformationSets>
             </configuration>
-          </plugin>
+          </plugin>                    
         </plugins>
         
         <resources>
