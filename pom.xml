@@ -330,7 +330,7 @@ under the License.
 
     <camel.version>2.16.0</camel.version>	
 
-    <jackson.version>2.6.2</jackson.version>
+    <jackson.version>2.6.3</jackson.version>
 
     <spring.version>4.2.1.RELEASE</spring.version>
     <spring-security.version>4.0.2.RELEASE</spring-security.version>
@@ -341,7 +341,7 @@ under the License.
 
     <jasypt.version>1.9.2</jasypt.version>
 
-    <quartz.version>2.2.1</quartz.version>
+    <quartz.version>2.2.2</quartz.version>
 
     <cocoon.version>3.0.0-alpha-3</cocoon.version>
 
@@ -350,7 +350,7 @@ under the License.
     <activiti.version>5.18.0</activiti.version>
 
     <slf4j.version>1.7.12</slf4j.version>
-    <log4j.version>2.4</log4j.version>
+    <log4j.version>2.4.1</log4j.version>
     <disruptor.version>3.3.2</disruptor.version>
 
     <commons-io.version>2.4</commons-io.version>
