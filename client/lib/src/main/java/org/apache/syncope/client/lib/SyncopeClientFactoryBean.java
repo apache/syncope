@@ -225,10 +225,23 @@ public class SyncopeClientFactoryBean {
         return this;
     }
 
-    public SyncopeClient createAnonymous() {
+    /**
+     * Builds client instance with no authentication, for user self-registration and related queries (schema,
+     * resources, ...).
+     *
+     * @return client instance with no authentication
+     */
+    public SyncopeClient create() {
         return create(null, null);
     }
 
+    /**
+     * Builds client instance with the given credentials.
+     *
+     * @param username username
+     * @param password password
+     * @return client instance with the given credentials
+     */
     public SyncopeClient create(final String username, final String password) {
         return new SyncopeClient(
                 getContentType().getMediaType(),

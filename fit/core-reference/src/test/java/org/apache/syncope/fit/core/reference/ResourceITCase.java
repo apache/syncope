@@ -511,7 +511,7 @@ public class ResourceITCase extends AbstractITCase {
 
     @Test
     public void anonymous() {
-        ResourceService unauthenticated = clientFactory.createAnonymous().getService(ResourceService.class);
+        ResourceService unauthenticated = clientFactory.create().getService(ResourceService.class);
         try {
             unauthenticated.list();
             fail();

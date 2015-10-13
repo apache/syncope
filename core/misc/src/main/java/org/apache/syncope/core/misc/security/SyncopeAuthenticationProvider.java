@@ -98,7 +98,7 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
         }
         SyncopeAuthenticationDetails.class.cast(authentication.getDetails()).setDomain(domainKey);
 
-        boolean authenticated;
+        Boolean authenticated;
         if (anonymousUser.equals(authentication.getName())) {
             authenticated = authentication.getCredentials().toString().equals(anonymousKey);
         } else if (adminUser.equals(authentication.getName())) {
@@ -133,7 +133,7 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
                         }
                     });
             authenticated = authResult.getValue();
-            if (!authenticated) {
+            if (authenticated != null && !authenticated) {
                 AuthContextUtils.execWithAuthContext(domainKey, new Executable<Void>() {
 
                     @Override
@@ -145,7 +145,7 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
             }
         }
 
-        final boolean isAuthenticated = authenticated;
+        final boolean isAuthenticated = authenticated != null && authenticated;
         UsernamePasswordAuthenticationToken token;
         if (isAuthenticated) {
             token = AuthContextUtils.execWithAuthContext(

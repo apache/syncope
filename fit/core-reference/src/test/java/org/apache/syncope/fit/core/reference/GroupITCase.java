@@ -584,7 +584,7 @@ public class GroupITCase extends AbstractITCase {
 
     @Test
     public void anonymous() {
-        GroupService unauthenticated = clientFactory.createAnonymous().getService(GroupService.class);
+        GroupService unauthenticated = clientFactory.create().getService(GroupService.class);
         try {
             unauthenticated.
                     list(SyncopeClient.getAnySearchQueryBuilder().realm(SyncopeConstants.ROOT_REALM).build());
