@@ -19,6 +19,7 @@
 package org.apache.syncope.fit.core.reference;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -76,17 +77,15 @@ public class ConfigurationITCase extends AbstractITCase {
         AttrTO tokenLength = configurationService.get("token.length");
 
         configurationService.delete("token.length");
-        try {
-            configurationService.get("token.length");
-            fail("The delete operation should throw an exception because token.length does not exist anymore");
-        } catch (SyncopeClientException e) {
-            assertEquals(Response.Status.NOT_FOUND, e.getType().getResponseStatus());
-        }
+
+        AttrTO actual = configurationService.get(tokenLength.getSchema());
+        assertNotEquals(actual, tokenLength);
 
         configurationService.set(tokenLength);
 
-        AttrTO actual = configurationService.get(tokenLength.getSchema());
+        actual = configurationService.get(tokenLength.getSchema());
         assertEquals(actual, tokenLength);
+
     }
 
     @Test
