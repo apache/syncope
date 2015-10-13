@@ -69,6 +69,14 @@ public class ConfigurationController extends AbstractTransactionalController<Con
 
     @PreAuthorize("hasRole('CONFIGURATION_DELETE')")
     public void delete(final String key) {
+        
+        final CAttr conf = confDAO.find(key);
+        if (conf == null) {
+            final CSchema schema = schemaDAO.find(key, CSchema.class);
+            if (schema == null) {
+                throw new NotFoundException("Configuration key " + key);
+            }
+        }
         confDAO.delete(key);
     }
 

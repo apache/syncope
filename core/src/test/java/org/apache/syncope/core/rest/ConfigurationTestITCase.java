@@ -71,6 +71,7 @@ public class ConfigurationTestITCase extends AbstractTest {
     public void delete() throws UnsupportedEncodingException {
         try {
             configurationService.delete("nonExistent");
+            fail("The delete operation should throw an exception because of nonExistent schema");
         } catch (SyncopeClientException e) {
             assertEquals(Response.Status.NOT_FOUND, e.getType().getResponseStatus());
         }
@@ -80,6 +81,7 @@ public class ConfigurationTestITCase extends AbstractTest {
         configurationService.delete("token.length");
         try {
             configurationService.read("token.length");
+            fail("The delete operation should throw an exception because token.length does not exist anymore");
         } catch (SyncopeClientException e) {
             assertEquals(Response.Status.NOT_FOUND, e.getType().getResponseStatus());
         }
