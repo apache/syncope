@@ -44,7 +44,8 @@ Apache Syncope {docVersion} is verified with the following Java EE containers:
 
 Apache Syncope {docVersion} is verified with the recent versions of the following DBMSes, for internal storage:
 
- . http://www.mysql.com/[MySQL^]
+ . http://www.postgresql.org/[PostgreSQL^]
  . https://mariadb.org/[MariaDB^]
+ . http://www.mysql.com/[MySQL^]
  . https://www.oracle.com/database/index.html[Oracle Database^]
  . http://www.microsoft.com/en-us/server-cloud/products/sql-server/[MS SQL Server^]

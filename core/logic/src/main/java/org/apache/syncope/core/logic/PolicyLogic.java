@@ -65,7 +65,7 @@ public class PolicyLogic extends AbstractTransactionalLogic<AbstractPolicyTO> {
     public PasswordPolicyTO update(final PasswordPolicyTO policyTO) {
         Policy policy = policyDAO.find(policyTO.getKey());
         if (!(policy instanceof PasswordPolicy)) {
-            throw new NotFoundException("PasswordPolicy with id " + policyTO.getKey());
+            throw new NotFoundException("PasswordPolicy with key " + policyTO.getKey());
         }
 
         return update(policyTO, policy);
@@ -75,7 +75,7 @@ public class PolicyLogic extends AbstractTransactionalLogic<AbstractPolicyTO> {
     public AccountPolicyTO update(final AccountPolicyTO policyTO) {
         Policy policy = policyDAO.find(policyTO.getKey());
         if (!(policy instanceof AccountPolicy)) {
-            throw new NotFoundException("AccountPolicy with id " + policyTO.getKey());
+            throw new NotFoundException("AccountPolicy with key " + policyTO.getKey());
         }
 
         return update(policyTO, policy);
@@ -85,7 +85,7 @@ public class PolicyLogic extends AbstractTransactionalLogic<AbstractPolicyTO> {
     public SyncPolicyTO update(final SyncPolicyTO policyTO) {
         Policy policy = policyDAO.find(policyTO.getKey());
         if (!(policy instanceof SyncPolicy)) {
-            throw new NotFoundException("SyncPolicy with id " + policyTO.getKey());
+            throw new NotFoundException("SyncPolicy with key " + policyTO.getKey());
         }
 
         return update(policyTO, policy);
@@ -103,20 +103,20 @@ public class PolicyLogic extends AbstractTransactionalLogic<AbstractPolicyTO> {
     }
 
     @PreAuthorize("hasRole('" + Entitlement.POLICY_READ + "')")
-    public <T extends AbstractPolicyTO> T read(final Long id) {
-        Policy policy = policyDAO.find(id);
+    public <T extends AbstractPolicyTO> T read(final Long key) {
+        Policy policy = policyDAO.find(key);
         if (policy == null) {
-            throw new NotFoundException("Policy " + id + " not found");
+            throw new NotFoundException("Policy " + key + " not found");
         }
 
         return binder.getPolicyTO(policy);
     }
 
     @PreAuthorize("hasRole('" + Entitlement.POLICY_DELETE + "')")
-    public <T extends AbstractPolicyTO> T delete(final Long id) {
-        Policy policy = policyDAO.find(id);
+    public <T extends AbstractPolicyTO> T delete(final Long key) {
+        Policy policy = policyDAO.find(key);
         if (policy == null) {
-            throw new NotFoundException("Policy " + id + " not found");
+            throw new NotFoundException("Policy " + key + " not found");
         }
 
         T policyToDelete = binder.getPolicyTO(policy);
@@ -129,21 +129,21 @@ public class PolicyLogic extends AbstractTransactionalLogic<AbstractPolicyTO> {
     protected AbstractPolicyTO resolveReference(final Method method, final Object... args)
             throws UnresolvedReferenceException {
 
-        Long id = null;
+        Long key = null;
 
         if (ArrayUtils.isNotEmpty(args)) {
-            for (int i = 0; id == null && i < args.length; i++) {
+            for (int i = 0; key == null && i < args.length; i++) {
                 if (args[i] instanceof Long) {
-                    id = (Long) args[i];
+                    key = (Long) args[i];
                 } else if (args[i] instanceof AbstractPolicyTO) {
-                    id = ((AbstractPolicyTO) args[i]).getKey();
+                    key = ((AbstractPolicyTO) args[i]).getKey();
                 }
             }
         }
 
-        if ((id != null) && !id.equals(0L)) {
+        if ((key != null) && !key.equals(0L)) {
             try {
-                return binder.getPolicyTO(policyDAO.find(id));
+                return binder.getPolicyTO(policyDAO.find(key));
             } catch (Throwable ignore) {
                 LOG.debug("Unresolved reference", ignore);
                 throw new UnresolvedReferenceException(ignore);

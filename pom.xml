@@ -1364,6 +1364,7 @@ under the License.
                 import java.text.MessageFormat
                 def year = MessageFormat.format("{0,date,yyyy}", new Date()) 
                 project.properties['year'] = year
+                project.properties['snapshotOrRelease'] = project.version.endsWith("SNAPSHOT") ? "snapshot": "release"
                 project.properties['licenseUrl'] = project.parent.licenses[0].url
               </source>
             </configuration>
@@ -1537,31 +1538,7 @@ under the License.
       <build>
         <defaultGoal>clean generate-resources</defaultGoal>
         
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-antrun-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>copy-doc-images</id>
-                <goals>
-                  <goal>run</goal>
-                </goals>
-                <phase>generate-resources</phase>
-                <configuration>
-                  <target>
-                    <copy todir="${project.build.directory}/generated-docs/images">
-                      <fileset dir="${rootpom.basedir}/src/main/asciidoc/getting-started/images"/>
-                    </copy>
-                    <copy todir="${project.build.directory}/generated-docs/images">
-                      <fileset dir="${rootpom.basedir}/src/main/asciidoc/reference-guide/images"/>
-                    </copy>
-                  </target>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-          
+        <plugins>          
           <plugin>
             <groupId>org.asciidoctor</groupId>
             <artifactId>asciidoctor-maven-plugin</artifactId>
@@ -1576,9 +1553,10 @@ under the License.
             <configuration>
               <doctype>book</doctype>
               <relativeBaseDir>true</relativeBaseDir>
-              <sourceHighlighter>coderay</sourceHighlighter>
+              <sourceHighlighter>highlightjs</sourceHighlighter>
               <attributes>
                 <docVersion>${project.version}</docVersion>
+                <snapshotOrRelease>${snapshotOrRelease}</snapshotOrRelease>
                 <year>${year}</year>
                 <numbered>true</numbered>
                 <icons>font</icons>
@@ -1596,7 +1574,6 @@ under the License.
                   <goal>process-asciidoc</goal>
                 </goals>
                 <configuration>
-                  <sourceDirectory>${basedir}/src/main/asciidoc/getting-started</sourceDirectory>
                   <sourceDocumentName>getting-started.adoc</sourceDocumentName>
                   <backend>html</backend>
                 </configuration>
@@ -1608,7 +1585,6 @@ under the License.
                   <goal>process-asciidoc</goal>
                 </goals>
                 <configuration>
-                  <sourceDirectory>${basedir}/src/main/asciidoc/getting-started</sourceDirectory>
                   <sourceDocumentName>getting-started.adoc</sourceDocumentName>
                   <backend>pdf</backend>
                   <attributes>
@@ -1624,7 +1600,6 @@ under the License.
                   <goal>process-asciidoc</goal>
                 </goals>
                 <configuration>
-                  <sourceDirectory>${basedir}/src/main/asciidoc/reference-guide</sourceDirectory>
                   <sourceDocumentName>reference-guide.adoc</sourceDocumentName>
                   <backend>html</backend>
                 </configuration>
@@ -1636,7 +1611,6 @@ under the License.
                   <goal>process-asciidoc</goal>
                 </goals>
                 <configuration>
-                  <sourceDirectory>${basedir}/src/main/asciidoc/reference-guide</sourceDirectory>
                   <sourceDocumentName>reference-guide.adoc</sourceDocumentName>
                   <backend>pdf</backend>
                   <attributes>
