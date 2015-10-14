@@ -20,32 +20,32 @@
 == Introduction
 
 *Apache Syncope* is an Open Source system for managing digital identities in enterprise environments, implemented in 
-Java EE technology and released under Apache 2.0 license. 
+Java EE technology and released under the Apache 2.0 license. 
 
-*Identity management* (or IdM) represents the joint result of business process and IT to manage user data on systems and 
-applications. IdM involves considering user attributes, roles, resources and entitlements in trying to give a decent 
-answer to the question bumping up every time in an IT administrator's mind:
+*Identity Management* (or IdM) means to manage user data on systems and applications, using the combination of
+business processes and IT. IdM involves considering user attributes, roles, resources and entitlements in trying to answer the
+following thorny question:
 
 [.text-center]
 _Who has access to What, When, How, and Why?_ 
 
-=== What is this Identity Management, anyway?
+=== What is Identity Management, anyway?
 
 ****
-Account:: Computers work with records of data about persons. Such records contains technical information needed by the system for 
+Account:: Computers work with records of data about people. Such records contain technical information needed by the system for 
 which the account is created and managed.
 (Digital) Identity:: A representation of a set of claims made by one digital subject about itself. *It's you!*
 ****
 
-Have you ever been hired by a company, entered an organization or just subscribed a new Google account?
+Have you ever been hired by a company, entered an organization or just created a new Google account?
 Companies, organizations and cloud entities work with applications that need your data to function properly: 
 username, password, e-mail, first name, surname, and more.
 
-Who is going to feed such information? And what happens when you need to be enabled for more applications? And what if
+Where is this information going to come from? And what happens when you need to be enabled for more applications? And what if
 you get promoted and acquire more rights on the applications you already had access to?
 Most important, what happens when you quit or they gently let you go?
 
-Shortly, Identity Management takes care of managing identity data throughout what is called the *Identity Lifecycle*.
+In brief, Identity Management takes care of managing identity data throughout what is called the *Identity Lifecycle*.
 
 [.text-center]
 image::identityLifecycle.png[title="Identity Lifecycle",alt="Identity Lifecycle",width="505",height="324"]
@@ -53,34 +53,34 @@ image::identityLifecycle.png[title="Identity Lifecycle",alt="Identity Lifecycle"
 .Users, groups and any objects
 ****
 With Apache Syncope 2.0.0, the managed identities are not limited anymore to users and groups. New object types can be
-defined so that any object's data can be managed through Syncope: workstations, printers, folders, sensors, services,
-and so on. This positions Apache Syncope at best places for bringing Identity Management in the IoT world.
+defined so that any objects data can be managed through Syncope: workstations, printers, folders, sensors, services,
+and so on. This positions Apache Syncope at the forefront for bringing Identity Management in the IoT world.
 ****
 
-=== Bird's eye view on Architecture
+=== A bird's eye view on the Architecture of Apache Syncope
 
-*_Core_* is the central component, providing all services offered by Apache Syncope. +
-It exposes a full-compliant https://en.wikipedia.org/wiki/Java_API_for_RESTful_Web_Services[JAX-RS 2.0^] 
+ * *_Core_* is the central component, providing all services offered by Apache Syncope. +
+It exposes a fully-compliant https://en.wikipedia.org/wiki/Java_API_for_RESTful_Web_Services[JAX-RS 2.0^] 
 https://en.wikipedia.org/wiki/Representational_state_transfer[RESTful^] interface which enables third-party applications,
 written in any programming language, to consume IdM services.
 
  * *_Logic_* implements the overall business logic that can be triggered via REST services, and controls some additional
 features (notifications, reports and audit over all)
- * *_Provisioning_* is delegated to manage the internal (via workflow) and external (via specific connectors) 
+ * *_Provisioning_* is involved with managing the internal (via workflow) and external (via specific connectors) 
 representation of users, groups and any objects. +
-Being the crucial decision point for defining and enforcing the consistency and transformations between internal and
-external data, this component needs often to be tailored on requirements of specific deployment. For this reason, besides
-the all-Java default implementation that can be anyway extended, an http://camel.apache.org/[Apache Camel^]-based 
-implementation is also available as extension, which brings all the power of runtime changes and adaptation.
- * *_Workflow_*  is one of pluggable aspects: this lets every deployment choose the preferred engine
-among provided - including the one based on http://www.activiti.org/[Activiti BPM^], the reference open source 
+This component often needs to be tailored to meet the requirements of a specific deployment, as it is the crucial decision 
+point for defining and enforcing the consistency and transformations between internal and external data. The default
+all-Java implementation can be extended for this purpose. In addition, an http://camel.apache.org/[Apache Camel^]-based 
+implementation is also available as an extension, which brings all the power of runtime changes and adaptation.
+ * *_Workflow_*  is one of the pluggable aspects of Apache Syncope: this lets every deployment choose the preferred engine
+from a provided list - including the one based on http://www.activiti.org/[Activiti BPM^], the reference open source 
 http://www.bpmn.org/[BPMN 2.0^] implementation - or define new, custom ones. 
- * *_Persistence_* manages all data (users, groups, attributes, resources, ...) at high level 
-using a standard https://en.wikipedia.org/wiki/Java_Persistence_API[JPA 2.0^] approach, persisting to an underlying 
-database, referred as the *_Internal Storage_*. Consistency is ensured via the comprehensive
+ * *_Persistence_* manages all data (users, groups, attributes, resources, ...) at a high level 
+using a standard https://en.wikipedia.org/wiki/Java_Persistence_API[JPA 2.0^] approach. The data is persisted to an underlying 
+database, referred to as *_Internal Storage_*. Consistency is ensured via the comprehensive
 http://docs.spring.io/spring/docs/4.1.x/spring-framework-reference/html/transaction.html[transaction management^] 
 provided by the Spring Framework. +
-Globally, all this permits to scale up to million entities and at the same time allows great portability with no code 
+Globally, this offers the ability to easily scale up to a million entities and at the same time allows great portability with no code 
 changes: MySQL, MariaDB, PostgreSQL, Oracle and MS SQL Server are fully supported deployment options.
  * *_Security_* defines a fine-grained set of entitlements which can be granted to administrators, thus allowing to
 implement real delegated administration scenarios.

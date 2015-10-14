@@ -49,8 +49,8 @@ New contributors are always welcome!
 
 [discrete] 
 == Preface
-This guide provides comprehensive reference to Apache Syncope services for identity management, provisioning, and 
-compliance.
+This reference guide covers Apache Syncope services for identity management,
+provisioning, and compliance.
 
 == Introduction
 
