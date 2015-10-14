@@ -24,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.cli.Command;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.client.cli.SyncopeServices;
+import org.apache.syncope.client.cli.messages.UsageMessages;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AbstractSchemaTO;
 import org.apache.syncope.common.lib.to.DerSchemaTO;
@@ -43,6 +44,9 @@ public class SchemaCommand extends AbstractCommand {
             + "  Options:\n"
             + "    --help \n"
             + "    --list-all\n"
+            + "    --list-plain\n"
+            + "    --list-derived\n"
+            + "    --list-virtual\n"
             + "    --list {SCHEMA-TYPE}\n"
             + "       Schema type: PLAIN / DERIVED / VIRTUAL";
 
@@ -63,11 +67,13 @@ public class SchemaCommand extends AbstractCommand {
         final SchemaService schemaService = SyncopeServices.get(SchemaService.class);
         switch (Options.fromName(input.getOption())) {
             case LIST:
-                final String listErrorMessage = "Usage: schema --list {SCHEMA-TYPE}\n"
-                        + "   Schema type: PLAIN / DERIVED / VIRTUAL";
+                final String listErrorMessage = UsageMessages.optionCommandMessage(
+                        "schema --list {SCHEMA-TYPE}\n"
+                        + "   Schema type: PLAIN / DERIVED / VIRTUAL");
                 if (parameters.length == 1) {
                     try {
                         final SchemaType schemaType = SchemaType.valueOf(input.firstParameter());
+                        System.out.println("");
                         for (final AbstractSchemaTO schemaTO : schemaService.list(schemaType)) {
                             switch (schemaType) {
                                 case PLAIN:
@@ -87,14 +93,16 @@ public class SchemaCommand extends AbstractCommand {
                                     break;
                             }
                         }
+                        System.out.println("");
                     } catch (final SyncopeClientException ex) {
-                        System.out.println(" - Error: " + ex.getMessage());
+                        UsageMessages.printErrorMessage(ex.getMessage());
                     } catch (final IllegalArgumentException ex) {
-                        System.out.println(" - Error: " + input.firstParameter()
-                                + " isn't a valid schema type, try with:");
+                        UsageMessages.printErrorMessage(
+                                input.firstParameter() + " isn't a valid schema type, try with:");
                         for (final SchemaType type : SchemaType.values()) {
                             System.out.println("  *** " + type.name());
                         }
+                        System.out.println("");
                     }
                 } else {
                     System.out.println(listErrorMessage);
@@ -103,23 +111,64 @@ public class SchemaCommand extends AbstractCommand {
             case LIST_ALL:
                 try {
                     for (final SchemaType value : SchemaType.values()) {
-                        System.out.println("Schemas for " + value);
+                        System.out.println("");
+                        System.out.println(value + " schemas");
                         for (final AbstractSchemaTO schemaTO : schemaService.list(value)) {
                             System.out.println("   - Name: " + schemaTO.getKey() + " type: "
                                     + schemaTO.getAnyTypeClass());
                         }
+                        System.out.println("");
                     }
                 } catch (final SyncopeClientException | WebServiceException ex) {
-                    System.out.println(" - Error: " + ex.getMessage());
+                    UsageMessages.printErrorMessage(ex.getMessage());
+                }
+                break;
+            case LIST_PLAIN:
+                try {
+                    System.out.println("");
+                    for (final AbstractSchemaTO schemaTO : schemaService.list(SchemaType.PLAIN)) {
+                        System.out.println(" - Schema key: " + ((PlainSchemaTO) schemaTO).getKey());
+                        System.out.println("      type: " + ((PlainSchemaTO) schemaTO).getType());
+                        System.out.println("      is mandatory: "
+                                + ((PlainSchemaTO) schemaTO).getMandatoryCondition());
+                    }
+                    System.out.println("");
+                } catch (final SyncopeClientException | WebServiceException ex) {
+                    UsageMessages.printErrorMessage(ex.getMessage());
+                }
+                break;
+            case LIST_DERIVED:
+                try {
+                    System.out.println("");
+                    for (final AbstractSchemaTO schemaTO : schemaService.list(SchemaType.DERIVED)) {
+                        System.out.println(" - Schema key: " + ((DerSchemaTO) schemaTO).getKey());
+                        System.out.println("      expression: " + ((DerSchemaTO) schemaTO).getExpression());
+                    }
+                    System.out.println("");
+                } catch (final SyncopeClientException | WebServiceException ex) {
+                    UsageMessages.printErrorMessage(ex.getMessage());
+                }
+                break;
+            case LIST_VIRTUAL:
+                try {
+                    System.out.println("");
+                    for (final AbstractSchemaTO schemaTO : schemaService.list(SchemaType.VIRTUAL)) {
+                        System.out.println(" - Schema key: " + ((VirSchemaTO) schemaTO).getKey());
+                    }
+                    System.out.println("");
+                } catch (final SyncopeClientException | WebServiceException ex) {
+                    UsageMessages.printErrorMessage(ex.getMessage());
                 }
                 break;
             case READ:
-                final String readErrorMessage = "Usage: schema --read {SCHEMA-TYPE} {SCHEMA-KEY}\n"
-                        + "   Schema type: PLAIN / DERIVED / VIRTUAL";
+                final String readErrorMessage = UsageMessages.optionCommandMessage(
+                        "schema --read {SCHEMA-TYPE} {SCHEMA-KEY}\n"
+                        + "   Schema type: PLAIN / DERIVED / VIRTUAL");
                 if (parameters.length >= 2) {
                     parameters = Arrays.copyOfRange(parameters, 1, parameters.length);
                     try {
                         final SchemaType schemaType = SchemaType.valueOf(input.firstParameter());
+                        System.out.println("");
                         for (final String parameter : parameters) {
                             final AbstractSchemaTO schemaTO = schemaService.read(schemaType, parameter);
                             switch (schemaType) {
@@ -159,20 +208,24 @@ public class SchemaCommand extends AbstractCommand {
                                 default:
                                     break;
                             }
+                            System.out.println("");
                         }
                     } catch (final SyncopeClientException | WebServiceException ex) {
                         if (ex.getMessage().startsWith("NotFound")) {
-                            System.out.println(" - Schema " + parameters[0] + " doesn't exists!");
+                            UsageMessages.printErrorMessage(
+                                    "Schema " + parameters[0] + " doesn't exists!");
                         } else if (ex.getMessage().startsWith("DataIntegrityViolation")) {
-                            System.out.println(" - You cannot delete schema " + parameters[0]);
+                            UsageMessages.printErrorMessage("You cannot delete schema " + parameters[0]);
                         } else {
-                            System.out.println(ex.getMessage());
+                            UsageMessages.printErrorMessage(ex.getMessage());
                         }
                     } catch (final IllegalArgumentException ex) {
-                        System.out.println(" - Error: " + parameters[0] + " isn't a valid schema type, try with:");
+                        UsageMessages.printErrorMessage(
+                                parameters[0] + " isn't a valid schema type, try with:");
                         for (final SchemaType type : SchemaType.values()) {
                             System.out.println("  *** " + type.name());
                         }
+                        System.out.println("");
                     }
                 } else {
                     System.out.println(readErrorMessage);
@@ -190,17 +243,21 @@ public class SchemaCommand extends AbstractCommand {
                         }
                     } catch (final SyncopeClientException | WebServiceException ex) {
                         if (ex.getMessage().startsWith("NotFound")) {
-                            System.out.println(" - Schema " + parameters[0] + " doesn't exists!");
+                            UsageMessages.printErrorMessage(
+                                    "Schema " + parameters[0] + " doesn't exists!");
                         } else if (ex.getMessage().startsWith("DataIntegrityViolation")) {
-                            System.out.println(" - You cannot delete schema " + parameters[0]);
+                            UsageMessages.printErrorMessage(
+                                    "You cannot delete schema " + parameters[0]);
                         } else {
-                            System.out.println(ex.getMessage());
+                            UsageMessages.printErrorMessage(ex.getMessage());
                         }
                     } catch (final IllegalArgumentException ex) {
-                        System.out.println(" - Error: " + parameters[0] + " isn't a valid schema type, try with:");
+                        UsageMessages.printErrorMessage(
+                                parameters[0] + " isn't a valid schema type, try with:");
                         for (final SchemaType type : SchemaType.values()) {
                             System.out.println("  *** " + type.name());
                         }
+                        System.out.println("");
                     }
                 } else {
                     System.out.println(deleteErrorMessage);
@@ -221,6 +278,9 @@ public class SchemaCommand extends AbstractCommand {
         HELP("--help"),
         LIST("--list"),
         LIST_ALL("--list-all"),
+        LIST_PLAIN("--list-plain"),
+        LIST_DERIVED("--list-derived"),
+        LIST_VIRTUAL("--list-virtual"),
         READ("--read"),
         DELETE("--delete");
 
