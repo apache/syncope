@@ -22,7 +22,7 @@ public final class UsageMessages {
 
     private static final String OPTION_COMMAND_MESSAGE_TEMPLATE = "\n - Usage: %s\n";
 
-    public static final String optionCommandMessage(final String message) {
+    public static String optionCommandMessage(final String message) {
         return String.format(OPTION_COMMAND_MESSAGE_TEMPLATE, message);
     }
 

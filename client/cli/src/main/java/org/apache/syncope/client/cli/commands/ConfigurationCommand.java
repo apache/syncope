@@ -18,192 +18,298 @@
  */
 package org.apache.syncope.client.cli.commands;
 
-import com.beust.jcommander.DynamicParameter;
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.Parameters;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.SequenceInputStream;
-import java.util.HashMap;
-import java.util.Map;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
+import javax.xml.ws.WebServiceException;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.cli.Command;
+import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.client.cli.SyncopeServices;
+import org.apache.syncope.client.cli.messages.UsageMessages;
 import org.apache.syncope.client.cli.util.XMLUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.ConfTO;
 import org.apache.syncope.common.rest.api.service.ConfigurationService;
-import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
-@Parameters(
-        commandNames = "config",
-        optionPrefixes = "-",
-        separators = "=",
-        commandDescription = "Apache Syncope configuration service")
+@Command(name = "configuration")
 public class ConfigurationCommand extends AbstractCommand {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConfigurationCommand.class);
 
     private static final String EXPORT_FILE_NAME = "/content.xml";
 
-    private final String helpMessage = "Usage: config [options]\n"
+    private static final String HELP_MESSAGE = "Usage: config [options]\n"
             + "  Options:\n"
-            + "    -h, --help \n"
-            + "    -l, --list \n"
-            + "    -r, --read \n"
-            + "       Syntax: -r={CONF-NAME} \n"
-            + "    -u, --update \n"
-            + "       Syntax: {CONF-NAME}={CONF-VALUE} \n"
-            + "    -c, --create \n"
-            + "       Syntax: {CONF-NAME}={CONF-VALUE} \n"
-            + "    -d, --delete \n"
-            + "       Syntax: -d={CONF-NAME}"
-            + "    -v, --validators \n"
-            + "    -mt, --mail-templates \n"
-            + "    -e, --export \n"
-            + "       Syntax: -e={WHERE-DIR} \n";
-
-    @Parameter(names = { "-r", "--read" })
-    private String confNameToRead;
-
-    @DynamicParameter(names = { "-u", "--update" })
-    private final Map<String, String> updateConf = new HashMap<>();
-
-    @DynamicParameter(names = { "-c", "--create" })
-    private final Map<String, String> createConf = new HashMap<>();
-
-    @Parameter(names = { "-d", "--delete" })
-    private String confNameToDelete;
-
-    @Parameter(names = { "-v", "--validators" })
-    private boolean validators = false;
-
-    @Parameter(names = { "-mt", "--mail-templates" })
-    private boolean mailTemplates = false;
-
-    @Parameter(names = { "-e", "--export" })
-    private String export;
+            + "    --help \n"
+            + "    --list \n"
+            + "    --read \n"
+            + "       Syntax: --read {CONF-NAME} {CONF-NAME} [...] \n"
+            + "    --update \n"
+            + "       Syntax: --update {CONF-NAME}={CONF-VALUE} {CONF-NAME}={CONF-VALUE} [...]\n"
+            + "    --create \n"
+            + "       Syntax: --create {CONF-NAME}={CONF-VALUE} {CONF-NAME}={CONF-VALUE} [...]\n"
+            + "    --delete \n"
+            + "       Syntax: --delete {CONF-NAME} {CONF-NAME} [...]\n"
+            + "    --export \n"
+            + "       Syntax: --export {WHERE-DIR}";
 
     @Override
-    public void execute() {
-        final SyncopeService syncopeService = SyncopeServices.get(SyncopeService.class);
-        final ConfigurationService configurationService = SyncopeServices.get(ConfigurationService.class);
-
+    public void execute(final Input input) {
         LOG.debug("Logger service successfully created");
+        LOG.debug("Option: {}", input.getOption());
+        LOG.debug("Parameters:");
+        for (final String parameter : input.getParameters()) {
+            LOG.debug("   > " + parameter);
+        }
 
-        if (help) {
-            LOG.debug("- configuration help command");
-            System.out.println(helpMessage);
-        } else if (list) {
-            LOG.debug("- configuration list command");
-            try {
-                final ConfTO confTO = configurationService.list();
-                for (final AttrTO attrTO : confTO.getPlainAttrMap().values()) {
-                    System.out.println(" - Conf " + attrTO.getSchema() + " has value(s) " + attrTO.getValues()
-                            + " - readonly: " + attrTO.isReadonly());
-                }
-            } catch (final SyncopeClientException ex) {
-                System.out.println(" - Error: " + ex.getMessage());
-            }
-        } else if (StringUtils.isNotBlank(confNameToRead)) {
-            LOG.debug("- configuration read {} command", confNameToRead);
-            try {
-                final AttrTO attrTO = configurationService.get(confNameToRead);
-                System.out.println(" - Conf " + attrTO.getSchema() + " has value(s) " + attrTO.getValues()
-                        + " - readonly: " + attrTO.isReadonly());
-            } catch (final SyncopeClientException ex) {
-                System.out.println(" - Error: " + ex.getMessage());
-            }
-        } else if (!updateConf.isEmpty()) {
-            LOG.debug("- configuration update command with params {}", updateConf);
-            try {
-                for (final Map.Entry<String, String> entrySet : updateConf.entrySet()) {
-                    final AttrTO attrTO = configurationService.get(entrySet.getKey());
-                    attrTO.getValues().clear();
-                    attrTO.getValues().add(entrySet.getValue());
-                    configurationService.set(attrTO);
-                    System.out.println(" - Conf " + attrTO.getSchema() + " has value(s) " + attrTO.getValues()
-                            + " - readonly: " + attrTO.isReadonly());
-                }
-            } catch (final SyncopeClientException ex) {
-                System.out.println(" - Error: " + ex.getMessage());
-            }
-        } else if (!createConf.isEmpty()) {
-            LOG.debug("- configuration create command with params {}", createConf);
-            try {
-                for (final Map.Entry<String, String> entrySet : createConf.entrySet()) {
-                    final AttrTO attrTO = new AttrTO();
-                    attrTO.setSchema(entrySet.getKey());
-                    attrTO.getValues().add(entrySet.getValue());
-                    configurationService.set(attrTO);
-                    System.out.println(" - Conf " + attrTO.getSchema() + " created with value(s) " + attrTO.getValues()
-                            + " - readonly: " + attrTO.isReadonly());
-                }
-            } catch (final SyncopeClientException ex) {
-                System.out.println(" - Error: " + ex.getMessage());
-            }
-        } else if (StringUtils.isNotBlank(confNameToDelete)) {
-            try {
-                LOG.debug("- configuration delete {} command", confNameToDelete);
-                configurationService.delete(confNameToDelete);
-                System.out.println(" - Conf " + confNameToDelete + " deleted!");
-            } catch (final SyncopeClientException ex) {
-                System.out.println(" - Error: " + ex.getMessage());
-            }
-        } else if (validators) {
-            LOG.debug("- configuration validators command");
-            try {
-                System.out.println("Conf validator class: ");
-                for (final String validator : syncopeService.info().getValidators()) {
-                    System.out.println("  *** " + validator);
-                }
-            } catch (final SyncopeClientException ex) {
-                System.out.println(" - Error: " + ex.getMessage());
-            }
-        } else if (mailTemplates) {
-            LOG.debug("- configuration mailTemplates command");
-            try {
-                System.out.println("Conf mail template for:");
-                for (final String mailTemplate : syncopeService.info().getMailTemplates()) {
-                    System.out.println("  *** " + mailTemplate);
-                }
-            } catch (final SyncopeClientException ex) {
-                System.out.println(" - Error: " + ex.getMessage());
-            }
-        } else if (StringUtils.isNotBlank(export)) {
-            LOG.debug("- configuration export command, directory where xml will be export: {}", export);
+        final String[] parameters = input.getParameters();
 
-            try {
-                XMLUtils.createXMLFile((SequenceInputStream) configurationService.export().getEntity(), export
-                        + EXPORT_FILE_NAME);
-                System.out.println(" - " + export + EXPORT_FILE_NAME + " successfully created");
-            } catch (final IOException ex) {
-                LOG.error("Error creating content.xml file in {} directory", export, ex);
-                System.out.println(" - Error creating " + export + EXPORT_FILE_NAME + " " + ex.getMessage());
-            } catch (final ParserConfigurationException ex) {
-                LOG.error("Error creating content.xml file in {} directory", export, ex);
-                System.out.println(" - Error creating " + export + EXPORT_FILE_NAME + " " + ex.getMessage());
-            } catch (final SAXException ex) {
-                LOG.error("Error creating content.xml file in {} directory", export, ex);
-                System.out.println(" - Error creating " + export + EXPORT_FILE_NAME + " " + ex.getMessage());
-            } catch (final TransformerConfigurationException ex) {
-                LOG.error("Error creating content.xml file in {} directory", export, ex);
-                System.out.println(" - Error creating " + export + EXPORT_FILE_NAME + " " + ex.getMessage());
-            } catch (final TransformerException ex) {
-                LOG.error("Error creating content.xml file in {} directory", export, ex);
-                System.out.println(" - Error creating " + export + EXPORT_FILE_NAME + " " + ex.getMessage());
-            } catch (final SyncopeClientException ex) {
-                LOG.error("Error calling configuration service", ex);
-                System.out.println(" - Error calling configuration service " + ex.getMessage());
-            }
-        } else {
-            System.out.println(helpMessage);
+        if (StringUtils.isBlank(input.getOption())) {
+            input.setOption(Options.HELP.getOptionName());
+        }
+
+        final ConfigurationService configurationService = SyncopeServices.get(ConfigurationService.class);
+        switch (Options.fromName(input.getOption())) {
+            case LIST:
+                try {
+                    final ConfTO confTO = configurationService.list();
+                    System.out.println("\n - Configuration key: " + confTO.getKey());
+                    System.out.println("");
+                    System.out.println("Plain attributes");
+                    for (final AttrTO attrTO : confTO.getPlainAttrMap().values()) {
+                        System.out.println(" - Conf key: " + attrTO.getSchema());
+                        System.out.println("    - value(s): " + attrTO.getValues());
+                        System.out.println("    - readonly: " + attrTO.isReadonly());
+                    }
+                    System.out.println("");
+                    System.out.println("Derived attributes");
+                    for (final AttrTO attrTO : confTO.getDerAttrMap().values()) {
+                        System.out.println(" - Conf key: " + attrTO.getSchema());
+                        System.out.println("    - value(s): " + attrTO.getValues());
+                        System.out.println("    - readonly: " + attrTO.isReadonly());
+                    }
+                    System.out.println("");
+                    System.out.println("Virtual attributes");
+                    for (final AttrTO attrTO : confTO.getVirAttrMap().values()) {
+                        System.out.println(" - Conf key: " + attrTO.getSchema());
+                        System.out.println("    - value(s): " + attrTO.getValues());
+                        System.out.println("    - readonly: " + attrTO.isReadonly());
+                    }
+                    System.out.println("");
+                } catch (final Exception ex) {
+                    UsageMessages.printErrorMessage(ex.getMessage());
+                    break;
+                }
+                break;
+            case READ:
+                final String readErrorMessage = UsageMessages.optionCommandMessage(
+                        "configuration --read {CONF-NAME} {CONF-NAME} [...]");
+                if (parameters.length >= 1) {
+                    AttrTO attrTO;
+                    for (final String parameter : parameters) {
+                        try {
+                            attrTO = configurationService.get(parameter);
+                            System.out.println("\n - Conf key: " + attrTO.getSchema());
+                            System.out.println("    - value(s): " + attrTO.getValues());
+                            System.out.println("    - readonly: " + attrTO.isReadonly());
+                            System.out.println("");
+                        } catch (final SyncopeClientException | WebServiceException ex) {
+                            if (ex.getMessage().startsWith("NotFound")) {
+                                UsageMessages.printErrorMessage("Configuration " + parameters[0] + " doesn't exist!");
+                            } else if (ex.getMessage().startsWith("DataIntegrityViolation")) {
+                                UsageMessages.printErrorMessage("You cannot delete configuration " + parameters[0]);
+                            } else {
+                                UsageMessages.printErrorMessage(ex.getMessage());
+                            }
+                            break;
+                        }
+                    }
+                } else {
+                    System.out.println(readErrorMessage);
+                }
+                break;
+            case UPDATE:
+                final String updateErrorMessage = UsageMessages.optionCommandMessage(
+                        "configuration --update {CONF-NAME}={CONF-VALUE} {CONF-NAME}={CONF-VALUE} [...]");
+                if (parameters.length >= 1) {
+                    Input.PairParameter pairParameter = null;
+                    AttrTO attrTO;
+                    for (final String parameter : parameters) {
+                        try {
+                            pairParameter = input.toPairParameter(parameter);
+                            attrTO = configurationService.get(pairParameter.getKey());
+                            attrTO.getValues().clear();
+                            attrTO.getValues().add(pairParameter.getValue());
+                            configurationService.set(attrTO);
+                            System.out.println("\n - Conf key " + attrTO.getSchema() + " updated. New value is:");
+                            System.out.println("    - value(s): " + attrTO.getValues());
+                            System.out.println("    - readonly: " + attrTO.isReadonly());
+                            System.out.println("");
+                        } catch (final IllegalArgumentException ex) {
+                            UsageMessages.printErrorMessage(ex.getMessage(), updateErrorMessage);
+                            break;
+                        } catch (final SyncopeClientException | WebServiceException ex) {
+                            if (ex.getMessage().startsWith("NotFound")) {
+                                UsageMessages.printErrorMessage(
+                                        "Configuration " + pairParameter.getKey() + " doesn't exist!");
+                            } else if (ex.getMessage().startsWith("InvalidValues")) {
+                                UsageMessages.printErrorMessage(
+                                        pairParameter.getValue() + " is not a valid value for "
+                                        + pairParameter.getKey());
+                            } else if (ex.getMessage().startsWith("DataIntegrityViolation")) {
+                                UsageMessages.printErrorMessage("You cannot delete configuration " + parameters[0]);
+                            } else {
+                                UsageMessages.printErrorMessage(ex.getMessage());
+                            }
+                            break;
+                        }
+                    }
+                } else {
+                    System.out.println(updateErrorMessage);
+                }
+                break;
+            case CREATE:
+                final String createErrorMessage = UsageMessages.optionCommandMessage(
+                        "configuration --create {CONF-NAME}={CONF-VALUE} {CONF-NAME}={CONF-VALUE} [...]");
+                if (parameters.length >= 1) {
+                    Input.PairParameter pairParameter = null;
+                    AttrTO attrTO;
+                    for (final String parameter : parameters) {
+                        try {
+                            pairParameter = input.toPairParameter(parameter);
+                            attrTO = new AttrTO();
+                            attrTO.setSchema(pairParameter.getKey());
+                            attrTO.getValues().add(pairParameter.getValue());
+                            configurationService.set(attrTO);
+                            System.out.println("\n - Conf key " + attrTO.getSchema() + " created. Value is:");
+                            System.out.println("    - value(s): " + attrTO.getValues());
+                            System.out.println("    - readonly: " + attrTO.isReadonly());
+                            System.out.println("");
+                        } catch (final IllegalArgumentException ex) {
+                            UsageMessages.printErrorMessage(ex.getMessage(), createErrorMessage);
+                            break;
+                        } catch (final SyncopeClientException | WebServiceException ex) {
+                            if (ex.getMessage().startsWith("NotFound")) {
+                                UsageMessages.printErrorMessage(
+                                        "Configuration schema "
+                                        + pairParameter.getKey() + " doesn't exist! Create it before.");
+                            } else {
+                                UsageMessages.printErrorMessage(ex.getMessage());
+                            }
+                            break;
+                        }
+                    }
+                } else {
+                    System.out.println(createErrorMessage);
+                }
+                break;
+            case DELETE:
+                final String deleteErrorMessage = UsageMessages.optionCommandMessage(
+                        "configuration --delete {CONF-NAME} {CONF-NAME} [...]");
+                if (parameters.length >= 1) {
+                    for (final String parameter : parameters) {
+                        try {
+                            configurationService.delete(parameter);
+                            System.out.println("\n - Conf " + parameter + " deleted!\n");
+                        } catch (final SyncopeClientException | WebServiceException ex) {
+                            if (ex.getMessage().startsWith("NotFound")) {
+                                UsageMessages.printErrorMessage("Configuration " + parameter + " doesn't exist!");
+                            } else if (ex.getMessage().startsWith("DataIntegrityViolation")) {
+                                UsageMessages.printErrorMessage("You cannot delete configuration", parameter);
+                            } else {
+                                UsageMessages.printErrorMessage(ex.getMessage());
+                            }
+                            break;
+                        }
+                    }
+                } else {
+                    System.out.println(deleteErrorMessage);
+                }
+                break;
+            case EXPORT:
+                final String exportErrorMessage = UsageMessages.optionCommandMessage(
+                        "configuration --export {WHERE-DIR}");
+                if (parameters.length == 1) {
+                    try {
+                        XMLUtils.createXMLFile((SequenceInputStream) configurationService.export().getEntity(),
+                                parameters[0] + EXPORT_FILE_NAME);
+                        System.out.println(" - " + parameters[0] + EXPORT_FILE_NAME + " successfully created");
+                    } catch (final IOException ex) {
+                        UsageMessages.printErrorMessage(ex.getMessage());
+                    } catch (ParserConfigurationException | SAXException | TransformerConfigurationException ex) {
+                        LOG.error("Error creating content.xml file in {} directory", parameters[0], ex);
+                        UsageMessages.printErrorMessage(
+                                "Error creating " + parameters[0] + EXPORT_FILE_NAME + " " + ex.getMessage());
+                        break;
+                    } catch (final TransformerException ex) {
+                        LOG.error("Error creating content.xml file in {} directory", parameters[0], ex);
+                        if (ex.getCause() instanceof FileNotFoundException) {
+                            UsageMessages.printErrorMessage("Permission denied on " + parameters[0]);
+                        } else {
+                            UsageMessages.printErrorMessage(
+                                    "Error creating " + parameters[0] + EXPORT_FILE_NAME + " " + ex.getMessage());
+                        }
+                        break;
+                    } catch (final SyncopeClientException ex) {
+                        LOG.error("Error calling configuration service", ex);
+                        UsageMessages.printErrorMessage("Error calling configuration service " + ex.getMessage());
+                        break;
+                    }
+                } else {
+                    System.out.println(exportErrorMessage);
+                }
+                break;
+            case HELP:
+                System.out.println(HELP_MESSAGE);
+                break;
+            default:
+                System.out.println(input.getOption() + " is not a valid option.");
+                System.out.println("");
+                System.out.println(HELP_MESSAGE);
+                break;
         }
     }
 
+    private enum Options {
+
+        HELP("--help"),
+        LIST("--list"),
+        READ("--read"),
+        UPDATE("--update"),
+        CREATE("--create"),
+        DELETE("--delete"),
+        EXPORT("--export");
+
+        private final String optionName;
+
+        private Options(final String optionName) {
+            this.optionName = optionName;
+        }
+
+        public String getOptionName() {
+            return optionName;
+        }
+
+        public boolean equalsOptionName(final String otherName) {
+            return (otherName == null) ? false : optionName.equals(otherName);
+        }
+
+        public static Options fromName(final String name) {
+            Options optionToReturn = HELP;
+            for (final Options option : Options.values()) {
+                if (option.equalsOptionName(name)) {
+                    optionToReturn = option;
+                }
+            }
+            return optionToReturn;
+        }
+    }
 }

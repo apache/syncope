@@ -18,15 +18,9 @@
  */
 package org.apache.syncope.client.cli.commands;
 
-import com.beust.jcommander.Parameter;
+import org.apache.syncope.client.cli.Input;
 
 public abstract class AbstractCommand {
 
-    @Parameter(names = {"-h", "--help"})
-    protected boolean help = false;
-
-    @Parameter(names = {"-l", "--list"})
-    protected boolean list = false;
-
-    protected abstract void execute();
+    public abstract void execute(final Input input);
 }
