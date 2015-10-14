@@ -297,7 +297,7 @@ public class VirAttrTestITCase extends AbstractTest {
             assertTrue(found);
 
             // create a new user
-            UserTO userTO = UserTestITCase.getUniqueSampleTO("syncope397@syncope.apache.org");
+            UserTO userTO = UserTestITCase.getUniqueSampleTO("397@syncope.apache.org");
             userTO.getResources().clear();
             userTO.getMemberships().clear();
             userTO.getDerAttrs().clear();
@@ -332,7 +332,7 @@ public class VirAttrTestITCase extends AbstractTest {
 
             toBeUpdated = updateUser(userMod);
             assertNotNull(toBeUpdated);
-            assertEquals("test@testoneone.com", toBeUpdated.getVirAttrs().get(0).getValues().get(0));
+            assertTrue(toBeUpdated.getVirAttrs().get(0).getValues().contains("test@testoneone.com"));
             // check if propagates correctly with assertEquals on size of tasks list
             assertEquals(2, toBeUpdated.getPropagationStatusTOs().size());
         } finally {
@@ -640,8 +640,9 @@ public class VirAttrTestITCase extends AbstractTest {
         assertNotNull(userTO);
         // 3. check again after update if membership has virtual attribute populated with new value
         assertNotNull(userTO.getMemberships().get(0).getVirAttrMap().get("mvirtualdata"));
-        assertEquals("syncope458_NEW@syncope.apache.org", userTO.getMemberships().get(0).getVirAttrMap().get(
-                "mvirtualdata").getValues().get(0));
+        assertEquals(
+                "syncope458_NEW@syncope.apache.org",
+                userTO.getMemberships().get(0).getVirAttrMap().get("mvirtualdata").getValues().get(0));
 
         // ----------------------------------------
         // force cache expiring without any modification

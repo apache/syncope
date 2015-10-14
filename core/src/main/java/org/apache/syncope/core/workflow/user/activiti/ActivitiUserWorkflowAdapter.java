@@ -401,8 +401,8 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    protected void doConfirmPasswordReset(final SyncopeUser user, final String token, final String password)
-            throws WorkflowException {
+    protected WorkflowResult<Map.Entry<UserMod, Boolean>> doConfirmPasswordReset(
+            final SyncopeUser user, final String token, final String password) throws WorkflowException {
 
         Map<String, Object> variables = new HashMap<String, Object>(4);
         variables.put(TOKEN, token);
@@ -410,8 +410,20 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         variables.put(USER_TO, userDataBinder.getUserTO(user, true));
         variables.put(EVENT, "confirmPasswordReset");
 
-        doExecuteTask(user, "confirmPasswordReset", variables);
+        Set<String> tasks = doExecuteTask(user, "confirmPasswordReset", variables);
+
         userDAO.save(user);
+
+        PropagationByResource propByRes =
+                runtimeService.getVariable(user.getWorkflowId(), PROP_BY_RESOURCE, PropagationByResource.class);
+        UserMod userMod =
+                runtimeService.getVariable(user.getWorkflowId(), USER_MOD, UserMod.class);
+
+        Boolean propagateEnable = runtimeService.getVariable(user.getWorkflowId(), PROPAGATE_ENABLE, Boolean.class);
+
+        return new WorkflowResult<Map.Entry<UserMod, Boolean>>(
+                new SimpleEntry<UserMod, Boolean>(userMod, propagateEnable), propByRes, tasks);
+
     }
 
     @Override

@@ -24,7 +24,7 @@ import java.util.AbstractMap.SimpleEntry;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.lang3.SerializationUtils;
+import org.apache.syncope.common.mod.StatusMod;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.to.WorkflowFormTO;
@@ -115,13 +115,7 @@ public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     protected WorkflowResult<Map.Entry<UserMod, Boolean>> doUpdate(final SyncopeUser user, final UserMod userMod)
             throws WorkflowException {
 
-        // update password internally only if required
-        UserMod actualMod = SerializationUtils.clone(userMod);
-        if (actualMod.getPwdPropRequest() != null && !actualMod.getPwdPropRequest().isOnSyncope()) {
-            actualMod.setPassword(null);
-        }
-        // update SyncopeUser
-        PropagationByResource propByRes = dataBinder.update(user, actualMod);
+        PropagationByResource propByRes = dataBinder.update(user, userMod);
 
         SyncopeUser updated = userDAO.save(user);
 
@@ -155,16 +149,26 @@ public class NoOpUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    protected void doConfirmPasswordReset(final SyncopeUser user, final String token, final String password)
-            throws WorkflowException {
+    protected WorkflowResult<Map.Entry<UserMod, Boolean>> doConfirmPasswordReset(
+            final SyncopeUser user, final String token, final String password) throws WorkflowException {
 
         if (!user.checkToken(token)) {
             throw new WorkflowException(new IllegalArgumentException("Wrong token: " + token + " for " + user));
         }
 
         user.removeToken();
-        user.setPassword(password, user.getCipherAlgorithm());
-        userDAO.save(user);
+
+        UserMod userMod = new UserMod();
+        userMod.setId(user.getId());
+        userMod.setPassword(password);
+        StatusMod pwdPropRequest = new StatusMod();
+
+        pwdPropRequest.setId(user.getId());
+        pwdPropRequest.setOnSyncope(true);
+        pwdPropRequest.getResourceNames().addAll(user.getResourceNames());
+        userMod.setPwdPropRequest(pwdPropRequest);
+
+        return doUpdate(user, userMod);
     }
 
     @Override

@@ -20,7 +20,6 @@ package org.apache.syncope.core.rest.controller;
 
 import java.lang.reflect.Method;
 import java.security.AccessControlException;
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -41,6 +40,7 @@ import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.common.mod.AttributeMod;
 import org.apache.syncope.common.mod.MembershipMod;
+import org.apache.syncope.common.types.ResourceOperation;
 import org.apache.syncope.common.types.SubjectType;
 import org.apache.syncope.core.persistence.beans.PropagationTask;
 import org.apache.syncope.core.persistence.beans.role.SyncopeRole;
@@ -258,54 +258,44 @@ public class UserController extends AbstractSubjectController<UserTO, UserMod> {
         UserMod actual = attrTransformer.transform(userMod);
         LOG.debug("Transformed: {}", actual);
 
-        // SYNCOPE-501: check if there are memberships to be removed with virtual attributes assigned
-        boolean removeMemberships = false;
+        PropagationByResource propByResVirAttr = new PropagationByResource();
         for (Long membershipId : actual.getMembershipsToRemove()) {
-            if (!binder.fillMembershipVirtual(
+            propByResVirAttr.merge(binder.fillMembershipVirtual(
                     null,
                     null,
                     membershipId,
                     Collections.<String>emptySet(),
                     Collections.<AttributeMod>emptySet(),
-                    true).isEmpty()) {
-
-                removeMemberships = true;
-            }
+                    true));
         }
 
         // Actual operations: workflow, propagation, notification
         WorkflowResult<Map.Entry<UserMod, Boolean>> updated = uwfAdapter.update(actual);
 
-        List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(updated);
-        if (tasks.isEmpty()) {
-            // SYNCOPE-459: take care of user virtual attributes ...
-            PropagationByResource propByResVirAttr = binder.fillVirtual(
+        // SYNCOPE-459: take care of user virtual attributes ...
+        propByResVirAttr.merge(binder.fillVirtual(
+                updated.getResult().getKey().getId(),
+                actual.getVirAttrsToRemove(),
+                actual.getVirAttrsToUpdate()));
+        for (MembershipMod membershipMod : actual.getMembershipsToAdd()) {
+            propByResVirAttr.merge(binder.fillMembershipVirtual(
                     updated.getResult().getKey().getId(),
-                    actual.getVirAttrsToRemove(),
-                    actual.getVirAttrsToUpdate());
-            // SYNCOPE-501: update only virtual attributes (if any of them changed), password propagation is
-            // not required, take care also of membership virtual attributes
-            boolean addOrUpdateMemberships = false;
-            for (MembershipMod membershipMod : actual.getMembershipsToAdd()) {
-                if (!binder.fillMembershipVirtual(
-                        updated.getResult().getKey().getId(),
-                        membershipMod.getRole(),
-                        null,
-                        membershipMod.getVirAttrsToRemove(),
-                        membershipMod.getVirAttrsToUpdate(),
-                        false).isEmpty()) {
-
-                    addOrUpdateMemberships = true;
-                }
-            }
-            tasks.addAll(!propByResVirAttr.isEmpty() || addOrUpdateMemberships || removeMemberships
-                    ? propagationManager.getUserUpdateTaskIds(updated, false, null)
-                    : Collections.<PropagationTask>emptyList());
+                    membershipMod.getRole(),
+                    null,
+                    membershipMod.getVirAttrsToRemove(),
+                    membershipMod.getVirAttrsToUpdate(),
+                    false));
         }
+        if (updated.getPropByRes() == null) {
+            updated.setPropByRes(propByResVirAttr);
+        } else {
+            updated.getPropByRes().merge(propByResVirAttr);
+        }
+
+        List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(updated);
 
         PropagationReporter propagationReporter = ApplicationContextProvider.getApplicationContext().
                 getBean(PropagationReporter.class);
-
         if (!tasks.isEmpty()) {
             try {
                 taskExecutor.execute(tasks, propagationReporter);
@@ -347,19 +337,22 @@ public class UserController extends AbstractSubjectController<UserTO, UserMod> {
     public UserTO status(final StatusMod statusMod) {
         SyncopeUser user = binder.getUserFromId(statusMod.getId());
 
-        WorkflowResult<Long> updated;
         if (statusMod.isOnSyncope()) {
-            updated = setStatusOnWfAdapter(user, statusMod);
-        } else {
-            updated = new WorkflowResult<Long>(user.getId(), null, statusMod.getType().name().toLowerCase());
+            setStatusOnWfAdapter(user, statusMod);
         }
 
-        // Resources to exclude from propagation
-        Set<String> resourcesToBeExcluded = new HashSet<String>(user.getResourceNames());
-        resourcesToBeExcluded.removeAll(statusMod.getResourceNames());
-
-        List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(
-                user, statusMod.getType() != StatusMod.ModType.SUSPEND, resourcesToBeExcluded);
+        PropagationByResource propByRes = new PropagationByResource();
+        propByRes.addAll(ResourceOperation.UPDATE, statusMod.getResourceNames());
+        List<PropagationTask> tasks = propagationManager.getUpdateTaskIds(
+                user, // SyncopeUser to be updated on external resources
+                null, // no password
+                false,
+                statusMod.getType() != StatusMod.ModType.SUSPEND, // status to be propagated
+                Collections.<String>emptySet(), // no virtual attributes to be managed
+                Collections.<AttributeMod>emptySet(), // no virtual attributes to be managed
+                propByRes,
+                null,
+                Collections.<MembershipMod>emptySet());
         PropagationReporter propReporter =
                 ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
         try {
@@ -369,7 +362,7 @@ public class UserController extends AbstractSubjectController<UserTO, UserMod> {
             propReporter.onPrimaryResourceFailure(tasks);
         }
 
-        final UserTO savedTO = binder.getUserTO(updated.getResult());
+        final UserTO savedTO = binder.getUserTO(user.getId());
         savedTO.getPropagationStatusTOs().addAll(propReporter.getStatuses());
         return savedTO;
     }
@@ -403,16 +396,10 @@ public class UserController extends AbstractSubjectController<UserTO, UserMod> {
             throw new NotFoundException("User with token " + token);
         }
 
-        uwfAdapter.confirmPasswordReset(user.getId(), token, password);
+        WorkflowResult<Map.Entry<UserMod, Boolean>> updated =
+                uwfAdapter.confirmPasswordReset(user.getId(), token, password);
 
-        UserMod userMod = new UserMod();
-        userMod.setId(user.getId());
-        userMod.setPassword(password);
-
-        List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(
-                new WorkflowResult<Map.Entry<UserMod, Boolean>>(
-                        new AbstractMap.SimpleEntry<UserMod, Boolean>(userMod, null), null, "confirmPasswordReset"),
-                true, null);
+        List<PropagationTask> tasks = propagationManager.getUserUpdateTaskIds(updated);
         PropagationReporter propReporter =
                 ApplicationContextProvider.getApplicationContext().getBean(PropagationReporter.class);
         try {

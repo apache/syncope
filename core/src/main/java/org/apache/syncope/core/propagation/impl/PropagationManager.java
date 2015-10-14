@@ -248,31 +248,6 @@ public class PropagationManager {
     }
 
     /**
-     * Performs update on each resource associated to the user excluding the specified into 'resourceNames' parameter.
-     *
-     * @param user to be propagated
-     * @param enable whether user must be enabled or not
-     * @param noPropResourceNames external resource names not to be considered for propagation
-     * @return list of propagation tasks
-     * @throws NotFoundException if user is not found
-     */
-    public List<PropagationTask> getUserUpdateTaskIds(final SyncopeUser user, final Boolean enable,
-            final Set<String> noPropResourceNames)
-            throws NotFoundException {
-
-        return getUpdateTaskIds(
-                user, // SyncopeUser to be updated on external resources
-                null, // no password
-                false,
-                enable, // status to be propagated
-                Collections.<String>emptySet(), // no virtual attributes to be managed
-                Collections.<AttributeMod>emptySet(), // no virtual attributes to be managed
-                null, // no propagation by resources
-                noPropResourceNames,
-                Collections.<MembershipMod>emptySet());
-    }
-
-    /**
      * Performs update on each resource associated to the user.
      *
      * @param wfResult user to be propagated (and info associated), as per result from workflow
@@ -388,8 +363,12 @@ public class PropagationManager {
         PropagationByResource localPropByRes = binder.fillVirtual(subject, vAttrsToBeRemoved == null
                 ? Collections.<String>emptySet()
                 : vAttrsToBeRemoved, vAttrsToBeUpdated == null
-                ? Collections.<AttributeMod>emptySet()
-                : vAttrsToBeUpdated, AttributableUtil.getInstance(subject));
+                        ? Collections.<AttributeMod>emptySet()
+                        : vAttrsToBeUpdated, AttributableUtil.getInstance(subject));
+        localPropByRes.merge(propByRes);
+        if (noPropResourceNames != null) {
+            localPropByRes.removeAll(noPropResourceNames);
+        }
 
         // SYNCOPE-458 fill membership virtual attributes
         if (subject instanceof SyncopeUser) {
@@ -402,21 +381,11 @@ public class PropagationManager {
                                 ? Collections.<String>emptySet()
                                 : membershipMod.getVirAttrsToRemove(),
                                 membershipMod.getVirAttrsToUpdate() == null ? Collections.<AttributeMod>emptySet()
-                                : membershipMod.getVirAttrsToUpdate(), AttributableUtil.getInstance(
-                                AttributableType.MEMBERSHIP));
+                                        : membershipMod.getVirAttrsToUpdate(), AttributableUtil.getInstance(
+                                        AttributableType.MEMBERSHIP));
                     }
                 }
             }
-        }
-
-        if (propByRes == null || propByRes.isEmpty()) {
-            localPropByRes.addAll(ResourceOperation.UPDATE, subject.getResourceNames());
-        } else {
-            localPropByRes.merge(propByRes);
-        }
-
-        if (noPropResourceNames != null) {
-            localPropByRes.removeAll(noPropResourceNames);
         }
 
         Map<String, AttributeMod> vAttrsToBeUpdatedMap = null;

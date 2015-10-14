@@ -2584,4 +2584,44 @@ public class UserTestITCase extends AbstractTest {
             configurationService.set(pwdCipherAlgo.getSchema(), pwdCipherAlgo);
         }
     }
+
+    @Test
+    public void issueSYNCOPE710() {
+        // 1. create roles for indirect resource assignment
+        RoleTO ldapRole = RoleTestITCase.buildBasicRoleTO("syncope710.ldap");
+        ldapRole.getResources().add(RESOURCE_NAME_LDAP);
+        ldapRole = createRole(ldapRole);
+
+        RoleTO dbRole = RoleTestITCase.buildBasicRoleTO("syncope710.db");
+        dbRole.getResources().add(RESOURCE_NAME_TESTDB);
+        dbRole = createRole(dbRole);
+
+        // 2. create user with memberships for the roles created above
+        UserTO userTO = getUniqueSampleTO("syncope710@syncope.apache.org");
+        userTO.getResources().clear();
+        userTO.getMemberships().clear();
+        MembershipTO memb = new MembershipTO();
+        memb.setRoleId(ldapRole.getId());
+        userTO.getMemberships().add(memb);
+        memb = new MembershipTO();
+        memb.setRoleId(dbRole.getId());
+        userTO.getMemberships().add(memb);
+
+        userTO = createUser(userTO);
+        assertEquals(2, userTO.getPropagationStatusTOs().size());
+
+        // 3. request to propagate passwod only to db
+        StatusMod pwdPropRequest = new StatusMod();
+        pwdPropRequest.setOnSyncope(false);
+        pwdPropRequest.getResourceNames().add(RESOURCE_NAME_TESTDB);
+
+        UserMod userMod = new UserMod();
+        userMod.setId(userTO.getId());
+        userMod.setPassword("newpassword123");
+        userMod.setPwdPropRequest(pwdPropRequest);
+
+        userTO = updateUser(userMod);
+        assertEquals(1, userTO.getPropagationStatusTOs().size());
+        assertEquals(RESOURCE_NAME_TESTDB, userTO.getPropagationStatusTOs().get(0).getResource());
+    }
 }

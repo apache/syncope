@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.workflow.user.activiti.task;
 
-import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
 import org.apache.syncope.core.propagation.PropagationByResource;
@@ -40,19 +39,11 @@ public class Update extends AbstractActivitiServiceTask {
         UserMod userMod =
                 runtimeService.getVariable(executionId, ActivitiUserWorkflowAdapter.USER_MOD, UserMod.class);
 
-        // update password internally only if required
-        UserMod updatedMod = SerializationUtils.clone(userMod);
-        String updatedPwd = updatedMod.getPassword();
-        if (updatedMod.getPwdPropRequest() != null && !updatedMod.getPwdPropRequest().isOnSyncope()) {
-            updatedMod.setPassword(null);
-        }
-        // update SyncopeUser
-        PropagationByResource propByRes = dataBinder.update(user, updatedMod);
-        updatedMod.setPassword(updatedPwd);
+        PropagationByResource propByRes = dataBinder.update(user, userMod);
 
         // report updated user and propagation by resource as result
         runtimeService.setVariable(executionId, ActivitiUserWorkflowAdapter.SYNCOPE_USER, user);
-        runtimeService.setVariable(executionId, ActivitiUserWorkflowAdapter.USER_MOD, updatedMod);
+        runtimeService.setVariable(executionId, ActivitiUserWorkflowAdapter.USER_MOD, userMod);
         runtimeService.setVariable(executionId, ActivitiUserWorkflowAdapter.PROP_BY_RESOURCE, propByRes);
     }
 }

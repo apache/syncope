@@ -272,16 +272,21 @@ public class UserDataBinder extends AbstractAttributableDataBinder {
 
         // password
         if (StringUtils.isNotBlank(userMod.getPassword())) {
-            setPassword(user, userMod.getPassword(), scce);
-            user.setChangePwdDate(new Date());
-            propByRes.addAll(ResourceOperation.UPDATE, currentResources);
+            if (userMod.getPwdPropRequest() == null || userMod.getPwdPropRequest().isOnSyncope()) {
+                setPassword(user, userMod.getPassword(), scce);
+                user.setChangePwdDate(new Date());
+            }
+            if (userMod.getPwdPropRequest() == null) {
+                propByRes.addAll(ResourceOperation.UPDATE, currentResources);
+            } else {
+                propByRes.addAll(ResourceOperation.UPDATE, userMod.getPwdPropRequest().getResourceNames());
+            }
         }
 
         // username
         if (userMod.getUsername() != null && !userMod.getUsername().equals(user.getUsername())) {
-            propByRes.addAll(ResourceOperation.UPDATE, currentResources);
-
             user.setUsername(userMod.getUsername());
+            propByRes.addAll(ResourceOperation.UPDATE, currentResources);
         }
 
         // security question / answer:

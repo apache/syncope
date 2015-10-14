@@ -18,13 +18,21 @@
  */
 package org.apache.syncope.core.workflow.user.activiti.task;
 
+import org.apache.syncope.common.mod.StatusMod;
+import org.apache.syncope.common.mod.UserMod;
 import org.apache.syncope.core.persistence.beans.user.SyncopeUser;
+import org.apache.syncope.core.propagation.PropagationByResource;
+import org.apache.syncope.core.rest.data.UserDataBinder;
 import org.apache.syncope.core.workflow.WorkflowException;
 import org.apache.syncope.core.workflow.user.activiti.ActivitiUserWorkflowAdapter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class PasswordReset extends AbstractActivitiServiceTask {
+
+    @Autowired
+    private UserDataBinder dataBinder;
 
     @Override
     protected void doExecute(final String executionId) {
@@ -38,8 +46,23 @@ public class PasswordReset extends AbstractActivitiServiceTask {
         }
 
         user.removeToken();
-        user.setPassword(password, user.getCipherAlgorithm());
+
+        UserMod userMod = new UserMod();
+        userMod.setId(user.getId());
+        userMod.setPassword(password);
+
+        StatusMod pwdPropRequest = new StatusMod();
+        pwdPropRequest.setId(user.getId());
+        pwdPropRequest.setOnSyncope(true);
+        pwdPropRequest.getResourceNames().addAll(user.getResourceNames());
+        userMod.setPwdPropRequest(pwdPropRequest);
+
+        PropagationByResource propByRes = dataBinder.update(user, userMod);
+
+        // report updated user and propagation by resource as result
         runtimeService.setVariable(executionId, ActivitiUserWorkflowAdapter.SYNCOPE_USER, user);
+        runtimeService.setVariable(executionId, ActivitiUserWorkflowAdapter.USER_MOD, userMod);
+        runtimeService.setVariable(executionId, ActivitiUserWorkflowAdapter.PROP_BY_RESOURCE, propByRes);
     }
 
 }

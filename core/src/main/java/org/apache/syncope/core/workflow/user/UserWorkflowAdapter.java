@@ -151,8 +151,9 @@ public interface UserWorkflowAdapter extends WorkflowAdapter {
      * @param password new password value
      * @throws UnauthorizedRoleException authorization exception
      * @throws WorkflowException workflow exception
+     * @return user just updated and propagations to be performed
      */
-    void confirmPasswordReset(Long userId, String token, String password) 
+    WorkflowResult<Map.Entry<UserMod, Boolean>> confirmPasswordReset(Long userId, String token, String password)
             throws UnauthorizedRoleException, WorkflowException;
 
     /**
