@@ -18,74 +18,141 @@
  */
 package org.apache.syncope.client.cli.commands;
 
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.Parameters;
+import javax.xml.ws.WebServiceException;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.cli.Command;
+import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.client.cli.SyncopeServices;
+import org.apache.syncope.client.cli.messages.UsageMessages;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.NotificationTO;
 import org.apache.syncope.common.rest.api.service.NotificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Parameters(
-        commandNames = "notification",
-        optionPrefixes = "-",
-        separators = "=",
-        commandDescription = "Apache Syncope notification service")
+@Command(name = "notification")
 public class NotificationCommand extends AbstractCommand {
 
     private static final Logger LOG = LoggerFactory.getLogger(NotificationCommand.class);
 
-    private final String helpMessage = "Usage: notification [options]\n"
+    private static final String HELP_MESSAGE = "Usage: notification [options]\n"
             + "  Options:\n"
-            + "    -h, --help \n"
-            + "    -l, --list \n"
-            + "    -r, --read \n"
-            + "       Syntax: -r={NOTIFICATION-ID} \n"
-            + "    -d, --delete \n"
-            + "       Syntax: -d={NOTIFICATION-ID}";
-
-    @Parameter(names = { "-r", "--read" })
-    private Long notificationIdToRead = -1L;
-
-    @Parameter(names = { "-d", "--delete" })
-    private Long notificationIdToDelete = -1L;
+            + "    --help \n"
+            + "    --list \n"
+            + "    --read \n"
+            + "       Syntax: --read {NOTIFICATION-ID} \n"
+            + "    --delete \n"
+            + "       Syntax: --delete {NOTIFICATION-ID}";
 
     @Override
-    public void execute() {
+    public void execute(final Input input) {
+        LOG.debug("Option: {}", input.getOption());
+        LOG.debug("Parameters:");
+        for (final String parameter : input.getParameters()) {
+            LOG.debug("   > " + parameter);
+        }
+
+        final String[] parameters = input.getParameters();
+
+        if (StringUtils.isBlank(input.getOption())) {
+            input.setOption(Options.HELP.getOptionName());
+        }
+
         final NotificationService notificationService = SyncopeServices.get(NotificationService.class);
-
-        LOG.debug("Notification service successfully created");
-
-        if (help) {
-            LOG.debug("- notification help command");
-            System.out.println(helpMessage);
-        } else if (list) {
-            LOG.debug("- notification list command");
-            try {
-                for (final NotificationTO notificationTO : notificationService.list()) {
-                    System.out.println(notificationTO);
+        switch (Options.fromName(input.getOption())) {
+            case LIST:
+                try {
+                    for (final NotificationTO notificationTO : notificationService.list()) {
+                        System.out.println(notificationTO);
+                    }
+                } catch (final SyncopeClientException ex) {
+                    UsageMessages.printErrorMessage(ex.getMessage());
                 }
-            } catch (final SyncopeClientException ex) {
-                System.out.println(" - Error: " + ex.getMessage());
+                break;
+            case READ:
+                final String readErrorMessage = UsageMessages.optionCommandMessage(
+                        "notification --read {NOTIFICATION-ID} {NOTIFICATION-ID} [...]");
+                if (parameters.length >= 1) {
+                    for (final String parameter : parameters) {
+                        try {
+                            System.out.println(notificationService.read(Long.valueOf(parameter)));
+                        } catch (final NumberFormatException ex) {
+                            System.out.println("Error reading " + parameter + ". It isn't a valid notification id");
+                        } catch (final WebServiceException | SyncopeClientException ex) {
+                            if (ex.getMessage().startsWith("NotFound")) {
+                                UsageMessages.printErrorMessage("Notification " + parameter + " doesn't exists!");
+                            } else {
+                                UsageMessages.printErrorMessage(ex.getMessage());
+                            }
+                        }
+                    }
+                } else {
+                    System.out.println(readErrorMessage);
+                }
+                break;
+            case DELETE:
+                final String deleteErrorMessage = UsageMessages.optionCommandMessage(
+                        "notification --delete {NOTIFICATION-ID} {NOTIFICATION-ID} [...]");
+
+                if (parameters.length >= 1) {
+                    for (final String parameter : parameters) {
+                        try {
+                            notificationService.delete(Long.valueOf(parameter));
+                            System.out.println("\n - Notification " + parameter + " deleted!\n");
+                        } catch (final WebServiceException | SyncopeClientException ex) {
+                            if (ex.getMessage().startsWith("NotFound")) {
+                                UsageMessages.printErrorMessage("Notification " + parameter + " doesn't exists!");
+                            } else {
+                                UsageMessages.printErrorMessage(ex.getMessage());
+                            }
+                        } catch (final NumberFormatException ex) {
+                            UsageMessages.printErrorMessage(
+                                    "Error reading " + parameter + ". It isn't a valid notification id");
+                        }
+                    }
+                } else {
+                    System.out.println(deleteErrorMessage);
+                }
+                break;
+            case HELP:
+                System.out.println(HELP_MESSAGE);
+                break;
+            default:
+                System.out.println(input.getOption() + " is not a valid option.");
+                System.out.println("");
+                System.out.println(HELP_MESSAGE);
+        }
+    }
+
+    private enum Options {
+
+        HELP("--help"),
+        LIST("--list"),
+        READ("--read"),
+        DELETE("--delete");
+
+        private final String optionName;
+
+        private Options(final String optionName) {
+            this.optionName = optionName;
+        }
+
+        public String getOptionName() {
+            return optionName;
+        }
+
+        public boolean equalsOptionName(final String otherName) {
+            return (otherName == null) ? false : optionName.equals(otherName);
+        }
+
+        public static Options fromName(final String name) {
+            Options optionToReturn = HELP;
+            for (final Options option : Options.values()) {
+                if (option.equalsOptionName(name)) {
+                    optionToReturn = option;
+                }
             }
-        } else if (notificationIdToRead > -1L) {
-            LOG.debug("- notification read {} command", notificationIdToRead);
-            try {
-                System.out.println(notificationService.read(notificationIdToRead));
-            } catch (final SyncopeClientException ex) {
-                System.out.println(" - Error: " + ex.getMessage());
-            }
-        } else if (notificationIdToDelete > -1L) {
-            try {
-                LOG.debug("- notification delete {} command", notificationIdToDelete);
-                notificationService.delete(notificationIdToDelete);
-                System.out.println(" - Notification " + notificationIdToDelete + " deleted!");
-            } catch (final SyncopeClientException ex) {
-                System.out.println(" - Error: " + ex.getMessage());
-            }
-        } else {
-            System.out.println(helpMessage);
+            return optionToReturn;
         }
     }
 
