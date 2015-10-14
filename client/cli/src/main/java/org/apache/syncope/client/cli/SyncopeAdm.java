@@ -19,6 +19,7 @@
 package org.apache.syncope.client.cli;
 
 import org.apache.syncope.client.cli.commands.AbstractCommand;
+import org.apache.syncope.client.cli.messages.Messages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +35,10 @@ public final class SyncopeAdm {
             + "    report --help \n"
             + "    policy --help \n"
             + "    entitlement --help \n"
-            + "    schema --help \n";
+            + "    schema --help \n"
+            + "    install --help \n"
+            + "    info --help\n"
+            + "    help\n";
 
     public static void main(final String[] args) {
         LOG.debug("Starting with args \n");
@@ -45,14 +49,11 @@ public final class SyncopeAdm {
             final AbstractCommand command = input.getCommand();
             command.execute(input);
         } catch (final IllegalAccessException | InstantiationException e) {
-            LOG.error("Error in main", e);
-            e.printStackTrace();
             System.out.println(HELP_MESSAGE);
         } catch (final IllegalArgumentException ex) {
             LOG.error("Error in main", ex);
-            if (ex.getMessage().startsWith("It seems you need to setup")) {
-                System.out.println(ex.getMessage());
-            } else {
+            Messages.printMessage(ex.getMessage());
+            if (!ex.getMessage().startsWith("It seems you")) {
                 System.out.println(HELP_MESSAGE);
             }
         }

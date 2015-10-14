@@ -20,6 +20,7 @@ package org.apache.syncope.client.cli.commands;
 
 import java.io.IOException;
 import java.io.SequenceInputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
@@ -29,7 +30,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.cli.Command;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.client.cli.SyncopeServices;
-import org.apache.syncope.client.cli.messages.UsageMessages;
+import org.apache.syncope.client.cli.messages.Messages;
 import org.apache.syncope.client.cli.util.XMLUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ReportExecTO;
@@ -87,7 +88,7 @@ public class ReportCommand extends AbstractCommand {
                         System.out.println(reportTO);
                     }
                 } catch (final SyncopeClientException ex) {
-                    UsageMessages.printErrorMessage(ex.getMessage());
+                    Messages.printMessage(ex.getMessage());
                 }
                 break;
             case LIST_JOBS:
@@ -104,24 +105,24 @@ public class ReportCommand extends AbstractCommand {
                         }
                     }
                 } catch (final SyncopeClientException ex) {
-                    UsageMessages.printErrorMessage(ex.getMessage());
+                    Messages.printMessage(ex.getMessage());
                 }
                 break;
             case READ:
-                final String readErrorMessage = UsageMessages.optionCommandMessage(
+                final String readErrorMessage = Messages.optionCommandMessage(
                         "Usage: report --read {REPORT-ID} {REPORT-ID} [...]");
                 if (parameters.length >= 1) {
                     for (final String parameter : parameters) {
                         try {
                             System.out.println(reportService.read(Long.valueOf(parameter)));
                         } catch (final NumberFormatException ex) {
-                            UsageMessages.printErrorMessage(
+                            Messages.printMessage(
                                     "Error reading " + parameter + ". It isn't a valid report id");
                         } catch (final WebServiceException | SyncopeClientException ex) {
                             if (ex.getMessage().startsWith("NotFound")) {
-                                UsageMessages.printErrorMessage("Report " + parameter + " doesn't exists!");
+                                Messages.printMessage("Report " + parameter + " doesn't exists!");
                             } else {
-                                UsageMessages.printErrorMessage(ex.getMessage());
+                                Messages.printMessage(ex.getMessage());
                             }
                         }
                     }
@@ -130,7 +131,7 @@ public class ReportCommand extends AbstractCommand {
                 }
                 break;
             case DELETE:
-                final String deleteErrorMessage = UsageMessages.optionCommandMessage(
+                final String deleteErrorMessage = Messages.optionCommandMessage(
                         "Usage: report --execute {REPORT-ID}");
 
                 if (parameters.length == 1) {
@@ -140,14 +141,14 @@ public class ReportCommand extends AbstractCommand {
                             System.out.println(" - Report " + parameter + " deleted!");
                         } catch (final WebServiceException | SyncopeClientException ex) {
                             if (ex.getMessage().startsWith("NotFound")) {
-                                UsageMessages.printErrorMessage("Report " + parameter + " doesn't exists!");
+                                Messages.printMessage("Report " + parameter + " doesn't exists!");
                             } else if (ex.getMessage().startsWith("DataIntegrityViolation")) {
-                                UsageMessages.printErrorMessage("You cannot delete report " + parameter);
+                                Messages.printMessage("You cannot delete report " + parameter);
                             } else {
-                                UsageMessages.printErrorMessage(ex.getMessage());
+                                Messages.printMessage(ex.getMessage());
                             }
                         } catch (final NumberFormatException ex) {
-                            UsageMessages.printErrorMessage(
+                            Messages.printMessage(
                                     "Error reading " + parameter + ". It isn't a valid report id");
                         }
                     }
@@ -156,7 +157,7 @@ public class ReportCommand extends AbstractCommand {
                 }
                 break;
             case EXECUTE:
-                final String executeErrorMessage = UsageMessages.optionCommandMessage(
+                final String executeErrorMessage = Messages.optionCommandMessage(
                         "Usage: report --execute {REPORT-ID}");
 
                 if (parameters.length == 1) {
@@ -173,14 +174,14 @@ public class ReportCommand extends AbstractCommand {
                     } catch (final WebServiceException | SyncopeClientException ex) {
                         System.out.println("Error:");
                         if (ex.getMessage().startsWith("NotFound")) {
-                            UsageMessages.printErrorMessage("Report " + parameters[0] + " doesn't exists!");
+                            Messages.printMessage("Report " + parameters[0] + " doesn't exists!");
                         } else if (ex.getMessage().startsWith("DataIntegrityViolation")) {
-                            UsageMessages.printErrorMessage("You cannot delete report " + parameters[0]);
+                            Messages.printMessage("You cannot delete report " + parameters[0]);
                         } else {
-                            UsageMessages.printErrorMessage(ex.getMessage());
+                            Messages.printMessage(ex.getMessage());
                         }
                     } catch (final NumberFormatException ex) {
-                        UsageMessages.printErrorMessage(
+                        Messages.printMessage(
                                 "Error reading " + parameters[0] + ". It isn't a valid report id");
                     }
                 } else {
@@ -188,7 +189,7 @@ public class ReportCommand extends AbstractCommand {
                 }
                 break;
             case READ_EXECUTION:
-                final String readExecutionErrorMessage = UsageMessages.optionCommandMessage(
+                final String readExecutionErrorMessage = Messages.optionCommandMessage(
                         "Usage: report --read-execution {EXECUTION-ID} {EXECUTION-ID} [...]");
 
                 if (parameters.length >= 1) {
@@ -203,14 +204,14 @@ public class ReportCommand extends AbstractCommand {
                         } catch (final WebServiceException | SyncopeClientException ex) {
                             System.out.println("Error:");
                             if (ex.getMessage().startsWith("NotFound")) {
-                                UsageMessages.printErrorMessage(" - Report " + parameter + " doesn't exists!");
+                                Messages.printMessage(" - Report " + parameter + " doesn't exists!");
                             } else if (ex.getMessage().startsWith("DataIntegrityViolation")) {
-                                UsageMessages.printErrorMessage("You cannot delete report " + parameter);
+                                Messages.printMessage("You cannot delete report " + parameter);
                             } else {
-                                UsageMessages.printErrorMessage(ex.getMessage());
+                                Messages.printMessage(ex.getMessage());
                             }
                         } catch (final NumberFormatException ex) {
-                            UsageMessages.printErrorMessage(
+                            Messages.printMessage(
                                     "Error reading " + parameter + ". It isn't a valid report id");
                         }
                     }
@@ -219,7 +220,7 @@ public class ReportCommand extends AbstractCommand {
                 }
                 break;
             case DELETE_EXECUTION:
-                final String deleteExecutionErrorMessage = UsageMessages.optionCommandMessage(
+                final String deleteExecutionErrorMessage = Messages.optionCommandMessage(
                         "Usage: report --delete-execution {EXECUTION-ID} {EXECUTION-ID} [...]");
 
                 if (parameters.length >= 1) {
@@ -246,7 +247,7 @@ public class ReportCommand extends AbstractCommand {
                 }
                 break;
             case EXPORT_EXECUTION_RESULT:
-                final String exportExecutionErrorMessage = UsageMessages.optionCommandMessage(
+                final String exportExecutionErrorMessage = Messages.optionCommandMessage(
                         "Usage: report --export-execution-result {EXECUTION-ID} {EXECUTION-ID} [...] {FORMAT}\n"
                         + "          Format: CSV / HTML / PDF / XML / RTF");
 
@@ -262,28 +263,28 @@ public class ReportCommand extends AbstractCommand {
                                 case XML:
                                     final String xmlFinalName = "export_" + exportId + ".xml";
                                     XMLUtils.createXMLFile(report, xmlFinalName);
-                                    UsageMessages.printErrorMessage(xmlFinalName + " successfully created");
+                                    Messages.printMessage(xmlFinalName + " successfully created");
                                     break;
                                 case CSV:
-                                    UsageMessages.printErrorMessage(format + " doesn't supported");
+                                    Messages.printMessage(format + " doesn't supported");
                                     break;
                                 case PDF:
-                                    UsageMessages.printErrorMessage(format + " doesn't supported");
+                                    Messages.printMessage(format + " doesn't supported");
                                     break;
                                 case HTML:
-                                    UsageMessages.printErrorMessage(format + " doesn't supported");
+                                    Messages.printMessage(format + " doesn't supported");
                                     break;
                                 case RTF:
-                                    UsageMessages.printErrorMessage(format + " doesn't supported");
+                                    Messages.printMessage(format + " doesn't supported");
                                     break;
                                 default:
-                                    UsageMessages.printErrorMessage(format + " doesn't supported");
+                                    Messages.printMessage(format + " doesn't supported");
                                     break;
                             }
                         } catch (final WebServiceException | SyncopeClientException ex) {
                             System.out.println("Error:");
                             if (ex.getMessage().startsWith("NotFound")) {
-                                UsageMessages.printErrorMessage("Report " + parameter + " doesn't exists!");
+                                Messages.printMessage("Report " + parameter + " doesn't exists!");
                             } else if (ex.getMessage().startsWith("DataIntegrityViolation")) {
                                 System.out.println(" - You cannot delete report " + parameter);
                             } else {
@@ -316,6 +317,11 @@ public class ReportCommand extends AbstractCommand {
                 System.out.println("");
                 System.out.println(HELP_MESSAGE);
         }
+    }
+    
+    @Override
+    public String getHelpMessage() {
+        return HELP_MESSAGE;
     }
 
     private enum Options {
@@ -352,6 +358,14 @@ public class ReportCommand extends AbstractCommand {
                 }
             }
             return optionToReturn;
+        }
+        
+        public static List<String> toList() {
+            final List<String> options = new ArrayList<>();
+            for (final Options value : values()) {
+                options.add(value.getOptionName());
+            }
+            return options;
         }
     }
 }

@@ -18,12 +18,14 @@
  */
 package org.apache.syncope.client.cli.commands;
 
+import java.util.ArrayList;
+import java.util.List;
 import javax.xml.ws.WebServiceException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.cli.Command;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.client.cli.SyncopeServices;
-import org.apache.syncope.client.cli.messages.UsageMessages;
+import org.apache.syncope.client.cli.messages.Messages;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
 import org.apache.syncope.common.lib.types.PolicyType;
@@ -64,7 +66,7 @@ public class PolicyCommand extends AbstractCommand {
         final PolicyService policyService = SyncopeServices.get(PolicyService.class);
         switch (Options.fromName(input.getOption())) {
             case LIST_POLICY:
-                final String listPolicyErrorMessage = UsageMessages.optionCommandMessage(
+                final String listPolicyErrorMessage = Messages.optionCommandMessage(
                         "Usage: policy --list-policy {POLICY-TYPE}\n"
                         + "   Policy type: ACCOUNT / PASSWORD / SYNC / PUSH");
                 if (parameters.length == 1) {
@@ -73,9 +75,9 @@ public class PolicyCommand extends AbstractCommand {
                             System.out.println(policyTO);
                         }
                     } catch (final SyncopeClientException ex) {
-                        UsageMessages.printErrorMessage(ex.getMessage());
+                        Messages.printMessage(ex.getMessage());
                     } catch (final IllegalArgumentException ex) {
-                        UsageMessages.printErrorMessage(
+                        Messages.printMessage(
                                 "Error: " + parameters[0] + " isn't a valid policy type, try with:");
                         for (final PolicyType type : PolicyType.values()) {
                             System.out.println("  *** " + type.name());
@@ -87,20 +89,20 @@ public class PolicyCommand extends AbstractCommand {
                 }
                 break;
             case READ:
-                final String readErrorMessage = UsageMessages.optionCommandMessage(
+                final String readErrorMessage = Messages.optionCommandMessage(
                         "Usage: policy --read {POLICY-ID} {POLICY-ID} [...]");
                 if (parameters.length >= 1) {
                     for (final String parameter : parameters) {
                         try {
                             System.out.println(policyService.read(Long.valueOf(parameter)));
                         } catch (final NumberFormatException ex) {
-                            UsageMessages.printErrorMessage(
+                            Messages.printMessage(
                                     "Error reading " + parameter + ". It isn't a valid policy id");
                         } catch (final WebServiceException | SyncopeClientException ex) {
                             if (ex.getMessage().startsWith("NotFound")) {
-                                UsageMessages.printErrorMessage("Policy " + parameter + " doesn't exists!");
+                                Messages.printMessage("Policy " + parameter + " doesn't exists!");
                             } else {
-                                UsageMessages.printErrorMessage(ex.getMessage());
+                                Messages.printMessage(ex.getMessage());
                             }
                         }
                     }
@@ -109,7 +111,7 @@ public class PolicyCommand extends AbstractCommand {
                 }
                 break;
             case DELETE:
-                final String deleteErrorMessage = UsageMessages.optionCommandMessage(
+                final String deleteErrorMessage = Messages.optionCommandMessage(
                         "Usage: policy --delete {POLICY-ID} {POLICY-ID} [...]");
 
                 if (parameters.length >= 1) {
@@ -120,14 +122,14 @@ public class PolicyCommand extends AbstractCommand {
                         } catch (final WebServiceException | SyncopeClientException ex) {
                             System.out.println("Error:");
                             if (ex.getMessage().startsWith("NotFound")) {
-                                UsageMessages.printErrorMessage("Policy " + parameter + " doesn't exists!");
+                                Messages.printMessage("Policy " + parameter + " doesn't exists!");
                             } else if (ex.getMessage().startsWith("DataIntegrityViolation")) {
-                                UsageMessages.printErrorMessage("You cannot delete policy " + parameter);
+                                Messages.printMessage("You cannot delete policy " + parameter);
                             } else {
-                                UsageMessages.printErrorMessage(ex.getMessage());
+                                Messages.printMessage(ex.getMessage());
                             }
                         } catch (final NumberFormatException ex) {
-                            UsageMessages.printErrorMessage(
+                            Messages.printMessage(
                                     "Error reading " + parameter + ". It isn't a valid policy id");
                         }
                     }
@@ -143,6 +145,11 @@ public class PolicyCommand extends AbstractCommand {
                 System.out.println("");
                 System.out.println(HELP_MESSAGE);
         }
+    }
+    
+    @Override
+    public String getHelpMessage() {
+        return HELP_MESSAGE;
     }
 
     private enum Options {
@@ -174,6 +181,14 @@ public class PolicyCommand extends AbstractCommand {
                 }
             }
             return optionToReturn;
+        }
+        
+        public static List<String> toList() {
+            final List<String> options = new ArrayList<>();
+            for (final Options value : values()) {
+                options.add(value.getOptionName());
+            }
+            return options;
         }
     }
 

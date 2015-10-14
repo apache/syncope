@@ -18,20 +18,10 @@
  */
 package org.apache.syncope.client.cli;
 
-import java.util.List;
 import org.apache.syncope.client.cli.commands.AbstractCommand;
+import org.apache.syncope.client.cli.util.CommandUtils;
 
 public class Input {
-
-    private boolean ssl = false;
-
-    private String host = "localhost";
-
-    private String port = "9080";
-
-    private String username = "admin";
-
-    private String password = "password";
 
     private final AbstractCommand command;
 
@@ -42,7 +32,7 @@ public class Input {
     public Input(final String[] args)
             throws InstantiationException, IllegalAccessException, IllegalArgumentException {
 
-        command = fromArgs(args[0]);
+        command = CommandUtils.fromArgs(args[0]);
 
         if (args.length > 1) {
             option = args[1];
@@ -77,7 +67,7 @@ public class Input {
     public String firstParameter() {
         return parameters[0];
     }
-    
+
     public String lastParameter() {
         return parameters[parameters.length - 1];
     }
@@ -88,27 +78,6 @@ public class Input {
         }
         final String[] pairParameterArray = parameter.split("=");
         return new PairParameter(pairParameterArray[0], pairParameterArray[1]);
-    }
-
-    private AbstractCommand fromArgs(final String arg)
-            throws InstantiationException, IllegalAccessException, IllegalArgumentException {
-
-        final CommandClassScanner ccs = new CommandClassScanner();
-        final List<Class<? extends AbstractCommand>> commands = ccs.getComponentClasses();
-
-        Class<? extends AbstractCommand> commandClass = null;
-        for (Class<? extends AbstractCommand> cmd : commands) {
-            if (arg.equals(cmd.getAnnotation(Command.class).name())) {
-                commandClass = cmd;
-            }
-        }
-
-        if (commandClass == null) {
-            throw new IllegalArgumentException();
-        }
-
-        return commandClass.newInstance();
-
     }
 
     public class PairParameter {

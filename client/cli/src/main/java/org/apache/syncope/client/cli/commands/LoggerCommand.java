@@ -18,12 +18,14 @@
  */
 package org.apache.syncope.client.cli.commands;
 
+import java.util.ArrayList;
+import java.util.List;
 import javax.xml.ws.WebServiceException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.cli.Command;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.client.cli.SyncopeServices;
-import org.apache.syncope.client.cli.messages.UsageMessages;
+import org.apache.syncope.client.cli.messages.Messages;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.LoggerTO;
 import org.apache.syncope.common.lib.types.LoggerLevel;
@@ -76,11 +78,11 @@ public class LoggerCommand extends AbstractCommand {
                         System.out.println("");
                     }
                 } catch (final SyncopeClientException ex) {
-                    UsageMessages.printErrorMessage("Error: " + ex.getMessage());
+                    Messages.printMessage("Error: " + ex.getMessage());
                 }
                 break;
             case READ:
-                final String readErrorMessage = UsageMessages.optionCommandMessage(
+                final String readErrorMessage = Messages.optionCommandMessage(
                         "logger --read {LOG-NAME} {LOG-NAME} [...]");
                 if (parameters.length >= 1) {
                     for (final String parameter : parameters) {
@@ -92,10 +94,10 @@ public class LoggerCommand extends AbstractCommand {
                             System.out.println("");
                         } catch (final SyncopeClientException | WebServiceException ex) {
                             if (ex.getMessage().startsWith("NotFound")) {
-                                UsageMessages.printErrorMessage(
+                                Messages.printMessage(
                                         "Logger " + parameter + " doesn't exist!");
                             } else {
-                                UsageMessages.printErrorMessage("Error: " + ex.getMessage());
+                                Messages.printMessage("Error: " + ex.getMessage());
                             }
                         }
                     }
@@ -104,7 +106,7 @@ public class LoggerCommand extends AbstractCommand {
                 }
                 break;
             case UPDATE:
-                final String updateErrorMessage = UsageMessages.optionCommandMessage(
+                final String updateErrorMessage = Messages.optionCommandMessage(
                         "logger --update {LOG-NAME}={LOG-LEVEL} {LOG-NAME}={LOG-LEVEL} [...]");
 
                 if (parameters.length >= 1) {
@@ -121,19 +123,19 @@ public class LoggerCommand extends AbstractCommand {
                             System.out.println("");
                         } catch (final WebServiceException | SyncopeClientException | IllegalArgumentException ex) {
                             if (ex.getMessage().startsWith("No enum constant org.apache.syncope.common.lib.types.")) {
-                                UsageMessages.printErrorMessage(ex.getMessage());
+                                Messages.printMessage(ex.getMessage());
                                 System.out.println("Try with:");
                                 for (final LoggerLevel level : LoggerLevel.values()) {
                                     System.out.println("  *** " + level.name());
                                 }
                                 System.out.println("");
                             } else if ("Parameter syntax error!".equalsIgnoreCase(ex.getMessage())) {
-                                UsageMessages.printErrorMessage(ex.getMessage(), updateErrorMessage);
+                                Messages.printMessage(ex.getMessage(), updateErrorMessage);
                             } else if (ex.getMessage().startsWith("NotFound")) {
-                                UsageMessages.printErrorMessage(
+                                Messages.printMessage(
                                         "Logger " + pairParameter.getKey() + " doesn't exists!");
                             } else {
-                                UsageMessages.printErrorMessage(ex.getMessage(), updateErrorMessage);
+                                Messages.printMessage(ex.getMessage(), updateErrorMessage);
                             }
                             break;
                         }
@@ -143,7 +145,7 @@ public class LoggerCommand extends AbstractCommand {
                 }
                 break;
             case UPDATE_ALL:
-                final String updateAllErrorMessage = UsageMessages.optionCommandMessage(
+                final String updateAllErrorMessage = Messages.optionCommandMessage(
                         "logger --update-all {LOG-LEVEL}");
 
                 if (parameters.length == 1) {
@@ -157,14 +159,14 @@ public class LoggerCommand extends AbstractCommand {
                             System.out.println("");
                         } catch (final WebServiceException | SyncopeClientException | IllegalArgumentException ex) {
                             if (ex.getMessage().startsWith("No enum constant org.apache.syncope.common.lib.types.")) {
-                                UsageMessages.printErrorMessage(ex.getMessage());
+                                Messages.printMessage(ex.getMessage());
                                 System.out.println("Try with:");
                                 for (final LoggerLevel level : LoggerLevel.values()) {
                                     System.out.println("  *** " + level.name());
                                 }
                                 System.out.println("");
                             } else {
-                                UsageMessages.printErrorMessage(ex.getMessage(), updateAllErrorMessage);
+                                Messages.printMessage(ex.getMessage(), updateAllErrorMessage);
                             }
                             break;
                         }
@@ -174,7 +176,7 @@ public class LoggerCommand extends AbstractCommand {
                 }
                 break;
             case CREATE:
-                final String createErrorMessage = UsageMessages.optionCommandMessage(
+                final String createErrorMessage = Messages.optionCommandMessage(
                         "logger --create {LOG-NAME}={LOG-LEVEL} {LOG-NAME}={LOG-LEVEL} [...]");
 
                 if (parameters.length >= 1) {
@@ -193,14 +195,14 @@ public class LoggerCommand extends AbstractCommand {
                             System.out.println("");
                         } catch (final WebServiceException | SyncopeClientException | IllegalArgumentException ex) {
                             if (ex.getMessage().startsWith("No enum constant org.apache.syncope.common.lib.types.")) {
-                                UsageMessages.printErrorMessage(ex.getMessage());
+                                Messages.printMessage(ex.getMessage());
                                 System.out.println("Try with:");
                                 for (final LoggerLevel level : LoggerLevel.values()) {
                                     System.out.println("  *** " + level.name());
                                 }
                                 System.out.println("");
                             } else if ("Parameter syntax error!".equalsIgnoreCase(ex.getMessage())) {
-                                UsageMessages.printErrorMessage(ex.getMessage(), createErrorMessage);
+                                Messages.printMessage(ex.getMessage(), createErrorMessage);
                             }
                             break;
                         }
@@ -210,7 +212,7 @@ public class LoggerCommand extends AbstractCommand {
                 }
                 break;
             case DELETE:
-                final String deleteErrorMessage = UsageMessages.optionCommandMessage(
+                final String deleteErrorMessage = Messages.optionCommandMessage(
                         "logger --delete {LOG-NAME} {LOG-NAME} [...]");
 
                 if (parameters.length >= 1) {
@@ -220,10 +222,10 @@ public class LoggerCommand extends AbstractCommand {
                             System.out.println("\n - Logger " + parameter + " deleted!\n");
                         } catch (final WebServiceException | SyncopeClientException ex) {
                             if (ex.getMessage().startsWith("NotFound")) {
-                                UsageMessages.printErrorMessage(
+                                Messages.printMessage(
                                         "Logger " + parameter + " doesn't exists!");
                             } else {
-                                UsageMessages.printErrorMessage(ex.getMessage());
+                                Messages.printMessage(ex.getMessage());
                             }
                         }
                     }
@@ -239,6 +241,11 @@ public class LoggerCommand extends AbstractCommand {
                 System.out.println("");
                 System.out.println(HELP_MESSAGE);
         }
+    }
+    
+    @Override
+    public String getHelpMessage() {
+        return HELP_MESSAGE;
     }
 
     private enum Options {
@@ -273,6 +280,14 @@ public class LoggerCommand extends AbstractCommand {
                 }
             }
             return optionToReturn;
+        }
+
+        public static List<String> toList() {
+            final List<String> options = new ArrayList<>();
+            for (final Options value : values()) {
+                options.add(value.getOptionName());
+            }
+            return options;
         }
     }
 

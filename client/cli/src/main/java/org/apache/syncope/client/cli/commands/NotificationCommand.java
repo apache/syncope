@@ -18,12 +18,14 @@
  */
 package org.apache.syncope.client.cli.commands;
 
+import java.util.ArrayList;
+import java.util.List;
 import javax.xml.ws.WebServiceException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.cli.Command;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.client.cli.SyncopeServices;
-import org.apache.syncope.client.cli.messages.UsageMessages;
+import org.apache.syncope.client.cli.messages.Messages;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.NotificationTO;
 import org.apache.syncope.common.rest.api.service.NotificationService;
@@ -66,11 +68,11 @@ public class NotificationCommand extends AbstractCommand {
                         System.out.println(notificationTO);
                     }
                 } catch (final SyncopeClientException ex) {
-                    UsageMessages.printErrorMessage(ex.getMessage());
+                    Messages.printMessage(ex.getMessage());
                 }
                 break;
             case READ:
-                final String readErrorMessage = UsageMessages.optionCommandMessage(
+                final String readErrorMessage = Messages.optionCommandMessage(
                         "notification --read {NOTIFICATION-ID} {NOTIFICATION-ID} [...]");
                 if (parameters.length >= 1) {
                     for (final String parameter : parameters) {
@@ -80,9 +82,9 @@ public class NotificationCommand extends AbstractCommand {
                             System.out.println("Error reading " + parameter + ". It isn't a valid notification id");
                         } catch (final WebServiceException | SyncopeClientException ex) {
                             if (ex.getMessage().startsWith("NotFound")) {
-                                UsageMessages.printErrorMessage("Notification " + parameter + " doesn't exists!");
+                                Messages.printMessage("Notification " + parameter + " doesn't exists!");
                             } else {
-                                UsageMessages.printErrorMessage(ex.getMessage());
+                                Messages.printMessage(ex.getMessage());
                             }
                         }
                     }
@@ -91,7 +93,7 @@ public class NotificationCommand extends AbstractCommand {
                 }
                 break;
             case DELETE:
-                final String deleteErrorMessage = UsageMessages.optionCommandMessage(
+                final String deleteErrorMessage = Messages.optionCommandMessage(
                         "notification --delete {NOTIFICATION-ID} {NOTIFICATION-ID} [...]");
 
                 if (parameters.length >= 1) {
@@ -101,12 +103,12 @@ public class NotificationCommand extends AbstractCommand {
                             System.out.println("\n - Notification " + parameter + " deleted!\n");
                         } catch (final WebServiceException | SyncopeClientException ex) {
                             if (ex.getMessage().startsWith("NotFound")) {
-                                UsageMessages.printErrorMessage("Notification " + parameter + " doesn't exists!");
+                                Messages.printMessage("Notification " + parameter + " doesn't exists!");
                             } else {
-                                UsageMessages.printErrorMessage(ex.getMessage());
+                                Messages.printMessage(ex.getMessage());
                             }
                         } catch (final NumberFormatException ex) {
-                            UsageMessages.printErrorMessage(
+                            Messages.printMessage(
                                     "Error reading " + parameter + ". It isn't a valid notification id");
                         }
                     }
@@ -122,6 +124,11 @@ public class NotificationCommand extends AbstractCommand {
                 System.out.println("");
                 System.out.println(HELP_MESSAGE);
         }
+    }
+    
+    @Override
+    public String getHelpMessage() {
+        return HELP_MESSAGE;
     }
 
     private enum Options {
@@ -153,6 +160,14 @@ public class NotificationCommand extends AbstractCommand {
                 }
             }
             return optionToReturn;
+        }
+        
+        public static List<String> toList() {
+            final List<String> options = new ArrayList<>();
+            for (final Options value : values()) {
+                options.add(value.getOptionName());
+            }
+            return options;
         }
     }
 

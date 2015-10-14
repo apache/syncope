@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.client.cli.messages;
 
-public final class UsageMessages {
+public final class Messages {
 
     private static final String OPTION_COMMAND_MESSAGE_TEMPLATE = "\n - Usage: %s\n";
 
@@ -26,15 +26,15 @@ public final class UsageMessages {
         return String.format(OPTION_COMMAND_MESSAGE_TEMPLATE, message);
     }
 
-    public static void printErrorMessage(final String... errors) {
-        final StringBuilder errorMessage = new StringBuilder("\n").append(" - ");
-        for (final String error : errors) {
-            errorMessage.append(error).append("\n");
+    public static void printMessage(final String... messages) {
+        final StringBuilder messageBuilder = new StringBuilder("\n");
+        for (final String message : messages) {
+            messageBuilder.append(" - ").append(message).append("\n");
         }
-        System.out.println(errorMessage.toString());
+        System.out.println(messageBuilder.toString());
     }
 
-    private UsageMessages() {
+    private Messages() {
 
     }
 }

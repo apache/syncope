@@ -25,7 +25,7 @@ public final class ArgsManager {
 
     public static void validator(final String[] args) throws IllegalArgumentException {
         if (args.length == 0) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Syntax error: no options");
         } else if (!"install".equalsIgnoreCase(args[0])) {
             final File configFile = new File(InstallConfigFileTemplate.FILE_PATH);
             if (!configFile.exists()) {

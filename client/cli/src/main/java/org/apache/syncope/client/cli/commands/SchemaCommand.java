@@ -18,13 +18,15 @@
  */
 package org.apache.syncope.client.cli.commands;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import javax.xml.ws.WebServiceException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.cli.Command;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.client.cli.SyncopeServices;
-import org.apache.syncope.client.cli.messages.UsageMessages;
+import org.apache.syncope.client.cli.messages.Messages;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AbstractSchemaTO;
 import org.apache.syncope.common.lib.to.DerSchemaTO;
@@ -67,7 +69,7 @@ public class SchemaCommand extends AbstractCommand {
         final SchemaService schemaService = SyncopeServices.get(SchemaService.class);
         switch (Options.fromName(input.getOption())) {
             case LIST:
-                final String listErrorMessage = UsageMessages.optionCommandMessage(
+                final String listErrorMessage = Messages.optionCommandMessage(
                         "schema --list {SCHEMA-TYPE}\n"
                         + "   Schema type: PLAIN / DERIVED / VIRTUAL");
                 if (parameters.length == 1) {
@@ -95,9 +97,9 @@ public class SchemaCommand extends AbstractCommand {
                         }
                         System.out.println("");
                     } catch (final SyncopeClientException ex) {
-                        UsageMessages.printErrorMessage(ex.getMessage());
+                        Messages.printMessage(ex.getMessage());
                     } catch (final IllegalArgumentException ex) {
-                        UsageMessages.printErrorMessage(
+                        Messages.printMessage(
                                 input.firstParameter() + " isn't a valid schema type, try with:");
                         for (final SchemaType type : SchemaType.values()) {
                             System.out.println("  *** " + type.name());
@@ -120,7 +122,7 @@ public class SchemaCommand extends AbstractCommand {
                         System.out.println("");
                     }
                 } catch (final SyncopeClientException | WebServiceException ex) {
-                    UsageMessages.printErrorMessage(ex.getMessage());
+                    Messages.printMessage(ex.getMessage());
                 }
                 break;
             case LIST_PLAIN:
@@ -134,7 +136,7 @@ public class SchemaCommand extends AbstractCommand {
                     }
                     System.out.println("");
                 } catch (final SyncopeClientException | WebServiceException ex) {
-                    UsageMessages.printErrorMessage(ex.getMessage());
+                    Messages.printMessage(ex.getMessage());
                 }
                 break;
             case LIST_DERIVED:
@@ -146,7 +148,7 @@ public class SchemaCommand extends AbstractCommand {
                     }
                     System.out.println("");
                 } catch (final SyncopeClientException | WebServiceException ex) {
-                    UsageMessages.printErrorMessage(ex.getMessage());
+                    Messages.printMessage(ex.getMessage());
                 }
                 break;
             case LIST_VIRTUAL:
@@ -157,11 +159,11 @@ public class SchemaCommand extends AbstractCommand {
                     }
                     System.out.println("");
                 } catch (final SyncopeClientException | WebServiceException ex) {
-                    UsageMessages.printErrorMessage(ex.getMessage());
+                    Messages.printMessage(ex.getMessage());
                 }
                 break;
             case READ:
-                final String readErrorMessage = UsageMessages.optionCommandMessage(
+                final String readErrorMessage = Messages.optionCommandMessage(
                         "schema --read {SCHEMA-TYPE} {SCHEMA-KEY}\n"
                         + "   Schema type: PLAIN / DERIVED / VIRTUAL");
                 if (parameters.length >= 2) {
@@ -212,15 +214,15 @@ public class SchemaCommand extends AbstractCommand {
                         }
                     } catch (final SyncopeClientException | WebServiceException ex) {
                         if (ex.getMessage().startsWith("NotFound")) {
-                            UsageMessages.printErrorMessage(
+                            Messages.printMessage(
                                     "Schema " + parameters[0] + " doesn't exists!");
                         } else if (ex.getMessage().startsWith("DataIntegrityViolation")) {
-                            UsageMessages.printErrorMessage("You cannot delete schema " + parameters[0]);
+                            Messages.printMessage("You cannot delete schema " + parameters[0]);
                         } else {
-                            UsageMessages.printErrorMessage(ex.getMessage());
+                            Messages.printMessage(ex.getMessage());
                         }
                     } catch (final IllegalArgumentException ex) {
-                        UsageMessages.printErrorMessage(
+                        Messages.printMessage(
                                 parameters[0] + " isn't a valid schema type, try with:");
                         for (final SchemaType type : SchemaType.values()) {
                             System.out.println("  *** " + type.name());
@@ -243,16 +245,16 @@ public class SchemaCommand extends AbstractCommand {
                         }
                     } catch (final SyncopeClientException | WebServiceException ex) {
                         if (ex.getMessage().startsWith("NotFound")) {
-                            UsageMessages.printErrorMessage(
+                            Messages.printMessage(
                                     "Schema " + parameters[0] + " doesn't exists!");
                         } else if (ex.getMessage().startsWith("DataIntegrityViolation")) {
-                            UsageMessages.printErrorMessage(
+                            Messages.printMessage(
                                     "You cannot delete schema " + parameters[0]);
                         } else {
-                            UsageMessages.printErrorMessage(ex.getMessage());
+                            Messages.printMessage(ex.getMessage());
                         }
                     } catch (final IllegalArgumentException ex) {
-                        UsageMessages.printErrorMessage(
+                        Messages.printMessage(
                                 parameters[0] + " isn't a valid schema type, try with:");
                         for (final SchemaType type : SchemaType.values()) {
                             System.out.println("  *** " + type.name());
@@ -271,6 +273,11 @@ public class SchemaCommand extends AbstractCommand {
                 System.out.println("");
                 System.out.println(HELP_MESSAGE);
         }
+    }
+
+    @Override
+    public String getHelpMessage() {
+        return HELP_MESSAGE;
     }
 
     private enum Options {
@@ -306,6 +313,14 @@ public class SchemaCommand extends AbstractCommand {
                 }
             }
             return optionToReturn;
+        }
+
+        public static List<String> toList() {
+            final List<String> options = new ArrayList<>();
+            for (final Options value : values()) {
+                options.add(value.getOptionName());
+            }
+            return options;
         }
     }
 }

@@ -21,6 +21,8 @@ package org.apache.syncope.client.cli.commands;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.SequenceInputStream;
+import java.util.ArrayList;
+import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -29,7 +31,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.cli.Command;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.client.cli.SyncopeServices;
-import org.apache.syncope.client.cli.messages.UsageMessages;
+import org.apache.syncope.client.cli.messages.Messages;
 import org.apache.syncope.client.cli.util.XMLUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AttrTO;
@@ -46,7 +48,7 @@ public class ConfigurationCommand extends AbstractCommand {
 
     private static final String EXPORT_FILE_NAME = "/content.xml";
 
-    private static final String HELP_MESSAGE = "Usage: config [options]\n"
+    private static final String HELP_MESSAGE = "Usage: configuration [options]\n"
             + "  Options:\n"
             + "    --help \n"
             + "    --list \n"
@@ -105,12 +107,12 @@ public class ConfigurationCommand extends AbstractCommand {
                     }
                     System.out.println("");
                 } catch (final Exception ex) {
-                    UsageMessages.printErrorMessage(ex.getMessage());
+                    Messages.printMessage(ex.getMessage());
                     break;
                 }
                 break;
             case READ:
-                final String readErrorMessage = UsageMessages.optionCommandMessage(
+                final String readErrorMessage = Messages.optionCommandMessage(
                         "configuration --read {CONF-NAME} {CONF-NAME} [...]");
                 if (parameters.length >= 1) {
                     AttrTO attrTO;
@@ -123,11 +125,11 @@ public class ConfigurationCommand extends AbstractCommand {
                             System.out.println("");
                         } catch (final SyncopeClientException | WebServiceException ex) {
                             if (ex.getMessage().startsWith("NotFound")) {
-                                UsageMessages.printErrorMessage("Configuration " + parameters[0] + " doesn't exist!");
+                                Messages.printMessage("Configuration " + parameters[0] + " doesn't exist!");
                             } else if (ex.getMessage().startsWith("DataIntegrityViolation")) {
-                                UsageMessages.printErrorMessage("You cannot delete configuration " + parameters[0]);
+                                Messages.printMessage("You cannot delete configuration " + parameters[0]);
                             } else {
-                                UsageMessages.printErrorMessage(ex.getMessage());
+                                Messages.printMessage(ex.getMessage());
                             }
                             break;
                         }
@@ -137,7 +139,7 @@ public class ConfigurationCommand extends AbstractCommand {
                 }
                 break;
             case UPDATE:
-                final String updateErrorMessage = UsageMessages.optionCommandMessage(
+                final String updateErrorMessage = Messages.optionCommandMessage(
                         "configuration --update {CONF-NAME}={CONF-VALUE} {CONF-NAME}={CONF-VALUE} [...]");
                 if (parameters.length >= 1) {
                     Input.PairParameter pairParameter = null;
@@ -154,20 +156,20 @@ public class ConfigurationCommand extends AbstractCommand {
                             System.out.println("    - readonly: " + attrTO.isReadonly());
                             System.out.println("");
                         } catch (final IllegalArgumentException ex) {
-                            UsageMessages.printErrorMessage(ex.getMessage(), updateErrorMessage);
+                            Messages.printMessage(ex.getMessage(), updateErrorMessage);
                             break;
                         } catch (final SyncopeClientException | WebServiceException ex) {
                             if (ex.getMessage().startsWith("NotFound")) {
-                                UsageMessages.printErrorMessage(
+                                Messages.printMessage(
                                         "Configuration " + pairParameter.getKey() + " doesn't exist!");
                             } else if (ex.getMessage().startsWith("InvalidValues")) {
-                                UsageMessages.printErrorMessage(
+                                Messages.printMessage(
                                         pairParameter.getValue() + " is not a valid value for "
                                         + pairParameter.getKey());
                             } else if (ex.getMessage().startsWith("DataIntegrityViolation")) {
-                                UsageMessages.printErrorMessage("You cannot delete configuration " + parameters[0]);
+                                Messages.printMessage("You cannot delete configuration " + parameters[0]);
                             } else {
-                                UsageMessages.printErrorMessage(ex.getMessage());
+                                Messages.printMessage(ex.getMessage());
                             }
                             break;
                         }
@@ -177,7 +179,7 @@ public class ConfigurationCommand extends AbstractCommand {
                 }
                 break;
             case CREATE:
-                final String createErrorMessage = UsageMessages.optionCommandMessage(
+                final String createErrorMessage = Messages.optionCommandMessage(
                         "configuration --create {CONF-NAME}={CONF-VALUE} {CONF-NAME}={CONF-VALUE} [...]");
                 if (parameters.length >= 1) {
                     Input.PairParameter pairParameter = null;
@@ -194,15 +196,15 @@ public class ConfigurationCommand extends AbstractCommand {
                             System.out.println("    - readonly: " + attrTO.isReadonly());
                             System.out.println("");
                         } catch (final IllegalArgumentException ex) {
-                            UsageMessages.printErrorMessage(ex.getMessage(), createErrorMessage);
+                            Messages.printMessage(ex.getMessage(), createErrorMessage);
                             break;
                         } catch (final SyncopeClientException | WebServiceException ex) {
                             if (ex.getMessage().startsWith("NotFound")) {
-                                UsageMessages.printErrorMessage(
+                                Messages.printMessage(
                                         "Configuration schema "
                                         + pairParameter.getKey() + " doesn't exist! Create it before.");
                             } else {
-                                UsageMessages.printErrorMessage(ex.getMessage());
+                                Messages.printMessage(ex.getMessage());
                             }
                             break;
                         }
@@ -212,7 +214,7 @@ public class ConfigurationCommand extends AbstractCommand {
                 }
                 break;
             case DELETE:
-                final String deleteErrorMessage = UsageMessages.optionCommandMessage(
+                final String deleteErrorMessage = Messages.optionCommandMessage(
                         "configuration --delete {CONF-NAME} {CONF-NAME} [...]");
                 if (parameters.length >= 1) {
                     for (final String parameter : parameters) {
@@ -221,11 +223,11 @@ public class ConfigurationCommand extends AbstractCommand {
                             System.out.println("\n - Conf " + parameter + " deleted!\n");
                         } catch (final SyncopeClientException | WebServiceException ex) {
                             if (ex.getMessage().startsWith("NotFound")) {
-                                UsageMessages.printErrorMessage("Configuration " + parameter + " doesn't exist!");
+                                Messages.printMessage("Configuration " + parameter + " doesn't exist!");
                             } else if (ex.getMessage().startsWith("DataIntegrityViolation")) {
-                                UsageMessages.printErrorMessage("You cannot delete configuration", parameter);
+                                Messages.printMessage("You cannot delete configuration", parameter);
                             } else {
-                                UsageMessages.printErrorMessage(ex.getMessage());
+                                Messages.printMessage(ex.getMessage());
                             }
                             break;
                         }
@@ -235,7 +237,7 @@ public class ConfigurationCommand extends AbstractCommand {
                 }
                 break;
             case EXPORT:
-                final String exportErrorMessage = UsageMessages.optionCommandMessage(
+                final String exportErrorMessage = Messages.optionCommandMessage(
                         "configuration --export {WHERE-DIR}");
                 if (parameters.length == 1) {
                     try {
@@ -243,24 +245,24 @@ public class ConfigurationCommand extends AbstractCommand {
                                 parameters[0] + EXPORT_FILE_NAME);
                         System.out.println(" - " + parameters[0] + EXPORT_FILE_NAME + " successfully created");
                     } catch (final IOException ex) {
-                        UsageMessages.printErrorMessage(ex.getMessage());
+                        Messages.printMessage(ex.getMessage());
                     } catch (ParserConfigurationException | SAXException | TransformerConfigurationException ex) {
                         LOG.error("Error creating content.xml file in {} directory", parameters[0], ex);
-                        UsageMessages.printErrorMessage(
+                        Messages.printMessage(
                                 "Error creating " + parameters[0] + EXPORT_FILE_NAME + " " + ex.getMessage());
                         break;
                     } catch (final TransformerException ex) {
                         LOG.error("Error creating content.xml file in {} directory", parameters[0], ex);
                         if (ex.getCause() instanceof FileNotFoundException) {
-                            UsageMessages.printErrorMessage("Permission denied on " + parameters[0]);
+                            Messages.printMessage("Permission denied on " + parameters[0]);
                         } else {
-                            UsageMessages.printErrorMessage(
+                            Messages.printMessage(
                                     "Error creating " + parameters[0] + EXPORT_FILE_NAME + " " + ex.getMessage());
                         }
                         break;
                     } catch (final SyncopeClientException ex) {
                         LOG.error("Error calling configuration service", ex);
-                        UsageMessages.printErrorMessage("Error calling configuration service " + ex.getMessage());
+                        Messages.printMessage("Error calling configuration service " + ex.getMessage());
                         break;
                     }
                 } else {
@@ -276,6 +278,11 @@ public class ConfigurationCommand extends AbstractCommand {
                 System.out.println(HELP_MESSAGE);
                 break;
         }
+    }
+    
+    @Override
+    public String getHelpMessage() {
+        return HELP_MESSAGE;
     }
 
     private enum Options {
@@ -310,6 +317,14 @@ public class ConfigurationCommand extends AbstractCommand {
                 }
             }
             return optionToReturn;
+        }
+
+        public static List<String> toList() {
+            final List<String> options = new ArrayList<>();
+            for (final Options value : values()) {
+                options.add(value.getOptionName());
+            }
+            return options;
         }
     }
 }

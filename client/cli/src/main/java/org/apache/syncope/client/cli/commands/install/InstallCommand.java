@@ -41,7 +41,7 @@ public class InstallCommand extends AbstractCommand {
 
     private static final Logger LOG = LoggerFactory.getLogger(LoggerCommand.class);
 
-    private static final String HELP_MESSAGE = "Usage: logger [options]\n"
+    private static final String HELP_MESSAGE = "Usage: install [options]\n"
             + "  Options:\n"
             + "    --help \n"
             + "    --setup";
@@ -263,6 +263,11 @@ public class InstallCommand extends AbstractCommand {
                 System.out.println("");
                 System.out.println(HELP_MESSAGE);
         }
+    }
+
+    @Override
+    public String getHelpMessage() {
+        return HELP_MESSAGE;
     }
 
     private enum Options {

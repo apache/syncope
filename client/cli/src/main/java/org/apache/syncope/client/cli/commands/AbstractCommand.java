@@ -18,9 +18,21 @@
  */
 package org.apache.syncope.client.cli.commands;
 
+import java.util.List;
 import org.apache.syncope.client.cli.Input;
 
 public abstract class AbstractCommand {
 
     public abstract void execute(final Input input);
+
+    protected String helpMessage(final String command, final List<String> options) {
+        final StringBuilder helpMessageBuilder = new StringBuilder(String.format("Usage: %s [options]\n", command));
+        helpMessageBuilder.append("  Options:\n");
+        for (final String option : options) {
+            helpMessageBuilder.append("    ").append(option).append("\n");
+        }
+        return helpMessageBuilder.toString();
+    }
+
+    public abstract String getHelpMessage();
 }
