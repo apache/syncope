@@ -999,13 +999,6 @@ under the License.
         <artifactId>jquery-cookie</artifactId>
         <version>${jquery-cookie.version}</version>
       </dependency>
-
-            
-      <dependency>
-        <groupId>com.beust</groupId>
-        <artifactId>jcommander</artifactId>
-        <version>1.47</version>
-      </dependency>
       
       <dependency>
         <groupId>org.codehaus.izpack</groupId>

@@ -18,13 +18,7 @@
  */
 package org.apache.syncope.client.cli;
 
-import com.beust.jcommander.JCommander;
-import com.beust.jcommander.ParameterException;
-import org.apache.syncope.client.cli.commands.ConfigurationCommand;
-import org.apache.syncope.client.cli.commands.LoggerCommand;
-import org.apache.syncope.client.cli.commands.NotificationCommand;
-import org.apache.syncope.client.cli.commands.PolicyCommand;
-import org.apache.syncope.client.cli.commands.ReportCommand;
+import org.apache.syncope.client.cli.commands.AbstractCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,78 +33,30 @@ public final class SyncopeAdm {
             + "    notification --help \n"
             + "    report --help \n"
             + "    policy --help \n"
-            + "    entitlement --help \n";
-
-    private static final JCommander JCOMMANDER = new JCommander();
-
-    private static LoggerCommand LOGGER_COMMAND;
-
-    private static ConfigurationCommand CONFIGURATION_COMMAND;
-
-    private static NotificationCommand NOTIFICATION_COMMAND;
-
-    private static ReportCommand REPORT_COMMAND;
-
-    private static PolicyCommand POLICY_COMMAND;
+            + "    entitlement --help \n"
+            + "    schema --help \n";
 
     public static void main(final String[] args) {
         LOG.debug("Starting with args \n");
 
-        for (final String arg : args) {
-            LOG.debug("Arg: {}", arg);
-        }
-
-        instantiateCommands();
-
-        if (args.length == 0) {
+        try {
+            ArgsManager.validator(args);
+            final Input input = new Input(args);
+            final AbstractCommand command = input.getCommand();
+            command.execute(input);
+        } catch (final IllegalAccessException | InstantiationException e) {
+            LOG.error("Error in main", e);
+            e.printStackTrace();
             System.out.println(HELP_MESSAGE);
-        } else {
-            try {
-                JCOMMANDER.parse(args);
-            } catch (final ParameterException ioe) {
+        } catch (final IllegalArgumentException ex) {
+            LOG.error("Error in main", ex);
+            if (ex.getMessage().startsWith("It seems you need to setup")) {
+                System.out.println(ex.getMessage());
+            } else {
                 System.out.println(HELP_MESSAGE);
-                LOG.error("Parameter exception", ioe);
             }
-            executeCommand();
         }
 
-    }
-
-    private static void instantiateCommands() {
-        LOG.debug("Init JCommander");
-        LOGGER_COMMAND = new LoggerCommand();
-        JCOMMANDER.addCommand(LOGGER_COMMAND);
-        LOG.debug("Added LoggerCommand");
-        CONFIGURATION_COMMAND = new ConfigurationCommand();
-        JCOMMANDER.addCommand(CONFIGURATION_COMMAND);
-        LOG.debug("Added ConfigurationCommand");
-        NOTIFICATION_COMMAND = new NotificationCommand();
-        JCOMMANDER.addCommand(NOTIFICATION_COMMAND);
-        LOG.debug("Added NotificationCommand");
-        REPORT_COMMAND = new ReportCommand();
-        JCOMMANDER.addCommand(REPORT_COMMAND);
-        LOG.debug("Added ReportCommand");
-        POLICY_COMMAND = new PolicyCommand();
-        JCOMMANDER.addCommand(POLICY_COMMAND);
-        LOG.debug("Added PolicyCommand");
-    }
-
-    private static void executeCommand() {
-        final String command = JCOMMANDER.getParsedCommand();
-
-        LOG.debug("Called command {}", command);
-
-        if ("logger".equalsIgnoreCase(command)) {
-            LOGGER_COMMAND.execute();
-        } else if ("config".equalsIgnoreCase(command)) {
-            CONFIGURATION_COMMAND.execute();
-        } else if ("notification".equalsIgnoreCase(command)) {
-            NOTIFICATION_COMMAND.execute();
-        } else if ("report".equalsIgnoreCase(command)) {
-            REPORT_COMMAND.execute();
-        } else if ("policy".equalsIgnoreCase(command)) {
-            POLICY_COMMAND.execute();
-        }
     }
 
     private SyncopeAdm() {
