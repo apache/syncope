@@ -85,7 +85,6 @@ public class ConfigurationITCase extends AbstractITCase {
 
         actual = configurationService.get(tokenLength.getSchema());
         assertEquals(actual, tokenLength);
-
     }
 
     @Test

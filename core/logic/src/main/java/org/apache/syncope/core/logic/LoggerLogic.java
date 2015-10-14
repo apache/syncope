@@ -134,6 +134,32 @@ public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
         throw sce;
     }
 
+    @PreAuthorize("hasRole('" + Entitlement.LOG_READ + "') and authentication.details.domain == "
+            + "T(org.apache.syncope.common.lib.SyncopeConstants).MASTER_DOMAIN")
+    @Transactional(readOnly = true)
+    public LoggerTO readLog(final String name) {
+        for (final LoggerTO logger : listLogs()) {
+            if (logger.getKey().equals(name)) {
+                return logger;
+            }
+        }
+        throw new NotFoundException("Logger " + name);
+    }
+
+    @PreAuthorize("hasRole('" + Entitlement.AUDIT_READ + "')")
+    @Transactional(readOnly = true)
+    public LoggerTO readAudit(final String name) {
+        for (final AuditLoggerName logger : listAudits()) {
+            if (logger.toLoggerName().equals(name)) {
+                final LoggerTO loggerTO = new LoggerTO();
+                loggerTO.setKey(logger.toLoggerName());
+                loggerTO.setLevel(LoggerLevel.DEBUG);
+                return loggerTO;
+            }
+        }
+        throw new NotFoundException("Logger " + name);
+    }
+
     private LoggerTO setLevel(final String name, final Level level, final LoggerType expectedType) {
         Logger syncopeLogger = loggerDAO.find(name);
         if (syncopeLogger == null) {
