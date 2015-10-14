@@ -61,10 +61,9 @@ public class ConfigurationLogic extends AbstractTransactionalLogic<ConfTO> {
 
     @PreAuthorize("hasRole('" + Entitlement.CONFIGURATION_DELETE + "')")
     public void delete(final String schema) {
-
-        final CPlainAttr conf = confDAO.find(schema);
+        CPlainAttr conf = confDAO.find(schema);
         if (conf == null) {
-            final PlainSchema plainSchema = plainSchemaDAO.find(schema);
+            PlainSchema plainSchema = plainSchemaDAO.find(schema);
             if (plainSchema == null) {
                 throw new NotFoundException("Configuration schema " + schema);
             }

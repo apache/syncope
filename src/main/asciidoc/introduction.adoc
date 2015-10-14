@@ -38,7 +38,7 @@ which the account is created and managed.
 ****
 
 Have you ever been hired by a company, entered an organization or just subscribed a new Google account?
-Companies, organizations and cloud entities works with applications that need your data to function properly: 
+Companies, organizations and cloud entities work with applications that need your data to function properly: 
 username, password, e-mail, first name, surname, and more.
 
 Who is going to feed such information? And what happens when you need to be enabled for more applications? And what if

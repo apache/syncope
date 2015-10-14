@@ -56,14 +56,4 @@ include::introduction.adoc[]
 
 include::systemRequirements.adoc[]
 
-== Obtain Apache Syncope
-
-=== Standalone
-
-=== Debian packages
-
-=== GUI installer
-
-=== Maven project
-
-== Move forward
+include::obtain.adoc[]
