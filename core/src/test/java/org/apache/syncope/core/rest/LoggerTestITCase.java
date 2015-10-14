@@ -221,7 +221,7 @@ public class LoggerTestITCase extends AbstractTest {
     public void issueSYNCOPE708() {
         try {
             loggerService.read(LoggerType.LOG, "notExists");
-            fail("Read a not exists logger, it should go in exception");
+            fail("Reading non-existing logger, it should go in exception");
         } catch (final WebServiceException ex) {
             fail("Exception is WebServiceException but it should be SyncopeClientException");
         } catch (final SyncopeClientException ex) {
