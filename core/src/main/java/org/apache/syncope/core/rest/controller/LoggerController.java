@@ -116,6 +116,31 @@ public class LoggerController extends AbstractTransactionalController<LoggerTO> 
         throw sce;
     }
 
+    @PreAuthorize("hasRole('LOG_LIST')")
+    @Transactional(readOnly = true)
+    public LoggerTO readLog(final String name) {
+        for (final LoggerTO logger : listLogs()) {
+            if (logger.getName().equals(name)) {
+                return logger;
+            }
+        }
+        throw new NotFoundException("Logger " + name);
+    }
+
+    @PreAuthorize("hasRole('AUDIT_LIST')")
+    @Transactional(readOnly = true)
+    public LoggerTO readAudit(final String name) {
+        for (final AuditLoggerName logger : listAudits()) {
+            if (logger.toLoggerName().equals(name)) {
+                final LoggerTO loggerTO = new LoggerTO();
+                loggerTO.setName(logger.toLoggerName());
+                loggerTO.setLevel(LoggerLevel.DEBUG);
+                return loggerTO;
+            }
+        }
+        throw new NotFoundException("Logger " + name);
+    }
+
     private LoggerTO setLevel(final String name, final Level level, final LoggerType expectedType) {
         SyncopeLogger syncopeLogger = loggerDAO.find(name);
         if (syncopeLogger == null) {
@@ -213,11 +238,10 @@ public class LoggerController extends AbstractTransactionalController<LoggerTO> 
 
         try {
             final ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
-            final MetadataReaderFactory metadataReaderFactory =
-                    new CachingMetadataReaderFactory(resourcePatternResolver);
+            final MetadataReaderFactory metadataReaderFactory
+                    = new CachingMetadataReaderFactory(resourcePatternResolver);
 
-            final String packageSearchPath =
-                    ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX
+            final String packageSearchPath = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX
                     + ClassUtils.convertClassNameToResourcePath(
                             SystemPropertyUtils.resolvePlaceholders(this.getClass().getPackage().getName()))
                     + "/" + "**/*.class";
