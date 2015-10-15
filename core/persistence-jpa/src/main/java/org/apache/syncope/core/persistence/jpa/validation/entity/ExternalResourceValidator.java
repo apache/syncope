@@ -32,6 +32,7 @@ import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.provisioning.api.data.MappingItemTransformer;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
+import org.identityconnectors.framework.common.objects.ObjectClass;
 
 public class ExternalResourceValidator extends AbstractValidator<ExternalResourceCheck, ExternalResource> {
 
@@ -162,22 +163,29 @@ public class ExternalResourceValidator extends AbstractValidator<ExternalResourc
             }
         }
 
+        final Set<AnyType> anyTypes = new HashSet<>();
         final Set<String> objectClasses = new HashSet<>();
-        boolean validMappings = CollectionUtils.matchesAll(resource.getProvisions(),
-                new Predicate<Provision>() {
+        boolean validMappings = CollectionUtils.matchesAll(resource.getProvisions(), new Predicate<Provision>() {
 
-                    @Override
-                    public boolean evaluate(final Provision provision) {
-                        if (provision.getObjectClass() != null) {
-                            objectClasses.add(provision.getObjectClass().getObjectClassValue());
-                        }
-                        return isValid(provision.getAnyType(), provision.getMapping(), context);
-                    }
-                });
+            @Override
+            public boolean evaluate(final Provision provision) {
+                anyTypes.add(provision.getAnyType());
+                if (provision.getObjectClass() != null) {
+                    objectClasses.add(provision.getObjectClass().getObjectClassValue());
+                }
+                return isValid(provision.getAnyType(), provision.getMapping(), context);
+            }
+        });
 
+        if (anyTypes.size() < resource.getProvisions().size()) {
+            context.buildConstraintViolationWithTemplate(getTemplate(EntityViolationType.InvalidResource,
+                    "Each provision requires a different " + AnyType.class.getSimpleName())).
+                    addPropertyNode("provisions").addConstraintViolation();
+            return false;
+        }
         if (objectClasses.size() < resource.getProvisions().size()) {
             context.buildConstraintViolationWithTemplate(getTemplate(EntityViolationType.InvalidResource,
-                    "Each provision requires a different ObjectClass")).
+                    "Each provision requires a different" + ObjectClass.class.getSimpleName())).
                     addPropertyNode("provisions").addConstraintViolation();
             return false;
         }
