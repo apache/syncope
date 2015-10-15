@@ -109,8 +109,7 @@ public class ReportCommand extends AbstractCommand {
                 }
                 break;
             case READ:
-                final String readErrorMessage = Messages.optionCommandMessage(
-                        "Usage: report --read {REPORT-ID} {REPORT-ID} [...]");
+                final String readErrorMessage = "Usage: report --read {REPORT-ID} {REPORT-ID} [...]";
                 if (parameters.length >= 1) {
                     for (final String parameter : parameters) {
                         try {
@@ -120,28 +119,27 @@ public class ReportCommand extends AbstractCommand {
                                     "Error reading " + parameter + ". It isn't a valid report id");
                         } catch (final WebServiceException | SyncopeClientException ex) {
                             if (ex.getMessage().startsWith("NotFound")) {
-                                Messages.printMessage("Report " + parameter + " doesn't exists!");
+                                Messages.printNofFoundMessage("Report", parameter);
                             } else {
                                 Messages.printMessage(ex.getMessage());
                             }
                         }
                     }
                 } else {
-                    System.out.println(readErrorMessage);
+                    Messages.printCommandOptionMessage(readErrorMessage);
                 }
                 break;
             case DELETE:
-                final String deleteErrorMessage = Messages.optionCommandMessage(
-                        "Usage: report --execute {REPORT-ID}");
+                final String deleteErrorMessage = "report --execute {REPORT-ID}";
 
                 if (parameters.length == 1) {
                     for (final String parameter : parameters) {
                         try {
                             reportService.delete(Long.valueOf(parameter));
-                            System.out.println(" - Report " + parameter + " deleted!");
+                            Messages.printDeletedMessage("Report", parameter);
                         } catch (final WebServiceException | SyncopeClientException ex) {
                             if (ex.getMessage().startsWith("NotFound")) {
-                                Messages.printMessage("Report " + parameter + " doesn't exists!");
+                                Messages.printNofFoundMessage("Report", parameter);
                             } else if (ex.getMessage().startsWith("DataIntegrityViolation")) {
                                 Messages.printMessage("You cannot delete report " + parameter);
                             } else {
@@ -153,12 +151,11 @@ public class ReportCommand extends AbstractCommand {
                         }
                     }
                 } else {
-                    System.out.println(deleteErrorMessage);
+                    Messages.printCommandOptionMessage(deleteErrorMessage);
                 }
                 break;
             case EXECUTE:
-                final String executeErrorMessage = Messages.optionCommandMessage(
-                        "Usage: report --execute {REPORT-ID}");
+                final String executeErrorMessage = "Usage: report --execute {REPORT-ID}";
 
                 if (parameters.length == 1) {
 
@@ -174,7 +171,7 @@ public class ReportCommand extends AbstractCommand {
                     } catch (final WebServiceException | SyncopeClientException ex) {
                         System.out.println("Error:");
                         if (ex.getMessage().startsWith("NotFound")) {
-                            Messages.printMessage("Report " + parameters[0] + " doesn't exists!");
+                            Messages.printNofFoundMessage("Report", parameters[0]);
                         } else if (ex.getMessage().startsWith("DataIntegrityViolation")) {
                             Messages.printMessage("You cannot delete report " + parameters[0]);
                         } else {
@@ -185,12 +182,11 @@ public class ReportCommand extends AbstractCommand {
                                 "Error reading " + parameters[0] + ". It isn't a valid report id");
                     }
                 } else {
-                    System.out.println(executeErrorMessage);
+                    Messages.printCommandOptionMessage(executeErrorMessage);
                 }
                 break;
             case READ_EXECUTION:
-                final String readExecutionErrorMessage = Messages.optionCommandMessage(
-                        "Usage: report --read-execution {EXECUTION-ID} {EXECUTION-ID} [...]");
+                final String readExecutionErrorMessage = "report --read-execution {EXECUTION-ID} {EXECUTION-ID} [...]";
 
                 if (parameters.length >= 1) {
                     for (final String parameter : parameters) {
@@ -204,9 +200,7 @@ public class ReportCommand extends AbstractCommand {
                         } catch (final WebServiceException | SyncopeClientException ex) {
                             System.out.println("Error:");
                             if (ex.getMessage().startsWith("NotFound")) {
-                                Messages.printMessage(" - Report " + parameter + " doesn't exists!");
-                            } else if (ex.getMessage().startsWith("DataIntegrityViolation")) {
-                                Messages.printMessage("You cannot delete report " + parameter);
+                                Messages.printNofFoundMessage("Report", parameter);
                             } else {
                                 Messages.printMessage(ex.getMessage());
                             }
@@ -216,23 +210,22 @@ public class ReportCommand extends AbstractCommand {
                         }
                     }
                 } else {
-                    System.out.println(readExecutionErrorMessage);
+                    Messages.printCommandOptionMessage(readExecutionErrorMessage);
                 }
                 break;
             case DELETE_EXECUTION:
-                final String deleteExecutionErrorMessage = Messages.optionCommandMessage(
-                        "Usage: report --delete-execution {EXECUTION-ID} {EXECUTION-ID} [...]");
+                final String deleteExecutionErrorMessage
+                        = "report --delete-execution {EXECUTION-ID} {EXECUTION-ID} [...]";
 
                 if (parameters.length >= 1) {
                     for (final String parameter : parameters) {
 
                         try {
                             reportService.deleteExecution(Long.valueOf(parameter));
-                            System.out.println(" - Report execution " + parameter + "successfully deleted!");
+                            Messages.printDeletedMessage("Report execution", parameter);
                         } catch (final WebServiceException | SyncopeClientException ex) {
-                            System.out.println("Error:");
                             if (ex.getMessage().startsWith("NotFound")) {
-                                System.out.println(" - Report " + parameter + " doesn't exists!");
+                                Messages.printNofFoundMessage("Report", parameter);
                             } else if (ex.getMessage().startsWith("DataIntegrityViolation")) {
                                 System.out.println(" - You cannot delete report " + parameter);
                             } else {
@@ -243,13 +236,13 @@ public class ReportCommand extends AbstractCommand {
                         }
                     }
                 } else {
-                    System.out.println(deleteExecutionErrorMessage);
+                    Messages.printCommandOptionMessage(deleteExecutionErrorMessage);
                 }
                 break;
             case EXPORT_EXECUTION_RESULT:
-                final String exportExecutionErrorMessage = Messages.optionCommandMessage(
-                        "Usage: report --export-execution-result {EXECUTION-ID} {EXECUTION-ID} [...] {FORMAT}\n"
-                        + "          Format: CSV / HTML / PDF / XML / RTF");
+                final String exportExecutionErrorMessage
+                        = "Usage: report --export-execution-result {EXECUTION-ID} {EXECUTION-ID} [...] {FORMAT}\n"
+                        + "          Format: CSV / HTML / PDF / XML / RTF";
 
                 if (parameters.length >= 2) {
                     parameters = Arrays.copyOf(parameters, parameters.length - 1);
@@ -282,11 +275,8 @@ public class ReportCommand extends AbstractCommand {
                                     break;
                             }
                         } catch (final WebServiceException | SyncopeClientException ex) {
-                            System.out.println("Error:");
                             if (ex.getMessage().startsWith("NotFound")) {
-                                Messages.printMessage("Report " + parameter + " doesn't exists!");
-                            } else if (ex.getMessage().startsWith("DataIntegrityViolation")) {
-                                System.out.println(" - You cannot delete report " + parameter);
+                                Messages.printNofFoundMessage("Report", parameter);
                             } else {
                                 System.out.println(ex.getMessage());
                             }
@@ -306,7 +296,7 @@ public class ReportCommand extends AbstractCommand {
                         }
                     }
                 } else {
-                    System.out.println(exportExecutionErrorMessage);
+                    Messages.printCommandOptionMessage(exportExecutionErrorMessage);
                 }
                 break;
             case HELP:
@@ -318,7 +308,7 @@ public class ReportCommand extends AbstractCommand {
                 System.out.println(HELP_MESSAGE);
         }
     }
-    
+
     @Override
     public String getHelpMessage() {
         return HELP_MESSAGE;
@@ -359,7 +349,7 @@ public class ReportCommand extends AbstractCommand {
             }
             return optionToReturn;
         }
-        
+
         public static List<String> toList() {
             final List<String> options = new ArrayList<>();
             for (final Options value : values()) {

@@ -66,9 +66,9 @@ public class PolicyCommand extends AbstractCommand {
         final PolicyService policyService = SyncopeServices.get(PolicyService.class);
         switch (Options.fromName(input.getOption())) {
             case LIST_POLICY:
-                final String listPolicyErrorMessage = Messages.optionCommandMessage(
-                        "Usage: policy --list-policy {POLICY-TYPE}\n"
-                        + "   Policy type: ACCOUNT / PASSWORD / SYNC / PUSH");
+                final String listPolicyErrorMessage = "policy --list-policy {POLICY-TYPE}\n"
+                        + "   Policy type: ACCOUNT / PASSWORD / SYNC / PUSH";
+
                 if (parameters.length == 1) {
                     try {
                         for (final AbstractPolicyTO policyTO : policyService.list(PolicyType.valueOf(parameters[0]))) {
@@ -85,12 +85,12 @@ public class PolicyCommand extends AbstractCommand {
                         System.out.println("");
                     }
                 } else {
-                    System.out.println(listPolicyErrorMessage);
+                    Messages.printCommandOptionMessage(listPolicyErrorMessage);
                 }
                 break;
             case READ:
-                final String readErrorMessage = Messages.optionCommandMessage(
-                        "Usage: policy --read {POLICY-ID} {POLICY-ID} [...]");
+                final String readErrorMessage = "policy --read {POLICY-ID} {POLICY-ID} [...]";
+
                 if (parameters.length >= 1) {
                     for (final String parameter : parameters) {
                         try {
@@ -100,29 +100,28 @@ public class PolicyCommand extends AbstractCommand {
                                     "Error reading " + parameter + ". It isn't a valid policy id");
                         } catch (final WebServiceException | SyncopeClientException ex) {
                             if (ex.getMessage().startsWith("NotFound")) {
-                                Messages.printMessage("Policy " + parameter + " doesn't exists!");
+                                Messages.printNofFoundMessage("Policy", parameter);
                             } else {
                                 Messages.printMessage(ex.getMessage());
                             }
                         }
                     }
                 } else {
-                    System.out.println(readErrorMessage);
+                    Messages.printCommandOptionMessage(readErrorMessage);
                 }
                 break;
             case DELETE:
-                final String deleteErrorMessage = Messages.optionCommandMessage(
-                        "Usage: policy --delete {POLICY-ID} {POLICY-ID} [...]");
+                final String deleteErrorMessage = "policy --delete {POLICY-ID} {POLICY-ID} [...]";
 
                 if (parameters.length >= 1) {
                     for (final String parameter : parameters) {
                         try {
                             policyService.delete(Long.valueOf(parameter));
-                            System.out.println(" - Policy " + parameter + " deleted!");
+                            Messages.printDeletedMessage("Policy", parameter);
                         } catch (final WebServiceException | SyncopeClientException ex) {
                             System.out.println("Error:");
                             if (ex.getMessage().startsWith("NotFound")) {
-                                Messages.printMessage("Policy " + parameter + " doesn't exists!");
+                                Messages.printNofFoundMessage("Policy", parameter);
                             } else if (ex.getMessage().startsWith("DataIntegrityViolation")) {
                                 Messages.printMessage("You cannot delete policy " + parameter);
                             } else {
@@ -134,7 +133,7 @@ public class PolicyCommand extends AbstractCommand {
                         }
                     }
                 } else {
-                    System.out.println(deleteErrorMessage);
+                    Messages.printCommandOptionMessage(deleteErrorMessage);
                 }
                 break;
             case HELP:
@@ -146,7 +145,7 @@ public class PolicyCommand extends AbstractCommand {
                 System.out.println(HELP_MESSAGE);
         }
     }
-    
+
     @Override
     public String getHelpMessage() {
         return HELP_MESSAGE;
@@ -182,7 +181,7 @@ public class PolicyCommand extends AbstractCommand {
             }
             return optionToReturn;
         }
-        
+
         public static List<String> toList() {
             final List<String> options = new ArrayList<>();
             for (final Options value : values()) {

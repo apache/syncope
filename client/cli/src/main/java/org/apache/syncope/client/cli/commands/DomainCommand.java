@@ -20,31 +20,30 @@ package org.apache.syncope.client.cli.commands;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.ws.WebServiceException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.cli.Command;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.client.cli.SyncopeServices;
 import org.apache.syncope.client.cli.messages.Messages;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.NotificationTO;
-import org.apache.syncope.common.rest.api.service.NotificationService;
+import org.apache.syncope.common.lib.to.DomainTO;
+import org.apache.syncope.common.rest.api.service.DomainService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Command(name = "notification")
-public class NotificationCommand extends AbstractCommand {
+@Command(name = "domain")
+public class DomainCommand extends AbstractCommand {
 
-    private static final Logger LOG = LoggerFactory.getLogger(NotificationCommand.class);
+    private static final Logger LOG = LoggerFactory.getLogger(LoggerCommand.class);
 
-    private static final String HELP_MESSAGE = "Usage: notification [options]\n"
+    private static final String HELP_MESSAGE = "Usage: domain [options]\n"
             + "  Options:\n"
             + "    --help \n"
             + "    --list \n"
             + "    --read \n"
-            + "       Syntax: --read {NOTIFICATION-ID} \n"
+            + "       Syntax: --read {DOMAIN-KEY} {DOMAIN-KEY} [...]\n"
             + "    --delete \n"
-            + "       Syntax: --delete {NOTIFICATION-ID}";
+            + "       Syntax: --delete {DOMAIN-KEY} {DOMAIN-KEY} [...]\n";
 
     @Override
     public void execute(final Input input) {
@@ -60,28 +59,27 @@ public class NotificationCommand extends AbstractCommand {
             input.setOption(Options.HELP.getOptionName());
         }
 
-        final NotificationService notificationService = SyncopeServices.get(NotificationService.class);
+        final DomainService domainService = SyncopeServices.get(DomainService.class);
         switch (Options.fromName(input.getOption())) {
             case LIST:
                 try {
-                    for (final NotificationTO notificationTO : notificationService.list()) {
-                        System.out.println(notificationTO);
+                    for (final DomainTO domainTO : domainService.list()) {
+                        Messages.printMessage("Domain key: " + domainTO.getKey());
                     }
                 } catch (final SyncopeClientException ex) {
-                    Messages.printMessage(ex.getMessage());
+                    Messages.printMessage("Error: " + ex.getMessage());
                 }
                 break;
             case READ:
-                final String readErrorMessage = "notification --read {NOTIFICATION-ID} {NOTIFICATION-ID} [...]";
+                final String readErrorMessage = "domain --read {DOMAIN-KEY} {DOMAIN-KEY} [...]";
                 if (parameters.length >= 1) {
                     for (final String parameter : parameters) {
                         try {
-                            System.out.println(notificationService.read(Long.valueOf(parameter)));
-                        } catch (final NumberFormatException ex) {
-                            System.out.println("Error reading " + parameter + ". It isn't a valid notification id");
-                        } catch (final WebServiceException | SyncopeClientException ex) {
+                            final DomainTO domainTO = domainService.read(parameter);
+                            Messages.printMessage("Domain key: " + domainTO.getKey());
+                        } catch (final SyncopeClientException ex) {
                             if (ex.getMessage().startsWith("NotFound")) {
-                                Messages.printNofFoundMessage("Notification", parameter);
+                                Messages.printNofFoundMessage("Domain", parameter);
                             } else {
                                 Messages.printMessage(ex.getMessage());
                             }
@@ -92,22 +90,18 @@ public class NotificationCommand extends AbstractCommand {
                 }
                 break;
             case DELETE:
-                final String deleteErrorMessage = "notification --delete {NOTIFICATION-ID} {NOTIFICATION-ID} [...]";
-
+                final String deleteErrorMessage = "domain --delete {DOMAIN-KEY} {DOMAIN-KEY} [...]";
                 if (parameters.length >= 1) {
                     for (final String parameter : parameters) {
                         try {
-                            notificationService.delete(Long.valueOf(parameter));
-                            Messages.printDeletedMessage("Notification", parameter);
-                        } catch (final WebServiceException | SyncopeClientException ex) {
+                            domainService.delete(parameter);
+                            Messages.printDeletedMessage("Domain", parameter);
+                        } catch (final SyncopeClientException ex) {
                             if (ex.getMessage().startsWith("NotFound")) {
-                                Messages.printNofFoundMessage("Notification", parameter);
+                                Messages.printNofFoundMessage("Domain", parameter);
                             } else {
                                 Messages.printMessage(ex.getMessage());
                             }
-                        } catch (final NumberFormatException ex) {
-                            Messages.printMessage(
-                                    "Error reading " + parameter + ". It isn't a valid notification id");
                         }
                     }
                 } else {
@@ -122,6 +116,7 @@ public class NotificationCommand extends AbstractCommand {
                 System.out.println("");
                 System.out.println(HELP_MESSAGE);
         }
+
     }
 
     @Override
@@ -168,5 +163,4 @@ public class NotificationCommand extends AbstractCommand {
             return options;
         }
     }
-
 }
