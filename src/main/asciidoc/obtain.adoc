@@ -19,11 +19,11 @@
 
 == Obtain Apache Syncope
 
-There are several ways to obtain Apache Syncope: each method shows advantages or caveats for different types of users.
+There are several ways to obtain Apache Syncope: each of which has advantages or caveats for different types of users.
 
 === Standalone
 
-The standalone distribution is the simpler way to start exploring Apache Syncope: it contains a full working, in-memory
+The standalone distribution is the simplest way to start exploring Apache Syncope: it contains a fully working, in-memory
 Tomcat-based environment that can be easily grabbed and put at work on any modern laptop, workstation or server. 
 
 [CAUTION]
@@ -31,7 +31,7 @@ Tomcat-based environment that can be easily grabbed and put at work on any moder
 First approach, especially with administration console; does not require technical skills. +
 *Not meant for any production environment.*
 
-Getting ready in few easy steps:
+Getting ready in a few easy steps:
 
 . http://syncope.apache.org/downloads.html[download^] the standalone distribution
 . unzip the distribution archive
@@ -53,19 +53,19 @@ $ ./bin/startup.sh
 ----
 
 [TIP]
-Please refer to http://tomcat.apache.org/tomcat-8.0-doc/[Apache Tomcat documentation^] for more advanced setup and 
+Please refer to the http://tomcat.apache.org/tomcat-8.0-doc/[Apache Tomcat documentation^] for more advanced setup and 
 instructions.
 
 ==== Components
 
 The set of available components, including access URLs and credentials, is the same as reported for 
-<<paths-and-components,embedded mode>>, with exception of log files, here available under `$CATALINA_HOME/logs`.
+<<paths-and-components,embedded mode>>, with the exception of log files, available here under `$CATALINA_HOME/logs`.
 
 [TIP]
 .Internal Storage
 ====
-By default, the standalone distribution is configured for using an in-memory database instance.
-This means that every time Tomcat is shut down all changes made are lost.
+By default, the standalone distribution is configured to use an in-memory database instance.
+This means that every time Tomcat is shut down all changes that have been made are lost.
 
 If you want instead to make your changes persistent, replace
 
@@ -80,12 +80,12 @@ jpa.url=jdbc:h2:~/syncopedb;DB_CLOSE_DELAY=-1
 in `webapps/syncope/WEB-INF/classes/persistence.properties` from the Apache Tomcat directory.
 This will create H2 database files in the home directory of the user running Apache Syncope.
 
-Please refer to http://www.h2database.com/[H2 documentation^] for more options.
+Please refer to the http://www.h2database.com/[H2 documentation^] for more options.
 ====
 
 === Debian packages
 
-Debian packages are available for usage with latest http://www.debian.org/[Debian GNU / Linux^], 
+Debian packages are available for use with http://www.debian.org/[Debian GNU / Linux^], 
 http://www.ubuntu.com/[Ubuntu^] and their derivatives. 
 
 [CAUTION]
@@ -126,7 +126,7 @@ sudo service tomcat8 stop
 [source,bash]
 sudo dpkg -i apache-syncope-*.deb
 +
-. Create a database for usage with Apache Syncope
+. Create a database for use with Apache Syncope
 +
 [source,bash]
 sudo SYNCOPE_USER="syncope" SYNCOPE_PASS="syncope" sh /usr/share/apache-syncope/dbinit-postgresql.sh
@@ -162,16 +162,16 @@ GUI application for configuring and deploying Apache Syncope on supported
 
 [CAUTION]
 .Target Audience
-Getting up and running quickly on any supported DBMS and Java EE container, independently from underlying
+Getting up and running quickly on any supported DBMS and Java EE container, independently from the underlying
 operating system. +
 *Difficult to extend beyond pre-sets.*
 
 ==== Prerequisites
 
  . http://maven.apache.org/[Apache Maven^] (version 3.0.3 or higher) installed
- . one of supported <<internal-storage,DBMSes>> up and running
- . one of supported <<java-ee-container, Java EE containers>> up and running 
- . datasource with name `syncopeDataSource` configured in the selected Java EE container, for a database instance in the
+ . one of the supported <<internal-storage,DBMSes>> up and running
+ . one of the supported <<java-ee-container, Java EE containers>> up and running 
+ . A datasource with the name `syncopeDataSource` configured in the selected Java EE container, for a database instance in the
  DBMS of choice
 
 [WARNING]
@@ -192,7 +192,7 @@ of `$CATALINA_HOME/conf/tomcat-users.xml` looks like:
 
 ==== Usage
 
-Once http://syncope.apache.org/downloads.html[downloaded^], double-click the JAR file or execute via command-line:
+Once http://syncope.apache.org/downloads.html[downloaded^], double-click the JAR file or execute via the command-line:
 
 [source,bash]
 java -jar syncope-installer-*-uber.jar
@@ -213,7 +213,7 @@ Maven home directory:: directory where Apache Maven is installed
 GroupId:: something like 'com.mycompany'
 ArtifactId:: something like 'mySyncopeProject'
 Secret Key:: provide any pseudo-random string here that will be used in the generated project for AES ciphering
-Anonymous Key:: provide any pseudo-random string here that will be used an authentication key for anonymous requests
+Anonymous Key:: provide any pseudo-random string here that will be used as an authentication key for anonymous requests
 Configuration directory:: directory for configuration files
 Log directory:: directory for log files
 Bundle directory:: directory where ConnId bundles are put
@@ -255,7 +255,7 @@ and extension capabilities.
 
 [CAUTION]
 .Target Audience
-Provides access to full capabilities of Apache Syncope, and nearly any possible extension. +
+Provides access to the full capabilities of Apache Syncope, and almost all extensions that are possible. +
 *Requires Apache Maven (and potentially https://en.wikipedia.org/wiki/DevOps[DevOps^]) skills.*
 
 ==== Prerequisites
@@ -315,7 +315,7 @@ generated project:
 
 endif::[]
 
-The archetype is configured with default values for all properties required; if you want to customize any of these 
+The archetype is configured with default values for all required properties; if you want to customize any of these 
 property values, type 'n' when prompted for confirmation.
 
 You will be asked for:
@@ -333,7 +333,7 @@ to the groupId.
 secretKey::
     Provide any pseudo-random string here that will be used in the generated project for AES ciphering.
 anonymousKey:: 
-    Provide any pseudo-random string here that will be used an authentication key for anonymous requests.
+    Provide any pseudo-random string here that will be used as an authentication key for anonymous requests.
 
 Maven will create a project for you (in a newly created directory named after the value of the `artifactId` property 
 specified above) containing three modules: `common`, `core` and `console`.
@@ -343,12 +343,12 @@ You are now able to perform the first build via
 [source,bash]
 mvn clean verify
 
-After downloading all the needed dependencies, this will produce two WAR files:
+After downloading all of the needed dependencies, two WAR files will be produced:
 
 . `core/target/syncope.war`
 . `console/target/syncope-console.war`
 
-If no failures are encountered, your basic Apache Syncope project is now set.
+If no failures are encountered, your basic Apache Syncope project is now ready to go.
 
 [NOTE]
 You should consider reading the _Apache Syncope Reference Guide_ for understanding how to configure, extend, customize 
