@@ -35,4 +35,13 @@ public abstract class AbstractCommand {
     }
 
     public abstract String getHelpMessage();
+
+    protected static String[] fromEnumToArray(final Class<? extends Enum<?>> enumClass) {
+        final String[] types = new String[enumClass.getFields().length];
+        for (int i = 0; i < enumClass.getFields().length; i++) {
+            types[i] = enumClass.getFields()[i].getName();
+
+        }
+        return types;
+    }
 }

@@ -78,7 +78,7 @@ public class NotificationCommand extends AbstractCommand {
                         try {
                             System.out.println(notificationService.read(Long.valueOf(parameter)));
                         } catch (final NumberFormatException ex) {
-                            System.out.println("Error reading " + parameter + ". It isn't a valid notification id");
+                            Messages.printIdNotNumberDeletedMessage("notification", parameter);
                         } catch (final WebServiceException | SyncopeClientException ex) {
                             if (ex.getMessage().startsWith("NotFound")) {
                                 Messages.printNofFoundMessage("Notification", parameter);
@@ -106,8 +106,7 @@ public class NotificationCommand extends AbstractCommand {
                                 Messages.printMessage(ex.getMessage());
                             }
                         } catch (final NumberFormatException ex) {
-                            Messages.printMessage(
-                                    "Error reading " + parameter + ". It isn't a valid notification id");
+                            Messages.printIdNotNumberDeletedMessage("notification", parameter);
                         }
                     }
                 } else {
@@ -118,9 +117,7 @@ public class NotificationCommand extends AbstractCommand {
                 System.out.println(HELP_MESSAGE);
                 break;
             default:
-                System.out.println(input.getOption() + " is not a valid option.");
-                System.out.println("");
-                System.out.println(HELP_MESSAGE);
+                Messages.printDefaultMessage(input.getOption(), HELP_MESSAGE);
         }
     }
 

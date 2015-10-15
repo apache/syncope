@@ -109,14 +109,13 @@ public class ReportCommand extends AbstractCommand {
                 }
                 break;
             case READ:
-                final String readErrorMessage = "Usage: report --read {REPORT-ID} {REPORT-ID} [...]";
+                final String readErrorMessage = "report --read {REPORT-ID} {REPORT-ID} [...]";
                 if (parameters.length >= 1) {
                     for (final String parameter : parameters) {
                         try {
                             System.out.println(reportService.read(Long.valueOf(parameter)));
                         } catch (final NumberFormatException ex) {
-                            Messages.printMessage(
-                                    "Error reading " + parameter + ". It isn't a valid report id");
+                            Messages.printIdNotNumberDeletedMessage("report", parameter);
                         } catch (final WebServiceException | SyncopeClientException ex) {
                             if (ex.getMessage().startsWith("NotFound")) {
                                 Messages.printNofFoundMessage("Report", parameter);
@@ -130,9 +129,9 @@ public class ReportCommand extends AbstractCommand {
                 }
                 break;
             case DELETE:
-                final String deleteErrorMessage = "report --execute {REPORT-ID}";
+                final String deleteErrorMessage = "report --delete {REPORT-ID} {REPORT-ID} [...]";
 
-                if (parameters.length == 1) {
+                if (parameters.length >= 1) {
                     for (final String parameter : parameters) {
                         try {
                             reportService.delete(Long.valueOf(parameter));
@@ -146,8 +145,7 @@ public class ReportCommand extends AbstractCommand {
                                 Messages.printMessage(ex.getMessage());
                             }
                         } catch (final NumberFormatException ex) {
-                            Messages.printMessage(
-                                    "Error reading " + parameter + ". It isn't a valid report id");
+                            Messages.printIdNotNumberDeletedMessage("report", parameter);
                         }
                     }
                 } else {
@@ -155,7 +153,7 @@ public class ReportCommand extends AbstractCommand {
                 }
                 break;
             case EXECUTE:
-                final String executeErrorMessage = "Usage: report --execute {REPORT-ID}";
+                final String executeErrorMessage = "report --execute {REPORT-ID}";
 
                 if (parameters.length == 1) {
 
@@ -178,8 +176,7 @@ public class ReportCommand extends AbstractCommand {
                             Messages.printMessage(ex.getMessage());
                         }
                     } catch (final NumberFormatException ex) {
-                        Messages.printMessage(
-                                "Error reading " + parameters[0] + ". It isn't a valid report id");
+                        Messages.printIdNotNumberDeletedMessage("report", parameters[0]);
                     }
                 } else {
                     Messages.printCommandOptionMessage(executeErrorMessage);
@@ -205,8 +202,7 @@ public class ReportCommand extends AbstractCommand {
                                 Messages.printMessage(ex.getMessage());
                             }
                         } catch (final NumberFormatException ex) {
-                            Messages.printMessage(
-                                    "Error reading " + parameter + ". It isn't a valid report id");
+                            Messages.printIdNotNumberDeletedMessage("report", parameter);
                         }
                     }
                 } else {
@@ -232,7 +228,7 @@ public class ReportCommand extends AbstractCommand {
                                 System.out.println(ex.getMessage());
                             }
                         } catch (final NumberFormatException ex) {
-                            System.out.println("Error reading " + parameter + ". It isn't a valid report id");
+                            Messages.printIdNotNumberDeletedMessage("report", parameter);
                         }
                     }
                 } else {
@@ -241,7 +237,7 @@ public class ReportCommand extends AbstractCommand {
                 break;
             case EXPORT_EXECUTION_RESULT:
                 final String exportExecutionErrorMessage
-                        = "Usage: report --export-execution-result {EXECUTION-ID} {EXECUTION-ID} [...] {FORMAT}\n"
+                        = "report --export-execution-result {EXECUTION-ID} {EXECUTION-ID} [...] {FORMAT}\n"
                         + "          Format: CSV / HTML / PDF / XML / RTF";
 
                 if (parameters.length >= 2) {
@@ -281,19 +277,15 @@ public class ReportCommand extends AbstractCommand {
                                 System.out.println(ex.getMessage());
                             }
                         } catch (final NumberFormatException ex) {
-                            System.out.println("Error reading " + parameter + ". It isn't a valid report id");
+                            Messages.printIdNotNumberDeletedMessage("report", parameter);
                         } catch (IOException | ParserConfigurationException | SAXException | TransformerException e) {
                             System.out.println(" - Error creating " + "export_" + parameter + " " + e.getMessage());
                         } catch (final IllegalArgumentException ex) {
-                            if (ex.getMessage().startsWith("No enum constant org.apache.syncope.common.lib.types.")) {
-                                System.out.println(" - Error: " + input.lastParameter()
-                                        + " isn't a valid policy type, try with:");
-                                for (final ReportExecExportFormat type : ReportExecExportFormat.values()) {
-                                    System.out.println("  *** " + type.name());
-                                }
-                            }
-                            break;
+                            Messages.printTypeNotValidMessage(
+                                    "format", input.firstParameter(),
+                                    fromEnumToArray(ReportExecExportFormat.class));
                         }
+                        break;
                     }
                 } else {
                     Messages.printCommandOptionMessage(exportExecutionErrorMessage);
@@ -303,9 +295,7 @@ public class ReportCommand extends AbstractCommand {
                 System.out.println(HELP_MESSAGE);
                 break;
             default:
-                System.out.println(input.getOption() + " is not a valid option.");
-                System.out.println("");
-                System.out.println(HELP_MESSAGE);
+                Messages.printDefaultMessage(input.getOption(), HELP_MESSAGE);
         }
     }
 

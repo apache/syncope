@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.client.cli.commands;
 
+import static org.apache.syncope.client.cli.commands.AbstractCommand.fromEnumToArray;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -98,12 +100,8 @@ public class SchemaCommand extends AbstractCommand {
                     } catch (final SyncopeClientException ex) {
                         Messages.printMessage(ex.getMessage());
                     } catch (final IllegalArgumentException ex) {
-                        Messages.printMessage(
-                                input.firstParameter() + " isn't a valid schema type, try with:");
-                        for (final SchemaType type : SchemaType.values()) {
-                            System.out.println("  *** " + type.name());
-                        }
-                        System.out.println("");
+                        Messages.printTypeNotValidMessage(
+                                "schema", input.firstParameter(), fromEnumToArray(SchemaType.class));
                     }
                 } else {
                     Messages.printCommandOptionMessage(listErrorMessage);
@@ -217,12 +215,8 @@ public class SchemaCommand extends AbstractCommand {
                             Messages.printMessage(ex.getMessage());
                         }
                     } catch (final IllegalArgumentException ex) {
-                        Messages.printMessage(
-                                parameters[0] + " isn't a valid schema type, try with:");
-                        for (final SchemaType type : SchemaType.values()) {
-                            System.out.println("  *** " + type.name());
-                        }
-                        System.out.println("");
+                        Messages.printTypeNotValidMessage(
+                                "schema", input.firstParameter(), fromEnumToArray(SchemaType.class));
                     }
                 } else {
                     Messages.printCommandOptionMessage(readErrorMessage);
@@ -248,12 +242,8 @@ public class SchemaCommand extends AbstractCommand {
                             Messages.printMessage(ex.getMessage());
                         }
                     } catch (final IllegalArgumentException ex) {
-                        Messages.printMessage(
-                                parameters[0] + " isn't a valid schema type, try with:");
-                        for (final SchemaType type : SchemaType.values()) {
-                            System.out.println("  *** " + type.name());
-                        }
-                        System.out.println("");
+                        Messages.printTypeNotValidMessage(
+                                "schema", input.firstParameter(), fromEnumToArray(SchemaType.class));
                     }
                 } else {
                     Messages.printCommandOptionMessage(deleteErrorMessage);
@@ -263,9 +253,7 @@ public class SchemaCommand extends AbstractCommand {
                 System.out.println(HELP_MESSAGE);
                 break;
             default:
-                System.out.println(input.getOption() + " is not a valid option.");
-                System.out.println("");
-                System.out.println(HELP_MESSAGE);
+                Messages.printDefaultMessage(input.getOption(), HELP_MESSAGE);
         }
     }
 

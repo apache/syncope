@@ -29,7 +29,7 @@ public enum TaskType {
     SYNCHRONIZATION("sync"),
     PUSH("push");
 
-    private String name;
+    private final String name;
 
     private TaskType(final String name) {
         this.name = name;

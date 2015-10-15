@@ -26,6 +26,16 @@ public final class Messages {
 
     private static final String DOESNT_EXIST_MESSAGE_TEMPLATE = "%s %s doesn't exist";
 
+    private static final String TYPE_NOT_VALID_MESSAGE_TEMPLATE = "%s isn't a valid %s type, try with: %s";
+
+    private static final String ID_NOT_NUMBER_MESSAGE_TEMPLATE = "Error reading %s. It isn't a valid %s "
+            + "id because it isn't a long value";
+
+    private static final String NOT_BOOLEAN_MESSAGE_TEMPLATE = "Error reading %s. It isn't a valid %s "
+            + "value because it isn't a boolean value";
+
+    private static final String DEFAULT_MESSAGE_TEMPLATE = "%s is not a valid option. \n\b %s";
+
     public static void printCommandOptionMessage(final String message) {
         System.out.println(String.format(OPTION_COMMAND_MESSAGE_TEMPLATE, message));
     }
@@ -44,6 +54,26 @@ public final class Messages {
 
     public static void printDeletedMessage(final String what, final String key) {
         printMessage(String.format(DELETED_MESSAGE_TEMPLATE, what, key));
+    }
+
+    public static void printIdNotNumberDeletedMessage(final String what, final String key) {
+        printMessage(String.format(ID_NOT_NUMBER_MESSAGE_TEMPLATE, key, what));
+    }
+    
+    public static void printNotBooleanDeletedMessage(final String what, final String key) {
+        printMessage(String.format(NOT_BOOLEAN_MESSAGE_TEMPLATE, key, what));
+    }
+
+    public static void printTypeNotValidMessage(final String what, final String key, final String[] types) {
+        final StringBuilder typesBuilder = new StringBuilder();
+        for (final String type : types) {
+            typesBuilder.append("\n     *** ").append(type);
+        }
+        printMessage(String.format(TYPE_NOT_VALID_MESSAGE_TEMPLATE, key, what, typesBuilder.toString()));
+    }
+
+    public static void printDefaultMessage(final String option, final String helpMessage) {
+        printMessage(String.format(DEFAULT_MESSAGE_TEMPLATE, option, helpMessage));
     }
 
     private Messages() {

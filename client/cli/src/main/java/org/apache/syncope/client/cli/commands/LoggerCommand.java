@@ -106,7 +106,7 @@ public class LoggerCommand extends AbstractCommand {
                 final String updateErrorMessage = "logger --update {LOG-NAME}={LOG-LEVEL} {LOG-NAME}={LOG-LEVEL} [...]";
 
                 if (parameters.length >= 1) {
-                    Input.PairParameter pairParameter = null;
+                    Input.PairParameter pairParameter;
                     for (final String parameter : parameters) {
                         try {
                             pairParameter = input.toPairParameter(parameter);
@@ -119,12 +119,8 @@ public class LoggerCommand extends AbstractCommand {
                             System.out.println("");
                         } catch (final WebServiceException | SyncopeClientException | IllegalArgumentException ex) {
                             if (ex.getMessage().startsWith("No enum constant org.apache.syncope.common.lib.types.")) {
-                                Messages.printMessage(ex.getMessage());
-                                System.out.println("Try with:");
-                                for (final LoggerLevel level : LoggerLevel.values()) {
-                                    System.out.println("  *** " + level.name());
-                                }
-                                System.out.println("");
+                                Messages.printTypeNotValidMessage(
+                                        "logger level", input.firstParameter(), fromEnumToArray(LoggerLevel.class));
                             } else if ("Parameter syntax error!".equalsIgnoreCase(ex.getMessage())) {
                                 Messages.printMessage(ex.getMessage(), updateErrorMessage);
                             } else if (ex.getMessage().startsWith("NotFound")) {
@@ -153,12 +149,8 @@ public class LoggerCommand extends AbstractCommand {
                             System.out.println("");
                         } catch (final WebServiceException | SyncopeClientException | IllegalArgumentException ex) {
                             if (ex.getMessage().startsWith("No enum constant org.apache.syncope.common.lib.types.")) {
-                                Messages.printMessage(ex.getMessage());
-                                System.out.println("Try with:");
-                                for (final LoggerLevel level : LoggerLevel.values()) {
-                                    System.out.println("  *** " + level.name());
-                                }
-                                System.out.println("");
+                                Messages.printTypeNotValidMessage(
+                                        "logger level", input.firstParameter(), fromEnumToArray(LoggerLevel.class));
                             } else {
                                 Messages.printMessage(ex.getMessage(), updateAllErrorMessage);
                             }
@@ -187,16 +179,8 @@ public class LoggerCommand extends AbstractCommand {
                             System.out.println("   - level: " + loggerTO.getLevel());
                             System.out.println("");
                         } catch (final WebServiceException | SyncopeClientException | IllegalArgumentException ex) {
-                            if (ex.getMessage().startsWith("No enum constant org.apache.syncope.common.lib.types.")) {
-                                Messages.printMessage(ex.getMessage());
-                                System.out.println("Try with:");
-                                for (final LoggerLevel level : LoggerLevel.values()) {
-                                    System.out.println("  *** " + level.name());
-                                }
-                                System.out.println("");
-                            } else if ("Parameter syntax error!".equalsIgnoreCase(ex.getMessage())) {
-                                Messages.printMessage(ex.getMessage(), createErrorMessage);
-                            }
+                            Messages.printTypeNotValidMessage(
+                                    "logger level", input.firstParameter(), fromEnumToArray(LoggerLevel.class));
                             break;
                         }
                     }
@@ -228,9 +212,7 @@ public class LoggerCommand extends AbstractCommand {
                 System.out.println(HELP_MESSAGE);
                 break;
             default:
-                System.out.println(input.getOption() + " is not a valid option.");
-                System.out.println("");
-                System.out.println(HELP_MESSAGE);
+                Messages.printDefaultMessage(input.getOption(), HELP_MESSAGE);
         }
     }
 

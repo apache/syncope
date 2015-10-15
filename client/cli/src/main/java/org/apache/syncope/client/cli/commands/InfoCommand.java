@@ -267,9 +267,7 @@ public class InfoCommand extends AbstractCommand {
                 System.out.println(helpMessage("info", Options.toList()));
                 break;
             default:
-                System.out.println(input.getOption() + " is not a valid option.");
-                System.out.println("");
-                System.out.println(helpMessage("info", Options.toList()));
+                Messages.printDefaultMessage(input.getOption(), helpMessage("info", Options.toList()));
                 break;
         }
     }

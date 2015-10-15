@@ -264,9 +264,7 @@ public class ConfigurationCommand extends AbstractCommand {
                 System.out.println(HELP_MESSAGE);
                 break;
             default:
-                System.out.println(input.getOption() + " is not a valid option.");
-                System.out.println("");
-                System.out.println(HELP_MESSAGE);
+                Messages.printDefaultMessage(input.getOption(), HELP_MESSAGE);
                 break;
         }
     }

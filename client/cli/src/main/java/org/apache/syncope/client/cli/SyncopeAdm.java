@@ -20,26 +20,13 @@ package org.apache.syncope.client.cli;
 
 import org.apache.syncope.client.cli.commands.AbstractCommand;
 import org.apache.syncope.client.cli.messages.Messages;
+import org.apache.syncope.client.cli.util.CommandUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class SyncopeAdm {
 
     private static final Logger LOG = LoggerFactory.getLogger(SyncopeAdm.class);
-
-    private static final String HELP_MESSAGE = "Usage: Main [options]\n"
-            + "  Options:\n"
-            + "    logger --help \n"
-            + "    config --help \n"
-            + "    notification --help \n"
-            + "    report --help \n"
-            + "    policy --help \n"
-            + "    entitlement --help \n"
-            + "    schema --help \n"
-            + "    install --help \n"
-            + "    info --help\n"
-            + "    domain --help\n"
-            + "    help\n";
 
     public static void main(final String[] args) {
         LOG.debug("Starting with args \n");
@@ -50,15 +37,34 @@ public final class SyncopeAdm {
             final AbstractCommand command = input.getCommand();
             command.execute(input);
         } catch (final IllegalAccessException | InstantiationException e) {
-            System.out.println(HELP_MESSAGE);
+            System.out.println(helpMessage());
         } catch (final IllegalArgumentException ex) {
             LOG.error("Error in main", ex);
             Messages.printMessage(ex.getMessage());
             if (!ex.getMessage().startsWith("It seems you")) {
-                System.out.println(HELP_MESSAGE);
+                System.out.println(helpMessage());
             }
         }
 
+    }
+
+    private static String helpMessage() {
+        final StringBuilder helpMessageBuilder = new StringBuilder("Usage: Main [options]\n");
+        helpMessageBuilder.append("  Options:\n");
+        try {
+            for (AbstractCommand command : CommandUtils.commands()) {
+                final String commandName = command.getClass().getAnnotation(Command.class).name();
+                helpMessageBuilder.append("    ").append(commandName);
+                if (!"help".equalsIgnoreCase(commandName)) {
+                    helpMessageBuilder.append(" --help");
+                }
+                helpMessageBuilder.append("\n");
+            }
+        } catch (final IllegalAccessException | IllegalArgumentException | InstantiationException ex) {
+            Messages.printMessage(ex.getMessage());
+        }
+
+        return helpMessageBuilder.toString();
     }
 
     private SyncopeAdm() {

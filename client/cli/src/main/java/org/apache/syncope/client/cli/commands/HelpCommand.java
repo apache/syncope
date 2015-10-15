@@ -63,9 +63,7 @@ public class HelpCommand extends AbstractCommand {
                 }
                 break;
             default:
-                System.out.println(input.getOption() + " is not a valid option.");
-                System.out.println("");
-                System.out.println(helpMessage("help", Options.toList()));
+                Messages.printDefaultMessage(input.getOption(), helpMessage("info", Options.toList()));
                 break;
         }
     }

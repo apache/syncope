@@ -77,12 +77,8 @@ public class PolicyCommand extends AbstractCommand {
                     } catch (final SyncopeClientException ex) {
                         Messages.printMessage(ex.getMessage());
                     } catch (final IllegalArgumentException ex) {
-                        Messages.printMessage(
-                                "Error: " + parameters[0] + " isn't a valid policy type, try with:");
-                        for (final PolicyType type : PolicyType.values()) {
-                            System.out.println("  *** " + type.name());
-                        }
-                        System.out.println("");
+                        Messages.printTypeNotValidMessage(
+                                "policy", input.firstParameter(), fromEnumToArray(PolicyType.class));
                     }
                 } else {
                     Messages.printCommandOptionMessage(listPolicyErrorMessage);
@@ -96,8 +92,7 @@ public class PolicyCommand extends AbstractCommand {
                         try {
                             System.out.println(policyService.read(Long.valueOf(parameter)));
                         } catch (final NumberFormatException ex) {
-                            Messages.printMessage(
-                                    "Error reading " + parameter + ". It isn't a valid policy id");
+                            Messages.printIdNotNumberDeletedMessage("policy", parameter);
                         } catch (final WebServiceException | SyncopeClientException ex) {
                             if (ex.getMessage().startsWith("NotFound")) {
                                 Messages.printNofFoundMessage("Policy", parameter);
@@ -128,8 +123,7 @@ public class PolicyCommand extends AbstractCommand {
                                 Messages.printMessage(ex.getMessage());
                             }
                         } catch (final NumberFormatException ex) {
-                            Messages.printMessage(
-                                    "Error reading " + parameter + ". It isn't a valid policy id");
+                            Messages.printIdNotNumberDeletedMessage("policy", parameter);
                         }
                     }
                 } else {
@@ -140,9 +134,7 @@ public class PolicyCommand extends AbstractCommand {
                 System.out.println(HELP_MESSAGE);
                 break;
             default:
-                System.out.println(input.getOption() + " is not a valid option.");
-                System.out.println("");
-                System.out.println(HELP_MESSAGE);
+                Messages.printDefaultMessage(input.getOption(), HELP_MESSAGE);
         }
     }
 
