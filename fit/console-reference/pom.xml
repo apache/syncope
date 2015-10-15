@@ -453,6 +453,71 @@ ORYX.Editor.createByUrl = function(modelUrl){"/>
                   <resource>
                     <directory>${basedir}/../../common/rest-api/target/classes</directory>
                   </resource>
+
+                  <resource>
+                    <directory>${basedir}/../../core/logic/target/classes</directory>
+                    <excludes>
+                      <exclude>*Context.xml</exclude>
+                    </excludes>
+                  </resource>
+                  <resource>
+                    <directory>${basedir}/../../core/rest-cxf/target/classes</directory>
+                    <excludes>
+                      <exclude>*Context.xml</exclude>
+                    </excludes>
+                  </resource>
+                  <resource>
+                    <directory>${basedir}/../../core/misc/target/classes</directory>
+                    <excludes>
+                      <exclude>*Context.xml</exclude>
+                    </excludes>
+                  </resource>
+                  <resource>
+                    <directory>${basedir}/../../core/persistence-api/target/classes</directory>
+                  </resource>
+                  <resource>
+                    <directory>${basedir}/../../core/persistence-jpa/target/classes</directory>
+                    <excludes>
+                      <exclude>*Context.xml</exclude>
+                    </excludes>
+                  </resource>
+                  <resource>
+                    <directory>${basedir}/../../core/provisioning-api/target/classes</directory>
+                  </resource>
+                  <resource>
+                    <directory>${basedir}/../../core/provisioning-java/target/classes</directory>
+                    <excludes>
+                      <exclude>*Context.xml</exclude>
+                    </excludes>
+                  </resource>
+                  <resource>
+                    <directory>${basedir}/../../core/workflow-api/target/classes</directory>
+                  </resource>
+                  <resource>
+                    <directory>${basedir}/../../core/workflow-java/target/classes</directory>
+                    <excludes>
+                      <exclude>*Context.xml</exclude>
+                    </excludes>
+                  </resource>
+                  <resource>
+                    <directory>${basedir}/../../core/workflow-activiti/target/classes</directory>
+                    <excludes>
+                      <exclude>*Context.xml</exclude>
+                    </excludes>
+                  </resource>
+                  <resource>
+                    <directory>${basedir}/../../ext/camel/provisioning-camel/target/classes</directory>
+                    <excludes>
+                      <exclude>*Context.xml</exclude>
+                    </excludes>
+                  </resource>
+
+                  <resource>
+                    <directory>${basedir}/../../common/lib/target/classes</directory>
+                  </resource>
+                  <resource>
+                    <directory>${basedir}/../../common/rest-api/target/classes</directory>
+                  </resource>
                   <resource>
                     <directory>${basedir}/../../core/logic/target/classes</directory>
                     <excludes>
@@ -521,6 +586,11 @@ ORYX.Editor.createByUrl = function(modelUrl){"/>
               
               <web>
                 <resources>
+                  <resource>
+                    <target>/</target>
+                    <directory>${basedir}/../../ext/swagger-ui/target/classes/META-INF/resources</directory>
+                  </resource>
+
                   <resource>
                     <target>/</target>
                     <directory>${basedir}/../../client/console/target/classes/META-INF/resources/</directory>

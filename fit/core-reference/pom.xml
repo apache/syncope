@@ -754,6 +754,7 @@ under the License.
                   <resource>
                     <directory>${basedir}/../../common/rest-api/target/classes</directory>
                   </resource>
+
                   <resource>
                     <directory>${basedir}/../../core/logic/target/classes</directory>
                     <excludes>
