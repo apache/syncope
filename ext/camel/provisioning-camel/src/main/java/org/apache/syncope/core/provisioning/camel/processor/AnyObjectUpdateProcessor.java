@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.camel.processor;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import org.apache.camel.Exchange;
@@ -61,6 +60,17 @@ public class AnyObjectUpdateProcessor implements Processor {
         AnyObjectPatch anyObjectPatch = exchange.getProperty("anyPatch", AnyObjectPatch.class);
         Set<String> excludedResources = exchange.getProperty("excludedResources", Set.class);
 
+        // SYNCOPE-459: take care of user virtual attributes ...
+        PropagationByResource propByResVirAttr = virtAttrHandler.updateVirtual(
+                updated.getResult(),
+                AnyTypeKind.ANY_OBJECT,
+                anyObjectPatch.getVirAttrs());
+        if (updated.getPropByRes() == null) {
+            updated.setPropByRes(propByResVirAttr);
+        } else {
+            updated.getPropByRes().merge(propByResVirAttr);
+        }
+
         List<PropagationTask> tasks = propagationManager.getUpdateTasks(
                 AnyTypeKind.ANY_OBJECT,
                 updated.getResult(),
@@ -69,23 +79,6 @@ public class AnyObjectUpdateProcessor implements Processor {
                 updated.getPropByRes(),
                 anyObjectPatch.getVirAttrs(),
                 excludedResources);
-        if (tasks.isEmpty()) {
-            // SYNCOPE-459: take care of user virtual attributes ...
-            PropagationByResource propByResVirAttr = virtAttrHandler.updateVirtual(
-                    updated.getResult(),
-                    AnyTypeKind.ANY_OBJECT,
-                    anyObjectPatch.getVirAttrs());
-            tasks.addAll(!propByResVirAttr.isEmpty()
-                    ? propagationManager.getUpdateTasks(
-                            AnyTypeKind.ANY_OBJECT,
-                            updated.getResult(),
-                            false,
-                            null,
-                            updated.getPropByRes(),
-                            anyObjectPatch.getVirAttrs(),
-                            null)
-                    : Collections.<PropagationTask>emptyList());
-        }
 
         PropagationReporter propagationReporter =
                 ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);

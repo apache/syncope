@@ -123,8 +123,9 @@ public interface UserWorkflowAdapter extends WorkflowAdapter {
      * @param userKey user confirming password reset
      * @param token security token
      * @param password new password value
+     * @return user just updated and propagations to be performed
      */
-    void confirmPasswordReset(Long userKey, String token, String password);
+    WorkflowResult<Pair<UserPatch, Boolean>> confirmPasswordReset(Long userKey, String token, String password);
 
     /**
      * Delete an user.

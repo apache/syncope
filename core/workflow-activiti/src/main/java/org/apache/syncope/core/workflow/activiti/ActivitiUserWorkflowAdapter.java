@@ -371,15 +371,28 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    protected void doConfirmPasswordReset(final User user, final String token, final String password) {
+    protected WorkflowResult<Pair<UserPatch, Boolean>> doConfirmPasswordReset(
+            final User user, final String token, final String password) {
+
         Map<String, Object> variables = new HashMap<>(4);
         variables.put(TOKEN, token);
         variables.put(PASSWORD, password);
         variables.put(USER_TO, userDataBinder.getUserTO(user, true));
         variables.put(EVENT, "confirmPasswordReset");
 
-        doExecuteTask(user, "confirmPasswordReset", variables);
+        Set<String> tasks = doExecuteTask(user, "confirmPasswordReset", variables);
+
         userDAO.save(user);
+
+        PropagationByResource propByRes = engine.getRuntimeService().getVariable(
+                user.getWorkflowId(), PROP_BY_RESOURCE, PropagationByResource.class);
+        UserPatch updatedPatch = engine.getRuntimeService().getVariable(
+                user.getWorkflowId(), USER_PATCH, UserPatch.class);
+        Boolean propagateEnable = engine.getRuntimeService().getVariable(
+                user.getWorkflowId(), PROPAGATE_ENABLE, Boolean.class);
+
+        return new WorkflowResult<Pair<UserPatch, Boolean>>(
+                new ImmutablePair<>(updatedPatch, propagateEnable), propByRes, tasks);
     }
 
     @Override

@@ -59,17 +59,18 @@ public class UserUpdateProcessor implements Processor {
         WorkflowResult<Pair<UserPatch, Boolean>> updated = (WorkflowResult) exchange.getIn().getBody();
         UserPatch userPatch = exchange.getProperty("actual", UserPatch.class);
 
-        List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(updated);
-        if (tasks.isEmpty()) {
-            // SYNCOPE-459: take care of user virtual attributes ...
-            PropagationByResource propByResVirAttr = virtAttrHandler.updateVirtual(
-                    updated.getResult().getKey().getKey(),
-                    AnyTypeKind.USER,
-                    userPatch.getVirAttrs());
-            if (!propByResVirAttr.isEmpty()) {
-                tasks.addAll(propagationManager.getUserUpdateTasks(updated, false, null));
-            }
+        // SYNCOPE-459: take care of user virtual attributes ...
+        PropagationByResource propByResVirAttr = virtAttrHandler.updateVirtual(
+                updated.getResult().getKey().getKey(),
+                AnyTypeKind.USER,
+                userPatch.getVirAttrs());
+        if (updated.getPropByRes() == null) {
+            updated.setPropByRes(propByResVirAttr);
+        } else {
+            updated.getPropByRes().merge(propByResVirAttr);
         }
+
+        List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(updated);
 
         PropagationReporter propagationReporter =
                 ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);

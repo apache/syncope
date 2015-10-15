@@ -284,7 +284,7 @@ public class VirAttrITCase extends AbstractITCase {
             assertTrue(found);
 
             // create a new user
-            UserTO userTO = UserITCase.getUniqueSampleTO("syncope397@syncope.apache.org");
+            UserTO userTO = UserITCase.getUniqueSampleTO("397@syncope.apache.org");
             userTO.getAuxClasses().add("csv");
             userTO.getResources().clear();
             userTO.getMemberships().clear();
@@ -323,7 +323,7 @@ public class VirAttrITCase extends AbstractITCase {
 
             toBeUpdated = updateUser(userPatch);
             assertNotNull(toBeUpdated);
-            assertEquals("test@testoneone.com", toBeUpdated.getVirAttrs().iterator().next().getValues().get(0));
+            assertTrue(toBeUpdated.getVirAttrs().iterator().next().getValues().contains("test@testoneone.com"));
             // check if propagates correctly with assertEquals on size of tasks list
             assertEquals(2, toBeUpdated.getPropagationStatusTOs().size());
         } finally {

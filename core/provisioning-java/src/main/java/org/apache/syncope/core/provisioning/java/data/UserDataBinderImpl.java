@@ -264,21 +264,24 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
         // password
         if (userPatch.getPassword() != null && StringUtils.isNotBlank(userPatch.getPassword().getValue())) {
-            setPassword(user, userPatch.getPassword().getValue(), scce);
-            user.setChangePwdDate(new Date());
-            propByRes.addAll(ResourceOperation.UPDATE, currentResources);
+            if (userPatch.getPassword().isOnSyncope()) {
+                setPassword(user, userPatch.getPassword().getValue(), scce);
+                user.setChangePwdDate(new Date());
+            }
+
+            propByRes.addAll(ResourceOperation.UPDATE, userPatch.getPassword().getResources());
         }
 
         // username
         if (userPatch.getUsername() != null && StringUtils.isNotBlank(userPatch.getUsername().getValue())) {
-            propByRes.addAll(ResourceOperation.UPDATE, currentResources);
-
             String oldUsername = user.getUsername();
             user.setUsername(userPatch.getUsername().getValue());
 
             if (oldUsername.equals(AuthContextUtils.getUsername())) {
                 AuthContextUtils.updateUsername(userPatch.getUsername().getValue());
             }
+
+            propByRes.addAll(ResourceOperation.UPDATE, currentResources);
         }
 
         // security question / answer:

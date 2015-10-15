@@ -105,6 +105,17 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
 
         WorkflowResult<Long> updated = awfAdapter.update(anyObjectPatch);
 
+        // SYNCOPE-459: take care of user virtual attributes ...
+        PropagationByResource propByResVirAttr = virtAttrHandler.updateVirtual(
+                updated.getResult(),
+                AnyTypeKind.ANY_OBJECT,
+                anyObjectPatch.getVirAttrs());
+        if (updated.getPropByRes() == null) {
+            updated.setPropByRes(propByResVirAttr);
+        } else {
+            updated.getPropByRes().merge(propByResVirAttr);
+        }
+
         List<PropagationTask> tasks = propagationManager.getUpdateTasks(
                 AnyTypeKind.ANY_OBJECT,
                 updated.getResult(),
@@ -113,23 +124,6 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
                 updated.getPropByRes(),
                 anyObjectPatch.getVirAttrs(),
                 excludedResources);
-        if (tasks.isEmpty()) {
-            // SYNCOPE-459: take care of user virtual attributes ...
-            PropagationByResource propByResVirAttr = virtAttrHandler.updateVirtual(
-                    updated.getResult(),
-                    AnyTypeKind.ANY_OBJECT,
-                    anyObjectPatch.getVirAttrs());
-            tasks.addAll(!propByResVirAttr.isEmpty()
-                    ? propagationManager.getUpdateTasks(
-                            AnyTypeKind.ANY_OBJECT,
-                            updated.getResult(),
-                            false,
-                            null,
-                            updated.getPropByRes(),
-                            anyObjectPatch.getVirAttrs(),
-                            null)
-                    : Collections.<PropagationTask>emptyList());
-        }
 
         PropagationReporter propagationReporter =
                 ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);

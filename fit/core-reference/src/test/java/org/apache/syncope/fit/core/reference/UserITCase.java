@@ -704,7 +704,7 @@ public class UserITCase extends AbstractITCase {
 
         UserPatch userPatch = new UserPatch();
         userPatch.setKey(userTO.getKey());
-        userPatch.setPassword(new PasswordPatch.Builder().value("newPassword123").build());
+        userPatch.setPassword(new PasswordPatch.Builder().value("newPassword123").resource(RESOURCE_NAME_WS2).build());
 
         userTO = updateUser(userPatch);
 
@@ -2554,5 +2554,37 @@ public class UserITCase extends AbstractITCase {
             pwdCipherAlgo.getValues().set(0, origpwdCipherAlgo);
             configurationService.set(pwdCipherAlgo);
         }
+    }
+
+    @Test
+    public void issueSYNCOPE710() {
+        // 1. create groups for indirect resource assignment
+        GroupTO ldapGroup = GroupITCase.getBasicSampleTO("syncope710.ldap");
+        ldapGroup.getResources().add(RESOURCE_NAME_LDAP);
+        ldapGroup = createGroup(ldapGroup);
+
+        GroupTO dbGroup = GroupITCase.getBasicSampleTO("syncope710.db");
+        dbGroup.getResources().add(RESOURCE_NAME_TESTDB);
+        dbGroup = createGroup(dbGroup);
+
+        // 2. create user with memberships for the groups created above
+        UserTO userTO = getUniqueSampleTO("syncope710@syncope.apache.org");
+        userTO.getResources().clear();
+        userTO.getMemberships().clear();
+        userTO.getMemberships().add(new MembershipTO.Builder().group(ldapGroup.getKey()).build());
+        userTO.getMemberships().add(new MembershipTO.Builder().group(dbGroup.getKey()).build());
+
+        userTO = createUser(userTO);
+        assertEquals(2, userTO.getPropagationStatusTOs().size());
+
+        // 3. request to propagate passwod only to db
+        UserPatch userPatch = new UserPatch();
+        userPatch.setKey(userTO.getKey());
+        userPatch.setPassword(new PasswordPatch.Builder().
+                onSyncope(false).resource(RESOURCE_NAME_TESTDB).value("newpassword123").build());
+
+        userTO = updateUser(userPatch);
+        assertEquals(1, userTO.getPropagationStatusTOs().size());
+        assertEquals(RESOURCE_NAME_TESTDB, userTO.getPropagationStatusTOs().get(0).getResource());
     }
 }

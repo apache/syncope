@@ -21,7 +21,6 @@ package org.apache.syncope.core.workflow.java;
 import java.io.OutputStream;
 import java.util.Collections;
 import java.util.List;
-import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.PasswordPatch;
@@ -107,27 +106,12 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
     @Override
     protected WorkflowResult<Pair<UserPatch, Boolean>> doUpdate(final User user, final UserPatch userPatch) {
-        // update password internally only if required
-        UserPatch updatedPatch = SerializationUtils.clone(userPatch);
-        PasswordPatch updatedPwd = updatedPatch.getPassword();
-        if (updatedPatch.getPassword() != null && !updatedPatch.getPassword().isOnSyncope()) {
-            updatedPatch.setPassword(null);
-        }
-        // update User
-        PropagationByResource propByRes = dataBinder.update(user, updatedPatch);
-        if (updatedPatch.getPassword() != null && !updatedPatch.getPassword().getResources().isEmpty()) {
-            if (updatedPwd == null) {
-                updatedPwd = updatedPatch.getPassword();
-            } else {
-                updatedPwd.getResources().addAll(updatedPatch.getPassword().getResources());
-            }
-        }
-        updatedPatch.setPassword(updatedPwd);
+        PropagationByResource propByRes = dataBinder.update(user, userPatch);
 
         userDAO.save(user);
 
         return new WorkflowResult<Pair<UserPatch, Boolean>>(
-                new ImmutablePair<>(updatedPatch, !user.isSuspended()), propByRes, "update");
+                new ImmutablePair<>(userPatch, !user.isSuspended()), propByRes, "update");
     }
 
     @Override
@@ -155,14 +139,21 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    protected void doConfirmPasswordReset(final User user, final String token, final String password) {
+    protected WorkflowResult<Pair<UserPatch, Boolean>> doConfirmPasswordReset(
+            final User user, final String token, final String password) {
+
         if (!user.checkToken(token)) {
             throw new WorkflowException(new IllegalArgumentException("Wrong token: " + token + " for " + user));
         }
 
         user.removeToken();
-        user.setPassword(password, user.getCipherAlgorithm());
-        userDAO.save(user);
+
+        UserPatch userPatch = new UserPatch();
+        userPatch.setKey(user.getKey());
+        userPatch.setPassword(new PasswordPatch.Builder().
+                onSyncope(true).resources(userDAO.findAllResourceNames(user)).value(password).build());
+
+        return doUpdate(user, userPatch);
     }
 
     @Override

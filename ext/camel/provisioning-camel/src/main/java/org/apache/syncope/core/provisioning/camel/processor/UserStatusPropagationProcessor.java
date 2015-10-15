@@ -18,14 +18,14 @@
  */
 package org.apache.syncope.core.provisioning.camel.processor;
 
-import java.util.Collection;
 import java.util.List;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.syncope.common.lib.patch.StatusPatch;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.PropagationByResource;
+import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.StatusPatchType;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -59,20 +59,19 @@ public class UserStatusPropagationProcessor implements Processor {
     public void process(final Exchange exchange) {
         WorkflowResult<Long> updated = (WorkflowResult) exchange.getIn().getBody();
 
-        Long key = exchange.getProperty("userKey", Long.class);
         StatusPatch statusPatch = exchange.getProperty("statusPatch", StatusPatch.class);
 
-        Collection<String> noPropResourceNames = CollectionUtils.removeAll(
-                userDAO.findAllResourceNames(userDAO.find(key)), statusPatch.getResources());
-
+        PropagationByResource propByRes = new PropagationByResource();
+        propByRes.addAll(ResourceOperation.UPDATE, statusPatch.getResources());
         List<PropagationTask> tasks = propagationManager.getUpdateTasks(
                 AnyTypeKind.USER,
                 statusPatch.getKey(),
                 false,
                 statusPatch.getType() != StatusPatchType.SUSPEND,
+                propByRes,
                 null,
-                null,
-                noPropResourceNames);
+                null);
+
         PropagationReporter propReporter =
                 ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
         try {

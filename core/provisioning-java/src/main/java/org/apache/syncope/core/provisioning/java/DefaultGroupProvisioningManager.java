@@ -137,6 +137,17 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
 
         WorkflowResult<Long> updated = gwfAdapter.update(groupPatch);
 
+        // SYNCOPE-459: take care of user virtual attributes ...
+        PropagationByResource propByResVirAttr = virtAttrHandler.updateVirtual(
+                updated.getResult(),
+                AnyTypeKind.GROUP,
+                groupPatch.getVirAttrs());
+        if (updated.getPropByRes() == null) {
+            updated.setPropByRes(propByResVirAttr);
+        } else {
+            updated.getPropByRes().merge(propByResVirAttr);
+        }
+
         List<PropagationTask> tasks = propagationManager.getUpdateTasks(
                 AnyTypeKind.GROUP,
                 updated.getResult(),
@@ -145,23 +156,6 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
                 updated.getPropByRes(),
                 groupPatch.getVirAttrs(),
                 excludedResources);
-        if (tasks.isEmpty()) {
-            // SYNCOPE-459: take care of user virtual attributes ...
-            PropagationByResource propByResVirAttr = virtAttrHandler.updateVirtual(
-                    updated.getResult(),
-                    AnyTypeKind.GROUP,
-                    groupPatch.getVirAttrs());
-            tasks.addAll(!propByResVirAttr.isEmpty()
-                    ? propagationManager.getUpdateTasks(
-                            AnyTypeKind.GROUP,
-                            updated.getResult(),
-                            false,
-                            null,
-                            updated.getPropByRes(),
-                            groupPatch.getVirAttrs(),
-                            excludedResources)
-                    : Collections.<PropagationTask>emptyList());
-        }
 
         PropagationReporter propagationReporter =
                 ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);

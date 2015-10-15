@@ -268,13 +268,7 @@ public class PropagationManagerImpl implements PropagationManager {
         PropagationByResource localPropByRes = virAttrHandler.updateVirtual(
                 any,
                 vAttrs == null ? Collections.<AttrPatch>emptySet() : vAttrs);
-
-        if (propByRes == null || propByRes.isEmpty()) {
-            localPropByRes.addAll(ResourceOperation.UPDATE, any.getResourceNames());
-        } else {
-            localPropByRes.merge(propByRes);
-        }
-
+        localPropByRes.merge(propByRes);
         if (noPropResourceNames != null) {
             localPropByRes.removeAll(noPropResourceNames);
         }
