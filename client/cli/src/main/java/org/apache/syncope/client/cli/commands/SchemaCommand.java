@@ -69,9 +69,8 @@ public class SchemaCommand extends AbstractCommand {
         final SchemaService schemaService = SyncopeServices.get(SchemaService.class);
         switch (Options.fromName(input.getOption())) {
             case LIST:
-                final String listErrorMessage = Messages.optionCommandMessage(
-                        "schema --list {SCHEMA-TYPE}\n"
-                        + "   Schema type: PLAIN / DERIVED / VIRTUAL");
+                final String listErrorMessage = "schema --list {SCHEMA-TYPE}\n"
+                        + "   Schema type: PLAIN / DERIVED / VIRTUAL";
                 if (parameters.length == 1) {
                     try {
                         final SchemaType schemaType = SchemaType.valueOf(input.firstParameter());
@@ -107,7 +106,7 @@ public class SchemaCommand extends AbstractCommand {
                         System.out.println("");
                     }
                 } else {
-                    System.out.println(listErrorMessage);
+                    Messages.printCommandOptionMessage(listErrorMessage);
                 }
                 break;
             case LIST_ALL:
@@ -163,9 +162,8 @@ public class SchemaCommand extends AbstractCommand {
                 }
                 break;
             case READ:
-                final String readErrorMessage = Messages.optionCommandMessage(
-                        "schema --read {SCHEMA-TYPE} {SCHEMA-KEY}\n"
-                        + "   Schema type: PLAIN / DERIVED / VIRTUAL");
+                final String readErrorMessage = "schema --read {SCHEMA-TYPE} {SCHEMA-KEY}\n"
+                        + "   Schema type: PLAIN / DERIVED / VIRTUAL";
                 if (parameters.length >= 2) {
                     parameters = Arrays.copyOfRange(parameters, 1, parameters.length);
                     try {
@@ -214,10 +212,7 @@ public class SchemaCommand extends AbstractCommand {
                         }
                     } catch (final SyncopeClientException | WebServiceException ex) {
                         if (ex.getMessage().startsWith("NotFound")) {
-                            Messages.printMessage(
-                                    "Schema " + parameters[0] + " doesn't exists!");
-                        } else if (ex.getMessage().startsWith("DataIntegrityViolation")) {
-                            Messages.printMessage("You cannot delete schema " + parameters[0]);
+                            Messages.printNofFoundMessage("Schema", parameters[0]);
                         } else {
                             Messages.printMessage(ex.getMessage());
                         }
@@ -230,23 +225,22 @@ public class SchemaCommand extends AbstractCommand {
                         System.out.println("");
                     }
                 } else {
-                    System.out.println(readErrorMessage);
+                    Messages.printCommandOptionMessage(readErrorMessage);
                 }
                 break;
             case DELETE:
-                final String deleteErrorMessage = "Usage: schema --delete {SCHEMA-TYPE} {SCHEMA-KEY}\n"
+                final String deleteErrorMessage = "schema --delete {SCHEMA-TYPE} {SCHEMA-KEY}\n"
                         + "   Schema type: PLAIN / DERIVED / VIRTUAL";
                 if (parameters.length >= 2) {
                     parameters = Arrays.copyOfRange(parameters, 1, parameters.length);
                     try {
                         for (final String parameter : parameters) {
                             schemaService.delete(SchemaType.valueOf(input.firstParameter()), parameter);
-                            System.out.println("Schema " + parameter + " successfully deleted!");
+                            Messages.printDeletedMessage("Schema", parameter);
                         }
                     } catch (final SyncopeClientException | WebServiceException ex) {
                         if (ex.getMessage().startsWith("NotFound")) {
-                            Messages.printMessage(
-                                    "Schema " + parameters[0] + " doesn't exists!");
+                            Messages.printNofFoundMessage("Schema", parameters[0]);
                         } else if (ex.getMessage().startsWith("DataIntegrityViolation")) {
                             Messages.printMessage(
                                     "You cannot delete schema " + parameters[0]);
@@ -262,7 +256,7 @@ public class SchemaCommand extends AbstractCommand {
                         System.out.println("");
                     }
                 } else {
-                    System.out.println(deleteErrorMessage);
+                    Messages.printCommandOptionMessage(deleteErrorMessage);
                 }
                 break;
             case HELP:

@@ -72,7 +72,6 @@ public class LoggerCommand extends AbstractCommand {
         switch (Options.fromName(input.getOption())) {
             case LIST:
                 try {
-                    System.out.println("\n");
                     for (final LoggerTO loggerTO : loggerService.list(LoggerType.LOG)) {
                         System.out.println(" - " + loggerTO.getKey() + " -> " + loggerTO.getLevel());
                         System.out.println("");
@@ -82,8 +81,7 @@ public class LoggerCommand extends AbstractCommand {
                 }
                 break;
             case READ:
-                final String readErrorMessage = Messages.optionCommandMessage(
-                        "logger --read {LOG-NAME} {LOG-NAME} [...]");
+                final String readErrorMessage = "logger --read {LOG-NAME} {LOG-NAME} [...]";
                 if (parameters.length >= 1) {
                     for (final String parameter : parameters) {
                         try {
@@ -94,20 +92,18 @@ public class LoggerCommand extends AbstractCommand {
                             System.out.println("");
                         } catch (final SyncopeClientException | WebServiceException ex) {
                             if (ex.getMessage().startsWith("NotFound")) {
-                                Messages.printMessage(
-                                        "Logger " + parameter + " doesn't exist!");
+                                Messages.printNofFoundMessage("Logger", parameter);
                             } else {
                                 Messages.printMessage("Error: " + ex.getMessage());
                             }
                         }
                     }
                 } else {
-                    System.out.println(readErrorMessage);
+                    Messages.printCommandOptionMessage(readErrorMessage);
                 }
                 break;
             case UPDATE:
-                final String updateErrorMessage = Messages.optionCommandMessage(
-                        "logger --update {LOG-NAME}={LOG-LEVEL} {LOG-NAME}={LOG-LEVEL} [...]");
+                final String updateErrorMessage = "logger --update {LOG-NAME}={LOG-LEVEL} {LOG-NAME}={LOG-LEVEL} [...]";
 
                 if (parameters.length >= 1) {
                     Input.PairParameter pairParameter = null;
@@ -132,8 +128,7 @@ public class LoggerCommand extends AbstractCommand {
                             } else if ("Parameter syntax error!".equalsIgnoreCase(ex.getMessage())) {
                                 Messages.printMessage(ex.getMessage(), updateErrorMessage);
                             } else if (ex.getMessage().startsWith("NotFound")) {
-                                Messages.printMessage(
-                                        "Logger " + pairParameter.getKey() + " doesn't exists!");
+                                Messages.printNofFoundMessage("Logger", parameter);
                             } else {
                                 Messages.printMessage(ex.getMessage(), updateErrorMessage);
                             }
@@ -141,12 +136,11 @@ public class LoggerCommand extends AbstractCommand {
                         }
                     }
                 } else {
-                    System.out.println(updateErrorMessage);
+                    Messages.printCommandOptionMessage(updateErrorMessage);
                 }
                 break;
             case UPDATE_ALL:
-                final String updateAllErrorMessage = Messages.optionCommandMessage(
-                        "logger --update-all {LOG-LEVEL}");
+                final String updateAllErrorMessage = "logger --update-all {LOG-LEVEL}";
 
                 if (parameters.length == 1) {
                     for (final LoggerTO loggerTO : loggerService.list(LoggerType.LOG)) {
@@ -172,12 +166,11 @@ public class LoggerCommand extends AbstractCommand {
                         }
                     }
                 } else {
-                    System.out.println(updateAllErrorMessage);
+                    Messages.printCommandOptionMessage(updateAllErrorMessage);
                 }
                 break;
             case CREATE:
-                final String createErrorMessage = Messages.optionCommandMessage(
-                        "logger --create {LOG-NAME}={LOG-LEVEL} {LOG-NAME}={LOG-LEVEL} [...]");
+                final String createErrorMessage = "logger --create {LOG-NAME}={LOG-LEVEL} {LOG-NAME}={LOG-LEVEL} [...]";
 
                 if (parameters.length >= 1) {
                     Input.PairParameter pairParameter;
@@ -208,29 +201,27 @@ public class LoggerCommand extends AbstractCommand {
                         }
                     }
                 } else {
-                    System.out.println(createErrorMessage);
+                    Messages.printCommandOptionMessage(createErrorMessage);
                 }
                 break;
             case DELETE:
-                final String deleteErrorMessage = Messages.optionCommandMessage(
-                        "logger --delete {LOG-NAME} {LOG-NAME} [...]");
+                final String deleteErrorMessage = "logger --delete {LOG-NAME} {LOG-NAME} [...]";
 
                 if (parameters.length >= 1) {
                     for (final String parameter : parameters) {
                         try {
                             loggerService.delete(LoggerType.LOG, parameter);
-                            System.out.println("\n - Logger " + parameter + " deleted!\n");
+                            Messages.printDeletedMessage("Logger", parameter);
                         } catch (final WebServiceException | SyncopeClientException ex) {
                             if (ex.getMessage().startsWith("NotFound")) {
-                                Messages.printMessage(
-                                        "Logger " + parameter + " doesn't exists!");
+                                Messages.printNofFoundMessage("Logger", parameter);
                             } else {
                                 Messages.printMessage(ex.getMessage());
                             }
                         }
                     }
                 } else {
-                    System.out.println(deleteErrorMessage);
+                    Messages.printCommandOptionMessage(deleteErrorMessage);
                 }
                 break;
             case HELP:
@@ -242,7 +233,7 @@ public class LoggerCommand extends AbstractCommand {
                 System.out.println(HELP_MESSAGE);
         }
     }
-    
+
     @Override
     public String getHelpMessage() {
         return HELP_MESSAGE;

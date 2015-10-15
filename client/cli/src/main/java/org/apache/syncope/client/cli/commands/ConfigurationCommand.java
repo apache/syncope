@@ -112,8 +112,7 @@ public class ConfigurationCommand extends AbstractCommand {
                 }
                 break;
             case READ:
-                final String readErrorMessage = Messages.optionCommandMessage(
-                        "configuration --read {CONF-NAME} {CONF-NAME} [...]");
+                final String readErrorMessage = "configuration --read {CONF-NAME} {CONF-NAME} [...]";
                 if (parameters.length >= 1) {
                     AttrTO attrTO;
                     for (final String parameter : parameters) {
@@ -125,9 +124,7 @@ public class ConfigurationCommand extends AbstractCommand {
                             System.out.println("");
                         } catch (final SyncopeClientException | WebServiceException ex) {
                             if (ex.getMessage().startsWith("NotFound")) {
-                                Messages.printMessage("Configuration " + parameters[0] + " doesn't exist!");
-                            } else if (ex.getMessage().startsWith("DataIntegrityViolation")) {
-                                Messages.printMessage("You cannot delete configuration " + parameters[0]);
+                                Messages.printNofFoundMessage("Logger", parameter);
                             } else {
                                 Messages.printMessage(ex.getMessage());
                             }
@@ -135,12 +132,12 @@ public class ConfigurationCommand extends AbstractCommand {
                         }
                     }
                 } else {
-                    System.out.println(readErrorMessage);
+                    Messages.printCommandOptionMessage(readErrorMessage);
                 }
                 break;
             case UPDATE:
-                final String updateErrorMessage = Messages.optionCommandMessage(
-                        "configuration --update {CONF-NAME}={CONF-VALUE} {CONF-NAME}={CONF-VALUE} [...]");
+                final String updateErrorMessage
+                        = "configuration --update {CONF-NAME}={CONF-VALUE} {CONF-NAME}={CONF-VALUE} [...]";
                 if (parameters.length >= 1) {
                     Input.PairParameter pairParameter = null;
                     AttrTO attrTO;
@@ -160,14 +157,11 @@ public class ConfigurationCommand extends AbstractCommand {
                             break;
                         } catch (final SyncopeClientException | WebServiceException ex) {
                             if (ex.getMessage().startsWith("NotFound")) {
-                                Messages.printMessage(
-                                        "Configuration " + pairParameter.getKey() + " doesn't exist!");
+                                Messages.printNofFoundMessage("Configuration", pairParameter.getKey());
                             } else if (ex.getMessage().startsWith("InvalidValues")) {
                                 Messages.printMessage(
                                         pairParameter.getValue() + " is not a valid value for "
                                         + pairParameter.getKey());
-                            } else if (ex.getMessage().startsWith("DataIntegrityViolation")) {
-                                Messages.printMessage("You cannot delete configuration " + parameters[0]);
                             } else {
                                 Messages.printMessage(ex.getMessage());
                             }
@@ -175,12 +169,12 @@ public class ConfigurationCommand extends AbstractCommand {
                         }
                     }
                 } else {
-                    System.out.println(updateErrorMessage);
+                    Messages.printCommandOptionMessage(updateErrorMessage);
                 }
                 break;
             case CREATE:
-                final String createErrorMessage = Messages.optionCommandMessage(
-                        "configuration --create {CONF-NAME}={CONF-VALUE} {CONF-NAME}={CONF-VALUE} [...]");
+                final String createErrorMessage
+                        = "configuration --create {CONF-NAME}={CONF-VALUE} {CONF-NAME}={CONF-VALUE} [...]";
                 if (parameters.length >= 1) {
                     Input.PairParameter pairParameter = null;
                     AttrTO attrTO;
@@ -200,9 +194,8 @@ public class ConfigurationCommand extends AbstractCommand {
                             break;
                         } catch (final SyncopeClientException | WebServiceException ex) {
                             if (ex.getMessage().startsWith("NotFound")) {
-                                Messages.printMessage(
-                                        "Configuration schema "
-                                        + pairParameter.getKey() + " doesn't exist! Create it before.");
+                                Messages.printNofFoundMessage("Configuration", pairParameter.getKey());
+                                System.out.println("Create it before.");
                             } else {
                                 Messages.printMessage(ex.getMessage());
                             }
@@ -210,20 +203,19 @@ public class ConfigurationCommand extends AbstractCommand {
                         }
                     }
                 } else {
-                    System.out.println(createErrorMessage);
+                    Messages.printCommandOptionMessage(createErrorMessage);
                 }
                 break;
             case DELETE:
-                final String deleteErrorMessage = Messages.optionCommandMessage(
-                        "configuration --delete {CONF-NAME} {CONF-NAME} [...]");
+                final String deleteErrorMessage = "configuration --delete {CONF-NAME} {CONF-NAME} [...]";
                 if (parameters.length >= 1) {
                     for (final String parameter : parameters) {
                         try {
                             configurationService.delete(parameter);
-                            System.out.println("\n - Conf " + parameter + " deleted!\n");
+                            Messages.printDeletedMessage("Configuration", parameter);
                         } catch (final SyncopeClientException | WebServiceException ex) {
                             if (ex.getMessage().startsWith("NotFound")) {
-                                Messages.printMessage("Configuration " + parameter + " doesn't exist!");
+                                Messages.printNofFoundMessage("Configuration", parameter);
                             } else if (ex.getMessage().startsWith("DataIntegrityViolation")) {
                                 Messages.printMessage("You cannot delete configuration", parameter);
                             } else {
@@ -233,12 +225,11 @@ public class ConfigurationCommand extends AbstractCommand {
                         }
                     }
                 } else {
-                    System.out.println(deleteErrorMessage);
+                    Messages.printCommandOptionMessage(deleteErrorMessage);
                 }
                 break;
             case EXPORT:
-                final String exportErrorMessage = Messages.optionCommandMessage(
-                        "configuration --export {WHERE-DIR}");
+                final String exportErrorMessage = "configuration --export {WHERE-DIR}";
                 if (parameters.length == 1) {
                     try {
                         XMLUtils.createXMLFile((SequenceInputStream) configurationService.export().getEntity(),
@@ -266,7 +257,7 @@ public class ConfigurationCommand extends AbstractCommand {
                         break;
                     }
                 } else {
-                    System.out.println(exportErrorMessage);
+                    Messages.printCommandOptionMessage(exportErrorMessage);
                 }
                 break;
             case HELP:
@@ -279,7 +270,7 @@ public class ConfigurationCommand extends AbstractCommand {
                 break;
         }
     }
-    
+
     @Override
     public String getHelpMessage() {
         return HELP_MESSAGE;

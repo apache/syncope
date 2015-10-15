@@ -38,6 +38,7 @@ public final class SyncopeAdm {
             + "    schema --help \n"
             + "    install --help \n"
             + "    info --help\n"
+            + "    domain --help\n"
             + "    help\n";
 
     public static void main(final String[] args) {
