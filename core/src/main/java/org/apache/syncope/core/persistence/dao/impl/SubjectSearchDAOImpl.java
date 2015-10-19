@@ -31,6 +31,7 @@ import javax.persistence.TemporalType;
 import javax.validation.ValidationException;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.types.AttributeSchemaType;
 import org.apache.syncope.common.types.SubjectType;
@@ -58,6 +59,8 @@ import org.springframework.util.ReflectionUtils;
 public class SubjectSearchDAOImpl extends AbstractDAOImpl implements SubjectSearchDAO {
 
     private static final String EMPTY_ATTR_QUERY = "SELECT subject_id FROM user_search_attr WHERE 1=2";
+
+    private static final String[] SUBJECT_FIELDS = new String[] { "parent", "userOwner", "roleOwner" };
 
     @Autowired
     private UserDAO userDAO;
@@ -645,7 +648,10 @@ public class SubjectSearchDAOImpl extends AbstractDAOImpl implements SubjectSear
 
         final AttributableUtil attrUtil = AttributableUtil.getInstance(type.asAttributableType());
 
-        Field subjectField = ReflectionUtils.findField(attrUtil.attributableClass(), cond.getSchema());
+        int subjFieldIdx = ArrayUtils.indexOf(SUBJECT_FIELDS, StringUtils.substringBeforeLast(cond.getSchema(), "_"));
+        Field subjectField = ReflectionUtils.findField(
+                attrUtil.attributableClass(),
+                subjFieldIdx == -1 ? cond.getSchema() : SUBJECT_FIELDS[subjFieldIdx]);
         if (subjectField == null) {
             LOG.warn("Ignoring invalid schema '{}'", cond.getSchema());
             return EMPTY_ATTR_QUERY;
@@ -682,8 +688,7 @@ public class SubjectSearchDAOImpl extends AbstractDAOImpl implements SubjectSear
             if (BeanUtils.findDeclaredMethodWithMinimalParameters(subjectField.getType(), "getId") != null) {
                 cond.setSchema(cond.getSchema() + "_id");
                 schema.setType(AttributeSchemaType.Long);
-            }
-            if (BeanUtils.findDeclaredMethodWithMinimalParameters(subjectField.getType(), "getName") != null) {
+            } else if (BeanUtils.findDeclaredMethodWithMinimalParameters(subjectField.getType(), "getName") != null) {
                 cond.setSchema(cond.getSchema() + "_name");
                 schema.setType(AttributeSchemaType.String);
             }
