@@ -178,4 +178,13 @@ public class SearchTestITCase extends AbstractTest {
             assertNotNull(user);
         }
     }
+
+    @Test
+    public void issueSYNCOPE712() {
+        final PagedResult<RoleTO> matchingRoles = roleService.search(
+                SyncopeClient.getRoleSearchConditionBuilder().is("parent").equalTo(1L).query());
+
+        assertNotNull(matchingRoles);
+        assertFalse(matchingRoles.getResult().isEmpty());
+    }
 }
