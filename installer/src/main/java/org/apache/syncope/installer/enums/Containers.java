@@ -24,7 +24,7 @@ public enum Containers {
     JBOSS("jboss"),
     GLASSFISH("glassfish");
 
-    private Containers(final String name) {
+    Containers(final String name) {
         this.name = name;
     }
 

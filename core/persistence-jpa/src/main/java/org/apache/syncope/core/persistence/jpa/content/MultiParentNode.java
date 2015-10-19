@@ -33,7 +33,7 @@ class MultiParentNode<T> {
 
     private boolean exploited = false;
 
-    public MultiParentNode(final T object) {
+    MultiParentNode(final T object) {
         this.object = object;
         children = new HashSet<>();
     }

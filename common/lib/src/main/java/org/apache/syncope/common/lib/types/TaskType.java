@@ -31,7 +31,7 @@ public enum TaskType {
 
     private final String name;
 
-    private TaskType(final String name) {
+    TaskType(final String name) {
         this.name = name;
     }
 

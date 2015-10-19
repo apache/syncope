@@ -132,7 +132,7 @@ public class WebSocketBehavior extends org.apache.wicket.protocol.ws.api.WebSock
 
         private final Session session;
 
-        public ConnCheck(final Long key) {
+        ConnCheck(final Long key) {
             this.key = key;
             this.application = Application.get();
             this.session = Session.exists() ? Session.get() : null;
@@ -173,7 +173,7 @@ public class WebSocketBehavior extends org.apache.wicket.protocol.ws.api.WebSock
 
         private final Session session;
 
-        public ResCheck(final String key) {
+        ResCheck(final String key) {
             this.key = key;
             this.application = Application.get();
             this.session = Session.exists() ? Session.get() : null;

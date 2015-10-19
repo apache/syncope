@@ -48,7 +48,7 @@ class ContentLoaderHandler extends DefaultHandler {
 
     private final String rootElement;
 
-    public ContentLoaderHandler(final DataSource dataSource, final String rootElement) {
+    ContentLoaderHandler(final DataSource dataSource, final String rootElement) {
         this.dataSource = dataSource;
         this.rootElement = rootElement;
     }

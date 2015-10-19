@@ -33,7 +33,7 @@ public enum AnyTypeKind {
 
     private final Class<? extends AnyTO> toClass;
 
-    private AnyTypeKind(final Class<? extends AnyTO> toClass) {
+    AnyTypeKind(final Class<? extends AnyTO> toClass) {
         this.toClass = toClass;
     }
 

@@ -98,7 +98,7 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ProvisionTO> imple
         /**
          * Construct.
          */
-        public ObjectType(final ProvisionTO item) {
+        ObjectType(final ProvisionTO item) {
             super(new ResourceModel("type.title", StringUtils.EMPTY),
                     new ResourceModel("type.summary", StringUtils.EMPTY), new Model<ProvisionTO>(item));
 
@@ -122,7 +122,7 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ProvisionTO> imple
         /**
          * Construct.
          */
-        public Mapping(final ProvisionTO item) {
+        Mapping(final ProvisionTO item) {
             setTitleModel(new ResourceModel("mapping.title", "Mapping"));
             setSummaryModel(new StringResourceModel("mapping.summary", this, new Model<ProvisionTO>(item)));
 
@@ -140,7 +140,7 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ProvisionTO> imple
         /**
          * Construct.
          */
-        public ConnObjectLink(final ProvisionTO item) {
+        ConnObjectLink(final ProvisionTO item) {
             super(new ResourceModel("link.title", StringUtils.EMPTY),
                     new ResourceModel("link.summary", StringUtils.EMPTY));
 

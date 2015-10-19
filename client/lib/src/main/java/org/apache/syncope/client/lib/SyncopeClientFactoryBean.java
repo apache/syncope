@@ -47,7 +47,7 @@ public class SyncopeClientFactoryBean {
 
         private final MediaType mediaType;
 
-        private ContentType(final MediaType mediaType) {
+        ContentType(final MediaType mediaType) {
             this.mediaType = mediaType;
         }
 

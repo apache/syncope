@@ -100,7 +100,7 @@ public class LoggerLoader implements SyncopeLoader {
 
         private final DataSource dataSource;
 
-        public DataSourceConnectionSource(final DataSource dataSource) {
+        DataSourceConnectionSource(final DataSource dataSource) {
             this.dataSource = dataSource;
         }
 

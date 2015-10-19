@@ -187,7 +187,7 @@ public class ProvisioningModalPage<T extends AnyTO> extends AbstractStatusModalP
 
         private static final long serialVersionUID = 4287357360778016173L;
 
-        public StatusBeanProvider() {
+        StatusBeanProvider() {
             super("accountLink");
         }
 

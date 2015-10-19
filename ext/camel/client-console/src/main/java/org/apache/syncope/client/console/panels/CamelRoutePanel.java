@@ -131,7 +131,7 @@ public class CamelRoutePanel extends AbstractExtensionPanel {
 
         private final SortableDataProviderComparator<CamelRouteTO> comparator;
 
-        public CamelRouteProvider() {
+       CamelRouteProvider() {
             setSort("key", SortOrder.ASCENDING);
             comparator = new SortableDataProviderComparator<>(this);
         }
