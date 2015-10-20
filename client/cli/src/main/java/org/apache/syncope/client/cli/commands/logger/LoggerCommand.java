@@ -94,7 +94,7 @@ public class LoggerCommand extends AbstractCommand {
 
         private final String optionName;
 
-        private static LoggerOptions(final String optionName) {
+        LoggerOptions(final String optionName) {
             this.optionName = optionName;
         }
 
