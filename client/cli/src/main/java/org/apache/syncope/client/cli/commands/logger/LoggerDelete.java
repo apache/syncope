@@ -21,7 +21,6 @@ package org.apache.syncope.client.cli.commands.logger;
 import java.util.LinkedList;
 import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
-import org.apache.syncope.client.cli.messages.Messages;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.LoggerTO;
 import org.apache.syncope.common.lib.types.LoggerType;
@@ -45,9 +44,9 @@ public class LoggerDelete extends AbstractLoggerCommand {
                     loggerService.delete(LoggerType.LOG, parameter);
                 } catch (final WebServiceException | SyncopeClientException ex) {
                     if (ex.getMessage().startsWith("NotFound")) {
-                        Messages.printNofFoundMessage("Logger", parameter);
+                        resultManager.notFoundError(parameter);
                     } else {
-                        Messages.printMessage(ex.getMessage());
+                        resultManager.genericError(ex.getMessage());
                     }
                     failed = true;
                 }
@@ -56,7 +55,7 @@ public class LoggerDelete extends AbstractLoggerCommand {
                 resultManager.fromDelete(loggerTOs);
             }
         } else {
-            Messages.printCommandOptionMessage(DELETE_HELP_MESSAGE);
+            resultManager.commandOptionError(DELETE_HELP_MESSAGE);
         }
     }
 

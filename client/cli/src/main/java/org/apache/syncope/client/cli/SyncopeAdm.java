@@ -18,8 +18,9 @@
  */
 package org.apache.syncope.client.cli;
 
+import javax.ws.rs.ProcessingException;
 import org.apache.syncope.client.cli.commands.AbstractCommand;
-import org.apache.syncope.client.cli.messages.Messages;
+import org.apache.syncope.client.cli.commands.logger.ResultManager;
 import org.apache.syncope.client.cli.util.CommandUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,10 +49,12 @@ public final class SyncopeAdm {
             System.out.println(helpMessage());
         } catch (final IllegalArgumentException ex) {
             LOG.error("Error in main", ex);
-            Messages.printMessage(ex.getMessage());
+            new ResultManager().genericError(ex.getMessage());
             if (!ex.getMessage().startsWith("It seems you")) {
                 System.out.println(helpMessage());
             }
+        } catch (final ProcessingException e) {
+            new ResultManager().genericError("Syncope server offline", e.getCause().getMessage());
         }
 
     }
@@ -69,7 +72,7 @@ public final class SyncopeAdm {
                 helpMessageBuilder.append("\n");
             }
         } catch (final IllegalAccessException | IllegalArgumentException | InstantiationException ex) {
-            Messages.printMessage(ex.getMessage());
+            new ResultManager().genericError(ex.getMessage());
         }
 
         return helpMessageBuilder.toString();

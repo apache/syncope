@@ -21,8 +21,6 @@ package org.apache.syncope.client.cli.commands.logger;
 import java.util.LinkedList;
 import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
-import org.apache.syncope.client.cli.messages.Messages;
-import org.apache.syncope.client.cli.util.CommandUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.LoggerTO;
 import org.apache.syncope.common.lib.types.LoggerLevel;
@@ -54,8 +52,7 @@ public class LoggerCreate extends AbstractLoggerCommand {
                     loggerService.update(LoggerType.LOG, loggerTO);
                     loggerTOs.add(loggerTO);
                 } catch (final WebServiceException | SyncopeClientException | IllegalArgumentException ex) {
-                    Messages.printTypeNotValidMessage(
-                            "logger level", input.firstParameter(), CommandUtils.fromEnumToArray(LoggerLevel.class));
+                    resultManager.typeNotValidError(input.firstParameter());
                     failed = true;
                     break;
                 }
@@ -64,7 +61,7 @@ public class LoggerCreate extends AbstractLoggerCommand {
                 resultManager.fromUpdate(loggerTOs);
             }
         } else {
-            Messages.printCommandOptionMessage(CREATE_HELP_MESSAGE);
+            resultManager.commandOptionError(CREATE_HELP_MESSAGE);
         }
     }
 

@@ -21,8 +21,6 @@ package org.apache.syncope.client.cli.commands.logger;
 import java.util.LinkedList;
 import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
-import org.apache.syncope.client.cli.messages.Messages;
-import org.apache.syncope.client.cli.util.CommandUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.LoggerTO;
 import org.apache.syncope.common.lib.types.LoggerLevel;
@@ -49,11 +47,9 @@ public class LoggerUpdateAll extends AbstractLoggerCommand {
                     loggerTOs.add(loggerTO);
                 } catch (final WebServiceException | SyncopeClientException | IllegalArgumentException ex) {
                     if (ex.getMessage().startsWith("No enum constant org.apache.syncope.common.lib.types.")) {
-                        Messages.printTypeNotValidMessage(
-                                "logger level",
-                                input.firstParameter(), CommandUtils.fromEnumToArray(LoggerLevel.class));
+                        resultManager.typeNotValidError(input.firstParameter());
                     } else {
-                        Messages.printMessage(ex.getMessage(), UPDATE_ALL_HELP_MESSAGE);
+                        resultManager.genericError(ex.getMessage(), UPDATE_ALL_HELP_MESSAGE);
                     }
                     failed = true;
                     break;
@@ -63,7 +59,7 @@ public class LoggerUpdateAll extends AbstractLoggerCommand {
                 resultManager.fromUpdate(loggerTOs);
             }
         } else {
-            Messages.printCommandOptionMessage(UPDATE_ALL_HELP_MESSAGE);
+            resultManager.commandOptionError(UPDATE_ALL_HELP_MESSAGE);
         }
     }
 }

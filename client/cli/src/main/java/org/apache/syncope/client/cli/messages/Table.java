@@ -128,7 +128,7 @@ public final class Table {
         System.out.format(TABLE_TITLE_FORMAT, StringUtils.center(" ", tableWidth - 6));
     }
 
-    public void printHeaders() {
+    private void printHeaders() {
         printColumnSpace();
 
         for (int h = 0; h < columnsNumber; h++) {

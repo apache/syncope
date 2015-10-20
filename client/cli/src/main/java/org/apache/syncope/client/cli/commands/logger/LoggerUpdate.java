@@ -21,8 +21,6 @@ package org.apache.syncope.client.cli.commands.logger;
 import java.util.LinkedList;
 import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
-import org.apache.syncope.client.cli.messages.Messages;
-import org.apache.syncope.client.cli.util.CommandUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.LoggerTO;
 import org.apache.syncope.common.lib.types.LoggerLevel;
@@ -54,15 +52,13 @@ public class LoggerUpdate extends AbstractLoggerCommand {
                     loggerTOs.add(loggerTO);
                 } catch (final WebServiceException | SyncopeClientException | IllegalArgumentException ex) {
                     if (ex.getMessage().startsWith("No enum constant org.apache.syncope.common.lib.types.")) {
-                        Messages.printTypeNotValidMessage(
-                                "logger level",
-                                input.firstParameter(), CommandUtils.fromEnumToArray(LoggerLevel.class));
+                        resultManager.typeNotValidError(input.firstParameter());
                     } else if ("Parameter syntax error!".equalsIgnoreCase(ex.getMessage())) {
-                        Messages.printMessage(ex.getMessage(), UPDATE_HELP_MESSAGE);
+                        resultManager.genericError(ex.getMessage(), UPDATE_HELP_MESSAGE);
                     } else if (ex.getMessage().startsWith("NotFound")) {
-                        Messages.printNofFoundMessage("Logger", parameter);
+                        resultManager.notFoundError(parameter);
                     } else {
-                        Messages.printMessage(ex.getMessage(), UPDATE_HELP_MESSAGE);
+                        resultManager.genericError(ex.getMessage(), UPDATE_HELP_MESSAGE);
                     }
                     failed = true;
                     break;
@@ -72,7 +68,7 @@ public class LoggerUpdate extends AbstractLoggerCommand {
                 resultManager.fromUpdate(loggerTOs);
             }
         } else {
-            Messages.printCommandOptionMessage(UPDATE_HELP_MESSAGE);
+            resultManager.commandOptionError(UPDATE_HELP_MESSAGE);
         }
     }
 }
