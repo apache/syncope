@@ -55,7 +55,7 @@ public final class CommandUtils {
         final CommandClassScanner ccs = new CommandClassScanner();
         final List<Class<? extends AbstractCommand>> commands = ccs.getComponentClasses();
 
-        Class<? extends AbstractCommand> commandClass = null;
+        Class<? extends AbstractCommand> commandClass;
         for (final Class<? extends AbstractCommand> cmd : commands) {
             commandClass = cmd;
             if (commandClass == null) {
@@ -65,6 +65,24 @@ public final class CommandUtils {
         }
 
         return listCommands;
+    }
+
+    public static String[] fromEnumToArray(final Class<? extends Enum<?>> enumClass) {
+        final String[] types = new String[enumClass.getFields().length];
+        for (int i = 0; i < enumClass.getFields().length; i++) {
+            types[i] = enumClass.getFields()[i].getName();
+
+        }
+        return types;
+    }
+    
+    public static String helpMessage(final String command, final List<String> options) {
+        final StringBuilder helpMessageBuilder = new StringBuilder(String.format("Usage: %s [options]\n", command));
+        helpMessageBuilder.append("  Options:\n");
+        for (final String option : options) {
+            helpMessageBuilder.append("    ").append(option).append("\n");
+        }
+        return helpMessageBuilder.toString();
     }
 
     private CommandUtils() {

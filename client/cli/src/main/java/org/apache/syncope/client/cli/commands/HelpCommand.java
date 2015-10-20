@@ -63,14 +63,14 @@ public class HelpCommand extends AbstractCommand {
                 }
                 break;
             default:
-                Messages.printDefaultMessage(input.getOption(), helpMessage("info", Options.toList()));
+                Messages.printDefaultMessage(input.getOption(), CommandUtils.helpMessage("info", Options.toList()));
                 break;
         }
     }
 
     @Override
     public String getHelpMessage() {
-        return helpMessage("help", Options.toList());
+        return CommandUtils.helpMessage("help", Options.toList());
     }
 
     private enum Options {

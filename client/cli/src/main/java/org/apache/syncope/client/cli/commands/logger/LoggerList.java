@@ -16,13 +16,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.cli.commands;
+package org.apache.syncope.client.cli.commands.logger;
 
-import org.apache.syncope.client.cli.Input;
+import java.util.LinkedList;
+import org.apache.syncope.client.cli.messages.Messages;
+import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.types.LoggerType;
 
-public abstract class AbstractCommand {
+public class LoggerList extends AbstractLoggerCommand {
 
-    public abstract void execute(final Input input);
+    public LoggerList() {
+    }
 
-    public abstract String getHelpMessage();
+    public void list() {
+        try {
+            resultManager.fromList(new LinkedList<>(loggerService.list(LoggerType.LOG)));
+        } catch (final SyncopeClientException ex) {
+            Messages.printMessage("Error: " + ex.getMessage());
+        }
+    }
 }

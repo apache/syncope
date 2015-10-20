@@ -35,6 +35,14 @@ public final class SyncopeAdm {
             ArgsManager.validator(args);
             final Input input = new Input(args);
             final AbstractCommand command = input.getCommand();
+
+            LOG.debug("Command: {}", command.getClass().getAnnotation(Command.class).name());
+            LOG.debug("Option: {}", input.getOption());
+            LOG.debug("Parameters:");
+            for (final String parameter : input.getParameters()) {
+                LOG.debug("   > " + parameter);
+            }
+
             command.execute(input);
         } catch (final IllegalAccessException | InstantiationException e) {
             System.out.println(helpMessage());

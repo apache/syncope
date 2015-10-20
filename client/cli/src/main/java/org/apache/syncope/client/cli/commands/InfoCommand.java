@@ -25,6 +25,7 @@ import org.apache.syncope.client.cli.Command;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.client.cli.SyncopeServices;
 import org.apache.syncope.client.cli.messages.Messages;
+import org.apache.syncope.client.cli.util.CommandUtils;
 import org.apache.syncope.common.lib.to.SyncopeTO;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.slf4j.Logger;
@@ -264,17 +265,17 @@ public class InfoCommand extends AbstractCommand {
                 }
                 break;
             case HELP:
-                System.out.println(helpMessage("info", Options.toList()));
+                System.out.println(CommandUtils.helpMessage("info", Options.toList()));
                 break;
             default:
-                Messages.printDefaultMessage(input.getOption(), helpMessage("info", Options.toList()));
+                Messages.printDefaultMessage(input.getOption(), CommandUtils.helpMessage("info", Options.toList()));
                 break;
         }
     }
 
     @Override
     public String getHelpMessage() {
-        return helpMessage("info", Options.toList());
+        return CommandUtils.helpMessage("info", Options.toList());
     }
 
     private enum Options {

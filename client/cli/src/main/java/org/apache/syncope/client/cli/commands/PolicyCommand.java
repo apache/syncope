@@ -26,6 +26,7 @@ import org.apache.syncope.client.cli.Command;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.client.cli.SyncopeServices;
 import org.apache.syncope.client.cli.messages.Messages;
+import org.apache.syncope.client.cli.util.CommandUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
 import org.apache.syncope.common.lib.types.PolicyType;
@@ -78,7 +79,7 @@ public class PolicyCommand extends AbstractCommand {
                         Messages.printMessage(ex.getMessage());
                     } catch (final IllegalArgumentException ex) {
                         Messages.printTypeNotValidMessage(
-                                "policy", input.firstParameter(), fromEnumToArray(PolicyType.class));
+                                "policy", input.firstParameter(), CommandUtils.fromEnumToArray(PolicyType.class));
                     }
                 } else {
                     Messages.printCommandOptionMessage(listPolicyErrorMessage);

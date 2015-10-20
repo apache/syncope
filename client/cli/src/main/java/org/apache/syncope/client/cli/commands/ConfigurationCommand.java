@@ -22,7 +22,11 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.SequenceInputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -32,6 +36,7 @@ import org.apache.syncope.client.cli.Command;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.client.cli.SyncopeServices;
 import org.apache.syncope.client.cli.messages.Messages;
+import org.apache.syncope.client.cli.messages.TwoColumnTable;
 import org.apache.syncope.client.cli.util.XMLUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AttrTO;
@@ -51,13 +56,11 @@ public class ConfigurationCommand extends AbstractCommand {
     private static final String HELP_MESSAGE = "Usage: configuration [options]\n"
             + "  Options:\n"
             + "    --help \n"
-            + "    --list \n"
+            + "    --get \n"
             + "    --read \n"
             + "       Syntax: --read {CONF-NAME} {CONF-NAME} [...] \n"
             + "    --update \n"
             + "       Syntax: --update {CONF-NAME}={CONF-VALUE} {CONF-NAME}={CONF-VALUE} [...]\n"
-            + "    --create \n"
-            + "       Syntax: --create {CONF-NAME}={CONF-VALUE} {CONF-NAME}={CONF-VALUE} [...]\n"
             + "    --delete \n"
             + "       Syntax: --delete {CONF-NAME} {CONF-NAME} [...]\n"
             + "    --export \n"
@@ -80,32 +83,10 @@ public class ConfigurationCommand extends AbstractCommand {
 
         final ConfigurationService configurationService = SyncopeServices.get(ConfigurationService.class);
         switch (Options.fromName(input.getOption())) {
-            case LIST:
+            case GET:
                 try {
                     final ConfTO confTO = configurationService.list();
-                    System.out.println("\n - Configuration key: " + confTO.getKey());
-                    System.out.println("");
-                    System.out.println("Plain attributes");
-                    for (final AttrTO attrTO : confTO.getPlainAttrMap().values()) {
-                        System.out.println(" - Conf key: " + attrTO.getSchema());
-                        System.out.println("    - value(s): " + attrTO.getValues());
-                        System.out.println("    - readonly: " + attrTO.isReadonly());
-                    }
-                    System.out.println("");
-                    System.out.println("Derived attributes");
-                    for (final AttrTO attrTO : confTO.getDerAttrMap().values()) {
-                        System.out.println(" - Conf key: " + attrTO.getSchema());
-                        System.out.println("    - value(s): " + attrTO.getValues());
-                        System.out.println("    - readonly: " + attrTO.isReadonly());
-                    }
-                    System.out.println("");
-                    System.out.println("Virtual attributes");
-                    for (final AttrTO attrTO : confTO.getVirAttrMap().values()) {
-                        System.out.println(" - Conf key: " + attrTO.getSchema());
-                        System.out.println("    - value(s): " + attrTO.getValues());
-                        System.out.println("    - readonly: " + attrTO.isReadonly());
-                    }
-                    System.out.println("");
+                    toTable("Syncope configuration", "attribute", "value", confTO.getPlainAttrs());
                 } catch (final Exception ex) {
                     Messages.printMessage(ex.getMessage());
                     break;
@@ -114,22 +95,23 @@ public class ConfigurationCommand extends AbstractCommand {
             case READ:
                 final String readErrorMessage = "configuration --read {CONF-NAME} {CONF-NAME} [...]";
                 if (parameters.length >= 1) {
-                    AttrTO attrTO;
+                    final Set<AttrTO> attrList = new HashSet<>();
+                    boolean failed = false;
                     for (final String parameter : parameters) {
                         try {
-                            attrTO = configurationService.get(parameter);
-                            System.out.println("\n - Conf key: " + attrTO.getSchema());
-                            System.out.println("    - value(s): " + attrTO.getValues());
-                            System.out.println("    - readonly: " + attrTO.isReadonly());
-                            System.out.println("");
+                            attrList.add(configurationService.get(parameter));
                         } catch (final SyncopeClientException | WebServiceException ex) {
                             if (ex.getMessage().startsWith("NotFound")) {
                                 Messages.printNofFoundMessage("Logger", parameter);
                             } else {
                                 Messages.printMessage(ex.getMessage());
                             }
+                            failed = true;
                             break;
                         }
+                    }
+                    if (!failed) {
+                        toTable("Read result", "attribute", "value", attrList);
                     }
                 } else {
                     Messages.printCommandOptionMessage(readErrorMessage);
@@ -141,6 +123,8 @@ public class ConfigurationCommand extends AbstractCommand {
                 if (parameters.length >= 1) {
                     Input.PairParameter pairParameter = null;
                     AttrTO attrTO;
+                    final Set<AttrTO> attrList = new HashSet<>();
+                    boolean failed = false;
                     for (final String parameter : parameters) {
                         try {
                             pairParameter = input.toPairParameter(parameter);
@@ -148,12 +132,10 @@ public class ConfigurationCommand extends AbstractCommand {
                             attrTO.getValues().clear();
                             attrTO.getValues().add(pairParameter.getValue());
                             configurationService.set(attrTO);
-                            System.out.println("\n - Conf key " + attrTO.getSchema() + " updated. New value is:");
-                            System.out.println("    - value(s): " + attrTO.getValues());
-                            System.out.println("    - readonly: " + attrTO.isReadonly());
-                            System.out.println("");
+                            attrList.add(attrTO);
                         } catch (final IllegalArgumentException ex) {
                             Messages.printMessage(ex.getMessage(), updateErrorMessage);
+                            failed = true;
                             break;
                         } catch (final SyncopeClientException | WebServiceException ex) {
                             if (ex.getMessage().startsWith("NotFound")) {
@@ -165,45 +147,15 @@ public class ConfigurationCommand extends AbstractCommand {
                             } else {
                                 Messages.printMessage(ex.getMessage());
                             }
+                            failed = true;
                             break;
                         }
+                    }
+                    if (!failed) {
+                        toTable("updated attribute", "attribute", "new value", attrList);
                     }
                 } else {
                     Messages.printCommandOptionMessage(updateErrorMessage);
-                }
-                break;
-            case CREATE:
-                final String createErrorMessage
-                        = "configuration --create {CONF-NAME}={CONF-VALUE} {CONF-NAME}={CONF-VALUE} [...]";
-                if (parameters.length >= 1) {
-                    Input.PairParameter pairParameter = null;
-                    AttrTO attrTO;
-                    for (final String parameter : parameters) {
-                        try {
-                            pairParameter = input.toPairParameter(parameter);
-                            attrTO = new AttrTO();
-                            attrTO.setSchema(pairParameter.getKey());
-                            attrTO.getValues().add(pairParameter.getValue());
-                            configurationService.set(attrTO);
-                            System.out.println("\n - Conf key " + attrTO.getSchema() + " created. Value is:");
-                            System.out.println("    - value(s): " + attrTO.getValues());
-                            System.out.println("    - readonly: " + attrTO.isReadonly());
-                            System.out.println("");
-                        } catch (final IllegalArgumentException ex) {
-                            Messages.printMessage(ex.getMessage(), createErrorMessage);
-                            break;
-                        } catch (final SyncopeClientException | WebServiceException ex) {
-                            if (ex.getMessage().startsWith("NotFound")) {
-                                Messages.printNofFoundMessage("Configuration", pairParameter.getKey());
-                                System.out.println("Create it before.");
-                            } else {
-                                Messages.printMessage(ex.getMessage());
-                            }
-                            break;
-                        }
-                    }
-                } else {
-                    Messages.printCommandOptionMessage(createErrorMessage);
                 }
                 break;
             case DELETE:
@@ -269,6 +221,33 @@ public class ConfigurationCommand extends AbstractCommand {
         }
     }
 
+    private void toTable(final String tableTitle,
+            final String firstHeader,
+            final String seconHeader,
+            final Set<AttrTO> attrList) {
+        int maxFirstColumnLenght = 0;
+        int maxSecondColumnLenght = 0;
+        final Map<String, String> attributes = new HashMap<>();
+        for (final AttrTO attrTO : attrList) {
+            String value = attrTO.getValues().toString();
+            value = value.substring(0, value.length() - 1);
+            value = value.substring(1, value.length());
+            attributes.put(attrTO.getSchema(), value);
+            if (attrTO.getSchema().length() > maxFirstColumnLenght) {
+                maxFirstColumnLenght = attrTO.getSchema().length();
+            }
+
+            if (value.length() > maxSecondColumnLenght) {
+                maxSecondColumnLenght = attrTO.getSchema().length();
+            }
+        }
+        final TwoColumnTable loggerTableResult = new TwoColumnTable(
+                tableTitle,
+                firstHeader, maxFirstColumnLenght,
+                seconHeader, maxSecondColumnLenght);
+        loggerTableResult.printTable(attributes);
+    }
+
     @Override
     public String getHelpMessage() {
         return HELP_MESSAGE;
@@ -277,10 +256,9 @@ public class ConfigurationCommand extends AbstractCommand {
     private enum Options {
 
         HELP("--help"),
-        LIST("--list"),
+        GET("--get"),
         READ("--read"),
         UPDATE("--update"),
-        CREATE("--create"),
         DELETE("--delete"),
         EXPORT("--export");
 

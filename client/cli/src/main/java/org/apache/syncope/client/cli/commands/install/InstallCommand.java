@@ -29,7 +29,7 @@ import org.apache.syncope.client.cli.Command;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.client.cli.SyncopeServices;
 import org.apache.syncope.client.cli.commands.AbstractCommand;
-import org.apache.syncope.client.cli.commands.LoggerCommand;
+import org.apache.syncope.client.cli.commands.logger.LoggerCommand;
 import org.apache.syncope.client.cli.util.FileSystemUtils;
 import org.apache.syncope.client.cli.util.JasyptUtils;
 import org.apache.syncope.common.rest.api.service.SyncopeService;

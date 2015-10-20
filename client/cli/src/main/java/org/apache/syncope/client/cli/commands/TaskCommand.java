@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.cli.commands;
 
+import org.apache.syncope.client.cli.commands.logger.LoggerCommand;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +28,7 @@ import org.apache.syncope.client.cli.Command;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.client.cli.SyncopeServices;
 import org.apache.syncope.client.cli.messages.Messages;
+import org.apache.syncope.client.cli.util.CommandUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
 import org.apache.syncope.common.lib.to.AnyTO;
@@ -230,7 +232,8 @@ public class TaskCommand extends AbstractCommand {
                     } catch (final SyncopeClientException ex) {
                         Messages.printMessage(ex.getMessage());
                     } catch (final IllegalArgumentException ex) {
-                        Messages.printTypeNotValidMessage("task", parameters[0], fromEnumToArray(TaskType.class));
+                        Messages.printTypeNotValidMessage(
+                                "task", parameters[0], CommandUtils.fromEnumToArray(TaskType.class));
                     }
                 } else {
                     Messages.printCommandOptionMessage(listTaskErrorMessage);
@@ -493,7 +496,6 @@ public class TaskCommand extends AbstractCommand {
                         final TaskExecTO taskExecTO = taskService.execute(taskIdToExecute, dryRun);
                         printTaskExecTO(taskExecTO);
                     } catch (final WebServiceException | SyncopeClientException ex) {
-                        System.out.println("Error:");
                         if (ex.getMessage().startsWith("NotFound")) {
                             Messages.printNofFoundMessage("Task", parameters[0]);
                         } else if (ex.getMessage().startsWith("DataIntegrityViolation")) {

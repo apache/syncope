@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.cli.commands;
 
+import org.apache.syncope.client.cli.commands.logger.LoggerCommand;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;

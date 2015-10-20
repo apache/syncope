@@ -31,6 +31,7 @@ import org.apache.syncope.client.cli.Command;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.client.cli.SyncopeServices;
 import org.apache.syncope.client.cli.messages.Messages;
+import org.apache.syncope.client.cli.util.CommandUtils;
 import org.apache.syncope.client.cli.util.XMLUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ReportExecTO;
@@ -283,7 +284,7 @@ public class ReportCommand extends AbstractCommand {
                         } catch (final IllegalArgumentException ex) {
                             Messages.printTypeNotValidMessage(
                                     "format", input.firstParameter(),
-                                    fromEnumToArray(ReportExecExportFormat.class));
+                                    CommandUtils.fromEnumToArray(ReportExecExportFormat.class));
                         }
                         break;
                     }

@@ -22,6 +22,10 @@ public final class Messages {
 
     private static final String OPTION_COMMAND_MESSAGE_TEMPLATE = "\n - Usage: %s\n";
 
+    private static final String CREATED_MESSAGE_TEMPLATE = "%s %s successfully created";
+
+    private static final String UPDATED_MESSAGE_TEMPLATE = "%s %s successfully updated";
+
     private static final String DELETED_MESSAGE_TEMPLATE = "%s %s successfully deleted";
 
     private static final String DOESNT_EXIST_MESSAGE_TEMPLATE = "%s %s doesn't exist";
@@ -52,6 +56,14 @@ public final class Messages {
         printMessage(String.format(DOESNT_EXIST_MESSAGE_TEMPLATE, what, key));
     }
 
+    public static void printCreatedMessage(final String what, final String key) {
+        printMessage(String.format(CREATED_MESSAGE_TEMPLATE, what, key));
+    }
+
+    public static void printUpdatedMessage(final String what, final String key) {
+        printMessage(String.format(UPDATED_MESSAGE_TEMPLATE, what, key));
+    }
+
     public static void printDeletedMessage(final String what, final String key) {
         printMessage(String.format(DELETED_MESSAGE_TEMPLATE, what, key));
     }
@@ -59,7 +71,7 @@ public final class Messages {
     public static void printIdNotNumberDeletedMessage(final String what, final String key) {
         printMessage(String.format(ID_NOT_NUMBER_MESSAGE_TEMPLATE, key, what));
     }
-    
+
     public static void printNotBooleanDeletedMessage(final String what, final String key) {
         printMessage(String.format(NOT_BOOLEAN_MESSAGE_TEMPLATE, key, what));
     }

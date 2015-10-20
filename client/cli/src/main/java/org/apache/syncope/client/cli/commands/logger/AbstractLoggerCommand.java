@@ -16,13 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.cli.commands;
+package org.apache.syncope.client.cli.commands.logger;
 
-import org.apache.syncope.client.cli.Input;
+import org.apache.syncope.client.cli.SyncopeServices;
+import org.apache.syncope.common.rest.api.service.LoggerService;
 
-public abstract class AbstractCommand {
+public class AbstractLoggerCommand {
 
-    public abstract void execute(final Input input);
+    protected final LoggerService loggerService = SyncopeServices.get(LoggerService.class);
+    
+    protected final ResultManager resultManager = new ResultManager();
 
-    public abstract String getHelpMessage();
 }

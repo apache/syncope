@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.cli.commands;
 
-import static org.apache.syncope.client.cli.commands.AbstractCommand.fromEnumToArray;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -29,6 +27,7 @@ import org.apache.syncope.client.cli.Command;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.client.cli.SyncopeServices;
 import org.apache.syncope.client.cli.messages.Messages;
+import org.apache.syncope.client.cli.util.CommandUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AbstractSchemaTO;
 import org.apache.syncope.common.lib.to.DerSchemaTO;
@@ -51,10 +50,13 @@ public class SchemaCommand extends AbstractCommand {
             + "    --list-plain\n"
             + "    --list-derived\n"
             + "    --list-virtual\n"
-            + "    --list {SCHEMA-TYPE}\n"
-            + "       Schema type: PLAIN / DERIVED / VIRTUAL";
+            + "    --read {SCHEMA-TYPE} {SCHEMA-KEY}\n"
+            + "        Schema type: PLAIN / DERIVED / VIRTUAL\n"
+            + "    --delete {SCHEMA-TYPE} {SCHEMA-KEY}\n"
+            + "        Schema type: PLAIN / DERIVED / VIRTUAL";
 
     @Override
+
     public void execute(final Input input) {
         LOG.debug("Option: {}", input.getOption());
         LOG.debug("Parameters:");
@@ -101,7 +103,7 @@ public class SchemaCommand extends AbstractCommand {
                         Messages.printMessage(ex.getMessage());
                     } catch (final IllegalArgumentException ex) {
                         Messages.printTypeNotValidMessage(
-                                "schema", input.firstParameter(), fromEnumToArray(SchemaType.class));
+                                "schema", input.firstParameter(), CommandUtils.fromEnumToArray(SchemaType.class));
                     }
                 } else {
                     Messages.printCommandOptionMessage(listErrorMessage);
@@ -216,7 +218,7 @@ public class SchemaCommand extends AbstractCommand {
                         }
                     } catch (final IllegalArgumentException ex) {
                         Messages.printTypeNotValidMessage(
-                                "schema", input.firstParameter(), fromEnumToArray(SchemaType.class));
+                                "schema", input.firstParameter(), CommandUtils.fromEnumToArray(SchemaType.class));
                     }
                 } else {
                     Messages.printCommandOptionMessage(readErrorMessage);
@@ -243,7 +245,7 @@ public class SchemaCommand extends AbstractCommand {
                         }
                     } catch (final IllegalArgumentException ex) {
                         Messages.printTypeNotValidMessage(
-                                "schema", input.firstParameter(), fromEnumToArray(SchemaType.class));
+                                "schema", input.firstParameter(), CommandUtils.fromEnumToArray(SchemaType.class));
                     }
                 } else {
                     Messages.printCommandOptionMessage(deleteErrorMessage);

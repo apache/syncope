@@ -72,6 +72,10 @@ public class Input {
         return parameters[parameters.length - 1];
     }
 
+    public int parameterNumber() {
+        return parameters.length;
+    }
+
     public PairParameter toPairParameter(final String parameter) throws IllegalArgumentException {
         if (!parameter.contains("=")) {
             throw new IllegalArgumentException("Parameter syntax error!");
