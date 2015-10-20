@@ -505,7 +505,7 @@ under the License.
       <dependency>
         <groupId>io.swagger</groupId>
         <artifactId>swagger-jaxrs</artifactId>
-        <version>1.5.3</version>
+        <version>1.5.4</version>
         <exclusions>
           <exclusion>
             <groupId>javax.ws.rs</groupId>
