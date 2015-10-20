@@ -60,7 +60,7 @@ public enum IntMappingType {
 
     private final AnyTypeKind anyTypeKind;
 
-    private IntMappingType(final AnyTypeKind anyTypeKind) {
+    IntMappingType(final AnyTypeKind anyTypeKind) {
         this.anyTypeKind = anyTypeKind;
     }
 

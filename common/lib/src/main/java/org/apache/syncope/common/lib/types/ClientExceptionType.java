@@ -73,7 +73,7 @@ public enum ClientExceptionType {
 
     private final Response.Status responseStatus;
 
-    private ClientExceptionType(final Response.Status responseStatus) {
+    ClientExceptionType(final Response.Status responseStatus) {
         this.responseStatus = responseStatus;
     }
 

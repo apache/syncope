@@ -28,7 +28,7 @@ import org.apache.syncope.core.persistence.api.dao.Reportlet;
 
 public interface ImplementationLookup extends SyncopeLoader {
 
-    public enum Type {
+    enum Type {
 
         REPORTLET,
         ACCOUNT_RULE,

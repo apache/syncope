@@ -31,7 +31,7 @@ public enum Status {
         return this == ACTIVE;
     }
 
-    private Status(final String name) {
+    Status(final String name) {
         this.name = name;
     }
 

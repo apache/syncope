@@ -60,7 +60,7 @@ public class SortableAnyProviderComparator extends SortableDataProviderComparato
 
         private final Map<String, AttrTO> virAttrs;
 
-        public AttrModel(final AnyTO anyTO) {
+        AttrModel(final AnyTO anyTO) {
             super();
 
             this.attrs = anyTO.getPlainAttrMap();

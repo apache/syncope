@@ -32,7 +32,7 @@ public enum Preference {
 
     private final String literal;
 
-    private Preference(final String literal) {
+    Preference(final String literal) {
         this.literal = literal;
     }
 

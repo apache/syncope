@@ -185,7 +185,7 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, P extends AnyPatch>
 
         private final Collection<String> targets;
 
-        public StartsWithPredicate(final Collection<String> targets) {
+        StartsWithPredicate(final Collection<String> targets) {
             this.targets = targets;
         }
 

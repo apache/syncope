@@ -49,7 +49,7 @@ class SearchSupport {
 
     private final AnyTypeKind anyTypeKind;
 
-    public SearchSupport(final AnyTypeKind anyTypeKind) {
+    SearchSupport(final AnyTypeKind anyTypeKind) {
         this.anyTypeKind = anyTypeKind;
     }
 

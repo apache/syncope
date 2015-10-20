@@ -132,7 +132,7 @@ public class DomainCommand extends AbstractCommand {
 
         private final String optionName;
 
-        private Options(final String optionName) {
+        Options(final String optionName) {
             this.optionName = optionName;
         }
 
