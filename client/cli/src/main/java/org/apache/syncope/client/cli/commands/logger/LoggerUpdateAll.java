@@ -49,7 +49,7 @@ public class LoggerUpdateAll extends AbstractLoggerCommand {
                     if (ex.getMessage().startsWith("No enum constant org.apache.syncope.common.lib.types.")) {
                         loggerResultManager.typeNotValidError(input.firstParameter());
                     } else {
-                        loggerResultManager.genericError(ex.getMessage(), UPDATE_ALL_HELP_MESSAGE);
+                        loggerResultManager.generic(ex.getMessage(), UPDATE_ALL_HELP_MESSAGE);
                     }
                     failed = true;
                     break;

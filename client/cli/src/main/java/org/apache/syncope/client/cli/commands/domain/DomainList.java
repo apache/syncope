@@ -16,21 +16,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.cli.commands.configuration;
+package org.apache.syncope.client.cli.commands.domain;
 
-import java.util.LinkedList;
+import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.to.DomainTO;
 
-public class ConfigurationGet extends AbstractConfigurationCommand {
+public class DomainList extends AbstractDomainCommand {
 
-    public ConfigurationGet() {
+    public DomainList() {
     }
 
-    public void get() {
+    public void list() {
         try {
-            configurationResultManager.fromGet(new LinkedList<>(configurationService.list()));
-        } catch (final Exception ex) {
-            configurationResultManager.generic(ex.getMessage());
+            for (final DomainTO domainTO : domainService.list()) {
+                domainResultManager.generic(domainTO.getKey());
+            }
+        } catch (final SyncopeClientException ex) {
+            domainResultManager.generic("Error: " + ex.getMessage());
         }
     }
-
 }

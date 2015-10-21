@@ -46,7 +46,7 @@ public class LoggerRead extends AbstractLoggerCommand {
                     if (ex.getMessage().startsWith("NotFound")) {
                         loggerResultManager.notFoundError("Logger", parameter);
                     } else {
-                        loggerResultManager.genericError("Error: " + ex.getMessage());
+                        loggerResultManager.generic("Error: " + ex.getMessage());
                     }
                     failed = true;
                     break;

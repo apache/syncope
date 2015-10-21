@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.cli.commands.configuration;
+package org.apache.syncope.client.cli.commands.domain;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,49 +25,33 @@ import org.apache.syncope.client.cli.Command;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.client.cli.commands.AbstractCommand;
 
-@Command(name = "configuration")
-public class ConfigurationCommand extends AbstractCommand {
+@Command(name = "domain")
+public class DomainCommand extends AbstractCommand {
 
-    private static final String HELP_MESSAGE = "Usage: configuration [options]\n"
+    private static final String HELP_MESSAGE = "Usage: domain [options]\n"
             + "  Options:\n"
             + "    --help \n"
-            + "    --get \n"
-            + "    --read \n"
-            + "       Syntax: --read {CONF-NAME} {CONF-NAME} [...] \n"
-            + "    --update \n"
-            + "       Syntax: --update {CONF-NAME}={CONF-VALUE} {CONF-NAME}={CONF-VALUE} [...]\n"
+            + "    --list \n"
             + "    --delete \n"
-            + "       Syntax: --delete {CONF-NAME} {CONF-NAME} [...]\n"
-            + "    --export \n"
-            + "       Syntax: --export {WHERE-DIR}";
+            + "       Syntax: --delete {DOMAIN-KEY} {DOMAIN-KEY} [...]\n";
 
     @Override
     public void execute(final Input input) {
         if (StringUtils.isBlank(input.getOption())) {
             input.setOption(Options.HELP.getOptionName());
         }
-
         switch (Options.fromName(input.getOption())) {
-            case GET:
-                new ConfigurationGet().get();
-                break;
-            case READ:
-                new ConfigurationRead(input).read();
-                break;
-            case UPDATE:
-                new ConfigurationUpdate(input).update();
+            case LIST:
+                new DomainList().list();
                 break;
             case DELETE:
-                new ConfigurationDelete(input).delete();
-                break;
-            case EXPORT:
+                new DomainDelete(input).delete();
                 break;
             case HELP:
                 System.out.println(HELP_MESSAGE);
                 break;
             default:
-                new ConfigurationResultManager().defaultError(input.getOption(), HELP_MESSAGE);
-                break;
+                new DomainResultManager().deletedMessage(input.getOption(), HELP_MESSAGE);
         }
     }
 
@@ -79,11 +63,8 @@ public class ConfigurationCommand extends AbstractCommand {
     private enum Options {
 
         HELP("--help"),
-        GET("--get"),
-        READ("--read"),
-        UPDATE("--update"),
-        DELETE("--delete"),
-        EXPORT("--export");
+        LIST("--list"),
+        DELETE("--delete");
 
         private final String optionName;
 

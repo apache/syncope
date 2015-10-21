@@ -42,9 +42,9 @@ public class ConfigurationDelete extends AbstractConfigurationCommand {
                     if (ex.getMessage().startsWith("NotFound")) {
                         configurationResultManager.notFoundError("Configuration", parameter);
                     } else if (ex.getMessage().startsWith("DataIntegrityViolation")) {
-                        configurationResultManager.genericError("You cannot delete configuration", parameter);
+                        configurationResultManager.generic("You cannot delete configuration", parameter);
                     } else {
-                        configurationResultManager.genericError(ex.getMessage());
+                        configurationResultManager.generic(ex.getMessage());
                     }
                     break;
                 }

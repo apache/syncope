@@ -49,7 +49,7 @@ public class PolicyCommand extends AbstractCommand {
             + "       Syntax: --read {POLICY-ID} {POLICY-ID} [...]\n"
             + "    --delete \n"
             + "       Syntax: --delete {POLICY-ID} {POLICY-ID} [...]";
-
+    
     @Override
     public void execute(final Input input) {
         LOG.debug("Option: {}", input.getOption());

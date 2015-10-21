@@ -44,6 +44,9 @@ public class InstallSetup {
 
     private String syncopeServerRestContext = "/syncope/rest/";
 
+    public InstallSetup() {
+    }
+
     public void setup() {
         final Scanner scanIn = new Scanner(System.in);
 

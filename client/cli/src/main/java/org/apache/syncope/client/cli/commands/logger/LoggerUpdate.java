@@ -54,11 +54,11 @@ public class LoggerUpdate extends AbstractLoggerCommand {
                     if (ex.getMessage().startsWith("No enum constant org.apache.syncope.common.lib.types.")) {
                         loggerResultManager.typeNotValidError(input.firstParameter());
                     } else if ("Parameter syntax error!".equalsIgnoreCase(ex.getMessage())) {
-                        loggerResultManager.genericError(ex.getMessage(), UPDATE_HELP_MESSAGE);
+                        loggerResultManager.generic(ex.getMessage(), UPDATE_HELP_MESSAGE);
                     } else if (ex.getMessage().startsWith("NotFound")) {
                         loggerResultManager.notFoundError("Logger", parameter);
                     } else {
-                        loggerResultManager.genericError(ex.getMessage(), UPDATE_HELP_MESSAGE);
+                        loggerResultManager.generic(ex.getMessage(), UPDATE_HELP_MESSAGE);
                     }
                     failed = true;
                     break;

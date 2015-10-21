@@ -69,7 +69,7 @@ public class TaskCommand extends AbstractCommand {
             + "    --execute \n"
             + "       Syntax: --execute {TASK-ID} {DRY-RUN}"
             + "          Dry run: true / false";
-
+    
     @Override
     public void execute(final Input input) {
         LOG.debug("Option: {}", input.getOption());

@@ -16,21 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.cli.commands.configuration;
+package org.apache.syncope.client.cli.commands.domain;
 
-import java.util.LinkedList;
+import org.apache.syncope.client.cli.commands.CommonsResultManager;
 
-public class ConfigurationGet extends AbstractConfigurationCommand {
-
-    public ConfigurationGet() {
-    }
-
-    public void get() {
-        try {
-            configurationResultManager.fromGet(new LinkedList<>(configurationService.list()));
-        } catch (final Exception ex) {
-            configurationResultManager.generic(ex.getMessage());
-        }
-    }
+public class DomainResultManager extends CommonsResultManager {
 
 }

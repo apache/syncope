@@ -56,7 +56,6 @@ public class SchemaCommand extends AbstractCommand {
             + "        Schema type: PLAIN / DERIVED / VIRTUAL";
 
     @Override
-
     public void execute(final Input input) {
         LOG.debug("Option: {}", input.getOption());
         LOG.debug("Parameters:");

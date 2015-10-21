@@ -22,14 +22,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.cli.Command;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.client.cli.commands.AbstractCommand;
-import org.apache.syncope.client.cli.commands.logger.LoggerCommand;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Command(name = "install")
 public class InstallCommand extends AbstractCommand {
-
-    private static final Logger LOG = LoggerFactory.getLogger(LoggerCommand.class);
 
     private static final String HELP_MESSAGE = "Usage: install [options]\n"
             + "  Options:\n"

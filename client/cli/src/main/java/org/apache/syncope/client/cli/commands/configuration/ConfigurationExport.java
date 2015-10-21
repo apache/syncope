@@ -47,22 +47,22 @@ public class ConfigurationExport extends AbstractConfigurationCommand {
                 XMLUtils.createXMLFile(
                         (SequenceInputStream) configurationService.export().getEntity(),
                         input.firstParameter() + EXPORT_FILE_NAME);
-                configurationResultManager.genericError(
+                configurationResultManager.generic(
                         input.firstParameter() + EXPORT_FILE_NAME + " successfully created");
             } catch (final IOException ex) {
-                configurationResultManager.genericError(ex.getMessage());
+                configurationResultManager.generic(ex.getMessage());
             } catch (ParserConfigurationException | SAXException | TransformerConfigurationException ex) {
-                configurationResultManager.genericError(
+                configurationResultManager.generic(
                         "Error creating " + input.firstParameter() + EXPORT_FILE_NAME + " " + ex.getMessage());
             } catch (final TransformerException ex) {
                 if (ex.getCause() instanceof FileNotFoundException) {
-                    configurationResultManager.genericError("Permission denied on " + input.firstParameter());
+                    configurationResultManager.generic("Permission denied on " + input.firstParameter());
                 } else {
-                    configurationResultManager.genericError(
+                    configurationResultManager.generic(
                             "Error creating " + input.firstParameter() + EXPORT_FILE_NAME + " " + ex.getMessage());
                 }
             } catch (final SyncopeClientException ex) {
-                configurationResultManager.genericError("Error calling configuration service " + ex.getMessage());
+                configurationResultManager.generic("Error calling configuration service " + ex.getMessage());
             }
         } else {
             configurationResultManager.commandOptionError(EXPORT_HELP_MESSAGE);

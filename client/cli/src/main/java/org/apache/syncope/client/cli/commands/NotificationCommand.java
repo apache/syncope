@@ -45,7 +45,7 @@ public class NotificationCommand extends AbstractCommand {
             + "       Syntax: --read {NOTIFICATION-ID} \n"
             + "    --delete \n"
             + "       Syntax: --delete {NOTIFICATION-ID}";
-
+    
     @Override
     public void execute(final Input input) {
         LOG.debug("Option: {}", input.getOption());

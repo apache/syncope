@@ -66,7 +66,7 @@ public class ReportCommand extends AbstractCommand {
             + "       Syntax: --export-execution-result {EXECUTION-ID} {EXECUTION-ID} [...] {FORMAT}\n"
             + "          Format: CSV / HTML / PDF / XML / RTF"
             + "    --reportlet-class";
-
+    
     @Override
     public void execute(final Input input) {
         LOG.debug("Option: {}", input.getOption());

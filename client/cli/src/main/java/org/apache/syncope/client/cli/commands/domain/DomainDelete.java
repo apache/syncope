@@ -16,20 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.cli.commands.logger;
+package org.apache.syncope.client.cli.commands.domain;
 
-import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.types.LoggerType;
 
-public class LoggerDelete extends AbstractLoggerCommand {
+public class DomainDelete extends AbstractDomainCommand {
 
-    private static final String DELETE_HELP_MESSAGE = "logger --delete {LOG-NAME} {LOG-NAME} [...]";
+    private static final String DELETE_HELP_MESSAGE = "domain --delete {DOMAIN-KEY} {DOMAIN-KEY} [...]";
 
     private final Input input;
 
-    public LoggerDelete(final Input input) {
+    public DomainDelete(final Input input) {
         this.input = input;
     }
 
@@ -37,18 +35,18 @@ public class LoggerDelete extends AbstractLoggerCommand {
         if (input.parameterNumber() >= 1) {
             for (final String parameter : input.getParameters()) {
                 try {
-                    loggerService.delete(LoggerType.LOG, parameter);
-                    loggerResultManager.deletedMessage("Logger", parameter);
-                } catch (final WebServiceException | SyncopeClientException ex) {
+                    domainService.delete(parameter);
+                    domainResultManager.deletedMessage("Domain", parameter);
+                } catch (final SyncopeClientException ex) {
                     if (ex.getMessage().startsWith("NotFound")) {
-                        loggerResultManager.notFoundError("Logger", parameter);
+                        domainResultManager.notFoundError("Domain", parameter);
                     } else {
-                        loggerResultManager.generic(ex.getMessage());
+                        domainResultManager.generic(ex.getMessage());
                     }
                 }
             }
         } else {
-            loggerResultManager.commandOptionError(DELETE_HELP_MESSAGE);
+            domainResultManager.commandOptionError(DELETE_HELP_MESSAGE);
         }
     }
 

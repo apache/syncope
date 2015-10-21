@@ -44,7 +44,7 @@ public abstract class CommonsResultManager {
         Messages.printDefaultMessage(option, helpMessage);
     }
 
-    public void genericError(final String... messages) {
+    public void generic(final String... messages) {
         Messages.printMessage(messages);
     }
 }
