@@ -18,14 +18,12 @@
  */
 package org.apache.syncope.client.console.rest;
 
-import java.util.Iterator;
 import java.util.List;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.AttrLayoutType;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AttrTO;
-import org.apache.syncope.common.lib.to.ConfTO;
 import org.apache.syncope.common.rest.api.service.ConfigurationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -38,19 +36,18 @@ public class ConfigurationRestClient extends BaseRestClient {
     @Autowired
     private SchemaRestClient schemaRestClient;
 
-    public ConfTO list() {
-        ConfTO conf = getService(ConfigurationService.class).list();
+    public List<AttrTO> list() {
+        final List<AttrTO> attrTOs = getService(ConfigurationService.class).list();
 
-        for (Iterator<AttrTO> it = conf.getPlainAttrs().iterator(); it.hasNext();) {
-            AttrTO attr = it.next();
+        for (AttrTO attrTO : attrTOs) {
             for (AttrLayoutType type : AttrLayoutType.values()) {
-                if (type.getConfKey().equals(attr.getSchema())) {
-                    it.remove();
+                if (type.getConfKey().equals(attrTO.getSchema())) {
+                    attrTOs.remove(attrTO);
                 }
             }
         }
 
-        return conf;
+        return attrTOs;
     }
 
     public AttrTO get(final String key) {

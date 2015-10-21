@@ -20,12 +20,12 @@ package org.apache.syncope.core.rest.cxf.service;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.List;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import org.apache.syncope.common.lib.to.AttrTO;
-import org.apache.syncope.common.lib.to.ConfTO;
 import org.apache.syncope.common.rest.api.service.ConfigurationService;
 import org.apache.syncope.core.logic.ConfigurationLogic;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,7 +60,7 @@ public class ConfigurationServiceImpl extends AbstractServiceImpl implements Con
     }
 
     @Override
-    public ConfTO list() {
+    public List<AttrTO> list() {
         return logic.list();
     }
 

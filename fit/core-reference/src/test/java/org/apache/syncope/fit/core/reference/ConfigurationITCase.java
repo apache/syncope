@@ -28,6 +28,7 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.List;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -35,7 +36,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AttrTO;
-import org.apache.syncope.common.lib.to.ConfTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -89,9 +89,9 @@ public class ConfigurationITCase extends AbstractITCase {
 
     @Test
     public void list() {
-        ConfTO wholeConf = configurationService.list();
+        List<AttrTO> wholeConf = configurationService.list();
         assertNotNull(wholeConf);
-        for (AttrTO conf : wholeConf.getPlainAttrs()) {
+        for (AttrTO conf : wholeConf) {
             assertNotNull(conf);
         }
     }
