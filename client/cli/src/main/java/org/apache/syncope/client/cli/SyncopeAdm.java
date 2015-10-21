@@ -28,7 +28,7 @@ public final class SyncopeAdm {
 
     private static final Logger LOG = LoggerFactory.getLogger(SyncopeAdm.class);
     
-    private static final ResultManager resultManager = new ResultManager();
+    private static final ResultManager RESULT_MANAGER = new ResultManager();
 
     public static void main(final String[] args) {
         LOG.debug("Starting with args \n");
@@ -50,12 +50,12 @@ public final class SyncopeAdm {
             System.out.println(helpMessage());
         } catch (final IllegalArgumentException ex) {
             LOG.error("Error in main", ex);
-            resultManager.generic(ex.getMessage());
+            RESULT_MANAGER.generic(ex.getMessage());
             if (!ex.getMessage().startsWith("It seems you")) {
                 System.out.println(helpMessage());
             }
         } catch (final ProcessingException e) {
-            resultManager.generic("Syncope server offline", e.getCause().getMessage());
+            RESULT_MANAGER.generic("Syncope server offline", e.getCause().getMessage());
         }
 
     }
@@ -73,7 +73,7 @@ public final class SyncopeAdm {
                 helpMessageBuilder.append("\n");
             }
         } catch (final IllegalAccessException | IllegalArgumentException | InstantiationException ex) {
-            resultManager.generic(ex.getMessage());
+            RESULT_MANAGER.generic(ex.getMessage());
         }
 
         return helpMessageBuilder.toString();
