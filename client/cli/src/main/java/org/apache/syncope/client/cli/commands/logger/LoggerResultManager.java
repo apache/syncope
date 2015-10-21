@@ -20,29 +20,11 @@ package org.apache.syncope.client.cli.commands.logger;
 
 import java.util.Arrays;
 import java.util.LinkedList;
-import org.apache.syncope.client.cli.messages.Messages;
+import org.apache.syncope.client.cli.commands.CommonsResultManager;
 import org.apache.syncope.client.cli.messages.Table;
-import org.apache.syncope.client.cli.util.CommandUtils;
 import org.apache.syncope.common.lib.to.LoggerTO;
-import org.apache.syncope.common.lib.types.LoggerLevel;
 
-public class ResultManager {
-
-    public void notFoundError(final String parameter) {
-        Messages.printNofFoundMessage("Logger", parameter);
-    }
-
-    public void typeNotValidError(final String parameter) {
-        Messages.printTypeNotValidMessage("logger level", parameter, CommandUtils.fromEnumToArray(LoggerLevel.class));
-    }
-
-    public void commandOptionError(final String message) {
-        Messages.printCommandOptionMessage(message);
-    }
-
-    public void genericError(final String... messages) {
-        Messages.printMessage(messages);
-    }
+public class LoggerResultManager extends CommonsResultManager {
 
     public void fromList(final LinkedList<LoggerTO> loggerTOs) {
         fromCommandToView("list loggers", "level", loggerTOs);

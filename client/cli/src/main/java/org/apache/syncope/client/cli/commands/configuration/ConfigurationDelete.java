@@ -16,20 +16,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.cli.commands.logger;
+package org.apache.syncope.client.cli.commands.configuration;
 
 import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.types.LoggerType;
 
-public class LoggerDelete extends AbstractLoggerCommand {
+public class ConfigurationDelete extends AbstractConfigurationCommand {
 
-    private static final String DELETE_HELP_MESSAGE = "logger --delete {LOG-NAME} {LOG-NAME} [...]";
+    private static final String DELETE_HELP_MESSAGE = "configuration --delete {CONF-NAME} {CONF-NAME} [...]";
 
     private final Input input;
 
-    public LoggerDelete(final Input input) {
+    public ConfigurationDelete(final Input input) {
         this.input = input;
     }
 
@@ -37,18 +36,21 @@ public class LoggerDelete extends AbstractLoggerCommand {
         if (input.parameterNumber() >= 1) {
             for (final String parameter : input.getParameters()) {
                 try {
-                    loggerService.delete(LoggerType.LOG, parameter);
-                    loggerResultManager.deletedMessage("Logger", parameter);
-                } catch (final WebServiceException | SyncopeClientException ex) {
+                    configurationService.delete(parameter);
+                    configurationResultManager.deletedMessage("Configuration", parameter);
+                } catch (final SyncopeClientException | WebServiceException ex) {
                     if (ex.getMessage().startsWith("NotFound")) {
-                        loggerResultManager.notFoundError("Logger", parameter);
+                        configurationResultManager.notFoundError("Configuration", parameter);
+                    } else if (ex.getMessage().startsWith("DataIntegrityViolation")) {
+                        configurationResultManager.genericError("You cannot delete configuration", parameter);
                     } else {
-                        loggerResultManager.genericError(ex.getMessage());
+                        configurationResultManager.genericError(ex.getMessage());
                     }
+                    break;
                 }
             }
         } else {
-            loggerResultManager.commandOptionError(DELETE_HELP_MESSAGE);
+            configurationResultManager.commandOptionError(DELETE_HELP_MESSAGE);
         }
     }
 

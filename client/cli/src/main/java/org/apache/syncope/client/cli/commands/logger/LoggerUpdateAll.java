@@ -47,19 +47,19 @@ public class LoggerUpdateAll extends AbstractLoggerCommand {
                     loggerTOs.add(loggerTO);
                 } catch (final WebServiceException | SyncopeClientException | IllegalArgumentException ex) {
                     if (ex.getMessage().startsWith("No enum constant org.apache.syncope.common.lib.types.")) {
-                        resultManager.typeNotValidError(input.firstParameter());
+                        loggerResultManager.typeNotValidError(input.firstParameter());
                     } else {
-                        resultManager.genericError(ex.getMessage(), UPDATE_ALL_HELP_MESSAGE);
+                        loggerResultManager.genericError(ex.getMessage(), UPDATE_ALL_HELP_MESSAGE);
                     }
                     failed = true;
                     break;
                 }
             }
             if (!failed) {
-                resultManager.fromUpdate(loggerTOs);
+                loggerResultManager.fromUpdate(loggerTOs);
             }
         } else {
-            resultManager.commandOptionError(UPDATE_ALL_HELP_MESSAGE);
+            loggerResultManager.commandOptionError(UPDATE_ALL_HELP_MESSAGE);
         }
     }
 }

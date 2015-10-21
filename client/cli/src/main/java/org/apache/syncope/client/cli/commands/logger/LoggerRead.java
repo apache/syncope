@@ -44,19 +44,19 @@ public class LoggerRead extends AbstractLoggerCommand {
                     loggerTOs.add(loggerService.read(LoggerType.LOG, parameter));
                 } catch (final SyncopeClientException | WebServiceException ex) {
                     if (ex.getMessage().startsWith("NotFound")) {
-                        resultManager.notFoundError(parameter);
+                        loggerResultManager.notFoundError("Logger", parameter);
                     } else {
-                        resultManager.genericError("Error: " + ex.getMessage());
+                        loggerResultManager.genericError("Error: " + ex.getMessage());
                     }
                     failed = true;
                     break;
                 }
             }
             if (!failed) {
-                resultManager.fromRead(loggerTOs);
+                loggerResultManager.fromRead(loggerTOs);
             }
         } else {
-            resultManager.commandOptionError(READ_HELP_MESSAGE);
+            loggerResultManager.commandOptionError(READ_HELP_MESSAGE);
         }
     }
 }

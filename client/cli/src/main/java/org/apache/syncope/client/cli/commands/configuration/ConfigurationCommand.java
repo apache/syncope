@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.cli.commands.logger;
+package org.apache.syncope.client.cli.commands.configuration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,55 +24,54 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.cli.Command;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.client.cli.commands.AbstractCommand;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Command(name = "logger")
-public class LoggerCommand extends AbstractCommand {
+@Command(name = "configuration")
+public class ConfigurationCommand extends AbstractCommand {
 
-    private static final String HELP_MESSAGE = "Usage: logger [options]\n"
+    private static final Logger LOG = LoggerFactory.getLogger(ConfigurationCommand.class);
+
+    private static final String HELP_MESSAGE = "Usage: configuration [options]\n"
             + "  Options:\n"
             + "    --help \n"
-            + "    --list \n"
+            + "    --get \n"
             + "    --read \n"
-            + "       Syntax: --read {LOG-NAME} {LOG-NAME} [...]\n"
+            + "       Syntax: --read {CONF-NAME} {CONF-NAME} [...] \n"
             + "    --update \n"
-            + "       Syntax: --update {LOG-NAME}={LOG-LEVEL} {LOG-NAME}={LOG-LEVEL} [...]\n"
-            + "    --update-all \n"
-            + "       Syntax: --update-all {LOG-LEVEL} \n"
-            + "    --create \n"
-            + "       Syntax: --create {LOG-NAME}={LOG-LEVEL} {LOG-NAME}={LOG-LEVEL} [...]\n"
+            + "       Syntax: --update {CONF-NAME}={CONF-VALUE} {CONF-NAME}={CONF-VALUE} [...]\n"
             + "    --delete \n"
-            + "       Syntax: --delete {LOG-NAME} {LOG-NAME} [...]";
+            + "       Syntax: --delete {CONF-NAME} {CONF-NAME} [...]\n"
+            + "    --export \n"
+            + "       Syntax: --export {WHERE-DIR}";
 
     @Override
     public void execute(final Input input) {
         if (StringUtils.isBlank(input.getOption())) {
-            input.setOption(LoggerOptions.HELP.getOptionName());
+            input.setOption(Options.HELP.getOptionName());
         }
 
-        switch (LoggerOptions.fromName(input.getOption())) {
-            case LIST:
-                new LoggerList().list();
+        switch (Options.fromName(input.getOption())) {
+            case GET:
+                new ConfigurationGet().get();
                 break;
             case READ:
-                new LoggerRead(input).read();
+                new ConfigurationRead(input).read();
                 break;
             case UPDATE:
-                new LoggerUpdate(input).update();
-                break;
-            case UPDATE_ALL:
-                new LoggerUpdateAll(input).updateAll();
-                break;
-            case CREATE:
-                new LoggerCreate(input).create();
+                new ConfigurationUpdate(input).update();
                 break;
             case DELETE:
-                new LoggerDelete(input).delete();
+                new ConfigurationDelete(input).delete();
+                break;
+            case EXPORT:
                 break;
             case HELP:
                 System.out.println(HELP_MESSAGE);
                 break;
             default:
-                new LoggerResultManager().defaultError(input.getOption(), HELP_MESSAGE);
+                new ConfigurationResultManager().defaultError(input.getOption(), HELP_MESSAGE);
+                break;
         }
     }
 
@@ -81,19 +80,18 @@ public class LoggerCommand extends AbstractCommand {
         return HELP_MESSAGE;
     }
 
-    private enum LoggerOptions {
+    private enum Options {
 
         HELP("--help"),
-        LIST("--list"),
+        GET("--get"),
         READ("--read"),
         UPDATE("--update"),
-        UPDATE_ALL("--update-all"),
-        CREATE("--create"),
-        DELETE("--delete");
+        DELETE("--delete"),
+        EXPORT("--export");
 
         private final String optionName;
 
-        LoggerOptions(final String optionName) {
+        Options(final String optionName) {
             this.optionName = optionName;
         }
 
@@ -105,9 +103,9 @@ public class LoggerCommand extends AbstractCommand {
             return (otherName == null) ? false : optionName.equals(otherName);
         }
 
-        public static LoggerOptions fromName(final String name) {
-            LoggerOptions optionToReturn = HELP;
-            for (final LoggerOptions option : LoggerOptions.values()) {
+        public static Options fromName(final String name) {
+            Options optionToReturn = HELP;
+            for (final Options option : Options.values()) {
                 if (option.equalsOptionName(name)) {
                     optionToReturn = option;
                 }
@@ -117,11 +115,10 @@ public class LoggerCommand extends AbstractCommand {
 
         public static List<String> toList() {
             final List<String> options = new ArrayList<>();
-            for (final LoggerOptions value : values()) {
+            for (final Options value : values()) {
                 options.add(value.getOptionName());
             }
             return options;
         }
     }
-
 }

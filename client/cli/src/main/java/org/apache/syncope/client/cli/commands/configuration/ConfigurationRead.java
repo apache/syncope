@@ -16,52 +16,46 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.cli.commands.logger;
+package org.apache.syncope.client.cli.commands.configuration;
 
 import java.util.LinkedList;
 import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.LoggerTO;
-import org.apache.syncope.common.lib.types.LoggerLevel;
-import org.apache.syncope.common.lib.types.LoggerType;
+import org.apache.syncope.common.lib.to.AttrTO;
 
-public class LoggerCreate extends AbstractLoggerCommand {
+public class ConfigurationRead extends AbstractConfigurationCommand {
 
-    private static final String CREATE_HELP_MESSAGE
-            = "logger --create {LOG-NAME}={LOG-LEVEL} {LOG-NAME}={LOG-LEVEL} [...]";
+    private static final String READ_HELP_MESSAGE = "configuration --read {CONF-NAME} {CONF-NAME} [...]";
 
     private final Input input;
 
-    public LoggerCreate(final Input input) {
+    public ConfigurationRead(final Input input) {
         this.input = input;
     }
 
-    public void create() {
+    public void read() {
         if (input.parameterNumber() >= 1) {
-            Input.PairParameter pairParameter;
-            LoggerTO loggerTO;
-            final LinkedList<LoggerTO> loggerTOs = new LinkedList<>();
+            final LinkedList<AttrTO> attrList = new LinkedList<>();
             boolean failed = false;
             for (final String parameter : input.getParameters()) {
-                loggerTO = new LoggerTO();
                 try {
-                    pairParameter = input.toPairParameter(parameter);
-                    loggerTO.setKey(pairParameter.getKey());
-                    loggerTO.setLevel(LoggerLevel.valueOf(pairParameter.getValue()));
-                    loggerService.update(LoggerType.LOG, loggerTO);
-                    loggerTOs.add(loggerTO);
-                } catch (final WebServiceException | SyncopeClientException | IllegalArgumentException ex) {
-                    loggerResultManager.typeNotValidError(input.firstParameter());
+                    attrList.add(configurationService.get(parameter));
+                } catch (final SyncopeClientException | WebServiceException ex) {
+                    if (ex.getMessage().startsWith("NotFound")) {
+                        configurationResultManager.notFoundError("Configuration", parameter);
+                    } else {
+                        configurationResultManager.genericError(ex.getMessage());
+                    }
                     failed = true;
                     break;
                 }
             }
             if (!failed) {
-                loggerResultManager.fromUpdate(loggerTOs);
+                configurationResultManager.fromGet(attrList);
             }
         } else {
-            loggerResultManager.commandOptionError(CREATE_HELP_MESSAGE);
+            configurationResultManager.commandOptionError(READ_HELP_MESSAGE);
         }
     }
 

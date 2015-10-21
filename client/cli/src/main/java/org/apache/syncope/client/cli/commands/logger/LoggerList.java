@@ -29,9 +29,9 @@ public class LoggerList extends AbstractLoggerCommand {
 
     public void list() {
         try {
-            resultManager.fromList(new LinkedList<>(loggerService.list(LoggerType.LOG)));
+            loggerResultManager.fromList(new LinkedList<>(loggerService.list(LoggerType.LOG)));
         } catch (final SyncopeClientException ex) {
-            resultManager.genericError("Error: " + ex.getMessage());
+            loggerResultManager.genericError("Error: " + ex.getMessage());
         }
     }
 }
