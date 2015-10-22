@@ -118,7 +118,6 @@ public class PlainAttrTest extends AbstractTest {
         user.add(attribute);
 
         Exception thrown = null;
-
         try {
             attribute.add("A", anyUtilsFactory.getInstance(AnyTypeKind.USER));
         } catch (ValidationException e) {

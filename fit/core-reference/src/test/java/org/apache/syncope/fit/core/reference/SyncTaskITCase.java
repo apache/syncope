@@ -607,6 +607,9 @@ public class SyncTaskITCase extends AbstractTaskITCase {
     @Test
     public void issueSYNCOPE307() {
         UserTO userTO = UserITCase.getUniqueSampleTO("s307@apache.org");
+        userTO.setUsername("test0");
+        userTO.getPlainAttrMap().get("firstname").getValues().clear();
+        userTO.getPlainAttrMap().get("firstname").getValues().add("nome0");
         userTO.getAuxClasses().add("csv");
 
         AttrTO csvuserid = new AttrTO();
@@ -615,37 +618,34 @@ public class SyncTaskITCase extends AbstractTaskITCase {
 
         userTO.getResources().clear();
         userTO.getResources().add(RESOURCE_NAME_WS2);
-        userTO.getResources().add(RESOURCE_NAME_CSV);
 
         userTO = createUser(userTO);
         assertNotNull(userTO);
 
         userTO = userService.read(userTO.getKey());
-        assertEquals("virtualvalue", userTO.getVirAttrMap().get("virtualdata").getValues().get(0));
+        assertTrue(userTO.getVirAttrMap().isEmpty());
 
         // Update sync task
         SyncTaskTO task = taskService.read(12L);
         assertNotNull(task);
 
-        //  add user template
         UserTO template = new UserTO();
+        template.setPassword("'password123'");
         template.getResources().add(RESOURCE_NAME_DBVIRATTR);
-
-        AttrTO userId = attrTO("userId", "'s307@apache.org'");
-        template.getPlainAttrs().add(userId);
-
-        AttrTO email = attrTO("email", "'s307@apache.org'");
-        template.getPlainAttrs().add(email);
+        template.getVirAttrs().add(attrTO("virtualdata", "'virtualvalue'"));
 
         task.getTemplates().put(AnyTypeKind.USER.name(), template);
 
         taskService.update(task);
+
+        // exec task: one user from CSV will match the user created above and template will be applied
         execProvisioningTask(taskService, task.getKey(), 50, false);
 
-        // check for sync policy
+        // check that template was successfully applied...
         userTO = userService.read(userTO.getKey());
         assertEquals("virtualvalue", userTO.getVirAttrMap().get("virtualdata").getValues().get(0));
 
+        // ...and that propagation to db succeeded
         try {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
 

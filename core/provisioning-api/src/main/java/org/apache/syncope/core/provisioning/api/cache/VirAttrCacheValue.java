@@ -18,12 +18,10 @@
  */
 package org.apache.syncope.core.provisioning.api.cache;
 
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.List;
 
 /**
  * Cache entry value.
@@ -33,7 +31,7 @@ public class VirAttrCacheValue {
     /**
      * Virtual attribute values.
      */
-    private final Map<String, Set<String>> values;
+    private final List<String> values;
 
     /**
      * Entry creation date.
@@ -48,11 +46,17 @@ public class VirAttrCacheValue {
     public VirAttrCacheValue() {
         this.creationDate = new Date();
         this.lastAccessDate = new Date();
-        this.values = new HashMap<>();
+        this.values = new ArrayList<>();
     }
 
-    public void setResourceValues(final String resourceName, final Set<String> cached) {
-        this.values.put(resourceName, cached);
+    public void setValues(final Collection<Object> values) {
+        this.values.clear();
+
+        if (values != null) {
+            for (Object value : values) {
+                this.values.add(value.toString());
+            }
+        }
     }
 
     public Date getCreationDate() {
@@ -63,18 +67,8 @@ public class VirAttrCacheValue {
         creationDate = new Date(0);
     }
 
-    public Set<String> getValues(final String resourceName) {
-        return values.get(resourceName);
-    }
-
-    public Set<String> getValues() {
-        final Set<String> res = new HashSet<>();
-
-        for (Set<String> value : values.values()) {
-            res.addAll(value);
-        }
-
-        return Collections.unmodifiableSet(res);
+    public List<String> getValues() {
+        return values;
     }
 
     public Date getLastAccessDate() {

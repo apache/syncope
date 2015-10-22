@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
@@ -34,6 +36,7 @@ import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.misc.search.SearchCondConverter;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.DynGroupMembership;
+import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.user.UDynGroupMembership;
 import org.springframework.stereotype.Component;
@@ -203,12 +206,12 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
             groupTO.setGroupOwner(group.getGroupOwner().getKey());
         }
 
-        if (details) {
-            virAttrHander.retrieveVirAttrValues(group);
-        }
+        Map<VirSchema, List<String>> virAttrValues = details
+                ? virAttrHander.getValues(group)
+                : Collections.<VirSchema, List<String>>emptyMap();
 
         fillTO(groupTO, group.getRealm().getFullPath(), group.getAuxClasses(),
-                group.getPlainAttrs(), group.getDerAttrs(), group.getVirAttrs(), group.getResources());
+                group.getPlainAttrs(), group.getDerAttrs(), virAttrValues, group.getResources());
 
         if (group.getADynMembership() != null) {
             groupTO.setADynMembershipCond(group.getADynMembership().getFIQLCond());

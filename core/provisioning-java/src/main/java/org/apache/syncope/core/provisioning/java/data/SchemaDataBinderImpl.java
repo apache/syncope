@@ -35,11 +35,13 @@ import org.apache.syncope.core.misc.spring.BeanUtils;
 import org.apache.syncope.core.misc.jexl.JexlUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
+import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
+import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +52,7 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
 
     private static final Logger LOG = LoggerFactory.getLogger(SchemaDataBinder.class);
 
-    private static final String[] IGNORE_PROPERTIES = { "anyTypeClass" };
+    private static final String[] IGNORE_PROPERTIES = { "anyTypeClass", "provision" };
 
     @Autowired
     private AnyTypeClassDAO anyTypeClassDAO;
@@ -63,6 +65,9 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
 
     @Autowired
     private VirSchemaDAO virSchemaDAO;
+
+    @Autowired
+    private ExternalResourceDAO resourceDAO;
 
     @Autowired
     private EntityFactory entityFactory;
@@ -235,6 +240,14 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
             merged.setAnyTypeClass(null);
         }
 
+        Provision provision = resourceDAO.findProvision(schemaTO.getProvision());
+        if (provision == null) {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSchemaDefinition);
+            sce.getElements().add("Provision " + schemaTO.getProvision() + " not found");
+            throw sce;
+        }
+        merged.setProvision(provision);
+
         return merged;
     }
 
@@ -253,6 +266,7 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
         VirSchemaTO schemaTO = new VirSchemaTO();
         BeanUtils.copyProperties(schema, schemaTO, IGNORE_PROPERTIES);
         schemaTO.setAnyTypeClass(schema.getAnyTypeClass() == null ? null : schema.getAnyTypeClass().getKey());
+        schemaTO.setProvision(schema.getProvision().getKey());
 
         return schemaTO;
     }

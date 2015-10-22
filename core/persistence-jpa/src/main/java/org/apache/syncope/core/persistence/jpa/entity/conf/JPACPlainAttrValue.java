@@ -57,7 +57,7 @@ public class JPACPlainAttrValue extends AbstractPlainAttrValue implements CPlain
     }
 
     @Override
-    public void setAttr(final PlainAttr attr) {
+    public void setAttr(final PlainAttr<?> attr) {
         checkType(attr, JPACPlainAttr.class);
         this.attribute = (JPACPlainAttr) attr;
     }

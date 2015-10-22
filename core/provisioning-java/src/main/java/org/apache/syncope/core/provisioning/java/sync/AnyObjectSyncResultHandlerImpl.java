@@ -54,7 +54,7 @@ public class AnyObjectSyncResultHandlerImpl extends AbstractSyncResultHandler im
     }
 
     @Override
-    protected Any<?, ?, ?> getAny(final long key) {
+    protected Any<?, ?> getAny(final long key) {
         try {
             return anyObjectDAO.authFind(key);
         } catch (Exception e) {

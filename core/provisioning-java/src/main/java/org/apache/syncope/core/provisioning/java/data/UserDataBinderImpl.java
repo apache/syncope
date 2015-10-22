@@ -19,8 +19,10 @@
 package org.apache.syncope.core.provisioning.java.data;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.Resource;
@@ -57,6 +59,7 @@ import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.Role;
+import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
@@ -431,12 +434,12 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             userTO.setSecurityQuestion(user.getSecurityQuestion().getKey());
         }
 
-        if (details) {
-            virAttrHander.retrieveVirAttrValues(user);
-        }
+        Map<VirSchema, List<String>> virAttrValues = details
+                ? virAttrHander.getValues(user)
+                : Collections.<VirSchema, List<String>>emptyMap();
 
         fillTO(userTO, user.getRealm().getFullPath(), user.getAuxClasses(),
-                user.getPlainAttrs(), user.getDerAttrs(), user.getVirAttrs(), userDAO.findAllResources(user));
+                user.getPlainAttrs(), user.getDerAttrs(), virAttrValues, userDAO.findAllResources(user));
 
         if (details) {
             // roles

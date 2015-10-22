@@ -32,11 +32,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
+import org.apache.syncope.core.misc.FormatUtils;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidPlainAttrValueException;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValidationException;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
-import org.apache.syncope.core.misc.DataFormat;
 import org.apache.syncope.core.persistence.jpa.validation.entity.PlainAttrValueCheck;
 import org.apache.syncope.core.misc.security.Encryptor;
 
@@ -153,7 +153,7 @@ public abstract class AbstractPlainAttrValue extends AbstractEntity<Long> implem
                 try {
                     this.setLongValue(schema.getConversionPattern() == null
                             ? Long.valueOf(value)
-                            : DataFormat.parseNumber(value, schema.getConversionPattern()).longValue());
+                            : FormatUtils.parseNumber(value, schema.getConversionPattern()).longValue());
                 } catch (Exception pe) {
                     exception = pe;
                 }
@@ -163,7 +163,7 @@ public abstract class AbstractPlainAttrValue extends AbstractEntity<Long> implem
                 try {
                     this.setDoubleValue(schema.getConversionPattern() == null
                             ? Double.valueOf(value)
-                            : DataFormat.parseNumber(value, schema.getConversionPattern()).doubleValue());
+                            : FormatUtils.parseNumber(value, schema.getConversionPattern()).doubleValue());
                 } catch (Exception pe) {
                     exception = pe;
                 }
@@ -172,8 +172,8 @@ public abstract class AbstractPlainAttrValue extends AbstractEntity<Long> implem
             case Date:
                 try {
                     this.setDateValue(schema.getConversionPattern() == null
-                            ? DataFormat.parseDate(value)
-                            : new Date(DataFormat.parseDate(value, schema.getConversionPattern()).getTime()));
+                            ? FormatUtils.parseDate(value)
+                            : new Date(FormatUtils.parseDate(value, schema.getConversionPattern()).getTime()));
                 } catch (Exception pe) {
                     exception = pe;
                 }
@@ -246,21 +246,21 @@ public abstract class AbstractPlainAttrValue extends AbstractEntity<Long> implem
                 result = getAttr() == null || getAttr().getSchema() == null
                         || getAttr().getSchema().getConversionPattern() == null
                                 ? getLongValue().toString()
-                                : DataFormat.format(getLongValue(), getAttr().getSchema().getConversionPattern());
+                                : FormatUtils.format(getLongValue(), getAttr().getSchema().getConversionPattern());
                 break;
 
             case Double:
                 result = getAttr() == null || getAttr().getSchema() == null
                         || getAttr().getSchema().getConversionPattern() == null
                                 ? getDoubleValue().toString()
-                                : DataFormat.format(getDoubleValue(), getAttr().getSchema().getConversionPattern());
+                                : FormatUtils.format(getDoubleValue(), getAttr().getSchema().getConversionPattern());
                 break;
 
             case Date:
                 result = getAttr() == null || getAttr().getSchema() == null
                         || getAttr().getSchema().getConversionPattern() == null
-                                ? DataFormat.format(getDateValue())
-                                : DataFormat.format(getDateValue(), false, getAttr().getSchema().
+                                ? FormatUtils.format(getDateValue())
+                                : FormatUtils.format(getDateValue(), false, getAttr().getSchema().
                                         getConversionPattern());
                 break;
 

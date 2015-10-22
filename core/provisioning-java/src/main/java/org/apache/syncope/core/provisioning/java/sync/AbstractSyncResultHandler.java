@@ -38,12 +38,17 @@ import org.apache.syncope.core.persistence.api.entity.task.SyncTask;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationException;
 import org.apache.syncope.core.provisioning.api.sync.SyncActions;
 import org.apache.syncope.core.misc.security.DelegatedAdministrationException;
+import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
+import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.provisioning.api.ProvisioningManager;
+import org.apache.syncope.core.provisioning.api.cache.VirAttrCache;
+import org.apache.syncope.core.provisioning.api.cache.VirAttrCacheValue;
 import org.apache.syncope.core.provisioning.api.sync.IgnoreProvisionException;
 import org.apache.syncope.core.provisioning.api.sync.ProvisioningResult;
 import org.apache.syncope.core.provisioning.api.sync.SyncopeSyncResultHandler;
+import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.identityconnectors.framework.common.objects.SyncDeltaType;
 import org.quartz.JobExecutionException;
@@ -56,6 +61,12 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
 
     @Autowired
     protected SyncUtils syncUtilities;
+
+    @Autowired
+    protected VirSchemaDAO virSchemaDAO;
+
+    @Autowired
+    protected VirAttrCache virAttrCache;
 
     protected abstract String getName(AnyTO anyTO);
 
@@ -656,6 +667,8 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
 
         try {
             List<Long> anyKeys = syncUtilities.findExisting(uid, delta.getObject(), provision, anyUtils);
+            LOG.debug("Match(es) found for {} as {}: {}",
+                    delta.getUid().getUidValue(), delta.getObject().getObjectClass(), anyKeys);
 
             if (anyKeys.size() > 1) {
                 switch (profile.getResAct()) {
@@ -671,7 +684,7 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
                         break;
 
                     default:
-                    // keep anyIds as is
+                    // keep anyKeys unmodified
                 }
             }
 
@@ -694,25 +707,52 @@ public abstract class AbstractSyncResultHandler extends AbstractSyncopeResultHan
                         // do nothing
                     }
                 } else {
+                    // update VirAttrCache
+                    for (VirSchema virSchema : virSchemaDAO.findByProvision(provision)) {
+                        Attribute attr = delta.getObject().getAttributeByName(virSchema.getExtAttrName());
+                        for (Long anyKey : anyKeys) {
+                            if (attr == null) {
+                                virAttrCache.expire(
+                                        provision.getAnyType().getKey(),
+                                        anyKey,
+                                        virSchema.getKey());
+                            } else {
+                                VirAttrCacheValue cacheValue = new VirAttrCacheValue();
+                                cacheValue.setValues(attr.getValue());
+                                virAttrCache.put(
+                                        provision.getAnyType().getKey(),
+                                        anyKey,
+                                        virSchema.getKey(),
+                                        cacheValue);
+                            }
+                        }
+                    }
+
                     switch (profile.getTask().getMatchingRule()) {
                         case UPDATE:
                             profile.getResults().addAll(update(delta, anyKeys, provision));
                             break;
+
                         case DEPROVISION:
                             profile.getResults().addAll(deprovision(delta, anyKeys, provision, false));
                             break;
+
                         case UNASSIGN:
                             profile.getResults().addAll(deprovision(delta, anyKeys, provision, true));
                             break;
+
                         case LINK:
                             profile.getResults().addAll(link(delta, anyKeys, provision, false));
                             break;
+
                         case UNLINK:
                             profile.getResults().addAll(link(delta, anyKeys, provision, true));
                             break;
+
                         case IGNORE:
                             profile.getResults().addAll(ignore(delta, provision, true));
                             break;
+
                         default:
                         // do nothing
                     }

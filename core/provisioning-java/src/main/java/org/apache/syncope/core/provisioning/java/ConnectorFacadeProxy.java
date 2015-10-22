@@ -21,8 +21,8 @@ package org.apache.syncope.core.provisioning.java;
 import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Future;
@@ -31,6 +31,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
+import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
@@ -168,12 +169,12 @@ public class ConnectorFacadeProxy implements Connector {
             final ObjectClass objectClass,
             final Set<Attribute> attrs,
             final OperationOptions options,
-            final Set<String> propagationAttempted) {
+            final Boolean[] propagationAttempted) {
 
         Uid result = null;
 
         if (activeConnInstance.getCapabilities().contains(ConnectorCapability.CREATE)) {
-            propagationAttempted.add("create");
+            propagationAttempted[0] = true;
 
             Future<Uid> future = asyncFacade.create(connector, objectClass, attrs, options);
             try {
@@ -203,12 +204,12 @@ public class ConnectorFacadeProxy implements Connector {
             final Uid uid,
             final Set<Attribute> attrs,
             final OperationOptions options,
-            final Set<String> propagationAttempted) {
+            final Boolean[] propagationAttempted) {
 
         Uid result = null;
 
         if (activeConnInstance.getCapabilities().contains(ConnectorCapability.UPDATE)) {
-            propagationAttempted.add("update");
+            propagationAttempted[0] = true;
 
             Future<Uid> future = asyncFacade.update(connector, objectClass, uid, attrs, options);
 
@@ -239,10 +240,10 @@ public class ConnectorFacadeProxy implements Connector {
             final ObjectClass objectClass,
             final Uid uid,
             final OperationOptions options,
-            final Set<String> propagationAttempted) {
+            final Boolean[] propagationAttempted) {
 
         if (activeConnInstance.getCapabilities().contains(ConnectorCapability.DELETE)) {
-            propagationAttempted.add("delete");
+            propagationAttempted[0] = true;
 
             Future<Uid> future = asyncFacade.delete(connector, objectClass, uid, options);
 
@@ -544,7 +545,8 @@ public class ConnectorFacadeProxy implements Connector {
             final ResultsHandler handler,
             final int pageSize,
             final String pagedResultsCookie,
-            final List<OrderByClause> orderBy) {
+            final List<OrderByClause> orderBy,
+            final Iterator<? extends MappingItem> mapItems) {
 
         OperationOptionsBuilder builder = new OperationOptionsBuilder().setPageSize(pageSize);
         if (pagedResultsCookie != null) {
@@ -558,6 +560,8 @@ public class ConnectorFacadeProxy implements Connector {
             }
         }, new ArrayList<SortKey>(orderBy.size())));
 
+        builder.setAttributesToGet(getOperationOptions(mapItems).getAttributesToGet());
+
         search(objectClass, filter, handler, builder.build());
     }
 
@@ -567,7 +571,7 @@ public class ConnectorFacadeProxy implements Connector {
     }
 
     @Override
-    public OperationOptions getOperationOptions(final Collection<? extends MappingItem> mapItems) {
+    public OperationOptions getOperationOptions(final Iterator<? extends MappingItem> mapItems) {
         // -------------------------------------
         // Ask just for mapped attributes
         // -------------------------------------
@@ -578,8 +582,11 @@ public class ConnectorFacadeProxy implements Connector {
         attrsToGet.add(Uid.NAME);
         attrsToGet.add(OperationalAttributes.ENABLE_NAME);
 
-        for (MappingItem item : mapItems) {
-            attrsToGet.add(item.getExtAttrName());
+        while (mapItems.hasNext()) {
+            MappingItem mapItem = mapItems.next();
+            if (mapItem.getPurpose() != MappingPurpose.NONE) {
+                attrsToGet.add(mapItem.getExtAttrName());
+            }
         }
 
         builder.setAttributesToGet(attrsToGet);

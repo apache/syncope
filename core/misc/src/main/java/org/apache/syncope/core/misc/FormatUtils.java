@@ -28,7 +28,7 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 /**
  * Utility class for parsing / formatting date and numbers.
  */
-public final class DataFormat {
+public final class FormatUtils {
 
     private static final ThreadLocal<SimpleDateFormat> DATE_FORMAT = new ThreadLocal<SimpleDateFormat>() {
 
@@ -111,7 +111,7 @@ public final class DataFormat {
         DECIMAL_FORMAT.remove();
     }
 
-    private DataFormat() {
+    private FormatUtils() {
         // private empty constructor
     }
 }

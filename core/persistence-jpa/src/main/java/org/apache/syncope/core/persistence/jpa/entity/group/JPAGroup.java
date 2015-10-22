@@ -44,7 +44,6 @@ import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.group.GDerAttr;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
-import org.apache.syncope.core.persistence.api.entity.group.GVirAttr;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
 import org.apache.syncope.core.persistence.api.entity.user.UDynGroupMembership;
@@ -61,7 +60,7 @@ import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 @Table(name = JPAGroup.TABLE)
 @Cacheable
 @GroupCheck
-public class JPAGroup extends AbstractAny<GPlainAttr, GDerAttr, GVirAttr> implements Group {
+public class JPAGroup extends AbstractAny<GPlainAttr, GDerAttr> implements Group {
 
     private static final long serialVersionUID = -5281258853142421875L;
 
@@ -87,10 +86,6 @@ public class JPAGroup extends AbstractAny<GPlainAttr, GDerAttr, GVirAttr> implem
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     @Valid
     private List<JPAGDerAttr> derAttrs = new ArrayList<>();
-
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
-    @Valid
-    private List<JPAGVirAttr> virAttrs = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(joinColumns =
@@ -202,23 +197,6 @@ public class JPAGroup extends AbstractAny<GPlainAttr, GDerAttr, GVirAttr> implem
     @Override
     public List<? extends GDerAttr> getDerAttrs() {
         return derAttrs;
-    }
-
-    @Override
-    public boolean add(final GVirAttr attr) {
-        checkType(attr, JPAGVirAttr.class);
-        return virAttrs.add((JPAGVirAttr) attr);
-    }
-
-    @Override
-    public boolean remove(final GVirAttr attr) {
-        checkType(attr, JPAGVirAttr.class);
-        return virAttrs.remove((JPAGVirAttr) attr);
-    }
-
-    @Override
-    public List<? extends GVirAttr> getVirAttrs() {
-        return virAttrs;
     }
 
     @Override

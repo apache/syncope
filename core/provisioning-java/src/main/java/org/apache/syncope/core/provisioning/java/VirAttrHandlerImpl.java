@@ -19,7 +19,6 @@
 package org.apache.syncope.core.provisioning.java;
 
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -27,26 +26,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Predicate;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.lib.patch.AttrPatch;
-import org.apache.syncope.common.lib.to.AttrTO;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.IntMappingType;
-import org.apache.syncope.common.lib.types.PropagationByResource;
-import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.misc.MappingUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
-import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.dao.VirAttrDAO;
-import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.persistence.api.entity.AnyType;
-import org.apache.syncope.core.persistence.api.entity.AnyUtils;
-import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
-import org.apache.syncope.core.persistence.api.entity.VirAttr;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
@@ -68,28 +53,15 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
-@Transactional(rollbackFor = { Throwable.class })
 public class VirAttrHandlerImpl implements VirAttrHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(VirAttrHandler.class);
-
-    @Autowired
-    private VirSchemaDAO virSchemaDAO;
-
-    @Autowired
-    private VirAttrDAO virAttrDAO;
 
     @Autowired
     private AnyObjectDAO anyObjectDAO;
 
     @Autowired
     private UserDAO userDAO;
-
-    @Autowired
-    private GroupDAO groupDAO;
-
-    @Autowired
-    private AnyUtilsFactory anyUtilsFactory;
 
     @Autowired
     private ConnectorFactory connFactory;
@@ -103,290 +75,102 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
     @Autowired
     private MappingUtils mappingUtils;
 
-    @Override
-    public VirSchema getVirSchema(final String virSchemaName) {
-        VirSchema virtualSchema = null;
-        if (StringUtils.isNotBlank(virSchemaName)) {
-            virtualSchema = virSchemaDAO.find(virSchemaName);
-
-            if (virtualSchema == null) {
-                LOG.debug("Ignoring invalid virtual schema {}", virSchemaName);
-            }
+    private Map<VirSchema, List<String>> getValues(final Any<?, ?> any, final Set<VirSchema> schemas) {
+        Collection<? extends ExternalResource> ownedResources;
+        if (any instanceof User) {
+            ownedResources = userDAO.findAllResources((User) any);
+        } else if (any instanceof AnyObject) {
+            ownedResources = anyObjectDAO.findAllResources((AnyObject) any);
+        } else {
+            ownedResources = ((Group) any).getResources();
         }
 
-        return virtualSchema;
-    }
+        Map<VirSchema, List<String>> result = new HashMap<>();
 
-    @Override
-    public void updateOnResourcesIfMappingMatches(final Any<?, ?, ?> any, final String schemaKey,
-            final Iterable<? extends ExternalResource> resources, final IntMappingType mappingType,
-            final PropagationByResource propByRes) {
+        Map<Provision, Set<VirSchema>> toRead = new HashMap<>();
 
-        for (ExternalResource resource : resources) {
-            for (MappingItem mapItem
-                    : MappingUtils.getPropagationMappingItems(resource.getProvision(any.getType()))) {
+        for (VirSchema schema : schemas) {
+            if (ownedResources.contains(schema.getProvision().getResource())) {
+                VirAttrCacheValue virAttrCacheValue =
+                        virAttrCache.get(any.getType().getKey(), any.getKey(), schema.getKey());
 
-                if (schemaKey.equals(mapItem.getIntAttrName()) && mapItem.getIntMappingType() == mappingType) {
-                    propByRes.add(ResourceOperation.UPDATE, resource.getKey());
-                }
-            }
-        }
-    }
-
-    private Iterable<? extends ExternalResource> getAllResources(final Any<?, ?, ?> any) {
-        return any instanceof User
-                ? userDAO.findAllResources((User) any)
-                : any instanceof AnyObject
-                        ? anyObjectDAO.findAllResources((AnyObject) any)
-                        : any instanceof Group
-                                ? ((Group) any).getResources()
-                                : Collections.<ExternalResource>emptySet();
-    }
-
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    @Override
-    public void createVirtual(final Any any, final Collection<AttrTO> vAttrs) {
-        AnyUtils anyUtils = anyUtilsFactory.getInstance(any);
-
-        for (AttrTO attrTO : vAttrs) {
-            VirAttr virAttr = any.getVirAttr(attrTO.getSchema());
-            if (virAttr == null) {
-                VirSchema virSchema = getVirSchema(attrTO.getSchema());
-                if (virSchema != null) {
-                    virAttr = anyUtils.newVirAttr();
-                    virAttr.setSchema(virSchema);
-                    if (virAttr.getSchema() == null) {
-                        LOG.debug("Ignoring {} because no valid schema was found", attrTO);
-                    } else {
-                        virAttr.setOwner(any);
-                        any.add(virAttr);
-                        virAttr.getValues().clear();
-                        virAttr.getValues().addAll(attrTO.getValues());
+                if (virAttrCache.isValidEntry(virAttrCacheValue)) {
+                    LOG.debug("Values for {} found in cache: {}", schema, virAttrCacheValue);
+                    result.put(schema, virAttrCacheValue.getValues());
+                } else {
+                    Set<VirSchema> schemasToRead = toRead.get(schema.getProvision());
+                    if (schemasToRead == null) {
+                        schemasToRead = new HashSet<>();
+                        toRead.put(schema.getProvision(), schemasToRead);
                     }
+                    schemasToRead.add(schema);
                 }
             } else {
-                virAttr.getValues().clear();
-                virAttr.getValues().addAll(attrTO.getValues());
+                LOG.debug("Not considering {} since {} is not assigned to {}",
+                        schema, any, schema.getProvision().getResource());
             }
         }
-    }
 
-    private Any<?, ?, ?> find(final Long key, final AnyTypeKind anyTypeKind) {
-        Any<?, ?, ?> result;
+        for (Map.Entry<Provision, Set<VirSchema>> entry : toRead.entrySet()) {
+            LOG.debug("About to read from {}: {}", entry.getKey(), entry.getValue());
 
-        switch (anyTypeKind) {
-            case USER:
-                result = userDAO.authFind(key);
-                break;
+            String connObjectKey = MappingUtils.getConnObjectKeyItem(entry.getKey()) == null
+                    ? null
+                    : mappingUtils.getConnObjectKeyValue(any, entry.getKey());
+            if (StringUtils.isBlank(connObjectKey)) {
+                LOG.error("No ConnObjectKey found for {}, ignoring...", entry.getKey());
+            } else {
+                Set<MappingItem> linkingMappingItems = new HashSet<>();
+                for (VirSchema schema : entry.getValue()) {
+                    linkingMappingItems.add(schema.asLinkingMappingItem());
+                }
 
-            case GROUP:
-                result = groupDAO.authFind(key);
-                break;
+                Connector connector = connFactory.getConnector(entry.getKey().getResource());
+                try {
+                    ConnectorObject connectorObject = connector.getObject(
+                            entry.getKey().getObjectClass(),
+                            new Uid(connObjectKey),
+                            connector.getOperationOptions(linkingMappingItems.iterator()));
 
-            case ANY_OBJECT:
-            default:
-                result = anyObjectDAO.authFind(key);
+                    if (connectorObject == null) {
+                        LOG.debug("No read from {} about {}", entry.getKey(), connObjectKey);
+                    } else {
+                        for (VirSchema schema : entry.getValue()) {
+                            Attribute attr = connectorObject.getAttributeByName(schema.getExtAttrName());
+                            if (attr != null) {
+                                VirAttrCacheValue virAttrCacheValue = new VirAttrCacheValue();
+                                virAttrCacheValue.setValues(attr.getValue());
+                                virAttrCache.put(any.getType().getKey(), any.getKey(), schema.getKey(),
+                                        virAttrCacheValue);
+                                LOG.debug("Values for {} set in cache: {}", schema, virAttrCacheValue);
+
+                                result.put(schema, virAttrCacheValue.getValues());
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    LOG.error("Error reading from {}", entry.getKey(), e);
+                }
+            }
         }
 
         return result;
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @Transactional(readOnly = true)
     @Override
-    public PropagationByResource updateVirtual(final Any any, final Collection<AttrPatch> vAttrs) {
-        AnyUtils anyUtils = anyUtilsFactory.getInstance(any);
-
-        PropagationByResource propByRes = new PropagationByResource();
-
-        Iterable<? extends ExternalResource> externalResources = getAllResources(any);
-
-        for (AttrPatch patch : vAttrs) {
-            VirSchema virSchema = getVirSchema(patch.getAttrTO().getSchema());
-            if (virSchema != null) {
-                VirAttr virAttr = any.getVirAttr(virSchema.getKey());
-                switch (patch.getOperation()) {
-                    case ADD_REPLACE:
-                        if (virAttr == null) {
-                            virAttr = anyUtils.newVirAttr();
-                            virAttr.setOwner(any);
-                            virAttr.setSchema(virSchema);
-
-                            any.add(virAttr);
-                        }
-
-                        updateOnResourcesIfMappingMatches(
-                                any, virSchema.getKey(), externalResources, anyUtils.virIntMappingType(), propByRes);
-
-                        if (!virAttr.getValues().equals(patch.getAttrTO().getValues())) {
-                            virAttr.getValues().clear();
-                            virAttr.getValues().addAll(patch.getAttrTO().getValues());
-                        }
-                        break;
-
-                    case DELETE:
-                    default:
-                        if (virAttr == null) {
-                            LOG.debug("No virtual attribute found for schema {}", virSchema.getKey());
-                        } else {
-                            any.remove(virAttr);
-                            virAttrDAO.delete(virAttr);
-                        }
-
-                        for (ExternalResource resource : externalResources) {
-                            for (MappingItem mapItem
-                                    : MappingUtils.getPropagationMappingItems(resource.getProvision(any.getType()))) {
-
-                                if (virSchema.getKey().equals(mapItem.getIntAttrName())
-                                        && mapItem.getIntMappingType() == anyUtils.virIntMappingType()) {
-
-                                    propByRes.add(ResourceOperation.UPDATE, resource.getKey());
-
-                                    // Using virtual attribute as ConnObjectKey must be avoided
-                                    if (mapItem.isConnObjectKey()
-                                            && virAttr != null && !virAttr.getValues().isEmpty()) {
-
-                                        propByRes.addOldConnObjectKey(
-                                                resource.getKey(), virAttr.getValues().get(0).toString());
-                                    }
-                                }
-                            }
-                        }
-                }
-            }
+    public List<String> getValues(final Any<?, ?> any, final VirSchema schema) {
+        if (!any.getAllowedVirSchemas().contains(schema)) {
+            LOG.debug("{} not allowed for {}", schema, any);
+            return Collections.emptyList();
         }
 
-        return propByRes;
+        return ListUtils.emptyIfNull(getValues(any, Collections.singleton(schema)).get(schema));
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     @Override
-    public PropagationByResource updateVirtual(
-            final Long key, final AnyTypeKind anyTypeKind, final Collection<AttrPatch> vAttrs) {
-
-        return updateVirtual(find(key, anyTypeKind), vAttrs);
-    }
-
-    @Override
-    public void retrieveVirAttrValues(final Any<?, ?, ?> any) {
-        IntMappingType type = any.getType().getKind() == AnyTypeKind.USER
-                ? IntMappingType.UserVirtualSchema
-                : any.getType().getKind() == AnyTypeKind.GROUP
-                        ? IntMappingType.GroupVirtualSchema
-                        : IntMappingType.AnyObjectVirtualSchema;
-
-        Map<String, ConnectorObject> resources = new HashMap<>();
-
-        // -----------------------
-        // Retrieve virtual attribute values if and only if they have not been retrieved yet
-        // -----------------------
-        for (VirAttr<?> virAttr : any.getVirAttrs()) {
-            // reset value set
-            if (virAttr.getValues().isEmpty()) {
-                retrieveVirAttrValue(any, virAttr, type, resources);
-            }
-        }
-        // -----------------------
-    }
-
-    private void retrieveVirAttrValue(
-            final Any<?, ?, ?> any,
-            final VirAttr<?> virAttr,
-            final IntMappingType type,
-            final Map<String, ConnectorObject> externalResources) {
-
-        String schemaName = virAttr.getSchema().getKey();
-        VirAttrCacheValue virAttrCacheValue = virAttrCache.get(any.getType().getKey(), any.getKey(), schemaName);
-
-        LOG.debug("Retrieve values for virtual attribute {} ({})", schemaName, type);
-
-        if (virAttrCache.isValidEntry(virAttrCacheValue)) {
-            // cached ...
-            LOG.debug("Values found in cache {}", virAttrCacheValue);
-            virAttr.getValues().clear();
-            virAttr.getValues().addAll(new ArrayList<>(virAttrCacheValue.getValues()));
-        } else {
-            // not cached ...
-            LOG.debug("Need one or more remote connections");
-
-            VirAttrCacheValue toBeCached = new VirAttrCacheValue();
-
-            for (ExternalResource resource : getTargetResources(virAttr, type, any.getType())) {
-                Provision provision = resource.getProvision(any.getType());
-                LOG.debug("Search values into {},{}", resource, provision);
-
-                try {
-                    List<MappingItem> mapItems = MappingUtils.getBothMappingItems(provision);
-
-                    ConnectorObject connectorObject;
-                    if (externalResources.containsKey(resource.getKey())) {
-                        connectorObject = externalResources.get(resource.getKey());
-                    } else {
-                        LOG.debug("Perform connection to {}", resource.getKey());
-                        String connObjectKey = MappingUtils.getConnObjectKeyItem(provision) == null
-                                ? null
-                                : mappingUtils.getConnObjectKeyValue(any, provision);
-
-                        if (StringUtils.isBlank(connObjectKey)) {
-                            throw new IllegalArgumentException("No ConnObjectKey found for " + resource.getKey());
-                        }
-
-                        Connector connector = connFactory.getConnector(resource);
-                        connectorObject = connector.getObject(
-                                provision.getObjectClass(),
-                                new Uid(connObjectKey),
-                                connector.getOperationOptions(MappingUtils.getMatchingMappingItems(mapItems, type)));
-                        externalResources.put(resource.getKey(), connectorObject);
-                    }
-
-                    if (connectorObject != null) {
-                        // the same virtual attribute could be mapped with one or more external attributes
-                        for (MappingItem mapItem : MappingUtils.getMatchingMappingItems(mapItems, schemaName, type)) {
-                            Attribute attr = connectorObject.getAttributeByName(mapItem.getExtAttrName());
-                            if (attr != null && attr.getValue() != null) {
-                                for (Object obj : attr.getValue()) {
-                                    if (obj != null) {
-                                        virAttr.getValues().add(obj.toString());
-                                    }
-                                }
-                            }
-                        }
-
-                        toBeCached.setResourceValues(resource.getKey(), new HashSet<>(virAttr.getValues()));
-
-                        LOG.debug("Retrieved values {}", virAttr.getValues());
-                    }
-                } catch (Exception e) {
-                    LOG.error("Error reading connector object from {}", resource.getKey(), e);
-
-                    if (virAttrCacheValue != null) {
-                        toBeCached.forceExpiring();
-                        LOG.debug("Search for a cached value (even expired!) ...");
-                        final Set<String> cachedValues = virAttrCacheValue.getValues(resource.getKey());
-                        if (cachedValues != null) {
-                            LOG.debug("Use cached value {}", cachedValues);
-                            virAttr.getValues().addAll(cachedValues);
-                            toBeCached.setResourceValues(resource.getKey(), new HashSet<>(cachedValues));
-                        }
-                    }
-                }
-            }
-
-            virAttrCache.put(any.getType().getKey(), any.getKey(), schemaName, toBeCached);
-        }
-    }
-
-    private Collection<ExternalResource> getTargetResources(
-            final VirAttr<?> attr, final IntMappingType type, final AnyType anyType) {
-
-        return CollectionUtils.select(getAllResources(attr.getOwner()), new Predicate<ExternalResource>() {
-
-            @Override
-            public boolean evaluate(final ExternalResource resource) {
-                return resource.getProvision(anyType) != null
-                        && !MappingUtils.getMatchingMappingItems(
-                                MappingUtils.getBothMappingItems(resource.getProvision(anyType)),
-                                attr.getSchema().getKey(), type).isEmpty();
-            }
-        });
+    public Map<VirSchema, List<String>> getValues(final Any<?, ?> any) {
+        return getValues(any, any.getAllowedVirSchemas());
     }
 }

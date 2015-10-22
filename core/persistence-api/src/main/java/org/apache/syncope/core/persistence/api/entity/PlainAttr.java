@@ -20,7 +20,7 @@ package org.apache.syncope.core.persistence.api.entity;
 
 import java.util.List;
 
-public interface PlainAttr<O extends Any<?, ?, ?>> extends Attr<PlainSchema, O> {
+public interface PlainAttr<O extends Any<?, ?>> extends Attr<PlainSchema, O> {
 
     void add(String value, AnyUtils anyUtils);
 

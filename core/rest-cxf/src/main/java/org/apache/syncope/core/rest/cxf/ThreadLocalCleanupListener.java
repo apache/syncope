@@ -20,7 +20,7 @@ package org.apache.syncope.core.rest.cxf;
 
 import javax.servlet.ServletRequestEvent;
 import javax.servlet.ServletRequestListener;
-import org.apache.syncope.core.misc.DataFormat;
+import org.apache.syncope.core.misc.FormatUtils;
 import org.identityconnectors.common.l10n.CurrentLocale;
 import org.identityconnectors.framework.impl.api.local.ThreadClassLoaderManager;
 
@@ -36,7 +36,7 @@ public class ThreadLocalCleanupListener implements ServletRequestListener {
 
     @Override
     public void requestDestroyed(final ServletRequestEvent sre) {
-        DataFormat.clear();
+        FormatUtils.clear();
 
         ThreadClassLoaderManager.clearInstance();
         CurrentLocale.clear();

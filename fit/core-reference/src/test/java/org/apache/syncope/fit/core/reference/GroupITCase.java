@@ -59,6 +59,7 @@ import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.MappingTO;
+import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -215,27 +216,6 @@ public class GroupITCase extends AbstractITCase {
 
         assertEquals(modName, groupTO.getName());
         assertEquals(2, groupTO.getPlainAttrs().size());
-    }
-
-    @Test
-    public void updateRemovingVirAttribute() {
-        GroupTO groupTO = getBasicSampleTO("withvirtual" + getUUIDString());
-        groupTO.getVirAttrs().add(attrTO("rvirtualdata", null));
-
-        groupTO = createGroup(groupTO);
-
-        assertNotNull(groupTO);
-        assertEquals(1, groupTO.getVirAttrs().size());
-
-        GroupPatch groupPatch = new GroupPatch();
-        groupPatch.setKey(groupTO.getKey());
-        groupPatch.getVirAttrs().add(new AttrPatch.Builder().operation(PatchOperation.DELETE).
-                attrTO(new AttrTO.Builder().schema("rvirtualdata").build()).
-                build());
-
-        groupTO = updateGroup(groupPatch);
-        assertNotNull(groupTO);
-        assertTrue(groupTO.getVirAttrs().isEmpty());
     }
 
     @Test
@@ -637,6 +617,10 @@ public class GroupITCase extends AbstractITCase {
             ResourceTO newLDAP = resourceService.read(RESOURCE_NAME_LDAP);
             newLDAP.setKey("new-ldap");
             newLDAP.setPropagationPrimary(true);
+
+            for (ProvisionTO provision : newLDAP.getProvisions()) {
+                provision.getVirSchemas().clear();
+            }
 
             MappingTO mapping = newLDAP.getProvision(AnyTypeKind.GROUP.name()).getMapping();
 

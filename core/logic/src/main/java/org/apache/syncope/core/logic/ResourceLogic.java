@@ -20,9 +20,12 @@ package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -51,9 +54,11 @@ import org.apache.syncope.core.misc.ConnObjectUtils;
 import org.apache.syncope.core.misc.MappingUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
+import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
@@ -84,6 +89,9 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
 
     @Autowired
     private GroupDAO groupDAO;
+
+    @Autowired
+    private VirSchemaDAO virSchemaDAO;
 
     @Autowired
     private ResourceDataBinder binder;
@@ -205,7 +213,8 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
     public ConnObjectTO readConnObject(final String key, final String anyTypeKey, final Long anyKey) {
         Triple<ExternalResource, AnyType, Provision> init = connObjectInit(key, anyTypeKey);
 
-        Any<?, ?, ?> any = init.getMiddle().getKind() == AnyTypeKind.USER
+        // 1. find any
+        Any<?, ?> any = init.getMiddle().getKind() == AnyTypeKind.USER
                 ? userDAO.find(anyKey)
                 : init.getMiddle().getKind() == AnyTypeKind.ANY_OBJECT
                         ? anyObjectDAO.find(anyKey)
@@ -213,6 +222,8 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         if (any == null) {
             throw new NotFoundException(init.getMiddle() + " " + anyKey);
         }
+
+        // 2. build connObjectKeyItem
         MappingItem connObjectKeyItem = MappingUtils.getConnObjectKeyItem(init.getRight());
         if (connObjectKeyItem == null) {
             throw new NotFoundException(
@@ -220,17 +231,28 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         }
         String connObjectKeyValue = mappingUtils.getConnObjectKeyValue(any, init.getRight());
 
+        // 3. determine attributes to query
+        Set<MappingItem> linkinMappingItems = new HashSet<>();
+        for (VirSchema virSchema : virSchemaDAO.findByProvision(init.getRight())) {
+            linkinMappingItems.add(virSchema.asLinkingMappingItem());
+        }
+        Iterator<MappingItem> mapItems = IteratorUtils.chainedIterator(
+                init.getRight().getMapping().getItems().iterator(),
+                linkinMappingItems.iterator());
+
+        // 4. read from the underlying connector
         Connector connector = connFactory.getConnector(init.getLeft());
         ConnectorObject connectorObject = connector.getObject(
                 init.getRight().getObjectClass(),
                 new Uid(connObjectKeyValue),
-                connector.getOperationOptions(MappingUtils.getBothMappingItems(init.getRight())));
+                connector.getOperationOptions(mapItems));
         if (connectorObject == null) {
             throw new NotFoundException(
                     "Object " + connObjectKeyValue + " with class " + init.getRight().getObjectClass()
                     + " not found on resource " + key);
         }
 
+        // 5. build result
         Set<Attribute> attributes = connectorObject.getAttributes();
         if (AttributeUtil.find(Uid.NAME, attributes) == null) {
             attributes.add(connectorObject.getUid());
@@ -251,6 +273,14 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
 
         Connector connector = connFactory.getConnector(init.getLeft());
 
+        Set<MappingItem> linkinMappingItems = new HashSet<>();
+        for (VirSchema virSchema : virSchemaDAO.findByProvision(init.getRight())) {
+            linkinMappingItems.add(virSchema.asLinkingMappingItem());
+        }
+        Iterator<MappingItem> mapItems = IteratorUtils.chainedIterator(
+                init.getRight().getMapping().getItems().iterator(),
+                linkinMappingItems.iterator());
+
         final SearchResult[] searchResult = new SearchResult[1];
         final List<ConnObjectTO> connObjects = new ArrayList<>();
         connector.search(init.getRight().getObjectClass(), null, new SearchResultsHandler() {
@@ -265,7 +295,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
                 connObjects.add(connObjectUtils.getConnObjectTO(connectorObject));
                 return true;
             }
-        }, size, pagedResultsCookie, orderBy);
+        }, size, pagedResultsCookie, orderBy, mapItems);
 
         return ImmutablePair.of(searchResult[0], connObjects);
     }

@@ -47,14 +47,13 @@ import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
-import org.apache.syncope.core.persistence.api.entity.VirAttr;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractPlainAttrValue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-public abstract class AbstractAnyDAO<A extends Any<?, ?, ?>> extends AbstractDAO<A, Long> implements AnyDAO<A> {
+public abstract class AbstractAnyDAO<A extends Any<?, ?>> extends AbstractDAO<A, Long> implements AnyDAO<A> {
 
     @Autowired
     protected PlainSchemaDAO plainSchemaDAO;
@@ -415,13 +414,7 @@ public abstract class AbstractAnyDAO<A extends Any<?, ?, ?>> extends AbstractDAO
 
     @Override
     public A save(final A any) {
-        A merged = entityManager().merge(any);
-        for (VirAttr<?> virAttr : merged.getVirAttrs()) {
-            virAttr.getValues().clear();
-            virAttr.getValues().addAll(any.getVirAttr(virAttr.getSchema().getKey()).getValues());
-        }
-
-        return merged;
+        return entityManager().merge(any);
     }
 
     @Override

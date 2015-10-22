@@ -54,12 +54,10 @@ public class UserUpdateInSyncProcessor implements Processor {
         WorkflowResult<Pair<UserPatch, Boolean>> updated = (WorkflowResult) exchange.getIn().getBody();
         Set<String> excludedResources = exchange.getProperty("excludedResources", Set.class);
 
-        PropagationReporter propagationReporter =
-                ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
-
         List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(
                 updated, updated.getResult().getKey().getPassword() != null, excludedResources);
-
+        PropagationReporter propagationReporter =
+                ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
         try {
             taskExecutor.execute(tasks, propagationReporter);
         } catch (PropagationException e) {

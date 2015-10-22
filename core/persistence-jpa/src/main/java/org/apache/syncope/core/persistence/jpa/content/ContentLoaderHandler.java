@@ -27,7 +27,7 @@ import java.util.Map;
 import javax.sql.DataSource;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
-import org.apache.syncope.core.misc.DataFormat;
+import org.apache.syncope.core.misc.FormatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
@@ -125,7 +125,7 @@ class ContentLoaderHandler extends DefaultHandler {
                 case Types.TIME:
                 case Types.TIMESTAMP:
                     try {
-                        parameters[i] = DataFormat.parseDate(attrs.getValue(i));
+                        parameters[i] = FormatUtils.parseDate(attrs.getValue(i));
                     } catch (ParseException e) {
                         LOG.error("Unparsable Date '{}'", attrs.getValue(i));
                         parameters[i] = attrs.getValue(i);

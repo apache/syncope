@@ -179,22 +179,19 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
 
         P patch = newPatch(key);
 
-        Set<AttrPatch> patches;
         switch (schemaType) {
             case DERIVED:
-                patches = patch.getDerAttrs();
+                patch.getDerAttrs().add(new AttrPatch.Builder().operation(operation).attrTO(attrTO).build());
                 break;
 
             case VIRTUAL:
-                patches = patch.getVirAttrs();
+                patch.getVirAttrs().add(attrTO);
                 break;
 
             case PLAIN:
             default:
-                patches = patch.getPlainAttrs();
+                patch.getPlainAttrs().add(new AttrPatch.Builder().operation(operation).attrTO(attrTO).build());
         }
-
-        patches.add(new AttrPatch.Builder().operation(operation).attrTO(attrTO).build());
 
         update(patch);
     }

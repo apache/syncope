@@ -54,7 +54,6 @@ import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
 import org.apache.syncope.core.persistence.api.entity.user.UDerAttr;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
-import org.apache.syncope.core.persistence.api.entity.user.UVirAttr;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAExternalResource;
 import org.apache.syncope.core.persistence.jpa.entity.JPASecurityQuestion;
@@ -75,7 +74,7 @@ import org.apache.syncope.core.persistence.jpa.entity.JPARole;
 @Entity
 @Table(name = JPAUser.TABLE)
 @Cacheable
-public class JPAUser extends AbstractAny<UPlainAttr, UDerAttr, UVirAttr> implements User {
+public class JPAUser extends AbstractAny<UPlainAttr, UDerAttr> implements User {
 
     private static final long serialVersionUID = -3905046855521446823L;
 
@@ -104,10 +103,6 @@ public class JPAUser extends AbstractAny<UPlainAttr, UDerAttr, UVirAttr> impleme
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     @Valid
     private List<JPAUDerAttr> derAttrs = new ArrayList<>();
-
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
-    @Valid
-    private List<JPAUVirAttr> virAttrs = new ArrayList<>();
 
     private String workflowId;
 
@@ -319,23 +314,6 @@ public class JPAUser extends AbstractAny<UPlainAttr, UDerAttr, UVirAttr> impleme
     @Override
     public List<? extends UDerAttr> getDerAttrs() {
         return derAttrs;
-    }
-
-    @Override
-    public boolean add(final UVirAttr attr) {
-        checkType(attr, JPAUVirAttr.class);
-        return virAttrs.add((JPAUVirAttr) attr);
-    }
-
-    @Override
-    public boolean remove(final UVirAttr attr) {
-        checkType(attr, JPAUVirAttr.class);
-        return virAttrs.remove((JPAUVirAttr) attr);
-    }
-
-    @Override
-    public List<? extends UVirAttr> getVirAttrs() {
-        return virAttrs;
     }
 
     @Override

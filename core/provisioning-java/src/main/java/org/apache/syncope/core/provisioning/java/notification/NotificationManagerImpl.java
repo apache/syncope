@@ -50,16 +50,17 @@ import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.persistence.api.entity.user.UDerAttr;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
-import org.apache.syncope.core.persistence.api.entity.user.UVirAttr;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.misc.search.SearchCondConverter;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
+import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyAbout;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
@@ -76,9 +77,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(rollbackFor = { Throwable.class })
 public class NotificationManagerImpl implements NotificationManager {
 
-    /**
-     * Logger.
-     */
     private static final Logger LOG = LoggerFactory.getLogger(NotificationManager.class);
 
     public static final String MAIL_TEMPLATES = "mailTemplates/";
@@ -86,6 +84,9 @@ public class NotificationManagerImpl implements NotificationManager {
     public static final String MAIL_TEMPLATE_HTML_SUFFIX = ".html.vm";
 
     public static final String MAIL_TEMPLATE_TEXT_SUFFIX = ".txt.vm";
+
+    @Autowired
+    private VirSchemaDAO virSchemaDAO;
 
     /**
      * Notification DAO.
@@ -169,11 +170,11 @@ public class NotificationManagerImpl implements NotificationManager {
      */
     private NotificationTask getNotificationTask(
             final Notification notification,
-            final Any<?, ?, ?> any,
+            final Any<?, ?> any,
             final Map<String, Object> model) {
 
         if (any != null) {
-            virAttrHander.retrieveVirAttrValues(any);
+            virAttrHander.getValues(any);
         }
 
         List<User> recipients = new ArrayList<>();
@@ -191,7 +192,7 @@ public class NotificationManagerImpl implements NotificationManager {
         Set<String> recipientEmails = new HashSet<>();
         List<UserTO> recipientTOs = new ArrayList<>(recipients.size());
         for (User recipient : recipients) {
-            virAttrHander.retrieveVirAttrValues(recipient);
+            virAttrHander.getValues(recipient);
 
             String email = getRecipientEmail(notification.getRecipientAttrType(),
                     notification.getRecipientAttrName(), recipient);
@@ -267,7 +268,7 @@ public class NotificationManagerImpl implements NotificationManager {
             final Object output,
             final Object... input) {
 
-        Any<?, ?, ?> any = null;
+        Any<?, ?> any = null;
 
         if (before instanceof UserTO) {
             any = userDAO.find(((UserTO) before).getKey());
@@ -357,9 +358,12 @@ public class NotificationManagerImpl implements NotificationManager {
                 break;
 
             case UserVirtualSchema:
-                UVirAttr virAttr = user.getVirAttr(recipientAttrName);
-                if (virAttr != null) {
-                    email = virAttr.getValues().isEmpty() ? null : virAttr.getValues().get(0);
+                VirSchema schema = virSchemaDAO.find(recipientAttrName);
+                if (schema == null) {
+                    LOG.warn("Ignoring non existing {} {}", VirSchema.class.getSimpleName(), recipientAttrName);
+                } else {
+                    List<String> virAttrValues = virAttrHander.getValues(user, schema);
+                    email = virAttrValues.isEmpty() ? null : virAttrValues.get(0);
                 }
                 break;
 

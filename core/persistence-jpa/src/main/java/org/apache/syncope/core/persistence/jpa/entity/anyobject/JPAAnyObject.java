@@ -42,7 +42,6 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.ADerAttr;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttr;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ARelationship;
-import org.apache.syncope.core.persistence.api.entity.anyobject.AVirAttr;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractAny;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyType;
@@ -52,7 +51,7 @@ import org.apache.syncope.core.persistence.jpa.entity.resource.JPAExternalResour
 @Entity
 @Table(name = JPAAnyObject.TABLE)
 @Cacheable
-public class JPAAnyObject extends AbstractAny<APlainAttr, ADerAttr, AVirAttr> implements AnyObject {
+public class JPAAnyObject extends AbstractAny<APlainAttr, ADerAttr> implements AnyObject {
 
     private static final long serialVersionUID = 9063766472970643492L;
 
@@ -71,10 +70,6 @@ public class JPAAnyObject extends AbstractAny<APlainAttr, ADerAttr, AVirAttr> im
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
     @Valid
     private List<JPAADerAttr> derAttrs = new ArrayList<>();
-
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
-    @Valid
-    private List<JPAAVirAttr> virAttrs = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(joinColumns =
@@ -146,23 +141,6 @@ public class JPAAnyObject extends AbstractAny<APlainAttr, ADerAttr, AVirAttr> im
     @Override
     public List<? extends ADerAttr> getDerAttrs() {
         return derAttrs;
-    }
-
-    @Override
-    public boolean add(final AVirAttr attr) {
-        checkType(attr, JPAAVirAttr.class);
-        return virAttrs.add((JPAAVirAttr) attr);
-    }
-
-    @Override
-    public boolean remove(final AVirAttr attr) {
-        checkType(attr, JPAAVirAttr.class);
-        return virAttrs.remove((JPAAVirAttr) attr);
-    }
-
-    @Override
-    public List<? extends AVirAttr> getVirAttrs() {
-        return virAttrs;
     }
 
     @Override

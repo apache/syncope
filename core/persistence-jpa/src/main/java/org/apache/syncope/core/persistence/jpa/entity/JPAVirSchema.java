@@ -18,18 +18,28 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
+import java.util.Collections;
+import java.util.List;
 import javax.persistence.Basic;
 import javax.persistence.Cacheable;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
+import org.apache.syncope.common.lib.types.IntMappingType;
+import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
+import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
+import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
+import org.apache.syncope.core.persistence.api.entity.resource.Provision;
+import org.apache.syncope.core.persistence.jpa.entity.resource.JPAProvision;
 import org.apache.syncope.core.persistence.jpa.validation.entity.SchemaNameCheck;
 
 @Entity
@@ -52,6 +62,13 @@ public class JPAVirSchema extends AbstractEntity<String> implements VirSchema {
     @Min(0)
     @Max(1)
     private Integer readonly;
+
+    @Column(nullable = false)
+    @ManyToOne
+    private JPAProvision provision;
+
+    @Column(nullable = false)
+    private String extAttrName;
 
     public JPAVirSchema() {
         super();
@@ -109,4 +126,134 @@ public class JPAVirSchema extends AbstractEntity<String> implements VirSchema {
     public void setReadonly(final boolean readonly) {
         this.readonly = getBooleanAsInteger(readonly);
     }
+
+    @Override
+    public Provision getProvision() {
+        return provision;
+    }
+
+    @Override
+    public void setProvision(final Provision provision) {
+        checkType(provision, JPAProvision.class);
+        this.provision = (JPAProvision) provision;
+    }
+
+    @Override
+    public String getExtAttrName() {
+        return extAttrName;
+    }
+
+    @Override
+    public void setExtAttrName(final String extAttrName) {
+        this.extAttrName = extAttrName;
+    }
+
+    @Override
+    public MappingItem asLinkingMappingItem() {
+        return new MappingItem() {
+
+            private static final long serialVersionUID = 327455459536715529L;
+
+            @Override
+            public Long getKey() {
+                return -1L;
+            }
+
+            @Override
+            public Mapping getMapping() {
+                return getProvision().getMapping();
+            }
+
+            @Override
+            public void setMapping(final Mapping mapping) {
+                // RO instance, nothing to do
+            }
+
+            @Override
+            public String getExtAttrName() {
+                return JPAVirSchema.this.getExtAttrName();
+            }
+
+            @Override
+            public void setExtAttrName(final String extAttrName) {
+                // RO instance, nothing to do
+            }
+
+            @Override
+            public String getIntAttrName() {
+                return JPAVirSchema.this.getKey();
+            }
+
+            @Override
+            public void setIntAttrName(final String intAttrName) {
+                // RO instance, nothing to do
+            }
+
+            @Override
+            public IntMappingType getIntMappingType() {
+                switch (getProvision().getAnyType().getKind()) {
+                    case ANY_OBJECT:
+                        return IntMappingType.AnyObjectVirtualSchema;
+
+                    case GROUP:
+                        return IntMappingType.GroupVirtualSchema;
+
+                    case USER:
+                    default:
+                        return IntMappingType.UserVirtualSchema;
+                }
+            }
+
+            @Override
+            public void setIntMappingType(final IntMappingType intMappingType) {
+                // RO instance, nothing to do
+            }
+
+            @Override
+            public String getMandatoryCondition() {
+                return JPAVirSchema.this.getMandatoryCondition();
+            }
+
+            @Override
+            public void setMandatoryCondition(final String condition) {
+                // RO instance, nothing to do
+            }
+
+            @Override
+            public MappingPurpose getPurpose() {
+                return JPAVirSchema.this.isReadonly() ? MappingPurpose.SYNCHRONIZATION : MappingPurpose.BOTH;
+            }
+
+            @Override
+            public void setPurpose(final MappingPurpose purpose) {
+                // RO instance, nothing to do
+            }
+
+            @Override
+            public boolean isConnObjectKey() {
+                return false;
+            }
+
+            @Override
+            public void setConnObjectKey(final boolean connObjectKey) {
+                // RO instance, nothing to do
+            }
+
+            @Override
+            public boolean isPassword() {
+                return false;
+            }
+
+            @Override
+            public void setPassword(final boolean password) {
+                // RO instance, nothing to do
+            }
+
+            @Override
+            public List<String> getMappingItemTransformerClassNames() {
+                return Collections.emptyList();
+            }
+        };
+    }
+
 }

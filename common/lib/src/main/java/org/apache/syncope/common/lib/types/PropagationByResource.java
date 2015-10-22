@@ -263,6 +263,17 @@ public class PropagationByResource implements Serializable {
         return result;
     }
 
+    public Map<String, ResourceOperation> asMap() {
+        Map<String, ResourceOperation> result = new HashMap<>();
+        for (ResourceOperation operation : ResourceOperation.values()) {
+            for (String resourceName : get(operation)) {
+                result.put(resourceName, operation);
+            }
+        }
+
+        return result;
+    }
+
     /**
      * Set resources for a given resource operation type.
      *

@@ -27,6 +27,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.lib.AbstractBaseBean;
+import org.apache.syncope.common.lib.to.AttrTO;
 
 @XmlType
 public abstract class AnyPatch extends AbstractBaseBean {
@@ -43,7 +44,7 @@ public abstract class AnyPatch extends AbstractBaseBean {
 
     private final Set<AttrPatch> derAttrs = new HashSet<>();
 
-    private final Set<AttrPatch> virAttrs = new HashSet<>();
+    private final Set<AttrTO> virAttrs = new HashSet<>();
 
     private final Set<StringPatchItem> resources = new HashSet<>();
 
@@ -88,7 +89,7 @@ public abstract class AnyPatch extends AbstractBaseBean {
     @XmlElementWrapper(name = "virAttrs")
     @XmlElement(name = "attribute")
     @JsonProperty("virAttrs")
-    public Set<AttrPatch> getVirAttrs() {
+    public Set<AttrTO> getVirAttrs() {
         return virAttrs;
     }
 

@@ -29,7 +29,6 @@ import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.patch.AttrPatch;
 import org.apache.syncope.common.lib.patch.StringPatchItem;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.AttrTO;
@@ -40,9 +39,7 @@ import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
-import org.apache.syncope.core.persistence.api.entity.VirAttr;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
-import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
@@ -51,11 +48,15 @@ import org.apache.syncope.core.misc.MappingUtils;
 import org.apache.syncope.core.misc.jexl.JexlUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
+import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.VirSchema;
+import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
-import org.apache.syncope.core.provisioning.api.VirAttrHandler;
+import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
@@ -71,6 +72,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class PropagationManagerImpl implements PropagationManager {
 
     protected static final Logger LOG = LoggerFactory.getLogger(PropagationManager.class);
+
+    @Autowired
+    protected VirSchemaDAO virSchemaDAO;
 
     @Autowired
     protected AnyObjectDAO anyObjectDAO;
@@ -103,13 +107,10 @@ public class PropagationManagerImpl implements PropagationManager {
     protected ConnObjectUtils connObjectUtils;
 
     @Autowired
-    protected VirAttrHandler virAttrHandler;
-
-    @Autowired
     protected MappingUtils mappingUtils;
 
-    protected Any<?, ?, ?> find(final AnyTypeKind kind, final Long key) {
-        AnyDAO<? extends Any<?, ?, ?>> dao;
+    protected Any<?, ?> find(final AnyTypeKind kind, final Long key) {
+        AnyDAO<? extends Any<?, ?>> dao;
         switch (kind) {
             case ANY_OBJECT:
                 dao = anyObjectDAO;
@@ -135,12 +136,7 @@ public class PropagationManagerImpl implements PropagationManager {
             final Collection<AttrTO> vAttrs,
             final Collection<String> noPropResourceNames) {
 
-        Any<?, ?, ?> any = find(kind, key);
-        if (vAttrs != null && !vAttrs.isEmpty()) {
-            virAttrHandler.createVirtual(any, vAttrs);
-        }
-
-        return getCreateTasks(any, null, null, propByRes, noPropResourceNames);
+        return getCreateTasks(find(kind, key), null, null, propByRes, vAttrs, noPropResourceNames);
     }
 
     @Override
@@ -152,19 +148,15 @@ public class PropagationManagerImpl implements PropagationManager {
             final Collection<AttrTO> vAttrs,
             final Collection<String> noPropResourceNames) {
 
-        User user = userDAO.authFind(key);
-        if (vAttrs != null && !vAttrs.isEmpty()) {
-            virAttrHandler.createVirtual(user, vAttrs);
-        }
-
-        return getCreateTasks(user, password, enable, propByRes, noPropResourceNames);
+        return getCreateTasks(userDAO.authFind(key), password, enable, propByRes, vAttrs, noPropResourceNames);
     }
 
     protected List<PropagationTask> getCreateTasks(
-            final Any<?, ?, ?> any,
+            final Any<?, ?> any,
             final String password,
             final Boolean enable,
             final PropagationByResource propByRes,
+            final Collection<AttrTO> vAttrs,
             final Collection<String> noPropResourceNames) {
 
         if (propByRes == null || propByRes.isEmpty()) {
@@ -175,7 +167,7 @@ public class PropagationManagerImpl implements PropagationManager {
             propByRes.get(ResourceOperation.CREATE).removeAll(noPropResourceNames);
         }
 
-        return createTasks(any, password, true, null, enable, false, propByRes);
+        return createTasks(any, password, true, enable, false, propByRes, vAttrs);
     }
 
     @Override
@@ -185,7 +177,7 @@ public class PropagationManagerImpl implements PropagationManager {
             final boolean changePwd,
             final Boolean enable,
             final PropagationByResource propByRes,
-            final Collection<AttrPatch> vAttrs,
+            final Collection<AttrTO> vAttrs,
             final Collection<String> noPropResourceNames) {
 
         return getUpdateTasks(find(kind, key), null, changePwd, enable, propByRes, vAttrs, noPropResourceNames);
@@ -257,31 +249,19 @@ public class PropagationManagerImpl implements PropagationManager {
     }
 
     protected List<PropagationTask> getUpdateTasks(
-            final Any<?, ?, ?> any,
+            final Any<?, ?> any,
             final String password,
             final boolean changePwd,
             final Boolean enable,
             final PropagationByResource propByRes,
-            final Collection<AttrPatch> vAttrs,
+            final Collection<AttrTO> vAttrs,
             final Collection<String> noPropResourceNames) {
 
-        PropagationByResource localPropByRes = virAttrHandler.updateVirtual(
-                any,
-                vAttrs == null ? Collections.<AttrPatch>emptySet() : vAttrs);
-        localPropByRes.merge(propByRes);
         if (noPropResourceNames != null) {
-            localPropByRes.removeAll(noPropResourceNames);
+            propByRes.removeAll(noPropResourceNames);
         }
 
-        Map<String, AttrPatch> vAttrsMap = null;
-        if (vAttrs != null) {
-            vAttrsMap = new HashMap<>();
-            for (AttrPatch attrPatch : vAttrs) {
-                vAttrsMap.put(attrPatch.getAttrTO().getSchema(), attrPatch);
-            }
-        }
-
-        return createTasks(any, password, changePwd, vAttrsMap, enable, false, localPropByRes);
+        return createTasks(any, password, changePwd, enable, false, propByRes, vAttrs);
     }
 
     @Override
@@ -291,7 +271,7 @@ public class PropagationManagerImpl implements PropagationManager {
             final PropagationByResource propByRes,
             final Collection<String> noPropResourceNames) {
 
-        Any<?, ?, ?> any = find(kind, key);
+        Any<?, ?> any = find(kind, key);
 
         PropagationByResource localPropByRes = new PropagationByResource();
 
@@ -309,109 +289,143 @@ public class PropagationManagerImpl implements PropagationManager {
     }
 
     protected List<PropagationTask> getDeleteTasks(
-            final Any<?, ?, ?> any,
+            final Any<?, ?> any,
             final PropagationByResource propByRes,
             final Collection<String> noPropResourceNames) {
 
-        return createTasks(any, null, false, null, false, true, propByRes);
+        return createTasks(any, null, false, false, true, propByRes, null);
     }
 
     /**
      * Create propagation tasks.
      *
-     * @param any user / group to be provisioned
-     * @param password cleartext password to be provisioned
+     * @param any to be provisioned
+     * @param password clear text password to be provisioned
      * @param changePwd whether password should be included for propagation attributes or not
-     * @param vAttrs virtual attributes to be maaged
      * @param enable whether user must be enabled or not
-     * @param deleteOnResource whether user / group must be deleted anyway from external resource or not
+     * @param deleteOnResource whether any must be deleted anyway from external resource or not
      * @param propByRes operation to be performed per resource
+     * @param vAttrs virtual attributes to be set
      * @return list of propagation tasks created
      */
-    protected List<PropagationTask> createTasks(final Any<?, ?, ?> any,
+    protected List<PropagationTask> createTasks(final Any<?, ?> any,
             final String password, final boolean changePwd,
-            final Map<String, AttrPatch> vAttrs,
-            final Boolean enable, final boolean deleteOnResource, final PropagationByResource propByRes) {
+            final Boolean enable, final boolean deleteOnResource, final PropagationByResource propByRes,
+            final Collection<AttrTO> vAttrs) {
 
-        LOG.debug("Provisioning any {}:\n{}", any, propByRes);
-
-        if (!propByRes.get(ResourceOperation.CREATE).isEmpty() && vAttrs != null) {
-            virAttrHandler.retrieveVirAttrValues(any);
-
-            // update vAttrsToBeUpdated as well
-            for (VirAttr<?> virAttr : any.getVirAttrs()) {
-                String schema = virAttr.getSchema().getKey();
-
-                vAttrs.put(schema, new AttrPatch.Builder().
-                        attrTO(new AttrTO.Builder().schema(schema).values(virAttr.getValues()).build()).
-                        build());
-            }
-        }
+        LOG.debug("Provisioning {}:\n{}", any, propByRes);
 
         // Avoid duplicates - see javadoc
         propByRes.purge();
-        LOG.debug("After purge: {}", propByRes);
+        LOG.debug("After purge {}:\n{}", any, propByRes);
+
+        // Virtual attributes
+        Set<String> virtualResources = new HashSet<>();
+        virtualResources.addAll(propByRes.get(ResourceOperation.CREATE));
+        virtualResources.addAll(propByRes.get(ResourceOperation.UPDATE));
+        if (any instanceof User) {
+            virtualResources.addAll(userDAO.findAllResourceNames((User) any));
+        } else if (any instanceof AnyObject) {
+            virtualResources.addAll(anyObjectDAO.findAllResourceNames((AnyObject) any));
+        } else {
+            virtualResources.addAll(((Group) any).getResourceNames());
+        }
+
+        Map<String, Set<Attribute>> vAttrMap = new HashMap<>();
+        for (AttrTO vAttr : CollectionUtils.emptyIfNull(vAttrs)) {
+            VirSchema schema = virSchemaDAO.find(vAttr.getSchema());
+            if (schema == null) {
+                LOG.warn("Ignoring invalid {} {}", VirSchema.class.getSimpleName(), vAttr.getSchema());
+            } else if (schema.isReadonly()) {
+                LOG.warn("Ignoring read-only {} {}", VirSchema.class.getSimpleName(), vAttr.getSchema());
+            } else {
+                if (any.getAllowedVirSchemas().contains(schema)
+                        && virtualResources.contains(schema.getProvision().getResource().getKey())) {
+
+                    Set<Attribute> values = vAttrMap.get(schema.getProvision().getResource().getKey());
+                    if (values == null) {
+                        values = new HashSet<>();
+                        vAttrMap.put(schema.getProvision().getResource().getKey(), values);
+                    }
+                    values.add(AttributeBuilder.build(schema.getExtAttrName(), vAttr.getValues()));
+
+                    propByRes.add(ResourceOperation.UPDATE, schema.getProvision().getResource().getKey());
+                } else {
+                    LOG.warn("{} not owned by or {} not allowed for {}",
+                            schema.getProvision().getResource(), schema, any);
+                }
+            }
+        }
+        LOG.debug("With virtual attributes {}:\n{}\n{}", any, propByRes, vAttrMap);
 
         List<PropagationTask> tasks = new ArrayList<>();
 
-        for (ResourceOperation operation : ResourceOperation.values()) {
-            for (String resourceName : propByRes.get(operation)) {
-                ExternalResource resource = resourceDAO.find(resourceName);
-                Provision provision = resource == null ? null : resource.getProvision(any.getType());
-                if (resource == null) {
-                    LOG.error("Invalid resource name specified: {}, ignoring...", resourceName);
-                } else if (provision == null) {
-                    LOG.error("No provision specified on resource {} for type {}, ignoring...",
-                            resource, any.getType());
-                } else if (MappingUtils.getPropagationMappingItems(provision).isEmpty()) {
-                    LOG.warn("Requesting propagation for {} but no propagation mapping provided for {}",
-                            any.getType(), resource);
-                } else {
-                    PropagationTask task = entityFactory.newEntity(PropagationTask.class);
-                    task.setResource(resource);
-                    task.setObjectClassName(
-                            resource.getProvision(any.getType()).getObjectClass().getObjectClassValue());
-                    task.setAnyTypeKind(any.getType().getKind());
-                    if (!deleteOnResource) {
-                        task.setAnyKey(any.getKey());
-                    }
-                    task.setOperation(operation);
-                    task.setOldConnObjectKey(propByRes.getOldConnObjectKey(resource.getKey()));
+        for (Map.Entry<String, ResourceOperation> entry : propByRes.asMap().entrySet()) {
+            ExternalResource resource = resourceDAO.find(entry.getKey());
+            Provision provision = resource == null ? null : resource.getProvision(any.getType());
+            List<MappingItem> mappingItems = provision == null
+                    ? Collections.<MappingItem>emptyList()
+                    : MappingUtils.getPropagationMappingItems(provision);
 
-                    Pair<String, Set<Attribute>> preparedAttrs = mappingUtils.prepareAttrs(
-                            any, password, changePwd, vAttrs, enable, provision);
-                    task.setConnObjectKey(preparedAttrs.getKey());
+            if (resource == null) {
+                LOG.error("Invalid resource name specified: {}, ignoring...", entry.getKey());
+            } else if (provision == null) {
+                LOG.error("No provision specified on resource {} for type {}, ignoring...",
+                        resource, any.getType());
+            } else if (mappingItems.isEmpty()) {
+                LOG.warn("Requesting propagation for {} but no propagation mapping provided for {}",
+                        any.getType(), resource);
+            } else {
+                PropagationTask task = entityFactory.newEntity(PropagationTask.class);
+                task.setResource(resource);
+                task.setObjectClassName(
+                        resource.getProvision(any.getType()).getObjectClass().getObjectClassValue());
+                task.setAnyTypeKind(any.getType().getKind());
+                task.setAnyType(any.getType().getKey());
+                if (!deleteOnResource) {
+                    task.setAnyKey(any.getKey());
+                }
+                task.setOperation(entry.getValue());
+                task.setOldConnObjectKey(propByRes.getOldConnObjectKey(resource.getKey()));
 
-                    // Check if any of mandatory attributes (in the mapping) is missing or not received any value: 
-                    // if so, add special attributes that will be evaluated by PropagationTaskExecutor
-                    List<String> mandatoryMissing = new ArrayList<>();
-                    List<String> mandatoryNullOrEmpty = new ArrayList<>();
-                    for (MappingItem item : MappingUtils.getPropagationMappingItems(provision)) {
-                        if (!item.isConnObjectKey()
-                                && JexlUtils.evaluateMandatoryCondition(item.getMandatoryCondition(), any)) {
+                Pair<String, Set<Attribute>> preparedAttrs =
+                        mappingUtils.prepareAttrs(any, password, changePwd, enable, provision);
+                task.setConnObjectKey(preparedAttrs.getKey());
 
-                            Attribute attr = AttributeUtil.find(item.getExtAttrName(), preparedAttrs.getValue());
-                            if (attr == null) {
-                                mandatoryMissing.add(item.getExtAttrName());
-                            } else if (attr.getValue() == null || attr.getValue().isEmpty()) {
-                                mandatoryNullOrEmpty.add(item.getExtAttrName());
-                            }
+                // Check if any of mandatory attributes (in the mapping) is missing or not received any value: 
+                // if so, add special attributes that will be evaluated by PropagationTaskExecutor
+                List<String> mandatoryMissing = new ArrayList<>();
+                List<String> mandatoryNullOrEmpty = new ArrayList<>();
+                for (MappingItem item : mappingItems) {
+                    if (!item.isConnObjectKey()
+                            && JexlUtils.evaluateMandatoryCondition(item.getMandatoryCondition(), any)) {
+
+                        Attribute attr = AttributeUtil.find(item.getExtAttrName(), preparedAttrs.getValue());
+                        if (attr == null) {
+                            mandatoryMissing.add(item.getExtAttrName());
+                        } else if (attr.getValue() == null || attr.getValue().isEmpty()) {
+                            mandatoryNullOrEmpty.add(item.getExtAttrName());
                         }
                     }
-                    if (!mandatoryMissing.isEmpty()) {
-                        preparedAttrs.getValue().add(AttributeBuilder.build(
-                                PropagationTaskExecutor.MANDATORY_MISSING_ATTR_NAME, mandatoryMissing));
-                    }
-                    if (!mandatoryNullOrEmpty.isEmpty()) {
-                        preparedAttrs.getValue().add(AttributeBuilder.build(
-                                PropagationTaskExecutor.MANDATORY_NULL_OR_EMPTY_ATTR_NAME, mandatoryNullOrEmpty));
-                    }
-
-                    task.setAttributes(preparedAttrs.getValue());
-                    tasks.add(task);
-
-                    LOG.debug("PropagationTask created: {}", task);
                 }
+                if (!mandatoryMissing.isEmpty()) {
+                    preparedAttrs.getValue().add(AttributeBuilder.build(
+                            PropagationTaskExecutor.MANDATORY_MISSING_ATTR_NAME, mandatoryMissing));
+                }
+                if (!mandatoryNullOrEmpty.isEmpty()) {
+                    preparedAttrs.getValue().add(AttributeBuilder.build(
+                            PropagationTaskExecutor.MANDATORY_NULL_OR_EMPTY_ATTR_NAME, mandatoryNullOrEmpty));
+                }
+
+                if (vAttrMap.containsKey(resource.getKey())) {
+                    preparedAttrs.getValue().addAll(vAttrMap.get(resource.getKey()));
+                }
+
+                task.setAttributes(preparedAttrs.getValue());
+
+                tasks.add(task);
+
+                LOG.debug("PropagationTask created: {}", task);
             }
         }
 

@@ -25,7 +25,7 @@ import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 
-public interface AnyDAO<A extends Any<?, ?, ?>> extends DAO<A, Long> {
+public interface AnyDAO<A extends Any<?, ?>> extends DAO<A, Long> {
 
     A authFind(Long key);
 

@@ -26,5 +26,5 @@ public interface AnyUtilsFactory {
 
     AnyUtils getInstance(String anyTypeKind);
 
-    AnyUtils getInstance(Any<?, ?, ?> any);
+    AnyUtils getInstance(Any<?, ?> any);
 }

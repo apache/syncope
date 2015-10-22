@@ -145,13 +145,13 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
 
                 int count = anyDAO.count(SyncopeConstants.FULL_ADMIN_REALMS);
                 for (int page = 1; page <= (count / PAGE_SIZE) + 1; page++) {
-                    List<? extends Any<?, ?, ?>> localAnys = StringUtils.isBlank(filter)
+                    List<? extends Any<?, ?>> localAnys = StringUtils.isBlank(filter)
                             ? anyDAO.findAll(SyncopeConstants.FULL_ADMIN_REALMS, page, PAGE_SIZE)
                             : searchDAO.search(SyncopeConstants.FULL_ADMIN_REALMS,
                                     SearchCondConverter.convert(filter),
                                     Collections.<OrderByClause>emptyList(), provision.getAnyType().getKind());
 
-                    for (Any<?, ?, ?> any : localAnys) {
+                    for (Any<?, ?> any : localAnys) {
                         SyncopePushResultHandler handler;
                         switch (provision.getAnyType().getKind()) {
                             case USER:

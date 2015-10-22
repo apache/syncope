@@ -45,7 +45,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.common.util.Base64Utility;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
-import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.patch.AssociationPatch;
@@ -137,7 +136,6 @@ public class UserITCase extends AbstractITCase {
         userTO.getPlainAttrs().add(attrTO("email", email));
         userTO.getPlainAttrs().add(attrTO("loginDate", DATE_FORMAT.get().format(new Date())));
         userTO.getDerAttrs().add(attrTO("cn", null));
-        userTO.getVirAttrs().add(attrTO("virtualdata", "virtualvalue"));
         return userTO;
     }
 
@@ -154,7 +152,6 @@ public class UserITCase extends AbstractITCase {
 
         // create a new user
         UserTO userTO = getUniqueSampleTO("xxx@xxx.xxx");
-
         userTO.setPassword("password123");
         userTO.getResources().add(RESOURCE_NAME_NOPROPAGATION);
 
@@ -173,7 +170,6 @@ public class UserITCase extends AbstractITCase {
 
         // get last task
         PropagationTaskTO taskTO = taskService.read(newMaxId);
-
         assertNotNull(taskTO);
         assertTrue(taskTO.getExecutions().isEmpty());
     }
@@ -386,15 +382,6 @@ public class UserITCase extends AbstractITCase {
 
         // check for changePwdDate
         assertNotNull(newUserTO.getCreationDate());
-
-        // 2. check for virtual attribute value
-        newUserTO = userService.read(newUserTO.getKey());
-        assertNotNull(newUserTO);
-
-        assertNotNull(newUserTO.getVirAttrMap());
-        assertNotNull(newUserTO.getVirAttrMap().get("virtualdata").getValues());
-        assertFalse(newUserTO.getVirAttrMap().get("virtualdata").getValues().isEmpty());
-        assertEquals("virtualvalue", newUserTO.getVirAttrMap().get("virtualdata").getValues().get(0));
 
         // get the new task list
         tasks = taskService.list(
@@ -751,7 +738,7 @@ public class UserITCase extends AbstractITCase {
 
         long newMaxKey = tasks.getResult().iterator().next().getKey();
 
-        // default configuration for ws-target-resource2:
+        // default configuration for ws-target-resource2 during create:
         // only failed executions have to be registered
         // --> no more tasks/executions should be added
         assertEquals(newMaxKey, maxKey);
@@ -762,7 +749,7 @@ public class UserITCase extends AbstractITCase {
         UserPatch userPatch = new UserPatch();
         userPatch.setKey(userTO.getKey());
 
-        userPatch.getPlainAttrs().add(attrAddReplacePatch("surname", "surname"));
+        userPatch.getPlainAttrs().add(attrAddReplacePatch("surname", "surname2"));
 
         userTO = updateUser(userPatch);
 
@@ -776,11 +763,11 @@ public class UserITCase extends AbstractITCase {
         maxKey = newMaxKey;
         newMaxKey = tasks.getResult().iterator().next().getKey();
 
-        // default configuration for ws-target-resource2:
+        // default configuration for ws-target-resource2 during update:
         // all update executions have to be registered
         assertTrue(newMaxKey > maxKey);
 
-        final PropagationTaskTO taskTO = taskService.read(newMaxKey);
+        PropagationTaskTO taskTO = taskService.read(newMaxKey);
 
         assertNotNull(taskTO);
         assertEquals(1, taskTO.getExecutions().size());
@@ -1001,37 +988,6 @@ public class UserITCase extends AbstractITCase {
         userTO = updateUser(userPatch);
         assertNotNull(userTO);
         assertEquals("1" + inUserTO.getUsername(), userTO.getUsername());
-    }
-
-    @Test
-    public void issue270() {
-        // 1. create a new user without virtual attributes
-        UserTO original = getUniqueSampleTO("issue270@syncope.apache.org");
-        // be sure to remove all virtual attributes
-        original.getVirAttrs().clear();
-
-        original = createUser(original);
-
-        assertNotNull(original);
-
-        assertTrue(original.getVirAttrs().isEmpty());
-
-        UserTO toBeUpdated = userService.read(original.getKey());
-
-        AttrTO virtual = attrTO("virtualdata", "virtualvalue");
-        toBeUpdated.getVirAttrs().add(virtual);
-
-        // 2. try to update by adding a resource, but no password: must fail
-        UserPatch userPatch = AnyOperations.diff(toBeUpdated, original, false);
-        assertNotNull(userPatch);
-
-        toBeUpdated = updateUser(userPatch);
-        assertNotNull(toBeUpdated);
-
-        assertFalse(toBeUpdated.getVirAttrs().isEmpty());
-        assertNotNull(toBeUpdated.getVirAttrs().iterator().next());
-
-        assertEquals(virtual.getSchema(), toBeUpdated.getVirAttrs().iterator().next().getSchema());
     }
 
     @Test
@@ -1353,6 +1309,7 @@ public class UserITCase extends AbstractITCase {
         // create user and check virtual attribute value propagation
         // ----------------------------------
         UserTO userTO = getUniqueSampleTO("syncope267@apache.org");
+        userTO.getVirAttrs().add(attrTO("virtualdata", "virtualvalue"));
         userTO.getResources().clear();
         userTO.getResources().add(RESOURCE_NAME_DBVIRATTR);
 

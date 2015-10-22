@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.persistence.api.entity;
 
-public interface Attr<S extends Schema, O extends Any<?, ?, ?>> extends Entity<Long> {
+public interface Attr<S extends Schema, O extends Any<?, ?>> extends Entity<Long> {
 
     O getOwner();
 

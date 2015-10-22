@@ -43,7 +43,7 @@ public class VirSchemaTest extends AbstractTest {
     @Test
     public void findAll() {
         List<VirSchema> list = virSchemaDAO.findAll();
-        assertEquals(4, list.size());
+        assertEquals(3, list.size());
     }
 
     @Test
@@ -54,15 +54,17 @@ public class VirSchemaTest extends AbstractTest {
 
     @Test
     public void save() {
-        VirSchema virtualAttributeSchema = entityFactory.newEntity(VirSchema.class);
-        virtualAttributeSchema.setKey("virtual");
-        virtualAttributeSchema.setReadonly(true);
+        VirSchema virSchema = entityFactory.newEntity(VirSchema.class);
+        virSchema.setKey("virtual");
+        virSchema.setReadonly(true);
+        virSchema.setExtAttrName("EXT_ATTR");
 
-        virSchemaDAO.save(virtualAttributeSchema);
+        virSchemaDAO.save(virSchema);
 
         VirSchema actual = virSchemaDAO.find("virtual");
         assertNotNull("expected save to work", actual);
         assertTrue(actual.isReadonly());
+        assertEquals("EXT_ATTR", actual.getExtAttrName());
     }
 
     @Test

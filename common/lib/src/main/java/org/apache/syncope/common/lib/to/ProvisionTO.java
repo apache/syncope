@@ -18,8 +18,17 @@
  */
 package org.apache.syncope.common.lib.to;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.ArrayList;
+import java.util.List;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.lib.AbstractBaseBean;
 
+@XmlRootElement(name = "provision")
+@XmlType
 public class ProvisionTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = 8298910216218007927L;
@@ -33,6 +42,8 @@ public class ProvisionTO extends AbstractBaseBean {
     private String syncToken;
 
     private MappingTO mapping;
+
+    private List<String> virSchemas = new ArrayList<>();
 
     public long getKey() {
         return key;
@@ -72,6 +83,13 @@ public class ProvisionTO extends AbstractBaseBean {
 
     public void setMapping(final MappingTO mapping) {
         this.mapping = mapping;
+    }
+
+    @XmlElementWrapper(name = "virSchemas")
+    @XmlElement(name = "virSchema")
+    @JsonProperty("virSchemas")
+    public List<String> getVirSchemas() {
+        return virSchemas;
     }
 
 }

@@ -19,7 +19,9 @@
 package org.apache.syncope.core.provisioning.java.data;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
@@ -41,6 +43,7 @@ import org.apache.syncope.core.misc.spring.BeanUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
+import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ARelationship;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
@@ -75,12 +78,12 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
 
         BeanUtils.copyProperties(anyObject, anyObjectTO, IGNORE_PROPERTIES);
 
-        if (details) {
-            virAttrHander.retrieveVirAttrValues(anyObject);
-        }
+        Map<VirSchema, List<String>> virAttrValues = details
+                ? virAttrHander.getValues(anyObject)
+                : Collections.<VirSchema, List<String>>emptyMap();
 
         fillTO(anyObjectTO, anyObject.getRealm().getFullPath(), anyObject.getAuxClasses(),
-                anyObject.getPlainAttrs(), anyObject.getDerAttrs(), anyObject.getVirAttrs(),
+                anyObject.getPlainAttrs(), anyObject.getDerAttrs(), virAttrValues,
                 anyObjectDAO.findAllResources(anyObject));
 
         if (details) {

@@ -21,7 +21,7 @@ package org.apache.syncope.core.logic.report;
 import org.apache.syncope.core.persistence.api.dao.ReportletConfClass;
 import org.apache.syncope.common.lib.report.ReportletConf;
 import org.apache.syncope.common.lib.report.StaticReportletConf;
-import org.apache.syncope.core.misc.DataFormat;
+import org.apache.syncope.core.misc.FormatUtils;
 import org.springframework.util.StringUtils;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
@@ -101,7 +101,7 @@ public class StaticReportlet extends AbstractReportlet {
 
         if (this.conf.getDateField() != null) {
             handler.startElement("", "", "date", null);
-            String printed = DataFormat.format(this.conf.getDateField());
+            String printed = FormatUtils.format(this.conf.getDateField());
             handler.characters(printed.toCharArray(), 0, printed.length());
             handler.endElement("", "", "date");
         }

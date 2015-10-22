@@ -260,6 +260,52 @@ public class ResourceTest extends AbstractTest {
     }
 
     @Test
+    public void saveVirtualMapping() {
+        ExternalResource resource = entityFactory.newEntity(ExternalResource.class);
+        resource.setKey("ws-target-resource-virtual-mapping");
+        resource.setPropagationPriority(2);
+        resource.setPropagationPrimary(true);
+
+        Provision provision = entityFactory.newEntity(Provision.class);
+        provision.setAnyType(anyTypeDAO.findUser());
+        provision.setObjectClass(ObjectClass.ACCOUNT);
+        provision.setResource(resource);
+        resource.add(provision);
+
+        Mapping mapping = entityFactory.newEntity(Mapping.class);
+        mapping.setProvision(provision);
+        provision.setMapping(mapping);
+
+        MappingItem connObjectKey = entityFactory.newEntity(MappingItem.class);
+        connObjectKey.setExtAttrName("username");
+        connObjectKey.setIntAttrName("fullname");
+        connObjectKey.setIntMappingType(IntMappingType.UserKey);
+        connObjectKey.setPurpose(MappingPurpose.BOTH);
+        mapping.setConnObjectKeyItem(connObjectKey);
+
+        MappingItem virtualMapItem = entityFactory.newEntity(MappingItem.class);
+        virtualMapItem.setIntMappingType(IntMappingType.UserVirtualSchema);
+        virtualMapItem.setIntAttrName("virtualReadOnly");
+        virtualMapItem.setExtAttrName("TEST");
+        virtualMapItem.setPurpose(MappingPurpose.BOTH);
+        virtualMapItem.setMapping(mapping);
+        mapping.add(virtualMapItem);
+
+        ConnInstance connector = resourceDAO.find("ws-target-resource-1").getConnector();
+        resource.setConnector(connector);
+
+        try {
+            resourceDAO.save(resource);
+            fail();
+        } catch (InvalidEntityException e) {
+            assertNotNull(e);
+        }
+
+        virtualMapItem.setPurpose(MappingPurpose.PROPAGATION);
+        resourceDAO.save(resource);
+    }
+
+    @Test
     public void saveWithGroupMappingType() {
         ExternalResource resource = entityFactory.newEntity(ExternalResource.class);
         resource.setKey("ws-target-resource-basic-save-invalid");

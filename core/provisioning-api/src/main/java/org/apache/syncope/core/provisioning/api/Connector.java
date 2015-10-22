@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.api;
 
-import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import org.apache.syncope.common.lib.types.ResourceOperation;
@@ -59,10 +59,11 @@ public interface Connector {
      * @param propagationAttempted if creation is actually performed (based on connector instance's capabilities)
      * @return Uid for created object
      */
-    Uid create(ObjectClass objectClass,
+    Uid create(
+            ObjectClass objectClass,
             Set<Attribute> attrs,
             OperationOptions options,
-            Set<String> propagationAttempted);
+            Boolean[] propagationAttempted);
 
     /**
      * Update user / group on a connector instance.
@@ -71,14 +72,15 @@ public interface Connector {
      * @param uid user to be updated
      * @param attrs attributes for update
      * @param options ConnId's OperationOptions
-     * @param propagationAttempted if update is actually performed (based on connector instance's capabilities)
+     * @param propagationAttempted if creation is actually performed (based on connector instance's capabilities)
      * @return Uid for updated object
      */
-    Uid update(ObjectClass objectClass,
+    Uid update(
+            ObjectClass objectClass,
             Uid uid,
             Set<Attribute> attrs,
             OperationOptions options,
-            Set<String> propagationAttempted);
+            Boolean[] propagationAttempted);
 
     /**
      * Delete user / group on a connector instance.
@@ -88,8 +90,11 @@ public interface Connector {
      * @param options ConnId's OperationOptions
      * @param propagationAttempted if deletion is actually performed (based on connector instance's capabilities)
      */
-    void delete(ObjectClass objectClass,
-            Uid uid, OperationOptions options, Set<String> propagationAttempted);
+    void delete(
+            ObjectClass objectClass,
+            Uid uid,
+            OperationOptions options,
+            Boolean[] propagationAttempted);
 
     /**
      * Fetches all remote objects (for use during full reconciliation).
@@ -169,6 +174,7 @@ public interface Connector {
      * query results
      * @param orderBy the sort keys which should be used for ordering the {@link ConnectorObject} returned by
      * search request
+     * @param mapItems mapping items
      */
     void search(
             ObjectClass objectClass,
@@ -176,7 +182,8 @@ public interface Connector {
             ResultsHandler handler,
             int pageSize,
             String pagedResultsCookie,
-            List<OrderByClause> orderBy);
+            List<OrderByClause> orderBy,
+            Iterator<? extends MappingItem> mapItems);
 
     /**
      * Read attribute for a given connector object.
@@ -238,5 +245,5 @@ public interface Connector {
      * @return options for requesting all mapped connector attributes
      * @see OperationOptions
      */
-    OperationOptions getOperationOptions(Collection<? extends MappingItem> mapItems);
+    OperationOptions getOperationOptions(Iterator<? extends MappingItem> mapItems);
 }

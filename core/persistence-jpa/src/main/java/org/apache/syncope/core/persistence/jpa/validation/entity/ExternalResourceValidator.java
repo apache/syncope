@@ -25,7 +25,12 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.EntityViolationType;
+import org.apache.syncope.common.lib.types.IntMappingType;
+import org.apache.syncope.common.lib.types.MappingPurpose;
+import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
+import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
@@ -39,7 +44,7 @@ public class ExternalResourceValidator extends AbstractValidator<ExternalResourc
     private boolean isValid(final MappingItem item, final ConstraintValidatorContext context) {
         if (StringUtils.isBlank(item.getExtAttrName())) {
             context.buildConstraintViolationWithTemplate(
-                    getTemplate(EntityViolationType.InvalidMapping, item + ".extAttrName is null")).
+                    getTemplate(EntityViolationType.InvalidMapping, item + " - extAttrName is null")).
                     addPropertyNode("extAttrName").addConstraintViolation();
 
             return false;
@@ -47,7 +52,7 @@ public class ExternalResourceValidator extends AbstractValidator<ExternalResourc
 
         if (StringUtils.isBlank(item.getIntAttrName())) {
             context.buildConstraintViolationWithTemplate(
-                    getTemplate(EntityViolationType.InvalidMapping, item + ".intAttrName is null")).
+                    getTemplate(EntityViolationType.InvalidMapping, item + " - intAttrName is null")).
                     addPropertyNode("intAttrName").addConstraintViolation();
 
             return false;
@@ -55,10 +60,44 @@ public class ExternalResourceValidator extends AbstractValidator<ExternalResourc
 
         if (item.getPurpose() == null) {
             context.buildConstraintViolationWithTemplate(
-                    getTemplate(EntityViolationType.InvalidMapping, item + ".purpose is null")).
+                    getTemplate(EntityViolationType.InvalidMapping, item + " - purpose is null")).
                     addPropertyNode("purpose").addConstraintViolation();
 
             return false;
+        }
+
+        if (item.getIntMappingType() == IntMappingType.AnyObjectVirtualSchema
+                || item.getIntMappingType() == IntMappingType.GroupVirtualSchema
+                || item.getIntMappingType() == IntMappingType.UserVirtualSchema) {
+
+            if (item.getPurpose() != MappingPurpose.PROPAGATION) {
+                context.buildConstraintViolationWithTemplate(
+                        getTemplate(EntityViolationType.InvalidMapping,
+                                " - only " + MappingPurpose.PROPAGATION.name() + " allowed for virtual")).
+                        addPropertyNode("purpose").addConstraintViolation();
+
+                return false;
+            }
+
+            if (item.getMapping() == null) {
+                context.buildConstraintViolationWithTemplate(
+                        getTemplate(EntityViolationType.InvalidMapping,
+                                " - need to explicitly set mapping for further checks")).
+                        addPropertyNode("mapping").addConstraintViolation();
+
+                return false;
+            }
+
+            VirSchema schema = ApplicationContextProvider.getBeanFactory().getBean(VirSchemaDAO.class).
+                    find(item.getIntAttrName());
+            if (schema != null && schema.getProvision().equals(item.getMapping().getProvision())) {
+                context.buildConstraintViolationWithTemplate(
+                        getTemplate(EntityViolationType.InvalidMapping,
+                                " - no need to map virtual schema on linking resource")).
+                        addPropertyNode("intAttrName").addConstraintViolation();
+
+                return false;
+            }
         }
 
         return true;

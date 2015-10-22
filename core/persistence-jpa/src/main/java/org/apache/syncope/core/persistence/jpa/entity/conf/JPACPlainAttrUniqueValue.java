@@ -60,7 +60,7 @@ public class JPACPlainAttrUniqueValue extends AbstractPlainAttrValue implements 
     }
 
     @Override
-    public void setAttr(final PlainAttr attr) {
+    public void setAttr(final PlainAttr<?> attr) {
         checkType(attr, JPACPlainAttr.class);
         this.attribute = (JPACPlainAttr) attr;
     }

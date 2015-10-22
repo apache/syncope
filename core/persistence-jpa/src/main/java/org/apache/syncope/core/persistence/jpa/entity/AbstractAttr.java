@@ -28,7 +28,7 @@ import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Schema;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 
-public abstract class AbstractAttr<S extends Schema, O extends Any<?, ?, ?>>
+public abstract class AbstractAttr<S extends Schema, O extends Any<?, ?>>
         extends AbstractEntity<Long> implements Attr<S, O> {
 
     private static final long serialVersionUID = -7722134717360731874L;

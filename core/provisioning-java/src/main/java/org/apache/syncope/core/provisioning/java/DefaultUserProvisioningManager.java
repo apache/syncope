@@ -119,28 +119,14 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
     public Pair<Long, List<PropagationStatus>> update(final UserPatch userPatch) {
         WorkflowResult<Pair<UserPatch, Boolean>> updated = uwfAdapter.update(userPatch);
 
-        // SYNCOPE-459: take care of user virtual attributes ...
-        PropagationByResource propByResVirAttr = virtAttrHandler.updateVirtual(
-                updated.getResult().getKey().getKey(),
-                AnyTypeKind.USER,
-                userPatch.getVirAttrs());
-        if (updated.getPropByRes() == null) {
-            updated.setPropByRes(propByResVirAttr);
-        } else {
-            updated.getPropByRes().merge(propByResVirAttr);
-        }
-
         List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(updated);
-
-        PropagationReporter propagationReporter = ApplicationContextProvider.getBeanFactory().
-                getBean(PropagationReporter.class);
-        if (!tasks.isEmpty()) {
-            try {
-                taskExecutor.execute(tasks, propagationReporter);
-            } catch (PropagationException e) {
-                LOG.error("Error propagation primary resource", e);
-                propagationReporter.onPrimaryResourceFailure(tasks);
-            }
+        PropagationReporter propagationReporter =
+                ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
+        try {
+            taskExecutor.execute(tasks, propagationReporter);
+        } catch (PropagationException e) {
+            LOG.error("Error propagation primary resource", e);
+            propagationReporter.onPrimaryResourceFailure(tasks);
         }
 
         return new ImmutablePair<>(updated.getResult().getKey().getKey(), propagationReporter.getStatuses());
@@ -291,7 +277,6 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
                 propByRes,
                 null,
                 null);
-
         PropagationReporter propReporter =
                 ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
         try {
@@ -302,7 +287,6 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
         }
 
         return propReporter.getStatuses();
-
     }
 
     @Override

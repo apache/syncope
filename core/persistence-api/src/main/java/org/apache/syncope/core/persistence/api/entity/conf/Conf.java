@@ -21,9 +21,8 @@ package org.apache.syncope.core.persistence.api.entity.conf;
 import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.DerAttr;
-import org.apache.syncope.core.persistence.api.entity.VirAttr;
 
-public interface Conf extends Any<CPlainAttr, DerAttr<?>, VirAttr<?>> {
+public interface Conf extends Any<CPlainAttr, DerAttr<?>> {
 
     void setKey(Long key);
 

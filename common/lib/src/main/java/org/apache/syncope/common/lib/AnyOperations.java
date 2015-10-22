@@ -150,29 +150,8 @@ public final class AnyOperations {
         }
 
         // 5. virtual attributes
-        updatedAttrs = updated.getVirAttrMap();
-        originalAttrs = original.getVirAttrMap();
-
         result.getVirAttrs().clear();
-
-        if (!incremental) {
-            CollectionUtils.forAllDo(CollectionUtils.subtract(originalAttrs.keySet(), updatedAttrs.keySet()),
-                    new Closure<String>() {
-
-                        @Override
-                        public void execute(final String schema) {
-                            result.getVirAttrs().add(new AttrPatch.Builder().
-                                    operation(PatchOperation.DELETE).
-                                    attrTO(new AttrTO.Builder().schema(schema).build()).
-                                    build());
-                        }
-                    });
-        }
-
-        for (AttrTO attrTO : updatedAttrs.values()) {
-            AttrPatch patch = new AttrPatch.Builder().operation(PatchOperation.ADD_REPLACE).attrTO(attrTO).build();
-            result.getVirAttrs().add(patch);
-        }
+        result.getVirAttrs().addAll(updated.getVirAttrs());
 
         // 6. resources
         result.getResources().clear();
@@ -188,7 +167,6 @@ public final class AnyOperations {
             result.getResources().add(
                     new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(resource).build());
         }
-
     }
 
     /**
@@ -450,7 +428,7 @@ public final class AnyOperations {
 
         // 4. virtual attributes
         result.getVirAttrs().clear();
-        result.getVirAttrs().addAll(AnyOperations.patch(to.getVirAttrMap(), patch.getVirAttrs()));
+        result.getVirAttrs().addAll(patch.getVirAttrs());
 
         // 5. resources
         for (StringPatchItem resourcePatch : patch.getResources()) {

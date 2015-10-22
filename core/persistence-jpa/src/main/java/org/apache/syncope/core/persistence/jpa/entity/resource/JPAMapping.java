@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
@@ -48,12 +49,10 @@ public class JPAMapping extends AbstractEntity<Long> implements Mapping {
     @Id
     private Long id;
 
+    @Column(nullable = false)
     @OneToOne
     private JPAProvision provision;
 
-    /**
-     * Attribute mappings.
-     */
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "mapping")
     private List<JPAMappingItem> items = new ArrayList<>();
 
@@ -79,17 +78,6 @@ public class JPAMapping extends AbstractEntity<Long> implements Mapping {
     }
 
     @Override
-    public void setConnObjectKeyItem(final MappingItem item) {
-        checkType(item, JPAMappingItem.class);
-        this.addConnObjectKeyItem((JPAMappingItem) item);
-    }
-
-    @Override
-    public List<? extends MappingItem> getItems() {
-        return items;
-    }
-
-    @Override
     public boolean add(final MappingItem item) {
         checkType(item, JPAMappingItem.class);
         return items.contains((JPAMappingItem) item) || items.add((JPAMappingItem) item);
@@ -102,6 +90,11 @@ public class JPAMapping extends AbstractEntity<Long> implements Mapping {
     }
 
     @Override
+    public List<? extends MappingItem> getItems() {
+        return items;
+    }
+
+    @Override
     public MappingItem getConnObjectKeyItem() {
         return CollectionUtils.find(getItems(), new Predicate<MappingItem>() {
 
@@ -110,6 +103,12 @@ public class JPAMapping extends AbstractEntity<Long> implements Mapping {
                 return item.isConnObjectKey();
             }
         });
+    }
+
+    @Override
+    public void setConnObjectKeyItem(final MappingItem item) {
+        checkType(item, JPAMappingItem.class);
+        this.addConnObjectKeyItem((JPAMappingItem) item);
     }
 
     protected boolean addConnObjectKeyItem(final MappingItem connObjectKeyItem) {

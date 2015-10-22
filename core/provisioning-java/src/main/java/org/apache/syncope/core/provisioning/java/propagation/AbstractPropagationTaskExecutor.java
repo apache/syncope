@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.commons.collections4.IteratorUtils;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
@@ -49,12 +50,17 @@ import org.apache.syncope.core.misc.ConnObjectUtils;
 import org.apache.syncope.core.misc.ExceptionUtils2;
 import org.apache.syncope.core.misc.MappingUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
+import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.provisioning.api.cache.VirAttrCache;
+import org.apache.syncope.core.provisioning.api.cache.VirAttrCacheValue;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.identityconnectors.framework.common.objects.Attribute;
@@ -110,6 +116,9 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
     @Autowired
     protected TaskDAO taskDAO;
 
+    @Autowired
+    protected VirSchemaDAO virSchemaDAO;
+
     /**
      * Notification Manager.
      */
@@ -124,6 +133,9 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
     @Autowired
     protected EntityFactory entityFactory;
+
+    @Autowired
+    protected VirAttrCache virAttrCache;
 
     @Override
     public TaskExec execute(final PropagationTask task) {
@@ -149,12 +161,15 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
     }
 
     /**
-     * Transform a
-     * <code>Collection</code> of {@link Attribute} instances into a {@link Map}. The key to each element in the map is
-     * the <i>name</i> of an
-     * <code>Attribute</code>. The value of each element in the map is the
-     * <code>Attribute</code> instance with that name. <br/> Different from the original because: <ul> <li>map keys are
-     * transformed toUpperCase()</li> <li>returned map is mutable</li> </ul>
+     * Transform a {@link Collection} of {@link Attribute} instances into a {@link Map}.
+     * The key to each element in the map is the {@code name} of an {@link Attribute}.
+     * The value of each element in the map is the {@link Attribute} instance with that name.
+     * <br/>
+     * Different from the original because:
+     * <ul>
+     * <li>map keys are transformed toUpperCase()</li>
+     * <li>returned map is mutable</li>
+     * </ul>
      *
      * @param attributes set of attribute to transform to a map.
      * @return a map of string and attribute.
@@ -173,7 +188,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             final PropagationTask task,
             final ConnectorObject beforeObj,
             final Connector connector,
-            final Set<String> propagationAttempted) {
+            final Boolean[] propagationAttempted) {
 
         // set of attributes to be propagated
         Set<Attribute> attributes = new HashSet<>(task.getAttributes());
@@ -201,14 +216,10 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
         if (beforeObj == null) {
             LOG.debug("Create {} on {}", attributes, task.getResource().getKey());
-            connector.create(
-                    new ObjectClass(task.getObjectClassName()),
-                    attributes,
-                    null,
-                    propagationAttempted);
+            connector.create(new ObjectClass(task.getObjectClassName()), attributes, null, propagationAttempted);
         } else {
             // 1. check if rename is really required
-            final Name newName = (Name) AttributeUtil.find(Name.NAME, attributes);
+            Name newName = (Name) AttributeUtil.find(Name.NAME, attributes);
 
             LOG.debug("Rename required with value {}", newName);
 
@@ -254,8 +265,8 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         }
     }
 
-    protected Any<?, ?, ?> getAny(final PropagationTask task) {
-        Any<?, ?, ?> any = null;
+    protected Any<?, ?> getAny(final PropagationTask task) {
+        Any<?, ?> any = null;
 
         if (task.getAnyKey() != null) {
             switch (task.getAnyTypeKind()) {
@@ -289,8 +300,11 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         return any;
     }
 
-    protected void delete(final PropagationTask task, final ConnectorObject beforeObj,
-            final Connector connector, final Set<String> propagationAttempted) {
+    protected void delete(
+            final PropagationTask task,
+            final ConnectorObject beforeObj,
+            final Connector connector,
+            final Boolean[] propagationAttempted) {
 
         if (beforeObj == null) {
             LOG.debug("{} not found on external resource: ignoring delete", task.getConnObjectKey());
@@ -310,7 +324,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
              * update, this user / group used to have the current resource assigned by more than one mean (for example,
              * two different memberships with the same resource).
              */
-            Any<?, ?, ?> any = getAny(task);
+            Any<?, ?> any = getAny(task);
             Collection<String> resources = any instanceof User
                     ? userDAO.findAllResourceNames((User) any)
                     : any instanceof AnyObject
@@ -321,11 +335,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             if (!resources.contains(task.getResource().getKey())) {
                 LOG.debug("Delete {} on {}", beforeObj.getUid(), task.getResource().getKey());
 
-                connector.delete(
-                        beforeObj.getObjectClass(),
-                        beforeObj.getUid(),
-                        null,
-                        propagationAttempted);
+                connector.delete(beforeObj.getObjectClass(), beforeObj.getUid(), null, propagationAttempted);
             } else {
                 createOrUpdate(task, beforeObj, connector, propagationAttempted);
             }
@@ -345,7 +355,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         String failureReason = null;
 
         // Flag to state whether any propagation has been attempted
-        Set<String> propagationAttempted = new HashSet<>();
+        Boolean[] propagationAttempted = new Boolean[] { false };
 
         ConnectorObject beforeObj = null;
         ConnectorObject afterObj = null;
@@ -411,7 +421,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 LOG.error("While executing KO action on {}", execution, wft);
             }
 
-            propagationAttempted.add(task.getOperation().name().toLowerCase());
+            propagationAttempted[0] = true;
 
             for (PropagationActions action : actions) {
                 action.onError(task, execution, e);
@@ -434,7 +444,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             execution.setEndDate(new Date());
 
             if (hasToBeregistered(task, execution)) {
-                if (propagationAttempted.isEmpty()) {
+                if (!propagationAttempted[0]) {
                     LOG.debug("No propagation attempted for {}", execution);
                 } else {
                     execution.setTask(task);
@@ -535,12 +545,20 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
      * @param latest 'FALSE' to retrieve object using old connObjectKey if not null.
      * @return remote connector object.
      */
-    protected ConnectorObject getRemoteObject(final PropagationTask task, final Connector connector,
-            final Provision provision, final boolean latest) {
+    protected ConnectorObject getRemoteObject(
+            final PropagationTask task,
+            final Connector connector,
+            final Provision provision,
+            final boolean latest) {
 
         String connObjectKey = latest || task.getOldConnObjectKey() == null
                 ? task.getConnObjectKey()
                 : task.getOldConnObjectKey();
+
+        List<MappingItem> linkingMappingItems = new ArrayList<>();
+        for (VirSchema schema : virSchemaDAO.findByProvision(provision)) {
+            linkingMappingItems.add(schema.asLinkingMappingItem());
+        }
 
         ConnectorObject obj = null;
         try {
@@ -548,7 +566,20 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                     task.getOperation(),
                     new ObjectClass(task.getObjectClassName()),
                     new Uid(connObjectKey),
-                    connector.getOperationOptions(MappingUtils.getPropagationMappingItems(provision)));
+                    connector.getOperationOptions(IteratorUtils.chainedIterator(
+                                    MappingUtils.getPropagationMappingItems(provision).iterator(),
+                                    linkingMappingItems.iterator())));
+
+            for (MappingItem item : linkingMappingItems) {
+                Attribute attr = obj.getAttributeByName(item.getExtAttrName());
+                if (attr == null) {
+                    virAttrCache.expire(task.getAnyType(), task.getAnyKey(), item.getIntAttrName());
+                } else {
+                    VirAttrCacheValue cacheValue = new VirAttrCacheValue();
+                    cacheValue.setValues(attr.getValue());
+                    virAttrCache.put(task.getAnyType(), task.getAnyKey(), item.getIntAttrName(), cacheValue);
+                }
+            }
         } catch (TimeoutException toe) {
             LOG.debug("Request timeout", toe);
             throw toe;

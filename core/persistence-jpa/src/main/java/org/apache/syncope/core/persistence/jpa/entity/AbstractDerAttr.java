@@ -30,7 +30,7 @@ import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 
 @MappedSuperclass
-public abstract class AbstractDerAttr<O extends Any<?, ?, ?>>
+public abstract class AbstractDerAttr<O extends Any<?, ?>>
         extends AbstractAttr<DerSchema, O> implements DerAttr<O> {
 
     private static final long serialVersionUID = 4740924251090424771L;

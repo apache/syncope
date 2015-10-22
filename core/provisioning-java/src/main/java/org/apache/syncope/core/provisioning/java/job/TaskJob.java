@@ -21,7 +21,7 @@ package org.apache.syncope.core.provisioning.java.job;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicReference;
 import org.apache.commons.lang3.ClassUtils;
-import org.apache.syncope.core.misc.DataFormat;
+import org.apache.syncope.core.misc.FormatUtils;
 import org.apache.syncope.core.misc.security.AuthContextUtils;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.provisioning.api.job.JobInstanceLoader;
@@ -114,7 +114,7 @@ public class TaskJob implements InterruptableJob {
         if (thread == null) {
             LOG.warn("Unable to retrieve the thread of the current job execution");
         } else {
-            LOG.info("Interrupting job from thread {} at {} ", thread.getId(), DataFormat.format(new Date()));
+            LOG.info("Interrupting job from thread {} at {} ", thread.getId(), FormatUtils.format(new Date()));
 
             if (interruptMaxRetries < 1) {
                 interruptMaxRetries = 1;

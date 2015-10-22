@@ -67,7 +67,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.util.ReflectionUtils;
 
 @Repository
-public class JPAAnySearchDAO extends AbstractDAO<Any<?, ?, ?>, Long> implements AnySearchDAO {
+public class JPAAnySearchDAO extends AbstractDAO<Any<?, ?>, Long> implements AnySearchDAO {
 
     private static final String EMPTY_ATTR_QUERY = "SELECT any_id FROM user_search_attr WHERE 1=2";
 
@@ -150,14 +150,14 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?, ?, ?>, Long> implements 
     }
 
     @Override
-    public <T extends Any<?, ?, ?>> List<T> search(
+    public <T extends Any<?, ?>> List<T> search(
             final Set<String> adminRealms, final SearchCond searchCondition, final AnyTypeKind typeKind) {
 
         return search(adminRealms, searchCondition, Collections.<OrderByClause>emptyList(), typeKind);
     }
 
     @Override
-    public <T extends Any<?, ?, ?>> List<T> search(
+    public <T extends Any<?, ?>> List<T> search(
             final Set<String> adminRealms, final SearchCond searchCondition, final List<OrderByClause> orderBy,
             final AnyTypeKind typeKind) {
 
@@ -165,7 +165,7 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?, ?, ?>, Long> implements 
     }
 
     @Override
-    public <T extends Any<?, ?, ?>> List<T> search(
+    public <T extends Any<?, ?>> List<T> search(
             final Set<String> adminRealms, final SearchCond searchCondition, final int page, final int itemsPerPage,
             final List<OrderByClause> orderBy, final AnyTypeKind typeKind) {
 
@@ -189,7 +189,7 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?, ?, ?>, Long> implements 
     }
 
     @Override
-    public <T extends Any<?, ?, ?>> boolean matches(
+    public <T extends Any<?, ?>> boolean matches(
             final T any, final SearchCond searchCondition, final AnyTypeKind typeKind) {
 
         List<Object> parameters = Collections.synchronizedList(new ArrayList<>());
@@ -347,7 +347,7 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?, ?, ?>, Long> implements 
     }
 
     @SuppressWarnings("unchecked")
-    private <T extends Any<?, ?, ?>> List<T> doSearch(final Set<String> adminRealms,
+    private <T extends Any<?, ?>> List<T> doSearch(final Set<String> adminRealms,
             final SearchCond nodeCond, final int page, final int itemsPerPage, final List<OrderByClause> orderBy,
             final AnyTypeKind typeKind) {
 

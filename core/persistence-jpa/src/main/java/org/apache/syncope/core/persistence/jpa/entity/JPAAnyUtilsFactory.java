@@ -41,7 +41,7 @@ public class JPAAnyUtilsFactory implements AnyUtilsFactory {
     }
 
     @Override
-    public AnyUtils getInstance(final Any<?, ?, ?> any) {
+    public AnyUtils getInstance(final Any<?, ?> any) {
         AnyTypeKind type = null;
         if (any instanceof User) {
             type = AnyTypeKind.USER;

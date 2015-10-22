@@ -85,14 +85,6 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
     }
 
     @Test
-    public void issue196() {
-        TaskExecTO exec = taskService.execute(6L, false);
-        assertNotNull(exec);
-        assertEquals(0, exec.getKey());
-        assertNotNull(exec.getTask());
-    }
-
-    @Test
     public void bulkAction() {
         PagedResult<PropagationTaskTO> before = taskService.list(
                 TaskType.PROPAGATION, SyncopeClient.getTaskQueryBuilder().build());

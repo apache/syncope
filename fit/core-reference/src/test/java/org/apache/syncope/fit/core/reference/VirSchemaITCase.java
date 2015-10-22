@@ -27,6 +27,7 @@ import static org.junit.Assert.fail;
 import java.util.List;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.VirSchemaTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.EntityViolationType;
@@ -48,41 +49,47 @@ public class VirSchemaITCase extends AbstractITCase {
     }
 
     @Test
-    public void read() {
-        VirSchemaTO vSchemaTO = schemaService.read(SchemaType.VIRTUAL, "mvirtualdata");
-        assertNotNull(vSchemaTO);
-    }
+    public void crud() {
+        ResourceTO csv = resourceService.read(RESOURCE_NAME_CSV);
+        assertNotNull(csv);
+        assertEquals(1, csv.getProvisions().size());
+        assertTrue(csv.getProvisions().get(0).getVirSchemas().isEmpty());
 
-    @Test
-    public void create() {
         VirSchemaTO schema = new VirSchemaTO();
-        schema.setKey("virtual");
+        schema.setKey("virtualTest" + getUUIDString());
+        schema.setExtAttrName("name");
+        schema.setProvision(csv.getProvisions().get(0).getKey());
 
-        VirSchemaTO actual = createSchema(SchemaType.VIRTUAL, schema);
-        assertNotNull(actual);
+        schema = createSchema(SchemaType.VIRTUAL, schema);
+        assertNotNull(schema);
+        assertEquals(csv.getProvisions().get(0).getKey(), schema.getProvision());
 
-        actual = schemaService.read(SchemaType.VIRTUAL, actual.getKey());
-        assertNotNull(actual);
-    }
+        csv = resourceService.read(RESOURCE_NAME_CSV);
+        assertNotNull(csv);
+        assertEquals(1, csv.getProvisions().size());
+        assertFalse(csv.getProvisions().get(0).getVirSchemas().isEmpty());
 
-    @Test
-    public void delete() {
-        VirSchemaTO schema = schemaService.read(SchemaType.VIRTUAL, "rvirtualdata");
+        schema = schemaService.read(SchemaType.VIRTUAL, schema.getKey());
         assertNotNull(schema);
 
         schemaService.delete(SchemaType.VIRTUAL, schema.getKey());
 
         try {
-            schemaService.read(SchemaType.VIRTUAL, "rvirtualdata");
+            schemaService.read(SchemaType.VIRTUAL, schema.getKey());
             fail();
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
         }
+
+        csv = resourceService.read(RESOURCE_NAME_CSV);
+        assertNotNull(csv);
+        assertEquals(1, csv.getProvisions().size());
+        assertTrue(csv.getProvisions().get(0).getVirSchemas().isEmpty());
     }
 
     @Test
     public void issueSYNCOPE323() {
-        VirSchemaTO actual = schemaService.read(SchemaType.VIRTUAL, "mvirtualdata");
+        VirSchemaTO actual = schemaService.read(SchemaType.VIRTUAL, "virtualdata");
         assertNotNull(actual);
 
         try {
