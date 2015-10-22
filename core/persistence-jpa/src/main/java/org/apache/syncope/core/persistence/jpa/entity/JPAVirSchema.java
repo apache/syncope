@@ -22,7 +22,6 @@ import java.util.Collections;
 import java.util.List;
 import javax.persistence.Basic;
 import javax.persistence.Cacheable;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
@@ -31,6 +30,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
@@ -63,11 +63,11 @@ public class JPAVirSchema extends AbstractEntity<String> implements VirSchema {
     @Max(1)
     private Integer readonly;
 
-    @Column(nullable = false)
+    @NotNull
     @ManyToOne
     private JPAProvision provision;
 
-    @Column(nullable = false)
+    @NotNull
     private String extAttrName;
 
     public JPAVirSchema() {

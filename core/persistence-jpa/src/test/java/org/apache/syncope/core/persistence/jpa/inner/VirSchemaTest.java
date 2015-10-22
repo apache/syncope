@@ -27,9 +27,13 @@ import static org.junit.Assert.fail;
 import java.util.List;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
+import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
+import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,6 +43,9 @@ public class VirSchemaTest extends AbstractTest {
 
     @Autowired
     private VirSchemaDAO virSchemaDAO;
+
+    @Autowired
+    private ExternalResourceDAO resourceDAO;
 
     @Test
     public void findAll() {
@@ -54,8 +61,13 @@ public class VirSchemaTest extends AbstractTest {
 
     @Test
     public void save() {
+        ExternalResource csv = resourceDAO.find("resource-csv");
+        Provision provision = csv.getProvision(ObjectClass.ACCOUNT);
+        assertNotNull(provision);
+
         VirSchema virSchema = entityFactory.newEntity(VirSchema.class);
         virSchema.setKey("virtual");
+        virSchema.setProvision(provision);
         virSchema.setReadonly(true);
         virSchema.setExtAttrName("EXT_ATTR");
 

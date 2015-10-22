@@ -35,6 +35,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
@@ -59,7 +60,7 @@ public class JPAMappingItem extends AbstractEntity<Long> implements MappingItem 
     @Column(nullable = true)
     private String intAttrName;
 
-    @Column(nullable = false)
+    @NotNull
     @Enumerated(EnumType.STRING)
     private IntMappingType intMappingType;
 
@@ -72,13 +73,13 @@ public class JPAMappingItem extends AbstractEntity<Long> implements MappingItem 
     /**
      * Specify if the mapped target resource's field is nullable.
      */
-    @Column(nullable = false)
+    @NotNull
     private String mandatoryCondition;
 
     /**
      * Specify if the mapped target resource's field is the key.
      */
-    @Column(nullable = false)
+    @NotNull
     @Basic
     @Min(0)
     @Max(1)
@@ -87,13 +88,13 @@ public class JPAMappingItem extends AbstractEntity<Long> implements MappingItem 
     /**
      * Specify if the mapped target resource's field is the password.
      */
-    @Column(nullable = false)
+    @NotNull
     @Basic
     @Min(0)
     @Max(1)
     private Integer password;
 
-    @Column(nullable = false)
+    @NotNull
     @Enumerated(EnumType.STRING)
     private MappingPurpose purpose;
 

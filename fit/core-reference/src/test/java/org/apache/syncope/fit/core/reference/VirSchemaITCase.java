@@ -112,8 +112,15 @@ public class VirSchemaITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE418() {
+        ResourceTO ws1 = resourceService.read(RESOURCE_NAME_WS1);
+        assertNotNull(ws1);
+        assertEquals(1, ws1.getProvisions().size());
+        assertTrue(ws1.getProvisions().get(0).getVirSchemas().isEmpty());
+
         VirSchemaTO schema = new VirSchemaTO();
         schema.setKey("http://schemas.examples.org/security/authorization/organizationUnit");
+        schema.setExtAttrName("name");
+        schema.setProvision(ws1.getProvisions().get(0).getKey());
 
         try {
             createSchema(SchemaType.VIRTUAL, schema);
@@ -121,7 +128,7 @@ public class VirSchemaITCase extends AbstractITCase {
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidVirSchema, e.getType());
 
-            assertTrue(e.getElements().iterator().next().toString().contains(EntityViolationType.InvalidName.name()));
+            assertTrue(e.getElements().iterator().next().contains(EntityViolationType.InvalidName.name()));
         }
     }
 }

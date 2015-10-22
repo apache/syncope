@@ -26,6 +26,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.List;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
@@ -35,6 +36,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Transactional("Master")
 public class AnyObjectTest extends AbstractTest {
+
+    @Autowired
+    private AnyTypeDAO anyTypeDAO;
 
     @Autowired
     private AnyObjectDAO anyObjectDAO;
@@ -68,6 +72,7 @@ public class AnyObjectTest extends AbstractTest {
     @Test
     public void save() {
         AnyObject anyObject = entityFactory.newEntity(AnyObject.class);
+        anyObject.setType(anyTypeDAO.find("PRINTER"));
         anyObject.setRealm(realmDAO.find(SyncopeConstants.ROOT_REALM));
 
         anyObject = anyObjectDAO.save(anyObject);
