@@ -94,7 +94,7 @@ public final class Table {
 
         for (final LinkedList<String> value : values) {
             for (int j = 0; j < columnsSize.length; j++) {
-                if (value.get(j).length() > columnsSize[j]) {
+                if (value.get(j) != null && value.get(j).length() > columnsSize[j]) {
                     columnsSize[j] = value.get(j).length();
                 }
             }
@@ -143,9 +143,13 @@ public final class Table {
     private void printeContent() {
         printColumnSpace();
 
-        for (LinkedList<String> value : values) {
+        for (final LinkedList<String> value : values) {
             for (int j = 0; j < columnsNumber; j++) {
-                tmpValuesArray[j] = StringUtils.center(value.get(j), columnsSize[j]);
+                if (value.get(j) == null) {
+                    tmpValuesArray[j] = StringUtils.center("null", columnsSize[j]);
+                } else {
+                    tmpValuesArray[j] = StringUtils.center(value.get(j), columnsSize[j]);
+                }
             }
             System.out.format(tableContentFormat, tmpValuesArray);
         }
@@ -160,7 +164,7 @@ public final class Table {
 
         System.out.format(tableContentFormat, tmpValuesArray);
     }
-    
+
     public static class TableBuilder {
 
         private final LinkedList<String> headers = new LinkedList<>();

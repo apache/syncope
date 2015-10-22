@@ -16,15 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.cli.commands.configuration;
+package org.apache.syncope.client.cli.commands.notification;
 
 import org.apache.syncope.client.cli.SyncopeServices;
-import org.apache.syncope.common.rest.api.service.ConfigurationService;
+import org.apache.syncope.common.rest.api.service.NotificationService;
 
-public abstract class AbstractConfigurationCommand {
+public abstract class AbstractNotificationCommand {
 
-    protected final ConfigurationService configurationService = SyncopeServices.get(ConfigurationService.class);
-
-    protected final ConfigurationResultManager configurationResultManager = new ConfigurationResultManager();
+    protected final NotificationService notificationService = SyncopeServices.get(NotificationService.class);
+    
+    protected final NotificationResultManager notificationResultManager = new NotificationResultManager();
 
 }

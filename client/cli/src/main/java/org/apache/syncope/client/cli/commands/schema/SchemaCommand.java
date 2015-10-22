@@ -16,66 +16,81 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.cli.commands;
+package org.apache.syncope.client.cli.commands.schema;
 
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.cli.Command;
 import org.apache.syncope.client.cli.Input;
-import org.apache.syncope.client.cli.messages.Messages;
-import org.apache.syncope.client.cli.util.CommandUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.syncope.client.cli.commands.AbstractCommand;
 
-@Command(name = "help")
-public class HelpCommand extends AbstractCommand {
+@Command(name = "schema")
+public class SchemaCommand extends AbstractCommand {
 
-    private static final Logger LOG = LoggerFactory.getLogger(HelpCommand.class);
+    private static final String HELP_MESSAGE = "Usage: schema [options]\n"
+            + "  Options:\n"
+            + "    --help \n"
+            + "    --list-all\n"
+            + "    --list-plain\n"
+            + "    --list-derived\n"
+            + "    --list-virtual\n"
+            + "    --read {SCHEMA-TYPE} {SCHEMA-KEY}\n"
+            + "        Schema type: PLAIN / DERIVED / VIRTUAL\n"
+            + "    --delete {SCHEMA-TYPE} {SCHEMA-KEY}\n"
+            + "        Schema type: PLAIN / DERIVED / VIRTUAL";
 
     @Override
     public void execute(final Input input) {
-        LOG.debug("Option: {}", input.getOption());
-        LOG.debug("Parameters:");
-        for (final String parameter : input.getParameters()) {
-            LOG.debug("   > " + parameter);
-        }
-
         if (StringUtils.isBlank(input.getOption())) {
             input.setOption(Options.HELP.getOptionName());
         }
 
         switch (Options.fromName(input.getOption())) {
+            case LIST:
+                new SchemaList(input).list();
+                break;
+            case LIST_ALL:
+                new SchemaListAll().listAll();
+                break;
+            case LIST_PLAIN:
+                new SchemaListPlain().listPlain();
+                break;
+            case LIST_DERIVED:
+                new SchemaListDerived().listDerived();
+                break;
+            case LIST_VIRTUAL:
+                new SchemaListVirtual().listVirtual();
+                break;
+            case READ:
+                new SchemaRead(input).read();
+                break;
+            case DELETE:
+                new SchemaDelete(input).delete();
+                break;
             case HELP:
-                final StringBuilder generalHelpBuilder = new StringBuilder("General help\n");
-                try {
-                    for (final AbstractCommand command : CommandUtils.commands()) {
-                        generalHelpBuilder.append("Command: ")
-                                .append(command.getClass().getAnnotation(Command.class).name())
-                                .append("\n")
-                                .append(command.getHelpMessage())
-                                .append("\n")
-                                .append(" \n");
-                    }
-                    System.out.println(generalHelpBuilder.toString());
-                } catch (final IllegalAccessException | IllegalArgumentException | InstantiationException e) {
-                    Messages.printMessage(e.getMessage());
-                }
+                System.out.println(HELP_MESSAGE);
                 break;
             default:
-                Messages.printDefaultMessage(input.getOption(), CommandUtils.helpMessage("info", Options.toList()));
-                break;
+                new SchemaResultManager().defaultError(input.getOption(), HELP_MESSAGE);
         }
     }
 
     @Override
     public String getHelpMessage() {
-        return CommandUtils.helpMessage("help", Options.toList());
+        return HELP_MESSAGE;
     }
 
     private enum Options {
 
-        HELP("--print");
+        HELP("--help"),
+        LIST("--list"),
+        LIST_ALL("--list-all"),
+        LIST_PLAIN("--list-plain"),
+        LIST_DERIVED("--list-derived"),
+        LIST_VIRTUAL("--list-virtual"),
+        READ("--read"),
+        DELETE("--delete");
 
         private final String optionName;
 
@@ -109,5 +124,4 @@ public class HelpCommand extends AbstractCommand {
             return options;
         }
     }
-
 }

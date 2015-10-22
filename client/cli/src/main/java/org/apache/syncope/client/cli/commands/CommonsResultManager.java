@@ -19,8 +19,6 @@
 package org.apache.syncope.client.cli.commands;
 
 import org.apache.syncope.client.cli.messages.Messages;
-import org.apache.syncope.client.cli.util.CommandUtils;
-import org.apache.syncope.common.lib.types.LoggerLevel;
 
 public abstract class CommonsResultManager {
 
@@ -32,8 +30,12 @@ public abstract class CommonsResultManager {
         Messages.printNofFoundMessage(what, parameter);
     }
 
-    public void typeNotValidError(final String parameter) {
-        Messages.printTypeNotValidMessage("logger level", parameter, CommandUtils.fromEnumToArray(LoggerLevel.class));
+    public void notBooleanDeletedError(final String what, final String key) {
+        Messages.printNotBooleanDeletedMessage(what, key);
+    }
+
+    public void typeNotValidError(final String what, final String parameter, final String[] options) {
+        Messages.printTypeNotValidMessage(what, parameter, options);
     }
 
     public void commandOptionError(final String message) {

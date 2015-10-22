@@ -16,15 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.cli.commands.configuration;
+package org.apache.syncope.client.cli.commands.schema;
 
 import org.apache.syncope.client.cli.SyncopeServices;
-import org.apache.syncope.common.rest.api.service.ConfigurationService;
+import org.apache.syncope.common.rest.api.service.SchemaService;
 
-public abstract class AbstractConfigurationCommand {
+public abstract class AbstractSchemaCommand {
 
-    protected final ConfigurationService configurationService = SyncopeServices.get(ConfigurationService.class);
-
-    protected final ConfigurationResultManager configurationResultManager = new ConfigurationResultManager();
+    protected final SchemaService schemaService = SyncopeServices.get(SchemaService.class);
+    
+    protected final SchemaResultManager schemaResultManager = new SchemaResultManager();
 
 }
