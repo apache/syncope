@@ -22,6 +22,7 @@ import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
+import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.conf.Conf;
 import org.apache.syncope.core.persistence.jpa.entity.conf.JPACPlainAttr;
@@ -64,19 +65,22 @@ public class JPAConfDAO extends AbstractDAO<Conf, Long> implements ConfDAO {
     public CPlainAttr find(final String key, final String defaultValue) {
         CPlainAttr result = find(key);
         if (result == null) {
-            JPACPlainAttr newAttr = new JPACPlainAttr();
-            newAttr.setSchema(schemaDAO.find(key));
+            PlainSchema schema = schemaDAO.find(key);
+            if (schema != null) {
+                JPACPlainAttr newAttr = new JPACPlainAttr();
+                newAttr.setSchema(schemaDAO.find(key));
 
-            JPACPlainAttrValue attrValue;
-            if (newAttr.getSchema().isUniqueConstraint()) {
-                attrValue = new JPACPlainAttrValue();
-                ((PlainAttrUniqueValue) attrValue).setSchema(newAttr.getSchema());
-            } else {
-                attrValue = new JPACPlainAttrValue();
+                JPACPlainAttrValue attrValue;
+                if (newAttr.getSchema().isUniqueConstraint()) {
+                    attrValue = new JPACPlainAttrValue();
+                    ((PlainAttrUniqueValue) attrValue).setSchema(newAttr.getSchema());
+                } else {
+                    attrValue = new JPACPlainAttrValue();
+                }
+                newAttr.add(defaultValue, attrValue);
+
+                result = newAttr;
             }
-            newAttr.add(defaultValue, attrValue);
-
-            result = newAttr;
         }
 
         return result;

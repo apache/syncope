@@ -569,6 +569,7 @@ public class UserITCase extends AbstractITCase {
         UserTO userTO = userService.read(1L);
 
         assertNotNull(userTO);
+        assertNull(userTO.getPassword());
         assertNotNull(userTO.getPlainAttrs());
         assertFalse(userTO.getPlainAttrs().isEmpty());
     }
@@ -2352,14 +2353,15 @@ public class UserITCase extends AbstractITCase {
         userTO = createUser(userTO);
         assertNotNull(userTO);
 
-        connObjectTO =
-                resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), userTO.getKey());
+        connObjectTO = resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), userTO.getKey());
         assertNotNull(connObjectTO);
 
         // check if password has been correctly propagated on Syncope and resource-csv as usual
         assertEquals("passwordTESTNULL1", connObjectTO.getPlainAttrMap().
                 get(OperationalAttributes.PASSWORD_NAME).getValues().get(0));
-        assertNotNull(userTO.getPassword());
+        Pair<Map<String, Set<String>>, UserTO> self =
+                clientFactory.create(userTO.getUsername(), "passwordTESTNULL1").self();
+        assertNotNull(self);
 
         // 4. add password policy to resource with passwordNotStore to false --> must store password
         ResourceTO csv = resourceService.read(RESOURCE_NAME_CSV);

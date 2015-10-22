@@ -85,6 +85,12 @@ under the License.
   <CPlainAttr id="12" owner_id="1" schema_name="tasks.interruptMaxRetries"/>
   <CPlainAttrValue id="12" attribute_id="12" longValue="20"/>
 
+  <!-- Return hashed password values when reading users -->
+  <PlainSchema name="return.password.value" type="Boolean"
+               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <CPlainAttr id="14" owner_id="1" schema_name="return.password.value"/>
+  <CPlainAttrValue id="14" attribute_id="14" booleanValue="0"/>
+
   <AnyType name="USER" kind="USER"/>
   <AnyTypeClass name="BaseUser"/>
   <AnyType_AnyTypeClass anyType_name="USER" anyTypeClass_name="BaseUser"/>

@@ -121,7 +121,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
 
                     @Override
                     public UserTO transform(final User input) {
-                        return binder.getUserTO(input, details);
+                        return binder.returnUserTO(binder.getUserTO(input, details));
                     }
                 }, new ArrayList<UserTO>());
     }
@@ -131,14 +131,14 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
     public Pair<String, UserTO> readSelf() {
         return ImmutablePair.of(
                 POJOHelper.serialize(AuthContextUtils.getAuthorizations()),
-                binder.getAuthenticatedUserTO());
+                binder.returnUserTO(binder.getAuthenticatedUserTO()));
     }
 
     @PreAuthorize("hasRole('" + Entitlement.USER_READ + "')")
     @Transactional(readOnly = true)
     @Override
     public UserTO read(final Long key) {
-        return binder.getUserTO(key);
+        return binder.returnUserTO(binder.getUserTO(key));
     }
 
     @PreAuthorize("hasRole('" + Entitlement.USER_SEARCH + "')")
@@ -163,7 +163,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
 
             @Override
             public UserTO transform(final User input) {
-                return binder.getUserTO(input, details);
+                return binder.returnUserTO(binder.getUserTO(input, details));
             }
         }, new ArrayList<UserTO>());
     }
@@ -203,7 +203,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
         UserTO savedTO = binder.getUserTO(created.getKey());
         savedTO.getPropagationStatusTOs().addAll(created.getValue());
 
-        return afterCreate(savedTO, before.getValue());
+        return binder.returnUserTO(afterCreate(savedTO, before.getValue()));
     }
 
     @PreAuthorize("isAuthenticated() and not(hasRole('" + Entitlement.ANONYMOUS + "'))")
@@ -240,7 +240,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
         UserTO updatedTO = binder.getUserTO(updated.getKey());
         updatedTO.getPropagationStatusTOs().addAll(updated.getValue());
 
-        return afterUpdate(updatedTO, before.getRight());
+        return binder.returnUserTO(afterUpdate(updatedTO, before.getRight()));
     }
 
     protected Map.Entry<Long, List<PropagationStatus>> setStatusOnWfAdapter(final StatusPatch statusPatch) {
@@ -277,7 +277,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
         Map.Entry<Long, List<PropagationStatus>> updated = setStatusOnWfAdapter(statusPatch);
         UserTO savedTO = binder.getUserTO(updated.getKey());
         savedTO.getPropagationStatusTOs().addAll(updated.getValue());
-        return savedTO;
+        return binder.returnUserTO(savedTO);
     }
 
     @PreAuthorize("hasRole('" + Entitlement.MUST_CHANGE_PASSWORD + "')")
@@ -366,7 +366,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
         }
         deletedTO.getPropagationStatusTOs().addAll(statuses);
 
-        return afterDelete(deletedTO, before.getRight());
+        return binder.returnUserTO(afterDelete(deletedTO, before.getRight()));
     }
 
     @PreAuthorize("hasRole('" + Entitlement.USER_UPDATE + "')")
@@ -389,7 +389,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
             }
         }));
 
-        return binder.getUserTO(provisioningManager.unlink(patch));
+        return binder.returnUserTO(binder.getUserTO(provisioningManager.unlink(patch)));
     }
 
     @PreAuthorize("hasRole('" + Entitlement.USER_UPDATE + "')")
@@ -412,7 +412,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
             }
         }));
 
-        return binder.getUserTO(provisioningManager.link(patch));
+        return binder.returnUserTO(binder.getUserTO(provisioningManager.link(patch)));
     }
 
     @PreAuthorize("hasRole('" + Entitlement.USER_UPDATE + "')")
@@ -485,7 +485,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
 
         UserTO updatedTO = binder.getUserTO(key);
         updatedTO.getPropagationStatusTOs().addAll(statuses);
-        return updatedTO;
+        return binder.returnUserTO(updatedTO);
     }
 
     @PreAuthorize("hasRole('" + Entitlement.USER_UPDATE + "')")
@@ -504,7 +504,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
         securityChecks(effectiveRealms, user.getRealm(), user.getKey());
 
         user.getPropagationStatusTOs().addAll(provisioningManager.provision(key, changePwd, password, resources));
-        return user;
+        return binder.returnUserTO(user);
     }
 
     @Override
@@ -527,7 +527,8 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
 
         if ((key != null) && !key.equals(0L)) {
             try {
-                return key instanceof Long ? binder.getUserTO((Long) key) : binder.getUserTO((String) key);
+                return binder.returnUserTO(key instanceof Long
+                        ? binder.getUserTO((Long) key) : binder.getUserTO((String) key));
             } catch (Throwable ignore) {
                 LOG.debug("Unresolved reference", ignore);
                 throw new UnresolvedReferenceException(ignore);

@@ -101,6 +101,15 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
     @Transactional(readOnly = true)
     @Override
+    public UserTO returnUserTO(final UserTO userTO) {
+        if (!confDAO.find("return.password.value", "false").getValues().get(0).getBooleanValue()) {
+            userTO.setPassword(null);
+        }
+        return userTO;
+    }
+
+    @Transactional(readOnly = true)
+    @Override
     public UserTO getAuthenticatedUserTO() {
         final UserTO authUserTO;
 
