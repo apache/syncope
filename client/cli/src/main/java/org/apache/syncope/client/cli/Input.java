@@ -67,6 +67,10 @@ public class Input {
     public String firstParameter() {
         return parameters[0];
     }
+    
+    public String secondParameter() {
+        return parameters[1];
+    }
 
     public String lastParameter() {
         return parameters[parameters.length - 1];
