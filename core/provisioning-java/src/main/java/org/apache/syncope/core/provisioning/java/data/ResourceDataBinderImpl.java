@@ -299,10 +299,6 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
 
     @Override
     public ResourceTO getResourceTO(final ExternalResource resource) {
-        if (resource == null) {
-            return null;
-        }
-
         ResourceTO resourceTO = new ResourceTO();
 
         // set sys info
@@ -336,6 +332,14 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
 
             for (VirSchema virSchema : virSchemaDAO.findByProvision(provision)) {
                 provisionTO.getVirSchemas().add(virSchema.getKey());
+
+                MappingItem linkingMappingItem = virSchema.asLinkingMappingItem();
+
+                MappingItemTO itemTO = new MappingItemTO();
+                itemTO.setKey(linkingMappingItem.getKey());
+                BeanUtils.copyProperties(linkingMappingItem, itemTO, MAPPINGITEM_IGNORE_PROPERTIES);
+
+                provisionTO.getMapping().getLinkingItems().add(itemTO);
             }
 
             resourceTO.getProvisions().add(provisionTO);

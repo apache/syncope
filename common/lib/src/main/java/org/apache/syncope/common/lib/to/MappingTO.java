@@ -40,6 +40,8 @@ public class MappingTO extends AbstractBaseBean {
 
     private final List<MappingItemTO> items = new ArrayList<>();
 
+    private final List<MappingItemTO> linkingItems = new ArrayList<>();
+
     public String getConnObjectLink() {
         return connObjectLink;
     }
@@ -95,5 +97,12 @@ public class MappingTO extends AbstractBaseBean {
 
     public boolean remove(final MappingItemTO item) {
         return this.items.remove(item);
+    }
+
+    @XmlElementWrapper(name = "linkingItems")
+    @XmlElement(name = "item")
+    @JsonProperty("linkingItems")
+    public List<MappingItemTO> getLinkingItems() {
+        return linkingItems;
     }
 }

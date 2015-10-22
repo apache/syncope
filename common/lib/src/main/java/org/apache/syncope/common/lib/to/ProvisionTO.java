@@ -43,7 +43,7 @@ public class ProvisionTO extends AbstractBaseBean {
 
     private MappingTO mapping;
 
-    private List<String> virSchemas = new ArrayList<>();
+    private final List<String> virSchemas = new ArrayList<>();
 
     public long getKey() {
         return key;

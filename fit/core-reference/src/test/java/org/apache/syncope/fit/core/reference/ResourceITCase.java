@@ -453,8 +453,13 @@ public class ResourceITCase extends AbstractITCase {
 
     @Test
     public void read() {
-        ResourceTO actual = resourceService.read(RESOURCE_NAME_TESTDB);
-        assertNotNull(actual);
+        ResourceTO resource = resourceService.read(RESOURCE_NAME_DBVIRATTR);
+        assertNotNull(resource);
+        
+        ProvisionTO provision = resource.getProvision(AnyTypeKind.USER.name());
+        assertNotNull(provision);
+        assertFalse(provision.getMapping().getItems().isEmpty());
+        assertFalse(provision.getMapping().getLinkingItems().isEmpty());
     }
 
     @Test
