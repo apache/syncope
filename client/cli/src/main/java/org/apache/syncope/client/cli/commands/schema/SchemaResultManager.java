@@ -21,7 +21,7 @@ package org.apache.syncope.client.cli.commands.schema;
 import java.util.Arrays;
 import java.util.LinkedList;
 import org.apache.syncope.client.cli.commands.CommonsResultManager;
-import org.apache.syncope.client.cli.messages.Table;
+import org.apache.syncope.client.cli.view.Table;
 import org.apache.syncope.common.lib.to.AbstractSchemaTO;
 import org.apache.syncope.common.lib.to.DerSchemaTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;

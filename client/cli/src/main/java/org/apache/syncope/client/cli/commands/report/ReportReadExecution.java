@@ -16,41 +16,47 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.cli.commands.notification;
+package org.apache.syncope.client.cli.commands.report;
 
+import java.util.ArrayList;
+import java.util.List;
 import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
-import org.apache.syncope.client.cli.view.Messages;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.to.ReportExecTO;
 
-public class NotificationDelete extends AbstractNotificationCommand {
+public class ReportReadExecution extends AbstractReportCommand {
 
-    private static final String DELETE_HELP_MESSAGE = "notification --delete {NOTIFICATION-ID} {NOTIFICATION-ID} [...]";
+    private static final String READ_EXECUTION_HELP_MESSAGE
+            = "report --read-execution {EXECUTION-ID} {EXECUTION-ID} [...]";
 
     private final Input input;
 
-    public NotificationDelete(final Input input) {
+    public ReportReadExecution(final Input input) {
         this.input = input;
     }
 
-    public void delete() {
+    public void read() {
         if (input.parameterNumber() >= 1) {
+            final List<ReportExecTO> reportExecTOs = new ArrayList<>();
             for (final String parameter : input.getParameters()) {
                 try {
-                    notificationService.delete(Long.valueOf(parameter));
-                    notificationResultManager.deletedMessage("Notification", parameter);
+                    reportExecTOs.add(reportService.readExecution(Long.valueOf(parameter)));
                 } catch (final WebServiceException | SyncopeClientException ex) {
+                    System.out.println("Error:");
                     if (ex.getMessage().startsWith("NotFound")) {
-                        notificationResultManager.notFoundError("Notification", parameter);
+                        reportResultManager.notFoundError("Report", parameter);
                     } else {
-                        Messages.printMessage(ex.getMessage());
+                        reportResultManager.generic(ex.getMessage());
                     }
                 } catch (final NumberFormatException ex) {
-                    notificationResultManager.notBooleanDeletedError("notification", parameter);
+                    reportResultManager.managerNumberFormatException("report", parameter);
                 }
             }
+            reportResultManager.printReportExecution(reportExecTOs);
         } else {
-            notificationResultManager.commandOptionError(DELETE_HELP_MESSAGE);
+            reportResultManager.commandOptionError(READ_EXECUTION_HELP_MESSAGE);
         }
     }
+
 }

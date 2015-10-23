@@ -81,7 +81,7 @@ public class PolicyResultManager extends CommonsResultManager {
     }
 
     public void printAccountPolicy(final AccountPolicyTO policyTO) {
-        System.out.println(" > KEY: " + String.valueOf(policyTO.getKey()));
+        System.out.println(" > KEY: " + policyTO.getKey());
         System.out.println("    type: " + policyTO.getType().name());
         System.out.println("    description: " + policyTO.getDescription());
         System.out.println("    resources : " + policyTO.getUsedByResources().toString());
@@ -93,7 +93,7 @@ public class PolicyResultManager extends CommonsResultManager {
     }
 
     public void printPasswordPolicy(final PasswordPolicyTO policyTO) {
-        System.out.println(" > KEY: " + String.valueOf(policyTO.getKey()));
+        System.out.println(" > KEY: " + policyTO.getKey());
         System.out.println("    type: " + policyTO.getType().name());
         System.out.println("    description: " + policyTO.getDescription());
         System.out.println("    resources : " + policyTO.getUsedByResources().toString());
@@ -105,7 +105,7 @@ public class PolicyResultManager extends CommonsResultManager {
     }
 
     public void printSyncPolicy(final SyncPolicyTO policyTO) {
-        System.out.println(" > KEY: " + String.valueOf(policyTO.getKey()));
+        System.out.println(" > KEY: " + policyTO.getKey());
         System.out.println("    type: " + policyTO.getType().name());
         System.out.println("    description: " + policyTO.getDescription());
         System.out.println("    resources : " + policyTO.getUsedByResources().toString());
