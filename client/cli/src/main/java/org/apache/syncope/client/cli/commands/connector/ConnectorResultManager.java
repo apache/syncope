@@ -76,22 +76,6 @@ public class ConnectorResultManager extends CommonsResultManager {
         }
     }
 
-    private void printConfiguration(final Set<ConnConfProperty> configurationPropertys) {
-        for (final ConnConfProperty configuration : configurationPropertys) {
-            System.out.println("       name: " + configuration.getSchema().getName());
-            System.out.println("       values: " + configuration.getValues());
-            System.out.println("       type: " + configuration.getSchema().getType());
-            System.out.println("       display name: " + configuration.getSchema().getDisplayName());
-            System.out.println("       help message: " + configuration.getSchema().getHelpMessage());
-            System.out.println("       order: " + configuration.getSchema().getOrder());
-            System.out.println("       default values: " + configuration.getSchema().getDefaultValues());
-            System.out.println("       confidential: " + configuration.getSchema().isConfidential());
-            System.out.println("       required: " + configuration.getSchema().isRequired());
-            System.out.println("       overridable: " + configuration.isOverridable());
-            System.out.println("");
-        }
-    }
-
     private void printConfPool(final ConnPoolConfTO connPoolConfTO) {
         System.out.println("       min idle: " + connPoolConfTO.getMinIdle());
         System.out.println("       min evictlable idle: " + connPoolConfTO.getMinEvictableIdleTimeMillis());

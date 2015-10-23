@@ -18,7 +18,9 @@
  */
 package org.apache.syncope.client.cli.commands;
 
+import java.util.Set;
 import org.apache.syncope.client.cli.view.Messages;
+import org.apache.syncope.common.lib.types.ConnConfProperty;
 
 public abstract class CommonsResultManager {
 
@@ -52,5 +54,21 @@ public abstract class CommonsResultManager {
 
     public void generic(final String... messages) {
         Messages.printMessage(messages);
+    }
+    
+    protected void printConfiguration(final Set<ConnConfProperty> configurationPropertys) {
+        for (final ConnConfProperty configuration : configurationPropertys) {
+            System.out.println("       name: " + configuration.getSchema().getName());
+            System.out.println("       values: " + configuration.getValues());
+            System.out.println("       type: " + configuration.getSchema().getType());
+            System.out.println("       display name: " + configuration.getSchema().getDisplayName());
+            System.out.println("       help message: " + configuration.getSchema().getHelpMessage());
+            System.out.println("       order: " + configuration.getSchema().getOrder());
+            System.out.println("       default values: " + configuration.getSchema().getDefaultValues());
+            System.out.println("       confidential: " + configuration.getSchema().isConfidential());
+            System.out.println("       required: " + configuration.getSchema().isRequired());
+            System.out.println("       overridable: " + configuration.isOverridable());
+            System.out.println("");
+        }
     }
 }
