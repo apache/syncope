@@ -397,7 +397,7 @@ public class ConnectorITCase extends AbstractITCase {
 
     @Test
     public void getConnectorConfiguration() {
-        List<ConnConfProperty> props = connectorService.getConfigurationProperties(104L);
+        Set<ConnConfProperty> props = connectorService.read(104L, Locale.ENGLISH.getLanguage()).getConfiguration();
         assertNotNull(props);
         assertFalse(props.isEmpty());
     }
@@ -541,13 +541,13 @@ public class ConnectorITCase extends AbstractITCase {
     public void getSchemaNames() {
         ConnInstanceTO conn = connectorService.read(101L, Locale.ENGLISH.getLanguage());
 
-        List<PlainSchemaTO> schemaNames = connectorService.getSchemaNames(conn.getKey(), conn, true);
+        List<PlainSchemaTO> schemaNames = connectorService.buildSchemaNames(conn, true);
         assertNotNull(schemaNames);
         assertFalse(schemaNames.isEmpty());
         assertNotNull(schemaNames.get(0).getKey());
         assertNull(schemaNames.get(0).getEnumerationValues());
 
-        schemaNames = connectorService.getSchemaNames(conn.getKey(), conn, false);
+        schemaNames = connectorService.buildSchemaNames(conn, false);
 
         assertNotNull(schemaNames);
         assertEquals(1, schemaNames.size());
@@ -557,7 +557,7 @@ public class ConnectorITCase extends AbstractITCase {
         // to be used with overridden properties
         conn.getConfiguration().clear();
 
-        schemaNames = connectorService.getSchemaNames(conn.getKey(), conn, true);
+        schemaNames = connectorService.buildSchemaNames(conn, true);
         assertNotNull(schemaNames);
         assertFalse(schemaNames.isEmpty());
     }
@@ -567,7 +567,7 @@ public class ConnectorITCase extends AbstractITCase {
         ConnInstanceTO ldap = connectorService.read(105L, Locale.ENGLISH.getLanguage());
         assertNotNull(ldap);
 
-        List<ConnIdObjectClass> objectClasses = connectorService.getSupportedObjectClasses(ldap.getKey(), ldap);
+        List<ConnIdObjectClass> objectClasses = connectorService.buildSupportedObjectClasses(ldap);
         assertNotNull(objectClasses);
         assertEquals(2, objectClasses.size());
         assertTrue(objectClasses.contains(
@@ -578,7 +578,7 @@ public class ConnectorITCase extends AbstractITCase {
         ConnInstanceTO csv = connectorService.read(104L, Locale.ENGLISH.getLanguage());
         assertNotNull(csv);
 
-        objectClasses = connectorService.getSupportedObjectClasses(csv.getKey(), csv);
+        objectClasses = connectorService.buildSupportedObjectClasses(csv);
         assertNotNull(objectClasses);
         assertEquals(1, objectClasses.size());
         assertTrue(objectClasses.contains(

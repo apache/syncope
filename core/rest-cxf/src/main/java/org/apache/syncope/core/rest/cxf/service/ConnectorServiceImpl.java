@@ -19,17 +19,13 @@
 package org.apache.syncope.core.rest.cxf.service;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 import javax.ws.rs.core.Response;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ConnBundleTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
-import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.wrap.ConnIdObjectClass;
 import org.apache.syncope.common.rest.api.CollectionWrapper;
 import org.apache.syncope.common.rest.api.RESTHeaders;
@@ -64,35 +60,13 @@ public class ConnectorServiceImpl extends AbstractServiceImpl implements Connect
     }
 
     @Override
-    public List<ConnConfProperty> getConfigurationProperties(final Long key) {
-        return logic.getConfigurationProperties(key);
+    public List<PlainSchemaTO> buildSchemaNames(final ConnInstanceTO connInstanceTO, final boolean includeSpecial) {
+        return logic.buildSchemaNames(connInstanceTO, includeSpecial);
     }
 
     @Override
-    public List<PlainSchemaTO> getSchemaNames(final Long key, final ConnInstanceTO connInstanceTO,
-            final boolean includeSpecial) {
-
-        connInstanceTO.setKey(key);
-
-        return CollectionUtils.collect(logic.getSchemaNames(connInstanceTO, includeSpecial),
-                new Transformer<String, PlainSchemaTO>() {
-
-                    @Override
-                    public PlainSchemaTO transform(final String name) {
-                        PlainSchemaTO schemaTO = new PlainSchemaTO();
-                        schemaTO.setKey(name);
-                        return schemaTO;
-                    }
-                }, new ArrayList<PlainSchemaTO>());
-    }
-
-    @Override
-    public List<ConnIdObjectClass> getSupportedObjectClasses(final Long key,
-            final ConnInstanceTO connInstanceTO) {
-
-        connInstanceTO.setKey(key);
-
-        return CollectionWrapper.wrap(logic.getSupportedObjectClasses(connInstanceTO), ConnIdObjectClass.class);
+    public List<ConnIdObjectClass> buildSupportedObjectClasses(final ConnInstanceTO connInstanceTO) {
+        return CollectionWrapper.wrap(logic.buildSupportedObjectClasses(connInstanceTO), ConnIdObjectClass.class);
     }
 
     @Override

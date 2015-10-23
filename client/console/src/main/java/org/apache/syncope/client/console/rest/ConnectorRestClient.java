@@ -108,24 +108,6 @@ public class ConnectorRestClient extends BaseRestClient {
         return bundles;
     }
 
-    /**
-     * Get all configuration properties for the given connector instance.
-     *
-     * @param connectorId the connector id
-     * @return List of ConnConfProperty, or an empty list in case none found
-     */
-    public List<ConnConfProperty> getConnectorProperties(final Long connectorId) {
-        List<ConnConfProperty> properties = null;
-
-        try {
-            properties = getService(ConnectorService.class).getConfigurationProperties(connectorId);
-        } catch (SyncopeClientException e) {
-            LOG.error("While getting connector configuration properties", e);
-        }
-
-        return properties;
-    }
-
     private Set<ConnConfProperty> filterProperties(final Set<ConnConfProperty> properties) {
         Set<ConnConfProperty> newProperties = new HashSet<>();
 
@@ -185,8 +167,7 @@ public class ConnectorRestClient extends BaseRestClient {
     public List<String> getSchemaNames(final ConnInstanceTO connectorTO) {
         List<String> schemaNames = new ArrayList<>();
         try {
-            List<PlainSchemaTO> response = getService(ConnectorService.class).
-                    getSchemaNames(connectorTO.getKey(), connectorTO, false);
+            List<PlainSchemaTO> response = getService(ConnectorService.class).buildSchemaNames(connectorTO, false);
             for (PlainSchemaTO schema : response) {
                 schemaNames.add(schema.getKey());
             }
@@ -203,7 +184,7 @@ public class ConnectorRestClient extends BaseRestClient {
     public List<ConnIdObjectClass> getSupportedObjectClasses(final ConnInstanceTO connectorTO) {
         List<ConnIdObjectClass> result = Collections.emptyList();
         try {
-            result = getService(ConnectorService.class).getSupportedObjectClasses(connectorTO.getKey(), connectorTO);
+            result = getService(ConnectorService.class).buildSupportedObjectClasses(connectorTO);
         } catch (Exception e) {
             LOG.error("While getting supported object classes", e);
         }

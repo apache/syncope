@@ -116,7 +116,7 @@ public class ResourceConnConfPanel extends Panel {
         List<ConnConfProperty> props = new ArrayList<>();
         Long connectorKey = resourceTO.getConnector();
         if (connectorKey != null && connectorKey > 0) {
-            for (ConnConfProperty property : restClient.getConnectorProperties(connectorKey)) {
+            for (ConnConfProperty property : restClient.read(connectorKey).getConfiguration()) {
                 if (property.isOverridable()) {
                     props.add(property);
                 }

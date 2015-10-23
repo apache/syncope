@@ -33,6 +33,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ConnBundleTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
+import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.Entitlement;
@@ -204,7 +205,7 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
 
     @PreAuthorize("hasRole('" + Entitlement.CONNECTOR_READ + "')")
     @Transactional(readOnly = true)
-    public List<String> getSchemaNames(final ConnInstanceTO connInstanceTO, final boolean includeSpecial) {
+    public List<PlainSchemaTO> buildSchemaNames(final ConnInstanceTO connInstanceTO, final boolean includeSpecial) {
         ConnInstance connInstance = connInstanceDAO.find(connInstanceTO.getKey());
         if (connInstance == null) {
             throw new NotFoundException("Connector '" + connInstanceTO.getKey() + "'");
@@ -217,12 +218,22 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
         // We cannot use Spring bean because this method could be used during resource definition or modification:
         // bean couldn't exist or couldn't be updated.
         // This is the reason why we should take a "not mature" connector facade proxy to ask for schema names.
-        return new ArrayList<>(connFactory.createConnector(connInstance, conf).getSchemaNames(includeSpecial));
+        Set<String> schemaNames = connFactory.createConnector(connInstance, conf).getSchemaNames(includeSpecial);
+
+        return CollectionUtils.collect(schemaNames, new Transformer<String, PlainSchemaTO>() {
+
+            @Override
+            public PlainSchemaTO transform(final String name) {
+                PlainSchemaTO schemaTO = new PlainSchemaTO();
+                schemaTO.setKey(name);
+                return schemaTO;
+            }
+        }, new ArrayList<PlainSchemaTO>());
     }
 
     @PreAuthorize("hasRole('" + Entitlement.CONNECTOR_READ + "')")
     @Transactional(readOnly = true)
-    public List<String> getSupportedObjectClasses(final ConnInstanceTO connInstanceTO) {
+    public List<String> buildSupportedObjectClasses(final ConnInstanceTO connInstanceTO) {
         ConnInstance connInstance = connInstanceDAO.find(connInstanceTO.getKey());
         if (connInstance == null) {
             throw new NotFoundException("Connector '" + connInstanceTO.getKey() + "'");
@@ -237,24 +248,13 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
         // This is the reason why we should take a "not mature" connector facade proxy to ask for object classes.
         Set<ObjectClass> objectClasses = connFactory.createConnector(connInstance, conf).getSupportedObjectClasses();
 
-        List<String> result = new ArrayList<>(objectClasses.size());
-        for (ObjectClass objectClass : objectClasses) {
-            result.add(objectClass.getObjectClassValue());
-        }
+        return CollectionUtils.collect(objectClasses, new Transformer<ObjectClass, String>() {
 
-        return result;
-    }
-
-    @PreAuthorize("hasRole('" + Entitlement.CONNECTOR_READ + "')")
-    @Transactional(readOnly = true)
-    public List<ConnConfProperty> getConfigurationProperties(final Long connInstanceKey) {
-
-        ConnInstance connInstance = connInstanceDAO.find(connInstanceKey);
-        if (connInstance == null) {
-            throw new NotFoundException("Connector '" + connInstanceKey + "'");
-        }
-
-        return new ArrayList<>(connInstance.getConfiguration());
+            @Override
+            public String transform(final ObjectClass objectClass) {
+                return objectClass.getObjectClassValue();
+            }
+        }, new ArrayList<String>());
     }
 
     @PreAuthorize("hasRole('" + Entitlement.CONNECTOR_READ + "')")

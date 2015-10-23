@@ -37,7 +37,6 @@ import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ConnBundleTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
-import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.wrap.ConnIdObjectClass;
 
 /**
@@ -58,47 +57,36 @@ public interface ConnectorService extends JAXRSService {
     List<ConnBundleTO> getBundles(@QueryParam("lang") String lang);
 
     /**
-     * Returns configuration for given connector instance.
+     * Builds the list of schema names managed by the connector bundle matching the given connector instance key, with
+     * the provided configuration.
      *
-     * @param key connector instance key to read configuration from
-     * @return configuration for given connector instance
-     */
-    @GET
-    @Path("{key}/configuration")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    List<ConnConfProperty> getConfigurationProperties(@NotNull @PathParam("key") Long key);
-
-    /**
-     * Returns schema names for connector bundle matching the given connector instance key.
-     *
-     * @param key connector instance key to be used for schema lookup
-     * @param connInstanceTO connector instance object to provide special configuration properties
+     * @param connInstanceTO connector instance object providing configuration properties
      * @param includeSpecial if set to true, special schema names (like '__PASSWORD__') will be included;
      * default is false
-     * @return schema names for connector bundle matching the given connector instance key
+     * @return schema names for the connector bundle matching the given connector instance key, with the provided
+     * configuration
      */
     @POST
     @Path("{key}/schemaNames")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    List<PlainSchemaTO> getSchemaNames(@NotNull @PathParam("key") Long key,
+    List<PlainSchemaTO> buildSchemaNames(
             @NotNull ConnInstanceTO connInstanceTO,
             @QueryParam("includeSpecial") @DefaultValue("false") boolean includeSpecial);
 
     /**
-     * Returns supported object classes for connector bundle matching the given connector instance key.
+     * Builds the list of supported ConnId object classes for the connector bundle matching the given connector instance
+     * key, with the provided configuration.
      *
-     * @param key connector instance key to be used for schema lookup
-     * @param connInstanceTO connector instance object to provide special configuration properties
-     * @return supported object classes for connector bundle matching the given connector instance key
+     * @param connInstanceTO connector instance object providing configuration properties
+     * @return supported object classes for the connector bundle matching the given connector instance key, with the
+     * provided configuration
      */
     @POST
     @Path("{key}/supportedObjectClasses")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    List<ConnIdObjectClass> getSupportedObjectClasses(
-            @NotNull @PathParam("key") Long key,
-            @NotNull ConnInstanceTO connInstanceTO);
+    List<ConnIdObjectClass> buildSupportedObjectClasses(@NotNull ConnInstanceTO connInstanceTO);
 
     /**
      * Returns connector instance with matching key.

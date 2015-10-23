@@ -58,13 +58,14 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
     private EntityFactory entityFactory;
 
     @Override
-    public Set<ConnConfProperty> mergeConnConfProperties(final Set<ConnConfProperty> primary,
+    public Set<ConnConfProperty> mergeConnConfProperties(
+            final Set<ConnConfProperty> primary,
             final Set<ConnConfProperty> secondary) {
 
-        final Set<ConnConfProperty> conf = new HashSet<>();
+        Set<ConnConfProperty> conf = new HashSet<>();
 
         // to be used to control managed prop (needed by overridden mechanism)
-        final Set<String> propertyNames = new HashSet<>();
+        Set<String> propertyNames = new HashSet<>();
 
         // get overridden connector configuration properties
         for (ConnConfProperty prop : primary) {
@@ -232,7 +233,7 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
                 property = new ConnConfProperty();
                 connInstanceTO.getConfiguration().add(property);
             }
-            
+
             property.setSchema(schema);
         }
 
