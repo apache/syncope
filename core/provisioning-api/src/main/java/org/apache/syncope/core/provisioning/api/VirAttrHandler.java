@@ -18,56 +18,32 @@
  */
 package org.apache.syncope.core.provisioning.api;
 
-import java.util.Collection;
-import org.apache.syncope.common.lib.patch.AttrPatch;
-import org.apache.syncope.common.lib.to.AttrTO;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.IntMappingType;
-import org.apache.syncope.common.lib.types.PropagationByResource;
+import java.util.List;
+import java.util.Map;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 
 public interface VirAttrHandler {
 
     /**
-     * Create and add virtual attributes to any.
-     *
-     * @param any any
-     * @param vAttrs virtual attributes to be added.
-     */
-    void createVirtual(Any any, Collection<AttrTO> vAttrs);
-
-    /**
-     * Update virtual attributes to any.
-     *
-     * @param any
-     * @param vAttrs virtual attributes to be updated.
-     * @return operations to be performed on external resources for virtual attributes changes
-     */
-    PropagationByResource updateVirtual(Any any, Collection<AttrPatch> vAttrs);
-
-    /**
-     * Update virtual attributes to any identified by the given {@code key}.
-     *
-     * @param key any key
-     * @param anyTypeKind type kind
-     * @param vAttrs virtual attributes to be updated.
-     * @return operations to be performed on external resources for virtual attributes changes
-     */
-    PropagationByResource updateVirtual(Long key, AnyTypeKind anyTypeKind, Collection<AttrPatch> vAttrs);
-
-    VirSchema getVirSchema(String virSchemaName);
-
-    /**
-     * Query connected external resources for values to populated virtual attributes associated with the given owner.
+     * Query external resource (or cache, if configured) associated to the given any for values associated to the given
+     * virtual schema.
      *
      * @param any any object
+     * @param schema virtual schema
+     * @return virtual attribute values, either for local cache or external resource, if resource is owned by the given
+     * any and associated to the given virtual schema; empty list otherwise.
      */
-    void retrieveVirAttrValues(Any<?, ?, ?> any);
+    List<String> getValues(Any<?, ?> any, VirSchema schema);
 
-    void updateOnResourcesIfMappingMatches(
-            Any<?, ?, ?> any, String schemaKey, Iterable<? extends ExternalResource> resources,
-            IntMappingType mappingType, PropagationByResource propByRes);
+    /**
+     * Query external resources (or cache, if configured) associated to the given any for values associated to all
+     * {@link VirSchema} instances in the {@link org.apache.syncope.core.persistence.api.entity.AnyTypeClass}
+     * associated to the given any.
+     *
+     * @param any any object
+     * @return virtual attribute values, either for local cache or external resources
+     */
+    Map<VirSchema, List<String>> getValues(Any<?, ?> any);
 
 }

@@ -26,7 +26,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.collections4.Transformer;
@@ -51,8 +50,6 @@ import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.provisioning.api.GroupProvisioningManager;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
-import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
-import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.misc.security.AuthContextUtils;
 import org.apache.syncope.core.misc.security.DelegatedAdministrationException;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
@@ -80,15 +77,6 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
 
     @Autowired
     protected GroupDataBinder binder;
-
-    @Autowired
-    protected PropagationManager propagationManager;
-
-    @Autowired
-    protected PropagationTaskExecutor taskExecutor;
-
-    @Resource(name = "anonymousUser")
-    protected String anonymousUser;
 
     @Autowired
     protected GroupProvisioningManager provisioningManager;

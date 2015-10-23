@@ -92,12 +92,11 @@ public interface TaskService extends JAXRSService {
      * Creates a new task.
      *
      * @param taskTO task to be created
-     * @param <T> type of taskTO
-     * @return <tt>Response</tt> object featuring <tt>Location</tt> header of created task
+     * @return Response object featuring Location header of created task
      */
     @POST
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    <T extends SchedTaskTO> Response create(@NotNull T taskTO);
+    Response create(@NotNull SchedTaskTO taskTO);
 
     /**
      * Updates the task matching the provided key.

@@ -26,7 +26,7 @@ public interface AnyUtils {
 
     AnyTypeKind getAnyTypeKind();
 
-    <T extends Any<?, ?, ?>> Class<T> anyClass();
+    <T extends Any<?, ?>> Class<T> anyClass();
 
     <T extends PlainAttr<?>> Class<T> plainAttrClass();
 
@@ -43,10 +43,6 @@ public interface AnyUtils {
     <T extends DerAttr<?>> Class<T> derAttrClass();
 
     <T extends DerAttr<?>> T newDerAttr();
-
-    <T extends VirAttr<?>> Class<T> virAttrClass();
-
-    <T extends VirAttr<?>> T newVirAttr();
 
     IntMappingType plainIntMappingType();
 

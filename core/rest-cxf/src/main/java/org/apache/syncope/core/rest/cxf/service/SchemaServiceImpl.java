@@ -36,8 +36,8 @@ public class SchemaServiceImpl extends AbstractServiceImpl implements SchemaServ
     private SchemaLogic logic;
 
     @Override
-    public <T extends AbstractSchemaTO> Response create(final SchemaType schemaType, final T schemaTO) {
-        T created = logic.create(schemaType, schemaTO);
+    public Response create(final SchemaType schemaType, final AbstractSchemaTO schemaTO) {
+        AbstractSchemaTO created = logic.create(schemaType, schemaTO);
 
         URI location = uriInfo.getAbsolutePathBuilder().path(created.getKey()).build();
         return Response.created(location).
@@ -61,7 +61,7 @@ public class SchemaServiceImpl extends AbstractServiceImpl implements SchemaServ
     }
 
     @Override
-    public <T extends AbstractSchemaTO> void update(final SchemaType schemaType, final T schemaTO) {
+    public void update(final SchemaType schemaType, final AbstractSchemaTO schemaTO) {
         logic.update(schemaType, schemaTO);
     }
 }

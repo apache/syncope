@@ -64,7 +64,6 @@ import org.apache.syncope.core.persistence.api.entity.group.GDerAttr;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrValue;
-import org.apache.syncope.core.persistence.api.entity.group.GVirAttr;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
@@ -85,7 +84,6 @@ import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.user.URelationship;
-import org.apache.syncope.core.persistence.api.entity.user.UVirAttr;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAADynGroupMembership;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAMembership;
@@ -102,7 +100,6 @@ import org.apache.syncope.core.persistence.jpa.entity.group.JPAGDerAttr;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttr;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttrValue;
-import org.apache.syncope.core.persistence.jpa.entity.group.JPAGVirAttr;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAMapping;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAMappingItem;
@@ -122,7 +119,6 @@ import org.apache.syncope.core.persistence.jpa.entity.user.JPAUPlainAttr;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUPlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUPlainAttrValue;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAURelationship;
-import org.apache.syncope.core.persistence.jpa.entity.user.JPAUVirAttr;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 import org.springframework.stereotype.Component;
 
@@ -202,8 +198,6 @@ public class JPAEntityFactory implements EntityFactory {
             result = (T) new JPAUDerAttr();
         } else if (reference.equals(VirSchema.class)) {
             result = (T) new JPAVirSchema();
-        } else if (reference.equals(UVirAttr.class)) {
-            result = (T) new JPAUVirAttr();
         } else if (reference.equals(Mapping.class)) {
             result = (T) new JPAMapping();
         } else if (reference.equals(MappingItem.class)) {
@@ -216,8 +210,6 @@ public class JPAEntityFactory implements EntityFactory {
             result = (T) new JPAGPlainAttrUniqueValue();
         } else if (reference.equals(GDerAttr.class)) {
             result = (T) new JPAGDerAttr();
-        } else if (reference.equals(GVirAttr.class)) {
-            result = (T) new JPAGVirAttr();
         } else if (reference.equals(CPlainAttr.class)) {
             result = (T) new JPACPlainAttr();
         } else if (reference.equals(CPlainAttrValue.class)) {

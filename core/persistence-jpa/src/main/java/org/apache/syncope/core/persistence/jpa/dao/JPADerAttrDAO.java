@@ -78,7 +78,7 @@ public class JPADerAttrDAO extends AbstractDAO<DerAttr<?>, Long> implements DerA
     @SuppressWarnings("unchecked")
     public <T extends DerAttr<?>> void delete(final T derAttr) {
         if (derAttr.getOwner() != null) {
-            ((Any<?, T, ?>) derAttr.getOwner()).remove(derAttr);
+            ((Any<?, T>) derAttr.getOwner()).remove(derAttr);
         }
 
         entityManager().remove(derAttr);

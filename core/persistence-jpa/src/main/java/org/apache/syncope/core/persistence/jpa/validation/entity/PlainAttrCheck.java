@@ -33,7 +33,7 @@ import javax.validation.Payload;
 @Documented
 public @interface PlainAttrCheck {
 
-    String message() default "{org.apache.syncope.syncope.validation.attr}";
+    String message() default "{org.apache.syncope.core.persistence.validation.attr}";
 
     Class<?>[] groups() default {};
 

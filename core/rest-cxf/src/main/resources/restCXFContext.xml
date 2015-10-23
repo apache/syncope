@@ -76,23 +76,55 @@ under the License.
     <property name="provider" ref="validationProvider"/>
   </bean>   
   
-  <bean id="searchContextProvider" class="org.apache.cxf.jaxrs.ext.search.SearchContextProvider"/>
+  <bean id="gzipInInterceptor" class="org.apache.cxf.transport.common.gzip.GZIPInInterceptor"/>
+  <bean id="gzipOutInterceptor" class="org.apache.cxf.transport.common.gzip.GZIPOutInterceptor">
+    <property name="threshold" value="0"/>
+    <property name="force" value="true"/>
+  </bean>
   
+  <bean id="searchContextProvider" class="org.apache.cxf.jaxrs.ext.search.SearchContextProvider"/>
+    
   <bean id="addDomainFilter" class="org.apache.syncope.core.rest.cxf.AddDomainFilter"/>
   <bean id="addETagFilter" class="org.apache.syncope.core.rest.cxf.AddETagFilter"/>
   
+  <bean id="wadlGenerator" class="org.apache.cxf.jaxrs.model.wadl.WadlGenerator">
+    <property name="applicationTitle" value="Apache Syncope ${syncope.version}"/>
+    <property name="namespacePrefix" value="syncope"/>
+    <property name="linkAnyMediaTypeToXmlSchema" value="true"/>
+    <property name="useJaxbContextForQnames" value="true"/>
+    <property name="addResourceAndMethodIds" value="true"/>
+    <property name="ignoreMessageWriters" value="true"/>
+    <property name="usePathParamsToCompareOperations" value="false"/>
+    <property name="javaDocPath" value="/WEB-INF/lib/syncope-common-rest-api-${syncope.version}-javadoc.jar"/>
+  </bean>
+  
+  <bean id="swagger2Feature" class="org.apache.cxf.jaxrs.swagger.Swagger2Feature">
+    <property name="title" value="Apache Syncope"/>
+    <property name="version" value="${syncope.version}"/>
+    <property name="description" value="Apache Syncope ${syncope.version}"/>    
+    <property name="contact" value="dev@syncope.apache.org"/>    
+    
+    <property name="resourcePackage" value="org.apache.syncope.common.rest.api.service"/>
+    <property name="scanAllResources" value="true"/>
+    
+    <property name="dynamicBasePath" value="true"/>
+    <property name="replaceTags" value="true"/>
+    <property name="javaDocPath" value="/WEB-INF/lib/syncope-common-rest-api-${syncope.version}-javadoc.jar"/>
+  </bean>
+
   <jaxrs:server id="restContainer" address="/"
                 basePackages="org.apache.syncope.common.rest.api.service, org.apache.syncope.core.rest.cxf.service" 
-                staticSubresourceResolution="true"
-                docLocation="classpath:/META-INF/resources/doc/syncope.wadl">
+                staticSubresourceResolution="true">
     <jaxrs:properties> 
       <entry key="search.lax.property.match" value="true"/> 
       <entry key="convert.wadl.resources.to.dom" value="false"/>
     </jaxrs:properties> 
     <jaxrs:inInterceptors>
+      <ref bean="gzipInInterceptor"/>
       <ref bean="validationInInterceptor"/>
     </jaxrs:inInterceptors>         
     <jaxrs:outInterceptors>
+      <ref bean="gzipOutInterceptor"/>
       <ref bean="validationOutInterceptor"/>
     </jaxrs:outInterceptors>
     <jaxrs:providers>
@@ -102,7 +134,11 @@ under the License.
       <ref bean="searchContextProvider"/>
       <ref bean="addDomainFilter"/>
       <ref bean="addETagFilter"/>
+      <ref bean="wadlGenerator"/>
     </jaxrs:providers>
+    <jaxrs:features>
+      <ref bean="swagger2Feature"/>
+    </jaxrs:features>
     <jaxrs:extensionMappings>
       <entry key="json" value="application/json;charset=UTF-8"/>
       <entry key="xml" value="application/xml;charset=UTF-8"/>

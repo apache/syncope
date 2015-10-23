@@ -18,7 +18,20 @@
  */
 package org.apache.syncope.core.persistence.api.entity;
 
+import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
+import org.apache.syncope.core.persistence.api.entity.resource.Provision;
+
 public interface VirSchema extends Schema {
 
     void setReadonly(boolean readonly);
+
+    Provision getProvision();
+
+    void setProvision(Provision provision);
+
+    String getExtAttrName();
+
+    void setExtAttrName(String extAttrName);
+
+    MappingItem asLinkingMappingItem();
 }

@@ -37,7 +37,6 @@ import org.apache.syncope.core.persistence.api.entity.DerAttr;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.persistence.api.entity.VirAttr;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.conf.Conf;
@@ -116,26 +115,6 @@ public class JPAConf extends AbstractAnnotatedEntity<Long> implements Conf {
 
     @Override
     public List<? extends DerAttr<?>> getDerAttrs() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public boolean add(final VirAttr<?> attr) {
-        return false;
-    }
-
-    @Override
-    public boolean remove(final VirAttr<?> virAttr) {
-        return false;
-    }
-
-    @Override
-    public VirAttr<?> getVirAttr(final String virSchemaName) {
-        return null;
-    }
-
-    @Override
-    public List<? extends VirAttr<?>> getVirAttrs() {
         return Collections.emptyList();
     }
 

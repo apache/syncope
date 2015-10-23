@@ -25,20 +25,26 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.EntityViolationType;
+import org.apache.syncope.common.lib.types.IntMappingType;
+import org.apache.syncope.common.lib.types.MappingPurpose;
+import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
+import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.provisioning.api.data.MappingItemTransformer;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
+import org.identityconnectors.framework.common.objects.ObjectClass;
 
 public class ExternalResourceValidator extends AbstractValidator<ExternalResourceCheck, ExternalResource> {
 
     private boolean isValid(final MappingItem item, final ConstraintValidatorContext context) {
         if (StringUtils.isBlank(item.getExtAttrName())) {
             context.buildConstraintViolationWithTemplate(
-                    getTemplate(EntityViolationType.InvalidMapping, item + ".extAttrName is null")).
+                    getTemplate(EntityViolationType.InvalidMapping, item + " - extAttrName is null")).
                     addPropertyNode("extAttrName").addConstraintViolation();
 
             return false;
@@ -46,7 +52,7 @@ public class ExternalResourceValidator extends AbstractValidator<ExternalResourc
 
         if (StringUtils.isBlank(item.getIntAttrName())) {
             context.buildConstraintViolationWithTemplate(
-                    getTemplate(EntityViolationType.InvalidMapping, item + ".intAttrName is null")).
+                    getTemplate(EntityViolationType.InvalidMapping, item + " - intAttrName is null")).
                     addPropertyNode("intAttrName").addConstraintViolation();
 
             return false;
@@ -54,10 +60,44 @@ public class ExternalResourceValidator extends AbstractValidator<ExternalResourc
 
         if (item.getPurpose() == null) {
             context.buildConstraintViolationWithTemplate(
-                    getTemplate(EntityViolationType.InvalidMapping, item + ".purpose is null")).
+                    getTemplate(EntityViolationType.InvalidMapping, item + " - purpose is null")).
                     addPropertyNode("purpose").addConstraintViolation();
 
             return false;
+        }
+
+        if (item.getIntMappingType() == IntMappingType.AnyObjectVirtualSchema
+                || item.getIntMappingType() == IntMappingType.GroupVirtualSchema
+                || item.getIntMappingType() == IntMappingType.UserVirtualSchema) {
+
+            if (item.getPurpose() != MappingPurpose.PROPAGATION) {
+                context.buildConstraintViolationWithTemplate(
+                        getTemplate(EntityViolationType.InvalidMapping,
+                                " - only " + MappingPurpose.PROPAGATION.name() + " allowed for virtual")).
+                        addPropertyNode("purpose").addConstraintViolation();
+
+                return false;
+            }
+
+            if (item.getMapping() == null) {
+                context.buildConstraintViolationWithTemplate(
+                        getTemplate(EntityViolationType.InvalidMapping,
+                                " - need to explicitly set mapping for further checks")).
+                        addPropertyNode("mapping").addConstraintViolation();
+
+                return false;
+            }
+
+            VirSchema schema = ApplicationContextProvider.getBeanFactory().getBean(VirSchemaDAO.class).
+                    find(item.getIntAttrName());
+            if (schema != null && schema.getProvision().equals(item.getMapping().getProvision())) {
+                context.buildConstraintViolationWithTemplate(
+                        getTemplate(EntityViolationType.InvalidMapping,
+                                " - no need to map virtual schema on linking resource")).
+                        addPropertyNode("intAttrName").addConstraintViolation();
+
+                return false;
+            }
         }
 
         return true;
@@ -162,22 +202,29 @@ public class ExternalResourceValidator extends AbstractValidator<ExternalResourc
             }
         }
 
+        final Set<AnyType> anyTypes = new HashSet<>();
         final Set<String> objectClasses = new HashSet<>();
-        boolean validMappings = CollectionUtils.matchesAll(resource.getProvisions(),
-                new Predicate<Provision>() {
+        boolean validMappings = CollectionUtils.matchesAll(resource.getProvisions(), new Predicate<Provision>() {
 
-                    @Override
-                    public boolean evaluate(final Provision provision) {
-                        if (provision.getObjectClass() != null) {
-                            objectClasses.add(provision.getObjectClass().getObjectClassValue());
-                        }
-                        return isValid(provision.getAnyType(), provision.getMapping(), context);
-                    }
-                });
+            @Override
+            public boolean evaluate(final Provision provision) {
+                anyTypes.add(provision.getAnyType());
+                if (provision.getObjectClass() != null) {
+                    objectClasses.add(provision.getObjectClass().getObjectClassValue());
+                }
+                return isValid(provision.getAnyType(), provision.getMapping(), context);
+            }
+        });
 
+        if (anyTypes.size() < resource.getProvisions().size()) {
+            context.buildConstraintViolationWithTemplate(getTemplate(EntityViolationType.InvalidResource,
+                    "Each provision requires a different " + AnyType.class.getSimpleName())).
+                    addPropertyNode("provisions").addConstraintViolation();
+            return false;
+        }
         if (objectClasses.size() < resource.getProvisions().size()) {
             context.buildConstraintViolationWithTemplate(getTemplate(EntityViolationType.InvalidResource,
-                    "Each provision requires a different ObjectClass")).
+                    "Each provision requires a different" + ObjectClass.class.getSimpleName())).
                     addPropertyNode("provisions").addConstraintViolation();
             return false;
         }

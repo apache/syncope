@@ -57,7 +57,7 @@ public class JPAUPlainAttrValue extends AbstractPlainAttrValue implements UPlain
     }
 
     @Override
-    public void setAttr(final PlainAttr attr) {
+    public void setAttr(final PlainAttr<?> attr) {
         checkType(attr, JPAUPlainAttr.class);
         this.attribute = (JPAUPlainAttr) attr;
     }

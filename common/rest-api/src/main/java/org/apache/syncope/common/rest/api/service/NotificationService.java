@@ -62,7 +62,7 @@ public interface NotificationService extends JAXRSService {
      * Creates a new notification.
      *
      * @param notificationTO Creates a new notification.
-     * @return <tt>Response</tt> object featuring <tt>Location</tt> header of created notification
+     * @return Response object featuring Location header of created notification
      */
     @POST
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })

@@ -18,6 +18,7 @@ package org.apache.syncope.common.lib.to;
  * specific language governing permissions and limitations
  * under the License.
  */
+import javax.ws.rs.PathParam;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.lib.AbstractBaseBean;
@@ -39,6 +40,7 @@ public class CamelRouteTO extends AbstractBaseBean {
         return name;
     }
 
+    @PathParam("key")
     public void setKey(final String key) {
         this.name = key;
     }

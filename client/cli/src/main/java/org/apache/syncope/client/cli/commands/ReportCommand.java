@@ -18,162 +18,335 @@
  */
 package org.apache.syncope.client.cli.commands;
 
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.Parameters;
 import java.io.IOException;
 import java.io.SequenceInputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
+import javax.xml.ws.WebServiceException;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.cli.Command;
+import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.client.cli.SyncopeServices;
+import org.apache.syncope.client.cli.messages.Messages;
+import org.apache.syncope.client.cli.util.CommandUtils;
 import org.apache.syncope.client.cli.util.XMLUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ReportExecTO;
 import org.apache.syncope.common.lib.to.ReportTO;
+import org.apache.syncope.common.lib.types.JobStatusType;
 import org.apache.syncope.common.lib.types.ReportExecExportFormat;
 import org.apache.syncope.common.rest.api.service.ReportService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
-@Parameters(
-        commandNames = "report",
-        optionPrefixes = "-",
-        separators = "=",
-        commandDescription = "Apache Syncope report service")
+@Command(name = "report")
 public class ReportCommand extends AbstractCommand {
 
     private static final Logger LOG = LoggerFactory.getLogger(ReportCommand.class);
 
-    private final String helpMessage = "Usage: report [options]\n"
+    private static final String HELP_MESSAGE = "Usage: report [options]\n"
             + "  Options:\n"
-            + "    -h, --help \n"
-            + "    -l, --list \n"
-            + "    -r, --read \n"
-            + "       Syntax: -r={POLICY-ID} \n"
-            + "    -d, --delete \n"
-            + "       Syntax: -d={POLICY-ID} \n"
-            + "    -e, --execute \n"
-            + "       Syntax: -e={POLICY-ID} \n"
-            + "    -re, --read-executecution \n"
-            + "       Syntax: -re={EXECUTION-ID} \n"
-            + "    -de, --delete-executecution \n"
-            + "       Syntax: -de={EXECUTION-ID} \n"
-            + "    -eer, --export-executecution-result \n"
-            + "       Syntax: -eer={EXECUTION-ID} \n"
-            + "    -rc, --reportlet-class";
-
-    @Parameter(names = { "-r", "--read" })
-    private Long reportIdToRead = -1L;
-
-    @Parameter(names = { "-d", "--delete" })
-    private Long reportIdToDelete = -1L;
-
-    @Parameter(names = { "-e", "--execute" })
-    private Long reportIdToExecute = -1L;
-
-    @Parameter(names = { "-re", "--read-execution" })
-    private Long executionIdToRead = -1L;
-
-    @Parameter(names = { "-de", "--delete-execution" })
-    private Long executionIdToDelete = -1L;
-
-    @Parameter(names = { "-eer", "--export-execution-result" })
-    private Long exportId = -1L;
-
+            + "    --help \n"
+            + "    --list \n"
+            + "    --read \n"
+            + "       Syntax: --read {REPORT-ID} {REPORT-ID} [...] \n"
+            + "    --delete \n"
+            + "       Syntax: --delete {REPORT-ID} {REPORT-ID} [...]\n"
+            + "    --execute \n"
+            + "       Syntax: --execute {REPORT-ID} \n"
+            + "    --read-execution \n"
+            + "       Syntax: --read-execution {EXECUTION-ID} {EXECUTION-ID} [...]\n"
+            + "    --delete-execution \n"
+            + "       Syntax: --delete-execution {EXECUTION-ID} {EXECUTION-ID} [...]\n"
+            + "    --export-execution-result \n"
+            + "       Syntax: --export-execution-result {EXECUTION-ID} {EXECUTION-ID} [...] {FORMAT}\n"
+            + "          Format: CSV / HTML / PDF / XML / RTF"
+            + "    --reportlet-class";
+    
     @Override
-    public void execute() {
+    public void execute(final Input input) {
+        LOG.debug("Option: {}", input.getOption());
+        LOG.debug("Parameters:");
+        for (final String parameter : input.getParameters()) {
+            LOG.debug("   > " + parameter);
+        }
+
+        String[] parameters = input.getParameters();
+
+        if (StringUtils.isBlank(input.getOption())) {
+            input.setOption(Options.HELP.getOptionName());
+        }
+
         final ReportService reportService = SyncopeServices.get(ReportService.class);
-        LOG.debug("Report service successfully created");
-
-        if (help) {
-            LOG.debug("- report help command");
-            System.out.println(helpMessage);
-        } else if (list) {
-            LOG.debug("- report list command");
-            try {
-                for (ReportTO reportTO : reportService.list()) {
-                    System.out.println(reportTO);
+        switch (Options.fromName(input.getOption())) {
+            case LIST:
+                try {
+                    for (final ReportTO reportTO : reportService.list()) {
+                        System.out.println(reportTO);
+                    }
+                } catch (final SyncopeClientException ex) {
+                    Messages.printMessage(ex.getMessage());
                 }
-            } catch (final SyncopeClientException ex) {
-                System.out.println(" - Error: " + ex.getMessage());
-            }
-        } else if (reportIdToRead > -1L) {
-            LOG.debug("- report read {} command", reportIdToRead);
-            try {
-                System.out.println(reportService.read(reportIdToRead));
-            } catch (final SyncopeClientException ex) {
-                System.out.println(" - Error: " + ex.getMessage());
-            }
-        } else if (reportIdToDelete > -1L) {
-            try {
-                LOG.debug("- report delete {} command", reportIdToDelete);
-                reportService.delete(reportIdToDelete);
-                System.out.println(" - Report " + reportIdToDelete + " deleted!");
-            } catch (final SyncopeClientException ex) {
-                System.out.println(" - Error: " + ex.getMessage());
-            }
-        } else if (reportIdToExecute > -1L) {
-            try {
-                LOG.debug("- report execute {} command", reportIdToExecute);
-                reportService.execute(reportIdToExecute);
-                final List<ReportExecTO> executionList = reportService.read(reportIdToExecute).getExecutions();
-                final ReportExecTO lastExecution = executionList.get(executionList.size() - 1);
-                System.out.println(" - Report execution id: " + lastExecution.getKey());
-                System.out.println(" - Report execution status: " + lastExecution.getStatus());
-                System.out.println(" - Report execution start date: " + lastExecution.getStartDate());
-            } catch (final SyncopeClientException ex) {
-                System.out.println(" - Error: " + ex.getMessage());
-            }
-        } else if (executionIdToRead > -1L) {
-            try {
-                LOG.debug("- report execution read {} command", executionIdToRead);
-                ReportExecTO reportExecTO = reportService.readExecution(executionIdToRead);
-                System.out.println(" - Report execution id: " + reportExecTO.getKey());
-                System.out.println(" - Report execution status: " + reportExecTO.getStatus());
-                System.out.println(" - Report execution start date: " + reportExecTO.getStartDate());
-                System.out.println(" - Report execution end date: " + reportExecTO.getEndDate());
-            } catch (final SyncopeClientException ex) {
-                System.out.println(" - Error: " + ex.getMessage());
-            }
-        } else if (executionIdToDelete > -1L) {
-            try {
-                LOG.debug("- report execution delete {} command", executionIdToDelete);
-                reportService.deleteExecution(executionIdToDelete);
-                System.out.println(" - Report execution " + executionIdToDelete + "successfyllt deleted!");
-            } catch (final SyncopeClientException ex) {
-                System.out.println(" - Error: " + ex.getMessage());
-            }
-        } else if (exportId > -1L) {
-            LOG.debug("- report export command for report: {}", exportId);
+                break;
+            case LIST_JOBS:
+                try {
+                    for (final JobStatusType jobStatusType : JobStatusType.values()) {
+                        System.out.println("Report execution for " + jobStatusType);
+                        final List<ReportExecTO> reportExecTOs = reportService.listJobs(jobStatusType);
+                        for (final ReportExecTO reportExecTO : reportExecTOs) {
+                            System.out.println(" - Report execution id: " + reportExecTO.getKey());
+                            System.out.println(" - Report execution status: " + reportExecTO.getStatus());
+                            System.out.println(" - Report execution start date: " + reportExecTO.getStartDate());
+                            System.out.println(" - Report execution end date: " + reportExecTO.getEndDate());
+                            System.out.println();
+                        }
+                    }
+                } catch (final SyncopeClientException ex) {
+                    Messages.printMessage(ex.getMessage());
+                }
+                break;
+            case READ:
+                final String readErrorMessage = "report --read {REPORT-ID} {REPORT-ID} [...]";
+                if (parameters.length >= 1) {
+                    for (final String parameter : parameters) {
+                        try {
+                            System.out.println(reportService.read(Long.valueOf(parameter)));
+                        } catch (final NumberFormatException ex) {
+                            Messages.printIdNotNumberDeletedMessage("report", parameter);
+                        } catch (final WebServiceException | SyncopeClientException ex) {
+                            if (ex.getMessage().startsWith("NotFound")) {
+                                Messages.printNofFoundMessage("Report", parameter);
+                            } else {
+                                Messages.printMessage(ex.getMessage());
+                            }
+                        }
+                    }
+                } else {
+                    Messages.printCommandOptionMessage(readErrorMessage);
+                }
+                break;
+            case DELETE:
+                final String deleteErrorMessage = "report --delete {REPORT-ID} {REPORT-ID} [...]";
 
-            try {
-                XMLUtils.createXMLFile((SequenceInputStream) reportService.exportExecutionResult(exportId,
-                        ReportExecExportFormat.XML).getEntity(), "export_" + exportId + ".xml");
-                System.out.println(" - " + "export_" + exportId + " successfully created");
-            } catch (final IOException ex) {
-                LOG.error("Error creating xml file", ex);
-                System.out.println(" - Error creating " + "export_" + exportId + " " + ex.getMessage());
-            } catch (final ParserConfigurationException ex) {
-                LOG.error("Error creating xml file", ex);
-                System.out.println(" - Error creating " + "export_" + exportId + " " + ex.getMessage());
-            } catch (final SAXException ex) {
-                LOG.error("Error creating xml file", ex);
-                System.out.println(" - Error creating " + "export_" + exportId + " " + ex.getMessage());
-            } catch (final TransformerConfigurationException ex) {
-                LOG.error("Error creating xml file", ex);
-                System.out.println(" - Error creating " + "export_" + exportId + " " + ex.getMessage());
-            } catch (final TransformerException ex) {
-                LOG.error("Error creating xml file", ex);
-                System.out.println(" - Error creating export_" + exportId + " " + ex.getMessage());
-            } catch (final SyncopeClientException ex) {
-                LOG.error("Error calling configuration service", ex);
-                System.out.println(" - Error calling configuration service " + ex.getMessage());
-            }
-        } else {
-            System.out.println(helpMessage);
+                if (parameters.length >= 1) {
+                    for (final String parameter : parameters) {
+                        try {
+                            reportService.delete(Long.valueOf(parameter));
+                            Messages.printDeletedMessage("Report", parameter);
+                        } catch (final WebServiceException | SyncopeClientException ex) {
+                            if (ex.getMessage().startsWith("NotFound")) {
+                                Messages.printNofFoundMessage("Report", parameter);
+                            } else if (ex.getMessage().startsWith("DataIntegrityViolation")) {
+                                Messages.printMessage("You cannot delete report " + parameter);
+                            } else {
+                                Messages.printMessage(ex.getMessage());
+                            }
+                        } catch (final NumberFormatException ex) {
+                            Messages.printIdNotNumberDeletedMessage("report", parameter);
+                        }
+                    }
+                } else {
+                    Messages.printCommandOptionMessage(deleteErrorMessage);
+                }
+                break;
+            case EXECUTE:
+                final String executeErrorMessage = "report --execute {REPORT-ID}";
+
+                if (parameters.length == 1) {
+
+                    try {
+                        final Long reportIdToExecute = Long.valueOf(parameters[0]);
+                        reportService.execute(reportIdToExecute);
+                        final List<ReportExecTO> executionList
+                                = reportService.read(reportIdToExecute).getExecutions();
+                        final ReportExecTO lastExecution = executionList.get(executionList.size() - 1);
+                        System.out.println(" - Report execution id: " + lastExecution.getKey());
+                        System.out.println(" - Report execution status: " + lastExecution.getStatus());
+                        System.out.println(" - Report execution start date: " + lastExecution.getStartDate());
+                    } catch (final WebServiceException | SyncopeClientException ex) {
+                        System.out.println("Error:");
+                        if (ex.getMessage().startsWith("NotFound")) {
+                            Messages.printNofFoundMessage("Report", parameters[0]);
+                        } else if (ex.getMessage().startsWith("DataIntegrityViolation")) {
+                            Messages.printMessage("You cannot delete report " + parameters[0]);
+                        } else {
+                            Messages.printMessage(ex.getMessage());
+                        }
+                    } catch (final NumberFormatException ex) {
+                        Messages.printIdNotNumberDeletedMessage("report", parameters[0]);
+                    }
+                } else {
+                    Messages.printCommandOptionMessage(executeErrorMessage);
+                }
+                break;
+            case READ_EXECUTION:
+                final String readExecutionErrorMessage = "report --read-execution {EXECUTION-ID} {EXECUTION-ID} [...]";
+
+                if (parameters.length >= 1) {
+                    for (final String parameter : parameters) {
+
+                        try {
+                            ReportExecTO reportExecTO = reportService.readExecution(Long.valueOf(parameter));
+                            System.out.println(" - Report execution id: " + reportExecTO.getKey());
+                            System.out.println(" - Report execution status: " + reportExecTO.getStatus());
+                            System.out.println(" - Report execution start date: " + reportExecTO.getStartDate());
+                            System.out.println(" - Report execution end date: " + reportExecTO.getEndDate());
+                        } catch (final WebServiceException | SyncopeClientException ex) {
+                            System.out.println("Error:");
+                            if (ex.getMessage().startsWith("NotFound")) {
+                                Messages.printNofFoundMessage("Report", parameter);
+                            } else {
+                                Messages.printMessage(ex.getMessage());
+                            }
+                        } catch (final NumberFormatException ex) {
+                            Messages.printIdNotNumberDeletedMessage("report", parameter);
+                        }
+                    }
+                } else {
+                    Messages.printCommandOptionMessage(readExecutionErrorMessage);
+                }
+                break;
+            case DELETE_EXECUTION:
+                final String deleteExecutionErrorMessage
+                        = "report --delete-execution {EXECUTION-ID} {EXECUTION-ID} [...]";
+
+                if (parameters.length >= 1) {
+                    for (final String parameter : parameters) {
+
+                        try {
+                            reportService.deleteExecution(Long.valueOf(parameter));
+                            Messages.printDeletedMessage("Report execution", parameter);
+                        } catch (final WebServiceException | SyncopeClientException ex) {
+                            if (ex.getMessage().startsWith("NotFound")) {
+                                Messages.printNofFoundMessage("Report", parameter);
+                            } else if (ex.getMessage().startsWith("DataIntegrityViolation")) {
+                                System.out.println(" - You cannot delete report " + parameter);
+                            } else {
+                                System.out.println(ex.getMessage());
+                            }
+                        } catch (final NumberFormatException ex) {
+                            Messages.printIdNotNumberDeletedMessage("report", parameter);
+                        }
+                    }
+                } else {
+                    Messages.printCommandOptionMessage(deleteExecutionErrorMessage);
+                }
+                break;
+            case EXPORT_EXECUTION_RESULT:
+                final String exportExecutionErrorMessage
+                        = "report --export-execution-result {EXECUTION-ID} {EXECUTION-ID} [...] {FORMAT}\n"
+                        + "          Format: CSV / HTML / PDF / XML / RTF";
+
+                if (parameters.length >= 2) {
+                    parameters = Arrays.copyOf(parameters, parameters.length - 1);
+                    for (final String parameter : parameters) {
+                        try {
+                            final ReportExecExportFormat format = ReportExecExportFormat.valueOf(input.lastParameter());
+                            final Long exportId = Long.valueOf(parameter);
+                            final SequenceInputStream report = (SequenceInputStream) reportService.
+                                    exportExecutionResult(exportId, format).getEntity();
+                            switch (format) {
+                                case XML:
+                                    final String xmlFinalName = "export_" + exportId + ".xml";
+                                    XMLUtils.createXMLFile(report, xmlFinalName);
+                                    Messages.printMessage(xmlFinalName + " successfully created");
+                                    break;
+                                case CSV:
+                                    Messages.printMessage(format + " doesn't supported");
+                                    break;
+                                case PDF:
+                                    Messages.printMessage(format + " doesn't supported");
+                                    break;
+                                case HTML:
+                                    Messages.printMessage(format + " doesn't supported");
+                                    break;
+                                case RTF:
+                                    Messages.printMessage(format + " doesn't supported");
+                                    break;
+                                default:
+                                    Messages.printMessage(format + " doesn't supported");
+                                    break;
+                            }
+                        } catch (final WebServiceException | SyncopeClientException ex) {
+                            if (ex.getMessage().startsWith("NotFound")) {
+                                Messages.printNofFoundMessage("Report", parameter);
+                            } else {
+                                System.out.println(ex.getMessage());
+                            }
+                        } catch (final NumberFormatException ex) {
+                            Messages.printIdNotNumberDeletedMessage("report", parameter);
+                        } catch (IOException | ParserConfigurationException | SAXException | TransformerException e) {
+                            System.out.println(" - Error creating " + "export_" + parameter + " " + e.getMessage());
+                        } catch (final IllegalArgumentException ex) {
+                            Messages.printTypeNotValidMessage(
+                                    "format", input.firstParameter(),
+                                    CommandUtils.fromEnumToArray(ReportExecExportFormat.class));
+                        }
+                        break;
+                    }
+                } else {
+                    Messages.printCommandOptionMessage(exportExecutionErrorMessage);
+                }
+                break;
+            case HELP:
+                System.out.println(HELP_MESSAGE);
+                break;
+            default:
+                Messages.printDefaultMessage(input.getOption(), HELP_MESSAGE);
         }
     }
 
+    @Override
+    public String getHelpMessage() {
+        return HELP_MESSAGE;
+    }
+
+    private enum Options {
+
+        HELP("--help"),
+        LIST("--list"),
+        LIST_JOBS("--list-jobs"),
+        READ("--read"),
+        DELETE("--delete"),
+        EXECUTE("--execute"),
+        READ_EXECUTION("--read-execution"),
+        DELETE_EXECUTION("--delete-execution"),
+        EXPORT_EXECUTION_RESULT("--export-execution-result");
+
+        private final String optionName;
+
+        Options(final String optionName) {
+            this.optionName = optionName;
+        }
+
+        public String getOptionName() {
+            return optionName;
+        }
+
+        public boolean equalsOptionName(final String otherName) {
+            return (otherName == null) ? false : optionName.equals(otherName);
+        }
+
+        public static Options fromName(final String name) {
+            Options optionToReturn = HELP;
+            for (final Options option : Options.values()) {
+                if (option.equalsOptionName(name)) {
+                    optionToReturn = option;
+                }
+            }
+            return optionToReturn;
+        }
+
+        public static List<String> toList() {
+            final List<String> options = new ArrayList<>();
+            for (final Options value : values()) {
+                options.add(value.getOptionName());
+            }
+            return options;
+        }
+    }
 }

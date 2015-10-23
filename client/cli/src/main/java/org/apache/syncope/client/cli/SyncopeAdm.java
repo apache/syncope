@@ -18,99 +18,65 @@
  */
 package org.apache.syncope.client.cli;
 
-import com.beust.jcommander.JCommander;
-import com.beust.jcommander.ParameterException;
-import org.apache.syncope.client.cli.commands.ConfigurationCommand;
-import org.apache.syncope.client.cli.commands.LoggerCommand;
-import org.apache.syncope.client.cli.commands.NotificationCommand;
-import org.apache.syncope.client.cli.commands.PolicyCommand;
-import org.apache.syncope.client.cli.commands.ReportCommand;
+import javax.ws.rs.ProcessingException;
+import org.apache.syncope.client.cli.commands.AbstractCommand;
+import org.apache.syncope.client.cli.util.CommandUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class SyncopeAdm {
 
     private static final Logger LOG = LoggerFactory.getLogger(SyncopeAdm.class);
-
-    private static final String HELP_MESSAGE = "Usage: Main [options]\n"
-            + "  Options:\n"
-            + "    logger --help \n"
-            + "    config --help \n"
-            + "    notification --help \n"
-            + "    report --help \n"
-            + "    policy --help \n"
-            + "    entitlement --help \n";
-
-    private static final JCommander JCOMMANDER = new JCommander();
-
-    private static LoggerCommand LOGGER_COMMAND;
-
-    private static ConfigurationCommand CONFIGURATION_COMMAND;
-
-    private static NotificationCommand NOTIFICATION_COMMAND;
-
-    private static ReportCommand REPORT_COMMAND;
-
-    private static PolicyCommand POLICY_COMMAND;
+    
+    private static final ResultManager RESULT_MANAGER = new ResultManager();
 
     public static void main(final String[] args) {
         LOG.debug("Starting with args \n");
 
-        for (final String arg : args) {
-            LOG.debug("Arg: {}", arg);
-        }
+        try {
+            ArgsManager.validator(args);
+            final Input input = new Input(args);
+            final AbstractCommand command = input.getCommand();
 
-        instantiateCommands();
-
-        if (args.length == 0) {
-            System.out.println(HELP_MESSAGE);
-        } else {
-            try {
-                JCOMMANDER.parse(args);
-            } catch (final ParameterException ioe) {
-                System.out.println(HELP_MESSAGE);
-                LOG.error("Parameter exception", ioe);
+            LOG.debug("Command: {}", command.getClass().getAnnotation(Command.class).name());
+            LOG.debug("Option: {}", input.getOption());
+            LOG.debug("Parameters:");
+            for (final String parameter : input.getParameters()) {
+                LOG.debug("   > " + parameter);
             }
-            executeCommand();
+
+            command.execute(input);
+        } catch (final IllegalAccessException | InstantiationException e) {
+            System.out.println(helpMessage());
+        } catch (final IllegalArgumentException ex) {
+            LOG.error("Error in main", ex);
+            RESULT_MANAGER.generic(ex.getMessage());
+            if (!ex.getMessage().startsWith("It seems you")) {
+                System.out.println(helpMessage());
+            }
+        } catch (final ProcessingException e) {
+            RESULT_MANAGER.generic("Syncope server offline", e.getCause().getMessage());
         }
 
     }
 
-    private static void instantiateCommands() {
-        LOG.debug("Init JCommander");
-        LOGGER_COMMAND = new LoggerCommand();
-        JCOMMANDER.addCommand(LOGGER_COMMAND);
-        LOG.debug("Added LoggerCommand");
-        CONFIGURATION_COMMAND = new ConfigurationCommand();
-        JCOMMANDER.addCommand(CONFIGURATION_COMMAND);
-        LOG.debug("Added ConfigurationCommand");
-        NOTIFICATION_COMMAND = new NotificationCommand();
-        JCOMMANDER.addCommand(NOTIFICATION_COMMAND);
-        LOG.debug("Added NotificationCommand");
-        REPORT_COMMAND = new ReportCommand();
-        JCOMMANDER.addCommand(REPORT_COMMAND);
-        LOG.debug("Added ReportCommand");
-        POLICY_COMMAND = new PolicyCommand();
-        JCOMMANDER.addCommand(POLICY_COMMAND);
-        LOG.debug("Added PolicyCommand");
-    }
-
-    private static void executeCommand() {
-        final String command = JCOMMANDER.getParsedCommand();
-
-        LOG.debug("Called command {}", command);
-
-        if ("logger".equalsIgnoreCase(command)) {
-            LOGGER_COMMAND.execute();
-        } else if ("config".equalsIgnoreCase(command)) {
-            CONFIGURATION_COMMAND.execute();
-        } else if ("notification".equalsIgnoreCase(command)) {
-            NOTIFICATION_COMMAND.execute();
-        } else if ("report".equalsIgnoreCase(command)) {
-            REPORT_COMMAND.execute();
-        } else if ("policy".equalsIgnoreCase(command)) {
-            POLICY_COMMAND.execute();
+    private static String helpMessage() {
+        final StringBuilder helpMessageBuilder = new StringBuilder("Usage: Main [options]\n");
+        helpMessageBuilder.append("  Options:\n");
+        try {
+            for (AbstractCommand command : CommandUtils.commands()) {
+                final String commandName = command.getClass().getAnnotation(Command.class).name();
+                helpMessageBuilder.append("    ").append(commandName);
+                if (!"help".equalsIgnoreCase(commandName)) {
+                    helpMessageBuilder.append(" --help");
+                }
+                helpMessageBuilder.append("\n");
+            }
+        } catch (final IllegalAccessException | IllegalArgumentException | InstantiationException ex) {
+            RESULT_MANAGER.generic(ex.getMessage());
         }
+
+        return helpMessageBuilder.toString();
     }
 
     private SyncopeAdm() {

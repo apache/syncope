@@ -47,6 +47,18 @@ under the License.
     <url-pattern>/rest/*</url-pattern>
   </servlet-mapping>
 
+  <servlet>
+    <servlet-name>WADLServlet</servlet-name>
+    <servlet-class>org.apache.syncope.core.rest.cxf.WADLServlet</servlet-class>
+    <load-on-startup>2</load-on-startup> 
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>WADLServlet</servlet-name>
+    <url-pattern>/index.html</url-pattern>
+    <url-pattern>/schema_1_syncope1.html</url-pattern>
+    <url-pattern>/syncope.wadl</url-pattern>
+  </servlet-mapping>
+
   <filter>
     <filter-name>encodingFilter</filter-name>
     <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>

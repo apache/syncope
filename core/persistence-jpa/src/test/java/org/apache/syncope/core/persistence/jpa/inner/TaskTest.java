@@ -113,6 +113,7 @@ public class TaskTest extends AbstractTest {
         PropagationTask task = entityFactory.newEntity(PropagationTask.class);
         task.setResource(resource);
         task.setAnyTypeKind(AnyTypeKind.USER);
+        task.setAnyType(AnyTypeKind.USER.name());
         task.setOperation(ResourceOperation.CREATE);
         task.setConnObjectKey("one@two.com");
 

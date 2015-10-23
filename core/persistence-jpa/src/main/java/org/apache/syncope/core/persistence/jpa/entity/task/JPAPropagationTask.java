@@ -75,6 +75,8 @@ public class JPAPropagationTask extends AbstractTask implements PropagationTask 
     @Enumerated(EnumType.STRING)
     private AnyTypeKind anyTypeKind;
 
+    private String anyType;
+
     private Long anyKey;
 
     public JPAPropagationTask() {
@@ -164,6 +166,16 @@ public class JPAPropagationTask extends AbstractTask implements PropagationTask 
     @Override
     public void setAnyTypeKind(final AnyTypeKind anyTypeKind) {
         this.anyTypeKind = anyTypeKind;
+    }
+
+    @Override
+    public String getAnyType() {
+        return anyType;
+    }
+
+    @Override
+    public void setAnyType(final String anyType) {
+        this.anyType = anyType;
     }
 
     @Override

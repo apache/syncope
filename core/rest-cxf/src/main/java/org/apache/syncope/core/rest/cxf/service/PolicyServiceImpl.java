@@ -39,8 +39,8 @@ public class PolicyServiceImpl extends AbstractServiceImpl implements PolicyServ
     private PolicyLogic logic;
 
     @Override
-    public <T extends AbstractPolicyTO> Response create(final T policyTO) {
-        T policy = logic.create(policyTO);
+    public Response create(final AbstractPolicyTO policyTO) {
+        AbstractPolicyTO policy = logic.create(policyTO);
         URI location = uriInfo.getAbsolutePathBuilder().path(String.valueOf(policy.getKey())).build();
         return Response.created(location).
                 header(RESTHeaders.RESOURCE_KEY, policy.getKey()).
@@ -63,7 +63,7 @@ public class PolicyServiceImpl extends AbstractServiceImpl implements PolicyServ
     }
 
     @Override
-    public <T extends AbstractPolicyTO> void update(final T policyTO) {
+    public void update(final AbstractPolicyTO policyTO) {
         switch (policyTO.getType()) {
             case ACCOUNT:
                 logic.update((AccountPolicyTO) policyTO);

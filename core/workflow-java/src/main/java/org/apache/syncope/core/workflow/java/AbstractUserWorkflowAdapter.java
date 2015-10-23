@@ -134,11 +134,14 @@ public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter
         doRequestPasswordReset(userDAO.authFind(key));
     }
 
-    protected abstract void doConfirmPasswordReset(User user, String token, String password);
+    protected abstract WorkflowResult<Pair<UserPatch, Boolean>> doConfirmPasswordReset(
+            User user, String token, String password);
 
     @Override
-    public void confirmPasswordReset(final Long key, final String token, final String password) {
-        doConfirmPasswordReset(userDAO.authFind(key), token, password);
+    public WorkflowResult<Pair<UserPatch, Boolean>> confirmPasswordReset(
+            final Long key, final String token, final String password) {
+
+        return doConfirmPasswordReset(userDAO.authFind(key), token, password);
     }
 
     protected abstract void doDelete(User user);

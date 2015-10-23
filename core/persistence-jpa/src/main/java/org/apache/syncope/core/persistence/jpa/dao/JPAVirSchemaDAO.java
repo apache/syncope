@@ -18,17 +18,18 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import java.util.Collections;
 import java.util.List;
 import javax.persistence.TypedQuery;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
-import org.apache.syncope.core.persistence.api.dao.VirAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
-import org.apache.syncope.core.persistence.api.entity.VirAttr;
+import org.apache.syncope.core.persistence.api.entity.Attr;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
+import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyUtilsFactory;
 import org.apache.syncope.core.persistence.jpa.entity.JPAVirSchema;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,9 +37,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public class JPAVirSchemaDAO extends AbstractDAO<VirSchema, String> implements VirSchemaDAO {
-
-    @Autowired
-    private VirAttrDAO virAttrDAO;
 
     @Autowired
     private ExternalResourceDAO resourceDAO;
@@ -61,6 +59,18 @@ public class JPAVirSchemaDAO extends AbstractDAO<VirSchema, String> implements V
     }
 
     @Override
+    public List<VirSchema> findByProvision(final Provision provision) {
+        StringBuilder queryString = new StringBuilder("SELECT e FROM ").
+                append(JPAVirSchema.class.getSimpleName()).
+                append(" e WHERE e.provision=:provision");
+
+        TypedQuery<VirSchema> query = entityManager().createQuery(queryString.toString(), VirSchema.class);
+        query.setParameter("provision", provision);
+
+        return query.getResultList();
+    }
+
+    @Override
     public List<VirSchema> findAll() {
         TypedQuery<VirSchema> query = entityManager().createQuery(
                 "SELECT e FROM " + JPAVirSchema.class.getSimpleName() + " e", VirSchema.class);
@@ -68,15 +78,8 @@ public class JPAVirSchemaDAO extends AbstractDAO<VirSchema, String> implements V
     }
 
     @Override
-    public <T extends VirAttr<?>> List<T> findAttrs(final VirSchema schema, final Class<T> reference) {
-        final StringBuilder queryString = new StringBuilder("SELECT e FROM ").
-                append(((JPAVirAttrDAO) virAttrDAO).getJPAEntityReference(reference).getSimpleName()).
-                append(" e WHERE e.schema=:schema");
-
-        TypedQuery<T> query = entityManager().createQuery(queryString.toString(), reference);
-        query.setParameter("schema", schema);
-
-        return query.getResultList();
+    public <T extends Attr<VirSchema, ?>> List<T> findAttrs(final VirSchema schema, final Class<T> reference) {
+        return Collections.emptyList();
     }
 
     @Override
@@ -94,10 +97,6 @@ public class JPAVirSchemaDAO extends AbstractDAO<VirSchema, String> implements V
         AnyUtilsFactory anyUtilsFactory = new JPAAnyUtilsFactory();
         for (AnyTypeKind anyTypeKind : AnyTypeKind.values()) {
             AnyUtils anyUtils = anyUtilsFactory.getInstance(anyTypeKind);
-
-            for (VirAttr<?> attr : findAttrs(schema, anyUtils.virAttrClass())) {
-                virAttrDAO.delete(attr.getKey(), anyUtils.virAttrClass());
-            }
 
             resourceDAO.deleteMapping(key, anyUtils.virIntMappingType());
         }

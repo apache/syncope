@@ -25,7 +25,7 @@ import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
 
-public interface AnySearchDAO extends DAO<Any<?, ?, ?>, Long> {
+public interface AnySearchDAO extends DAO<Any<?, ?>, Long> {
 
     /**
      * @param adminRealms realms for which the caller owns the proper entitlement(s)
@@ -42,7 +42,7 @@ public interface AnySearchDAO extends DAO<Any<?, ?, ?>, Long> {
      * @param <T> any
      * @return the list of any objects matching the given search condition
      */
-    <T extends Any<?, ?, ?>> List<T> search(
+    <T extends Any<?, ?>> List<T> search(
             Set<String> adminRealms, SearchCond searchCondition, AnyTypeKind kind);
 
     /**
@@ -53,7 +53,7 @@ public interface AnySearchDAO extends DAO<Any<?, ?, ?>, Long> {
      * @param <T> any
      * @return the list of any objects matching the given search condition
      */
-    <T extends Any<?, ?, ?>> List<T> search(
+    <T extends Any<?, ?>> List<T> search(
             Set<String> adminRealms, SearchCond searchCondition, List<OrderByClause> orderBy, AnyTypeKind kind);
 
     /**
@@ -66,7 +66,7 @@ public interface AnySearchDAO extends DAO<Any<?, ?, ?>, Long> {
      * @param <T> any
      * @return the list of any objects matching the given search condition (in the given page)
      */
-    <T extends Any<?, ?, ?>> List<T> search(
+    <T extends Any<?, ?>> List<T> search(
             Set<String> adminRealms, SearchCond searchCondition, int page, int itemsPerPage,
             List<OrderByClause> orderBy, AnyTypeKind kind);
 
@@ -79,5 +79,5 @@ public interface AnySearchDAO extends DAO<Any<?, ?, ?>, Long> {
      * @param <T> any
      * @return true if any matches searchCondition
      */
-    <T extends Any<?, ?, ?>> boolean matches(T any, SearchCond searchCondition, AnyTypeKind kind);
+    <T extends Any<?, ?>> boolean matches(T any, SearchCond searchCondition, AnyTypeKind kind);
 }

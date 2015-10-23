@@ -23,13 +23,19 @@ import javax.persistence.Cacheable;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
+import org.apache.syncope.core.persistence.api.entity.LinkingMappingItem;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
+import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
+import org.apache.syncope.core.persistence.api.entity.resource.Provision;
+import org.apache.syncope.core.persistence.jpa.entity.resource.JPAProvision;
 import org.apache.syncope.core.persistence.jpa.validation.entity.SchemaNameCheck;
 
 @Entity
@@ -52,6 +58,13 @@ public class JPAVirSchema extends AbstractEntity<String> implements VirSchema {
     @Min(0)
     @Max(1)
     private Integer readonly;
+
+    @NotNull
+    @ManyToOne
+    private JPAProvision provision;
+
+    @NotNull
+    private String extAttrName;
 
     public JPAVirSchema() {
         super();
@@ -109,4 +122,31 @@ public class JPAVirSchema extends AbstractEntity<String> implements VirSchema {
     public void setReadonly(final boolean readonly) {
         this.readonly = getBooleanAsInteger(readonly);
     }
+
+    @Override
+    public Provision getProvision() {
+        return provision;
+    }
+
+    @Override
+    public void setProvision(final Provision provision) {
+        checkType(provision, JPAProvision.class);
+        this.provision = (JPAProvision) provision;
+    }
+
+    @Override
+    public String getExtAttrName() {
+        return extAttrName;
+    }
+
+    @Override
+    public void setExtAttrName(final String extAttrName) {
+        this.extAttrName = extAttrName;
+    }
+
+    @Override
+    public MappingItem asLinkingMappingItem() {
+        return new LinkingMappingItem(this);
+    }
+
 }

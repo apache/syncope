@@ -32,10 +32,12 @@ import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.Policy;
+import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
@@ -43,6 +45,7 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAMappingItem;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAExternalResource;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAMapping;
+import org.apache.syncope.core.persistence.jpa.entity.resource.JPAProvision;
 import org.apache.syncope.core.provisioning.api.ConnectorRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -67,11 +70,19 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource, String
     private PolicyDAO policyDAO;
 
     @Autowired
+    private VirSchemaDAO virSchemaDAO;
+
+    @Autowired
     private ConnectorRegistry connRegistry;
 
     @Override
     public ExternalResource find(final String name) {
         return entityManager().find(JPAExternalResource.class, name);
+    }
+
+    @Override
+    public Provision findProvision(final Long key) {
+        return entityManager().find(JPAProvision.class, key);
     }
 
     private StringBuilder getByPolicyQuery(final PolicyType type) {
@@ -203,13 +214,6 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource, String
             policy.remove(resource);
         }
 
-        if (resource.getConnector() != null && resource.getConnector().getResources() != null
-                && !resource.getConnector().getResources().isEmpty()) {
-
-            resource.getConnector().getResources().remove(resource);
-        }
-        resource.setConnector(null);
-
         for (Provision provision : resource.getProvisions()) {
             for (MappingItem item : provision.getMapping().getItems()) {
                 item.setMapping(null);
@@ -217,7 +221,18 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource, String
             provision.getMapping().getItems().clear();
             provision.setMapping(null);
             provision.setResource(null);
+
+            for (VirSchema schema : virSchemaDAO.findByProvision(provision)) {
+                virSchemaDAO.delete(schema.getKey());
+            }
         }
+
+        if (resource.getConnector() != null && resource.getConnector().getResources() != null
+                && !resource.getConnector().getResources().isEmpty()) {
+
+            resource.getConnector().getResources().remove(resource);
+        }
+        resource.setConnector(null);
 
         entityManager().remove(resource);
     }

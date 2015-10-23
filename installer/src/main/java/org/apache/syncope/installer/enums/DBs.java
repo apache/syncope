@@ -26,7 +26,7 @@ public enum DBs {
     SQLSERVER("sqlserver"),
     ORACLE("oracle");
 
-    private DBs(final String name) {
+    DBs(final String name) {
         this.name = name;
     }
 

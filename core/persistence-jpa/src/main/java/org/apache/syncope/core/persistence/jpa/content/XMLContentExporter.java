@@ -50,7 +50,7 @@ import javax.xml.transform.stream.StreamResult;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.core.misc.DataFormat;
+import org.apache.syncope.core.misc.FormatUtils;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.content.ContentExporter;
 import org.apache.syncope.core.persistence.jpa.entity.JPAReportExec;
@@ -60,7 +60,6 @@ import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAPlainAttr;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAPlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAPlainAttrValue;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAARelationship;
-import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAVirAttr;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPATaskExec;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUDerAttr;
@@ -69,7 +68,6 @@ import org.apache.syncope.core.persistence.jpa.entity.user.JPAUPlainAttr;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUPlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUPlainAttrValue;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAURelationship;
-import org.apache.syncope.core.persistence.jpa.entity.user.JPAUVirAttr;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.security.crypto.codec.Hex;
@@ -87,9 +85,9 @@ public class XMLContentExporter extends AbstractContentDealer implements Content
             new HashSet<>(Arrays.asList(new String[] {
                 "QRTZ_", "LOGGING", JPAReportExec.TABLE, JPATaskExec.TABLE,
                 JPAUser.TABLE, JPAUPlainAttr.TABLE, JPAUPlainAttrValue.TABLE, JPAUPlainAttrUniqueValue.TABLE,
-                JPAUDerAttr.TABLE, JPAUVirAttr.TABLE,
+                JPAUDerAttr.TABLE,
                 JPAAnyObject.TABLE, JPAAPlainAttr.TABLE, JPAAPlainAttrValue.TABLE, JPAAPlainAttrUniqueValue.TABLE,
-                JPAADerAttr.TABLE, JPAAVirAttr.TABLE,
+                JPAADerAttr.TABLE,
                 JPAARelationship.TABLE, JPAAMembership.TABLE, JPAURelationship.TABLE, JPAUMembership.TABLE
             }));
 
@@ -206,7 +204,7 @@ public class XMLContentExporter extends AbstractContentDealer implements Content
                 case Types.TIMESTAMP:
                     final Timestamp timestamp = rs.getTimestamp(columnName);
                     if (timestamp != null) {
-                        res = DataFormat.format(new Date(timestamp.getTime()));
+                        res = FormatUtils.format(new Date(timestamp.getTime()));
                     }
                     break;
 

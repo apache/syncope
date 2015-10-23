@@ -24,8 +24,6 @@ import org.apache.camel.Processor;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.UserPatch;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
@@ -57,29 +55,15 @@ public class UserUpdateProcessor implements Processor {
     @SuppressWarnings("unchecked")
     public void process(final Exchange exchange) {
         WorkflowResult<Pair<UserPatch, Boolean>> updated = (WorkflowResult) exchange.getIn().getBody();
-        UserPatch userPatch = exchange.getProperty("actual", UserPatch.class);
 
         List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(updated);
-        if (tasks.isEmpty()) {
-            // SYNCOPE-459: take care of user virtual attributes ...
-            PropagationByResource propByResVirAttr = virtAttrHandler.updateVirtual(
-                    updated.getResult().getKey().getKey(),
-                    AnyTypeKind.USER,
-                    userPatch.getVirAttrs());
-            if (!propByResVirAttr.isEmpty()) {
-                tasks.addAll(propagationManager.getUserUpdateTasks(updated, false, null));
-            }
-        }
-
         PropagationReporter propagationReporter =
                 ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
-        if (!tasks.isEmpty()) {
-            try {
-                taskExecutor.execute(tasks, propagationReporter);
-            } catch (PropagationException e) {
-                LOG.error("Error propagation primary resource", e);
-                propagationReporter.onPrimaryResourceFailure(tasks);
-            }
+        try {
+            taskExecutor.execute(tasks, propagationReporter);
+        } catch (PropagationException e) {
+            LOG.error("Error propagation primary resource", e);
+            propagationReporter.onPrimaryResourceFailure(tasks);
         }
 
         exchange.getOut().setBody(new ImmutablePair<>(

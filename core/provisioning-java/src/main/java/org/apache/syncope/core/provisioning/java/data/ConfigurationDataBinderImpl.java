@@ -18,12 +18,12 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
+import java.util.ArrayList;
 import org.apache.syncope.core.provisioning.api.data.ConfigurationDataBinder;
 import java.util.Collections;
 import java.util.List;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AttrTO;
-import org.apache.syncope.common.lib.to.ConfTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidPlainAttrValueException;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -34,21 +34,22 @@ import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.conf.Conf;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ConfigurationDataBinderImpl extends AbstractAnyDataBinder implements ConfigurationDataBinder {
 
     @Override
-    public ConfTO getConfTO(final Conf conf) {
-        ConfTO confTO = new ConfTO();
-        confTO.setKey(conf.getKey());
-
-        fillTO(confTO, null, conf.getAuxClasses(),
-                conf.getPlainAttrs(), conf.getDerAttrs(), conf.getVirAttrs(), Collections.<ExternalResource>emptySet());
-
-        return confTO;
+    public List<AttrTO> getConfTO(final Conf conf) {
+        final List<AttrTO> attrTOs = new ArrayList<>();
+        for (final CPlainAttr plainAttr : conf.getPlainAttrs()) {
+            final AttrTO attrTO = new AttrTO();
+            attrTO.setSchema(plainAttr.getSchema().getKey());
+            attrTO.getValues().addAll(plainAttr.getValuesAsStrings());
+            attrTO.setReadonly(plainAttr.getSchema().isReadonly());
+            attrTOs.add(attrTO);
+        }
+        return attrTOs;
     }
 
     @Override

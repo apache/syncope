@@ -24,6 +24,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import org.apache.syncope.common.lib.to.SyncopeTO;
 
+/**
+ * General info about this Apache Syncope deployment.
+ */
 @Path("")
 public interface SyncopeService extends JAXRSService {
 

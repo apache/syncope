@@ -20,11 +20,11 @@ package org.apache.syncope.core.persistence.jpa.entity;
 
 import java.util.Date;
 
-import javax.persistence.Column;
 import javax.persistence.Lob;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.constraints.NotNull;
 import org.apache.syncope.core.persistence.api.entity.Exec;
 
 @MappedSuperclass
@@ -32,7 +32,7 @@ public abstract class AbstractExec extends AbstractEntity<Long> implements Exec 
 
     private static final long serialVersionUID = -812344822970166317L;
 
-    @Column(nullable = false)
+    @NotNull
     protected String status;
 
     /**

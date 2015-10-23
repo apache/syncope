@@ -47,8 +47,8 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService 
     private TaskLogic logic;
 
     @Override
-    public <T extends SchedTaskTO> Response create(final T taskTO) {
-        T createdTask;
+    public Response create(final SchedTaskTO taskTO) {
+        SchedTaskTO createdTask;
         if (taskTO instanceof SyncTaskTO || taskTO instanceof PushTaskTO || taskTO instanceof SchedTaskTO) {
             createdTask = logic.createSchedTask(taskTO);
         } else {

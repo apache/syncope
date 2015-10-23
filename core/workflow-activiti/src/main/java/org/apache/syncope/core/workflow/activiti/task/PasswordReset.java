@@ -18,13 +18,25 @@
  */
 package org.apache.syncope.core.workflow.activiti.task;
 
+import org.apache.syncope.common.lib.patch.PasswordPatch;
+import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.types.PropagationByResource;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.workflow.api.WorkflowException;
 import org.apache.syncope.core.workflow.activiti.ActivitiUserWorkflowAdapter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class PasswordReset extends AbstractActivitiServiceTask {
+
+    @Autowired
+    private UserDAO userDAO;
+
+    @Autowired
+    private UserDataBinder dataBinder;
 
     @Override
     protected void doExecute(final String executionId) {
@@ -40,8 +52,18 @@ public class PasswordReset extends AbstractActivitiServiceTask {
         }
 
         user.removeToken();
-        user.setPassword(password, user.getCipherAlgorithm());
+
+        UserPatch userPatch = new UserPatch();
+        userPatch.setKey(user.getKey());
+        userPatch.setPassword(new PasswordPatch.Builder().
+                onSyncope(true).resources(userDAO.findAllResourceNames(user)).value(password).build());
+
+        PropagationByResource propByRes = dataBinder.update(user, userPatch);
+
+        // report updated user and propagation by resource as result
         engine.getRuntimeService().setVariable(executionId, ActivitiUserWorkflowAdapter.USER, user);
+        engine.getRuntimeService().setVariable(executionId, ActivitiUserWorkflowAdapter.USER_PATCH, userPatch);
+        engine.getRuntimeService().setVariable(executionId, ActivitiUserWorkflowAdapter.PROP_BY_RESOURCE, propByRes);
     }
 
 }

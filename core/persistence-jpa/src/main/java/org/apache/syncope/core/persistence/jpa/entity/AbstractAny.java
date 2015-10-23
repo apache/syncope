@@ -39,7 +39,6 @@ import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.persistence.api.entity.VirAttr;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
@@ -49,9 +48,9 @@ import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 
 @MappedSuperclass
-public abstract class AbstractAny<P extends PlainAttr<?>, D extends DerAttr<?>, V extends VirAttr<?>>
+public abstract class AbstractAny<P extends PlainAttr<?>, D extends DerAttr<?>>
         extends AbstractAnnotatedEntity<Long>
-        implements Any<P, D, V> {
+        implements Any<P, D> {
 
     private static final long serialVersionUID = -2666540708092702810L;
 
@@ -123,18 +122,6 @@ public abstract class AbstractAny<P extends PlainAttr<?>, D extends DerAttr<?>, 
             public boolean evaluate(final D derAttr) {
                 return derAttr != null && derAttr.getSchema() != null
                         && derSchemaName.equals(derAttr.getSchema().getKey());
-            }
-        });
-    }
-
-    @Override
-    public V getVirAttr(final String virSchemaName) {
-        return CollectionUtils.find(getVirAttrs(), new Predicate<V>() {
-
-            @Override
-            public boolean evaluate(final V virAttr) {
-                return virAttr != null && virAttr.getSchema() != null
-                        && virSchemaName.equals(virAttr.getSchema().getKey());
             }
         });
     }

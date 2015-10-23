@@ -66,7 +66,7 @@ public class CamelRouteITCase extends AbstractITCase {
     private CamelRouteTO doUpdate(final String key, final String content) {
         CamelRouteTO route = camelRouteService.read(key);
         route.setContent(content);
-        camelRouteService.update(route.getKey(), route);
+        camelRouteService.update(route);
         // getting new route definition
         return camelRouteService.read(key);
     }

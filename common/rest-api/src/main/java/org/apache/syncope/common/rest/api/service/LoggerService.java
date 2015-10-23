@@ -36,7 +36,7 @@ import org.apache.syncope.common.lib.types.LoggerType;
 /**
  * REST operations for logging and auditing.
  */
-@Path("logger")
+@Path("loggers")
 public interface LoggerService extends JAXRSService {
 
     /**

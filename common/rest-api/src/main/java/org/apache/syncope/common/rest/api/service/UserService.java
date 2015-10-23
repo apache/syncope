@@ -43,7 +43,7 @@ public interface UserService extends AnyService<UserTO, UserPatch> {
      * Gives the username for the provided user key.
      *
      * @param key user key
-     * @return <tt>Response</tt> object featuring HTTP header with username matching the given key
+     * @return Response object featuring HTTP header with username matching the given key
      */
     @OPTIONS
     @Path("{key}/username")
@@ -53,7 +53,7 @@ public interface UserService extends AnyService<UserTO, UserPatch> {
      * Gives the user key for the provided username.
      *
      * @param username username
-     * @return <tt>Response</tt> object featuring HTTP header with key matching the given username
+     * @return Response object featuring HTTP header with key matching the given username
      */
     @OPTIONS
     @Path("{username}/key")
@@ -64,8 +64,8 @@ public interface UserService extends AnyService<UserTO, UserPatch> {
      *
      * @param userTO user to be created
      * @param storePassword whether password shall be stored internally
-     * @return <tt>Response</tt> object featuring <tt>Location</tt> header of created user as well as the user itself
-     * enriched with propagation status information - <tt>UserTO</tt> as <tt>Entity</tt>
+     * @return Response object featuring Location header of created user as well as the user itself
+     * enriched with propagation status information - UserTO as Entity
      */
     @POST
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
@@ -78,8 +78,8 @@ public interface UserService extends AnyService<UserTO, UserPatch> {
      * Performs a status update on given.
      *
      * @param statusPatch status update details
-     * @return <tt>Response</tt> object featuring the updated user enriched with propagation status information
-     * - <tt>UserTO</tt> as <tt>Entity</tt>
+     * @return Response object featuring the updated user enriched with propagation status information
+     * - UserTO as Entity
      */
     @POST
     @Path("{key}/status")

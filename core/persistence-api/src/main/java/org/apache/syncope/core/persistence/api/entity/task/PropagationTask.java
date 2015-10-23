@@ -54,6 +54,10 @@ public interface PropagationTask extends Task {
 
     void setAnyTypeKind(AnyTypeKind anyTypeKind);
 
+    String getAnyType();
+
+    void setAnyType(String anyType);
+
     ExternalResource getResource();
 
     void setResource(ExternalResource resource);

@@ -68,7 +68,7 @@ public class JPAPlainAttrDAO extends AbstractDAO<PlainAttr<?>, Long> implements 
     @SuppressWarnings("unchecked")
     public <T extends PlainAttr<?>> void delete(final T plainAttr) {
         if (plainAttr.getOwner() != null) {
-            ((Any<T, ?, ?>) plainAttr.getOwner()).remove(plainAttr);
+            ((Any<T, ?>) plainAttr.getOwner()).remove(plainAttr);
         }
 
         entityManager().remove(plainAttr);

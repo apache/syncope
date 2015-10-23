@@ -131,5 +131,4 @@ public class JPAProvision extends AbstractEntity<Long> implements Provision {
         checkType(mapping, JPAMapping.class);
         this.mapping = (JPAMapping) mapping;
     }
-
 }

@@ -26,7 +26,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.ArrayUtils;
@@ -47,8 +46,6 @@ import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.provisioning.api.AnyObjectProvisioningManager;
 import org.apache.syncope.core.provisioning.api.data.AnyObjectDataBinder;
-import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
-import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.misc.security.AuthContextUtils;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
@@ -73,15 +70,6 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
 
     @Autowired
     protected AnyObjectDataBinder binder;
-
-    @Autowired
-    protected PropagationManager propagationManager;
-
-    @Autowired
-    protected PropagationTaskExecutor taskExecutor;
-
-    @Resource(name = "anonymousUser")
-    protected String anonymousUser;
 
     @Autowired
     protected AnyObjectProvisioningManager provisioningManager;

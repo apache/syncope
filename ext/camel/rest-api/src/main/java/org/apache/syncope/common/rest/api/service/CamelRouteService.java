@@ -32,23 +32,46 @@ import javax.ws.rs.core.MediaType;
 import org.apache.syncope.common.lib.to.CamelRouteTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 
+/**
+ * REST operations for Camel routes.
+ */
 @Path("camelRoutes")
 public interface CamelRouteService extends JAXRSService {
 
+    /**
+     * List all routes for the given any type kind.
+     *
+     * @param anyTypeKind any type kind
+     * @return all routes for the given any type kind
+     */
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     List<CamelRouteTO> list(@NotNull @MatrixParam("anyTypeKind") AnyTypeKind anyTypeKind);
 
+    /**
+     * Read the route with the given key.
+     *
+     * @param key route key
+     * @return route with given key
+     */
     @GET
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     CamelRouteTO read(@NotNull @PathParam("key") String key);
 
+    /**
+     * Update the given route.
+     *
+     * @param route to be updated
+     */
     @PUT
     @Path("{key}")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    void update(@NotNull @PathParam("key") String key, @NotNull CamelRouteTO route);
+    void update(@NotNull CamelRouteTO route);
 
+    /**
+     * Restart the underlying Apache Camel context.
+     */
     @POST
     @Path("restartContext")
     void restartContext();

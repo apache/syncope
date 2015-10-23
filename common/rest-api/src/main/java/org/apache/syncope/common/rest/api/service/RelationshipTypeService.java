@@ -62,7 +62,7 @@ public interface RelationshipTypeService extends JAXRSService {
      * Creates a new relationshipType.
      *
      * @param relationshipTypeTO relationshipType to be created
-     * @return <tt>Response</tt> object featuring <tt>Location</tt> header of created relationshipType
+     * @return Response object featuring Location header of created relationshipType
      */
     @POST
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })

@@ -103,7 +103,7 @@ public interface ResourceService extends JAXRSService {
      * Creates a new resource.
      *
      * @param resourceTO Resource to be created
-     * @return <tt>Response</tt> object featuring <tt>Location</tt> header of created resource
+     * @return Response object featuring Location header of created resource
      */
     @POST
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
@@ -147,7 +147,7 @@ public interface ResourceService extends JAXRSService {
      * @param anyTypeKey any object kind
      * @param type resource de-association action type
      * @param keys any object keys against which the bulk action will be performed
-     * @return <tt>Response</tt> object featuring <tt>BulkActionResult</tt> as <tt>Entity</tt>
+     * @return Response object featuring BulkActionResult as Entity
      */
     @POST
     @Path("{key}/bulkDeassociation/{anyTypeKey}/{action}")

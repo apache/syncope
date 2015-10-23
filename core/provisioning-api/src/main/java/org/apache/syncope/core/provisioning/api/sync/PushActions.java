@@ -37,7 +37,7 @@ public interface PushActions extends ProvisioningActions {
      * @return any.
      * @throws JobExecutionException in case of generic failure
      */
-    <A extends Any<?, ?, ?>> A beforeAssign(
+    <A extends Any<?, ?>> A beforeAssign(
             ProvisioningProfile<?, ?> profile,
             A any) throws JobExecutionException;
 
@@ -50,7 +50,7 @@ public interface PushActions extends ProvisioningActions {
      * @return any.
      * @throws JobExecutionException in case of generic failure
      */
-    <A extends Any<?, ?, ?>> A beforeProvision(
+    <A extends Any<?, ?>> A beforeProvision(
             ProvisioningProfile<?, ?> profile,
             A any) throws JobExecutionException;
 
@@ -63,7 +63,7 @@ public interface PushActions extends ProvisioningActions {
      * @return any.
      * @throws JobExecutionException in case of generic failure
      */
-    <A extends Any<?, ?, ?>> A beforeUpdate(
+    <A extends Any<?, ?>> A beforeUpdate(
             ProvisioningProfile<?, ?> profile,
             A any) throws JobExecutionException;
 
@@ -76,7 +76,7 @@ public interface PushActions extends ProvisioningActions {
      * @return any.
      * @throws JobExecutionException in case of generic failure
      */
-    <A extends Any<?, ?, ?>> A beforeLink(
+    <A extends Any<?, ?>> A beforeLink(
             ProvisioningProfile<?, ?> profile,
             A any) throws JobExecutionException;
 
@@ -89,7 +89,7 @@ public interface PushActions extends ProvisioningActions {
      * @return any.
      * @throws JobExecutionException in case of generic failure
      */
-    <A extends Any<?, ?, ?>> A beforeUnlink(
+    <A extends Any<?, ?>> A beforeUnlink(
             ProvisioningProfile<?, ?> profile,
             A any) throws JobExecutionException;
 
@@ -102,7 +102,7 @@ public interface PushActions extends ProvisioningActions {
      * @return any.
      * @throws JobExecutionException in case of generic failure
      */
-    <A extends Any<?, ?, ?>> A beforeUnassign(
+    <A extends Any<?, ?>> A beforeUnassign(
             ProvisioningProfile<?, ?> profile,
             A any) throws JobExecutionException;
 
@@ -115,7 +115,7 @@ public interface PushActions extends ProvisioningActions {
      * @return any.
      * @throws JobExecutionException in case of generic failure
      */
-    <A extends Any<?, ?, ?>> A beforeDeprovision(
+    <A extends Any<?, ?>> A beforeDeprovision(
             ProvisioningProfile<?, ?> profile,
             A any) throws JobExecutionException;
 
@@ -128,7 +128,7 @@ public interface PushActions extends ProvisioningActions {
      * @return any.
      * @throws JobExecutionException in case of generic failure
      */
-    <A extends Any<?, ?, ?>> A beforeDelete(
+    <A extends Any<?, ?>> A beforeDelete(
             ProvisioningProfile<?, ?> profile,
             A any) throws JobExecutionException;
 
@@ -142,7 +142,7 @@ public interface PushActions extends ProvisioningActions {
      * @param error error being reported
      * @throws JobExecutionException in case of generic failure
      */
-    <A extends Any<?, ?, ?>> void onError(
+    <A extends Any<?, ?>> void onError(
             ProvisioningProfile<?, ?> profile,
             A any,
             ProvisioningResult result,
@@ -157,7 +157,7 @@ public interface PushActions extends ProvisioningActions {
      * @param result operation result.
      * @throws JobExecutionException in case of generic failure
      */
-    <A extends Any<?, ?, ?>> void after(
+    <A extends Any<?, ?>> void after(
             ProvisioningProfile<?, ?> profile,
             A any,
             ProvisioningResult result) throws JobExecutionException;

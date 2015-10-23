@@ -73,7 +73,7 @@ public abstract class ActionLink<T> implements Serializable {
 
         private final String actionId;
 
-        private ActionType(final String actionId) {
+        ActionType(final String actionId) {
             this.actionId = actionId;
         }
 

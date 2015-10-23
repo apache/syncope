@@ -22,9 +22,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 import java.text.ParseException;
 import java.util.List;
+import javax.ws.rs.core.Response;
+import javax.xml.ws.WebServiceException;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.EventCategoryTO;
 import org.apache.syncope.common.lib.to.LoggerTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -210,5 +214,17 @@ public class LoggerITCase extends AbstractITCase {
             }
         }
         assertTrue(found);
+    }
+
+    @Test
+    public void issueSYNCOPE708() {
+        try {
+            loggerService.read(LoggerType.LOG, "notExists");
+            fail("Reading non-existing logger, it should go in exception");
+        } catch (final WebServiceException ex) {
+            fail("Exception is WebServiceException but it should be SyncopeClientException");
+        } catch (final SyncopeClientException ex) {
+            assertEquals(Response.Status.NOT_FOUND, ex.getType().getResponseStatus());
+        }
     }
 }

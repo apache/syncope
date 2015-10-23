@@ -29,24 +29,20 @@ import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.DerAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
-import org.apache.syncope.core.persistence.api.entity.VirAttr;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAADerAttr;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAPlainAttr;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAPlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAPlainAttrValue;
-import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAVirAttr;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGDerAttr;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttr;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttrValue;
-import org.apache.syncope.core.persistence.jpa.entity.group.JPAGVirAttr;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUDerAttr;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUPlainAttr;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUPlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUPlainAttrValue;
-import org.apache.syncope.core.persistence.jpa.entity.user.JPAUVirAttr;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -64,7 +60,7 @@ public class JPAAnyUtils implements AnyUtils {
     }
 
     @Override
-    public <T extends Any<?, ?, ?>> Class<T> anyClass() {
+    public <T extends Any<?, ?>> Class<T> anyClass() {
         Class result;
 
         switch (anyTypeKind) {
@@ -257,52 +253,6 @@ public class JPAAnyUtils implements AnyUtils {
 
             case ANY_OBJECT:
                 result = (T) new JPAADerAttr();
-                break;
-
-            default:
-        }
-
-        return result;
-    }
-
-    @Override
-    public <T extends VirAttr<?>> Class<T> virAttrClass() {
-        Class result = null;
-
-        switch (anyTypeKind) {
-            case USER:
-                result = JPAUVirAttr.class;
-                break;
-
-            case GROUP:
-                result = JPAGVirAttr.class;
-                break;
-
-            case ANY_OBJECT:
-                result = JPAAVirAttr.class;
-                break;
-
-            default:
-        }
-
-        return result;
-    }
-
-    @Override
-    public <T extends VirAttr<?>> T newVirAttr() {
-        T result = null;
-
-        switch (anyTypeKind) {
-            case USER:
-                result = (T) new JPAUVirAttr();
-                break;
-
-            case GROUP:
-                result = (T) new JPAGVirAttr();
-                break;
-
-            case ANY_OBJECT:
-                result = (T) new JPAAVirAttr();
                 break;
 
             default:

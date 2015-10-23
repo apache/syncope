@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.jpa.dao;
 import java.util.List;
 import javax.persistence.TypedQuery;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrValueDAO;
+import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttrValue;
@@ -99,7 +100,11 @@ public class JPAPlainAttrValueDAO extends AbstractDAO<PlainAttrValue, Long> impl
     @Override
     public <T extends PlainAttrValue> void delete(final T attrValue) {
         if (attrValue.getAttr() != null) {
-            attrValue.getAttr().remove(attrValue);
+            if (attrValue instanceof PlainAttrUniqueValue) {
+                attrValue.getAttr().setUniqueValue(null);
+            } else {
+                attrValue.getAttr().remove(attrValue);
+            }
         }
 
         entityManager().remove(attrValue);

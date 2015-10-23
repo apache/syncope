@@ -22,7 +22,7 @@ import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import java.util.List;
 import java.util.Set;
 
-public interface Any<P extends PlainAttr<?>, D extends DerAttr<?>, V extends VirAttr<?>> extends AnnotatedEntity<Long> {
+public interface Any<P extends PlainAttr<?>, D extends DerAttr<?>> extends AnnotatedEntity<Long> {
 
     AnyType getType();
 
@@ -55,14 +55,6 @@ public interface Any<P extends PlainAttr<?>, D extends DerAttr<?>, V extends Vir
     D getDerAttr(String derSchemaName);
 
     List<? extends D> getDerAttrs();
-
-    boolean add(V virAttr);
-
-    boolean remove(V virAttr);
-
-    V getVirAttr(String virSchemaName);
-
-    List<? extends V> getVirAttrs();
 
     boolean add(ExternalResource resource);
 

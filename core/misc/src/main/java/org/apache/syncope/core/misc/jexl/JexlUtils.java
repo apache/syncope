@@ -35,8 +35,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.core.persistence.api.entity.DerAttr;
-import org.apache.syncope.core.persistence.api.entity.VirAttr;
-import org.apache.syncope.core.misc.DataFormat;
+import org.apache.syncope.core.misc.FormatUtils;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.slf4j.Logger;
@@ -126,7 +125,7 @@ public final class JexlUtils {
                         context.set(fieldName, fieldValue == null
                                 ? StringUtils.EMPTY
                                 : (type.equals(Date.class)
-                                        ? DataFormat.format((Date) fieldValue, false)
+                                        ? FormatUtils.format((Date) fieldValue, false)
                                         : fieldValue));
 
                         LOG.debug("Add field {} with value {}", fieldName, fieldValue);
@@ -140,7 +139,7 @@ public final class JexlUtils {
         }
 
         if (object instanceof Any) {
-            Any<?, ?, ?> any = (Any<?, ?, ?>) object;
+            Any<?, ?> any = (Any<?, ?>) object;
             if (any.getRealm() != null) {
                 context.set("realm", any.getRealm().getName());
             }
@@ -195,40 +194,16 @@ public final class JexlUtils {
         return context;
     }
 
-    public static JexlContext addVirAttrsToContext(final Collection<? extends VirAttr> virAttrs,
-            final JexlContext jexlContext) {
-
-        JexlContext context = jexlContext == null
-                ? new MapContext()
-                : jexlContext;
-
-        for (VirAttr<?> virAttr : virAttrs) {
-            if (virAttr.getSchema() != null) {
-                List<String> attrValues = virAttr.getValues();
-                String expressionValue = attrValues.isEmpty()
-                        ? StringUtils.EMPTY
-                        : attrValues.get(0);
-
-                LOG.debug("Add virtual attribute {} with value {}", virAttr.getSchema().getKey(), expressionValue);
-
-                context.set(virAttr.getSchema().getKey(), expressionValue);
-            }
-        }
-
-        return context;
-    }
-
-    public static boolean evaluateMandatoryCondition(final String mandatoryCondition, final Any<?, ?, ?> any) {
+    public static boolean evaluateMandatoryCondition(final String mandatoryCondition, final Any<?, ?> any) {
         JexlContext jexlContext = new MapContext();
         addPlainAttrsToContext(any.getPlainAttrs(), jexlContext);
         addDerAttrsToContext(any.getDerAttrs(), any.getPlainAttrs(), jexlContext);
-        addVirAttrsToContext(any.getVirAttrs(), jexlContext);
 
         return Boolean.parseBoolean(evaluate(mandatoryCondition, jexlContext));
     }
 
     public static String evaluate(final String expression,
-            final Any<?, ?, ?> any, final Collection<? extends PlainAttr<?>> attributes) {
+            final Any<?, ?> any, final Collection<? extends PlainAttr<?>> attributes) {
 
         JexlContext jexlContext = new MapContext();
         JexlUtils.addPlainAttrsToContext(attributes, jexlContext);

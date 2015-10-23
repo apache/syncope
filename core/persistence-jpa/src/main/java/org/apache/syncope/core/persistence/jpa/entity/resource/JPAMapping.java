@@ -28,6 +28,7 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.types.IntMappingType;
@@ -48,12 +49,10 @@ public class JPAMapping extends AbstractEntity<Long> implements Mapping {
     @Id
     private Long id;
 
+    @NotNull
     @OneToOne
     private JPAProvision provision;
 
-    /**
-     * Attribute mappings.
-     */
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "mapping")
     private List<JPAMappingItem> items = new ArrayList<>();
 
@@ -79,17 +78,6 @@ public class JPAMapping extends AbstractEntity<Long> implements Mapping {
     }
 
     @Override
-    public void setConnObjectKeyItem(final MappingItem item) {
-        checkType(item, JPAMappingItem.class);
-        this.addConnObjectKeyItem((JPAMappingItem) item);
-    }
-
-    @Override
-    public List<? extends MappingItem> getItems() {
-        return items;
-    }
-
-    @Override
     public boolean add(final MappingItem item) {
         checkType(item, JPAMappingItem.class);
         return items.contains((JPAMappingItem) item) || items.add((JPAMappingItem) item);
@@ -102,6 +90,11 @@ public class JPAMapping extends AbstractEntity<Long> implements Mapping {
     }
 
     @Override
+    public List<? extends MappingItem> getItems() {
+        return items;
+    }
+
+    @Override
     public MappingItem getConnObjectKeyItem() {
         return CollectionUtils.find(getItems(), new Predicate<MappingItem>() {
 
@@ -110,6 +103,12 @@ public class JPAMapping extends AbstractEntity<Long> implements Mapping {
                 return item.isConnObjectKey();
             }
         });
+    }
+
+    @Override
+    public void setConnObjectKeyItem(final MappingItem item) {
+        checkType(item, JPAMappingItem.class);
+        this.addConnObjectKeyItem((JPAMappingItem) item);
     }
 
     protected boolean addConnObjectKeyItem(final MappingItem connObjectKeyItem) {

@@ -128,7 +128,7 @@ public class SyncUtils {
                         return found.add(obj);
                     }
                 },
-                connector.getOperationOptions(MappingUtils.getSyncMappingItems(provision)));
+                connector.getOperationOptions(MappingUtils.getSyncMappingItems(provision).iterator()));
 
         if (found.isEmpty()) {
             LOG.debug("No {} found on {} with __NAME__ {}", provision.getObjectClass(), resource, name);
@@ -199,9 +199,9 @@ public class SyncUtils {
                     }
                 }
 
-                List<? extends Any<?, ?, ?>> anys =
+                List<? extends Any<?, ?>> anys =
                         getAnyDAO(connObjectKeyItem).findByAttrValue(connObjectKeyItem.getIntAttrName(), value);
-                for (Any<?, ?, ?> any : anys) {
+                for (Any<?, ?> any : anys) {
                     result.add(any.getKey());
                 }
                 break;
@@ -210,7 +210,7 @@ public class SyncUtils {
             case GroupDerivedSchema:
             case AnyObjectDerivedSchema:
                 anys = getAnyDAO(connObjectKeyItem).findByDerAttrValue(connObjectKeyItem.getIntAttrName(), transfUid);
-                for (Any<?, ?, ?> any : anys) {
+                for (Any<?, ?> any : anys) {
                     result.add(any.getKey());
                 }
                 break;
@@ -218,7 +218,7 @@ public class SyncUtils {
             case UserKey:
             case GroupKey:
             case AnyObjectKey:
-                Any<?, ?, ?> any = getAnyDAO(connObjectKeyItem).find(Long.parseLong(transfUid));
+                Any<?, ?> any = getAnyDAO(connObjectKeyItem).find(Long.parseLong(transfUid));
                 if (any != null) {
                     result.add(any.getKey());
                 }
@@ -249,7 +249,7 @@ public class SyncUtils {
             final ConnectorObject connObj, final SyncCorrelationRule rule, final AnyTypeKind type) {
 
         List<Long> result = new ArrayList<>();
-        for (Any<?, ?, ?> any : searchDAO.search(
+        for (Any<?, ?> any : searchDAO.search(
                 SyncopeConstants.FULL_ADMIN_REALMS,
                 rule.getSearchCond(connObj),
                 Collections.<OrderByClause>emptyList(),

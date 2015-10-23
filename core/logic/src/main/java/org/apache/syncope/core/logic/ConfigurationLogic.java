@@ -20,8 +20,8 @@ package org.apache.syncope.core.logic;
 
 import java.io.OutputStream;
 import java.lang.reflect.Method;
+import java.util.List;
 import org.apache.syncope.common.lib.to.AttrTO;
-import org.apache.syncope.common.lib.to.ConfTO;
 import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.core.misc.security.AuthContextUtils;
 import org.apache.syncope.core.persistence.api.content.ContentExporter;
@@ -39,7 +39,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
-public class ConfigurationLogic extends AbstractTransactionalLogic<ConfTO> {
+public class ConfigurationLogic extends AbstractTransactionalLogic<AttrTO> {
 
     @Autowired
     private ConfDAO confDAO;
@@ -61,11 +61,19 @@ public class ConfigurationLogic extends AbstractTransactionalLogic<ConfTO> {
 
     @PreAuthorize("hasRole('" + Entitlement.CONFIGURATION_DELETE + "')")
     public void delete(final String schema) {
+        CPlainAttr conf = confDAO.find(schema);
+        if (conf == null) {
+            PlainSchema plainSchema = plainSchemaDAO.find(schema);
+            if (plainSchema == null) {
+                throw new NotFoundException("Configuration schema " + schema);
+            }
+        }
+
         confDAO.delete(schema);
     }
 
     @PreAuthorize("hasRole('" + Entitlement.CONFIGURATION_LIST + "')")
-    public ConfTO list() {
+    public List<AttrTO> list() {
         return binder.getConfTO(confDAO.get());
     }
 
@@ -106,7 +114,7 @@ public class ConfigurationLogic extends AbstractTransactionalLogic<ConfTO> {
     }
 
     @Override
-    protected ConfTO resolveReference(final Method method, final Object... args)
+    protected AttrTO resolveReference(final Method method, final Object... args)
             throws UnresolvedReferenceException {
 
         throw new UnresolvedReferenceException();

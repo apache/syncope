@@ -27,12 +27,32 @@ public class VirSchemaTO extends AbstractSchemaTO {
 
     private boolean readonly;
 
+    private long provision;
+
+    private String extAttrName;
+
     public boolean isReadonly() {
         return readonly;
     }
 
     public void setReadonly(final boolean readonly) {
         this.readonly = readonly;
+    }
+
+    public long getProvision() {
+        return provision;
+    }
+
+    public void setProvision(final long provision) {
+        this.provision = provision;
+    }
+
+    public String getExtAttrName() {
+        return extAttrName;
+    }
+
+    public void setExtAttrName(final String extAttrName) {
+        this.extAttrName = extAttrName;
     }
 
 }

@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -53,9 +52,9 @@ public abstract class AnyTO extends ConnObjectTO {
 
     private final List<String> auxClasses = new ArrayList<>();
 
-    private final Set<AttrTO> derAttrs = new LinkedHashSet<>();
+    private final Set<AttrTO> derAttrs = new HashSet<>();
 
-    private final Set<AttrTO> virAttrs = new LinkedHashSet<>();
+    private final Set<AttrTO> virAttrs = new HashSet<>();
 
     private final Set<String> resources = new HashSet<>();
 

@@ -19,6 +19,7 @@
 package org.apache.syncope.fit.core.reference;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -27,6 +28,7 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.List;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -34,7 +36,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AttrTO;
-import org.apache.syncope.common.lib.to.ConfTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -68,6 +69,7 @@ public class ConfigurationITCase extends AbstractITCase {
     public void delete() throws UnsupportedEncodingException {
         try {
             configurationService.delete("nonExistent");
+            fail("The delete operation should throw an exception because of nonExistent schema");
         } catch (SyncopeClientException e) {
             assertEquals(Response.Status.NOT_FOUND, e.getType().getResponseStatus());
         }
@@ -75,23 +77,21 @@ public class ConfigurationITCase extends AbstractITCase {
         AttrTO tokenLength = configurationService.get("token.length");
 
         configurationService.delete("token.length");
-        try {
-            configurationService.get("token.length");
-        } catch (SyncopeClientException e) {
-            assertEquals(Response.Status.NOT_FOUND, e.getType().getResponseStatus());
-        }
+
+        AttrTO actual = configurationService.get(tokenLength.getSchema());
+        assertNotEquals(actual, tokenLength);
 
         configurationService.set(tokenLength);
 
-        AttrTO actual = configurationService.get(tokenLength.getSchema());
+        actual = configurationService.get(tokenLength.getSchema());
         assertEquals(actual, tokenLength);
     }
 
     @Test
     public void list() {
-        ConfTO wholeConf = configurationService.list();
+        List<AttrTO> wholeConf = configurationService.list();
         assertNotNull(wholeConf);
-        for (AttrTO conf : wholeConf.getPlainAttrs()) {
+        for (AttrTO conf : wholeConf) {
             assertNotNull(conf);
         }
     }

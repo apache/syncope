@@ -318,7 +318,7 @@ public class PlainSchemaITCase extends AbstractITCase {
 
     @Test
     public void anonymous() {
-        SchemaService unauthenticated = clientFactory.createAnonymous().getService(SchemaService.class);
+        SchemaService unauthenticated = clientFactory.create().getService(SchemaService.class);
         try {
             unauthenticated.list(SchemaType.VIRTUAL);
             fail();

@@ -27,9 +27,13 @@ import static org.junit.Assert.fail;
 import java.util.List;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
+import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
+import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,10 +44,13 @@ public class VirSchemaTest extends AbstractTest {
     @Autowired
     private VirSchemaDAO virSchemaDAO;
 
+    @Autowired
+    private ExternalResourceDAO resourceDAO;
+
     @Test
     public void findAll() {
         List<VirSchema> list = virSchemaDAO.findAll();
-        assertEquals(4, list.size());
+        assertEquals(3, list.size());
     }
 
     @Test
@@ -54,15 +61,22 @@ public class VirSchemaTest extends AbstractTest {
 
     @Test
     public void save() {
-        VirSchema virtualAttributeSchema = entityFactory.newEntity(VirSchema.class);
-        virtualAttributeSchema.setKey("virtual");
-        virtualAttributeSchema.setReadonly(true);
+        ExternalResource csv = resourceDAO.find("resource-csv");
+        Provision provision = csv.getProvision(ObjectClass.ACCOUNT);
+        assertNotNull(provision);
 
-        virSchemaDAO.save(virtualAttributeSchema);
+        VirSchema virSchema = entityFactory.newEntity(VirSchema.class);
+        virSchema.setKey("virtual");
+        virSchema.setProvision(provision);
+        virSchema.setReadonly(true);
+        virSchema.setExtAttrName("EXT_ATTR");
+
+        virSchemaDAO.save(virSchema);
 
         VirSchema actual = virSchemaDAO.find("virtual");
         assertNotNull("expected save to work", actual);
         assertTrue(actual.isReadonly());
+        assertEquals("EXT_ATTR", actual.getExtAttrName());
     }
 
     @Test

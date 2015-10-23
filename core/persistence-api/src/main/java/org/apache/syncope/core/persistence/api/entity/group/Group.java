@@ -25,7 +25,7 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembers
 import org.apache.syncope.core.persistence.api.entity.user.UDynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 
-public interface Group extends Any<GPlainAttr, GDerAttr, GVirAttr> {
+public interface Group extends Any<GPlainAttr, GDerAttr> {
 
     String getName();
 
@@ -62,18 +62,6 @@ public interface Group extends Any<GPlainAttr, GDerAttr, GVirAttr> {
 
     @Override
     List<? extends GDerAttr> getDerAttrs();
-
-    @Override
-    boolean add(GVirAttr attr);
-
-    @Override
-    boolean remove(GVirAttr virAttr);
-
-    @Override
-    GVirAttr getVirAttr(String virSchemaName);
-
-    @Override
-    List<? extends GVirAttr> getVirAttrs();
 
     ADynGroupMembership getADynMembership();
 

@@ -28,11 +28,13 @@ import static org.junit.Assert.fail;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import javax.ws.rs.core.Response;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.SerializationUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -607,6 +609,9 @@ public class SyncTaskITCase extends AbstractTaskITCase {
     @Test
     public void issueSYNCOPE307() {
         UserTO userTO = UserITCase.getUniqueSampleTO("s307@apache.org");
+        userTO.setUsername("test0");
+        userTO.getPlainAttrMap().get("firstname").getValues().clear();
+        userTO.getPlainAttrMap().get("firstname").getValues().add("nome0");
         userTO.getAuxClasses().add("csv");
 
         AttrTO csvuserid = new AttrTO();
@@ -615,37 +620,34 @@ public class SyncTaskITCase extends AbstractTaskITCase {
 
         userTO.getResources().clear();
         userTO.getResources().add(RESOURCE_NAME_WS2);
-        userTO.getResources().add(RESOURCE_NAME_CSV);
 
         userTO = createUser(userTO);
         assertNotNull(userTO);
 
         userTO = userService.read(userTO.getKey());
-        assertEquals("virtualvalue", userTO.getVirAttrMap().get("virtualdata").getValues().get(0));
+        assertTrue(userTO.getVirAttrMap().isEmpty());
 
         // Update sync task
         SyncTaskTO task = taskService.read(12L);
         assertNotNull(task);
 
-        //  add user template
         UserTO template = new UserTO();
+        template.setPassword("'password123'");
         template.getResources().add(RESOURCE_NAME_DBVIRATTR);
-
-        AttrTO userId = attrTO("userId", "'s307@apache.org'");
-        template.getPlainAttrs().add(userId);
-
-        AttrTO email = attrTO("email", "'s307@apache.org'");
-        template.getPlainAttrs().add(email);
+        template.getVirAttrs().add(attrTO("virtualdata", "'virtualvalue'"));
 
         task.getTemplates().put(AnyTypeKind.USER.name(), template);
 
         taskService.update(task);
+
+        // exec task: one user from CSV will match the user created above and template will be applied
         execProvisioningTask(taskService, task.getKey(), 50, false);
 
-        // check for sync policy
+        // check that template was successfully applied...
         userTO = userService.read(userTO.getKey());
         assertEquals("virtualvalue", userTO.getVirAttrMap().get("virtualdata").getValues().get(0));
 
+        // ...and that propagation to db succeeded
         try {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
 
@@ -674,9 +676,9 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         assertEquals(Encryptor.getInstance().encode("security123", CipherAlgorithm.SHA1), value.toUpperCase());
 
         // 3. Update the password in the DB
-        String newPassword = Encryptor.getInstance().encode("new-security", CipherAlgorithm.SHA1);
-        jdbcTemplate.execute(
-                "UPDATE test set PASSWORD='" + newPassword + "' where ID='" + user.getUsername() + "'");
+        String newCleanPassword = "new-security";
+        String newPassword = Encryptor.getInstance().encode(newCleanPassword, CipherAlgorithm.SHA1);
+        jdbcTemplate.execute("UPDATE test set PASSWORD='" + newPassword + "' where ID='" + user.getUsername() + "'");
 
         // 4. Sync the user from the resource
         SyncTaskTO syncTask = new SyncTaskTO();
@@ -701,8 +703,8 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(execution.getStatus()));
 
         // 5. Test the sync'd user
-        UserTO updatedUser = userService.read(user.getKey());
-        assertEquals(newPassword, updatedUser.getPassword());
+        Pair<Map<String, Set<String>>, UserTO> self = clientFactory.create(user.getUsername(), newCleanPassword).self();
+        assertNotNull(self);
 
         // 6. Delete SyncTask + user
         taskService.delete(syncTask.getKey());
@@ -715,30 +717,31 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         ldapCleanup();
 
         // 1. create user in LDAP
+        String oldCleanPassword = "security123";
         UserTO user = UserITCase.getUniqueSampleTO("syncope313-ldap@syncope.apache.org");
-        user.setPassword("security123");
+        user.setPassword(oldCleanPassword);
         user.getResources().add(RESOURCE_NAME_LDAP);
         user = createUser(user);
         assertNotNull(user);
         assertFalse(user.getResources().isEmpty());
 
         // 2. request to change password only on Syncope and not on LDAP
+        String newCleanPassword = "new-security123";
         UserPatch userPatch = new UserPatch();
         userPatch.setKey(user.getKey());
-        userPatch.setPassword(new PasswordPatch.Builder().value("new-security123").build());
-        updateUser(userPatch);
+        userPatch.setPassword(new PasswordPatch.Builder().value(newCleanPassword).build());
+        user = updateUser(userPatch);
 
         // 3. Check that the Syncope user now has the changed password
-        UserTO updatedUser = userService.read(user.getKey());
-        String encodedNewPassword = Encryptor.getInstance().encode("new-security123", CipherAlgorithm.SHA1);
-        assertEquals(encodedNewPassword, updatedUser.getPassword());
+        Pair<Map<String, Set<String>>, UserTO> self = clientFactory.create(user.getUsername(), newCleanPassword).self();
+        assertNotNull(self);
 
         // 4. Check that the LDAP resource has the old password
         ConnObjectTO connObject =
                 resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), user.getKey());
         assertNotNull(getLdapRemoteObject(
                 connObject.getPlainAttrMap().get(Name.NAME).getValues().get(0),
-                "security123",
+                oldCleanPassword,
                 connObject.getPlainAttrMap().get(Name.NAME).getValues().get(0)));
 
         // 5. Update the LDAP Connector to retrieve passwords
@@ -761,27 +764,21 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         syncTask.getActionsClassNames().add(LDAPPasswordSyncActions.class.getName());
         Response taskResponse = taskService.create(syncTask);
 
-        SyncTaskTO actual = getObject(taskResponse.getLocation(), TaskService.class, SyncTaskTO.class);
-        assertNotNull(actual);
-
-        syncTask = taskService.read(actual.getKey());
+        syncTask = getObject(taskResponse.getLocation(), TaskService.class, SyncTaskTO.class);
         assertNotNull(syncTask);
-        assertEquals(actual.getKey(), syncTask.getKey());
-        assertEquals(actual.getJobDelegateClassName(), syncTask.getJobDelegateClassName());
 
         TaskExecTO execution = execProvisioningTask(taskService, syncTask.getKey(), 50, false);
         assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(execution.getStatus()));
 
         // 7. Test the sync'd user
-        String syncedPassword = Encryptor.getInstance().encode("security123", CipherAlgorithm.SHA1);
-        updatedUser = userService.read(user.getKey());
-        assertEquals(syncedPassword, updatedUser.getPassword());
+        self = clientFactory.create(user.getUsername(), oldCleanPassword).self();
+        assertNotNull(self);
 
         // 8. Delete SyncTask + user + reset the connector
         taskService.delete(syncTask.getKey());
         property.getValues().clear();
         property.getValues().add(Boolean.FALSE);
         connectorService.update(resourceConnector);
-        deleteUser(updatedUser.getKey());
+        deleteUser(user.getKey());
     }
 }

@@ -43,7 +43,7 @@ public class PlainAttrValidator extends AbstractValidator<PlainAttrCheck, PlainA
 
             if (!isValid) {
                 LOG.error("Invalid values for attribute " + object + ": " + "schema=" + object.getSchema().getKey()
-                        + ", " + "values={}", object.getValuesAsStrings());
+                        + ", values={}", object.getValuesAsStrings());
 
                 context.disableDefaultConstraintViolation();
 

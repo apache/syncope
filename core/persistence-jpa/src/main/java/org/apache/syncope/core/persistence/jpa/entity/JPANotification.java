@@ -84,7 +84,7 @@ public class JPANotification extends AbstractEntity<Long> implements Notificatio
     @NotNull
     private String recipientAttrName;
 
-    @Column(nullable = false)
+    @NotNull
     @Basic
     @Min(0)
     @Max(1)
@@ -103,7 +103,7 @@ public class JPANotification extends AbstractEntity<Long> implements Notificatio
     @Enumerated(EnumType.STRING)
     private TraceLevel traceLevel;
 
-    @Column(nullable = false)
+    @NotNull
     @Basic
     @Min(0)
     @Max(1)

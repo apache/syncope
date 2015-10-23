@@ -82,7 +82,7 @@ public class UserSelfITCase extends AbstractITCase {
         }
 
         // 2. self-registration as anonymous: works
-        SyncopeClient anonClient = clientFactory.createAnonymous();
+        SyncopeClient anonClient = clientFactory.create();
         UserTO self = anonClient.getService(UserSelfService.class).
                 create(UserITCase.getUniqueSampleTO("anonymous@syncope.apache.org"), true).
                 readEntity(UserTO.class);
@@ -99,7 +99,7 @@ public class UserSelfITCase extends AbstractITCase {
         userTO.getMemberships().add(new MembershipTO.Builder().group(3L).build());
         userTO.getResources().add(RESOURCE_NAME_TESTDB);
 
-        SyncopeClient anonClient = clientFactory.createAnonymous();
+        SyncopeClient anonClient = clientFactory.create();
         userTO = anonClient.getService(UserSelfService.class).
                 create(userTO, true).
                 readEntity(UserTO.class);
@@ -243,7 +243,7 @@ public class UserSelfITCase extends AbstractITCase {
     public void noContent() throws IOException {
         Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
 
-        SyncopeClient anonClient = clientFactory.createAnonymous();
+        SyncopeClient anonClient = clientFactory.create();
         UserSelfService noContentService = anonClient.prefer(UserSelfService.class, Preference.RETURN_NO_CONTENT);
 
         UserTO user = UserITCase.getUniqueSampleTO("nocontent-anonymous@syncope.apache.org");
@@ -278,7 +278,7 @@ public class UserSelfITCase extends AbstractITCase {
         assertNotNull(read);
 
         // 3. request password reset (as anonymous) providing the expected security answer
-        SyncopeClient anonClient = clientFactory.createAnonymous();
+        SyncopeClient anonClient = clientFactory.create();
         try {
             anonClient.getService(UserSelfService.class).requestPasswordReset(user.getUsername(), "WRONG");
             fail();
@@ -329,7 +329,7 @@ public class UserSelfITCase extends AbstractITCase {
         assertNotNull(read);
 
         // 3. request password reset (as anonymous) with no security answer
-        SyncopeClient anonClient = clientFactory.createAnonymous();
+        SyncopeClient anonClient = clientFactory.create();
         anonClient.getService(UserSelfService.class).requestPasswordReset(user.getUsername(), null);
 
         // 4. get token (normally sent via e-mail, now reading as admin)

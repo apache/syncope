@@ -37,7 +37,7 @@ import org.apache.syncope.core.persistence.jpa.validation.entity.PlainAttrCheck;
 
 @MappedSuperclass
 @PlainAttrCheck
-public abstract class AbstractPlainAttr<O extends Any<?, ?, ?>>
+public abstract class AbstractPlainAttr<O extends Any<?, ?>>
         extends AbstractAttr<PlainSchema, O> implements PlainAttr<O> {
 
     private static final long serialVersionUID = -9115431608821806124L;

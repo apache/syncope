@@ -21,7 +21,6 @@ package org.apache.syncope.core.provisioning.api.propagation;
 import java.util.Collection;
 import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.patch.AttrPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -75,7 +74,7 @@ public interface PropagationManager {
      * @param changePwd whether password should be included for propagation attributes or not
      * @param enable whether any object should be enabled or not, may be null to leave unchanged
      * @param propByRes operation to be performed per resource
-     * @param vAttrs virtual attributes patches
+     * @param vAttrs virtual attributes to be set
      * @param noPropResourceNames external resource names not to be considered for propagation
      * @return list of propagation tasks
      */
@@ -85,7 +84,7 @@ public interface PropagationManager {
             boolean changePwd,
             Boolean enable,
             PropagationByResource propByRes,
-            Collection<AttrPatch> vAttrs,
+            Collection<AttrTO> vAttrs,
             Collection<String> noPropResourceNames);
 
     /**

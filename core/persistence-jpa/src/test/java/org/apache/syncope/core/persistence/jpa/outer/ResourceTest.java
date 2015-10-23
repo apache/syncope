@@ -38,8 +38,10 @@ import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
+import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
@@ -74,6 +76,9 @@ public class ResourceTest extends AbstractTest {
 
     @Autowired
     private PolicyDAO policyDAO;
+
+    @Autowired
+    private VirSchemaDAO virSchemaDAO;
 
     @Test
     public void createWithPasswordPolicy() {
@@ -269,7 +274,11 @@ public class ResourceTest extends AbstractTest {
             itemKeys.add(item.getKey());
         }
 
-        ldap.remove(ldap.getProvision(anyTypeDAO.findGroup()));
+        Provision groupProvision = ldap.getProvision(anyTypeDAO.findGroup());
+        ldap.remove(groupProvision);
+        for (VirSchema schema : virSchemaDAO.findByProvision(groupProvision)) {
+            virSchemaDAO.delete(schema.getKey());
+        }
 
         // need to avoid any class not defined in this Maven module
         ldap.getPropagationActionsClassNames().clear();
@@ -277,8 +286,8 @@ public class ResourceTest extends AbstractTest {
         resourceDAO.save(ldap);
         resourceDAO.flush();
 
-        for (Long itemId : itemKeys) {
-            assertNull(entityManager().find(JPAMappingItem.class, itemId));
+        for (Long itemKey : itemKeys) {
+            assertNull(entityManager().find(JPAMappingItem.class, itemKey));
         }
     }
 

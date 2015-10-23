@@ -21,7 +21,6 @@ package org.apache.syncope.core.rest.cxf.service;
 import java.text.ParseException;
 import java.util.List;
 import javax.ws.rs.BadRequestException;
-import javax.ws.rs.NotFoundException;
 import org.apache.syncope.common.lib.to.EventCategoryTO;
 import org.apache.syncope.common.lib.to.LoggerTO;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
@@ -76,13 +75,16 @@ public class LoggerServiceImpl extends AbstractServiceImpl implements LoggerServ
 
     @Override
     public LoggerTO read(final LoggerType type, final String name) {
-        List<LoggerTO> logger = list(type);
-        for (LoggerTO l : logger) {
-            if (l.getKey().equals(name)) {
-                return l;
-            }
+        switch (type) {
+            case LOG:
+                return logic.readLog(name);
+
+            case AUDIT:
+                return logic.readAudit(name);
+
+            default:
+                throw new BadRequestException();
         }
-        throw new NotFoundException();
     }
 
     @Override

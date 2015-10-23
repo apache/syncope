@@ -32,6 +32,7 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
@@ -58,11 +59,11 @@ public class JPAPlainSchema extends AbstractEntity<String> implements PlainSchem
     @OneToOne(fetch = FetchType.EAGER)
     private JPAAnyTypeClass anyTypeClass;
 
-    @Column(nullable = false)
+    @NotNull
     @Enumerated(EnumType.STRING)
     private AttrSchemaType type;
 
-    @Column(nullable = false)
+    @NotNull
     private String mandatoryCondition;
 
     @Basic

@@ -84,7 +84,13 @@ under the License.
                mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
   <CPlainAttr id="12" owner_id="1" schema_name="tasks.interruptMaxRetries"/>
   <CPlainAttrValue id="12" attribute_id="12" longValue="20"/>
-
+  
+  <!-- Return hashed password values when reading users -->
+  <PlainSchema name="return.password.value" type="Boolean"
+               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <CPlainAttr id="14" owner_id="1" schema_name="return.password.value"/>
+  <CPlainAttrValue id="14" attribute_id="14" booleanValue="0"/>
+  
   <!-- For usage with admin console -->
   <PlainSchema name="admin.user.layout" type="String"
                mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
@@ -326,9 +332,6 @@ under the License.
   <DerSchema name="cn" expression="surname + ', ' + firstname" anyTypeClass_name="minimal user"/>
   <DerSchema name="noschema" expression="surname + ', ' + notfound" anyTypeClass_name="other"/>
 
-  <VirSchema name="virtualdata" anyTypeClass_name="minimal user"/>
-  <VirSchema name="virtualReadOnly" READONLY="1"  anyTypeClass_name="minimal user"/>
-
   <PlainSchema name="icon" type="String" anyTypeClass_name="minimal group"
                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>                
   <PlainSchema name="show" type="Boolean" anyTypeClass_name="minimal group"
@@ -347,8 +350,6 @@ under the License.
   <DerSchema name="rderToBePropagated" expression="rderived_sx + '-' + rderived_dx"
              anyTypeClass_name="minimal group"/>
 
-  <VirSchema name="rvirtualdata" anyTypeClass_name="minimal group"/>
-
   <DerSchema name="rderivedschema" expression="rderived_sx + '-' + rderived_dx"  anyTypeClass_name="minimal group"/>
 
   <PlainSchema name="subscriptionDate" type="Date" anyTypeClass_name="generic membership"
@@ -364,8 +365,6 @@ under the License.
   <DerSchema name="mderiveddata" expression="mderived_sx + '-' + mderived_dx"/>
   <DerSchema name="mderToBePropagated" expression="mderived_sx + '-' + mderived_dx" 
              anyTypeClass_name="generic membership"/>
-
-  <VirSchema name="mvirtualdata"/>
         
   <PlainSchema name="model" type="String" anyTypeClass_name="minimal printer"
                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
@@ -444,8 +443,6 @@ under the License.
   <UPlainAttrValue id="36" attribute_id="125" stringValue="vivaldi@syncope.org"/>
   <UPlainAttr id="126" owner_id="3" schema_name="type"/>
   <UPlainAttrValue id="37" attribute_id="126" stringValue="F"/>
-    
-  <UVirAttr id="100" schema_name="virtualdata" owner_id="3"/>
   
   <UDerAttr id="100" schema_name="cn" owner_id="3"/>
   <UDerAttr id="101" schema_name="cn" owner_id="1"/>
@@ -484,8 +481,6 @@ under the License.
   <GDerAttr id="102" owner_id="4" schema_name="displayProperty"/>
 
   <GDerAttr id="103" owner_id="1" schema_name="rderToBePropagated"/>    
-
-  <GVirAttr id="98" owner_id="4" schema_name="rvirtualdata"/>
 
   <ConnInstance id="100" displayName="ConnInstance100"
                 location="${connid.location}"
@@ -763,7 +758,7 @@ under the License.
                connObjectKey="0" password="0" purpose="BOTH"/>
   <MappingItem id="110" extAttrName="name" mapping_id="1"
                intAttrName="virtualdata" intMappingType="UserVirtualSchema" mandatoryCondition="type == 'F'"
-               connObjectKey="0" password="0" purpose="BOTH"/>
+               connObjectKey="0" password="0" purpose="PROPAGATION"/>
   <MappingItem id="111" extAttrName="fullname" mapping_id="1"
                intAttrName="cn" intMappingType="UserDerivedSchema" mandatoryCondition="true"
                connObjectKey="0" password="0" purpose="BOTH"/>
@@ -892,9 +887,6 @@ under the License.
   <MappingItem id="318" connObjectKey="0" password="0" mapping_id="11"
                extAttrName="mail" intAttrName="userId" intMappingType="UserPlainSchema"
                mandatoryCondition="false" purpose="BOTH"/>
-  <MappingItem id="319" connObjectKey="0" password="0" mapping_id="11"
-               extAttrName="givenname" intAttrName="virtualReadOnly" intMappingType="UserVirtualSchema"
-               mandatoryCondition="false" purpose="BOTH"/>
   <MappingItem id="320" connObjectKey="0" password="0" mapping_id="11"
                extAttrName="registeredAddress" intAttrName="obscure" intMappingType="UserPlainSchema"
                mandatoryCondition="false" purpose="BOTH"/>
@@ -902,6 +894,9 @@ under the License.
                extAttrName="jpegPhoto" intAttrName="photo" intMappingType="UserPlainSchema"
                mandatoryCondition="false" purpose="BOTH"/>
         
+  <VirSchema name="virtualReadOnly" READONLY="1" anyTypeClass_name="minimal user"
+             provision_id="11" extAttrName="givenname"/>
+
   <Provision id="20" resource_name="resource-ldap" anyType_name="GROUP" objectClass="__GROUP__"/>
   <Mapping id="20" provision_id="20"
            connObjectLink="&apos;cn=&apos; + name + &apos;,ou=groups,o=isp&apos;"/>
@@ -914,10 +909,9 @@ under the License.
   <MappingItem id="3" connObjectKey="0" password="0" mapping_id="20"
                extAttrName="description" intAttrName="title" intMappingType="GroupPlainSchema"
                mandatoryCondition="false" purpose="BOTH"/>
-  <MappingItem id="4" extAttrName="businessCategory" mapping_id="20"
-               intAttrName="rvirtualdata" intMappingType="GroupVirtualSchema" mandatoryCondition="false"
-               connObjectKey="0" password="0" purpose="BOTH"/>
   
+  <VirSchema name="rvirtualdata" anyTypeClass_name="minimal group" provision_id="20" extAttrName="businessCategory"/>
+
   <Provision id="16" resource_name="resource-db-sync" anyType_name="USER" objectClass="__ACCOUNT__"/>
   <Mapping id="16" provision_id="16"/>
   <MappingItem id="322" connObjectKey="0" mapping_id="16"
@@ -944,10 +938,9 @@ under the License.
   <MappingItem id="331" mapping_id="17" connObjectKey="1" password="0"
                extAttrName="id" intMappingType="UserKey" 
                mandatoryCondition="true" purpose="BOTH"/>
-  <MappingItem id="332" mapping_id="17" connObjectKey="0" password="0" 
-               extAttrName="USERNAME" intAttrName="virtualdata" intMappingType="UserVirtualSchema"
-               mandatoryCondition="false" purpose="BOTH"/>
                 
+  <VirSchema name="virtualdata" anyTypeClass_name="minimal user" provision_id="17" extAttrName="USERNAME"/>
+  
   <Provision id="18" resource_name="ws-target-resource-timeout" anyType_name="USER" objectClass="__ACCOUNT__"/>
   <Mapping id="18" provision_id="18"/>
   <MappingItem id="333" mapping_id="18" connObjectKey="1" password="0"

@@ -152,7 +152,7 @@ public class ResourceSecurityPanel extends Panel {
 
         private final PolicyType type;
 
-        public PolicyRenderer(final PolicyType type) {
+        PolicyRenderer(final PolicyType type) {
             super();
             this.type = type;
         }

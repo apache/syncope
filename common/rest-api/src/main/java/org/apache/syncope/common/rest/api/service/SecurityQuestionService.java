@@ -62,7 +62,7 @@ public interface SecurityQuestionService extends JAXRSService {
      * Creates a new security question.
      *
      * @param securityQuestionTO security question to be created
-     * @return <tt>Response</tt> object featuring <tt>Location</tt> header of created security question
+     * @return Response object featuring Location header of created security question
      */
     @POST
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })

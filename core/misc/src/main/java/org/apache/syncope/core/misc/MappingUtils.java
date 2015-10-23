@@ -19,15 +19,11 @@
 package org.apache.syncope.core.misc;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.commons.jexl2.JexlContext;
 import org.apache.commons.jexl2.MapContext;
 import org.apache.commons.lang3.ClassUtils;
@@ -35,7 +31,6 @@ import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.patch.AttrPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.GroupTO;
@@ -53,7 +48,6 @@ import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
-import org.apache.syncope.core.persistence.api.entity.VirAttr;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrValue;
@@ -70,6 +64,7 @@ import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Schema;
+import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
@@ -121,42 +116,6 @@ public class MappingUtils {
 
     @Autowired
     private AnyUtilsFactory anyUtilsFactory;
-
-    public static <T extends MappingItem> Collection<T> getMatchingMappingItems(
-            final Collection<T> items, final IntMappingType type) {
-
-        return CollectionUtils.select(items, new Predicate<T>() {
-
-            @Override
-            public boolean evaluate(final T item) {
-                return item.getIntMappingType() == type;
-            }
-        });
-    }
-
-    public static <T extends MappingItem> Collection<T> getMatchingMappingItems(
-            final Collection<T> items, final String intAttrName, final IntMappingType type) {
-
-        return CollectionUtils.select(items, new Predicate<T>() {
-
-            @Override
-            public boolean evaluate(final T item) {
-                return item.getIntMappingType() == type && intAttrName.equals(item.getIntAttrName());
-            }
-        });
-    }
-
-    public static <T extends MappingItem> Collection<T> getMatchingMappingItems(
-            final Collection<T> items, final String intAttrName) {
-
-        return CollectionUtils.select(items, new Predicate<T>() {
-
-            @Override
-            public boolean evaluate(final T item) {
-                return intAttrName.equals(item.getIntAttrName());
-            }
-        });
-    }
 
     public static MappingItem getConnObjectKeyItem(final Provision provision) {
         Mapping mapping = null;
@@ -241,7 +200,7 @@ public class MappingUtils {
      * @param connObjectKey connector object key
      * @return the value to be propagated as __NAME__
      */
-    public static Name evaluateNAME(final Any<?, ?, ?> any, final Provision provision, final String connObjectKey) {
+    public static Name evaluateNAME(final Any<?, ?> any, final Provision provision, final String connObjectKey) {
         if (StringUtils.isBlank(connObjectKey)) {
             // LOG error but avoid to throw exception: leave it to the external resource
             LOG.error("Missing ConnObjectKey for '{}': ", provision.getResource());
@@ -302,17 +261,15 @@ public class MappingUtils {
      * @param any given any object
      * @param password clear-text password
      * @param changePwd whether password should be included for propagation attributes or not
-     * @param vAttrs virtual attributes to be managed
      * @param enable whether any object must be enabled or not
      * @param provision provision information
      * @return connObjectLink + prepared attributes
      */
     @Transactional(readOnly = true)
     public Pair<String, Set<Attribute>> prepareAttrs(
-            final Any<?, ?, ?> any,
+            final Any<?, ?> any,
             final String password,
             final boolean changePwd,
-            final Map<String, AttrPatch> vAttrs,
             final Boolean enable,
             final Provision provision) {
 
@@ -322,19 +279,11 @@ public class MappingUtils {
         Set<Attribute> attributes = new HashSet<>();
         String connObjectKey = null;
 
-        for (MappingItem mapping : getMappingItems(provision, MappingPurpose.PROPAGATION)) {
-            LOG.debug("Processing schema {}", mapping.getIntAttrName());
+        for (MappingItem mappingItem : getMappingItems(provision, MappingPurpose.PROPAGATION)) {
+            LOG.debug("Processing schema {}", mappingItem.getIntAttrName());
 
             try {
-                if (mapping.getIntMappingType() == IntMappingType.UserVirtualSchema
-                        || mapping.getIntMappingType() == IntMappingType.GroupVirtualSchema
-                        || mapping.getIntMappingType() == IntMappingType.AnyObjectVirtualSchema) {
-
-                    LOG.debug("Expire entry cache {}-{}", any.getKey(), mapping.getIntAttrName());
-                    virAttrCache.expire(any.getType().getKey(), any.getKey(), mapping.getIntAttrName());
-                }
-
-                Pair<String, Attribute> preparedAttr = prepareAttr(provision, mapping, any, password, vAttrs);
+                Pair<String, Attribute> preparedAttr = prepareAttr(provision, mappingItem, any, password);
 
                 if (preparedAttr != null && preparedAttr.getKey() != null) {
                     connObjectKey = preparedAttr.getKey();
@@ -355,7 +304,7 @@ public class MappingUtils {
                     }
                 }
             } catch (Exception e) {
-                LOG.debug("Attribute '{}' processing failed", mapping.getIntAttrName(), e);
+                LOG.debug("Attribute '{}' processing failed", mappingItem.getIntAttrName(), e);
             }
         }
 
@@ -387,15 +336,12 @@ public class MappingUtils {
      * @param mapItem mapping item for the given attribute
      * @param any any object
      * @param password clear-text password
-     * @param vAttrs virtual attributes to be managed
      * @return connObjectLink + prepared attribute
      */
     private Pair<String, Attribute> prepareAttr(
-            final Provision provision, final MappingItem mapItem,
-            final Any<?, ?, ?> any, final String password,
-            final Map<String, AttrPatch> vAttrs) {
+            final Provision provision, final MappingItem mapItem, final Any<?, ?> any, final String password) {
 
-        List<Any<?, ?, ?>> anys = new ArrayList<>();
+        List<Any<?, ?>> anys = new ArrayList<>();
 
         switch (mapItem.getIntMappingType().getAnyTypeKind()) {
             case USER:
@@ -407,7 +353,6 @@ public class MappingUtils {
             case GROUP:
                 if (any instanceof User) {
                     for (Group group : userDAO.findAllGroups((User) any)) {
-                        virAttrHandler.retrieveVirAttrValues(group);
                         anys.add(group);
                     }
                 } else if (any instanceof Group) {
@@ -423,8 +368,6 @@ public class MappingUtils {
 
             default:
         }
-
-        List<PlainAttrValue> values = getIntValues(provision, mapItem, anys, vAttrs);
 
         Schema schema = null;
         boolean readOnlyVirSchema = false;
@@ -452,6 +395,8 @@ public class MappingUtils {
         }
 
         String extAttrName = mapItem.getExtAttrName();
+
+        List<PlainAttrValue> values = getIntValues(provision, mapItem, anys);
 
         LOG.debug("Define mapping for: "
                 + "\n* ExtAttrName " + extAttrName
@@ -501,8 +446,7 @@ public class MappingUtils {
                     result = null;
                 } else {
                     result = new ImmutablePair<>(
-                            null,
-                            AttributeBuilder.buildPassword(passwordAttrValue.toCharArray()));
+                            null, AttributeBuilder.buildPassword(passwordAttrValue.toCharArray()));
                 }
             } else {
                 if ((schema != null && schema.isMultivalue())
@@ -510,8 +454,7 @@ public class MappingUtils {
                         != mapItem.getIntMappingType().getAnyTypeKind()) {
 
                     result = new ImmutablePair<>(
-                            null,
-                            AttributeBuilder.build(extAttrName, objValues));
+                            null, AttributeBuilder.build(extAttrName, objValues));
                 } else {
                     result = new ImmutablePair<>(
                             null, objValues.isEmpty()
@@ -524,9 +467,8 @@ public class MappingUtils {
         return result;
     }
 
-    private String getGroupOwnerValue(final Provision provision, final Any<?, ?, ?> any) {
-        Pair<String, Attribute> preparedAttr = prepareAttr(
-                provision, getConnObjectKeyItem(provision), any, null, Collections.<String, AttrPatch>emptyMap());
+    private String getGroupOwnerValue(final Provision provision, final Any<?, ?> any) {
+        Pair<String, Attribute> preparedAttr = prepareAttr(provision, getConnObjectKeyItem(provision), any, null);
         String connObjectKey = preparedAttr.getKey();
 
         return evaluateNAME(any, provision, connObjectKey).getNameValue();
@@ -538,12 +480,11 @@ public class MappingUtils {
      * @param provision provision information
      * @param mappingItem mapping item
      * @param anys any objects
-     * @param vAttrs virtual attributes to be managed
      * @return attribute values.
      */
     @Transactional(readOnly = true)
     public List<PlainAttrValue> getIntValues(final Provision provision,
-            final MappingItem mappingItem, final List<Any<?, ?, ?>> anys, final Map<String, AttrPatch> vAttrs) {
+            final MappingItem mappingItem, final List<Any<?, ?>> anys) {
 
         LOG.debug("Get attributes for '{}' and mapping type '{}'", anys, mappingItem.getIntMappingType());
 
@@ -554,7 +495,7 @@ public class MappingUtils {
             case UserPlainSchema:
             case GroupPlainSchema:
             case AnyObjectPlainSchema:
-                for (Any<?, ?, ?> any : anys) {
+                for (Any<?, ?> any : anys) {
                     PlainAttr<?> attr = any.getPlainAttr(mappingItem.getIntAttrName());
                     if (attr != null) {
                         if (attr.getUniqueValue() != null) {
@@ -579,46 +520,10 @@ public class MappingUtils {
 
                 break;
 
-            case UserVirtualSchema:
-            case GroupVirtualSchema:
-            case AnyObjectVirtualSchema:
-                // virtual attributes don't get transformed
-                transform = false;
-
-                for (Any<?, ?, ?> any : anys) {
-                    AnyUtils anyUtils = anyUtilsFactory.getInstance(any);
-                    VirAttr<?> attr = any.getVirAttr(mappingItem.getIntAttrName());
-                    if (attr != null) {
-                        if (vAttrs != null) {
-                            if (vAttrs.containsKey(mappingItem.getIntAttrName())) {
-                                attr.getValues().clear();
-                                attr.getValues().addAll(
-                                        vAttrs.get(mappingItem.getIntAttrName()).getAttrTO().getValues());
-                            } else {
-                                throw new IllegalArgumentException("Don't need to update virtual attribute '"
-                                        + mappingItem.getIntAttrName() + "'");
-                            }
-                        }
-                        for (String value : attr.getValues()) {
-                            PlainAttrValue attrValue = anyUtils.newPlainAttrValue();
-                            attrValue.setStringValue(value);
-                            values.add(attrValue);
-                        }
-                    }
-
-                    LOG.debug("Retrieved {} virtual attribute {}"
-                            + "\n* IntAttrName {}"
-                            + "\n* IntMappingType {}"
-                            + "\n* Attribute values {}",
-                            any.getClass().getSimpleName(),
-                            attr, mappingItem.getIntAttrName(), mappingItem.getIntMappingType(), values);
-                }
-                break;
-
             case UserDerivedSchema:
             case GroupDerivedSchema:
             case AnyObjectDerivedSchema:
-                for (Any<?, ?, ?> any : anys) {
+                for (Any<?, ?> any : anys) {
                     AnyUtils anyUtils = anyUtilsFactory.getInstance(any);
                     DerAttr<?> attr = any.getDerAttr(mappingItem.getIntAttrName());
                     if (attr != null) {
@@ -635,10 +540,39 @@ public class MappingUtils {
                 }
                 break;
 
+            case UserVirtualSchema:
+            case GroupVirtualSchema:
+            case AnyObjectVirtualSchema:
+                // virtual attributes don't get transformed
+                transform = false;
+
+                VirSchema virSchema = virSchemaDAO.find(mappingItem.getIntAttrName());
+                if (virSchema != null) {
+                    for (Any<?, ?> any : anys) {
+                        LOG.debug("Expire entry cache {}-{}", any.getKey(), mappingItem.getIntAttrName());
+                        virAttrCache.expire(any.getType().getKey(), any.getKey(), mappingItem.getIntAttrName());
+
+                        AnyUtils anyUtils = anyUtilsFactory.getInstance(any);
+                        for (String value : virAttrHandler.getValues(any, virSchema)) {
+                            PlainAttrValue attrValue = anyUtils.newPlainAttrValue();
+                            attrValue.setStringValue(value);
+                            values.add(attrValue);
+                        }
+
+                        LOG.debug("Retrieved values for {}"
+                                + "\n* IntAttrName {}"
+                                + "\n* IntMappingType {}"
+                                + "\n* Attribute values {}",
+                                virSchema.getKey(), mappingItem.getIntAttrName(), mappingItem.getIntMappingType(),
+                                values);
+                    }
+                }
+                break;
+
             case UserKey:
             case GroupKey:
             case AnyObjectKey:
-                for (Any<?, ?, ?> any : anys) {
+                for (Any<?, ?> any : anys) {
                     AnyUtils anyUtils = anyUtilsFactory.getInstance(any);
                     PlainAttrValue attrValue = anyUtils.newPlainAttrValue();
                     attrValue.setStringValue(any.getKey().toString());
@@ -647,7 +581,7 @@ public class MappingUtils {
                 break;
 
             case Username:
-                for (Any<?, ?, ?> any : anys) {
+                for (Any<?, ?> any : anys) {
                     if (any instanceof User) {
                         UPlainAttrValue attrValue = entityFactory.newEntity(UPlainAttrValue.class);
                         attrValue.setStringValue(((User) any).getUsername());
@@ -657,7 +591,7 @@ public class MappingUtils {
                 break;
 
             case GroupName:
-                for (Any<?, ?, ?> any : anys) {
+                for (Any<?, ?> any : anys) {
                     if (any instanceof Group) {
                         GPlainAttrValue attrValue = entityFactory.newEntity(GPlainAttrValue.class);
                         attrValue.setStringValue(((Group) any).getName());
@@ -674,7 +608,7 @@ public class MappingUtils {
                         ? null
                         : provision.getMapping();
 
-                for (Any<?, ?, ?> any : anys) {
+                for (Any<?, ?> any : anys) {
                     if (any instanceof Group) {
                         Group group = (Group) any;
                         String groupOwnerValue = null;
@@ -720,9 +654,9 @@ public class MappingUtils {
      * @return connObjectKey internal value
      */
     @Transactional(readOnly = true)
-    public String getConnObjectKeyValue(final Any<?, ?, ?> any, final Provision provision) {
+    public String getConnObjectKeyValue(final Any<?, ?> any, final Provision provision) {
         List<PlainAttrValue> values = getIntValues(provision, provision.getMapping().getConnObjectKeyItem(),
-                Collections.<Any<?, ?, ?>>singletonList(any), null);
+                Collections.<Any<?, ?>>singletonList(any));
         return values == null || values.isEmpty()
                 ? null
                 : values.get(0).getValueAsString();

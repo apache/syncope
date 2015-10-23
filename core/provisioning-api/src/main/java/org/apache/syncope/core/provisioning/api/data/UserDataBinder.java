@@ -25,6 +25,8 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 
 public interface UserDataBinder {
 
+    UserTO returnUserTO(UserTO userTO);
+
     UserTO getAuthenticatedUserTO();
 
     UserTO getUserTO(String username);

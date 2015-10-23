@@ -20,25 +20,19 @@ package org.apache.syncope.core.provisioning.java.sync;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.lib.patch.AnyPatch;
-import org.apache.syncope.common.lib.patch.AttrPatch;
 import org.apache.syncope.common.lib.patch.StringPatchItem;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
-import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
-import org.apache.syncope.core.persistence.api.entity.VirAttr;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.sync.ProvisioningResult;
@@ -48,7 +42,6 @@ import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
-import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.provisioning.api.TimeoutException;
@@ -68,9 +61,9 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
     @Autowired
     protected MappingUtils mappingUtils;
 
-    protected abstract String getName(Any<?, ?, ?> any);
+    protected abstract String getName(Any<?, ?> any);
 
-    protected void deprovision(final Any<?, ?, ?> any) {
+    protected void deprovision(final Any<?, ?> any) {
         AnyTO before = getAnyTO(any.getKey());
 
         List<String> noPropResources = new ArrayList<>(before.getResources());
@@ -83,7 +76,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                 noPropResources));
     }
 
-    protected void provision(final Any<?, ?, ?> any, final Boolean enabled) {
+    protected void provision(final Any<?, ?> any, final Boolean enabled) {
         AnyTO before = getAnyTO(any.getKey());
 
         List<String> noPropResources = new ArrayList<>(before.getResources());
@@ -101,7 +94,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
     }
 
     @SuppressWarnings("unchecked")
-    protected void link(final Any<?, ?, ?> any, final Boolean unlink) {
+    protected void link(final Any<?, ?> any, final Boolean unlink) {
         AnyPatch patch = newPatch(any.getKey());
         patch.getResources().add(new StringPatchItem.Builder().
                 operation(unlink ? PatchOperation.DELETE : PatchOperation.ADD_REPLACE).
@@ -111,7 +104,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
     }
 
     @SuppressWarnings("unchecked")
-    protected void unassign(final Any<?, ?, ?> any) {
+    protected void unassign(final Any<?, ?> any) {
         AnyPatch patch = newPatch(any.getKey());
         patch.getResources().add(new StringPatchItem.Builder().
                 operation(PatchOperation.DELETE).
@@ -122,7 +115,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         deprovision(any);
     }
 
-    protected void assign(final Any<?, ?, ?> any, final Boolean enabled) {
+    protected void assign(final Any<?, ?> any, final Boolean enabled) {
         AnyPatch patch = newPatch(any.getKey());
         patch.getResources().add(new StringPatchItem.Builder().
                 operation(PatchOperation.ADD_REPLACE).
@@ -141,7 +134,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
             obj = profile.getConnector().getObject(
                     objectClass,
                     uid,
-                    profile.getConnector().getOperationOptions(Collections.<MappingItem>emptySet()));
+                    profile.getConnector().getOperationOptions(IteratorUtils.<MappingItem>emptyIterator()));
         } catch (TimeoutException toe) {
             LOG.debug("Request timeout", toe);
             throw toe;
@@ -155,7 +148,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     public boolean handle(final long anyKey) {
-        Any<?, ?, ?> any = null;
+        Any<?, ?> any = null;
         try {
             any = getAny(anyKey);
             doHandle(any);
@@ -176,7 +169,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         }
     }
 
-    protected final void doHandle(final Any<?, ?, ?> any) throws JobExecutionException {
+    protected final void doHandle(final Any<?, ?> any) throws JobExecutionException {
         AnyUtils anyUtils = anyUtilsFactory.getInstance(any);
 
         ProvisioningResult result = new ProvisioningResult();
@@ -406,33 +399,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         }
     }
 
-    protected Any<?, ?, ?> update(final Any<?, ?, ?> any, final Boolean enabled) {
-        Set<AttrPatch> vattrs = new HashSet<>();
-
-        // Search for all mapped vattrs
-        Mapping mapping = profile.getTask().getResource().getProvision(any.getType()).getMapping();
-        for (MappingItem mappingItem : mapping.getItems()) {
-            if (mappingItem.getIntMappingType() == IntMappingType.UserVirtualSchema) {
-                vattrs.add(new AttrPatch.Builder().
-                        operation(PatchOperation.DELETE).
-                        attrTO(new AttrTO.Builder().schema(mappingItem.getIntAttrName()).build()).
-                        build());
-            }
-        }
-
-        // Search for all user's vattrs and:
-        // 1. add mapped vattrs not owned by the user to the set of vattrs to be removed
-        // 2. add all vattrs owned by the user to the set of vattrs to be update
-        for (VirAttr<?> vattr : any.getVirAttrs()) {
-            vattrs.add(new AttrPatch.Builder().
-                    operation(PatchOperation.ADD_REPLACE).
-                    attrTO(new AttrTO.Builder().
-                            schema(vattr.getSchema().getKey()).
-                            values(vattr.getValues()).
-                            build()).
-                    build());
-        }
-
+    protected Any<?, ?> update(final Any<?, ?> any, final Boolean enabled) {
         boolean changepwd;
         Collection<String> resourceNames;
         if (any instanceof User) {
@@ -458,7 +425,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                 changepwd,
                 null,
                 propByRes,
-                vattrs,
+                null,
                 noPropResources));
 
         return getAny(any.getKey());

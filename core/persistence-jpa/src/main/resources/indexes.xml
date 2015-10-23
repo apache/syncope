@@ -68,9 +68,5 @@ under the License.
   <entry key="GDerAttr_owner_id_index">CREATE INDEX GDerAttr_owner_id_index on GDerAttr(owner_id)</entry>
   <entry key="ADerAttr_owner_id_index">CREATE INDEX ADerAttr_owner_id_index on ADerAttr(owner_id)</entry>
 
-  <entry key="UVirAttr_owner_id_index">CREATE INDEX UVirAttr_owner_id_index on UVirAttr(owner_id)</entry>
-  <entry key="GVirAttr_owner_id_index">CREATE INDEX GVirAttr_owner_id_index on GVirAttr(owner_id)</entry>
-  <entry key="AVirAttr_owner_id_index">CREATE INDEX AVirAttr_owner_id_index on AVirAttr(owner_id)</entry>
-
   <entry key="Task_executedIndex">CREATE INDEX Task_executedIndex ON Task(executed)</entry>
 </properties>

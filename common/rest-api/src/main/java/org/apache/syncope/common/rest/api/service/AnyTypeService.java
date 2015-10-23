@@ -62,7 +62,7 @@ public interface AnyTypeService extends JAXRSService {
      * Creates a new anyType.
      *
      * @param anyTypeTO anyType to be created
-     * @return <tt>Response</tt> object featuring <tt>Location</tt> header of created anyType
+     * @return Response object featuring Location header of created anyType
      */
     @POST
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })

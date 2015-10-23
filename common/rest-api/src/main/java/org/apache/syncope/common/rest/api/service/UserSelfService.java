@@ -55,8 +55,8 @@ public interface UserSelfService extends JAXRSService {
      *
      * @param userTO user to be created
      * @param storePassword whether password shall be stored internally
-     * @return <tt>Response</tt> object featuring <tt>Location</tt> header of self-registered user as well as the user
-     * itself - <tt>UserTO</tt> as <tt>Entity</tt>
+     * @return Response object featuring Location header of self-registered user as well as the user
+     * itself - UserTO as Entity
      */
     @POST
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
@@ -68,7 +68,7 @@ public interface UserSelfService extends JAXRSService {
      * Self-updates user.
      *
      * @param patch modification to be applied to self
-     * @return <tt>Response</tt> object featuring the updated user - <tt>UserTO</tt> as <tt>Entity</tt>
+     * @return Response object featuring the updated user - UserTO as Entity
      */
     @PATCH
     @Path("{key}")
@@ -80,7 +80,7 @@ public interface UserSelfService extends JAXRSService {
      * Self-updates user.
      *
      * @param user complete update
-     * @return <tt>Response</tt> object featuring the updated user - <tt>UserTO</tt> as <tt>Entity</tt>
+     * @return Response object featuring the updated user - UserTO as Entity
      */
     @PUT
     @Path("{key}")
@@ -91,7 +91,7 @@ public interface UserSelfService extends JAXRSService {
     /**
      * Self-deletes user.
      *
-     * @return <tt>Response</tt> object featuring the deleted user - <tt>UserTO</tt> as <tt>Entity</tt>
+     * @return Response object featuring the deleted user - UserTO as Entity
      */
     @DELETE
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
@@ -102,7 +102,7 @@ public interface UserSelfService extends JAXRSService {
      *
      * @param password the password value to update
      *
-     * @return <tt>Response</tt> object featuring the updated user - <tt>UserTO</tt> as <tt>Entity</tt>
+     * @return Response object featuring the updated user - UserTO as Entity
      */
     @POST
     @Path("changePassword")
@@ -111,7 +111,7 @@ public interface UserSelfService extends JAXRSService {
 
     /**
      * Provides answer for the security question configured for user matching the given username, if any.
-     * If provided anwser matches the one stored for that user, a password reset token is internally generated,
+     * If provided answer matches the one stored for that user, a password reset token is internally generated,
      * otherwise an error is returned.
      *
      * @param username username for which the security answer is provided

@@ -36,6 +36,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
@@ -63,7 +64,7 @@ public class JPAConnInstance extends AbstractEntity<Long> implements ConnInstanc
     /**
      * URI identifying the local / remote ConnId location where the related connector bundle is found.
      */
-    @Column(nullable = false)
+    @NotNull
     private String location;
 
     /**
@@ -71,7 +72,7 @@ public class JPAConnInstance extends AbstractEntity<Long> implements ConnInstanc
      * Within a given location, the triple
      * (ConnectorBundle-Name, ConnectorBundle-Version, ConnectorBundle-Version) must be unique.
      */
-    @Column(nullable = false)
+    @NotNull
     private String connectorName;
 
     /**
@@ -79,7 +80,7 @@ public class JPAConnInstance extends AbstractEntity<Long> implements ConnInstanc
      * Within a given location, the triple
      * (ConnectorBundle-Name, ConnectorBundle-Version, ConnectorBundle-Version) must be unique.
      */
-    @Column(nullable = false)
+    @NotNull
     private String bundleName;
 
     /**
@@ -87,7 +88,7 @@ public class JPAConnInstance extends AbstractEntity<Long> implements ConnInstanc
      * Within a given location, the triple
      * (ConnectorBundle-Name, ConnectorBundle-Version, ConnectorBundle-Version) must be unique.
      */
-    @Column(nullable = false)
+    @NotNull
     private String version;
 
     /**

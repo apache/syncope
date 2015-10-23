@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.common.rest.api.service;
 
+import java.util.List;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -29,7 +30,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.AttrTO;
-import org.apache.syncope.common.lib.to.ConfTO;
 
 /**
  * REST operations for configuration.
@@ -53,7 +53,7 @@ public interface ConfigurationService extends JAXRSService {
      */
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    ConfTO list();
+    List<AttrTO> list();
 
     /**
      * Returns configuration parameter with matching schema.

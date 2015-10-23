@@ -26,7 +26,7 @@ import org.apache.commons.logging.Log;
 
 class ClassFreeUberspectImpl extends UberspectImpl {
 
-    public ClassFreeUberspectImpl(final Log runtimeLogger) {
+    ClassFreeUberspectImpl(final Log runtimeLogger) {
         super(runtimeLogger);
     }
 

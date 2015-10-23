@@ -87,15 +87,15 @@ public class AuthenticationITCase extends AbstractITCase {
 
     @Test
     public void testReadEntitlements() {
-        // 1. as anonymous (not allowed)
+        // 1. as not authenticated (not allowed)
         try {
-            clientFactory.createAnonymous().self();
+            clientFactory.create().self();
             fail();
         } catch (AccessControlException e) {
             assertNotNull(e);
         }
 
-        // 2. as authenticated anonymous (used by admin console)
+        // 2. as anonymous
         Pair<Map<String, Set<String>>, UserTO> self = clientFactory.create(ANONYMOUS_UNAME, ANONYMOUS_KEY).self();
         assertEquals(1, self.getKey().size());
         assertTrue(self.getKey().keySet().contains(Entitlement.ANONYMOUS));
@@ -466,5 +466,23 @@ public class AuthenticationITCase extends AbstractITCase {
         assertNotNull(self);
         self = clientFactory.create(user.getUsername(), "password234").self();
         assertNotNull(self);
+    }
+
+    @Test
+    public void issueSYNCOPE706() {
+        String username = getUUIDString();
+        try {
+            userService.getUserKey(username);
+            fail();
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.NotFound, e.getType());
+        }
+
+        try {
+            clientFactory.create(username, "anypassword").self();
+            fail();
+        } catch (AccessControlException e) {
+            assertNotNull(e.getMessage());
+        }
     }
 }

@@ -116,14 +116,22 @@ public class AuthDataAccessor {
         return domain;
     }
 
+    /**
+     * Attempts to authenticate the given credentials against internal storage and pass-through resources (if
+     * configured): the first succeeding causes global success.
+     *
+     * @param authentication given credentials
+     * @return {@code null} if no matching user was found, authentication result otherwise
+     */
     @Transactional(noRollbackFor = DisabledException.class)
     public Pair<Long, Boolean> authenticate(final Authentication authentication) {
         Long key = null;
-        Boolean authenticated = false;
+        Boolean authenticated = null;
 
         User user = userDAO.find(authentication.getName());
         if (user != null) {
             key = user.getKey();
+            authenticated = false;
 
             if (user.isSuspended() != null && user.isSuspended()) {
                 throw new DisabledException("User " + user.getUsername() + " is suspended");

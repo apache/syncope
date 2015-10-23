@@ -79,7 +79,7 @@ public interface ReportService extends JAXRSService {
      * Creates a new report.
      *
      * @param reportTO report to be created
-     * @return <tt>Response</tt> object featuring <tt>Location</tt> header of created report
+     * @return Response object featuring Location header of created report
      */
     @POST
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })

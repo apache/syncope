@@ -38,7 +38,7 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.misc.search.SearchCondConverter;
-import org.apache.syncope.core.misc.DataFormat;
+import org.apache.syncope.core.misc.FormatUtils;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.URelationship;
@@ -231,21 +231,21 @@ public class UserReportlet extends AbstractReportlet {
                         type = ReportXMLConst.XSD_DATETIME;
                         value = user.getCreationDate() == null
                                 ? ""
-                                : DataFormat.format(user.getCreationDate());
+                                : FormatUtils.format(user.getCreationDate());
                         break;
 
                     case lastLoginDate:
                         type = ReportXMLConst.XSD_DATETIME;
                         value = user.getLastLoginDate() == null
                                 ? ""
-                                : DataFormat.format(user.getLastLoginDate());
+                                : FormatUtils.format(user.getLastLoginDate());
                         break;
 
                     case changePwdDate:
                         type = ReportXMLConst.XSD_DATETIME;
                         value = user.getChangePwdDate() == null
                                 ? ""
-                                : DataFormat.format(user.getChangePwdDate());
+                                : FormatUtils.format(user.getChangePwdDate());
                         break;
 
                     case passwordHistorySize:

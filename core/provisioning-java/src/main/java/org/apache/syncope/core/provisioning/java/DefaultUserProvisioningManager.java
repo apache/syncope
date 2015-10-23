@@ -120,25 +120,13 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
         WorkflowResult<Pair<UserPatch, Boolean>> updated = uwfAdapter.update(userPatch);
 
         List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(updated);
-        if (tasks.isEmpty()) {
-            // SYNCOPE-459: take care of user virtual attributes ...
-            PropagationByResource propByResVirAttr = virtAttrHandler.updateVirtual(
-                    updated.getResult().getKey().getKey(),
-                    AnyTypeKind.USER,
-                    userPatch.getVirAttrs());
-            if (!propByResVirAttr.isEmpty()) {
-                tasks.addAll(propagationManager.getUserUpdateTasks(updated, false, null));
-            }
-        }
-        PropagationReporter propagationReporter = ApplicationContextProvider.getBeanFactory().
-                getBean(PropagationReporter.class);
-        if (!tasks.isEmpty()) {
-            try {
-                taskExecutor.execute(tasks, propagationReporter);
-            } catch (PropagationException e) {
-                LOG.error("Error propagation primary resource", e);
-                propagationReporter.onPrimaryResourceFailure(tasks);
-            }
+        PropagationReporter propagationReporter =
+                ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
+        try {
+            taskExecutor.execute(tasks, propagationReporter);
+        } catch (PropagationException e) {
+            LOG.error("Error propagation primary resource", e);
+            propagationReporter.onPrimaryResourceFailure(tasks);
         }
 
         return new ImmutablePair<>(updated.getResult().getKey().getKey(), propagationReporter.getStatuses());
@@ -279,17 +267,16 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
     }
 
     protected List<PropagationStatus> propagateStatus(final StatusPatch statusPatch) {
-        Collection<String> noPropResourceNames = CollectionUtils.removeAll(
-                userDAO.findAllResourceNames(userDAO.find(statusPatch.getKey())), statusPatch.getResources());
-
+        PropagationByResource propByRes = new PropagationByResource();
+        propByRes.addAll(ResourceOperation.UPDATE, statusPatch.getResources());
         List<PropagationTask> tasks = propagationManager.getUpdateTasks(
                 AnyTypeKind.USER,
                 statusPatch.getKey(),
                 false,
                 statusPatch.getType() != StatusPatchType.SUSPEND,
+                propByRes,
                 null,
-                null,
-                noPropResourceNames);
+                null);
         PropagationReporter propReporter =
                 ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
         try {
@@ -300,7 +287,6 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
         }
 
         return propReporter.getStatuses();
-
     }
 
     @Override
@@ -391,16 +377,10 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
 
     @Override
     public void confirmPasswordReset(final Long key, final String token, final String password) {
-        uwfAdapter.confirmPasswordReset(key, token, password);
+        WorkflowResult<Pair<UserPatch, Boolean>> updated = uwfAdapter.confirmPasswordReset(key, token, password);
 
-        UserPatch userPatch = new UserPatch();
-        userPatch.setKey(key);
-        userPatch.setPassword(new PasswordPatch.Builder().value(password).build());
+        List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(updated);
 
-        List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(
-                new WorkflowResult<Pair<UserPatch, Boolean>>(
-                        new ImmutablePair<UserPatch, Boolean>(userPatch, null), null, "confirmPasswordReset"),
-                true, null);
         PropagationReporter propReporter =
                 ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
         try {

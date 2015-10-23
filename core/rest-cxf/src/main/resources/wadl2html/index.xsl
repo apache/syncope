@@ -113,12 +113,12 @@
               });
             </xsl:text>
             
-            <xsl:variable name="parentResourcePath" select="translate(@path, '/{}:.*', '______')"/>
+            <xsl:variable name="parentResourcePath" select="translate(@path, '|/{}:.*', '_______')"/>
             <xsl:call-template name="dialog-init">
               <xsl:with-param name="resourcePath" select="$parentResourcePath"/>
             </xsl:call-template>
             <xsl:for-each select="wadl:resource">
-              <xsl:variable name="childResourcePath" select="translate(@path, '/{}:.*', '______')"/>
+              <xsl:variable name="childResourcePath" select="translate(@path, '|/{}:.*', '_______')"/>
               <xsl:call-template name="dialog-init">
                 <xsl:with-param name="resourcePath" select="concat($parentResourcePath, $childResourcePath)"/>
               </xsl:call-template>
@@ -253,7 +253,7 @@
   <xsl:template name="methods">
     <xsl:param name="resourcePath"/>
 
-    <xsl:variable name="escapedPath" select="translate($resourcePath, '/{}:.*', '______')"/>
+    <xsl:variable name="escapedPath" select="translate($resourcePath, '|/{}:.*', '_______')"/>
     <div class="methods">
       <xsl:for-each select="wadl:method">
         <button id="opener{$escapedPath}_{position()}">

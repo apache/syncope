@@ -489,7 +489,7 @@ public class StatusModalPage<T extends AnyTO> extends AbstractStatusModalPage {
 
         private static final long serialVersionUID = 4586969457669796621L;
 
-        public AttributableStatusProvider() {
+        AttributableStatusProvider() {
             super(statusOnly ? "resourceName" : "connObjectLink");
         }
 

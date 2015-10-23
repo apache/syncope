@@ -52,7 +52,7 @@ public abstract class AbstractResourceModal extends AbstractModalPanel {
 
         private static final long serialVersionUID = 1L;
 
-        public AjaxBootstrapTabbedPanel(final String id, final List<T> tabs) {
+        AjaxBootstrapTabbedPanel(final String id, final List<T> tabs) {
             super(id, tabs);
         }
 

@@ -19,8 +19,10 @@
 package org.apache.syncope.core.provisioning.java.data;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.Resource;
@@ -57,6 +59,7 @@ import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.Role;
+import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
@@ -95,6 +98,15 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
     private String anonymousUser;
 
     private final Encryptor encryptor = Encryptor.getInstance();
+
+    @Transactional(readOnly = true)
+    @Override
+    public UserTO returnUserTO(final UserTO userTO) {
+        if (!confDAO.find("return.password.value", "false").getValues().get(0).getBooleanValue()) {
+            userTO.setPassword(null);
+        }
+        return userTO;
+    }
 
     @Transactional(readOnly = true)
     @Override
@@ -264,21 +276,24 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
         // password
         if (userPatch.getPassword() != null && StringUtils.isNotBlank(userPatch.getPassword().getValue())) {
-            setPassword(user, userPatch.getPassword().getValue(), scce);
-            user.setChangePwdDate(new Date());
-            propByRes.addAll(ResourceOperation.UPDATE, currentResources);
+            if (userPatch.getPassword().isOnSyncope()) {
+                setPassword(user, userPatch.getPassword().getValue(), scce);
+                user.setChangePwdDate(new Date());
+            }
+
+            propByRes.addAll(ResourceOperation.UPDATE, userPatch.getPassword().getResources());
         }
 
         // username
         if (userPatch.getUsername() != null && StringUtils.isNotBlank(userPatch.getUsername().getValue())) {
-            propByRes.addAll(ResourceOperation.UPDATE, currentResources);
-
             String oldUsername = user.getUsername();
             user.setUsername(userPatch.getUsername().getValue());
 
             if (oldUsername.equals(AuthContextUtils.getUsername())) {
                 AuthContextUtils.updateUsername(userPatch.getUsername().getValue());
             }
+
+            propByRes.addAll(ResourceOperation.UPDATE, currentResources);
         }
 
         // security question / answer:
@@ -427,12 +442,12 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             userTO.setSecurityQuestion(user.getSecurityQuestion().getKey());
         }
 
-        if (details) {
-            virAttrHander.retrieveVirAttrValues(user);
-        }
+        Map<VirSchema, List<String>> virAttrValues = details
+                ? virAttrHander.getValues(user)
+                : Collections.<VirSchema, List<String>>emptyMap();
 
         fillTO(userTO, user.getRealm().getFullPath(), user.getAuxClasses(),
-                user.getPlainAttrs(), user.getDerAttrs(), user.getVirAttrs(), userDAO.findAllResources(user));
+                user.getPlainAttrs(), user.getDerAttrs(), virAttrValues, userDAO.findAllResources(user));
 
         if (details) {
             // roles

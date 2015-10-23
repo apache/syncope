@@ -19,15 +19,22 @@
 package org.apache.syncope.core.provisioning.java.sync;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.policy.SyncPolicySpec;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
+import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
+import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
 import org.apache.syncope.core.persistence.api.entity.task.SyncTask;
@@ -50,6 +57,9 @@ public class SyncJobDelegate extends AbstractProvisioningJobDelegate<SyncTask> {
 
     @Autowired
     private GroupDAO groupDAO;
+
+    @Autowired
+    private VirSchemaDAO virSchemaDAO;
 
     @Autowired
     protected SyncUtils syncUtils;
@@ -163,12 +173,25 @@ public class SyncJobDelegate extends AbstractProvisioningJobDelegate<SyncTask> {
                         latestSyncToken = connector.getLatestSyncToken(provision.getObjectClass());
                     }
 
+                    Set<MappingItem> linkinMappingItems = new HashSet<>();
+                    for (VirSchema virSchema : virSchemaDAO.findByProvision(provision)) {
+                        linkinMappingItems.add(virSchema.asLinkingMappingItem());
+                    }
+                    Iterator<MappingItem> mapItems = IteratorUtils.chainedIterator(
+                            provision.getMapping().getItems().iterator(),
+                            linkinMappingItems.iterator());
+
                     if (syncTask.isFullReconciliation()) {
-                        connector.getAllObjects(provision.getObjectClass(), handler,
-                                connector.getOperationOptions(provision.getMapping().getItems()));
+                        connector.getAllObjects(
+                                provision.getObjectClass(),
+                                handler,
+                                connector.getOperationOptions(mapItems));
                     } else {
-                        connector.sync(provision.getObjectClass(), provision.getSyncToken(), handler,
-                                connector.getOperationOptions(provision.getMapping().getItems()));
+                        connector.sync(
+                                provision.getObjectClass(),
+                                provision.getSyncToken(),
+                                handler,
+                                connector.getOperationOptions(mapItems));
                     }
 
                     if (!dryRun && !syncTask.isFullReconciliation()) {

@@ -47,7 +47,7 @@ public class SyncopeClientFactoryBean {
 
         private final MediaType mediaType;
 
-        private ContentType(final MediaType mediaType) {
+        ContentType(final MediaType mediaType) {
             this.mediaType = mediaType;
         }
 
@@ -73,6 +73,8 @@ public class SyncopeClientFactoryBean {
     private ContentType contentType;
 
     private String domain;
+
+    private boolean useCompression;
 
     private RestClientFactoryBean restClientFactoryBean;
 
@@ -197,6 +199,21 @@ public class SyncopeClientFactoryBean {
         return this;
     }
 
+    /**
+     * Sets the given service instance for transparent gzip <tt>Content-Encoding</tt> handling.
+     *
+     * @param useCompression whether transparent gzip <tt>Content-Encoding</tt> handling is to be enabled
+     * @return the current instance
+     */
+    public SyncopeClientFactoryBean setUseCompression(final boolean useCompression) {
+        this.useCompression = useCompression;
+        return this;
+    }
+
+    public boolean isUseCompression() {
+        return useCompression;
+    }
+
     public RestClientFactoryBean getRestClientFactoryBean() {
         return restClientFactoryBean == null
                 ? defaultRestClientFactoryBean()
@@ -208,16 +225,30 @@ public class SyncopeClientFactoryBean {
         return this;
     }
 
-    public SyncopeClient createAnonymous() {
+    /**
+     * Builds client instance with no authentication, for user self-registration and related queries (schema,
+     * resources, ...).
+     *
+     * @return client instance with no authentication
+     */
+    public SyncopeClient create() {
         return create(null, null);
     }
 
+    /**
+     * Builds client instance with the given credentials.
+     *
+     * @param username username
+     * @param password password
+     * @return client instance with the given credentials
+     */
     public SyncopeClient create(final String username, final String password) {
         return new SyncopeClient(
                 getContentType().getMediaType(),
                 getRestClientFactoryBean(),
                 getExceptionMapper(),
                 username,
-                password);
+                password,
+                useCompression);
     }
 }

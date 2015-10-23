@@ -222,6 +222,8 @@ public final class Entitlement {
 
     public static final String REPORT_EXECUTE = "REPORT_EXECUTE";
 
+    public static final String LOG_READ = "LOG_READ";
+
     public static final String LOG_LIST = "LOG_LIST";
 
     public static final String LOG_SET_LEVEL = "LOG_SET_LEVEL";
@@ -229,6 +231,8 @@ public final class Entitlement {
     public static final String LOG_DELETE = "LOG_DELETE";
 
     public static final String AUDIT_LIST = "AUDIT_LIST";
+
+    public static final String AUDIT_READ = "AUDIT_READ";
 
     public static final String AUDIT_ENABLE = "AUDIT_ENABLE";
 

@@ -21,9 +21,7 @@ package org.apache.syncope.core.provisioning.camel.processor;
 import java.util.List;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.patch.PasswordPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.core.misc.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
@@ -50,17 +48,11 @@ public class UserConfirmPwdResetProcessor implements Processor {
 
     @Override
     public void process(final Exchange exchange) {
-        Long key = exchange.getProperty("userKey", Long.class);
+        @SuppressWarnings("unchecked")
+        WorkflowResult<Pair<UserPatch, Boolean>> updated = (WorkflowResult) exchange.getIn().getBody();
 
-        UserPatch userPatch = new UserPatch();
-        userPatch.setKey(key);
-        userPatch.setPassword(new PasswordPatch.Builder().
-                value(exchange.getProperty("password", String.class)).build());
+        List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(updated);
 
-        List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(
-                new WorkflowResult<Pair<UserPatch, Boolean>>(
-                        new ImmutablePair<UserPatch, Boolean>(userPatch, null), null, "confirmPasswordReset"),
-                true, null);
         PropagationReporter propReporter =
                 ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
         try {

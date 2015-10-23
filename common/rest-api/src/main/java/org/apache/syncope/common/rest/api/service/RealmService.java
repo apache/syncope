@@ -63,7 +63,7 @@ public interface RealmService extends JAXRSService {
      *
      * @param parentPath full path of the parent realm
      * @param realmTO new realm.
-     * @return <tt>Response</tt> object featuring <tt>Location</tt> header of created realm
+     * @return Response object featuring Location header of created realm
      */
     @POST
     @Path("{parentPath:.*}")

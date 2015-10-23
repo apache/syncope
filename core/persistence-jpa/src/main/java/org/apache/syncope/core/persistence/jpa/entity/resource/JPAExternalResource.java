@@ -82,7 +82,7 @@ public class JPAExternalResource extends AbstractAnnotatedEntity<String> impleme
     /**
      * Should this resource enforce the mandatory constraints?
      */
-    @Column(nullable = false)
+    @NotNull
     @Basic
     @Min(0)
     @Max(1)
@@ -101,7 +101,7 @@ public class JPAExternalResource extends AbstractAnnotatedEntity<String> impleme
     /**
      * Is this resource primary, for propagations?
      */
-    @Column(nullable = false)
+    @NotNull
     @Basic
     @Min(0)
     @Max(1)
@@ -110,32 +110,32 @@ public class JPAExternalResource extends AbstractAnnotatedEntity<String> impleme
     /**
      * Priority index for propagation ordering.
      */
-    @Column(nullable = false)
+    @NotNull
     private Integer propagationPriority;
 
     /**
      * Generate random password for propagation, if not provided?
      */
-    @Column(nullable = false)
+    @NotNull
     @Basic
     @Min(0)
     @Max(1)
     private Integer randomPwdIfNotProvided;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @NotNull
     private TraceLevel createTraceLevel;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @NotNull
     private TraceLevel updateTraceLevel;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @NotNull
     private TraceLevel deleteTraceLevel;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @NotNull
     private TraceLevel syncTraceLevel;
 
     @ManyToOne(fetch = FetchType.EAGER)

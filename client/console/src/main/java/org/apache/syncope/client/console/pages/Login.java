@@ -131,7 +131,7 @@ public class Login extends WebPage {
             }
         }
 
-        public LocaleDropDown(final String id) {
+        LocaleDropDown(final String id) {
             super(id, SyncopeConsoleApplication.SUPPORTED_LOCALES);
 
             setChoiceRenderer(new LocaleRenderer());
@@ -172,7 +172,7 @@ public class Login extends WebPage {
 
         private static final long serialVersionUID = -7401167913360133325L;
 
-        public DomainDropDown(final String id) {
+        DomainDropDown(final String id) {
             super(id, SyncopeConsoleSession.get().getDomains());
 
             setModel(new IModel<String>() {
