@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.cli.messages;
+package org.apache.syncope.client.cli.view;
 
 import java.util.LinkedHashSet;
 import java.util.LinkedList;

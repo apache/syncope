@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.cli.messages;
+package org.apache.syncope.client.cli.view;
 
 public final class Messages {
 

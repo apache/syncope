@@ -21,7 +21,7 @@ package org.apache.syncope.client.cli.commands.configuration;
 import java.util.Arrays;
 import java.util.LinkedList;
 import org.apache.syncope.client.cli.commands.CommonsResultManager;
-import org.apache.syncope.client.cli.messages.Table;
+import org.apache.syncope.client.cli.view.Table;
 import org.apache.syncope.common.lib.to.AttrTO;
 
 public class ConfigurationResultManager extends CommonsResultManager {

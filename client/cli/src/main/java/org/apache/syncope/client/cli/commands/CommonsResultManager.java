@@ -18,9 +18,13 @@
  */
 package org.apache.syncope.client.cli.commands;
 
-import org.apache.syncope.client.cli.messages.Messages;
+import org.apache.syncope.client.cli.view.Messages;
 
 public abstract class CommonsResultManager {
+
+    public void managerNumberFormatException(final String what, final String key) {
+        Messages.printIdNotNumberDeletedMessage(what, key);
+    }
 
     public void deletedMessage(final String what, final String key) {
         Messages.printDeletedMessage(what, key);
