@@ -90,6 +90,7 @@ public class PolicyResultManager extends CommonsResultManager {
         System.out.println("    propagation suspension : " + policyTO.isPropagateSuspension());
         System.out.println("    RULES : ");
         System.out.println("       > class : " + policyTO.getRuleConfs());
+        System.out.println("");
     }
 
     public void printPasswordPolicy(final PasswordPolicyTO policyTO) {
@@ -102,6 +103,7 @@ public class PolicyResultManager extends CommonsResultManager {
         System.out.println("    allow null password : " + policyTO.isAllowNullPassword());
         System.out.println("    RULES : ");
         System.out.println("       > class : " + ((PasswordPolicyTO) policyTO).getRuleConfs());
+        System.out.println("");
     }
 
     public void printSyncPolicy(final SyncPolicyTO policyTO) {
@@ -116,5 +118,6 @@ public class PolicyResultManager extends CommonsResultManager {
             System.out.println("    correlation rule : "
                     + policyTO.getSpecification().getCorrelationRules().toString());
         }
+        System.out.println("");
     }
 }
