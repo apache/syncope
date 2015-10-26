@@ -27,7 +27,7 @@ import org.apache.syncope.common.lib.to.ReportTO;
 
 public class ReportResultManager extends CommonsResultManager {
 
-    public void fromList(final List<ReportTO> reportTOs) {
+    public void fromValueToView(final List<ReportTO> reportTOs) {
         for (final ReportTO reportTO : reportTOs) {
             printReport(reportTO);
         }
@@ -35,19 +35,20 @@ public class ReportResultManager extends CommonsResultManager {
 
     private void printReport(final ReportTO reportTO) {
         System.out.println(" > REPORT ID: " + reportTO.getKey());
-        System.out.println("    type: " + reportTO.getName());
-        System.out.println("    type: " + reportTO.getCronExpression());
-        System.out.println("    type: " + reportTO.getLatestExecStatus());
-        System.out.println("    type: " + reportTO.getLastExec());
-        System.out.println("    type: " + reportTO.getNextExec());
-        System.out.println("    type: " + reportTO.getStartDate());
-        System.out.println("    type: " + reportTO.getEndDate());
+        System.out.println("    name: " + reportTO.getName());
+        System.out.println("    cron expression: " + reportTO.getCronExpression());
+        System.out.println("    latest execution status: " + reportTO.getLatestExecStatus());
+        System.out.println("    last execution: " + reportTO.getLastExec());
+        System.out.println("    next execution: " + reportTO.getNextExec());
+        System.out.println("    start date: " + reportTO.getStartDate());
+        System.out.println("    end date: " + reportTO.getEndDate());
         System.out.println("    CONF:");
         for (final AbstractReportletConf reportletConf : reportTO.getReportletConfs()) {
             printReportletConf(reportletConf);
         }
         System.out.println("    EXECUTION:");
         printReportExecution(reportTO.getExecutions());
+        System.out.println("");
     }
 
     private void printReportletConf(final AbstractReportletConf reportletConf) {

@@ -16,18 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.cli.commands.report;
+package org.apache.syncope.client.cli.commands.resource;
 
-import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.client.cli.SyncopeServices;
+import org.apache.syncope.common.rest.api.service.ResourceService;
 
-public class ReportList extends AbstractReportCommand {
+public abstract class AbstractResourceCommand {
 
-    public void list() {
-        try {
-            reportResultManager.fromValueToView(reportService.list());
-        } catch (final SyncopeClientException ex) {
-            reportResultManager.generic(ex.getMessage());
-        }
-    }
+    protected final ResourceService resourceService = SyncopeServices.get(ResourceService.class);
+
+    protected final ResourceResultManager resourceResultManager = new ResourceResultManager();
 
 }

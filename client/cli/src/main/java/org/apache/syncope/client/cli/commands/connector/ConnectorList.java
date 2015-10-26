@@ -16,18 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.cli.commands.report;
+package org.apache.syncope.client.cli.commands.connector;
 
 import org.apache.syncope.common.lib.SyncopeClientException;
 
-public class ReportList extends AbstractReportCommand {
+public class ConnectorList extends AbstractConnectorCommand {
 
     public void list() {
         try {
-            reportResultManager.fromValueToView(reportService.list());
+            connectorResultManager.toView(connectorService.list(null));
         } catch (final SyncopeClientException ex) {
-            reportResultManager.generic(ex.getMessage());
+            connectorResultManager.generic(ex.getMessage());
         }
     }
-
 }

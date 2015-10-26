@@ -16,44 +16,45 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.cli.commands.report;
-
+package org.apache.syncope.client.cli.commands.resource;
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.ReportTO;
+import org.apache.syncope.common.lib.to.ResourceTO;
 
-public class ReportRead extends AbstractReportCommand {
+public class ResourceRead extends AbstractResourceCommand {
 
-    private static final String READ_HELP_MESSAGE = "report --read {REPORT-ID} {REPORT-ID} [...]";
+    private static final String READ_HELP_MESSAGE = "resource --read {RESOURCE-NAME} {RESOURCE-NAME} [...]";
 
     private final Input input;
 
-    public ReportRead(final Input input) {
+    public ResourceRead(final Input input) {
         this.input = input;
     }
 
     public void read() {
-        if (input.parameterNumber() >= 1) {
-            final List<ReportTO> reportTOs = new ArrayList<>();
+        if (input.getParameters().length >= 1) {
+            final List<ResourceTO> resourceTOs = new ArrayList<>();
             for (final String parameter : input.getParameters()) {
                 try {
-                    reportTOs.add(reportService.read(Long.valueOf(parameter)));
+                    resourceTOs.add(resourceService.read(parameter));
                 } catch (final NumberFormatException ex) {
-                    reportResultManager.managerNumberFormatException("report", parameter);
-                } catch (final WebServiceException | SyncopeClientException ex) {
+                    resourceResultManager.managerNumberFormatException("resource", parameter);
+                } catch (final SyncopeClientException | WebServiceException ex) {
                     if (ex.getMessage().startsWith("NotFound")) {
-                        reportResultManager.notFoundError("Report", parameter);
+                        resourceResultManager.notFoundError("Resource", parameter);
                     } else {
-                        reportResultManager.generic(ex.getMessage());
+                        resourceResultManager.generic(ex.getMessage());
                     }
+                    break;
                 }
             }
-            reportResultManager.fromValueToView(reportTOs);
+            resourceResultManager.toView(resourceTOs);
         } else {
-            reportResultManager.commandOptionError(READ_HELP_MESSAGE);
+            resourceResultManager.commandOptionError(READ_HELP_MESSAGE);
         }
     }
+
 }

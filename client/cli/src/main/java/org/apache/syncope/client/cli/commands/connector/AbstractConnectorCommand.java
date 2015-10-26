@@ -16,16 +16,15 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.cli;
+package org.apache.syncope.client.cli.commands.connector;
 
-public enum AvailableServices {
+import org.apache.syncope.client.cli.SyncopeServices;
+import org.apache.syncope.common.rest.api.service.ConnectorService;
 
-    logger,
-    config,
-    notification,
-    report,
-    policy,
-    entitlement,
-    schema;
+public abstract class AbstractConnectorCommand {
+
+    protected final ConnectorService connectorService = SyncopeServices.get(ConnectorService.class);
+
+    protected final ConnectorResultManager connectorResultManager = new ConnectorResultManager();
 
 }

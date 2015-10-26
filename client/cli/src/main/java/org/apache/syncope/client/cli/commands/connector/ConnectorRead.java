@@ -16,44 +16,46 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.cli.commands.report;
+package org.apache.syncope.client.cli.commands.connector;
 
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.ReportTO;
+import org.apache.syncope.common.lib.to.ConnInstanceTO;
 
-public class ReportRead extends AbstractReportCommand {
+public class ConnectorRead extends AbstractConnectorCommand {
 
-    private static final String READ_HELP_MESSAGE = "report --read {REPORT-ID} {REPORT-ID} [...]";
+    private static final String READ_HELP_MESSAGE = "connector --read {CONNECTOR-ID} {CONNECTOR-ID} [...]";
 
     private final Input input;
 
-    public ReportRead(final Input input) {
+    public ConnectorRead(final Input input) {
         this.input = input;
     }
 
     public void read() {
-        if (input.parameterNumber() >= 1) {
-            final List<ReportTO> reportTOs = new ArrayList<>();
+        if (input.getParameters().length >= 1) {
+            final List<ConnInstanceTO> connInstanceTOs = new ArrayList<>();
             for (final String parameter : input.getParameters()) {
                 try {
-                    reportTOs.add(reportService.read(Long.valueOf(parameter)));
+                    connInstanceTOs.add(connectorService.read(Long.valueOf(parameter), READ_HELP_MESSAGE));
                 } catch (final NumberFormatException ex) {
-                    reportResultManager.managerNumberFormatException("report", parameter);
-                } catch (final WebServiceException | SyncopeClientException ex) {
+                    connectorResultManager.managerNumberFormatException("connector", parameter);
+                } catch (final SyncopeClientException | WebServiceException ex) {
                     if (ex.getMessage().startsWith("NotFound")) {
-                        reportResultManager.notFoundError("Report", parameter);
+                        connectorResultManager.notFoundError("Connector", parameter);
                     } else {
-                        reportResultManager.generic(ex.getMessage());
+                        connectorResultManager.generic(ex.getMessage());
                     }
+                    break;
                 }
             }
-            reportResultManager.fromValueToView(reportTOs);
+            connectorResultManager.toView(connInstanceTOs);
         } else {
-            reportResultManager.commandOptionError(READ_HELP_MESSAGE);
+            connectorResultManager.commandOptionError(READ_HELP_MESSAGE);
         }
     }
+
 }
