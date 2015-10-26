@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+sudo: false
 cache:
   directories:
   - $HOME/.m2
@@ -21,10 +22,8 @@ jdk:
   - openjdk7
 # default install is mvn install --quiet -DskipTests=true
 install: mvn --show-version --quiet -P all,skipTests
-#invoker.streamLogs: we cannot access to log files through Travis web ui, so display everything in the console
 script:
-  - sudo rm /etc/mavenrc
-  - export MAVEN_OPTS="-Xmx2048m -Xms1024m -XX:MaxPermSize=512m -XX:+TieredCompilation -XX:TieredStopAtLevel=1"
+  #invoker.streamLogs: we cannot access to log files through Travis web ui, so display everything in the console
   - mvn --show-version --quiet clean install -Dinvoker.streamLogs=true
 notifications:
   email:
