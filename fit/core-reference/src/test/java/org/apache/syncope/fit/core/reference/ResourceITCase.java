@@ -161,15 +161,15 @@ public class ResourceITCase extends AbstractITCase {
         resourceTO.setKey(resourceName);
         resourceTO.setConnector(102L);
 
-        ConnConfProperty p = new ConnConfProperty();
+        ConnConfProperty prop = new ConnConfProperty();
         ConnConfPropSchema schema = new ConnConfPropSchema();
         schema.setType("java.lang.String");
         schema.setName("endpoint");
         schema.setRequired(true);
-        p.setSchema(schema);
-        p.getValues().add("http://invalidurl/");
+        prop.setSchema(schema);
+        prop.getValues().add("http://invalidurl/");
 
-        Set<ConnConfProperty> connectorConfigurationProperties = new HashSet<>(Arrays.asList(p));
+        Set<ConnConfProperty> connectorConfigurationProperties = new HashSet<>(Arrays.asList(prop));
         resourceTO.getConfOverride().addAll(connectorConfigurationProperties);
 
         Response response = resourceService.create(resourceTO);

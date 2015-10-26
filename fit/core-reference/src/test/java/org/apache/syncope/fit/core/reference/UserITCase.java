@@ -171,7 +171,8 @@ public class UserITCase extends AbstractITCase {
         // get last task
         PropagationTaskTO taskTO = taskService.read(newMaxId);
         assertNotNull(taskTO);
-        assertTrue(taskTO.getExecutions().isEmpty());
+        assertFalse(taskTO.getExecutions().isEmpty());
+        assertEquals(PropagationTaskExecStatus.NOT_ATTEMPTED.name(), taskTO.getExecutions().get(0).getStatus());
     }
 
     @Test

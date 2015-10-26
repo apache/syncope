@@ -226,8 +226,8 @@ public class ConnectorFacadeProxy implements Connector {
             }
         } else {
             LOG.info("Update for {} was attempted, although the "
-                    + "connector only has these capabilities: {}. No action.", uid.getUidValue(), connInstance.
-                    getCapabilities());
+                    + "connector only has these capabilities: {}. No action.",
+                    uid.getUidValue(), connInstance.getCapabilities());
         }
 
         return result;

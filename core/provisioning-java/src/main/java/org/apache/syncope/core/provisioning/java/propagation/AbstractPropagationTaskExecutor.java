@@ -387,7 +387,9 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 default:
             }
 
-            execution.setStatus(PropagationTaskExecStatus.SUCCESS.name());
+            execution.setStatus(propagationAttempted[0]
+                    ? PropagationTaskExecStatus.SUCCESS.name()
+                    : PropagationTaskExecStatus.NOT_ATTEMPTED.name());
 
             for (PropagationActions action : actions) {
                 action.after(task, execution, afterObj);
@@ -437,24 +439,19 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 }
             }
 
-            LOG.debug("Update execution for {}", task);
-
             execution.setStartDate(startDate);
             execution.setMessage(taskExecutionMessage);
             execution.setEndDate(new Date());
 
-            if (hasToBeregistered(task, execution)) {
-                if (!propagationAttempted[0]) {
-                    LOG.debug("No propagation attempted for {}", execution);
-                } else {
-                    execution.setTask(task);
-                    task.addExec(execution);
+            LOG.debug("Execution finished: {}", execution);
 
-                    LOG.debug("Execution finished: {}", execution);
-                }
+            if (hasToBeregistered(task, execution)) {
+                LOG.debug("Execution to be stored: {}", execution);
+
+                execution.setTask(task);
+                task.addExec(execution);
 
                 taskDAO.save(task);
-
                 // this flush call is needed to generate a value for the execution id
                 taskDAO.flush();
             }

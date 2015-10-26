@@ -52,6 +52,7 @@ import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.BulkActionResult;
+import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.MappingItemTO;
 import org.apache.syncope.common.lib.to.PagedResult;
@@ -63,9 +64,11 @@ import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.PatchOperation;
+import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.lib.types.ResourceAssociationAction;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 import org.apache.syncope.common.lib.types.SchemaType;
@@ -610,6 +613,111 @@ public class GroupITCase extends AbstractITCase {
     }
 
     @Test
+    public void dynMembership() {
+        assertTrue(userService.read(4L).getDynGroups().isEmpty());
+
+        GroupTO group = getBasicSampleTO("dynMembership");
+        group.setUDynMembershipCond("cool==true");
+        group = createGroup(group);
+        assertNotNull(group);
+
+        assertTrue(userService.read(4L).getDynGroups().contains(group.getKey()));
+
+        GroupPatch mod = new GroupPatch();
+        mod.setKey(group.getKey());
+        mod.setUDynMembershipCond(new StringReplacePatchItem.Builder().value("cool==false").build());
+        groupService.update(mod);
+
+        assertTrue(userService.read(4L).getDynGroups().isEmpty());
+    }
+
+    @Test
+    public void capabilitiesOverride() {
+        // resource with no capability override
+        ResourceTO ldap = resourceService.read(RESOURCE_NAME_LDAP);
+        assertNotNull(ldap);
+        assertFalse(ldap.isOverrideCapabilities());
+        assertTrue(ldap.getCapabilitiesOverride().isEmpty());
+
+        // connector with all required for create and update
+        ConnInstanceTO conn = connectorService.read(ldap.getConnector(), null);
+        assertNotNull(conn);
+        assertTrue(conn.getCapabilities().contains(ConnectorCapability.CREATE));
+        assertTrue(conn.getCapabilities().contains(ConnectorCapability.UPDATE));
+
+        try {
+            // 1. create succeeds
+            GroupTO group = getSampleTO("syncope714");
+            group.getPlainAttrs().add(attrTO("title", "first"));
+            group.getResources().add(RESOURCE_NAME_LDAP);
+
+            group = createGroup(group);
+            assertNotNull(group);
+            assertEquals(1, group.getPropagationStatusTOs().size());
+            assertEquals(RESOURCE_NAME_LDAP, group.getPropagationStatusTOs().get(0).getResource());
+            assertEquals(PropagationTaskExecStatus.SUCCESS, group.getPropagationStatusTOs().get(0).getStatus());
+
+            // 2. update succeeds
+            GroupPatch patch = new GroupPatch();
+            patch.setKey(group.getKey());
+            patch.getPlainAttrs().add(new AttrPatch.Builder().
+                    operation(PatchOperation.ADD_REPLACE).attrTO(attrTO("title", "second")).build());
+
+            group = groupService.update(patch).readEntity(GroupTO.class);
+            assertNotNull(group);
+            assertEquals(1, group.getPropagationStatusTOs().size());
+            assertEquals(RESOURCE_NAME_LDAP, group.getPropagationStatusTOs().get(0).getResource());
+            assertEquals(PropagationTaskExecStatus.SUCCESS, group.getPropagationStatusTOs().get(0).getStatus());
+
+            // 3. set capability override with only search allowed, but not enable
+            ldap.getCapabilitiesOverride().add(ConnectorCapability.SEARCH);
+            resourceService.update(ldap);
+            ldap = resourceService.read(RESOURCE_NAME_LDAP);
+            assertNotNull(ldap);
+            assertFalse(ldap.isOverrideCapabilities());
+            assertEquals(1, ldap.getCapabilitiesOverride().size());
+            assertTrue(ldap.getCapabilitiesOverride().contains(ConnectorCapability.SEARCH));
+
+            // 4. update succeeds again
+            patch = new GroupPatch();
+            patch.setKey(group.getKey());
+            patch.getPlainAttrs().add(new AttrPatch.Builder().
+                    operation(PatchOperation.ADD_REPLACE).attrTO(attrTO("title", "third")).build());
+
+            group = groupService.update(patch).readEntity(GroupTO.class);
+            assertNotNull(group);
+            assertEquals(1, group.getPropagationStatusTOs().size());
+            assertEquals(RESOURCE_NAME_LDAP, group.getPropagationStatusTOs().get(0).getResource());
+            assertEquals(PropagationTaskExecStatus.SUCCESS, group.getPropagationStatusTOs().get(0).getStatus());
+
+            // 5. enable capability override
+            ldap.setOverrideCapabilities(true);
+            resourceService.update(ldap);
+            ldap = resourceService.read(RESOURCE_NAME_LDAP);
+            assertNotNull(ldap);
+            assertTrue(ldap.isOverrideCapabilities());
+            assertEquals(1, ldap.getCapabilitiesOverride().size());
+            assertTrue(ldap.getCapabilitiesOverride().contains(ConnectorCapability.SEARCH));
+
+            // 6. update now fails
+            patch = new GroupPatch();
+            patch.setKey(group.getKey());
+            patch.getPlainAttrs().add(new AttrPatch.Builder().
+                    operation(PatchOperation.ADD_REPLACE).attrTO(attrTO("title", "fourth")).build());
+
+            group = groupService.update(patch).readEntity(GroupTO.class);
+            assertNotNull(group);
+            assertEquals(1, group.getPropagationStatusTOs().size());
+            assertEquals(RESOURCE_NAME_LDAP, group.getPropagationStatusTOs().get(0).getResource());
+            assertEquals(PropagationTaskExecStatus.NOT_ATTEMPTED, group.getPropagationStatusTOs().get(0).getStatus());
+        } finally {
+            ldap.getCapabilitiesOverride().clear();
+            ldap.setOverrideCapabilities(false);
+            resourceService.update(ldap);
+        }
+    }
+
+    @Test
     public void issueSYNCOPE632() {
         GroupTO groupTO = null;
         try {
@@ -695,22 +803,4 @@ public class GroupITCase extends AbstractITCase {
         }
     }
 
-    @Test
-    public void dynMembership() {
-        assertTrue(userService.read(4L).getDynGroups().isEmpty());
-
-        GroupTO group = getBasicSampleTO("dynMembership");
-        group.setUDynMembershipCond("cool==true");
-        group = createGroup(group);
-        assertNotNull(group);
-
-        assertTrue(userService.read(4L).getDynGroups().contains(group.getKey()));
-
-        GroupPatch mod = new GroupPatch();
-        mod.setKey(group.getKey());
-        mod.setUDynMembershipCond(new StringReplacePatchItem.Builder().value("cool==false").build());
-        groupService.update(mod);
-
-        assertTrue(userService.read(4L).getDynGroups().isEmpty());
-    }
 }

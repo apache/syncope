@@ -28,6 +28,7 @@ public enum PropagationTaskExecStatus {
 
     CREATED,
     SUCCESS,
-    FAILURE;
+    FAILURE,
+    NOT_ATTEMPTED;
 
 }

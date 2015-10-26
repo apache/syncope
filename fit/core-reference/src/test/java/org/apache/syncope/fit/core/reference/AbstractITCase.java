@@ -341,7 +341,7 @@ public abstract class AbstractITCase {
                 throw (RuntimeException) ex;
             }
         }
-        return getObject(response.getLocation(), AnyObjectService.class, AnyObjectTO.class);
+        return response.readEntity(AnyObjectTO.class);
     }
 
     protected AnyObjectTO updateAnyObject(final AnyObjectPatch anyObjectPatch) {
@@ -360,7 +360,7 @@ public abstract class AbstractITCase {
                 throw (RuntimeException) ex;
             }
         }
-        return getObject(response.getLocation(), GroupService.class, GroupTO.class);
+        return response.readEntity(GroupTO.class);
     }
 
     protected GroupTO updateGroup(final GroupPatch groupPatch) {
