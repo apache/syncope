@@ -31,7 +31,7 @@ import org.identityconnectors.framework.api.ConnectorInfoManager;
  */
 public interface ConnIdBundleManager {
 
-    ConfigurationProperties getConfigurationProperties(final ConnectorInfo info);
+    ConfigurationProperties getConfigurationProperties(ConnectorInfo info);
 
     Map<URI, ConnectorInfoManager> getConnManagers();
 

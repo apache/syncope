@@ -286,7 +286,7 @@ public class ConnectorModal extends AbstractResourceModal {
         // form - second tab (properties)
         final ListView<ConnConfProperty> connPropView = new ConnConfPropertyListView("connectorProperties",
                 new PropertyModel<List<ConnConfProperty>>(this, "properties"),
-                true, connInstanceTO.getConfiguration());
+                true, connInstanceTO.getConf());
         connPropView.setOutputMarkupId(true);
         connectorPropForm.add(connPropView);
 
@@ -353,8 +353,8 @@ public class ConnectorModal extends AbstractResourceModal {
                 conn.setConnectorName(bundleTO.getConnectorName());
                 conn.setBundleName(bundleTO.getBundleName());
                 conn.setVersion(bundleTO.getVersion());
-                conn.getConfiguration().clear();
-                conn.getConfiguration().addAll(connPropView.getModelObject());
+                conn.getConf().clear();
+                conn.getConf().addAll(connPropView.getModelObject());
 
                 // Set the model object's capabilities to capabilitiesPalette's converted Set
                 conn.getCapabilities().clear();
@@ -448,11 +448,11 @@ public class ConnectorModal extends AbstractResourceModal {
                 final ConnConfProperty property = new ConnConfProperty();
                 property.setSchema(key);
                 if (connInstanceTO.getKey() != 0
-                        && connInstanceTO.getConfigurationMap().containsKey(key.getName())
-                        && connInstanceTO.getConfigurationMap().get(key.getName()).getValues() != null) {
+                        && connInstanceTO.getConfMap().containsKey(key.getName())
+                        && connInstanceTO.getConfMap().get(key.getName()).getValues() != null) {
 
-                    property.getValues().addAll(connInstanceTO.getConfigurationMap().get(key.getName()).getValues());
-                    property.setOverridable(connInstanceTO.getConfigurationMap().get(key.getName()).isOverridable());
+                    property.getValues().addAll(connInstanceTO.getConfMap().get(key.getName()).getValues());
+                    property.setOverridable(connInstanceTO.getConfMap().get(key.getName()).isOverridable());
                 }
 
                 if (property.getValues().isEmpty() && !key.getDefaultValues().isEmpty()) {

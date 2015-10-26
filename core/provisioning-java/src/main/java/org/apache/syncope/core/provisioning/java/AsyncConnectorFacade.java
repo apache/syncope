@@ -18,19 +18,16 @@
  */
 package org.apache.syncope.core.provisioning.java;
 
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.Future;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.api.ConnectorFacade;
 import org.identityconnectors.framework.common.objects.Attribute;
-import org.identityconnectors.framework.common.objects.AttributeInfo;
-import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.ObjectClassInfo;
 import org.identityconnectors.framework.common.objects.OperationOptions;
-import org.identityconnectors.framework.common.objects.Schema;
 import org.identityconnectors.framework.common.objects.SyncToken;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.slf4j.Logger;
@@ -46,9 +43,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class AsyncConnectorFacade {
 
-    /**
-     * Logger.
-     */
     private static final Logger LOG = LoggerFactory.getLogger(AsyncConnectorFacade.class);
 
     @Async
@@ -111,83 +105,17 @@ public class AsyncConnectorFacade {
     }
 
     @Async
-    public Future<Attribute> getObjectAttribute(
-            final ConnectorFacade connector,
-            final ObjectClass objectClass,
-            final Uid uid,
-            final OperationOptions options,
-            final String attributeName) {
-
-        Attribute attribute = null;
-
-        ConnectorObject object = connector.getObject(objectClass, uid, options);
-        if (object == null) {
-            LOG.debug("Object for '{}' not found", uid.getUidValue());
-        } else {
-            attribute = object.getAttributeByName(attributeName);
-        }
-
-        return new AsyncResult<>(attribute);
-    }
-
-    @Async
-    public Future<Set<Attribute>> getObjectAttributes(
-            final ConnectorFacade connector,
-            final ObjectClass objectClass,
-            final Uid uid,
-            final OperationOptions options) {
-
-        Set<Attribute> attributes = new HashSet<>();
-
-        ConnectorObject object = connector.getObject(objectClass, uid, options);
-
-        if (object == null) {
-            LOG.debug("Object for '{}' not found", uid.getUidValue());
-        } else {
-            for (String attribute : options.getAttributesToGet()) {
-                attributes.add(object.getAttributeByName(attribute));
-            }
-        }
-
-        return new AsyncResult<>(attributes);
-    }
-
-    @Async
-    public Future<Set<String>> getSchemaNames(final ConnectorFacade connector, final boolean includeSpecial) {
-        Set<String> schemaNames = new HashSet<>();
+    public Future<Set<ObjectClassInfo>> getObjectClassInfo(final ConnectorFacade connector) {
+        Set<ObjectClassInfo> result = Collections.emptySet();
 
         try {
-            Schema schema = connector.schema();
-            for (ObjectClassInfo info : schema.getObjectClassInfo()) {
-                for (AttributeInfo attrInfo : info.getAttributeInfo()) {
-                    if (includeSpecial || !AttributeUtil.isSpecialName(attrInfo.getName())) {
-                        schemaNames.add(attrInfo.getName());
-                    }
-                }
-            }
+            result = connector.schema().getObjectClassInfo();
         } catch (Exception e) {
             // catch exception in order to manage unpredictable behaviors
             LOG.debug("While reading schema on connector {}", connector, e);
         }
 
-        return new AsyncResult<>(schemaNames);
-    }
-
-    @Async
-    public Future<Set<ObjectClass>> getSupportedObjectClasses(final ConnectorFacade connector) {
-        Set<ObjectClass> objectClasses = new HashSet<>();
-
-        try {
-            Schema schema = connector.schema();
-            for (ObjectClassInfo info : schema.getObjectClassInfo()) {
-                objectClasses.add(new ObjectClass(info.getType()));
-            }
-        } catch (Exception e) {
-            // catch exception in order to manage unpredictable behaviors
-            LOG.debug("While reading schema on connector {}", connector, e);
-        }
-
-        return new AsyncResult<>(objectClasses);
+        return new AsyncResult<>(result);
     }
 
     @Async

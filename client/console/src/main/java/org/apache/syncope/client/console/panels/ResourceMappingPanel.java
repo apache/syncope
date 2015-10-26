@@ -25,6 +25,8 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.JexlHelpUtils;
 import org.apache.syncope.client.console.panels.ResourceConnConfPanel.ConnConfModEvent;
@@ -36,6 +38,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownCho
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MappingPurposePanel;
+import org.apache.syncope.common.lib.to.ConnIdObjectClassTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.MappingItemTO;
 import org.apache.syncope.common.lib.to.MappingTO;
@@ -156,7 +159,7 @@ public class ResourceMappingPanel extends Panel {
         add(this.mappingContainer);
 
         if (resourceTO.getConnector() != null && resourceTO.getConnector() > 0) {
-            schemaNames = getSchemaNames(resourceTO.getConnector(), resourceTO.getConnConfProperties());
+            schemaNames = getSchemaNames(resourceTO.getConnector(), resourceTO.getConfOverride());
             setEnabled();
         } else {
             schemaNames = Collections.<String>emptyList();
@@ -441,15 +444,24 @@ public class ResourceMappingPanel extends Panel {
     private List<String> getSchemaNames(final Long connectorId, final Set<ConnConfProperty> conf) {
         final ConnInstanceTO connInstanceTO = new ConnInstanceTO();
         connInstanceTO.setKey(connectorId);
-        connInstanceTO.getConfiguration().addAll(conf);
+        connInstanceTO.getConf().addAll(conf);
 
-        return connRestClient.getSchemaNames(connInstanceTO);
+        // SYNCOPE-156: use provided info to give schema names (and type!) by ObjectClass
+        return CollectionUtils.collect(connRestClient.buildObjectClassInfo(connInstanceTO, true),
+                new Transformer<ConnIdObjectClassTO, String>() {
+
+                    @Override
+                    public String transform(final ConnIdObjectClassTO input) {
+                        return input.getType();
+                    }
+                },
+                new ArrayList<String>());
     }
 
     private void setEnabled() {
         ConnInstanceTO connInstanceTO = new ConnInstanceTO();
         connInstanceTO.setKey(resourceTO.getConnector());
-        connInstanceTO.getConfiguration().addAll(resourceTO.getConnConfProperties());
+        connInstanceTO.getConf().addAll(resourceTO.getConfOverride());
 
         boolean enabled = provisionTO != null;
 

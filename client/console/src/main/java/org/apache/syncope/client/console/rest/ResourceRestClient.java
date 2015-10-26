@@ -21,11 +21,11 @@ package org.apache.syncope.client.console.rest;
 import java.util.List;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.patch.ResourceDeassociationPatch;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
-import org.apache.syncope.common.lib.wrap.AnyKey;
 import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.springframework.stereotype.Component;
 
@@ -82,8 +82,14 @@ public class ResourceRestClient extends BaseRestClient {
 
     public BulkActionResult bulkAssociationAction(
             final String resourceName, final String anyTypeName,
-            final ResourceDeassociationAction type, final List<AnyKey> anyKeys) {
+            final ResourceDeassociationAction action, final List<Long> anyKeys) {
 
-        return getService(ResourceService.class).bulkDeassociation(resourceName, anyTypeName, type, anyKeys);
+        ResourceDeassociationPatch patch = new ResourceDeassociationPatch();
+        patch.setKey(resourceName);
+        patch.setAnyTypeKey(anyTypeName);
+        patch.setAction(action);
+        patch.getAnyKyes().addAll(anyKeys);
+
+        return getService(ResourceService.class).bulkDeassociation(patch);
     }
 }

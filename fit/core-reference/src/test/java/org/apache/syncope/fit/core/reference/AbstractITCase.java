@@ -399,7 +399,7 @@ public abstract class AbstractITCase {
             throws NamingException {
         ResourceTO ldapRes = resourceService.read(RESOURCE_NAME_LDAP);
         final Map<String, ConnConfProperty> ldapConnConf =
-                connectorService.read(ldapRes.getConnector(), Locale.ENGLISH.getLanguage()).getConfigurationMap();
+                connectorService.read(ldapRes.getConnector(), Locale.ENGLISH.getLanguage()).getConfMap();
 
         Properties env = new Properties();
         env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");

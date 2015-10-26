@@ -37,8 +37,8 @@ public class ConnectorListConfigurationProperties extends AbstractConnectorComma
         if (input.getParameters().length >= 1) {
             for (final String parameter : input.getParameters()) {
                 try {
-                    connectorResultManager.fromListConfigurationProperties(
-                            connectorService.getConfigurationProperties(Long.valueOf(parameter)));
+                    connectorResultManager.fromConfigurationProperties(
+                            connectorService.read(Long.valueOf(parameter), null).getConf());
                 } catch (final NumberFormatException ex) {
                     connectorResultManager.managerNumberFormatException("connector", parameter);
                 } catch (final SyncopeClientException | WebServiceException ex) {

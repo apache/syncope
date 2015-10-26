@@ -580,54 +580,55 @@ under the License.
   <ConnInstance_capabilities ConnInstance_id="108" capability="SYNC"/>
   
   <ExternalResource name="ws-target-resource-1" connector_id="100"
-                    randomPwdIfNotProvided="0" enforceMandatoryCondition="0"
+                    randomPwdIfNotProvided="0" enforceMandatoryCondition="0" overrideCapabilities="0"
                     propagationPriority="0" propagationPrimary="1" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"
-                    creator="admin" lastModifier="admin" 
+                    creator="admin" lastModifier="admin"
                     creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
   <ExternalResource name="ws-target-resource-2" connector_id="100"
-                    randomPwdIfNotProvided="0" enforceMandatoryCondition="1"
+                    randomPwdIfNotProvided="0" enforceMandatoryCondition="1" overrideCapabilities="0"
                     propagationPriority="0" propagationPrimary="0" createTraceLevel="FAILURES" deleteTraceLevel="NONE" updateTraceLevel="ALL" syncTraceLevel="ALL"
                     syncPolicy_id="9"
                     creator="admin" lastModifier="admin" 
                     creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
   <ExternalResource name="ws-target-resource-timeout" connector_id="102"
-                    randomPwdIfNotProvided="0" enforceMandatoryCondition="1"
+                    randomPwdIfNotProvided="0" enforceMandatoryCondition="1" overrideCapabilities="0"
                     propagationPriority="0" propagationPrimary="1" createTraceLevel="FAILURES" deleteTraceLevel="NONE" updateTraceLevel="ALL" syncTraceLevel="ALL"
                     jsonConf='[{"schema":{"name":"endpoint","displayName":null,"helpMessage":null,"type":"java.lang.String","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":true,"values":["http://localhost:${cargo.servlet.port}/syncope-fit-build-tools/services/provisioning"]}]'
                     creator="admin" lastModifier="admin" 
                     creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
   <ExternalResource name="ws-target-resource-list-mappings-1" connector_id="100"
-                    randomPwdIfNotProvided="0" enforceMandatoryCondition="0"
+                    randomPwdIfNotProvided="0" enforceMandatoryCondition="0" overrideCapabilities="0"
                     propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"
                     creator="admin" lastModifier="admin" 
                     creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
   <ExternalResource name="ws-target-resource-list-mappings-2" connector_id="100"
-                    randomPwdIfNotProvided="0" enforceMandatoryCondition="1"
+                    randomPwdIfNotProvided="0" enforceMandatoryCondition="1" overrideCapabilities="0"
                     propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"
                     creator="admin" lastModifier="admin" 
                     creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
   <ExternalResource name="ws-target-resource-delete" connector_id="102"
-                    randomPwdIfNotProvided="0" enforceMandatoryCondition="0"
+                    randomPwdIfNotProvided="0" enforceMandatoryCondition="0" overrideCapabilities="0"
                     propagationPriority="2" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"
                     creator="admin" lastModifier="admin" 
                     creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
   <ExternalResource name="ws-target-resource-update" connector_id="100"
-                    randomPwdIfNotProvided="0" enforceMandatoryCondition="1"
+                    randomPwdIfNotProvided="0" enforceMandatoryCondition="1" overrideCapabilities="0"
                     propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"
                     creator="admin" lastModifier="admin" 
                     creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
   <ExternalResource name="resource-testdb" connector_id="101"
-                    randomPwdIfNotProvided="0" enforceMandatoryCondition="1"
+                    randomPwdIfNotProvided="0" enforceMandatoryCondition="1" overrideCapabilities="0"
                     propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"
                     creator="admin" lastModifier="admin" 
                     creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
   <ExternalResource name="resource-testdb2" connector_id="106"
-                    randomPwdIfNotProvided="1" enforceMandatoryCondition="1"
+                    randomPwdIfNotProvided="1" enforceMandatoryCondition="1" overrideCapabilities="0"
                     propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"
                     creator="admin" lastModifier="admin" 
                     creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
   <ExternalResource name="resource-csv" connector_id="104"
-                    randomPwdIfNotProvided="0" enforceMandatoryCondition="0" syncPolicy_id="3"
+                    randomPwdIfNotProvided="0" enforceMandatoryCondition="0" overrideCapabilities="0"
+                    syncPolicy_id="3"
                     propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"
                     creator="admin" lastModifier="admin" 
                     creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
@@ -636,7 +637,7 @@ under the License.
                     creator="admin" lastModifier="admin" 
                     creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
   <ExternalResource name="resource-ldap" connector_id="105"
-                    randomPwdIfNotProvided="1" enforceMandatoryCondition="1"
+                    randomPwdIfNotProvided="1" enforceMandatoryCondition="1" overrideCapabilities="0"
                     propagationPriority="0" propagationPrimary="1"
                     createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"
                     creator="admin" lastModifier="admin" 
@@ -644,22 +645,25 @@ under the License.
   <ExternalResource_PropActions resource_name="resource-ldap"
                                 actionClassName="org.apache.syncope.core.provisioning.java.propagation.LDAPMembershipPropagationActions"/>
   <ExternalResource name="ws-target-resource-nopropagation" connector_id="103"
-                    randomPwdIfNotProvided="0" enforceMandatoryCondition="1"
+                    randomPwdIfNotProvided="0" enforceMandatoryCondition="1" overrideCapabilities="0"
                     propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL" 
                     passwordPolicy_id="4"
                     creator="admin" lastModifier="admin" 
                     creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
   
-  <!-- The following three resources has been added to verify the issue SYNCOPE-68 -->
-  <ExternalResource name="ws-target-resource-nopropagation2" connector_id="103" enforceMandatoryCondition="1"
+  <!-- The following three resources have been added to verify the issue SYNCOPE-68 -->
+  <ExternalResource name="ws-target-resource-nopropagation2" connector_id="103" 
+                    enforceMandatoryCondition="1" overrideCapabilities="0"
                     randomPwdIfNotProvided="0" propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"
                     creator="admin" lastModifier="admin" 
                     creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <ExternalResource name="ws-target-resource-nopropagation3" connector_id="103" enforceMandatoryCondition="1"
+  <ExternalResource name="ws-target-resource-nopropagation3" connector_id="103" 
+                    enforceMandatoryCondition="1" overrideCapabilities="0"
                     randomPwdIfNotProvided="0" propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"
                     creator="admin" lastModifier="admin" 
                     creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <ExternalResource name="ws-target-resource-nopropagation4" connector_id="103" enforceMandatoryCondition="1"
+  <ExternalResource name="ws-target-resource-nopropagation4" connector_id="103" 
+                    enforceMandatoryCondition="1" overrideCapabilities="0"
                     randomPwdIfNotProvided="0" propagationPriority="0" propagationPrimary="0" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" syncTraceLevel="ALL"
                     creator="admin" lastModifier="admin" 
                     creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
@@ -668,7 +672,7 @@ under the License.
   <ExternalResource name="resource-db-sync" connector_id="107"
                     randomPwdIfNotProvided="0" createTraceLevel="ALL" deleteTraceLevel="ALL" syncTraceLevel="ALL" updateTraceLevel="ALL"
                     enforceMandatoryCondition="0" 
-                    propagationPrimary="0" propagationPriority="0"
+                    propagationPrimary="0" propagationPriority="0" overrideCapabilities="0"
                     creator="admin" lastModifier="admin" 
                     creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
                     
@@ -676,14 +680,14 @@ under the License.
   <ExternalResource name="resource-db-virattr" connector_id="107"
                     randomPwdIfNotProvided="0" createTraceLevel="ALL" deleteTraceLevel="ALL" syncTraceLevel="ALL" updateTraceLevel="ALL"
                     enforceMandatoryCondition="0" 
-                    propagationPrimary="0" propagationPriority="0"
+                    propagationPrimary="0" propagationPriority="0" overrideCapabilities="0"
                     creator="admin" lastModifier="admin" 
                     creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
 
   <ExternalResource name="resource-db-scripted" connector_id="108"
                     randomPwdIfNotProvided="0" createTraceLevel="ALL" deleteTraceLevel="ALL" syncTraceLevel="ALL" updateTraceLevel="ALL"
                     enforceMandatoryCondition="0"
-                    propagationPrimary="0" propagationPriority="0"
+                    propagationPrimary="0" propagationPriority="0" overrideCapabilities="0"
                     creator="admin" lastModifier="admin" 
                     creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
 

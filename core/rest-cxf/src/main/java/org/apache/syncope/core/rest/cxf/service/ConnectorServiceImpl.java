@@ -24,10 +24,8 @@ import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ConnBundleTO;
+import org.apache.syncope.common.lib.to.ConnIdObjectClassTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
-import org.apache.syncope.common.lib.to.PlainSchemaTO;
-import org.apache.syncope.common.lib.wrap.ConnIdObjectClass;
-import org.apache.syncope.common.rest.api.CollectionWrapper;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.ConnectorService;
 import org.apache.syncope.core.logic.ConnectorLogic;
@@ -60,13 +58,10 @@ public class ConnectorServiceImpl extends AbstractServiceImpl implements Connect
     }
 
     @Override
-    public List<PlainSchemaTO> buildSchemaNames(final ConnInstanceTO connInstanceTO, final boolean includeSpecial) {
-        return logic.buildSchemaNames(connInstanceTO, includeSpecial);
-    }
+    public List<ConnIdObjectClassTO> buildObjectClassInfo(
+            final ConnInstanceTO connInstanceTO, final boolean includeSpecial) {
 
-    @Override
-    public List<ConnIdObjectClass> buildSupportedObjectClasses(final ConnInstanceTO connInstanceTO) {
-        return CollectionWrapper.wrap(logic.buildSupportedObjectClasses(connInstanceTO), ConnIdObjectClass.class);
+        return logic.buildObjectClassInfo(connInstanceTO, includeSpecial);
     }
 
     @Override

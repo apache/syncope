@@ -367,7 +367,7 @@ public class VirAttrITCase extends AbstractITCase {
         String jdbcURL = null;
         ConnInstanceTO connInstanceTO = connectorService.readByResource(
                 RESOURCE_NAME_DBVIRATTR, Locale.ENGLISH.getLanguage());
-        for (ConnConfProperty prop : connInstanceTO.getConfiguration()) {
+        for (ConnConfProperty prop : connInstanceTO.getConf()) {
             if ("jdbcUrlTemplate".equals(prop.getSchema().getName())) {
                 jdbcURL = prop.getValues().iterator().next().toString();
                 prop.getValues().clear();
@@ -400,7 +400,7 @@ public class VirAttrITCase extends AbstractITCase {
         // ----------------------------------------
         // 5. restore connector URL, values can be read again from external resource
         // ----------------------------------------
-        for (ConnConfProperty prop : connInstanceTO.getConfiguration()) {
+        for (ConnConfProperty prop : connInstanceTO.getConf()) {
             if ("jdbcUrlTemplate".equals(prop.getSchema().getName())) {
                 prop.getValues().clear();
                 prop.getValues().add(jdbcURL);

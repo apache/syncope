@@ -566,7 +566,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                     task.getOperation(),
                     new ObjectClass(task.getObjectClassName()),
                     new Uid(connObjectKey),
-                    connector.getOperationOptions(IteratorUtils.chainedIterator(
+                    MappingUtils.buildOperationOptions(IteratorUtils.chainedIterator(
                                     MappingUtils.getPropagationMappingItems(provision).iterator(),
                                     linkingMappingItems.iterator())));
 

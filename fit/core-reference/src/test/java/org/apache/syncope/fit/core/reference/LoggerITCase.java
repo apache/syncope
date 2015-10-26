@@ -38,7 +38,7 @@ import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.common.lib.types.LoggerLevel;
 import org.apache.syncope.common.lib.types.LoggerType;
 import org.apache.syncope.common.lib.types.ResourceOperation;
-import org.apache.syncope.common.rest.api.CollectionWrapper;
+import org.apache.syncope.common.rest.api.LoggerWrapper;
 import org.apache.syncope.core.logic.ReportLogic;
 import org.apache.syncope.core.logic.ResourceLogic;
 import org.apache.syncope.core.logic.GroupLogic;
@@ -105,7 +105,7 @@ public class LoggerITCase extends AbstractITCase {
                 "deleteExecution",
                 AuditElements.Result.FAILURE);
 
-        List<AuditLoggerName> audits = CollectionWrapper.wrapLogger(loggerService.list(LoggerType.AUDIT));
+        List<AuditLoggerName> audits = LoggerWrapper.wrap(loggerService.list(LoggerType.AUDIT));
         assertNotNull(audits);
         assertFalse(audits.contains(auditLoggerName));
 
@@ -114,13 +114,13 @@ public class LoggerITCase extends AbstractITCase {
         loggerTO.setLevel(LoggerLevel.DEBUG);
         loggerService.update(LoggerType.AUDIT, loggerTO);
 
-        audits = CollectionWrapper.wrapLogger(loggerService.list(LoggerType.AUDIT));
+        audits = LoggerWrapper.wrap(loggerService.list(LoggerType.AUDIT));
         assertNotNull(audits);
         assertTrue(audits.contains(auditLoggerName));
 
         loggerService.delete(LoggerType.AUDIT, auditLoggerName.toLoggerName());
 
-        audits = CollectionWrapper.wrapLogger(loggerService.list(LoggerType.AUDIT));
+        audits = LoggerWrapper.wrap(loggerService.list(LoggerType.AUDIT));
         assertNotNull(audits);
         assertFalse(audits.contains(auditLoggerName));
     }

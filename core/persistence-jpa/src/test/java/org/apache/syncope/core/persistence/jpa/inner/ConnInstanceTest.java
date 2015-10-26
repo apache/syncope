@@ -104,8 +104,8 @@ public class ConnInstanceTest extends AbstractTest {
         conf.add(servicename);
 
         // set connector configuration
-        connInstance.setConfiguration(conf);
-        assertFalse(connInstance.getConfiguration().isEmpty());
+        connInstance.setConf(conf);
+        assertFalse(connInstance.getConf().isEmpty());
 
         // perform save operation
         ConnInstance actual = connInstanceDAO.save(connInstance);
@@ -125,7 +125,7 @@ public class ConnInstanceTest extends AbstractTest {
 
         assertEquals(60, actual.getConnRequestTimeout(), 0);
 
-        conf = connInstance.getConfiguration();
+        conf = connInstance.getConf();
         assertFalse(conf.isEmpty());
 
         assertNotNull("configuration retrieving failed", conf);

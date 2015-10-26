@@ -21,6 +21,7 @@ package org.apache.syncope.core.misc;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.collections4.ListUtils;
@@ -75,7 +76,10 @@ import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.Name;
+import org.identityconnectors.framework.common.objects.OperationOptions;
+import org.identityconnectors.framework.common.objects.OperationOptionsBuilder;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
+import org.identityconnectors.framework.common.objects.Uid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -253,6 +257,34 @@ public class MappingUtils {
         }
 
         return result;
+    }
+
+    /**
+     * Build options for requesting all mapped connector attributes.
+     *
+     * @param mapItems mapping items
+     * @return options for requesting all mapped connector attributes
+     * @see OperationOptions
+     */
+    public static OperationOptions buildOperationOptions(final Iterator<? extends MappingItem> mapItems) {
+        OperationOptionsBuilder builder = new OperationOptionsBuilder();
+
+        Set<String> attrsToGet = new HashSet<>();
+        attrsToGet.add(Name.NAME);
+        attrsToGet.add(Uid.NAME);
+        attrsToGet.add(OperationalAttributes.ENABLE_NAME);
+
+        while (mapItems.hasNext()) {
+            MappingItem mapItem = mapItems.next();
+            if (mapItem.getPurpose() != MappingPurpose.NONE) {
+                attrsToGet.add(mapItem.getExtAttrName());
+            }
+        }
+
+        builder.setAttributesToGet(attrsToGet);
+        // -------------------------------------
+
+        return builder.build();
     }
 
     /**
@@ -796,5 +828,4 @@ public class MappingUtils {
             default:
         }
     }
-
 }

@@ -19,16 +19,13 @@
 package org.apache.syncope.core.provisioning.api.data;
 
 import org.apache.syncope.common.lib.to.ResourceTO;
-import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 
 public interface ResourceDataBinder {
 
-    ExternalResource create(ResourceTO resourceTO);
-
-    ConnInstance getConnInstance(ResourceTO resourceTO);
-
     ResourceTO getResourceTO(ExternalResource resource);
+
+    ExternalResource create(ResourceTO resourceTO);
 
     ExternalResource update(ExternalResource resource, ResourceTO resourceTO);
 

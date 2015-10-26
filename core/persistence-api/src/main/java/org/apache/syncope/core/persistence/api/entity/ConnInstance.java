@@ -26,47 +26,44 @@ import org.apache.syncope.common.lib.types.ConnectorCapability;
 
 public interface ConnInstance extends Entity<Long> {
 
-    boolean addCapability(ConnectorCapability capabitily);
+    void setConnectorName(String connectorName);
 
-    boolean addResource(ExternalResource resource);
+    String getConnectorName();
+
+    void setDisplayName(String displayName);
+
+    String getDisplayName();
+
+    void setLocation(String location);
+
+    String getLocation();
+
+    void setPoolConf(ConnPoolConf poolConf);
+
+    ConnPoolConf getPoolConf();
+
+    void setVersion(String version);
+
+    String getVersion();
+
+    void setBundleName(String bundleName);
 
     String getBundleName();
 
     Set<ConnectorCapability> getCapabilities();
 
-    Set<ConnConfProperty> getConfiguration();
+    boolean add(ExternalResource resource);
 
-    Integer getConnRequestTimeout();
-
-    String getConnectorName();
-
-    String getDisplayName();
-
-    String getLocation();
-
-    ConnPoolConf getPoolConf();
+    boolean remove(ExternalResource resource);
 
     List<? extends ExternalResource> getResources();
 
-    String getVersion();
+    void setConf(Set<ConnConfProperty> conf);
 
-    boolean removeCapability(ConnectorCapability capabitily);
-
-    boolean removeResource(ExternalResource resource);
-
-    void setBundleName(String bundleName);
-
-    void setConfiguration(Set<ConnConfProperty> configuration);
+    Set<ConnConfProperty> getConf();
 
     void setConnRequestTimeout(Integer timeout);
 
-    void setConnectorName(String connectorName);
+    Integer getConnRequestTimeout();
 
-    void setDisplayName(String displayName);
-
-    void setLocation(String location);
-
-    void setPoolConf(ConnPoolConf poolConf);
-
-    void setVersion(String version);
 }

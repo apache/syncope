@@ -51,22 +51,15 @@ public class ConnInstanceTO extends AbstractBaseBean {
 
     private String version;
 
-    private final Set<ConnConfProperty> configuration;
+    private final Set<ConnConfProperty> conf = new HashSet<>();
 
-    private final Set<ConnectorCapability> capabilities;
+    private final Set<ConnectorCapability> capabilities = EnumSet.noneOf(ConnectorCapability.class);
 
     private String displayName;
 
     private Integer connRequestTimeout;
 
     private ConnPoolConfTO poolConf;
-
-    public ConnInstanceTO() {
-        super();
-
-        configuration = new HashSet<>();
-        capabilities = EnumSet.noneOf(ConnectorCapability.class);
-    }
 
     public long getKey() {
         return key;
@@ -109,28 +102,23 @@ public class ConnInstanceTO extends AbstractBaseBean {
         this.version = version;
     }
 
-    @XmlElementWrapper(name = "configuration")
+    @XmlElementWrapper(name = "conf")
     @XmlElement(name = "property")
-    @JsonProperty("configuration")
-    public Set<ConnConfProperty> getConfiguration() {
-        return this.configuration;
+    @JsonProperty("conf")
+    public Set<ConnConfProperty> getConf() {
+        return this.conf;
     }
 
     @JsonIgnore
-    public Map<String, ConnConfProperty> getConfigurationMap() {
-        Map<String, ConnConfProperty> result;
+    public Map<String, ConnConfProperty> getConfMap() {
+        Map<String, ConnConfProperty> result = new HashMap<>();
 
-        if (getConfiguration() == null) {
-            result = Collections.<String, ConnConfProperty>emptyMap();
-        } else {
-            result = new HashMap<>();
-            for (ConnConfProperty prop : getConfiguration()) {
-                result.put(prop.getSchema().getName(), prop);
-            }
-            result = Collections.unmodifiableMap(result);
+        for (ConnConfProperty prop : getConf()) {
+            result.put(prop.getSchema().getName(), prop);
         }
+        result = Collections.unmodifiableMap(result);
 
-        return result;
+        return Collections.unmodifiableMap(result);
     }
 
     @XmlElementWrapper(name = "capabilities")

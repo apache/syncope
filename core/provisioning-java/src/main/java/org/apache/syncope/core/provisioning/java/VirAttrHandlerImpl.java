@@ -130,7 +130,7 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
                     ConnectorObject connectorObject = connector.getObject(
                             entry.getKey().getObjectClass(),
                             new Uid(connObjectKey),
-                            connector.getOperationOptions(linkingMappingItems.iterator()));
+                            MappingUtils.buildOperationOptions(linkingMappingItems.iterator()));
 
                     if (connectorObject == null) {
                         LOG.debug("No read from {} about {}", entry.getKey(), connObjectKey);

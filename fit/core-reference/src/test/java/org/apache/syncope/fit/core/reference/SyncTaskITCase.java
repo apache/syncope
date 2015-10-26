@@ -748,7 +748,7 @@ public class SyncTaskITCase extends AbstractTaskITCase {
         ResourceTO ldapResource = resourceService.read(RESOURCE_NAME_LDAP);
         ConnInstanceTO resourceConnector = connectorService.read(
                 ldapResource.getConnector(), Locale.ENGLISH.getLanguage());
-        ConnConfProperty property = resourceConnector.getConfigurationMap().get("retrievePasswordsWithSearch");
+        ConnConfProperty property = resourceConnector.getConfMap().get("retrievePasswordsWithSearch");
         property.getValues().clear();
         property.getValues().add(Boolean.TRUE);
         connectorService.update(resourceConnector);

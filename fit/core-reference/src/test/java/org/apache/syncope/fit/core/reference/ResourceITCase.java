@@ -170,7 +170,7 @@ public class ResourceITCase extends AbstractITCase {
         p.getValues().add("http://invalidurl/");
 
         Set<ConnConfProperty> connectorConfigurationProperties = new HashSet<>(Arrays.asList(p));
-        resourceTO.getConnConfProperties().addAll(connectorConfigurationProperties);
+        resourceTO.getConfOverride().addAll(connectorConfigurationProperties);
 
         Response response = resourceService.create(resourceTO);
         ResourceTO actual = getObject(response.getLocation(), ResourceService.class, ResourceTO.class);

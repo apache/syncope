@@ -134,7 +134,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
             obj = profile.getConnector().getObject(
                     objectClass,
                     uid,
-                    profile.getConnector().getOperationOptions(IteratorUtils.<MappingItem>emptyIterator()));
+                    MappingUtils.buildOperationOptions(IteratorUtils.<MappingItem>emptyIterator()));
         } catch (TimeoutException toe) {
             LOG.debug("Request timeout", toe);
             throw toe;

@@ -128,7 +128,7 @@ public class SyncUtils {
                         return found.add(obj);
                     }
                 },
-                connector.getOperationOptions(MappingUtils.getSyncMappingItems(provision).iterator()));
+                MappingUtils.buildOperationOptions(MappingUtils.getSyncMappingItems(provision).iterator()));
 
         if (found.isEmpty()) {
             LOG.debug("No {} found on {} with __NAME__ {}", provision.getObjectClass(), resource, name);

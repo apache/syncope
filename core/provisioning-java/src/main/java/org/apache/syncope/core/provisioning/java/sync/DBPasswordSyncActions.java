@@ -91,7 +91,7 @@ public class DBPasswordSyncActions extends DefaultSyncActions {
 
     private void parseEncodedPassword(final String password, final Connector connector) {
         if (password != null) {
-            ConnInstance connInstance = connector.getActiveConnInstance();
+            ConnInstance connInstance = connector.getConnInstance();
 
             String cipherAlgorithm = getCipherAlgorithm(connInstance);
             if (!CLEARTEXT.equals(cipherAlgorithm)) {
@@ -108,7 +108,7 @@ public class DBPasswordSyncActions extends DefaultSyncActions {
 
     private String getCipherAlgorithm(final ConnInstance connInstance) {
         ConnConfProperty cipherAlgorithm =
-                CollectionUtils.find(connInstance.getConfiguration(), new Predicate<ConnConfProperty>() {
+                CollectionUtils.find(connInstance.getConf(), new Predicate<ConnConfProperty>() {
 
                     @Override
                     public boolean evaluate(final ConnConfProperty property) {

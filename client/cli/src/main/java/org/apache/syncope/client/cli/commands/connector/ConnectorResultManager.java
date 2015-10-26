@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.cli.commands.connector;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.apache.syncope.client.cli.commands.CommonsResultManager;
@@ -49,8 +48,8 @@ public class ConnectorResultManager extends CommonsResultManager {
         }
     }
 
-    public void fromListConfigurationProperties(final List<ConnConfProperty> connConfPropertys) {
-        printConfiguration(new HashSet<>(connConfPropertys));
+    public void fromConfigurationProperties(final Set<ConnConfProperty> connConfPropertys) {
+        printConfiguration(connConfPropertys);
 
     }
 
@@ -65,7 +64,7 @@ public class ConnectorResultManager extends CommonsResultManager {
         System.out.println("    CAPABILITIES:");
         printCapabilities(connInstanceTO.getCapabilities());
         System.out.println("    CONFIGURATION:");
-        printConfiguration(connInstanceTO.getConfiguration());
+        printConfiguration(connInstanceTO.getConf());
         System.out.println("    POOL CONFIGURATION:");
         printConfPool(connInstanceTO.getPoolConf());
     }

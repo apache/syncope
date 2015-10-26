@@ -18,24 +18,12 @@
  */
 package org.apache.syncope.core.provisioning.api;
 
-import java.util.Set;
-import org.apache.syncope.common.lib.types.ConnConfProperty;
-import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 
 /**
  * Manage Spring beans lifecycle for connectors.
  */
 public interface ConnectorRegistry {
-
-    /**
-     * Returns a connector instance with overridden property values, if found.
-     *
-     * @param connInstance base connector instance
-     * @param overridden overridden property values
-     * @return connector instance with overridden property values, if found
-     */
-    ConnInstance getOverriddenConnInstance(ConnInstance connInstance, Set<ConnConfProperty> overridden);
 
     /**
      * Create and register into Spring context a bean for the given resource.

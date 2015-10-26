@@ -20,42 +20,18 @@ package org.apache.syncope.common.rest.api;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import org.apache.syncope.common.lib.to.LoggerTO;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.common.lib.types.LoggerLevel;
-import org.apache.syncope.common.lib.wrap.AbstractWrappable;
 
-public final class CollectionWrapper {
+public final class LoggerWrapper {
 
-    private CollectionWrapper() {
+    private LoggerWrapper() {
         // empty constructor for static utility class
     }
 
-    public static <E, T extends AbstractWrappable<E>> List<T> wrap(final E element, final Class<T> reference) {
-        return Collections.singletonList(AbstractWrappable.getInstance(reference, element));
-    }
-
-    public static <E, T extends AbstractWrappable<E>> List<T> wrap(
-            final Collection<E> collection, final Class<T> reference) {
-
-        List<T> response = new ArrayList<>();
-        for (E element : collection) {
-            response.add(AbstractWrappable.getInstance(reference, element));
-        }
-        return response;
-    }
-
-    public static <T extends AbstractWrappable<String>> List<String> unwrap(final Collection<T> collection) {
-        List<String> response = new ArrayList<>();
-        for (T item : collection) {
-            response.add(item.getElement());
-        }
-        return response;
-    }
-
-    public static List<AuditLoggerName> wrapLogger(final Collection<LoggerTO> logger) {
+    public static List<AuditLoggerName> wrap(final Collection<LoggerTO> logger) {
         List<AuditLoggerName> respons = new ArrayList<>();
         for (LoggerTO loggerTO : logger) {
             try {
@@ -67,7 +43,7 @@ public final class CollectionWrapper {
         return respons;
     }
 
-    public static List<LoggerTO> unwrapLogger(final Collection<AuditLoggerName> auditNames) {
+    public static List<LoggerTO> unwrap(final Collection<AuditLoggerName> auditNames) {
         List<LoggerTO> respons = new ArrayList<>();
         for (AuditLoggerName name : auditNames) {
             LoggerTO loggerTO = new LoggerTO();

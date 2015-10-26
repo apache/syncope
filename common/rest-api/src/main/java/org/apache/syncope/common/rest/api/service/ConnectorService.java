@@ -35,9 +35,8 @@ import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ConnBundleTO;
+import org.apache.syncope.common.lib.to.ConnIdObjectClassTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
-import org.apache.syncope.common.lib.to.PlainSchemaTO;
-import org.apache.syncope.common.lib.wrap.ConnIdObjectClass;
 
 /**
  * REST operations for connector bundles and instances.
@@ -57,36 +56,22 @@ public interface ConnectorService extends JAXRSService {
     List<ConnBundleTO> getBundles(@QueryParam("lang") String lang);
 
     /**
-     * Builds the list of schema names managed by the connector bundle matching the given connector instance key, with
-     * the provided configuration.
+     * Builds the list of ConnId object classes information for the connector bundle matching the given connector
+     * instance key, with the provided configuration.
      *
      * @param connInstanceTO connector instance object providing configuration properties
      * @param includeSpecial if set to true, special schema names (like '__PASSWORD__') will be included;
      * default is false
-     * @return schema names for the connector bundle matching the given connector instance key, with the provided
-     * configuration
-     */
-    @POST
-    @Path("{key}/schemaNames")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    List<PlainSchemaTO> buildSchemaNames(
-            @NotNull ConnInstanceTO connInstanceTO,
-            @QueryParam("includeSpecial") @DefaultValue("false") boolean includeSpecial);
-
-    /**
-     * Builds the list of supported ConnId object classes for the connector bundle matching the given connector instance
-     * key, with the provided configuration.
-     *
-     * @param connInstanceTO connector instance object providing configuration properties
-     * @return supported object classes for the connector bundle matching the given connector instance key, with the
-     * provided configuration
+     * @return supported object classes info for the connector bundle matching the given connector instance key, with
+     * the provided configuration
      */
     @POST
     @Path("{key}/supportedObjectClasses")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    List<ConnIdObjectClass> buildSupportedObjectClasses(@NotNull ConnInstanceTO connInstanceTO);
+    List<ConnIdObjectClassTO> buildObjectClassInfo(
+            @NotNull ConnInstanceTO connInstanceTO,
+            @QueryParam("includeSpecial") @DefaultValue("false") boolean includeSpecial);
 
     /**
      * Returns connector instance with matching key.
