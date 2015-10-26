@@ -386,7 +386,7 @@ under the License.
     <codemirror.version>5.7</codemirror.version>
     <jsplumb.version>1.7.5</jsplumb.version>
     
-    <wicket.version>7.0.0</wicket.version>
+    <wicket.version>7.1.0</wicket.version>
     <wicket-jqueryui.version>7.0.2</wicket-jqueryui.version>
 
     <izpack.version>5.0.5</izpack.version>
