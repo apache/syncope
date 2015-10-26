@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.misc;
+package org.apache.syncope.core.misc.utils;
 
 import org.apache.syncope.core.misc.policy.InvalidPasswordRuleConf;
 import org.apache.syncope.core.misc.security.SecureRandomUtils;

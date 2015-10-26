@@ -21,7 +21,7 @@ package org.apache.syncope.core.provisioning.java;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import org.apache.syncope.core.misc.MappingUtils;
+import org.apache.syncope.core.misc.utils.MappingUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;

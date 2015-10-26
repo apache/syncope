@@ -25,7 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.policy.SyncPolicySpec;
-import org.apache.syncope.core.misc.MappingUtils;
+import org.apache.syncope.core.misc.utils.MappingUtils;
 import org.apache.syncope.core.misc.serialization.POJOHelper;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValidationException;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;

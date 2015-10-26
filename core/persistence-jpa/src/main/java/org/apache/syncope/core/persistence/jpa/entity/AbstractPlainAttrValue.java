@@ -32,7 +32,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
-import org.apache.syncope.core.misc.FormatUtils;
+import org.apache.syncope.core.misc.utils.FormatUtils;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidPlainAttrValueException;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValidationException;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;

@@ -37,7 +37,7 @@ import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.sync.ProvisioningResult;
 import org.apache.syncope.core.provisioning.api.sync.PushActions;
-import org.apache.syncope.core.misc.MappingUtils;
+import org.apache.syncope.core.misc.utils.MappingUtils;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;

@@ -18,13 +18,13 @@
  */
 package org.apache.syncope.core.provisioning.java.sync;
 
-import static org.apache.syncope.core.misc.MappingUtils.getMappingItemTransformers;
+import static org.apache.syncope.core.misc.utils.MappingUtils.getMappingItemTransformers;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.syncope.core.misc.MappingUtils;
+import org.apache.syncope.core.misc.utils.MappingUtils;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;

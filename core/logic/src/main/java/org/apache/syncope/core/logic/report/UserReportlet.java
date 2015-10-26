@@ -38,7 +38,7 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.misc.search.SearchCondConverter;
-import org.apache.syncope.core.misc.FormatUtils;
+import org.apache.syncope.core.misc.utils.FormatUtils;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.URelationship;

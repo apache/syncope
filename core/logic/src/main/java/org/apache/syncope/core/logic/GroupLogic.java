@@ -42,7 +42,7 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.Entitlement;
 import org.apache.syncope.common.lib.types.PatchOperation;
-import org.apache.syncope.core.misc.RealmUtils;
+import org.apache.syncope.core.misc.utils.RealmUtils;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;

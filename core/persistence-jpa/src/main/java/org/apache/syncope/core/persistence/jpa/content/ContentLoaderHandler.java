@@ -27,7 +27,7 @@ import java.util.Map;
 import javax.sql.DataSource;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
-import org.apache.syncope.core.misc.FormatUtils;
+import org.apache.syncope.core.misc.utils.FormatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;

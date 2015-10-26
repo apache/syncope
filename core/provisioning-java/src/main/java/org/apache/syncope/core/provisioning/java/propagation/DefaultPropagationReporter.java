@@ -24,7 +24,7 @@ import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
-import org.apache.syncope.core.misc.ConnObjectUtils;
+import org.apache.syncope.core.misc.utils.ConnObjectUtils;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

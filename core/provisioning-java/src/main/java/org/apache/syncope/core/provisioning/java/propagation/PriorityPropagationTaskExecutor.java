@@ -31,19 +31,18 @@ import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationException;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
-import org.springframework.stereotype.Component;
 
-@Component
+/**
+ * Sort the given collection by looking at related ExternalResource's priority, then execute.
+ */
 public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExecutor {
 
-    /**
-     * Sort the given collection by looking at related ExternalResource's priority, then execute.
-     * {@inheritDoc}
-     */
     @Override
     public void execute(final Collection<PropagationTask> tasks, final PropagationReporter reporter) {
-        final List<PropagationTask> prioritizedTasks = new ArrayList<>(tasks);
+        List<PropagationTask> prioritizedTasks = new ArrayList<>(tasks);
         Collections.sort(prioritizedTasks, new PriorityComparator());
+
+        LOG.debug("Propagation tasks sorted by priority, before execution: {}", prioritizedTasks);
 
         Result result = Result.SUCCESS;
 

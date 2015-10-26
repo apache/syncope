@@ -29,7 +29,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-import org.apache.syncope.core.misc.RealmUtils;
+import org.apache.syncope.core.misc.utils.RealmUtils;
 import org.springframework.security.core.GrantedAuthority;
 
 public class SyncopeGrantedAuthority implements GrantedAuthority {

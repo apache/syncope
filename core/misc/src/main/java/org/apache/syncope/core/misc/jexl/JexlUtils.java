@@ -35,7 +35,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.core.persistence.api.entity.DerAttr;
-import org.apache.syncope.core.misc.FormatUtils;
+import org.apache.syncope.core.misc.utils.FormatUtils;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.slf4j.Logger;

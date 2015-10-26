@@ -770,6 +770,7 @@ under the License.
                   <resource>
                     <directory>${basedir}/../../core/misc/target/classes</directory>
                     <excludes>
+                      <exclude>utilsContext.xml</exclude>
                       <exclude>securityContext.xml</exclude>
                     </excludes>
                   </resource>

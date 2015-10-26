@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.core.misc.MappingUtils;
+import org.apache.syncope.core.misc.utils.MappingUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;

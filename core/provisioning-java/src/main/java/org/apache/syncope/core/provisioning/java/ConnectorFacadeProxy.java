@@ -31,7 +31,7 @@ import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.syncope.common.lib.types.ResourceOperation;
-import org.apache.syncope.core.misc.MappingUtils;
+import org.apache.syncope.core.misc.utils.MappingUtils;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
 import org.apache.syncope.core.provisioning.api.ConnPoolConfUtils;
