@@ -36,7 +36,7 @@ public class ReportDelete extends AbstractReportCommand {
         if (input.parameterNumber() >= 1) {
             for (final String parameter : input.getParameters()) {
                 try {
-                    reportService.delete(Long.valueOf(parameter));
+                    reportSyncopeOperations.delete(parameter);
                     reportResultManager.deletedMessage("Report", parameter);
                 } catch (final WebServiceException | SyncopeClientException ex) {
                     if (ex.getMessage().startsWith("NotFound")) {
@@ -47,7 +47,7 @@ public class ReportDelete extends AbstractReportCommand {
                         reportResultManager.generic(ex.getMessage());
                     }
                 } catch (final NumberFormatException ex) {
-                    reportResultManager.managerNumberFormatException("report", parameter);
+                    reportResultManager.numberFormatException("report", parameter);
                 }
             }
         } else {

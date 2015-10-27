@@ -40,9 +40,9 @@ public class ConnectorRead extends AbstractConnectorCommand {
             final List<ConnInstanceTO> connInstanceTOs = new ArrayList<>();
             for (final String parameter : input.getParameters()) {
                 try {
-                    connInstanceTOs.add(connectorService.read(Long.valueOf(parameter), READ_HELP_MESSAGE));
+                    connInstanceTOs.add(connectorSyncopeOperations.read(parameter));
                 } catch (final NumberFormatException ex) {
-                    connectorResultManager.managerNumberFormatException("connector", parameter);
+                    connectorResultManager.numberFormatException("connector", parameter);
                 } catch (final SyncopeClientException | WebServiceException ex) {
                     if (ex.getMessage().startsWith("NotFound")) {
                         connectorResultManager.notFoundError("Connector", parameter);

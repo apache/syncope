@@ -42,7 +42,7 @@ public class PolicyList extends AbstractPolicyCommand {
             try {
                 final PolicyType policyType = PolicyType.valueOf(input.firstParameter());
                 final LinkedList<AbstractPolicyTO> policyTOs = new LinkedList<>();
-                for (final AbstractPolicyTO policyTO : policyService.list(policyType)) {
+                for (final AbstractPolicyTO policyTO : policySyncopeOperations.list(policyType)) {
                     policyTOs.add(policyTO);
                 }
                 policyResultManager.fromList(policyType, policyTOs);

@@ -19,13 +19,12 @@
 package org.apache.syncope.client.cli.commands.task;
 
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.types.JobStatusType;
 
 public class TaskRunningJobs extends AbstractTaskCommand {
 
     public void list() {
         try {
-            taskResultManager.printTaskExecTO(taskService.listJobs(JobStatusType.RUNNING));
+            taskResultManager.printTaskExecTO(taskSyncopeOperations.listRunningJobs());
         } catch (final SyncopeClientException ex) {
             taskResultManager.generic(ex.getMessage());
         }

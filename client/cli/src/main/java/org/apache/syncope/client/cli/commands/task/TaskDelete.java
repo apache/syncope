@@ -37,7 +37,7 @@ public class TaskDelete extends AbstractTaskCommand {
         if (input.parameterNumber() >= 1) {
             for (final String parameter : input.getParameters()) {
                 try {
-                    taskService.delete(Long.valueOf(parameter));
+                    taskSyncopeOperations.delete(parameter);
                     taskResultManager.deletedMessage("Task", parameter);
                 } catch (final WebServiceException | SyncopeClientException ex) {
                     if (ex.getMessage().startsWith("NotFound")) {

@@ -23,7 +23,6 @@ import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.LoggerTO;
-import org.apache.syncope.common.lib.types.LoggerType;
 
 public class LoggerRead extends AbstractLoggerCommand {
 
@@ -41,7 +40,7 @@ public class LoggerRead extends AbstractLoggerCommand {
             boolean failed = false;
             for (final String parameter : input.getParameters()) {
                 try {
-                    loggerTOs.add(loggerService.read(LoggerType.LOG, parameter));
+                    loggerTOs.add(loggerSyncopeOperations.read(parameter));
                 } catch (final SyncopeClientException | WebServiceException ex) {
                     if (ex.getMessage().startsWith("NotFound")) {
                         loggerResultManager.notFoundError("Logger", parameter);

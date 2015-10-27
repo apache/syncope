@@ -45,7 +45,7 @@ public class SchemaRead extends AbstractSchemaCommand {
                 final SchemaType schemaType = SchemaType.valueOf(input.firstParameter());
                 final LinkedList<AbstractSchemaTO> schemaTOs = new LinkedList<>();
                 for (final String parameter : parameters) {
-                    schemaTOs.add(schemaService.read(schemaType, parameter));
+                    schemaTOs.add(schemaSyncopeOperations.read(schemaType, parameter));
                 }
                 switch (schemaType) {
                     case PLAIN:

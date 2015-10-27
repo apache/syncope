@@ -25,7 +25,7 @@ public class NotificationList extends AbstractNotificationCommand {
 
     public void list() {
         try {
-            for (final NotificationTO notificationTO : notificationService.list()) {
+            for (final NotificationTO notificationTO : notificationSyncopeOperations.list()) {
                 System.out.println(notificationTO);
             }
         } catch (final SyncopeClientException ex) {

@@ -27,7 +27,7 @@ public class ConfigurationGet extends AbstractConfigurationCommand {
 
     public void get() {
         try {
-            configurationResultManager.fromGet(new LinkedList<>(configurationService.list()));
+            configurationResultManager.fromGet(new LinkedList<>(configurationSyncopeOperations.list()));
         } catch (final Exception ex) {
             configurationResultManager.generic(ex.getMessage());
         }

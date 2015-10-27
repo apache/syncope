@@ -36,7 +36,7 @@ public class PolicyDelete extends AbstractPolicyCommand {
         if (input.parameterNumber() >= 1) {
             for (final String parameter : input.getParameters()) {
                 try {
-                    policyService.delete(Long.valueOf(parameter));
+                    policySyncopeOperations.delete(parameter);
                     policyResultManager.deletedMessage("Policy", parameter);
                 } catch (final WebServiceException | SyncopeClientException ex) {
                     System.out.println("Error:");

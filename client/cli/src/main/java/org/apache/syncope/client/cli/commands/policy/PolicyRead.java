@@ -39,7 +39,7 @@ public class PolicyRead extends AbstractPolicyCommand {
             final LinkedList<AbstractPolicyTO> policyTOs = new LinkedList<>();
             for (final String parameter : input.getParameters()) {
                 try {
-                    policyTOs.add(policyService.read(Long.valueOf(parameter)));
+                    policyTOs.add(policySyncopeOperations.read(parameter));
                     policyResultManager.fromRead(policyTOs);
                 } catch (final NumberFormatException ex) {
                     policyResultManager.notBooleanDeletedError("policy", parameter);

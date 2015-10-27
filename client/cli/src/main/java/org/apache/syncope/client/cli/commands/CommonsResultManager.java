@@ -24,7 +24,7 @@ import org.apache.syncope.common.lib.types.ConnConfProperty;
 
 public abstract class CommonsResultManager {
 
-    public void managerNumberFormatException(final String what, final String key) {
+    public void numberFormatException(final String what, final String key) {
         Messages.printIdNotNumberDeletedMessage(what, key);
     }
 

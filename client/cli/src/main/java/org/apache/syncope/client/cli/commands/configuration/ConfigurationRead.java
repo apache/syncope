@@ -40,7 +40,7 @@ public class ConfigurationRead extends AbstractConfigurationCommand {
             boolean failed = false;
             for (final String parameter : input.getParameters()) {
                 try {
-                    attrList.add(configurationService.get(parameter));
+                    attrList.add(configurationSyncopeOperations.get(parameter));
                 } catch (final SyncopeClientException | WebServiceException ex) {
                     if (ex.getMessage().startsWith("NotFound")) {
                         configurationResultManager.notFoundError("Configuration", parameter);

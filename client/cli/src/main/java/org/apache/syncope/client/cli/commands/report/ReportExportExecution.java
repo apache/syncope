@@ -49,12 +49,11 @@ public class ReportExportExecution extends AbstractReportCommand {
             for (final String parameter : parameters) {
                 try {
                     final ReportExecExportFormat format = ReportExecExportFormat.valueOf(input.lastParameter());
-                    final Long exportId = Long.valueOf(parameter);
-                    final SequenceInputStream report = (SequenceInputStream) reportService.
-                            exportExecutionResult(exportId, format).getEntity();
+                    final SequenceInputStream report = (SequenceInputStream) reportSyncopeOperations.
+                            exportExecutionResult(parameter, format).getEntity();
                     switch (format) {
                         case XML:
-                            final String xmlFinalName = "export_" + exportId + ".xml";
+                            final String xmlFinalName = "export_" + parameter + ".xml";
                             XMLUtils.createXMLFile(report, xmlFinalName);
                             reportResultManager.generic(xmlFinalName + " successfully created");
                             break;
@@ -75,14 +74,13 @@ public class ReportExportExecution extends AbstractReportCommand {
                             break;
                     }
                 } catch (final WebServiceException | SyncopeClientException ex) {
-                    ex.printStackTrace();
                     if (ex.getMessage().startsWith("NotFound")) {
                         reportResultManager.notFoundError("Report", parameter);
                     } else {
                         reportResultManager.generic(ex.getMessage());
                     }
                 } catch (final NumberFormatException ex) {
-                    reportResultManager.managerNumberFormatException("report", parameter);
+                    reportResultManager.numberFormatException("report", parameter);
                 } catch (IOException | ParserConfigurationException | SAXException | TransformerException e) {
                     reportResultManager.generic(" - Error creating " + "export_" + parameter + " " + e.getMessage());
                 } catch (final IllegalArgumentException ex) {

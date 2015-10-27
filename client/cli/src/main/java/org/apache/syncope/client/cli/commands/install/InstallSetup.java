@@ -48,8 +48,6 @@ public class InstallSetup {
     }
 
     public void setup() {
-        final Scanner scanIn = new Scanner(System.in);
-
         System.out.println("");
         System.out.println("###############################################");
         System.out.println("#                                             #");
@@ -67,6 +65,7 @@ public class InstallSetup {
         System.out.println("- File system permission checked");
         System.out.println("");
 
+        final Scanner scanIn = new Scanner(System.in);
         System.out.println("Syncope server schema [http/https]:");
         String syncopeServerSchemaFromSystemIn = scanIn.nextLine();
         boolean schemaFounded = false;

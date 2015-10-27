@@ -18,13 +18,10 @@
  */
 package org.apache.syncope.client.cli.commands.resource;
 
-import org.apache.syncope.client.cli.SyncopeServices;
-import org.apache.syncope.common.rest.api.service.ResourceService;
-
 public abstract class AbstractResourceCommand {
 
-    protected final ResourceService resourceService = SyncopeServices.get(ResourceService.class);
-
+    protected final ResourceSyncopeOperations resourceSyncopeOperations = new ResourceSyncopeOperations();
+    
     protected final ResourceResultManager resourceResultManager = new ResourceResultManager();
 
 }

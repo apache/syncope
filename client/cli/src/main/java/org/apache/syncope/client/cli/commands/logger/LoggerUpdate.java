@@ -25,7 +25,6 @@ import org.apache.syncope.client.cli.util.CommandUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.LoggerTO;
 import org.apache.syncope.common.lib.types.LoggerLevel;
-import org.apache.syncope.common.lib.types.LoggerType;
 
 public class LoggerUpdate extends AbstractLoggerCommand {
 
@@ -47,9 +46,9 @@ public class LoggerUpdate extends AbstractLoggerCommand {
             for (final String parameter : input.getParameters()) {
                 try {
                     pairParameter = input.toPairParameter(parameter);
-                    loggerTO = loggerService.read(LoggerType.LOG, pairParameter.getKey());
+                    loggerTO = loggerSyncopeOperations.read(pairParameter.getKey());
                     loggerTO.setLevel(LoggerLevel.valueOf(pairParameter.getValue()));
-                    loggerService.update(LoggerType.LOG, loggerTO);
+                    loggerSyncopeOperations.update(loggerTO);
                     loggerTOs.add(loggerTO);
                 } catch (final WebServiceException | SyncopeClientException | IllegalArgumentException ex) {
                     if (ex.getMessage().startsWith("No enum constant org.apache.syncope.common.lib.types.")) {

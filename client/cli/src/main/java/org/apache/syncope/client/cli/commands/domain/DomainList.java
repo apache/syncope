@@ -28,7 +28,7 @@ public class DomainList extends AbstractDomainCommand {
 
     public void list() {
         try {
-            for (final DomainTO domainTO : domainService.list()) {
+            for (final DomainTO domainTO : domainSyncopeOperations.list()) {
                 domainResultManager.generic(domainTO.getKey());
             }
         } catch (final SyncopeClientException ex) {

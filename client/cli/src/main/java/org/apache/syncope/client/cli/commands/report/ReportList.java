@@ -24,7 +24,7 @@ public class ReportList extends AbstractReportCommand {
 
     public void list() {
         try {
-            reportResultManager.fromValueToView(reportService.list());
+            reportResultManager.fromValueToView(reportSyncopeOperations.list());
         } catch (final SyncopeClientException ex) {
             reportResultManager.generic(ex.getMessage());
         }

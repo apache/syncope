@@ -24,7 +24,7 @@ public class ResourceList extends AbstractResourceCommand {
 
     public void list() {
         try {
-            resourceResultManager.toView(resourceService.list());
+            resourceResultManager.toView(resourceSyncopeOperations.list());
         } catch (final SyncopeClientException ex) {
             resourceResultManager.generic(ex.getMessage());
         }

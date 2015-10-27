@@ -36,7 +36,7 @@ public class ConfigurationDelete extends AbstractConfigurationCommand {
         if (input.parameterNumber() >= 1) {
             for (final String parameter : input.getParameters()) {
                 try {
-                    configurationService.delete(parameter);
+                    configurationSyncopeOperations.delete(parameter);
                     configurationResultManager.deletedMessage("Configuration", parameter);
                 } catch (final SyncopeClientException | WebServiceException ex) {
                     if (ex.getMessage().startsWith("NotFound")) {

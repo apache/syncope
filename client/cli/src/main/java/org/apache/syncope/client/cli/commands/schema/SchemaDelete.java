@@ -41,7 +41,7 @@ public class SchemaDelete extends AbstractSchemaCommand {
             final String[] parameters = Arrays.copyOfRange(input.getParameters(), 1, input.parameterNumber());
             try {
                 for (final String parameter : parameters) {
-                    schemaService.delete(SchemaType.valueOf(input.firstParameter()), parameter);
+                    schemaSyncopeOperations.delete(SchemaType.valueOf(input.firstParameter()), parameter);
                     schemaResultManager.deletedMessage("Schema", parameter);
                 }
             } catch (final SyncopeClientException | WebServiceException ex) {

@@ -25,7 +25,6 @@ import org.apache.syncope.client.cli.util.CommandUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.LoggerTO;
 import org.apache.syncope.common.lib.types.LoggerLevel;
-import org.apache.syncope.common.lib.types.LoggerType;
 
 public class LoggerCreate extends AbstractLoggerCommand {
 
@@ -50,7 +49,7 @@ public class LoggerCreate extends AbstractLoggerCommand {
                     pairParameter = input.toPairParameter(parameter);
                     loggerTO.setKey(pairParameter.getKey());
                     loggerTO.setLevel(LoggerLevel.valueOf(pairParameter.getValue()));
-                    loggerService.update(LoggerType.LOG, loggerTO);
+                    loggerSyncopeOperations.update(loggerTO);
                     loggerTOs.add(loggerTO);
                 } catch (final WebServiceException | SyncopeClientException | IllegalArgumentException ex) {
                     loggerResultManager.typeNotValidError(

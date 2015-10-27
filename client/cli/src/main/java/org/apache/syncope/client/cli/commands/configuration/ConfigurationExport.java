@@ -45,7 +45,7 @@ public class ConfigurationExport extends AbstractConfigurationCommand {
         if (input.parameterNumber() == 1) {
             try {
                 XMLUtils.createXMLFile(
-                        (SequenceInputStream) configurationService.export().getEntity(),
+                        (SequenceInputStream) configurationSyncopeOperations.export().getEntity(),
                         input.firstParameter() + EXPORT_FILE_NAME);
                 configurationResultManager.generic(
                         input.firstParameter() + EXPORT_FILE_NAME + " successfully created");

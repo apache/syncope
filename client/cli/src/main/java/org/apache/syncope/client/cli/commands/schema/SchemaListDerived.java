@@ -22,14 +22,13 @@ import java.util.LinkedList;
 import javax.xml.ws.WebServiceException;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AbstractSchemaTO;
-import org.apache.syncope.common.lib.types.SchemaType;
 
 public class SchemaListDerived extends AbstractSchemaCommand {
 
     public void listDerived() {
         try {
             final LinkedList<AbstractSchemaTO> schemaTOs = new LinkedList<>();
-            for (final AbstractSchemaTO schemaTO : schemaService.list(SchemaType.DERIVED)) {
+            for (final AbstractSchemaTO schemaTO : schemaSyncopeOperations.listDerived()) {
                 schemaTOs.add(schemaTO);
             }
             schemaResultManager.fromListDerived(schemaTOs);

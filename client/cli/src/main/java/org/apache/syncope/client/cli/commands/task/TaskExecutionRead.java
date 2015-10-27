@@ -38,7 +38,7 @@ public class TaskExecutionRead extends AbstractTaskCommand {
             for (final String parameter : input.getParameters()) {
                 try {
                     taskResultManager.printTaskExecTO(
-                            Arrays.asList(taskService.readExecution(Long.valueOf(parameter))));
+                            Arrays.asList(taskSyncopeOperations.readExecution(parameter)));
                 } catch (final NumberFormatException ex) {
                     taskResultManager.notBooleanDeletedError("task execution", parameter);
                 } catch (final SyncopeClientException | WebServiceException ex) {

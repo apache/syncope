@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.client.cli;
 
+import java.util.Arrays;
+import java.util.List;
 import org.apache.syncope.client.cli.commands.AbstractCommand;
 import org.apache.syncope.client.cli.util.CommandUtils;
 
@@ -62,6 +64,10 @@ public class Input {
 
     public String[] getParameters() {
         return parameters;
+    }
+    
+    public List<String> listParameters() {
+        return Arrays.asList(parameters);
     }
 
     public String firstParameter() {

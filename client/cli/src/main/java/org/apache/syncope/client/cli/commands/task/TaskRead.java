@@ -39,7 +39,7 @@ public class TaskRead extends AbstractTaskCommand {
             final LinkedList<AbstractTaskTO> taskTOs = new LinkedList<>();
             for (final String parameter : input.getParameters()) {
                 try {
-                    taskTOs.add(taskService.read(Long.valueOf(parameter)));
+                    taskTOs.add(taskSyncopeOperations.read(parameter));
                 } catch (final NumberFormatException ex) {
                     taskResultManager.notBooleanDeletedError("task", parameter);
                 } catch (final SyncopeClientException | WebServiceException ex) {

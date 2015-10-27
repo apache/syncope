@@ -24,7 +24,7 @@ public class ConnectorList extends AbstractConnectorCommand {
 
     public void list() {
         try {
-            connectorResultManager.toView(connectorService.list(null));
+            connectorResultManager.toView(connectorSyncopeOperations.list());
         } catch (final SyncopeClientException ex) {
             connectorResultManager.generic(ex.getMessage());
         }

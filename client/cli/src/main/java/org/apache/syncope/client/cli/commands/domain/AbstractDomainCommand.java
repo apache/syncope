@@ -18,12 +18,9 @@
  */
 package org.apache.syncope.client.cli.commands.domain;
 
-import org.apache.syncope.client.cli.SyncopeServices;
-import org.apache.syncope.common.rest.api.service.DomainService;
-
 public abstract class AbstractDomainCommand {
 
-    protected final DomainService domainService = SyncopeServices.get(DomainService.class);
+    protected final DomainSyncopeOperations domainSyncopeOperations = new DomainSyncopeOperations();
 
     protected final DomainResultManager domainResultManager = new DomainResultManager();
 

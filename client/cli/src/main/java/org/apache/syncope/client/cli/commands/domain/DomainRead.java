@@ -20,7 +20,6 @@ package org.apache.syncope.client.cli.commands.domain;
 
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.DomainTO;
 
 public class DomainRead extends AbstractDomainCommand {
 
@@ -36,8 +35,7 @@ public class DomainRead extends AbstractDomainCommand {
         if (input.parameterNumber() >= 1) {
             for (final String parameter : input.getParameters()) {
                 try {
-                    final DomainTO domainTO = domainService.read(parameter);
-                    domainResultManager.generic(domainTO.getKey());
+                    domainResultManager.generic(domainSyncopeOperations.read(parameter).getKey());
                 } catch (final SyncopeClientException ex) {
                     if (ex.getMessage().startsWith("NotFound")) {
                         domainResultManager.notFoundError("Domain", parameter);

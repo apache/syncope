@@ -18,12 +18,9 @@
  */
 package org.apache.syncope.client.cli.commands.task;
 
-import org.apache.syncope.client.cli.SyncopeServices;
-import org.apache.syncope.common.rest.api.service.TaskService;
-
 public abstract class AbstractTaskCommand {
 
-    protected final TaskService taskService = SyncopeServices.get(TaskService.class);
+    protected final TaskSyncopeOperations taskSyncopeOperations = new TaskSyncopeOperations();
 
     protected final TaskResultManager taskResultManager = new TaskResultManager();
 

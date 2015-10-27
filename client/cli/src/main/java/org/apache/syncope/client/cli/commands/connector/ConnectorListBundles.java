@@ -24,7 +24,7 @@ public class ConnectorListBundles extends AbstractConnectorCommand {
 
     public void list() {
         try {
-            connectorResultManager.fromListBundles(connectorService.getBundles(null));
+            connectorResultManager.fromListBundles(connectorSyncopeOperations.getBundles());
         } catch (final SyncopeClientException ex) {
             connectorResultManager.generic(ex.getMessage());
         }

@@ -20,7 +20,6 @@ package org.apache.syncope.client.cli.commands.logger;
 
 import java.util.LinkedList;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.types.LoggerType;
 
 public class LoggerList extends AbstractLoggerCommand {
 
@@ -29,7 +28,7 @@ public class LoggerList extends AbstractLoggerCommand {
 
     public void list() {
         try {
-            loggerResultManager.fromList(new LinkedList<>(loggerService.list(LoggerType.LOG)));
+            loggerResultManager.fromList(new LinkedList<>(loggerSyncopeOperations.list()));
         } catch (final SyncopeClientException ex) {
             loggerResultManager.generic("Error: " + ex.getMessage());
         }

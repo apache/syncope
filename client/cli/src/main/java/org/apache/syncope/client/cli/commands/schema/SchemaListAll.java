@@ -30,7 +30,7 @@ public class SchemaListAll extends AbstractSchemaCommand {
         try {
             for (final SchemaType schemaType : SchemaType.values()) {
                 final LinkedList<AbstractSchemaTO> schemaTOs = new LinkedList<>();
-                for (final AbstractSchemaTO schemaTO : schemaService.list(schemaType)) {
+                for (final AbstractSchemaTO schemaTO : schemaSyncopeOperations.list(schemaType)) {
                     schemaTOs.add(schemaTO);
                 }
                 switch (schemaType) {

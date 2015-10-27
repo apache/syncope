@@ -37,7 +37,6 @@ public class TaskExecute extends AbstractTaskCommand {
     public void execute() {
         if (input.parameterNumber() == 2) {
             try {
-                final Long taskIdToExecute = Long.valueOf(input.firstParameter());
                 boolean dryRun = true;
                 if ("false".equalsIgnoreCase(input.secondParameter())) {
                     dryRun = false;
@@ -46,7 +45,8 @@ public class TaskExecute extends AbstractTaskCommand {
                 } else {
                     taskResultManager.notBooleanDeletedError("dry run", input.secondParameter());
                 }
-                taskResultManager.printTaskExecTO(Arrays.asList(taskService.execute(taskIdToExecute, dryRun)));
+                taskResultManager.printTaskExecTO(Arrays.asList(
+                        taskSyncopeOperations.execute(input.firstParameter(), dryRun)));
             } catch (final WebServiceException | SyncopeClientException ex) {
                 if (ex.getMessage().startsWith("NotFound")) {
                     taskResultManager.notFoundError("Task", input.firstParameter());

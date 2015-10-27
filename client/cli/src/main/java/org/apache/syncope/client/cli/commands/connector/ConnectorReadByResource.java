@@ -41,7 +41,7 @@ public class ConnectorReadByResource extends AbstractConnectorCommand {
             final List<ConnInstanceTO> connInstanceTOs = new ArrayList<>();
             for (final String parameter : input.getParameters()) {
                 try {
-                    connInstanceTOs.add(connectorService.readByResource(parameter, READ_HELP_MESSAGE));
+                    connInstanceTOs.add(connectorSyncopeOperations.readByResource(parameter));
                 } catch (final SyncopeClientException | WebServiceException ex) {
                     if (ex.getMessage().startsWith("NotFound")) {
                         connectorResultManager.notFoundError("Resource", parameter);

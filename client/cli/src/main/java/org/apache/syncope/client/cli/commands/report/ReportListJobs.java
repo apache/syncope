@@ -26,7 +26,7 @@ public class ReportListJobs extends AbstractReportCommand {
     public void list() {
         try {
             for (final JobStatusType jobStatusType : JobStatusType.values()) {
-                reportResultManager.printReportExecution(reportService.listJobs(jobStatusType));
+                reportResultManager.printReportExecution(reportSyncopeOperations.listJobs(jobStatusType));
             }
         } catch (final SyncopeClientException ex) {
             reportResultManager.generic(ex.getMessage());

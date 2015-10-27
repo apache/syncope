@@ -44,10 +44,10 @@ public class ConfigurationUpdate extends AbstractConfigurationCommand {
             for (final String parameter : input.getParameters()) {
                 try {
                     pairParameter = input.toPairParameter(parameter);
-                    attrTO = configurationService.get(pairParameter.getKey());
+                    attrTO = configurationSyncopeOperations.get(pairParameter.getKey());
                     attrTO.getValues().clear();
                     attrTO.getValues().add(pairParameter.getValue());
-                    configurationService.set(attrTO);
+                    configurationSyncopeOperations.set(attrTO);
                     attrList.add(attrTO);
                 } catch (final IllegalArgumentException ex) {
                     configurationResultManager.generic(ex.getMessage(), UPDATE_HELP_MESSAGE);

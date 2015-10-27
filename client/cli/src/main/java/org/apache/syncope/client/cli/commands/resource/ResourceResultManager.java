@@ -54,6 +54,7 @@ public class ResourceResultManager extends CommonsResultManager {
         System.out.println("    delete trace level: " + resourceTO.getDeleteTraceLevel());
         System.out.println("    update trace level: " + resourceTO.getUpdateTraceLevel());
         System.out.println("    sync trace level: " + resourceTO.getSyncTraceLevel());
+        System.out.println("");
     }
 
     private void printProvision(final List<ProvisionTO> provisionTOs) {
@@ -66,14 +67,12 @@ public class ResourceResultManager extends CommonsResultManager {
             System.out.println("       MAPPING: ");
             printMapping(provisionTO.getMapping());
         }
-        System.out.println("");
     }
 
     private void printMapping(final MappingTO mappingTO) {
         System.out.println("          ConnObjectLink: " + mappingTO.getConnObjectLink());
         System.out.println("          MAPPING ITEM: ");
         printMappingItem(mappingTO.getItems());
-        System.out.println("");
     }
 
     private void printMappingItem(final List<MappingItemTO> mappingItemTOs) {
@@ -88,8 +87,8 @@ public class ResourceResultManager extends CommonsResultManager {
             System.out.println("             purpose: " + mappingItemTO.getPurpose());
             System.out.println("             connector object key: " + mappingItemTO.isConnObjectKey());
             System.out.println("             password: " + mappingItemTO.isPassword());
+            System.out.println("");
         }
-        System.out.println("");
     }
 
 }

@@ -37,7 +37,7 @@ public class NotificationDelete extends AbstractNotificationCommand {
         if (input.parameterNumber() >= 1) {
             for (final String parameter : input.getParameters()) {
                 try {
-                    notificationService.delete(Long.valueOf(parameter));
+                    notificationSyncopeOperations.delete(parameter);
                     notificationResultManager.deletedMessage("Notification", parameter);
                 } catch (final WebServiceException | SyncopeClientException ex) {
                     if (ex.getMessage().startsWith("NotFound")) {

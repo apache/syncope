@@ -35,7 +35,7 @@ public class DomainDelete extends AbstractDomainCommand {
         if (input.parameterNumber() >= 1) {
             for (final String parameter : input.getParameters()) {
                 try {
-                    domainService.delete(parameter);
+                    domainSyncopeOperations.delete(parameter);
                     domainResultManager.deletedMessage("Domain", parameter);
                 } catch (final SyncopeClientException ex) {
                     if (ex.getMessage().startsWith("NotFound")) {
