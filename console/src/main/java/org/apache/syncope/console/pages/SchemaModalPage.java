@@ -169,6 +169,7 @@ public class SchemaModalPage extends AbstractSchemaModalPage<SchemaTO> {
                         enumParams, enumerationValuesPanel, enumerationValues, enumerationKeys,
                         encryptedParams, secretKey, cipherAlgorithm,
                         binaryParams, mimeType);
+                target.add(conversionParams);
                 target.add(typeParams);
             }
         });
