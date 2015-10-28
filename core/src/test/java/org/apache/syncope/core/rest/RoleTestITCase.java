@@ -51,6 +51,7 @@ import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.SchemaTO;
 import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.AttributableType;
+import org.apache.syncope.common.types.AttributeSchemaType;
 import org.apache.syncope.common.types.ClientExceptionType;
 import org.apache.syncope.common.types.IntMappingType;
 import org.apache.syncope.common.types.MappingPurpose;
@@ -885,5 +886,47 @@ public class RoleTestITCase extends AbstractTest {
             }
             resourceService.delete("new-ldap");
         }
+    }
+
+    @Test
+    public void issueSYNCOPE717() {
+        String doubleSchemaName = "double" + getUUIDString();
+
+        // 1. create double schema without conversion pattern
+        SchemaTO schema = new SchemaTO();
+        schema.setName(doubleSchemaName);
+        schema.setType(AttributeSchemaType.Double);
+
+        schema = createSchema(AttributableType.ROLE, SchemaType.NORMAL, schema);
+        assertNotNull(schema);
+        assertNull(schema.getConversionPattern());
+
+        // 2. create role, provide valid input value
+        RoleTO roleTO = buildBasicRoleTO("syncope717");
+        roleTO.getRAttrTemplates().add(doubleSchemaName);
+        roleTO.getAttrs().add(attributeTO(doubleSchemaName, "11.23"));
+
+        roleTO = createRole(roleTO);
+        assertNotNull(roleTO);
+        assertEquals("11.23", roleTO.getAttrMap().get(doubleSchemaName).getValues().get(0));
+
+        // 3. update schema, set conversion pattern
+        schema.setConversionPattern("0.000");
+        schemaService.update(AttributableType.ROLE, SchemaType.NORMAL, schema.getName(), schema);
+
+        // 4. re-read role, verify that pattern was applied
+        roleTO = roleService.read(roleTO.getId());
+        assertNotNull(roleTO);
+        assertEquals("11.230", roleTO.getAttrMap().get(doubleSchemaName).getValues().get(0));
+
+        // 5. modify role with new double value
+        RoleMod roleMod = new RoleMod();
+        roleMod.setId(roleTO.getId());
+        roleMod.getAttrsToRemove().add(doubleSchemaName);
+        roleMod.getAttrsToUpdate().add(attributeMod(doubleSchemaName, "11.257"));
+
+        roleTO = updateRole(roleMod);
+        assertNotNull(roleTO);
+        assertEquals("11.257", roleTO.getAttrMap().get(doubleSchemaName).getValues().get(0));
     }
 }

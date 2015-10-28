@@ -1026,6 +1026,7 @@ under the License.
           <configuration>
             <source>${targetJdk}</source>
             <target>${targetJdk}</target>
+            <useIncrementalCompilation>false</useIncrementalCompilation>
             <showWarnings>true</showWarnings>
             <showDeprecation>true</showDeprecation>
             <!--<compilerArgument>-Xlint:unchecked</compilerArgument>-->

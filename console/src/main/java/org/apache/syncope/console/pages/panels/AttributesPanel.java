@@ -19,7 +19,6 @@
 package org.apache.syncope.console.pages.panels;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -28,7 +27,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -52,6 +50,7 @@ import org.apache.syncope.console.rest.ConfigurationRestClient;
 import org.apache.syncope.console.rest.RoleRestClient;
 import org.apache.syncope.console.rest.SchemaRestClient;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxCheckBoxPanel;
+import org.apache.syncope.console.wicket.markup.html.form.AjaxDoubleFieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.BinaryFieldPanel;
@@ -318,8 +317,8 @@ public class AttributesPanel extends Panel {
                 break;
 
             case Double:
-                panel = new SpinnerFieldPanel<Double>("panel", schemaTO.getName(),
-                        Double.class, new Model<Double>(), null, null);
+                panel = new AjaxDoubleFieldPanel("panel", schemaTO.getName(), schemaTO.getConversionPattern(),
+                        new Model<Double>());
 
                 if (required) {
                     panel.addRequiredLabel();
