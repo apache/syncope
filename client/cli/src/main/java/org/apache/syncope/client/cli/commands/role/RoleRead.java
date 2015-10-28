@@ -16,45 +16,45 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.cli.commands.user;
+package org.apache.syncope.client.cli.commands.role;
 
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.to.RoleTO;
 
-public class UserRead extends AbstractUserCommand {
+public class RoleRead extends AbstractRoleCommand {
 
-    private static final String READ_HELP_MESSAGE = "user --read {USER-ID} {USER-ID} [...]";
+    private static final String READ_HELP_MESSAGE = "role --read {ROLE-ID} {ROLE-ID} [...]";
 
     private final Input input;
 
-    public UserRead(final Input input) {
+    public RoleRead(final Input input) {
         this.input = input;
     }
 
     public void read() {
         if (input.getParameters().length >= 1) {
-            final List<UserTO> userTOs = new ArrayList<>();
+            final List<RoleTO> roleTOs = new ArrayList<>();
             for (final String parameter : input.getParameters()) {
                 try {
-                    userTOs.add(userSyncopeOperations.read(parameter));
+                    roleTOs.add(roleSyncopeOperations.read(parameter));
                 } catch (final SyncopeClientException | WebServiceException ex) {
                     if (ex.getMessage().startsWith("NotFound")) {
-                        userResultManager.notFoundError("User", parameter);
+                        roleResultManager.notFoundError("Role", parameter);
                     } else {
-                        userResultManager.generic("Error: " + ex.getMessage());
+                        roleResultManager.generic("Error: " + ex.getMessage());
                     }
                     break;
                 } catch (final NumberFormatException ex) {
-                    userResultManager.numberFormatException("user", parameter);
+                    roleResultManager.numberFormatException("user", parameter);
                 }
             }
-            userResultManager.toView(userTOs);
+            roleResultManager.toView(roleTOs);
         } else {
-            userResultManager.commandOptionError(READ_HELP_MESSAGE);
+            roleResultManager.commandOptionError(READ_HELP_MESSAGE);
         }
     }
 
