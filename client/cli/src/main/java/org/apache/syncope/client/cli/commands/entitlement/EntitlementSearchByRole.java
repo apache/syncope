@@ -16,38 +16,39 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.cli.commands.question;
+package org.apache.syncope.client.cli.commands.entitlement;
 
 import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
 
-public class QuestionReadByUser extends AbstractQuestionCommand {
+public class EntitlementSearchByRole extends AbstractEntitlementCommand {
 
-    private static final String READ_HELP_MESSAGE = "question --read-by-user {USERNAME}";
+    private static final String READ_HELP_MESSAGE = "entitlement --search-by-role {ROLE-ID}";
 
     private final Input input;
 
-    public QuestionReadByUser(final Input input) {
+    public EntitlementSearchByRole(final Input input) {
         this.input = input;
     }
 
-    public void read() {
+    public void search() {
         if (input.getParameters().length == 1) {
             try {
-                questionResultManager.printQuestion(questionSyncopeOperations.readByUser(input.firstParameter()));
+                entitlementResultManager.toView(
+                        entitlementSyncopeOperations.entitlementsPerRole(input.firstParameter()));
             } catch (final SyncopeClientException | WebServiceException ex) {
                 if (ex.getMessage().startsWith("NotFound")) {
-                    questionResultManager.notFoundError("Security question", input.firstParameter());
+                    entitlementResultManager.notFoundError("User", input.firstParameter());
                 } else {
-                    questionResultManager.generic("Error: " + ex.getMessage());
+                    entitlementResultManager.generic("Error: " + ex.getMessage());
                 }
             } catch (final NumberFormatException ex) {
-                questionResultManager.numberFormatException("security question", input.firstParameter());
+                entitlementResultManager.numberFormatException("user", input.firstParameter());
             }
         } else {
-            questionResultManager.commandOptionError(READ_HELP_MESSAGE);
+            entitlementResultManager.commandOptionError(READ_HELP_MESSAGE);
         }
     }
-
+    
 }

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.cli.commands.question;
+package org.apache.syncope.client.cli.commands.self;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,38 +25,35 @@ import org.apache.syncope.client.cli.Command;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.client.cli.commands.AbstractCommand;
 
-@Command(name = "question")
-public class QuestionCommand extends AbstractCommand {
+@Command(name = "workflow")
+public class WorkflowCommand extends AbstractCommand {
 
-    private static final String HELP_MESSAGE = "Usage: question [options]\n"
+    private static final String HELP_MESSAGE = "Usage: workflow [options]\n"
             + "  Options:\n"
             + "    --help \n"
-            + "    --list \n"
-            + "    --read \n"
-            + "       Syntax: --read {QUESTION-ID} {QUESTION-ID} [...]\n"
-            + "    --delete \n"
-            + "       Syntax: --delete {QUESTION-ID} {QUESTION-ID} [...]";
+            + "    --export-diagram {ANY-TYPE-KIND}\n"
+            + "        Any type kind: ANY_OBJECT / USER / GROUP\n"
+            + "    --export-definition {ANY-TYPE-KIND}\n"
+            + "        Any type kind: ANY_OBJECT / USER / GROUP";
 
     @Override
     public void execute(final Input input) {
         if (StringUtils.isBlank(input.getOption())) {
-            input.setOption(QuestionOptions.HELP.getOptionName());
+            input.setOption(UserWorkflowOptions.HELP.getOptionName());
         }
 
-        switch (QuestionOptions.fromName(input.getOption())) {
-            case LIST:
-                new QuestionList().list();
+        switch (UserWorkflowOptions.fromName(input.getOption())) {
+            case EXPORT_DIAGRAM:
+                new WorkflowExportDiagram(input).export();
                 break;
-            case READ:
-                new QuestionRead(input).read();
-                break;
-            case DELETE:
+            case EXPORT_DEFINITION:
+                new WorkflowExportDefinition(input).export();
                 break;
             case HELP:
                 System.out.println(HELP_MESSAGE);
                 break;
             default:
-                new QuestionResultManager().defaultError(input.getOption(), HELP_MESSAGE);
+                new WorkflowResultManager().defaultError(input.getOption(), HELP_MESSAGE);
         }
     }
 
@@ -65,16 +62,15 @@ public class QuestionCommand extends AbstractCommand {
         return HELP_MESSAGE;
     }
 
-    private enum QuestionOptions {
+    private enum UserWorkflowOptions {
 
         HELP("--help"),
-        LIST("--list"),
-        READ("--read"),
-        DELETE("--delete");
+        EXPORT_DIAGRAM("--export-diagram"),
+        EXPORT_DEFINITION("--export-definition");
 
         private final String optionName;
 
-        QuestionOptions(final String optionName) {
+        UserWorkflowOptions(final String optionName) {
             this.optionName = optionName;
         }
 
@@ -86,9 +82,9 @@ public class QuestionCommand extends AbstractCommand {
             return (otherName == null) ? false : optionName.equals(otherName);
         }
 
-        public static QuestionOptions fromName(final String name) {
-            QuestionOptions optionToReturn = HELP;
-            for (final QuestionOptions option : QuestionOptions.values()) {
+        public static UserWorkflowOptions fromName(final String name) {
+            UserWorkflowOptions optionToReturn = HELP;
+            for (final UserWorkflowOptions option : UserWorkflowOptions.values()) {
                 if (option.equalsOptionName(name)) {
                     optionToReturn = option;
                 }
@@ -98,7 +94,7 @@ public class QuestionCommand extends AbstractCommand {
 
         public static List<String> toList() {
             final List<String> options = new ArrayList<>();
-            for (final QuestionOptions value : values()) {
+            for (final UserWorkflowOptions value : values()) {
                 options.add(value.getOptionName());
             }
             return options;
