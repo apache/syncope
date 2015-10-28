@@ -23,6 +23,7 @@ import java.lang.reflect.Modifier;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 public final class Entitlement {
 
@@ -253,7 +254,7 @@ public final class Entitlement {
     private static final Set<String> ENTITLEMENTS;
 
     static {
-        Set<String> values = new HashSet<>();
+        Set<String> values = new TreeSet<>();
         for (Field field : Entitlement.class.getDeclaredFields()) {
             if (Modifier.isStatic(field.getModifiers()) && String.class.equals(field.getType())) {
                 values.add(field.getName());
