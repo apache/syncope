@@ -16,12 +16,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.cli.commands.role;
+package org.apache.syncope.client.cli.commands.question;
 
-public abstract class AbstractRoleCommand {
+import java.util.List;
+import org.apache.syncope.client.cli.commands.CommonsResultManager;
+import org.apache.syncope.common.lib.to.SecurityQuestionTO;
 
-    protected final RoleSyncopeOperations roleSyncopeOperations = new RoleSyncopeOperations();
+public class QuestionResultManager extends CommonsResultManager {
 
-    protected final RoleResultManager roleResultManager = new RoleResultManager();
+    public void toView(final List<SecurityQuestionTO> questionTOs) {
+        for (final SecurityQuestionTO questionTO : questionTOs) {
+            printQuestion(questionTO);
+        }
+    }
 
+    public void printQuestion(final SecurityQuestionTO securityQuestionTO) {
+        System.out.println(" > SECURITY QUESTION ID: " + securityQuestionTO.getKey());
+        System.out.println("    content: " + securityQuestionTO.getContent());
+        System.out.println("");
+    }
 }

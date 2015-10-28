@@ -16,41 +16,45 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.cli.commands.role;
+package org.apache.syncope.client.cli.commands.question;
 
+import java.util.ArrayList;
+import java.util.List;
 import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.to.SecurityQuestionTO;
 
-public class RoleDelete extends AbstractRoleCommand {
+public class QuestionRead extends AbstractQuestionCommand {
 
-    private static final String DELETE_HELP_MESSAGE = "role --delete {ROLE-ID} {ROLE-ID} [...]";
+    private static final String READ_HELP_MESSAGE = "question --read {QUESTION-ID} {QUESTION-ID} [...]";
 
     private final Input input;
 
-    public RoleDelete(final Input input) {
+    public QuestionRead(final Input input) {
         this.input = input;
     }
 
-    public void delete() {
+    public void read() {
         if (input.getParameters().length >= 1) {
+            final List<SecurityQuestionTO> questionTOs = new ArrayList<>();
             for (final String parameter : input.getParameters()) {
                 try {
-                    roleSyncopeOperations.delete(parameter);
-                    roleResultManager.deletedMessage("role", parameter);
+                    questionTOs.add(questionSyncopeOperations.read(parameter));
                 } catch (final SyncopeClientException | WebServiceException ex) {
                     if (ex.getMessage().startsWith("NotFound")) {
-                        roleResultManager.notFoundError("Role", parameter);
+                        questionResultManager.notFoundError("Security question", parameter);
                     } else {
-                        roleResultManager.generic("Error: " + ex.getMessage());
+                        questionResultManager.generic("Error: " + ex.getMessage());
                     }
                     break;
                 } catch (final NumberFormatException ex) {
-                    roleResultManager.numberFormatException("role", parameter);
+                    questionResultManager.numberFormatException("security question", parameter);
                 }
             }
+            questionResultManager.toView(questionTOs);
         } else {
-            roleResultManager.commandOptionError(DELETE_HELP_MESSAGE);
+            questionResultManager.commandOptionError(READ_HELP_MESSAGE);
         }
     }
 

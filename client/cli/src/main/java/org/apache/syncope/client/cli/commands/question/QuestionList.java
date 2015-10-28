@@ -16,12 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.cli.commands.role;
+package org.apache.syncope.client.cli.commands.question;
 
-public abstract class AbstractRoleCommand {
+import org.apache.syncope.common.lib.SyncopeClientException;
 
-    protected final RoleSyncopeOperations roleSyncopeOperations = new RoleSyncopeOperations();
+public class QuestionList extends AbstractQuestionCommand {
 
-    protected final RoleResultManager roleResultManager = new RoleResultManager();
-
+    public void list() {
+        try {
+            questionResultManager.toView(questionSyncopeOperations.list());
+        } catch (final SyncopeClientException ex) {
+            questionResultManager.generic(ex.getMessage());
+        }
+    }
 }
